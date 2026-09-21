@@ -1,0 +1,853 @@
+{
+  "root": "/private/tmp/nanolang-record-lists-0e72-puck-focused",
+  "files": {
+    "apple-ordinary-products-after.json.gz": {
+      "source_name": "apple-ordinary-products-after.json",
+      "source_sha256": "ebc789b30c224fe4a5c93b394ceacd251c6b1e924e3d54061c192501bfd29bf7",
+      "source_bytes": 217908,
+      "stored_sha256": "c03c37714d7c1157c1e8d63399b53c74ff40ec2d7e7bbf832888122f4b1c9273"
+    },
+    "apple-ordinary.log": {
+      "source_name": "apple-ordinary.log",
+      "source_sha256": "90e27335e3292eda5d6fcbe1b352a1c127195930297c919327dec25b0e8d5470",
+      "source_bytes": 448,
+      "stored_sha256": "90e27335e3292eda5d6fcbe1b352a1c127195930297c919327dec25b0e8d5470"
+    },
+    "clang-asan.log": {
+      "source_name": "clang-asan.log",
+      "source_sha256": "3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc",
+      "source_bytes": 92,
+      "stored_sha256": "3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc"
+    },
+    "homebrew-sanitizer-products-before.json.gz": {
+      "source_name": "homebrew-sanitizer-products-before.json",
+      "source_sha256": "ebc789b30c224fe4a5c93b394ceacd251c6b1e924e3d54061c192501bfd29bf7",
+      "source_bytes": 217908,
+      "stored_sha256": "c03c37714d7c1157c1e8d63399b53c74ff40ec2d7e7bbf832888122f4b1c9273"
+    },
+    "homebrew-sanitizer-status.json": {
+      "source_name": "homebrew-sanitizer-status.json",
+      "source_sha256": "3710b7b643869598878efe09bcadec8788f53461594e170fc546b4f33fc18ee7",
+      "source_bytes": 837,
+      "stored_sha256": "3710b7b643869598878efe09bcadec8788f53461594e170fc546b4f33fc18ee7"
+    },
+    "scope.json": {
+      "source_name": "scope.json",
+      "source_sha256": "58ba43adbd790692734db5954e2b01a2eb9ae51b64dcc0fe27202a3fc489c6b8",
+      "source_bytes": 841,
+      "stored_sha256": "58ba43adbd790692734db5954e2b01a2eb9ae51b64dcc0fe27202a3fc489c6b8"
+    },
+    "homebrew-sanitizer.log": {
+      "source_name": "homebrew-sanitizer.log",
+      "source_sha256": "8fcf15fe7f7a48ce2b561235ea5cc97a1a7b5360ac4abc83ff12a3608daa5eca",
+      "source_bytes": 452,
+      "stored_sha256": "8fcf15fe7f7a48ce2b561235ea5cc97a1a7b5360ac4abc83ff12a3608daa5eca"
+    },
+    "apple-ordinary-products-before.json.gz": {
+      "source_name": "apple-ordinary-products-before.json",
+      "source_sha256": "ebc789b30c224fe4a5c93b394ceacd251c6b1e924e3d54061c192501bfd29bf7",
+      "source_bytes": 217908,
+      "stored_sha256": "c03c37714d7c1157c1e8d63399b53c74ff40ec2d7e7bbf832888122f4b1c9273"
+    },
+    "clang-asan-status.json": {
+      "source_name": "clang-asan-status.json",
+      "source_sha256": "e7de35e4dc73cbc636a36ac6d2fc874536e4bf5f7cc872cc8b65dd892e1b7912",
+      "source_bytes": 607,
+      "stored_sha256": "e7de35e4dc73cbc636a36ac6d2fc874536e4bf5f7cc872cc8b65dd892e1b7912"
+    },
+    "clang-asan-products-before.json.gz": {
+      "source_name": "clang-asan-products-before.json",
+      "source_sha256": "ebc789b30c224fe4a5c93b394ceacd251c6b1e924e3d54061c192501bfd29bf7",
+      "source_bytes": 217908,
+      "stored_sha256": "c03c37714d7c1157c1e8d63399b53c74ff40ec2d7e7bbf832888122f4b1c9273"
+    },
+    "clang-asan-products-after.json.gz": {
+      "source_name": "clang-asan-products-after.json",
+      "source_sha256": "ebc789b30c224fe4a5c93b394ceacd251c6b1e924e3d54061c192501bfd29bf7",
+      "source_bytes": 217908,
+      "stored_sha256": "c03c37714d7c1157c1e8d63399b53c74ff40ec2d7e7bbf832888122f4b1c9273"
+    },
+    "apple-ordinary-status.json": {
+      "source_name": "apple-ordinary-status.json",
+      "source_sha256": "7c8f220ab55784e72f700cd5731fa3795850e6ad0717b22b87ef7b5095bc59f3",
+      "source_bytes": 831,
+      "stored_sha256": "7c8f220ab55784e72f700cd5731fa3795850e6ad0717b22b87ef7b5095bc59f3"
+    },
+    "clang-asan-inputs-after.json.gz": {
+      "source_name": "clang-asan-inputs-after.json",
+      "source_sha256": "1361bbdfd2395a17d3820465d8224e7def08f6d4d9aef565a547675047cd86c5",
+      "source_bytes": 1305711,
+      "stored_sha256": "c5c63ab4d8ceb534f3e49f7518be9b8d4a6ad9dbeced7441bfcabdc39bd3da93"
+    },
+    "runner.json": {
+      "source_name": "runner.json",
+      "source_sha256": "6a8e0a78e1c0ca7c211a4b3b846a47a0695fa023746217ea227d90ae38b5bc9a",
+      "source_bytes": 242,
+      "stored_sha256": "6a8e0a78e1c0ca7c211a4b3b846a47a0695fa023746217ea227d90ae38b5bc9a"
+    },
+    "homebrew-sanitizer-inputs-after.json.gz": {
+      "source_name": "homebrew-sanitizer-inputs-after.json",
+      "source_sha256": "d5c6386b64654830e866237926a5e9402ca34ae8d1e7fd9046ff5c5cf644db63",
+      "source_bytes": 1306062,
+      "stored_sha256": "565b19e7e9f87b16c581a9f12e6dc42b661a61c787708e014ce2279a69aa65a7"
+    },
+    "manifest.json": {
+      "source_name": "manifest.json",
+      "source_sha256": "79a41a2e69ca65d5b311624a6558c4d7342dc3efb669fe1dc4391acb71a4876d",
+      "source_bytes": 2421,
+      "stored_sha256": "79a41a2e69ca65d5b311624a6558c4d7342dc3efb669fe1dc4391acb71a4876d"
+    },
+    "apple-ordinary-inputs-after.json.gz": {
+      "source_name": "apple-ordinary-inputs-after.json",
+      "source_sha256": "d5c6386b64654830e866237926a5e9402ca34ae8d1e7fd9046ff5c5cf644db63",
+      "source_bytes": 1306062,
+      "stored_sha256": "565b19e7e9f87b16c581a9f12e6dc42b661a61c787708e014ce2279a69aa65a7"
+    },
+    "apple-ordinary-inputs-before.json.gz": {
+      "source_name": "apple-ordinary-inputs-before.json",
+      "source_sha256": "d5c6386b64654830e866237926a5e9402ca34ae8d1e7fd9046ff5c5cf644db63",
+      "source_bytes": 1306062,
+      "stored_sha256": "565b19e7e9f87b16c581a9f12e6dc42b661a61c787708e014ce2279a69aa65a7"
+    },
+    "terminal.json": {
+      "source_name": "terminal.json",
+      "source_sha256": "0bc93f6c7d10361dccd11074982fb68ab0e9d615f17c3e002aade680f8b4388e",
+      "source_bytes": 268,
+      "stored_sha256": "0bc93f6c7d10361dccd11074982fb68ab0e9d615f17c3e002aade680f8b4388e"
+    },
+    "apple-ordinary-config.json": {
+      "source_name": "apple-ordinary-config.json",
+      "source_sha256": "7c06e2de0dd7360052c03c5c8c07198d4423e2d6e755570ae1e6a53d48cc1d8f",
+      "source_bytes": 8149,
+      "stored_sha256": "7c06e2de0dd7360052c03c5c8c07198d4423e2d6e755570ae1e6a53d48cc1d8f"
+    },
+    "homebrew-sanitizer-inputs-before.json.gz": {
+      "source_name": "homebrew-sanitizer-inputs-before.json",
+      "source_sha256": "d5c6386b64654830e866237926a5e9402ca34ae8d1e7fd9046ff5c5cf644db63",
+      "source_bytes": 1306062,
+      "stored_sha256": "565b19e7e9f87b16c581a9f12e6dc42b661a61c787708e014ce2279a69aa65a7"
+    },
+    "clang-asan-inputs-before.json.gz": {
+      "source_name": "clang-asan-inputs-before.json",
+      "source_sha256": "1361bbdfd2395a17d3820465d8224e7def08f6d4d9aef565a547675047cd86c5",
+      "source_bytes": 1305711,
+      "stored_sha256": "c5c63ab4d8ceb534f3e49f7518be9b8d4a6ad9dbeced7441bfcabdc39bd3da93"
+    },
+    "homebrew-sanitizer-products-after.json.gz": {
+      "source_name": "homebrew-sanitizer-products-after.json",
+      "source_sha256": "ebc789b30c224fe4a5c93b394ceacd251c6b1e924e3d54061c192501bfd29bf7",
+      "source_bytes": 217908,
+      "stored_sha256": "c03c37714d7c1157c1e8d63399b53c74ff40ec2d7e7bbf832888122f4b1c9273"
+    },
+    "homebrew-sanitizer-config.json": {
+      "source_name": "homebrew-sanitizer-config.json",
+      "source_sha256": "85af044133ea3cb3e4c96c024a17474a5199ffc8183875c682d22eb0a14348bf",
+      "source_bytes": 8224,
+      "stored_sha256": "85af044133ea3cb3e4c96c024a17474a5199ffc8183875c682d22eb0a14348bf"
+    }
+  },
+  "pairs": {
+    "homebrew-sanitizer-products-before.json": {
+      "before_sha256": "ebc789b30c224fe4a5c93b394ceacd251c6b1e924e3d54061c192501bfd29bf7",
+      "after_sha256": "ebc789b30c224fe4a5c93b394ceacd251c6b1e924e3d54061c192501bfd29bf7",
+      "equal": true,
+      "product_map": true
+    },
+    "apple-ordinary-products-before.json": {
+      "before_sha256": "ebc789b30c224fe4a5c93b394ceacd251c6b1e924e3d54061c192501bfd29bf7",
+      "after_sha256": "ebc789b30c224fe4a5c93b394ceacd251c6b1e924e3d54061c192501bfd29bf7",
+      "equal": true,
+      "product_map": true
+    },
+    "clang-asan-products-before.json": {
+      "before_sha256": "ebc789b30c224fe4a5c93b394ceacd251c6b1e924e3d54061c192501bfd29bf7",
+      "after_sha256": "ebc789b30c224fe4a5c93b394ceacd251c6b1e924e3d54061c192501bfd29bf7",
+      "equal": true,
+      "product_map": true
+    },
+    "apple-ordinary-inputs-before.json": {
+      "before_sha256": "d5c6386b64654830e866237926a5e9402ca34ae8d1e7fd9046ff5c5cf644db63",
+      "after_sha256": "d5c6386b64654830e866237926a5e9402ca34ae8d1e7fd9046ff5c5cf644db63",
+      "equal": true,
+      "product_map": false
+    },
+    "homebrew-sanitizer-inputs-before.json": {
+      "before_sha256": "d5c6386b64654830e866237926a5e9402ca34ae8d1e7fd9046ff5c5cf644db63",
+      "after_sha256": "d5c6386b64654830e866237926a5e9402ca34ae8d1e7fd9046ff5c5cf644db63",
+      "equal": true,
+      "product_map": false
+    },
+    "clang-asan-inputs-before.json": {
+      "before_sha256": "1361bbdfd2395a17d3820465d8224e7def08f6d4d9aef565a547675047cd86c5",
+      "after_sha256": "1361bbdfd2395a17d3820465d8224e7def08f6d4d9aef565a547675047cd86c5",
+      "equal": true,
+      "product_map": false
+    }
+  },
+  "retained_helper_files": {
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0001-coroutine-error-build-status.json": {
+      "sha256": "e1ad90433ef1e1ddaae7245d2792f5a14636784ecddd9a5889fd64aa8d75720e",
+      "bytes": 141
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/array-identity": {
+      "sha256": "d47685922560c46d95e1bf557ac8ed2505c8529471fa9215447b7ca94520eebc",
+      "bytes": 12444384
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0006-coroutine-error-allocations-after-products.json": {
+      "sha256": "99a4b3457b3463dae2c40de89afb6c5628b56f449458f89b2338f4c708889cfb",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0010-array-allocations-before-products.json": {
+      "sha256": "99a4b3457b3463dae2c40de89afb6c5628b56f449458f89b2338f4c708889cfb",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0006-coroutine-error-allocations-command.json": {
+      "sha256": "917ea14b5cbd96a5280c25ed6009f7e683de79ce14cfbd83914a3b3e8fda1527",
+      "bytes": 521
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0004-owned-build-status.json": {
+      "sha256": "a90ce4494407454780b8947787f11b60d112e744ba2eef7f279df443fe591939",
+      "bytes": 148
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0005-parsed-build-after-products.json": {
+      "sha256": "99a4b3457b3463dae2c40de89afb6c5628b56f449458f89b2338f4c708889cfb",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0003-array-allocation-build-after-products.json": {
+      "sha256": "b0519083c782c5dd0da2ee10b36e60842bdf689ab9a76b47cea1af4902a7e0bd",
+      "bytes": 1966
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/owned-lifetimes": {
+      "sha256": "8484e1c17bda23441b42febd65b815532df213057b39fe6f1d070686631b7925",
+      "bytes": 12637568
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0010-array-allocations-after-products.json": {
+      "sha256": "99a4b3457b3463dae2c40de89afb6c5628b56f449458f89b2338f4c708889cfb",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/array-allocations": {
+      "sha256": "f425cc91e8c35c862839a45a155439c5a5477f5371abc9567ec8f2760aebecb6",
+      "bytes": 13129536
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0008-checked-callable-hook.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0006-coroutine-error-allocations.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0001-coroutine-error-build-before-products.json": {
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0010-array-allocations.stdout": {
+      "sha256": "9075f5e4469da84cbe39c267017f20d86fe983bb95f8cbfd530039781f945b7b",
+      "bytes": 538
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0002-array-identity-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0005-parsed-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0008-checked-callable-hook-after-products.json": {
+      "sha256": "99a4b3457b3463dae2c40de89afb6c5628b56f449458f89b2338f4c708889cfb",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0010-array-allocations.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0002-array-identity-build-command.json": {
+      "sha256": "dd1ee43a0380decae03eb54ac52a5836b59cf9fee718a6bf248e5963845810fe",
+      "bytes": 8886
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0002-array-identity-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0005-parsed-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0010-array-allocations-status.json": {
+      "sha256": "4aaeef4ca4d5bb54e51e9524f3bfc7e0009fdcd68a00d749b69583a7e3f31caf",
+      "bytes": 148
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0005-parsed-build-command.json": {
+      "sha256": "c8372615353afaa9fd5661c585654cb69fc125eed4ed23e72f9ed7597bc57f5b",
+      "bytes": 9020
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0008-checked-callable-hook-before-products.json": {
+      "sha256": "99a4b3457b3463dae2c40de89afb6c5628b56f449458f89b2338f4c708889cfb",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0007-checked-lifetimes-command.json": {
+      "sha256": "72c6bac7e37ae14e778dca3e7c7edb767449bc436258139c8024a8c6c160f794",
+      "bytes": 520
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0006-coroutine-error-allocations.stdout": {
+      "sha256": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20",
+      "bytes": 71
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0008-checked-callable-hook.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0004-owned-build-command.json": {
+      "sha256": "0cb6139a387ed67b3fa0c367def295d8a644b4194ab17d1adecc0ee733f440f8",
+      "bytes": 8986
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0005-parsed-build-status.json": {
+      "sha256": "9c311d00b51a9f703ca367503a9fcb487b1fc2ec2296300e3d696d52abbefc23",
+      "bytes": 141
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/provider-inputs-after.json": {
+      "sha256": "09d9a9ad9759cd732e074142d8544efe66e7c0d5d1571f609037c7efa6bc7774",
+      "bytes": 14603
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0001-coroutine-error-build-command.json": {
+      "sha256": "aa48ceb167c2041f462ef40887c10bafcca26f9cebe2ad0346f10901935592e4",
+      "bytes": 967
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0007-checked-lifetimes-status.json": {
+      "sha256": "207a1c985975732e34cfd3a39ed77ea606943ee2f7ac0387bd63f20a10b6e01a",
+      "bytes": 148
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0002-array-identity-build-status.json": {
+      "sha256": "71a78143a6038147c7896a88f16a7e38a61f3c024aff0f9afade45ff0fb655da",
+      "bytes": 141
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0008-checked-callable-hook-command.json": {
+      "sha256": "10579237b9fd8d1b3d523ed8e51629d22947ca17a140bb3cb2c6acf746f118a1",
+      "bytes": 537
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0009-array-identity-before-products.json": {
+      "sha256": "99a4b3457b3463dae2c40de89afb6c5628b56f449458f89b2338f4c708889cfb",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0002-array-identity-build-after-products.json": {
+      "sha256": "34033d8d37d07173f411b6b6bed70cde0b37560e4c26e5110b5cb3a9fc60f9d6",
+      "bytes": 1302
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0007-checked-lifetimes-before-products.json": {
+      "sha256": "99a4b3457b3463dae2c40de89afb6c5628b56f449458f89b2338f4c708889cfb",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0006-coroutine-error-allocations-status.json": {
+      "sha256": "ddafca44cac3aa4a187319c6772eeca039d36bb15c481a95066780ea0700ce6c",
+      "bytes": 148
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0001-coroutine-error-build-after-products.json": {
+      "sha256": "6477bc0c86d179aa990b072461a5e6a228b457c4dde73816af4d8bcdbb8d2f4e",
+      "bytes": 656
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0003-array-allocation-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0007-checked-lifetimes.stderr": {
+      "sha256": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a",
+      "bytes": 48
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0005-parsed-build-before-products.json": {
+      "sha256": "22f4fc9d26ab301a038576ea21519550b9887c746c78205ba94dc8480649cfb6",
+      "bytes": 2618
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/coroutine-errors": {
+      "sha256": "65bb5ad08d745dc988c72ef3a018dd919a341177b3ade8513b267c4b48fb20b4",
+      "bytes": 94464
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0009-array-identity.stdout": {
+      "sha256": "89e2fe079076c71b52ee0dd2707654c54c9287776ffcc267fcf7bc4c66b461cd",
+      "bytes": 80
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0004-owned-build-before-products.json": {
+      "sha256": "b0519083c782c5dd0da2ee10b36e60842bdf689ab9a76b47cea1af4902a7e0bd",
+      "bytes": 1966
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0007-checked-lifetimes-after-products.json": {
+      "sha256": "99a4b3457b3463dae2c40de89afb6c5628b56f449458f89b2338f4c708889cfb",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0009-array-identity-after-products.json": {
+      "sha256": "99a4b3457b3463dae2c40de89afb6c5628b56f449458f89b2338f4c708889cfb",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0009-array-identity-status.json": {
+      "sha256": "c2ec1fd4dc2d73d4897a8beabde6d26be2e23b0805c4fed692afb7960c8c8ca9",
+      "bytes": 148
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0003-array-allocation-build-command.json": {
+      "sha256": "9633eb5d5e541836c8e41de990874772151a44462b0e44bfaa7b1c40904ea029",
+      "bytes": 8929
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0010-array-allocations-command.json": {
+      "sha256": "00d7b48f34575269bab53066dd991a666caeb31d2aaaa50be76f2efac067b2ae",
+      "bytes": 522
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0004-owned-build-after-products.json": {
+      "sha256": "22f4fc9d26ab301a038576ea21519550b9887c746c78205ba94dc8480649cfb6",
+      "bytes": 2618
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0004-owned-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0009-array-identity-command.json": {
+      "sha256": "e0e005692e41618d6178df89ba2d4a901290c22ae8feb27d6c5422ba3fab77cd",
+      "bytes": 519
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0003-array-allocation-build-status.json": {
+      "sha256": "d40e9a2d4ebd79bdc75e57f9e1d14d7168d874a42be14aa36c1d37cbf8b70133",
+      "bytes": 148
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0006-coroutine-error-allocations-before-products.json": {
+      "sha256": "99a4b3457b3463dae2c40de89afb6c5628b56f449458f89b2338f4c708889cfb",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/parsed-lifetimes": {
+      "sha256": "dca0c4fca022ffcf1f831996c7186ec45caddbd8e0bb7ecfc091ba090416bcdd",
+      "bytes": 11611136
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0001-coroutine-error-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0004-owned-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0001-coroutine-error-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/selected-config.json": {
+      "sha256": "537ed8d21170e877daf63e90fe929dbaf6c0904ad57ec8cd463d8af7c1b76f85",
+      "bytes": 8279
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/provider-inputs-before.json": {
+      "sha256": "09d9a9ad9759cd732e074142d8544efe66e7c0d5d1571f609037c7efa6bc7774",
+      "bytes": 14603
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0008-checked-callable-hook-status.json": {
+      "sha256": "55327328f2e06e92e1532fe6eb5f53129b831a97accead4c2a78dea7e9f5856e",
+      "bytes": 148
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0007-checked-lifetimes.stdout": {
+      "sha256": "851ece21235cfa86de6c4836f038692cf09da7b658e6be8029b2a12dd7661e51",
+      "bytes": 45
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0009-array-identity.stderr": {
+      "sha256": "688fb714ac30b8c20a5ab8d1e426ce43b91f2210eb6d8133a8b36a34ea68ac2b",
+      "bytes": 550
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0003-array-allocation-build-before-products.json": {
+      "sha256": "34033d8d37d07173f411b6b6bed70cde0b37560e4c26e5110b5cb3a9fc60f9d6",
+      "bytes": 1302
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0003-array-allocation-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/0002-array-identity-build-before-products.json": {
+      "sha256": "6477bc0c86d179aa990b072461a5e6a228b457c4dde73816af4d8bcdbb8d2f4e",
+      "bytes": 656
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/owned-lifetimes.dSYM/Contents/Info.plist": {
+      "sha256": "731914828fe11618e59b9de228262c262db5341394662d135ca07ad66195a634",
+      "bytes": 644
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/owned-lifetimes.dSYM/Contents/Resources/Relocations/aarch64/owned-lifetimes.yml": {
+      "sha256": "54a048c77b335b974face8861215aa5d4d26924460950ae4391195f473ef0d56",
+      "bytes": 200
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/owned-lifetimes.dSYM/Contents/Resources/DWARF/owned-lifetimes": {
+      "sha256": "1e24681f954a68a089d8c44165094fa2ac291107b5bfeb53d708e2c2aaa673ca",
+      "bytes": 3361903
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/parsed-lifetimes.dSYM/Contents/Info.plist": {
+      "sha256": "276e08ac0146fbbc0978be869fad63c4ce7b0619571ec176ce0a38ebc758178b",
+      "bytes": 645
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/parsed-lifetimes.dSYM/Contents/Resources/Relocations/aarch64/parsed-lifetimes.yml": {
+      "sha256": "8bcb1efc07f26807bf4a875558838d6b6bfe8c68e0fe246ef74d64b07edce07b",
+      "bytes": 201
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/parsed-lifetimes.dSYM/Contents/Resources/DWARF/parsed-lifetimes": {
+      "sha256": "2accfb7aff170fff918dd5db9380c5ce46573d4baef35739dcc7c213b6aa05db",
+      "bytes": 3146355
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/coroutine-errors.dSYM/Contents/Info.plist": {
+      "sha256": "465ae21812d41029355f926ac40eb95150e745724cb8a3cdf2a4442baca0d3dd",
+      "bytes": 645
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/coroutine-errors.dSYM/Contents/Resources/Relocations/aarch64/coroutine-errors.yml": {
+      "sha256": "6f975d9d7b7993307f2d60617c12332e91f8821ba9f2c0a41bed62267ffe9df7",
+      "bytes": 201
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/coroutine-errors.dSYM/Contents/Resources/DWARF/coroutine-errors": {
+      "sha256": "24f21f0cfd3015866be060245899249cd283c049dfaf2c7d3895e4d2985fa734",
+      "bytes": 40849
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/array-allocations.dSYM/Contents/Info.plist": {
+      "sha256": "f5734afeb6bd7c51b33b1ddf5cf155dd0002e4cdb4c5cababc6c9a0d10ea8ef3",
+      "bytes": 646
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/array-allocations.dSYM/Contents/Resources/Relocations/aarch64/array-allocations.yml": {
+      "sha256": "4a3b69530691b7b23f835bb50624c174024a31acca11259124ca14a5f99d963e",
+      "bytes": 202
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/array-allocations.dSYM/Contents/Resources/DWARF/array-allocations": {
+      "sha256": "c1f01253e79be9a0d0d6fe1af012b28e9e0a1143a832886c3d8d1665d06c7de5",
+      "bytes": 3479748
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/array-identity.dSYM/Contents/Info.plist": {
+      "sha256": "fbefd771a73c09a355feb5d7bf3d290ff40719a70e191e811316c88e4fa2de3a",
+      "bytes": 643
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/array-identity.dSYM/Contents/Resources/Relocations/aarch64/array-identity.yml": {
+      "sha256": "823ecc92ef6b9b819afda2c96915d6d7530e54b3c47e8adde33f6091810fc55f",
+      "bytes": 199
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_/array-identity.dSYM/Contents/Resources/DWARF/array-identity": {
+      "sha256": "54ff81028873428556bd52697fd46090b96d4aca4cd8b3f76425daf35ff5eefb",
+      "bytes": 3340116
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0001-coroutine-error-build-status.json": {
+      "sha256": "987693fc1c20b85141a5d2b34355335c5258bb94898cd7aa24f5b6da270cdcfe",
+      "bytes": 141
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/array-identity": {
+      "sha256": "3be77614abd2e03fdd265b67ae44c6d9ef0e3a57b86e1083e23fae1c07932210",
+      "bytes": 10021472
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0006-coroutine-error-allocations-after-products.json": {
+      "sha256": "e75752a7f2a40b43bedbc644c8bcb4fe83a92fb9c3e1f212b614b3716574195a",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0010-array-allocations-before-products.json": {
+      "sha256": "e75752a7f2a40b43bedbc644c8bcb4fe83a92fb9c3e1f212b614b3716574195a",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0006-coroutine-error-allocations-command.json": {
+      "sha256": "117413e51cbb94d1e28df3e3e547f803880d8d0c2f348e49a8b8b0e4de54834d",
+      "bytes": 513
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0004-owned-build-status.json": {
+      "sha256": "b357cc1480f5ae78a1fe281fdd5faef4b4d7d963a9e477f6e36de14e31c44eee",
+      "bytes": 149
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0005-parsed-build-after-products.json": {
+      "sha256": "e75752a7f2a40b43bedbc644c8bcb4fe83a92fb9c3e1f212b614b3716574195a",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0003-array-allocation-build-after-products.json": {
+      "sha256": "a1576a47c047279a4cb17764d1e6a33715a02bfb80eaba95b1ec7b47146734d7",
+      "bytes": 1966
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/owned-lifetimes": {
+      "sha256": "a32a582c96eee3ac33a186995cb21f6267a647b3dc1366238af3f4b13777e1c2",
+      "bytes": 10132912
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0010-array-allocations-after-products.json": {
+      "sha256": "e75752a7f2a40b43bedbc644c8bcb4fe83a92fb9c3e1f212b614b3716574195a",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/array-allocations": {
+      "sha256": "a690406626ee01d5837b3422c082fd586d3f3e242b00f217bea7b6db4c7e1be9",
+      "bytes": 10042016
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0008-checked-callable-hook.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0006-coroutine-error-allocations.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0001-coroutine-error-build-before-products.json": {
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0010-array-allocations.stdout": {
+      "sha256": "9075f5e4469da84cbe39c267017f20d86fe983bb95f8cbfd530039781f945b7b",
+      "bytes": 538
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0002-array-identity-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0005-parsed-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0008-checked-callable-hook-after-products.json": {
+      "sha256": "e75752a7f2a40b43bedbc644c8bcb4fe83a92fb9c3e1f212b614b3716574195a",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0010-array-allocations.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0002-array-identity-build-command.json": {
+      "sha256": "0e1832de941301d69af015a59b979edd8887cee712bf8edf135a822c2e227370",
+      "bytes": 8793
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0002-array-identity-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0005-parsed-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0010-array-allocations-status.json": {
+      "sha256": "c6f574111b1448572c1020cb1f9a23d55ee7c23758a69f246ebf02fd2f5e390c",
+      "bytes": 149
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0005-parsed-build-command.json": {
+      "sha256": "202e0e68aee1a9e125200489e10887f02d892906a73b83d9ee5f099c7bab2626",
+      "bytes": 8927
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0008-checked-callable-hook-before-products.json": {
+      "sha256": "e75752a7f2a40b43bedbc644c8bcb4fe83a92fb9c3e1f212b614b3716574195a",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0007-checked-lifetimes-command.json": {
+      "sha256": "2a6c3d8e5559e3dd4aaaae588f1eced3bbf091a2c78e6779f6a6a7ea3a82293b",
+      "bytes": 512
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0006-coroutine-error-allocations.stdout": {
+      "sha256": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20",
+      "bytes": 71
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0008-checked-callable-hook.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0004-owned-build-command.json": {
+      "sha256": "ab5b8611365422c7ddc25621363e9dcaa911d45b9f5c760874d3cb7ffb23ba0a",
+      "bytes": 8893
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0005-parsed-build-status.json": {
+      "sha256": "e911c2f2dbc4e54e342ab1e9edc66bd650f5afcf71c5a08d1c54d82f1c04ca57",
+      "bytes": 149
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/provider-inputs-after.json": {
+      "sha256": "09d9a9ad9759cd732e074142d8544efe66e7c0d5d1571f609037c7efa6bc7774",
+      "bytes": 14603
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0001-coroutine-error-build-command.json": {
+      "sha256": "9e85868294e104f6b6d7dcc8729c4c4db21ae043f270046e977e71b0c8dee038",
+      "bytes": 874
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0007-checked-lifetimes-status.json": {
+      "sha256": "3c9f848f8d9c6916e2bc86dae8a598a15cd04981ca3bf9db7c68d66736440645",
+      "bytes": 148
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0002-array-identity-build-status.json": {
+      "sha256": "af11237257a23d92e70f10d62daf602d0d769c3bf29b3d7961b0993c1d89c0f9",
+      "bytes": 149
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0008-checked-callable-hook-command.json": {
+      "sha256": "c50e8302f632f3c5ff515b80399a0e35cc560b6caa27fd157c86995739e6bbc2",
+      "bytes": 529
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0009-array-identity-before-products.json": {
+      "sha256": "e75752a7f2a40b43bedbc644c8bcb4fe83a92fb9c3e1f212b614b3716574195a",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0002-array-identity-build-after-products.json": {
+      "sha256": "9849307f2ef2165b36482ac7a6525f62aa28c85bc1f056160fa61a52f74f64cc",
+      "bytes": 1302
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0007-checked-lifetimes-before-products.json": {
+      "sha256": "e75752a7f2a40b43bedbc644c8bcb4fe83a92fb9c3e1f212b614b3716574195a",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0006-coroutine-error-allocations-status.json": {
+      "sha256": "184d80f22ff6a62a12181ea61309884ca11f1327f26d79fa64f9fe7317afa1f3",
+      "bytes": 148
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0001-coroutine-error-build-after-products.json": {
+      "sha256": "0f90960bd1be081d7bcdb4359338af9049512e7f91d4507822a1583961dffa96",
+      "bytes": 656
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0003-array-allocation-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0007-checked-lifetimes.stderr": {
+      "sha256": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a",
+      "bytes": 48
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0005-parsed-build-before-products.json": {
+      "sha256": "bacc3d9f6481d72a603210ba045986687968de8eeae3b35adc2499b6f63687e9",
+      "bytes": 2618
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/coroutine-errors": {
+      "sha256": "f4cc9bb3f0f2a36980e8b9d4af48d736bec03c45ffbb46d2b17ebdf85bc3a413",
+      "bytes": 37440
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0009-array-identity.stdout": {
+      "sha256": "89e2fe079076c71b52ee0dd2707654c54c9287776ffcc267fcf7bc4c66b461cd",
+      "bytes": 80
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0004-owned-build-before-products.json": {
+      "sha256": "a1576a47c047279a4cb17764d1e6a33715a02bfb80eaba95b1ec7b47146734d7",
+      "bytes": 1966
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0007-checked-lifetimes-after-products.json": {
+      "sha256": "e75752a7f2a40b43bedbc644c8bcb4fe83a92fb9c3e1f212b614b3716574195a",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0009-array-identity-after-products.json": {
+      "sha256": "e75752a7f2a40b43bedbc644c8bcb4fe83a92fb9c3e1f212b614b3716574195a",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0009-array-identity-status.json": {
+      "sha256": "b94837dfeb64bf2638c61601bc68d96689eeeb5a3c646e7f5274c7f4adf48916",
+      "bytes": 148
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0003-array-allocation-build-command.json": {
+      "sha256": "e02e724311958fe567ab1b31d21d697bd62ebb8ac863cfccb23a03644c1b3d38",
+      "bytes": 8836
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0010-array-allocations-command.json": {
+      "sha256": "d4d19f4b04ecb09fa9d4053d6ce6c992ee6cdad0526a169fa8cba20bec7b0212",
+      "bytes": 514
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0004-owned-build-after-products.json": {
+      "sha256": "bacc3d9f6481d72a603210ba045986687968de8eeae3b35adc2499b6f63687e9",
+      "bytes": 2618
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0004-owned-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0009-array-identity-command.json": {
+      "sha256": "fdbcabfe5b5fcf65af62937a714330eb01d87cf8a68a493e255a32d826ed8334",
+      "bytes": 511
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0003-array-allocation-build-status.json": {
+      "sha256": "cb206aeaff5638423f5c7e8d2acb93c92b47bf5d15950df307599b7f22ee729e",
+      "bytes": 149
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0006-coroutine-error-allocations-before-products.json": {
+      "sha256": "e75752a7f2a40b43bedbc644c8bcb4fe83a92fb9c3e1f212b614b3716574195a",
+      "bytes": 3276
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/parsed-lifetimes": {
+      "sha256": "6169b82559e5e6693baf658e872442d7d293ea9404fa7044b5514081751ba92c",
+      "bytes": 10025840
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0001-coroutine-error-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0004-owned-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0001-coroutine-error-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/selected-config.json": {
+      "sha256": "da13026a87a78e0c34668a2981af57fea80e9caef40370a5fcec3a9556745420",
+      "bytes": 8194
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/provider-inputs-before.json": {
+      "sha256": "09d9a9ad9759cd732e074142d8544efe66e7c0d5d1571f609037c7efa6bc7774",
+      "bytes": 14603
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0008-checked-callable-hook-status.json": {
+      "sha256": "05523a4a925d45452f759e1d9d0b60a1fa7a8f54b8f5650ff16745bf924994ed",
+      "bytes": 148
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0007-checked-lifetimes.stdout": {
+      "sha256": "851ece21235cfa86de6c4836f038692cf09da7b658e6be8029b2a12dd7661e51",
+      "bytes": 45
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0009-array-identity.stderr": {
+      "sha256": "688fb714ac30b8c20a5ab8d1e426ce43b91f2210eb6d8133a8b36a34ea68ac2b",
+      "bytes": 550
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0003-array-allocation-build-before-products.json": {
+      "sha256": "9849307f2ef2165b36482ac7a6525f62aa28c85bc1f056160fa61a52f74f64cc",
+      "bytes": 1302
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0003-array-allocation-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/0002-array-identity-build-before-products.json": {
+      "sha256": "0f90960bd1be081d7bcdb4359338af9049512e7f91d4507822a1583961dffa96",
+      "bytes": 656
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/owned-lifetimes.dSYM/Contents/Info.plist": {
+      "sha256": "731914828fe11618e59b9de228262c262db5341394662d135ca07ad66195a634",
+      "bytes": 644
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/owned-lifetimes.dSYM/Contents/Resources/Relocations/aarch64/owned-lifetimes.yml": {
+      "sha256": "2a3045c4926c2f383751b83ce4cfaf442112d971a2fe827595c86a406adf5280",
+      "bytes": 196
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/owned-lifetimes.dSYM/Contents/Resources/DWARF/owned-lifetimes": {
+      "sha256": "2e340ecc0c895f286b29ae6a6b545980eefd68ac88baa9b4d4833afe22924789",
+      "bytes": 2525852
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/parsed-lifetimes.dSYM/Contents/Info.plist": {
+      "sha256": "276e08ac0146fbbc0978be869fad63c4ce7b0619571ec176ce0a38ebc758178b",
+      "bytes": 645
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/parsed-lifetimes.dSYM/Contents/Resources/Relocations/aarch64/parsed-lifetimes.yml": {
+      "sha256": "db50e2d3d925b6f01a31b09863b20f4ec41a2335f9bf1d55ba350b99002c8283",
+      "bytes": 197
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/parsed-lifetimes.dSYM/Contents/Resources/DWARF/parsed-lifetimes": {
+      "sha256": "6bf8c1f3f8ec09bd4e6a621f89534fbd4194bfcdd01fbfd8edc5db54c4e41c02",
+      "bytes": 2550188
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/coroutine-errors.dSYM/Contents/Info.plist": {
+      "sha256": "465ae21812d41029355f926ac40eb95150e745724cb8a3cdf2a4442baca0d3dd",
+      "bytes": 645
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/coroutine-errors.dSYM/Contents/Resources/Relocations/aarch64/coroutine-errors.yml": {
+      "sha256": "199e03d42b13ded8cbf6c88cdbd2a22159f7f7e8ffbbd34039830661393db6ab",
+      "bytes": 197
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/coroutine-errors.dSYM/Contents/Resources/DWARF/coroutine-errors": {
+      "sha256": "352af2b2547ecea72c2afd77a87ef0d975f4e2541ea4a8905780bcfa127e8ccb",
+      "bytes": 21448
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/array-allocations.dSYM/Contents/Info.plist": {
+      "sha256": "f5734afeb6bd7c51b33b1ddf5cf155dd0002e4cdb4c5cababc6c9a0d10ea8ef3",
+      "bytes": 646
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/array-allocations.dSYM/Contents/Resources/Relocations/aarch64/array-allocations.yml": {
+      "sha256": "cf7b7e1b6aa6dc188be09412fb87b34bdc089b4727703789ec9c6c13fbf90dd7",
+      "bytes": 198
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/array-allocations.dSYM/Contents/Resources/DWARF/array-allocations": {
+      "sha256": "1f233cd60b63a690ec9fd3e62fae7fa1ccc8d9da96ab80086567cfd7344d202b",
+      "bytes": 2491332
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/array-identity.dSYM/Contents/Info.plist": {
+      "sha256": "fbefd771a73c09a355feb5d7bf3d290ff40719a70e191e811316c88e4fa2de3a",
+      "bytes": 643
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/array-identity.dSYM/Contents/Resources/Relocations/aarch64/array-identity.yml": {
+      "sha256": "bdf5e2e8b03bec9478edd01b4fa2c3c71785422a44dd59a9b2b2429a3f74214e",
+      "bytes": 195
+    },
+    "/private/tmp/nanolang-record-lists-0e72-puck-focused/apple-ordinary/nano-record-lists-zb1j3w0c/array-identity.dSYM/Contents/Resources/DWARF/array-identity": {
+      "sha256": "d7ee98ec9ff82fade21c0fac3ab4157e90889d3b8e485e28cd6c80088b6e7401",
+      "bytes": 2530084
+    }
+  }
+}

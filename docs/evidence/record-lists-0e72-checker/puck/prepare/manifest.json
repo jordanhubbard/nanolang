@@ -1,0 +1,172 @@
+{
+  "head": "0e72a33a6c4dcee95c08b70f0a658433775b4da9",
+  "host": "puck",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "scope": "fresh Make build/bootstrap and ordinary provider preparation only; no qualification implied; named tools and phase endpoint products retained",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/usr/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.04036845799999966,
+      "log": {
+        "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+        "bytes": 200,
+        "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.07119558399999981,
+      "log": {
+        "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+        "bytes": 222,
+        "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.020754499999999787,
+      "log": {
+        "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+        "bytes": 222,
+        "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/usr/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.12780712499999947,
+      "log": {
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+        "bytes": 263,
+        "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "build",
+      "argv": [
+        "make",
+        "-j2",
+        "build",
+        "CC=/usr/bin/clang",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS="
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 93.3044235,
+      "log": {
+        "sha256": "4c1ea0c5b2699deda4784a300918e1e9b6455b941302eb472a91c52498b99ddb",
+        "bytes": 54555,
+        "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/4c1ea0c5b2699deda4784a300918e1e9b6455b941302eb472a91c52498b99ddb"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "bootstrap",
+      "argv": [
+        "make",
+        "-j2",
+        "bootstrap",
+        "CC=/usr/bin/clang",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS="
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 295.589776125,
+      "log": {
+        "sha256": "20f97df1175d62d62573620e301a2a3dff4aef11cf3ec85eafb3c8e0bb009960",
+        "bytes": 36569,
+        "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/20f97df1175d62d62573620e301a2a3dff4aef11cf3ec85eafb3c8e0bb009960"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "provider-prepare",
+      "argv": [
+        "make",
+        "-f",
+        "/private/tmp/nanolang-record-lists-0e72-puck-prepare/prepare.mk",
+        "-j2",
+        "list-prepare",
+        "CC=/usr/bin/clang",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS="
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.9497091250000267,
+      "log": {
+        "sha256": "88b3a597424b844d2176233a3cd39ec041859dea5f8193f0827ed6b80a6e0c2e",
+        "bytes": 12887,
+        "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/88b3a597424b844d2176233a3cd39ec041859dea5f8193f0827ed6b80a6e0c2e"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}
