@@ -14203,3 +14203,14 @@ by the unchanged origin query. I correct exact facts, not eligibility/assertions
 MAC creation again failed at occupied unmanaged tunnel port34113; this entry
 retains the discovery until ledger access is restored. Corrected gates require a
 new frozen pin; neither original terminal is relabeled.
+
+My fresh29e74 emission checks pass on both hosts:2268 checks and98 actual
+allocation positions in both failure modes with recovery. The unchanged corpus
+captures all93 retired operations,73 products and404 runs. Both lifecycle
+controls pass37 checks. Linux then stops compiling replay0005 because its alias
+helper is unused; Darwin stops compiling product0000 because its embedded
+canonical binary64/conversion helpers are unused. Earlier Linux products0000–0004
+passed. I preserve these strict compiler terminals and add explicit function
+address references in the startup/replay functions. No helper is evaluated and
+no warning is suppressed; original assertions, generated arithmetic and strict
+flags remain unchanged. Corrected products require fresh compilation.

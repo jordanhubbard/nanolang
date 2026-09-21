@@ -408,6 +408,7 @@ NvmArrayEligibilityResult nvm2c_record_array_private(const NvmModule *module,
         rg_write(&b,"b%u:;nrg_return(p);return;}\n",fn->signature.code_length);
     }
     rg_write(&b,"NrgStatus nrg_generated_create(NrgInstance **out){\n"
+        "(void)&nano_rt_f64_add;(void)&nano_rt_f64_sub;(void)&nano_rt_f64_mul;(void)&nano_rt_f64_div;(void)&rg_float;(void)&rg_bits;\n"
         "if(program.abi!=1||program.value_size!=sizeof(NmsValue)||program.value_tag_offset!=offsetof(NmsValue,tag)||program.frame_limit!=1024||"
         "program.function_count!=%u||program.entry!=%u||program.initializer!=%u||program.global_count!=%u||program.has_main!=%u||program.literal_count!=%u||program.record_count!=%u||program.field_count!=%u||"
         "program.functions!=functions||program.literals!=literals||program.records!=records||program.field_starts!=starts||program.fields!=fields)return NRG_STATE;\n",

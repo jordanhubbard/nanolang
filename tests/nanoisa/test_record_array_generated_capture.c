@@ -75,7 +75,7 @@ static const char replay_prefix[]=
     "if(identities[i][1]==actual)return 0;}if(identity_count==4096)return 0;"
     "identities[identity_count][0]=expected;identities[identity_count++][1]=actual;return 1;}\n"
     "#define CHECK(x) do{checks++;if(!(x))return (int)checks;}while(0)\n"
-    "static int exercise(void){NrgInstance *p=(void *)(uintptr_t)1;"
+    "static int exercise(void){(void)&identity;NrgInstance *p=(void *)(uintptr_t)1;"
     "CHECK(nrg_generated_create(&p)==NRG_OK&&p!=(void *)(uintptr_t)1);"
     "NrgStats initial;CHECK(nrg_stats(p,&initial));\n";
 static NvmArrayEligibilityResult capture_create(const NvmModule *m,VmRecordArrayPrivate **out) {
