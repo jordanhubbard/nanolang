@@ -14361,3 +14361,15 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   bootstrap and installed qualification. Separately, my first Linux setup stopped
   before building because git archive's0664 modes differed from declared0644;
   a fresh tree explicitly applies the declared Git modes and retains that map.
+
+- [ ] I replace my unresolved optional loader-symbol dependency with explicit
+  owning-loader callback registration. Both ed3db and6c352 Darwin Stage1 links
+  failed before SDK tests; read-only nm reports weak external references in both
+  module_build_dir.o and combined compiler_support.o, so changing the declaration
+  alone did not establish the required final-link behavior. I retain both failures.
+- [ ] I supply canonical installed runtime headers to metadata-backed provider
+  compilation outside the source checkout. Linux ed3db completed clean install
+  and reinstall, then passed three SDK methods; its readonly/source-hidden C-seed
+  program failed at std_json/json.c because trusted relative -Isrc did not locate
+  nanolang.h. I retain the actual command and output sentinel. I require a generic
+  checked SDK include contribution, not JSON-specific flags or a source-tree aid.

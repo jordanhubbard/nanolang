@@ -269,3 +269,39 @@ process-group cleanup and retained first terminal. The complete source File
 companion/parser/schema/refusal matrix remains required independently after SDK
 qualification; no File source execution or release completion follows from this
 fixture preparation.
+
+## Observed combined qualification corrections
+
+I retain the ed3db Linux clean-install/bootstrap and reinstall success separately
+from installed-program acceptance. The first readonly program failed while
+building JSON: its metadata's trusted relative `-Isrc` was relative to the outside
+working directory. Both Darwin bootstrap attempts stopped at a weak undefined
+loader shutdown reference. No complete installed acceptance has passed.
+
+Before further qualification I propose two bounded source corrections:
+
+1. I remove the SDK runtime's direct optional reference to `ffi_loader_shutdown`.
+   My runtime accepts an explicit process-lifetime callback from its owning FFI
+   loader, which already depends on module_build_dir. Both explicit init and lazy
+   open register before loading an image. Repeated registration of the same
+   function is idempotent; a different nonnull callback is refused before loader
+   effects. Normal loader serialization and process-exit lifetime preconditions
+   remain. At owning-process cache shutdown I call the registered function, then
+   remove owned work. Compiler-only provider closures leave it null and need no
+   loader symbol. I preserve metadata cleanup and retained-image policies.
+2. I contribute the verified installed root's canonical `src` directory to the
+   actual provider include path, through the shared metadata/include collection,
+   so dependency capture and compilation consume the same path. I append it after
+   existing explicit include directories, preserving their precedence and all
+   trusted cflags byte fragments. I do not reinterpret arbitrary `-I` fragments.
+   Source-mode behavior stays unchanged; an explicitly invalid SDK root refuses
+   before provider execution. Checked allocation/path failures propagate through
+   metadata preparation. Installed and user providers share the same verified
+   runtime header root while retaining their declaring-directory inputs.
+
+I require fresh bootstrap for the changed runtime/provider closure, the full
+original source-hidden/readonly/spaced-prefix and three-producer corpus, and the
+full File provider/shadow corpus. Focused controls cover callback absence,
+idempotence/conflict and shutdown ordering, plus canonical installed header argv
+and preserved explicit include precedence. These changes confer no File service
+execution or source lowering authority.
