@@ -4583,6 +4583,7 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
 }
 
 shadow gen_c_program_with_modules {
+    set native_list_keys_ready false
     let source: string = (+ "from \"modules/std/fs.nano\" import walkdir\nf" "n helper() -> int { return 0 }")
     let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
@@ -4590,6 +4591,8 @@ shadow gen_c_program_with_modules {
     assert (str_contains code "Module forward declarations")
     assert (str_contains code "int main(")
     assert (str_contains code "nl_main")
+    assert native_list_keys_ready
+    assert (== (array_length native_list_keys) 0)
 }
 
 shadow gen_c_program {
@@ -4606,6 +4609,36 @@ shadow gen_c_program {
 
 # I reset this emission worklist for each complete parser product.
 let mut native_list_keys: array<string> = []
+let mut native_list_keys_ready: bool = false
+
+# I initialize this private worklist explicitly; complex globals are not C literals.
+fn native_list_reset() -> void {
+    set native_list_keys []
+    set native_list_keys_ready true
+}
+shadow native_list_reset {
+    (native_list_reset)
+    (native_list_register "Item")
+    assert (== (array_length native_list_keys) 1)
+    (native_list_reset)
+    assert native_list_keys_ready
+    assert (== (array_length native_list_keys) 0)
+}
+
+fn native_list_ensure() -> void {
+    if (not native_list_keys_ready) { (native_list_reset) }
+}
+shadow native_list_ensure {
+    set native_list_keys_ready false
+    (native_list_ensure)
+    assert native_list_keys_ready
+    assert (== (array_length native_list_keys) 0)
+    (native_list_register "Item")
+    (native_list_ensure)
+    assert (== (array_length native_list_keys) 1)
+    assert (== (at native_list_keys 0) "Item")
+    (native_list_reset)
+}
 
 fn native_list_operation(name: string) -> string {
     if (not (transp_str_starts_with name "list_")) { return "" }
@@ -4736,7 +4769,7 @@ fn generate_native_list_call(parser: Parser, call: ASTCall, identifier: ASTIdent
     return (cg_build parts)
 }
 shadow generate_native_list_call {
-    set native_list_keys []
+    (native_list_reset)
     let tokens: List<LexerToken> = (tokenize_string "struct Item{n:int} fn f()->void{(list_Item_insert xs 1 value)}" "list-call.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "list-call.nano")
     let call: ASTCall = (parser_get_call parser 0)
@@ -4747,10 +4780,11 @@ shadow generate_native_list_call {
     assert (str_contains code "__auto_type _nl_list_7_2 = (")
     assert (str_contains code "nl_list_Item_insert(_nl_list_7_0, nl_native_list_index(_nl_list_7_1, nl_list_Item_length(_nl_list_7_0), true), _nl_list_7_2)")
     assert (== (array_length native_list_keys) 1)
-    set native_list_keys []
+    (native_list_reset)
 }
 
 fn native_list_register(element: string) -> void {
+    (native_list_ensure)
     if (or (== element "") (or (== element "int") (== element "string"))) { return }
     let mut i: int = 0
     while (< i (array_length native_list_keys)) {
@@ -4760,13 +4794,13 @@ fn native_list_register(element: string) -> void {
     set native_list_keys (array_push native_list_keys element)
 }
 shadow native_list_register {
-    set native_list_keys []
+    (native_list_reset)
     (native_list_register "int")
     (native_list_register "Item")
     (native_list_register "Item")
     assert (== (array_length native_list_keys) 1)
     assert (== (at native_list_keys 0) "Item")
-    set native_list_keys []
+    (native_list_reset)
 }
 
 /* Detect List<T> usage in the program by scanning variable declarations
@@ -4814,6 +4848,7 @@ shadow native_list_types_in {
 }
 
 fn detect_list_types(parser: Parser) -> array<string> {
+    (native_list_ensure)
     let mut types: array<string> = []
     let seen: HashMap<string, int> = (hashset_new_string)
     let mut i: int = 0
@@ -4864,7 +4899,7 @@ fn detect_list_types(parser: Parser) -> array<string> {
 }
 
 shadow detect_list_types {
-    set native_list_keys []
+    (native_list_reset)
     let source: string = (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }")
     let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
@@ -4969,7 +5004,7 @@ fn generate_list_forward_declarations(parser: Parser) -> string {
     return code
 }
 shadow generate_list_forward_declarations {
-    set native_list_keys []
+    (native_list_reset)
     let tokens: List<LexerToken> = (tokenize_string "struct Item{n:int} struct Box{items:List<Item>}" "list-forward.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "list-forward.nano")
     assert (str_contains (generate_list_forward_declarations parser) "typedef struct List_Item List_Item;")
@@ -5039,7 +5074,7 @@ fn generate_list_specializations(parser: Parser) -> string {
 }
 
 shadow generate_list_specializations {
-    set native_list_keys []
+    (native_list_reset)
     let source: string = (+ "struct Point { value: int } " (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }"))
     let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
@@ -8817,7 +8852,7 @@ shadow parser_has_peg2_import {
 
 fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     set reduce_emission_error ""
-    set native_list_keys []
+    (native_list_reset)
     (build_module_alias_map parser)
     (reset_fn_types)
 
