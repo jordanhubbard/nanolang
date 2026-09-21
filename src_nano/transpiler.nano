@@ -40,6 +40,10 @@ struct CodeGenState {
     has_error: bool
 }
 
+# I reset this emission worklist for each complete parser product.
+let mut native_list_keys: array<string> = []
+let mut native_list_keys_ready: bool = false
+
 let mut module_aliases: array<string> = []
 let mut module_alias_targets: array<string> = []
 let mut func_aliases: array<string> = []
@@ -4606,10 +4610,6 @@ shadow gen_c_program {
 /* =============================================================================
  * GENERIC LIST SPECIALIZATION
  * ============================================================================= */
-
-# I reset this emission worklist for each complete parser product.
-let mut native_list_keys: array<string> = []
-let mut native_list_keys_ready: bool = false
 
 # I initialize this private worklist explicitly; complex globals are not C literals.
 fn native_list_reset() -> void {
