@@ -20,7 +20,10 @@ My `NvmV2Module` view borrows payload bytes from its input or source module.
 Conversion back to an execution module deep-copies them before the source
 buffer can be released. I do not store a borrowed decoded view in a temporary
 module and later publish its dangling pointers. Payload and index allocations
-share an explicit checked budget; code-validation work is bounded separately.
+share a64MiB transport budget; code-validation work is bounded separately at
+128MiB charged function/code-byte steps. I reject over-budget input before
+allocating its payload copy. These are explicit admission limits, not claims
+that every representable container fits them.
 
 ## Container and text
 
