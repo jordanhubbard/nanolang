@@ -1,6 +1,7 @@
 #include "runtime/module_build_dir.h"
 #include "runtime/dyn_array.h"
 #include "runtime/shadow_timeout.h"
+#include "runtime/shadow_timing.h"
 #include "nanovirt/shadow_runner.h"
 #include "nanolang.h"
 #include "file_source_resolution.h"
@@ -469,6 +470,7 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         fprintf(stderr, "I cannot configure the shadow completion channel.\n");
         return false;
     }
+    nl_shadow_timing("parent_before_fork", -1, -1, 0, 1, 0);
     fflush(NULL);
     pid_t child = fork();
     if (child == 0) {
@@ -477,11 +479,14 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         signal(SIGALRM, SIG_DFL);
         alarm((unsigned)shadow_seconds);
         if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) _exit(1);
+        nl_shadow_timing("callback_start", -1, -1, 0, 0, 0);
         int callback_status = check_callback_shadows(program, env, modules, input,
                                                      opts->test_imports);
+        nl_shadow_timing("callback_end", -1, -1, 0, 0, callback_status);
         bool passed = callback_status != 0 ? callback_status > 0 :
             run_shadow_tests_scope(program, env, modules, input,
                                    opts->test_imports, opts->verbose);
+        nl_shadow_timing("selection_end", -1, -1, 0, 0, passed ? 0 : 1);
         if (callback_status != 0 && opts->llm_shadow_json_path) {
             FILE *report = fopen(opts->llm_shadow_json_path, "w");
             if (!report) passed = false;
@@ -525,6 +530,7 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         nanosleep(&pause, NULL);
     }
     int wait_error = errno;
+    nl_shadow_timing("parent_after_wait", -1, -1, 0, 1, waited < 0 ? -1 : status);
     unsigned char done = 0;
     bool completed = read(completion[0], &done, 1) == 1 && done == 1;
     close(completion[0]);
