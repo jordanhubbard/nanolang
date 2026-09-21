@@ -265,3 +265,28 @@ do not weaken this check or execute an invalid published program.
 I record task_c6959732bd934c429b60e42731168c71 before source changes.
 I record the actual block-expression parser prerequisite before code. The single approved c923 verbose diagnostic stops in check_if_value; full original graph, unchanged compiler/ten-second child/120-second outer, status1 at20.728991s, no timeout and exact source/tool/product input equality. Static primary dispatch lacks LBRACE, while the original cond/local vector requires a block value. I will reuse parse_block, propagate errors, and normalize only successful expression results to PNODE_BLOCK. I preserve original body/statement grammar and lexical value checking, keep original cond/local assertions, and guard function lookup after failed parse/count. Actual parser controls cover empty/grouped/nested blocks, local declarations, full consumption and missing/invalid braces. Full source controls cover lexical block values and refusals without weakening prior seventeen methods. No gate before source review; all parent acceptance remains open.
 
+
+### My block-expression source checkpoint
+
+I add a primary LBRACE route through parse_block_expression. The wrapper uses
+parse_block unchanged and normalizes only its successful result to PNODE_BLOCK;
+function/IF/loop bodies keep their existing block-ID consumers. A block used as
+a statement still follows lexical statement checking, whereas a requested tail
+or destination invokes value checking. I do not mark every block as requiring
+a value or change passive flags.
+
+Four parser positives check complete consumption, empty/nested/grouped blocks,
+local statements and non-passive flags; four malformed inputs require parse
+errors. The original cond/local shadow source and assertions remain, with an
+additional function-count assertion and a guard before the dependent getter.
+The seventeenth source method gains nested lexical block/cond values and two
+refusals (escaped local and incompatible block destination); its existing
+cases remain and the other sixteen methods are AST-identical. Static Python
+parsing and diff checks pass. No corrected compiler or fixture has executed.
+
+I retain the approved single verbose diagnostic under
+docs/evidence/record-lists-c923-verbose-diagnostic: status1,20.729s, unchanged
+inputs and no timeout, exact active check_if_value shadow. Full source/product
+maps and generated products remain in the external diagnostic directory.
+This evidence identifies the reached shadow; the missing block route follows
+from static source inspection. Corrected full acceptance remains required.

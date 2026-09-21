@@ -4805,6 +4805,8 @@ fn check_if_value(parser: Parser, node_id: int, symbols: array<Symbol>, expected
 shadow check_if_value {
     let parser: Parser = (resource_test_parser "fn f() -> void { let a = (cond (true { let local: int = 1 [local] }) (else [])) }")
     assert (not (parser_has_error parser))
+    assert (== (parser_get_function_count parser) 1)
+    if (or (parser_has_error parser) (!= (parser_get_function_count parser) 1)) { return }
     let body: ASTBlock = (parser_get_block parser (parser_get_function parser 0).body)
     let value: ASTLet = (parser_get_let parser (list_ASTStmtRef_get body.statements 0).node_id)
     let fact: CheckedBlock = (check_value_facts parser value.value value.value_type [] (list_CompilerDiagnostic_new) "branch.nano")

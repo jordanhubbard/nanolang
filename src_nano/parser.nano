@@ -2618,6 +2618,9 @@ fn parse_primary(p: Parser) -> Parser {
         if (== tok.token_type (token_if)) {
             return (parse_if_expression p)
         }
+        if (== tok.token_type (token_lbrace)) {
+            return (parse_block_expression p)
+        }
 
         # I reserve uppercase Type<args>.Variant for explicit union construction.
         # Lowercase identifiers keep their ordinary infix comparison grammar.
@@ -5603,6 +5606,39 @@ fn parse_let_statement(p: Parser) -> Parser {
 
 shadow parse_let_statement {
     assert (== 1 1)
+}
+
+# I expose the existing lexical block grammar as an expression node.
+fn parse_block_expression(p: Parser) -> Parser {
+    let parsed: Parser = (parse_block p)
+    if (parser_has_error parsed) { return parsed }
+    return (parser_with_node parsed ParseNodeType.PNODE_BLOCK parsed.last_expr_node_id)
+}
+shadow parse_block_expression {
+    let sources: array<string> = ["{ let local: int = 1 [local] }", "({ 7 })", "{ { 1 } }", "{}"]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "block-expression.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_expression (parser_new tokens (list_LexerToken_length tokens) "block-expression.nano"))
+        assert (not (parser_has_error parsed))
+        assert (parser_is_at_end parsed)
+        assert (== parsed.last_expr_node_type ParseNodeType.PNODE_BLOCK)
+        let block: ASTBlock = (parser_get_block parsed parsed.last_expr_node_id)
+        assert (not block.is_par)
+        assert (not block.is_flow)
+        if (== i 0) { assert (== (list_ASTStmtRef_length block.statements) 2) }
+        if (== i 2) { assert (== (list_ASTStmtRef_get block.statements 0).node_type ParseNodeType.PNODE_BLOCK) }
+        if (== i 3) { assert (== (list_ASTStmtRef_length block.statements) 0) }
+        set i (+ i 1)
+    }
+    let malformed: array<string> = ["{ let x: int = 1", "{ let = 1 }", "({ 1 )", "{ else }"]
+    set i 0
+    while (< i (array_length malformed)) {
+        let tokens: List<LexerToken> = (tokenize_string (at malformed i) "block-refuse.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_expression (parser_new tokens (list_LexerToken_length tokens) "block-refuse.nano"))
+        assert (parser_has_error parsed)
+        set i (+ i 1)
+    }
 }
 
 # I reuse statement syntax and mark only an actual expression entry.

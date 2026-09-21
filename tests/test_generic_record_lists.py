@@ -194,6 +194,15 @@ shadow main { assert (== (main) 0) }
 shadow main { assert (== (main) 0) }
 '''
         self.source_routes('discarded-array-positive', positive)
+        self.source_routes('block-expression-positive', '''fn main() -> int {
+ let rows: array<array<int>> = (cond (true { let local: int = 7 [[local]] }) (else []))
+ let value: int = ({ let outer: int = 2 { let inner: int = 5 (+ outer inner) } })
+ { let value: bool = true assert value }
+ assert (== (at (at rows 0) 0) value)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
         self.source_routes('if-expression-positive', '''fn choose(flag: bool) -> int {
  return if flag { 7 } else { 9 }
 }
@@ -210,6 +219,8 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''')
         for name, body in {
+            'block-local-escape': '{ let local: int = 7 } return local',
+            'block-destination': 'let values: array<int> = { [false] } return 0',
             'if-discarded': '(if true { [1] } else { [false] }) return 0',
             'if-condition': 'let value: int = (if 1 { 7 } else { 9 }) return 0',
             'if-nested': 'let value: array<int> = (if true { [] } else if false { [1] } else { [false] }) return 0',
