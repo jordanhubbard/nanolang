@@ -1,0 +1,782 @@
+{
+  "runs": [
+    {
+      "label": "storage-darwin-first",
+      "source": "1482e18e30d4962dccb9189c739692974a91df7c",
+      "local_directory": "/tmp/nanolang-binding-state-1482e18e3",
+      "outcome": "Apple77 pass; Homebrew stale SDK path refusal before execution",
+      "input_count": 13
+    },
+    {
+      "label": "storage-darwin-sdk",
+      "source": "1482e18e30d4962dccb9189c739692974a91df7c",
+      "local_directory": "/tmp/nanolang-binding-state-1482e18e3-sdk",
+      "outcome": "77 checks in each of three configurations pass",
+      "input_count": 13
+    },
+    {
+      "label": "atomic-linux",
+      "source": "f0ff868e20960fe11add4b7abe945e6547371a7b",
+      "local_directory": "/tmp/nanolang-binding-closure-f0ff868e2",
+      "outcome": "438 atomic and77 storage checks in each of four configurations pass",
+      "input_count": 14
+    },
+    {
+      "label": "atomic-darwin-sdk",
+      "source": "f0ff868e20960fe11add4b7abe945e6547371a7b",
+      "local_directory": "/tmp/nanolang-binding-closure-f0ff868e2-sdk",
+      "outcome": "438 atomic and77 storage checks in each of three configurations pass",
+      "input_count": 14
+    }
+  ],
+  "files": {
+    "README.md": {
+      "sha256": "6b710ed1290563b4e80fad074e5669c46b6b104edb90e035f5e1f7e078c26554",
+      "bytes": 2490
+    },
+    "atomic-darwin-sdk/apple-build.json": {
+      "sha256": "d4609663619f413738d5f8b3c4dfcabf1edcc32a68fc9e3761717313f8851662",
+      "bytes": 585
+    },
+    "atomic-darwin-sdk/apple-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/apple-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/apple-run.json": {
+      "sha256": "5e3e3439704921b8e5e2e2541e3f124c80350a871fd6e9c2da68b9ce745cc062",
+      "bytes": 225
+    },
+    "atomic-darwin-sdk/apple-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/apple-run.stdout": {
+      "sha256": "50f6074f6446f4e49ee99cabf5c5aa9a8fe640baba63cc3f971224035ae303df",
+      "bytes": 77
+    },
+    "atomic-darwin-sdk/apple-storage-build.json": {
+      "sha256": "4441fe33b6b9e20c4b7452a11f0ac2c1b8a3fc39eb2eaa15841a603542eaabe2",
+      "bytes": 623
+    },
+    "atomic-darwin-sdk/apple-storage-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/apple-storage-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/apple-storage-run.json": {
+      "sha256": "537fb32fe7f84ad5a2dca760bb243b5d214e68337f5c16998aecff44ba367d73",
+      "bytes": 233
+    },
+    "atomic-darwin-sdk/apple-storage-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/apple-storage-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "atomic-darwin-sdk/apple-version.json": {
+      "sha256": "28edb7d966b1c9e7add619b702c91bf6ecafa2df7d48d5b581d2917fe81d2c3c",
+      "bytes": 164
+    },
+    "atomic-darwin-sdk/apple-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/apple-version.stdout": {
+      "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+      "bytes": 200
+    },
+    "atomic-darwin-sdk/brew-build.json": {
+      "sha256": "bb0ac8620eb0c43b924a65de5750446d0d228654d9f57dd1422eeb9e2a2832c5",
+      "bytes": 610
+    },
+    "atomic-darwin-sdk/brew-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-run.json": {
+      "sha256": "895e32761a549d3462989809d55d80cc39d93d6c77ae704bb77f0cebeced5a5e",
+      "bytes": 224
+    },
+    "atomic-darwin-sdk/brew-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-run.stdout": {
+      "sha256": "50f6074f6446f4e49ee99cabf5c5aa9a8fe640baba63cc3f971224035ae303df",
+      "bytes": 77
+    },
+    "atomic-darwin-sdk/brew-sanitized-build.json": {
+      "sha256": "1eb060ef7a65f12107143f417eee1a658b74bd58689f617c5d59763642335553",
+      "bytes": 686
+    },
+    "atomic-darwin-sdk/brew-sanitized-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-sanitized-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-sanitized-run.json": {
+      "sha256": "633342b29f38f7ec71522a8e3936313636b8460100a0209a9036c62e84210b4b",
+      "bytes": 234
+    },
+    "atomic-darwin-sdk/brew-sanitized-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-sanitized-run.stdout": {
+      "sha256": "50f6074f6446f4e49ee99cabf5c5aa9a8fe640baba63cc3f971224035ae303df",
+      "bytes": 77
+    },
+    "atomic-darwin-sdk/brew-sanitized-storage-build.json": {
+      "sha256": "717528406023ec08c0f7aa0d39b573ef5fc376728e0da621ce765413ca674670",
+      "bytes": 717
+    },
+    "atomic-darwin-sdk/brew-sanitized-storage-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-sanitized-storage-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-sanitized-storage-run.json": {
+      "sha256": "f2a280d1da5fe11ab2fa476334068010499b8a591a5a68637764ab98cfeb7773",
+      "bytes": 242
+    },
+    "atomic-darwin-sdk/brew-sanitized-storage-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-sanitized-storage-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "atomic-darwin-sdk/brew-sanitized-version.json": {
+      "sha256": "08ce436ccd684649aad9075e7668a9a920e985c442c4d42b1e8d7b41d833e0e2",
+      "bytes": 173
+    },
+    "atomic-darwin-sdk/brew-sanitized-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-sanitized-version.stdout": {
+      "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+      "bytes": 222
+    },
+    "atomic-darwin-sdk/brew-storage-build.json": {
+      "sha256": "80985cecef72963b03af97ecd0ac2c43c9a085742aa8ca500cad54953853e6fe",
+      "bytes": 633
+    },
+    "atomic-darwin-sdk/brew-storage-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-storage-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-storage-run.json": {
+      "sha256": "79bf389444fb5b8c3f91b54b3849c591858a96dfaed1686985cd094e7f9438b8",
+      "bytes": 232
+    },
+    "atomic-darwin-sdk/brew-storage-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-storage-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "atomic-darwin-sdk/brew-version.json": {
+      "sha256": "d575872cc76d84bc9347528205f4fcbeefb7b6d5c9ad29ab6cea4b639dd73d8a",
+      "bytes": 182
+    },
+    "atomic-darwin-sdk/brew-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/brew-version.stdout": {
+      "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+      "bytes": 222
+    },
+    "atomic-darwin-sdk/complete.json": {
+      "sha256": "fa7ae31703767e37612a2de43b6102b59e1eeb02d9eaee7f6c928d12f6c4a29d",
+      "bytes": 146
+    },
+    "atomic-darwin-sdk/inputs-after.json": {
+      "sha256": "c2b665d1a9838a78a38db832c9754f08a9098822a8ff955497939c1b26f04f13",
+      "bytes": 2134
+    },
+    "atomic-darwin-sdk/inputs.json": {
+      "sha256": "6b266519538fb4ef897b55be81f2d443187c9adf056db722425f25fe2abc5fcf",
+      "bytes": 2348
+    },
+    "atomic-darwin-sdk/products.json": {
+      "sha256": "fc55e3faeaa1bf2f56d6b9b0b1a17a988d2aa1f2d3699e3899c776544eb1d572",
+      "bytes": 4178
+    },
+    "atomic-darwin-sdk/run.py": {
+      "sha256": "edb37fa26f361709665936d85b0d4d58ecdfcfe1e028f925b90b01b8b56c49b2",
+      "bytes": 4745
+    },
+    "atomic-darwin-sdk/sdk-path.json": {
+      "sha256": "9240881508b28c79e178c53a75047138043fba1371b5b9ce3d37215744502064",
+      "bytes": 170
+    },
+    "atomic-darwin-sdk/sdk-path.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/sdk-path.stdout": {
+      "sha256": "5cb2cff3541ae65432805aa9d9bbfa3454381ef60694cc7b47eed0e2bf973aaf",
+      "bytes": 95
+    },
+    "atomic-darwin-sdk/sdk-version.json": {
+      "sha256": "858dd6d74ff68f6815e5fa21d4ea6410f970f565191aaa70d1dbc09c26970f5f",
+      "bytes": 173
+    },
+    "atomic-darwin-sdk/sdk-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-darwin-sdk/sdk-version.stdout": {
+      "sha256": "14a06c556ac677f94334dd2c86395d46009b9def8685e00741e60d31305a0262",
+      "bytes": 5
+    },
+    "atomic-darwin-sdk/sdk.json": {
+      "sha256": "e0aa285323da0cb828cb5f23e4fe424ca53ea65842458184c6d03dad109f8296",
+      "bytes": 312
+    },
+    "atomic-darwin-sdk/tools.json": {
+      "sha256": "48a0308f4eea4f8eee3207c5932d8c330f9ff2ff8d24a44cc2a64fa3b89e32a5",
+      "bytes": 598
+    },
+    "atomic-linux/clang-build.json": {
+      "sha256": "a7bfe75d1db730c393c7219b3c003a27e8da5e05974b51c76ebd92fa2a4d0189",
+      "bytes": 505
+    },
+    "atomic-linux/clang-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/clang-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/clang-run.json": {
+      "sha256": "de53b6b0448dc80dc924a5197b7df310b335efbc1778f39718aae3eaed8bff24",
+      "bytes": 191
+    },
+    "atomic-linux/clang-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/clang-run.stdout": {
+      "sha256": "50f6074f6446f4e49ee99cabf5c5aa9a8fe640baba63cc3f971224035ae303df",
+      "bytes": 77
+    },
+    "atomic-linux/clang-sanitized-build.json": {
+      "sha256": "e92a519eeec26acc1a61b69aafc940e72b87c5cb9132e445c21ff9bca16aa738",
+      "bytes": 581
+    },
+    "atomic-linux/clang-sanitized-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/clang-sanitized-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/clang-sanitized-run.json": {
+      "sha256": "734a89522ec9479015a591bf03c76052950f9aadfa736b9f9b11168bc24a9a6e",
+      "bytes": 202
+    },
+    "atomic-linux/clang-sanitized-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/clang-sanitized-run.stdout": {
+      "sha256": "50f6074f6446f4e49ee99cabf5c5aa9a8fe640baba63cc3f971224035ae303df",
+      "bytes": 77
+    },
+    "atomic-linux/clang-sanitized-storage-build.json": {
+      "sha256": "27aa0a61dcfb383d274302e379c4a5445c47eebb3746f0cf8b0ecb39c2b1c619",
+      "bytes": 612
+    },
+    "atomic-linux/clang-sanitized-storage-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/clang-sanitized-storage-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/clang-sanitized-storage-run.json": {
+      "sha256": "a7c2a977c52693ecd6cbd2120bba16832b09babf857a5730abd81ec3cb61b89b",
+      "bytes": 210
+    },
+    "atomic-linux/clang-sanitized-storage-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/clang-sanitized-storage-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "atomic-linux/clang-sanitized-version.json": {
+      "sha256": "8d73db5eab55876b89ee602f7973a994e4715986002fadb95a5309ec0246b67c",
+      "bytes": 170
+    },
+    "atomic-linux/clang-sanitized-version.stderr": {
+      "sha256": "7bfe486eb894fbc51a080b74ad049ab06c7fc85db2bb8119a8d6a91b97e8ce0c",
+      "bytes": 249
+    },
+    "atomic-linux/clang-sanitized-version.stdout": {
+      "sha256": "3f71ea936365a0e0ded6b5e03b18884ba042415fb6acf05b0f1b2dfe5a6096e5",
+      "bytes": 191
+    },
+    "atomic-linux/clang-storage-build.json": {
+      "sha256": "5fad011c16e09698578485e74228c42626eee51e933b6d0097835fc3074daa17",
+      "bytes": 535
+    },
+    "atomic-linux/clang-storage-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/clang-storage-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/clang-storage-run.json": {
+      "sha256": "f17160fe77a9a2425dca99f753c92f40f4f29912d1f9d73d2913880f6f973ea3",
+      "bytes": 201
+    },
+    "atomic-linux/clang-storage-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/clang-storage-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "atomic-linux/clang-version.json": {
+      "sha256": "2a1eef416c0de7bca9c52bd30695a8307df57787abab572793dc327341f228f2",
+      "bytes": 170
+    },
+    "atomic-linux/clang-version.stderr": {
+      "sha256": "7bfe486eb894fbc51a080b74ad049ab06c7fc85db2bb8119a8d6a91b97e8ce0c",
+      "bytes": 249
+    },
+    "atomic-linux/clang-version.stdout": {
+      "sha256": "3f71ea936365a0e0ded6b5e03b18884ba042415fb6acf05b0f1b2dfe5a6096e5",
+      "bytes": 191
+    },
+    "atomic-linux/complete.json": {
+      "sha256": "b5eea116d5446fdd3f3f40a748cd169cb134da12595b551dfa553de74b011831",
+      "bytes": 167
+    },
+    "atomic-linux/gcc-build.json": {
+      "sha256": "67e1608c6b4db32a6025fe31a04d3d04b46092aa736ba911fff4a2f5c1888997",
+      "bytes": 436
+    },
+    "atomic-linux/gcc-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-run.json": {
+      "sha256": "b2818fe4b646bf93a2b7ef9d94108d717c83fb3f072e2880352f20198f0214ab",
+      "bytes": 191
+    },
+    "atomic-linux/gcc-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-run.stdout": {
+      "sha256": "50f6074f6446f4e49ee99cabf5c5aa9a8fe640baba63cc3f971224035ae303df",
+      "bytes": 77
+    },
+    "atomic-linux/gcc-sanitized-build.json": {
+      "sha256": "fbce01677ff7e703467df38e987379527f2d0a16f2bb3b6d60a094d162aa46de",
+      "bytes": 512
+    },
+    "atomic-linux/gcc-sanitized-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-sanitized-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-sanitized-run.json": {
+      "sha256": "476914acbc465a24cd31f036bc7a0cdaf5e78ba0965a64af5e6f1eae646b2df8",
+      "bytes": 199
+    },
+    "atomic-linux/gcc-sanitized-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-sanitized-run.stdout": {
+      "sha256": "50f6074f6446f4e49ee99cabf5c5aa9a8fe640baba63cc3f971224035ae303df",
+      "bytes": 77
+    },
+    "atomic-linux/gcc-sanitized-storage-build.json": {
+      "sha256": "84729bdcb22168618b93a8c7f082e536f4e26e1a839757f4379da494ca1d8d64",
+      "bytes": 543
+    },
+    "atomic-linux/gcc-sanitized-storage-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-sanitized-storage-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-sanitized-storage-run.json": {
+      "sha256": "bd18d2363550821455752ec7bba8e9a0a9c3990e6814f9a175d9738fe2d89137",
+      "bytes": 208
+    },
+    "atomic-linux/gcc-sanitized-storage-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-sanitized-storage-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "atomic-linux/gcc-sanitized-version.json": {
+      "sha256": "58fe04a24a85b61730ef8e88e0e9de8bd5e36b8b1a2cf0d70b66b77b58cb7ebc",
+      "bytes": 162
+    },
+    "atomic-linux/gcc-sanitized-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-sanitized-version.stdout": {
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "bytes": 246
+    },
+    "atomic-linux/gcc-storage-build.json": {
+      "sha256": "7cb544234b82bcd80e3b7f58b70ef1bbff80562b26eafdda135b13bce410da15",
+      "bytes": 467
+    },
+    "atomic-linux/gcc-storage-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-storage-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-storage-run.json": {
+      "sha256": "a80054b96ada0f38d73c6a2b6c6257eddd489b70f3074f957c7fafde12543f18",
+      "bytes": 199
+    },
+    "atomic-linux/gcc-storage-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-storage-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "atomic-linux/gcc-version.json": {
+      "sha256": "af448fcb1dada1a3737e4dead0387d8d7b4526f3f28b2f2c1208530e52f6c002",
+      "bytes": 163
+    },
+    "atomic-linux/gcc-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "atomic-linux/gcc-version.stdout": {
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "bytes": 246
+    },
+    "atomic-linux/inputs-after.json": {
+      "sha256": "2291d7fe37cd14be775ced71d7e15a5cc7ff943e79dd3da6d1ec0da95494b897",
+      "bytes": 2134
+    },
+    "atomic-linux/inputs.json": {
+      "sha256": "647f388ae42b482492ecbf0c6d72736e388caa9551748dae74abf8bc0e088c71",
+      "bytes": 2348
+    },
+    "atomic-linux/products.json": {
+      "sha256": "dc5f0b82b8c1daecd92c85d0af039d12c5d9bbd8c43e520359614156ce660f17",
+      "bytes": 1167
+    },
+    "atomic-linux/run.py": {
+      "sha256": "a008e160bec3a45f03f918e3c7157d0a83e17b00fd33cbc8fbd59ff371d473c0",
+      "bytes": 4217
+    },
+    "atomic-linux/tools.json": {
+      "sha256": "89151cad5b8944f2ff763591c75297e060d018fada5f8bdd79fd4f0ec054d4e9",
+      "bytes": 735
+    },
+    "storage-darwin-first/apple-build.json": {
+      "sha256": "a4211d3afc663a62c7871f0cc01f733034a62afc9be05dee8afabf8902f14c89",
+      "bytes": 474
+    },
+    "storage-darwin-first/apple-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-first/apple-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-first/apple-run.json": {
+      "sha256": "dcf473adb5d877d2b9e3ed23040a290f444ac6ff3170a246b31392aa54caa677",
+      "bytes": 202
+    },
+    "storage-darwin-first/apple-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-first/apple-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "storage-darwin-first/apple-version.json": {
+      "sha256": "39e715b7b0373f504b13e71aaa1ca670ebc52d2804aacb3f24abefeecf30f529",
+      "bytes": 164
+    },
+    "storage-darwin-first/apple-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-first/apple-version.stdout": {
+      "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+      "bytes": 200
+    },
+    "storage-darwin-first/brew-build.json": {
+      "sha256": "fb540b2102827eb01b82eb9949565fa5332d87cd6f69b2065cb751e25c74bb95",
+      "bytes": 499
+    },
+    "storage-darwin-first/brew-build.stderr": {
+      "sha256": "0a526c721f79d53b86d59c5a55918bf4849bd5eb3f27038b6e269f82e337a25d",
+      "bytes": 944
+    },
+    "storage-darwin-first/brew-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-first/brew-sanitized-version.json": {
+      "sha256": "bf95e1d59ee7260d00903a25a6d5f53154c56f8cd2cb60349afc04cb10747d99",
+      "bytes": 181
+    },
+    "storage-darwin-first/brew-sanitized-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-first/brew-sanitized-version.stdout": {
+      "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+      "bytes": 222
+    },
+    "storage-darwin-first/brew-version.json": {
+      "sha256": "c54264faa43b9fe06336ab803c71ba6ee69c92de62517b0cd896853cbd6fea61",
+      "bytes": 173
+    },
+    "storage-darwin-first/brew-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-first/brew-version.stdout": {
+      "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+      "bytes": 222
+    },
+    "storage-darwin-first/inputs.json": {
+      "sha256": "f454df44288cf925a6de235a11d04888245ebe4d275c31dceb0f6d0004b4c569",
+      "bytes": 2172
+    },
+    "storage-darwin-first/products.json": {
+      "sha256": "81bb957edb5f2aee7db1b5761edafa375c9b20f4445c2292db6d98cc75953f83",
+      "bytes": 658
+    },
+    "storage-darwin-first/run.py": {
+      "sha256": "f66130f37218081714aad770a51cac35cb380bbc25b417a18ab49a57d5489297",
+      "bytes": 3966
+    },
+    "storage-darwin-first/tools.json": {
+      "sha256": "48a0308f4eea4f8eee3207c5932d8c330f9ff2ff8d24a44cc2a64fa3b89e32a5",
+      "bytes": 598
+    },
+    "storage-darwin-sdk/apple-build.json": {
+      "sha256": "625efc9678035623fd5eb293eb0a2c7ee897d2ca452060af224ec4021f6a1243",
+      "bytes": 606
+    },
+    "storage-darwin-sdk/apple-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/apple-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/apple-run.json": {
+      "sha256": "c574fa666153b19026a08df318b7bad967d1324cbafe00697858b90796c54f99",
+      "bytes": 223
+    },
+    "storage-darwin-sdk/apple-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/apple-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "storage-darwin-sdk/apple-version.json": {
+      "sha256": "41d8b7101133034f69351ba5d628554036de030f9597576a0fe8193704d121b7",
+      "bytes": 164
+    },
+    "storage-darwin-sdk/apple-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/apple-version.stdout": {
+      "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+      "bytes": 200
+    },
+    "storage-darwin-sdk/brew-build.json": {
+      "sha256": "2b9c46ef8bcd4a60ff3cb5515ea2e5cc61d8990823a904ff11b91b63b31c5704",
+      "bytes": 623
+    },
+    "storage-darwin-sdk/brew-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/brew-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/brew-run.json": {
+      "sha256": "9ee8f916e57b73bc28cf3325bc2312011933afa5b8619e6a47b0a170f2521182",
+      "bytes": 222
+    },
+    "storage-darwin-sdk/brew-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/brew-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "storage-darwin-sdk/brew-sanitized-build.json": {
+      "sha256": "7eebf608588a536ddcc62853b16dcf83842b6b52027a94e1e3e7b465c78f56bc",
+      "bytes": 707
+    },
+    "storage-darwin-sdk/brew-sanitized-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/brew-sanitized-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/brew-sanitized-run.json": {
+      "sha256": "3e0babcc85af35f5b450b228694f51c0a611cd14d3b33bbc399f18f491935fc1",
+      "bytes": 232
+    },
+    "storage-darwin-sdk/brew-sanitized-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/brew-sanitized-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "storage-darwin-sdk/brew-sanitized-version.json": {
+      "sha256": "f68f3d8b5616af6bc6d80dc0f79eb6ee9761e5e7d780d42e64d4840164294427",
+      "bytes": 182
+    },
+    "storage-darwin-sdk/brew-sanitized-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/brew-sanitized-version.stdout": {
+      "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+      "bytes": 222
+    },
+    "storage-darwin-sdk/brew-version.json": {
+      "sha256": "bfe5b665d313b2c1fd3e1d0583572e3721db15fb20b67d022832060a4c2ab216",
+      "bytes": 173
+    },
+    "storage-darwin-sdk/brew-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/brew-version.stdout": {
+      "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+      "bytes": 222
+    },
+    "storage-darwin-sdk/complete.json": {
+      "sha256": "741ce87d3d26fc795ae541998544ff00aa3ed3349f16479803050fadd0f98b3a",
+      "bytes": 146
+    },
+    "storage-darwin-sdk/inputs-after.json": {
+      "sha256": "dbc1684e68e561edad1f305ecf78849b672b47e8bd7b795479fb75baa05a7801",
+      "bytes": 1968
+    },
+    "storage-darwin-sdk/inputs.json": {
+      "sha256": "3346bde0944ddfe8622f99b3c817d0ffd1082866d7b8ab2eb2e785f2d7da6b65",
+      "bytes": 2172
+    },
+    "storage-darwin-sdk/products.json": {
+      "sha256": "0357397053aa8f61940cf5d1027836f54350a6063ce8ca79341f380072fd6ab4",
+      "bytes": 2018
+    },
+    "storage-darwin-sdk/run.py": {
+      "sha256": "a2b8aa431ace8d7cc2cf31e377741793561752a1b90276629a4c506a906df872",
+      "bytes": 4494
+    },
+    "storage-darwin-sdk/sdk-path.json": {
+      "sha256": "aabc5b31b84201a890f579d6efb2fa032836f349061b16c9a9b40ebef380cd01",
+      "bytes": 170
+    },
+    "storage-darwin-sdk/sdk-path.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/sdk-path.stdout": {
+      "sha256": "5cb2cff3541ae65432805aa9d9bbfa3454381ef60694cc7b47eed0e2bf973aaf",
+      "bytes": 95
+    },
+    "storage-darwin-sdk/sdk-version.json": {
+      "sha256": "487c4bc733734f1f63aa1ecbe338e9c0bfa8d641111f9a7ecf4b6505d47e2b94",
+      "bytes": 173
+    },
+    "storage-darwin-sdk/sdk-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "storage-darwin-sdk/sdk-version.stdout": {
+      "sha256": "14a06c556ac677f94334dd2c86395d46009b9def8685e00741e60d31305a0262",
+      "bytes": 5
+    },
+    "storage-darwin-sdk/sdk.json": {
+      "sha256": "e0aa285323da0cb828cb5f23e4fe424ca53ea65842458184c6d03dad109f8296",
+      "bytes": 312
+    },
+    "storage-darwin-sdk/tools.json": {
+      "sha256": "48a0308f4eea4f8eee3207c5932d8c330f9ff2ff8d24a44cc2a64fa3b89e32a5",
+      "bytes": 598
+    }
+  }
+}

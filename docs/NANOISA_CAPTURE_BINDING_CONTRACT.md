@@ -219,6 +219,14 @@ callback or collection occurs during this publication. Scratch is then freed.
 This helper does not admit the wire feature, enter a frame, or establish
 definite initialization through instruction control flow.
 
+My corrected f0ff868e2 helper passes438 atomic-construction checks alongside
+77 storage checks in seven Linux/Darwin ordinary and ASan/UBSan configurations.
+I retain [raw evidence and input identities](evidence/capture-bindings/atomic/checks.json).
+Independent static review caught ordinary-release rollback side effects before
+the first constructor executed; the tested correction bypasses cycle-suspect
+bookkeeping only while reversing its own private acquisitions. Actual frame
+integration and source/backend acceptance remain unqualified.
+
 | Event | Required ownership behavior |
 | --- | --- |
 | Read local/upvalue | Retain the ordinary value for the result; do not expose its cell. |
