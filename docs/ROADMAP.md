@@ -1208,6 +1208,16 @@ their individual acceptance evidence closes them.
       `7e61f5d3307124170c9813def3aa3ee447e4f4bffeca3ec722621b7b239ba908`.
       MAC `task_1fc7982675604c63aaceb97f47e79677`.
 
+- [ ] **Give my coverage test wrapper its measured finite budget.** Hosted
+      release run `35549919489` completes the coverage-instrumented scalar
+      reconstruction suite, then my existing 1,800-second `make test` alarm
+      stops a coverage-instrumented Stage 2 rebuild. I preserve coverage
+      flags, compiler route, tests and assertions; I change only the coverage
+      job and test-wrapper bounds and require a terminal hosted rerun. The
+      retained job log has SHA-256
+      `a1bfe52a6a08a2770d16cb6959d0617715c5978387ae29317324afe02e7ef749`.
+      MAC `task_4fc9f8408dc8642d77894784e38f6737`.
+
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
       accepted integer-zero spelling for an opaque null when foreign call
       arguments are evaluated once into ordered temporaries. I reject nonzero
