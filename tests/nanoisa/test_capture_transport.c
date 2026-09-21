@@ -12,6 +12,9 @@
 #ifdef CAPTURE_TRANSPORT_CONSUMERS
 #include "nvm2llvm.h"
 #include "vm.h"
+/* I provide the process arguments required by linked runtime providers. */
+int g_argc = 0;
+char **g_argv = NULL;
 #endif
 
 static unsigned checks;
