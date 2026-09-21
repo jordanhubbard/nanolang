@@ -14086,3 +14086,22 @@ shadows cover complete record operation results, exact receiver/index/element
 facts, scalar provider distinctions, once-only unknown-argument diagnostics,
 owner maps, duplicate/foreign/resource refusals and callable precedence. Static
 Python syntax/AST identity and patch whitespace pass; no build or gate has run.
+
+### My complete native list specialization prerequisite
+
+Task_2752a051dce443d0ada447c46b667561 also covers the source-demonstrated missing
+ordinary-list operations in both native producers, checked bounds/growth and
+ordered argument staging. I retain the exact audit and proposed failure/identity
+contract in docs/NANOISA_NATIVE_LIST_SPECIALIZATIONS.md. Existing C inline
+specializations supply five operations; selfhost inline specializations supply
+four. The schema runtime's complete catalog does not fill these inline gaps.
+I do not execute known-missing-operation programs merely to rediscover them.
+
+- [ ] Finish the exact C nominal-key/retained-metadata and native element-lifetime
+  audit, then review the complete both-producer source checkpoint.
+- [ ] Qualify corrected native operations, owner aliases, argument ordering,
+  checked bounds and allocation behavior before the required full eighteen-method
+  source corpus. Existing enum/list/whole-Make/release criteria remain open.
+
+The reviewed 0e72 checker checkpoint may independently run fresh build/bootstrap
+and focused controls; its full source corpus remains held for this dependency.
