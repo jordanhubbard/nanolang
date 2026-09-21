@@ -27,3 +27,15 @@ The C producer builds and runs my new exact reversed/ordered/nested/repeated-loo
 At source79fe52cdb, my full C-seed build of the Nano emitter passes its mandatory shadows after the four exact local-count expectations include two anonymous roots. Both actual NanoISA producers emit, verify and execute the same unchanged record fixture: written and reversed order, nested construction, exact field payloads and20 repeated loop iterations. My automated test_record_literal_order regression also passes. Commands, first failure, corrected build log and products are retained in docs/evidence/record-literal-order.
 
 This is a Linux check of C-seed NanoVirt and the C-seed-built Nano emitter. Stage1/Stage2-built emitters, Darwin, native producers, spread side effects, byte destinations, failure boundaries and complete generated backend acceptance remain required before closing this task. I also recorded native tuple/array ordering under task_0ef97cccc6c441c59bd9eb2ec7c5ff05; their designated/variadic expressions need the same written-order audit.
+
+## Native source checkpoint
+
+I now sequence C-seed and Nano native record fields and union payloads into private typed temporaries. Both C-seed union AST forms share one ordered emitter. C-seed spread snapshots inherited fields before explicit overrides; Nano spread parsing remains open. Temporary selection avoids visible bindings and function symbols; nested literals have separate C expression scopes. Empty records retain the existing GNU empty-initializer form. I preserve the existing flat record and GC ownership conventions; this sequencing change is not a new deep-ownership guarantee.
+
+Static review also finds the Nano native global-literal fallback returns0 for a record initializer outside its explicitly runtime-initialized union route. Global record construction therefore needs a separate complete initializer correction under this task, with actual global source tests; I do not use local-only ordering checks to close global acceptance.
+
+My first complete component build with native sequencing passes, including parser/checker/transpiler shadows. Actual C-seed native compilation and execution pass both record and union trace fixtures, including nested records, zero-payload variants and an empty record. Self-hosted native products still require fresh bootstrap and their own source runs.
+
+## Complete nonliteral global initialization
+
+Task task_57661a28bf114448a4ee14642e7e1b90 covers the broader same static fallback: a function call, field/reference, array, tuple or callable initializer can also fall through to0. I will classify only NUMBER/FLOAT/STRING/BOOL as direct literal initialization. Every other expression must use generate_expression with its declared expected type in the existing ordered startup function, including guarded primitive initialization. I retain declaration/prototype order, direct literal behavior and first-error refusal. Actual C-seed/Stage1/Stage2 compiler and source tests must cover observable initialization order and stored payloads; source-tree inspection alone is not acceptance.

@@ -2654,6 +2654,33 @@ shadow genenv_c_name {
     assert (== (genenv_c_name (genenv_put env "_" "int" false) "_") "nl__")
 }
 
+# I keep literal temporaries outside every visible source C binding.
+fn literal_c_temporary(parser: Parser, env: GenEnv, kind: string) -> string {
+    let mut index: int = 0
+    let mut candidate: string = ""
+    let mut collision: bool = true
+    while collision {
+        set candidate (+ "__nano_" (+ kind (+ "_" (int_to_string index))))
+        set collision (has_function_named parser candidate)
+        let mut i: int = 0
+        while (< i (array_length env.names)) {
+            if (== candidate (genenv_c_name env (at env.names i))) { set collision true }
+            set i (+ i 1)
+        }
+        set index (+ index 1)
+    }
+    return candidate
+}
+shadow literal_c_temporary {
+    let tokens: List<LexerToken> = (tokenize_string "fn __nano_record_literal_0() -> int { return 0 }" "temporary.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "temporary.nano")
+    let env: GenEnv = (genenv_new "main")
+    assert (== (literal_c_temporary parser env "record_literal") "__nano_record_literal_1")
+    let scoped: GenEnv = (genenv_with_underscore (genenv_put env "_" "int" false) "__nano_record_literal_1")
+    assert (== (literal_c_temporary parser scoped "record_literal") "__nano_record_literal_2")
+    assert (== (literal_c_temporary parser env "union_literal") "__nano_union_literal_0")
+}
+
 fn genenv_get(env: GenEnv, name: string) -> string {
     let mut i: int = (- (array_length env.names) 1)
     while (>= i 0) {
@@ -6641,7 +6668,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             return (cg_build arr_parts)
                         } else {
                             if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
-                                /* Struct literal -> compound literal */
+                                # I sequence written fields into a private typed temporary.
                                 let sl: ASTStructLiteral = (parser_get_struct_literal parser node_id)
                                 
                                 let mut c_type_parts: array<string> = []
@@ -6649,36 +6676,29 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 set c_type_parts (cg_append c_type_parts (mangle_name sl.struct_name))
                                 let c_type: string = (cg_build c_type_parts)
                                 
+                                let temporary: string = (literal_c_temporary parser env "record_literal")
                                 let mut struct_parts: array<string> = []
-                                set struct_parts (cg_append struct_parts "((")
-                                set struct_parts (cg_append struct_parts c_type)
-                                set struct_parts (cg_append struct_parts "){ ")
-
+                                let empty_initializer: string = (cond ((== sl.field_count 0) " = {}; ") (else " = {0}; "))
+                                set struct_parts (cg_append struct_parts (+ "({ " (+ c_type (+ " " (+ temporary empty_initializer)))))
                                 let mut i: int = 0
                                 while (< i sl.field_count) {
-                                    if (> i 0) {
-                                        set struct_parts (cg_append struct_parts ", ")
-                                    } else { (print "") }
-
                                     let fname: string = (at sl.field_names i)
                                     let vid: int = (at sl.field_value_ids i)
                                     let vty: int = (at sl.field_value_types i)
                                     let field_expected: string = (lookup_struct_field_type parser sl.struct_name fname)
                                     let vcode: string = (generate_expression parser vid vty env field_expected)
-
-                                    set struct_parts (cg_append struct_parts ".")
+                                    set struct_parts (cg_append struct_parts (+ temporary "."))
                                     set struct_parts (cg_append struct_parts (mangle_name fname))
                                     set struct_parts (cg_append struct_parts " = ")
                                     set struct_parts (cg_append struct_parts vcode)
-
+                                    set struct_parts (cg_append struct_parts "; ")
                                     set i (+ i 1)
                                 }
-
-                                set struct_parts (cg_append struct_parts " })")
+                                set struct_parts (cg_append struct_parts (+ temporary "; })"))
                                 return (cg_build struct_parts)
                             } else {
                                 if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
-                                    /* Union construction -> compound literal */
+                                    # I set the tag and sequence written payload expressions.
                                     let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
 
                                     /* Derive monomorphized union name from expected_type for generics */
@@ -6699,41 +6719,25 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                     set tag_parts (cg_append tag_parts uc.variant_name)
                                     let tag_name: string = (cg_build tag_parts)
 
+                                    let temporary: string = (literal_c_temporary parser env "union_literal")
                                     let mut union_construct_parts: array<string> = []
-                                    set union_construct_parts (cg_append union_construct_parts "((")
-                                    set union_construct_parts (cg_append union_construct_parts union_c)
-                                    set union_construct_parts (cg_append union_construct_parts "){ .tag = ")
-                                    set union_construct_parts (cg_append union_construct_parts tag_name)
-                                    set union_construct_parts (cg_append union_construct_parts ", .data.")
-                                    set union_construct_parts (cg_append union_construct_parts uc.variant_name)
-                                    set union_construct_parts (cg_append union_construct_parts " = ")
-
-                                    if (== uc.field_count 0) {
-                                        set union_construct_parts (cg_append union_construct_parts "{0}")
-                                    } else {
-                                        set union_construct_parts (cg_append union_construct_parts "{")
-                                        let mut i: int = 0
-                                        while (< i uc.field_count) {
-                                            if (> i 0) {
-                                                set union_construct_parts (cg_append union_construct_parts ", ")
-                                            } else { (print "") }
-
-                                            let fname: string = (at uc.field_names i)
-                                            let vid: int = (at uc.field_value_ids i)
-                                            let vty: int = (at uc.field_value_types i)
-                                            let field_expected: string = (lookup_union_payload_type parser uc.union_name uc.variant_name fname expected_type)
-                                            let vcode: string = (generate_expression parser vid vty env field_expected)
-
-                                            set union_construct_parts (cg_append union_construct_parts ".")
-                                            set union_construct_parts (cg_append union_construct_parts (mangle_name fname))
-                                            set union_construct_parts (cg_append union_construct_parts " = ")
-                                            set union_construct_parts (cg_append union_construct_parts vcode)
-                                            set i (+ i 1)
-                                        }
-                                        set union_construct_parts (cg_append union_construct_parts "}")
+                                    set union_construct_parts (cg_append union_construct_parts (+ "({ " (+ union_c (+ " " (+ temporary " = {0}; ")))))
+                                    set union_construct_parts (cg_append union_construct_parts (+ temporary (+ ".tag = " (+ tag_name "; "))))
+                                    let mut i: int = 0
+                                    while (< i uc.field_count) {
+                                        let fname: string = (at uc.field_names i)
+                                        let vid: int = (at uc.field_value_ids i)
+                                        let vty: int = (at uc.field_value_types i)
+                                        let field_expected: string = (lookup_union_payload_type parser uc.union_name uc.variant_name fname expected_type)
+                                        let vcode: string = (generate_expression parser vid vty env field_expected)
+                                        set union_construct_parts (cg_append union_construct_parts (+ temporary (+ ".data." (+ uc.variant_name "."))))
+                                        set union_construct_parts (cg_append union_construct_parts (mangle_name fname))
+                                        set union_construct_parts (cg_append union_construct_parts " = ")
+                                        set union_construct_parts (cg_append union_construct_parts vcode)
+                                        set union_construct_parts (cg_append union_construct_parts "; ")
+                                        set i (+ i 1)
                                     }
-
-                                    set union_construct_parts (cg_append union_construct_parts " })")
+                                    set union_construct_parts (cg_append union_construct_parts (+ temporary "; })"))
                                     return (cg_build union_construct_parts)
                                 } else {
                                     if (== node_type ParseNodeType.PNODE_MATCH) {
@@ -8483,7 +8487,8 @@ shadow generate_global_constants {
     let unions: Parser = (parse_program union_tokens (list_LexerToken_length union_tokens) "t.nano")
     let globals: string = (generate_global_constants unions)
     assert (str_contains globals "nl_Box_int nl_box;")
-    assert (str_contains globals "nl_box = ((nl_Box_int)")
+    assert (str_contains globals "nl_box = ({ nl_Box_int __nano_union_literal_0 = {0};")
+    assert (str_contains globals "__nano_union_literal_0.data.Value.value = 7;")
     assert (str_contains globals "nl_Box_int_TAG_Value")
 }
 

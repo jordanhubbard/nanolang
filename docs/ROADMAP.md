@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [ ] I evaluate every self-hosted native nonliteral global initializer through the typed source expression path (`task_57661a28bf114448a4ee14642e7e1b90`). I preserve ordered runtime startup and guarded primitive initialization, direct scalar literals and declaration/prototype order, and require actual three-producer global aggregate/call/reference/callable payload and effect checks plus bootstrap.
+
+- [ ] I initialize native global record literals through the actual source expression path (`task_865923a37b6d470c83326aed625b8897`). Static review found the Nano producer falls through global_init_literal to0 outside its runtime union route. I require explicit runtime initialization, preserved source order and real paired global-record tests before completing aggregate source acceptance.
+
 - [ ] I preserve written operand order in native tuple and array literals (`task_0ef97cccc6c441c59bd9eb2ec7c5ff05`). Compound initializers and variadic construction alone leave C evaluation order unspecified. I require once-only sequencing, preserved ownership/contextual types and observable source trace assertions in both native producers.
 
 - [ ] I preserve written expression order in native union literals (`task_9a1ba277fe3e45d5913d03305ece1e06`, extending `task_865923a37b6d470c83326aed625b8897`). Both native producers require once-only sequenced temporary staging and observable order tests while preserving payload ownership. C designated initializers alone do not establish my source order.

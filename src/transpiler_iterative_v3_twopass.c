@@ -1113,6 +1113,30 @@ static void build_ordered_hashmap_call(WorkList *list, ASTNode *call, Environmen
     emit_literal(list, "); })");
 }
 
+/* I keep generated literal roots disjoint from visible source bindings. */
+static void ordered_literal_name(Environment *env, char name[64], const char *kind) {
+    unsigned index = 0;
+    do {
+        snprintf(name, 64, "__nano_%s_%u", kind, index++);
+    } while (env_get_var(env, name) || env_get_function(env, name));
+}
+
+static void build_ordered_union_literal(WorkList *list, Environment *env,
+                                        const char *c_type, const char *tag_owner,
+                                        const char *variant, int count,
+                                        char **names, ASTNode **values) {
+    char temporary[64];
+    ordered_literal_name(env, temporary, "union_literal");
+    emit_formatted(list, "({ %s %s = {0}; %s.tag = nl_%s_TAG_%s; ",
+                   c_type, temporary, temporary, tag_owner, variant);
+    for (int i = 0; i < count; ++i) {
+        emit_formatted(list, "%s.data.%s.%s = ", temporary, variant, names[i]);
+        build_expr(list, values[i], env);
+        emit_literal(list, "; ");
+    }
+    emit_formatted(list, "%s; })", temporary);
+}
+
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
     if (!expr) return;
 
@@ -2889,23 +2913,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                 break;
                             }
 
-                            if (is_generic) {
-                                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", prefixed_union, monomorphized_name, variant_name);
-                            } else {
-                                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", prefixed_union, union_name_buf, variant_name);
-                            }
-
-                            if (field_count > 0) {
-                                emit_formatted(list, ", .data.%s = {", variant_name);
-                                for (int i = 0; i < field_count; i++) {
-                                    if (i > 0) emit_literal(list, ", ");
-                                    emit_formatted(list, ".%s = ", expr->as.struct_literal.field_names[i]);
-                                    build_expr(list, expr->as.struct_literal.field_values[i], env);
-                                }
-                                emit_literal(list, "}");
-                            }
-
-                            emit_literal(list, "}");
+                            build_ordered_union_literal(list, env, prefixed_union,
+                                is_generic ? monomorphized_name : union_name_buf,
+                                variant_name, field_count, expr->as.struct_literal.field_names,
+                                expr->as.struct_literal.field_values);
                             break;
                         }
                     }
@@ -2943,36 +2954,32 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
             
             ASTNode *spread = expr->as.struct_literal.spread_source;
-            char spread_name[64];
+            char temporary[64], spread_name[64];
+            ordered_literal_name(env, temporary, "record_literal");
+            ordered_literal_name(env, spread_name, "spread_literal");
+            emit_formatted(list, "({ %s %s = %s; ", get_prefixed_type_name(struct_name), temporary,
+                           sdef && sdef->field_count == 0 ? "{}" : "{0}");
             if (spread && sdef) {
-                unsigned index = 0;
-                do {
-                    snprintf(spread_name, sizeof(spread_name), "__nano_spread_%u", index++);
-                } while (env_get_var(env, spread_name) || env_get_function(env, spread_name));
-                emit_formatted(list, "({ __auto_type %s = ", spread_name);
+                emit_formatted(list, "__auto_type %s = ", spread_name);
                 build_expr(list, spread, env);
                 emit_formatted(list, "; (void)%s; ", spread_name);
-            }
-            emit_formatted(list, "(%s){", get_prefixed_type_name(struct_name));
-            for (int i = 0; i < field_count; i++) {
-                if (i > 0) emit_literal(list, ", ");
-                emit_formatted(list, ".%s = ", expr->as.struct_literal.field_names[i]);
-                build_expr(list, expr->as.struct_literal.field_values[i], env);
-            }
-            if (spread && sdef) {
-                int emitted = field_count;
-                for (int i = 0; i < sdef->field_count; i++) {
+                /* I snapshot inherited values before explicit source effects. */
+                for (int i = 0; i < sdef->field_count; ++i) {
                     bool overridden = false;
-                    for (int j = 0; j < field_count; j++)
+                    for (int j = 0; j < field_count; ++j)
                         if (!strcmp(sdef->field_names[i], expr->as.struct_literal.field_names[j]))
                             overridden = true;
-                    if (overridden) continue;
-                    if (emitted++) emit_literal(list, ", ");
-                    emit_formatted(list, ".%s = %s.%s", sdef->field_names[i], spread_name, sdef->field_names[i]);
+                    if (!overridden)
+                        emit_formatted(list, "%s.%s = %s.%s; ", temporary,
+                            sdef->field_names[i], spread_name, sdef->field_names[i]);
                 }
             }
-            emit_literal(list, "}");
-            if (spread && sdef) emit_literal(list, "; })");
+            for (int i = 0; i < field_count; ++i) {
+                emit_formatted(list, "%s.%s = ", temporary, expr->as.struct_literal.field_names[i]);
+                build_expr(list, expr->as.struct_literal.field_values[i], env);
+                emit_literal(list, "; ");
+            }
+            emit_formatted(list, "%s; })", temporary);
             break;
         }
         
@@ -3008,27 +3015,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 break;
             }
             
-            /* Generate union construction: (UnionName){ .tag = TAG, .data.variant = {...} } */
-            if (is_generic) {
-                /* For generic unions, use monomorphized tag name */
-                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
-                              prefixed_union, monomorphized_name, variant_name);
-            } else {
-                /* For non-generic unions, use base tag name */
-                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
-                              prefixed_union, union_name, variant_name);
-            }
-            
-            if (expr->as.union_construct.field_count > 0) {
-                emit_formatted(list, ", .data.%s = {", variant_name);
-                for (int i = 0; i < expr->as.union_construct.field_count; i++) {
-                    if (i > 0) emit_literal(list, ", ");
-                    emit_formatted(list, ".%s = ", expr->as.union_construct.field_names[i]);
-                    build_expr(list, expr->as.union_construct.field_values[i], env);
-                }
-                emit_literal(list, "}");
-            }
-            emit_literal(list, "}");
+            build_ordered_union_literal(list, env, prefixed_union,
+                is_generic ? monomorphized_name : union_name,
+                variant_name, expr->as.union_construct.field_count,
+                expr->as.union_construct.field_names, expr->as.union_construct.field_values);
             break;
         }
         
