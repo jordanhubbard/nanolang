@@ -1499,6 +1499,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 local_kind[slot] = NVM2C_VK_STR;
             } else if (v.kind == NVM2C_VK_FLOAT) {
                 local_kind[slot] = NVM2C_VK_FLOAT;
+            } else if (v.kind == NVM2C_VK_FUNCTION) {
+                local_kind[slot] = NVM2C_VK_FUNCTION;
             } else if (word_array_storage(v.kind)) {
                 local_kind[slot] = v.kind;
             } else if (v.kind == NVM2C_VK_SARR) {
@@ -1526,7 +1528,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         && local_kind[slot] != NVM2C_VK_AARR
                         && local_kind[slot] != NVM2C_VK_MAP
                         && local_kind[slot] != NVM2C_VK_VALUE
-                        && local_kind[slot] != NVM2C_VK_BOOL) {
+                        && local_kind[slot] != NVM2C_VK_BOOL
+                        && local_kind[slot] != NVM2C_VK_FUNCTION) {
                 local_kind[slot] = NVM2C_VK_INT;
             }
             break;
@@ -3083,7 +3086,8 @@ static void emit_map_roots(Nvm2cBuf *b, const Nvm2cStack *st,
     nvm2c_puts(b, "    nroot_reset(&nroots.live);\n");
     for (uint16_t i = 0; i < fn->local_count; ++i) {
         uint8_t k = fn_local_kind(b, kinds, idx, i);
-        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT) continue;
+        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT ||
+            k == NVM2C_VK_FUNCTION) continue;
         char local[32];
         local_operand(local, b, kinds, idx, i);
         if (k == NVM2C_VK_AARR) {
@@ -3096,7 +3100,8 @@ static void emit_map_roots(Nvm2cBuf *b, const Nvm2cStack *st,
     }
     for (int i = 0; i < st->sp; ++i) {
         uint8_t k = st->kinds[i];
-        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT) continue;
+        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT ||
+            k == NVM2C_VK_FUNCTION) continue;
         if (k == NVM2C_VK_AARR) {
             nvm2c_printf(b, "    nroot_add(&nroots.live, %u, &v[%d]);\n",
                          NVM2C_VK_VALUE, st->slots[i]);
@@ -3950,6 +3955,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 stack_push_aarr(b, &st, rhs);
             } else if (fn_local_kind(b, kinds, idx, slot) == NVM2C_VK_BOOL) {
                 stack_push_bool(b, &st, rhs);
+            } else if (fn_local_kind(b, kinds, idx, slot) == NVM2C_VK_FUNCTION) {
+                stack_push_function(b, &st, rhs);
             } else if (fn_local_kind(b, kinds, idx, slot) == NVM2C_VK_RARR) {
                 int a = stack_push_rarr(b, &st, rhs);
                 if (a >= 0) {
@@ -6704,7 +6711,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         for (uint16_t l = 0; l < mod->functions[f].local_count; ++l) {
             size_t at = (size_t)f * b.local_width + l;
             uint8_t resolved = resolved_shape_kind(&b, b.shape_locals[at]);
-            if (resolved != NVM2C_VK_UNK) kinds[at] = resolved;
+            /* A function reference deliberately shares integer-width storage,
+             * but its callable kind is stronger than that physical shape. */
+            if (kinds[at] != NVM2C_VK_FUNCTION && resolved != NVM2C_VK_UNK) kinds[at] = resolved;
             else if (kinds[at] == NVM2C_VK_UNK && b.shape_locals[at] &&
                      tagged_projections[nvm_shape_root(&b.shapes, b.shape_locals[at])])
                 kinds[at] = NVM2C_VK_VALUE;

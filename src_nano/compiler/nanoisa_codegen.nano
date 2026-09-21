@@ -30,6 +30,8 @@ let mut nisa_module_facts: array<ModuleIntrospection> = []
 let mut nisa_names: array<string> = []
 let mut nisa_types: array<string> = []
 let mut nisa_named_slots: array<int> = []
+let mut nisa_callback_slots: array<int> = []
+let mut nisa_callback_targets: array<int> = []
 let mut nisa_str_vals: array<string> = []
 let mut nisa_str_names: array<string> = []
 let mut nisa_ok: bool = true
@@ -266,6 +268,8 @@ fn nisa_reset() -> int {
     set nisa_names []
     set nisa_types []
     set nisa_named_slots []
+    set nisa_callback_slots []
+    set nisa_callback_targets []
     set nisa_str_vals []
     set nisa_str_names []
     set nisa_ok true
@@ -3600,10 +3604,62 @@ shadow nisa_function_identifier_index {
     assert (== (nisa_function_identifier_index parser value) 0)
 }
 
+# I retain one immutable function local's exact declaration separately from
+# its runtime FUNCREF. The local slot remains the lexical authority: once its
+# name leaves scope, nisa_local_find can no longer expose this retained fact.
+fn nisa_callback_target(slot: int) -> int {
+    let mut i: int = 0
+    while (< i (array_length nisa_callback_slots)) {
+        if (== (at nisa_callback_slots i) slot) { return (at nisa_callback_targets i) }
+        set i (+ i 1)
+    }
+    return (- 0 1)
+}
+shadow nisa_callback_target {
+    let _: int = (nisa_reset)
+    set nisa_callback_slots [2]
+    set nisa_callback_targets [7]
+    assert (== (nisa_callback_target 2) 7)
+    assert (== (nisa_callback_target 1) (- 0 1))
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_selector_prefix_ok(parser: Parser, body: ASTBlock) -> bool {
+    let count: int = (list_ASTStmtRef_length body.statements)
+    if (== count 0) { return false }
+    let mut i: int = 0
+    while (< i (- count 1)) {
+        let statement: ASTStmtRef = (list_ASTStmtRef_get body.statements i)
+        if (and (!= statement.node_type ParseNodeType.PNODE_CALL)
+                (!= statement.node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+            return false
+        }
+        if (nisa_call_has_result parser (nisa_get_call parser statement.node_id statement.node_type)) {
+            return false
+        }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow nisa_selector_prefix_ok {
+    let tokens: List<LexerToken> = (tokenize_string "fn convert(n:int)->float{return 1.5} fn choose()->fn(int)->float{(println \"choose\") return convert}" "callback.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "callback.nano")
+    assert (nisa_selector_prefix_ok parser (parser_get_block parser (parser_get_function parser 1).body))
+}
+
 # I resolve a returned callback only when one zero-argument selector returns
 # one exact declared function. Branching values still need indirect-call IR.
 fn nisa_functional_callback_index(parser: Parser, callback: ASTStmtRef) -> int {
     if (== callback.node_type ParseNodeType.PNODE_IDENTIFIER) {
+        let identifier: ASTIdentifier = (parser_get_identifier parser callback.node_id)
+        let slot: int = (nisa_local_find identifier.name)
+        if (>= slot 0) {
+            let target: int = (nisa_callback_target slot)
+            if (< target 0) {
+                let _: string = (nisa_fail "I cannot resolve an indirect call target in this emitter")
+            }
+            return target
+        }
         return (nisa_function_identifier_index parser callback)
     }
     if (and (!= callback.node_type ParseNodeType.PNODE_CALL)
@@ -3630,11 +3686,11 @@ fn nisa_functional_callback_index(parser: Parser, callback: ASTStmtRef) -> int {
         return (- 0 1)
     }
     let body: ASTBlock = (parser_get_block parser selector.body)
-    if (!= (list_ASTStmtRef_length body.statements) 1) {
+    if (not (nisa_selector_prefix_ok parser body)) {
         let _: string = (nisa_fail "I require an exact single-return callback selector")
         return (- 0 1)
     }
-    let statement: ASTStmtRef = (list_ASTStmtRef_get body.statements 0)
+    let statement: ASTStmtRef = (list_ASTStmtRef_get body.statements (- (list_ASTStmtRef_length body.statements) 1))
     if (!= statement.node_type ParseNodeType.PNODE_RETURN) {
         let _: string = (nisa_fail "I require an exact single-return callback selector")
         return (- 0 1)
@@ -3653,7 +3709,7 @@ fn nisa_functional_callback_index(parser: Parser, callback: ASTStmtRef) -> int {
     return target_index
 }
 shadow nisa_functional_callback_index {
-    let tokens: List<LexerToken> = (tokenize_string "fn convert(n:int)->float{return 1.5} fn choose()->fn(int)->float{return convert} fn main()->int{let xs=(map [1] (choose)) return 0}" "callback.nano" (diag_list_new))
+    let tokens: List<LexerToken> = (tokenize_string "fn convert(n:int)->float{return 1.5} fn choose()->fn(int)->float{(println \"choose\") return convert} fn main()->int{let xs=(map [1] (choose)) return 0}" "callback.nano" (diag_list_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "callback.nano")
     let mapped: ASTCall = (parser_get_call parser 1)
     let callback: ASTStmtRef = (parser_get_call_arg parser (+ mapped.arg_start 1))
@@ -4847,6 +4903,24 @@ shadow nisa_local_name_begin {
 
 fn nisa_emit_typed_let(parser: Parser, binding: ASTLet, value_type: string) -> string {
     if (not nisa_ok) { return "" }
+    if (str_starts_with (nisa_compact_type value_type) "fn(") {
+        if binding.is_mut { return (nisa_fail "I require an immutable exact callback local") }
+        let value: ASTStmtRef = ASTStmtRef { node_id: binding.value, node_type: binding.value_type }
+        let target_index: int = (nisa_function_identifier_index parser value)
+        if (< target_index 0) { return (nisa_fail "I require one exact declared callback local") }
+        let target: ASTFunction = (parser_get_function parser target_index)
+        if (!= (nisa_compact_type value_type) (nisa_function_spelling parser target)) {
+            return (nisa_fail "I require the exact declared callback local signature")
+        }
+        let slot: int = (array_length nisa_names)
+        set nisa_names (array_push nisa_names binding.name)
+        set nisa_types (array_push nisa_types value_type)
+        set nisa_callback_slots (array_push nisa_callback_slots slot)
+        set nisa_callback_targets (array_push nisa_callback_targets target_index)
+        (nisa_require_function target_index)
+        return (+ (nisa_line_imm "FUNCREF" target.name)
+                  (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
+    }
     if (not (nisa_type_ok parser value_type)) {
         return (nisa_fail (+ "unsupported local type " value_type))
     }
@@ -4882,6 +4956,14 @@ shadow nisa_emit_typed_let {
     assert (str_contains nisa_err "missing")
     assert (== (array_length nisa_names) 0)
     assert (== (array_length nisa_types) 0)
+    assert (== (nisa_reset) 0)
+    let callback_tokens: List<LexerToken> = (tokenize_string "fn convert(n:int)->float{return 1.5} fn main()->int{let callback:fn(int)->float=convert let xs=(map [1] callback) return 0}" "callback.nano" (diag_list_new))
+    let callback_parser: Parser = (parse_program callback_tokens (list_LexerToken_length callback_tokens) "callback.nano")
+    let callback_body: ASTBlock = (parser_get_block callback_parser (parser_get_function callback_parser 1).body)
+    let callback_binding: ASTLet = (parser_get_let callback_parser (list_ASTStmtRef_get callback_body.statements 0).node_id)
+    let callback_text: string = (nisa_emit_typed_let callback_parser callback_binding callback_binding.var_type)
+    assert (str_contains callback_text "FUNCREF convert")
+    assert (== (nisa_callback_target 0) 0)
     assert (== (nisa_reset) 0)
 }
 
@@ -5354,6 +5436,8 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_names []
     set nisa_types []
     set nisa_named_slots []
+    set nisa_callback_slots []
+    set nisa_callback_targets []
     let result_tag: string = (nisa_result_tag parser func.return_type)
     set nisa_void_return (== func.return_type "void")
     set nisa_return_type func.return_type

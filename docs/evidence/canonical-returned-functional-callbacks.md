@@ -6,12 +6,15 @@ support.
 
 ## Contract
 
-I accept a returned callback only when a zero-argument declared selector has
-one statement, that statement returns one declared function identifier, and
-the selector and target signatures match exactly. I evaluate the selector
-once before its call arguments, discard the proved function-reference value,
-and call the exact target. Branching selectors and unresolved function values
-still fail before publication.
+I accept a returned callback only when a zero-argument declared selector ends
+in one exact declared function identifier and every preceding statement is a
+straight-line, result-free call. The selector and target signatures must match
+exactly. I evaluate those prefix calls and the selector once before its call
+arguments, discard the proved function-reference value, and call the exact
+target. I also retain immutable callback locals initialized directly from one
+such declared function, without adding indirect calls. Branching selectors,
+early returns, mutable callback locals and unresolved function values still
+fail before publication.
 
 ## Retained terminals
 
@@ -31,6 +34,22 @@ call. My expression classifier treated the selector's function result as the
 outer call result and refused its float equality. I retained that terminal and
 added the same exact-selector proof to computed calls without enabling general
 indirect dispatch.
+
+Integrated hosted release run `35558456623` rebuilt the candidate and reached
+the complete self-hosted map-result matrix. All sixteen scalar combinations
+then refused immutable exact callback locals as unsupported local types. Its
+evaluation-order case separately refused the selector because its deterministic
+`println` preceded the final exact callback return. I retained those terminals,
+admitted only the bounded local and straight-line prefix forms above, and kept
+dynamic callback values refused.
+
+The first corrected Stage 2 map-result run then passed evaluation order and
+published all sixteen callback-local modules, but `nvm2c` refused every
+`FUNCREF` store because local classification replaced the callable kind with
+its integer-width storage shape. I retained that terminal. The translator now
+keeps the stronger function kind through store/load and omits these nonheap
+references from map root registration; it does not infer callable authority
+from an ordinary integer.
 
 After the corrected bootstrap, the first broad functional-array invocation
 stopped before semantics because a clean bootstrap had not built
@@ -89,3 +108,30 @@ The adjacent translator and source-emitter gates also passed:
 
 The replacement hosted release matrix remains the publication gate. These
 focused results do not by themselves authorize the tag.
+
+## Integrated release follow-up
+
+The callback correction is based on integrated release candidate
+`329d87860c8bd52b7a5e92f70ea138854d1d2532`. On the clean Linux release
+checkout, fresh bootstrap passed all stages, both hello smokes, installed
+compiler publication and the no-C-seed independence check. Its log SHA-256 is
+`e3d7548dd8f76aeabd802f512c19e5aa7b7619982638926f6ab4a12883254ef0`.
+
+The corrected focused gates then passed without exclusions:
+
+- all nine functional-array methods, including direct and returned selectors,
+  immutable callback locals, exact evaluation order and dynamic refusals; log
+  SHA-256
+  `36395b09970ace95254aaf6a3dba0f929758543a2f8c159ba4999d5cebe1e7da`;
+- both self-hosted map-result methods, including all sixteen scalar callback
+  combinations and selector/callback order; log SHA-256
+  `c3b984b013b1d36c898285c3371ead4cc3302ac758e81452019feb89e25ffa34`;
+- `make test-nvm2c`, with 2,426 structured-C checks and 1,412 shape checks;
+  log SHA-256
+  `133d4f2f1338fc5ad83075611e201e06ddb9ce9086b32910f28b2cf38a2df93e`;
+- `make test-nanoisa-src-nano`, with 86 pinned Cut A comparisons and 90
+  adjacent emitter methods; log SHA-256
+  `cacbe2db8ab4f569a7840ec1af3f686074690b9d0ad582d884b707be66bced7b`.
+
+These results qualify the bounded correction. The replacement hosted release
+matrix still gates the 5.1.0 tag.

@@ -1250,6 +1250,34 @@ their individual acceptance evidence closes them.
         regression, all nine functional-array methods, 2,426 translator
         checks, 1,412 shape checks, 86 Cut A checks and 90 adjacent emitter
         methods pass; [evidence](evidence/canonical-returned-functional-callbacks.md).
+      - [x] Integrated release run `35558456623` reaches the unchanged
+        self-hosted map-result matrix, then all 16 scalar combinations refuse
+        an exact function-reference local as an unsupported local type. Its
+        evaluation-order case also refuses a zero-argument selector whose
+        deterministic `println` precedes its single exact callback return. I
+        retain those terminals. I represent only immutable locals initialized
+        from one exact declared callback, preserve their nominal signature and
+        static target, and use them only through the existing functional-array
+        callback contract. I admit only straight-line, result-free prefix calls
+        before an exact selector return; branching, early returns and dynamic
+        targets remain refused. The replacement gate must cover all 16 scalar
+        combinations, source/selector/callback order, direct selectors,
+        immutable callback locals and dynamic refusals before I rerun hosted
+        release acceptance. Fresh Stage 2 execution now passes that complete
+        map-result matrix and all nine functional-array methods; the adjacent
+        86 Cut A comparisons and 90 emitter methods pass too. I retain exact
+        logs and hashes in my
+        [callback evidence](evidence/canonical-returned-functional-callbacks.md).
+        - [x] The corrected self-hosted emitter passes evaluation order and
+          publishes all 16 callback-local modules, then `nvm2c` refuses each
+          `FUNCREF` store because its local-kind inference leaves the slot at
+          the integer default. I preserve that terminal and teach the existing
+          representation analysis that an exact function value remains a
+          function through local store/load. I do not add `CALL_INDIRECT` or
+          infer a target from an unproved integer. Fresh translation passes
+          all 2,426 structured-C checks and 1,412 shape checks, and exact
+          callback locals are excluded from heap-root registration because
+          they remain nonheap integer-width references.
 
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
       accepted integer-zero spelling for an opaque null when foreign call
