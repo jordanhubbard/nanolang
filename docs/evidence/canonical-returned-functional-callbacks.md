@@ -6,15 +6,22 @@ support.
 
 ## Contract
 
-I accept a returned callback only when a zero-argument declared selector ends
-in one exact declared function identifier and every preceding statement is a
-straight-line, result-free call. The selector and target signatures must match
-exactly. I evaluate those prefix calls and the selector once before its call
-arguments, discard the proved function-reference value, and call the exact
-target. I also retain immutable callback locals initialized directly from one
-such declared function, without adding indirect calls. Branching selectors,
-early returns, mutable callback locals and unresolved function values still
-fail before publication.
+I accept a returned callback when a zero-argument declared selector ends in one
+exact declared function identifier and every preceding statement is a
+straight-line, result-free call. I also refine one Boolean-literal selector
+whose sole statement is an `if` over its parameter and whose two arms return
+exact signature-matching functions. I evaluate each selector once before its
+call arguments, discard its proved function-reference value, and call the
+selected target directly.
+
+I retain immutable callback locals initialized from exact declared functions.
+An exact scalar function parameter may now use `CALL_INDIRECT`; my native
+translator admits it only when published parameter and result tags select
+module functions with the same scalar shape, and every other runtime target
+traps. This is not a native callback ABI. Closures, aggregate parameters or
+results, imports, mutable callback locals, nonliteral selector conditions,
+effects inside branching selectors and unknown result joins still fail before
+publication.
 
 ## Retained terminals
 
@@ -135,3 +142,54 @@ The corrected focused gates then passed without exclusions:
 
 These results qualify the bounded correction. The replacement hosted release
 matrix still gates the 5.1.0 tag.
+
+## Returned-call hosted follow-up
+
+Hosted release run `35562442766` tested the preceding correction and reached
+the pre-existing returned-call suite. Its retained x64 log has SHA-256
+`a24436ce1bffb79bea456f6cc300f1fb1676bbcba7ec0ae1ba395d8c32754579`.
+The Boolean selector returned status 1, and the nested case refused the exact
+`identity` function argument. I retained that terminal and implemented the
+bounded contract above at production commit
+`6a772ae05e1c9bfcb07de6c68a6ef07f6d0e8d2e`.
+
+The intermediate terminals remained useful:
+
+- the first source correction passed the branch selector and ordering methods,
+  then refused `identity` as an undefined binding; its log SHA-256 is
+  `09fef7855aeecf634f6b4858014d54858ea68ee48a6ae36d65b6977aa341f054`;
+- after declared function values emitted `FUNCREF`, the raw source fixture
+  exposed unsupported function parameters;
+- after `CALL_INDIRECT` emission, NanoVM verified and ran the module while
+  native translation lacked exact parameter facts;
+- publishing scalar parameter facts independently first exposed malformed
+  partial rows for source types without a NanoISA tag; I now publish a row only
+  when every parameter has one exact tag;
+- the broad gates then found two stale test assumptions and one preserved
+  diagnostic token. Exact scalar indirect execution replaced the blanket
+  opcode refusal, the executable-closure source case became a VM/native
+  positive, and unsupported roots plus malformed stack shapes remain refused.
+
+On the final exact source, a clean Linux ARM64 bootstrap passed all stages,
+hello smokes, installed-compiler independence and the recorded comparison in
+344.96 seconds. `bin/nanoc` and `bin/nanoc_stage2` were byte-identical at
+SHA-256 `41491b18d44592501cbc777898eb2a54db2cf6b9dfa988fb8a2553e02319e087`.
+The bootstrap log SHA-256 is
+`070f041cacd35d267548152df55648cb2b05118e2234b5b2a8cb1840b3b06162`.
+
+The unchanged focused and adjacent gates passed:
+
+- all three returned-call methods through installed Stage 2 and native
+  execution; log SHA-256
+  `fda96248c2ceac92f70e4b7ddae69e90b10fa3c7e28647e9edf77b899e8c4e13`;
+- both map-result methods and all nine functional-array methods, including
+  preserved output on dynamic refusals; log SHA-256
+  `11044b74200082b48692ec9dcef32d31a562c2680ad3dafb57b1551b073fd7e8`;
+- `make test-nvm2c`, with 2,428 structured-C checks; log SHA-256
+  `4b7161319e266f0c671756ebf36c7cd089cb1093f3f7693b7207b2f18ccd6900`;
+- `make test-nanoisa-src-nano`, with 86 pinned comparisons and all 90
+  integration methods; log SHA-256
+  `a89498b4d7b7c9083da8956f41bd558f26c09de85f4584b70bdf52227e41966d`.
+
+These results qualify the bounded returned-call correction. A new hosted
+release matrix still gates PR #522 and the 5.1.0 tag.
