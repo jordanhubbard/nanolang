@@ -29,10 +29,9 @@ def invoke(args, **kwargs):
 def boolean_abi(clang, opt, flags, directory, target, triple, layout):
     # I derive ABI attributes from the selected compiler, not the build host OS.
     source = '_Bool nms_bool_abi_probe(_Bool value) { return value; }\n'
-    path = Path(directory)/(target+'-bool.c')
     output = Path(directory)/(target+'-bool.ll')
-    path.write_text(source)
-    invoke(clang + flags + [str(path), '-o', str(output)])
+    # A fixed stdin identity keeps two package generations byte-reproducible.
+    invoke(clang + flags + ['-x', 'c', '-', '-o', str(output)], input=source)
     invoke(opt + ['-passes=verify', '-disable-output', str(output)])
     ir = output.read_text()
     for field, expected in (('triple', triple), ('datalayout', layout)):

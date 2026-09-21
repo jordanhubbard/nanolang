@@ -14498,3 +14498,6 @@ unrun phases remain required, without source/assertion/warning-policy changes.
   reproducibility and real native/Wasm link controls on both hosts. I retain
   existing78042 product results at their actual source pin and compare selected
   attribute/header/product bytes before making any cross-pin claim.
+
+I track this static package regression under task_1fccee0a87a7473eade4d8472b4e9b40,
+created with no dispatch and no ticket. Qualification remains pending.
