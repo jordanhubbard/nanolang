@@ -5823,7 +5823,7 @@ test-binding-state:
 	@mkdir -p $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/nanovm/test_binding_state \
 		tests/nanovm/test_binding_state.c src/nanovm/heap.c \
-		src/nanovm/heap_cycles.c src/nanovm/value.c -lm
+		src/nanovm/heap_cycles.c src/nanovm/value.c src/nanoisa/isa.c -lm
 	$(OBJ_DIR)/nanovm/test_binding_state
 
 .PHONY: test-record-array-vm

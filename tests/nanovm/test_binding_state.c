@@ -39,7 +39,7 @@ static void allocation_controls(VmHeap *heap) {
     const uint8_t modes[]={1,0,1};
     VmBindingState *sentinel=(void *)heap,*out=sentinel;
     size_t bytes=sizeof(VmBindingState)+3*sizeof(VmBindingSlot);
-    VmHeapStats before=heap->stats;
+    VmHeapStats before;memcpy(&before,&heap->stats,sizeof before);
     CHECK(vm_binding_state_new(heap,modes,3,1,bytes-1,&out)==VM_BINDING_LIMIT);
     CHECK(out==sentinel&&!memcmp(&before,&heap->stats,sizeof before));
     fail_state=true;
