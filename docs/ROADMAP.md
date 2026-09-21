@@ -14214,3 +14214,30 @@ passed. I preserve these strict compiler terminals and add explicit function
 address references in the startup/replay functions. No helper is evaluated and
 no warning is suppressed; original assertions, generated arithmetic and strict
 flags remain unchanged. Corrected products require fresh compilation.
+
+### Generated C GCC sanitizer batch bound and nested cleanup
+
+The corrected4fd32 checkpoint passes both ordinary compiler configurations on
+both hosts. Darwin also passes its complete supported sanitizer configuration
+and all four unchanged neighbors. Linux GCC sanitizer passes emission, linked
+O0 products0000–0072 and observed O0 products0000–0006, then reaches the unchanged
+1800-second outer limit while product0007 runs. I retain timeout124, not a product
+assertion or infrastructure diagnosis. Because inner commands own distinct
+process groups, an external bounded supervisor separately inventories and
+terminates the surviving product group; its final inventory is empty. I retain
+that cleanup proof separately from the outer leader/group terminal. A denied
+read-only debugger attachment establishes no cause. Before any optimization, I
+measure no-fault initialization with ordinary versus instrumented compilers;
+all93/256,73 products and allocation/lifecycle predicates remain required.
+
+My retained no-fault diagnostic isolates initialization cost: two GCC O0
+ASan+UBSan creates take4.33076/4.44653 seconds, versus ordinary0.00384/0.00352 and
+Clang ASan+UBSan0.01113/0.01094. A separately hashed source copy hoists the same
+`nrg_void()` result before the524289-root initialization loop: GCC sanitizer
+creates then take0.00464/0.00530 seconds, ordinary0.00461/0.00351 and Clang
+sanitizer0.00931/0.00889. Each version performs exactly two successful allocations
+per create and retains zero objects/bytes after destroy. I therefore compute the
+same empty value once and assign it to each root; allocation order, bounds,
+initialized value fields, ownership and all fixture predicates stay unchanged.
+These timings explain the measured instrumentation amplification, not a waiver
+of the failed batch. Fresh affected-provider qualification remains required.

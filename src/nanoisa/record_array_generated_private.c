@@ -181,7 +181,8 @@ NrgStatus nrg_create(const NrgProgram *program,NrgInstance **out) {
     nms_init(&p->heap,program->literals,program->literal_count);
     p->roots=allocate(&p->heap,(uint64_t)NRG_ROOTS*sizeof *p->roots);
     if(!p->roots) { deallocate(p);return NRG_MEMORY; }
-    for(uint32_t i=0;i<NRG_ROOTS;i++)p->roots[i]=nrg_void();
+    NmsValue empty=nrg_void();
+    for(uint32_t i=0;i<NRG_ROOTS;i++)p->roots[i]=empty;
     NmsStatus status=nms_bind_records(&p->heap,program->records,program->record_count);
     if(status!=NMS_OK) { deallocate(p->roots);deallocate(p);return nrg_core_status(status); }
     *out=p;return NRG_OK;
