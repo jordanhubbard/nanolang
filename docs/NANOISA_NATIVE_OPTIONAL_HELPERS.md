@@ -140,3 +140,46 @@ the first proposal; this paragraph supersedes only its expression form. I will
 retain and compare all three compiler O0 undefined-symbol sets before new strict
 qualification. A compiler that still introduces dependencies or rejects the
 strict new object blocks qualification; I do not relax that acceptance.
+
+## My explicit optional declaration contract
+
+The sizeof proposal at 608 passed GCC with 85 identical undefined symbols, but
+Apple Clang rejected the strict new object with
+`-Wunneeded-internal-declaration`. I retain that terminal too; Homebrew remained
+unreached, and 608 is not qualified. I now state intended optional use on these
+same 52 owned declarations instead of adding expressions to entry functions.
+
+Only `src_nano/transpiler.nano` changes. At the end of `gen_c_runtime`, after all
+52 existing definitions are visible, I emit a file-scope portability macro:
+
+```c
+#if defined(__GNUC__) || defined(__clang__)
+#define NANO_RT_OPTIONAL_SUPPORT(name) \
+    static __typeof__(name) name __attribute__((unused));
+#else
+#define NANO_RT_OPTIONAL_SUPPORT(name)
+#endif
+```
+
+I then emit exactly one invocation for each catalog name, with no extra trailing
+semicolon, and undefine the macro. Each supported-compiler redeclaration retains
+static linkage and obtains the exact already declared function type. The type
+operand is unevaluated, and the attribute declares intentional optional use; it
+does not request emission or a call. The empty fallback retains existing source
+on other compilers; I claim strict acceptance only for my selected GCC/Clang
+providers. I do not disable a warning class or relax checks inside any helper.
+
+All original helper bodies, C signatures, binary64 header/generated-source bytes
+and preprocessor guards remain unchanged. The earlier entry expressions are
+removed entirely, returning both actual entry functions to their original
+statements. Only the newly added proposal-specific shadow checks migrate from
+entry-reference strings to the declaration block; all original source/fixture
+assertions remain. The lower-level runtime string assembler also receives the
+same annotations through `gen_c_runtime`, with no requirement for a new entry.
+
+The exact catalog/source audit and three-compiler object comparison remain
+mandatory. I will construct a separately attributed nonexecuted counterfactual
+from retained 303 generated C by inserting only this exact block after runtime
+helpers, then compare old/new O0 symbols. The actual newly built producer must
+still generate, strictly compile, link and run the full original eighteen and
+new eight methods. Neither counterfactual is semantic qualification.
