@@ -1218,6 +1218,20 @@ their individual acceptance evidence closes them.
       `a1bfe52a6a08a2770d16cb6959d0617715c5978387ae29317324afe02e7ef749`.
       MAC `task_4fc9f8408dc8642d77894784e38f6737`.
 
+- [ ] **Preserve exact returned callbacks in my canonical functional arrays.**
+      Hosted release run `35551946391` outlives the former coverage alarm,
+      rebuilds Stage 2, then the unchanged inferred-result map acceptance case
+      stops because `(choose)` is not a declared callback identifier. I admit
+      only a zero-argument selector whose checked body returns one exact
+      declared scalar callback. I evaluate the source first, the selector once
+      second, and that callback once per element. Branching or otherwise
+      dynamic callback values remain refused until I have their indirect-call
+      contract. I require self-hosted emission, native translation, execution,
+      bootstrap and replacement hosted release evidence without skipping or
+      weakening the original test. The retained coverage log has SHA-256
+      `52ac99538831146c5bd91af503d8be3037b19bf3b5bf499ff3b224e84240d98d`.
+      MAC `task_34bf8b5232b74ed080cbd21039e6aeb6`.
+
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
       accepted integer-zero spelling for an opaque null when foreign call
       arguments are evaluated once into ordered temporaries. I reject nonzero
