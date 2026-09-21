@@ -14375,3 +14375,8 @@ allocator failure claim.
   and review the narrow guard before fresh preparation and the full matrices.
   MAC: task_3fb1050a410f41e7be711f628f77323a. I do not infer a source-level
   null-name reproducer from this compile diagnostic.
+
+- [ ] I expose the actual realpath declaration before including env.c in both
+  owning tuple/lifetime fixtures. I retain1b29 strict C99 compile refusal and
+  add guarded XOPEN700 before headers, preserving production and all assertions.
+  MAC: task_c87e9c77a6fe4bb2a569de6651c5bf70. Fresh focused controls remain required.
