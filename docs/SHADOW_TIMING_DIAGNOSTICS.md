@@ -41,3 +41,47 @@ My standalone control compiles only the header probe. It checks absent, empty,
 preserves errno, samples both CPU scopes and stops at the explicit 4096th
 record. It retains compiler version, input/tool identities, every terminal and
 raw/parsed output. This does not execute a compiler shadow program.
+
+## My measured result and bounded source correction
+
+At frozen f4409e0cf, standalone controls pass on Linux GCC and Darwin Apple
+Clang. One fresh Darwin diagnostic retains exit 1 and child SIGALRM under the
+original ten-second bound. Parent wall time is 10.036499 seconds and cumulative
+reaped-child CPU increases by 10.030782 seconds. The observed child interval
+uses 9.989696 CPU seconds in 9.990980 wall seconds. This establishes near-full
+CPU use in this diagnostic, not the cause of the earlier timeouts. The retained
+remote evidence is `/tmp/shadow-timing-f440-diagnostic-evidence/analysis.json`.
+I do not repeat the failed diagnostic unchanged.
+
+My source review proves that `split_lines` obtains a one-byte substring for
+every byte. The evaluator checks source length, the runtime substring checks
+length again and allocates a buffer, and `create_string` copies that buffer
+into GC storage. My newline predicate needs only the unsigned byte. The actual
+`char_at` evaluator returns `(unsigned char)str[index]`; its bound uses a 64MiB
+`strnlen`. Native `nl_cstr_char_at` also returns an unsigned byte. I therefore
+use this predicate only when the already measured string length is at most
+64MiB, retaining the original substring predicate above that boundary. I do
+not impose a new accepted-input limit. Line extraction remains unchanged.
+
+`nlc_str_starts_with` already measures both lengths, then interprets a loop
+and calls `char_at` twice per prefix byte. For strings within the same 64MiB
+boundary, one substring of the exact prefix length compared with the prefix
+has identical byte semantics. Shorter source refuses first; an empty prefix
+returns true explicitly. Above that boundary I preserve the original loop,
+including its existing refusal behavior. I do not change decoding or string
+runtime allocation policy.
+
+These changes remove demonstrated temporary work. `char_at` still scans the
+source length, so I do not claim linear complexity. Ordinary DFS and merging
+also split the same retained source separately; I record this observation but
+do not add retained-line fields, cross-invocation caches or change traversal.
+I preserve canonical path deduplication, first-read source retention, DFS order,
+all configured limits, import parsing, visibility stripping, opaque retention,
+line/origin maps and the real JSON parse shadow. The largest imported numeric
+shadow sites have not been independently mapped to declaration names here.
+
+My focused shadows cover empty input/prefix, exact and shorter prefixes,
+non-ASCII bytes, partial UTF-8 prefix bytes, newline at both boundaries,
+consecutive newlines and CRLF preservation. Source review precedes execution.
+Fresh complete bootstrap/SDK acceptance and exact selected shadows remain
+required; no timeout, selection or original predicate is weakened.

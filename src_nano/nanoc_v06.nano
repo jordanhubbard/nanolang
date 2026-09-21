@@ -267,6 +267,11 @@ fn nlc_str_starts_with(s: string, prefix: string) -> bool {
     if (< len_s len_p) {
         return false
     } else {
+        if (== len_p 0) { return true }
+        # I retain the legacy byte-index boundary for longer interpreter strings.
+        if (<= len_s 67108864) {
+            return (== (str_substring s 0 len_p) prefix)
+        }
         let mut i: int = 0
         while (< i len_p) {
             if (!= (char_at s i) (char_at prefix i)) {
@@ -284,6 +289,13 @@ shadow nlc_str_starts_with {
     assert (not (nlc_str_starts_with "world" "hello"))
     assert (nlc_str_starts_with "" "")
     assert (nlc_str_starts_with "a" "")
+    assert (nlc_str_starts_with "same" "same")
+    assert (not (nlc_str_starts_with "abc" "abd"))
+    assert (not (nlc_str_starts_with "" "a"))
+    assert (nlc_str_starts_with "éclair" "é")
+    let partial_utf8: string = (str_substring "é" 0 1)
+    assert (nlc_str_starts_with "éclair" partial_utf8)
+    assert (not (nlc_str_starts_with "èclair" "é"))
 }
 
 fn nlc_str_ends_with(s: string, suffix: string) -> bool {
@@ -513,8 +525,16 @@ fn split_lines(s: string) -> array<string> {
     let mut start: int = 0
     let mut i: int = 0
 
+    # I use unsigned byte indexing only within its existing interpreter bound.
+    let byte_indexed: bool = (<= len 67108864)
     while (< i len) {
-        if (== (str_substring s i 1) "\n") {
+        let mut newline: bool = false
+        if byte_indexed {
+            set newline (== (char_at s i) 10)
+        } else {
+            set newline (== (str_substring s i 1) "\n")
+        }
+        if newline {
             set out (array_push out (str_substring s start (- i start)))
             set start (+ i 1)
         } else { (print "") }
@@ -531,6 +551,20 @@ shadow split_lines {
     let lines: array<string> = (split_lines "hello")
     assert (== (array_length lines) 1)
     assert (== (at lines 0) "hello")
+    let empty: array<string> = (split_lines "")
+    assert (== (array_length empty) 1)
+    assert (== (at empty 0) "")
+    let boundary: array<string> = (split_lines "\né\n\nend\n")
+    assert (== (array_length boundary) 5)
+    assert (== (at boundary 0) "")
+    assert (== (at boundary 1) "é")
+    assert (== (at boundary 2) "")
+    assert (== (at boundary 3) "end")
+    assert (== (at boundary 4) "")
+    let crlf: array<string> = (split_lines "a\r\nb")
+    assert (== (array_length crlf) 2)
+    assert (== (at crlf 0) "a\r")
+    assert (== (at crlf 1) "b")
 }
 
 fn parse_import_path_from_line(line: string) -> string {
