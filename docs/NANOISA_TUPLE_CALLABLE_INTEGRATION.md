@@ -236,3 +236,29 @@ I audit every early return in these entry wrappers and test corrected-only
 initial/growth allocation prefixes, recursive late-child failure, malformed
 later siblings, preservation of prior owned rows, and fresh success. I do not
 execute a stale-key reproduction on 1e2e862dd.
+
+### Corrected source and fixture checkpoint
+
+My rollback implementation is allocation-free and restores append counts on
+recursive publication failure, failed emitted-snapshot ownership registration,
+and all five checker entry routes (program, module, root shadows, imported
+shadow scope, direct expression). The fixture preserves seeded tuple and array
+snapshot addresses, checks empty and nonempty cache rollback, injects every
+measured prefix/transient allocation failure, and follows each with fresh
+success. A late child arity refusal occurs after the root has been staged.
+Both public native metadata APIs have owned-context failure controls; legacy
+fatal declaration-signature allocation behavior remains a separate limit.
+
+I retain the original eighteen source methods and eight native methods.
+Additive native programs cover same-flat-tag distinct imported records, nested
+record/tuple/callback layouts, mixed definition/formal payload owners, tuple
+field-to-alias-to-call/return/assignment, exact tuple and callback arrays, empty
+callback input, and left-to-right child effects under all existing producers
+and O0/O2 routes. Swapped-owner programs require an actual TYPE MISMATCH before
+C compilation and preserve the sentinel output; they are never executed.
+
+The SDK reviewer found two already-corrected shadow prerequisites missing from
+my selected dependency import. I retain f39d9cbd8's separated generic-close and
+assignment tokens plus call/argument counts, and 8c79bca5c's nonreserved local
+name opaque_annotation. I do not replay their known earlier malformed shadows.
+This checkpoint remains unexecuted pending source review.

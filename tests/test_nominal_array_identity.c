@@ -665,8 +665,55 @@ static void constructor_failure_rollback(void) {
         free_ast(program); free_tokens(tokens, count); free_environment(env);
     }
 }
+static void emission_entry_rollback(void) {
+    for (int entry = 0; entry < 5; ++entry) for (int invalid = 1; invalid >= 0; --invalid) {
+        char source[512];
+        const char *format = entry < 2
+            ? "fn main()->int { let pair:(int,int) =(1,2) return %s } shadow main { assert true }"
+            : entry < 4
+            ? "fn main()->int { return 0 } shadow main { let pair:(int,int) =(1,2) assert %s }"
+            : "fn main()->int { let pair:(int,int) =(1,2) %s }";
+        const char *tail = entry < 2 ? (invalid ? "true" : "0")
+            : entry < 4 ? (invalid ? "1" : "true") : (invalid ? "missing" : "0");
+        int length = snprintf(source, sizeof source, format, tail);
+        assert(length > 0 && (size_t)length < sizeof source);
+        int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+        ASTNode *program = parse_program(tokens, count); assert(program);
+        Environment *env = create_environment(); assert(env);
+        TypeInfo scalar = {.base_type = TYPE_INT}, array = {.base_type = TYPE_ARRAY, .element_type = &scalar};
+        Type tags[] = {TYPE_INT}; TypeInfo *children[] = {&scalar};
+        TypeInfo tuple = {.base_type = TYPE_TUPLE, .tuple_element_count = 1,
+            .tuple_types = tags, .type_param_count = 1, .type_params = children};
+        ASTNode prior = {.type = AST_TUPLE_LITERAL}, prior_array = {.type = AST_ARRAY_LITERAL};
+        prior.as.tuple_literal.element_count = 1;
+        assert(env_bind_tuple_literal(env, &prior, &tuple));
+        assert(env_bind_array_expression(env, &prior_array, &array));
+        const TypeInfo *saved_tuple = env_tuple_literal_info(env, &prior);
+        const TypeInfo *saved_array = env_array_expression_info(env, &prior_array);
+        if (entry == 2 || entry == 3) assert(type_check_module(program, env));
+        NativeContextMark before = native_context_mark(env);
+        bool ok;
+        if (entry == 0) ok = type_check(program, env);
+        else if (entry == 1) ok = type_check_module(program, env);
+        else if (entry == 2) ok = type_check_root_shadows(program, env);
+        else if (entry == 3) ok = type_check_shadow_scope(program, env, NULL, "native-cache.nano", false);
+        else {
+            g_typecheck_error_count = 0;
+            assert(program->as.program.count == 1 && program->as.program.items[0]->type == AST_FUNCTION);
+            ok = check_expression(program->as.program.items[0]->as.function.body, env) != TYPE_UNKNOWN;
+        }
+        assert(ok == !invalid);
+        assert(env_tuple_literal_info(env, &prior) == saved_tuple && type_infos_equal(saved_tuple, &tuple));
+        assert(env_array_expression_info(env, &prior_array) == saved_array && type_infos_equal(saved_array, &array));
+        if (invalid) {
+            assert(env->tuple_literal_binding_count == before.tuples);
+            assert(env->array_expression_binding_count == before.arrays);
+        } else assert(env->tuple_literal_binding_count > before.tuples);
+        free_environment(env); free_ast(program); free_tokens(tokens, count);
+    }
+}
 int main(void) {
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); constructor_failure_rollback();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); constructor_failure_rollback(); emission_entry_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }

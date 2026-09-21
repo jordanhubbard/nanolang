@@ -243,6 +243,38 @@ static void callable_context_controls(void) {
     }
 }
 
+static size_t native_callable_attempt(size_t prefix, bool transient, bool legacy_return) {
+    Environment *env = create_environment(); CHECK(env);
+    for (int i = 0; i < 2; ++i) {
+        StructDef record = {0}; record.name = strdup("Item"); record.module_name = i ? "Caller" : "Definitions";
+        CHECK(record.name); env_define_struct(env, record);
+    }
+    env_define_var(env, "callback", TYPE_FUNCTION, false, create_void());
+    CHECK(array_test_prepare_callable(env, legacy_return));
+    Symbol *binding = env_get_var(env, "callback");
+    const void *proof = binding->checker_nominal_view; TypeInfo *prior = binding->type_info;
+    ASTNode identifier = {.type = AST_IDENTIFIER}; identifier.as.identifier = "callback";
+    begin(prefix, transient);
+    FunctionSignature *copy = checked_callable_signature_copy(&identifier, env);
+    size_t count = stop();
+    if (prefix == SIZE_MAX) CHECK(copy && !failed && copy != prior->fn_sig && copy->return_fn_sig);
+    else CHECK(!copy && failed);
+    CHECK(binding->checker_nominal_view == proof && binding->type_info == prior);
+    free_function_signature(copy); CHECK(!live);
+    free_environment(env); CHECK(!live);
+    return count;
+}
+static void native_callable_controls(void) {
+    for (int legacy = 0; legacy < 2; ++legacy) {
+        size_t count = native_callable_attempt(SIZE_MAX, false, legacy != 0); CHECK(count > 30);
+        printf("I measure native callable form %d: %zu allocation attempts.\n", legacy, count);
+        for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+            native_callable_attempt(i, transient != 0, legacy != 0);
+            CHECK(native_callable_attempt(SIZE_MAX, false, legacy != 0) == count);
+        }
+    }
+}
+
 extern bool array_test_prepare_tuple_leaves(Environment *);
 extern bool array_test_tuple_consumer(Environment *, Symbol *, TypeInfo **);
 static size_t tuple_context_attempt(size_t prefix, bool transient, bool publication) {
@@ -309,6 +341,70 @@ static void tuple_tags_controls(void) {
     for (int transient = 0; transient < 2; ++transient) {
         tuple_tags_attempt(0, transient != 0);
         CHECK(tuple_tags_attempt(SIZE_MAX, false) == count);
+    }
+}
+
+extern bool array_test_native_publish(Environment *, ASTNode *, bool);
+static size_t native_emission_attempt(size_t prefix, bool transient, int mode, bool seeded) {
+    Environment *env = create_environment(); CHECK(env);
+    TypeInfo scalar = {.base_type = TYPE_INT}, array = {.base_type = TYPE_ARRAY, .element_type = &scalar};
+    Type tags[] = {TYPE_INT}; TypeInfo *children[] = {&scalar};
+    TypeInfo prior_tuple = {.base_type = TYPE_TUPLE, .tuple_element_count = 1,
+        .tuple_types = tags, .type_param_count = 1, .type_params = children};
+    ASTNode prior = {.type = AST_TUPLE_LITERAL}, prior_array = {.type = AST_ARRAY_LITERAL};
+    prior.as.tuple_literal.element_count = 1;
+    if (seeded) {
+        CHECK(env_bind_tuple_literal(env, &prior, &prior_tuple));
+        CHECK(env_bind_array_expression(env, &prior_array, &array));
+    }
+    const TypeInfo *old_tuple = env_tuple_literal_info(env, &prior);
+    const TypeInfo *old_array = env_array_expression_info(env, &prior_array);
+    ASTNode one = {.type = AST_NUMBER}, inner = {.type = AST_TUPLE_LITERAL};
+    ASTNode list = {.type = AST_ARRAY_LITERAL}, outer = {.type = AST_TUPLE_LITERAL};
+    ASTNode *single[] = {&one}, *pair[] = {&inner, &list};
+    inner.as.tuple_literal.elements = single; inner.as.tuple_literal.element_count = 1;
+    list.as.array_literal.elements = single; list.as.array_literal.element_count = 1;
+    outer.as.tuple_literal.elements = pair; outer.as.tuple_literal.element_count = 2;
+    begin(prefix, transient);
+    const TypeInfo *published = NULL;
+    bool ok = mode == 2 ? (published = checked_expression_type_info(&outer, env)) != NULL
+                        : array_test_native_publish(env, &outer, mode == 1);
+    size_t count = stop();
+    if (mode == 1) CHECK(!ok && !failed);
+    else if (prefix == SIZE_MAX) CHECK(ok && !failed);
+    else CHECK(!ok && failed);
+    CHECK(env_tuple_literal_info(env, &prior) == old_tuple && (!seeded || type_infos_equal(old_tuple, &prior_tuple)));
+    CHECK(env_array_expression_info(env, &prior_array) == old_array && (!seeded || type_infos_equal(old_array, &array)));
+    CHECK(inner.as.tuple_literal.element_count == 1);
+    if (ok) {
+        CHECK(env->tuple_literal_binding_count == (size_t)seeded + 2 &&
+              env->array_expression_binding_count == (size_t)seeded + 1);
+        CHECK(env_tuple_literal_info(env, &outer) && env_tuple_literal_info(env, &inner));
+        CHECK(env_array_expression_info(env, &list));
+        if (published) CHECK(published->type_param_count == 2 &&
+            published->type_params[0]->base_type == TYPE_TUPLE &&
+            published->type_params[1]->base_type == TYPE_ARRAY);
+    } else {
+        CHECK(env->tuple_literal_binding_count == (size_t)seeded &&
+              env->array_expression_binding_count == (size_t)seeded);
+        CHECK(!env_tuple_literal_info(env, &outer) && !env_tuple_literal_info(env, &inner));
+        CHECK(!env_array_expression_info(env, &list));
+        if (!seeded) CHECK(!env->tuple_literal_bindings && !env->array_expression_bindings);
+    }
+    free_environment(env); CHECK(!live);
+    return count;
+}
+static void native_emission_controls(void) {
+    for (int seeded = 0; seeded < 2; ++seeded) {
+        native_emission_attempt(SIZE_MAX, false, 1, seeded != 0);
+        for (int mode = 0; mode <= 2; mode += 2) {
+            size_t count = native_emission_attempt(SIZE_MAX, false, mode, seeded != 0); CHECK(count > 30);
+            printf("I measure transactional native metadata mode %d seeded %d: %zu allocation attempts.\n", mode, seeded, count);
+            for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+                native_emission_attempt(i, transient != 0, mode, seeded != 0);
+                CHECK(native_emission_attempt(SIZE_MAX, false, mode, seeded != 0) == count);
+            }
+        }
     }
 }
 
@@ -408,7 +504,7 @@ int main(void) {
     CHECK(copy_payload_type_info_checked(chain + 1, &out)); free_payload_type_info(out);
     CHECK(copy_payload_type_info_checked(NULL, &out) && out == NULL);
     CHECK(!copy_payload_type_info_checked(chain, NULL));
-    struct_auxiliary_teardown_controls(); registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); constructor_registry_controls();
+    struct_auxiliary_teardown_controls(); registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); native_callable_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); native_emission_controls(); constructor_registry_controls();
     printf("I passed %zu separate checker annotation allocation assertions.\n", checks);
     return 0;
 }

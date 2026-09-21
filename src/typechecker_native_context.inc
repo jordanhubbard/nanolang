@@ -1,13 +1,38 @@
+typedef struct { size_t tuples, arrays; } NativeContextMark;
+static NativeContextMark native_context_mark(const Environment *env) {
+    return (NativeContextMark){env ? env->tuple_literal_binding_count : 0,
+                               env ? env->array_expression_binding_count : 0};
+}
+/* Cache rows append independent owners. Rollback never allocates or replaces
+ * a prior snapshot; no caller borrows the private backing row vector. */
+static void native_context_restore(Environment *env, NativeContextMark mark) {
+    if (!env) return;
+    while (env->tuple_literal_binding_count > mark.tuples) {
+        TupleLiteralBinding *row = &env->tuple_literal_bindings[--env->tuple_literal_binding_count];
+        free_payload_type_info(row->type_info); memset(row, 0, sizeof *row);
+    }
+    while (env->array_expression_binding_count > mark.arrays) {
+        TupleLiteralBinding *row = &env->array_expression_bindings[--env->array_expression_binding_count];
+        free_payload_type_info(row->type_info); memset(row, 0, sizeof *row);
+    }
+    if (!env->tuple_literal_binding_count) {
+        free(env->tuple_literal_bindings); env->tuple_literal_bindings = NULL;
+    }
+    if (!env->array_expression_binding_count) {
+        free(env->array_expression_bindings); env->array_expression_bindings = NULL;
+    }
+}
+
 /* I publish independent native metadata only after source compatibility has
  * selected a complete view. These copies never authorize nominal identity. */
-static bool native_bind_checked_view(Environment *env, const NominalView *view,
+static bool native_bind_checked_view_impl(Environment *env, const NominalView *view,
                                      ASTNode *value, unsigned depth) {
     if (!env || !view || !view->info || !value || depth > 128) return false;
     if (value->type == AST_BLOCK && value->as.block.count)
-        return native_bind_checked_view(env, view,
+        return native_bind_checked_view_impl(env, view,
             value->as.block.statements[value->as.block.count - 1], depth + 1);
     if (value->type == AST_RETURN)
-        return native_bind_checked_view(env, view, value->as.return_stmt.value, depth + 1);
+        return native_bind_checked_view_impl(env, view, value->as.return_stmt.value, depth + 1);
     if (value->type == AST_IF || value->type == AST_COND || value->type == AST_MATCH) {
         int count = value->type == AST_IF ? 2 : value->type == AST_MATCH
             ? value->as.match_expr.arm_count : value->as.cond_expr.clause_count + 1;
@@ -16,7 +41,7 @@ static bool native_bind_checked_view(Environment *env, const NominalView *view,
                 : value->type == AST_MATCH ? value->as.match_expr.arm_bodies[i]
                 : i < value->as.cond_expr.clause_count ? value->as.cond_expr.values[i] : value->as.cond_expr.else_value;
             if (ast_always_returns(body)) continue;
-            if (!native_bind_checked_view(env, view, body, depth + 1)) return false;
+            if (!native_bind_checked_view_impl(env, view, body, depth + 1)) return false;
         }
         return true;
     }
@@ -37,11 +62,18 @@ static bool native_bind_checked_view(Environment *env, const NominalView *view,
         NominalView child = {0};
         ASTNode *item = array ? value->as.array_literal.elements[i] : value->as.tuple_literal.elements[i];
         ok = nominal_view_child(env, view, array ? 0 : (size_t)i, depth + 1, &child) &&
-             native_bind_checked_view(env, &child, item, depth + 1);
+             native_bind_checked_view_impl(env, &child, item, depth + 1);
         nominal_view_discard(&child);
         if (!ok) return false;
     }
     return true;
+}
+static bool native_bind_checked_view(Environment *env, const NominalView *view,
+                                     ASTNode *value, unsigned depth) {
+    NativeContextMark mark = native_context_mark(env);
+    bool ok = native_bind_checked_view_impl(env, view, value, depth);
+    if (!ok) native_context_restore(env, mark);
+    return ok;
 }
 static bool native_bind_checked_annotation(Environment *env, const TypeInfo *info,
     const char *owner, const NominalSubstitution *context, ASTNode *value, unsigned depth) {
@@ -68,20 +100,24 @@ const TypeInfo *checked_expression_type_info(ASTNode *expr, Environment *env) {
     const TypeInfo *old = env_array_expression_info(env, expr);
     if (!old && expr->type == AST_TUPLE_LITERAL) old = env_tuple_literal_info(env, expr);
     if (old) return old;
+    NativeContextMark mark = native_context_mark(env);
     NominalView view = {0};
     TypeInfo *copy = NULL;
     if (!nominal_value_view(expr, env, 0, &view) || view.payload ||
         !nominal_view_materialize(env, &view, 0, &copy)) {
-        nominal_view_discard(&view); free_payload_type_info(copy); return NULL;
+        nominal_view_discard(&view); free_payload_type_info(copy);
+        native_context_restore(env, mark); return NULL;
     }
     bool stored = native_bind_checked_view(env, &view, expr, 0);
     nominal_view_discard(&view);
     if (!stored || !env_own_checker_type_info(env, copy)) {
-        free_payload_type_info(copy); env->opaque_resolution_failed = true; return NULL;
+        free_payload_type_info(copy); native_context_restore(env, mark);
+        env->opaque_resolution_failed = true; return NULL;
     }
     return copy;
 }
 FunctionSignature *checked_callable_signature_copy(ASTNode *expr, Environment *env) {
+    NativeContextMark mark = native_context_mark(env);
     NominalView view = {0};
     TypeInfo *copy = NULL;
     FunctionSignature *result = NULL;
@@ -90,5 +126,6 @@ FunctionSignature *checked_callable_signature_copy(ASTNode *expr, Environment *e
         copy->base_type == TYPE_FUNCTION && copy->fn_sig &&
         copy_function_signature_checked(copy->fn_sig, &result);
     nominal_view_discard(&view); free_payload_type_info(copy);
+    if (!ok) native_context_restore(env, mark);
     return ok ? result : NULL;
 }

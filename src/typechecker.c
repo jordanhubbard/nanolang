@@ -2292,8 +2292,14 @@ Type check_expression(ASTNode *expr, Environment *env) {
         return TYPE_UNKNOWN;
     }
 
+    NativeContextMark native_before = native_context_mark(env);
+    int errors_before = g_typecheck_error_count;
+    bool metadata_failed_before = env && env->opaque_resolution_failed;
     int first_symbol = env ? env->symbol_count : 0;
     Type result = check_expression_impl(expr, env);
+    if (result == TYPE_UNKNOWN || errors_before != g_typecheck_error_count ||
+        (env && env->opaque_resolution_failed && !metadata_failed_before))
+        native_context_restore(env, native_before);
     bound_scope_symbols(env, first_symbol, expr);
     g_check_expr_depth--;
     return result;
@@ -8208,6 +8214,7 @@ static bool functions_match(Function *f1, Function *f2) {
 bool type_check_root_shadows(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM || !env) return false;
     CheckerNominalExpression *before = env->checker_nominal_expressions;
+    NativeContextMark native_before = native_context_mark(env);
     bool ok = true;
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -8219,7 +8226,10 @@ bool type_check_root_shadows(ASTNode *program, Environment *env) {
         if (tc.has_error) ok = false;
     }
     ok = ok && g_typecheck_error_count == 0;
-    if (!ok) env->checker_nominal_expressions = before;
+    if (!ok) {
+        env->checker_nominal_expressions = before;
+        native_context_restore(env, native_before);
+    }
     return ok;
 }
 
@@ -8229,6 +8239,7 @@ bool type_check_shadow_scope(ASTNode *program, Environment *env, ModuleList *mod
                              const char *input_file, bool include_imports) {
     if (!env) return false;
     CheckerNominalExpression *before = env->checker_nominal_expressions;
+    NativeContextMark native_before = native_context_mark(env);
     char *root_owner = env->current_module;
     bool root_unsafe = env->current_module_is_unsafe;
     env_set_current_file(env, input_file);
@@ -8257,7 +8268,10 @@ bool type_check_shadow_scope(ASTNode *program, Environment *env, ModuleList *mod
     env_set_current_file(env, input_file);
     env->current_module_is_unsafe = root_unsafe;
     typecheck_set_current_file(input_file);
-    if (!typed) env->checker_nominal_expressions = before;
+    if (!typed) {
+        env->checker_nominal_expressions = before;
+        native_context_restore(env, native_before);
+    }
     return typed;
 }
 
@@ -10000,13 +10014,21 @@ register_function_pass2:;
 /* Failed fresh ASTs can be freed by the loader. Their keys must not survive. */
 bool type_check(ASTNode *program, Environment *env) {
     CheckerNominalExpression *before = env ? env->checker_nominal_expressions : NULL;
+    NativeContextMark native_before = native_context_mark(env);
     bool ok = type_check_program_impl(program, env);
-    if (!ok && env) env->checker_nominal_expressions = before;
+    if (!ok && env) {
+        env->checker_nominal_expressions = before;
+        native_context_restore(env, native_before);
+    }
     return ok;
 }
 bool type_check_module(ASTNode *program, Environment *env) {
     CheckerNominalExpression *before = env ? env->checker_nominal_expressions : NULL;
+    NativeContextMark native_before = native_context_mark(env);
     bool ok = type_check_module_impl(program, env);
-    if (!ok && env) env->checker_nominal_expressions = before;
+    if (!ok && env) {
+        env->checker_nominal_expressions = before;
+        native_context_restore(env, native_before);
+    }
     return ok;
 }

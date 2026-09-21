@@ -1,0 +1,64 @@
+module "@TUPLES@" as p
+struct Item { value:int }
+struct Box { pair:(Item,int), callback:fn(p.Item,Item)->Item }
+fn combine(fixed:p.Item, own:Item)->Item {
+ return Item{value:(+ fixed.value own.value)}
+}
+shadow combine { assert (== (combine (p.fixed) Item{value:29}).value 46) }
+fn pack()->p.Bundle<Item> {
+ return p.Bundle<Item>.Stored{payload:((p.fixed),Item{value:29},combine)}
+}
+shadow pack { match (pack) {Stored(body)=>{assert (== body.payload.0.value 17)}} }
+fn extract(value:p.Bundle<Item>)->fn(p.Item,Item)->Item {
+ return match value {Stored(body)=>body.payload.2}
+}
+shadow extract { let f=(extract (pack)) assert (== (f (p.fixed) Item{value:29}).value 46) }
+fn identity(value:(p.Item,Item,fn(p.Item,Item)->Item))->(p.Item,Item,fn(p.Item,Item)->Item) {
+ return value
+}
+shadow identity { let value=(identity ((p.fixed),Item{value:29},combine)) assert (== value.1.value 29) }
+fn mark(trace:array<int>, value:int)->int {
+ (array_push trace value)
+ return value
+}
+shadow mark { let trace:array<int> =[] assert (== (mark trace 3) 3) assert (== (at trace 0) 3) }
+fn main()->int {
+ let fixed=((p.fixed),7)
+ let own=(Item{value:29},8)
+ assert (== fixed.0.value 17)
+ assert (== own.0.value 29)
+ let box:Box=Box{pair:own,callback:combine}
+ assert (== box.pair.0.value 29)
+ let nested=(fixed,(own,combine))
+ let f=nested.1.1
+ assert (== (f nested.0.0 nested.1.0.0).value 46)
+ let value=(pack)
+ match value {Stored(body)=>{
+  let projected=body.payload
+  let mut callback=projected.2
+  set callback (cond (true projected.2) (else callback))
+  assert (== (callback projected.0 projected.1).value 46)
+ }}
+ let returned=(extract value)
+ assert (== (returned (p.fixed) Item{value:29}).value 46)
+ let rows:array<(p.Item,Item,fn(p.Item,Item)->Item)> =[((p.fixed),Item{value:29},combine)]
+ let row=(at rows 0)
+ let selected=row.2
+ assert (== (selected row.0 row.1).value 46)
+ let mapped=(map rows identity)
+ assert (== (at mapped 0).1.value 29)
+ let empty=(map [] identity)
+ assert (== (array_length empty) 0)
+ let callbacks:array<fn(p.Item,Item)->Item> =[combine]
+ let from_array=(at callbacks 0)
+ assert (== (from_array (p.fixed) Item{value:29}).value 46)
+ let trace:array<int> =[]
+ let ordered=((mark trace 11),(mark trace 22))
+ assert (== ordered.0 11)
+ assert (== ordered.1 22)
+ assert (== (array_length trace) 2)
+ assert (== (at trace 0) 11)
+ assert (== (at trace 1) 22)
+ return 0
+}
+shadow main { assert (== (main) 0) }

@@ -282,6 +282,30 @@ shadow main { assert (== (main) 0) }
             self.assertEqual(output.read_bytes(), retained.SENTINEL)
             self.assertIn(b'TYPE MISMATCH', out + err)
             self.assertNotIn(b'C compilation failed', out + err)
+        (directory / 'Tuples.nano').write_text('''module Tuples
+pub struct Item { value:int }
+pub union Bundle<T> { Stored { payload:(Item,T,fn(Item,T)->T) } }
+pub fn fixed()->Item { return Item{value:17} }
+shadow fixed { assert (== (fixed).value 17) }
+''')
+        tuple_source = (ROOT / 'tests/fixtures/evaluator_lists/native_tuple_callbacks.nano').read_text().replace(
+            '@TUPLES@', str(directory / 'Tuples.nano'))
+        self.native_routes('native-complete-tuple-callbacks', tuple_source)
+        for case, original, replacement in (
+            ('tuple-owner', 'Box{pair:own,callback:combine}', 'Box{pair:fixed,callback:combine}'),
+            ('tuple-callback-owner', 'fn extract(value:p.Bundle<Item>)->fn(p.Item,Item)->Item',
+                                     'fn extract(value:p.Bundle<Item>)->fn(Item,p.Item)->Item'),
+        ):
+            self.assertIn(original, tuple_source)
+            path = self.work / (case + '.nano')
+            path.write_text(tuple_source.replace(original, replacement, 1))
+            output = self.work / case
+            output.write_bytes(retained.SENTINEL)
+            out, err = self.command(case, [ROOT / 'bin/nanoc_c', path, '-o', output, '--keep-c'],
+                                    expected=tuple(range(1, 126)), timeout=300)
+            self.assertEqual(output.read_bytes(), retained.SENTINEL)
+            self.assertIn(b'TYPE MISMATCH', out + err)
+            self.assertNotIn(b'C compilation failed', out + err)
         name = 'Record_' + 'long_' * 24 + 'End'
         self.assertGreater(len(name), 64)
         self.assertLess(len(name), 250)

@@ -881,13 +881,13 @@ shadow native_opaque_key {
     let tokens: List<LexerToken> = (tokenize_string "opaque type Handle" "native-opaque.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "native-opaque.nano")
     assert (nb_register parser "__native_test_")
-    let handle: string = (nb_type "Handle" 1)
-    let first: string = (native_opaque_key (+ "Box<A_B,C," (+ handle ">")))
-    let second: string = (native_opaque_key (+ "Box<A,B_C," (+ handle ">")))
+    let opaque_annotation: string = (nb_type "Handle" 1)
+    let first: string = (native_opaque_key (+ "Box<A_B,C," (+ opaque_annotation ">")))
+    let second: string = (native_opaque_key (+ "Box<A,B_C," (+ opaque_annotation ">")))
     assert (!= first "")
     assert (!= first second)
-    assert (== first (native_opaque_key (+ "Box< A_B, C, " (+ handle " >"))))
-    assert (!= (native_opaque_key (+ "Outer<Box<" (+ handle ">>"))) "")
+    assert (== first (native_opaque_key (+ "Box< A_B, C, " (+ opaque_annotation " >"))))
+    assert (!= (native_opaque_key (+ "Outer<Box<" (+ opaque_annotation ">>"))) "")
     assert (== (native_opaque_key "Box<int,string>") "")
     (mb_reset [])
 }
@@ -5840,14 +5840,14 @@ shadow generate_native_nominal_definitions {
     let declarations: List<LexerToken> = (tokenize_string "opaque type Handle" "derived-layout.nano" (list_CompilerDiagnostic_new))
     let owner: Parser = (parse_program declarations (list_LexerToken_length declarations) "derived-layout.nano")
     assert (nb_register owner "__derived_test_")
-    let handle: string = (nb_type "Handle" 1)
+    let opaque_annotation: string = (nb_type "Handle" 1)
     (reset_fn_types)
     set native_tuple_annotations []
     set native_derived_emitted_names []
     set native_opaque_keys []
     set native_opaque_names []
-    let callback: string = (+ "fn(Node," (+ handle ")->Node"))
-    let tuple: string = (+ "(" (+ handle (+ "," (+ callback ")"))))
+    let callback: string = (+ "fn(Node," (+ opaque_annotation ")->Node"))
+    let tuple: string = (+ "(" (+ opaque_annotation (+ "," (+ callback ")"))))
     let source: string = (+ "struct Node { visit: " (+ callback (+ ", pair: " (+ tuple " }"))))
     let derived_tokens: List<LexerToken> = (tokenize_string source "derived-layout.nano" (list_CompilerDiagnostic_new))
     let derived_parser: Parser = (parse_program derived_tokens (list_LexerToken_length derived_tokens) "derived-layout.nano")
@@ -6237,8 +6237,10 @@ fn native_array_callback_type(parser: Parser, reference: ASTStmtRef, env: GenEnv
     return ""
 }
 shadow native_array_callback_type {
-    let tokens: List<LexerToken> = (tokenize_string "fn pick(x:int)->bool{return true} fn main()->int{let ys:array<int>=(filter xs pick) return 0}" "t.nano" (list_CompilerDiagnostic_new))
+    let tokens: List<LexerToken> = (tokenize_string "fn pick(x:int)->bool{return true} fn main()->int{let ys:array<int> =(filter xs pick) return 0}" "t.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "t.nano")
+    assert (== (parser_get_call_count parser) 1)
+    assert (== (parser_get_call_arg_count parser) 2)
     let call: ASTCall = (parser_get_call parser 0)
     let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
     assert (== (native_array_callback_type parser callback (genenv_new "main")) "fn(int)->bool")

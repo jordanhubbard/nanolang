@@ -167,3 +167,18 @@ bool array_test_constructor_registry(Environment *env, ASTNode *expression) {
         .type_param_count = 1, .type_params = arguments};
     return nominal_constructor_retain(env, expression, &instance, "Caller", NULL, 0);
 }
+
+/* I reach recursive root/child emission publication with an actual owned view. */
+bool array_test_native_publish(Environment *env, ASTNode *expression, bool late_refusal) {
+    NominalView view = {0};
+    bool ok = nominal_value_view(expression, env, 0, &view);
+    if (ok && late_refusal) {
+        ASTNode *child = expression->as.tuple_literal.elements[0];
+        int count = child->as.tuple_literal.element_count;
+        child->as.tuple_literal.element_count = 0;
+        ok = native_bind_checked_view(env, &view, expression, 0);
+        child->as.tuple_literal.element_count = count;
+    } else if (ok) ok = native_bind_checked_view(env, &view, expression, 0);
+    nominal_view_discard(&view);
+    return ok;
+}
