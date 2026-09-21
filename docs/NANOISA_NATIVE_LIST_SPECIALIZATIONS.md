@@ -279,3 +279,24 @@ only until the reviewed qualification runs.
 The wrapper-boundary MAC retry succeeded as
 `task_1df19951939ca5ac58ad89d10efcabf9`. Its first authentication failure remains
 recorded; no shared tunnel was changed.
+
+My additive fixture checkpoint contains eight NativeRecordLists methods plus
+the unchanged eighteen GenericRecordLists methods. The native runner forwards
+actual selected compiler commands, preserves their arguments, appends an
+explicit O0/O2 selection, and retains every final argv. Its C storage fixture
+instruments only this shared header and list_capacity.h. It measures all actual
+allocation positions, checks full retained capacity bytes and metadata on
+refusal, and separately exercises real exit diagnostics without allocated
+fixture roots. Ordinary native source routes and the instrumented C-header
+matrix have separate compiler/flag selectors. I do not label intentionally
+terminating source programs or the existing native string lifetime as leak-free
+whole-compiler sanitizer acceptance.
+
+The source extension preserves the original LexerToken file at its actual path
+and checks its exact nine-line output on all three native producers at O0/O2.
+It adds concrete union/field/signature discovery, inferred results, imported
+same-spelled owners, long canonical names, declared/callback/foreign precedence,
+explicit provider-collision refusal, full-width scalar/schema indices and scalar
+capacity refusal. The compiler must successfully publish corrected guard code
+before any expected runtime refusal is executed. A compiler refusal instead is
+not accepted as runtime-bound evidence. No fixture has run at this checkpoint.

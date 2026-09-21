@@ -14138,3 +14138,8 @@ NANOISA_NATIVE_LIST_SPECIALIZATIONS.md. No native production is changed yet.
   task_1df19951939ca5ac58ad89d10efcabf9; my bounded retry filed it after the first
   retained authentication failure. Source checkpoint 10e790a46 remains unbuilt
   pending independent review and the complete additive native fixture checkpoint.
+- [ ] I qualify the additive eight-method native list fixture checkpoint after
+  independent review, alongside all eighteen byte-unchanged original source
+  methods. My shared-header allocation domain, real exit controls, actual three
+  producer O0/O2 commands and unchanged LexerToken output are explicit; I have
+  not compiled or executed this checkpoint.

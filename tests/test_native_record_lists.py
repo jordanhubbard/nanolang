@@ -1,0 +1,234 @@
+"""I qualify corrected native list providers separately from NanoISA admission.
+
+I retain every command before assertions through the existing bounded supervisor.
+The original eighteen-method GenericRecordLists suite remains an independent gate.
+"""
+from pathlib import Path
+import hashlib
+import json
+import os
+import shlex
+import sys
+import tempfile
+import unittest
+from tests import test_generic_record_lists as retained
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class NativeRecordLists(unittest.TestCase):
+    command = classmethod(retained.GenericRecordLists.command.__func__)
+    products = classmethod(retained.GenericRecordLists.products.__func__)
+
+    @classmethod
+    def setUpClass(cls):
+        cls.work = Path(tempfile.mkdtemp(prefix='nano-native-record-lists-', dir=os.environ.get('NANO_LIST_REPORT_DIR')))
+        print('I retain native list artifacts at', cls.work, flush=True)
+        (cls.work / 'temporary').mkdir()
+        cls.sequence = 0
+        cls.cc = shlex.split(os.environ.get('NANO_LIST_CC', 'cc'))
+        cls.flags = shlex.split(os.environ.get('NANO_LIST_CFLAGS', ''))
+        cls.links = shlex.split(os.environ.get('NANO_LIST_LDFLAGS', ''))
+        cls.native_cc = shlex.split(os.environ['NANO_NATIVE_LIST_CC'])
+        cls.native_flags = shlex.split(os.environ.get('NANO_NATIVE_LIST_CFLAGS', ''))
+        cls.native_links = shlex.split(os.environ.get('NANO_NATIVE_LIST_LDFLAGS', ''))
+        if not cls.native_cc or not cls.cc:
+            raise AssertionError('I require actual selected native compiler commands.')
+        cls.inputs = [ROOT / 'src/runtime/native_record_list.h', ROOT / 'src/runtime/list_capacity.h',
+                      ROOT / 'tests/test_native_record_list_storage.c', Path(__file__).resolve(),
+                      *[ROOT / 'bin' / name for name in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2')]]
+        if any(not path.is_file() for path in cls.inputs):
+            raise AssertionError('I require all three freshly prepared source producers.')
+        cls.before = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in cls.inputs}
+        (cls.work / 'fixture-inputs-before.json').write_text(json.dumps(cls.before, indent=2) + '\n')
+        (cls.work / 'selected-config.json').write_text(json.dumps(dict(cc=cls.cc, flags=cls.flags,
+            links=cls.links, native_cc=cls.native_cc, native_flags=cls.native_flags,
+            native_links=cls.native_links, python=sys.executable), indent=2) + '\n')
+        cls.storage = cls.work / 'native-storage'
+        cls.command('storage-build', [*cls.cc, *cls.flags, '-std=c99', '-Wall', '-Wextra', '-Werror',
+            ROOT / 'tests/test_native_record_list_storage.c', *cls.links, '-o', cls.storage])
+        # I select optimization through the actual compiler hook, preserving all
+        # original arguments and recording the final invocation. No shell eval.
+        cls.wrapper = cls.work / 'native-cc.py'
+        cls.wrapper.write_text('''import json, os, pathlib, sys, time
+config = json.loads(os.environ['NATIVE_LIST_TOOL_CONFIG'])
+linking = not any(flag in sys.argv[1:] for flag in ('-c', '-E', '-S'))
+argv = config['cc'] + sys.argv[1:] + config['flags'] + (config['links'] if linking else []) + ['-Wall', '-Wextra', '-Werror', config['optimization']]
+root = pathlib.Path(config['reports'])
+(root / ('native-argv-' + str(time.time_ns()) + '-' + str(os.getpid()) + '.json')).write_text(json.dumps(dict(argv=argv, cwd=os.getcwd()), indent=2) + '\\n')
+os.execvp(argv[0], argv)
+''')
+
+    @classmethod
+    def tearDownClass(cls):
+        after = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in cls.inputs}
+        (cls.work / 'fixture-inputs-after.json').write_text(json.dumps(after, indent=2) + '\n')
+        if after != cls.before:
+            raise AssertionError('My selected native list fixture inputs changed.')
+
+    def test_shared_storage_and_allocation_failures(self):
+        out, _ = self.command('storage-controls', [self.storage])
+        self.assertIn(b'allocation positions in prefix and transient modes', out)
+        self.assertIn(b'native record-list assertions', out)
+        for mode in ('real-index', 'real-capacity', 'real-null', 'real-oom'):
+            _, err = self.command(mode, [self.storage, mode], expected=(1,))
+            self.assertIn(b'I cannot complete this list operation', err)
+
+    def native_routes(self, name, source, runtime_failure=False, extra_links=(), expected_stdout=None):
+        if isinstance(source, Path):
+            path = source
+        else:
+            path = self.work / (name + '.nano')
+            path.write_text(source)
+        (self.work / (name + '-source.json')).write_text(json.dumps(dict(path=str(path),
+            sha256=hashlib.sha256(path.read_bytes()).hexdigest()), indent=2) + '\n')
+        for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):
+            for optimization in ('-O0', '-O2'):
+                label = name + '-' + compiler + optimization
+                output = self.work / label
+                output.write_bytes(retained.SENTINEL)
+                config = dict(cc=self.native_cc, flags=self.native_flags, links=[*self.native_links, *map(str, extra_links)],
+                              optimization=optimization, reports=str(self.work))
+                extra = dict(NATIVE_LIST_TOOL_CONFIG=json.dumps(config),
+                             NANO_CC=shlex.join([sys.executable, str(self.wrapper)]))
+                previous = set(self.work.glob('native-argv-*.json'))
+                self.command(label + '-build', [ROOT / 'bin' / compiler, path, '-o', output, '--keep-c'],
+                             timeout=300, extra=extra)
+                self.assertNotEqual(output.read_bytes(), retained.SENTINEL)
+                invocations = sorted(set(self.work.glob('native-argv-*.json')) - previous)
+                self.assertTrue(invocations, 'I require the actual selected compiler hook to run.')
+                for invocation in invocations:
+                    argv = json.loads(invocation.read_text())['argv']
+                    self.assertEqual(argv[-1], optimization)
+                    self.assertIn('-Werror', argv)
+                out, err = self.command(label + '-run', [output], timeout=15,
+                                      expected=(1,) if runtime_failure else (0,))
+                if runtime_failure:
+                    self.assertIn(b'I cannot complete this list operation', err)
+                if expected_stdout is not None:
+                    self.assertEqual(out, expected_stdout)
+
+    def test_native_operations_order_and_growth(self):
+        # I retain the existing trace/alias/iteration program and all assertions.
+        source = (ROOT / 'tests/fixtures/evaluator_lists/mutations.nano').read_text()
+        self.native_routes('native-mutations', source)
+
+    def test_native_discovery_and_copied_results(self):
+        self.native_routes('native-discovery', '''struct Item { value:int, text:string }
+struct Holder { values:List<Item> }
+union Held<T> { Items { values:List<T> } }
+fn make() -> List<Item> { return (list_Item_new) }
+shadow make { let xs=(make) assert (list_Item_is_empty xs) (list_Item_free xs) }
+fn take(xs:List<Item>) -> Item { return (list_Item_remove xs 0) }
+shadow take { let xs=(make) (list_Item_push xs Item{value:3,text:"three"}) assert (== (take xs).value 3) (list_Item_free xs) }
+fn main() -> int {
+ let xs=(make)
+ (list_Item_push xs Item{value:7,text:"seven"})
+ let holder:Holder=Holder{values:xs}
+ let held:Held<Item> =Held.Items{values:xs}
+ match held { Items(payload) => { assert (== (list_Item_length payload.values) 1) } }
+ let removed=(take holder.values)
+ (list_Item_clear xs)
+ (list_Item_free xs)
+ assert (== removed.value 7)
+ assert (== removed.text "seven")
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+        self.native_routes('shadow-only-discovery', '''struct Item { value:int }
+fn main()->int{return 0}
+shadow main { let xs=(list_Item_new) (list_Item_push xs Item{value:5}) assert (== (list_Item_pop xs).value 5) (list_Item_free xs) }
+''')
+
+    def test_native_imported_owners_and_long_names(self):
+        directory = self.work / 'owners'; directory.mkdir()
+        for module, value in (('Left', 11), ('Right', 22)):
+            (directory / (module + '.nano')).write_text(f'''module {module}
+pub struct Item {{ value:int }}
+pub fn sample()->int{{let xs:List<Item> =(list_Item_new) (list_Item_push xs Item{{value:{value}}}) let value=(list_Item_pop xs) (list_Item_free xs) return value.value}}
+shadow sample {{ assert (== (sample) {value}) }}
+''')
+        self.native_routes('native-imported-owners', f'''module "{directory / 'Left.nano'}" as left
+module "{directory / 'Right.nano'}" as right
+fn main()->int{{assert (== (left.sample) 11) assert (== (right.sample) 22) return 0}}
+shadow main {{ assert (== (main) 0) }}
+''')
+        name = 'Record_' + 'long_' * 24 + 'End'
+        self.assertGreater(len(name), 64)
+        self.assertLess(len(name), 250)
+        self.native_routes('native-long-record', f'''struct {name} {{ value:int }}
+fn main()->int{{let xs:List<{name}> =(list_{name}_new) (list_{name}_push xs {name}{{value:19}}) assert (== (list_{name}_remove xs 0).value 19) (list_{name}_free xs) return 0}}
+shadow main {{ assert (== (main) 0) }}
+''')
+
+    def test_native_unchanged_lexer_and_schema_index(self):
+        self.native_routes('native-original-lexer', ROOT / 'tests/token_value_bytes.nano',
+            expected_stdout=b'0:4:4\n1:1:2\n2:3:8\n3:3:6\n4:3:2\n5:70:3\n6:7:0\n7:8:0\n8:0:0\n')
+        self.native_routes('native-schema-index', '''import "src_nano/compiler/lexer.nano"
+fn main()->int {
+ let xs:List<LexerToken> =(list_LexerToken_new)
+ (list_LexerToken_push xs LexerToken{token_type:3,value:"x",line:1,column:1,value_bytes:1})
+ (list_LexerToken_get xs 4294967296)
+ return 0
+}
+shadow main {assert true}
+''', True)
+
+    def test_native_declared_and_callback_precedence(self):
+        self.native_routes('native-declared-list', '''fn list_Item_new()->int{return 17}
+shadow list_Item_new {assert (== (list_Item_new) 17)}
+fn ordinary()->int{return 23}
+shadow ordinary {assert (== (ordinary) 23)}
+fn invoke(list_Other_new:fn()->int)->int{return (list_Other_new)}
+shadow invoke {assert (== (invoke ordinary) 23)}
+fn main()->int{assert (== (list_Item_new) 17) assert (== (invoke ordinary) 23) return 0}
+shadow main {assert (== (main) 0)}
+''')
+
+    def test_native_foreign_declaration_and_provider_collision(self):
+        foreign = self.work / 'foreign-list.c'
+        foreign.write_text('#include <stdint.h>\nint64_t list_Foreign_new(void) { return 31; }\n')
+        provider = self.work / 'foreign-list.o'
+        self.command('foreign-provider-build', [*self.native_cc, *self.native_flags, '-std=c99',
+            '-Wall', '-Wextra', '-Werror', '-c', foreign, '-o', provider])
+        self.native_routes('native-foreign-list', '''extern fn list_Foreign_new()->int
+fn main()->int { let mut value:int=0 unsafe { set value (list_Foreign_new) } assert (== value 31) return 0 }
+shadow main { assert true }
+''', extra_links=(provider,))
+        source = self.work / 'provider-collision.nano'
+        source.write_text('''struct Item {value:int}
+fn list_Item_get(value:int)->int{return value}
+shadow list_Item_get {assert (== (list_Item_get 9) 9)}
+fn main()->int{let xs:List<Item> =(list_Item_new) (list_Item_free xs) return 0}
+shadow main {assert true}
+''')
+        for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):
+            output = self.work / ('provider-collision-' + compiler)
+            output.write_bytes(retained.SENTINEL)
+            out, err = self.command('provider-collision-' + compiler,
+                [ROOT / 'bin' / compiler, source, '-o', output, '--keep-c'],
+                expected=tuple(range(1, 126)), timeout=300)
+            self.assertEqual(output.read_bytes(), retained.SENTINEL)
+            self.assertIn(b'I cannot share a native list provider symbol with a declaration.', out + err)
+            self.assertNotIn(b'C compilation failed', out + err)
+
+    def test_native_full_width_refusals(self):
+        for element, value in (('int', '7'), ('string', '"seven"'), ('Item', 'Item{value:7}')):
+            for position, index in enumerate(('4294967296', '9223372036854775807', '(- 0 9223372036854775807)')):
+                source = f'''struct Item {{value:int}}
+fn main()->int{{let xs:List<{element}> =(list_{element}_new) (list_{element}_push xs {value}) (list_{element}_get xs {index}) return 0}}
+shadow main {{assert true}}
+'''
+                # These corrected guards terminate before indexing. They are not
+                # old unchecked-provider reproductions or NanoISA admissions.
+                self.native_routes('native-index-' + element + '-' + str(position), source, True)
+
+        for element in ('int', 'string'):
+            self.native_routes('native-capacity-' + element, f'''fn main()->int{{(list_{element}_with_capacity 4294967296) return 0}}
+shadow main {{assert true}}
+''', True)
+
+
+if __name__ == '__main__':
+    unittest.main()

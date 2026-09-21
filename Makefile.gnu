@@ -5754,3 +5754,11 @@ test-evaluator-owned-lifetimes: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 
 test-generic-record-lists: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	NANO_LIST_CC="$(CC)" NANO_LIST_CFLAGS="$(CFLAGS)" NANO_LIST_OBJECTS="$(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" NANO_LIST_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_generic_record_lists
+
+# I require fresh C-seed/Stage1/Stage2 preparation before this additive native gate.
+NANO_NATIVE_LIST_CC ?= $(CC)
+NANO_NATIVE_LIST_CFLAGS ?=
+NANO_NATIVE_LIST_LDFLAGS ?=
+.PHONY: test-native-record-lists
+test-native-record-lists:
+	NANO_LIST_CC="$(CC)" NANO_LIST_CFLAGS="$(CFLAGS)" NANO_LIST_LDFLAGS="$(LDFLAGS)" NANO_NATIVE_LIST_CC="$(NANO_NATIVE_LIST_CC)" NANO_NATIVE_LIST_CFLAGS="$(NANO_NATIVE_LIST_CFLAGS)" NANO_NATIVE_LIST_LDFLAGS="$(NANO_NATIVE_LIST_LDFLAGS)" python3 -m unittest -f -v tests.test_native_record_lists
