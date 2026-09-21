@@ -14285,3 +14285,12 @@ complete coverage manifest, unchanged240-second worker limit and explicit
 14,400-second aggregate configuration limit derived from measured deep-case
 work. A normal MAC create attempt still fails on the occupied unmanaged34113
 login-tunnel port; I do not alter that listener or claim a ledger task exists.
+
+My fixture checkpoint now emits explicit baseline/range modes with checked
+size parsing and range bounds. The original sequence and replay predicates stay
+intact; each recovery additionally checks the baseline allocation-call count.
+Python verifies each exact worker report, its baseline peak, contiguous coverage,
+both modes and2*count successful recoveries before writing a complete manifest.
+Only Python AST parsing and diff checks have run; changed workers remain unrun
+pending source review. The external aggregate driver must use the declared
+14,400-second configuration bound when this checkpoint is qualified.

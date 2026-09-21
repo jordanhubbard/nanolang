@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shlex
 import sys
@@ -118,10 +119,39 @@ class RecordArrayGenerated(unittest.TestCase):
                     unresolved = self.command(name + '-nm', [*self.nm, '-u', str(product)])
                     for forbidden in (b'vm_core_execute', b'vm_record_array', b'isa_decode', b'nvm_prepare'):
                         self.assertNotIn(forbidden, unresolved)
-                    result = self.command(name + '-run', [str(product)])
+                    if not observed:
+                        result = self.command(name + '-run', [str(product)])
+                        self.assertIn(b'generated replay observations; status 0', result)
+                        continue
+                    result = self.command(name + '-baseline', [str(product), '--fault-baseline'])
                     self.assertIn(b'generated replay observations; status 0', result)
-                    if observed:
-                        self.assertIn(b'actual runtime allocation positions in both modes', result)
+                    rows = re.findall(rb'^NRG_FAULT_BASELINE calls=([0-9]+) peak=([0-9]+)$', result, re.M)
+                    self.assertEqual(len(rows), 1)
+                    calls, peak = map(int, rows[0])
+                    self.assertGreater(calls, 0)
+                    ranges = [(start, min(start + 16, calls)) for start in range(0, calls, 16)]
+                    plan = {'product': name, 'allocation_calls': calls, 'baseline_peak': peak,
+                            'modes': ['one-shot', 'persistent'], 'positions': ranges,
+                            'command_bound_seconds': 240, 'complete': False, 'workers': []}
+                    (self.artifacts / (name + '-fault-plan.json')).write_text(json.dumps(plan, indent=2) + '\n')
+                    cursor = recoveries = 0
+                    for start, end in ranges:
+                        self.assertEqual(start, cursor)
+                        worker = f'{name}-fault-{start:06d}-{end:06d}'
+                        result = self.command(worker, [str(product), '--fault-range', str(start), str(end), str(calls)])
+                        self.assertIn(b'generated replay observations; status 0', result)
+                        rows = re.findall(rb'^NRG_FAULT_RANGE begin=([0-9]+) end=([0-9]+) calls=([0-9]+) modes=([0-9]+) recoveries=([0-9]+) peak=([0-9]+)$', result, re.M)
+                        self.assertEqual(len(rows), 1)
+                        actual = tuple(map(int, rows[0]))
+                        self.assertEqual(actual, (start, end, calls, 2, 2 * (end - start), peak))
+                        plan['workers'].append({'name': worker, 'begin': start, 'end': end,
+                                                'modes': 2, 'recoveries': actual[4]})
+                        cursor = end
+                        recoveries += actual[4]
+                    self.assertEqual(cursor, calls)
+                    self.assertEqual(recoveries, 2 * calls)
+                    plan.update(complete=True, recoveries=recoveries)
+                    (self.artifacts / (name + '-fault-coverage.json')).write_text(json.dumps(plan, indent=2) + '\n')
                 print(f'I passed {mode}: {len(sources)} actual generated products.', flush=True)
         final = {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in [*sources, *replays]}
         self.assertEqual(original, final)

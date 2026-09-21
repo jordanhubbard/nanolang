@@ -65,7 +65,7 @@ static void trace_path(FILE *f,const uint32_t *path,uint16_t count) {
 }
 static const char replay_prefix[]=
     "#define NANO_RECORD_ARRAY_GENERATED_PRIVATE 1\n"
-    "#include \"record_array_generated_private.h\"\n#include <stdint.h>\n"
+    "#include \"record_array_generated_private.h\"\n#include <stdint.h>\n#include <string.h>\n"
     "#ifndef __wasm32__\n#include <stdio.h>\n#endif\n"
     "#ifdef NRG_OBSERVED\n#include \"record_array_alloc.h\"\n#endif\n"
     "NrgStatus nrg_generated_create(NrgInstance **);\n"
@@ -173,14 +173,21 @@ static void capture_destroy(VmRecordArrayPrivate *p) {
             "CHECK(before.tag==after.tag&&before.identity==after.identity&&before.scalar_bits==after.scalar_bits);}failed=1;break;}"
             "CHECK(s==expected[i]);}nrg_destroy(p);CHECK(!ra_live&&!ra_bytes&&!nms_test_live_allocations());"
             "CHECK(!fault||failed);return 0;}\n",c->run_count);
-        fputs("static int faults(void){CHECK(!ra_live&&!ra_bytes);ra_calls=0;ra_peak=0;ra_fail=SIZE_MAX;ra_persistent=0;"
+        fputs("static int number(const char *text,size_t *out){size_t n=0;if(!*text)return 0;"
+            "for(;*text;text++){unsigned d=(unsigned char)*text-'0';if(d>9||n>(SIZE_MAX-d)/10)return 0;n=n*10+d;}*out=n;return 1;}\n"
+            "static int faults(int argc,char **argv){CHECK(!ra_live&&!ra_bytes);ra_calls=0;ra_peak=0;ra_fail=SIZE_MAX;ra_persistent=0;"
             "CHECK(!sequence(0));size_t calls=ra_calls,peak=ra_peak;CHECK(calls>0);"
-            "for(int mode=0;mode<2;mode++)for(size_t i=0;i<calls;i++){ra_calls=0;ra_peak=0;ra_fail=i;ra_persistent=mode;"
+            "if(argc==2&&!strcmp(argv[1],\"--fault-baseline\")){printf(\"NRG_FAULT_BASELINE calls=%zu peak=%zu\\n\",calls,peak);return 0;}"
+            "CHECK(argc==5&&!strcmp(argv[1],\"--fault-range\"));size_t begin,end,wanted;"
+            "CHECK(number(argv[2],&begin)&&number(argv[3],&end)&&number(argv[4],&wanted));"
+            "CHECK(wanted==calls&&begin<end&&end<=calls&&end-begin<=16);size_t recoveries=0;"
+            "for(int mode=0;mode<2;mode++)for(size_t i=begin;i<end;i++){ra_calls=0;ra_peak=0;ra_fail=i;ra_persistent=mode;"
             "CHECK(!sequence(1));CHECK(ra_calls>i&&!ra_live&&!ra_bytes&&!nms_test_live_allocations());"
-            "ra_calls=0;ra_peak=0;ra_fail=SIZE_MAX;ra_persistent=0;CHECK(!sequence(0));}"
-            "printf(\"I checked %zu actual runtime allocation positions in both modes; peak %zu bytes.\\n\",calls,peak);return 0;}\n#endif\n"
+            "ra_calls=0;ra_peak=0;ra_fail=SIZE_MAX;ra_persistent=0;CHECK(!sequence(0));CHECK(ra_calls==calls);recoveries++;}"
+            "CHECK(recoveries==2*(end-begin));"
+            "printf(\"NRG_FAULT_RANGE begin=%zu end=%zu calls=%zu modes=2 recoveries=%zu peak=%zu\\n\",begin,end,calls,recoveries,peak);return 0;}\n#endif\n"
             "#ifdef __wasm32__\nint nano_main(void){return exercise();}\n#else\n"
-            "int main(void){int status=exercise();\n#ifdef NRG_OBSERVED\nif(!status)status=faults();\n#endif\n"
+            "int main(int argc,char **argv){(void)argc;(void)argv;int status=exercise();\n#ifdef NRG_OBSERVED\nif(!status)status=faults(argc,argv);\n#endif\n"
             "printf(\"I checked %u generated replay observations; status %d.\\n\",checks,status);return status?1:0;}\n#endif\n",f);
         CHECK(!fclose(f));*c=(Capture){0};
     }
