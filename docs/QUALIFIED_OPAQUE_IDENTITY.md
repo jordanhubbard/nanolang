@@ -254,3 +254,29 @@ semantic key encoder. Existing ordinary registration remains unchanged. A copied
 key/cache is still an internal semantic fact, never accepted as a source spelling
 or a C symbol. All new registration allocations stage before publication and
 have explicit rollback; no new whole-environment recoverable-OOM claim is made.
+
+### Retained implementation work in progress
+
+I have not qualified this source checkpoint. I retain the C complete-tree encoder,
+checked annotation/signature copy and transactional generic registration in the
+owned environment provider. My native emission table copies keys and names, and
+projects derived generic, tuple and callable spellings before bounded C buffers.
+My existing AST nominal walk reserves source name prefixes, including prefixed
+spellings containing the generated family. I retain ordinary nonopaque names.
+
+My independent Nano encoder frames the existing lexer's complete annotation
+stream: each token kind and counted value, or a counted declaring-origin/original
+opaque-name pair. Token punctuation preserves nested argument, tuple, borrow and
+callable boundaries; insignificant lexical whitespace adds no identity. This is
+an encoding of an already checked annotation, not a new authority parser. My
+producer-specific internal keys need not have equal bytes; paired proof compares
+actual origin, kind and original declaration facts. The Nano emitted family uses
+the actual driver's source-token-checked binding prefix and a separate
+`opaque_type_` suffix, with a per-emission key/name table. Process allocation
+failure remains the existing Nano limit, not recoverable C MEMORY equivalence.
+
+I have run strict C syntax checks only. Those checks found and corrected an
+intermediate missing limits include and two joined-line indentation warnings;
+no source program, compiler bootstrap, shadow or SDK gate ran for this work.
+Callable/aggregate representation and every definition/reference consumer still
+require the final source audit before fixture preparation and execution review.

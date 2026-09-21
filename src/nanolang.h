@@ -706,8 +706,16 @@ typedef struct {
 /* Opaque type definition entry (for C pointer types) */
 typedef struct {
     char *name;            /* Type name in nanolang (e.g., "GLFWwindow") */
-    char *c_type_name;     /* C type with pointer (e.g., "GLFWwindow*") */
+    char *c_type_name;     /* Original C pointer spelling, separate from identity. */
+    char *origin;          /* Owned canonical source, or explicit synthetic root. */
+    char *identity;        /* Owned counted declaration key, never a C identifier. */
 } OpaqueTypeDef;
+typedef struct {
+    char *origin;          /* Owned canonical importing source. */
+    char *name;            /* Owned original visible spelling. */
+    char *identity;        /* Owned target declaration key. */
+    bool hidden_by_local_type;
+} OpaqueTypeBinding;
 
 /* Effect operation signature */
 typedef struct {
@@ -818,6 +826,11 @@ typedef struct {
     OpaqueTypeDef *opaque_types;
     int opaque_type_count;
     int opaque_type_capacity;
+    OpaqueTypeBinding *opaque_bindings;
+    size_t opaque_binding_count;
+    bool opaque_resolution_failed;
+    size_t *opaque_reserved_indices;
+    size_t opaque_reserved_count;
     EffectDef *effects;          /* Registered algebraic effects */
     int effect_count;
     int effect_capacity;
@@ -974,7 +987,16 @@ int env_get_enum_variant(Environment *env, const char *variant_name);
 /* I take ownership of a newly registered union and its allocated metadata. */
 void env_define_union(Environment *env, UnionDef union_def);
 UnionDef *env_get_union(Environment *env, const char *name);
-void env_define_opaque_type(Environment *env, const char *name);
+bool opaque_type_info_present(const TypeInfo *info);
+char *opaque_type_info_key(const TypeInfo *info);
+bool env_register_opaque_union_context(Environment *, const TypeInfo *, bool *added);
+bool env_reserve_opaque_symbol_prefix(Environment *env, const char *name);
+size_t env_opaque_symbol_prefix(const Environment *env);
+bool env_define_opaque_type(Environment *env, const char *name);
+bool env_prepare_opaque_types(Environment *env, ASTNode *program);
+bool env_import_opaque_types(Environment *env, const ASTNode *import, const ASTNode *target_program,
+                             const char *importer, const char *target);
+void env_free_opaque_types(Environment *env);
 OpaqueTypeDef *env_get_opaque_type(Environment *env, const char *name);
 int env_get_union_variant_index(Environment *env, const char *union_name, const char *variant_name);
 

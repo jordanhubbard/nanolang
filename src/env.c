@@ -2,6 +2,7 @@
 #include "builtins_registry.h"
 #include "runtime/gc.h"
 #include <string.h>
+#include <limits.h>
 
 typedef struct {
     uint64_t hash;
@@ -371,12 +372,7 @@ void free_environment(Environment *env) {
         free(env->generic_func_instances);
     }
 
-    /* Free opaque types */
-    for (int i = 0; i < env->opaque_type_count; i++) {
-        free(env->opaque_types[i].name);
-        free(env->opaque_types[i].c_type_name);
-    }
-    free(env->opaque_types);
+    env_free_opaque_types(env);
 
     /* Free namespaces */
     for (int i = 0; i < env->namespace_count; i++) {
@@ -1256,61 +1252,8 @@ int env_get_union_variant_index(Environment *env, const char *union_name, const 
     return -1;
 }
 
-/* Define opaque type */
-void env_define_opaque_type(Environment *env, const char *name) {
-    /* Check if opaque type already exists - prevent duplicates */
-    if (env_get_opaque_type(env, name) != NULL) {
-        /* Opaque type already defined - skip duplicate registration */
-        return;
-    }
-    
-    if (env->opaque_type_count >= env->opaque_type_capacity) {
-        env->opaque_type_capacity *= 2;
-        env->opaque_types = realloc(env->opaque_types, sizeof(OpaqueTypeDef) * env->opaque_type_capacity);
-    }
-    
-    OpaqueTypeDef opaque_type;
-    opaque_type.name = strdup(name);
-    
-    /* Generate C type name by adding pointer: "GLFWwindow" -> "GLFWwindow*" */
-    size_t len = strlen(name);
-    opaque_type.c_type_name = malloc(len + 2);  /* +1 for '*', +1 for '\0' */
-    strcpy(opaque_type.c_type_name, name);
-    strcat(opaque_type.c_type_name, "*");
-    
-    env->opaque_types[env->opaque_type_count++] = opaque_type;
-}
-
-/* Get opaque type definition */
-OpaqueTypeDef *env_get_opaque_type(Environment *env, const char *name) {
-    if (!env || !name) return NULL;
-    
-    /* Check for Module.Type pattern */
-    const char *dot = strchr(name, '.');
-    if (dot) {
-        char module_alias[256];
-        size_t module_len = dot - name;
-        if (module_len >= sizeof(module_alias)) {
-            module_len = sizeof(module_alias) - 1;
-        }
-        strncpy(module_alias, name, module_len);
-        module_alias[module_len] = '\0';
-        const char *type_name = dot + 1;
-        
-        /* Opaque types aren't explicitly tracked in namespaces yet, 
-         * but we can still search for them globally with module matching if we add it.
-         * For now, just search globally by short name as a fallback.
-         */
-        return env_get_opaque_type(env, type_name);
-    }
-    
-    for (int i = 0; i < env->opaque_type_count; i++) {
-        if (safe_strcmp(env->opaque_types[i].name, name) == 0) {
-            return &env->opaque_types[i];
-        }
-    }
-    return NULL;
-}
+#include "env_opaque_types.inc"
+#include "env_opaque_keys.inc"
 
 /* Register a list instantiation for code generation */
 void env_register_list_instantiation(Environment *env, const char *element_type) {

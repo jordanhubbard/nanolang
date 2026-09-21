@@ -3,6 +3,106 @@ import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/compiler/module_bindings.nano"
 
+# I retain opaque kind and original ABI spelling separately from emitted keys.
+let mut nb_opaque_targets: array<string> = []
+let mut nb_opaque_names: array<string> = []
+let mut nb_opaque_origins: array<string> = []
+let mut nb_failed: bool = false
+let mut nb_native_prefix: string = ""
+
+pub fn nb_opaque_original(target: string) -> string {
+    if (not (mb_active)) { return "" }
+    let mut i: int = 0
+    while (< i (array_length nb_opaque_targets)) {
+        if (== target (at nb_opaque_targets i)) { return (at nb_opaque_names i) }
+        set i (+ i 1)
+    }
+    return ""
+}
+shadow nb_opaque_original {
+    (mb_reset [])
+    assert (== (nb_opaque_original "Json") "")
+}
+
+pub fn nb_opaque_origin(target: string) -> string {
+    if (not (mb_active)) { return "" }
+    let mut i: int = 0
+    while (< i (array_length nb_opaque_targets)) {
+        if (== target (at nb_opaque_targets i)) { return (at nb_opaque_origins i) }
+        set i (+ i 1)
+    }
+    return ""
+}
+shadow nb_opaque_origin {
+    (mb_reset [])
+    assert (== (nb_opaque_origin "Json") "")
+}
+
+pub fn nb_emission_prefix() -> string {
+    if (not (mb_active)) { return "" }
+    return nb_native_prefix
+}
+shadow nb_emission_prefix {
+    (mb_reset [])
+    assert (== (nb_emission_prefix) "")
+}
+
+pub fn nb_valid() -> bool { return (not nb_failed) }
+shadow nb_valid {
+    set nb_failed true
+    assert (not (nb_valid))
+    set nb_failed false
+    assert (nb_valid)
+}
+
+fn nb_local(owner: int, name: string, target: string) -> bool {
+    let key: string = (nb_key name)
+    if (!= (mb_lookup owner key) key) {
+        (println (+ "I cannot define two type kinds with one local name: " name))
+        set nb_failed true
+        return false
+    }
+    (mb_add_target owner key target owner)
+    return true
+}
+shadow nb_local {
+    (mb_reset [1])
+    set nb_failed false
+    assert (nb_local 0 "Handle" "local_Handle")
+    assert (not (nb_local 0 "Handle" "other_Handle"))
+    assert (not (nb_valid))
+    set nb_failed false
+    (mb_reset [])
+}
+
+fn nb_visible(owner: int, name: string, target: string, definition: int) -> void {
+    let key: string = (nb_key name)
+    let prior: string = (mb_lookup owner key)
+    if (and (!= prior key) (!= prior target)) {
+        if (== (mb_target_owner owner key) owner) { return }
+        (println (+ "I cannot resolve ambiguous imported type declarations: " name))
+        set nb_failed true
+        return
+    }
+    (mb_add_target owner key target definition)
+}
+shadow nb_visible {
+    (mb_reset [1, 2, 3])
+    set nb_failed false
+    (nb_visible 2 "Handle" "first_Handle" 0)
+    (nb_visible 2 "Handle" "first_Handle" 0)
+    assert (nb_valid)
+    (nb_visible 2 "Handle" "second_Handle" 1)
+    assert (not (nb_valid))
+    set nb_failed false
+    (mb_reset [1, 2, 3])
+    assert (nb_local 2 "Handle" "local_Handle")
+    (nb_visible 2 "Handle" "imported_Handle" 0)
+    assert (== (mb_lookup 2 (nb_key "Handle")) "local_Handle")
+    assert (nb_valid)
+    (mb_reset [])
+}
+
 fn nb_key(name: string) -> string { return (+ "#type:" name) }
 shadow nb_key { assert (== (nb_key "Handle") "#type:Handle") }
 
@@ -19,6 +119,11 @@ shadow nb_external {
 }
 
 pub fn nb_register(parser: Parser, prefix: string) -> bool {
+    set nb_native_prefix prefix
+    set nb_opaque_targets []
+    set nb_opaque_names []
+    set nb_opaque_origins []
+    set nb_failed false
     let mut i: int = 0
     while (< i parser.structs_count) {
         let def: ASTStruct = (parser_get_struct_def parser i)
@@ -42,7 +147,7 @@ pub fn nb_register(parser: Parser, prefix: string) -> bool {
         }
         let mut target: string = def.name
         if collision { set target (+ prefix (+ (int_to_string owner) (+ "_type_" def.name))) }
-        (mb_add owner (nb_key def.name) target)
+        if (not (nb_local owner def.name target)) { return false }
         set i (+ i 1)
     }
     set i 0
@@ -64,7 +169,28 @@ pub fn nb_register(parser: Parser, prefix: string) -> bool {
         }
         let mut target: string = def.name
         if collision { set target (+ prefix (+ (int_to_string owner) (+ "_type_" def.name))) }
-        (mb_add owner (nb_key def.name) target)
+        if (not (nb_local owner def.name target)) { return false }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i parser.opaque_types_count) {
+        let def: ASTOpaqueType = (list_ASTOpaqueType_get parser.opaque_types i)
+        let owner: int = (mb_owner def.line)
+        let mut enum_index: int = 0
+        while (< enum_index (parser_get_enum_count parser)) {
+            let other: ASTEnum = (parser_get_enum parser enum_index)
+            if (and (== (mb_owner other.line) owner) (== other.name def.type_name)) {
+                (println (+ "I cannot define an opaque and enum with one local name: " def.type_name))
+                set nb_failed true
+                return false
+            }
+            set enum_index (+ enum_index 1)
+        }
+        let target: string = (+ prefix (+ "opaque_" (+ (int_to_string owner) (+ "_" (int_to_string i)))))
+        if (not (nb_local owner def.type_name target)) { return false }
+        set nb_opaque_targets (array_push nb_opaque_targets target)
+        set nb_opaque_names (array_push nb_opaque_names def.type_name)
+        set nb_opaque_origins (array_push nb_opaque_origins (mb_source owner))
         set i (+ i 1)
     }
     return true
@@ -84,6 +210,24 @@ shadow nb_register {
     assert (nb_register unions "__test_")
     assert (!= (mb_lookup 0 (nb_key "Choice")) (mb_lookup 1 (nb_key "Choice")))
     (mb_reset [])
+    let opaque_tokens: List<LexerToken> = (tokenize_string "opaque type Handle\nopaque type Handle\nmodule \"left.nano\" as left\n" "opaque-owners.nano" (list_CompilerDiagnostic_new))
+    let opaques: Parser = (parse_program opaque_tokens (list_LexerToken_length opaque_tokens) "opaque-owners.nano")
+    (mb_reset [1, 2, 3])
+    (mb_set_sources ["/left.nano", "/right.nano", "/root.nano"])
+    assert (nb_register opaques "__opaque_test_")
+    let first: string = (mb_lookup 0 (nb_key "Handle"))
+    let second: string = (mb_lookup 1 (nb_key "Handle"))
+    assert (!= first second)
+    assert (== (nb_opaque_original first) "Handle")
+    assert (== (nb_opaque_origin first) "/left.nano")
+    (nb_import opaques (parser_get_import opaques 0) 0)
+    assert (== (nb_type "left.Handle" 3) first)
+    assert (== (mb_target_owner 2 (nb_key "left.Handle")) 0)
+    assert (nb_valid)
+    (mb_reset [1])
+    assert (not (nb_register opaques "__opaque_test_"))
+    (mb_reset [])
+    set nb_failed false
 }
 
 pub fn nb_import(parser: Parser, imp: ASTImport, target_owner: int) -> void {
@@ -101,14 +245,14 @@ pub fn nb_import(parser: Parser, imp: ASTImport, target_owner: int) -> void {
                         if (< j (array_length imp.import_aliases)) {
                             if (!= (at imp.import_aliases j) "") { set alias (at imp.import_aliases j) }
                         }
-                        (mb_add owner (nb_key alias) target)
+                        (nb_visible owner alias target target_owner)
                     }
                     set j (+ j 1)
                 }
             } else {
                 let mut name: string = def.name
                 if (!= imp.module_name "") { set name (+ imp.module_name (+ "." name)) }
-                (mb_add owner (nb_key name) target)
+                (nb_visible owner name target target_owner)
             }
         }
         set i (+ i 1)
@@ -126,14 +270,39 @@ pub fn nb_import(parser: Parser, imp: ASTImport, target_owner: int) -> void {
                         if (< j (array_length imp.import_aliases)) {
                             if (!= (at imp.import_aliases j) "") { set alias (at imp.import_aliases j) }
                         }
-                        (mb_add owner (nb_key alias) target)
+                        (nb_visible owner alias target target_owner)
                     }
                     set j (+ j 1)
                 }
             } else {
                 let mut name: string = def.name
                 if (!= imp.module_name "") { set name (+ imp.module_name (+ "." name)) }
-                (mb_add owner (nb_key name) target)
+                (nb_visible owner name target target_owner)
+            }
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i parser.opaque_types_count) {
+        let def: ASTOpaqueType = (list_ASTOpaqueType_get parser.opaque_types i)
+        if (== (mb_owner def.line) target_owner) {
+            let target: string = (mb_lookup target_owner (nb_key def.type_name))
+            if (and imp.is_selective (not imp.is_wildcard)) {
+                let mut j: int = 0
+                while (< j imp.import_symbol_count) {
+                    if (== (at imp.import_symbols j) def.type_name) {
+                        let mut alias: string = def.type_name
+                        if (< j (array_length imp.import_aliases)) {
+                            if (!= (at imp.import_aliases j) "") { set alias (at imp.import_aliases j) }
+                        }
+                        (nb_visible owner alias target target_owner)
+                    }
+                    set j (+ j 1)
+                }
+            } else {
+                let mut name: string = def.type_name
+                if (!= imp.module_name "") { set name (+ imp.module_name (+ "." name)) }
+                (nb_visible owner name target target_owner)
             }
         }
         set i (+ i 1)
@@ -173,6 +342,10 @@ fn nb_scoped_type(spelling: string, line: int, formals: array<string>) -> string
             while (< parameter (array_length formals)) {
                 if (== name (at formals parameter)) { set formal true }
                 set parameter (+ parameter 1)
+            }
+            if (and (and (not formal) (== target key)) (str_contains name ".")) {
+                (println (+ "I cannot resolve a qualified type in this source: " name))
+                set nb_failed true
             }
             if (or formal (== target key)) { set result (+ result name) }
             else { set result (+ result target) }
@@ -237,6 +410,12 @@ shadow nb_types {
 }
 
 pub fn nb_rewrite(parser: Parser) -> void {
+    let mut opaque_index: int = 0
+    while (< opaque_index parser.opaque_types_count) {
+        let item: ASTOpaqueType = (list_ASTOpaqueType_get parser.opaque_types opaque_index)
+        (list_ASTOpaqueType_set parser.opaque_types opaque_index (ASTOpaqueType { node_type: item.node_type, line: item.line, column: item.column, type_name: (nb_type item.type_name item.line) }))
+        set opaque_index (+ opaque_index 1)
+    }
     let mut structs_index: int = 0
     while (< structs_index parser.structs_count) {
         let item: ASTStruct = (list_ASTStruct_get parser.structs structs_index)

@@ -14411,3 +14411,10 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   injective emission-local identifier projection with original-symbol collision
   checks and checked storage. I do not add a refusal for an accepted generic
   opaque instantiation. The full source checkpoint remains unqualified.
+
+- [ ] I preserve complete opaque-bearing native annotation boundaries in the
+  existing generic argument splitter under task_2c7f68e4707b4d12b0ac8d29636fda63.
+  Static inventory found that its comma scan tracks angle brackets alone, so
+  tuple/callable commas and a callable arrow can disturb an accepted argument.
+  I retain the actual parsed annotation, preserve ordinary spellings, and add
+  nested tuple/callable controls before claiming the full identity checkpoint.

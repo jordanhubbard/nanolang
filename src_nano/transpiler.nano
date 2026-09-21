@@ -23,7 +23,7 @@ from "src_nano/compiler/passive_graph.nano" import passive_order
 import "src_nano/compiler/ir.nano"
 from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
 import "src_nano/compiler/module_bindings.nano"
-from "src_nano/compiler/nominal_bindings.nano" import nb_type
+from "src_nano/compiler/nominal_bindings.nano" import nb_type, nb_opaque_original, nb_opaque_origin, nb_emission_prefix, nb_register, nb_import
 import "src_nano/ast_shared.nano"
 import "src_nano/parser.nano"
 from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
@@ -90,7 +90,7 @@ shadow would_collide_with_extern {
 }
 
 /* Opaque types should not get nl_ prefix - they map to external C types */
-fn is_opaque_type(name: string) -> bool {
+fn known_opaque_abi(name: string) -> bool {
     if (== name "NLStringBuilder") { return true } else { (print "") }
     if (== name "NLStringSet") { return true } else { (print "") }
     if (== name "NLHashMap") { return true } else { (print "") }
@@ -115,6 +115,30 @@ fn is_opaque_type(name: string) -> bool {
     if (== name "NlQueue") { return true } else { (print "") }
     if (== name "NlQueueGroup") { return true } else { (print "") }
     return false
+}
+
+shadow known_opaque_abi {
+    assert (known_opaque_abi "Json")
+    assert (not (known_opaque_abi "Undeclared"))
+}
+
+fn is_opaque_type(name: string) -> bool {
+    if (mb_active) { return (!= (nb_opaque_original name) "") }
+    # I retain isolated emitter helper behavior outside a bound source graph.
+    return (known_opaque_abi name)
+}
+
+fn opaque_c_type(name: string) -> string {
+    let original: string = (nb_opaque_original name)
+    if (!= original "") {
+        if (known_opaque_abi original) { return original }
+        return "void*"
+    }
+    return name
+}
+shadow opaque_c_type {
+    (mb_reset [])
+    assert (== (opaque_c_type "Json") "Json")
 }
 
 shadow is_opaque_type {
@@ -259,7 +283,9 @@ fn register_fn_type(t: string) -> string {
     let mut name_parts: array<string> = []
     set name_parts (cg_append name_parts "nl_FnPtr_")
     set name_parts (cg_append name_parts (int_to_string idx))
-    let name: string = (cg_build name_parts)
+    let mut name: string = (cg_build name_parts)
+    let opaque_key: string = (native_opaque_key t)
+    if (!= opaque_key "") { set name (native_opaque_name opaque_key) }
     set fn_type_originals (array_push fn_type_originals t)
     set fn_type_names (array_push fn_type_names name)
     return name
@@ -739,17 +765,22 @@ fn extract_type_args(type_str: string) -> array<string> {
         let mut cur: string = ""
         let mut i: int = 0
         let mut depth: int = 0
+        let mut parentheses: int = 0
         while (< i inner_len) {
             let ch: string = (str_substring inner i 1)
+            if (== ch "(") { set parentheses (+ parentheses 1) }
+            if (== ch ")") { set parentheses (- parentheses 1) }
+            let mut arrow_end: bool = false
+            if (> i 0) { set arrow_end (== (str_substring inner (- i 1) 1) "-") }
             if (== ch "<") {
                 set depth (+ depth 1)
                 set cur (+ cur ch)
             } else {
-                if (== ch ">") {
+                if (and (== ch ">") (not arrow_end)) {
                     set depth (- depth 1)
                     set cur (+ cur ch)
                 } else {
-                    if (and (== ch ",") (== depth 0)) {
+                    if (and (== ch ",") (and (== depth 0) (== parentheses 0))) {
                         /* Trim leading spaces from cur */
                         let mut trimmed: string = cur
                         while (and (> (str_length trimmed) 0) (== (str_substring trimmed 0 1) " ")) {
@@ -784,12 +815,87 @@ shadow extract_type_args {
     let args2: array<string> = (extract_type_args "List<Point>")
     assert (== (array_length args2) 1)
     assert (== (at args2 0) "Point")
+    let nested: array<string> = (extract_type_args "Box<(int,string),fn(int,string)->Option<int>>")
+    assert (== (array_length nested) 2)
+    assert (== (at nested 0) "(int,string)")
+    assert (== (at nested 1) "fn(int,string)->Option<int>")
+}
+
+# I frame the actual annotation token stream, including all punctuation and
+# declaration identities. I do not flatten argument boundaries into underscores.
+let mut native_opaque_keys: array<string> = []
+let mut native_opaque_names: array<string> = []
+
+fn native_opaque_key(annotation: string) -> string {
+    if (not (mb_active)) { return "" }
+    let tokens: List<LexerToken> = (tokenize_string annotation "<native-type>" (list_CompilerDiagnostic_new))
+    let mut key: string = "type:"
+    let mut found: bool = false
+    let mut i: int = 0
+    while (< i (list_LexerToken_length tokens)) {
+        let token: LexerToken = (list_LexerToken_get tokens i)
+        if (!= token.token_type LexerTokenType.TOKEN_EOF) {
+            let original: string = (nb_opaque_original token.value)
+            if (!= original "") {
+                let origin: string = (nb_opaque_origin token.value)
+                set key (+ key (+ "O" (+ (int_to_string (str_length origin)) (+ ":" origin))))
+                set key (+ key (+ (int_to_string (str_length original)) (+ ":" original)))
+                set found true
+            } else {
+                set key (+ key (+ "T" (+ (int_to_string token.token_type) ":")))
+                set key (+ key (+ (int_to_string (str_length token.value)) (+ ":" token.value)))
+            }
+        }
+        set i (+ i 1)
+    }
+    if found { return key }
+    return ""
+}
+
+shadow native_opaque_key {
+    (mb_reset [1])
+    (mb_set_sources ["/native-opaque.nano"])
+    let tokens: List<LexerToken> = (tokenize_string "opaque type Handle" "native-opaque.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "native-opaque.nano")
+    assert (nb_register parser "__native_test_")
+    let handle: string = (nb_type "Handle" 1)
+    let first: string = (native_opaque_key (+ "Box<A_B,C," (+ handle ">")))
+    let second: string = (native_opaque_key (+ "Box<A,B_C," (+ handle ">")))
+    assert (!= first "")
+    assert (!= first second)
+    assert (== first (native_opaque_key (+ "Box< A_B, C, " (+ handle " >"))))
+    assert (!= (native_opaque_key (+ "Outer<Box<" (+ handle ">>"))) "")
+    assert (== (native_opaque_key "Box<int,string>") "")
+    (mb_reset [])
+}
+
+fn native_opaque_name(key: string) -> string {
+    let mut i: int = 0
+    while (< i (array_length native_opaque_keys)) {
+        if (== key (at native_opaque_keys i)) { return (at native_opaque_names i) }
+        set i (+ i 1)
+    }
+    let name: string = (+ (nb_emission_prefix) (+ "opaque_type_" (int_to_string i)))
+    set native_opaque_keys (array_push native_opaque_keys key)
+    set native_opaque_names (array_push native_opaque_names name)
+    return name
+}
+shadow native_opaque_name {
+    set native_opaque_keys []
+    set native_opaque_names []
+    let first: string = (native_opaque_name "first")
+    assert (== first (native_opaque_name "first"))
+    assert (!= first (native_opaque_name "second"))
+    set native_opaque_keys []
+    set native_opaque_names []
 }
 
 /* Convert a generic type string to a monomorphized name.
  * "Result<int,string>" -> "Result_int_string"
  */
 fn monomorphize_type_name(type_str: string) -> string {
+    let opaque_key: string = (native_opaque_key type_str)
+    if (!= opaque_key "") { return (native_opaque_name opaque_key) }
     let base: string = (extract_base_type_name type_str)
     let args: array<string> = (extract_type_args type_str)
     let mut result: string = base
@@ -1542,7 +1648,20 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
     } else { (print "") }
 
     if (== t0.token_type LexerTokenType.TOKEN_IDENTIFIER) {
-        let name: string = (nb_type t0.value t0.line)
+        let mut spelling: string = t0.value
+        let mut name_end: int = (+ start_pos 1)
+        let mut qualified: bool = true
+        while (and qualified (< name_end n)) {
+            let separator: LexerToken = (list_LexerToken_get parser.tokens name_end)
+            if (== separator.token_type LexerTokenType.TOKEN_DOT) {
+                if (>= (+ name_end 1) n) { return TypeCParseResult { ok: false, c_type: "", next_pos: start_pos } }
+                let member: LexerToken = (list_LexerToken_get parser.tokens (+ name_end 1))
+                if (!= member.token_type LexerTokenType.TOKEN_IDENTIFIER) { return TypeCParseResult { ok: false, c_type: "", next_pos: start_pos } }
+                set spelling (+ spelling (+ "." member.value))
+                set name_end (+ name_end 2)
+            } else { set qualified false }
+        }
+        let name: string = (nb_type spelling t0.line)
 
         /* List<T> */
         if (== name "List") {
@@ -1568,11 +1687,11 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
 
         # I consume the complete concrete nominal field annotation.
         if (and (!= name "List") (!= name "HashMap")) {
-            if (< (+ start_pos 1) n) {
-                let next: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 1))
+            if (< name_end n) {
+                let next: LexerToken = (list_LexerToken_get parser.tokens name_end)
                 if (== next.token_type LexerTokenType.TOKEN_LT) {
-                    let mut spelling: string = t0.value
-                    let mut cursor: int = (+ start_pos 1)
+                    let mut concrete_spelling: string = spelling
+                    let mut cursor: int = name_end
                     let mut depth: int = 0
                     while (< cursor n) {
                         let part: LexerToken = (list_LexerToken_get parser.tokens cursor)
@@ -1584,10 +1703,10 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
                         if (== part.token_type LexerTokenType.TOKEN_LPAREN) { set text "(" }
                         if (== part.token_type LexerTokenType.TOKEN_RPAREN) { set text ")" }
                         if (== part.token_type LexerTokenType.TOKEN_ARROW) { set text "->" }
-                        set spelling (+ spelling text)
+                        set concrete_spelling (+ concrete_spelling text)
                         set cursor (+ cursor 1)
                         if (== depth 0) {
-                            return TypeCParseResult { ok: true, c_type: (type_to_c (nb_type spelling t0.line)), next_pos: cursor }
+                            return TypeCParseResult { ok: true, c_type: (type_to_c (nb_type concrete_spelling t0.line)), next_pos: cursor }
                         }
                     }
                     return TypeCParseResult { ok: false, c_type: "", next_pos: start_pos }
@@ -1597,19 +1716,19 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
 
         /* Direct schema / built-in types */
         if (is_schema_struct_name name) {
-            return TypeCParseResult { ok: true, c_type: name, next_pos: (+ start_pos 1) }
+            return TypeCParseResult { ok: true, c_type: name, next_pos: name_end }
         } else { (print "") }
 
         /* Opaque types map directly to C types without nl_ prefix */
         if (is_opaque_type name) {
-            return TypeCParseResult { ok: true, c_type: name, next_pos: (+ start_pos 1) }
+            return TypeCParseResult { ok: true, c_type: (opaque_c_type name), next_pos: name_end }
         } else { (print "") }
 
         /* Fallback: treat as user-defined struct */
         let mut struct_parts: array<string> = []
         set struct_parts (cg_append struct_parts "nl_")
         set struct_parts (cg_append struct_parts (mangle_name name))
-        return TypeCParseResult { ok: true, c_type: (cg_build struct_parts), next_pos: (+ start_pos 1) }
+        return TypeCParseResult { ok: true, c_type: (cg_build struct_parts), next_pos: name_end }
     } else { (print "") }
 
     return TypeCParseResult { ok: false, c_type: "", next_pos: start_pos }
@@ -1642,6 +1761,20 @@ shadow parse_type_c_from_tokens {
     assert concrete.ok
     assert (== concrete.c_type "nl_Box_Box_int")
     assert (== concrete.next_pos 7)
+
+    let owner_tokens: List<LexerToken> = (tokenize_string "opaque type Handle\nmodule \"owner.nano\" as Lib\n" "qualified-token.nano" (list_CompilerDiagnostic_new))
+    let owners: Parser = (parse_program owner_tokens (list_LexerToken_length owner_tokens) "qualified-token.nano")
+    (mb_reset [1, 2])
+    (mb_set_sources ["/owner.nano", "/root.nano"])
+    assert (nb_register owners "__late_token_")
+    (nb_import owners (parser_get_import owners 0) 0)
+    let qualified_tokens: List<LexerToken> = (tokenize_string "\nLib.Handle" "qualified-token.nano" (list_CompilerDiagnostic_new))
+    let qualified_parser: Parser = (parser_new qualified_tokens (list_LexerToken_length qualified_tokens) "qualified-token.nano")
+    let qualified_result: TypeCParseResult = (parse_type_c_from_tokens qualified_parser 0)
+    assert qualified_result.ok
+    assert (== qualified_result.c_type "void*")
+    assert (== qualified_result.next_pos 3)
+    (mb_reset [])
 
 }
 
@@ -3042,7 +3175,7 @@ fn c_type_from_elem_type(elem_type: string) -> string {
     else { if (== elem_type "bool") { return "bool" }
     else { if (or (== elem_type "array") (is_array_type elem_type)) { return "DynArray*" }
     else { if (== elem_type "int") { return "int64_t" }
-    else { if (is_opaque_type elem_type) { return elem_type }
+    else { if (is_opaque_type elem_type) { return (opaque_c_type elem_type) }
     else { if (type_is_struct elem_type) { return (+ "nl_" (mangle_type_name elem_type)) }
     else { return "int64_t" } } } } } } }
 }
@@ -3119,6 +3252,8 @@ shadow mangle_type_name {
 }
 
 fn tuple_typedef_name(tuple_type: string) -> string {
+    let opaque_key: string = (native_opaque_key tuple_type)
+    if (!= opaque_key "") { return (native_opaque_name opaque_key) }
     let len: int = (str_length tuple_type)
     if (< len 2) {
         return "Tuple"
@@ -3219,7 +3354,7 @@ fn type_to_c(nano_type: string) -> string {
                                 return (tuple_typedef_name nano_type)
                             } else {
                                 if (is_opaque_type nano_type) {
-                                    return nano_type
+                                    return (opaque_c_type nano_type)
                                 } else {
                                 if (is_generic_type nano_type) {
                                     return (+ "nl_" (monomorphize_type_name nano_type))
@@ -8566,6 +8701,8 @@ shadow parser_has_peg2_import {
 }
 
 fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
+    set native_opaque_keys []
+    set native_opaque_names []
     set reduce_emission_error ""
     if (> parser.services_count 0) { set reduce_emission_error "I have not resolved File service declarations for this consumer." return "" }
     (build_module_alias_map parser)

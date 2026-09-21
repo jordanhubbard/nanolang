@@ -1188,6 +1188,7 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
         set i (+ i 1)
     }
     (nb_rewrite parser)
+    if (not (nb_valid)) { return false }
     set i 0
     while (< i parser.shadows_count) {
         let sh: ASTShadow = (list_ASTShadow_get parser.shadows i)

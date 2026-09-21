@@ -4,6 +4,7 @@
 #include "stdlib_runtime.h"
 #include <stdarg.h>
 #include <libgen.h>
+#include "transpiler_opaque_names.inc"
 
 /* String builder for C code generation - now defined in stdlib_runtime.h */
 
@@ -77,9 +78,18 @@ static void sb_appendf(StringBuilder *sb, const char *fmt, ...) {
  * Returns true on success, false if buffer would overflow */
 static bool build_monomorphized_name(char *dest, size_t dest_size, 
                                      const char *base_name, 
-                                     const char **type_args, int type_arg_count) {
+                                     const char **type_args, int type_arg_count, const TypeInfo *complete) {
     if (!dest || !base_name || dest_size == 0) return false;
     
+    if (opaque_type_info_present(complete)) {
+        char *key = opaque_type_info_key(complete);
+        if (!key) native_opaque_name_failure();
+        const char *name = native_opaque_projection(key);
+        int written = snprintf(dest, dest_size, "%s", name);
+        free(key);
+        if (written < 0 || (size_t)written >= dest_size) native_opaque_name_failure();
+        return true;
+    }
     /* Start with base name */
     size_t pos = 0;
     int written = snprintf(dest + pos, dest_size - pos, "%s", base_name);
@@ -118,7 +128,7 @@ static bool build_monomorphized_name_from_typeinfo(char *dest, size_t dest_size,
                       .type_params = type_params, .type_param_count = type_param_count };
     char *name = typeinfo_to_generic_arg_name(&info);
     if (!name) return false;
-    int written = snprintf(dest, dest_size, "%s", name);
+    int written = snprintf(dest, dest_size, "%s", native_opaque_projection(name));
     free(name);
     return written >= 0 && (size_t)written < dest_size;
 }
@@ -199,6 +209,7 @@ static _Thread_local uint32_t native_declared_letters;
 /* Get prefixed type name for user-defined types */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_type_name(const char *name) {
+    name = native_opaque_projection(name);
     static _Thread_local char *buffer;
     static _Thread_local size_t capacity;
     
@@ -263,6 +274,7 @@ static const char *get_prefixed_variant_name(const char *enum_name, const char *
 /* Get prefixed variant struct name for unions: UnionName.Variant -> nl_UnionName_Variant */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_variant_struct_name(const char *union_name, const char *variant_name) {
+    union_name = native_opaque_projection(union_name);
     static _Thread_local char buffer[512];
     snprintf(buffer, sizeof(buffer), "nl_%s_%s", union_name, variant_name);
     return buffer;
@@ -271,6 +283,7 @@ static const char *get_prefixed_variant_struct_name(const char *union_name, cons
 /* Get prefixed union tag name: nl_UnionName_TAG_Variant */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_tag_name(const char *union_name, const char *variant_name) {
+    union_name = native_opaque_projection(union_name);
     static _Thread_local char buffer[512];
     if (is_runtime_typedef(union_name)) {
         snprintf(buffer, sizeof(buffer), "%s_TAG_%s", union_name, variant_name);
@@ -541,18 +554,19 @@ static void free_tuple_type_registry(TupleTypeRegistry *reg) {
 
 /* Check if two tuple types are equal */
 static bool tuple_types_equal(TypeInfo *a, TypeInfo *b) {
-    if (!a || !b) return false;
-    if (a->tuple_element_count != b->tuple_element_count) return false;
-    
-    for (int i = 0; i < a->tuple_element_count; i++) {
-        if (a->tuple_types[i] != b->tuple_types[i]) return false;
-    }
-    
-    return true;
+    return a && b && type_infos_equal(a, b);
 }
 
 /* Generate typedef name for a tuple type */
 static char *get_tuple_typedef_name(TypeInfo *info, int index) {
+    if (opaque_type_info_present(info)) {
+        char *key = opaque_type_info_key(info);
+        if (!key) native_opaque_name_failure();
+        char *name = strdup(native_opaque_projection(key));
+        free(key);
+        if (!name) native_opaque_name_failure();
+        return name;
+    }
     StringBuilder *sb = sb_create();
     
     sb_append(sb, "Tuple");
@@ -615,14 +629,15 @@ static const char *register_tuple_type(TupleTypeRegistry *reg, TypeInfo *info) {
 }
 
 /* Generate C typedef for a tuple type */
-static void generate_tuple_typedef(StringBuilder *sb, TypeInfo *info, const char *typedef_name) {
+static void generate_tuple_typedef(StringBuilder *sb, TypeInfo *info, const char *typedef_name, Environment *env) {
     sb_appendf(sb, "typedef struct { ");
     for (int i = 0; i < info->tuple_element_count; i++) {
         if (i > 0) sb_append(sb, "; ");
         Type t = info->tuple_types[i];
         if (t == TYPE_STRUCT || t == TYPE_UNION || t == TYPE_ENUM) {
             if (info->tuple_type_names && info->tuple_type_names[i]) {
-                const char *prefixed = get_prefixed_type_name(info->tuple_type_names[i]);
+                const char *prefixed = env_get_opaque_type(env, info->tuple_type_names[i])
+                    ? "void*" : get_prefixed_type_name(info->tuple_type_names[i]);
                 sb_appendf(sb, "%s _%d", prefixed, i);
             } else {
                 sb_appendf(sb, "void* /* tuple composite */ _%d", i);
@@ -636,6 +651,15 @@ static void generate_tuple_typedef(StringBuilder *sb, TypeInfo *info, const char
 
 /* Generate unique typedef name for a function signature */
 static char *get_function_typedef_name(FunctionSignature *sig, int index) {
+    TypeInfo view = {.base_type = TYPE_FUNCTION, .fn_sig = sig};
+    if (opaque_type_info_present(&view)) {
+        char *key = opaque_type_info_key(&view);
+        if (!key) native_opaque_name_failure();
+        char *name = strdup(native_opaque_projection(key));
+        free(key);
+        if (!name) native_opaque_name_failure();
+        return name;
+    }
     char *name = malloc(64);
     if (!name) {
         fprintf(stderr, "Error: Out of memory allocating function typedef name\n");
@@ -2015,7 +2039,7 @@ static void __attribute__((unused)) generate_union_definitions(Environment *env,
             if (!build_monomorphized_name(monomorphized_name, sizeof(monomorphized_name),
                                           inst->generic_name, 
                                           (const char **)inst->type_arg_names, 
-                                          inst->type_arg_count)) {
+                                          inst->type_arg_count, inst->type_info)) {
                 fprintf(stderr, "Warning: Monomorphized type name too long for %s, skipping\n", 
                         inst->generic_name);
                 continue;
@@ -2176,6 +2200,7 @@ typedef struct {
 
 static int find_composite_type_item(NLCompositeTypeItem *items, int count, const char *name) {
     if (!name) return -1;
+    name = native_opaque_projection(name);
     for (int i = 0; i < count; i++) {
         if (items[i].name && strcmp(items[i].name, name) == 0) {
             return i;
@@ -2480,7 +2505,7 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
             if (!build_monomorphized_name(monomorphized_name_buf, sizeof(monomorphized_name_buf),
                                           inst->generic_name,
                                           (const char **)inst->type_arg_names,
-                                          inst->type_arg_count)) {
+                                          inst->type_arg_count, inst->type_info)) {
                 continue;
             }
 
@@ -2945,7 +2970,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
             if (!build_monomorphized_name(monomorphized_name, sizeof(monomorphized_name),
                                           inst->generic_name,
                                           (const char **)inst->type_arg_names,
-                                          inst->type_arg_count)) {
+                                          inst->type_arg_count, inst->type_info)) {
                 continue;
             }
 
@@ -3140,7 +3165,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
             if (!build_monomorphized_name(monomorphized_name, sizeof(monomorphized_name),
                                           inst->generic_name,
                                           (const char **)inst->type_arg_names,
-                                          inst->type_arg_count)) {
+                                          inst->type_arg_count, inst->type_info)) {
                 continue;
             }
 
@@ -4267,7 +4292,7 @@ static void generate_type_typedefs(StringBuilder *sb, FunctionTypeRegistry *fn_r
         sb_appendf(sb, "/* Tuple Type Typedefs (found %d types) */\n", tuple_registry->count);
         for (int i = 0; i < tuple_registry->count; i++) {
             generate_tuple_typedef(sb, tuple_registry->tuples[i],
-                                 tuple_registry->typedef_names[i]);
+                                 tuple_registry->typedef_names[i], env);
         }
         sb_append(sb, "\n");
     }
@@ -4951,6 +4976,9 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
 
 /* I retain no borrowed declaration pointer and restore context on every exit. */
 char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file) {
+    NativeOpaqueNames names = {.prefix = env ? env_opaque_symbol_prefix(env) : 0};
+    NativeOpaqueNames *previous_names = native_opaque_names;
+    native_opaque_names = &names;
     uint32_t previous = native_declared_letters;
     native_declared_letters = 0;
     for (int i = 0; env && i < env->union_count; ++i) {
@@ -4965,5 +4993,7 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     }
     char *result = transpile_to_c_impl(program, env, input_file);
     native_declared_letters = previous;
+    native_opaque_names = previous_names;
+    native_opaque_names_free(&names);
     return result;
 }

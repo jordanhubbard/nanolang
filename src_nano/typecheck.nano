@@ -28,6 +28,7 @@ import "src_nano/ast_shared.nano"
 import "src_nano/compiler/ir.nano"
 from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
 import "src_nano/compiler/module_bindings.nano"
+import "src_nano/compiler/nominal_bindings.nano"
 import "src_nano/generated/purity_intrinsics.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 from "src_nano/compiler/error_messages.nano" import encode_type_mismatch_message, encode_undefined_name_message, encode_wrong_arg_count_message, encode_missing_return_message, encode_immutable_assignment_message
@@ -2738,12 +2739,10 @@ fn is_enum_name(parser: Parser, name: string) -> bool {
 
 shadow is_enum_name { assert true }
 
-# I recognize the opaque names my native emitter already exposes, while also
-# honoring declarations retained by the current parser.
+# I recognize exact registered opaque declarations in a bound graph.
+# Isolated parser checks use only actual declarations in that parser.
 fn tc_is_opaque_name(parser: Parser, name: string) -> bool {
-    if (or (== name "NLStringBuilder") (or (== name "NLStringSet") (or (== name "NLHashMap") (or (== name "NlPeg") (or (== name "Peg2Grammar") (or (== name "Json") (or (== name "Regex") (or (== name "DateTime") (or (== name "HttpResponse") (or (== name "HttpServer") (or (== name "HttpRequest") (or (== name "SDL_Window") (or (== name "SDL_Renderer") (or (== name "SDL_Texture") (or (== name "SDL_Surface") (or (== name "SDL_GLContext") (or (== name "Mix_Chunk") (or (== name "Mix_Music") (or (== name "TTF_Font") (or (== name "GLFWwindow") (or (== name "GLFWmonitor") (or (== name "NlQueue") (== name "NlQueueGroup"))))))))))))))))))))))) {
-        return true
-    } else { (print "") }
+    if (mb_active) { return (!= (nb_opaque_original name) "") }
     let count: int = (list_ASTOpaqueType_length parser.opaque_types)
     let mut i: int = 0
     while (< i count) {
@@ -2757,7 +2756,7 @@ fn tc_is_opaque_name(parser: Parser, name: string) -> bool {
 shadow tc_is_opaque_name {
     let tokens: List<LexerToken> = (tokenize_string "opaque type Custom" "opaque.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "opaque.nano")
-    assert (tc_is_opaque_name parser "SDL_Window")
+    assert (not (tc_is_opaque_name parser "SDL_Window"))
     assert (tc_is_opaque_name parser "Custom")
     assert (not (tc_is_opaque_name parser "Point"))
 }
