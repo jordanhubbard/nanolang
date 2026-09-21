@@ -22,6 +22,10 @@ class RecordArrayLLVM(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        selected = os.environ.get('RECORD_LLVM_NATIVE_OPTIMIZATIONS', 'O0,O2')
+        if selected not in ('O0', 'O2', 'O0,O2'):
+            raise ValueError('I require native optimizations O0, O2, or O0,O2.')
+        cls.native_optimizations = tuple(selected.split(','))
         cls.artifacts = Path(tempfile.mkdtemp(prefix='nano-record-array-llvm-'))
         print(f'I retain direct LLVM artifacts at {cls.artifacts}', flush=True)
         cls.cc = shlex.split(os.environ.get('RECORD_GENERATED_CC', 'cc'))
@@ -42,6 +46,7 @@ class RecordArrayLLVM(unittest.TestCase):
             'vm_inputs': cls.vm_objects, 'query_inputs': cls.query_objects,
             'ldflags': cls.ldflags, 'native_ldflags': cls.native_ldflags,
             'IR_ASan': cls.ir_asan, 'LSAN_OPTIONS': '',
+            'native_optimizations': cls.native_optimizations,
             'product_link_closure': ['actual emitted LLVM', 'record_array_generated_private.c',
                                      'captured replay', 'test allocator only in observed native mode'],
             'wasm_memory': {'initial': 1048576, 'maximum': 67108864, 'refusal_maximum': 4194304},
@@ -240,7 +245,7 @@ class RecordArrayLLVM(unittest.TestCase):
     def test_02_native_corpus(self):
         sources, replays, original = self.capture(False)
         self.startup_controls(sources[0],False,next(p for p in sources if int(re.search(r'@functions = private constant \[(\d+)',p.read_text()).group(1))>1))
-        for optimization in ('O0', 'O2'):
+        for optimization in self.native_optimizations:
             for observed in (False, True):
                 mode=optimization+('-observed' if observed else '-linked')
                 testing=['-DNMS_TESTING', '-DNRG_OBSERVED'] if observed else []
