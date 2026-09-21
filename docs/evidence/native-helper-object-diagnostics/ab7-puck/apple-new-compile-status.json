@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c99",
+    "-I/Users/jkh/nanolang-qualification/record-lists-qualified-303/src",
+    "-I/Users/jkh/nanolang-qualification/record-lists-qualified-303/modules/std",
+    "-I/Users/jkh/nanolang-qualification/record-lists-qualified-303/modules/std/collections",
+    "-I/Users/jkh/nanolang-qualification/record-lists-qualified-303/modules/std/json",
+    "-isysroot",
+    "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-c",
+    "/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c",
+    "-o",
+    "/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/apple-new.o"
+  ],
+  "cwd": "/Users/jkh/nanolang-qualification/record-lists-qualified-303",
+  "timeout_seconds": 60,
+  "status": 1,
+  "timeout": false,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 0.04821520899999998,
+  "stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "sha256": "663cc6fc48cfd4d5d68b7226658aac748c67e90b281e2a5b436a1bb20c80a477",
+    "bytes": 15275,
+    "archive": "/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/objects/663cc6fc48cfd4d5d68b7226658aac748c67e90b281e2a5b436a1bb20c80a477"
+  }
+}

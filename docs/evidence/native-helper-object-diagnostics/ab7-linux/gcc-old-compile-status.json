@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/bin/gcc",
+    "-std=c99",
+    "-I/home/jkh/Src/nanolang-record-lists-qualified-303/src",
+    "-I/home/jkh/Src/nanolang-record-lists-qualified-303/modules/std",
+    "-I/home/jkh/Src/nanolang-record-lists-qualified-303/modules/std/collections",
+    "-I/home/jkh/Src/nanolang-record-lists-qualified-303/modules/std/json",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Wno-error=unused-function",
+    "-c",
+    "/home/jkh/nanolang-qualification/native-helper-ab7-linux-objects/old.c",
+    "-o",
+    "/home/jkh/nanolang-qualification/native-helper-ab7-linux-objects/gcc-old.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-303",
+  "timeout_seconds": 60,
+  "status": 0,
+  "timeout": false,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 0.1139936710242182,
+  "stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/home/jkh/nanolang-qualification/native-helper-ab7-linux-objects/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "sha256": "c833c0369ce32a31a0a5554977e1b4a24d0e76e16d2124bc7a88f2d0d6522c8e",
+    "bytes": 10217,
+    "archive": "/home/jkh/nanolang-qualification/native-helper-ab7-linux-objects/objects/c833c0369ce32a31a0a5554977e1b4a24d0e76e16d2124bc7a88f2d0d6522c8e"
+  }
+}
