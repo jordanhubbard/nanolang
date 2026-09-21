@@ -447,7 +447,7 @@ static void retained_callable_consumers(void) {
 }
 static void constructor_annotation_parsing(void) {
     const char *source =
-        "fn sample()->int { let box =Box<Item,fn(Item)->Item,array<Item>,List<Item>,Box<Item>,fn()->fn(Item)->Item>.Value{} return 0 }\n"
+        "fn sample()->int { let box =Box<Item,fn(Item)->Item,array<Item>,List<Item>,Box<Item>,fn()->fn(Item)->Item,fn()->fn(T)->Item>.Value{} return 0 }\n"
         "shadow sample { assert true }\n";
     int count = 0;
     Token *tokens = tokenize(source, &count); assert(tokens);
@@ -458,7 +458,7 @@ static void constructor_annotation_parsing(void) {
     ASTNode *constructor = body->as.block.statements[0]->as.let.value;
     assert(constructor && constructor->type == AST_UNION_CONSTRUCT);
     TypeInfo *info = constructor->as.union_construct.type_info;
-    assert(info && info->type_param_count == 6 && !strcmp(info->generic_name, "Box"));
+    assert(info && info->type_param_count == 7 && !strcmp(info->generic_name, "Box"));
     TypeInfo **args = info->type_params;
     assert(args[0]->base_type == TYPE_STRUCT && !strcmp(args[0]->generic_name, "Item"));
     assert(args[1]->base_type == TYPE_FUNCTION && args[1]->fn_sig);
@@ -483,7 +483,20 @@ static void constructor_annotation_parsing(void) {
     assert(result.info->fn_sig && result.info->fn_sig != factory->return_fn_sig);
     assert(checked_signature_equal(env, result.info->fn_sig, "Parsed", factory->return_fn_sig, "Parsed", 0));
     assert(nominal_materialize(env, args[5], "Parsed", NULL, 0, &concrete));
+    assert(!concrete->fn_sig->return_type_info->fn_sig && concrete->fn_sig->return_fn_sig);
+    assert(concrete->fn_sig->return_fn_sig != factory->return_fn_sig);
+    free_payload_type_info(concrete); concrete = NULL;
+    char *formals[] = {"T"}; UnionDef declaration = {.generic_param_count = 1, .generic_params = formals};
+    TypeInfo integer = {.base_type = TYPE_INT}; TypeInfo *parameters[] = {&integer};
+    TypeInfo instance = {.type_param_count = 1, .type_params = parameters};
+    NominalSubstitution context = {&declaration, &instance, "Parsed", NULL};
+    assert(args[6]->base_type == TYPE_FUNCTION && args[6]->fn_sig);
+    assert(nominal_materialize(env, args[6], "Parsed", &context, 0, &concrete));
     assert(concrete->fn_sig->return_type_info->fn_sig && concrete->fn_sig->return_fn_sig);
+    assert(concrete->fn_sig->return_fn_sig->param_types[0] == TYPE_INT);
+    assert(args[6]->fn_sig->return_fn_sig->param_types[0] == TYPE_STRUCT);
+    assert(!strcmp(args[6]->fn_sig->return_fn_sig->param_struct_names[0], "T"));
+    assert(!args[6]->fn_sig->return_type_info->fn_sig);
     assert(concrete->fn_sig->return_type_info->fn_sig != concrete->fn_sig->return_fn_sig);
     assert(checked_signature_equal(env, concrete->fn_sig->return_type_info->fn_sig, "Parsed",
         concrete->fn_sig->return_fn_sig, "Parsed", 0));
