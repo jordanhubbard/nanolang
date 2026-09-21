@@ -4,6 +4,9 @@
 #ifdef NANO_RECORD_ARRAY_GENERATED_PRIVATE
 #include "managed_strings.c"
 #include <stddef.h>
+#ifndef __wasm32__
+#include <pthread.h>
+#endif
 
 typedef struct { uint32_t function, resume, stack; } NrgFrame;
 struct NrgInstance {
@@ -16,10 +19,21 @@ struct NrgInstance {
     uint32_t depth, maximum_frames;
     NrgStatus status;
     bool busy, has_result, yielded;
+#ifndef __wasm32__
+    pthread_t owner;
+#endif
 };
 _Static_assert(sizeof(NmsValue)==16 && offsetof(NmsValue,tag)==8,
                "I require my generated boxed value ABI");
 _Static_assert(NRG_ROOTS==1024u*512u+1u,"I reserve every frame and initializer root");
+static bool nrg_owner(const NrgInstance *p) {
+#ifdef __wasm32__
+    /* My private Wasm target has no shared-memory/thread imports. */
+    return p!=NULL;
+#else
+    return p && pthread_equal(p->owner,pthread_self());
+#endif
+}
 static NmsValue nrg_void(void) { NmsValue v={0,0}; return v; }
 static bool nrg_leaf(uint32_t t) { return t>=1 && t<=5; }
 static NrgStatus nrg_core_status(NmsStatus s) {
@@ -41,14 +55,14 @@ static bool nrg_core(NrgInstance *p,NmsStatus s) {
 }
 NrgStatus nrg_status(const NrgInstance *p) { return p?p->status:NRG_STATE; }
 static NrgFrame *nrg_frame(NrgInstance *p) {
-    if(!p || !p->busy || !p->depth || p->depth>NRG_FRAMES || p->status!=NRG_OK)return NULL;
+    if(!nrg_owner(p) || !p->busy || !p->depth || p->depth>NRG_FRAMES || p->status!=NRG_OK)return NULL;
     return &p->frames[p->depth-1];
 }
 static NmsValue *nrg_slots(NrgInstance *p,uint32_t depth) { return p->roots+depth*512u; }
 static void nrg_release(NrgInstance *p,NmsValue *slot) {
     NmsValue old=*slot;*slot=nrg_void();nrg_core(p,nms_value_release(&p->heap,old));
 }
-static bool nrg_valid(NrgInstance *p,NmsValue v) {
+static bool nrg_valid(const NrgInstance *p,NmsValue v) {
     if(v.tag==0 || (v.tag>=1 && v.tag<=4))return true;
     if(v.tag==5) { NmsView view;return nms_view(&p->heap,v.payload,&view)==NMS_OK; }
     uint32_t index;
@@ -81,7 +95,7 @@ static bool nrg_program_valid(const NrgProgram *p,uint64_t *bytes) {
        p->value_tag_offset!=offsetof(NmsValue,tag) || p->frame_limit!=NRG_FRAMES ||
        !p->function_count || p->function_count>256 || !p->functions ||
        p->entry>=p->function_count || (p->initializer!=UINT32_MAX && p->initializer>=p->function_count) ||
-       p->global_count>256 || p->record_count>256 || p->field_count>65536 ||
+       p->has_main>1 || p->global_count>256 || p->record_count>256 || p->field_count>65536 ||
        (p->literal_count && !p->literals) || (p->record_count && (!p->records || !p->field_starts)) ||
        (p->field_count && !p->fields))return false;
     uint64_t work=sizeof *p+(uint64_t)p->function_count*sizeof(NrgFunction)+
@@ -98,7 +112,7 @@ static bool nrg_program_valid(const NrgProgram *p,uint64_t *bytes) {
     }
     if(p->functions[p->entry].arity || (p->initializer!=UINT32_MAX && p->functions[p->initializer].arity))return false;
     for(uint32_t i=0;i<p->literal_count;i++) {
-        if(p->literals[i].length && !p->literals[i].data)return false;
+        if(!p->literals[i].data)return false;
         if(p->literals[i].length>NRG_EXTRA_STEPS-work)return false;
         work+=p->literals[i].length;
     }
@@ -161,6 +175,9 @@ NrgStatus nrg_create(const NrgProgram *program,NrgInstance **out) {
     volatile unsigned char *zero=(volatile unsigned char *)p;
     for(size_t i=0;i<sizeof *p;i++)zero[i]=0;
     p->program=program;p->preparation_bytes=bytes;
+#ifndef __wasm32__
+    p->owner=pthread_self();
+#endif
     nms_init(&p->heap,program->literals,program->literal_count);
     p->roots=allocate(&p->heap,(uint64_t)NRG_ROOTS*sizeof *p->roots);
     if(!p->roots) { deallocate(p);return NRG_MEMORY; }
@@ -174,7 +191,9 @@ bool nrg_peek(NrgInstance *p,uint32_t distance,NmsValue *out) {
     if(!f || !out)return false;
     if(distance>=f->stack) { nrg_fail(p,NRG_STATE);return false; }
     uint32_t locals=p->program->functions[f->function].locals;
-    *out=nrg_slots(p,p->depth-1)[locals+f->stack-1-distance];return true;
+    NmsValue value=nrg_slots(p,p->depth-1)[locals+f->stack-1-distance];
+    if(!nrg_valid(p,value)) { nrg_fail(p,NRG_TYPE);return false; }
+    *out=value;return true;
 }
 bool nrg_push_move(NrgInstance *p,NmsValue *value) {
     NrgFrame *f=nrg_frame(p);
@@ -185,8 +204,11 @@ bool nrg_push_move(NrgInstance *p,NmsValue *value) {
 }
 bool nrg_replace(NrgInstance *p,uint32_t count,NmsValue *value) {
     NrgFrame *f=nrg_frame(p);
-    if(!f || !value)return false;
-    if(count>f->stack || f->stack-count>=256 || !nrg_valid(p,*value)) { nrg_fail(p,NRG_TYPE);return false; }
+    if(!p || !value)return false;
+    if(!f) { nrg_release(p,value);return false; }
+    if(count>f->stack || f->stack-count>=256 || !nrg_valid(p,*value)) {
+        nrg_fail(p,NRG_TYPE);nrg_release(p,value);return false;
+    }
     uint32_t locals=p->program->functions[f->function].locals;
     NmsValue *slots=nrg_slots(p,p->depth-1);
     while(count--)nrg_release(p,&slots[locals+--f->stack]);
@@ -296,12 +318,14 @@ static void nrg_execute_root(NrgInstance *p,uint32_t function) {
 }
 NrgStatus nrg_run(NrgInstance *p) {
     if(!p)return NRG_STATE;
+    if(!nrg_owner(p))return NRG_TYPE;
     if(p->busy)return NRG_BUSY;
     if(p->epoch==UINT64_MAX)return NRG_STATE;
     NmsStatus begin=nms_begin(&p->heap);
     if(begin!=NMS_OK)return nrg_core_status(begin);
     p->busy=true;p->status=NRG_OK;p->epoch++;
-    if(nrg_core(p,nms_prepare_collection(&p->heap))) {
+    if(!p->program->has_main)nrg_fail(p,NRG_UNDEFINED_FUNCTION);
+    if(p->status==NRG_OK && nrg_core(p,nms_prepare_collection(&p->heap))) {
         if(p->program->initializer!=UINT32_MAX) {
             nrg_execute_root(p,p->program->initializer);
             if(p->status==NRG_OK) { p->roots[NRG_ROOTS-1]=p->completed;p->completed=nrg_void(); }
@@ -319,13 +343,13 @@ NrgStatus nrg_run(NrgInstance *p) {
     nrg_core(p,cleanup);p->busy=false;return p->status;
 }
 void nrg_destroy(NrgInstance *p) {
-    if(!p || p->busy)return;
+    if(!nrg_owner(p) || p->busy)return;
     nrg_release(p,&p->result);nrg_release(p,&p->completed);
     for(uint32_t i=0;i<p->program->global_count;i++)nrg_release(p,&p->globals[i]);
     nms_dispose(&p->heap);deallocate(p->roots);deallocate(p);
 }
 bool nrg_stats(const NrgInstance *p,NrgStats *out) {
-    if(!p || !out || p->busy)return false;
+    if(!nrg_owner(p) || !out || p->busy)return false;
     NrgStats s={p->epoch,p->preparation_bytes,p->heap.live_bytes,p->heap.live_objects,
         p->depth,p->maximum_frames,p->status,p->has_result};*out=s;return true;
 }
@@ -441,7 +465,9 @@ static double nrg_double(uint64_t bits) {
 static uint64_t nrg_double_bits(double value) {
     uint64_t bits;copy_bytes((unsigned char *)&bits,(const unsigned char *)&value,8);return bits;
 }
-bool nrg_truth(NrgInstance *p,NmsValue v) {
+bool nrg_truth(NrgInstance *p,const NmsValue *input) {
+    if(!p || !input)return false;
+    NmsValue v=*input;
     if(!nrg_valid(p,v)) { nrg_fail(p,NRG_TYPE);return false; }
     switch(v.tag) {
     case 0:return false;
@@ -459,7 +485,9 @@ static int nrg_string_order(NrgInstance *p,NmsValue a,NmsValue b) {
     for(uint32_t i=0;i<n;i++)if(x.data[i]!=y.data[i])return (int)x.data[i]-(int)y.data[i];
     return x.length<y.length?-1:x.length>y.length?1:0;
 }
-bool nrg_equal(NrgInstance *p,NmsValue a,NmsValue b) {
+bool nrg_equal(NrgInstance *p,const NmsValue *left,const NmsValue *right) {
+    if(!p || !left || !right)return false;
+    NmsValue a=*left,b=*right;
     if(!nrg_valid(p,a) || !nrg_valid(p,b)) { nrg_fail(p,NRG_TYPE);return false; }
     if(a.tag==1 && b.tag==3)return (double)(int64_t)a.payload==nrg_double(b.payload);
     if(a.tag==3 && b.tag==1)return nrg_double(a.payload)==(double)(int64_t)b.payload;
@@ -473,7 +501,9 @@ bool nrg_equal(NrgInstance *p,NmsValue a,NmsValue b) {
     default:return a.payload==b.payload;
     }
 }
-int nrg_order(NrgInstance *p,NmsValue a,NmsValue b) {
+int nrg_order(NrgInstance *p,const NmsValue *left,const NmsValue *right) {
+    if(!p || !left || !right)return 0;
+    NmsValue a=*left,b=*right;
     if(!nrg_valid(p,a) || !nrg_valid(p,b)) { nrg_fail(p,NRG_TYPE);return 0; }
     if((a.tag==1 && b.tag==3) || (a.tag==3 && b.tag==1) || (a.tag==3 && b.tag==3)) {
         double x=a.tag==3?nrg_double(a.payload):(double)(int64_t)a.payload;
@@ -615,5 +645,46 @@ bool nrg_predicate(NrgInstance *p,uint32_t predicate) {
     if(!nrg_string_input(p,1,&a) || !nrg_string_input(p,0,&b) ||
        !nrg_core(p,nms_predicate(&p->heap,a.payload,b.payload,predicate,&answer)))return false;
     r.payload=answer;return nrg_replace(p,2,&r);
+}
+
+static bool nrg_observed_value(const NrgInstance *p,bool global,uint32_t index,
+    const uint32_t *path,uint16_t count,NmsValue *out) {
+    if(!nrg_owner(p) || p->busy || count>257 || (count && !path) ||
+       (global?index>=p->program->global_count:(!p->has_result || index)))return false;
+    NmsValue value=global?p->globals[index]:p->result;
+    if(!nrg_valid(p,value))return false;
+    for(uint16_t i=0;i<count;i++) {
+        if(value.tag!=7 && value.tag!=8)return false;
+        uint32_t slot;if(slot_for(&p->heap,value.payload,&slot)!=NMS_OK)return false;
+        const NmsSlot *s=&p->heap.slots[slot];
+        if(path[i]>=s->length)return false;
+        value=slot_value(s,path[i]);
+        if(!nrg_valid(p,value))return false;
+    }
+    *out=value;return true;
+}
+bool nrg_observe(const NrgInstance *p,bool global,uint32_t index,const uint32_t *path,
+    uint16_t count,NrgObservation *out) {
+    NmsValue v;if(!out || !nrg_observed_value(p,global,index,path,count,&v))return false;
+    NrgObservation o={p->epoch,0,v.payload,v.tag,0,UINT32_MAX,0};
+    if(v.tag==5) {
+        NmsView view;if(nms_view(&p->heap,v.payload,&view)!=NMS_OK)return false;
+        o.identity=v.payload;o.scalar_bits=0;o.length=view.length;
+    } else if(v.tag==7 || v.tag==8) {
+        uint32_t slot;if(slot_for(&p->heap,v.payload,&slot)!=NMS_OK)return false;
+        const NmsSlot *s=&p->heap.slots[slot];
+        o.identity=v.payload;o.scalar_bits=0;o.length=s->length;
+        if(v.tag==7)o.element=s->element_tag;
+        else o.layout=p->program->records[s->record_ordinal].global_layout_index;
+    }
+    *out=o;return true;
+}
+bool nrg_string(const NrgInstance *p,bool global,uint32_t index,const uint32_t *path,
+    uint16_t count,uint32_t offset,uint32_t length,void *out) {
+    NmsValue v;NmsView view;
+    if((length && !out) || !nrg_observed_value(p,global,index,path,count,&v) || v.tag!=5 ||
+       nms_view(&p->heap,v.payload,&view)!=NMS_OK || offset>view.length || length>view.length-offset)return false;
+    if(length)copy_bytes(out,view.data+offset,length);
+    return true;
 }
 #endif

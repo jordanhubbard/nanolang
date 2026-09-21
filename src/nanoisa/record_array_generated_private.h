@@ -11,7 +11,7 @@
 #define NRG_EXTRA_STEPS UINT64_C(33554432)
 typedef enum {
     NRG_OK, NRG_TYPE, NRG_BOUNDS, NRG_ASSERT, NRG_MEMORY, NRG_ARITHMETIC,
-    NRG_FRAMES_EXHAUSTED, NRG_BUSY, NRG_STATE
+    NRG_FRAMES_EXHAUSTED, NRG_BUSY, NRG_STATE, NRG_UNDEFINED_FUNCTION
 } NrgStatus;
 typedef struct NrgInstance NrgInstance;
 /* A generated function runs real labels until a call, return or error. */
@@ -26,7 +26,7 @@ typedef struct {
 } NrgField;
 typedef struct {
     uint32_t abi, value_size, value_tag_offset, frame_limit;
-    uint32_t function_count, entry, initializer, global_count;
+    uint32_t function_count, entry, initializer, global_count, has_main;
     uint32_t literal_count, record_count, field_count;
     const NrgFunction *functions;
     const NmsView *literals;
@@ -46,7 +46,9 @@ void nrg_call(NrgInstance *, uint32_t function, uint32_t continuation);
 void nrg_return(NrgInstance *);
 /* Borrowed operand views never survive an allocating helper or transfer.
  * push_move clears the input only on success; replace consumes operand roots
- * after the new result has been acquired. All failures retain live roots. */
+ * after the new result has been acquired. replace always consumes its supplied
+ * result owner; on failure it releases that owner and leaves operand roots
+ * available to unwind. push_move leaves its supplied owner intact on failure. */
 bool nrg_peek(NrgInstance *, uint32_t distance, NmsValue *);
 bool nrg_push_move(NrgInstance *, NmsValue *);
 bool nrg_replace(NrgInstance *, uint32_t consumed, NmsValue *);
@@ -67,9 +69,9 @@ bool nrg_array_push(NrgInstance *);
 bool nrg_array_pop(NrgInstance *);
 bool nrg_array_slice(NrgInstance *);
 /* Shared primitive helpers contain no bytecode or instruction dispatch. */
-bool nrg_truth(NrgInstance *,NmsValue);
-bool nrg_equal(NrgInstance *,NmsValue,NmsValue);
-int nrg_order(NrgInstance *,NmsValue,NmsValue);
+bool nrg_truth(NrgInstance *,const NmsValue *);
+bool nrg_equal(NrgInstance *,const NmsValue *,const NmsValue *);
+int nrg_order(NrgInstance *,const NmsValue *,const NmsValue *);
 bool nrg_cast_int(NrgInstance *);
 bool nrg_cast_float(NrgInstance *);
 bool nrg_cast_string(NrgInstance *);
@@ -90,6 +92,12 @@ typedef struct {
     NrgStatus status;
     bool has_result;
 } NrgStats;
+typedef struct {
+    uint64_t epoch, identity, scalar_bits;
+    uint32_t tag, length, layout, element;
+} NrgObservation;
+bool nrg_observe(const NrgInstance *,bool global,uint32_t,const uint32_t *,uint16_t,NrgObservation *);
+bool nrg_string(const NrgInstance *,bool global,uint32_t,const uint32_t *,uint16_t,uint32_t,uint32_t,void *);
 bool nrg_stats(const NrgInstance *, NrgStats *);
 #endif
 #endif

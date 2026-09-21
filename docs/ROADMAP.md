@@ -13985,7 +13985,7 @@ fixed258-entry iterative release stack, with no suspect-buffer allocations or
 host recursion. Old/public heaps retain their collector; nested/cyclic fullgraph
 collector acceptance remains required, not inferred from this bounded route.
 
-- [ ] Before private mixed VM execution I repair the e181 scalar wrong-tag root
+- [x] Before private mixed VM execution I repair the e181 scalar wrong-tag root
   gap (`task_f1307e3b122a4d7a96a5a52a9479f672`). Root static review found that
   general physical-value validation still lets heap operands reach I64/F64/BOOL
   handlers that pop before rejecting a tag without releasing those owners. I
@@ -14003,14 +14003,14 @@ control. I statically corrected the new zero-field fixture's extension size
 word before execution. All acceptance boxes above remain open until frozen
 both-host qualification and independent evidence review.
 
-- [ ] Before private VM fixture execution I preserve exact input object bytes
+- [x] Before private VM fixture execution I preserve exact input object bytes
   in the immutability snapshot (`task_83a5bc6351ba4319805082daffc08b38`). Root
   static review found `Input before=*c` followed by whole-object `memcmp`;
   structure assignment does not promise padding-byte preservation. I use
   `memcpy` for this fixture snapshot, retaining the same comparison and all
   semantic assertions. No failing test or product defect is claimed.
 
-- [ ] I retain both3115 first compile terminals and correct only entry naming
+- [x] I retain both3115 first compile terminals and correct only entry naming
   and strict private formatting (`task_26a29451abd34cf98473acca2adee0fc`). Fresh
   Linux/puck setup and exact two-method discovery passed; no runtime fixture
   executed. The plan fixture's nested `main` macro defeats the VM fixture's
@@ -14020,14 +14020,14 @@ both-host qualification and independent evidence review.
   the unconditional break without changing control flow. New frozen gates need
   review; neither first terminal is relabeled as a runtime result.
 
-- [ ] I retain both4dc first link terminals and supply standalone fixture
+- [x] I retain both4dc first link terminals and supply standalone fixture
   argument globals (`task_e852a4626f23400a83a2381546aa6214`). Fresh setup,
   discovery and strict C compilation passed; the complete eval/cli provider
   closure needs `g_argc`/`g_argv` normally owned by main. I define zero/NULL
   globals exactly as the existing private owner-array and VM fixtures do,
   keeping every provider and assertion. No runtime case has executed.
 
-- [ ] I complete precise private record-array global flow before resuming the
+- [x] I complete precise private record-array global flow before resuming the
   stopped88ae VM graph (`task_d0208a61082f4a08b407768b1a8b4252`;
   `NANOISA_RECORD_ARRAY_GLOBAL_FLOW.md`). Initial VOID, branch/call effects and
   repeated-entry committed values remain conservative; a dominating store and
@@ -14046,7 +14046,7 @@ one-shot/persistent allocation positions retain exact MEMORY and fresh recovery.
 I await fixture review before fresh seven-configuration qualification; the
 original88ae stopped VM corpus remains unchanged and unaccepted.
 
-- [ ] I correct the exact derived-slice origin ordinal in the global query
+- [x] I correct the exact derived-slice origin ordinal in the global query
   fixture (`task_2e2bc976b4c7481c8a52e6767f9f032d`). Bothfa222 hosts passed
   setup, discovery, strict compilation and first query eligibility, then the
   fixture asserted bit2 for the slice. My existing scanner reserves ARRAY0
@@ -14094,7 +14094,7 @@ admission. Fresh providers and the unchanged complete VM matrix are required.
 My source-location checkbox above reflects actual PR935 merge and its independent
 both-mode/two-host evidence; it does not close the mixed runtime requirements.
 
-- [ ] I update internal white-box fixture calls for the private mixed context
+- [x] I update internal white-box fixture calls for the private mixed context
   (`task_58e5fa7f876e48b38f7743c543b36c88`). All three15d1 Darwin private VM
   configurations and query neighbors pass before ordinary-admission compilation
   stops at13 old three-argument calls. I add an explicit NULL fourth context,
@@ -14159,3 +14159,18 @@ agreement, observations, ownership fixtures and LLVM/Wasm remain in progress.
 I use the core's existing iterative zero-count worklist for release and retain
 its checked preparation before collection. A strict GCC13 syntax-only check is
 not execution or acceptance. No public route or old singleton adapter changes.
+
+My bounded private VM/query/fixture repair rows above are now complete from
+actual PR936 merge8f2a6c874 and the independent query/VM evidence audits. Their
+historical first-terminal descriptions remain historical. Root reconciled the
+bounded MAC repairs; generated consumers/public/source/full-graph parents remain
+open. My new generated C source is still under implementation and static review;
+its first syntax-only pass exposed incorrect catalog member spellings and
+formatting in the new emitter, corrected without running any generated product.
+
+My first private generated C checkpoint now includes all93 actual emission
+cases, exact copied instruction/edge comparison and a table-agreement startup
+wrapper. Runtime operations use explicit frames and the checked counted core;
+no generated bytecode interpreter is embedded. Strict syntax and static93/93
+inventory checks pass, but generated execution, full ownership/fault fixtures,
+LLVM/Wasm and installed/public/source qualification are still unmeasured.

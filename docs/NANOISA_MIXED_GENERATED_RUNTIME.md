@@ -162,3 +162,57 @@ login tunnel port34113 was occupied by an unmanaged process. I retain the three
 existing parent identities above and do not disturb the listener. This does not
 claim creation of a new child task; I will attach this checkpoint when ledger
 access is restored.
+
+## My first generated C source checkpoint
+
+My source-private files are `record_array_generated_private.h/.c` and
+`nvm2c_record_array_private.h/.c`. The runtime packages the existing counted core
+once, independently of `managed_module.c`; it exposes only scalar/pointer ABI
+arguments, including pointers to boxed values, for later direct LLVM lowering.
+I do not link this runtime alongside another copy of that core in one product.
+Its native instance is creator-thread-bound. My private Wasm target is ordinary
+single-threaded linear memory, with no shared-memory or thread imports.
+
+The C emitter has93 explicit opcode cases and an independent93-row ownership
+recipe switch. It compares all256 decisions with the copied-query support set,
+then redecodes each exact snapshot instruction and compares operands, stack
+counts, callee and successors. A separate boundary search checks every edge.
+Every function, including unused functions and unreachable labels, receives a
+real generated body. Each body contains a switch only for its saved continuation
+and direct labels/operators; runtime execution never fetches a bytecode opcode.
+CALL yields to the scheduler after moving arguments into a checked frame. RET
+yields after moving its result and releasing its frame. Scalar arithmetic is
+explicit generated C, with the canonical binary64 arithmetic source retained.
+String/record/array helpers follow their actual counted-core ownership contracts.
+
+My startup wrapper compares all defined function, parameter, descriptor, field
+and binding values with independently emitted constants, and checks identity of
+its immutable literal/function/table arrays before runtime creation. Literal
+bytes were copied from the owned plan into immutable generated storage; pointer
+identity binds their runtime views to those arrays. This is not a claim about
+tamper-proof native code. Runtime preparation checks ABI, nominal DAG and bounds
+again before binding descriptors. No old/public admission bit is consulted.
+
+| Stage | Charged or bounded storage/work |
+| --- | --- |
+| Copied query plan | Its existing reported peak/work, within128MiB/33554432, remains a separate domain. |
+| Emitter staging | Fixed named function/layout tables; all field and instruction allocations including zero-count allocation sentinels; output capacity, with old and replacement buffers simultaneously charged; formatted and copied bytes, decode/fact scans and edge searches. These stay within consumer128MiB/33554432. |
+| Generated instance | Explicit1024 frame metadata;524289 boxed roots; separate256 globals, retained result and completion root. Per-frame512 slots bound256 locals plus256 operands; index524288 holds the initializer result while root frames execute. |
+| Runtime validation | Named256-by256 adjacency bitset and256 ranks, with bounded binary searches and at most256 complete rank rounds. This automatic scratch is charged separately from the instance's retained requested bytes. |
+| Constructor scratch | Fixed256 payloads and256 tags; source operands remain roots through core allocation. No C recursion proportional to language depth. |
+| Heap/collector | Actual counted-core allocation hooks remain observable; prepared collection occurs before allocating transactions. Core release uses its existing allocation-free iterative worklist. Heap growth is execution memory, not silently included in preparation counters. |
+
+Generated descriptor and literal arrays are static product storage, not allocations
+owned by an instance. Reports distinguish that borrowed immutable storage from
+retained requested bytes and automatic validation scratch; full process/libc
+memory is not inferred from project allocation accounting. Complete fixtures
+must measure these claims, exact next bounds and any generated-output limit
+conflict before acceptance. I do not infer that equal numeric budgets establish
+equal preparation success for every maximum-size input without those checks.
+
+Strict GCC13 syntax checks pass for both new translation units. A static case
+inventory finds93 recipes and93 emission cases, with no missing/extra cases.
+These are source checks only: no generated product has run, and no runtime,
+LLVM/Wasm, installed-package or public acceptance follows yet. The next fixtures
+must compile the actual output, execute the unchanged VM corpus, compare all
+observable roots/statuses, and exercise emission/runtime faults and mismatches.
