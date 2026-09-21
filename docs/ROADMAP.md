@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I preserve written operand order in native tuple and array literals (`task_0ef97cccc6c441c59bd9eb2ec7c5ff05`). Compound initializers and variadic construction alone leave C evaluation order unspecified. I require once-only sequencing, preserved ownership/contextual types and observable source trace assertions in both native producers.
+
 - [ ] I preserve written expression order in native union literals (`task_9a1ba277fe3e45d5913d03305ece1e06`, extending `task_865923a37b6d470c83326aed625b8897`). Both native producers require once-only sequenced temporary staging and observable order tests while preserving payload ownership. C designated initializers alone do not establish my source order.
 
 - [ ] I finish exact concrete scalar-union instances in my affine product (`task_a18a9f752536469faafc4d3ebec01dfd`). My [recovery review](AFFINE_UNION_RECOVERY_REVIEW.md) rejects the recovered one-instance registry, common-position payload approximation and unfinished value-match lowering. My [replacement contract](AFFINE_SCALAR_UNION_INSTANCE_CONTRACT.md) gives each concrete instance a distinct retained layout, records exact per-variant membership/arity/payload slices in versioned ownership metadata, and requires verifier, VM and native agreement before source admission. I build on canonical PR889 guards and do not replace its parser, checker or ordinary emitter. Fresh integrated Linux and Darwin qualification remains required; PR522 and release publication stay held.

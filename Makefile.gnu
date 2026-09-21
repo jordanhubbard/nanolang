@@ -5778,3 +5778,7 @@ test-file-service-parser-sanitizers: nano_virt
 
 # My checked scalar evaluator destinations share this exact helper.
 $(OBJ_DIR)/env.o $(OBJ_DIR)/eval.o: $(SRC_DIR)/eval_u8.h
+
+.PHONY: test-nanoisa-record-order
+test-nanoisa-record-order: nanoisa_emit nano_virt nano_vm
+	@python3 -m unittest tests.test_record_literal_order
