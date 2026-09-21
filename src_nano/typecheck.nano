@@ -4150,6 +4150,42 @@ shadow check_record_field_value {
     assert (check_record_field_value parser good.value good.value_type (type_array TypeKind.TYPE_UNKNOWN "") (type_from_string "array<array<int>>") [] diags "field.nano")
 }
 
+fn check_array_new_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (!= call.arg_count 2) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a count and a fill value for array_new." (Diagnostics.diag_location file_name call.line call.column)))
+        return (type_unknown_named "array_new")
+    }
+    let count: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let count_type: NSType = (check_expr_node parser count.node_id count.node_type symbols diags file_name)
+    let fill: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+    let element: NSType = (check_expr_node parser fill.node_id fill.node_type symbols diags file_name)
+    if (or (== count_type.kind TypeKind.TYPE_UNKNOWN) (or (not (or (types_equal count_type (type_int)) (== (type_to_string count_type) "u8"))) (== element.kind TypeKind.TYPE_UNKNOWN))) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a checked integer count and a known fill type for array_new." (Diagnostics.diag_location file_name call.line call.column)))
+        return (type_unknown_named "array_new")
+    }
+    return (type_array_of element)
+}
+
+shadow check_array_new_call {
+    let parser: Parser = (resource_test_parser "struct Item { value: int } fn f() -> void { let strings = (array_new 0 \"\") let records = (array_new 2 (Item { value: 7 })) let wrong = (array_new true 1) let short = (array_new 1) }")
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let strings: ASTLet = (parser_get_let parser 0)
+    assert (== (type_to_string (check_expr_node parser strings.value strings.value_type [] diags "new.nano")) "array<string>")
+    let records: ASTLet = (parser_get_let parser 1)
+    assert (== (type_to_string (check_expr_node parser records.value records.value_type [] diags "new.nano")) "array<Item>")
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+    let symbols: array<Symbol> = [(symbol_new "array_new" (type_int) false true 2 [(type_int), (type_string)] (type_int))]
+    assert (== (type_to_string (check_expr_node parser strings.value strings.value_type symbols diags "new.nano")) "int")
+    let mut i: int = 2
+    while (< i 4) {
+        let value: ASTLet = (parser_get_let parser i)
+        let before: int = (list_CompilerDiagnostic_length diags)
+        assert (== (check_expr_node parser value.value value.value_type [] diags "new.nano").kind TypeKind.TYPE_UNKNOWN)
+        assert (> (list_CompilerDiagnostic_length diags) before)
+        set i (+ i 1)
+    }
+}
+
 fn check_struct_literal(parser: Parser, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let literal: ASTStructLiteral = (parser_get_struct_literal parser node_id)
     let actual: NSType = NSType { kind: TypeKind.TYPE_STRUCT, name: literal.struct_name, element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
@@ -4732,6 +4768,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         /* Get function name from identifier node */
         let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
         let fn_name: string = (tc_bound_name fn_id_node.name fn_id_node.line symbols)
+        if (and (== fn_name "array_new") (< (env_lookup symbols fn_name) 0)) {
+            return (check_array_new_call parser call_node symbols diags file_name)
+        }
         if (and (== fn_name "map_get") (and (== call_node.arg_count 2) (< (env_lookup symbols fn_name) 0))) {
             let receiver: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
             let receiver_type: NSType = (check_expr_node parser receiver.node_id receiver.node_type symbols diags file_name)

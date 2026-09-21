@@ -147,10 +147,13 @@ class GenericRecordLists(unittest.TestCase):
     def test_record_field_destinations(self):
         prelude = '''struct Item { value: int }
 struct Pair { left: int, right: int }
+struct Strings { values: array<string> }
 struct Holder { item: Item, values: array<Item>, numbers: array<array<int>> }
 '''
         positive = prelude + '''fn main() -> int {
- let source: array<Item> = [Item { value: 9 }]
+ let strings: Strings = Strings { values: (array_new 1 "ready") }
+ assert (== (at strings.values 0) "ready")
+ let source: array<Item> = (array_new 1 (Item { value: 9 }))
  let value: Holder = Holder { numbers: [[1], []], values: source, item: Item { value: 7 } }
  assert (== value.item.value 7)
  assert (== (at value.values 0).value 9)
