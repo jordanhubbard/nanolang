@@ -1637,7 +1637,20 @@ static void test_signed_double_boundaries(void) {
         { 0, -1, 0, -2 }, { 0, INT64_MIN, 0, 0 },
         { -1, INT64_MAX, -2, -1 }, { 0, INT64_MAX, 0, -2 }
     };
+    const struct { int64_t cell; const char *text; } printed[] = {
+        { INT64_MIN, "-9223372036854775808 " },
+        { INT64_MAX, "9223372036854775807 " },
+        { -1, "-1 " }, { 0, "0 " }, { 1, "1 " }
+    };
     ASSERT(session != NULL, "I create the signed double session");
+    for (size_t i = 0; i < sizeof printed / sizeof printed[0]; ++i) {
+        forth_output_clear(session);
+        ASSERT(forth_data_push(session, printed[i].cell), "I push the exact printed cell");
+        ASSERT(interpret_cstr(session, "."), "I format the signed cell");
+        ASSERT(strcmp(forth_output(session), printed[i].text) == 0,
+               "I preserve decimal digits, sign and trailing space");
+        ASSERT(forth_data_depth(session) == 0, "I consume the printed cell");
+    }
     for (size_t i = 0; i < sizeof divisions / sizeof divisions[0]; ++i) {
         ASSERT(interpret_cstr(session, divisions[i].source), "I execute signed division");
         want[0] = divisions[i].remainder; want[1] = divisions[i].quotient;

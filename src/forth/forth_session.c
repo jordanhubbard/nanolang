@@ -8334,9 +8334,9 @@ static int forth_run_host(ForthSession *session, uint16_t host, int64_t state) {
         if (state != 0) return 0;
         if (!forth_data_pop(session, &cell)) return -1;
         {
-            int64_t mag = cell < 0 ? -cell : cell;
+            uint64_t mag = cell < 0 ? (uint64_t)(-(cell + 1)) + 1u : (uint64_t)cell;
             if (cell < 0 && !forth_emit_char(session, (uint8_t)'-')) return -1;
-            if (!forth_data_push(session, mag)) return -1;
+            if (!forth_data_push(session, (int64_t)mag)) return -1;
             if (!forth_data_push(session, 0)) return -1;
             if (!forth_pict_reset(session)) return -1;
             for (;;) {
