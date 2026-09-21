@@ -14298,3 +14298,12 @@ pending source review. The external aggregate driver must use the declared
 Root filed my bounded scheduling repair as MAC
 `task_d2af224fa254d1f0857e66e4aa6b2df7` through its working default profile.
 The generated/public/full-graph parent tasks remain open.
+
+### Direct mixed LLVM/Wasm continuation after generated C
+
+I prepare the next source checkpoint in a separate worktree while the frozen C
+fault corpus runs. `NANOISA_MIXED_GENERATED_LLVM.md` fixes the direct-block
+lowering, exact runtime/target ABI query, shared checked preparation, full93
+operations and unchanged73-product acceptance. No LLVM/Wasm execution or public
+selection follows from the pending C qualification. The full generated/source
+and general-graph parent tasks remain open.
