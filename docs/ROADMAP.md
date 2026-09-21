@@ -14157,3 +14157,5 @@ I retain the first d58 fresh build terminals: Linux status 2 at 56.733 s and Dar
 ### 5.1: strict optional native support references
 
 - [ ] `task_02a1b4af967eafa357fb0210e94679d8`: I preserve both 303 strict native-source terminals and generated C. I review the exact 52 helper/ordinary-shadow entry contract in `docs/NANOISA_NATIVE_OPTIONAL_HELPERS.md`, implement no-call references without altering helper bodies or flags, prove actual O0 link closure, then complete unchanged eight native and eighteen original methods.
+
+For `task_02a1b4af967eafa357fb0210e94679d8`, my e10 diagnostic stopped on Apple O0 40-to-88 undefined symbols (48 new dependencies); GCC retained85. I preserve that failed proposal and require the revised genuinely unevaluated `sizeof(&helper)` form to pass all three object comparisons before strict production gates. Homebrew was not reached in the old audit.

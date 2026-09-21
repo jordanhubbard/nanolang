@@ -118,3 +118,25 @@ adjacency under immutable input maps. Already passed 303 focused C ownership and
 storage gates keep their exact source attribution; no change to their header or
 owning providers is proposed. Full source/list/enum/whole-Make/integration and
 fixed-point acceptance remain open.
+
+## My measured object boundary and revised reference form
+
+My nonexecuted e10 object audit retained 85 identical undefined symbols on GCC,
+but Apple Clang changed from 40 to 88 and introduced 48 dependencies. I stopped
+there; Homebrew was not reached. The discarded function expressions caused
+otherwise unused static bodies to be emitted at O0. I do not claim the original
+no-call expression was link-neutral. Both object files, exact commands, visible
+warnings, symbol listings and unchanged input maps remain in the home paths
+`native-helper-e10-linux-objects` and `native-helper-e10-puck-objects`, with a
+complete local copy of the Darwin evidence.
+
+My revised production contract replaces each proposed `(void)helper;` with
+`(void)sizeof(&helper);`. The operand has complete function-pointer object type,
+not function type or variably modified type. The address expression is therefore
+genuinely unevaluated; I neither invoke the helper nor materialize/store its
+address. All 52 exact declarations, both real entry placements and their source
+guards stay unchanged. The earlier contract/catalog above remains evidence of
+the first proposal; this paragraph supersedes only its expression form. I will
+retain and compare all three compiler O0 undefined-symbol sets before new strict
+qualification. A compiler that still introduces dependencies or rejects the
+strict new object blocks qualification; I do not relax that acceptance.
