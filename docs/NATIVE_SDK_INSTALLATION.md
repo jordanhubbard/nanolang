@@ -305,3 +305,36 @@ full File provider/shadow corpus. Focused controls cover callback absence,
 idempotence/conflict and shutdown ordering, plus canonical installed header argv
 and preserved explicit include precedence. These changes confer no File service
 execution or source lowering authority.
+
+### Source checkpoint and ownership
+
+I retain the selected installed include in one4096-byte process-static buffer
+only after successful `nano_native_sdk_prepare`. Source preparation clears it;
+`nano_native_prepared_include` copies it with an unchanged destination on capacity
+failure. The actual C driver, Nano compiler-support root bridge and NanoVirt all
+prepare before module metadata work. Standalone unprepared metadata tools receive
+an empty contribution, preserving their existing behavior. This getter does not
+independently validate a root; callers must honor preparation failure.
+
+My metadata owner duplicates a nonduplicate contribution and grows its include
+pointer array by exactly one checked entry. Existing metadata destruction frees
+both. Dependency capture and returned compile flags use that same owned array.
+I also quote an absolute path produced by the existing recognized relative `-I`
+resolver, with checked allocation, instead of emitting its newly owned spaces as
+shell separators. I leave original arbitrary flag fragments alone.
+
+My callback registration has no allocation. I retain one function pointer and its
+registering PID; null, conflicting and inherited-after-fork registrations fail.
+The loader's existing write lock covers its explicit-init and lazy-open call
+sites, before allocation or image opening. Process exit excludes concurrent
+registration; the callback image remains loaded until exit. The SDK owner invokes
+it only in the registering process and only from the owning cache exit handler.
+Compiler-only images contain no undefined loader reference. This does not widen
+loader metadata or retained-image reclamation.
+
+My probe's synthetic callback is explicitly a lifetime unit control. It proves
+idempotence/conflict, no parent callback or parent work cleanup in a fork child,
+callback-before-tree-removal, and final tree removal. Actual loader registration
+and installed program behavior remain covered by fresh bootstrap and the complete
+existing corpus. Source review precedes execution; syntax checks are not runtime
+qualification.

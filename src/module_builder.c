@@ -2108,15 +2108,46 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
             char candidate[2048];
             snprintf(candidate, sizeof(candidate), "%s/%s", parent, inc_path);
             if (dir_exists(candidate)) {
-                char resolved_flag[2060];
-                snprintf(resolved_flag, sizeof(resolved_flag), "-I%s", candidate);
+                char *quoted = module_quote_path(candidate);
+                size_t length = quoted ? strlen(quoted) : 0;
+                char *resolved_flag = quoted && length <= SIZE_MAX - 3 ? malloc(length + 3) : NULL;
+                if (!resolved_flag) {
+                    free(quoted); cJSON_Delete(json); module_metadata_free(meta); return NULL;
+                }
+                memcpy(resolved_flag, "-I", 2);
+                memcpy(resolved_flag + 2, quoted, length + 1);
+                free(quoted);
                 free(meta->cflags[i]);
-                meta->cflags[i] = strdup(resolved_flag);
+                meta->cflags[i] = resolved_flag;
                 break;
             }
         }
     }
 
+    /* I append the actual driver's verified installed runtime header root.
+     * Source/unprepared metadata tools retain their existing include behavior. */
+    char sdk_include[4096];
+    if (!nano_native_prepared_include(sdk_include, sizeof(sdk_include))) {
+        cJSON_Delete(json); module_metadata_free(meta); return NULL;
+    }
+    if (sdk_include[0]) {
+        bool duplicate = false;
+        for (size_t i = 0; i < meta->include_dirs_count; ++i)
+            if (!strcmp(meta->include_dirs[i], sdk_include)) duplicate = true;
+        if (!duplicate) {
+            if (meta->include_dirs_count >= SIZE_MAX / sizeof(char *) - 1) {
+                cJSON_Delete(json); module_metadata_free(meta); return NULL;
+            }
+            char *copy = strdup(sdk_include);
+            char **grown = copy ? realloc(meta->include_dirs,
+                (meta->include_dirs_count + 1) * sizeof(char *)) : NULL;
+            if (!grown) {
+                free(copy); cJSON_Delete(json); module_metadata_free(meta); return NULL;
+            }
+            meta->include_dirs = grown;
+            meta->include_dirs[meta->include_dirs_count++] = copy;
+        }
+    }
     cJSON_Delete(json);
     return meta;
 }

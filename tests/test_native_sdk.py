@@ -146,6 +146,9 @@ class NativeSdk(unittest.TestCase):
     def test_a_root_identity_private_products_and_lists(self):
         out,_,_=self.command('installed-root',[self.probe,'root','0','installed'],extra={'NANOLANG_SDK_ROOT':self.generation})
         self.assertEqual(spans(out)['ROOT'],str(self.generation))
+        callback_out,_,_=self.command('loader-callback',[self.probe,'callback','0','installed'],extra={'NANOLANG_SDK_ROOT':self.generation})
+        self.assertEqual(callback_out.count(b'CALLBACK before private cleanup'),1)
+        self.assertIn(b'PASS callback and private cleanup order',callback_out)
         self.command('short-root',[self.probe,'short','3','installed'],extra={'NANOLANG_SDK_ROOT':self.generation})
         out,_,_=self.command('private-objects',[self.probe,'objects','0','installed'],extra={'NANOLANG_SDK_ROOT':self.generation})
         values=spans(out)

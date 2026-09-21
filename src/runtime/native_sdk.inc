@@ -199,6 +199,7 @@ NanoSdkStatus nano_native_sdk_root(char *dest, size_t capacity, bool *installed)
 static char sdk_private_cache[SDK_PATH_CAPACITY];
 static pid_t sdk_cache_owner;
 static bool sdk_retain_work;
+static char sdk_prepared_include[SDK_PATH_CAPACITY];
 
 void nano_native_retain_private_work(void) { sdk_retain_work = true; }
 
@@ -258,14 +259,21 @@ bool nano_native_generate_list(const char *root, const char *directory,
     return waited == child && WIFEXITED(status) && WEXITSTATUS(status) == 0;
 }
 
-#ifdef __APPLE__
-extern void ffi_loader_shutdown(void) __attribute__((weak_import));
-#else
-extern void ffi_loader_shutdown(void) __attribute__((weak));
-#endif
+static void (*sdk_loader_shutdown)(void);
+static pid_t sdk_loader_owner;
+
+bool nano_native_register_loader_shutdown(void (*callback)(void)) {
+    if (!callback) return false;
+    if (sdk_loader_shutdown && sdk_loader_shutdown != callback) return false;
+    if (sdk_loader_shutdown && sdk_loader_owner != getpid()) return false;
+    sdk_loader_shutdown = callback;
+    sdk_loader_owner = getpid();
+    return true;
+}
+
 static void sdk_cache_shutdown(void) {
     if (getpid() != sdk_cache_owner) return;
-    if (ffi_loader_shutdown) ffi_loader_shutdown();
+    if (sdk_loader_shutdown && sdk_loader_owner == getpid()) sdk_loader_shutdown();
     if (sdk_private_cache[0]) {
         if (sdk_retain_work)
             fprintf(stderr, "I retain generated compiler products at: %s\n", sdk_private_cache);
@@ -293,13 +301,24 @@ static NanoSdkStatus sdk_make_work(void) {
 NanoSdkStatus nano_native_sdk_prepare(void) {
     char root[SDK_PATH_CAPACITY]; bool installed;
     NanoSdkStatus status = nano_native_sdk_root(root, sizeof(root), &installed);
-    if (status != NANO_SDK_OK || !installed) return status;
+    if (status != NANO_SDK_OK) return status;
+    if (!installed) { sdk_prepared_include[0] = 0; return NANO_SDK_OK; }
+    char include[SDK_PATH_CAPACITY];
+    if (!sdk_path(include, sizeof(include), root, "src")) return NANO_SDK_LIMIT;
     status = sdk_make_work();
     if (status != NANO_SDK_OK) return status;
     const char *cache = getenv("NANO_BUILD_CACHE");
     if ((!cache || !*cache) && setenv("NANO_BUILD_CACHE", sdk_private_cache, 1))
         return NANO_SDK_MEMORY;
+    memcpy(sdk_prepared_include, include, strlen(include)+1);
     return NANO_SDK_OK;
+}
+
+bool nano_native_prepared_include(char *dest, size_t capacity) {
+    size_t length = strlen(sdk_prepared_include);
+    if (!dest || length >= capacity) return false;
+    memcpy(dest, sdk_prepared_include, length+1);
+    return true;
 }
 
 NanoSdkStatus nano_native_module_objects_dir(char *dest, size_t capacity) {

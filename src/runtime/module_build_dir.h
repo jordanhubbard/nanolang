@@ -28,9 +28,19 @@ typedef enum {
     NANO_SDK_LIMIT = 3, NANO_SDK_MEMORY = 4
 } NanoSdkStatus;
 NanoSdkStatus nano_native_sdk_root(char *dest, size_t capacity, bool *installed);
+/* I retain one process-lifetime loader callback. The owning loader serializes
+ * registration and excludes it from process exit. I refuse null, conflicting,
+ * and inherited-after-fork registrations; I never invoke a parent callback in
+ * its child. The function's image must remain resident until process exit. */
+bool nano_native_register_loader_shutdown(void (*callback)(void));
 /* I create installed private work and select it as the writable cache only
  * without an explicit NANO_BUILD_CACHE. I retain work through process shutdown. */
 NanoSdkStatus nano_native_sdk_prepare(void);
+/* I copy the installed runtime include selected by successful prepare, or an
+ * empty string for source/unprepared mode. This is data, not root authority.
+ * Actual drivers must successfully prepare before loading provider metadata;
+ * callers serialize prepare/environment changes with metadata collection. */
+bool nano_native_prepared_include(char *dest, size_t capacity);
 /* I retain generated C module objects privately through the final native link. */
 NanoSdkStatus nano_native_module_objects_dir(char *dest, size_t capacity);
 /* I retain requested C diagnostics or an unexpected generated-source failure. */
