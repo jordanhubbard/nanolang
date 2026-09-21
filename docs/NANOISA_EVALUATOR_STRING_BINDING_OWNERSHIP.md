@@ -42,7 +42,7 @@ precise source binding among these paths.
   do not turn a borrowed declaration into an owning copy.
 
 Before owning publication, I propose identifying an unmanaged string pointer
-that exactly equals an existing owning VAL_STRING binding root in this same
+that exactly equals an existing VAL_STRING binding root in this same
 Environment. I make a checked snapshot copy for that known alias. I leave the
 original binding owner intact, transfer only the new copy to the new binding,
 and preserve the original input on allocation failure. Exact arena provenance
@@ -58,3 +58,18 @@ the original after alias replacement/scope cleanup, and cover checked failure
 without modifying either live owner. No known faulty workload is run before
 source review. Complete source/evaluator/bootstrap acceptance remains required;
 this defensive repair is not a retrospective allocation trace.
+
+
+My source checkpoint keeps the low-level transfer rule and checks the exact
+existing root before publication. A borrowed source formal is also evidence of
+an existing owner; copying it into an owning local does not transfer the
+former's storage. Borrowed destinations retain identity without allocation.
+My helper's checked failure leaves output unchanged; the surrounding legacy
+void declaration API retains its explicit fatal allocation policy.
+
+My corrected-only controls test fresh unmanaged transfer pointer identity,
+existing-root copy, both persistent and transient copy failure with output and
+owner unchanged, one-allocation recovery, alias survival after owner replacement
+and actual scope cleanup, borrowed destination identity and copying back into
+an owning local. The parsed staging corpus adds direct/COND/IF/nested aliases
+and retains all original assertions and its method count. No control has run.

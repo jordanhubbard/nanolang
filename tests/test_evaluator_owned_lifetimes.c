@@ -661,6 +661,46 @@ static void cache_registration_control(const char *path) {
 /* I retain the existing numeric-link index across actual evaluator cleanup.
  * No allocation may hide a full rebuild during pop/lookup; slot insertion still
  * follows the normal same-file synchronization path. */
+static void string_binding_ownership_controls(void) {
+    Environment *env = create_environment();
+    Value fresh = text_value(strdup("original"));
+    CHECK(fresh.as.string_val);
+    env_define_var(env, "owner", TYPE_STRING, true, fresh);
+    CHECK(env_get_var(env, "owner")->value.as.string_val == fresh.as.string_val);
+    Value sentinel = create_int(812), out = sentinel;
+    for (int once = 0; once < 2; ++once) {
+        begin(0, once != 0);
+        CHECK(!env_prepare_binding_string(env, TYPE_STRING, fresh, &out));
+        end();
+        CHECK(failures == 1 && live == 0);
+        CHECK(out.type == VAL_INT && out.as.int_val == 812);
+        CHECK(env_get_var(env, "owner")->value.as.string_val == fresh.as.string_val);
+        CHECK(!strcmp(fresh.as.string_val, "original"));
+    }
+    begin(SIZE_MAX, false);
+    CHECK(env_prepare_binding_string(env, TYPE_STRING, fresh, &out));
+    end();
+    CHECK(attempts == 1 && out.as.string_val != fresh.as.string_val);
+    CHECK(!strcmp(out.as.string_val, "original"));
+    env_discard_value_snapshot(out); CHECK(live == 0);
+    int outer = env->symbol_count;
+    env_define_var(env, "alias", TYPE_STRING, false, fresh);
+    CHECK(env_get_var(env, "alias")->value.as.string_val != fresh.as.string_val);
+    env_set_var(env, "owner", text_value("replacement"));
+    CHECK(!strcmp(env_get_var(env, "alias")->value.as.string_val, "original"));
+    lifetime_scope_release(env, outer, false);
+    CHECK(!strcmp(env_get_var(env, "owner")->value.as.string_val, "replacement"));
+    Value current = env_get_var(env, "owner")->value;
+    env_define_var(env, "borrow", TYPE_BORROW_SHARED, false, current);
+    CHECK(env_get_var(env, "borrow")->value.as.string_val == current.as.string_val);
+    /* A value binding copied from a borrowed formal still needs its own owner. */
+    env_define_var(env, "borrow_copy", TYPE_STRING, false, env_get_var(env, "borrow")->value);
+    CHECK(env_get_var(env, "borrow_copy")->value.as.string_val != current.as.string_val);
+    lifetime_scope_release(env, outer, true);
+    CHECK(!strcmp(env_get_var(env, "owner")->value.as.string_val, "replacement"));
+    free_environment(env);
+}
+
 static void evaluator_symbol_pop_controls(void) {
     Environment *env = create_environment();
     for (int i = 0; i < 128; ++i) {
@@ -711,7 +751,7 @@ int main(int argc, char **argv) {
         cache_registration_control(argv[2]); return 0;
     }
     CHECK(argc == 1);
-    evaluator_symbol_pop_controls(); graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); task_allocation_controls(); borrowed_staging_controls();
+    string_binding_ownership_controls(); evaluator_symbol_pop_controls(); graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); task_allocation_controls(); borrowed_staging_controls();
     CHECK(live == 0 && !observing);
     printf("I passed %zu checked ownership assertions.\n", checks);
     return 0;

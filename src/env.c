@@ -466,15 +466,38 @@ static Symbol *env_get_var_same_file(Environment *env, const char *name) {
     return symbol_lookup(env, name, true);
 }
 
+/* I preserve fresh unmanaged string transfer, but an existing binding or
+ * arena root is already owned elsewhere. I copy only that exact provenance.
+ * Failure leaves both the input owner and the output unchanged. */
+static bool env_prepare_binding_string(Environment *env, Type type, Value value,
+                                       Value *out) {
+    if (value.type != VAL_STRING || type == TYPE_BORROW_SHARED || type == TYPE_BORROW_MUT) {
+        *out = value;
+        return true;
+    }
+    bool borrowed = env_record_result_borrowed(env, value);
+    if (!borrowed && !gc_is_managed(value.as.string_val)) {
+        for (int i = 0; i < env->symbol_count; ++i) {
+            const Symbol *owner = &env->symbols[i];
+            if (owner->value.type == VAL_STRING &&
+                owner->value.as.string_val == value.as.string_val) {
+                borrowed = true;
+                break;
+            }
+        }
+    }
+    if (borrowed) return env_clone_value_snapshot(value, out);
+    *out = value;
+    return true;
+}
+
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
     /* Borrowed parameters retain their caller's identity and do not own its storage. */
-    if (value.type == VAL_STRING && env_record_result_borrowed(env, value)) {
-        Value copy;
-        if (!env_clone_value_snapshot(value, &copy)) {
-            fprintf(stderr, "I cannot copy a staged string binding.\n"); exit(1);
-        }
-        value = copy;
+    Value prepared;
+    if (!env_prepare_binding_string(env, type, value, &prepared)) {
+        fprintf(stderr, "I cannot copy a borrowed string binding.\n"); exit(1);
     }
+    value = prepared;
     if ((value.type == VAL_STRUCT || value.type == VAL_TUPLE) &&
         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
         Value copy;
