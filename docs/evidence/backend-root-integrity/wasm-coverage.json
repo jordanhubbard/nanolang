@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "hosts": [
+    {
+      "host": "linux",
+      "artifact_report": "linux/reports/wasm-artifacts.json",
+      "products": 292,
+      "limited_products": 2,
+      "statuses": 3698,
+      "engine_invocations": 2524,
+      "complete_fault_coverages": 292,
+      "fault_workers": 1352,
+      "recoveries": 37952
+    },
+    {
+      "host": "darwin",
+      "artifact_report": "puck/reports/wasm-artifacts.json",
+      "products": 292,
+      "limited_products": 2,
+      "statuses": 3698,
+      "engine_invocations": 2524,
+      "complete_fault_coverages": 292,
+      "fault_workers": 1352,
+      "recoveries": 37952
+    }
+  ],
+  "seconds": 2.589504627045244,
+  "scope": "Actual retained Wasm modules have no imports; both engines execute all73 linked/observed products at O0/O2 with exact command products, successful terminals, dynamic memory growth, contiguous two-mode fault recovery and explicit limited-memory refusal. Startup/ABI/emission/package, source correspondence and current-main integration remain separate obligations.",
+  "qualified_source_pin": "a1bb1cb85e5551f9e5bb10491f1608877ef6b7b5"
+}
