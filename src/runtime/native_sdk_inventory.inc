@@ -1188,6 +1188,7 @@ static const char *const sdk_required_inputs[] = {
     "src/tracing.h",
     "src/transpiler.c",
     "src/transpiler_iterative_v3_twopass.c",
+    "src/transpiler_opaque_declarations.inc",
     "src/transpiler_opaque_names.inc",
     "src/type_infer.c",
     "src/type_infer.h",

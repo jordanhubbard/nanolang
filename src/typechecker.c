@@ -677,10 +677,25 @@ static void check_union_record_array_contract(Environment *env, UnionDef *def,
 
 /* I retain complete concrete trees for native nested payload substitution. */
 static void register_native_union_context(Environment *env, const TypeInfo *info, unsigned depth) {
-    if (!info || depth > 128) return;
+    if (!info) return;
+    if (depth > 128) {
+        env->opaque_resolution_failed = true;
+        fprintf(stderr, "I cannot retain a native type expansion deeper than 128 edges\n");
+        return;
+    }
     register_native_union_context(env, info->element_type, depth + 1);
     for (int i = 0; info->type_params && i < info->type_param_count; ++i)
         register_native_union_context(env, info->type_params[i], depth + 1);
+    if (info->fn_sig) {
+        FunctionSignature *signature = info->fn_sig;
+        for (int i = 0; signature->param_type_info && i < signature->param_count; ++i)
+            register_native_union_context(env, signature->param_type_info[i], depth + 1);
+        register_native_union_context(env, signature->return_type_info, depth + 1);
+        if (signature->return_fn_sig) {
+            TypeInfo result = {.base_type = TYPE_FUNCTION, .fn_sig = signature->return_fn_sig};
+            register_native_union_context(env, &result, depth + 1);
+        }
+    }
     UnionDef *def = info->generic_name ? env_get_union(env, info->generic_name) : NULL;
     if (!def || !def->generic_param_count || def->generic_param_count != info->type_param_count) return;
     bool added = false;
@@ -721,6 +736,21 @@ static void register_native_union_context(Environment *env, const TypeInfo *info
             register_native_union_context(env, payload, depth + 1);
             free_payload_type_info(payload);
         }
+}
+
+static void register_native_function_context(Environment *env, const Function *function) {
+    register_native_union_context(env, function->return_type_info, 0);
+    if (function->return_fn_sig) {
+        TypeInfo result = {.base_type = TYPE_FUNCTION, .fn_sig = function->return_fn_sig};
+        register_native_union_context(env, &result, 0);
+    }
+    for (int i = 0; i < function->param_count; ++i) {
+        register_native_union_context(env, function->params[i].type_info, 0);
+        if (function->params[i].fn_sig) {
+            TypeInfo parameter = {.base_type = TYPE_FUNCTION, .fn_sig = function->params[i].fn_sig};
+            register_native_union_context(env, &parameter, 0);
+        }
+    }
 }
 
 /* I inspect only declaration-bearing opaque leaves; ordinary compatibility
@@ -7888,9 +7918,7 @@ register_function_pass1:;
             }
 
             env_define_function(env, func);
-            register_native_union_context(env, func.return_type_info, 0);
-            for (int p = 0; p < func.param_count; ++p)
-                register_native_union_context(env, func.params[p].type_info, 0);
+            register_native_function_context(env, &func);
 
             /* Module introspection: track exported functions (public only) */
             if (item->as.function.is_pub && env->current_module) {
@@ -7913,6 +7941,16 @@ register_function_pass1:;
         env->current_module = definition->module_name;
         for (int field = 0; definition->field_type_info && field < definition->field_count; ++field)
             register_native_union_context(env, definition->field_type_info[field], 0);
+        env->current_module = saved_module;
+    }
+    for (int index = 0; index < env->union_count; ++index) {
+        UnionDef *definition = &env->unions[index];
+        if (definition->generic_param_count) continue;
+        char *saved_module = env->current_module;
+        env->current_module = definition->module_name;
+        for (int arm = 0; definition->variant_field_type_info && arm < definition->variant_count; ++arm)
+            for (int field = 0; definition->variant_field_type_info[arm] && field < definition->variant_field_counts[arm]; ++field)
+                register_native_union_context(env, definition->variant_field_type_info[arm][field], 0);
         env->current_module = saved_module;
     }
 
@@ -8643,9 +8681,7 @@ register_function_pass2:;
             f.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
 
             env_define_function(env, f);
-            register_native_union_context(env, f.return_type_info, 0);
-            for (int p = 0; p < f.param_count; ++p)
-                register_native_union_context(env, f.params[p].type_info, 0);
+            register_native_function_context(env, &f);
 
             /* Module introspection: track exported functions (public only) */
             if (item->as.function.is_pub && env->current_module) {
@@ -8662,6 +8698,16 @@ register_function_pass2:;
         env->current_module = definition->module_name;
         for (int field = 0; definition->field_type_info && field < definition->field_count; ++field)
             register_native_union_context(env, definition->field_type_info[field], 0);
+        env->current_module = saved_module;
+    }
+    for (int index = 0; index < env->union_count; ++index) {
+        UnionDef *definition = &env->unions[index];
+        if (definition->generic_param_count) continue;
+        char *saved_module = env->current_module;
+        env->current_module = definition->module_name;
+        for (int arm = 0; definition->variant_field_type_info && arm < definition->variant_count; ++arm)
+            for (int field = 0; definition->variant_field_type_info[arm] && field < definition->variant_field_counts[arm]; ++field)
+                register_native_union_context(env, definition->variant_field_type_info[arm][field], 0);
         env->current_module = saved_module;
     }
 

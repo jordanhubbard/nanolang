@@ -378,3 +378,57 @@ and emitter use the same row; its key grants no namespace authority. Environment
 cleanup frees the annotation and never dereferences its AST key. Original AST
 lifetime is unchanged. Generic templates still require an exact concrete context
 before using this table; I do not infer one from the literal's coarse tags.
+
+The record parser requests a field TypeInfo with no separate callback-signature
+output. I retain the accepted signature in that TypeInfo; callers requesting the
+separate signature keep the existing ownership contract, and a caller requesting
+neither output releases it. This adds no parser grammar or AST layout.
+
+### Derived declaration source checkpoint (not qualification)
+
+My C emitter stages `NativeDerivedGraph` before any composite body. Each derived
+row owns its complete annotation, key and C name. Record/union rows borrow only
+indices into the invocation's environment; substituted payload temporaries are
+copied before release. Registry arrays may grow, but owned annotations and names
+have separate stable allocations. I destroy signature/tuple registries before
+freeing graph-owned annotations, and restore nested emission contexts. The old
+registry's explicitly owned literal temporaries remain separately owned. I do
+not transfer an AST or environment annotation into a registry destructor.
+
+I forward-declare all graph record, union and tuple tags, then order complete
+layout bodies. Callback parameter/result records and tuples require their
+forward declarations, while a callback-valued result requires its typedef.
+Record/tuple/payload values require complete layouts. An actual complete-layout
+cycle fails before the driver publishes output. Non-generic union payloads and
+function signature sidecars participate alongside record fields and concrete
+substituted generic payloads. Both discovery paths refuse expansion beyond 128
+edges instead of silently emitting an incomplete dependency inventory.
+
+My independent Nano emitter stores complete annotation strings and derives the
+same edge distinction in its existing nominal ordering. It collects actual
+parsed, nominally rewritten ASTStruct fields rather than reconstructing those
+fields with its incomplete late token scanner. The isolated scanner remains for
+its existing callers and tests. Existing schema field C spellings and extern
+record suppression remain explicit. Prototypes, global text and tuple discovery
+are prepared before definition ordering, but their emitted locations stay the
+same. Previously emitted derived names suppress duplicate typedefs. The active
+forward-declaration mode is cleared after construction and reset per invocation.
+Generic discovery visits tuple/callback children and substituted concrete union
+payloads, not just the outer argument spellings. Compound array boxing/extraction
+uses the same opaque-bearing C projection as its definition.
+
+The complete tuple child vector reuses the existing C TypeInfo layout and
+metadata graph fields. I change no schema or versioned ABI field. The SDK input
+inventory includes the owning declaration-graph include. Nano process allocation
+failure remains its existing runtime failure boundary; these arrays do not claim
+recoverable OOM parity with my newly checked C registry publication. I promise no
+total compiler heap bound. Legacy parser/environment/emitter allocation behavior
+outside these named owning paths is unchanged.
+
+Only strict C syntax checks and source/diff inspection have run for this source
+checkpoint. I have not executed its Nano shadows, a compiler bootstrap, generated
+C, or the installed SDK/File corpus. The forthcoming fixtures still require
+actual C-seed/Stage1/Stage2 agreement, metadata round-trip and allocation-prefix
+controls, nested callback/tuple/generic and enclosing-record cases, complete
+array representation, both module-label boundaries and the unchanged Json.Json
+installed-source case. All full File/source and release holds remain open.

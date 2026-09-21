@@ -14435,3 +14435,27 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   invariant and all consumer categories in QUALIFIED_OPAQUE_IDENTITY.md; I require
   copy/free/normalization/substitution/equality/metadata round-trip controls and
   preserve the existing explicit nested-callback-parameter refusal separately.
+
+- [ ] I retain an accepted record-field callback signature when its parser caller
+  requests TypeInfo but no separate FunctionSignature output. Static inspection
+  found that the existing TOKEN_FN branch discarded that ownership path. This is
+  part of the full tuple/callable declaration-order repair under the opaque task;
+  it does not remove the explicit nested-callback-parameter refusal.
+
+- [ ] I complete the independent Nano half of opaque-derived layout ordering.
+  Static inspection found that its late record-field token scanner does not
+  consume tuple or callback fields, and its tuple splitter counts a callback
+  arrow as a closing generic bracket. I use the already parsed, nominally
+  rewritten record field annotations, distinguish arrow bytes in the existing
+  splitter, and include tuple/callback children when discovering union instances.
+  I retain ordinary declaration order and the complete original SDK corpus;
+  this source checkpoint remains unexecuted under the opaque identity task.
+
+- [ ] I finish the opaque-bearing array consumer audit under
+  task_2c7f68e4707b4d12b0ac8d29636fda63 before calling the complete source ready.
+  Static review found remaining C array helpers that concatenate `nl_` with the
+  retained element identity, and Nano array stores/loads that pass opaque pointer
+  values directly through integer slots. Tuple/callback array elements also need
+  their complete retained representation. I preserve the accepted source cases,
+  specify the existing storage boundary precisely and repair every corresponding
+  definition/store/load/iteration consumer; no new refusal replaces this work.

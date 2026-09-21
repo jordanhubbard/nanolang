@@ -153,6 +153,23 @@ shadow is_opaque_type {
 /* Function pointer typedef tracking */
 let mut fn_type_originals: array<string> = []
 let mut fn_type_names: array<string> = []
+let mut native_tuple_annotations: array<string> = []
+let mut native_derived_forward_mode: bool = false
+let mut native_derived_emitted_names: array<string> = []
+
+fn native_name_in(names: array<string>, name: string) -> bool {
+    let mut i: int = 0
+    while (< i (array_length names)) {
+        if (== (at names i) name) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow native_name_in {
+    assert (native_name_in ["first", "second"] "second")
+    assert (not (native_name_in ["first", "second"] "sec"))
+}
+
 
 fn reset_module_aliases() -> int {
     set module_aliases []
@@ -438,42 +455,34 @@ shadow parse_fn_type_return {
     assert (== (parse_fn_type_return "fn()->void") "void")
 }
 
-fn generate_fn_type_typedefs() -> string {
-    let n: int = (array_length fn_type_originals)
-    if (== n 0) {
-        return ""
-    } else { (print "") }
-    let mut sb: array<string> = []
-    set sb (cg_append sb "/* Function pointer typedefs */\n")
+fn native_fn_typedef(t: string, name: string) -> string {
+    let params: array<string> = (parse_fn_type_params t)
+    let mut out: string = (+ "typedef " (+ (type_to_c (parse_fn_type_return t)) (+ " (*" (+ name ")("))))
     let mut i: int = 0
-    while (< i n) {
-        let t: string = (at fn_type_originals i)
-        let name: string = (at fn_type_names i)
-        let ret_type: string = (parse_fn_type_return t)
-        let params: array<string> = (parse_fn_type_params t)
-        let c_ret: string = (type_to_c ret_type)
-        set sb (cg_append sb "typedef ")
-        set sb (cg_append sb c_ret)
-        set sb (cg_append sb " (*")
-        set sb (cg_append sb name)
-        set sb (cg_append sb ")(")
-        let pcount: int = (array_length params)
-        let mut pi: int = 0
-        while (< pi pcount) {
-            if (> pi 0) {
-                set sb (cg_append sb ", ")
-            } else { (print "") }
-            set sb (cg_append sb (type_to_c (at params pi)))
-            set pi (+ pi 1)
-        }
-        if (== pcount 0) {
-            set sb (cg_append sb "void")
-        } else { (print "") }
-        set sb (cg_append sb ");\n")
+    while (< i (array_length params)) {
+        if (> i 0) { set out (+ out ", ") }
+        set out (+ out (type_to_c (at params i)))
         set i (+ i 1)
     }
-    set sb (cg_append sb "\n")
-    return (cg_build sb)
+    if (== i 0) { set out (+ out "void") }
+    return (+ out ");\n")
+}
+shadow native_fn_typedef {
+    assert (== (native_fn_typedef "fn(int)->bool" "Callback") "typedef bool (*Callback)(int64_t);\n")
+}
+
+fn generate_fn_type_typedefs() -> string {
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i (array_length fn_type_originals)) {
+        let name: string = (at fn_type_names i)
+        if (not (native_name_in native_derived_emitted_names name)) {
+            set out (+ out (native_fn_typedef (at fn_type_originals i) name))
+        }
+        set i (+ i 1)
+    }
+    if (== out "") { return "" }
+    return (+ "/* Function pointer typedefs */\n" (+ out "\n"))
 }
 
 shadow generate_fn_type_typedefs {
@@ -1890,121 +1899,42 @@ struct NativeNominalDefinition {
 
 fn collect_native_structs(parser: Parser) -> array<NativeNominalDefinition> {
     let mut definitions: array<NativeNominalDefinition> = []
-    let n: int = parser.token_count
+    let mut emitted: array<string> = []
     let mut i: int = 0
-    let mut emitted_structs: array<string> = []
-
-    while (< i n) {
-        let tok: LexerToken = (list_LexerToken_get parser.tokens i)
-        let mut skip_struct: bool = false
-
-        if (== tok.token_type LexerTokenType.TOKEN_STRUCT) {
-            /* Skip extern struct declarations */
-            if (> i 0) {
-                let prev: LexerToken = (list_LexerToken_get parser.tokens (- i 1))
-                if (== prev.token_type LexerTokenType.TOKEN_EXTERN) {
-                    set skip_struct true
-                } else { (print "") }
-            } else { (print "") }
-
-            if (not skip_struct) {
-            if (>= (+ i 2) n) { return definitions } else { (print "") }
-
-            let name_tok: LexerToken = (list_LexerToken_get parser.tokens (+ i 1))
-            let brace_tok: LexerToken = (list_LexerToken_get parser.tokens (+ i 2))
-            if (and (== name_tok.token_type LexerTokenType.TOKEN_IDENTIFIER) (== brace_tok.token_type LexerTokenType.TOKEN_LBRACE)) {
-                let sname: string = (nb_type name_tok.value name_tok.line)
-                if (not (is_schema_struct_name sname)) {
-
-                /* Deduplicate: skip if already emitted (merged source may contain duplicates) */
-                let mut already_emitted: bool = false
-                let mut eidx: int = 0
-                while (< eidx (array_length emitted_structs)) {
-                    if (== (at emitted_structs eidx) sname) {
-                        set already_emitted true
-                    } else { (print "") }
-                    set eidx (+ eidx 1)
-                }
-                if (not already_emitted) {
-                set emitted_structs (array_push emitted_structs sname)
-
-                let c_name: string = (+ "nl_" (mangle_name sname))
-                let mut fields: string = ""
-                let mut dependencies: array<string> = []
-
-                let mut j: int = (+ i 3)
-                let mut struct_done: bool = false
-                while (and (< j n) (not struct_done)) {
-                    let tcur: LexerToken = (list_LexerToken_get parser.tokens j)
-                    if (== tcur.token_type LexerTokenType.TOKEN_RBRACE) {
-                        set struct_done true
-                    } else {
-                        if (== tcur.token_type LexerTokenType.TOKEN_IDENTIFIER) {
-                            if (>= (+ j 2) n) {
-                                set struct_done true
-                            } else {
-                                let tcolon: LexerToken = (list_LexerToken_get parser.tokens (+ j 1))
-                                if (!= tcolon.token_type LexerTokenType.TOKEN_COLON) {
-                                    set j (+ j 1)
-                                } else {
-                                    let fname: string = tcur.value
-                                    let tr: TypeCParseResult = (parse_type_c_from_tokens parser (+ j 2))
-                                    if tr.ok {
-                                        set dependencies (array_push dependencies tr.c_type)
-                                        set fields (+ fields "    ")
-                                        set fields (+ fields (native_nominal_field_type tr.c_type))
-                                        set fields (+ fields " ")
-                                        set fields (+ fields (mangle_name fname))
-                                        set fields (+ fields ";\n")
-                                        set j tr.next_pos
-
-                                        if (< j n) {
-                                            let tnext: LexerToken = (list_LexerToken_get parser.tokens j)
-                                            if (== tnext.token_type LexerTokenType.TOKEN_COMMA) {
-                                                set j (+ j 1)
-                                            } else { (print "") }
-                                        } else { (print "") }
-                                    } else {
-                                        set j (+ j 1)
-                                    }
-                                }
-                            }
-                        } else {
-                            set j (+ j 1)
-                        }
-                    }
-                }
-
-                let mut out: string = ""
-                set out (+ out "\n/* Struct definition: ")
-                set out (+ out sname)
-                set out (+ out " */\n")
-                set out (+ out "typedef struct ")
-                set out (+ out c_name)
-                set out (+ out " {\n")
-                set out (+ out fields)
-                set out (+ out "} ")
-                set out (+ out c_name)
-                set out (+ out ";\n")
-
-                let definition: NativeNominalDefinition = NativeNominalDefinition { c_name: c_name, code: out, field_types: dependencies }
-                set definitions (array_push definitions definition)
-                set i j
-                } else { (print "") }
-                } else { (print "") }
-            } else { (print "") }
-            } else { (print "") }
-        } else { (print "") }
-
+    while (< i (parser_get_struct_def_count parser)) {
+        let declaration: ASTStruct = (parser_get_struct_def parser i)
+        let name: string = declaration.name
+        if (and (not declaration.is_extern) (and (not (is_schema_struct_name name)) (not (native_name_in emitted name)))) {
+            let cname: string = (+ "nl_" (mangle_name name))
+            let mut code: string = (+ "\n/* Struct definition: " (+ name " */\n"))
+            if native_derived_forward_mode { set code (+ code "struct ") }
+            else { set code (+ code "typedef struct ") }
+            set code (+ code (+ cname " {\n"))
+            let mut dependencies: array<string> = []
+            let mut field: int = 0
+            while (< field declaration.field_count) {
+                let annotation: string = (at declaration.field_types field)
+                let mut ctype: string = (type_to_c annotation)
+                if (is_schema_struct_name annotation) { set ctype annotation }
+                set dependencies (array_push dependencies ctype)
+                set code (+ code (+ "    " (+ (native_nominal_field_type ctype) (+ " " (+ (mangle_name (at declaration.field_names field)) ";\n")))))
+                set field (+ field 1)
+            }
+            set code (+ code "}")
+            if (not native_derived_forward_mode) { set code (+ code (+ " " cname)) }
+            set code (+ code ";\n")
+            let definition: NativeNominalDefinition = NativeNominalDefinition { c_name: cname, code: code, field_types: dependencies }
+            set definitions (array_push definitions definition)
+            set emitted (array_push emitted name)
+        }
         set i (+ i 1)
     }
-
     return definitions
 }
 
 shadow collect_native_structs {
     let toks: List<LexerToken> = (tokenize_string "struct Point { x: int }" "t.nano" (list_CompilerDiagnostic_new))
-    let p: Parser = (parser_new toks (list_LexerToken_length toks) "t.nano")
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let definitions: array<NativeNominalDefinition> = (collect_native_structs p)
     assert (== (array_length definitions) 1)
 }
@@ -2024,7 +1954,7 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
 shadow generate_struct_definitions_from_tokens {
     let src: string = "struct Foo { x: int, y: bool }"
     let toks: List<LexerToken> = (tokenize_string src "t.nano" (list_CompilerDiagnostic_new))
-    let p: Parser = (parser_new toks (list_LexerToken_length toks) "t.nano")
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let c: string = (generate_struct_definitions_from_tokens p)
     assert (> (str_length c) 0)
 }
@@ -3143,7 +3073,8 @@ fn type_is_struct(t: string) -> bool {
 }
 
 fn box_struct_expr(elem_type: string, value_expr: string) -> string {
-    let c_struct: string = (+ "nl_" (mangle_type_name elem_type))
+    let mut c_struct: string = (+ "nl_" (mangle_type_name elem_type))
+    if (!= (native_opaque_key elem_type) "") { set c_struct (type_to_c elem_type) }
     let mut parts: array<string> = []
     set parts (cg_append parts "({ ")
     set parts (cg_append parts c_struct)
@@ -3170,6 +3101,7 @@ shadow type_is_struct {
 }
 
 fn c_type_from_elem_type(elem_type: string) -> string {
+    if (!= (native_opaque_key elem_type) "") { return (type_to_c elem_type) }
     if (== elem_type "float") { return "double" }
     else { if (== elem_type "string") { return "const char*" }
     else { if (== elem_type "bool") { return "bool" }
@@ -3252,6 +3184,9 @@ shadow mangle_type_name {
 }
 
 fn tuple_typedef_name(tuple_type: string) -> string {
+    if (not (native_name_in native_tuple_annotations tuple_type)) {
+        set native_tuple_annotations (array_push native_tuple_annotations tuple_type)
+    }
     let opaque_key: string = (native_opaque_key tuple_type)
     if (!= opaque_key "") { return (native_opaque_name opaque_key) }
     let len: int = (str_length tuple_type)
@@ -3388,6 +3323,7 @@ fn tuple_split_types(tuple_type: string) -> array<string> {
         return []
     } else {
         let inner: string = (str_substring tuple_type 1 (- len 2))
+        if (== (str_length inner) 0) { return [] }
         let mut parts: array<string> = []
         let mut cur: string = ""
 
@@ -3403,7 +3339,9 @@ fn tuple_split_types(tuple_type: string) -> array<string> {
                 set depth_angle (+ depth_angle 1)
             } else {
                 if (== ch ">") {
-                    set depth_angle (- depth_angle 1)
+                    let mut arrow: bool = false
+                    if (> i 0) { set arrow (== (str_substring inner (- i 1) 1) "-") }
+                    if (not arrow) { set depth_angle (- depth_angle 1) }
                 } else {
                     if (== ch "(") {
                         set depth_paren (+ depth_paren 1)
@@ -3439,6 +3377,11 @@ shadow tuple_split_types {
     assert (== (array_length parts) 2)
     assert (== (at parts 0) "int")
     assert (== (at parts 1) "string")
+    let nested: array<string> = (tuple_split_types "(fn(int)->bool,Box<int,string>)")
+    assert (== (array_length nested) 2)
+    assert (== (at nested 0) "fn(int)->bool")
+    assert (== (at nested 1) "Box<int,string>")
+    assert (== (array_length (tuple_split_types "()")) 0)
 }
 
 fn collect_tuple_types_from_type(t: string, acc: array<string>, seen: HashMap<string, int>) -> array<string> {
@@ -3475,6 +3418,7 @@ fn gen_tuple_typedef(tuple_type: string) -> string {
     let name: string = (tuple_typedef_name tuple_type)
     let elems: array<string> = (tuple_split_types tuple_type)
     let mut out: string = "typedef struct { "
+    if native_derived_forward_mode { set out (+ "struct " (+ name " { ")) }
 
     let mut i: int = 0
     while (< i (array_length elems)) {
@@ -3489,8 +3433,9 @@ fn gen_tuple_typedef(tuple_type: string) -> string {
         set i (+ i 1)
     }
 
-    set out (+ out "; } ")
-    set out (+ out name)
+    if (== i 0) { set out (+ out "int _placeholder") }
+    set out (+ out "; }")
+    if (not native_derived_forward_mode) { set out (+ out " ") set out (+ out name) }
     set out (+ out ";\n")
     return out
 }
@@ -3526,7 +3471,10 @@ fn gen_tuple_typedefs(parser: Parser) -> string {
     let mut out: string = ""
     let mut k: int = 0
     while (< k (array_length tuple_types)) {
-        set out (+ out (gen_tuple_typedef (at tuple_types k)))
+        let tuple_type: string = (at tuple_types k)
+        if (not (native_name_in native_derived_emitted_names (tuple_typedef_name tuple_type))) {
+            set out (+ out (gen_tuple_typedef tuple_type))
+        }
         set k (+ k 1)
     }
 
@@ -4668,6 +4616,10 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     /* Generate enum definitions */
     set sb (cg_append sb (generate_enum_definitions_from_tokens parser))
 
+    /* I discover complete annotations before ordering any layout bodies. */
+    let protos: string = (generate_function_prototypes parser)
+    let globals: string = (generate_global_constants parser)
+    let tuple_discovery: string = (gen_tuple_typedefs parser)
     /* I order mixed nominal definitions by complete-value dependencies. */
     set sb (cg_append sb (generate_native_nominal_definitions parser))
 
@@ -4675,16 +4627,19 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     set sb (cg_append sb (generate_list_specializations parser))
     
     /* Tuple typedefs must come before function prototypes that reference them */
-    set sb (cg_append sb (gen_tuple_typedefs parser))
+    if (== (array_length native_derived_emitted_names) 0) {
+        set sb (cg_append sb tuple_discovery)
+    } else {
+        set sb (cg_append sb (gen_tuple_typedefs parser))
+    }
 
     /* Forward declarations for all functions (avoid implicit declarations in C99) */
-    let protos: string = (generate_function_prototypes parser)
     /* Emit function pointer typedefs before prototypes (collected during type_to_c calls) */
     set sb (cg_append sb (generate_fn_type_typedefs))
     set sb (cg_append sb protos)
 
     /* Emit top-level constant declarations */
-    set sb (cg_append sb (generate_global_constants parser))
+    set sb (cg_append sb globals)
 
     set sb (cg_append sb "/* User functions */\n")
     set sb (cg_append sb functions)
@@ -4981,7 +4936,25 @@ fn collect_native_union_instances(type_name: string, base_name: string, seen: Ha
     let mut i: int = 0
     while (< i (array_length pending)) {
         let current: string = (at pending i)
-        let args: array<string> = (extract_type_args current)
+        let mut args: array<string> = []
+        if (and (not (is_tuple_type current)) (not (is_fn_type current))) { set args (extract_type_args current) }
+        if (is_tuple_type current) {
+            let elements: array<string> = (tuple_split_types current)
+            let mut element_index: int = 0
+            while (< element_index (array_length elements)) {
+                set pending (array_push pending (at elements element_index))
+                set element_index (+ element_index 1)
+            }
+        }
+        if (is_fn_type current) {
+            let parameters: array<string> = (parse_fn_type_params current)
+            let mut parameter_index: int = 0
+            while (< parameter_index (array_length parameters)) {
+                set pending (array_push pending (at parameters parameter_index))
+                set parameter_index (+ parameter_index 1)
+            }
+            set pending (array_push pending (parse_fn_type_return current))
+        }
         if (and (> (array_length args) 0) (== (extract_base_type_name current) base_name)) {
             if (not (map_has seen current)) {
                 (map_put seen current 1)
@@ -5003,19 +4976,78 @@ shadow collect_native_union_instances {
     assert (== (array_length results) 1)
     assert (== (at results 0) "Result<int,string>")
     assert (== (array_length (collect_native_union_instances "Box<Result<int,string>>" "Result" seen results)) 1)
+    let callback: array<string> = (collect_native_union_instances "fn((Box<int>,int))->Box<string>" "Box" (map_new) [])
+    assert (== (array_length callback) 2)
+    assert (native_name_in callback "Box<int>")
+    assert (native_name_in callback "Box<string>")
 }
 
 /* Find all unique instantiations of a generic union in the codebase */
+# I expand actual concrete payload annotations as well as their type arguments.
+fn native_expand_union_type(parser: Parser, annotation: string, base_name: string, seen: HashMap<string, int>, expanded: HashMap<string, int>, initial: array<string>, depth: int) -> array<string> {
+    if (map_has expanded annotation) { return initial }
+    if (> depth 128) {
+        set reduce_emission_error "I cannot retain a native type expansion deeper than 128 edges."
+        return initial
+    }
+    (map_put expanded annotation 1)
+    let mut results: array<string> = initial
+    let mut children: array<string> = []
+    if (is_tuple_type annotation) { set children (tuple_split_types annotation) }
+    else {
+        if (is_fn_type annotation) {
+            set children (parse_fn_type_params annotation)
+            set children (array_push children (parse_fn_type_return annotation))
+        } else {
+            let args: array<string> = (extract_type_args annotation)
+            set children args
+            if (> (array_length args) 0) {
+                let base: string = (extract_base_type_name annotation)
+                if (and (== base base_name) (not (map_has seen annotation))) {
+                    (map_put seen annotation 1)
+                    set results (array_push results annotation)
+                }
+                let mut uindex: int = 0
+                while (< uindex (parser_get_union_count parser)) {
+                    let declaration: ASTUnion = (parser_get_union parser uindex)
+                    if (and (== declaration.name base) (== declaration.generic_param_count (array_length args))) {
+                        let mut field: int = 0
+                        while (< field (array_length declaration.variant_field_types)) {
+                            set children (array_push children (substitute_type_parameters (at declaration.variant_field_types field) declaration.generic_params args))
+                            set field (+ field 1)
+                        }
+                    }
+                    set uindex (+ uindex 1)
+                }
+            }
+        }
+    }
+    let mut i: int = 0
+    while (< i (array_length children)) {
+        set results (native_expand_union_type parser (at children i) base_name seen expanded results (+ depth 1))
+        set i (+ i 1)
+    }
+    return results
+}
+shadow native_expand_union_type {
+    let tokens: List<LexerToken> = (tokenize_string "union Box<T> { Some { value: T } } union Outer<T> { Some { value: (Box<T>,fn()->Box<T>) } }" "t.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "t.nano")
+    let rows: array<string> = (native_expand_union_type parser "Outer<int>" "Box" (map_new) (map_new) [] 0)
+    assert (== (array_length rows) 1)
+    assert (== (at rows 0) "Box<int>")
+}
+
 fn find_union_instantiations(parser: Parser, base_name: string) -> array<string> {
     let mut seen: HashMap<string, int> = (map_new)
     let mut results: array<string> = []
+    let expanded: HashMap<string, int> = (map_new)
 
     /* Scan let statements */
     let let_count: int = (parser_get_let_count parser)
     let mut i: int = 0
     while (< i let_count) {
         let l: ASTLet = (parser_get_let parser i)
-        set results (collect_native_union_instances l.var_type base_name seen results)
+        set results (native_expand_union_type parser l.var_type base_name seen expanded results 0)
         set i (+ i 1)
     }
 
@@ -5025,10 +5057,23 @@ fn find_union_instantiations(parser: Parser, base_name: string) -> array<string>
         let definition: ASTStruct = (parser_get_struct_def parser record)
         let mut field: int = 0
         while (< field (array_length definition.field_types)) {
-            set results (collect_native_union_instances (at definition.field_types field) base_name seen results)
+            set results (native_expand_union_type parser (at definition.field_types field) base_name seen expanded results 0)
             set field (+ field 1)
         }
         set record (+ record 1)
+    }
+
+    let mut union_index: int = 0
+    while (< union_index (parser_get_union_count parser)) {
+        let declaration: ASTUnion = (parser_get_union parser union_index)
+        if (== declaration.generic_param_count 0) {
+            let mut field: int = 0
+            while (< field (array_length declaration.variant_field_types)) {
+                set results (native_expand_union_type parser (at declaration.variant_field_types field) base_name seen expanded results 0)
+                set field (+ field 1)
+            }
+        }
+        set union_index (+ union_index 1)
     }
 
     /* Scan function return types and parameter types */
@@ -5036,12 +5081,12 @@ fn find_union_instantiations(parser: Parser, base_name: string) -> array<string>
     set i 0
     while (< i func_count) {
         let f: ASTFunction = (parser_get_function parser i)
-        set results (collect_native_union_instances f.return_type base_name seen results)
+        set results (native_expand_union_type parser f.return_type base_name seen expanded results 0)
         /* Scan parameter types */
         let mut j: int = 0
         while (< j f.param_count) {
             let param: ASTLet = (parser_get_let parser (+ f.param_start j))
-            set results (collect_native_union_instances param.var_type base_name seen results)
+            set results (native_expand_union_type parser param.var_type base_name seen expanded results 0)
             set j (+ j 1)
         }
         set i (+ i 1)
@@ -5120,7 +5165,8 @@ fn emit_union_typedefs(u: ASTUnion, mono_name: string, generic_params: array<str
     set sb (cg_append sb "_Tag;\n")
 
     /* Emit main union struct */
-    set sb (cg_append sb "typedef struct ")
+    if native_derived_forward_mode { set sb (cg_append sb "struct ") }
+    else { set sb (cg_append sb "typedef struct ") }
     set sb (cg_append sb c_prefix)
     set sb (cg_append sb " { ")
     set sb (cg_append sb c_prefix)
@@ -5136,8 +5182,11 @@ fn emit_union_typedefs(u: ASTUnion, mono_name: string, generic_params: array<str
         set sb (cg_append sb "; ")
         set vi (+ vi 1)
     }
-    set sb (cg_append sb "} data; } ")
-    set sb (cg_append sb c_prefix)
+    set sb (cg_append sb "} data; }")
+    if (not native_derived_forward_mode) {
+        set sb (cg_append sb " ")
+        set sb (cg_append sb c_prefix)
+    }
     set sb (cg_append sb ";\n")
 
     return (cg_build sb)
@@ -5171,7 +5220,7 @@ shadow native_union_definition {
     assert (== (at definition.field_types 0) "int64_t")
 }
 
-fn generate_native_nominal_definitions(parser: Parser) -> string {
+fn collect_native_nominal_definitions(parser: Parser) -> array<NativeNominalDefinition> {
     let mut definitions: array<NativeNominalDefinition> = (collect_native_structs parser)
     let mut ui: int = 0
     while (< ui (parser_get_union_count parser)) {
@@ -5191,6 +5240,15 @@ fn generate_native_nominal_definitions(parser: Parser) -> string {
         }
         set ui (+ ui 1)
     }
+    return definitions
+}
+shadow collect_native_nominal_definitions {
+    let toks: List<LexerToken> = (tokenize_string "struct Point { x: int }" "t.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (array_length (collect_native_nominal_definitions p)) 1)
+}
+
+fn order_native_definitions(definitions: array<NativeNominalDefinition>) -> string {
     let mut done: array<string> = []
     let mut out: string = ""
     let mut remaining: int = (array_length definitions)
@@ -5254,6 +5312,114 @@ fn generate_native_nominal_definitions(parser: Parser) -> string {
     return out
 }
 
+shadow order_native_definitions {
+    let leaf: NativeNominalDefinition = NativeNominalDefinition { c_name: "Leaf", code: "leaf;", field_types: [] }
+    let parent: NativeNominalDefinition = NativeNominalDefinition { c_name: "Parent", code: "parent;", field_types: ["Leaf"] }
+    assert (== (order_native_definitions [parent, leaf]) "leaf;parent;")
+    let cycle: NativeNominalDefinition = NativeNominalDefinition { c_name: "Cycle", code: "cycle;", field_types: ["Cycle"] }
+    assert (str_contains (order_native_definitions [cycle]) "#error")
+}
+
+# Callback parameters/results need declarations of records and tuples, but
+# nested callback aliases must already be defined. I retain these two edges.
+fn native_fn_dependencies(annotation: string) -> array<string> {
+    let mut children: array<string> = (parse_fn_type_params annotation)
+    set children (array_push children (parse_fn_type_return annotation))
+    let mut dependencies: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length children)) {
+        let child: string = (at children i)
+        let cname: string = (type_to_c child)
+        if (is_fn_type child) { set dependencies (array_push dependencies cname) }
+        set i (+ i 1)
+    }
+    return dependencies
+}
+shadow native_fn_dependencies {
+    (reset_fn_types)
+    assert (== (array_length (native_fn_dependencies "fn(Node)->Node")) 0)
+    assert (== (array_length (native_fn_dependencies "fn()->fn(int)->int")) 1)
+    (reset_fn_types)
+}
+
+fn native_opaque_derived_needed() -> bool {
+    let mut i: int = 0
+    while (< i (array_length native_tuple_annotations)) {
+        if (!= (native_opaque_key (at native_tuple_annotations i)) "") { return true }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length fn_type_originals)) {
+        if (!= (native_opaque_key (at fn_type_originals i)) "") { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow native_opaque_derived_needed {
+    (reset_fn_types)
+    set native_tuple_annotations []
+    assert (not (native_opaque_derived_needed))
+}
+
+fn generate_native_nominal_definitions(parser: Parser) -> string {
+    let initial: array<NativeNominalDefinition> = (collect_native_nominal_definitions parser)
+    if (not (native_opaque_derived_needed)) { return (order_native_definitions initial) }
+    set native_derived_forward_mode true
+    let mut definitions: array<NativeNominalDefinition> = (collect_native_nominal_definitions parser)
+    let mut names: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length definitions)) {
+        let definition: NativeNominalDefinition = (at definitions i)
+        set names (array_push names definition.c_name)
+        set i (+ i 1)
+    }
+    let mut tuple_index: int = 0
+    let mut function_index: int = 0
+    while (or (< tuple_index (array_length native_tuple_annotations)) (< function_index (array_length fn_type_originals))) {
+        while (< tuple_index (array_length native_tuple_annotations)) {
+            let annotation: string = (at native_tuple_annotations tuple_index)
+            let name: string = (tuple_typedef_name annotation)
+            if (not (native_name_in names name)) {
+                let elements: array<string> = (tuple_split_types annotation)
+                let mut dependencies: array<string> = []
+                let mut child_index: int = 0
+                while (< child_index (array_length elements)) {
+                    set dependencies (array_push dependencies (type_to_c (at elements child_index)))
+                    set child_index (+ child_index 1)
+                }
+                let definition: NativeNominalDefinition = NativeNominalDefinition { c_name: name, code: (gen_tuple_typedef annotation), field_types: dependencies }
+                set definitions (array_push definitions definition)
+                set names (array_push names name)
+            }
+            set tuple_index (+ tuple_index 1)
+        }
+        while (< function_index (array_length fn_type_originals)) {
+            let annotation: string = (at fn_type_originals function_index)
+            let name: string = (at fn_type_names function_index)
+            if (not (native_name_in names name)) {
+                let dependencies: array<string> = (native_fn_dependencies annotation)
+                let definition: NativeNominalDefinition = NativeNominalDefinition { c_name: name, code: (native_fn_typedef annotation name), field_types: dependencies }
+                set definitions (array_push definitions definition)
+                set names (array_push names name)
+            }
+            set function_index (+ function_index 1)
+        }
+    }
+    let mut forwards: string = ""
+    set i 0
+    while (< i (array_length definitions)) {
+        let definition: NativeNominalDefinition = (at definitions i)
+        if (not (native_name_in fn_type_names definition.c_name)) {
+            set forwards (+ forwards (+ "typedef struct " (+ definition.c_name (+ " " (+ definition.c_name ";\n")))))
+        }
+        set i (+ i 1)
+    }
+    let result: string = (+ forwards (order_native_definitions definitions))
+    set native_derived_emitted_names names
+    set native_derived_forward_mode false
+    return result
+}
+
 shadow generate_native_nominal_definitions {
     let toks: List<LexerToken> = (tokenize_string "struct Point { x: int } union Choice { Some { value: Point } }" "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
@@ -5261,6 +5427,36 @@ shadow generate_native_nominal_definitions {
     assert (str_contains code "nl_Point")
     assert (str_contains code "nl_Choice")
     assert (not (str_contains code "#error"))
+
+    # I test this source helper with retained canonical opaque annotations.
+    (mb_reset [1])
+    (mb_set_sources ["/derived-layout.nano"])
+    let declarations: List<LexerToken> = (tokenize_string "opaque type Handle" "derived-layout.nano" (list_CompilerDiagnostic_new))
+    let owner: Parser = (parse_program declarations (list_LexerToken_length declarations) "derived-layout.nano")
+    assert (nb_register owner "__derived_test_")
+    let handle: string = (nb_type "Handle" 1)
+    (reset_fn_types)
+    set native_tuple_annotations []
+    set native_derived_emitted_names []
+    set native_opaque_keys []
+    set native_opaque_names []
+    let callback: string = (+ "fn(Node," (+ handle ")->Node"))
+    let tuple: string = (+ "(" (+ handle (+ "," (+ callback ")"))))
+    let source: string = (+ "struct Node { visit: " (+ callback (+ ", pair: " (+ tuple " }"))))
+    let derived_tokens: List<LexerToken> = (tokenize_string source "derived-layout.nano" (list_CompilerDiagnostic_new))
+    let derived_parser: Parser = (parse_program derived_tokens (list_LexerToken_length derived_tokens) "derived-layout.nano")
+    let derived: string = (generate_native_nominal_definitions derived_parser)
+    assert (not (str_contains derived "#error"))
+    assert (str_contains derived "typedef struct nl_Node nl_Node;")
+    assert (str_contains derived "struct nl_Node {")
+    assert (str_contains derived (+ (register_fn_type callback) " visit;"))
+    assert (str_contains derived (+ (tuple_typedef_name tuple) " pair;"))
+    assert (== (generate_fn_type_typedefs) "")
+    assert (== native_derived_forward_mode false)
+    set native_tuple_annotations []
+    set native_derived_emitted_names []
+    (reset_fn_types)
+    (mb_reset [])
 }
 
 /* Generate union definitions from AST */
@@ -6166,7 +6362,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             let get_fn: string = (get_fn_from_elem_type elem_t)
                             let mut parts: array<string> = []
                             if (type_is_struct elem_t) {
-                                let elem_struct: string = (+ "nl_" (mangle_type_name elem_t))
+                                let mut elem_struct: string = (+ "nl_" (mangle_type_name elem_t))
+                                if (!= (native_opaque_key elem_t) "") { set elem_struct (type_to_c elem_t) }
                                 set parts (cg_append parts "*(")
                                 set parts (cg_append parts elem_struct)
                                 set parts (cg_append parts "*)((void*)")
@@ -8703,6 +8900,9 @@ shadow parser_has_peg2_import {
 fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     set native_opaque_keys []
     set native_opaque_names []
+    set native_tuple_annotations []
+    set native_derived_emitted_names []
+    set native_derived_forward_mode false
     set reduce_emission_error ""
     if (> parser.services_count 0) { set reduce_emission_error "I have not resolved File service declarations for this consumer." return "" }
     (build_module_alias_map parser)

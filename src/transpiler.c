@@ -6,6 +6,11 @@
 #include <libgen.h>
 #include <limits.h>
 #include "transpiler_opaque_names.inc"
+static const char *native_derived_type_name(const TypeInfo *);
+static bool native_derived_forwarded(const char *);
+static bool native_derived_emitted(const TypeInfo *);
+static void emit_native_type_info(Environment *, StringBuilder *, TypeInfo *);
+
 
 /* String builder for C code generation - now defined in stdlib_runtime.h */
 
@@ -650,9 +655,18 @@ static const char *register_tuple_type(TupleTypeRegistry *reg, TypeInfo *info) {
 
 /* Generate C typedef for a tuple type */
 static void generate_tuple_typedef(StringBuilder *sb, TypeInfo *info, const char *typedef_name, Environment *env) {
-    sb_appendf(sb, "typedef struct { ");
+    if (native_derived_forwarded(typedef_name)) sb_appendf(sb, "struct %s { ", typedef_name);
+    else sb_appendf(sb, "typedef struct { ");
+    if (!info->tuple_element_count) sb_append(sb, "int _placeholder");
     for (int i = 0; i < info->tuple_element_count; i++) {
         if (i > 0) sb_append(sb, "; ");
+        TypeInfo flat;
+        const TypeInfo *child = type_info_tuple_element(info, i, &flat);
+        if (!child) native_opaque_name_failure();
+        if (info->type_param_count) {
+            emit_native_type_info(env, sb, (TypeInfo *)child);
+            sb_appendf(sb, " _%d", i); continue;
+        }
         Type t = info->tuple_types[i];
         if (t == TYPE_STRUCT || t == TYPE_UNION || t == TYPE_ENUM) {
             if (info->tuple_type_names && info->tuple_type_names[i]) {
@@ -666,7 +680,8 @@ static void generate_tuple_typedef(StringBuilder *sb, TypeInfo *info, const char
             sb_appendf(sb, "%s _%d", type_to_c(t), i);
         }
     }
-    sb_appendf(sb, "; } %s;\n", typedef_name);
+    if (native_derived_forwarded(typedef_name)) sb_append(sb, "; };\n");
+    else sb_appendf(sb, "; } %s;\n", typedef_name);
 }
 
 /* Generate unique typedef name for a function signature */
@@ -743,7 +758,9 @@ static void emit_native_type_info(Environment *env, StringBuilder *sb, TypeInfo 
 
 static void emit_signature_type(StringBuilder *sb, Environment *env, Type type,
                                 const char *name, TypeInfo *info) {
-    if (info && (type == TYPE_STRUCT || type == TYPE_UNION || type == TYPE_ENUM)) {
+    if (info && native_derived_type_name(info) && (type == TYPE_TUPLE || type == TYPE_FUNCTION)) {
+        emit_native_type_info(env, sb, info);
+    } else if (info && (type == TYPE_STRUCT || type == TYPE_UNION || type == TYPE_ENUM)) {
         emit_native_type_info(env, sb, info);
     } else if (info && (type == TYPE_LIST_GENERIC || type == TYPE_HASHMAP)) {
         char *concrete = typeinfo_to_generic_arg_name(info);
@@ -770,6 +787,17 @@ static void emit_signature_parameters(StringBuilder *sb, Environment *env, Funct
 /* I use complete annotation trees for each native callback boundary. */
 static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
                                      const char *typedef_name, Environment *env) {
+    TypeInfo function = {.base_type = TYPE_FUNCTION, .fn_sig = sig};
+    if (native_derived_type_name(&function)) {
+        TypeInfo result = {.base_type = sig->return_type, .generic_name = sig->return_struct_name, .fn_sig = sig->return_fn_sig};
+        if (sig->return_type_info) result = *sig->return_type_info;
+        if (!result.fn_sig) result.fn_sig = sig->return_fn_sig;
+        sb_append(sb, "typedef ");
+        emit_signature_type(sb, env, result.base_type, result.generic_name, &result);
+        sb_appendf(sb, " (*%s)(", typedef_name);
+        emit_signature_parameters(sb, env, sig);
+        sb_append(sb, ");\n"); return;
+    }
     sb_append(sb, "typedef ");
     if (sig->return_type == TYPE_FUNCTION && sig->return_fn_sig) {
         FunctionSignature *inner = sig->return_fn_sig;
@@ -2259,12 +2287,14 @@ static void emit_struct_definition_single(Environment *env, StringBuilder *sb, S
     
     /* For runtime types, use the name without struct keyword if possible, 
      * but we need to define it if it's not already defined. */
-    sb_appendf(sb, "typedef struct %s {\n", prefixed_name_dup);
+    sb_appendf(sb, native_derived_forwarded(prefixed_name_dup) ? "struct %s {\n" : "typedef struct %s {\n", prefixed_name_dup);
     for (int j = 0; j < sdef->field_count; j++) {
         sb_append(sb, "    ");
 
         TypeInfo *info = sdef->field_type_info ? sdef->field_type_info[j] : NULL;
-        if (info && info->generic_name && info->type_param_count > 0 &&
+        if (info && native_derived_type_name(info)) {
+            emit_native_type_info(env, sb, info);
+        } else if (info && info->generic_name && info->type_param_count > 0 &&
             env_get_union(env, info->generic_name)) {
             char *field_name = native_record_field_name(env, sdef, j);
             if (!field_name) { fprintf(stderr, "I cannot allocate a native record field type\n"); exit(1); }
@@ -2292,7 +2322,8 @@ static void emit_struct_definition_single(Environment *env, StringBuilder *sb, S
         }
         sb_appendf(sb, " %s;\n", sdef->field_names[j]);
     }
-    sb_appendf(sb, "} %s;\n", prefixed_name_dup);
+    if (native_derived_forwarded(prefixed_name_dup)) sb_append(sb, "};\n");
+    else sb_appendf(sb, "} %s;\n", prefixed_name_dup);
     sb_append(sb, "#endif\n\n");
     free((void*)prefixed_name_dup);
 }
@@ -2316,7 +2347,11 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
                 sb_append(sb, "    ");
                 Type ft = udef->variant_field_types[j][k];
 
-                if (ft == TYPE_STRUCT && udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                TypeInfo *complete = udef->variant_field_type_info && udef->variant_field_type_info[j]
+                    ? udef->variant_field_type_info[j][k] : NULL;
+                if (complete && native_derived_type_name(complete)) {
+                    emit_native_type_info(env, sb, complete);
+                } else if (ft == TYPE_STRUCT && udef->variant_field_type_names && udef->variant_field_type_names[j] &&
                     udef->variant_field_type_names[j][k] &&
                     env_get_opaque_type(env, udef->variant_field_type_names[j][k])) {
                     sb_append(sb, "void*");
@@ -2345,7 +2380,7 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
     }
     sb_appendf(sb, "} %s_Tag;\n\n", prefixed_union);
 
-    sb_appendf(sb, "typedef struct %s {\n", prefixed_union);
+    sb_appendf(sb, native_derived_forwarded(prefixed_union) ? "struct %s {\n" : "typedef struct %s {\n", prefixed_union);
     sb_appendf(sb, "    %s_Tag tag;\n", prefixed_union);
     sb_append(sb, "    union {\n");
     for (int j = 0; j < udef->variant_count; j++) {
@@ -2357,12 +2392,17 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
         }
     }
     sb_append(sb, "    } data;\n");
-    sb_appendf(sb, "} %s;\n\n", prefixed_union);
+    if (native_derived_forwarded(prefixed_union)) sb_append(sb, "};\n\n");
+    else sb_appendf(sb, "} %s;\n\n", prefixed_union);
 
     free((void*)prefixed_union);
 }
 
 static void emit_native_type_info(Environment *env, StringBuilder *sb, TypeInfo *info) {
+    const char *derived = native_derived_type_name(info);
+    if (derived && (info->base_type == TYPE_TUPLE || info->base_type == TYPE_FUNCTION)) {
+        sb_append(sb, derived); return;
+    }
     if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION || info->base_type == TYPE_ENUM) && info->generic_name) {
         if (env_get_opaque_type(env, info->generic_name)) { sb_append(sb, "void*"); return; }
         char *name = typeinfo_to_generic_arg_name(info);
@@ -2460,7 +2500,7 @@ static void emit_generic_union_instantiation(Environment *env, StringBuilder *sb
     }
     sb_appendf(sb, "} %s_Tag;\n\n", prefixed_union);
 
-    sb_appendf(sb, "typedef struct %s {\n", prefixed_union);
+    sb_appendf(sb, native_derived_forwarded(prefixed_union) ? "struct %s {\n" : "typedef struct %s {\n", prefixed_union);
     sb_appendf(sb, "    %s_Tag tag;\n", prefixed_union);
     sb_append(sb, "    union {\n");
 
@@ -2474,7 +2514,8 @@ static void emit_generic_union_instantiation(Environment *env, StringBuilder *sb
     }
 
     sb_append(sb, "    } data;\n");
-    sb_appendf(sb, "} %s;\n\n", prefixed_union);
+    if (native_derived_forwarded(prefixed_union)) sb_append(sb, "};\n\n");
+    else sb_appendf(sb, "} %s;\n\n", prefixed_union);
 
     free((void*)prefixed_union);
 }
@@ -4305,6 +4346,8 @@ static void generate_type_typedefs(StringBuilder *sb, FunctionTypeRegistry *fn_r
     if (fn_registry->count > 0) {
         sb_append(sb, "/* Function Type Typedefs */\n");
         for (int i = 0; i < fn_registry->count; i++) {
+            TypeInfo info = {.base_type = TYPE_FUNCTION, .fn_sig = fn_registry->signatures[i]};
+            if (native_derived_emitted(&info)) continue;
             generate_function_typedef(sb, fn_registry->signatures[i],
                                     fn_registry->typedef_names[i], env);
         }
@@ -4315,6 +4358,7 @@ static void generate_type_typedefs(StringBuilder *sb, FunctionTypeRegistry *fn_r
     if (tuple_registry->count > 0) {
         sb_appendf(sb, "/* Tuple Type Typedefs (found %d types) */\n", tuple_registry->count);
         for (int i = 0; i < tuple_registry->count; i++) {
+            if (native_derived_emitted(tuple_registry->tuples[i])) continue;
             generate_tuple_typedef(sb, tuple_registry->tuples[i],
                                  tuple_registry->typedef_names[i], env);
         }
@@ -4812,6 +4856,8 @@ static void generate_effect_dispatch(StringBuilder *sb, ASTNode *program, Enviro
 }
 
 /* Transpile program to C */
+#include "transpiler_opaque_declarations.inc"
+
 static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char *input_file) {
     if (ast_has_service_declaration(program)) { fprintf(stderr, "I have not resolved File service declarations for this consumer.\n"); return NULL; }
     if (!program || program->type != AST_PROGRAM) {
@@ -4898,6 +4944,30 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     /* Coroutine runtime builtins (coro_spawn, scheduler_run, etc.) */
     generate_coroutine_builtins(sb);
 
+    /* ========== Function Type Typedefs ========== */
+    /* Collect all function signatures and tuple types used in the program */
+    FunctionTypeRegistry *fn_registry = create_fn_type_registry();
+    TupleTypeRegistry *tuple_registry = create_tuple_type_registry(env);
+    g_tuple_registry = tuple_registry;  /* Set global registry for expression transpilation */
+
+    collect_module_function_types(program, fn_registry, input_file);
+    collect_function_and_tuple_types(program, fn_registry, tuple_registry);
+    /* I register transitive foreign signatures before their declarations. */
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *function = &env->functions[i];
+        if (!function->is_extern) continue;
+        if (function->return_type == TYPE_FUNCTION && function->return_fn_sig)
+            register_function_signature(fn_registry, function->return_fn_sig);
+        for (int j = 0; j < function->param_count; ++j) {
+            Parameter *parameter = &function->params[j];
+            if (parameter->type == TYPE_FUNCTION && parameter->fn_sig)
+                register_function_signature(fn_registry, parameter->fn_sig);
+        }
+    }
+
+
+    NativeDerivedGraph *derived_graph = native_derived_prepare(env, fn_registry, tuple_registry);
+
     /* Generate enum typedefs first (before structs, since structs may use enums) */
     generate_enum_definitions(env, sb);
 
@@ -4908,7 +4978,8 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     generate_hashmap_specializations(env, sb);
 
     /* Generate struct + union definitions in dependency-safe order */
-    generate_struct_and_union_definitions_ordered(env, sb);
+    if (derived_graph) native_derived_emit(derived_graph, sb);
+    else generate_struct_and_union_definitions_ordered(env, sb);
 
     /* Generate compile-time struct metadata reflection functions */
     generate_struct_metadata(env, sb);
@@ -4926,28 +4997,6 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
 
     /* Generate to_string helpers for user-defined types */
     generate_to_string_helpers(env, sb);
-
-    /* ========== Function Type Typedefs ========== */
-    /* Collect all function signatures and tuple types used in the program */
-    FunctionTypeRegistry *fn_registry = create_fn_type_registry();
-    TupleTypeRegistry *tuple_registry = create_tuple_type_registry(env);
-    g_tuple_registry = tuple_registry;  /* Set global registry for expression transpilation */
-    
-    collect_module_function_types(program, fn_registry, input_file);
-    collect_function_and_tuple_types(program, fn_registry, tuple_registry);
-    /* I register transitive foreign signatures before their declarations. */
-    for (int i = 0; i < env->function_count; ++i) {
-        Function *function = &env->functions[i];
-        if (!function->is_extern) continue;
-        if (function->return_type == TYPE_FUNCTION && function->return_fn_sig)
-            register_function_signature(fn_registry, function->return_fn_sig);
-        for (int j = 0; j < function->param_count; ++j) {
-            Parameter *parameter = &function->params[j];
-            if (parameter->type == TYPE_FUNCTION && parameter->fn_sig)
-                register_function_signature(fn_registry, parameter->fn_sig);
-        }
-    }
-
     
     /* Generate typedef declarations */
     generate_type_typedefs(sb, fn_registry, tuple_registry, env);
@@ -4990,6 +5039,7 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     /* Cleanup */
     free_fn_type_registry(fn_registry);
     free_tuple_type_registry(tuple_registry);
+    native_derived_graph_free(derived_graph); native_derived_graph = NULL;
     g_tuple_registry = NULL;  /* Clear global registry */
     clear_module_headers();  /* Clear collected headers */
 
@@ -5002,6 +5052,9 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
 char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file) {
     NativeOpaqueNames names = {.prefix = env ? env_opaque_symbol_prefix(env) : 0};
     NativeOpaqueNames *previous_names = native_opaque_names;
+    NativeDerivedGraph *previous_graph = native_derived_graph;
+    TupleTypeRegistry *previous_tuples = g_tuple_registry;
+    native_derived_graph = NULL;
     native_opaque_names = &names;
     uint32_t previous = native_declared_letters;
     native_declared_letters = 0;
@@ -5018,6 +5071,7 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     char *result = transpile_to_c_impl(program, env, input_file);
     native_declared_letters = previous;
     native_opaque_names = previous_names;
+    native_derived_graph = previous_graph; g_tuple_registry = previous_tuples;
     native_opaque_names_free(&names);
     return result;
 }

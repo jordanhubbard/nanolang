@@ -373,6 +373,13 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             if (sig) {
                 if (fn_sig_out) {
                     *fn_sig_out = sig;
+                } else if (type_info_out) {
+                    TypeInfo *info = calloc(1, sizeof *info);
+                    if (!info) { free_function_signature(sig); return TYPE_UNKNOWN; }
+                    info->base_type = TYPE_FUNCTION; info->fn_sig = sig;
+                    *type_info_out = info;
+                } else {
+                    free_function_signature(sig);
                 }
                 return TYPE_FUNCTION;
             }
