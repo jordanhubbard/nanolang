@@ -177,3 +177,53 @@ AST_CALL checker, before builtin and ordinary fallback. Qualified calls already
 have this guard. I add an ignored-result private selective call control so
 refusal cannot depend on a surrounding return/assignment type mismatch.
 The original private and builtin-fallback controls remain required.
+
+## My C selective-import prerequisite
+
+At c481 both current refreshes passed (30.888 and 32.168 seconds), and the
+actual-parser limit method passed on C seed and both current Nano producers.
+The original/additive corpus then stopped at the C-seed private selective
+alias control: `from owner import hidden_value as chosen` followed by a call
+to chosen compiled successfully. The output sentinel changed; I did not
+execute that product. The outer terminal was exit 1 after 53.566 seconds,
+without timeout or surviving descendants. I retain both host evidence copies
+under `/tmp/nanolang-split-c481-puck-evidence`.
+
+My C module alias loop finds the target and copies its Function without
+checking is_pub. The copy retains is_pub and module_name, but
+is_function_accessible immediately allows all functions when the caller's
+current_module is NULL. That includes an unnamed root importing a known-owner
+private function. The same shortcut predicts an ordinary wildcard private
+call gap. Function-valued identifiers also return TYPE_FUNCTION without
+calling the existing visibility checker. I do not need another failing run
+to establish these source boundaries.
+
+Before source edits I propose these owning changes:
+
+1. Selective function targets use exact requested module ownership, never an
+   ownerless/global same-name fallback. Preflight every selected function's
+   public bit before publishing any function alias for that import. Type-only
+   imports keep their existing resolver; this is not a new type visibility
+   implementation. Public alias spelling and original target remain separate.
+2. A function with no declaring module keeps existing root/builtin treatment.
+   A known declaring module must match the caller for private access; an
+   unnamed root is not the same owner as an imported module. I do not invent
+   a root module label or change builtin registry precedence. Public functions
+   remain accessible subject to existing selective import rules.
+3. Selective visibility checks use alias_of when present, because the import
+   records the original declaration name rather than its caller spelling.
+   Actual function-valued identifiers pass through the same accessibility
+   check as calls. Local variable/callback lookup stays earlier.
+4. Alias name/original-name allocation is staged and checked before a new row
+   is published. Failure follows existing bounded module cleanup and stops
+   compilation; I do not claim rollback of unrelated existing module state or
+   a new recoverable general env_define_function allocation contract.
+
+The original failed control remains unchanged. Public alias, private wildcard,
+private callable value, ignored-result call, same-owner wrapper, builtin
+fallback and output-sentinel controls remain in the complete paired corpus.
+I add an unnamed-root public function-value positive and private function-value
+negative to exercise the actual C identifier path. Changed module/checker
+providers require fresh C-seed rebuild and endpoint maps; current Nano refresh
+reuse, if proposed, requires exact exclusion/dependency proof. Complete clean
+bootstrap and full SDK still remain later requirements.
