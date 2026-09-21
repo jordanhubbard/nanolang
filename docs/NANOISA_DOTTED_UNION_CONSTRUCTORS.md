@@ -55,3 +55,8 @@ ambiguous-kind and duplicate-variant controls preserve the original node. I add
 these controls to the existing identity method without removing any of my
 original eighteen source or eight native methods. This checkpoint is source-only
 until review and fresh corrected qualification.
+
+Before execution I corrected three whole-object fixture snapshots to use
+`memcpy` rather than struct assignment. I compare object representations with
+`memcmp`, so the snapshot must preserve padding bytes too. This changes my
+evidence precision, not production behavior or any refusal assertion.

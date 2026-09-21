@@ -84,7 +84,7 @@ static size_t constructor_attempt(bool imported, size_t prefix, bool once) {
     Environment *env = create_environment(); assert(env); env->current_module = "Caller";
     if (imported) constructor_foreign(env, true);
     ASTNode *node = constructor_literal(imported ? "alias.Box.Value" : "Box.Value");
-    ASTNode saved = *node;
+    ASTNode saved; memcpy(&saved, node, sizeof saved);
     ASTNode *child = node->as.struct_literal.field_values[0];
     char *field = node->as.struct_literal.field_names[0];
     assert(!live); attempts = failures = released_original = 0;
@@ -127,7 +127,7 @@ static void constructor_refusals(void) {
         Environment *env = create_environment(); assert(env);
         ASTNode *node = constructor_literal(i == 0 ? "Box.Missing" : "Box.Value");
         if (i == 1) { node->as.struct_literal.spread_source = calloc(1, sizeof(ASTNode)); assert(node->as.struct_literal.spread_source); node->as.struct_literal.spread_source->type = AST_NUMBER; }
-        ASTNode saved = *node;
+        ASTNode saved; memcpy(&saved, node, sizeof saved);
         assert(!nominal_literal_constructor(program, env, node));
         assert(!memcmp(node, &saved, sizeof saved));
         free_ast(node); free_environment(env); free_ast(program); free_tokens(tokens, count);
@@ -139,7 +139,7 @@ static void constructor_refusals(void) {
         ASTNode *node = constructor_literal(which == 2 ? "unknown.Box.Value" : "alias.Box.Value");
         ASTNode *items[] = {node}; ASTNode program = {.type = AST_PROGRAM};
         program.as.program.items = items; program.as.program.count = 1;
-        ASTNode saved = *node;
+        ASTNode saved; memcpy(&saved, node, sizeof saved);
         assert(!fixture_bind_nominal_records(&program, env));
         assert(!memcmp(node, &saved, sizeof saved));
         free_ast(node); free_environment(env);
