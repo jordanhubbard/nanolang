@@ -71,7 +71,11 @@ static void rl_operation(RlBlock *s,const NvmRecordArrayExecutionInstruction *r)
         rl_peek(s,r->opcode==OP_F64_NEG?0:1,'a',&x,&xt);rl_tag(s,xt,3);
         uint32_t left=rl_next(s);rg_write(b," %%v%u = bitcast i64 %%v%u to double\n",left,x);
         if(r->opcode!=OP_F64_NEG) { rl_peek(s,0,'b',&y,&yt);rl_tag(s,yt,3); }
-        uint32_t value=rl_next(s);
+        uint32_t value=rl_next(s),divide_label=0,zero_label=0,join=0;
+        if(r->opcode==OP_F64_DIV) {
+            uint32_t absolute=rl_next(s),zero=rl_next(s);divide_label=rl_next(s);zero_label=rl_next(s);join=rl_next(s);
+            rg_write(b," %%v%u = and i64 %%v%u, 9223372036854775807\n %%v%u = icmp eq i64 %%v%u, 0\n br i1 %%v%u, label %%l%u, label %%l%u\nl%u:\n br label %%l%u\nl%u:\n",absolute,y,zero,absolute,zero,zero_label,divide_label,zero_label,join,divide_label);
+        }
         if(r->opcode==OP_F64_NEG)rg_write(b," %%v%u = fneg double %%v%u\n",value,left);
         else {
             uint32_t right=rl_next(s);rg_write(b," %%v%u = bitcast i64 %%v%u to double\n",right,y);
@@ -80,7 +84,9 @@ static void rl_operation(RlBlock *s,const NvmRecordArrayExecutionInstruction *r)
         z=rl_next(s);rg_write(b," %%v%u = bitcast double %%v%u to i64\n",z,value);
         if(r->opcode!=OP_F64_NEG) {
             uint32_t nan=rl_next(s),canon=rl_next(s);rg_write(b," %%v%u = fcmp uno double %%v%u, %%v%u\n %%v%u = select i1 %%v%u, i64 9221120237041090560, i64 %%v%u\n",nan,value,value,canon,nan,z);z=canon;
-            if(r->opcode==OP_F64_DIV) { uint32_t abs=rl_next(s),zero=rl_next(s),answer=rl_next(s);rg_write(b," %%v%u = and i64 %%v%u, 9223372036854775807\n %%v%u = icmp eq i64 %%v%u, 0\n %%v%u = select i1 %%v%u, i64 0, i64 %%v%u\n",abs,y,zero,abs,answer,zero,z);z=answer; }
+            if(r->opcode==OP_F64_DIV) {
+                uint32_t answer=rl_next(s);rg_write(b," br label %%l%u\nl%u:\n %%v%u = phi i64 [ 0, %%l%u ], [ %%v%u, %%l%u ]\n",join,join,answer,zero_label,z,divide_label);z=answer;
+            }
         }
         rl_replace(s,r->opcode==OP_F64_NEG?1:2,z,3);break;
     }

@@ -91,3 +91,38 @@ globals and1024/1025 frames keep the already required behavior.
   boundaries, then propose public selection only after the complete matched
   VM/C/LLVM/Wasm conjunction. Paired producers and general nested/cyclic graphs
   remain mandatory following dependencies, not exclusions from5.1.
+
+## Complete first emitter source checkpoint
+
+I share the exact byte/work allocator, independent93-case recipe and decoded
+instruction/operand/edge checks. The LLVM entry independently materializes the
+same plan fields using the C entry's unchanged allocation order and checked
+limits, then emits target tables, all function/resume blocks and complete
+startup comparisons. It consumes only the target-prefix strings from the
+existing validated runtime generator; it does not embed that legacy adapter IR.
+
+My additional accounting is explicit:
+
+| Storage/work | Reservation or charge |
+| --- | --- |
+| Owned execution plan | Existing independent128MiB/33554432-step domain |
+| Function/layout/record/start arrays and output state | Existing exact sizeof sum |
+| Field and instruction materialization | Exact checked requested bytes; unchanged C allocation order |
+| LLVM helper named scratch | Conservative4096-byte reservation including256/256/128/128-byte buffers, two block states, value arrays and scalar temporaries |
+| Output replacement | Old plus new capacity overlap, existing128MiB consumer ceiling |
+| Every instruction's LLVM control work | Additional512 units before emission |
+| Formatted/copied output and target prefix | Existing byte-based formatting/growth charges |
+
+The scratch reservation does not claim full compiler-spill/libc/process stack
+measurement. Native/Wasm table alignment is computed from emitted LLVM types
+and checked against all50 pure runtime ABI facts before nrg_create. Every table
+field, pointer and parameter byte also receives an explicit startup comparison.
+No output publication occurs until all functions/edges/tables and byte/work
+limits succeed. The old C entry and public routes remain distinct.
+
+Strict GCC syntax checks pass for the emitter, factored C entry and runtime after
+the preserved missing-header-fact compile correction. Syntax used an existing
+qualified generated target-prefix header solely as a declaration prerequisite;
+no new compiler package, generated LLVM module or runtime product has executed.
+Independent native/wasm ABI probes and full source review remain prerequisites
+to the execution fixture checkpoint.

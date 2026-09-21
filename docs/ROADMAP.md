@@ -14328,3 +14328,26 @@ helpers. A static case-set comparison matches every case. This is an unwired
 source checkpoint: complete table emission, startup ABI comparison, shared
 preparation integration and independent fixtures remain required before any
 LLVM product can be built or executed. No current C qualification input changes.
+
+During static review of the unexecuted LLVM writer, I found that a char-based
+scratch-name iterator could wrap after its final name on signed-char targets.
+Before compilation or emission I replace it with an explicit three-element
+bounded iteration. I also require F64_DIV to branch around division for either
+signed-zero divisor, matching the C arithmetic helper even for a signaling NaN
+numerator. These are source-review corrections, not observed gate failures.
+
+My first strict syntax check retains a compile terminal for the new LLVM writer:
+I initially referenced a nonexistent counts.has_main field. The original C
+route obtains that fact from the copied header's NVM_FLAG_HAS_MAIN bit. I preserve
+the failed source/log and use that exact copied-header expression in both the
+LLVM table and startup comparison before the next syntax check. No LLVM program
+has been emitted or executed.
+
+My complete private LLVM source checkpoint now emits native/wasm32 target tables,
+all93 direct operation blocks, explicit resume switches and all50 runtime ABI
+checks before creation, with complete table/pointer/tag agreement. The shared
+fact ledger and checked preparation cover all functions and control edges.
+I reserve4096 bytes for named LLVM scratch and charge512 additional work units
+per operation plus every formatted byte. Strict corrected GCC syntax passes;
+no emitted LLVM, Wasm or new runtime product has executed. Complete independent
+source review and the unchanged corpus fixture remain required before gates.
