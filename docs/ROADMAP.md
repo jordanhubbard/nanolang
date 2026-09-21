@@ -14031,3 +14031,17 @@ I correct phase-local module/search/layout paths coherently: diagnostic tree
 for building the tool, original cb489 tree for the one original-source check.
 Module bytes are already checked equal. No checker behavior, source or deadline
 changes; the original full-source diagnostic remains unreached.
+
+### My diagnostic cwd fixture correction
+
+My second diagnostic-tool preparation reached the full root shadow graph and
+stopped at resolve_import_path's tests/test_modules/metadata_probe.nano
+assertion, followed by checked bounds when merge_with_imports had no example
+input. Its external cwd omitted tests/examples. Status1 at46.776s, no timeout,
+all frozen inputs equal, no Stage1 tool or original-source check. I preserve
+/tmp/nanolang-discarded-facts-1dca-coherent. The complete literal fixture audit
+finds tests/test_modules/metadata_probe.nano and examples/language/nl_hello.nano;
+repository-root detection uses src_nano/nanoc_v06.nano, already present.
+Filesystem-mutating root shadows use fresh mktemp directories. I now include
+tests/examples/schema in both phase-coherent layouts, verify the two required
+fixture paths before launch, and keep all actual tracked source hashes.
