@@ -5826,9 +5826,9 @@ test-capture-transport: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(OBJ_DIR)/nanoisa/test_capture_transport_alloc
 
 .PHONY: test-capture-transport-consumers
-test-capture-transport-consumers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanoisa/nvm2llvm.o
+test-capture-transport-consumers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_DIR)/portable_host_plan.c
 	$(CC) $(CFLAGS) -DCAPTURE_TRANSPORT_CONSUMERS -I$(NANOISA_DIR) -I$(NANOVM_DIR) -o $(OBJ_DIR)/nanoisa/test_capture_transport_consumers \
-		tests/nanoisa/test_capture_transport.c $(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)) $(OBJ_DIR)/nanoisa/nvm2llvm.o $(LDFLAGS)
+		tests/nanoisa/test_capture_transport.c $(NANOISA_DIR)/portable_host_plan.c $(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)) $(OBJ_DIR)/nanoisa/nvm2llvm.o $(LDFLAGS)
 	$(OBJ_DIR)/nanoisa/test_capture_transport_consumers
 
 .PHONY: test-capture-bindings

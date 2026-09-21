@@ -267,3 +267,10 @@ My first private-consumer fixture review finds a C dialect mismatch before
 execution: `max_align_t` requires C11, while the owning Make recipe uses C99.
 I replace only the unused aligned marker with malloc-backed storage and retain
 all assertions. The earlier C11 syntax pass is not my owning recipe gate.
+
+My first ordinary retained-provider build of f83ad7941 stops at link time:
+`nvm_portable_read_plan` is absent from the consumer provider closure. No test
+executes; all 3,753 source and 10 tool hashes remain unchanged. I add the
+existing portable planner source explicitly to this fixture target before
+continuation. The original private planner target already supplies it through
+its Python fixture. This repairs fixture linkage, not planner behavior.
