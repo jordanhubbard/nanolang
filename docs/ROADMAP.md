@@ -1,5 +1,15 @@
 # My Roadmap
 
+- [ ] I link my owned binding-state fixture to the exact ISA tag-name provider
+  before I qualify capture storage. At PR937 head `f2bac81a8`, the fresh strict
+  Darwin target compiles `src/nanovm/value.c`, which calls `isa_tag_name`, but
+  omits its `src/nanoisa/isa.c` definition and stops before fixture execution.
+  I retain the terminal, add only the missing provider closure, and require the
+  strict standalone and sanitizer controls without widening capture admission.
+  My MAC submission used idempotency key
+  `nanolang-f2bac-binding-state-isa-link`; the hub tunnel was unavailable before
+  reboot, so its durable task identifier remains to be reconciled.
+
 - [ ] I keep reconstructed scalar source within my documented 1,024-local
   compiler ceiling (`task_96db0f763603ff315aba1fe3119a425a`). After the
   hosted shadow-budget repair, run `35541114629` reaches the unchanged
