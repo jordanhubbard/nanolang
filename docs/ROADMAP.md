@@ -11,6 +11,8 @@
 
 # My Roadmap
 
+- [ ] I preserve source-relative links when publishing relocated generated documentation (`task_6d8539dc326d486f82952f7a67cfd6c2`). PR937's first documentation job fails because copied STDLIB text resolves its binary64 contract beside generated/builtins.html instead of its original docs directory. I retain that terminal, resolve repository references from the original source location, and require the unchanged multilingual link validator to pass.
+
 - [ ] I preserve shared mutable lexical captures (`task_af8091f571a842bc90656e2c7f19b68e`) under my [owned-cell design](NANOISA_SHARED_MUTABLE_CAPTURES.md). My retained computed-byte gate observes the closure return2 while its outer binding stays1. I first specify exact versioned capture/binding operations and ownership/verifier rules, then implement both producers and all required VM/C/LLVM/Wasm consumers with sibling, nested, escaping, loop-lifetime, conversion and failure evidence. A copied-capture compatibility path or VM-only fix does not complete this task.
 
 - [x] I qualify the native literal-order fixtures at explicit `-O0` and `-O2` under task_865923a37b6d470c83326aed625b8897 and task_0ef97cccc6c441c59bd9eb2ec7c5ff05. I retain the default gate and every payload/effect assertion, capture actual final compiler arguments, verify the effective optimization flag, and require all three producers on Linux and Darwin. My [integrated evidence](evidence/record-literal-order/integrated-optimization) records fresh75051 bootstrap and all72 default/O0/O2 producer/fixture combinations across both hosts; test4cbb reuses byte-identical compiler/runtime inputs. Full parent tasks remain open.
