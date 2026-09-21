@@ -274,3 +274,14 @@ executes; all 3,753 source and 10 tool hashes remain unchanged. I add the
 existing portable planner source explicitly to this fixture target before
 continuation. The original private planner target already supplies it through
 its Python fixture. This repairs fixture linkage, not planner behavior.
+
+My corrected b99538d1b private consumer fixture passes all 277 transport checks
+on Linux GCC. I compile the existing portable planner and new fixture with
+the original owning flags, linking 150 independently rehashed retained objects.
+All 3,753 original source and 10 selected tool hashes remain unchanged. This
+is retained-provider qualification, not a fresh provider build. Compilation
+takes 0.365 seconds and execution 0.008 seconds; both leaders are reaped and
+their groups are gone. The [reports and complete archive manifest](evidence/capture-bindings/private-consumers-linux/checks.json)
+retain the first link failure and corrected executable in a 24-member archive,
+verified locally and on Puck. Fresh cross-platform and sanitizer checks remain
+required before I close this consumer extension.
