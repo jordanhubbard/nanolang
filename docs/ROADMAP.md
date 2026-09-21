@@ -14526,3 +14526,14 @@ generated-consumer/public/source/general-graph parent is closed by these
 partial matrix results. Completed seals are additionally retained by verified
 hard links under /home/jkh/nanolang-qualification/vm-effects-20260921, without
 removing or modifying original evidence.
+
+My original78042 Linux LLVM GCC sanitizer corpus completes successfully in
+11435.264 seconds with unchanged14400-second phase and240-second child bounds.
+I retain the following Clang-emission capacity refusal before process launch:
+1736740864 free bytes is below my unchanged2GiB preflight. My outer status is1
+(driver125); this does not change the preceding GCC pass into a product failure.
+My finalizer stops without publishing a complete sanitizer seal. Current3752
+source entries,19 selected tools and retained providers match the final GCC
+endpoint. I prepare only the unrun Clang emission/native phases on the same
+frozen source, with fresh reports and unchanged capacity/time guards, pending
+space recovery. I preserve the original terminal and do not replay GCC.
