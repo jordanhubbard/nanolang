@@ -1,0 +1,8 @@
+{
+  "phase": "darwin-initial-extraction",
+  "outcome": "refused before driver/build: tar archive was still transferring",
+  "copy_handle": 86016,
+  "error": "tests/nanoisa/test_mixed_samples.c: Truncated tar archive",
+  "source": "bb08c4e13",
+  "correction": "Wait for successful copy completion, verify whole archive SHA256, then extract into a fresh directory; retain partial directory."
+}
