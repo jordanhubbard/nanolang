@@ -262,3 +262,8 @@ origin analysis, owner-array admission and private mixed preparation. Each
 query must preserve a preexisting output pointer and the input payload. I also
 retain plain-module routing controls. These checks cover admission boundaries,
 not positive private execution profiles or completed projection support.
+
+My first private-consumer fixture review finds a C dialect mismatch before
+execution: `max_align_t` requires C11, while the owning Make recipe uses C99.
+I replace only the unused aligned marker with malloc-backed storage and retain
+all assertions. The earlier C11 syntax pass is not my owning recipe gate.
