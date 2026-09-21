@@ -84,6 +84,7 @@ typedef struct {
 typedef struct {
     char *name;
     char **field_names;
+    Type *field_types;       /* I borrow exact declared scalar destinations. */
     char **field_type_names;  /* Struct type names for struct-typed fields (NULL entries for non-struct) */
     int field_count;
     uint32_t def_idx;
@@ -2777,7 +2778,6 @@ static void compile_expr(CG *cg, ASTNode *node) {
         }
         ASTNode *spread = node->as.struct_literal.spread_source;
         CgStructDef *spread_def = NULL;
-        uint16_t spread_slot = 0;
         if (spread) {
             const char *spread_name = infer_expr_struct_type(cg, spread);
             spread_def = spread_name ? struct_find(cg, spread_name) : NULL;
@@ -2785,38 +2785,74 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 cg_error(cg, node->line, "I cannot resolve this spread source's record layout");
                 break;
             }
-            compile_expr(cg, spread);
-            spread_slot = local_add(cg, "__spread_source__", node->line);
-            emit_op(cg, OP_STORE_LOCAL, (int)spread_slot);
         }
-        /* Push field values in definition order */
-        for (int i = 0; i < sd->field_count; i++) {
-            /* Find matching field in the literal */
-            bool found = false;
-            for (int j = 0; j < node->as.struct_literal.field_count; j++) {
-                if (strcmp(node->as.struct_literal.field_names[j],
-                           sd->field_names[i]) == 0) {
-                    compile_expr(cg, node->as.struct_literal.field_values[j]);
-                    found = true;
-                    break;
-                }
+        /* I validate the complete mapping before emitting any field effects.
+         * Anonymous locals root each value until declaration-order packing. */
+        int fields = sd->field_count;
+        int written = node->as.struct_literal.field_count;
+        if (fields < 0 || fields > MAX_LOCALS || written < 0 || written > fields ||
+            fields + (spread != NULL) > MAX_LOCALS - cg->local_count ||
+            fields + (spread != NULL) > MAX_LOCALS - cg->local_binding_count) {
+            cg_error(cg, node->line, "I require a complete record within my local-slot limit");
+            break;
+        }
+        int *source = malloc((size_t)(fields ? fields : 1) * sizeof *source);
+        int *inherited = malloc((size_t)(fields ? fields : 1) * sizeof *inherited);
+        uint16_t *slots = malloc((size_t)(fields ? fields : 1) * sizeof *slots);
+        if (!source || !inherited || !slots) {
+            free(source); free(inherited); free(slots);
+            cg_error(cg, node->line, "I cannot stage this record's field mapping");
+            break;
+        }
+        for (int i = 0; i < fields; ++i) source[i] = inherited[i] = -1;
+        for (int j = 0; j < written && !cg->had_error; ++j) {
+            int field = struct_field_index(sd, node->as.struct_literal.field_names[j]);
+            if (field < 0 || source[field] >= 0) {
+                cg_error(cg, node->line, "I require unique declared record fields");
+                break;
             }
-            if (!found) {
-                if (spread_def) {
-                    int16_t field = struct_field_index(spread_def, sd->field_names[i]);
-                    if (field < 0) {
-                        cg_error(cg, node->line, "I cannot inherit field '%s' from this spread source", sd->field_names[i]);
-                        break;
-                    }
+            source[field] = j;
+        }
+        for (int i = 0; i < fields && !cg->had_error; ++i) {
+            if (source[i] < 0) {
+                inherited[i] = spread_def ? struct_field_index(spread_def, sd->field_names[i]) : -1;
+                if (inherited[i] < 0)
+                    cg_error(cg, node->line, "I require a value for record field '%s'", sd->field_names[i]);
+            }
+        }
+        if (!cg->had_error) {
+            uint16_t spread_slot = spread ? local_add(cg, "", node->line) : 0;
+            for (int i = 0; i < fields; ++i) slots[i] = local_add(cg, "", node->line);
+            if (spread) {
+                compile_expr(cg, spread);
+                emit_op(cg, OP_STORE_LOCAL, (int)spread_slot);
+                /* I snapshot inherited scalars before any explicit override. */
+                for (int i = 0; i < fields; ++i) if (source[i] < 0) {
                     emit_op(cg, OP_LOAD_LOCAL, (int)spread_slot);
-                    emit_op(cg, OP_AGG_GET, (int)field);
-                } else {
+                    emit_op(cg, OP_AGG_GET, inherited[i]);
+                    emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+                }
+            }
+            for (int j = 0; j < written && !cg->had_error; ++j) {
+                int field = struct_field_index(sd, node->as.struct_literal.field_names[j]);
+                compile_expected_tag(cg, node->as.struct_literal.field_values[j],
+                                     sd->field_types ? ordinary_slot_tag(sd->field_types[field]) : TAG_COUNT);
+                emit_op(cg, OP_STORE_LOCAL, (int)slots[field]);
+            }
+            if (!cg->had_error) {
+                for (int i = 0; i < fields; ++i) emit_op(cg, OP_LOAD_LOCAL, (int)slots[i]);
+                emit_op(cg, OP_AGG_PACK, AGG_RECORD, sd->def_idx, 0, fields);
+                for (int i = 0; i < fields; ++i) {
                     emit_op(cg, OP_PUSH_VOID);
+                    emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+                }
+                if (spread) {
+                    emit_op(cg, OP_PUSH_VOID);
+                    emit_op(cg, OP_STORE_LOCAL, (int)spread_slot);
                 }
             }
         }
-        emit_op(cg, OP_AGG_PACK, AGG_RECORD, sd->def_idx, 0,
-                sd->field_count);
+        free(source); free(inherited); free(slots);
         break;
     }
 
@@ -4277,6 +4313,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             CgStructDef *sd = &cg.structs[cg.struct_count];
             sd->name = item->as.struct_def.name;
             sd->field_names = item->as.struct_def.field_names;
+            sd->field_types = item->as.struct_def.field_types;
             sd->field_type_names = item->as.struct_def.field_type_names;
             sd->field_count = item->as.struct_def.field_count;
             sd->def_idx = cg.struct_count;
@@ -4455,6 +4492,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                             CgStructDef *sd = &cg.structs[cg.struct_count];
                             sd->name = mitem->as.struct_def.name;
                             sd->field_names = mitem->as.struct_def.field_names;
+                            sd->field_types = mitem->as.struct_def.field_types;
                             sd->field_type_names = mitem->as.struct_def.field_type_names;
                             sd->field_count = mitem->as.struct_def.field_count;
                             sd->def_idx = cg.struct_count;
@@ -4630,6 +4668,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         CgStructDef *sd = &cg.structs[cg.struct_count];
                         sd->name = mitem->as.struct_def.name;
                         sd->field_names = mitem->as.struct_def.field_names;
+                        sd->field_types = mitem->as.struct_def.field_types;
                         sd->field_type_names = mitem->as.struct_def.field_type_names;
                         sd->field_count = mitem->as.struct_def.field_count;
                         sd->def_idx = cg.struct_count;

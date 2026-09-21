@@ -15,3 +15,9 @@ The same static audit finds both native C producers put side-effecting field exp
 ## Native union initializers
 
 I found the same static ordering gap in native union designated initializers. I include both native producers and exact payload evaluation traces in task_9a1ba277fe3e45d5913d03305ece1e06 before implementation. My NanoISA union staging already follows written order; this finding does not qualify native behavior.
+
+## First NanoISA source checkpoint
+
+I implemented complete field mapping, anonymous staging, written-order evaluation and declaration-order packing in both NanoISA emitters. My C producer additionally snapshots inherited spread fields before overrides. Declared byte destinations retain contextual narrowing, and staged locals are cleared after packing. Native producers and Nano spread parsing remain required.
+
+The C producer builds and runs my new exact reversed/ordered/nested/repeated-loop source assertions successfully on Linux. The first full self-hosted emitter build refuses publication after four existing nisa_emit_function shadow expectations still require the old record constructor local counts. I retain that terminal. Each two-field literal now deliberately needs two anonymous slots; I will update those exact counts while retaining all payload/instruction assertions. This is not a full source/backend qualification.

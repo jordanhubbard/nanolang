@@ -2985,39 +2985,72 @@ fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
     } else {
         let sidx: int = (nisa_struct_index parser lit.struct_name)
         let sd: ASTStruct = (parser_get_struct_def parser sidx)
-        let mut out: string = ""
+        if (!= lit.field_count sd.field_count) {
+            return (nisa_fail "I require every declared record field exactly once")
+        }
+        let mut destinations: array<int> = []
+        let mut slots: array<string> = []
         let mut i: int = 0
-        while (< i sd.field_count) {
-            let fname: string = (at sd.field_names i)
-            let mut found: bool = false
+        while (< i lit.field_count) {
+            let fname: string = (at lit.field_names i)
+            let mut destination: int = (- 0 1)
             let mut j: int = 0
-            while (< j lit.field_count) {
-                if (== (at lit.field_names j) fname) {
-                    let vid: int = (at lit.field_value_ids j)
-                    let vty: int = (at lit.field_value_types j)
-                    let expected: string = (at sd.field_types i)
-                    let contextual_array: bool = (and (== vty ParseNodeType.PNODE_ARRAY_LITERAL)
-                        (and (str_starts_with expected "array<") (nisa_type_ok parser expected)))
-                    let contextual_map: bool = (and (!= (nisa_map_value_type expected) "")
-                        (nisa_is_map_constructor parser vid vty))
-                    if (and (not (or contextual_array contextual_map)) (not (nisa_value_type_matches parser (nisa_expr_type parser vid vty) expected))) {
-                        return (nisa_fail (+ "I require the declared type for record field " fname))
-                    }
-                    set out (+ out (nisa_emit_expected_expr parser vid vty expected))
-                    set found true
-                    set j lit.field_count
-                } else {
-                    set j (+ j 1)
+            while (< j sd.field_count) {
+                if (== fname (at sd.field_names j)) { set destination j }
+                set j (+ j 1)
+            }
+            if (< destination 0) {
+                return (nisa_fail (+ "unknown record field " fname))
+            }
+            set j 0
+            while (< j i) {
+                if (== (at destinations j) destination) {
+                    return (nisa_fail (+ "duplicate record field " fname))
                 }
+                set j (+ j 1)
             }
-            if (not found) {
-                return (nisa_fail (+ "missing record field " fname))
-            } else {
-                set i (+ i 1)
+            let vid: int = (at lit.field_value_ids i)
+            let vty: int = (at lit.field_value_types i)
+            let expected: string = (at sd.field_types destination)
+            let contextual_array: bool = (and (== vty ParseNodeType.PNODE_ARRAY_LITERAL)
+                (and (str_starts_with expected "array<") (nisa_type_ok parser expected)))
+            let contextual_map: bool = (and (!= (nisa_map_value_type expected) "")
+                (nisa_is_map_constructor parser vid vty))
+            if (and (not (or contextual_array contextual_map)) (not (nisa_value_type_matches parser (nisa_expr_type parser vid vty) expected))) {
+                return (nisa_fail (+ "I require the declared type for record field " fname))
             }
+            set destinations (array_push destinations destination)
+            set i (+ i 1)
+        }
+        # I reserve all anonymous roots before nested expressions add locals.
+        set i 0
+        while (< i sd.field_count) {
+            set slots (array_push slots (nisa_temp_local (at sd.field_types i)))
+            set i (+ i 1)
+        }
+        let mut out: string = ""
+        set i 0
+        while (< i lit.field_count) {
+            let destination: int = (at destinations i)
+            set out (+ out (nisa_emit_expected_expr parser (at lit.field_value_ids i)
+                (at lit.field_value_types i) (at sd.field_types destination)))
+            set out (+ out (nisa_line_imm "STORE_LOCAL" (at slots destination)))
+            set i (+ i 1)
+        }
+        set i 0
+        while (< i sd.field_count) {
+            set out (+ out (nisa_line_imm "LOAD_LOCAL" (at slots i)))
+            set i (+ i 1)
         }
         let imm: string = (+ "0 " (+ (int_to_string sidx) (+ " 0 " (int_to_string sd.field_count))))
-        return (+ out (nisa_line_imm "AGG_PACK" imm))
+        set out (+ out (nisa_line_imm "AGG_PACK" imm))
+        set i 0
+        while (< i sd.field_count) {
+            set out (+ out (nisa_line "PUSH_VOID"))
+            set out (+ out (nisa_line_imm "STORE_LOCAL" (at slots i)))
+            set i (+ i 1)
+        }
+        return out
     }
 }
 
@@ -3046,6 +3079,17 @@ shadow nisa_emit_struct_literal {
     assert (str_contains text2 "PUSH_I64 1")
     assert (str_contains text2 "PUSH_STR")
     assert (str_contains text2 "AGG_PACK 0 0 0 2")
+    let reset_reverse: int = (nisa_reset)
+    let src3: string = (+ "struct Point { x: int, y: int } " (+ "f" "n getx() -> int { let p: Point = Point { y: 4, x: 3 } return p.x } shadow getx { assert true }"))
+    let toks3: List<LexerToken> = (tokenize_string src3 "t.nano" diags)
+    let p3: Parser = (parse_program toks3 (list_LexerToken_length toks3) "t.nano")
+    let func3: ASTFunction = (parser_get_function p3 0)
+    let block3: ASTBlock = (parser_get_block p3 func3.body)
+    let stmt3: ASTStmtRef = (list_ASTStmtRef_get block3.statements 0)
+    let l3: ASTLet = (parser_get_let p3 stmt3.node_id)
+    let text3: string = (nisa_emit_struct_literal p3 l3.value)
+    assert (str_contains text3 "PUSH_I64 4\n  STORE_LOCAL 1\n  PUSH_I64 3\n  STORE_LOCAL 0")
+    assert (str_contains text3 "LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  AGG_PACK 0 0 0 2\n  PUSH_VOID\n  STORE_LOCAL 0\n  PUSH_VOID\n  STORE_LOCAL 1")
     let _2: int = (nisa_reset)
 }
 
