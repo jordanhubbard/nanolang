@@ -133,3 +133,9 @@ This is a source checkpoint, not passing qualification. I still require an
 independent consumer audit, fixture review, real binary/text roundtrips,
 allocation recovery, destruction and unsupported-consumer controls, followed by
 fresh Linux and Darwin gates. Full capture execution and my 5.1 parent remain open.
+
+My initial strict GCC syntax-only pass accepts fourteen changed translation
+units. The LLVM unit stops at its missing Make-generated `managed_runtime_ir.h`
+header; I retain that build setup failure without rerunning it or calling it a
+product result. These [raw checks](evidence/capture-bindings/transport-source-review/results.json)
+do not execute the product, exercise linking, or replace the full owning build.
