@@ -3560,6 +3560,100 @@ shadow nisa_functional_name {
     assert (not (nisa_functional_name "map_new"))
 }
 
+# I spell one declared function type from its checked declaration.
+fn nisa_function_spelling(parser: Parser, function: ASTFunction) -> string {
+    let mut result: string = "fn("
+    let mut i: int = 0
+    while (< i function.param_count) {
+        if (> i 0) { set result (+ result ",") }
+        set result (+ result (nisa_compact_type (parser_get_let parser (+ function.param_start i)).var_type))
+        set i (+ i 1)
+    }
+    return (+ result (+ ")->" (nisa_compact_type function.return_type)))
+}
+shadow nisa_function_spelling {
+    let tokens: List<LexerToken> = (tokenize_string "fn convert(n:int)->float{return 1.5}" "callback.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "callback.nano")
+    assert (== (nisa_function_spelling parser (parser_get_function parser 0)) "fn(int)->float")
+}
+
+fn nisa_function_identifier_index(parser: Parser, value: ASTStmtRef) -> int {
+    if (!= value.node_type ParseNodeType.PNODE_IDENTIFIER) { return (- 0 1) }
+    let identifier: ASTIdentifier = (parser_get_identifier parser value.node_id)
+    let target: ASTCall = ASTCall { borrow_mode: 0, node_type: ParseNodeType.PNODE_CALL,
+        line: identifier.line, column: identifier.column, function: value.node_id,
+        function_type: ParseNodeType.PNODE_IDENTIFIER, arg_start: 0, arg_count: 0 }
+    return (nisa_call_index parser target)
+}
+shadow nisa_function_identifier_index {
+    let tokens: List<LexerToken> = (tokenize_string "fn convert(n:int)->float{return 1.5} fn choose()->fn(int)->float{return convert}" "callback.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "callback.nano")
+    let body: ASTBlock = (parser_get_block parser (parser_get_function parser 1).body)
+    let result: ASTReturn = (parser_get_return parser (list_ASTStmtRef_get body.statements 0).node_id)
+    let value: ASTStmtRef = ASTStmtRef { node_id: result.value, node_type: result.value_type }
+    assert (== (nisa_function_identifier_index parser value) 0)
+}
+
+# I resolve a returned callback only when one zero-argument selector returns
+# one exact declared function. Branching values still need indirect-call IR.
+fn nisa_functional_callback_index(parser: Parser, callback: ASTStmtRef) -> int {
+    if (== callback.node_type ParseNodeType.PNODE_IDENTIFIER) {
+        return (nisa_function_identifier_index parser callback)
+    }
+    if (and (!= callback.node_type ParseNodeType.PNODE_CALL)
+            (!= callback.node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let _: string = (nisa_fail "I require a declared scalar callback identifier or exact selector")
+        return (- 0 1)
+    }
+    let call: ASTCall = (nisa_get_call parser callback.node_id callback.node_type)
+    if (or (!= call.arg_count 0)
+            (and (!= call.function_type ParseNodeType.PNODE_IDENTIFIER)
+                 (!= call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL))) {
+        let _: string = (nisa_fail "I require a zero-argument declared callback selector")
+        return (- 0 1)
+    }
+    let selector_index: int = (nisa_call_index parser call)
+    if (< selector_index 0) {
+        let _: string = (nisa_fail "I require a resolved declared callback selector")
+        return (- 0 1)
+    }
+    let selector: ASTFunction = (parser_get_function parser selector_index)
+    let selector_type: string = (nisa_compact_type selector.return_type)
+    if (or (< selector.body 0) (or (!= selector.param_count 0) (not (str_starts_with selector_type "fn(")))) {
+        let _: string = (nisa_fail "I require a defined zero-argument selector returning one function")
+        return (- 0 1)
+    }
+    let body: ASTBlock = (parser_get_block parser selector.body)
+    if (!= (list_ASTStmtRef_length body.statements) 1) {
+        let _: string = (nisa_fail "I require an exact single-return callback selector")
+        return (- 0 1)
+    }
+    let statement: ASTStmtRef = (list_ASTStmtRef_get body.statements 0)
+    if (!= statement.node_type ParseNodeType.PNODE_RETURN) {
+        let _: string = (nisa_fail "I require an exact single-return callback selector")
+        return (- 0 1)
+    }
+    let returned: ASTReturn = (parser_get_return parser statement.node_id)
+    let value: ASTStmtRef = ASTStmtRef { node_id: returned.value, node_type: returned.value_type }
+    let target_index: int = (nisa_function_identifier_index parser value)
+    if (< target_index 0) {
+        let _: string = (nisa_fail "I require the selector to return one declared callback")
+        return (- 0 1)
+    }
+    if (!= selector_type (nisa_function_spelling parser (parser_get_function parser target_index))) {
+        let _: string = (nisa_fail "I require the selector and callback signatures to match exactly")
+        return (- 0 1)
+    }
+    return target_index
+}
+shadow nisa_functional_callback_index {
+    let tokens: List<LexerToken> = (tokenize_string "fn convert(n:int)->float{return 1.5} fn choose()->fn(int)->float{return convert} fn main()->int{let xs=(map [1] (choose)) return 0}" "callback.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "callback.nano")
+    let mapped: ASTCall = (parser_get_call parser 1)
+    let callback: ASTStmtRef = (parser_get_call_arg parser (+ mapped.arg_start 1))
+    assert (== (nisa_functional_callback_index parser callback) 0)
+}
+
 fn nisa_functional_index(parser: Parser, call: ASTCall, name: string) -> int {
     let mut arity: int = 2
     if (== name "reduce") { set arity 3 }
@@ -3568,15 +3662,7 @@ fn nisa_functional_index(parser: Parser, call: ASTCall, name: string) -> int {
         return (- 0 1)
     }
     let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start (- arity 1)))
-    if (!= callback.node_type ParseNodeType.PNODE_IDENTIFIER) {
-        let _: string = (nisa_fail "I require a declared scalar callback identifier")
-        return (- 0 1)
-    }
-    let identifier: ASTIdentifier = (parser_get_identifier parser callback.node_id)
-    let target: ASTCall = ASTCall { borrow_mode: 0, node_type: ParseNodeType.PNODE_CALL,
-        line: identifier.line, column: identifier.column, function: callback.node_id,
-        function_type: ParseNodeType.PNODE_IDENTIFIER, arg_start: 0, arg_count: 0 }
-    let index: int = (nisa_call_index parser target)
+    let index: int = (nisa_functional_callback_index parser callback)
     if (< index 0) {
         let _: string = (nisa_fail "I require a resolved declared scalar callback")
         return (- 0 1)
@@ -3690,6 +3776,14 @@ fn nisa_emit_functional_array(parser: Parser, call: ASTCall, name: string) -> st
         set result_slot (nisa_temp_local function.return_type)
         set text (+ text (nisa_line_imm "STORE_LOCAL" result_slot))
     }
+    let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start (- call.arg_count 1)))
+    if (or (== callback.node_type ParseNodeType.PNODE_CALL)
+           (== callback.node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let selector: ASTCall = (nisa_get_call parser callback.node_id callback.node_type)
+        set text (+ text (nisa_emit_call parser selector))
+        if (not nisa_ok) { return "" }
+        set text (+ text (nisa_line "POP"))
+    }
     let length_slot: string = (nisa_temp_local "int")
     set text (+ text (nisa_line_imm "LOAD_LOCAL" source_slot))
     set text (+ text (nisa_line "ARR_LEN"))
@@ -3748,6 +3842,14 @@ shadow nisa_emit_functional_array {
     assert (str_contains text "ARR_NEW 3")
     assert (str_contains text "CALL keep")
     assert (== (nanoisa_emit_nasm "fn wrong(x:int)->int{return x} fn main()->int{let xs:array<int> = (filter [1] wrong) return 0}") "")
+    let selected: string = (nanoisa_emit_nasm "fn convert(n:int)->float{return 1.5} fn choose()->fn(int)->float{return convert} fn main()->int{let xs=(map [1,2] (choose)) return (array_length xs)}")
+    assert nisa_ok
+    assert (str_contains selected "FUNCREF convert")
+    assert (str_contains selected "CALL choose\n  POP")
+    assert (str_contains selected "CALL convert")
+    assert (< (str_index_of selected "CALL choose") (str_index_of selected "CALL convert"))
+    let refused: string = (nanoisa_emit_nasm "fn a(n:int)->int{return n} fn b(n:int)->int{return (+ n 1)} fn choose(flag:bool)->fn(int)->int{if flag{return a} return b} fn main()->int{let xs=(map [1] (choose true)) return 0}")
+    assert (== refused "")
     let reset: int = (nisa_reset)
 }
 
@@ -4871,6 +4973,17 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
             if nisa_void_return { return (nisa_line "RET") }
             return (nisa_fail "a value-result function needs a return value")
         }
+        if (str_starts_with (nisa_compact_type nisa_return_type) "fn(") {
+            let value: ASTStmtRef = ASTStmtRef { node_id: r.value, node_type: r.value_type }
+            let target_index: int = (nisa_function_identifier_index parser value)
+            if (< target_index 0) { return (nisa_fail "I require one exact declared function return") }
+            let target: ASTFunction = (parser_get_function parser target_index)
+            if (!= (nisa_compact_type nisa_return_type) (nisa_function_spelling parser target)) {
+                return (nisa_fail "I require the exact declared function return signature")
+            }
+            (nisa_require_function target_index)
+            return (+ (nisa_line_imm "FUNCREF" target.name) (nisa_line "RET"))
+        }
         if (and (!= (nisa_map_value_type nisa_return_type) "")
                 (and (not (nisa_is_map_constructor parser r.value r.value_type))
                      (!= (nisa_expr_type parser r.value r.value_type) nisa_return_type))) {
@@ -5117,6 +5230,7 @@ shadow nisa_emit_block {
 
 fn nisa_result_tag(parser: Parser, t: string) -> string {
     if (nisa_union_supported parser t) { return "union" }
+    if (str_starts_with (nisa_compact_type t) "fn(") { return "function" }
     if (== t "float") { return "float" }
     if (== t "u8") { return "u8" }
     if (nisa_tuple_type_ok parser t) { return "tuple" }
@@ -5156,6 +5270,7 @@ shadow nisa_result_tag {
     assert (== (nisa_result_tag p "List<Tok>") "array")
     assert (== (nisa_result_tag p "List<Box>") "array")
     assert (== (nisa_result_tag p "(int,string,bool)") "tuple")
+    assert (== (nisa_result_tag p "fn(int) -> float") "function")
 }
 
 fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {

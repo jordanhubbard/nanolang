@@ -113,6 +113,23 @@ fn main()->int{
 }
 shadow main { assert (== (main) 0) }
 ''')
+    def test_exact_returned_callback_selector(self):
+        assembly = self.paired('''fn convert(n:int)->float{return 1.5}
+shadow convert { assert (== (convert 1) 1.5) }
+fn choose()->fn(int)->float{return convert}
+shadow choose { assert true }
+fn main()->int{
+ let values:array<float> = (map [1,2] (choose))
+ assert (== (array_length values) 2)
+ assert (== (at values 0) 1.5)
+ assert (== (at values 1) 1.5)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+        self.assertEqual(assembly.count('CALL choose'), 1)
+        self.assertIn('FUNCREF convert', assembly)
+        self.assertLess(assembly.index('CALL choose'), assembly.rindex('CALL convert'))
     def test_scalar_reductions_and_element_read_timing(self):
         self.paired("""let values: array<int> = [1,2]
 let mut calls: int = 0
@@ -174,10 +191,12 @@ fn add(a:int,b:int)->int{return (+ a b)}
 shadow add { assert true }
 fn container(x:int)->array<int>{return [x]}
 shadow container { assert true }
+fn select_integer()->fn(int)->int{if true{return integer} return integer}
+shadow select_integer { assert true }
 '''
         expressions=('(map [1] add)','(filter [1] integer)','(map [1] floating)',
             '(reduce [1] "wrong" add)','(map [1] container)','(map [1])','(abs true)',
-            '(map [1] missing)')
+            '(map [1] missing)','(map [1] (select_integer))')
         with tempfile.TemporaryDirectory(prefix='nano-functional-refusal-') as tmp:
             folder=Path(tmp);source=folder/'input.nano';output=folder/'output.nvm'
             for expression in expressions:

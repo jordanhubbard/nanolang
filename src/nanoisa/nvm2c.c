@@ -71,6 +71,7 @@ static bool contains_vm_wrapper_code(const char *source) {
 #define NVM2C_VK_FLOAT 11
 #define NVM2C_VK_FARR 12
 #define NVM2C_VK_AARR 13
+#define NVM2C_VK_FUNCTION 14
 
 /* Classifier-only field facts: low bits retain observed finite payload members.
  * These codes never appear in generated runtime record tags. */
@@ -165,7 +166,8 @@ static uint16_t scalar_kind_tags(uint8_t kind) {
     return kind == NVM2C_VK_INT ? 1u << TAG_INT :
            kind == NVM2C_VK_BOOL ? 1u << TAG_BOOL :
            kind == NVM2C_VK_FLOAT ? 1u << TAG_FLOAT :
-           kind == NVM2C_VK_STR ? 1u << TAG_STRING : NVM2C_SCALAR_UNKNOWN;
+           kind == NVM2C_VK_STR ? 1u << TAG_STRING :
+           kind == NVM2C_VK_FUNCTION ? 1u << TAG_FUNCTION : NVM2C_SCALAR_UNKNOWN;
 }
 
 static int boxed_carrier_tags(uint16_t tags) {
@@ -342,7 +344,7 @@ static uint8_t aggregate_kind_for_tag(uint8_t tag) {
 static const char *c_result_type(const Nvm2cBuf *b, const NvmFunctionEntry *fn, uint32_t idx) {
     if (fn->result_count == 0 || fn->result_tag == TAG_VOID) return "void";
     if (fn->result_count != 1) return NULL;
-    if (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL) return "int64_t";
+    if (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || fn->result_tag == TAG_FUNCTION) return "int64_t";
     if (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM) return "nmap_value";
     if (fn->result_tag == TAG_FLOAT) return "double";
     if (fn->result_tag == TAG_STRING) return "const char *";
@@ -360,7 +362,7 @@ static const char *c_result_type(const Nvm2cBuf *b, const NvmFunctionEntry *fn, 
 
 static int result_is_i64(const NvmFunctionEntry *fn) {
     return fn->result_count == 1 &&
-           (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL);
+           (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || fn->result_tag == TAG_FUNCTION);
 }
 
 static const char *c_local_type(uint8_t kind) {
@@ -839,6 +841,8 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
          * ordinary optional-scalar storage shape during this earlier pass. */
     } else if (slot.kind == NVM2C_VK_VALUE && slot.scalar_tags == (1u << TAG_ARRAY)) {
         if (!shape_type(b, slot.shape, NVM_SHAPE_ARRAY)) return 0;
+    } else if (slot.kind == NVM2C_VK_FUNCTION) {
+        if (!shape_type(b, slot.shape, NVM_SHAPE_INT)) return 0;
     } else if (!shape_kind(b, slot.shape, slot.kind)) return 0;
     if (slot.kind == NVM2C_VK_VALUE && boxed_carrier_tags(slot.scalar_tags) &&
         !shape_carrier_box(b, slot.shape, slot.scalar_tags)) return 0;
@@ -1262,6 +1266,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             break;
         case OP_PUSH_STR:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+            break;
+        case OP_FUNCREF:
+            if (ins.operands[0].u32 >= mod->function_count) {
+                nvm2c_fail(b, "function %u: FUNCREF target %u is out of range", idx,
+                           ins.operands[0].u32);
+                return 0;
+            }
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_FUNCTION, -1)) return 0;
             break;
         case OP_DUP: {
             if (sp <= 0) {
@@ -2329,6 +2341,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_FLOAT, -1)) return 0;
                 } else if (cf->result_count == 1 && cf->result_tag == TAG_STRING) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+                } else if (cf->result_count == 1 && cf->result_tag == TAG_FUNCTION) {
+                    if (!sim_push(b, idx, stk, &sp, NVM2C_VK_FUNCTION, -1)) return 0;
                 } else if (cf->result_count == 1 && cf->result_tag == TAG_ARRAY) {
                     Nvm2cSimSlot result = {0};
                     result.kind = b->array_results[callee];
@@ -2421,7 +2435,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_HALT: {
             if (fn->result_count == 1 &&
                 (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM) || fn->result_tag == TAG_FLOAT ||
-                 fn->result_tag == TAG_STRING || fn->result_tag == TAG_ARRAY ||
+                 fn->result_tag == TAG_STRING || fn->result_tag == TAG_FUNCTION || fn->result_tag == TAG_ARRAY ||
                  aggregate_value_tag(fn->result_tag) || fn->result_tag == TAG_HASHMAP) &&
                 sp > 0) {
                 Nvm2cSimSlot v;
@@ -2437,6 +2451,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     mark_origin(local_kind, nloc, v.origin, NVM2C_VK_FLOAT);
                 } else if (fn->result_tag == TAG_STRING) {
                     if (!mark_string_operand(b, local_kind, nloc, v)) return 0;
+                } else if (fn->result_tag == TAG_FUNCTION) {
+                    if (v.kind != NVM2C_VK_FUNCTION) {
+                        nvm2c_fail(b, "I require a function reference at return in function %u", idx);
+                        return 0;
+                    }
                 } else if (fn->result_tag == TAG_ARRAY) {
                     if (v.kind == NVM2C_VK_VALUE && v.scalar_tags == (1u << TAG_ARRAY)) {
                         if (!merge_fact(b, facts, &b->array_results[idx], NVM2C_VK_AARR) ||
@@ -2485,6 +2504,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 }
                 NvmShapeKind declared = (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM) ? NVM_SHAPE_OPTIONAL :
                     fn->result_tag == TAG_STRING ? NVM_SHAPE_STRING :
+                    fn->result_tag == TAG_FUNCTION ? NVM_SHAPE_INT :
                     fn->result_tag == TAG_BOOL ? NVM_SHAPE_BOOL :
                     fn->result_tag == TAG_FLOAT ? NVM_SHAPE_FLOAT :
                     fn->result_tag == TAG_HASHMAP ? NVM_SHAPE_MAP :
@@ -2717,6 +2737,12 @@ static int stack_push_temp(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
 static int stack_push_bool(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
     int slot = stack_push_temp(b, st, rhs);
     if (slot >= 0) st->kinds[st->sp - 1] = NVM2C_VK_BOOL;
+    return slot;
+}
+
+static int stack_push_function(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
+    int slot = stack_push_temp(b, st, rhs);
+    if (slot >= 0) st->kinds[st->sp - 1] = NVM2C_VK_FUNCTION;
     return slot;
 }
 
@@ -3409,7 +3435,8 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
 
 static int scalar_return_profile(const NvmFunctionEntry *fn) {
     return fn->result_count == 0 || (fn->result_count == 1 &&
-        (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM) || fn->result_tag == TAG_FLOAT));
+        (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || fn->result_tag == TAG_FUNCTION ||
+         (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM) || fn->result_tag == TAG_FLOAT));
 }
 
 static int emit_scalar_return(Nvm2cBuf *b, Nvm2cStack *st,
@@ -3424,7 +3451,8 @@ static int emit_scalar_return(Nvm2cBuf *b, Nvm2cStack *st,
         nvm2c_printf(b, "    if (v[%d].kind != %u) NVM2C_ABORT();\n    nresult = v[%d];\n", slot, fn->result_tag, slot);
     } else if (fn->result_count) {
         uint8_t kind = fn->result_tag == TAG_FLOAT ? NVM2C_VK_FLOAT :
-                       fn->result_tag == TAG_BOOL ? NVM2C_VK_BOOL : NVM2C_VK_INT;
+                       fn->result_tag == TAG_BOOL ? NVM2C_VK_BOOL :
+                       fn->result_tag == TAG_FUNCTION ? NVM2C_VK_FUNCTION : NVM2C_VK_INT;
         int slot = stack_pop_expect(b, st, kind, "RET");
         if (b->failed) return 0;
         nvm2c_printf(b, "    nresult = %c[%d];\n", kind == NVM2C_VK_FLOAT ? 'f' : 't', slot);
@@ -3694,6 +3722,17 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 st.kinds[st.sp] = NVM2C_VK_STR;
                 st.sp++;
             }
+            break;
+        }
+        case OP_FUNCREF: {
+            uint32_t target = ins.operands[0].u32;
+            if (target >= mod->function_count) {
+                nvm2c_fail(b, "function %u: FUNCREF target %u is out of range", idx, target);
+                goto done;
+            }
+            char value[32];
+            snprintf(value, sizeof value, "%uLL", target);
+            stack_push_function(b, &st, value);
             break;
         }
         case OP_DUP: {
@@ -5015,7 +5054,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             const NvmFunctionEntry *cf = &mod->functions[callee];
             if (result_is_i64(cf)) {
-                if (cf->result_tag == TAG_BOOL) stack_push_bool(b, &st, call);
+                if (cf->result_tag == TAG_FUNCTION) stack_push_function(b, &st, call);
+                else if (cf->result_tag == TAG_BOOL) stack_push_bool(b, &st, call);
                 else stack_push_temp(b, &st, call);
             } else if (cf->result_count == 1 && (cf->result_tag == TAG_U8 || cf->result_tag == TAG_ENUM)) {
                 stack_push_value(b, &st, call);
