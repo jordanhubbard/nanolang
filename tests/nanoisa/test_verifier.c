@@ -1673,7 +1673,25 @@ static void test_effect_handler_verification(void) {
     PASS(test_name);
 }
 
+static void test_capture_binding_admission_refused(void) {
+    const char *test_name = "capture binding transport requires complete execution admission";
+    const NanoOpcode opcodes[] = {OP_BIND_INIT_LOCAL, OP_BIND_CLEAR_LOCAL, OP_CLOSURE_BIND};
+    for (size_t i = 0; i < sizeof(opcodes)/sizeof(opcodes[0]); ++i) {
+        uint8_t code[64];
+        uint32_t size = i == 2 ? emit(code, opcodes[i], (uint32_t)0) : emit(code, opcodes[i], 0);
+        ASSERT(size != 0, "I require the real shared decoder encoding");
+        size += emit(code + size, OP_RET);
+        NvmModule *mod = make_simple_module(code, size, 1, 0);
+        NvmVerifyResult result = nvm_verify(mod);
+        nvm_module_free(mod);
+        ASSERT(!result.ok && strstr(result.error_msg, "capture binding admission"),
+               "I must refuse recognized capture operations before execution");
+    }
+    PASS(test_name);
+}
+
 int main(void) {
+    test_capture_binding_admission_refused();
     test_effect_handler_verification();
     printf("\n[verifier] NanoVM bytecode verifier tests...\n\n");
 

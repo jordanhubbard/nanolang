@@ -204,3 +204,66 @@ NvmCaptureResult nvm_capture_bindings_encode(const NvmCaptureBindings *bindings,
     *size = bytes;
     return NVM_CAPTURE_OK;
 }
+
+NvmCaptureResult nvm_capture_bindings_verify_code(const NvmCaptureBindings *bindings,
+    const NvmModule *module, size_t work_limit) {
+    if (!bindings || !module || bindings->function_count != module->function_count ||
+        (bindings->function_count && (!bindings->functions || !module->functions)) ||
+        (bindings->site_count && !bindings->sites) ||
+        (module->code_size && !module->code)) return NVM_CAPTURE_INVALID;
+    uint32_t next_site = 0;
+    for (uint32_t i = 0; i < bindings->function_count; ++i) {
+        const NvmFunctionEntry *function = &module->functions[i];
+        const NvmCaptureFunction *binding = &bindings->functions[i];
+        if (function->code_offset > module->code_size ||
+            function->code_length > module->code_size - function->code_offset ||
+            binding->local_count != function->local_count ||
+            binding->upvalue_count != function->upvalue_count)
+            return NVM_CAPTURE_INVALID;
+        if (!work_limit || function->code_length > work_limit - 1)
+            return NVM_CAPTURE_LIMIT;
+        work_limit -= (size_t)function->code_length + 1;
+        uint32_t position = 0;
+        while (position < function->code_length) {
+            DecodedInstruction instruction;
+            uint32_t width = isa_decode(module->code + function->code_offset + position,
+                function->code_length - position, &instruction);
+            if (!width) return NVM_CAPTURE_INVALID;
+            switch (instruction.opcode) {
+            case OP_CLOSURE_NEW:
+                return NVM_CAPTURE_INVALID;
+            case OP_BIND_INIT_LOCAL: case OP_BIND_CLEAR_LOCAL:
+            case OP_LOAD_LOCAL: case OP_STORE_LOCAL: {
+                uint16_t slot = instruction.operands[0].u16;
+                if (slot >= binding->local_count ||
+                    (instruction.opcode == OP_STORE_LOCAL &&
+                     binding->local_modes[slot] != NVM_CAPTURE_SHARED))
+                    return NVM_CAPTURE_INVALID;
+                break;
+            }
+            case OP_LOAD_UPVALUE: case OP_STORE_UPVALUE: {
+                uint16_t slot = instruction.operands[1].u16;
+                if (instruction.operands[0].u16 || slot >= binding->upvalue_count ||
+                    (instruction.opcode == OP_STORE_UPVALUE &&
+                     binding->upvalue_modes[slot] != NVM_CAPTURE_SHARED))
+                    return NVM_CAPTURE_INVALID;
+                break;
+            }
+            case OP_CLOSURE_BIND:
+                if (next_site >= bindings->site_count ||
+                    instruction.operands[0].u32 != next_site ||
+                    bindings->sites[next_site].owner != i ||
+                    bindings->sites[next_site].instruction_offset != position)
+                    return NVM_CAPTURE_INVALID;
+                ++next_site;
+                break;
+            default:
+                break;
+            }
+            position += width;
+        }
+        if (next_site < bindings->site_count && bindings->sites[next_site].owner <= i)
+            return NVM_CAPTURE_INVALID;
+    }
+    return next_site == bindings->site_count ? NVM_CAPTURE_OK : NVM_CAPTURE_INVALID;
+}

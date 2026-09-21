@@ -5815,7 +5815,7 @@ test-native-literal-order-optimized: bootstrap
 test-capture-bindings:
 	@mkdir -p $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/nanoisa/test_capture_bindings \
-		tests/nanoisa/test_capture_bindings.c src/nanoisa/nvm_v2_cursor.c
+		tests/nanoisa/test_capture_bindings.c src/nanoisa/nvm_v2_cursor.c src/nanoisa/isa.c
 	$(OBJ_DIR)/nanoisa/test_capture_bindings
 
 .PHONY: test-record-array-vm

@@ -557,6 +557,9 @@ static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_id
         /* Validate operands based on opcode */
         switch (instr.opcode) {
 
+        case OP_BIND_INIT_LOCAL: case OP_BIND_CLEAR_LOCAL: case OP_CLOSURE_BIND:
+            FAIL_DECODED("I require complete capture binding admission before execution.");
+
         case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
         case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
         case OP_REGION_BEGIN: case OP_REGION_END:

@@ -158,6 +158,81 @@ static void encode_tests(const Fixture *fixture, const NvmModule *m, size_t tabl
     refuse_encoding(&decoded, &none, 11, NVM_CAPTURE_LIMIT);
 }
 
+static void code_tests(void) {
+    Fixture f = fixture();
+    NvmFunctionEntry functions[3];
+    NvmModule m = module(functions);
+    uint8_t code[] = {
+        OP_CLOSURE_BIND,0,0,0,0, OP_CLOSURE_BIND,1,0,0,0,
+        OP_PUSH_VOID, OP_BIND_INIT_LOCAL,1,0, OP_LOAD_LOCAL,1,0,
+        OP_STORE_LOCAL,0,0, OP_BIND_CLEAR_LOCAL,1,0,
+        OP_CLOSURE_BIND,2,0,0,0, OP_LOAD_UPVALUE,0,0,0,0,
+        OP_STORE_UPVALUE,0,0,0,0, OP_RET
+    };
+    functions[0].code_length = 23;
+    functions[1].code_offset = 23; functions[1].code_length = 15;
+    functions[2].code_offset = 38; functions[2].code_length = 1;
+    m.code = code; m.code_size = sizeof(code);
+    CHECK(m.code_size == 39);
+    NvmCaptureBindings decoded = {0};
+    CHECK(nvm_capture_bindings_decode(f.bytes, f.used, &m, 4096, &decoded) == NVM_CAPTURE_OK);
+    size_t work = sizeof(code) + 3;
+    unsigned before = allocation_calls;
+    CHECK(nvm_capture_bindings_verify_code(&decoded, &m, work) == NVM_CAPTURE_OK);
+    CHECK(allocation_calls == before);
+    CHECK(nvm_capture_bindings_verify_code(&decoded, &m, work - 1) == NVM_CAPTURE_LIMIT);
+    CHECK(nvm_capture_bindings_verify_code(&decoded, &m, 0) == NVM_CAPTURE_LIMIT);
+    const struct {size_t offset; uint8_t value;} invalid[] = {
+        {1, 1}, {6, 0}, {24, 1}, /* duplicate/out-of-order/wrong-owner sites */
+        {0, OP_PUSH_I64}, /* site hidden inside another instruction */
+        {0, OP_NOP}, /* descriptor no longer names a closure */
+        {0, OP_CLOSURE_NEW}, /* legacy environment refused */
+        {12, 2}, {15, 2}, {18, 1}, {21, 2}, /* local range and immutable store */
+        {29, 1}, {31, 3}, {34, 1}, {36, 1}, /* upvalue depth/range/immutable */
+        {38, 0xff}
+    };
+    for (size_t i = 0; i < sizeof(invalid)/sizeof(invalid[0]); ++i) {
+        uint8_t saved = code[invalid[i].offset];
+        code[invalid[i].offset] = invalid[i].value;
+        CHECK(nvm_capture_bindings_verify_code(&decoded, &m, work) == NVM_CAPTURE_INVALID);
+        code[invalid[i].offset] = saved;
+    }
+    uint32_t saved_count = decoded.site_count;
+    decoded.site_count = 2;
+    CHECK(nvm_capture_bindings_verify_code(&decoded, &m, work) == NVM_CAPTURE_INVALID);
+    decoded.site_count = saved_count;
+    /* I retain a valid code stream while leaving an unclaimed descriptor. */
+    memset(code + 23, OP_NOP, 5);
+    CHECK(nvm_capture_bindings_verify_code(&decoded, &m, work) == NVM_CAPTURE_INVALID);
+    code[23] = OP_CLOSURE_BIND; code[24] = 2;
+    functions[0].code_offset = UINT32_MAX;
+    CHECK(nvm_capture_bindings_verify_code(&decoded, &m, work) == NVM_CAPTURE_INVALID);
+    functions[0].code_offset = 0;
+    for (unsigned length = 1; length < 5; ++length) {
+        functions[0].code_length = length;
+        CHECK(nvm_capture_bindings_verify_code(&decoded, &m, work) == NVM_CAPTURE_INVALID);
+    }
+    functions[0].code_length = 23;
+    CHECK(nvm_capture_bindings_verify_code(&decoded, &m, work) == NVM_CAPTURE_OK);
+    nvm_capture_bindings_free(&decoded);
+    CHECK(live == 0);
+    const uint8_t opcodes[] = {OP_BIND_INIT_LOCAL, OP_BIND_CLEAR_LOCAL, OP_CLOSURE_BIND};
+    for (size_t i = 0; i < sizeof(opcodes); ++i) {
+        DecodedInstruction in = {0}, out = {0};
+        in.opcode = opcodes[i];
+        if (i == 2) in.operands[0].u32 = UINT32_C(0x12345678);
+        else in.operands[0].u16 = UINT16_C(0x5678);
+        uint8_t bytes[8] = {0};
+        uint32_t length = isa_encode(&in, bytes, sizeof(bytes));
+        CHECK(length == (i == 2 ? 5u : 3u));
+        CHECK(bytes[0] == opcodes[i] && bytes[1] == 0x78 && bytes[2] == 0x56);
+        CHECK(isa_decode(bytes, length, &out) == length && out.opcode == in.opcode);
+        CHECK(i == 2 ? out.operands[0].u32 == in.operands[0].u32 : out.operands[0].u16 == in.operands[0].u16);
+        for (size_t short_length = 0; short_length < length; ++short_length)
+            CHECK(isa_decode(bytes, short_length, &out) == 0);
+    }
+}
+
 int main(void) {
     Fixture f = fixture();
     NvmFunctionEntry functions[3];
@@ -233,6 +308,7 @@ int main(void) {
     CHECK(!decoded.functions && !decoded.sites && !decoded.allocation_bytes && !live);
     nvm_capture_bindings_free(&decoded);
     encode_tests(&f, &m, exact);
+    code_tests();
     printf("I passed %u capture payload checks; reader and writer allocation failures recover without live storage.\n", checks);
     return 0;
 }

@@ -52,6 +52,13 @@ void nvm_capture_bindings_free(NvmCaptureBindings *bindings);
 NvmCaptureResult nvm_capture_bindings_encode(const NvmCaptureBindings *bindings,
     const NvmModule *module, size_t limit, uint8_t **data, size_t *size);
 
+/* I require successfully decoded, immutable bindings and their unchanged module.
+ * I check instruction transport/sites/modes only, NOT initialization, stack/type
+ * correctness or permission to execute. Work charges one per function/code byte.
+ * I allocate nothing and leave every input unchanged. */
+NvmCaptureResult nvm_capture_bindings_verify_code(const NvmCaptureBindings *bindings,
+    const NvmModule *module, size_t work_limit);
+
 /* I return a decoded source only for an in-range descriptor. */
 bool nvm_capture_source(const NvmCaptureSite *site, uint16_t index,
     uint8_t *kind, uint8_t *mode, uint16_t *slot);
