@@ -290,3 +290,18 @@ inputs and no timeout, exact active check_if_value shadow. Full source/product
 maps and generated products remain in the external diagnostic directory.
 This evidence identifies the reached shadow; the missing block route follows
 from static source inspection. Corrected full acceptance remains required.
+
+### My isolated discarded-fact diagnostic checkpoint
+
+I keep this change on diag/list-discarded-facts, separate from the qualification
+pin. I extend only the existing rejected discarded-expression diagnostic with
+current function, node kind/id and exact inferred kind/name. Existing call,
+qualified-call, identifier, array and match nodes provide their source location;
+other node kinds retain the zero-location fallback. No inferred fact, branch
+condition, traversal, return or acceptance rule changes. An additive shadow
+checks the unknown-call message and source location while preserving all
+previous assertions. I will build an attributable diagnostic Stage1 compiler
+from the frozen cb489 C seed, then check the original full source once.
+Nineteen discarded errors plus one array-destination error are the exact
+original count, correcting the preliminary description of twenty unknown sites.
+No diagnostic result is qualification or permission to admit unknown types.

@@ -6087,7 +6087,30 @@ fn check_statement_values(parser: Parser, statements: List<ASTStmtRef>, symbols:
                 let fact: CheckedBlock = (check_value_facts parser stmt.node_id stmt.node_type local_symbols diags file_name)
                 let pending_value: bool = (and value_required (and (not returned) (== i (- stmt_count 1))))
                 if (and (not pending_value) (not fact.ok)) {
-                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require valid expression facts even when their result is unused." (Diagnostics.diag_location file_name 0 0)))
+                    # I expose diagnostic facts without changing acceptance or traversal.
+                    let mut location: CompilerSourceLocation = (Diagnostics.diag_location file_name 0 0)
+                    if (== stmt.node_type ParseNodeType.PNODE_CALL) {
+                        let node: ASTCall = (parser_get_call parser stmt.node_id)
+                        set location (Diagnostics.diag_location file_name node.line node.column)
+                    }
+                    if (== stmt.node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+                        let node: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser stmt.node_id)
+                        set location (Diagnostics.diag_location file_name node.line node.column)
+                    }
+                    if (== stmt.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                        let node: ASTIdentifier = (parser_get_identifier parser stmt.node_id)
+                        set location (Diagnostics.diag_location file_name node.line node.column)
+                    }
+                    if (== stmt.node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+                        let node: ASTArrayLiteral = (parser_get_array_literal parser stmt.node_id)
+                        set location (Diagnostics.diag_location file_name node.line node.column)
+                    }
+                    if (== stmt.node_type ParseNodeType.PNODE_MATCH) {
+                        let node: ASTMatch = (parser_get_match parser stmt.node_id)
+                        set location (Diagnostics.diag_location file_name node.line node.column)
+                    }
+                    let message: string = (+ "I require valid expression facts even when their result is unused. Function=" (+ current_function (+ "; node_kind=" (+ (int_to_string stmt.node_type) (+ "; node_id=" (+ (int_to_string stmt.node_id) (+ "; inferred_kind=" (+ (int_to_string fact.value_type.kind) (+ "; inferred_name=" fact.value_type.name)))))))))
+                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" message location))
                     set ok false
                 }
                 if pending_value {
@@ -6135,6 +6158,15 @@ shadow check_statement_values {
         assert (checked_value_errors result.diagnostics 0)
         set i (+ i 1)
     }
+    let missing: Parser = (resource_test_parser "fn missing_fact() -> void { (unknown_call) }")
+    assert (not (parser_has_error missing))
+    let missing_result: TypecheckPhaseOutput = (typecheck_phase missing "missing-fact.nano")
+    assert missing_result.had_error
+    let missing_diag: CompilerDiagnostic = (list_CompilerDiagnostic_get missing_result.diagnostics 0)
+    assert (str_contains missing_diag.message "Function=missing_fact")
+    assert (str_contains missing_diag.message "inferred_name=unknown_call")
+    assert (== missing_diag.location.line 1)
+    assert (> missing_diag.location.column 0)
     let valid: Parser = (resource_test_parser "fn f() -> int { [] [[], []] if true { 1 } else { false } if false { (print \"\") } (cond (true []) (else [[1]])) let octet: u8 = 1 let bytes: array<u8> = (cond (true [257, octet]) (else [-1])) return 0 }")
     assert (not (parser_has_error valid))
     assert (not (typecheck_phase valid "valid-discarded.nano").had_error)
