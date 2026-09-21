@@ -2100,6 +2100,15 @@ static void payload_substitute(TypeInfo **slot, const UnionDef *def, const TypeI
         for (int i = 0; i < def->generic_param_count && i < arguments->type_param_count; ++i) {
             if (!strcmp(info->generic_name, def->generic_params[i]) && arguments->type_params && arguments->type_params[i]) {
                 TypeInfo *concrete = copy_payload_type_info(arguments->type_params[i]);
+                if (info->base_type == TYPE_LIST_GENERIC) {
+                    /* I retain the container and make its compact element explicit. */
+                    free(info->generic_name);
+                    info->generic_name = payload_name("List");
+                    info->type_params = payload_alloc(1, sizeof *info->type_params);
+                    info->type_params[0] = concrete;
+                    info->type_param_count = 1;
+                    return;
+                }
                 free_payload_type_info(info);
                 *slot = concrete;
                 return;

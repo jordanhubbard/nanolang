@@ -627,6 +627,7 @@ typedef struct {
     const char *nominal_owner;
     const char *callable_owner;
     bool inferred_nominal;
+    bool union_payload_owner_known; /* Checker-only exact scrutinee annotation provenance. */
 } Symbol;
 
 /* Function table entry */

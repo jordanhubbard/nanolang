@@ -2200,6 +2200,13 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
 }
 
 static void emit_native_type_info(Environment *env, StringBuilder *sb, TypeInfo *info) {
+    if (info->base_type == TYPE_LIST_GENERIC) {
+        char *name = typeinfo_to_generic_arg_name(info);
+        if (!name) { fprintf(stderr, "I cannot allocate a native list payload type\n"); exit(1); }
+        sb_appendf(sb, "%s*", name);
+        free(name);
+        return;
+    }
     if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION || info->base_type == TYPE_ENUM) && info->generic_name) {
         if (env_get_opaque_type(env, info->generic_name)) { sb_append(sb, "void*"); return; }
         char *name = typeinfo_to_generic_arg_name(info);

@@ -49,3 +49,17 @@ existing provider-forward ordering. This is a static prerequisite revealed by
 preserving the container, not a newly executed invalid C program. Compact list
 name conversion must agree with explicit `List` plus one argument; signatures
 and provider keys must use the same result.
+
+My source checkpoint retains an Environment-owned checked scrutinee annotation
+copy for each expression/statement match binding when its nominal view resolves.
+A zero-initialized checker-only Symbol bit records successful provenance; unknown
+views do not become root-owner authority. Legacy non-nominal union behavior is
+unchanged, while nominal payload consumers require that bit and revalidate the
+original union identity, exact variant, field template and argument substitution.
+Fixed list elements use the union declaration owner; formal list elements use
+the retained argument owner. This metadata owns no runtime Value and creates no
+AST/schema field. Ordinary symbol insertion and header-constant insertion zero
+initialize the bit; existing Symbol copies stay within their Environment.
+The existing shallow checker owner registration and legacy payload copier retain
+their documented fatal allocation boundary; the new checked annotation copy
+returns failure without publishing a provenance bit.

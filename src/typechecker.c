@@ -106,6 +106,13 @@ char *typeinfo_to_generic_arg_name(TypeInfo *param) {
         case TYPE_ENUM:
             if (param->generic_name) return strdup(param->generic_name);
             return strdup("unknown");
+        case TYPE_LIST_GENERIC: {
+            if (!param->generic_name || strlen(param->generic_name) > SIZE_MAX - 6) return NULL;
+            size_t length = strlen(param->generic_name) + 6;
+            char *name = malloc(length);
+            if (name) snprintf(name, length, "List_%s", param->generic_name);
+            return name;
+        }
         case TYPE_ARRAY: {
             char *elem = typeinfo_to_generic_arg_name(param->element_type);
             if (!elem) return strdup("array_unknown");
@@ -459,6 +466,8 @@ static bool nominal_substitute_annotation(const TypeInfo **info, const char **ow
                                            const NominalSubstitution **context) {
     for (unsigned depth = 0; depth <= 128; ++depth) {
         if (!*context || !*info || !(*info)->generic_name) return true;
+        /* A compact List<T> names its element, not the whole container. */
+        if ((*info)->base_type == TYPE_LIST_GENERIC) return true;
         const UnionDef *declaration = (*context)->declaration;
         if (!declaration || declaration->generic_param_count < 0) return false;
         bool replaced = false;
@@ -821,6 +830,57 @@ static bool nominal_callable_view(ASTNode *expr, Environment *env, unsigned dept
     return false;
 }
 
+/* I inspect the original union template with the binding's concrete argument
+ * owner. A synthetic variant binding is not an ordinary record declaration. */
+static NominalIdentity nominal_union_field_identity(ASTNode *expr, Environment *env,
+                                                    Type type, unsigned depth) {
+    NominalIdentity none = {TYPE_UNKNOWN, 0};
+    if (!expr || depth > 128 || expr->type != AST_FIELD_ACCESS ||
+        (type != TYPE_STRUCT && type != TYPE_LIST_GENERIC)) return none;
+    ASTNode *object = expr->as.field_access.object;
+    if (!object || object->type != AST_IDENTIFIER) return none;
+    Symbol *binding = env_get_var_visible_at(env, object->as.identifier, object->line, object->column);
+    if (!binding || !binding->union_payload_owner_known || !binding->type_info || !binding->struct_type_name) return none;
+    const TypeInfo *arguments = binding->type_info;
+    NominalIdentity id = env_nominal_identity(env, arguments->generic_name, binding->nominal_owner, TYPE_UNION);
+    if (!id.ordinal) return none;
+    UnionDef *definition = &env->unions[id.ordinal - 1];
+    const char *dot = strrchr(binding->struct_type_name, '.');
+    if (!dot || !dot[1]) return none;
+    char *prefix = strndup(binding->struct_type_name, (size_t)(dot - binding->struct_type_name));
+    if (!prefix) return none;
+    bool exact = nominal_equal(id, env_nominal_identity(env, prefix, binding->nominal_owner, TYPE_UNION));
+    free(prefix);
+    if (!exact) return none;
+    int arm = -1;
+    for (int i = 0; i < definition->variant_count; ++i)
+        if (!strcmp(definition->variant_names[i], dot + 1)) arm = i;
+    if (arm < 0) return none;
+    for (int field = 0; field < definition->variant_field_counts[arm]; ++field) {
+        if (strcmp(definition->variant_field_names[arm][field], expr->as.field_access.field_name)) continue;
+        const TypeInfo *info = definition->variant_field_type_info && definition->variant_field_type_info[arm]
+            ? definition->variant_field_type_info[arm][field] : NULL;
+        const char *owner = definition->module_name;
+        NominalSubstitution substitution = {definition, arguments, binding->nominal_owner, NULL};
+        const NominalSubstitution *context = &substitution;
+        if (!nominal_substitute_annotation(&info, &owner, &context) || !info) return none;
+        TypeInfo compact = {0};
+        if (type == TYPE_LIST_GENERIC) {
+            if (info->base_type != TYPE_LIST_GENERIC && !(info->base_type == TYPE_GENERIC &&
+                    info->generic_name && !strcmp(info->generic_name, "List"))) return none;
+            if (!checked_annotations_equal_context(env, info, owner, info, owner,
+                    depth + 1, context, context)) return none;
+            compact.base_type = TYPE_STRUCT;
+            compact.generic_name = info->generic_name;
+            info = info->type_param_count == 1 ? info->type_params[0] : &compact;
+            if (!nominal_substitute_annotation(&info, &owner, &context) || !info) return none;
+        }
+        if (info->base_type != TYPE_STRUCT || info->type_param_count) return none;
+        return env_nominal_identity(env, info->generic_name, owner, TYPE_STRUCT);
+    }
+    return none;
+}
+
 static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type type, unsigned depth) {
     NominalIdentity none = {TYPE_UNKNOWN, 0};
     if (!expr || depth > 128) return none;
@@ -839,6 +899,8 @@ static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type 
     if (expr->type == AST_STRUCT_LITERAL && type == TYPE_STRUCT)
         return env_nominal_identity(env, get_struct_type_name(expr, env), env->current_module, TYPE_STRUCT);
     if (expr->type == AST_FIELD_ACCESS) {
+        NominalIdentity projected = nominal_union_field_identity(expr, env, type, depth + 1);
+        if (projected.ordinal) return projected;
         NominalIdentity object = nominal_expression(expr->as.field_access.object, env, TYPE_STRUCT, depth + 1);
         if (!object.ordinal || object.kind != TYPE_STRUCT) return none;
         StructDef *def = &env->structs[object.ordinal - 1];
@@ -900,6 +962,38 @@ static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type 
 }
 
 #include "typechecker_nominal_arrays.inc"
+
+/* I retain the scrutinee annotation's owner independently of the arm's module. */
+static bool retain_union_binding_context(Environment *env, Symbol *binding,
+                                          ASTNode *scrutinee, const char *union_name) {
+    NominalView view = {0};
+    bool known = nominal_value_view(scrutinee, env, 0, &view);
+    if (!known && scrutinee && (scrutinee->type == AST_UNION_CONSTRUCT ||
+                               scrutinee->type == AST_STRUCT_LITERAL)) {
+        TypeInfo scalar = {.base_type = TYPE_UNION, .generic_name = (char *)union_name};
+        const TypeInfo *info = scrutinee->type == AST_UNION_CONSTRUCT && scrutinee->as.union_construct.type_info
+            ? scrutinee->as.union_construct.type_info : &scalar;
+        known = nominal_view_copy(env, info, info->base_type, TYPE_UNKNOWN, NULL,
+                                  env->current_module, &view);
+    }
+    if (!known || !view.info || !env_nominal_identity(env, view.info->generic_name,
+                                                    view.owner, TYPE_UNION).ordinal) {
+        nominal_view_discard(&view);
+        return false;
+    }
+    char *owner = view.owner ? strdup(view.owner) : NULL;
+    if ((view.owner && !owner) || !env_own_checker_type_info(env, view.info)) {
+        free(owner);
+        nominal_view_discard(&view);
+        return false;
+    }
+    binding->type_info = view.info;
+    view.info = NULL;
+    binding->nominal_owner = owner ? env_own_checker_allocation(env, owner) : NULL;
+    binding->union_payload_owner_known = true;
+    return true;
+}
+
 
 static const char *list_nominal_name(ASTNode *expr, Environment *env, Type type) {
     return env_nominal_name(env, nominal_expression(expr, env, type, 0));
@@ -1519,6 +1613,22 @@ static bool nominal_union_array_origins(Environment *env, const TypeInfo *expect
         }
         return true;
     }
+    if (expected->base_type == TYPE_LIST_GENERIC ||
+        (expected->base_type == TYPE_GENERIC && expected->generic_name &&
+         !strcmp(expected->generic_name, "List"))) {
+        if (!checked_annotations_equal_context(env, expected, owner, expected, owner,
+                depth + 1, context, context)) return false;
+        TypeInfo compact = {.base_type = TYPE_STRUCT, .generic_name = expected->generic_name};
+        const TypeInfo *element = expected->type_param_count == 1
+            ? expected->type_params[0] : &compact;
+        const char *element_owner = owner;
+        const NominalSubstitution *element_context = context;
+        if (!nominal_substitute_annotation(&element, &element_owner, &element_context) ||
+            !element || element->base_type != TYPE_STRUCT || element->type_param_count) return false;
+        NominalIdentity wanted = env_nominal_identity(env, element->generic_name, element_owner, TYPE_STRUCT);
+        NominalIdentity actual = nominal_expression(value, env, TYPE_LIST_GENERIC, depth + 1);
+        return nominal_equal(wanted, actual);
+    }
     if (expected->base_type == TYPE_ARRAY) {
         if (nominal_array_requires_context(env, expected, owner, context, depth) &&
             (!checked_annotations_equal_context(env, expected, owner, expected, owner, depth, context, context) ||
@@ -1553,7 +1663,9 @@ static bool nominal_union_array_origins(Environment *env, const TypeInfo *expect
         values = value->as.struct_literal.field_values;
         count = value->as.struct_literal.field_count;
     } else return true;
-    int arm = env_get_union_variant_index(env, definition->name, variant);
+    int arm = -1;
+    for (int i = 0; i < definition->variant_count; ++i)
+        if (!strcmp(definition->variant_names[i], variant)) arm = i;
     if (arm < 0) return true; /* Existing constructor checks report the invalid variant. */
     NominalSubstitution substitution = {definition, expected, owner, context};
     for (int i = 0; i < count; ++i)
@@ -5261,6 +5373,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         /* Ensure bindings participate in visibility disambiguation */
                         binding_sym->def_line = expr->line;
                         binding_sym->def_column = expr->column;
+                        /* Missing provenance never authorizes nominal payload consumers. */
+                        binding_sym->union_payload_owner_known = false;
+                        (void)retain_union_binding_context(env, binding_sym, match_expr_node, union_base_name);
                     }
                 }
 
@@ -6857,6 +6972,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         /* Ensure bindings participate in visibility disambiguation */
                         binding_sym->def_line = stmt->line;
                         binding_sym->def_column = stmt->column;
+                        /* Missing provenance never authorizes nominal payload consumers. */
+                        binding_sym->union_payload_owner_known = false;
+                        (void)retain_union_binding_context(tc->env, binding_sym, match_expr_node, union_base_name);
                     }
                 }
 
