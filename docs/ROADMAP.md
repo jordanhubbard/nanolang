@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I release retained callable owners when destroying a VM (`task_4a18935d7fea402da9a6a2bfd7672e9b`). Direct/core invocation can leave trapped frames alive; I detach and release each owned callable after successful callback shutdown, preserving refusal behavior. I require a real indirect-call trap with a managed capture and the complete VM unit gate on Linux and Darwin. Full shared-capture integration remains separate.
+
 - [ ] I preserve source-relative links in copied user-guide references (`task_6d8539dc326d486f82952f7a67cfd6c2`). My first PR937 documentation job fails on the binary64 contract linked from STDLIB.md. I retain that terminal and resolve copied links from their original repository location while refusing missing local targets. All15 renderer tests and all six13-page editions pass locally; protected integration remains pending. [Evidence](evidence/userguide-source-links/checks.json).
 
 - [x] I retain the executing instruction location in every VM call frame (`task_b7779ee196994432a18178145d93ac42`). I bound fallback debug lookup to that function and preserve the field phase under instruction fusion. Direct, indirect, tail, branch, missing-map and fused-field diagnostics require both dispatch modes on Linux and Darwin; my [contract](VM_SOURCE_LOCATIONS.md) records qualification separately from full 5.1 acceptance.
