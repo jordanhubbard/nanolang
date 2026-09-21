@@ -72,3 +72,15 @@ retains the 2328466182-byte gzip and SHA256; I independently read and hashed all
 
 LLVM sanitizer completion and fresh current-main integration remain separate
 requirements before the combined consumer checkpoint can be accepted.
+
+Root independently audits my completed C semantic coverage in the retained
+[independent audit](record-array-generated/independent-root-coverage-audit.json).
+That audit checks actual terminal cleanup, all73 products at both optimization
+levels in linked/observed modes, contiguous fault ranges and independent
+recoveries. Its source/tool comparisons remain attributed to the original C
+qualification; the independent report does not claim current-main integration.
+
+The independent semantic audit covers six final configuration histories. My
+seventh Linux Clang ordinary pass remains explicitly attributed to6783e-r2
+with the same final production source and earlier unpartitioned fixture; it is
+retained in the partition-history seal. I do not relabel that run as759.

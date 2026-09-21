@@ -1,0 +1,16 @@
+{"pin": "7804258431ed8fba21fa33c5507b06ad9a1bbd94", "source_files": 3752, "root": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-llvm-qualified-78042", "free_bytes": 108997685248, "selected": {"RECORD_LLVM_WASMTIME": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/wasmtime43", "RECORD_LLVM_NODE": "/opt/homebrew/bin/node", "RECORD_LLVM_C_BASELINE": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus", "RECORD_LLVM_CLANG": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang", "RECORD_LLVM_OPT": "/opt/homebrew/opt/llvm/bin/opt", "RECORD_LLVM_LLC": "/opt/homebrew/opt/llvm/bin/llc", "RECORD_LLVM_NM": "/opt/homebrew/opt/llvm/bin/llvm-nm"}}
+{"phase": "setup", "status": 0, "seconds": 9.23}
+{"phase": "configuration", "status": 0, "seconds": 0.222}
+{"phase": "discovery", "status": 0, "seconds": 0.195}
+{"phase": "parity", "status": 0, "seconds": 4.684}
+{"phase": "ordinary-emission", "status": 0, "seconds": 2.159}
+{"phase": "ordinary-native", "status": 0, "seconds": 309.5}
+{"phase": "clang-ordinary-emission", "status": 0, "seconds": 2.37}
+{"phase": "clang-ordinary-native", "status": 0, "seconds": 347.739}
+{"phase": "sanitizer-emission", "status": 0, "seconds": 4.822}
+{"phase": "sanitizer-native", "status": 0, "seconds": 1263.516}
+{"phase": "wasm", "status": 0, "seconds": 553.359}
+{"phase": "old-private-vm", "status": 0, "seconds": 14.661}
+{"phase": "record_array_global_flow", "status": 0, "seconds": 3.74}
+{"phase": "record_array_execution", "status": 0, "seconds": 3.946}
+{"phase": "record_array_origins", "status": 0, "seconds": 3.479}

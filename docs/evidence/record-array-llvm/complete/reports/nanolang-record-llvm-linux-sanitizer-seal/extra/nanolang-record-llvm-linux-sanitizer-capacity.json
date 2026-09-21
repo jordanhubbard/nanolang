@@ -1,0 +1,11 @@
+{
+  "started": 1789983701.059732,
+  "threshold_bytes": 1610612736,
+  "state": "terminal",
+  "capacity_stop": false,
+  "driver_pid": 2015933,
+  "command": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14 /tmp/nanolang-record-llvm-78042-driver.py /tmp/nanolang-record-llvm-qualified-78042 /tmp/nanolang-record-llvm-78042-linux-sanitizers",
+  "driver_absent": true,
+  "minimum_free_bytes": 1736679424,
+  "finished": 1789996180.7435052
+}

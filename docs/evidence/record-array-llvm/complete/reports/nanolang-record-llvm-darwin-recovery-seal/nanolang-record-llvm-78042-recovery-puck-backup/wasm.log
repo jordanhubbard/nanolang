@@ -1,0 +1,7 @@
+I retain direct LLVM artifacts at /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-llvm-sswvjdt9
+test_03_wasm_corpus (tests.test_record_array_llvm.RecordArrayLLVM.test_03_wasm_corpus) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 553.173s
+
+OK

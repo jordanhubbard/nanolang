@@ -50,9 +50,52 @@ new persistent Darwin matrix is separately attributed. My earlier Linux ABI
 refusal and the source correction remain separate histories for the final seal.
 
 Linux ordinary GCC/Clang native, full Wasm and neighboring queries have passed.
-Linux generated-C fault qualification is complete and separately sealed. The
-LLVM sanitizer continuation remains active at this documentation checkpoint. The independent package
+Linux generated-C fault qualification is complete and separately sealed. My Linux LLVM sanitizer coverage is now complete with the explicitly split
+continuation described below. The independent package
 425bcbc786 correction passes its unchanged two-method suite on both hosts, with
 headers byte-identical to the qualified 78042 outputs; it is not a relabeling of
 execution source. I will publish the complete cumulative manifests and fresh
 current-main integration separately before requesting final acceptance.
+
+## I combine the complete retained matrix
+
+My [complete manifest](record-array-llvm/complete/report-sha256.json) names
+637 actual report files. Its [summary](record-array-llvm/complete/summary.json)
+records 37,086 unique CAS objects (5,820,577,421 bytes), 136,103 references
+and 90 equal source/tool pairs. My ordinary/native/Wasm execution remains
+780425843; the package correction is425bcbc786. Fixture-only aed76cdb3 selects
+the final Linux Clang O2 continuation without changing production or assertions.
+
+Linux GCC sanitizer completes the full native O0/O2 corpus in11435.264 seconds.
+Its 2,769 retained child terminals all pass with reaped leaders and disappeared
+groups. The following Clang emission never launches because available root
+space is below the unchanged2GiB preflight. My first continuation separately
+stops before compilation when its selection omits the required configuration
+report. I retain both setup/capacity terminals.
+
+The corrected Clang continuation passes emission and completes O0 before my
+unchanged1.5GiB active guard sends SIGTERM as root storage falls below its
+threshold. Its full native phase is not a pass. My independent O0 inventory
+checks all146 products,1,365 successful child terminals,73 complete fault
+coverage records,338 workers and9,488 independent recoveries; all146 original
+LLVM/replay input hashes are unchanged. The phase's leader is reaped, its group
+is absent and no descendant remains.
+
+I qualify only the remaining O2 corpus on task-owned tmpfs after copying and
+verifying the exact frozen inputs/providers and overlaying the reviewed selector.
+That phase passes341.809 seconds. All73 LLVM inputs compare byte-for-byte with
+O0; all73 replay files compare under the previously reviewed identity bijection
+while preserving every other byte. The original14400-second native and
+240-second child limits, allocation positions, failure modes, recovery,
+lifecycle and output assertions remain intact. Capacity guards check the actual
+output filesystem. I retain the O2 archive durably on Puck with13,364 members
+verified locally and remotely and SHA256
+`9108c092f55c11ed8fd4ddfff111641b88fe088fe8a4271041b4e592f69ece4b`.
+
+My cumulative CAS assembly lives at
+`/run/user/1000/nanolang-record-llvm-complete-seal`; this temporary location
+alone is not durable evidence. My [archive record](record-array-llvm/complete-archive.json) verifies all37,726
+members locally and on Puck. The durable archive is1,835,080,438 bytes with
+SHA256 `4371569db550bf6c99e8c04297e0e622e378f4da493d0ed9833a049cb540784d`
+at `/Users/jkh/nanolang-qualification/vm-effects-llvm-complete-20260921`. I preserve every original history and remove no temporary
+data. Current-main integration remains required before final acceptance.

@@ -1,0 +1,32 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 20.976,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.164,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.146,
+    "status": 0
+  },
+  {
+    "phase": "parity",
+    "seconds": 10.834,
+    "status": 0
+  },
+  {
+    "phase": "ordinary-emission",
+    "seconds": 4.164,
+    "status": 0
+  },
+  {
+    "phase": "ordinary-native",
+    "seconds": 10.406,
+    "status": 1
+  }
+]

@@ -1,0 +1,7 @@
+I retain direct LLVM artifacts at /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-llvm-nik7928_
+test_01_emission_bounds (tests.test_record_array_llvm.RecordArrayLLVM.test_01_emission_bounds) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.009s
+
+OK

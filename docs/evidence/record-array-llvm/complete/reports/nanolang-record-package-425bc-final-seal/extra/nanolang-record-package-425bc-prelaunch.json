@@ -1,0 +1,9 @@
+{
+  "scope": "Unchanged2 canonical package tests; same60s inner commands and1800s supervised phase. Retain temporary artifacts and original subprocess inputs/output/status. Exact old header and non-probe manifest correspondence required.",
+  "sha256": {
+    "/tmp/nanolang-record-package-425bc-driver.py": "2c541296c8e8602a2a7884c2ec1e17c767ddae9f97ae9f238fcc8f00b3da1262",
+    "/tmp/nanolang-record-package-425bc-supervise.py": "75f71e603036c3d48780d1620362dda2f41973c1df01e63a4a221c11bf86c87d",
+    "/tmp/nanolang-record-package-425bc-launch.py": "a98c7de38c92ee71e2b6c03053b1a4226faaa6e7e5d7139a7b3392da66bf4daa",
+    "/tmp/nanolang-record-package-retain.py": "652678513b52abafb1b492b578bf7f9937d76df814da62abfe0f77c3519f061f"
+  }
+}

@@ -14562,3 +14562,15 @@ capacity on that actual output filesystem. I retain full before/after maps
 and copy every report/product to durable Puck storage with hash verification
 before claiming complete evidence. My original O0 products and full fault
 coverage must independently match their retained initial corpus hashes.
+
+My O2-only continuation at fixture aed76cdb3 completes341.809 seconds, with
+all146 O0/O2 generated inputs agreeing under exact LLVM bytes and the reviewed
+replay identity bijection. I durably verify every13,364-member O2 archive entry
+on Puck before acceptance. My cumulative LLVM seal now retains637 reports,
+37,086CAS objects,136,103 references and90 equal source/tool pairs. Its
+1,835,080,438-byte archive verifies37,726 members both locally and on Puck
+(SHA2564371569db550bf6c99e8c04297e0e622e378f4da493d0ed9833a049cb540784d).
+The three capacity/setup terminals remain distinct; original production78042,
+package425b and fixtureaed76 attribution is explicit. Fresh current-main
+generated C/LLVM/VM/Wasm/query/package integration remains required; full
+public/source/general-graph parents remain open.

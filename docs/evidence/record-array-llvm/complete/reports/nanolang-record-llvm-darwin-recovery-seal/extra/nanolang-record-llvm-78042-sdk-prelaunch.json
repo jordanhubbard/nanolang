@@ -1,0 +1,11 @@
+{
+  "scope": "Fresh full Darwin LLVM on78042 with explicit current native SDK wrapper; wasm target arguments unchanged. Original prepared recovery launcher not executed. Full source/tool/provider maps and original deadlines.",
+  "sha256": {
+    "/tmp/nanolang-record-llvm-78042-sdk-launch.py": "1a65623ca24faeae271803d96e0a577cbe42b2c25d5cd3f8b489cbd74e0517fd",
+    "/tmp/nanolang-record-llvm-78042-sdk-supervise.py": "d468df12acad35383f0d2f6a55697c0e21c10d28258ebd746ae16e2a597ba2d8",
+    "/tmp/nanolang-recovery-native-sdk-clang": "e8887481e0df8922f520032f377b524b30d18adb5bb4fbae60c8a5797affcbb5",
+    "/tmp/nanolang-record-llvm-78042-driver.py": "fd3382ab7753fa86380fa82ee65fe21fedb960faa03d3cb9b8087c9e2e9f66cb",
+    "/tmp/nanolang-record-llvm-78042-source.tar.gz": "34a38a06e9c1dfc267ca776d0109d09faf63216bd036750892bf0a6c6ed3b697",
+    "/tmp/nanolang-managed-string-wasmtime-darwin": "130b4a32cecb619d52aefedda39c6733f00ee7460bbe8748f99eac72143c980c"
+  }
+}
