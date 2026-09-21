@@ -195,3 +195,9 @@ entry APIs, unchanged result storage and empty frames/stack on refusal, linking
 refusal, and a plain-module execution control. Native LLVM and Wasm translation
 must refuse before changing an existing output stream. This fixture is awaiting
 source review and execution; it does not establish capture execution support.
+
+Independent review accepts the consumer fixture at a88e4fd85, and strict GCC
+syntax-only checking passes. The first fresh Linux execution driver refuses its
+2 GiB preparation threshold before extracting source or compiling. I retain
+[that capacity refusal and driver](evidence/capture-bindings/consumer-first-linux/checks.json);
+no consumer execution result is established by this attempt.
