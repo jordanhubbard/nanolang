@@ -312,3 +312,23 @@ TypeInfo and TOKEN_FN publishes the owned signature through that carrier.
 Thus I must integrate and qualify this existing carrier repair, not duplicate
 an array-specific change or call the SDK path defective merely because its
 separate signature output is NULL. Its tuple foundation remains d1d2d5556.
+
+
+### 5.1 Nested callable return dual-field consumption
+
+Independent static review finds another retained-path prerequisite: my parser
+can represent a callable result with non-NULL return_type_info of TYPE_FUNCTION
+and NULL fn_sig, while return_fn_sig owns the actual nested signature. The
+contextual signature comparator merges that legacy representation, but
+nominal_callable_result and nominal_materialize_signature choose the incomplete
+non-NULL annotation without merging its separate signature. I preserve the
+active a43 preparation attribution and hold affected fixtures.
+
+- [ ] Use an invocation-local borrowed annotation view to fill only the missing
+  callable signature from return_fn_sig; checked clone/materialization must own
+  independent copies before publication. Do not mutate or duplicate ownership
+  of either source field, and retain conflicting duplicate-fact refusals.
+- [ ] Add actual parsed nested-return projection/materialization controls and
+  all allocation-prefix/transient sweeps for both complete and legacy forms.
+- [ ] Review the correction before affected qualification. Full original
+  methods and nested parser integration obligations remain open.
