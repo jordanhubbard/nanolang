@@ -11,8 +11,9 @@ MAC `task_02a1b4af967eafa357fb0210e94679d8` tracks this prerequisite under
 I preserve helper definitions, signatures, storage class, link visibility,
 preprocessor decisions, arithmetic source identities and every compiler flag.
 My proposed emitter helper returns only statements of the exact form
-`    (void)function_name;`. It does not emit function calls, take/stash addresses,
-evaluate capture or argument expressions, or read runtime data. I add these
+`    (void)function_name;`. A discarded function designator undergoes C's function-to-pointer conversion;
+I emit no explicit address storage or observable invocation, evaluate no capture
+or argument expressions, and read no runtime data. I add these
 statements to the real C `main` from `gen_c_program_with_modules` and the real
 shadow C `main` from `transpile_parser_mode`. The shadow product still includes
 the renamed ordinary entry, and its actual entry retains the original
