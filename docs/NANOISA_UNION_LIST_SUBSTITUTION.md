@@ -63,3 +63,36 @@ initialize the bit; existing Symbol copies stay within their Environment.
 The existing shallow checker owner registration and legacy payload copier retain
 their documented fatal allocation boundary; the new checked annotation copy
 returns failure without publishing a provenance bit.
+
+## My nested projection amendment
+
+The 3587 review identifies a remaining gap: a synthetic payload binding has
+STRUCT expression type but a union annotation, and a single copied owner cannot
+represent a nested field whose fixed leaves come from the definition while its
+formal arguments come from the caller. I will retain a private owned nominal
+view, not flatten those owners into the consuming module.
+
+The private view keeps its original annotation, declaration owner and an owned
+substitution-context chain. Each context owns copies of formal names, concrete
+argument annotation and argument owner, so it retains neither a stack pointer
+nor a movable UnionDef address. A payload view also records its exact selected
+variant. Field projection constructs a new context from that original template;
+whole-formal substitution moves to the corresponding argument owner/context.
+Synthetic payload identifiers and aliases copy this view, and nested matches
+select their own variant without treating the payload as an ordinary StructDef.
+
+I will pass the context through view equality, array element/wrap operations,
+branch agreement, mutation checks, inference and iteration. Runtime/codegen
+annotations are separately materialized from the same view; they are not an
+owner authority. The Symbol's private checker view is Environment-owned through
+an explicit checked destructor registration. Temporary views free their complete
+owned closure; retained views are registered once and freed once at Environment
+teardown. Failed copy/registration does not publish a view. Existing ordinary
+symbol constructors initialize the pointer to NULL, and same-Environment Symbol
+copies borrow the retained view. No runtime Value or AST/schema field owns it.
+
+My additive controls must exercise both annotation encodings, fixed versus
+substituted same-spelled imported records, actual direct constructor/call/field
+scrutinees, payload aliasing and nested matches. I will preserve all prior source
+vectors and refuse unresolved or contradictory facts; no corrected execution
+precedes the complete source/fixture review.
