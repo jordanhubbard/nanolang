@@ -290,3 +290,21 @@ inputs and no timeout, exact active check_if_value shadow. Full source/product
 maps and generated products remain in the external diagnostic directory.
 This evidence identifies the reached shadow; the missing block route follows
 from static source inspection. Corrected full acceptance remains required.
+
+### My cb489 first Stage2 checker terminals
+
+Fresh Make builds pass on Linux75.430s and Darwin96.516s. Bootstrap creates
+working Stage1 compilers, then Stage1 refuses the Stage2 compiler source:
+Linux status2 at213.230s, Darwin status2 at240.000s. Both retain exact source
+and tool equality, no timeout and no remaining process group. I retain logs
+and report identities under docs/evidence/record-lists-cb489-first-build;
+full maps/products/CAS remain in the original preparation directories.
+Focused and full seventeen-method gates remain unreached.
+
+I record task_873238ff98c845a9bf94ec78a03e2950 for strict discarded facts
+exposing missing checker facts. The array destination error names str_trim,
+whose C signature is string-to-string but whose selfhost builtin facts are
+missing. The discarded errors lack location/caller details; I will establish
+their exact sites with a separate diagnostic checkpoint without relaxing
+checks. I retain the initial Linux capacity hold before later capacity allowed
+a fresh setup. Neither capacity nor deadlines caused these checker refusals.
