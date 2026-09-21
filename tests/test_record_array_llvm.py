@@ -258,7 +258,12 @@ class RecordArrayLLVM(unittest.TestCase):
     def wasm_faults(self, product, name, engine):
         packed=self.wasm_invoke(name+'-'+engine+'-baseline',engine,product,'nano_baseline_report')
         calls,peak=packed>>32,packed&0xffffffff; self.assertGreater(calls,0); self.assertGreater(peak,8*1024*1024)
-        plan={'calls':calls,'peak':peak,'engine':engine,'modes':2,'complete':False,'workers':[]}
+        memory=self.wasm_invoke(name+'-'+engine+'-memory',engine,product,'nano_memory_report')
+        before,after=memory>>32,memory&0xffffffff
+        self.assertEqual(before,16);self.assertGreater(after,before);self.assertLessEqual(after,1024)
+        plan={'calls':calls,'requested_live_peak':peak,'linear_memory_before_pages':before,
+              'linear_memory_after_pages':after,'page_bytes':65536,
+              'engine':engine,'modes':2,'complete':False,'workers':[]}
         path=self.artifacts/(name+'-'+engine+'-coverage.json'); path.write_text(json.dumps(plan)+'\n')
         cursor=recoveries=0
         for begin in range(0,calls,16):
@@ -288,7 +293,7 @@ class RecordArrayLLVM(unittest.TestCase):
                 for i,(source,replay) in enumerate(zip(sources,replays)):
                     name=f'{mode}-{i:04d}'; obj=self.llvm_object(source,name,optimization,wasm=True)
                     product=self.artifacts/(name+'.wasm')
-                    exports=['nano_main']+(['nano_baseline_report','nano_range_report','nano_memory_refusal'] if observed else [])
+                    exports=['nano_main']+(['nano_baseline_report','nano_range_report','nano_memory_report','nano_memory_refusal'] if observed else [])
                     link=[*self.tools['clang'],*flags,'-'+optimization,*testing,'-nostdlib',str(obj),str(replay),str(runtime),
                           '-Wl,--no-entry','-Wl,--initial-memory=1048576','-Wl,--max-memory=67108864',
                           *['-Wl,--export='+export for export in exports],'-o',str(product)]

@@ -14381,3 +14381,9 @@ actual C, all50 ABI field mismatches plus unknown-field refusal, corrupt program
 tables before acquisition, full1024-frame observations and explicit1MiB initial/
 64MiB maximum Wasm memory with a separate4MiB exhaustion control. These are
 unexecuted fixtures; no source-review or syntax result is semantic acceptance.
+
+My Wasm fixture additionally records actual fresh-instance linear-memory pages
+before and after the complete baseline, separately from hook-requested live-byte
+peak. The coordinator requires16 initial pages, measured growth and no more than
+1024 pages; allocator metadata and static/stack storage are not mislabeled as
+hook-requested bytes. This remains unexecuted fixture accounting.

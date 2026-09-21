@@ -37,6 +37,13 @@ uint64_t nano_range_report(uint32_t begin,uint32_t end,uint32_t wanted) {
     ra_invariant(wasm_calls<=UINT32_MAX&&wasm_recoveries<=UINT32_MAX);
     return ((uint64_t)wasm_calls<<32)|(uint32_t)wasm_recoveries;
 }
+uint64_t nano_memory_report(void) {
+    uint32_t before=(uint32_t)__builtin_wasm_memory_size(0);
+    ra_invariant(nano_fault_baseline()==0);
+    uint32_t after=(uint32_t)__builtin_wasm_memory_size(0);
+    ra_invariant(before==16&&after>before&&after<=1024);
+    return ((uint64_t)before<<32)|after;
+}
 int nano_memory_refusal(void) {
     wasm_reset();NrgInstance *output=(void *)(uintptr_t)1;
     CHECK(nrg_generated_create(&output)==NRG_MEMORY);
