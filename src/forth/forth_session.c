@@ -498,7 +498,7 @@ static uint64_t forth_block_cache(const ForthSession *session, uint32_t blk);
 
 static ForthSession *g_forth = NULL;
 
-int64_t nl_forth_runtime(int64_t kind);
+int64_t nl_forth_runtime(void *encoded_kind);
 
 static uint64_t align_cells(uint64_t bytes) {
     if (bytes > UINT64_MAX - (FORTH_CELL_BYTES - 1)) return UINT64_MAX;
@@ -2954,7 +2954,9 @@ static bool forth_install_bye(ForthSession *session) {
     return forth_publish_prim(session, "BYE", code, off, 0, false, FORTH_HOST_BYE);
 }
 
-int64_t nl_forth_runtime(int64_t kind) {
+int64_t nl_forth_runtime(void *encoded_kind) {
+    /* My scalar VM FFI transports TAG_INT through an intptr_t pointer carrier. */
+    int64_t kind = (int64_t)(intptr_t)encoded_kind;
     ForthSession *session = g_forth;
     int rc;
     int64_t thrown = 0;
