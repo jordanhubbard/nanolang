@@ -14156,3 +14156,11 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   and initialize them from the real fixture argv; I preserve all report/allocation
   assertions and both first link diagnostics. No production or bootstrap input
   changes, so I retain c41a compiler provenance with exact copied-product hashes.
+
+- [ ] I correct my ac2e report-probe entry rewrite before Nano probe compilation.
+  Both hosts passed the actual opted-in method and all25 C graph cases, then the
+  fixture's substring-count assertion also counted a quoted `fn main` source in
+  an original driver shadow. I anchor both report/provider probe builders to the
+  unique top-level entry and its shadow, retain exact-one assertions, and preserve
+  quoted source bytes and all original shadows. I retain both first terminals;
+  no production, runtime or bootstrap input changes.

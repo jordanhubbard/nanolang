@@ -1,5 +1,6 @@
 """I retain graph inputs and independently specified declaration expectations."""
 import json
+import re
 from pathlib import Path
 
 DECL='service "nsi:nanolang/filesystem" catalog 1 from "interface.nsi.json"\n'
@@ -119,14 +120,17 @@ fn main() -> int {
 shadow main { assert (== 1 1) }
 '''
 
-def report_source(root):
+def renamed_driver(root):
     source=(root/'src_nano/nanoc_v06.nano').read_text()
-    assert source.count('fn main() -> int {')==1
-    # I change only the fixture entry name, retaining the real collector and
-    # every original driver/module shadow. No alternate visibility grammar.
-    source=source.replace('fn main() -> int {','fn companion_driver_main() -> int {')
-    source=source.replace('shadow main {','shadow companion_driver_main {')
-    return source+'\n'+NANO_REPORT
+    # I change the unique top-level declarations, never quoted fixture source.
+    source,count=re.subn(r'^fn main\(\) -> int \{$','fn companion_driver_main() -> int {',source,flags=re.M)
+    assert count==1
+    source,count=re.subn(r'^shadow main \{$','shadow companion_driver_main {',source,flags=re.M)
+    assert count==1
+    return source
+
+def report_source(root):
+    return renamed_driver(root)+'\n'+NANO_REPORT
 
 PROVIDER_REPORT=r'''
 fn companion_provider_probe(manifest: string, runtime: string) -> int {
@@ -164,6 +168,4 @@ shadow main { assert (== 1 1) }
 '''
 
 def provider_report_source(root):
-    source=(root/'src_nano/nanoc_v06.nano').read_text()
-    assert source.count('fn main() -> int {')==1
-    return source.replace('fn main() -> int {','fn companion_driver_main() -> int {').replace('shadow main {','shadow companion_driver_main {')+'\n'+PROVIDER_REPORT
+    return renamed_driver(root)+'\n'+PROVIDER_REPORT
