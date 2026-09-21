@@ -14357,3 +14357,10 @@ allocation-fault acceptance. Wasm uses core testing allocation hooks and numeric
 range exports, not the native malloc/argv wrapper, and its full1024-frame roots
 already exceed8MiB. I preserve complete fault/engine/frame coverage and qualify
 new explicit memory limits rather than reuse the old4MiB manual harness claim.
+
+My LLVM source audit also finds temporary snprintf formatting outside the shared
+output writer: the final emitted bytes were charged, but temporary ABI/pointer/
+argument text needed its own work reservation. Before any emission I route these
+formats through a checked helper that charges their produced bytes and refuses
+truncation. This preserves the declared bounded-work contract rather than
+assuming final-output accounting covers intermediate formatting.

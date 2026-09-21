@@ -1,6 +1,15 @@
 /* I emit direct operations against borrowed value scratch and owned runtime roots.
  * This file is private to the LLVM text writer; it contains no bytecode dispatch
  * in a generated product. Every failure branch preserves operand roots. */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((format(printf,4,5)))
+#endif
+static void rl_text(RgOutput *b,char *text,size_t capacity,const char *format,...) {
+    if(b->status!=NVM_ARRAY_ELIGIBLE)return;
+    va_list args;va_start(args,format);int n=vsnprintf(text,capacity,format,args);va_end(args);
+    if(n<0 || (size_t)n>=capacity) { b->status=NVM_ARRAY_LIMIT;return; }
+    (void)rg_charge(b,0,(uint64_t)n+1);
+}
 typedef struct { RgOutput *out; uint32_t serial; } RlBlock;
 static uint32_t rl_next(RlBlock *s) {
     if(s->serial==UINT32_MAX) { s->out->status=NVM_ARRAY_LIMIT;return 0; }
@@ -32,7 +41,7 @@ static void rl_tag(RlBlock *s,uint32_t actual,uint32_t expected) {
 }
 static void rl_replace(RlBlock *s,uint32_t count,uint32_t payload,uint32_t tag) {
     rg_write(s->out," store i64 %%v%u, ptr %%r_payload\n store i32 %u, ptr %%r_tag\n",payload,tag);
-    char args[64];snprintf(args,sizeof args,", i32 %u, ptr %%r",count);rl_call(s,"nrg_replace",args);
+    char args[64];rl_text(s->out,args,sizeof args,", i32 %u, ptr %%r",count);rl_call(s,"nrg_replace",args);
 }
 static void rl_boolean(RlBlock *s,uint32_t count,uint32_t condition) {
     uint32_t payload=rl_next(s);rg_write(s->out," %%v%u = zext i1 %%v%u to i64\n",payload,condition);
@@ -158,14 +167,14 @@ static void rl_operation(RlBlock *s,const NvmRecordArrayExecutionInstruction *r)
     case OP_DUP:rl_call(s,"nrg_dup","");break;
     case OP_SWAP:rl_call(s,"nrg_swap","");break;
     case OP_LOAD_LOCAL:case OP_LOAD_GLOBAL:case OP_STORE_LOCAL:case OP_STORE_GLOBAL:
-        snprintf(args,sizeof args,", i1 zeroext %s, i32 %u",r->opcode==OP_LOAD_GLOBAL||r->opcode==OP_STORE_GLOBAL?"true":"false",(uint32_t)arg);
+        rl_text(s->out,args,sizeof args,", i1 zeroext %s, i32 %u",r->opcode==OP_LOAD_GLOBAL||r->opcode==OP_STORE_GLOBAL?"true":"false",(uint32_t)arg);
         rl_call(s,r->recipe==NVM_RA_ROOT_LOAD?"nrg_load":"nrg_store",args);break;
     case OP_STRUCT_NEW:case OP_STRUCT_LITERAL:case OP_AGG_PACK:
-        snprintf(args,sizeof args,", i32 %u",(uint32_t)(r->opcode==OP_AGG_PACK?r->operand_bits[1]:arg));rl_call(s,"nrg_record_new",args);break;
+        rl_text(s->out,args,sizeof args,", i32 %u",(uint32_t)(r->opcode==OP_AGG_PACK?r->operand_bits[1]:arg));rl_call(s,"nrg_record_new",args);break;
     case OP_STRUCT_GET:case OP_AGG_GET:case OP_STRUCT_SET:case OP_AGG_SET:
-        snprintf(args,sizeof args,", i32 %u, i1 zeroext %s",(uint32_t)arg,r->opcode==OP_AGG_GET||r->opcode==OP_AGG_SET?"true":"false");rl_call(s,r->recipe==NVM_RA_ROOT_GET?"nrg_record_get":"nrg_record_set",args);break;
+        rl_text(s->out,args,sizeof args,", i32 %u, i1 zeroext %s",(uint32_t)arg,r->opcode==OP_AGG_GET||r->opcode==OP_AGG_SET?"true":"false");rl_call(s,r->recipe==NVM_RA_ROOT_GET?"nrg_record_get":"nrg_record_set",args);break;
     case OP_ARR_NEW:case OP_ARR_LITERAL:
-        snprintf(args,sizeof args,", i32 %u, i32 %u, i1 zeroext %s",(uint32_t)arg,r->opcode==OP_ARR_LITERAL?(uint32_t)r->operand_bits[1]:0,r->opcode==OP_ARR_LITERAL?"true":"false");rl_call(s,"nrg_array_new",args);break;
+        rl_text(s->out,args,sizeof args,", i32 %u, i32 %u, i1 zeroext %s",(uint32_t)arg,r->opcode==OP_ARR_LITERAL?(uint32_t)r->operand_bits[1]:0,r->opcode==OP_ARR_LITERAL?"true":"false");rl_call(s,"nrg_array_new",args);break;
     case OP_ASSERT:
         rl_peek(s,0,'a',&x,&xt);z=rl_truth(s,'a');rl_call(s,"nrg_drop","");rl_guard(s,z,"assert_error");break;
     case OP_JMP:rg_write(b," br label %%b%u\n",r->successors[0]);return;

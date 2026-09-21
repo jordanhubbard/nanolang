@@ -43,13 +43,13 @@ static void rl_layout(RlBlock *s,uint32_t index,const char *expected) {
 static void rl_abi(RlBlock *s) {
     char expression[256];uint32_t index=0;
     static const uint32_t constants[]={NRG_ABI,NRG_FRAMES,NRG_ROOTS,4,1};
-    for(size_t i=0;i<sizeof constants/sizeof constants[0];i++) { snprintf(expression,sizeof expression,"%u",constants[i]);rl_layout(s,index++,expression); }
+    for(size_t i=0;i<sizeof constants/sizeof constants[0];i++) { rl_text(s->out,expression,sizeof expression,"%u",constants[i]);rl_layout(s,index++,expression); }
     static const char *const types[]={"%V","%Fn","%P","%View","%Record","%Field"};
     static const uint32_t fields[]={2,7,17,2,2,3};
     for(size_t i=0;i<sizeof fields/sizeof fields[0];i++) {
-        snprintf(expression,sizeof expression,"ptrtoint (ptr getelementptr (%s, ptr null, i32 1) to i32)",types[i]);rl_layout(s,index++,expression);
-        snprintf(expression,sizeof expression,"ptrtoint (ptr getelementptr ({ i8, %s }, ptr null, i32 0, i32 1) to i32)",types[i]);rl_layout(s,index++,expression);
-        for(uint32_t j=0;j<fields[i];j++) { snprintf(expression,sizeof expression,"ptrtoint (ptr getelementptr (%s, ptr null, i32 0, i32 %u) to i32)",types[i],j);rl_layout(s,index++,expression); }
+        rl_text(s->out,expression,sizeof expression,"ptrtoint (ptr getelementptr (%s, ptr null, i32 1) to i32)",types[i]);rl_layout(s,index++,expression);
+        rl_text(s->out,expression,sizeof expression,"ptrtoint (ptr getelementptr ({ i8, %s }, ptr null, i32 0, i32 1) to i32)",types[i]);rl_layout(s,index++,expression);
+        for(uint32_t j=0;j<fields[i];j++) { rl_text(s->out,expression,sizeof expression,"ptrtoint (ptr getelementptr (%s, ptr null, i32 0, i32 %u) to i32)",types[i],j);rl_layout(s,index++,expression); }
     }
     if(index!=NRG_LAYOUT_COUNT) { s->out->status=NVM_ARRAY_INVALID;return; }
     rl_layout(s,index,"4294967295");
@@ -230,51 +230,51 @@ NvmArrayEligibilityResult nvm2llvm_record_array_private(const NvmModule *module,
     char pointer[256],expected[128];
     const uint32_t program_values[]={NRG_ABI,16,8,NRG_FRAMES,counts.functions,counts.entry,counts.initializer,counts.globals,(unsigned)!!(header.flags&NVM_FLAG_HAS_MAIN),counts.strings,counts.records,record_fields};
     for(uint32_t i=0;i<12;i++) {
-        snprintf(pointer,sizeof pointer,"getelementptr (%%P, ptr @program, i32 0, i32 %u)",i);
-        snprintf(expected,sizeof expected,"%u",program_values[i]);rl_check(&startup,"i32",pointer,expected);
+        rl_text(&b,pointer,sizeof pointer,"getelementptr (%%P, ptr @program, i32 0, i32 %u)",i);
+        rl_text(&b,expected,sizeof expected,"%u",program_values[i]);rl_check(&startup,"i32",pointer,expected);
     }
     static const char *const program_pointers[]={"@functions","@literals","@records","@starts","@fields"};
     for(uint32_t i=0;i<5;i++) {
-        snprintf(pointer,sizeof pointer,"getelementptr (%%P, ptr @program, i32 0, i32 %u)",i+12);
+        rl_text(&b,pointer,sizeof pointer,"getelementptr (%%P, ptr @program, i32 0, i32 %u)",i+12);
         rl_check(&startup,"ptr",pointer,program_pointers[i]);
     }
     for(uint32_t i=0;i<counts.functions;i++) {
         const NvmRecordArrayExecutionFunction *f=&functions[i];
         const uint32_t values[]={f->signature.local_count,f->signature.arity,f->signature.result_count,f->signature.result_tag,f->maximum_stack};
         for(uint32_t j=0;j<5;j++) {
-            snprintf(pointer,sizeof pointer,"getelementptr ([%u x %%Fn], ptr @functions, i32 0, i32 %u, i32 %u)",counts.functions,i,j);
-            snprintf(expected,sizeof expected,"%u",values[j]);rl_check(&startup,"i32",pointer,expected);
+            rl_text(&b,pointer,sizeof pointer,"getelementptr ([%u x %%Fn], ptr @functions, i32 0, i32 %u, i32 %u)",counts.functions,i,j);
+            rl_text(&b,expected,sizeof expected,"%u",values[j]);rl_check(&startup,"i32",pointer,expected);
         }
-        snprintf(pointer,sizeof pointer,"getelementptr ([%u x %%Fn], ptr @functions, i32 0, i32 %u, i32 5)",counts.functions,i);
-        if(f->parameter_tags_present)snprintf(expected,sizeof expected,"@parameters_%u",i);else snprintf(expected,sizeof expected,"null");
+        rl_text(&b,pointer,sizeof pointer,"getelementptr ([%u x %%Fn], ptr @functions, i32 0, i32 %u, i32 5)",counts.functions,i);
+        if(f->parameter_tags_present)rl_text(&b,expected,sizeof expected,"@parameters_%u",i);else rl_text(&b,expected,sizeof expected,"null");
         rl_check(&startup,"ptr",pointer,expected);
-        snprintf(pointer,sizeof pointer,"getelementptr ([%u x %%Fn], ptr @functions, i32 0, i32 %u, i32 6)",counts.functions,i);
-        snprintf(expected,sizeof expected,"@body_%u",i);rl_check(&startup,"ptr",pointer,expected);
+        rl_text(&b,pointer,sizeof pointer,"getelementptr ([%u x %%Fn], ptr @functions, i32 0, i32 %u, i32 6)",counts.functions,i);
+        rl_text(&b,expected,sizeof expected,"@body_%u",i);rl_check(&startup,"ptr",pointer,expected);
         if(f->parameter_tags_present)for(uint32_t j=0;j<f->signature.arity;j++) {
             uint8_t tag;if(!nvm_record_array_execution_parameter(plan,i,(uint16_t)j,&tag))goto invalid;
-            snprintf(pointer,sizeof pointer,"getelementptr ([%u x i8], ptr @parameters_%u, i32 0, i32 %u)",f->signature.arity?f->signature.arity:1,i,j);
-            snprintf(expected,sizeof expected,"%u",tag);rl_check(&startup,"i8",pointer,expected);
+            rl_text(&b,pointer,sizeof pointer,"getelementptr ([%u x i8], ptr @parameters_%u, i32 0, i32 %u)",f->signature.arity?f->signature.arity:1,i,j);
+            rl_text(&b,expected,sizeof expected,"%u",tag);rl_check(&startup,"i8",pointer,expected);
         }
     }
     for(uint32_t i=0;i<counts.strings;i++) {
         uint32_t size;if(!nvm_record_array_execution_size(plan,NVM_RA_SNAPSHOT_STRING,i,&size))goto invalid;
-        snprintf(pointer,sizeof pointer,"getelementptr ([%u x %%View], ptr @literals, i32 0, i32 %u, i32 0)",counts.strings,i);
-        snprintf(expected,sizeof expected,"@literal_%u",i);rl_check(&startup,"ptr",pointer,expected);
-        snprintf(pointer,sizeof pointer,"getelementptr ([%u x %%View], ptr @literals, i32 0, i32 %u, i32 1)",counts.strings,i);
-        snprintf(expected,sizeof expected,"%u",size);rl_check(&startup,"i32",pointer,expected);
+        rl_text(&b,pointer,sizeof pointer,"getelementptr ([%u x %%View], ptr @literals, i32 0, i32 %u, i32 0)",counts.strings,i);
+        rl_text(&b,expected,sizeof expected,"@literal_%u",i);rl_check(&startup,"ptr",pointer,expected);
+        rl_text(&b,pointer,sizeof pointer,"getelementptr ([%u x %%View], ptr @literals, i32 0, i32 %u, i32 1)",counts.strings,i);
+        rl_text(&b,expected,sizeof expected,"%u",size);rl_check(&startup,"i32",pointer,expected);
     }
     for(uint32_t i=0;i<counts.records;i++) {
         for(uint32_t j=0;j<2;j++) {
-            snprintf(pointer,sizeof pointer,"getelementptr ([%u x %%Record], ptr @records, i32 0, i32 %u, i32 %u)",counts.records,i,j);
-            snprintf(expected,sizeof expected,"%u",j?records[i].fields:records[i].layout);rl_check(&startup,"i32",pointer,expected);
+            rl_text(&b,pointer,sizeof pointer,"getelementptr ([%u x %%Record], ptr @records, i32 0, i32 %u, i32 %u)",counts.records,i,j);
+            rl_text(&b,expected,sizeof expected,"%u",j?records[i].fields:records[i].layout);rl_check(&startup,"i32",pointer,expected);
         }
-        snprintf(pointer,sizeof pointer,"getelementptr ([%u x i32], ptr @starts, i32 0, i32 %u)",counts.records,i);
-        snprintf(expected,sizeof expected,"%u",record_starts[i]);rl_check(&startup,"i32",pointer,expected);
+        rl_text(&b,pointer,sizeof pointer,"getelementptr ([%u x i32], ptr @starts, i32 0, i32 %u)",counts.records,i);
+        rl_text(&b,expected,sizeof expected,"%u",record_starts[i]);rl_check(&startup,"i32",pointer,expected);
         for(uint32_t j=0;j<records[i].fields;j++) {
             NrgField f=fields[starts[records[i].layout]+j];uint32_t values[]={f.tag,f.nested_layout,f.element};
             for(uint32_t k=0;k<3;k++) {
-                snprintf(pointer,sizeof pointer,"getelementptr ([%u x %%Field], ptr @fields, i32 0, i32 %u, i32 %u)",record_fields,record_starts[i]+j,k);
-                snprintf(expected,sizeof expected,"%u",values[k]);rl_check(&startup,"i32",pointer,expected);
+                rl_text(&b,pointer,sizeof pointer,"getelementptr ([%u x %%Field], ptr @fields, i32 0, i32 %u, i32 %u)",record_fields,record_starts[i]+j,k);
+                rl_text(&b,expected,sizeof expected,"%u",values[k]);rl_check(&startup,"i32",pointer,expected);
             }
         }
     }
