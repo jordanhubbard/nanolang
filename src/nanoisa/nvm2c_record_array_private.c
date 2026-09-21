@@ -239,14 +239,9 @@ static bool rg_fact(RgOutput *b,const NvmRecordArrayExecutionPlan *plan,
     if(r->opcode==OP_CALL) {
         callee=(uint32_t)r->operand_bits[0];if(callee>=count)return false;
         pops=functions[callee].signature.arity;pushes=functions[callee].signature.result_count;
-    } else if(r->opcode==OP_RET)pops=functions[r->function].signature.result_count;
-    else if(r->opcode==OP_ARR_LITERAL || r->opcode==OP_STRUCT_LITERAL)pops=(int)r->operand_bits[1];
-    else if(r->opcode==OP_STRUCT_NEW || r->opcode==OP_AGG_PACK) {
-        NvmRecordArrayExecutionDescriptor descriptor;
-        uint32_t ordinal=(uint32_t)r->operand_bits[r->opcode==OP_AGG_PACK?1:0];
-        if(!nvm_record_array_execution_descriptor(plan,ordinal,&descriptor))return false;
-        pops=descriptor.fields;
-    }
+    } else if(r->opcode==OP_RET) { pops=functions[r->function].signature.result_count;pushes=0; }
+    else if(r->opcode==OP_ARR_LITERAL || r->opcode==OP_STRUCT_LITERAL) { pops=(int)r->operand_bits[1];pushes=1; }
+    else if(r->opcode==OP_AGG_PACK) { pops=(int)r->operand_bits[3];pushes=1; }
     if(pops!=r->pops || pushes!=r->pushes || callee!=r->callee)return false;
     uint32_t successors[2];uint8_t edges=0;
     if(r->opcode==OP_JMP || r->opcode==OP_JMP_TRUE || r->opcode==OP_JMP_FALSE)

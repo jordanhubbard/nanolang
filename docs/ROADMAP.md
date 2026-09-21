@@ -14189,3 +14189,17 @@ for an existing failure and checks accumulated bounds before subtraction. I
 retain an exact MEMORY-not-LIMIT control with output sentinels and independent
 recovery. This source correction and the full generated C fixtures remain
 unexecuted pending checkpoint review; no runtime acceptance is inferred.
+
+### Generated C dynamic stack agreement correction (580c first terminals)
+
+Both fresh hosts pass setup and two-method discovery, then stop at the emission
+fixture's positive `all_copy_domains` baseline, before allocation injection or
+any generated product execution. I preserve both original reports and products.
+Static comparison identifies a generated fact-checker defect: literal and RET
+rows retain the catalog's dynamic `push_count=-1` instead of matching the copied
+plan's literal push1 and RET push0. AGG_PACK must read its explicit operand3
+count; STRUCT_NEW keeps catalog pop0 and remains admitted only for empty layouts
+by the unchanged origin query. I correct exact facts, not eligibility/assertions.
+MAC creation again failed at occupied unmanaged tunnel port34113; this entry
+retains the discovery until ledger access is restored. Corrected gates require a
+new frozen pin; neither original terminal is relabeled.
