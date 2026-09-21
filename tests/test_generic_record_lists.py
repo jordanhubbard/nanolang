@@ -153,7 +153,9 @@ struct Holder { item: Item, values: array<Item>, numbers: array<array<int>> }
         positive = prelude + '''fn main() -> int {
  let strings: Strings = Strings { values: (array_new 1 "ready") }
  assert (== (at strings.values 0) "ready")
- let source: array<Item> = (array_new 1 (Item { value: 9 }))
+ let source: array<Item> = [Item { value: 9 }]
+ let made: array<Item> = (array_new 1 (Item { value: 11 }))
+ assert (== (at made 0).value 11)
  let value: Holder = Holder { numbers: [[1], []], values: source, item: Item { value: 7 } }
  assert (== value.item.value 7)
  assert (== (at value.values 0).value 9)

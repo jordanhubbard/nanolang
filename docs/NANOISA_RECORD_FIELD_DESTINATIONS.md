@@ -125,3 +125,8 @@ ModuleCache's source. All arguments are already visited by the existing checker;
 additional visits are static checks, not extra evaluation. I cover wrong count
 type/arity, inferred string and record identity, and a visible same-named
 function's unchanged declared result. Source review precedes corrected gates.
+
+I retain the original record-array literal positive and add array_new as a
+separate value/assertion; qualification vectors accumulate. Root reviewed87f
+and approved fresh gates with this fixture-only preservation. A known nested
+UNKNOWN fill remains subject to strict destination checks.
