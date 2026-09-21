@@ -14230,3 +14230,10 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   I preserve the original source/tools/products/terminal and use a separately
   recorded verbose diagnostic with unchanged supervisor deadline if needed. I do
   not classify the unexplained timeout as infrastructure or weaken the corpus.
+
+- [ ] I quote the compiler-observer command in my new spaced dependency-header
+  fixture. Static review found that6b586 passes its intentional space-containing
+  observer path as an unquoted CC/NANO_CC command fragment. I retain the frozen
+  run and its actual terminal; this finding does not change production command
+  semantics. I quote the fixture command before fresh affected checks while
+  preserving the same paths, producer/shadow corpus and argv assertions.

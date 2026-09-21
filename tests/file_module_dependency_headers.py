@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shlex
 import sys
 
 
@@ -66,7 +67,7 @@ def run(test, root):
             if compiler == 'nanoc_c':
                 args += ['--verbose', '--llm-shadow-json', shadows]
             out, err = test.command(name+'-build', args, timeout=900, extra=dict(
-                CC=str(observer), NANO_CC=str(observer), HEADER_REAL_CC=json.dumps(test.cc),
+                CC=shlex.quote(str(observer)), NANO_CC=shlex.quote(str(observer)), HEADER_REAL_CC=json.dumps(test.cc),
                 HEADER_COMMAND_LOG=str(commands), NANO_SHADOW_TRACE='1'))
             if compiler == 'nanoc_c':
                 report = json.loads(shadows.read_text())
