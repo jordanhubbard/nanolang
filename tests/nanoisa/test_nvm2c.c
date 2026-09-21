@@ -3259,7 +3259,7 @@ static void test_nested_record_values(void) {
 
 static void test_unsupported_classifier_instructions(void) {
     const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES,
-        OP_STR_TO_UPPER, OP_CALL_INDIRECT, OP_ROLL};
+        OP_STR_TO_UPPER, OP_ROLL};
     for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {
         NvmModule *m = assemble_ok(".entry main\n.function main 0 0 0 int 1\n"
             "NOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\n"
@@ -3277,6 +3277,43 @@ static void test_unsupported_classifier_instructions(void) {
               "I reject unsupported stack effects at their own instruction");
         free(c);
         nvm_module_free(m);
+    }
+
+    NvmModule *malformed = assemble_ok(
+        ".entry main\n.function main 0 0 0 int 1\n"
+        "NOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\n"
+        "PUSH_I64 0\nRET\n.end\n", "malformed indirect call");
+    if (malformed) {
+        DecodedInstruction indirect = {0};
+        indirect.opcode = OP_CALL_INDIRECT;
+        indirect.operands[0].u16 = 1;
+        indirect.operands[1].u16 = 1;
+        CHECK(isa_encode(&indirect, malformed->code + malformed->functions[0].code_offset, 16) != 0,
+              "I encode a malformed indirect call using ISA metadata");
+        char error[256] = {0};
+        char *c = nvm2c_emit(malformed, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "CALL_INDIRECT has an unsupported stack shape"),
+              "I reject an indirect call without its exact arguments and callable");
+        free(c);
+        nvm_module_free(malformed);
+    }
+
+    const char *exact =
+        ".entry main\n"
+        ".function identity 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n"
+        ".parameters identity int\n"
+        ".function main 0 0 0 int 1\nPUSH_I64 42\nFUNCREF identity\n"
+        "CALL_INDIRECT 1 1\nRET\n.end\n";
+    NvmModule *exact_module = assemble_ok(exact, "exact scalar indirect call");
+    if (exact_module) {
+        char *c = emit_or_fail(exact_module, "I emit an exact scalar indirect call");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 42,
+                  "I execute an exact scalar indirect call");
+            free(c);
+        }
+        nvm_module_free(exact_module);
     }
 }
 

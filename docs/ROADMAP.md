@@ -1278,6 +1278,86 @@ their individual acceptance evidence closes them.
           all 2,426 structured-C checks and 1,412 shape checks, and exact
           callback locals are excluded from heap-root registration because
           they remain nonheap integer-width references.
+      - [x] Replacement hosted run `35562442766` passes bootstrap and reaches
+        the pre-existing returned-call suite after the map-result repair. Its
+        nested higher-order case refuses a declared function identifier as an
+        untyped computed-call argument, while its `choose(bool)` fixture cannot
+        use the zero-argument selector proof and returns status 1. I retain the
+        x64 log with SHA-256
+        `a24436ce1bffb79bea456f6cc300f1fb1676bbcba7ec0ae1ba395d8c32754579`.
+        I will type an exact declared function identifier from its declaration
+        and statically refine only a one-Boolean-parameter selector whose sole
+        statement is an `if` over that parameter and whose two arms each
+        return an exact signature-matching declared function. I still execute
+        the selector once and discard its proved `FUNCREF` before the direct
+        call. Arbitrary conditions, nonliteral selector arguments, effects,
+        incomplete branches and general indirect calls remain refused.
+        - [x] Fresh corrected bootstrap passes and the branch-selector plus
+          evaluation-order methods pass, but the nested higher-order case now
+          reaches expression emission and refuses the declared `identity`
+          argument as an undefined binding. I retain the three-method log with
+          SHA-256
+          `09fef7855aeecf634f6b4858014d54858ea68ee48a6ae36d65b6977aa341f054`.
+          I emit `FUNCREF` for an exact declared function identifier only after
+          local and global lookup fail, using the same declaration index that
+          supplied its function type; unresolved names remain errors.
+          - [x] The raw nested fixture then exposes the next explicit boundary:
+            the source emitter refuses `fn(int)->int` parameters before it can
+            lower `return (f n)`. I retain that terminal. I will admit exact
+            scalar function parameters, emit declared function arguments as
+            `FUNCREF`, and lower calls through those parameters with the
+            existing `CALL_INDIRECT` arity/result operands. Native translation
+            must dispatch only among module functions whose exact scalar
+            parameter/result shapes match the proved stack; every other
+            runtime target traps. Closures, aggregates, imports, unknown result
+            joins and native callback ABI pointers remain outside this repair.
+            - [x] The raw module then verifies and runs in NanoVM, while native
+              translation initially cannot select an exact scalar target:
+              scalar `.parameters` facts are currently emitted only as a
+              suffix of optional ordinary-record publication, so a
+              record-free higher-order program loses its declared parameter
+              tags. I will publish the already accumulated scalar parameter
+              directives independently of optional record/layout facts, keep
+              each exact declared function parameter including `function`,
+              and require native indirect dispatch to match those facts before
+              it emits any target case.
+              - [x] The first clean Stage 2 bootstrap reaches assembly and is
+                refused with `I need exact-arity tags for .parameters` because
+                the compiler contains accepted source parameter types that do
+                not have a NanoISA tag. I will publish an independent
+                `.parameters` row only when every parameter has one exact tag;
+                I will never emit an empty or partial row, and the scalar plus
+                `function` rows used by this repair remain mandatory.
+                - [x] The corrected functional-array adjacency passes ten of
+                  eleven methods; its preserved-output refusal control expects
+                  the public diagnostic to retain the word `indirect`, while
+                  my more precise stored-callback wording dropped it. I will
+                  keep both facts in the diagnostic and rerun that refusal
+                  control without weakening its assertion.
+                - [x] The broad native gate passes 2,425 checks and reaches its
+                  legacy opcode inventory, which still lists every
+                  `CALL_INDIRECT` as unsupported. I will replace that stale
+                  classification with an exact scalar positive execution and
+                  a malformed-stack refusal, while retaining every other
+                  unsupported-opcode assertion.
+                - [x] The source-emitter gate passes its 86-check pinned subset
+                  and 89 of 90 integration methods, then reaches one stale
+                  executable-closure fixture that classifies an exact scalar
+                  function parameter call as an unlowered root. I will move
+                  only that exact program into VM/native positive execution;
+                  stored globals, shadowed nonfunctions, unavailable hosts and
+                  other unsupported roots remain refused.
+                  The exact final source passes a clean 344.96-second bootstrap
+                  (`070f041cacd35d267548152df55648cb2b05118e2234b5b2a8cb1840b3b06162`),
+                  all three original returned-call methods
+                  (`fda96248c2ceac92f70e4b7ddae69e90b10fa3c7e28647e9edf77b899e8c4e13`),
+                  both map-result methods and all nine functional-array methods
+                  (`11044b74200082b48692ec9dcef32d31a562c2680ad3dafb57b1551b073fd7e8`),
+                  2,428 native translator checks
+                  (`4b7161319e266f0c671756ebf36c7cd089cb1093f3f7693b7207b2f18ccd6900`),
+                  and the 86-check pinned source subset plus all 90 integration
+                  methods
+                  (`a89498b4d7b7c9083da8956f41bd558f26c09de85f4584b70bdf52227e41966d`).
 
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
       accepted integer-zero spelling for an opaque null when foreign call

@@ -365,6 +365,14 @@ static int result_is_i64(const NvmFunctionEntry *fn) {
            (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || fn->result_tag == TAG_FUNCTION);
 }
 
+static uint8_t scalar_kind_for_tag(uint8_t tag) {
+    return tag == TAG_INT ? NVM2C_VK_INT :
+           tag == TAG_BOOL ? NVM2C_VK_BOOL :
+           tag == TAG_FLOAT ? NVM2C_VK_FLOAT :
+           tag == TAG_STRING ? NVM2C_VK_STR :
+           tag == TAG_FUNCTION ? NVM2C_VK_FUNCTION : NVM2C_VK_UNK;
+}
+
 static const char *c_local_type(uint8_t kind) {
     if (kind == NVM2C_VK_FLOAT) return "double";
     if (kind == NVM2C_VK_STR) return "const char *";
@@ -2394,6 +2402,69 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 } else if (!shape_equal(b, shape_variable(b, &b->shape_results[idx]),
                                         shape_variable(b, &b->shape_results[callee]))) return 0;
             }
+            break;
+        }
+        case OP_CALL_INDIRECT: {
+            uint16_t argc = ins.operands[0].u16;
+            uint16_t results = ins.operands[1].u16;
+            if (argc > NVM2C_MAX_LOCALS || results > 1 || sp < (int)argc + 1) {
+                nvm2c_fail(b, "function %u: CALL_INDIRECT has an unsupported stack shape", idx);
+                return 0;
+            }
+            Nvm2cSimSlot callable;
+            if (!sim_pop(b, idx, stk, &sp, &callable)) return 0;
+            if (callable.kind != NVM2C_VK_FUNCTION && callable.kind != NVM2C_VK_UNK) {
+                nvm2c_fail(b, "function %u: CALL_INDIRECT requires a function value", idx);
+                return 0;
+            }
+            if (callable.kind == NVM2C_VK_UNK)
+                mark_origin(local_kind, nloc, callable.origin, NVM2C_VK_FUNCTION);
+
+            uint8_t actual[NVM2C_MAX_LOCALS];
+            for (uint16_t p = 0; p < argc; ++p) {
+                Nvm2cSimSlot arg = stk[sp - argc + p];
+                actual[p] = arg.kind;
+                if (actual[p] == NVM2C_VK_UNK && arg.origin >= 0 &&
+                    (uint16_t)arg.origin < fn->arity && mod->function_param_types &&
+                    mod->function_param_types[idx]) {
+                    actual[p] = scalar_kind_for_tag(mod->function_param_types[idx][arg.origin]);
+                }
+            }
+            uint8_t result_kind = NVM2C_VK_UNK;
+            size_t candidates = 0;
+            for (uint32_t target = 0; target < mod->function_count; ++target) {
+                const NvmFunctionEntry *candidate = &mod->functions[target];
+                if (candidate->arity != argc || candidate->result_count != results) continue;
+                uint8_t candidate_result = results ? scalar_kind_for_tag(candidate->result_tag) : NVM2C_VK_UNK;
+                if (results && candidate_result == NVM2C_VK_UNK) continue;
+                int match = 1;
+                for (uint16_t p = 0; p < argc; ++p) {
+                    uint8_t expected = facts->parameters[(size_t)target * b->local_width + p];
+                    if (expected == NVM2C_VK_UNK && mod->function_param_types &&
+                        mod->function_param_types[target])
+                        expected = scalar_kind_for_tag(mod->function_param_types[target][p]);
+                    if (expected == NVM2C_VK_UNK || actual[p] == NVM2C_VK_UNK || expected != actual[p]) {
+                        match = 0; break;
+                    }
+                }
+                if (!match) continue;
+                if (candidates && result_kind != candidate_result) {
+                    nvm2c_fail(b, "function %u: CALL_INDIRECT has ambiguous scalar results", idx);
+                    return 0;
+                }
+                result_kind = candidate_result;
+                candidates++;
+            }
+            if (!candidates) {
+                nvm2c_fail(b, "function %u: CALL_INDIRECT has no exact scalar target", idx);
+                return 0;
+            }
+            for (uint16_t p = argc; p > 0; --p) {
+                Nvm2cSimSlot arg;
+                if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
+                if (arg.kind == NVM2C_VK_UNK) mark_origin(local_kind, nloc, arg.origin, actual[p - 1]);
+            }
+            if (results && !sim_push(b, idx, stk, &sp, result_kind, -1)) return 0;
             break;
         }
         case OP_CALL_EXTERN: {
@@ -5090,6 +5161,80 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             break;
         }
+        case OP_CALL_INDIRECT: {
+            uint16_t argc = ins.operands[0].u16;
+            uint16_t results = ins.operands[1].u16;
+            if (argc > NVM2C_MAX_LOCALS || results > 1 || st.sp < (int)argc + 1) {
+                nvm2c_fail(b, "function %u: CALL_INDIRECT has an unsupported stack shape", idx);
+                goto done;
+            }
+            int callable = stack_pop_expect(b, &st, NVM2C_VK_FUNCTION, "CALL_INDIRECT callable");
+            if (b->failed) goto done;
+            int args[NVM2C_MAX_LOCALS];
+            uint8_t argk[NVM2C_MAX_LOCALS];
+            for (int p = (int)argc - 1; p >= 0; --p) {
+                argk[p] = st.kinds[st.sp - 1];
+                args[p] = stack_pop_expect(b, &st, argk[p], "CALL_INDIRECT argument");
+                if (b->failed) goto done;
+            }
+            uint8_t result_kind = NVM2C_VK_UNK;
+            size_t candidates = 0;
+            for (uint32_t target = 0; target < mod->function_count; ++target) {
+                const NvmFunctionEntry *candidate = &mod->functions[target];
+                if (candidate->arity != argc || candidate->result_count != results) continue;
+                uint8_t candidate_result = results ? scalar_kind_for_tag(candidate->result_tag) : NVM2C_VK_UNK;
+                if (results && candidate_result == NVM2C_VK_UNK) continue;
+                int match = 1;
+                for (uint16_t p = 0; p < argc; ++p) {
+                    if (fn_local_kind(b, kinds, target, p) != argk[p]) { match = 0; break; }
+                }
+                if (!match) continue;
+                if (candidates && result_kind != candidate_result) {
+                    nvm2c_fail(b, "function %u: CALL_INDIRECT has ambiguous scalar results", idx);
+                    goto done;
+                }
+                result_kind = candidate_result;
+                candidates++;
+            }
+            if (!candidates) {
+                nvm2c_fail(b, "function %u: CALL_INDIRECT has no exact scalar target", idx);
+                goto done;
+            }
+            emit_map_roots(b, &st, fn, kinds, idx);
+            if (b->has_owned_strings || b->has_owned_aggregates)
+                nvm2c_puts(b, "    nmap_collect_if_needed();\n");
+            int result = -1;
+            if (results) {
+                if (result_kind == NVM2C_VK_FLOAT) result = stack_push_float(b, &st, "0.0");
+                else if (result_kind == NVM2C_VK_STR) result = stack_push_str(b, &st, "\"\"");
+                else if (result_kind == NVM2C_VK_BOOL) result = stack_push_bool(b, &st, "0");
+                else if (result_kind == NVM2C_VK_FUNCTION) result = stack_push_function(b, &st, "0");
+                else result = stack_push_temp(b, &st, "0");
+                if (b->failed) goto done;
+            }
+            nvm2c_printf(b, "    switch ((uint64_t)t[%d]) {\n", callable);
+            for (uint32_t target = 0; target < mod->function_count; ++target) {
+                const NvmFunctionEntry *candidate = &mod->functions[target];
+                if (candidate->arity != argc || candidate->result_count != results) continue;
+                uint8_t candidate_result = results ? scalar_kind_for_tag(candidate->result_tag) : NVM2C_VK_UNK;
+                if (results && candidate_result != result_kind) continue;
+                int match = 1;
+                for (uint16_t p = 0; p < argc; ++p) {
+                    if (fn_local_kind(b, kinds, target, p) != argk[p]) { match = 0; break; }
+                }
+                if (!match) continue;
+                char cname[64];
+                fn_c_name(mod, target, cname, sizeof cname);
+                nvm2c_printf(b, "    case %u: ", target);
+                if (results) nvm2c_printf(b, "%s[%d] = ", stack_array_name(result_kind), result);
+                nvm2c_printf(b, "%s(", cname);
+                for (uint16_t p = 0; p < argc; ++p)
+                    nvm2c_printf(b, "%s%s[%d]", p ? ", " : "", stack_array_name(argk[p]), args[p]);
+                nvm2c_puts(b, "); break;\n");
+            }
+            nvm2c_puts(b, "    default: NVM2C_ABORT();\n    }\n");
+            break;
+        }
         case OP_TAIL_CALL: {
             uint32_t callee = ins.operands[0].u32;
             emit_map_roots(b, &st, fn, kinds, idx);
@@ -6652,6 +6797,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                         tags[p] == TAG_BOOL ? NVM2C_VK_BOOL :
                         tags[p] == TAG_FLOAT ? NVM2C_VK_FLOAT :
                         tags[p] == TAG_STRING ? NVM2C_VK_STR :
+                        tags[p] == TAG_FUNCTION ? NVM2C_VK_FUNCTION :
                         aggregate_value_tag(tags[p]) ? NVM2C_VK_REC : NVM2C_VK_UNK;
                     if (declared != NVM2C_VK_UNK) { *kind = declared; facts.changed = 1; }
                 }

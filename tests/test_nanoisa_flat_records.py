@@ -222,6 +222,16 @@ class FlatRecordEmitter(unittest.TestCase):
                                          text=True, timeout=120)
             self.assertEqual(wrong_owner.returncode, 1)
             self.assertEqual(wrong_owner.stdout, "")
+            source.write_text('fn target() -> int { return 1 } '
+                              'fn consume(f: fn() -> int) -> int { return (f) } '
+                              'fn main() -> int { assert (== (consume target) 1) return 0 }\n')
+            assembly.write_text(self.run_checked(tool, source, "program").stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+            self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+            self.run_checked(ROOT / "bin/nano_vm", module)
+            self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+            self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+            self.run_checked(binary)
             refused = [
                 'let count: int = 1 fn main() -> int { set count 2 return count }',
                 'let count: int = 1 fn __init__() -> void {} fn main() -> int { return count }',
@@ -229,8 +239,6 @@ class FlatRecordEmitter(unittest.TestCase):
                 'fn main() -> array<string> { return (unavailable_array_host "live") }',
                 'fn target() -> int { return 1 } let stored: fn() -> int = target '
                 'fn main() -> int { return 0 }',
-                'fn target() -> int { return 1 } fn consume(f: fn() -> int) -> int { return (f) } '
-                'fn main() -> int { return (consume target) }',
                 'fn target() -> int { return 1 } fn main() -> int { let target: int = 0 return (target) }',
             ]
             for program in refused:
