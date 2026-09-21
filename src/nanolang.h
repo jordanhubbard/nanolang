@@ -838,6 +838,8 @@ typedef struct {
     size_t opaque_reserved_count;
     TupleLiteralBinding *tuple_literal_bindings;
     size_t tuple_literal_binding_count;
+    TupleLiteralBinding *array_expression_bindings;
+    size_t array_expression_binding_count;
     EffectDef *effects;          /* Registered algebraic effects */
     int effect_count;
     int effect_capacity;
@@ -1045,6 +1047,14 @@ bool type_info_tuple_refresh(TypeInfo *);
 TypeInfo *copy_complete_type_info_checked(const TypeInfo *);
 bool env_bind_tuple_literal(Environment *, const ASTNode *, const TypeInfo *);
 const TypeInfo *env_tuple_literal_info(const Environment *, const ASTNode *);
+/* I classify existing complete array value storage, not source admission. */
+bool type_info_exact_array_element(const TypeInfo *);
+bool type_info_needs_array_context(const TypeInfo *);
+bool env_bind_array_expression(Environment *, const ASTNode *, const TypeInfo *);
+const TypeInfo *env_array_expression_info(const Environment *, const ASTNode *);
+const TypeInfo *checked_expression_type_info(ASTNode *, Environment *);
+/* I return an owning signature copy; the caller releases it. */
+FunctionSignature *checked_callable_signature_copy(ASTNode *, Environment *);
 bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);
 void free_type_info(TypeInfo *info);
 TypeInfo *copy_payload_type_info(const TypeInfo *info);

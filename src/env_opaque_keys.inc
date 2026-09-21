@@ -386,3 +386,39 @@ bool env_bind_tuple_literal(Environment *env, const ASTNode *literal, const Type
     ++env->tuple_literal_binding_count;
     return true;
 }
+
+/* I retain array contexts separately from AST storage and borrowed symbol rows. */
+const TypeInfo *env_array_expression_info(const Environment *env, const ASTNode *expression) {
+    if (!env || !expression) return NULL;
+    for (size_t i = 0; i < env->array_expression_binding_count; ++i)
+        if (env->array_expression_bindings[i].literal == expression)
+            return env->array_expression_bindings[i].type_info;
+    return NULL;
+}
+bool env_bind_array_expression(Environment *env, const ASTNode *expression, const TypeInfo *info) {
+    if (!env || !expression || !info || info->base_type != TYPE_ARRAY || !info->element_type) return false;
+    const TypeInfo *old = env_array_expression_info(env, expression);
+    if (old) return type_infos_equal(old, info);
+    size_t count = env->array_expression_binding_count;
+    if (count >= SIZE_MAX / sizeof(TupleLiteralBinding)) return false;
+    TypeInfo *copy = copy_complete_type_info_checked(info);
+    if (!copy) return false;
+    TupleLiteralBinding *rows = malloc((count + 1) * sizeof *rows);
+    if (!rows) { free_payload_type_info(copy); return false; }
+    if (count) memcpy(rows, env->array_expression_bindings, count * sizeof *rows);
+    rows[count] = (TupleLiteralBinding){expression, copy};
+    free(env->array_expression_bindings); env->array_expression_bindings = rows;
+    ++env->array_expression_binding_count;
+    return true;
+}
+
+bool type_info_exact_array_element(const TypeInfo *info) {
+    return info && info->base_type != TYPE_ARRAY &&
+        (info->base_type == TYPE_TUPLE || info->base_type == TYPE_FUNCTION ||
+         info->base_type == TYPE_UNION || opaque_type_info_present(info));
+}
+bool type_info_needs_array_context(const TypeInfo *info) {
+    unsigned depth = 0;
+    while (info && info->base_type == TYPE_ARRAY && depth++ <= 128) info = info->element_type;
+    return type_info_exact_array_element(info);
+}

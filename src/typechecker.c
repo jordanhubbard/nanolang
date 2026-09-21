@@ -285,12 +285,43 @@ static void check_unused_variables(TypeChecker *tc, int start_index) {
 
 const char *get_struct_type_name(ASTNode *expr, Environment *env);
 static FunctionSignature *function_result_signature(ASTNode *call, Environment *env);
+static TypeInfo *infer_complete_tuple_literal(ASTNode *literal, Environment *env);
 
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
+    const TypeInfo *retained_array = env_array_expression_info(env, expr);
+    if (retained_array) return (TypeInfo *)retained_array;
+    if (expr->type == AST_ARRAY_LITERAL && expr->as.array_literal.element_count > 0) {
+        ASTNode *first = expr->as.array_literal.elements[0];
+        TypeInfo flat = {0};
+        FunctionSignature *signature = NULL;
+        const TypeInfo *element = try_get_expr_type_info(first, env);
+        if (!element) {
+            const char *name = get_struct_type_name(first, env);
+            if (name && env_get_opaque_type(env, name)) {
+                flat = (TypeInfo){.base_type = TYPE_STRUCT, .generic_name = (char *)name};
+                element = &flat;
+            } else {
+                signature = checked_callable_signature_copy(first, env);
+                if (signature) {
+                    flat = (TypeInfo){.base_type = TYPE_FUNCTION, .fn_sig = signature};
+                    element = &flat;
+                }
+            }
+        }
+        bool retained = element && type_info_exact_array_element(element);
+        if (retained) {
+            TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = (TypeInfo *)element};
+            if (!env_bind_array_expression(env, expr, &array)) env->opaque_resolution_failed = true;
+        }
+        free_function_signature(signature);
+        if (retained) return (TypeInfo *)env_array_expression_info(env, expr);
+    }
     if (expr->type == AST_UNION_CONSTRUCT) return expr->as.union_construct.type_info;
-    if (expr->type == AST_TUPLE_LITERAL)
-        return (TypeInfo *)env_tuple_literal_info(env, expr);
+    if (expr->type == AST_TUPLE_LITERAL) {
+        const TypeInfo *tuple = env_tuple_literal_info(env, expr);
+        return tuple ? (TypeInfo *)tuple : infer_complete_tuple_literal(expr, env);
+    }
     if (expr->type == AST_TUPLE_INDEX) {
         TypeInfo *tuple = try_get_expr_type_info(expr->as.tuple_index.tuple, env);
         int index = expr->as.tuple_index.index;
@@ -329,6 +360,17 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
                     return record->field_type_info[i];
         }
     }
+    if (expr->type == AST_MODULE_QUALIFIED_CALL) {
+        const char *owner = expr->as.module_qualified_call.module_alias;
+        const char *name = expr->as.module_qualified_call.function_name;
+        size_t a = strlen(owner), b = strlen(name);
+        if (b > SIZE_MAX - 2 || a > SIZE_MAX - b - 2) { env->opaque_resolution_failed = true; return NULL; }
+        char *qualified = malloc(a + b + 2);
+        if (!qualified) { env->opaque_resolution_failed = true; return NULL; }
+        memcpy(qualified, owner, a); qualified[a] = '.'; memcpy(qualified + a + 1, name, b + 1);
+        Function *function = env_get_function(env, qualified); free(qualified);
+        return function ? function->return_type_info : NULL;
+    }
     if (expr->type == AST_CALL) {
         if (expr->as.call.checked_signature)
             return expr->as.call.checked_signature->return_type_info;
@@ -343,6 +385,59 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
                 return symbol->type_info->fn_sig->return_type_info;
         }
     }
+    if (expr->type == AST_CALL && expr->as.call.name && !expr->as.call.func_expr) {
+        const char *name = expr->as.call.name;
+        if (expr->as.call.arg_count >= 1 &&
+            (!strcmp(name, "filter") || !strcmp(name, "array_slice") || !strcmp(name, "array_remove_at") ||
+             (!strcmp(name, "array_push") && env_array_push_is_builtin(env, expr->line, expr->column))))
+            return try_get_expr_type_info(expr->as.call.args[0], env);
+        if (!strcmp(name, "array_pop") && expr->as.call.arg_count == 1) {
+            TypeInfo *array = try_get_expr_type_info(expr->as.call.args[0], env);
+            return array && array->base_type == TYPE_ARRAY ? array->element_type : NULL;
+        }
+        if (expr->as.call.arg_count == 2 && (!strcmp(name, "array_new") || !strcmp(name, "map"))) {
+            FunctionSignature *signature = !strcmp(name, "map")
+                ? checked_callable_signature_copy(expr->as.call.args[1], env) : NULL;
+            TypeInfo flat = {0};
+            const TypeInfo *element = NULL;
+            if (signature) {
+                flat = (TypeInfo){.base_type = signature->return_type, .generic_name = signature->return_struct_name,
+                    .fn_sig = signature->return_fn_sig};
+                if (signature->return_type_info) flat = *signature->return_type_info;
+                if (!flat.fn_sig) flat.fn_sig = signature->return_fn_sig;
+                element = &flat;
+            } else if (!strcmp(name, "array_new")) {
+                element = try_get_expr_type_info(expr->as.call.args[1], env);
+                if (!element) {
+                    const char *opaque = get_struct_type_name(expr->as.call.args[1], env);
+                    if (opaque && env_get_opaque_type(env, opaque)) {
+                        flat = (TypeInfo){.base_type = TYPE_STRUCT, .generic_name = (char *)opaque};
+                        element = &flat;
+                    }
+                    else {
+                        signature = checked_callable_signature_copy(expr->as.call.args[1], env);
+                        if (signature) {
+                            flat = (TypeInfo){.base_type = TYPE_FUNCTION, .fn_sig = signature};
+                            element = &flat;
+                        } else {
+                            Type primitive = check_expression(expr->as.call.args[1], env);
+                            if (primitive == TYPE_INT || primitive == TYPE_U8 || primitive == TYPE_FLOAT ||
+                                primitive == TYPE_BOOL || primitive == TYPE_STRING) {
+                                flat = (TypeInfo){.base_type = primitive}; element = &flat;
+                            }
+                        }
+                    }
+                }
+            }
+            TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = (TypeInfo *)element};
+            bool affected = element && (type_info_exact_array_element(element) || !strcmp(name, "array_new"));
+            if (!affected && signature && !strcmp(name, "map")) affected = type_info_needs_array_context(try_get_expr_type_info(expr->as.call.args[0], env));
+            bool retained = affected && env_bind_array_expression(env, expr, &array);
+            if (affected && !retained) env->opaque_resolution_failed = true;
+            free_function_signature(signature);
+            if (retained) return (TypeInfo *)env_array_expression_info(env, expr);
+        }
+    }
     if (expr->type == AST_CALL && expr->as.call.name) {
         if (!expr->as.call.func_expr && expr->as.call.arg_count == 2 &&
             (strcmp(expr->as.call.name, "at") == 0 ||
@@ -354,6 +449,106 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
         if (func && func->return_type_info) return func->return_type_info;
     }
     return NULL;
+}
+
+/* I infer this owning snapshot from actual expression facts, never C names. */
+static TypeInfo *infer_complete_tuple_literal(ASTNode *literal, Environment *env) {
+    int count = literal->as.tuple_literal.element_count;
+    if (count < 0 || (size_t)count > SIZE_MAX / sizeof(TypeInfo *)) return NULL;
+    TypeInfo *tuple = calloc(1, sizeof *tuple);
+    if (!tuple) { env->opaque_resolution_failed = true; return NULL; }
+    tuple->base_type = TYPE_TUPLE;
+    tuple->tuple_element_count = tuple->type_param_count = count;
+    if (count) {
+        tuple->type_params = calloc((size_t)count, sizeof *tuple->type_params);
+        if (!tuple->type_params) goto allocation_failure;
+    }
+    for (int i = 0; i < count; ++i) {
+        ASTNode *child = literal->as.tuple_literal.elements[i];
+        const TypeInfo *info = try_get_expr_type_info(child, env);
+        FunctionSignature *signature = NULL;
+        TypeInfo flat = {0};
+        if (!info) {
+            flat.base_type = literal->as.tuple_literal.element_types
+                ? literal->as.tuple_literal.element_types[i] : check_expression(child, env);
+            const char *name = get_struct_type_name(child, env);
+            flat.generic_name = (char *)name;
+            if (flat.base_type == TYPE_FUNCTION) {
+                signature = checked_callable_signature_copy(child, env);
+                flat.fn_sig = signature;
+            }
+            info = &flat;
+        }
+        if (info->base_type == TYPE_UNKNOWN ||
+            (info->base_type == TYPE_FUNCTION && !info->fn_sig)) {
+            free_function_signature(signature); free_payload_type_info(tuple); return NULL;
+        }
+        tuple->type_params[i] = copy_complete_type_info_checked(info);
+        free_function_signature(signature);
+        if (!tuple->type_params[i]) goto allocation_failure;
+    }
+    if (!type_info_tuple_refresh(tuple) || !env_bind_tuple_literal(env, literal, tuple)) goto allocation_failure;
+    free_payload_type_info(tuple);
+    return (TypeInfo *)env_tuple_literal_info(env, literal);
+allocation_failure:
+    free_payload_type_info(tuple); env->opaque_resolution_failed = true; return NULL;
+}
+
+const TypeInfo *checked_expression_type_info(ASTNode *expr, Environment *env) {
+    return try_get_expr_type_info(expr, env);
+}
+FunctionSignature *checked_callable_signature_copy(ASTNode *expr, Environment *env) {
+    if (!expr) return NULL;
+    TypeInfo *info = try_get_expr_type_info(expr, env);
+    if (info && info->base_type == TYPE_FUNCTION && info->fn_sig) return copy_function_signature(info->fn_sig);
+    if (expr->type == AST_IDENTIFIER) {
+        Function *function = env_get_function(env, expr->as.identifier);
+        if (function) return function_signature_from_function(function);
+    }
+    FunctionSignature *signature = function_result_signature(expr, env);
+    return signature ? copy_function_signature(signature) : NULL;
+}
+
+static void check_concrete_union_arrays(Environment *env, const TypeInfo *expected,
+                                        ASTNode *value, unsigned depth);
+static bool indirect_argument_matches(ASTNode *argument, Environment *env,
+                                      const TypeInfo *expected, Type fallback, int depth);
+static bool check_opaque_array_callback(ASTNode *call, Environment *env, bool filter) {
+    FunctionSignature *signature = checked_callable_signature_copy(call->as.call.args[1], env);
+    TypeInfo flat = {0};
+    const TypeInfo *parameter = NULL;
+    if (signature && signature->param_count == 1) {
+        flat = (TypeInfo){.base_type = signature->param_types[0],
+            .generic_name = signature->param_struct_names ? signature->param_struct_names[0] : NULL};
+        parameter = signature->param_type_info && signature->param_type_info[0]
+            ? signature->param_type_info[0] : &flat;
+    }
+    const TypeInfo *array = try_get_expr_type_info(call->as.call.args[0], env);
+    const TypeInfo *result = filter ? array : try_get_expr_type_info(call, env);
+    /* The actual callback declaration supplies a literal input's element type.
+     * I validate all source leaves before retaining the independent snapshot. */
+    ASTNode *source = call->as.call.args[0];
+    if (!array && parameter && source->type == AST_ARRAY_LITERAL &&
+        (type_info_exact_array_element(parameter) || type_info_needs_array_context(result))) {
+        TypeInfo context = {.base_type = TYPE_ARRAY, .element_type = (TypeInfo *)parameter};
+        if (indirect_argument_matches(source, env, &context, TYPE_ARRAY, 0)) {
+            check_concrete_union_arrays(env, &context, source, 0);
+            if (!env_bind_array_expression(env, source, &context)) env->opaque_resolution_failed = true;
+            array = try_get_expr_type_info(source, env);
+        }
+        if (filter) result = array;
+    }
+    if (!type_info_needs_array_context(array) && !type_info_needs_array_context(result) &&
+        !type_info_exact_array_element(parameter)) {
+        free_function_signature(signature); return true;
+    }
+    bool ok = signature && parameter && array && array->base_type == TYPE_ARRAY && array->element_type &&
+        type_infos_equal(array->element_type, parameter) && (!filter || signature->return_type == TYPE_BOOL);
+    free_function_signature(signature);
+    if (!ok) emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
+        "I require the same complete element annotation in this callback.",
+        "Preserve the declaring module and every tuple, union and callable child.");
+    return ok;
 }
 
 /* I compare opaque values by retained declaration identity, never ABI spelling.
@@ -819,7 +1014,23 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
         check_concrete_union_arrays(env, expected, value->as.return_stmt.value, depth + 1);
         return;
     }
+    if (expected->base_type == TYPE_FUNCTION && expected->fn_sig) {
+        FunctionSignature *signature = checked_callable_signature_copy(value, env);
+        TypeInfo actual = {.base_type = TYPE_FUNCTION, .fn_sig = signature};
+        bool equal = signature && type_infos_equal(expected, &actual);
+        free_function_signature(signature);
+        if (!equal) emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+            "I require the complete declared callable annotation at this value boundary.",
+            "Preserve every parameter, result and nominal declaration identity.");
+        return;
+    }
     if (expected->base_type == TYPE_TUPLE && value->type == AST_TUPLE_LITERAL) {
+        if (!indirect_argument_matches(value, env, expected, TYPE_TUPLE, (int)depth)) {
+            emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                "I require each tuple child to match its complete declared annotation.",
+                "Preserve tuple arity, nested annotations and nominal declaration identities.");
+            return;
+        }
         if (!env_bind_tuple_literal(env, value, expected)) {
             env->opaque_resolution_failed = true;
             emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
@@ -836,8 +1047,22 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
             return;
         }
     }
-    if (opaque_annotation_present(env, expected, 0)) {
+    if (opaque_annotation_present(env, expected, 0) ||
+        (expected->base_type == TYPE_ARRAY && type_info_needs_array_context(expected))) {
+        if (expected->base_type == TYPE_ARRAY && expected->element_type && value->type == AST_CALL &&
+            !value->as.call.func_expr && value->as.call.name && value->as.call.arg_count == 2 &&
+            (!strcmp(value->as.call.name, "array_new") ||
+             (!strcmp(value->as.call.name, "array_push") && env_array_push_is_builtin(env, value->line, value->column)))) {
+            if (!strcmp(value->as.call.name, "array_push"))
+                check_concrete_union_arrays(env, expected, value->as.call.args[0], depth + 1);
+            check_concrete_union_arrays(env, expected->element_type, value->as.call.args[1], depth + 1);
+            if (!env_bind_array_expression(env, value, expected)) env->opaque_resolution_failed = true;
+            return;
+        }
         if (expected->base_type == TYPE_ARRAY && value->type == AST_ARRAY_LITERAL) {
+            if (!env_bind_array_expression(env, value, expected)) {
+                env->opaque_resolution_failed = true; return;
+            }
             for (int i = 0; i < value->as.array_literal.element_count; ++i)
                 check_concrete_union_arrays(env, expected->element_type,
                     value->as.array_literal.elements[i], depth + 1);
@@ -864,6 +1089,8 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
             emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
                 "I require complete matching opaque identities inside this annotation.",
                 "Preserve the declaring module through each container and callable type.");
+        else if (expected->base_type == TYPE_ARRAY && !env_bind_array_expression(env, value, expected))
+            env->opaque_resolution_failed = true;
     }
     if (expected->base_type == TYPE_HASHMAP && value->type == AST_CALL &&
         !value->as.call.func_expr && value->as.call.name &&
@@ -1855,8 +2082,31 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
                                       int depth) {
     if (depth > 128) return false;
     Type actual = check_expression(argument, env);
+    if (expected && (expected->base_type == TYPE_STRUCT || expected->base_type == TYPE_OPAQUE)) {
+        const char *name = expected->opaque_type_name ? expected->opaque_type_name : expected->generic_name;
+        if (name && env_get_opaque_type(env, name))
+            return check_opaque_value(env, expected->base_type, name, argument);
+    }
     if (!types_match(actual, expected ? expected->base_type : fallback)) return false;
     if (!expected) return true;
+    if (expected->base_type == TYPE_TUPLE && argument->type == AST_TUPLE_LITERAL) {
+        if (!type_info_tuple_valid(expected) ||
+            expected->tuple_element_count != argument->as.tuple_literal.element_count) return false;
+        for (int i = 0; i < expected->tuple_element_count; ++i) {
+            TypeInfo flat;
+            const TypeInfo *child = type_info_tuple_element(expected, i, &flat);
+            if (!child || !indirect_argument_matches(argument->as.tuple_literal.elements[i], env,
+                    child, child->base_type, depth + 1)) return false;
+        }
+        return true;
+    }
+    if (expected->base_type == TYPE_FUNCTION && expected->fn_sig) {
+        FunctionSignature *signature = checked_callable_signature_copy(argument, env);
+        TypeInfo complete = {.base_type = TYPE_FUNCTION, .fn_sig = signature};
+        bool equal = signature && type_infos_equal(expected, &complete);
+        free_function_signature(signature);
+        return equal;
+    }
     if (expected->base_type == TYPE_ARRAY && expected->element_type &&
         argument->type == AST_ARRAY_LITERAL) {
         for (int i = 0; i < argument->as.array_literal.element_count; ++i) {
@@ -2485,6 +2735,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         "Match the transform signature to the source array.");
                     return TYPE_UNKNOWN;
                 }
+                if (!check_opaque_array_callback(expr, env, false)) return TYPE_UNKNOWN;
                 return TYPE_ARRAY;
             }
 
@@ -2494,6 +2745,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 if (expr->as.call.arg_count >= 2) {
                     Type array_type = check_expression(expr->as.call.args[0], env);
                     check_expression(expr->as.call.args[1], env);  /* Check function */
+                    if (!check_opaque_array_callback(expr, env, true)) return TYPE_UNKNOWN;
                     return array_type;
                 }
                 return TYPE_ARRAY;
@@ -2682,6 +2934,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         ASTNode *array_arg = expr->as.call.args[0];
                         check_expression(array_arg, env);
                         
+                        const TypeInfo *complete = try_get_expr_type_info(array_arg, env);
+                        if (complete && complete->base_type == TYPE_ARRAY && complete->element_type)
+                            return complete->element_type->base_type;
+
                         /* Try to infer element type from array */
                         if (array_arg->type == AST_IDENTIFIER) {
                             Symbol *sym = env_get_var_visible_at(env, array_arg->as.identifier, array_arg->line, array_arg->column);
@@ -5024,6 +5280,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     stmt->as.let.type_info = copy_payload_type_info(
                         try_get_expr_type_info(stmt->as.let.value, tc->env));
                 }
+                if (opaque_type_info_present(stmt->as.let.type_info) || type_info_needs_array_context(stmt->as.let.type_info))
+                    check_concrete_union_arrays(tc->env, stmt->as.let.type_info, stmt->as.let.value, 0);
                 /* Register and add to env */
                 Value val = create_void();
                 env_define_var_with_type_info(tc->env, stmt->as.let.name, inferred,
@@ -5519,7 +5777,18 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* TYPE_LIST_INT, TYPE_LIST_TOKEN -> TYPE_INT (default already set) */
 
             Value val = create_void();
-            env_define_var(tc->env, stmt->as.for_stmt.var_name, loop_var_type, false, val);
+            const TypeInfo *array_info = iter_type == TYPE_ARRAY
+                ? try_get_expr_type_info(stmt->as.for_stmt.range_expr, tc->env) : NULL;
+            const TypeInfo *element_info = array_info && array_info->base_type == TYPE_ARRAY
+                ? array_info->element_type : NULL;
+            if (element_info && type_info_exact_array_element(element_info)) {
+                loop_var_type = element_info->base_type;
+                loop_var_struct_name = element_info->opaque_type_name
+                    ? element_info->opaque_type_name : element_info->generic_name;
+                env_define_var_with_type_info(tc->env, stmt->as.for_stmt.var_name, loop_var_type,
+                    element_info->element_type ? element_info->element_type->base_type : TYPE_UNKNOWN,
+                    (TypeInfo *)element_info, false, val);
+            } else env_define_var(tc->env, stmt->as.for_stmt.var_name, loop_var_type, false, val);
 
             /* Set definition location and struct type name */
             Symbol *loop_var_sym = env_get_var(tc->env, stmt->as.for_stmt.var_name);

@@ -14459,3 +14459,36 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   their complete retained representation. I preserve the accepted source cases,
   specify the existing storage boundary precisely and repair every corresponding
   definition/store/load/iteration consumer; no new refusal replaces this work.
+
+- [ ] I complete ordinary tuple/callback array carriers needed by accepted
+  opaque-input map compositions. Root approved the dependency extension after
+  static inspection found integer/raw-array fallthrough rather than coherent
+  complete value storage. I use exact-width ELEM_STRUCT for those elements in
+  both producers, retain ordinary scalar/record/union/nested-array carriers and
+  legacy unsupported routes, and require ordinary tuple/callback adjacency plus
+  cross-producer tag/width and opaque composition controls before qualification.
+
+- [ ] I retain complete array expression annotations through slice/remove-at and
+  callback-context empty inputs under the opaque identity task. Their runtime
+  storage already preserves element width; losing the annotation at composition
+  selects a different load carrier. I include these paths in the same paired
+  source checkpoint and require slice/remove/map/get/pop composition controls.
+
+- [ ] I preserve complete checked element metadata on C array loop variables.
+  Static review found that the existing loop checker copies only the coarse tag
+  and sometimes a nominal name; its native restoration helper can already copy
+  full TypeInfo. I supply that actual source annotation before checking the body
+  and retain this boundary in caller/callee and tuple/callback iteration controls.
+
+- [ ] I check complete literal and callable leaves when callback-context array
+  inference supplies a tuple/callback element. The existing indirect-argument
+  helper recurses arrays but otherwise can fall back to a coarse tuple/function
+  tag. I preserve recursive tuple children and actual callable signatures at
+  this shared validation boundary, including different-owner negative controls.
+
+- [ ] I preserve full inferred tuple literal children in array compositions.
+  The old C inferred-let tuple view retains only coarse fields, and Nano native
+  expression inference has no tuple branch. I retain checked complete C literal
+  snapshots and independently infer Nano tuple strings from their actual parsed
+  children, including callable and opaque declarations. Contextual literals
+  still use their checked expected annotation, with allocation rollback in C.

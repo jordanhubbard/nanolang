@@ -156,6 +156,7 @@ let mut fn_type_names: array<string> = []
 let mut native_tuple_annotations: array<string> = []
 let mut native_derived_forward_mode: bool = false
 let mut native_derived_emitted_names: array<string> = []
+let mut native_array_derived_required: bool = false
 
 fn native_name_in(names: array<string>, name: string) -> bool {
     let mut i: int = 0
@@ -1515,12 +1516,29 @@ shadow infer_binary_expr_type {
 /* Infer the NanoLang type of a parsed expression node for interpolation.
    Returns "int", "float", "bool", "string", or "" (unknown). */
 fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) -> string {
+    if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) {
+        let tuple: ASTTupleLiteral = (parser_get_tuple_literal parser node_id)
+        let mut annotation: string = "("
+        let mut i: int = 0
+        while (< i tuple.element_count) {
+            let reference: ASTStmtRef = ASTStmtRef { node_id: (at tuple.element_ids i), node_type: (at tuple.element_types i) }
+            let mut child: string = (infer_expr_type parser reference.node_id reference.node_type env)
+            if (== child "") { set child (native_array_callback_type parser reference env) }
+            if (== child "") { return "" }
+            if (> i 0) { set annotation (+ annotation ",") }
+            set annotation (+ annotation child)
+            set i (+ i 1)
+        }
+        return (+ annotation ")")
+    }
     if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
         let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
         if (!= literal.element_type "") { return (+ "array<" (+ literal.element_type ">")) }
         if (> literal.element_count 0) {
             let first: ASTStmtRef = (parser_get_array_element parser literal.element_start)
-            return (+ "array<" (+ (infer_expr_type parser first.node_id first.node_type env) ">"))
+            let mut element: string = (infer_expr_type parser first.node_id first.node_type env)
+            if (== element "") { set element (native_array_callback_type parser first env) }
+            return (+ "array<" (+ element ">"))
         }
         return "array<unknown>"
     }
@@ -1565,6 +1583,30 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
         if (and (or (== if_id.name "reduce") (== if_id.name "array_fold")) (is_fn_type bound)) { return (parse_fn_type_return bound) }
         let declared: string = (lookup_func_return_type_in_parser parser (mb_resolve if_id.name if_id.line env.names))
         if (!= declared "") { return declared }
+        if (and (== if_id.name "array_new") (== ic.arg_count 2)) {
+            let initial: ASTStmtRef = (parser_get_call_arg parser (+ ic.arg_start 1))
+            let mut element: string = (infer_expr_type parser initial.node_id initial.node_type env)
+            if (== element "") { set element (native_array_callback_type parser initial env) }
+            return (+ "array<" (+ element ">"))
+        }
+        if (and (or (== if_id.name "array_push") (or (== if_id.name "filter") (== if_id.name "array_filter"))) (== ic.arg_count 2)) {
+            let source: ASTStmtRef = (parser_get_call_arg parser ic.arg_start)
+            return (infer_expr_type parser source.node_id source.node_type env)
+        }
+        if (or (and (== if_id.name "array_slice") (== ic.arg_count 3))
+               (and (== if_id.name "array_remove_at") (== ic.arg_count 2))) {
+            let source: ASTStmtRef = (parser_get_call_arg parser ic.arg_start)
+            return (infer_expr_type parser source.node_id source.node_type env)
+        }
+        if (and (== if_id.name "array_pop") (== ic.arg_count 1)) {
+            let source: ASTStmtRef = (parser_get_call_arg parser ic.arg_start)
+            return (full_array_element_type (infer_expr_type parser source.node_id source.node_type env))
+        }
+        if (and (or (== if_id.name "map") (== if_id.name "array_map")) (== ic.arg_count 2)) {
+            let callback: ASTStmtRef = (parser_get_call_arg parser (+ ic.arg_start 1))
+            let signature: string = (native_array_callback_type parser callback env)
+            if (!= signature "") { return (+ "array<" (+ (parse_fn_type_return signature) ">")) }
+        }
         if (and (legacy_reduce_builtin parser if_id env) (== ic.arg_count 3)) {
             let initial: ASTStmtRef = (parser_get_call_arg parser (+ ic.arg_start 1))
             return (infer_expr_type parser initial.node_id initial.node_type env)
@@ -1593,6 +1635,16 @@ shadow infer_expr_type {
     /* Can't call parser_get_identifier without a real parser, so just verify it compiles */
     assert (== (genenv_get env2 "x") "int")
     assert (== (genenv_get env3 "name") "string")
+    let tuple_tokens: List<LexerToken> = (tokenize_string "fn probe()->int { return [(1, cb)] }" "tuple-types.nano" (list_CompilerDiagnostic_new))
+    let tuple_parser: Parser = (parse_program tuple_tokens (list_LexerToken_length tuple_tokens) "tuple-types.nano")
+    let tuple_env: GenEnv = (genenv_put (genenv_new "test") "cb" "fn(int)->int" false)
+    let tuple_return: ASTReturn = (parser_get_return tuple_parser 0)
+    assert (== (infer_expr_type tuple_parser tuple_return.value tuple_return.value_type tuple_env) "array<(int,fn(int)->int)>")
+    let slice_tokens: List<LexerToken> = (tokenize_string "fn probe()->int { return (array_pop (array_slice xs 0 1)) }" "slice-types.nano" (list_CompilerDiagnostic_new))
+    let slice_parser: Parser = (parse_program slice_tokens (list_LexerToken_length slice_tokens) "slice-types.nano")
+    let slice_env: GenEnv = (genenv_put (genenv_new "test") "xs" "array<(int,bool)>" false)
+    let slice_return: ASTReturn = (parser_get_return slice_parser 0)
+    assert (== (infer_expr_type slice_parser slice_return.value slice_return.value_type slice_env) "(int,bool)")
 }
 
 shadow func_returns_string {
@@ -3101,6 +3153,7 @@ shadow type_is_struct {
 }
 
 fn c_type_from_elem_type(elem_type: string) -> string {
+    if (or (is_tuple_type elem_type) (is_fn_type elem_type)) { return (type_to_c elem_type) }
     if (!= (native_opaque_key elem_type) "") { return (type_to_c elem_type) }
     if (== elem_type "float") { return "double" }
     else { if (== elem_type "string") { return "const char*" }
@@ -5343,6 +5396,7 @@ shadow native_fn_dependencies {
 }
 
 fn native_opaque_derived_needed() -> bool {
+    if native_array_derived_required { return true }
     let mut i: int = 0
     while (< i (array_length native_tuple_annotations)) {
         if (!= (native_opaque_key (at native_tuple_annotations i)) "") { return true }
@@ -5721,6 +5775,224 @@ shadow legacy_array_operand_type {
     assert (== (legacy_array_operand_type parser ret.value ret.value_type unknown) "")
 }
 
+# I copy exact opaque-bearing values through the existing width-aware carrier.
+fn native_array_exact(element: string) -> bool {
+    if (or (is_tuple_type element) (is_fn_type element)) {
+        set native_array_derived_required true
+        return true
+    }
+    return (and (not (is_array_type element)) (!= (native_opaque_key element) ""))
+}
+shadow native_array_exact {
+    assert (not (native_array_exact "int"))
+    assert (not (native_array_exact "array<int>"))
+    let saved: bool = native_array_derived_required
+    assert (native_array_exact "(int, bool)")
+    assert (native_array_exact "fn(int) -> int")
+    assert native_array_derived_required
+    set native_array_derived_required saved
+}
+fn native_array_shape_code(element: string, array_name: string) -> string {
+    let width: string = (+ "sizeof(" (+ (type_to_c element) ")"))
+    return (+ "assert(" (+ array_name (+ "->elem_type == ELEM_STRUCT); assert(" (+ array_name (+ "->elem_size == " (+ width (+ " || (" (+ array_name (+ "->elem_size == 0 && " (+ array_name (+ "->length == 0 && " (+ array_name "->data == NULL)); "))))))))))))
+}
+shadow native_array_shape_code {
+    let code: string = (native_array_shape_code "int" "carrier")
+    assert (str_contains code "carrier->elem_size == sizeof(int64_t)")
+    assert (str_contains code "carrier->length == 0 && carrier->data == NULL")
+}
+fn native_array_load_code(element: string, array_name: string, index_name: string, value_name: string) -> string {
+    let ctype: string = (c_type_from_elem_type element)
+    if (native_array_exact element) {
+        return (+ (native_array_shape_code element array_name) (+ ctype (+ " " (+ value_name (+ "; memcpy(&" (+ value_name (+ ", dyn_array_get_struct(" (+ array_name (+ ", " (+ index_name (+ "), sizeof(" (+ value_name ")); "))))))))))))
+    }
+    let access: string = (+ (get_fn_from_elem_type element) (+ "(" (+ array_name (+ ", " (+ index_name ")")))))
+    if (type_is_struct element) {
+        return (+ ctype (+ " " (+ value_name (+ " = *((" (+ ctype (+ "*)(intptr_t)" (+ access "); ")))))))
+    }
+    return (+ ctype (+ " " (+ value_name (+ " = " (+ access "; ")))))
+}
+shadow native_array_load_code {
+    assert (== (native_array_load_code "int" "xs" "i" "value") "int64_t value = dyn_array_get_int(xs, i); ")
+    assert (str_contains (native_array_load_code "Point" "xs" "i" "value") "*((nl_Point*)(intptr_t)dyn_array_get_int(xs, i))")
+}
+fn native_array_push_code(element: string, array_name: string, value_name: string) -> string {
+    if (native_array_exact element) {
+        return (+ "dyn_array_push_struct(" (+ array_name (+ ", &" (+ value_name (+ ", sizeof(" (+ value_name ")); "))))))
+    }
+    let mut value: string = value_name
+    if (type_is_struct element) { set value (box_struct_expr element value_name) }
+    return (+ (push_fn_from_elem_type element) (+ "(" (+ array_name (+ ", " (+ value "); ")))))
+}
+shadow native_array_push_code {
+    assert (== (native_array_push_code "int" "xs" "value") "dyn_array_push_int(xs, value); ")
+}
+fn native_array_callback_type(parser: Parser, reference: ASTStmtRef, env: GenEnv) -> string {
+    let inferred: string = (infer_expr_type parser reference.node_id reference.node_type env)
+    if (is_fn_type inferred) { return inferred }
+    if (!= reference.node_type ParseNodeType.PNODE_IDENTIFIER) { return "" }
+    let identifier: ASTIdentifier = (parser_get_identifier parser reference.node_id)
+    if (!= (genenv_get env identifier.name) "") { return "" }
+    let name: string = (mb_resolve identifier.name identifier.line env.names)
+    let mut i: int = 0
+    while (< i (parser_get_function_count parser)) {
+        let declaration: ASTFunction = (parser_get_function parser i)
+        if (== declaration.name name) {
+            let mut signature: string = "fn("
+            let mut parameter: int = 0
+            while (< parameter declaration.param_count) {
+                if (> parameter 0) { set signature (+ signature ",") }
+                set signature (+ signature (parser_get_let parser (+ declaration.param_start parameter)).var_type)
+                set parameter (+ parameter 1)
+            }
+            return (+ signature (+ ")->" declaration.return_type))
+        }
+        set i (+ i 1)
+    }
+    return ""
+}
+shadow native_array_callback_type {
+    let tokens: List<LexerToken> = (tokenize_string "fn pick(x:int)->bool{return true} fn main()->int{let ys:array<int>=(filter xs pick) return 0}" "t.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "t.nano")
+    let call: ASTCall = (parser_get_call parser 0)
+    let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+    assert (== (native_array_callback_type parser callback (genenv_new "main")) "fn(int)->bool")
+}
+fn native_array_same_type(left: string, right: string) -> bool {
+    let first: string = (native_opaque_key left)
+    let second: string = (native_opaque_key right)
+    if (or (!= first "") (!= second "")) { return (and (!= first "") (== first second)) }
+    return (== left right)
+}
+shadow native_array_same_type {
+    assert (native_array_same_type "int" "int")
+    assert (not (native_array_same_type "int" "bool"))
+}
+fn generate_native_opaque_array_call(parser: Parser, call: ASTCall, name: string, node_id: int, env: GenEnv, expected: string) -> string {
+    let make: bool = (== name "array_new")
+    let push: bool = (== name "array_push")
+    let replace: bool = (== name "array_set")
+    let get: bool = (or (== name "at") (== name "array_get"))
+    let pop: bool = (== name "array_pop")
+    let mapping: bool = (or (== name "map") (== name "array_map"))
+    let filtering: bool = (or (== name "filter") (== name "array_filter"))
+    if (not (or (or make push) (or (or replace get) (or pop (or mapping filtering))))) { return "" }
+    let mut count: int = 2
+    if replace { set count 3 }
+    if pop { set count 1 }
+    if (!= call.arg_count count) { return "" }
+    let first: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let mut element: string = (full_array_element_type (infer_expr_type parser first.node_id first.node_type env))
+    if make {
+        set element (full_array_element_type expected)
+        if (or (== element "") (== element "unknown")) {
+            let initial: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+            set element (infer_expr_type parser initial.node_id initial.node_type env)
+            if (== element "") { set element (native_array_callback_type parser initial env) }
+        }
+    }
+    if (and push (or (== element "") (== element "unknown"))) {
+        let value: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+        set element (infer_expr_type parser value.node_id value.node_type env)
+    }
+    if (or (== element "") (== element "unknown")) {
+        if (or get pop) { set element expected }
+        else { set element (full_array_element_type expected) }
+    }
+    let mut output: string = element
+    let mut callback_type: string = ""
+    if (or mapping filtering) {
+        set callback_type (native_array_callback_type parser (parser_get_call_arg parser (+ call.arg_start 1)) env)
+        if (or (== element "") (== element "unknown")) {
+            let parameters: array<string> = (parse_fn_type_params callback_type)
+            if (== (array_length parameters) 1) { set element (at parameters 0) }
+        }
+        set output element
+        if mapping { set output (parse_fn_type_return callback_type) }
+    }
+    if (not (or (native_array_exact element) (native_array_exact output))) { return "" }
+    if (or mapping filtering) {
+        let parameters: array<string> = (parse_fn_type_params callback_type)
+        let mut valid: bool = (== (array_length parameters) 1)
+        if valid { set valid (native_array_same_type element (at parameters 0)) }
+        if filtering { set valid (and valid (== (parse_fn_type_return callback_type) "bool")) }
+        if (not valid) { return (reduce_emission_fail "I require the same complete element annotation in this callback.") }
+    }
+    let prefix: string = (+ (nb_emission_prefix) (+ "array_arg_" (+ (int_to_string node_id) "_")))
+    let mut code: string = "({ "
+    let mut i: int = 0
+    while (< i count) {
+        let reference: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+        let mut annotation: string = ""
+        let mut ctype: string = "__auto_type"
+        if (or (and (or make push) (== i 1)) (and replace (== i 2))) {
+            set annotation element
+            set ctype (type_to_c element)
+        }
+        if (and (not make) (== i 0)) { set annotation (+ "array<" (+ element ">")) set ctype "DynArray*" }
+        let value: string = (generate_expression parser reference.node_id reference.node_type env annotation)
+        set code (+ code (+ ctype (+ " " (+ prefix (+ (int_to_string i) (+ " = " (+ value "; ")))))))
+        set i (+ i 1)
+    }
+    if make {
+        set code (+ code (+ "if (" (+ prefix (+ "0 < 0) { fputs(\"I require a non-negative array count\\n\", stderr); abort(); } DynArray* _oa = dyn_array_new(ELEM_STRUCT); for (int64_t _oi = 0; _oi < " (+ prefix "0; ++_oi) { ")))))
+        set code (+ code (native_array_push_code element "_oa" (+ prefix "1")))
+        return (+ code "} _oa; })")
+    }
+    set code (+ code (+ "DynArray* _oa = " (+ prefix "0; ")))
+    if (native_array_exact element) { set code (+ code (native_array_shape_code element "_oa")) }
+    if push { return (+ code (+ (native_array_push_code element "_oa" (+ prefix "1")) "_oa; })")) }
+    if replace { return (+ code (+ "dyn_array_set_struct(_oa, " (+ prefix (+ "1, &" (+ prefix (+ "2, sizeof(" (+ prefix "2)); })"))))))) }
+    if get { return (+ code (+ (native_array_load_code element "_oa" (+ prefix "1") "_ov") "_ov; })")) }
+    if pop {
+        return (+ code (+ (type_to_c element) " _ov = {0}; if (_oa->length != 0) { bool _ok; dyn_array_pop_struct(_oa, &_ov, sizeof(_ov), &_ok); assert(_ok); } _ov; })"))
+    }
+    let mut tag: string = (elem_enum_from_elem_type output)
+    if (native_array_exact output) { set tag "ELEM_STRUCT" }
+    set code (+ code (+ "__auto_type _of = " (+ prefix (+ "1; DynArray* _out = dyn_array_new(" (+ tag "); int64_t _on = dyn_array_length(_oa); for (int64_t _oi = 0; _oi < _on; ++_oi) { ")))))
+    set code (+ code (native_array_load_code element "_oa" "_oi" "_ov"))
+    if filtering {
+        set code (+ code "if (_of(_ov)) { ")
+        set code (+ code (native_array_push_code element "_out" "_ov"))
+        set code (+ code "} ")
+    } else {
+        set code (+ code (+ (type_to_c output) " _mapped = _of(_ov); "))
+        set code (+ code (native_array_push_code output "_out" "_mapped"))
+    }
+    return (+ code "} _out; })")
+}
+shadow generate_native_opaque_array_call {
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->int{return (at xs 0)}" "t.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "t.nano")
+    let env: GenEnv = (genenv_put (genenv_new "main") "xs" "array<int>" false)
+    assert (== (generate_native_opaque_array_call parser (parser_get_call parser 0) "at" 0 env "int") "")
+    let saved_required: bool = native_array_derived_required
+    let saved_tuples: array<string> = native_tuple_annotations
+    let saved_functions: array<string> = fn_type_originals
+    let saved_names: array<string> = fn_type_names
+    set native_tuple_annotations []
+    set fn_type_originals []
+    set fn_type_names []
+    set native_array_derived_required false
+    let tuple_env: GenEnv = (genenv_put (genenv_new "main") "xs" "array<(int,bool)>" false)
+    let tuple_code: string = (generate_native_opaque_array_call parser (parser_get_call parser 0) "at" 0 tuple_env "(int,bool)")
+    assert (str_contains tuple_code "->elem_type == ELEM_STRUCT")
+    assert (str_contains tuple_code "memcpy(&_ov, dyn_array_get_struct(")
+    assert (str_contains tuple_code "sizeof(_ov)")
+    let pop_tokens: List<LexerToken> = (tokenize_string "fn main()->int{return (array_pop xs)}" "pop.nano" (list_CompilerDiagnostic_new))
+    let pop_parser: Parser = (parse_program pop_tokens (list_LexerToken_length pop_tokens) "pop.nano")
+    let callback_env: GenEnv = (genenv_put (genenv_new "main") "xs" "array<fn(int)->int>" false)
+    let pop_code: string = (generate_native_opaque_array_call pop_parser (parser_get_call pop_parser 0) "array_pop" 0 callback_env "fn(int)->int")
+    assert (str_contains pop_code "if (_oa->length != 0)")
+    assert (str_contains pop_code "dyn_array_pop_struct(_oa, &_ov, sizeof(_ov), &_ok)")
+    assert (str_contains pop_code "_oa->elem_size == 0 && _oa->length == 0 && _oa->data == NULL")
+    assert (not (str_contains pop_code "sizeof(void*)"))
+    set native_array_derived_required saved_required
+    set native_tuple_annotations saved_tuples
+    set fn_type_originals saved_functions
+    set fn_type_names saved_names
+}
+
 fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv, expected_type: string) -> string {
     if (== node_type ParseNodeType.PNODE_NUMBER) {
         /* Number literal */
@@ -6026,6 +6298,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         return (generate_bound_push parser call func_id env node_id)
                     }
 
+
+                    let exact_array: string = (generate_native_opaque_array_call parser call func_name node_id env expected_type)
+                    if (!= exact_array "") { return exact_array }
 
                     /* Special-case: unary not is represented as a call */
                     if (== func_name "not") {
@@ -6905,6 +7180,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 } else { (print "") }
                             } else { (print "") }
 
+                            if (and (== elem_t "") (> arr.element_count 0)) {
+                                let inferred: string = (full_array_element_type (infer_expr_type parser node_id node_type env))
+                                if (native_array_exact inferred) { set elem_t inferred set child_type inferred }
+                            }
+
                             let mut elem_enum: string = "ELEM_INT"
                             let mut push_fn: string = "dyn_array_push_int"
 
@@ -6944,6 +7224,25 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                         }
                                     }
                                 }
+                            }
+
+                            if (native_array_exact elem_t) {
+                                let prefix: string = (+ (nb_emission_prefix) (+ "array_literal_" (+ (int_to_string node_id) "_")))
+                                let mut exact: string = "({ "
+                                let mut item: int = 0
+                                while (< item arr.element_count) {
+                                    let reference: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start item))
+                                    let value: string = (generate_expression parser reference.node_id reference.node_type env elem_t)
+                                    set exact (+ exact (+ (type_to_c elem_t) (+ " " (+ prefix (+ (int_to_string item) (+ " = " (+ value "; ")))))))
+                                    set item (+ item 1)
+                                }
+                                set exact (+ exact "DynArray* _oa = dyn_array_new(ELEM_STRUCT); ")
+                                set item 0
+                                while (< item arr.element_count) {
+                                    set exact (+ exact (native_array_push_code elem_t "_oa" (+ prefix (int_to_string item))))
+                                    set item (+ item 1)
+                                }
+                                return (+ exact "_oa; })")
                             }
 
                             let mut arr_parts: array<string> = []
@@ -8224,6 +8523,10 @@ fn generate_for_stmt(parser: Parser, for_stmt: ASTFor, indent: int, env: GenEnv,
                 set parts (cg_append parts (gen_indent (+ indent 1)))
                 set parts (cg_append parts "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n")
                 set parts (cg_append parts (gen_indent (+ indent 2)))
+                if (native_array_exact elem_type) {
+                    set parts (cg_append parts (native_array_load_code elem_type arr_c_name "__nl_idx" c_var))
+                    set parts (cg_append parts "\n")
+                } else {
                 set parts (cg_append parts c_elem_type)
                 set parts (cg_append parts " ")
                 set parts (cg_append parts c_var)
@@ -8232,6 +8535,7 @@ fn generate_for_stmt(parser: Parser, for_stmt: ASTFor, indent: int, env: GenEnv,
                 set parts (cg_append parts "(")
                 set parts (cg_append parts arr_c_name)
                 set parts (cg_append parts ", __nl_idx);\n")
+                }
                 let body_env: GenEnv = (genenv_put env for_stmt.var_name elem_type false)
                 set parts (cg_append parts (generate_block parser for_stmt.body (+ indent 2) body_env return_type))
                 set parts (cg_append parts (gen_indent (+ indent 1)))
@@ -8903,6 +9207,7 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     set native_tuple_annotations []
     set native_derived_emitted_names []
     set native_derived_forward_mode false
+    set native_array_derived_required false
     set reduce_emission_error ""
     if (> parser.services_count 0) { set reduce_emission_error "I have not resolved File service declarations for this consumer." return "" }
     (build_module_alias_map parser)

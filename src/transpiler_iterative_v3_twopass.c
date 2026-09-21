@@ -589,6 +589,8 @@ static const char *map_function_name(const char *name, Environment *env) {
 
 static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
+    const TypeInfo *checked = checked_expression_type_info(expr, env);
+    if (checked && checked->base_type == TYPE_ARRAY) return checked;
     if (expr->type == AST_CALL && expr->as.call.name &&
         strcmp(expr->as.call.name, "array_push") == 0 &&
         !env_array_push_is_builtin(env, expr->line, expr->column)) {
@@ -880,9 +882,7 @@ static int try_eval_bool_const(ASTNode *expr) {
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
 
 /* I bind arguments in source order before entering an ordinary C call. */
-static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
-                                        int arg_count, Environment *env,
-                                        const char *callee_value) {
+static unsigned next_ordered_call_id(Environment *env, int arg_count) {
     static _Thread_local unsigned next_call_id;
     unsigned call_id;
     bool available;
@@ -897,6 +897,12 @@ static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
             if (env && env_get_var(env, name)) available = false;
         }
     } while (!available);
+    return call_id;
+}
+static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
+                                        int arg_count, Environment *env,
+                                        const char *callee_value) {
+    unsigned call_id = next_ordered_call_id(env, arg_count);
     if (callee_value) {
         emit_formatted(list, "__auto_type __nl_callee_%u = %s; ", call_id, callee_value);
     }
@@ -1112,6 +1118,8 @@ static void build_ordered_hashmap_call(WorkList *list, ASTNode *call, Environmen
     }
     emit_literal(list, "); })");
 }
+
+#include "transpiler_opaque_arrays.inc"
 
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
     if (!expr) return;
@@ -1687,6 +1695,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 break;
             }
             
+            if (native_opaque_array_call(list, expr, env)) break;
+
             /* Special handling for println - needs type dispatch */
             if (strcmp(func_name, "println") == 0 && expr->as.call.arg_count == 1) {
                 Type arg_type = check_expression(expr->as.call.args[0], env);
@@ -3041,6 +3051,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         }
         
         case AST_ARRAY_LITERAL: {
+            if (native_opaque_array_literal(list, expr, env)) break;
             /* Array literal: [1, 2, 3] - Use dynarray_literal_* helper functions */
             int count = expr->as.array_literal.element_count;
             
@@ -4351,7 +4362,13 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n");
                     emit_indent_item(list, indent + 2);
-                    emit_formatted(list, "%s %s = %s(__nl_arr, __nl_idx);\n",
+                    const TypeInfo *array_info = checked_expression_type_info(range, env);
+                    const TypeInfo *element_info = array_info && array_info->base_type == TYPE_ARRAY ? array_info->element_type : NULL;
+                    if (type_info_exact_array_element(element_info) && native_array_struct_value(element_info)) {
+                        char *complete = native_array_c_type(element_info, env);
+                        native_array_load(list, element_info, complete, "__nl_arr", "__nl_idx", var);
+                        emit_literal(list, "\n"); free(complete);
+                    } else emit_formatted(list, "%s %s = %s(__nl_arr, __nl_idx);\n",
                                    c_elem_type, var, get_fn);
                     /* Emit body statements */
                     ASTNode *dyn_body = stmt->as.for_stmt.body;

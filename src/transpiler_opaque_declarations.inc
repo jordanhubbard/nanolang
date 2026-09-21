@@ -117,6 +117,18 @@ static void native_derived_graph_free(NativeDerivedGraph *graph) {
     }
     free(graph->rows); free(graph);
 }
+static bool native_derived_annotation_required(const TypeInfo *info, unsigned depth) {
+    if (!info || depth > 128) return false;
+    if ((info->base_type == TYPE_TUPLE || info->base_type == TYPE_FUNCTION) &&
+        opaque_type_info_present(info)) return true;
+    /* Ordinary derived values need this graph only at the new array boundary. */
+    if (info->base_type == TYPE_ARRAY && info->element_type &&
+        (info->element_type->base_type == TYPE_TUPLE || info->element_type->base_type == TYPE_FUNCTION)) return true;
+    if (native_derived_annotation_required(info->element_type, depth + 1)) return true;
+    for (int i = 0; info->type_params && i < info->type_param_count; ++i)
+        if (native_derived_annotation_required(info->type_params[i], depth + 1)) return true;
+    return false;
+}
 static NativeDerivedGraph *native_derived_prepare(Environment *env, FunctionTypeRegistry *functions,
                                                   TupleTypeRegistry *tuples) {
     bool needed = false;
@@ -131,8 +143,7 @@ static NativeDerivedGraph *native_derived_prepare(Environment *env, FunctionType
     for (int i = 0; i < env->struct_count; ++i)
         for (int j = 0; env->structs[i].field_type_info && j < env->structs[i].field_count; ++j) {
             const TypeInfo *info = env->structs[i].field_type_info[j];
-            if (info && (info->base_type == TYPE_TUPLE || info->base_type == TYPE_FUNCTION || info->type_param_count) &&
-                opaque_type_info_present(info)) needed = true;
+            if (native_derived_annotation_required(info, 0)) needed = true;
         }
     for (int i = 0; i < env->union_count; ++i) {
         UnionDef *def = &env->unions[i];
@@ -140,9 +151,16 @@ static NativeDerivedGraph *native_derived_prepare(Environment *env, FunctionType
         for (int a = 0; def->variant_field_type_info && a < def->variant_count; ++a)
             for (int f = 0; def->variant_field_type_info[a] && f < def->variant_field_counts[a]; ++f) {
                 const TypeInfo *info = def->variant_field_type_info[a][f];
-                if (info && (info->base_type == TYPE_TUPLE || info->base_type == TYPE_FUNCTION || info->type_param_count) &&
-                    opaque_type_info_present(info)) needed = true;
+                if (native_derived_annotation_required(info, 0)) needed = true;
             }
+    }
+    for (size_t i = 0; i < env->array_expression_binding_count; ++i)
+        if (native_derived_annotation_required(env->array_expression_bindings[i].type_info, 0)) needed = true;
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *function = &env->functions[i];
+        if (native_derived_annotation_required(function->return_type_info, 0)) needed = true;
+        for (int p = 0; p < function->param_count; ++p)
+            if (native_derived_annotation_required(function->params[p].type_info, 0)) needed = true;
     }
     if (!needed) return NULL;
     NativeDerivedGraph *graph = calloc(1, sizeof *graph);
@@ -175,6 +193,14 @@ static NativeDerivedGraph *native_derived_prepare(Environment *env, FunctionType
         char *key = instance->type_info ? opaque_type_info_key(instance->type_info) : strdup(instance->concrete_name);
         if (!key) native_opaque_name_failure();
         native_derived_add(graph, ND_INSTANCE, i, key, get_prefixed_type_name(name), NULL); free(key);
+    }
+    for (size_t i = 0; i < env->array_expression_binding_count; ++i)
+        native_derived_collect(graph, env->array_expression_bindings[i].type_info, 0);
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *function = &env->functions[i];
+        native_derived_collect(graph, function->return_type_info, 0);
+        for (int p = 0; p < function->param_count; ++p)
+            native_derived_collect(graph, function->params[p].type_info, 0);
     }
     for (int i = 0; i < functions->count; ++i) {
         TypeInfo info = {.base_type = TYPE_FUNCTION, .fn_sig = functions->signatures[i]};

@@ -481,3 +481,59 @@ already accepted by each frontend. Cross-producer runtime provider tests must
 observe the exact tag/width and unchanged borrowed target identity. The original
 SDK Json.Json tests remain unchanged. This proposal does not authorize execution
 or close the broader File/SDK scope.
+
+### Array consumer source checkpoint (unexecuted)
+
+I extend the reviewed carrier choice to ordinary tuple and callback elements as
+approved: an opaque-input map may return either, so preserving those accepted
+compositions requires their complete value storage too. I keep ordinary scalar,
+record, union and nested-array representations outside these affected paths.
+C already uses width-aware struct storage for union values; Nano retains its
+ordinary nonopaque nominal boxing. This checkpoint does not claim a new common
+ABI for every ordinary nominal array.
+
+I stage each affected store operand once. I copy loads with `memcpy` into typed
+locals before a callback or loop body can mutate/reallocate the source. Callback
+width comes from its actual generated typedef, not an assumed pointer width.
+For fresh empty carriers I accept only tag STRUCT, width zero, length zero and
+null storage, or the established exact width. Empty pop returns the existing
+zero/default value without calling the runtime's width-asserting pop routine;
+nonempty pop keeps the runtime assertions and success check. I add no runtime
+field, destructor, borrowed-target release, or callback escape authority.
+
+My C invocation owns a separate expression-to-complete-array snapshot table.
+Rows borrow AST keys and own checked TypeInfo copies. I allocate copy and enlarged
+table before publishing; failure sets the existing opaque-resolution failure
+state. Destruction frees all snapshots independently of borrowed symbol rows.
+Inferred tuple literals use the same checked tuple snapshot owner: actual child
+facts, canonical opaque names and callable signatures are copied transactionally;
+partial children are freed on failure. Tuple/callback literal validation retains
+the initial indirect argument check plus recursive complete-child checks.
+
+My Nano producer independently uses actual parsed children, canonical annotations
+and declaration-backed callback signatures. I do not derive identity from a C
+name. Its process allocation failure boundary remains unchanged; I make no
+recoverable-OOM equivalence claim. Exact tuple/callback array emission requests
+the derived-definition graph; ordinary standalone nonopaque annotations retain
+the previous graph-selection rule. I retain supported variable iteration and
+explicit unsupported non-range call iteration behavior for separate full-source
+work, rather than claiming new iterable-expression support.
+
+| Consumer | Retained boundary |
+| --- | --- |
+| Literal, empty literal, new/default | Complete expected or actual inferred element; typed staged copies |
+| Push/set, get/at, pop | Exact annotation, STRUCT tag/width and typed addressable values |
+| Variable iteration | Complete C checked loop symbol or Nano lexical annotation; copy before body |
+| Map/filter | Actual full callback signature; complete output carrier; empty literal context from the callback |
+| Reduce | C existing exact callback contract; Nano existing homogeneous scalar-only refusal remains |
+| Slice/remove-at | Existing runtime byte-width behavior; complete source annotation retained for later consumers |
+| Nested array | Existing ELEM_ARRAY pointer representation with retained complete inner annotation |
+
+I require source fixtures for ordinary tuple/callback arrays, opaque maps to and
+from those values, inferred literals, same-tag/different-owner rejection, empty
+new/pop/mutation, slice/remove compositions, mutation during callbacks, and
+cross-producer caller/callee tags and widths. I retain the original Json.Json
+installed tests and all prior required identity, naming, layout, failure and
+provider controls. Strict host-C syntax checks are the only compiler checks run
+on this checkpoint; no bootstrap, Nano shadow, source program or SDK gate has
+executed. Final production and fixture review still precedes fresh qualification.
