@@ -296,3 +296,11 @@ retain [both fresh build reports](evidence/capture-bindings/private-consumers-da
 and the products in their persistent Puck qualification directories. The
 expanded private consumers still require fresh Linux sanitizer qualification;
 full capture execution and projection remain separate unfinished requirements.
+
+My first fresh Linux GCC sanitized full File/capture build stops before tests
+at a strict format-truncation warning in RISC-V register-name emission. The
+[31.001-second terminal](evidence/capture-bindings/file-public-linux/gcc-sanitizer-first.json)
+has unchanged source/tool maps, no timeout and no remaining tracked children.
+Task3e1f6ea records the independent build repair: exact a0 through a7 strings
+replace formatting, retaining loop bounds and order. The corrected2c4d26f5b
+full gate is running; I do not count it as passed before its terminal.

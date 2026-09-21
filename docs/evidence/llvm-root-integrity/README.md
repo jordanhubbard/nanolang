@@ -32,3 +32,12 @@ debug companion sharing the executable basename. The corrected lookup excludes
 those debug-directory entries from command-product lookup, while the complete
 integrity audit still verifies their bytes. No product, fixture, execution or
 assertion changed to resolve this report-schema mistake.
+
+My [Wasm coverage audit](wasm-coverage.py) independently verifies both retained
+host runs. Each has292 main modules plus two limited-memory modules,3,698
+selected build/tool/engine terminals,2,524 actual engine invocations,292 complete
+fault coverage records,1,352 workers and37,952 recoveries. Both Wasmtime and
+Node run all73 linked/observed cases at O0 and O2. I inspect actual module import
+sections, invoked paths, numeric outputs, memory growth and limited-memory
+refusal, and every contiguous fault range. My [results](wasm-coverage.json)
+exclude separate startup/ABI/emission/package and current integration claims.
