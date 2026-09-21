@@ -1179,7 +1179,7 @@ their individual acceptance evidence closes them.
       remaining active rows still require the same evidence check. MAC
       `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
 
-- [ ] **Lower recursive scalar arrays through my canonical NanoISA product.**
+- [x] **Lower recursive scalar arrays through my canonical NanoISA product.**
       Exact-head release CI at `8854649eb` reaches my installed compiler and
       then refuses `array<array<int>>` in the unchanged incremental-cube and
       nested-value acceptance cases. I extend my checked NanoISA emitter and
@@ -1192,6 +1192,10 @@ their individual acceptance evidence closes them.
       `b41e0142b612bdc8605d6b46377f67a506fccf6065fe8002df51038122138ec8`
       and
       `5647aaab69dce489e2760ce2933aca0f2d8c7fada8059a0c002ae965ea269d93`.
+      My corrected Linux gate passes a fresh two-stage bootstrap, all six
+      unchanged compatibility methods, 1,412 shape checks, 2,426 native
+      translator checks, every dependency shadow, 86 source comparisons and
+      90 adjacent emitter methods. [Evidence](evidence/canonical-recursive-scalar-arrays.md).
       MAC `task_b877d68139a6d26162c8ad4beb9bc0b6`.
 
 - [ ] **Give my measured hosted sanitizer suite a sufficient finite budget.**
