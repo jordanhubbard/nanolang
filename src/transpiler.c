@@ -4205,7 +4205,8 @@ static bool is_c_constant_initializer(ASTNode *expr) {
 /* Generate top-level globals (constants + mutable globals).
  * For non-constant initializers, emit a small runtime initializer.
  */
-static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Environment *env) {
+static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Environment *env,
+                                      FunctionTypeRegistry *fn_registry, TupleTypeRegistry *tuple_registry) {
     sb_append(sb, "/* Top-level globals */\n");
 
     ASTNode **runtime_inits = NULL;
@@ -4272,8 +4273,15 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
             } else {
                 sb_append(sb, "void*");
             }
-        } else if (item->as.let.var_type == TYPE_UNION && item->as.let.type_info) {
+        } else if ((item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION ||
+                    item->as.let.var_type == TYPE_ENUM) && item->as.let.type_info) {
             emit_native_type_info(env, sb, item->as.let.type_info);
+        } else if (item->as.let.var_type == TYPE_STRUCT && item->as.let.type_name) {
+            sb_append(sb, get_prefixed_type_name(item->as.let.type_name));
+        } else if (item->as.let.var_type == TYPE_TUPLE && item->as.let.type_info) {
+            sb_append(sb, register_tuple_type(tuple_registry, item->as.let.type_info));
+        } else if (item->as.let.var_type == TYPE_FUNCTION && item->as.let.fn_sig) {
+            sb_append(sb, register_function_signature(fn_registry, item->as.let.fn_sig));
         } else {
             sb_append(sb, type_to_c(item->as.let.var_type));
         }
@@ -4380,6 +4388,13 @@ static void collect_function_and_tuple_types(ASTNode *program, FunctionTypeRegis
         ASTNode *item = program->as.program.items[i];
         /* async fn declarations wrap a normal function node — treat them identically */
         if (item->type == AST_ASYNC_FN) item = item->as.async_fn.function;
+
+        if (item->type == AST_LET) {
+            collect_fn_sigs(item, fn_registry);
+            if (item->as.let.var_type == TYPE_TUPLE && item->as.let.type_info)
+                register_tuple_type(tuple_registry, item->as.let.type_info);
+            collect_tuple_types_from_stmt(item, tuple_registry);
+        }
 
         if (item->type == AST_FUNCTION) {
             /* Check parameters for function types */
@@ -5024,7 +5039,7 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     generate_program_function_declarations(sb, program, env, fn_registry, tuple_registry);
 
     /* Emit top-level globals in their original initialization order. */
-    generate_toplevel_globals(sb, program, env);
+    generate_toplevel_globals(sb, program, env, fn_registry, tuple_registry);
 
     /* Generate function implementations */
     effect_helpers = sb_create(); effect_serial = 0;

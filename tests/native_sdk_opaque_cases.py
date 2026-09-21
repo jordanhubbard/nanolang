@@ -128,6 +128,47 @@ shadow source { set source_calls 0 let values:array<(int,bool)>=(source) assert 
 fn index()->int { set index_calls (+ index_calls 1) return 0 }
 shadow index { set index_calls 0 assert (== (index) 0) assert (== index_calls 1) }
 """)
+    positive['ordinary-empty-globals']=program("""
+assert (== (array_length global_strings) 0)
+assert (== (array_length global_ints) 0)
+assert (== (array_length mutable_strings) 0)
+set mutable_strings (array_push mutable_strings "retained")
+assert (== (at mutable_strings 0) "retained")
+# I leave the next main invocation the same observable empty state, without
+# replacing the global carrier or calling any compiler registry reset helper.
+let removed:string=(array_pop mutable_strings)
+assert (== removed "retained")
+""","""
+let global_strings:array<string> = []
+let global_ints:array<int> = []
+let mut mutable_strings:array<string> = []
+""")
+    positive['nonliteral-globals']=program("""
+assert (== indirect 37) assert (== called 38) assert (== changed 39)
+assert (== global_pair.first 37) assert (== global_pair.second 38)
+assert (== global_tuple.0 37) assert (== global_tuple.1 38)
+assert (== (at ordinary_values 0) 37) assert (== (at ordinary_values 1) 38)
+assert (== (callback 41) 42) assert computed_flag assert (== computed_text "ab")
+assert (== computed_int 75)
+match global_box { Value(payload)=>{ assert (== payload.value 37) } }
+""","""
+struct InitialPair { first:int, second:int }
+union Box<T> { Value { value:T } }
+fn next(value:int)->int { return (+ value 1) }
+shadow next { assert (== (next 41) 42) }
+let literal:int=37
+let indirect:int=literal
+let called:int=(next indirect)
+let mut changed:int=(next called)
+let global_pair:InitialPair=InitialPair { first:indirect, second:called }
+let global_tuple:(int,int)=(global_pair.first,global_pair.second)
+let ordinary_values:array<int> = [global_pair.first,global_pair.second]
+let callback:fn(int)->int=next
+let computed_flag:bool=(== called 38)
+let computed_text:string=(str_concat "a" "b")
+let computed_int:int=(+ indirect called)
+let global_box:Box<int> = Box<int>.Value { value:indirect }
+""")
     # Actual main-scope definition admission is preserved: these names already
     # permit declarations. Reserved declarations are not silently reclassified.
     for name in ('array_push','array_pop','filter','array_filter','array_map','array_fold','array_remove_at'):

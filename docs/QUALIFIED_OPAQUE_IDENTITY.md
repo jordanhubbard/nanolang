@@ -625,3 +625,38 @@ I do not run a null function pointer or copy a missing element. Compile refusals
 preserve prior output bytes, require diagnostics and distinguish qualified-type
 resolution errors from runtime absence. These fixtures are source-only at this
 checkpoint: Python AST parsing and whitespace checks do not qualify any producer.
+
+### General global-initializer integration after f39d
+
+The two `f39d` producers pass C-seed/Stage1 build and smoke, then their generated
+Stage2 shadow executable reaches `generate_fn_type_typedefs` with a NULL ordinary
+array global. I preserve those actual terminals. I do not clear the mixed
+`native_derived_emitted_names` set in `reset_fn_types`: that set also describes
+emitted tuple/record layouts and has a separate lifetime.
+
+I integrate root's reviewed source from `216ab627` and `2d89da158`. The C producer
+collects top-level callable/tuple metadata before emitting declarations and uses
+complete struct/union/enum/tuple/callable types for runtime-initialized globals.
+Its existing direct scalar literal versus ordered runtime initializer selection
+is unchanged. Nano now makes the same selection: direct number/float/string/bool
+literal nodes may use static initialization; every other expression uses the
+existing source-ordered startup path, including guarded mutable scalar values.
+Empty and populated ordinary arrays therefore obtain actual runtime carriers.
+No NULL-as-empty runtime rule or missing-initializer default is introduced.
+
+I retain exact-array annotation discovery before layout emission, and globals are
+still generated before mixed nominal definitions and callable typedefs are emitted.
+The stronger opaque declaration/complete-layout graph remains authoritative.
+Root's callable-global typedef-before-global assertion joins my existing tuple and
+callback array ordering assertions without replacing any predicate. The old bit
+and float classifier helpers and their shadows remain; the general selector now
+covers those expression roots too.
+
+Two additional installed source cases join all original controls. Ordinary
+`array<string>`/`array<int>` globals are read without any reset call, and a mutable
+empty carrier is pushed/popped without replacing it. A separate nonliteral case
+checks dependency-ordered references and calls, mutable scalar startup, record,
+tuple, array, callable and union values, computed boolean/string/integer roots.
+These additions audit global initialization; they do not replace root's separate
+written aggregate-field ordering acceptance or merge PR937. No corrected build,
+bootstrap, shadow or installed-source execution has run at this checkpoint.
