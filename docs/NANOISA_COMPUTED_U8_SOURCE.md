@@ -99,3 +99,7 @@ result, then fresh independent producer/runtime comparison and unchanged
 literal/wrong-tag controls. Existing full byte destinations, captures, source
 corpus, reconstruction and all required backend gates remain open. This
 policy correction alone cannot close the parent task.
+
+## My global enum prerequisite
+
+My fresh938f Linux qualification builds the C seed, bootstraps and builds all three independent emitters successfully. The first enum fixture then stops before native publication: both C global checker entry points use strict tag equality, unlike local assignment compatibility. My earlier statement about existing checker compatibility applies to those local compatibility paths, not every global declaration. I extend only an exact declared U8 receiving an actual TYPE_ENUM in both global paths. I retain all other strict global comparisons, including existing numeric-literal checks, and leave the enum fixture unchanged. I require independent source review before the next fresh qualification. The original failure and six unreached selected methods remain recorded; shared captures are still open.
