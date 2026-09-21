@@ -49,6 +49,66 @@ static VmBindingResult binding_retain(VmHeap *heap, NanoValue value) {
     return VM_BINDING_OK;
 }
 
+static bool binding_environment_identity(const VmClosure *closure,
+    uint32_t module_id, uint32_t function, const uint8_t *modes, uint16_t count) {
+    if (!module_id || (count && !modes)) return false;
+    if (!closure) return count == 0;
+    return closure->header.obj_type == TAG_CLOSURE && closure->header.ref_count &&
+        closure->callable_module == module_id && closure->fn_idx == function &&
+        closure->capture_count == count;
+}
+
+static bool binding_capture_shape(NanoValue capture, uint8_t mode) {
+    if (mode == 0) return true;
+    return mode == 1 && capture.tag == TAG_TUPLE && capture.as.tuple &&
+        capture.as.tuple->header.obj_type == TAG_TUPLE &&
+        capture.as.tuple->header.ref_count && capture.as.tuple->count == 1;
+}
+
+VmBindingResult vm_binding_environment(const VmClosure *closure,
+    uint32_t module_id, uint32_t function, const uint8_t *modes, uint16_t count) {
+    if (!binding_environment_identity(closure, module_id, function, modes, count))
+        return VM_BINDING_INVALID;
+    for (uint16_t i = 0; i < count; ++i)
+        if (!binding_capture_shape(closure->captures[i], modes[i]))
+            return VM_BINDING_INVALID;
+    return VM_BINDING_OK;
+}
+
+static NanoValue *binding_upvalue(VmClosure *closure, uint32_t module_id,
+    uint32_t function, const uint8_t *modes, uint16_t count, uint16_t index) {
+    if (!closure || index >= count ||
+        !binding_environment_identity(closure, module_id, function, modes, count) ||
+        !binding_capture_shape(closure->captures[index], modes[index])) return NULL;
+    return modes[index] ? &closure->captures[index].as.tuple->elements[0] :
+        &closure->captures[index];
+}
+
+VmBindingResult vm_binding_upvalue_read(VmHeap *heap, VmClosure *closure,
+    uint32_t module_id, uint32_t function, const uint8_t *modes,
+    uint16_t count, uint16_t index, NanoValue *out) {
+    if (!heap || !out) return VM_BINDING_INVALID;
+    NanoValue *value = binding_upvalue(closure, module_id, function, modes, count, index);
+    if (!value) return VM_BINDING_INVALID;
+    VmBindingResult result = binding_retain(heap, *value);
+    if (result != VM_BINDING_OK) return result;
+    *out = *value;
+    return VM_BINDING_OK;
+}
+
+VmBindingResult vm_binding_upvalue_assign(VmHeap *heap, VmClosure *closure,
+    uint32_t module_id, uint32_t function, const uint8_t *modes,
+    uint16_t count, uint16_t index, NanoValue *incoming) {
+    if (!heap || !incoming) return VM_BINDING_INVALID;
+    NanoValue *value = binding_upvalue(closure, module_id, function, modes, count, index);
+    if (!value || modes[index] != 1) return VM_BINDING_INVALID;
+    NanoValue previous = *value;
+    *value = *incoming;
+    *incoming = val_void();
+    vm_release(heap, previous);
+    return VM_BINDING_OK;
+}
+
 VmBindingResult vm_binding_read(VmBindingState *state, NanoValue *locals,
     uint16_t index, NanoValue *out) {
     VmBindingSlot *slot = binding_slot(state, locals, index);

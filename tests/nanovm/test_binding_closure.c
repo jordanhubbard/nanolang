@@ -146,8 +146,67 @@ static void empty_controls(void) {
     vm_release(&heap,val_closure(out));CHECK(heap.stats.allocated==heap.stats.freed);
     vm_heap_destroy(&heap);
 }
+static void environment_controls(void) {
+    Fixture f;setup(&f);VmClosure *closure=NULL;
+    CHECK(construct(&f,SIZE_MAX,100,&closure)==VM_BINDING_OK);
+    CHECK(vm_binding_environment(closure,3,19,f.modes,6)==VM_BINDING_OK);
+    CHECK(vm_binding_environment(closure,2,19,f.modes,6)==VM_BINDING_INVALID);
+    CHECK(vm_binding_environment(closure,3,20,f.modes,6)==VM_BINDING_INVALID);
+    CHECK(vm_binding_environment(closure,3,19,f.modes,5)==VM_BINDING_INVALID);
+    CHECK(vm_binding_environment(NULL,3,19,f.modes,6)==VM_BINDING_INVALID);
+    CHECK(vm_binding_environment(NULL,3,19,NULL,0)==VM_BINDING_OK);
+    CHECK(vm_binding_environment(NULL,0,19,NULL,0)==VM_BINDING_INVALID);
+    uint8_t bad[6];memcpy(bad,f.modes,sizeof bad);bad[0]=2;
+    CHECK(vm_binding_environment(closure,3,19,bad,6)==VM_BINDING_INVALID);
+    NanoValue out=val_int(777),incoming=val_int(66);
+    CHECK(vm_binding_upvalue_read(&f.heap,closure,3,20,f.modes,6,0,&out)==VM_BINDING_INVALID);
+    CHECK(vm_binding_upvalue_read(&f.heap,closure,3,19,f.modes,6,6,&out)==VM_BINDING_INVALID);
+    CHECK(vm_binding_upvalue_read(&f.heap,closure,3,19,bad,6,0,&out)==VM_BINDING_INVALID);
+    CHECK(out.tag==TAG_INT&&out.as.i64==777);
+    CHECK(vm_binding_upvalue_assign(&f.heap,closure,3,19,f.modes,6,5,&incoming)==VM_BINDING_INVALID);
+    CHECK(incoming.as.i64==66);
+    VmString *original=closure->captures[0].as.tuple->elements[0].as.string;
+    CHECK(original->header.ref_count==1);
+    CHECK(vm_binding_upvalue_read(&f.heap,closure,3,19,f.modes,6,0,&out)==VM_BINDING_OK);
+    CHECK(out.tag==TAG_STRING&&out.as.string==original&&original->header.ref_count==2);
+    CHECK(vm_binding_upvalue_assign(&f.heap,closure,3,19,f.modes,6,1,&out)==VM_BINDING_OK);
+    CHECK(out.tag==TAG_VOID&&original->header.ref_count==1);
+    CHECK(vm_binding_upvalue_assign(&f.heap,closure,3,19,f.modes,6,0,&incoming)==VM_BINDING_OK);
+    CHECK(incoming.tag==TAG_VOID&&f.state->slots[1].cell->elements[0].as.i64==66);
+    incoming=val_int(99);
+    CHECK(vm_binding_upvalue_assign(&f.heap,closure,3,19,f.modes,6,4,&incoming)==VM_BINDING_OK);
+    CHECK(f.sibling->captures[0].as.tuple->elements[0].as.i64==99);
+    CHECK(vm_binding_read(f.state,f.locals,0,&out)==VM_BINDING_OK&&out.as.i64==99);
+    out=val_int(777);
+    VmString *immutable=f.locals[3].as.string;CHECK(immutable->header.ref_count==2);
+    immutable->header.ref_count=UINT32_MAX;
+    CHECK(vm_binding_upvalue_read(&f.heap,closure,3,19,f.modes,6,5,&out)==VM_BINDING_LIMIT);
+    CHECK(out.as.i64==777&&immutable->header.ref_count==UINT32_MAX);
+    immutable->header.ref_count=2;
+    uint64_t retained=f.heap.stats.retain_calls;f.heap.stats.retain_calls=UINT64_MAX;
+    CHECK(vm_binding_upvalue_read(&f.heap,closure,3,19,f.modes,6,5,&out)==VM_BINDING_LIMIT);
+    CHECK(out.as.i64==777&&immutable->header.ref_count==2);f.heap.stats.retain_calls=retained;
+    CHECK(vm_binding_upvalue_read(&f.heap,closure,3,19,f.modes,6,5,&out)==VM_BINDING_OK);
+    CHECK(out.as.string==immutable&&immutable->header.ref_count==3);
+    vm_release(&f.heap,out);destroy(&f,closure);
+
+    VmHeap heap;vm_heap_init(&heap);VmTuple *tuple=vm_tuple_new(&heap,2);CHECK(tuple);
+    tuple->elements[0]=val_int(5);tuple->elements[1]=val_int(6);
+    const uint8_t copied=0,shared=1;
+    VmBindingSource source={.value=val_tuple(tuple),.mode=0};
+    CHECK(vm_binding_closure(&heap,4,6,&copied,&source,1,SIZE_MAX,1,&closure)==VM_BINDING_OK);
+    CHECK(vm_binding_environment(closure,4,6,&copied,1)==VM_BINDING_OK);
+    CHECK(vm_binding_environment(closure,4,6,&shared,1)==VM_BINDING_INVALID);
+    out=val_void();
+    CHECK(vm_binding_upvalue_read(&heap,closure,4,6,&copied,1,0,&out)==VM_BINDING_OK);
+    CHECK(out.tag==TAG_TUPLE&&out.as.tuple==tuple&&out.as.tuple->count==2);
+    CHECK(out.as.tuple->elements[0].as.i64==5&&out.as.tuple->elements[1].as.i64==6);
+    vm_release(&heap,out);vm_release(&heap,val_closure(closure));vm_release(&heap,val_tuple(tuple));
+    vm_gc_collect_cycles(&heap);CHECK(!heap.stats.num_objects&&heap.stats.allocated==heap.stats.freed);
+    vm_heap_destroy(&heap);
+}
 int main(void) {
-    allocation_controls();refusal_controls();empty_controls();
+    allocation_controls();refusal_controls();empty_controls();environment_controls();
     printf("I passed %u atomic closure checks with complete staged-allocation recovery.\n",checks);
     return 0;
 }

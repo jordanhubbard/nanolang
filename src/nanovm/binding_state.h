@@ -66,4 +66,20 @@ VmBindingResult vm_binding_closure(VmHeap *heap, uint32_t module_id,
     uint32_t function, const uint8_t *target_modes,
     const VmBindingSource *sources, uint16_t count, size_t limit,
     size_t work_limit, VmClosure **out);
+
+/* I borrow the exact immutable modes of a previously validated target.
+ * Shape alone does not establish declaration authority. NULL closure denotes
+ * a raw function and is accepted only when count is zero. */
+VmBindingResult vm_binding_environment(const VmClosure *closure,
+    uint32_t module_id, uint32_t function, const uint8_t *modes, uint16_t count);
+/* Entry validation precedes access. The rooted closure and selected cell stay
+ * live; operands/outputs are distinct from environment and cell storage. Read
+ * publishes a retained ordinary value; assignment moves an owned operand only
+ * on success, as for local bindings. Neither operation exposes an internal cell. */
+VmBindingResult vm_binding_upvalue_read(VmHeap *heap, VmClosure *closure,
+    uint32_t module_id, uint32_t function, const uint8_t *modes,
+    uint16_t count, uint16_t index, NanoValue *out);
+VmBindingResult vm_binding_upvalue_assign(VmHeap *heap, VmClosure *closure,
+    uint32_t module_id, uint32_t function, const uint8_t *modes,
+    uint16_t count, uint16_t index, NanoValue *incoming);
 #endif
