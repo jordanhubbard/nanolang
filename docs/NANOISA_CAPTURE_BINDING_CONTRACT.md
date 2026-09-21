@@ -243,3 +243,13 @@ initialization, emit a section or admit its feature in the container/VM. Existin
 readers still refuse the proposed feature. Integration must retain that refusal
 until the schema, verifier and consumers implement the complete contract; a
 successful structural decode alone is never execution authority.
+
+My independently reviewed writer checkpoint46718646a now passes803 checks in
+each of seven Linux/Darwin ordinary and ASan/UBSan configurations. The writer
+reproduces the canonical fixture bytes, rejects invalid descriptor facts,
+preserves both outputs at budget boundaries and all three allocation failures,
+and recovers with no live temporary storage. Exact source bytes/modes remain
+unchanged before and after every platform run. I retain commands, tools, raw
+terminals and identities in [writer evidence](evidence/capture-bindings/writer/checks.json).
+This qualifies only the payload codec; schema, instruction verification,
+producer integration and closure execution remain open.
