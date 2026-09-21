@@ -13767,3 +13767,18 @@ replayed. Task `task_edcf1f2e8f694079ab99ec96032cd6da` tracks the new boundary.
   review source and corrected-only controls before further qualification.
 - [ ] I complete the unreached bootstrap, thirteen-method source/lifetime matrix
   and whole Make gates, preserving every previous failure attribution.
+
+
+My corrected 132f fresh full Make build passes on Linux (82.973s) and Darwin
+(87.252s), including original parser/checker/transpiler shadow graphs. Explicit
+bootstrap then fails on unqualified imported Symbol provenance in
+compiler/module_loader.nano on both hosts; complete providers and thirteen
+fixture methods remain unreached. I retain all terminal logs/maps separately;
+this progress does not establish the earlier crash's allocation history.
+
+- [ ] I retain explicit unqualified nominal import edges from each importer to
+  its registered declaration, preserving local identity, same-spelling conflict
+  refusal and direct/transitive import semantics; no global unique-name fallback.
+  Task `task_836004405a924cea8d45829cbe14ab61` owns this prerequisite.
+- [ ] I review the import provenance source and focused fixtures, then resume
+  fresh full bootstrap and every remaining list/evaluator/whole Make gate.
