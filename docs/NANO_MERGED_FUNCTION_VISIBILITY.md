@@ -227,3 +227,30 @@ negative to exercise the actual C identifier path. Changed module/checker
 providers require fresh C-seed rebuild and endpoint maps; current Nano refresh
 reuse, if proposed, requires exact exclusion/dependency proof. Complete clean
 bootstrap and full SDK still remain later requirements.
+
+My implementation uses exact-owner lookup and a public-function preflight
+before any alias rows for the selected import. The alias helper stages both
+owned spellings, leaving the output unchanged on failure; it deliberately
+borrows the same declaration/signature/body fields as the existing alias row.
+The normal environment publication and its terminal allocation policy remain
+unchanged. Caller visibility distinguishes an ownerless root/builtin function
+from an imported known-owner function, including function-valued identifiers.
+
+The ordinary call path previously tried a same-name declaration before its
+lexical callback fallback. To preserve local callable authority under the new
+access guard, I use its existing check_indirect_call path first when an actual
+visible TYPE_FUNCTION value exists. Earlier reserved and intrinsic routes
+remain in their original order. An additive private-name/local-callback
+positive requires the local target's actual result, alongside public selected
+function-value acceptance and private wildcard function-value refusal.
+
+My new C fixture includes the actual module translation unit. It checks exact
+owner lookup with a competing ownerless and other-owner function, selected
+public/private preflight without row publication, and both strdup failures in
+the actual alias helper. Failure leaves a memcpy-preserved output sentinel and
+zero live helper allocations; each failure is followed by normal recovery.
+Successful owned spellings survive changes to their source buffers. Other
+signature/body/module fields retain the existing borrowed ownership contract.
+The fixture uses complete ordinary provider objects excluding main/module,
+with its own CLI state. It does not claim whole-provider sanitization or
+unrelated environment rollback. No new product execution has occurred.

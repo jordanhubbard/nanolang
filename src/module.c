@@ -621,13 +621,48 @@ static Function *find_module_function(Environment *env, const char *module_name,
     }
     for (int i = 0; i < env->function_count; i++) {
         if (safe_strcmp(env->functions[i].name, func_name) == 0) {
-            if (!module_name || !env->functions[i].module_name ||
-                strcmp(env->functions[i].module_name, module_name) == 0) {
+            const char *owner = env->functions[i].module_name;
+            if ((!module_name && !owner) ||
+                (module_name && owner && strcmp(owner, module_name) == 0)) {
                 return &env->functions[i];
             }
         }
     }
     return NULL;
+}
+
+/* I stage owned alias spellings before publishing either field. */
+static bool copy_module_function_alias(const Function *source, const char *alias,
+                                       Function *out) {
+    if (!source || !source->name || !alias || !out) return false;
+    const char *original = source->alias_of ? source->alias_of : source->name;
+    char *name_copy = strdup(alias);
+    if (!name_copy) return false;
+    char *original_copy = strdup(original);
+    if (!original_copy) {
+        free(name_copy);
+        return false;
+    }
+    *out = *source;
+    out->name = name_copy;
+    out->alias_of = original_copy;
+    return true;
+}
+
+/* I validate all selected functions before publishing aliases for this import.
+ * Non-function selections retain their separate existing type resolver. */
+static bool selected_module_functions_public(Environment *env, const char *owner,
+                                              ASTNode *item) {
+    for (int i = 0; i < item->as.import_stmt.import_symbol_count; ++i) {
+        const char *name = item->as.import_stmt.import_symbols[i];
+        Function *function = find_module_function(env, owner, name);
+        if (function && !function->is_pub) {
+            fprintf(stderr, "I cannot import private function '%s' from module '%s' at %d:%d.\n",
+                    name, owner ? owner : "", item->line, item->column);
+            return false;
+        }
+    }
+    return true;
 }
 
 /* Load and parse a module file */
@@ -1142,6 +1177,17 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                     module_name_for_alias = module_name_from_path(module_path);
                 }
                 
+                if (!module_name_for_alias ||
+                    !selected_module_functions_public(env, module_name_for_alias, item)) {
+                    if (!module_name_for_alias)
+                        fprintf(stderr, "I could not allocate the selected import owner.\n");
+                    free(module_name_for_alias);
+                    free(module_path);
+                    for (int k = 0; k < unpacked_count; k++) free(unpacked_dirs[k]);
+                    free(unpacked_dirs);
+                    return false;
+                }
+
                 for (int j = 0; j < item->as.import_stmt.import_symbol_count; j++) {
                     const char *symbol = item->as.import_stmt.import_symbols[j];
                     const char *alias = item->as.import_stmt.import_aliases
@@ -1177,10 +1223,15 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                         return false;
                     }
                     
-                    Function alias_func = *func;
-                    alias_func.name = strdup(alias);
-                    const char *orig_name = func->alias_of ? func->alias_of : func->name;
-                    alias_func.alias_of = orig_name ? strdup(orig_name) : NULL;
+                    Function alias_func;
+                    if (!copy_module_function_alias(func, alias, &alias_func)) {
+                        fprintf(stderr, "I could not allocate complete function alias '%s'.\n", alias);
+                        free(module_name_for_alias);
+                        free(module_path);
+                        for (int k = 0; k < unpacked_count; k++) free(unpacked_dirs[k]);
+                        free(unpacked_dirs);
+                        return false;
+                    }
                     env_define_function(env, alias_func);
                 }
                 

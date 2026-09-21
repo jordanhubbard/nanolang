@@ -148,6 +148,13 @@ shadow probe { assert (== (probe) 0) }
             ('wildcard',f'from {owner_literal} import *\n','(visible_value)'),
             ('lambda',f'module {owner_literal} as Visible\n','(Visible.with_lambda)')):
             positives['visibility-'+label]=(imports+'fn probe() -> int { assert (== '+call+' 42) return 0 }\nshadow probe { assert (== (probe) 0) }\n'+main,visibility_names)
+        positives['visibility-public-value']=(f'from {owner_literal} import visible_value as chosen\n'
+            'fn probe() -> int { let callback: fn()->int = chosen assert (== (callback) 42) return 0 }\n'
+            'shadow probe { assert (== (probe) 0) }\n'+main,visibility_names)
+        positives['visibility-local-callback']=(f'module {owner_literal} as Visible\n'
+            'fn local_target() -> int { return 42 }\nshadow local_target { assert (== (local_target) 42) }\n'
+            'fn probe() -> int { let hidden_value: fn()->int = local_target assert (== (hidden_value) 42) return 0 }\n'
+            'shadow probe { assert (== (probe) 0) }\n'+main,visibility_names+['local_target'])
         public_extern=self.work/'public-extern.nano'
         public_extern.write_text('module public_extern\npub extern fn get_argc() -> int\n')
         positives['visibility-public-extern']=(f'module {json.dumps(str(public_extern))} as External\nfn probe() -> int {{ assert (>= (External.get_argc) 0) return 0 }}\nshadow probe {{ assert (== (probe) 0) }}\n'+main,['probe','main'])
@@ -167,6 +174,7 @@ shadow probe { assert (== (probe) 0) }
             'selective-ignored-result':f'from {owner_literal} import hidden_value as chosen\nfn main() -> int {{ (chosen) return 0 }}\nshadow main {{ assert true }}\n',
             'qualified-value':f'module {owner_literal} as Visible\nfn main() -> int {{ let callback: fn()->int = Visible.hidden_value return (callback) }}\nshadow main {{ assert true }}\n',
             'wildcard':f'from {owner_literal} import *\nfn main() -> int {{ return (hidden_value) }}\nshadow main {{ assert true }}\n',
+            'wildcard-value':f'from {owner_literal} import *\nfn main() -> int {{ let callback: fn()->int = hidden_value return (callback) }}\nshadow main {{ assert true }}\n',
             'private-extern':f'module {json.dumps(str(private_extern))} as External\nfn main() -> int {{ return (External.get_argc) }}\nshadow main {{ assert true }}\n',
             'private-extern-unqualified':f'import {json.dumps(str(private_extern))}\nfn main() -> int {{ return (get_argc) }}\nshadow main {{ assert true }}\n',
             'private-builtin-value':f'from {json.dumps(str(private_split))} import str_split\nfn main() -> int {{ let callback: fn(int)->int = str_split return (callback 41) }}\nshadow main {{ assert true }}\n'}

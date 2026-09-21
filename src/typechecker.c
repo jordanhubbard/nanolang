@@ -197,14 +197,11 @@ static bool is_symbol_imported(const char *symbol_name, const char *module_path,
 static bool is_function_accessible(Function *func, Environment *env, int line, int column) {
     if (!func) return false;
     
-    /* If no module context, everything is accessible (legacy/global scope) */
-    if (!env->current_module) return true;
-    
     /* If function has no module, it's global (legacy) - accessible */
     if (!func->module_name) return true;
     
     /* If same module, always accessible */
-    if (func->module_name && strcmp(func->module_name, env->current_module) == 0) {
+    if (env->current_module && strcmp(func->module_name, env->current_module) == 0) {
         return true;
     }
     
@@ -221,7 +218,8 @@ static bool is_function_accessible(Function *func, Environment *env, int line, i
     }
 
     /* Check if symbol was explicitly imported via selective import */
-    if (!is_symbol_imported(func->name, func->module_name, env)) {
+    const char *imported_name = func->alias_of ? func->alias_of : func->name;
+    if (!is_symbol_imported(imported_name, func->module_name, env)) {
         char message[512];
         snprintf(message, sizeof(message),
                  "I cannot call function '%s' from module '%s' without importing it.",
@@ -2314,7 +2312,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Not a variable - check if it's a function name */
                 Function *func = env_get_function(env, expr->as.identifier);
                 if (func) {
-                    /* Function name used as value (for passing/returning) */
+                    /* I preserve the same owner check when a function becomes a value. */
+                    if (!is_function_accessible(func, env, expr->line, expr->column))
+                        return TYPE_UNKNOWN;
                     return TYPE_FUNCTION;
                 }
                 char message[256];
@@ -2933,6 +2933,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
             
 checked_array_declared_call: ;
+            /* I resolve a visible callable value before checking foreign function access. */
+            Symbol *lexical_callback = env_get_var_visible_at(env, expr->as.call.name,
+                                                             expr->line, expr->column);
+            if (lexical_callback && lexical_callback->type == TYPE_FUNCTION) {
+                lexical_callback->is_used = true;
+                return check_indirect_call(expr, env,
+                    lexical_callback->type_info ? lexical_callback->type_info->fn_sig : NULL);
+            }
             /* Check if function exists */
             Function *func = env_get_function(env, expr->as.call.name);
             
