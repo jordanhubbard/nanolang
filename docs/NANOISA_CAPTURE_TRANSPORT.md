@@ -1,0 +1,102 @@
+# My capture metadata transport
+
+I implement this dependency under `task_95103bbeb64a485701008b9e259ea991`
+inside full shared-capture task `task_af8091f571a842bc90656e2c7f19b68e`.
+This source audit uses PR937 head38275cdfb and canonical main3ff27be579.
+My [wire contract](NANOISA_CAPTURE_BINDING_CONTRACT.md) remains authoritative.
+This document specifies work before implementation; it is not qualification.
+
+## Exact lifetime
+
+My `NvmModule` owns canonical `capture_data` and `capture_size`, just as it
+owns other required payload bytes. Both are absent together. A nonempty
+payload owns a distinct allocation; my module destructor releases it once.
+My decoded `NvmCaptureBindings` tables borrow those immutable bytes and cannot
+outlive their owner. A parse, clone or replacement stages bytes and tables
+privately and publishes only after validation. Allocation failure preserves the
+prior destination and releases every unpublished allocation.
+
+My `NvmV2Module` view borrows payload bytes from its input or source module.
+Conversion back to an execution module deep-copies them before the source
+buffer can be released. I do not store a borrowed decoded view in a temporary
+module and later publish its dangling pointers. Payload and index allocations
+share an explicit checked budget; code-validation work is bounded separately.
+
+## Container and text
+
+I add the already reserved bit10 and section15 to `nvm_format_v2.h`, extend
+the section plan from14 to15 rows, and require exact feature/section pairing
+in both serialization and deserialization. An empty section, pointer/size
+disagreement, duplicate section, wrong counts, invalid modes, invalid sites
+or trailing bytes is refused. I validate against the fully constructed
+function table and code using the existing capture codec and structural checker.
+No raw payload becomes an execution proof.
+
+`nvm_v2_convert.c` preserves bytes in both directions. `nvm_format.c` refuses
+v1 serialization when captures are present, as it does for other required v2
+contracts; it frees the owned payload on every ordinary destruction path.
+Canonical disassembly emits bounded `.capture_bindings` hexadecimal chunks.
+Assembly retains their exact bytes and validates the complete result. The
+public `modules/nanoisa/nanoisa.c` load/save and text routes must preserve the
+same contract and diagnostic distinction. Existing capture opcodes alone do
+not provide the missing function modes or site table.
+
+## Projection and linked identity
+
+My existing VM links separate module objects through `vm_add_module` and
+`linked_modules`. Their function indices remain module-relative. I preserve
+that identity instead of inventing a flattened linker or rebasing indices
+that did not move. Closure ownership must continue naming the actual executing
+module as well as its target function. The linked verifier and all public
+entry paths examine every participating module.
+
+An identity-preserving clone copies exact bytes. A projection that changes
+function indices or instruction boundaries must rebuild function records,
+owner/target indices, site ordering, relative offsets and each CLOSURE_BIND
+site operand together, then validate the resulting payload/code pair. It must
+include the complete referenced target closure or refuse before publication.
+Until that transformation is implemented and qualified, such a projection
+refuses the feature; refusal does not close my full projection obligation.
+
+My `managed_record_array_execution.inc` manually copies and frees a selected
+module snapshot. Its current closed-profile absence check does not know the
+new payload. I add an explicit admission decision before copying: no silent
+omission followed by a successful proof. The same rule applies to retained
+layout/ownership declaration projections, private service/File plans, portable
+host plans and any other partial module view. Declaration-only inspection may
+retain its existing narrower report, but cannot claim complete module equality
+or execution readiness after discarding a required feature.
+
+## Admission dependency
+
+Recognizing a container bit expands transport, not execution. Before enabling
+container transport I audit the ordinary and per-function verifiers, linked
+verification, VM checked/decoded/public/direct/indirect/tail/callback entries,
+C and LLVM translators, Wasm lowering, private ownership/service entry points
+and frozen execution snapshots. Each unsupported route explicitly refuses a
+capture-bearing module before dispatch, output publication or proof caching.
+The new feature is not made advisory by a verifier failure and checked fallback.
+
+Later reviewed definite-initialization, stack/type/effect and runtime proofs
+replace these refusals on each supported route. Full paired source lowering,
+VM/C/LLVM/Wasm execution, projections and bootstrap fixed point remain required
+by5.1. Passing transport tests never closes that parent.
+
+## Acceptance
+
+I require original container, codec and schema controls plus real module
+roundtrips and destruction after releasing the original input. Exact byte
+comparisons cover local/capture modes, repeated shared sources, empty target
+environments, multiple functions/sites, and canonical text and binary output.
+Feature-only/section-only and malformed metadata controls preserve outputs.
+I test corrected allocation-prefix failures and independent recovery, including
+failure after byte allocation and during each index allocation.
+
+Consumer controls use a valid capture payload with ordinary-looking code where
+possible: opcode rejection alone must not hide missing required-feature checks.
+I inspect actual refusal and unchanged output through public/private, linked
+and translation interfaces. I do not execute a known unsupported instruction
+path merely to reproduce a crash. Fresh Linux and Darwin ordinary and strict
+sanitizer gates retain exact source/provider identities, actual terminals and
+first failures. Integration and source bootstrap gates follow the complete
+consumer implementations.
