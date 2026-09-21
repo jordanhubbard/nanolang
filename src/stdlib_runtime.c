@@ -1097,14 +1097,14 @@ void generate_string_operations(StringBuilder *sb) {
     /* str_split */
     sb_append(sb, "static DynArray* nl_str_split(const char* str, const char* delim) {\n");
     sb_append(sb, "    DynArray* result = dyn_array_new(ELEM_STRING);\n");
-    sb_append(sb, "    if (!result) return NULL;\n");
+    sb_append(sb, "    if (!result) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n");
     sb_append(sb, "    if (!str) return result;\n");
     sb_append(sb, "    size_t delim_len = strlen(delim);\n");
     sb_append(sb, "    if (delim_len == 0) {\n");
     sb_append(sb, "        size_t str_len = strnlen(str, 64*1024*1024);\n");
     sb_append(sb, "        for (size_t i = 0; i < str_len; i++) {\n");
     sb_append(sb, "            char* ch = gc_alloc_string(1);\n");
-    sb_append(sb, "            if (!ch) break;\n");
+    sb_append(sb, "            if (!ch) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n");
     sb_append(sb, "            ch[0] = str[i]; ch[1] = '\\0';\n");
     sb_append(sb, "            dyn_array_push_string(result, ch);\n");
     sb_append(sb, "        }\n");
@@ -1115,7 +1115,7 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    while ((found = strstr(start, delim)) != NULL) {\n");
     sb_append(sb, "        size_t seg_len = (size_t)(found - start);\n");
     sb_append(sb, "        char* seg = gc_alloc_string(seg_len);\n");
-    sb_append(sb, "        if (!seg) break;\n");
+    sb_append(sb, "        if (!seg) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n");
     sb_append(sb, "        memcpy(seg, start, seg_len);\n");
     sb_append(sb, "        seg[seg_len] = '\\0';\n");
     sb_append(sb, "        dyn_array_push_string(result, seg);\n");
@@ -1123,7 +1123,8 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    }\n");
     sb_append(sb, "    size_t rest_len = strlen(start);\n");
     sb_append(sb, "    char* seg = gc_alloc_string(rest_len);\n");
-    sb_append(sb, "    if (seg) {\n");
+    sb_append(sb, "    if (!seg) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n");
+    sb_append(sb, "    {\n");
     sb_append(sb, "        memcpy(seg, start, rest_len);\n");
     sb_append(sb, "        seg[rest_len] = '\\0';\n");
     sb_append(sb, "        dyn_array_push_string(result, seg);\n");

@@ -3510,12 +3510,21 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         const char *str = args[0].as.string_val;
         const char *delim = args[1].as.string_val;
         DynArray *result = dyn_array_new(ELEM_STRING);
-        if (!result) return create_void();
+        if (!result) {
+            fprintf(stderr, "I cannot allocate a complete split-string result.\n");
+            abort();
+        }
         size_t delim_len = strlen(delim);
         if (delim_len == 0) {
             size_t str_len = strlen(str);
             for (size_t i = 0; i < str_len; i++) {
-                char ch[2] = { str[i], '\0' };
+                char *ch = gc_alloc_string(1);
+                if (!ch) {
+                    fprintf(stderr, "I cannot allocate a complete split-string result.\n");
+                    abort();
+                }
+                ch[0] = str[i];
+                ch[1] = '\0';
                 dyn_array_push_string(result, ch);
             }
         } else {
@@ -3523,15 +3532,24 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             const char *found;
             while ((found = strstr(start, delim)) != NULL) {
                 size_t seg_len = (size_t)(found - start);
-                char *seg = malloc(seg_len + 1);
-                if (!seg) break;
+                char *seg = gc_alloc_string(seg_len);
+                if (!seg) {
+                    fprintf(stderr, "I cannot allocate a complete split-string result.\n");
+                    abort();
+                }
                 memcpy(seg, start, seg_len);
                 seg[seg_len] = '\0';
                 dyn_array_push_string(result, seg);
-                free(seg);
                 start = found + delim_len;
             }
-            dyn_array_push_string(result, start);
+            size_t rest_len = strlen(start);
+            char *tail = gc_alloc_string(rest_len);
+            if (!tail) {
+                fprintf(stderr, "I cannot allocate a complete split-string result.\n");
+                abort();
+            }
+            memcpy(tail, start, rest_len + 1);
+            dyn_array_push_string(result, tail);
         }
         return create_dyn_array(result);
     }
