@@ -181,6 +181,82 @@ shadow main { assert (== (main) 0) }
                 prelude + 'fn main() -> int { ' + body + ' return 0 }\nshadow main { assert true }\n',
                 reject=True, checker_refusal=True)
 
+    def test_selfhost_array_value_boundaries(self):
+        prelude = '''struct Item { value: int }
+struct Other { value: int }
+struct Rows { values: array<array<Item>> }
+union Wrapped { Rows { values: array<array<Item>> } }
+fn make(n: int) -> Item { return Item { value: n } }
+shadow make { assert (== (make 7).value 7) }
+fn total(rows: array<array<Item>>) -> int {
+ let mut sum: int = 0
+ for row in rows { for item in row { set sum (+ sum item.value) } }
+ return sum
+}
+shadow total { assert (== (total [[], [(make 7)]]) 7) }
+fn choose(flag: bool) -> array<array<Item>> {
+ return (cond (flag { let row: array<Item> = [(make 7)] [[], row] }) (else [[]]))
+}
+shadow choose { assert (== (total (choose true)) 7) assert (== (total (choose false)) 0) }
+fn selected(n: int) -> array<Item> { return (match n { 0 => [] _ => [(make 9)] }) }
+shadow selected { assert (== (array_length (selected 0)) 0) assert (== (at (selected 1) 0).value 9) }
+fn terminal(flag: bool) -> array<Item> {
+ return (cond (flag { return [(make 11)] }) (else []))
+}
+shadow terminal { assert (== (at (terminal true) 0).value 11) assert (== (array_length (terminal false)) 0) }
+fn wrong_predicate(value: Item) -> int { return value.value }
+shadow wrong_predicate { assert (== (wrong_predicate (make 5)) 5) }
+'''
+        positive = prelude + '''fn main() -> int {
+ let inferred = [[], [(make 3)], []]
+ assert (== (total inferred) 3)
+ let direct: array<array<Item>> = [[], [(make 4)]]
+ let held: Rows = Rows { values: [[], [(make 5)]] }
+ assert (== (total held.values) 5)
+ let call: fn(array<array<Item>>) -> int = total
+ assert (== (call [[], [(make 6)]]) 6)
+ assert (== (total (choose true)) 7)
+ assert (== (array_length (selected 0)) 0)
+ assert (== (at (terminal true) 0).value 11)
+ let sliced = (array_slice direct 0 2)
+ assert (== (total sliced) 4)
+ let added = (array_push [[], [(make 1)]] [(make 2)])
+ assert (== (total added) 3)
+ (array_set added 0 [(make 8)])
+ assert (== (total added) 11)
+ let wrapped: Wrapped = Wrapped.Rows { values: [[], [(make 12)]] }
+ match wrapped { Rows(payload) => { assert (== (total payload.values) 12) } }
+ return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+        self.source_routes('array-value-boundaries-positive', positive)
+        wrong = {
+            'typed-later-member': 'let values: array<array<Item>> = [[], [Other { value: 1 }]]',
+            'inferred-later-member': 'let values = [[], [(make 1)], [Other { value: 2 }]]',
+            'heterogeneous': 'let values = [[], [1], [true]]',
+            'direct-literal': '(total [[], [Other { value: 1 }]])',
+            'indirect-literal': 'let call: fn(array<array<Item>>) -> int = total (call [[], [Other { value: 1 }]])',
+            'union-payload': 'let value: Wrapped = Wrapped.Rows { values: [[], [Other { value: 1 }]] }',
+            'if-local': 'let values: array<array<Item>> = (if true { let row: array<Item> = [(make 1)] [row] } else { let row: array<Other> = [Other { value: 2 }] [row] })',
+            'match-local': 'let values: array<array<Item>> = (match 0 { 0 => [[]] _ => { let row: array<Other> = [Other { value: 2 }] [row] } })',
+            'nested-iteration': 'let rows: array<array<Other>> = [[Other { value: 2 }]] for row in rows { let values: array<Item> = row }',
+            'ignored-nested-push': 'let rows: array<array<Item>> = [[(make 1)]] (array_push rows [Other { value: 2 }])',
+            'ignored-nested-set': 'let rows: array<array<Item>> = [[(make 1)]] (array_set rows 0 [Other { value: 2 }])',
+            'filter-result': 'let values: array<Item> = (filter [(make 1)] wrong_predicate)',
+        }
+        for name, body in wrong.items():
+            self.source_routes('array-value-refuse-' + name,
+                prelude + 'fn main() -> int { ' + body + ' return 0 }\nshadow main { assert true }\n',
+                True, checker_refusal=True)
+        self.source_routes('array-value-refuse-return', prelude + '''fn bad() -> array<array<Item>> {
+ return [[], [Other { value: 2 }]]
+}
+shadow bad { assert true }
+fn main() -> int { return 0 }
+shadow main { assert true }
+''', True, checker_refusal=True)
+
     def test_array_destination_and_origin_refusals(self):
         prelude = f'module "{FIXTURES / "array_records.nano"}" as records\n'
         prelude += '''struct Item { value: int }

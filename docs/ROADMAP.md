@@ -13946,3 +13946,10 @@ through type_array_of/type_kind_to_string; I retain it in this same full-facts
 checkpoint. I preserve all prior15methods and failed f54 outputs. This source
 and its shadows are not executed or qualified; paired fixtures, independent
 review, capacity preflight and the unchanged complete gates remain required.
+
+My additive paired fixture keeps all prior fifteen methods and adds one method
+with an actual positive program plus thirteen checker-refusal programs across
+all existing source/evaluator/VM routes. Static Python AST inspection finds
+sixteen methods; no fixture or compiler has executed. I retain the original
+full15 obligation inside this expanded corpus, with the same deadlines and
+retention driver, pending source/fixture review and capacity preflight.

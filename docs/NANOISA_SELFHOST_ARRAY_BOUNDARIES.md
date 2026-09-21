@@ -126,3 +126,19 @@ checks are preparation checks only. I have not built or executed this
 checkpoint. The complete paired source fixtures and original full bootstrap,
 fifteen-method corpus, instrumentation and remaining Make acceptance are still
 required after independent source review and capacity preflight.
+
+## My paired fixture checkpoint
+
+I add one source method without changing the prior fifteen. Its positive
+program runs nested first-empty inference, direct/indirect arguments, record
+and union payloads, lexical conditional blocks, integer match alternatives,
+terminal return branches, complete nested iteration, slice and push/set through
+the existing C-seed, Stage1, Stage2, evaluator and NanoISA/VM routes. Each helper
+has a meaningful shadow. I add thirteen refusal programs for later nominal or
+scalar mismatches, typed/inferred destinations, calls, payloads, branches,
+iteration, ignored mutations, BOOL filter results and return destinations.
+They require actual checker diagnostics and preserve output sentinels.
+
+The runner remains unchanged, including retained products, command terminals,
+process-group cleanup and deadlines. Static Python AST inspection finds sixteen
+methods. I have not imported the runner or executed any fixture at this pin.
