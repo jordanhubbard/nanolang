@@ -4217,7 +4217,8 @@ static bool forth_dpush(ForthSession *session, int64_t lo, int64_t hi) {
 }
 
 static __int128 forth_pack_d(int64_t lo, int64_t hi) {
-    return ((__int128)hi << 64) | (__int128)(uint64_t)lo;
+    /* I scale the signed high cell within the representable int128 range. */
+    return (__int128)hi * ((__int128)1 << 64) + (__int128)(uint64_t)lo;
 }
 
 static void forth_unpack_d(__int128 d, int64_t *lo, int64_t *hi) {
@@ -5707,7 +5708,7 @@ static bool forth_sm_rem(ForthSession *session) {
     if (!forth_data_pop(session, &hi)) return false;
     if (!forth_data_pop(session, &lo)) return false;
     den = (__int128)n;
-    num = ((__int128)hi << 64) | (__int128)(uint64_t)lo;
+    num = forth_pack_d(lo, hi);
     q = num / den;
     r = num % den;
     return forth_data_push(session, (int64_t)r) && forth_data_push(session, (int64_t)q);
@@ -5725,7 +5726,7 @@ static bool forth_fm_mod(ForthSession *session) {
     if (!forth_data_pop(session, &hi)) return false;
     if (!forth_data_pop(session, &lo)) return false;
     den = (__int128)n;
-    num = ((__int128)hi << 64) | (__int128)(uint64_t)lo;
+    num = forth_pack_d(lo, hi);
     q = num / den;
     r = num % den;
     if (r != 0 && ((num < 0) != (den < 0))) {
