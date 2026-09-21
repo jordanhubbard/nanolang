@@ -14143,3 +14143,7 @@ NANOISA_NATIVE_LIST_SPECIALIZATIONS.md. No native production is changed yet.
   methods. My shared-header allocation domain, real exit controls, actual three
   producer O0/O2 commands and unchanged LexerToken output are explicit; I have
   not compiled or executed this checkpoint.
+
+### 5.1: explicit legacy native list scanner bound
+
+- [ ] `task_083bf0873b46fcd620174ed46e38abac`: I preserve the first 1b8 Linux strict GCC build failure (13.623323 s, status 2, unchanged source/tools). Before corrected preparation I separate the full inline-provider name from a checked 64-byte legacy copy; I retain strict warnings, existing refusal and all 18+8 acceptance requirements. Darwin original bootstrap remains attributed to 1b8.

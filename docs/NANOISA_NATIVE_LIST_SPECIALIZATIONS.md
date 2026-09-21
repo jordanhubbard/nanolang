@@ -300,3 +300,5 @@ explicit provider-collision refusal, full-width scalar/schema indices and scalar
 capacity refusal. The compiler must successfully publish corrected guard code
 before any expected runtime refusal is executed. A compiler refusal instead is
 not accepted as runtime-bound evidence. No fixture has run at this checkpoint.
+
+My first 1b8 Linux build stopped at five GCC format-truncation diagnostics before bootstrap or fixtures. I retain `/tmp/nanolang-record-lists-1b8-linux-prepare`, its unchanged source/tool endpoints and build-log SHA256 `bfc9082a8efe175215562cc11b4ac750cfe5fd657948cf86afaf174c692124f9`. The existing length check enforces the legacy 63-byte limit, but the widened 256-byte temporary obscures that fact from strict compilation. Before corrected execution I will keep the wide name only for inline-provider recognition and copy the checked legacy name including its terminator into a 64-byte array. I preserve the accepted name set, rejection diagnostics and all strict compiler flags. MAC `task_083bf0873b46fcd620174ed46e38abac` tracks this prerequisite.
