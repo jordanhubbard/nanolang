@@ -13798,3 +13798,22 @@ can refine them to unions. Import conflict keys therefore cannot include kind.
   order, preserving exact same-kind/origin idempotence and original rows.
 - [ ] I retain local record precedence when imported union names are refined,
   and add direct plus parsed controls before fresh qualification.
+
+
+My fresh 50de Make builds pass on Linux (82.773s) and Darwin (88.172s),
+including unchanged component shadow graphs. Explicit bootstrap Stage 1 then
+hits the original ten-second shadow deadline on both hosts (status2;
+48.789s/65.949s command elapsed). No nominal import error occurs in these
+terminals. Source/tool endpoint maps agree, groups are gone, and no outer
+or capacity timeout fired. I retain terminal summaries under
+`docs/evidence/record-lists-50de-preparation/`; full maps/CAS remain at the
+original frozen Linux/Puck preparation roots. Fourteen methods remain unreached.
+
+- [ ] I measure the full nanoc_v06 Stage 1 imported shadow graph with my
+  reviewed exclusive timing observer rebased onto 50de, in a separate diagnostic
+  tree with original ten-second child and 120-second outer limits. I retain
+  observer overhead, incomplete final interval and exact provider boundaries.
+- [ ] I correct only demonstrated remaining work without shortening ownership
+  lifetimes or reducing shadows, then complete original bootstrap and all
+  fourteen methods plus neighbors/whole Make. Task
+  `task_2deaad56f65c497f80546220aa1ca9d0` remains open.

@@ -203,3 +203,26 @@ claim timeout progress; complete bootstrap, thirteen methods, sanitizer scopes
 and whole Make acceptance remain required. Function lookup's measured cost is
 separate; I do not change its namespace/builtin/generated-list precedence in
 this first correction.
+
+## My full compiler graph boundary
+
+
+
+My fresh 50de Make builds pass on Linux (82.773s) and Darwin (88.172s),
+including unchanged component shadow graphs. Explicit bootstrap Stage 1 then
+hits the original ten-second shadow deadline on both hosts (status2;
+48.789s/65.949s command elapsed). No nominal import error occurs in these
+terminals. Source/tool endpoint maps agree, groups are gone, and no outer
+or capacity timeout fired. I retain terminal summaries under
+`docs/evidence/record-lists-50de-preparation/`; full maps/CAS remain at the
+original frozen Linux/Puck preparation roots. Fourteen methods remain unreached.
+
+I reuse the reviewed 77226 observer only as diagnostic instrumentation. I
+reapply its macro-only source delta onto exact 50de production and inspect the
+result before execution. My compiler input is the original bootstrap
+src_nano/nanoc_v06.nano, with the complete selected shadow graph. I rebuild all
+three instrumented providers and freshly link against hash-verified 50de
+providers; no old failed binary is replayed. The external argv0 layout, capture
+helper, module roots, compiler selection and retained generated products remain
+explicit. Exclusive stage sums remain distinct from inclusive graph counters.
+No measured diagnostic result qualifies production or changes the deadline.

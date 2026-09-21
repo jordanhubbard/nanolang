@@ -1,0 +1,20 @@
+{
+  "linux/bootstrap-status.json": "da4a863487e444081c34dec6addbc2e5ab86155cdb0e4108650e830b62067d5e",
+  "linux/bootstrap.log": "9e4ba93ac38d646fad825829bbb531bb04aad025ade5662dc87e6aba763fa4ca",
+  "linux/build-status.json": "0f946c4a454814259b98c1e49f6a8a7cfc73af4580ae85556f1063cda95ecb84",
+  "linux/build.log": "dd75cc3b0cf4e87ca06c73cf90a2b4bc131eeb5f029b17893277d27c9a38f3fb",
+  "linux/capacity-monitor.jsonl": "2c5d3805381e04be00efd1acb7e6060eabbaf4eb599da1658010bd6f1be07a20",
+  "linux/capacity-preflight.json": "e3f71e933ba6b084fc09339b6e92a7ab1dc03e41d13d78c7b6a7fa8e42c51e49",
+  "linux/environment.json": "9eaa7e2398a8881b1629c7ebf43a27c6cd64f1b8939ff3c7a3de00c85a38647d",
+  "linux/manifest.json": "bd84b84a8d179e7337589c93eac8d46bc853519b068076f1b587b47f6ae9dea2",
+  "linux/sparse-policy.json": "82fddd3a6377a0c86dbdc19ef25bec676d09280435c5c894b635b4d197343f97",
+  "puck/bootstrap-status.json": "2a63bd08c9afe7c25161ef4df0ad2071582674b712cbb0109bbfd332f3e2df3a",
+  "puck/bootstrap.log": "b3921a5ab068761748c570ddf74f7c3f286d1a0036d49b1a0bd2bce38690095f",
+  "puck/build-status.json": "99635a66134671140b173380675e4aad545e38bafd848be8d721ec691d89b9f2",
+  "puck/build.log": "1b544b672199c7036113d90f7989bd3d4aea24b2a9dab1807df735d5aa4147f2",
+  "puck/capacity-monitor.jsonl": "b6d096800233746233566c3d74d53b6e7ebab56bcdd731a781086bb03ab8f79b",
+  "puck/capacity-preflight.json": "b909f2ecc964ed617f38359e71fde2509483aed738646fdd56fc42f370f03e38",
+  "puck/environment.json": "7b7fc093360d6ad284c727b973f7696983673ef2d449d2b552e74ee8a52f1044",
+  "puck/manifest.json": "5e7fca0bd54d6ccfce68b1d38fef50a76645e0ea283a070ec1213fd760d07151",
+  "puck/sparse-policy.json": "82fddd3a6377a0c86dbdc19ef25bec676d09280435c5c894b635b4d197343f97"
+}
