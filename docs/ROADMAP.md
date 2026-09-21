@@ -14425,3 +14425,10 @@ allocator failure claim.
   conversion policy, and review recursive declaration lifetime and rollback.
   Original explicit/inferred constructors and all source/native gates remain.
   MAC: task_7e994b0b89aa40629002347160d82ef6.
+
+- [ ] I make the reviewed union payload scalar policy explicit before c2dc
+  qualification. Shared contextual matching admits INT/U8/ENUM cross pairs and
+  UNKNOWN depending on retained annotation availability. I preserve strict
+  resolved scalar tags at this payload boundary, align both AST routes, and
+  keep wider numeric-destination conversion/parity a separate required audit.
+  MAC: task_7e994b0b89aa40629002347160d82ef6.

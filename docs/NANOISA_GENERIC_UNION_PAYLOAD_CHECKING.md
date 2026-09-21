@@ -75,3 +75,32 @@ inference in this native constructor emitter: it uses the node annotation or a
 function return annotation. This is not full inference acceptance; I keep that
 remaining audit and the whole unchanged source/native matrix open. No execution
 has occurred for this checkpoint.
+
+
+## My explicit scalar policy amendment
+
+Source review found that the shared contextual helper is not scalar-policy
+neutral. `types_match` admits INT/U8, INT/ENUM, ENUM/U8 and UNKNOWN. Its later
+indirect argument check compares complete metadata only when the actual value
+has it. That can make acceptance depend on expression metadata rather than
+source type. The c2dc checkpoint has not executed.
+
+I choose the existing AST_UNION_CONSTRUCT strict rule for this payload boundary,
+using the resolved declaration tag rather than an unresolved parser placeholder:
+INT accepts INT, U8 accepts U8, ENUM accepts ENUM, and the remaining scalar tags
+accept their own tag only. UNKNOWN always refuses. I align the legacy dotted
+struct-literal route with this rule; its former `types_match` broad acceptance
+is not retained. Both source spellings already normalize to the same constructor
+representation in the full binder path. This is an explicit alignment, not a
+claim that c2dc preserved both formerly inconsistent paths.
+
+No INT/ENUM, INT/U8 or ENUM/U8 payload conversion is introduced here. Numeric
+conversion at other existing destinations remains unchanged. The broader
+computed-U8 and enum numeric-destination contracts still require integration
+and actual lowering/evaluator parity; this checkpoint cannot close them by
+rejecting their cases or calling them accepted. Composite payloads retain the
+full contextual owner-aware checks. Scalar checks execute the checker once,
+reject UNKNOWN and compare resolved tags without metadata-dependent fallback.
+I add the complete INT/U8/ENUM/UNKNOWN matrix with and without stored primitive
+annotations, plus actual parsed nongeneric scalar-union cases in both direct
+and explicit-generic source forms before corrected qualification.
