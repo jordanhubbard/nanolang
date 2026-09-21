@@ -312,6 +312,10 @@ static const char *get_prefixed_variant_name(const char *enum_name, const char *
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_variant_struct_name(const char *union_name, const char *variant_name) {
     union_name = native_opaque_projection(union_name);
+    if (!union_name || !variant_name) {
+        fprintf(stderr, "I cannot emit a union variant without both name components\n");
+        exit(1);
+    }
     static _Thread_local char buffer[512];
     snprintf(buffer, sizeof(buffer), "nl_%s_%s", union_name, variant_name);
     return buffer;
@@ -321,6 +325,10 @@ static const char *get_prefixed_variant_struct_name(const char *union_name, cons
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_tag_name(const char *union_name, const char *variant_name) {
     union_name = native_opaque_projection(union_name);
+    if (!union_name || !variant_name) {
+        fprintf(stderr, "I cannot emit a union variant without both name components\n");
+        exit(1);
+    }
     static _Thread_local char buffer[512];
     if (is_runtime_typedef(union_name)) {
         snprintf(buffer, sizeof(buffer), "%s_TAG_%s", union_name, variant_name);
