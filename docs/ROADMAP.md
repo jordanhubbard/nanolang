@@ -14296,3 +14296,13 @@ active a43 preparation attribution and hold affected fixtures.
   all allocation-prefix/transient sweeps for both complete and legacy forms.
 - [ ] Review the correction before affected qualification. Full original
   methods and nested parser integration obligations remain open.
+
+
+Before execution, root review catches a fixture route mismatch at 87cc:
+nominal_materialize with NULL context deliberately performs a checked copy and
+does not normalize legacy dual return fields. I preserve that production
+behavior. I correct the fixture to check the unchanged no-context copy, then
+exercise normalization with an actual parsed formal T and a real T-to-int
+substitution context. No affected fixture has executed and no assertion is
+removed; both borrowed-source ownership and independent result copies remain
+required.
