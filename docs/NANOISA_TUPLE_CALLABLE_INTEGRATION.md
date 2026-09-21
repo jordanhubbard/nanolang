@@ -124,3 +124,24 @@ checker changes. I must reconcile that existing SDK implementation rather than
 invent a second tuple layout or naming scheme. Native tuple/callback producer
 coverage and all original 18 source plus 8 native methods remain open; I make
 no build, runtime or native-parity claim from this source review checkpoint.
+
+## Native integration dependency order
+
+I preserve e456006ad as the separately reviewed checker checkpoint. The SDK
+native graph depends on its earlier canonical opaque owner keys, per-emission
+name projections, complete annotation snapshots, tuple/array expression
+bindings and derived declaration ordering. I integrate the tuple expression
+binding and registry ownership first with the same SDK API and representation,
+using this lane's checked graph copier. The registry borrows Environment-owned
+literal annotations and explicitly owns only temporary copies; it compares
+complete children rather than flat tags. The checker remains the authority:
+these expression bindings are emission artifacts after contextual validation,
+not permission to resolve owners from flattened names.
+
+I then reconcile the SDK semantic-key/name and derived declaration closure,
+including dependencies through fixed record fields and generic union payloads.
+Its current activation predicate covers opaque carriers and array-derived
+values; ordinary nested tuples/callbacks also need dependency ordering for my
+full scope. No partial registry checkpoint authorizes native qualification.
+I preserve existing list specialization selection and do not import unrelated
+peer changes merely because the branch has newer canonical ancestry.
