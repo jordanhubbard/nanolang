@@ -4700,6 +4700,15 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     continue;
                 }
 
+                bool duplicate = false;
+                for (int j = 0; j < i; ++j)
+                    if (!strcmp(field_name, expr->as.struct_literal.field_names[j])) duplicate = true;
+                if (duplicate) {
+                    emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column, 1,
+                                       "I require each declared record field exactly once.",
+                                       "Use distinct field names from this record.");
+                }
+
                 /* I apply the complete field annotation before checking its constructor. */
                 if (sdef->field_type_info)
                     check_concrete_union_arrays(env, sdef->field_type_info[field_index], sdef->module_name,

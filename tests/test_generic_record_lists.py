@@ -144,6 +144,38 @@ class GenericRecordLists(unittest.TestCase):
             source = source.replace('"array_records.nano"', '"' + str(FIXTURES / 'array_records.nano') + '"')
             self.source_routes(name, source)
 
+    def test_record_field_destinations(self):
+        prelude = '''struct Item { value: int }
+struct Pair { left: int, right: int }
+struct Holder { item: Item, values: array<Item>, numbers: array<array<int>> }
+'''
+        positive = prelude + '''fn main() -> int {
+ let source: array<Item> = [Item { value: 9 }]
+ let value: Holder = Holder { numbers: [[1], []], values: source, item: Item { value: 7 } }
+ assert (== value.item.value 7)
+ assert (== (at value.values 0).value 9)
+ assert (== (array_length (at value.numbers 1)) 0)
+ let empty: Holder = Holder { item: Item { value: 0 }, values: [], numbers: [] }
+ assert (== (array_length empty.values) 0)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+        self.source_routes('record-fields-positive', positive)
+        cases = {
+            'scalar': 'let item = Item { value: true }',
+            'missing': 'let pair = Pair { left: 1 }',
+            'duplicate': 'let pair = Pair { left: 1, left: 2 }',
+            'unknown': 'let item = Item { other: 1 }',
+            'mixed-array': 'let value = Holder { item: Item { value: 1 }, values: [Item { value: 2 }, 3], numbers: [] }',
+            'nested-array': 'let value = Holder { item: Item { value: 1 }, values: [], numbers: [[1], [true]] }',
+            'nested-record': 'let value = Holder { item: Pair { left: 1, right: 2 }, values: [], numbers: [] }',
+        }
+        for name, body in cases.items():
+            self.source_routes('record-field-refuse-' + name,
+                prelude + 'fn main() -> int { ' + body + ' return 0 }\nshadow main { assert true }\n',
+                reject=True, checker_refusal=True)
+
     def test_array_destination_and_origin_refusals(self):
         prelude = f'module "{FIXTURES / "array_records.nano"}" as records\n'
         prelude += '''struct Item { value: int }
@@ -368,7 +400,7 @@ shadow main { assert (== (main) 0) }
             _, err = self.command(mode, [self.programs, mode, module, self.work / (mode + '.o')], expected=(1,))
             self.assertIn(diagnostic, err)
 
-    def source_routes(self, name, source, reject=False, vm=True, import_refusal=False):
+    def source_routes(self, name, source, reject=False, vm=True, import_refusal=False, checker_refusal=False):
         path = self.work / (name + '.nano'); path.write_text(source)
         for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):
             output = self.work / (name + '-' + compiler); output.write_bytes(SENTINEL)
@@ -377,6 +409,13 @@ shadow main { assert (== (main) 0) }
             if reject:
                 self.assertEqual(output.read_bytes(), SENTINEL)
                 self.assertNotIn(b'C compilation failed', out + err)
+                if checker_refusal:
+                    if compiler == 'nanoc_c':
+                        self.assertTrue(any(token in out + err for token in
+                            (b'E001 TYPE MISMATCH', b'E003 ARITY MISMATCH', b'E004 UNKNOWN FIELD',
+                             b'nominal', b'Nominal', b'array element')), (out, err))
+                    else:
+                        self.assertIn(b'NSType checking failed', out + err)
             else: self.command(name + '-' + compiler + '-run', [output], timeout=15)
         # I exercise checker refusal in the actual evaluator too, before run_program.
         mode = 'declarations-import-refuse' if import_refusal else 'reject' if reject else 'program'

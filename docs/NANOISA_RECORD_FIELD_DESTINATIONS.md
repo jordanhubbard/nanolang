@@ -64,3 +64,25 @@ My static C-seed review additionally finds missing duplicate-name checks in
 ordinary record literals (the union loop already has them). A count match alone
 does not prove completeness. I retain this as a separate required parity repair
 before claiming paired equal-count duplicate refusal. No invalid program was run.
+
+## Source checkpoint
+
+I implement the ordinary C-seed duplicate-name check in the existing field loop,
+leaving value checking active so diagnostics still cover supplied expressions.
+The self-hosted helper checks all literal array members recursively and rejects
+unknown existing-array facts; it does not call the permissive return hint. I
+reuse the exact a59/cfa shared contextual helper and its shadows; I do not copy
+the separate U8 emitter changes or claim their qualification here.
+
+My added source method keeps all fourteen original methods and adds positive
+reordered/nested/empty record fields plus seven checker-refusal vectors. Each
+new negative compiler case requires an actual checker diagnostic and untouched
+output sentinel. My same-count duplicate shadow supplies two `left` fields for
+`Pair { left, right }`, so field count cannot satisfy that assertion by itself.
+I have not built or executed this source checkpoint.
+
+I preserve 66 first-failure/continuation report files in
+`docs/evidence/record-lists-6cf-first-field/`, with hashes and endpoint equality
+summaries. The full maps and CAS remain in the original external report roots.
+These small committed reports do not replace the later complete qualification
+seal. Published invalid native outputs are hashed and remain unexecuted.

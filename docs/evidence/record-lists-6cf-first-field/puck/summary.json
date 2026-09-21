@@ -1,0 +1,157 @@
+{
+  "root": "/private/tmp/nanolang-record-lists-6cf-puck-matrix",
+  "work": "/private/tmp/nanolang-record-lists-6cf-puck-matrix/full-source/nano-record-lists-p908i5p5",
+  "files": {
+    "full-source.log": {
+      "sha256": "15114ce1b5eac78475cefddb0701b99d0d0054ecadd31d0d4e55bc5939fd6f7e",
+      "bytes": 2193
+    },
+    "full-source-status.json": {
+      "sha256": "3ae33c2f77e770ed668196254bd969d4d106c44488c39230d7dad49d13146d0d",
+      "bytes": 643
+    },
+    "scope.json": {
+      "sha256": "f10d6dc86849e64cf1971de798cdc3467c0695901e932083339c442e82be95eb",
+      "bytes": 841
+    },
+    "runner.json": {
+      "sha256": "090ebae6204dc201e80631f1d23c5b67ff00d00a237a276d12fff3d553bfd044",
+      "bytes": 240
+    },
+    "homebrew-sanitizer.log": {
+      "sha256": "ab2fc2b2c9944aa3bf9e566b4e467dbf90c76c112c5a52b94bc7a6f2e7499791",
+      "bytes": 380
+    },
+    "homebrew-sanitizer-status.json": {
+      "sha256": "8ea530eb199562961923f7cd9b0d4e8034c2d5f3aaca56caa7b71a3ef87ae755",
+      "bytes": 707
+    },
+    "full-source/nano-record-lists-p908i5p5/0007-array-refuse-initializer-nanoc_stage1-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "full-source/nano-record-lists-p908i5p5/0013-array-refuse-assignment-nanoc_stage2-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "full-source/nano-record-lists-p908i5p5/0009-array-refuse-initializer-evaluator.stderr": {
+      "sha256": "abccbd75a5d5633b659649f77f3c5bca1c3fa4b54f2720c9240fd68daf205190",
+      "bytes": 1327
+    },
+    "full-source/nano-record-lists-p908i5p5/0017-array-refuse-field-nanoc_stage1-build-command.json": {
+      "sha256": "46170f8706b27d3c2bf1cf147ddc1e1047cecd4a60ce2d9583bca4ec3e0ebbaa",
+      "bytes": 1747
+    },
+    "full-source/nano-record-lists-p908i5p5/0017-array-refuse-field-nanoc_stage1-build-status.json": {
+      "sha256": "70c480c1eb010dd65ace1799239745eccc5bde37d2d710ff7319da922c5ef87c",
+      "bytes": 147
+    },
+    "full-source/nano-record-lists-p908i5p5/0008-array-refuse-initializer-nanoc_stage2-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "full-source/nano-record-lists-p908i5p5/0008-array-refuse-initializer-nanoc_stage2-build.stdout": {
+      "sha256": "896e7218c6f01db1903031e880527d54072d168ad0fde3cb3df1ac3aa7825096",
+      "bytes": 300
+    },
+    "full-source/nano-record-lists-p908i5p5/0013-array-refuse-assignment-nanoc_stage2-build.stdout": {
+      "sha256": "ac1470489483b66b7d9c67178fd66fa2b726a0d3c7c2e7f3543219158912184a",
+      "bytes": 304
+    },
+    "full-source/nano-record-lists-p908i5p5/0009-array-refuse-initializer-evaluator.stdout": {
+      "sha256": "7bba74279f2574c0b3153527eead7c3982ee4b4220aa21f901d41bb01c68fa29",
+      "bytes": 62
+    },
+    "full-source/nano-record-lists-p908i5p5/0007-array-refuse-initializer-nanoc_stage1-build.stdout": {
+      "sha256": "896e7218c6f01db1903031e880527d54072d168ad0fde3cb3df1ac3aa7825096",
+      "bytes": 300
+    },
+    "full-source/nano-record-lists-p908i5p5/0012-array-refuse-assignment-nanoc_stage1-build.stdout": {
+      "sha256": "ac1470489483b66b7d9c67178fd66fa2b726a0d3c7c2e7f3543219158912184a",
+      "bytes": 304
+    },
+    "full-source/nano-record-lists-p908i5p5/0010-array-refuse-initializer-emit.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "full-source/nano-record-lists-p908i5p5/0011-array-refuse-assignment-nanoc_c-build.stderr": {
+      "sha256": "a2e67229c4014820f8e2fd028ae7a5fc4043cfb3cf0f644a415f785d90a6803a",
+      "bytes": 1453
+    },
+    "full-source/nano-record-lists-p908i5p5/0014-array-refuse-assignment-evaluator.stderr": {
+      "sha256": "4b8a6f32bdbc7556e91713c3d0405ff29b2d838377e7f92d3d044e4d1d25c113",
+      "bytes": 1432
+    },
+    "full-source/nano-record-lists-p908i5p5/0015-array-refuse-assignment-emit.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "full-source/nano-record-lists-p908i5p5/0017-array-refuse-field-nanoc_stage1-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "full-source/nano-record-lists-p908i5p5/0006-array-refuse-initializer-nanoc_c-build.stderr": {
+      "sha256": "3c132c46c5ae636b2b672eafbfb17ae13e115818c3279ab74acc417aba714022",
+      "bytes": 1348
+    },
+    "full-source/nano-record-lists-p908i5p5/0006-array-refuse-initializer-nanoc_c-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "full-source/nano-record-lists-p908i5p5/0015-array-refuse-assignment-emit.stderr": {
+      "sha256": "126d917fb91c54555aee9866258af4c30bb1c3e288c192ce2c11fbddd8e7c4f5",
+      "bytes": 1457
+    },
+    "full-source/nano-record-lists-p908i5p5/0014-array-refuse-assignment-evaluator.stdout": {
+      "sha256": "7bba74279f2574c0b3153527eead7c3982ee4b4220aa21f901d41bb01c68fa29",
+      "bytes": 62
+    },
+    "full-source/nano-record-lists-p908i5p5/0011-array-refuse-assignment-nanoc_c-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "full-source/nano-record-lists-p908i5p5/0017-array-refuse-field-nanoc_stage1-build.stdout": {
+      "sha256": "ff988b5eed9645bc1a94a4d11d5520503d136f8a0e777a6b7da94493adba2626",
+      "bytes": 157
+    },
+    "full-source/nano-record-lists-p908i5p5/array-refuse-field.nano": {
+      "sha256": "389c384fa833c6c6ce7989c05fa13b4a771c4d3ab9ab2925292229987e4f7aba",
+      "bytes": 597
+    },
+    "full-source/nano-record-lists-p908i5p5/0012-array-refuse-assignment-nanoc_stage1-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "full-source/nano-record-lists-p908i5p5/0010-array-refuse-initializer-emit.stderr": {
+      "sha256": "66c2c4536b16569de401532295abbd8537d05e4d11d04760055bad60192a0223",
+      "bytes": 1352
+    }
+  },
+  "maps": {
+    "full-source-inputs-before.json": {
+      "before_sha256": "7aedcafc054e495e7b525750e5f497dff408e99b3549d3fa8fbd2910f298d105",
+      "after_sha256": "7aedcafc054e495e7b525750e5f497dff408e99b3549d3fa8fbd2910f298d105",
+      "equal": true
+    },
+    "homebrew-sanitizer-inputs-before.json": {
+      "before_sha256": "7aedcafc054e495e7b525750e5f497dff408e99b3549d3fa8fbd2910f298d105",
+      "after_sha256": "7aedcafc054e495e7b525750e5f497dff408e99b3549d3fa8fbd2910f298d105",
+      "equal": true
+    },
+    "clang-asan-inputs-before.json": {
+      "before_sha256": "30c958c49086eb003568f412110c91be714924864392fb2dbc7ccbc88bd2ee43",
+      "after_sha256": "30c958c49086eb003568f412110c91be714924864392fb2dbc7ccbc88bd2ee43",
+      "equal": true
+    }
+  },
+  "published_not_executed": {
+    "/private/tmp/nanolang-record-lists-6cf-puck-matrix/full-source/nano-record-lists-p908i5p5/array-refuse-field-nanoc_stage1": {
+      "sha256": "5b73205c6f6d9bf69dab9bf60f46dda35f2ec1cb1b37a6cca036184b5519c884",
+      "bytes": 8753616
+    },
+    "/private/tmp/nanolang-record-lists-6cf-puck-matrix/full-source/nano-record-lists-p908i5p5/temporary/nano_native_1789965992_0/program.c": {
+      "sha256": "88b9c529e032e2a068507cd005782fe4f37a83f5b1b4599e368e91df8738c017",
+      "bytes": 30357
+    }
+  }
+}
