@@ -159,6 +159,52 @@ static void encode_tests(const Fixture *fixture, const NvmModule *m, size_t tabl
     refuse_encoding(&decoded, &none, 11, NVM_CAPTURE_LIMIT);
 }
 
+static void direct_entry_tests(void) {
+    /* I query transport only: no call or capture instruction is executed. */
+    Fixture f = {0};
+    word(&f, 1); word(&f, 0); wide(&f, 3); wide(&f, 0);
+    for (unsigned i = 0; i < 3; ++i) {
+        wide(&f, i); word(&f, 0); word(&f, i == 1 ? 1 : 0);
+        if (i == 1) byte(&f, NVM_CAPTURE_SHARED);
+    }
+    uint8_t code[] = {OP_CALL, 0, 0, 0, 0, OP_RET, OP_RET, OP_RET};
+    NvmFunctionEntry functions[] = {
+        {.code_length = 6},
+        {.code_offset = 6, .code_length = 1, .upvalue_count = 1},
+        {.code_offset = 7, .code_length = 1}
+    };
+    NvmModule m = {.functions = functions, .function_count = 3,
+        .code = code, .code_size = sizeof(code)};
+    NvmCaptureBindings decoded = {0};
+    CHECK(nvm_capture_bindings_decode(f.bytes, f.used, &m, 4096, &decoded) == NVM_CAPTURE_OK);
+    const uint8_t operations[] = {OP_CALL, OP_TAIL_CALL, OP_FUNCREF};
+    const uint32_t targets[] = {0, 2, 1, 3, UINT32_MAX};
+    size_t work = sizeof(code) + 3;
+    unsigned before = allocation_calls;
+    for (size_t op = 0; op < sizeof(operations); ++op) {
+        code[0] = operations[op];
+        for (size_t t = 0; t < sizeof(targets) / sizeof(*targets); ++t) {
+            for (unsigned b = 0; b < 4; ++b)
+                code[1 + b] = (uint8_t)(targets[t] >> (8 * b));
+            uint8_t saved[sizeof(code)];
+            memcpy(saved, code, sizeof(code));
+            CHECK(nvm_capture_bindings_verify_code(&decoded, &m, work) ==
+                (t < 2 ? NVM_CAPTURE_OK : NVM_CAPTURE_INVALID));
+            CHECK(memcmp(saved, code, sizeof(code)) == 0);
+        }
+        memset(code + 1, 0, 4);
+        CHECK(nvm_capture_bindings_verify_code(&decoded, &m, work - 1) == NVM_CAPTURE_LIMIT);
+        for (unsigned length = 1; length < 5; ++length) {
+            functions[0].code_length = length;
+            CHECK(nvm_capture_bindings_verify_code(&decoded, &m, work) == NVM_CAPTURE_INVALID);
+        }
+        functions[0].code_length = 6;
+    }
+    CHECK(allocation_calls == before);
+    nvm_capture_bindings_free(&decoded);
+    CHECK(live == 0);
+}
+
 static void code_tests(void) {
     Fixture f = fixture();
     NvmFunctionEntry functions[3];
@@ -310,6 +356,7 @@ int main(void) {
     nvm_capture_bindings_free(&decoded);
     encode_tests(&f, &m, exact);
     code_tests();
+    direct_entry_tests();
     printf("I passed %u capture payload checks; reader and writer allocation failures recover without live storage.\n", checks);
     return 0;
 }

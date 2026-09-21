@@ -231,6 +231,14 @@ NvmCaptureResult nvm_capture_bindings_verify_code(const NvmCaptureBindings *bind
                 function->code_length - position, &instruction);
             if (!width) return NVM_CAPTURE_INVALID;
             switch (instruction.opcode) {
+            case OP_CALL: case OP_TAIL_CALL: case OP_FUNCREF: {
+                /* I cannot provide an environment through a raw function index. */
+                uint32_t target = instruction.operands[0].u32;
+                if (target >= bindings->function_count ||
+                    bindings->functions[target].upvalue_count)
+                    return NVM_CAPTURE_INVALID;
+                break;
+            }
             case OP_CLOSURE_NEW:
                 return NVM_CAPTURE_INVALID;
             case OP_BIND_INIT_LOCAL: case OP_BIND_CLEAR_LOCAL:
