@@ -14373,3 +14373,9 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   program failed at std_json/json.c because trusted relative -Isrc did not locate
   nanolang.h. I retain the actual command and output sentinel. I require a generic
   checked SDK include contribution, not JSON-specific flags or a source-tree aid.
+
+- [ ] I reject truncation in the metadata relative-include resolver before any
+  filesystem lookup. Review of51c0 found an unchecked2048-byte candidate snprintf
+  in the newly quoted `-I` path. I check both the copied parent and complete joined
+  candidate, preserve arbitrary trusted fragments, and add a counted over-limit
+  metadata refusal plus actual spaced resolved-include argv/precedence controls.

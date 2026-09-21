@@ -338,3 +338,14 @@ callback-before-tree-removal, and final tree removal. Actual loader registration
 and installed program behavior remain covered by fresh bootstrap and the complete
 existing corpus. Source review precedes execution; syntax checks are not runtime
 qualification.
+
+I check the1024-byte parent copy and2048-byte joined path before filesystem lookup
+in both relative-include loops. A complete2100-byte relative `-I` control reaches
+actual metadata loading and must refuse, rather than publish a truncated candidate.
+My installed three-producer user-provider fixture now uses a spaced project path,
+a relative `-Ifallback` and an explicit preferred directory with competing
+`answer.h` values37 and91. Actual provider return37 and retained compiler argv
+must establish the preferred directory precedes the resolved fallback and SDK
+root, each spaced include remains one argument, and the unrelated trusted macro
+flag survives. I retain the original JSON coexistence, shadow/output and required
+provider-failure controls.

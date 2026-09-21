@@ -2066,15 +2066,21 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
         if (dir_exists(meta->include_dirs[i])) continue;
 
         char parent[1024];
-        strncpy(parent, module_dir, sizeof(parent) - 1);
-        parent[sizeof(parent) - 1] = '\0';
+        size_t parent_length = strlen(module_dir);
+        if (parent_length >= sizeof(parent)) {
+            cJSON_Delete(json); module_metadata_free(meta); return NULL;
+        }
+        memcpy(parent, module_dir, parent_length + 1);
         bool resolved = false;
         for (int depth = 0; depth < 8 && !resolved; depth++) {
             char *slash = strrchr(parent, '/');
             if (!slash) break;
             *slash = '\0';
             char candidate[2048];
-            snprintf(candidate, sizeof(candidate), "%s/%s", parent, meta->include_dirs[i]);
+            int length = snprintf(candidate, sizeof(candidate), "%s/%s", parent, meta->include_dirs[i]);
+            if (length < 0 || (size_t)length >= sizeof(candidate)) {
+                cJSON_Delete(json); module_metadata_free(meta); return NULL;
+            }
             if (dir_exists(candidate)) {
                 free(meta->include_dirs[i]);
                 meta->include_dirs[i] = strdup(candidate);
@@ -2099,14 +2105,20 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
         if (dir_exists(inc_path)) continue;
 
         char parent[1024];
-        strncpy(parent, module_dir, sizeof(parent) - 1);
-        parent[sizeof(parent) - 1] = '\0';
+        size_t parent_length = strlen(module_dir);
+        if (parent_length >= sizeof(parent)) {
+            cJSON_Delete(json); module_metadata_free(meta); return NULL;
+        }
+        memcpy(parent, module_dir, parent_length + 1);
         for (int depth = 0; depth < 8; depth++) {
             char *slash = strrchr(parent, '/');
             if (!slash) break;
             *slash = '\0';
             char candidate[2048];
-            snprintf(candidate, sizeof(candidate), "%s/%s", parent, inc_path);
+            int joined = snprintf(candidate, sizeof(candidate), "%s/%s", parent, inc_path);
+            if (joined < 0 || (size_t)joined >= sizeof(candidate)) {
+                cJSON_Delete(json); module_metadata_free(meta); return NULL;
+            }
             if (dir_exists(candidate)) {
                 char *quoted = module_quote_path(candidate);
                 size_t length = quoted ? strlen(quoted) : 0;

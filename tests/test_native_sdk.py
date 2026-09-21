@@ -385,17 +385,21 @@ class NativeSdk(unittest.TestCase):
         self.assert_package_unchanged()
 
     def test_g_user_metadata_required_provider_failure(self):
-        directory=self.outside/'user metadata';directory.mkdir()
-        include=directory/'include';include.mkdir()
-        (include/'answer.h').write_text('#include <stdint.h>\nint64_t sdk_user_answer(void);\n')
+        project=self.outside/'metadata project with spaces';project.mkdir()
+        directory=project/'user';directory.mkdir()
+        include=directory/'preferred include';include.mkdir()
+        fallback=project/'fallback';fallback.mkdir()
+        for header_dir,value in ((include,37),(fallback,91)):
+            (header_dir/'answer.h').write_text('#include <stdint.h>\n#define SDK_HEADER_ANSWER '+str(value)+'\nint64_t sdk_user_answer(void);\n')
         provider=directory/'answer.c'
-        provider.write_text('#include "answer.h"\nint64_t sdk_user_answer(void) { return 37; }\n')
+        provider.write_text('#include "answer.h"\n#if SDK_TRUSTED_FLAG != 1\n#error I require the unchanged trusted flag\n#endif\nint64_t sdk_user_answer(void) { return SDK_HEADER_ANSWER; }\n')
         (directory/'module.json').write_text(json.dumps(dict(name='sdk_user_metadata',
-            headers=['answer.h'],c_sources=['answer.c'],include_dirs=[str(include)]),indent=2)+'\n')
+            headers=['answer.h'],c_sources=['answer.c'],include_dirs=[str(include)],
+            cflags=['-Ifallback','-DSDK_TRUSTED_FLAG=1']),indent=2)+'\n')
         module=directory/'user.nano'
         module.write_text('pub extern fn sdk_user_answer() -> int\n')
         source=self.outside/'metadata.nano'
-        source.write_text('module "./user metadata/user.nano" as User\n'
+        source.write_text('module "./metadata project with spaces/user/user.nano" as User\n'
             'module "modules/std/json/json.nano" as Json\n'
             'fn main() -> int { unsafe { assert (== (User.sdk_user_answer) 37) }\n'
             'let object: Json.Json = (Json.parse "{}")\nassert (Json.is_object object)\n(Json.free object)\nreturn 0 }\n'
@@ -404,7 +408,26 @@ class NativeSdk(unittest.TestCase):
             for compiler in ('nanoc_c','nanoc_stage1','nanoc'):
                 self.compile_installed('mixed-origin-'+compiler,compiler,source)
                 proof=json.loads((self.work/('mixed-origin-'+compiler+'-proof.json')).read_text())
-                self.assertTrue(any(str(provider) in row for row in proof['commands']))
+                provider_rows=[row for row in proof['commands'] if str(provider) in row]
+                self.assertTrue(provider_rows)
+                matched=[]
+                for row in provider_rows:
+                    includes=[];i=0
+                    while i<len(row):
+                        arg=row[i]
+                        if arg=='-I':
+                            self.assertLess(i+1,len(row));i+=1;includes.append(row[i])
+                        elif arg.startswith('-I'):includes.append(arg[2:])
+                        i+=1
+                    if str(include) in includes and str(fallback) in includes:
+                        self.assertLess(includes.index(str(include)),includes.index(str(fallback)))
+                        self.assertIn(str(self.generation/'src'),includes)
+                        self.assertLess(includes.index(str(include)),includes.index(str(self.generation/'src')))
+                        self.assertIn('-DSDK_TRUSTED_FLAG=1',row)
+                        self.assertNotIn('with',row);self.assertNotIn('spaces/fallback',row)
+                        matched.append(dict(argv=row,includes=includes))
+                self.assertTrue(matched,(compiler,provider_rows))
+                (self.work/('metadata-include-argv-'+compiler+'.json')).write_text(json.dumps(matched,indent=2)+'\n')
                 self.assertTrue(any(str(self.generation/'src/cJSON.c') in row for row in proof['commands']))
         # I model an actual selected compiler failure only for the required user
         # provider; other commands retain the real selected compiler and argv.

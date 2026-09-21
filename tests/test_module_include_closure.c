@@ -36,6 +36,12 @@ int main(void) {
     cache.count = 1;
     write_manifest(manifest, "{}");
     closure = module_include_closure(); CHECK(closure); module_include_closure_free(closure);
+    char oversized[2200];
+    memcpy(oversized, "{\"cflags\":[\"-I", 14);
+    memset(oversized + 14, 'x', 2100);
+    memcpy(oversized + 2114, "\"]}", 4);
+    write_manifest(manifest, oversized);
+    CHECK(!module_load_metadata(directory));
     write_manifest(manifest, "{invalid"); CHECK(!module_include_closure());
     write_manifest(manifest, "{\"include_dirs\":[\"/this-header-fixture-directory-does-not-exist\"]}");
     CHECK(!module_include_closure()); CHECK(unlink(manifest) == 0);
