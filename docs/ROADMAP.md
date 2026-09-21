@@ -13975,3 +13975,11 @@ acceptance evidence. I preserve the full original source scope.
 - [ ] I implement and review the actual parser route with expression-origin,
   lexical/control and both valid/refusal controls, coordinate peer overlap, and
   qualify all actual source producers under unchanged deadlines.
+
+My discarded-fact source correction adds explicit shared ASTIf expression origin,
+including manual bootstrap metadata and the legacy constructor. It diagnoses
+unused invalid facts while deferring a live tail to its real destination.
+Shadows retain genuine holes, ordinary unequal/VOID statement IF and contextual
+INT/U8 branch conversion. One additive paired method brings the source corpus
+to17 without changing the prior16; no compiler or gate has executed. The
+separate actual IF-expression parser prerequisite remains open.

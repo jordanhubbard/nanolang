@@ -495,6 +495,7 @@ typedef struct nl_ASTIf {
     int condition_type;
     int then_body;
     int else_body;
+    bool is_expression;
 } nl_ASTIf;
 typedef nl_ASTIf ASTIf;
 #endif

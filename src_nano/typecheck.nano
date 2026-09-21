@@ -1822,6 +1822,7 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "element_type_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
     
     /* ASTIf fields (schema) */
+    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "is_expression", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "condition_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "then_body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
@@ -5983,14 +5984,21 @@ fn check_statement_values(parser: Parser, statements: List<ASTStmtRef>, symbols:
             let set_node: ASTSet = (parser_get_set parser stmt.node_id)
             if (not (check_set_statement parser set_node local_symbols diags file_name)) { set ok false } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_IF) {
-            if (and value_required (and (not returned) (== i (- stmt_count 1)))) {
-                set value_fact (check_if_value parser stmt.node_id local_symbols expected_value diags file_name)
-                set returned value_fact.terminates
-                if (not value_fact.ok) { set ok false }
+            let if_node: ASTIf = (parser_get_if parser stmt.node_id)
+            let pending_value: bool = (and value_required (and (not returned) (== i (- stmt_count 1))))
+            if (or if_node.is_expression pending_value) {
+                let mut destination: NSType = (type_unknown_named "discarded expression")
+                if pending_value { set destination expected_value }
+                let checked: CheckedBlock = (check_if_value parser stmt.node_id local_symbols destination diags file_name)
+                if pending_value { set value_fact checked }
+                if (and (not pending_value) (not checked.ok)) {
+                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require valid expression branches even when their result is unused." (Diagnostics.diag_location file_name if_node.line if_node.column)))
+                    set ok false
+                }
+                if checked.terminates { set returned true if (not checked.ok) { set ok false } }
                 set i (+ i 1)
                 continue
             }
-            let if_node: ASTIf = (parser_get_if parser stmt.node_id)
             let cond_raw: NSType = (check_expr_node parser if_node.condition if_node.condition_type local_symbols diags file_name)
             let cond_t: NSType = (apply_return_type_hint cond_raw (type_bool))
             if (!= cond_t.kind TypeKind.TYPE_BOOL) {
@@ -6075,7 +6083,12 @@ fn check_statement_values(parser: Parser, statements: List<ASTStmtRef>, symbols:
             /* Expression statement */
             if (parser_is_value_expression stmt.node_type) {
                 let fact: CheckedBlock = (check_value_facts parser stmt.node_id stmt.node_type local_symbols diags file_name)
-                if (and (not returned) (== i (- stmt_count 1))) {
+                let pending_value: bool = (and value_required (and (not returned) (== i (- stmt_count 1))))
+                if (and (not pending_value) (not fact.ok)) {
+                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require valid expression facts even when their result is unused." (Diagnostics.diag_location file_name 0 0)))
+                    set ok false
+                }
+                if pending_value {
                     set value_fact fact
                     if (and (not fact.terminates) (!= expected_value.kind TypeKind.TYPE_UNKNOWN)) {
                         let before: int = (list_CompilerDiagnostic_length diags)
@@ -6107,6 +6120,22 @@ shadow check_statement_values {
     let result: CheckedBlock = (check_statement_values parser (parser_get_block parser function.body).statements [] (type_int) (type_unknown_named "inference") true (list_CompilerDiagnostic_new) "block.nano" "f")
     assert result.terminates
     assert (not result.empty_holes)
+}
+
+shadow check_statement_values {
+    let failures: array<string> = ["[1, true] return 0", "return 0 [1, true]", "(cond (true [1]) (else [false])) return 0", "match 0 { 0 => [1] _ => [false] } return 0", "{ [1, true] } return 0"]
+    let mut i: int = 0
+    while (< i (array_length failures)) {
+        let parser: Parser = (resource_test_parser (+ "fn f() -> int { " (+ (at failures i) " }")))
+        assert (not (parser_has_error parser))
+        let result: TypecheckPhaseOutput = (typecheck_phase parser "discarded.nano")
+        assert result.had_error
+        assert (checked_value_errors result.diagnostics 0)
+        set i (+ i 1)
+    }
+    let valid: Parser = (resource_test_parser "fn f() -> int { [] [[], []] if true { 1 } else { false } if false { (print \"\") } (cond (true []) (else [[1]])) let octet: u8 = 1 let bytes: array<u8> = (cond (true [257, octet]) (else [-1])) return 0 }")
+    assert (not (parser_has_error valid))
+    assert (not (typecheck_phase valid "valid-discarded.nano").had_error)
 }
 
 shadow check_block_value {

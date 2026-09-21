@@ -181,6 +181,30 @@ shadow main { assert (== (main) 0) }
                 prelude + 'fn main() -> int { ' + body + ' return 0 }\nshadow main { assert true }\n',
                 reject=True, checker_refusal=True)
 
+    def test_discarded_array_value_facts(self):
+        positive = '''fn main() -> int {
+ []
+ [[], []]
+ if true { 1 } else { false }
+ if false { (print "") }
+ (cond (true []) (else [[1]]))
+ match 0 { 0 => [] _ => [1] }
+ return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+        self.source_routes('discarded-array-positive', positive)
+        for name, body in {
+            'literal': '[1, true] return 0',
+            'unreachable-literal': 'return 0 [1, true]',
+            'cond': '(cond (true [1]) (else [false])) return 0',
+            'match': 'match 0 { 0 => [1] _ => [false] } return 0',
+            'nested-block': '{ [1, true] } return 0',
+        }.items():
+            self.source_routes('discarded-array-refuse-' + name,
+                'fn main() -> int { ' + body + ' }\nshadow main { assert true }\n',
+                True, checker_refusal=True)
+
     def test_selfhost_array_value_boundaries(self):
         prelude = '''struct Item { value: int }
 struct Other { value: int }

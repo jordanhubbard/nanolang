@@ -2297,7 +2297,7 @@ fn parse_cond_clauses(p: Parser, line: int, column: int) -> Parser {
                                     (list_ASTStmtRef_push else_stmts else_stmt)
                                     let p_else_block: Parser = (parser_store_block p_then_block else_stmts line column)
                                     let else_block_id: int = p_else_block.last_expr_node_id
-                                    return (parser_store_if p_else_block cond_id cond_type then_id else_block_id line column)
+                                    return (parser_mark_if_expression (parser_store_if p_else_block cond_id cond_type then_id else_block_id line column))
                                 }
                             }
                         }
@@ -3705,6 +3705,30 @@ shadow parser_store_set {
 
 /* Helper: Store if statement node */
 
+# I retain expression intent when cond lowers into the shared IF representation.
+fn parser_mark_if_expression(p: Parser) -> Parser {
+    let node: ASTIf = (list_ASTIf_get p.ifs p.last_expr_node_id)
+    (list_ASTIf_set p.ifs p.last_expr_node_id (ASTIf {
+        node_type: node.node_type, line: node.line, column: node.column,
+        condition: node.condition, condition_type: node.condition_type,
+        then_body: node.then_body, else_body: node.else_body, is_expression: true
+    }))
+    return p
+}
+shadow parser_mark_if_expression {
+    let tokens: List<LexerToken> = (tokenize_string "fn f() -> void { if true { 1 } else { false } (cond (true [1]) (else [])) }" "origin.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "origin.nano")
+    assert (not (parser_has_error parser))
+    let ordinary: ASTIf = (parser_get_if parser 0)
+    let expression: ASTIf = (parser_get_if parser 1)
+    assert (not ordinary.is_expression)
+    assert expression.is_expression
+    assert (== ordinary.node_type ParseNodeType.PNODE_IF)
+    assert (== expression.node_type ParseNodeType.PNODE_IF)
+    assert (>= expression.then_body 0)
+    assert (>= expression.else_body 0)
+}
+
 /* Helper: Store if node */
 fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_id: int, else_body_id: int, line: int, column: int) -> Parser {
     let node: ASTIf = ASTIf {
@@ -3714,7 +3738,8 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         condition: condition_id,
         condition_type: condition_type,
         then_body: then_body_id,
-        else_body: else_body_id
+        else_body: else_body_id,
+        is_expression: false
     }
     let node_id: int = p.ifs_count
     (list_ASTIf_push p.ifs node)

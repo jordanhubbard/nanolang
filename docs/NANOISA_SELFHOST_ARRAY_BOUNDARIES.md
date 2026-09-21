@@ -178,3 +178,29 @@ self-hosted `(if ...)` parser route. Existing corpus cases remain requirements,
 not successful parser coverage. I retain the peer parser/type-fact overlap
 notice and require review before qualification or integration. No invalid
 output is executed to reproduce either static finding.
+
+### My discarded-fact correction checkpoint
+
+I add the explicit schema field to both Nano declarations and all constructors;
+my cond lowering marks it by copying every ASTIf field. The shared C declaration
+is regenerated from the same JSON. The manual bootstrap FieldMetadata table
+also carries the BOOL field. Current parser, legacy integrated parser, generated
+schema, runtime list copies and getter consumers have been audited; neither C
+ASTNode nor opcode representations change. Runtime list storage uses the full
+shared struct size, so later providers are rebuilt rather than reused.
+
+My statement worker diagnoses invalid unused facts, including unreachable
+expressions. For a live tail whose value is requested I defer raw inference
+rejection to its consuming context. Cond expression origin invokes the full
+value-branch check even when discarded; ordinary statement IF keeps its
+statement behavior. Shadows check actual parser acceptance, a heterogeneous
+unused literal, cond/match, unreachable/nested cases, true empty holes, unequal
+ordinary IF branches, VOID IF, and a byte-array destination whose raw branch
+contains both INT and U8. That byte control is checker coverage, not a claim
+about the pending emitter integration.
+
+I add a seventeenth source method: one actual full-route positive program and
+five checker refusals with unchanged sentinels, runner and deadlines. The prior
+sixteen methods remain byte-for-byte equivalent at the Python AST level. No
+compiler or fixture has run; regeneration is only source generation. The
+separate IF-expression parser prerequisite remains open.

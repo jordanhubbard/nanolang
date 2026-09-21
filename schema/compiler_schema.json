@@ -614,6 +614,10 @@
         [
           "else_body",
           "int"
+        ],
+        [
+          "is_expression",
+          "bool"
         ]
       ],
       "emit_c": true

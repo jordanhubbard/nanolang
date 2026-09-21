@@ -139,7 +139,8 @@ extern struct ASTIf {
     condition: int,
     condition_type: int,
     then_body: int,
-    else_body: int
+    else_body: int,
+    is_expression: bool
 }
 
 extern struct ASTWhile {
@@ -2074,7 +2075,8 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         condition: condition_id,
         condition_type: condition_type,
         then_body: then_body_id,
-        else_body: else_body_id
+        else_body: else_body_id,
+        is_expression: false
     }
     
     (list_ASTIf_push p.ifs node)
