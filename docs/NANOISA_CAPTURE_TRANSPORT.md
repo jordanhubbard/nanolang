@@ -178,3 +178,13 @@ module, creating a borrowed v2 view and producing canonical text. It requires
 the existing NULL-on-failure bridge contract, exact source bytes and unchanged
 input view, and release of every tracked payload/table. It does not claim to
 fault every unrelated module allocation. Source review precedes execution.
+
+My fresh Linux GCC ordinary run at b494b6da7 passes 180 transport checks,
+541 allocation-enabled transport checks, 977 codec checks and 33 schema
+controls in 8.888 seconds. Source and selected tools remain unchanged, the
+process group is gone, and 83 products remain under the recorded qualification
+root. I retain [the allocation reports](evidence/capture-bindings/transport-allocation-linux/checks.json).
+The reviewed fixture snapshots input structure bytes with `memcpy` before
+comparing them, preserving padding rather than assuming assignment copies it.
+These results cover the scoped allocation sites above. Both-host sanitizer,
+VM/LLVM/Wasm/private-consumer and installed-only acceptance remains open.
