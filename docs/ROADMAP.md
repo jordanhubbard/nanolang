@@ -14105,3 +14105,9 @@ I do not execute known-missing-operation programs merely to rediscover them.
 
 The reviewed 0e72 checker checkpoint may independently run fresh build/bootstrap
 and focused controls; its full source corpus remains held for this dependency.
+
+My continued audit distinguishes the actual argument paths: the C-seed iterative
+emitter already stages regular calls with build_ordered_call_args. I preserve
+that behavior; only the selfhost plain-C list path lacks the required ordering.
+The native design is corrected before production. This refinement does not
+change the demonstrated missing operations, unchecked access or identity gaps.

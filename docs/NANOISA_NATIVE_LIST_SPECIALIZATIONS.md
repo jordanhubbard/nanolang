@@ -13,8 +13,9 @@ native lists. My source audit finds these independent existing gaps:
 * nb_rewrite canonicalizes colliding record/List annotations, while native call
   emission still spells raw list_Item_* names. The C iterative emitter likewise
   treats a generic-list spelling as a runtime symbol before ordinary mapping.
-* Ordinary C call argument evaluation does not establish my specified left-to-
-  right receiver/index/value ordering.
+* The selfhost generic call path emits ordinary C arguments without establishing
+  left-to-right receiver/index/value ordering. The C-seed iterative emitter
+  already uses build_ordered_call_args; I preserve that actual staged route.
 
 I have not executed an invalid generated program to reproduce these findings.
 The original imported/mutation corpus remains required. I do not start it just
@@ -44,7 +45,10 @@ for both producers, with its real include dependency recorded. Before storage
 mutation I check a nonnull receiver, representable count/capacity, and the full
 source-width INT index. Get/set/remove require 0 <= index < count; insert permits
 index == count; pop requires count > 0. I compare before narrowing to the
-existing int storage width. New and growth must check size multiplication and
+existing int storage width. For scalar provider calls I likewise validate an
+index or with_capacity argument at source width before its existing int ABI
+narrows it; I do not silently change the provider ABI. New and growth must check
+size multiplication and
 allocation before committing a pointer, capacity or count. A failed constructor
 frees its partial storage. A failed growth retains every previous byte and
 metadata field. Shifts use the established record representation and checked
@@ -80,7 +84,9 @@ Any new retained per-call metadata needs its constructor/copy/destructor audit
 in that source checkpoint. This C metadata choice is an explicit prerequisite,
 not an already implemented or settled ABI.
 
-I stage the selected callee/receiver, index and value once, left to right, in
+I retain C-seed build_ordered_call_args and give the selfhost selected list path
+the same ordering contract. I stage the selected callee/receiver, index and value
+once, left to right, in
 collision-free expression-local temporaries. The runtime observes length after
 all argument effects. A later argument may mutate the same list, and the staged
 receiver still denotes the original object if a variable is rebound. Captured
