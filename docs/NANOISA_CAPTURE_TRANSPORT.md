@@ -254,3 +254,11 @@ checks the target's archived bytes and mode without extracting it. Temporary
 inputs remain in place; only the successful run's full products and the first
 setup's reports are claimed durably retained. Linux sanitized installation
 and remaining private-consumer acceptance stay open.
+
+My next private-consumer controls use the same structurally valid payload with
+ordinary RET bodies and no service metadata. I require the explicit capture
+refusal in portable host planning, owner-array layout description, owner-array
+origin analysis, owner-array admission and private mixed preparation. Each
+query must preserve a preexisting output pointer and the input payload. I also
+retain plain-module routing controls. These checks cover admission boundaries,
+not positive private execution profiles or completed projection support.
