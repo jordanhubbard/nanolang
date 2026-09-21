@@ -14230,3 +14230,17 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   lstat regular-file validation and the existing checked owned-path walk before
   any unlink. I retain explicit FIFO and symlink-bin negative fixture requirements;
   this does not add a hostile concurrent filesystem-race claim.
+
+- [ ] I require the complete compiled SDK input inventory before returning an
+  installed root. Root review of d0c192 found that a self-consistent manifest with
+  missing rows could pass discovery. I generate the exact sorted runtime path
+  table from my committed source/object inventories and required compiler/VM roles,
+  require every row and executable role, and validate the canonical DynArray ABI
+  declaration. Missing, additional or reordered rows refuse before providers. I
+  retain package identity rather than a trust-signature claim.
+- [ ] I make clean SDK installation build its actual prerequisites: fresh bootstrap
+  C-seed/Stage1/Stage2, the existing VM/emitter closure and every checked wrapper
+  object. My installer already requires those products; its previous Make target
+  did not require bootstrap or the explicit object inventory. I generate the Make
+  object list from the same committed inventory, verify generated-file parity,
+  and require clean install/absent-role/stale-ABI controls before qualification.

@@ -194,8 +194,37 @@ The existing explicit File archive/header installation remains a separate Make
 step with its own failure status.
 
 My current source-only checks are C99 strict syntax for the five affected C
-translation units, Python syntax, all1158 selected input paths, and diff checks.
+translation units, Python syntax, all1161 selected input paths, and diff checks.
 They do not establish linking, installation, bootstrap, generated-source behavior
 or shadows. The121 wrapper objects must be freshly built, checked against the
 actual wrapper inventory, and installed with the compiler generation. I require
 the complete fixture checkpoint before executing this implementation.
+
+## My required installed input closure
+
+I do not accept a merely self-consistent partial manifest. My owning runtime
+compiles the exact sorted path table generated from the1161 committed source/data
+inputs,121 wrapper objects and nine compiler/VM/emitter roles. Linux also requires
+the assembler capture helper. I require all1292 Linux or1291 Darwin rows in that
+exact order; missing/additional paths refuse before discovery publishes a root.
+Every bin role and the list generator must retain executable bits. I separately
+require exactly one canonical DynArray ABI declaration matching the owning
+binary's compiled ABI2. Installation queries all three actual compiler binaries
+for their compiled ABI before copying them. I do not infer arbitrary binary
+semantics from a manifest or turn package identity into a signature.
+
+scripts/generate_native_sdk_inventory.py derives both the compiled path table and
+Make's object prerequisite list. I keep those generated files committed and check
+full-byte equality before installation. Changing either committed JSON inventory
+requires regenerating both files; stale output refuses installation. Header
+prerequisites include the runtime table. A clean make install now requires the
+actual bootstrap, VM/emitter targets and all121 explicit object targets before
+its installer runs. I preserve caller compiler/link flags through existing target
+recipes rather than building an undocumented second provider closure.
+
+The generated path table is immutable static data; validation adds no per-row
+project allocation and scans it alongside each manifest row. The fixed row/file
+limits remain unchanged. My fixture checkpoint must remove a required source,
+object and each compiler role while recomputing a self-consistent generation,
+then observe root/output refusal and zero provider invocations. Wrong/duplicate
+ABI declarations and non-executable roles remain separate required controls.

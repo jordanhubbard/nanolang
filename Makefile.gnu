@@ -250,7 +250,7 @@ SCHEMA_JSON = schema/compiler_schema.json
 SCHEMA_OUTPUTS = $(SRC_NANO_DIR)/generated/compiler_schema.nano $(SRC_NANO_DIR)/generated/compiler_ast.nano $(SRC_DIR)/generated/compiler_schema.h src/nanoisa/generated_schema.h
 SCHEMA_STAMP = $(BUILD_DIR)/schema.stamp
 
-HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(RUNTIME_DIR)/module_build_dir.h $(RUNTIME_DIR)/native_sdk.inc $(SRC_DIR)/module_builder.h $(SRC_DIR)/bcp47.h $(SRC_DIR)/locale.h $(SRC_DIR)/utf8.h $(SRC_DIR)/diag_id.h
+HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(RUNTIME_DIR)/module_build_dir.h $(RUNTIME_DIR)/native_sdk.inc $(RUNTIME_DIR)/native_sdk_inventory.inc $(SRC_DIR)/module_builder.h $(SRC_DIR)/bcp47.h $(SRC_DIR)/locale.h $(SRC_DIR)/utf8.h $(SRC_DIR)/diag_id.h
 HEADERS += $(RUNTIME_DIR)/native_array_abi.h
 
 .PHONY: schema schema-check
@@ -4072,8 +4072,14 @@ coverage-check: coverage.info
 		echo "⚠️  bc not found — skipping numeric threshold check"; \
 	fi
 
+# I build every installed compiler role and wrapper object from one inventory.
+include scripts/native_sdk_objects.mk
+.PHONY: native-sdk-inventory-check
+native-sdk-inventory-check:
+	python3 scripts/generate_native_sdk_inventory.py --check
+
 # Install binaries
-install: $(COMPILER) vm nvm2c file-public-runtime scripts/native_sdk_inputs.json
+install: bootstrap vm nvm2c file-public-runtime $(NATIVE_SDK_OBJECTS) native-sdk-inventory-check scripts/native_sdk_inputs.json
 	python3 scripts/native_sdk.py install --source "$(CURDIR)" --prefix "$(PREFIX)"
 	install -d "$(PREFIX)/lib"
 	install -m 644 "$(FILE_PUBLIC_LIBRARY)" "$(PREFIX)/lib/libnano_file_runtime.a"

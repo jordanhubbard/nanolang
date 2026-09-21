@@ -14,6 +14,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+from generate_native_sdk_inventory import check as check_generated_inventory, inputs as sdk_inputs
 
 ABI = 2
 LIMIT_FILES = 8192
@@ -187,6 +188,10 @@ def install(source, prefix, inventory):
     prefix = prefix.resolve()
     if source == prefix or source in prefix.parents or prefix in source.parents:
         raise ValueError('I refuse overlapping source and installation roots')
+    check_generated_inventory(source)
+    required, _ = sdk_inputs(source)
+    if platform.system() == 'Linux':
+        required.append('bin/nano_as_capture.so')
     names = json.loads(inventory.read_text())
     if not isinstance(names, list) or names != sorted(set(names)):
         raise ValueError('I require an ordered unique committed SDK inventory')
@@ -215,7 +220,14 @@ def install(source, prefix, inventory):
         selected['bin/nano_as_capture.so'] = owned_path(source, 'bin/nano_as_capture.so')
     if len(selected) > LIMIT_FILES or sum(p.lstat().st_size for p in selected.values()) > LIMIT_BYTES:
         raise ValueError('I refuse an excessive SDK input closure before hashing')
+    if sorted(selected) != sorted(required):
+        raise ValueError('I require the complete declared SDK roles and inputs')
+    abi_lines = re.findall(rb'^#define NANO_DYN_ARRAY_ABI_VERSION [^\r\n]*', selected['src/runtime/dyn_array.h'].read_bytes(), re.M)
+    if abi_lines != [b'#define NANO_DYN_ARRAY_ABI_VERSION 2u']:
+        raise ValueError('I require one matching native array ABI declaration')
     rows = [row(name, selected[name]) for name in sorted(selected)]
+    if any((r['path'].startswith('bin/') or r['path'] == 'scripts/generate_list.sh') and not r['mode'] & 0o111 for r in rows):
+        raise ValueError('I require executable SDK compiler, VM and generator roles')
     if len(rows) > LIMIT_FILES or sum(r['size'] for r in rows) > LIMIT_BYTES:
         raise ValueError('I refuse an excessive SDK input closure')
     identity, data = manifest(rows)

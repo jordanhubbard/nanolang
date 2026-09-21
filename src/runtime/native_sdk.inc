@@ -10,6 +10,8 @@
 #include <mach-o/dyld.h>
 #endif
 
+#include "native_sdk_inventory.inc"
+
 #define SDK_PATH_CAPACITY 4096
 #define SDK_FILE_LIMIT 8192
 #define SDK_BYTE_LIMIT ((uint64_t)1024 * 1024 * 1024)
@@ -72,6 +74,30 @@ static bool sdk_file_digest(const char *path, const char *expected) {
     return ok;
 }
 
+static NanoSdkStatus sdk_check_header_abi(const char *root) {
+    char path[SDK_PATH_CAPACITY];
+    struct stat st;
+    if (!sdk_path(path, sizeof(path), root, "src/runtime/dyn_array.h") ||
+        !sdk_regular(path, &st)) return NANO_SDK_INVALID;
+    FILE *header = fopen(path, "rb");
+    if (!header) return NANO_SDK_IO;
+    char line[256], expected[96];
+    const char prefix[] = "#define NANO_DYN_ARRAY_ABI_VERSION ";
+    bool matched = false;
+    size_t declarations = 0;
+    snprintf(expected, sizeof(expected), "%s%uu", prefix, NANO_DYN_ARRAY_ABI_VERSION);
+    while (fgets(line, sizeof(line), header)) {
+        line[strcspn(line, "\r\n")] = 0;
+        if (!strncmp(line, prefix, sizeof(prefix)-1)) {
+            if (++declarations > 1) break;
+            matched = !strcmp(line, expected);
+        }
+    }
+    bool clean = !ferror(header);
+    if (fclose(header)) clean = false;
+    return clean && matched && declarations == 1 ? NANO_SDK_OK : NANO_SDK_INVALID;
+}
+
 static NanoSdkStatus sdk_installed(const char *root, const char *manifest) {
     FILE *file = fopen(manifest, "rb");
     if (!file) return NANO_SDK_IO;
@@ -83,9 +109,10 @@ static NanoSdkStatus sdk_installed(const char *root, const char *manifest) {
               EVP_DigestUpdate(ctx, line, strlen(line)) == 1;
     uint64_t total = 0;
     size_t count = 0;
+    const size_t required_count = sizeof(sdk_required_inputs)/sizeof(sdk_required_inputs[0]);
     while (ok && fgets(line, sizeof(line), file)) {
         size_t length = strlen(line);
-        if (!length || line[length-1] != '\n' || ++count > SDK_FILE_LIMIT ||
+        if (!length || line[length-1] != '\n' || ++count > SDK_FILE_LIMIT || count > required_count ||
             EVP_DigestUpdate(ctx, line, length) != 1) { ok = false; break; }
         line[length-1] = 0;
         char *mode_end = strchr(line, '\t');
@@ -97,11 +124,13 @@ static NanoSdkStatus sdk_installed(const char *root, const char *manifest) {
             !mode_end[0] || strspn(mode_end, "0123456789") != strlen(mode_end) ||
             (mode_end[0] == '0' && mode_end[1]) || strlen(size_end) != 64 ||
             strspn(size_end, "0123456789abcdef") != 64 ||
-            strlen(hash_end) > 2048 || strcmp(previous, hash_end) >= 0) { ok = false; break; }
+            strlen(hash_end) > 2048 || strcmp(previous, hash_end) >= 0 ||
+            strcmp(hash_end, sdk_required_inputs[count-1])) { ok = false; break; }
         errno = 0;
         unsigned long long size = strtoull(mode_end, NULL, 10);
         unsigned long mode = strtoul(line, NULL, 8);
         if (errno || mode > 0777 || size > SDK_BYTE_LIMIT - total ||
+            ((!strncmp(hash_end, "bin/", 4) || !strcmp(hash_end, "scripts/generate_list.sh")) && !(mode & 0111)) ||
             !sdk_path(path, sizeof(path), root, hash_end)) { ok = false; break; }
         total += size;
         struct stat st;
@@ -114,10 +143,10 @@ static NanoSdkStatus sdk_installed(const char *root, const char *manifest) {
     if (fclose(file)) ok = false;
     const char *identity = strrchr(root, '/');
     unsigned char value[32]; unsigned int size = 0;
-    if (ok) ok = count && identity && strlen(++identity) == 64 &&
+    if (ok) ok = count == required_count && identity && strlen(++identity) == 64 &&
         EVP_DigestFinal_ex(ctx, value, &size) == 1 && size == 32 && sdk_hex(value, identity);
     EVP_MD_CTX_free(ctx);
-    return ok ? NANO_SDK_OK : NANO_SDK_INVALID;
+    return ok ? sdk_check_header_abi(root) : NANO_SDK_INVALID;
 }
 
 NanoSdkStatus nano_native_sdk_root(char *dest, size_t capacity, bool *installed) {
@@ -157,18 +186,7 @@ NanoSdkStatus nano_native_sdk_root(char *dest, size_t capacity, bool *installed)
         for (size_t i = 0; i < sizeof(markers)/sizeof(markers[0]); ++i)
             if (!sdk_path(path, sizeof(path), root, markers[i]) || !sdk_regular(path, &st))
                 return NANO_SDK_INVALID;
-        if (!sdk_path(path, sizeof(path), root, "src/runtime/dyn_array.h")) return NANO_SDK_INVALID;
-        FILE *header = fopen(path, "rb");
-        if (!header) return NANO_SDK_IO;
-        char line[256], expected[96]; bool matched = false;
-        snprintf(expected, sizeof(expected), "#define NANO_DYN_ARRAY_ABI_VERSION %uu", NANO_DYN_ARRAY_ABI_VERSION);
-        while (fgets(line, sizeof(line), header)) {
-            line[strcspn(line, "\r\n")] = 0;
-            if (!strcmp(line, expected)) matched = true;
-        }
-        bool clean = !ferror(header);
-        if (fclose(header)) clean = false;
-        if (!clean || !matched) return NANO_SDK_INVALID;
+        status = sdk_check_header_abi(root);
     }
     if (status != NANO_SDK_OK) return status;
     size_t length = strlen(root);
