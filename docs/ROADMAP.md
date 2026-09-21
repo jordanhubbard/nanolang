@@ -14418,3 +14418,12 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   tuple/callable commas and a callable arrow can disturb an accepted argument.
   I retain the actual parsed annotation, preserve ordinary spellings, and add
   nested tuple/callable controls before claiming the full identity checkpoint.
+
+- [ ] I complete declaration ordering for accepted opaque-bearing tuple/callable
+  generic payloads under task_2c7f68e4707b4d12b0ac8d29636fda63. Static inspection of
+  `generate_struct_and_union_definitions_ordered` and `emit_native_type_info`
+  found that C composite definitions precede tuple/callable registry creation;
+  those payloads otherwise fall through to coarse C type spelling. I retain
+  complete typed dependencies and stage owning derived declarations before
+  emitting definitions. This is a required representation repair, not a new
+  refusal or a reason to replace the original installed SDK corpus.

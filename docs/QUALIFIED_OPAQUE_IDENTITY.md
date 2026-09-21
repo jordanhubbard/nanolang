@@ -280,3 +280,54 @@ intermediate missing limits include and two joined-line indentation warnings;
 no source program, compiler bootstrap, shadow or SDK gate ran for this work.
 Callable/aggregate representation and every definition/reference consumer still
 require the final source audit before fixture preparation and execution review.
+
+### Derived declaration ordering: additional source inventory
+
+My required tuple/callable generic audit found a concrete ordering dependency in
+C: `generate_struct_and_union_definitions_ordered` runs before tuple/callable
+registry creation, and `emit_native_type_info` currently handles nominal payloads
+but falls back to a coarse type string for tuple and callable payloads. Merely
+encoding their names cannot produce their required C definitions. I do not
+introduce a new checker refusal for those accepted argument forms.
+
+Before implementing this owning-layout extension, I propose the following exact
+boundary for review. I prepare the existing function/tuple registries before
+composite emission. I collect opaque-bearing derived annotations from complete
+record fields, specialized union payloads, signatures and local annotations into
+owned checked snapshots. Temporary substituted payloads are freed only after
+these snapshots have copied their full facts. Each added derived row owns its
+annotation and generated name; ordinary preexisting registry rows keep their
+existing borrowed-AST lifetime. Destruction distinguishes these ownership modes.
+
+I extend the existing declaration graph with tuple and callable rows required by
+those opaque-bearing contexts. A by-value tuple/record/union component requires
+its complete definition; a callback requires declarations of named parameter and
+result types plus completed nested callable typedefs. Opaque and dynamic-array
+pointers add no layout dependency. I distinguish declaration edges from complete
+layout edges: legal callbacks involving their enclosing record must not become
+false by-value cycles. When necessary, I forward-declare existing tagged record
+and union names, then emit their bodies without repeating their typedef. A tuple
+that needs a forward declaration receives a stable tag from the same checked
+name table. This changes no field order, representation, function ABI or semantic
+type identity. Truly impossible by-value recursive layouts cannot be repaired by
+emitting an arbitrary fallback order; their existing source eligibility remains
+separately explicit.
+
+Every derived annotation emitted in a signature, tuple field, nominal payload,
+constructor or local uses the same collected row. Failed allocation leaves a row
+unpublished and the compiler emits no output artifact. Checked size/count
+arithmetic covers added arrays and complete annotation copies; I do not promise a
+total legacy compiler heap cap. Ordinary programs without opaque-bearing derived
+types retain the old declaration order and names.
+
+My Nano counterpart consumes its existing nominal dependency ordering and full
+annotation strings. I audit its tuple/callback definition placement against the
+same declaration-versus-layout distinction. This is a required paired boundary,
+not a C-only replacement for the independent Nano producer.
+
+Required controls include an opaque-bearing tuple payload, an opaque-bearing
+callback payload, a nested callback with opaque parameter/result, repeated equal
+annotations, distinct opaque owners, and a callback referring to its enclosing
+record. They supplement the framed-name, failed-publication, same-basename module
+and unchanged Json.Json controls. No execution is authorized by this additional
+unreviewed layout proposal itself.
