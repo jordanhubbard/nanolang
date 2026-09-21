@@ -4,9 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+/* I own the CLI state required by my linked ordinary runtime. */
+int g_argc;
+char **g_argv;
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"I failed line %d: %s\n",__LINE__,#x);return 1;}}while(0)
 static void span(NlFileSourceText t){printf("%zu:",t.size);for(size_t i=0;i<t.size;i++)printf("%02x",(unsigned char)t.data[i]);}
 int main(int argc,char **argv){
+ g_argc=argc;g_argv=argv;
  CHECK(argc==2);NlFileResolution *sentinel=(NlFileResolution *)(uintptr_t)1,*r=sentinel;
  NlFileResolutionReport report=nl_file_source_resolve(argv[1],&r);printf("STATUS %u\n",(unsigned)report.status);
  if(report.status!=NL_FILE_RESOLUTION_PREPARED){CHECK(r==sentinel);return 0;}

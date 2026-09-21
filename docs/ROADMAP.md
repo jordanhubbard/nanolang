@@ -14146,3 +14146,13 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   checks do not establish standalone installed-product acceptance. I require a
   separately specified installed runtime discovery/SDK closure, stale-ABI module
   refusal and outside-source-tree compiler/module qualification before closing it.
+
+- [ ] I correct my c41a companion report fixture's missing CLI globals before
+  continuing qualification. Both fresh ABI2 bootstraps passed (Linux333.731s,
+  Puck325.619s), and both actual opted-in driver methods passed. Both suites then
+  stopped linking file_resolution_report.c: ordinary eval.o/runtime cli.o require
+  the main-owned g_argc/g_argv definitions. My graph fault fixture links that same
+  closure and also needs its own definitions. I add those fixture-owned globals
+  and initialize them from the real fixture argv; I preserve all report/allocation
+  assertions and both first link diagnostics. No production or bootstrap input
+  changes, so I retain c41a compiler provenance with exact copied-product hashes.

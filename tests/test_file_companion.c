@@ -14,6 +14,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+/* I own the CLI state required by my linked ordinary runtime. */
+int g_argc;
+char **g_argv;
 #include <sys/stat.h>
 #include <unistd.h>
 static size_t checks;
@@ -174,6 +177,7 @@ static void graph_allocations(const char *path){
 }
 #endif
 int main(int argc,char **argv){
+ g_argc=argc;g_argv=argv;
 #ifdef COMPANION_GRAPH
 CHECK(argc==5);graph_allocations(argv[4]);
 #else
