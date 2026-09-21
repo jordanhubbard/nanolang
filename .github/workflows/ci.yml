@@ -7,6 +7,9 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
 
+env:
+  NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+
 jobs:
   build-and-test:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
@@ -142,6 +145,16 @@ jobs:
 
       - name: Validate user guide snippets
         run: make userguide-check
+
+      - name: Retain verifier-corpus diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verifier-corpus-${{ matrix.os }}-${{ matrix.arch }}
+          path: .test_output/verifier-corpus/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Show error logs on failure
         if: failure()
@@ -391,6 +404,16 @@ jobs:
           export ASAN_OPTIONS=detect_leaks=0
           bash tests/run_negative_tests.sh
 
+      - name: Retain verifier-corpus diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verifier-corpus-sanitizers
+          path: .test_output/verifier-corpus/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Show sanitizer error logs on failure
         if: failure()
         shell: bash
@@ -463,6 +486,16 @@ jobs:
         env:
           NANOLANG_COMPILER: ./bin/nanoc_c
         run: bash tests/run_negative_tests.sh
+
+      - name: Retain verifier-corpus diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verifier-corpus-coverage
+          path: .test_output/verifier-corpus/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Show error logs on failure
         if: failure()
