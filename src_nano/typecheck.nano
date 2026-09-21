@@ -3151,6 +3151,7 @@ fn check_builtin_function(fn_name: string) -> NSType {
     if (== fn_name "str_length") { return (type_int) } else { (print "") }
     if (== fn_name "str_concat") { return (type_string) } else { (print "") }
     if (== fn_name "str_substring") { return (type_string) } else { (print "") }
+    if (== fn_name "str_split") { return (type_array TypeKind.TYPE_STRING "string") }
     if (== fn_name "str_contains") { return (type_bool) } else { (print "") }
     if (== fn_name "str_equals") { return (type_bool) } else { (print "") }
     if (== fn_name "char_at") { return (type_int) } else { (print "") }
@@ -3308,6 +3309,10 @@ fn check_builtin_function(fn_name: string) -> NSType {
 }
 
 shadow check_builtin_function {
+    let split_result: NSType = (check_builtin_function "str_split")
+    assert (== split_result.kind TypeKind.TYPE_ARRAY)
+    assert (== split_result.element_type_kind TypeKind.TYPE_STRING)
+    assert (== split_result.element_type_name "string")
     assert (== (check_builtin_function "float_from_bits").kind TypeKind.TYPE_FLOAT)
     assert (== (check_builtin_function "float_to_bits").kind TypeKind.TYPE_INT)
     assert (== (check_builtin_function "string_to_float").kind TypeKind.TYPE_FLOAT)
@@ -4705,6 +4710,21 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 }
             } else { (print "") }
         } else { (print "") }
+        if (and (== fn_name "str_split") (< (env_lookup symbols fn_name) 0)) {
+            let mut valid_split: bool = (== call_node.arg_count 2)
+            let mut split_arg_index: int = 0
+            while (< split_arg_index call_node.arg_count) {
+                let split_arg: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start split_arg_index))
+                let split_type: NSType = (check_expr_node parser split_arg.node_id split_arg.node_type symbols diags file_name)
+                if (!= split_type.kind TypeKind.TYPE_STRING) { set valid_split false }
+                set split_arg_index (+ split_arg_index 1)
+            }
+            if (not valid_split) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require two strings for str_split." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+                return (type_unknown_named "str_split")
+            }
+            return (type_array TypeKind.TYPE_STRING "string")
+        }
         /* Check if it's a builtin function/operator */
         if (and (or (== fn_name "float_from_bits") (== fn_name "float_to_bits")) (>= (env_lookup symbols fn_name) 0)) {
             (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I cannot use a bound value as a binary64 bit intrinsic." (Diagnostics.diag_location file_name call_node.line call_node.column)))
@@ -4729,7 +4749,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         }
         # I keep bound mutation names on the ordinary symbol-checking path.
         if (>= (env_lookup symbols fn_name) 0) {
-            let array_names: array<string> = ["array_new", "array_push", "array_set", "array_get", "at", "array_pop", "map", "array_map", "filter", "array_filter", "reduce", "array_fold", "array_slice", "array_remove_at"]
+            let array_names: array<string> = ["array_new", "array_push", "array_set", "array_get", "at", "array_pop", "map", "array_map", "filter", "array_filter", "reduce", "array_fold", "array_slice", "array_remove_at", "str_split"]
             let mut array_index: int = 0
             while (< array_index (array_length array_names)) {
                 if (== fn_name (at array_names array_index)) { set builtin_type (type_unknown_named fn_name) }
@@ -4828,6 +4848,8 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         let short_name: string = (module_qualified_suffix qualified_name)
         /* Allow builtin/mapped helpers for module-qualified calls (e.g., Diagnostics.*) */
         let mut builtin_type: NSType = (check_builtin_function short_name)
+        # A qualified declaration is not my unqualified split intrinsic.
+        if (== short_name "str_split") { set builtin_type (type_unknown_named qualified_name) }
         if (and (== short_name "string_to_float") (>= (env_lookup symbols qualified_name) 0)) {
             set builtin_type (type_unknown_named qualified_name)
         }

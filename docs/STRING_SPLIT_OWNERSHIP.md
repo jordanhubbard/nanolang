@@ -55,3 +55,14 @@ precede fresh both-producer bootstrap and original full SDK acceptance.
 A newline delimiter uses a forward native scan rather than per-byte interpreted
 substring operations. I do not infer total bootstrap margin, libc complexity
 for arbitrary multi-byte delimiters, or a passing SDK gate before measurement.
+
+My paired production checkpoint registers `str_split` with the existing exact
+array-name declaration/lexical authority in C and Nano. C element inference
+returns STRING only for an actual unbound intrinsic call, and both checkers
+require exactly two string arguments. Nano does not infer intrinsic authority
+from a qualified member suffix. Its actual runtime emitter produces the owned
+algorithm independently, with the same native empty-delimiter bound. Existing
+declared-function C-name reservation prevents collision with `nl_str_split`.
+The evaluator gates intrinsic dispatch with that same declaration decision.
+I have not yet substituted this builtin into the merger or executed these
+paths. Focused source, typed/inferred array and ownership fixtures remain next.

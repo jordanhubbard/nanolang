@@ -1511,6 +1511,10 @@ Type filter_predicate_element_type(ASTNode *callback, Environment *env) {
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
+        array_expr->as.call.name && !strcmp(array_expr->as.call.name, "str_split") &&
+        env_native_array_is_builtin(env, array_expr->as.call.name, array_expr->line, array_expr->column) &&
+        array_expr->as.call.arg_count == 2) return TYPE_STRING;
+    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_new") &&
         env_native_array_is_builtin(env, array_expr->as.call.name, array_expr->line, array_expr->column) &&
         array_expr->as.call.arg_count == 2)
@@ -2756,6 +2760,22 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
             /* Regular function call */
             
+            if (strcmp(expr->as.call.name, "str_split") == 0) {
+                if (expr->as.call.arg_count != 2) {
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
+                        "I require two strings for str_split.", "Pass a string and a delimiter.");
+                    return TYPE_UNKNOWN;
+                }
+                Type source = check_expression(expr->as.call.args[0], env);
+                Type delimiter = check_expression(expr->as.call.args[1], env);
+                if (source != TYPE_STRING || delimiter != TYPE_STRING) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require two strings for str_split.", "Pass a string and a delimiter.");
+                    return TYPE_UNKNOWN;
+                }
+                return TYPE_ARRAY;
+            }
+
             /* Special handling for map builtin - check before environment lookup */
             if (strcmp(expr->as.call.name, "map") == 0) {
                 if (expr->as.call.arg_count != 2) {

@@ -1273,6 +1273,7 @@ fn map_builtin_func_name(func_name: string) -> string {
     if (== func_name "str_slice") { return "nl_str_slice" } else { (print "") }
     if (== func_name "str_concat") { return "nl_str_concat" } else { (print "") }
     if (== func_name "str_substring") { return "nl_str_substring" } else { (print "") }
+    if (== func_name "str_split") { return "nl_str_split" }
     if (== func_name "str_starts_with") { return "nl_str_starts_with" } else { (print "") }
     if (== func_name "str_contains") { return "nl_str_contains" } else { (print "") }
     if (== func_name "str_equals") { return "nl_str_equals" } else { (print "") }
@@ -1369,6 +1370,7 @@ fn map_builtin_func_name(func_name: string) -> string {
 }
 
 shadow map_builtin_func_name {
+    assert (== (map_builtin_func_name "str_split") "nl_str_split")
     assert (== (map_builtin_func_name "float_from_bits") "nl_float_from_bits")
     assert (== (map_builtin_func_name "float_to_bits") "nl_float_to_bits")
     assert (== (map_builtin_func_name "cast_int") "nl_cast_int")
@@ -1587,6 +1589,7 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
         let declared: string = (lookup_func_return_type_in_parser parser (mb_resolve if_id.name if_id.line env.names))
         if (!= declared "") { return declared }
         if (and (native_array_operation if_id.name) (not (native_array_builtin parser if_id env))) { return "" }
+        if (and (== if_id.name "str_split") (== ic.arg_count 2)) { return "array<string>" }
         if (and (or (== if_id.name "at") (== if_id.name "array_get")) (== ic.arg_count 2)) {
             let source: ASTStmtRef = (parser_get_call_arg parser ic.arg_start)
             return (full_array_element_type (infer_expr_type parser source.node_id source.node_type env))
@@ -2390,7 +2393,7 @@ shadow transpile_last_error {
 
 # I use actual lexical and declaration ownership before array intrinsic spelling.
 fn native_array_operation(name: string) -> bool {
-    let names: array<string> = ["array_new", "array_push", "array_set", "array_get", "at", "array_pop", "map", "array_map", "filter", "array_filter", "reduce", "array_fold", "array_slice", "array_remove_at"]
+    let names: array<string> = ["array_new", "array_push", "array_set", "array_get", "at", "array_pop", "map", "array_map", "filter", "array_filter", "reduce", "array_fold", "array_slice", "array_remove_at", "str_split"]
     let mut i: int = 0
     while (< i (array_length names)) {
         if (== name (at names i)) { return true }
@@ -2401,6 +2404,7 @@ fn native_array_operation(name: string) -> bool {
 shadow native_array_operation {
     assert (native_array_operation "array_new")
     assert (native_array_operation "map")
+    assert (native_array_operation "str_split")
     assert (not (native_array_operation "module.map"))
 }
 fn native_array_builtin(parser: Parser, identifier: ASTIdentifier, env: GenEnv) -> bool {
@@ -4275,6 +4279,44 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    return out;\n")
     set sb (cg_append sb "}\n\n")
     
+    # I publish complete GC-owned string-array segments or terminate.
+    set sb (cg_append sb "static DynArray* nl_str_split(const char* str, const char* delim) {\n")
+    set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_STRING);\n")
+    set sb (cg_append sb "    if (!result) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n")
+    set sb (cg_append sb "    if (!str) return result;\n")
+    set sb (cg_append sb "    size_t delim_len = strlen(delim);\n")
+    set sb (cg_append sb "    if (delim_len == 0) {\n")
+    set sb (cg_append sb "        size_t str_len = strnlen(str, 64*1024*1024);\n")
+    set sb (cg_append sb "        for (size_t i = 0; i < str_len; i++) {\n")
+    set sb (cg_append sb "            char* ch = gc_alloc_string(1);\n")
+    set sb (cg_append sb "            if (!ch) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n")
+    set sb (cg_append sb "            ch[0] = str[i]; ch[1] = '\\0';\n")
+    set sb (cg_append sb "            dyn_array_push_string(result, ch);\n")
+    set sb (cg_append sb "        }\n")
+    set sb (cg_append sb "        return result;\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    const char* start = str;\n")
+    set sb (cg_append sb "    const char* found;\n")
+    set sb (cg_append sb "    while ((found = strstr(start, delim)) != NULL) {\n")
+    set sb (cg_append sb "        size_t seg_len = (size_t)(found - start);\n")
+    set sb (cg_append sb "        char* seg = gc_alloc_string(seg_len);\n")
+    set sb (cg_append sb "        if (!seg) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n")
+    set sb (cg_append sb "        memcpy(seg, start, seg_len);\n")
+    set sb (cg_append sb "        seg[seg_len] = '\\0';\n")
+    set sb (cg_append sb "        dyn_array_push_string(result, seg);\n")
+    set sb (cg_append sb "        start = found + delim_len;\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    size_t rest_len = strlen(start);\n")
+    set sb (cg_append sb "    char* seg = gc_alloc_string(rest_len);\n")
+    set sb (cg_append sb "    if (!seg) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n")
+    set sb (cg_append sb "    {\n")
+    set sb (cg_append sb "        memcpy(seg, start, rest_len);\n")
+    set sb (cg_append sb "        seg[rest_len] = '\\0';\n")
+    set sb (cg_append sb "        dyn_array_push_string(result, seg);\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    return result;\n")
+    set sb (cg_append sb "}\n\n")
+
     /* Character operations */
     set sb (cg_append sb "/* Character operations */\n")
     set sb (cg_append sb "int64_t nl_char_at(const char* s, int64_t i) {\n")

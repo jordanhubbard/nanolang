@@ -794,7 +794,7 @@ Function *env_get_function(Environment *env, const char *name) {
 /* I select array intrinsics only after actual lexical/declaration resolution. */
 bool env_native_array_operation(const char *name) {
     static const char *const names[] = {"array_new", "array_push", "array_set", "array_get", "at",
-        "array_pop", "map", "filter", "reduce", "array_slice", "array_remove_at"};
+        "array_pop", "map", "filter", "reduce", "array_slice", "array_remove_at", "str_split"};
     if (!name) return false;
     for (size_t i = 0; i < sizeof names / sizeof *names; ++i)
         if (!strcmp(name, names[i])) return true;

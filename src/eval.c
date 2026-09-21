@@ -3502,7 +3502,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         free(buf);
         return v;
     }
-    if (strcmp(name, "str_split") == 0) {
+    if (strcmp(name, "str_split") == 0 &&
+        env_native_array_is_builtin(env, name, node->line, node->column)) {
         if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
             fprintf(stderr, "Error: str_split requires two string arguments\n");
             return create_void();
