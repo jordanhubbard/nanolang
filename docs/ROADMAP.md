@@ -14019,3 +14019,15 @@ I record the actual block-expression parser prerequisite before code. The single
 
 I record task_873238ff98c845a9bf94ec78a03e2950 before diagnostic changes.
 I preserve cb489 first Stage2 checker diagnostics on both hosts as each command terminates. Darwin status2 after240.000s, fresh Makebuild96.516s, no timeout and equal source/tool endpoints. Linux bootstrap remains active and its first terminal must be retained. The Stage1 checker reports twenty invalid discarded-expression facts without actionable source locations plus a concrete str_trim array destination failure. I will make a separate diagnostic-only source checkpoint adding enclosing function/node kind/id/inferred kind/name and available AST source location to the existing discarded-fact error; no checks or facts change. A fresh attributable Stage1 diagnostic compiler then checks the exact original full compiler source once, with original bounds and no generated output execution. str_trim(string)->string is registered in C but absent from the selfhost builtin fact table; its exact unshadowed parity correction is a separate reviewed prerequisite, not general unknown acceptance.
+
+### My diagnostic module-root selection correction
+
+My first1dca diagnostic-tool preparation stopped before producing Stage1:
+status1 at1.204727s, no timeout and all input hashes unchanged. The launcher
+mixed diagnostic source-relative modules with frozen NANO_MODULE_PATH and
+module symlinks; the loader rejected duplicate std_fs introspection identities.
+I retain /tmp/nanolang-discarded-facts-1dca-diagnostic and its command/log/maps.
+I correct phase-local module/search/layout paths coherently: diagnostic tree
+for building the tool, original cb489 tree for the one original-source check.
+Module bytes are already checked equal. No checker behavior, source or deadline
+changes; the original full-source diagnostic remains unreached.
