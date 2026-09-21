@@ -139,3 +139,12 @@ units. The LLVM unit stops at its missing Make-generated `managed_runtime_ir.h`
 header; I retain that build setup failure without rerunning it or calling it a
 product result. These [raw checks](evidence/capture-bindings/transport-source-review/results.json)
 do not execute the product, exercise linking, or replace the full owning build.
+
+My independent source review found two omissions in ee681548f: the explicit
+installed File archive omitted the codec dependency, and my text parser enforced
+the64MiB payload budget only after accumulating all chunks. I add the codec to
+`FILE_PUBLIC_QUERY_STEMS` (also used by the private cyclic provider closure)
+and check remaining payload budget before every capture `realloc`. My installed
+File controls now compile and run a separate bridge consumer using only installed
+headers and `libnano_file_runtime.a`. This fixture is source-reviewed work;
+its actual installed qualification remains pending.

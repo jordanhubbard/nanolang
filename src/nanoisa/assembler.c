@@ -979,6 +979,13 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                 result->error = ASM_ERR_MEMORY;
                 return false;
             }
+            if (captures && (*payload_size > NVM_CAPTURE_TRANSPORT_BYTES ||
+                bytes > NVM_CAPTURE_TRANSPORT_BYTES - *payload_size)) {
+                result->error = ASM_ERR_MEMORY;
+                snprintf(result->message, sizeof result->message,
+                         "I require capture payload bytes within my transport budget");
+                return false;
+            }
             uint8_t *data = realloc(*payload, *payload_size + bytes);
             if (!data) { result->error = ASM_ERR_MEMORY; return false; }
             for (uint32_t i = 0; i < bytes; ++i) {
