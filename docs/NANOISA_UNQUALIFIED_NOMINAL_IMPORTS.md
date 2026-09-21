@@ -50,3 +50,25 @@ module_loader bootstrap is mandatory after source/fixture review.
 This is a design checkpoint. I have not changed the resolver or executed a
 corrected bootstrap. Full compiler, evaluator, enum-list and release parents
 remain open.
+
+
+## My visibility audit before source
+
+CANONICAL_STYLE.md explicitly leaves private visibility and selective type
+aliases open; I do not claim to complete either here. MODULE_MIGRATION_GUIDE.md
+requires each file to declare its own imports. The existing module loader
+registers qualified aliases in their importing owner and includes each imported
+AST's direct declarations without filtering pub. Its unaliased selective alias
+loop skips an unchanged spelling; renamed selective symbols still require a
+Function. I preserve those boundaries rather than silently enabling type aliases.
+
+My first implementation therefore registers actual direct nominal declarations
+from an unaliased plain/wildcard import, or the selected unchanged nominal names
+from an unaliased selective import. A namespace alias remains qualified. A
+wrapper's own import rows remain scoped to that wrapper; definition-site
+function/field annotations follow their original owner and can resolve its
+transitive dependency rows. I do not promote a dependency's local namespace into
+the caller. Parsed controls must distinguish this definition-site transitivity
+from unbound caller spellings. Qualified and selective alias refusal behavior
+remains unchanged. Later full bootstrap may expose other legacy accepted
+boundaries; I will record and review them rather than bypass exact provenance.
