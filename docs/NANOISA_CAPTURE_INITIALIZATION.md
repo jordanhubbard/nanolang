@@ -103,3 +103,19 @@ sanitizer gates. Final acceptance also requires VM, C, LLVM and Wasm parity,
 projection/link preservation and canonical bootstrap output. Transport tests,
 frame teardown tests and an initialization query alone do not establish those
 results.
+
+## Direct entry prerequisite
+
+My current direct CALL initializes a new frame without a closure. TAIL_CALL
+reuses a frame but explicitly drops its owned callable and clears its closure.
+FUNCREF creates a raw function identity with no captured environment. Before
+initialization analysis, I therefore require each module-relative target of
+these three instructions to exist and declare zero upvalues. CLOSURE_BIND
+remains the explicit environment construction route, including zero-capture
+closures. I validate this property in the nonexecuting structural capture
+query; it does not establish stack safety, reachability or initialization.
+
+I do not infer indirect or linked targets from these local indices. Their
+module identity, exact environment and call/effect summaries remain required.
+The finite analysis algorithm is still an open dependency. This direct entry
+invariant neither enables capture execution nor closes initialization proof.
