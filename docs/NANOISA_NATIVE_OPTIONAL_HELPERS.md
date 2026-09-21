@@ -183,3 +183,45 @@ from retained 303 generated C by inserting only this exact block after runtime
 helpers, then compare old/new O0 symbols. The actual newly built producer must
 still generate, strictly compile, link and run the full original eighteen and
 new eight methods. Neither counterfactual is semantic qualification.
+
+## My definition-site amendment
+
+The ab7 after-definition annotation passed GCC's 85-symbol comparison but Apple
+Clang rejected `-Wignored-attributes`: the attribute must precede the definition.
+I retain that diagnostic and abandon duplicate redeclarations. I annotate actual
+owned definitions before their bodies instead. This supersedes the prior
+redeclaration placement contract; neither prior proposal is qualified.
+
+My affected source closure is exactly:
+
+- `src_nano/transpiler.nano`: 44 existing static runtime helper definitions.
+- `src/binary64_arithmetic.h`: five existing static-inline definitions.
+- `src/binary64_arithmetic_source.h`: regenerated exact arithmetic source.
+- `src_nano/compiler/binary64_arithmetic_runtime.nano`: regenerated arithmetic.
+- `src/binary64_format.h`: three existing static-inline formatter definitions.
+- `src_nano/compiler/binary64_format_runtime.nano`: regenerated formatter.
+
+I introduce guarded optional-use qualifier macros after the relevant type
+includes/storage guards and before those definitions. GCC/Clang expand them to
+`__attribute__((unused))`; other compilers expand them empty. I preserve static
+and inline specifiers, signatures and complete bodies. The emitter's local
+runtime qualifier is undefined before subsequent user declarations; arithmetic
+also undefines its local qualifier at its header boundary. I remove the rejected
+catalog of redeclarations entirely and restore both entry functions unchanged.
+
+The formatter already defines its bodies once in a stringifiable macro. I keep
+that single source by parameterizing the helper macro's optional qualifier.
+The normal header expands it using the guarded host qualifier. Its source-string
+macro expands the same bodies with a distinct, otherwise undefined emitted-token
+name and prefixes target-side guarded definitions for that token, then undefines
+it in the emitted source. Thus cross-target text does not inherit the emitter
+host's compiler decision. I preserve the old helper macro alias for existing
+callers and audit its only source-string consumers. I regenerate existing source
+outputs with the existing embed scripts; no manual arithmetic/body fork is added.
+
+The diagnostic must match all 52 annotations to actual retained definitions,
+retain both old/new strict compilation statuses and undefined-symbol maps on all
+three compilers, and stop on any new dependency. Fresh complete producer/link
+qualification remains mandatory. Shared header changes require rebuilt provider
+closure and relevant direct/exact-embedded binary64 controls, not attribution to
+the old303 C providers. All previous first terminals remain intact.

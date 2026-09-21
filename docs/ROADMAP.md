@@ -14161,3 +14161,5 @@ I retain the first d58 fresh build terminals: Linux status 2 at 56.733 s and Dar
 For `task_02a1b4af967eafa357fb0210e94679d8`, my e10 diagnostic stopped on Apple O0 40-to-88 undefined symbols (48 new dependencies); GCC retained85. I preserve that failed proposal and require the revised genuinely unevaluated `sizeof(&helper)` form to pass all three object comparisons before strict production gates. Homebrew was not reached in the old audit.
 
 For `task_02a1b4af967eafa357fb0210e94679d8`, the sizeof proposal also stops on Apple strict unused-internal-declaration diagnostics. My reviewed next direction uses an exact guarded optional-use redeclaration macro for the same 52 helpers, preserving bodies/linkage/strict flags and requiring fresh object/link closure checks. Both rejected proposals remain retained.
+
+For the same optional-helper task, I preserve the Apple after-definition attribute refusal and move to actual definition annotations across the six documented canonical/generated sources. I retain every helper body and rebuild the changed provider closure plus binary64 adjacency before claiming strict acceptance.
