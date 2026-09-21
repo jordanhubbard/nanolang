@@ -533,6 +533,9 @@ void free_environment(Environment *env) {
         free(env->modules);
     }
 
+    for (size_t i = 0; i < env->tuple_literal_binding_count; ++i)
+        free_payload_type_info(env->tuple_literal_bindings[i].type_info);
+    free(env->tuple_literal_bindings);
     env->checker_nominal_expressions = NULL;
     while (env->checker_allocations) {
         struct EnvCheckerAllocation *entry = env->checker_allocations;
@@ -2162,6 +2165,31 @@ bool type_info_tuple_refresh(TypeInfo *tuple) {
 fail:
     for (int i = 0; i < count; ++i) free(names[i]);
     free(names); free(types); return false;
+}
+
+const TypeInfo *env_tuple_literal_info(const Environment *env, const ASTNode *literal) {
+    if (!env || !literal) return NULL;
+    for (size_t i = 0; i < env->tuple_literal_binding_count; ++i)
+        if (env->tuple_literal_bindings[i].literal == literal)
+            return env->tuple_literal_bindings[i].type_info;
+    return NULL;
+}
+bool env_bind_tuple_literal(Environment *env, const ASTNode *literal, const TypeInfo *info) {
+    if (!env || !literal || literal->type != AST_TUPLE_LITERAL || !type_info_tuple_valid(info) ||
+        info->tuple_element_count != literal->as.tuple_literal.element_count) return false;
+    const TypeInfo *old = env_tuple_literal_info(env, literal);
+    if (old) return type_infos_equal(old, info);
+    if (env->tuple_literal_binding_count >= SIZE_MAX / sizeof(TupleLiteralBinding)) return false;
+    TypeInfo *copy = NULL;
+    if (!copy_payload_type_info_checked(info, &copy)) return false;
+    size_t count = env->tuple_literal_binding_count;
+    TupleLiteralBinding *rows = malloc((count + 1) * sizeof *rows);
+    if (!rows) { free_payload_type_info(copy); return false; }
+    if (count) memcpy(rows, env->tuple_literal_bindings, count * sizeof *rows);
+    rows[count] = (TupleLiteralBinding){literal, copy};
+    free(env->tuple_literal_bindings); env->tuple_literal_bindings = rows;
+    ++env->tuple_literal_binding_count;
+    return true;
 }
 
 /* I substitute complete concrete trees, not the flattened field name. */

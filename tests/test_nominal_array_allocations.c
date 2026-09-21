@@ -312,6 +312,36 @@ static void tuple_tags_controls(void) {
     }
 }
 
+static size_t tuple_emission_binding_attempt(size_t prefix, bool transient) {
+    Environment *env = create_environment(); CHECK(env);
+    TypeInfo scalar = {.base_type = TYPE_INT};
+    Type tags[] = {TYPE_INT}; TypeInfo *children[] = {&scalar};
+    TypeInfo tuple = {.base_type = TYPE_TUPLE, .tuple_element_count = 1,
+        .tuple_types = tags, .type_param_count = 1, .type_params = children};
+    ASTNode first = {.type = AST_TUPLE_LITERAL}, second = first;
+    first.as.tuple_literal.element_count = second.as.tuple_literal.element_count = 1;
+    CHECK(env_bind_tuple_literal(env, &first, &tuple));
+    const TypeInfo *retained = env_tuple_literal_info(env, &first);
+    CHECK(retained && retained != &tuple && retained->type_params[0] != &scalar);
+    begin(prefix, transient); bool ok = env_bind_tuple_literal(env, &second, &tuple); size_t count = stop();
+    if (prefix == SIZE_MAX) CHECK(ok && !failed && env_tuple_literal_info(env, &second));
+    else CHECK(!ok && failed && !env_tuple_literal_info(env, &second));
+    CHECK(env_tuple_literal_info(env, &first) == retained && type_infos_equal(retained, &tuple));
+    CHECK(env_bind_tuple_literal(env, &first, &tuple));
+    tags[0] = TYPE_BOOL;
+    CHECK(!env_bind_tuple_literal(env, &first, &tuple) && env_tuple_literal_info(env, &first) == retained);
+    free_environment(env); CHECK(!live);
+    return count;
+}
+static void tuple_emission_binding_controls(void) {
+    size_t count = tuple_emission_binding_attempt(SIZE_MAX, false); CHECK(count > 3);
+    printf("I measure complete tuple emission binding: %zu allocation attempts.\n", count);
+    for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+        tuple_emission_binding_attempt(i, transient != 0);
+        CHECK(tuple_emission_binding_attempt(SIZE_MAX, false) == count);
+    }
+}
+
 extern bool array_test_constructor_registry(Environment *, ASTNode *);
 static size_t constructor_registry_attempt(size_t prefix, bool transient) {
     Environment *env = create_environment(); CHECK(env);
@@ -353,7 +383,7 @@ int main(void) {
     CHECK(copy_payload_type_info_checked(chain + 1, &out)); free_payload_type_info(out);
     CHECK(copy_payload_type_info_checked(NULL, &out) && out == NULL);
     CHECK(!copy_payload_type_info_checked(chain, NULL));
-    registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); tuple_context_controls(); tuple_tags_controls(); constructor_registry_controls();
+    registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); constructor_registry_controls();
     printf("I passed %zu separate checker annotation allocation assertions.\n", checks);
     return 0;
 }

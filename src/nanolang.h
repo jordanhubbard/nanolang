@@ -712,6 +712,11 @@ typedef struct {
     char *c_type_name;     /* C type with pointer (e.g., "GLFWwindow*") */
 } OpaqueTypeDef;
 
+typedef struct {
+    const ASTNode *literal; /* Borrowed invocation-local key. */
+    TypeInfo *type_info;    /* Owned complete checked emission annotation. */
+} TupleLiteralBinding;
+
 /* Effect operation signature */
 typedef struct {
     char *name;              /* Operation name (e.g., "print") */
@@ -813,6 +818,8 @@ typedef struct {
     struct EnvRecordList *record_lists; /* Evaluator-owned handles, including tombstones. */
     struct EnvRecordResult *record_results; /* Cumulative borrowed result snapshots. */
     struct EnvRecordIndex *record_result_index; /* Exact typed-root membership; arena owns entries. */
+    TupleLiteralBinding *tuple_literal_bindings;
+    size_t tuple_literal_binding_count;
     struct CheckerNominalExpression *checker_nominal_expressions; /* Borrowed AST keys, Environment-owned proofs. */
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
     struct EnvNominalImport *nominal_imports; /* Owned direct importer-to-declaration edges. */
@@ -1061,6 +1068,8 @@ void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
 const TypeInfo *type_info_tuple_element(const TypeInfo *, int, TypeInfo *);
 bool type_info_tuple_valid(const TypeInfo *);
+bool env_bind_tuple_literal(Environment *, const ASTNode *, const TypeInfo *);
+const TypeInfo *env_tuple_literal_info(const Environment *, const ASTNode *);
 bool type_info_tuple_refresh(TypeInfo *);
 bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);
 void free_type_info(TypeInfo *info);

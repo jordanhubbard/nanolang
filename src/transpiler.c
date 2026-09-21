@@ -4,6 +4,7 @@
 #include "stdlib_runtime.h"
 #include <stdarg.h>
 #include <libgen.h>
+#include <limits.h>
 
 /* String builder for C code generation - now defined in stdlib_runtime.h */
 
@@ -322,6 +323,8 @@ typedef struct {
 /* Tuple type registry for generating tuple struct typedefs */
 typedef struct {
     TypeInfo **tuples;
+    bool *owned;
+    const Environment *env;
     char **typedef_names;
     int count;
     int capacity;
@@ -531,7 +534,7 @@ static void free_fn_type_registry(FunctionTypeRegistry *reg) {
 }
 
 /* Tuple type registry functions */
-static TupleTypeRegistry *create_tuple_type_registry(void) {
+static TupleTypeRegistry *create_tuple_type_registry(const Environment *env) {
     TupleTypeRegistry *reg = malloc(sizeof(TupleTypeRegistry));
     if (!reg) {
         fprintf(stderr, "Error: Out of memory allocating TupleTypeRegistry\n");
@@ -550,6 +553,9 @@ static TupleTypeRegistry *create_tuple_type_registry(void) {
         free(reg);
         exit(1);
     }
+    reg->owned = calloc(16, sizeof(bool));
+    if (!reg->owned) { free(reg->tuples); free(reg->typedef_names); free(reg); fprintf(stderr, "I cannot retain a complete native tuple registry.\n"); exit(1); }
+    reg->env = env;
     reg->count = 0;
     reg->capacity = 16;
     return reg;
@@ -563,7 +569,10 @@ static void free_tuple_type_registry(TupleTypeRegistry *reg) {
         }
         free(reg->typedef_names);
     }
-    /* Tuple registry does not own TypeInfo (AST owns it). */
+    for (int i = 0; i < reg->count; ++i)
+        if (reg->owned[i]) free_payload_type_info(reg->tuples[i]);
+    free(reg->owned);
+    /* I borrow AST/context rows and own explicitly transferred temporaries. */
     if (reg->tuples) {
         free(reg->tuples);
     }
@@ -572,14 +581,7 @@ static void free_tuple_type_registry(TupleTypeRegistry *reg) {
 
 /* Check if two tuple types are equal */
 static bool tuple_types_equal(TypeInfo *a, TypeInfo *b) {
-    if (!a || !b) return false;
-    if (a->tuple_element_count != b->tuple_element_count) return false;
-    
-    for (int i = 0; i < a->tuple_element_count; i++) {
-        if (a->tuple_types[i] != b->tuple_types[i]) return false;
-    }
-    
-    return true;
+    return a && b && type_infos_equal(a, b);
 }
 
 /* Generate typedef name for a tuple type */
@@ -612,37 +614,48 @@ static char *get_tuple_typedef_name(TypeInfo *info, int index) {
 }
 
 /* Register a tuple type and get its typedef name */
-static const char *register_tuple_type(TupleTypeRegistry *reg, TypeInfo *info) {
+static const char *register_tuple_type_mode(TupleTypeRegistry *reg, TypeInfo *info, bool owned) {
     /* Check if already registered */
     for (int i = 0; i < reg->count; i++) {
         if (tuple_types_equal(reg->tuples[i], info)) {
+            if (owned) free_payload_type_info(info);
             return reg->typedef_names[i];
         }
     }
     
     /* Register new tuple type */
     if (reg->count >= reg->capacity) {
-        if ((size_t)reg->capacity > SIZE_MAX / 2) {
+        if (reg->capacity > INT_MAX / 2 || (size_t)reg->capacity > SIZE_MAX / (2 * sizeof(TypeInfo *))) {
             fprintf(stderr, "Error: Tuple registry capacity overflow\n");
             exit(1);
         }
         int new_capacity = reg->capacity * 2;
-        TypeInfo **new_tuples = realloc(reg->tuples, sizeof(TypeInfo*) * new_capacity);
-        char **new_names = realloc(reg->typedef_names, sizeof(char*) * new_capacity);
-        if (!new_tuples || !new_names) {
-            fprintf(stderr, "Error: Out of memory in tuple registry\n");
-            exit(1);
+        TypeInfo **new_tuples = malloc(sizeof(TypeInfo*) * (size_t)new_capacity);
+        char **new_names = malloc(sizeof(char*) * (size_t)new_capacity);
+        bool *new_owned = calloc((size_t)new_capacity, sizeof(bool));
+        if (!new_tuples || !new_names || !new_owned) {
+            free(new_tuples); free(new_names); free(new_owned);
+            if (owned) free_payload_type_info(info);
+            fprintf(stderr, "I cannot retain a complete native tuple registry.\n"); exit(1);
         }
-        reg->tuples = new_tuples;
-        reg->typedef_names = new_names;
+        memcpy(new_tuples, reg->tuples, (size_t)reg->count * sizeof *new_tuples);
+        memcpy(new_names, reg->typedef_names, (size_t)reg->count * sizeof *new_names);
+        memcpy(new_owned, reg->owned, (size_t)reg->count * sizeof *new_owned);
+        free(reg->tuples); free(reg->typedef_names); free(reg->owned);
+        reg->tuples = new_tuples; reg->typedef_names = new_names; reg->owned = new_owned;
         reg->capacity = new_capacity;
     }
     
+    reg->owned[reg->count] = owned;
     reg->tuples[reg->count] = info;
     reg->typedef_names[reg->count] = get_tuple_typedef_name(info, reg->count);
     reg->count++;
     
     return reg->typedef_names[reg->count - 1];
+}
+
+static const char *register_tuple_type(TupleTypeRegistry *reg, TypeInfo *info) {
+    return register_tuple_type_mode(reg, info, false);
 }
 
 /* Generate C typedef for a tuple type */
@@ -1071,14 +1084,17 @@ static void collect_tuple_types_from_expr(ASTNode *expr, TupleTypeRegistry *reg)
     
     switch (expr->type) {
         case AST_TUPLE_LITERAL:
-            if (expr->as.tuple_literal.element_count > 0) {
+            if (env_tuple_literal_info(reg->env, expr)) {
+                register_tuple_type(reg, (TypeInfo *)env_tuple_literal_info(reg->env, expr));
+            } else if (expr->as.tuple_literal.element_count > 0) {
                 if (expr->as.tuple_literal.element_types) {
                     /* Element types are set - register directly */
-                    TypeInfo *temp_info = malloc(sizeof(TypeInfo));
+                    TypeInfo *temp_info = calloc(1, sizeof(TypeInfo));
                     if (!temp_info) {
                         fprintf(stderr, "Error: Out of memory allocating tuple TypeInfo\n");
                         exit(1);
                     }
+                    temp_info->base_type = TYPE_TUPLE;
                     temp_info->tuple_element_count = expr->as.tuple_literal.element_count;
                     temp_info->tuple_types = malloc(sizeof(Type) * expr->as.tuple_literal.element_count);
                     if (!temp_info->tuple_types) {
@@ -1090,14 +1106,15 @@ static void collect_tuple_types_from_expr(ASTNode *expr, TupleTypeRegistry *reg)
                         temp_info->tuple_types[i] = expr->as.tuple_literal.element_types[i];
                     }
                     temp_info->tuple_type_names = NULL;
-                    register_tuple_type(reg, temp_info);
+                    register_tuple_type_mode(reg, temp_info, true);
                 } else {
                     /* Element types not set - infer from elements */
-                    TypeInfo *temp_info = malloc(sizeof(TypeInfo));
+                    TypeInfo *temp_info = calloc(1, sizeof(TypeInfo));
                     if (!temp_info) {
                         fprintf(stderr, "Error: Out of memory allocating tuple TypeInfo\n");
                         exit(1);
                     }
+                    temp_info->base_type = TYPE_TUPLE;
                     temp_info->tuple_element_count = expr->as.tuple_literal.element_count;
                     temp_info->tuple_types = malloc(sizeof(Type) * expr->as.tuple_literal.element_count);
                     if (!temp_info->tuple_types) {
@@ -1119,7 +1136,7 @@ static void collect_tuple_types_from_expr(ASTNode *expr, TupleTypeRegistry *reg)
                         temp_info->tuple_types[i] = elem_type;
                     }
                     temp_info->tuple_type_names = NULL;
-                    register_tuple_type(reg, temp_info);
+                    register_tuple_type_mode(reg, temp_info, true);
                 }
             }
             /* Also collect from tuple elements */
@@ -4767,7 +4784,7 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     /* ========== Function Type Typedefs ========== */
     /* Collect all function signatures and tuple types used in the program */
     FunctionTypeRegistry *fn_registry = create_fn_type_registry();
-    TupleTypeRegistry *tuple_registry = create_tuple_type_registry();
+    TupleTypeRegistry *tuple_registry = create_tuple_type_registry(env);
     g_tuple_registry = tuple_registry;  /* Set global registry for expression transpilation */
     
     collect_module_function_types(program, fn_registry, input_file);
