@@ -17,6 +17,8 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <float.h>
+#include <math.h>
 #include <unistd.h>
 
 int g_argc = 0;
@@ -1674,6 +1676,286 @@ static void test_signed_double_boundaries(void) {
     PASS(test_name);
 }
 
+static bool arithmetic_result(ForthSession *session, const char *word,
+                              const int64_t *args, size_t count,
+                              const int64_t *want, size_t results) {
+    for (size_t i = 0; i < count; ++i)
+        if (!forth_data_push(session, args[i])) return false;
+    return interpret_cstr(session, word) && expect_cells(session, want, results)
+        && forth_data_depth(session) == 0;
+}
+
+static bool arithmetic_exception(ForthSession *session, const char *word,
+                                 const int64_t *args, size_t count, int64_t expected) {
+    ForthNt nt = 0;
+    ForthXt xt = 0;
+    bool immediate = false;
+    int64_t code = 0, discarded = 0;
+    uint32_t return_depth = forth_return_depth(session);
+    if (!forth_find(session, word, (uint32_t)strlen(word), &nt, &xt, &immediate))
+        return false;
+    for (size_t i = 0; i < count; ++i)
+        if (!forth_data_push(session, args[i])) return false;
+    if (!forth_catch(session, xt, &code) || code != expected ||
+        forth_data_depth(session) != count ||
+        forth_return_depth(session) != return_depth) return false;
+    /* CATCH promises restored depths, not restored argument contents. */
+    for (size_t i = 0; i < count; ++i)
+        if (!forth_data_pop(session, &discarded)) return false;
+    {
+        const int64_t want[] = { 1, 2 };
+        if (!interpret_cstr(session, "7 S>D 3 SM/REM") ||
+            !expect_cells(session, want, 2)) return false;
+    }
+    return forth_data_depth(session) == 0;
+}
+
+static void test_arithmetic_modular_boundaries(void) {
+    const char *test_name = "arithmetic: exact cell and double modular boundaries";
+    ForthSession *session = forth_session_create();
+    const struct {
+        const char *word;
+        size_t inputs, outputs;
+        int64_t args[4], want[2];
+    } rows[] = {
+        { "+", 2, 1, { INT64_MAX, 1 }, { INT64_MIN } },
+        { "-", 2, 1, { INT64_MIN, 1 }, { INT64_MAX } },
+        { "*", 2, 1, { INT64_MAX, 2 }, { -2 } },
+        { "1+", 1, 1, { INT64_MAX }, { INT64_MIN } },
+        { "1-", 1, 1, { INT64_MIN }, { INT64_MAX } },
+        { "2*", 1, 1, { INT64_MIN }, { 0 } },
+        { "2/", 1, 1, { -3 }, { -2 } },
+        { "NEGATE", 1, 1, { INT64_MIN }, { INT64_MIN } },
+        { "ABS", 1, 1, { INT64_MIN }, { INT64_MIN } },
+        { "D+", 4, 2, { -1, INT64_MAX, 1, 0 }, { 0, INT64_MIN } },
+        { "D+", 4, 2, { 0, INT64_MIN, -1, -1 }, { -1, INT64_MAX } },
+        { "D+", 4, 2, { -1, -1, 1, 0 }, { 0, 0 } },
+        { "D+", 4, 2, { -1, 0, 1, 0 }, { 0, 1 } },
+        { "D-", 4, 2, { 0, INT64_MIN, 1, 0 }, { -1, INT64_MAX } },
+        { "D-", 4, 2, { -1, INT64_MAX, -1, -1 }, { 0, INT64_MIN } },
+        { "D-", 4, 2, { 0, 0, 1, 0 }, { -1, -1 } },
+        { "D-", 4, 2, { 0, INT64_MIN, 0, INT64_MIN }, { 0, 0 } },
+        { "DNEGATE", 2, 2, { 0, INT64_MIN }, { 0, INT64_MIN } },
+        { "DNEGATE", 2, 2, { -1, INT64_MAX }, { 1, INT64_MIN } },
+        { "DNEGATE", 2, 2, { 0, 1 }, { 0, -1 } },
+        { "DNEGATE", 2, 2, { 1, 0 }, { -1, -1 } },
+        { "DABS", 2, 2, { 0, INT64_MIN }, { 0, INT64_MIN } },
+        { "DABS", 2, 2, { 1, INT64_MIN }, { -1, INT64_MAX } },
+        { "DABS", 2, 2, { -1, -1 }, { 1, 0 } },
+        { "DABS", 2, 2, { -1, INT64_MAX }, { -1, INT64_MAX } },
+        { "M+", 3, 2, { -1, INT64_MAX, 1 }, { 0, INT64_MIN } },
+        { "M+", 3, 2, { 0, INT64_MIN, -1 }, { -1, INT64_MAX } },
+        { "M+", 3, 2, { 0, 0, -1 }, { -1, -1 } },
+        { "M+", 3, 2, { 0, 1, -1 }, { -1, 0 } },
+        { "D2/", 2, 2, { 0, INT64_MIN }, { 0, -INT64_C(4611686018427387904) } },
+        { "D2/", 2, 2, { -1, -1 }, { -1, -1 } },
+        { "D2/", 2, 2, { -1, INT64_MAX }, { -1, INT64_C(4611686018427387903) } },
+        { "D2/", 2, 2, { 0, 1 }, { INT64_MIN, 0 } },
+        { "D2/", 2, 2, { 1, -1 }, { INT64_MIN, -1 } },
+        { "D2*", 2, 2, { -1, INT64_MAX }, { -2, -1 } },
+        { "D2*", 2, 2, { 0, INT64_MIN }, { 0, 0 } },
+        { "M*", 2, 2, { INT64_MIN, INT64_MIN }, { 0, INT64_C(4611686018427387904) } },
+        { "M*", 2, 2, { INT64_MIN, INT64_MAX }, { INT64_MIN, -INT64_C(4611686018427387904) } },
+        { "M*", 2, 2, { INT64_MAX, INT64_MAX }, { 1, INT64_C(4611686018427387903) } },
+        { "UM*", 2, 2, { -1, -1 }, { 1, -2 } },
+        { "D<", 4, 1, { 0, INT64_MIN, -1, INT64_MAX }, { -1 } },
+        { "DU<", 4, 1, { 0, INT64_MIN, -1, INT64_MAX }, { 0 } },
+        { "D=", 4, 1, { 0, INT64_MIN, 0, INT64_MIN }, { -1 } },
+        { "DMAX", 4, 2, { 0, INT64_MIN, -1, INT64_MAX }, { -1, INT64_MAX } },
+        { "DMIN", 4, 2, { 0, INT64_MIN, -1, INT64_MAX }, { 0, INT64_MIN } },
+        { "D0<", 2, 1, { 0, INT64_MIN }, { -1 } },
+        { "D0=", 2, 1, { 0, 0 }, { -1 } },
+        { "D>S", 2, 1, { INT64_MIN, INT64_MAX }, { INT64_MIN } },
+        { "D+", 4, 2, { 0, 0, 0, 0 }, { 0, 0 } },
+        { "D-", 4, 2, { 0, 0, 0, 0 }, { 0, 0 } },
+        { "DNEGATE", 2, 2, { 0, 0 }, { 0, 0 } },
+        { "DNEGATE", 2, 2, { -1, -1 }, { 1, 0 } },
+        { "DABS", 2, 2, { 0, 0 }, { 0, 0 } },
+        { "M+", 3, 2, { 0, 0, 0 }, { 0, 0 } },
+        { "M+", 3, 2, { -1, -1, 1 }, { 0, 0 } },
+        { "D2/", 2, 2, { 0, 0 }, { 0, 0 } },
+        { "D2*", 2, 2, { 0, 0 }, { 0, 0 } },
+        { "D2*", 2, 2, { -1, -1 }, { -2, -1 } },
+        { "2/", 1, 1, { INT64_MIN }, { -INT64_C(4611686018427387904) } },
+        { "M*", 2, 2, { 0, INT64_MIN }, { 0, 0 } },
+        { "M*", 2, 2, { -1, INT64_MAX }, { -INT64_MAX, -1 } },
+        { "UM*", 2, 2, { 0, -1 }, { 0, 0 } }
+    };
+    ASSERT(session != NULL, "I create the modular arithmetic session");
+    for (size_t i = 0; i < sizeof rows / sizeof rows[0]; ++i) {
+        ASSERT(arithmetic_result(session, rows[i].word, rows[i].args, rows[i].inputs,
+                                 rows[i].want, rows[i].outputs), rows[i].word);
+    }
+    forth_output_clear(session);
+    ASSERT(forth_data_push(session, 0) && forth_data_push(session, INT64_MIN), "I push minimum double");
+    ASSERT(interpret_cstr(session, "D."), "I print minimum double through unsigned magnitude");
+    ASSERT(strcmp(forth_output(session), "-170141183460469231731687303715884105728 ") == 0,
+           "I preserve every minimum-double decimal digit");
+    forth_output_clear(session);
+    ASSERT(forth_data_push(session, 0) && forth_data_push(session, INT64_MIN) &&
+           forth_data_push(session, 42), "I push aligned minimum double");
+    ASSERT(interpret_cstr(session, "D.R"), "I print aligned minimum double");
+    ASSERT(strcmp(forth_output(session), "  -170141183460469231731687303715884105728") == 0,
+           "I preserve aligned digits without trailing space");
+    ASSERT(interpret_cstr(session, "VARIABLE MODULAR-CELL"), "I publish a cell for +!");
+    ASSERT(forth_data_push(session, INT64_MAX), "I push maximum for +!");
+    ASSERT(interpret_cstr(session, "MODULAR-CELL ! 1 MODULAR-CELL +! MODULAR-CELL @"), "I wrap +!");
+    { const int64_t want[] = { INT64_MIN }; ASSERT(expect_cells(session, want, 1), "I preserve +! bits"); }
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static void test_arithmetic_division_boundaries(void) {
+    const char *test_name = "arithmetic: checked signed, unsigned and triple division";
+    ForthSession *session = forth_session_create();
+    const struct { const char *word; size_t count; int64_t args[4], want[2]; } good[] = {
+        { "SM/REM", 3, { INT64_MAX, 0, 1 }, { 0, INT64_MAX } },
+        { "SM/REM", 3, { INT64_MIN, -1, 1 }, { 0, INT64_MIN } },
+        { "SM/REM", 3, { -1, -2, 2 }, { -1, INT64_MIN } },
+        { "FM/MOD", 3, { 1, -1, 2 }, { 1, INT64_MIN } },
+        { "FM/MOD", 3, { INT64_MAX, 0, INT64_MIN }, { -1, -1 } },
+        { "SM/REM", 3, { INT64_MIN, -1, INT64_MIN }, { 0, 1 } },
+        { "FM/MOD", 3, { 0, 0, INT64_MIN }, { 0, 0 } },
+        { "/MOD", 2, { -7, 3 }, { 2, -3 } },
+        { "/MOD", 2, { 7, -3 }, { -2, -3 } },
+        { "/MOD", 2, { INT64_MIN, 1 }, { 0, INT64_MIN } },
+        { "UM/MOD", 3, { -1, 0, 1 }, { 0, -1 } },
+        { "UM/MOD", 3, { 1, -2, -1 }, { 0, -1 } },
+        { "UM/MOD", 3, { -2, -2, -1 }, { -3, -1 } },
+        { "M*/", 4, { -1, INT64_MAX, INT64_MAX, INT64_MAX }, { -1, INT64_MAX } },
+        { "M*/", 4, { 0, INT64_MIN, INT64_MAX, INT64_MAX }, { 0, INT64_MIN } },
+        { "M*/", 4, { 5, 0, -7, 11 }, { -4, -1 } },
+        { "M*/", 4, { -5, -1, -7, -11 }, { -4, -1 } },
+        { "M*/", 4, { -5, -1, -7, 11 }, { 3, 0 } },
+        { "M*/", 4, { 0, INT64_MIN, 0, -1 }, { 0, 0 } }
+    };
+    const struct { const char *word; size_t count; int64_t args[4]; int64_t code; } bad[] = {
+        { "SM/REM", 3, { 0, INT64_MIN, -1 }, -11 },
+        { "FM/MOD", 3, { 0, INT64_MIN, -1 }, -11 },
+        { "SM/REM", 3, { INT64_MIN, 0, 1 }, -11 },
+        { "FM/MOD", 3, { INT64_MIN, 0, 1 }, -11 },
+        { "SM/REM", 3, { INT64_MAX, -1, 1 }, -11 },
+        { "FM/MOD", 3, { INT64_MAX, -1, 1 }, -11 },
+        { "FM/MOD", 3, { -1, -2, 2 }, -11 },
+        { "SM/REM", 3, { 7, 0, 0 }, -10 },
+        { "FM/MOD", 3, { 7, 0, 0 }, -10 },
+        { "UM/MOD", 3, { 7, 0, 0 }, -10 },
+        { "UM/MOD", 3, { 0, 1, 1 }, -11 },
+        { "UM/MOD", 3, { -1, -1, -1 }, -11 },
+        { "/MOD", 2, { INT64_MIN, -1 }, -11 },
+        { "/", 2, { INT64_MIN, -1 }, -11 },
+        { "MOD", 2, { INT64_MIN, -1 }, -11 },
+        { "/MOD", 2, { 7, 0 }, -10 },
+        { "/", 2, { 7, 0 }, -10 },
+        { "MOD", 2, { 7, 0 }, -10 },
+        { "*/MOD", 3, { INT64_MAX, 2, 1 }, -11 },
+        { "*/", 3, { INT64_MAX, 2, 1 }, -11 },
+        { "*/MOD", 3, { 7, 2, 0 }, -10 },
+        { "*/", 3, { 7, 2, 0 }, -10 },
+        { "M*/", 4, { 0, INT64_MIN, -1, 1 }, -11 },
+        { "M*/", 4, { -1, INT64_MAX, 2, 1 }, -11 },
+        { "M*/", 4, { 0, INT64_MIN, 2, 1 }, -11 },
+        { "M*/", 4, { -INT64_C(7378697629483820647), -INT64_C(7378697629483820647), 5, 4 }, -11 },
+        { "M*/", 4, { 7, 0, 2, 0 }, -10 }
+    };
+    ASSERT(session != NULL, "I create checked division session");
+    for (size_t i = 0; i < sizeof good / sizeof good[0]; ++i)
+        ASSERT(arithmetic_result(session, good[i].word, good[i].args, good[i].count,
+                                 good[i].want, 2), good[i].word);
+    for (size_t i = 0; i < sizeof bad / sizeof bad[0]; ++i)
+        ASSERT(arithmetic_exception(session, bad[i].word, bad[i].args, bad[i].count,
+                                    bad[i].code), bad[i].word);
+    forth_session_destroy(session);
+    session = forth_session_create();
+    ASSERT(session != NULL, "I create independent uncaught failure session");
+    ASSERT(forth_data_push(session, 0) && forth_data_push(session, INT64_MIN) &&
+           forth_data_push(session, -1), "I push minimum128/-1");
+    ASSERT(!interpret_cstr(session, "SM/REM"), "I refuse uncaught range failure");
+    ASSERT(forth_data_depth(session) == 0, "I publish no partial quotient or remainder");
+    forth_session_destroy(session);
+    session = forth_session_create();
+    ASSERT(session != NULL, "I recover in an independent session");
+    { const int64_t args[] = { 7, 3 }, want[] = { 1, 2 };
+      ASSERT(arithmetic_result(session, "/MOD", args, 2, want, 2), "I recover independently"); }
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static void test_arithmetic_float_conversion_boundaries(void) {
+    const char *test_name = "arithmetic: finite floating to double-cell conversion";
+    ForthSession *session = forth_session_create();
+    ForthNt nt = 0;
+    ForthXt xt = 0;
+    bool immediate = false;
+    const struct { double value; int64_t lo, hi; } good[] = {
+        { 0.0, 0, 0 }, { -0.0, 0, 0 }, { 1.75, 1, 0 }, { -1.75, -1, -1 },
+        { -0x1p127, 0, INT64_MIN },
+        { 0x1p127 - 0x1p74, 0, INT64_MAX - 1023 },
+        { -0x1p127 + 0x1p74, 0, INT64_MIN + 1024 }
+    };
+    const struct { double value; int64_t code; } bad[] = {
+        { 0x1p127, -11 }, { 0x1p127 + 0x1p75, -11 },
+        { -0x1p127 - 0x1p75, -11 }, { DBL_MAX, -11 }, { -DBL_MAX, -11 },
+        { INFINITY, -46 }, { -INFINITY, -46 }, { NAN, -46 }
+    };
+    ASSERT(session != NULL, "I create guarded conversion session");
+    ASSERT(forth_find(session, "F>D", 3, &nt, &xt, &immediate), "I find actual conversion");
+    for (size_t i = 0; i < sizeof good / sizeof good[0]; ++i) {
+        int64_t want[] = { good[i].lo, good[i].hi };
+        ASSERT(forth_float_push(session, good[i].value), "I push accepted floating input");
+        ASSERT(interpret_cstr(session, "F>D"), "I convert within exact bounds");
+        ASSERT(expect_cells(session, want, 2), "I preserve exact truncated cells");
+        ASSERT(forth_float_depth(session) == 0, "I consume accepted float");
+    }
+    for (size_t i = 0; i < sizeof bad / sizeof bad[0]; ++i) {
+        int64_t code = 0;
+        double discarded = 0;
+        const int64_t want[] = { -1, -1 };
+        ASSERT(forth_float_push(session, bad[i].value), "I push invalid floating input");
+        ASSERT(forth_catch(session, xt, &code) && code == bad[i].code,
+               "I return exact conversion exception");
+        ASSERT(forth_data_depth(session) == 0 && forth_float_depth(session) == 1,
+               "I preserve CATCH depths without publishing converted cells");
+        ASSERT(forth_float_pop(session, &discarded), "I discard restored argument slot");
+        ASSERT(forth_float_push(session, -1.75) && interpret_cstr(session, "F>D"),
+               "I recover after each conversion refusal");
+        ASSERT(expect_cells(session, want, 2) && forth_float_depth(session) == 0,
+               "I preserve recovery result and depth");
+    }
+    for (uint32_t i = 0; i < FORTH_STACK_CELLS - 2; ++i)
+        ASSERT(forth_data_push(session, (int64_t)i), "I fill all but two result slots");
+    ASSERT(forth_float_push(session, 1.75) && interpret_cstr(session, "F>D"),
+           "I accept the exact two-slot capacity");
+    ASSERT(forth_data_depth(session) == FORTH_STACK_CELLS,
+           "I publish both cells at exact capacity");
+    { int64_t cell = 0;
+      ASSERT(forth_data_pop(session, &cell) && cell == 0, "I pop converted high cell");
+      ASSERT(forth_data_pop(session, &cell) && cell == 1, "I pop converted low cell"); }
+    ASSERT(forth_data_push(session, 777) && forth_float_push(session, 1.75),
+           "I leave only one result slot");
+    ASSERT(!interpret_cstr(session, "F>D"), "I refuse insufficient result capacity");
+    ASSERT(forth_data_depth(session) == FORTH_STACK_CELLS - 1,
+           "I publish neither converted cell on capacity failure");
+    { int64_t cell = 0;
+      ASSERT(forth_data_pop(session, &cell) && cell == 777, "I preserve top prior cell");
+      for (uint32_t i = FORTH_STACK_CELLS - 2; i > 0; --i)
+          ASSERT(forth_data_pop(session, &cell) && cell == (int64_t)(i - 1),
+                 "I preserve every prior cell on capacity failure"); }
+    forth_session_destroy(session);
+    session = forth_session_create();
+    ASSERT(session != NULL, "I create independent capacity exception session");
+    ASSERT(forth_find(session, "F>D", 3, &nt, &xt, &immediate), "I find capacity conversion");
+    for (uint32_t i = 0; i < FORTH_STACK_CELLS - 1; ++i)
+        ASSERT(forth_data_push(session, (int64_t)i), "I fill caught capacity case");
+    ASSERT(forth_float_push(session, 1.75), "I push caught conversion");
+    { int64_t code = 0;
+      ASSERT(forth_catch(session, xt, &code) && code == -3, "I return exact stack overflow code"); }
+    ASSERT(forth_data_depth(session) == FORTH_STACK_CELLS - 1 && forth_float_depth(session) == 1,
+           "I preserve caught capacity depths");
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
 static void test_double_words(void) {
     const char *test_name = "double: 1. D+ 2CONSTANT 2VALUE TO";
     ForthSession *session = forth_session_create();
@@ -2079,6 +2361,9 @@ int main(void) {
     test_core_remaining_words();
     test_core_ext_words();
     test_signed_double_boundaries();
+    test_arithmetic_modular_boundaries();
+    test_arithmetic_division_boundaries();
+    test_arithmetic_float_conversion_boundaries();
     test_double_words();
     test_interpret_file_refill();
     test_required_skips_second_load();
