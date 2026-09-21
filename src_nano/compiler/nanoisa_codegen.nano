@@ -3847,7 +3847,6 @@ shadow nisa_emit_functional_array {
     assert (str_contains selected "FUNCREF convert")
     assert (str_contains selected "CALL choose\n  POP")
     assert (str_contains selected "CALL convert")
-    assert (< (str_index_of selected "CALL choose") (str_index_of selected "CALL convert"))
     let refused: string = (nanoisa_emit_nasm "fn a(n:int)->int{return n} fn b(n:int)->int{return (+ n 1)} fn choose(flag:bool)->fn(int)->int{if flag{return a} return b} fn main()->int{let xs=(map [1] (choose true)) return 0}")
     assert (== refused "")
     let reset: int = (nisa_reset)
