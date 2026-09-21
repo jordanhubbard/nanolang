@@ -14621,3 +14621,5 @@ emitters, shared ABI package, query and conformance corpus remain byte-identical
 to the sealed working branch. I require fresh ordinary both-host VM/generated
 C/LLVM/Wasm and query/package controls with exact copied input/provider maps;
 original sanitizer attribution is unchanged.
+
+- [ ] Under `task_f54e02f7eaca487c980fe298b1132791`, I retain my first a1bb Darwin integration package failure: the package lifecycle fixture requires ASan/UBSan and inherited ordinary Apple Clang, whose leak detector refuses this platform before assertions. My preceding 16 integration phases passed. I qualify only the failed/unrun package methods with the already-qualified Homebrew wrapper and explicit Xcode sysroot, unchanged sanitizer options, fresh reports and verified original source/provider endpoints. I do not replay passing phases or change production/fixture inputs. My full generated/source/graph parents remain open.
