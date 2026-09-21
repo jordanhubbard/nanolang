@@ -9,7 +9,7 @@ import shlex
 import sys
 
 
-def run(test, root):
+def run(test, root, installed=False):
     work = test.work / 'dependency headers'
     work.mkdir()
     empty = work / 'unrelated cwd'
@@ -63,7 +63,8 @@ def run(test, root):
             output = work / name
             commands = work / (name + '-cc.jsonl')
             shadows = work / (name + '-shadows.json')
-            args = [sys.executable, launch, empty, root / 'bin' / compiler, source, '-o', output]
+            command_name = 'nanoc' if installed and compiler == 'nanoc_stage2' else compiler
+            args = [sys.executable, launch, empty, root / 'bin' / command_name, source, '-o', output]
             if compiler == 'nanoc_c':
                 args += ['--verbose', '--llm-shadow-json', shadows]
             out, err = test.command(name+'-build', args, timeout=900, extra=dict(
