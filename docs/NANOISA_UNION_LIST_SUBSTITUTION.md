@@ -285,3 +285,21 @@ constructor rollback assertion.
   parsed record, callable, nested and malformed argument controls.
 - [ ] Review the source checkpoint before corrected full qualification;
   original 18 methods, native 8 methods and all allocation gates remain required.
+
+
+### 5.1 Nested parser annotation losses remain required
+
+While tracing the 144 constructor refusal, I also find two earlier parser
+boundaries: array element parsing passes no callable-signature output, and tuple
+parsing obtains child TypeInfo but stores only flat tags/names. My explicit
+constructor output repair does not establish either deeper syntax path. Full
+nested callable/container parity remains open. I coordinate with the SDK
+carrier lane's d1d2d5556 owned tuple-child implementation before changing the
+shared annotation representation; I do not introduce a competing schema.
+
+- [ ] Reconcile owned tuple child annotations, all copy/free/equality/materialize
+  consumers and nested callable metadata with the reviewed SDK implementation.
+- [ ] Preserve callable annotations at array element parsing with exact owned
+  output/cleanup semantics and source-level nested controls.
+- [ ] Qualify complete nested shapes after source review; narrower constructor
+  acceptance cannot close the full generic-list or callable parent.
