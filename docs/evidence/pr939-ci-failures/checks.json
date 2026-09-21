@@ -29,6 +29,15 @@
       "raw_sha256": "b0f661f0fdb17bad04a795fcc66806b16436d363147dec301c4eaa00c3bf9178",
       "compressed": "coverage.log.gz",
       "compressed_sha256": "3ad62584564126c619d4ac8946245490788c905da949351f5f8dad8ee34f9ae7"
+    },
+    {
+      "job": 106279125237,
+      "url": "https://github.com/jordanhubbard/nanolang/actions/runs/35582756847/job/106279125237",
+      "raw_path": "/home/jkh/nanolang-qualification/ci-pr939/sanitizers.log",
+      "raw_bytes": 1439773,
+      "raw_sha256": "4558555f11a105b2105da5c682d771e009bfd7df5b0b287683229b99984bfc7c",
+      "compressed": "sanitizers.log.gz",
+      "compressed_sha256": "3614b3fe575191b46536bfdd74c7bf81812f6f0d9cf5eebbeeeb4b097996f179"
     }
   ]
 }

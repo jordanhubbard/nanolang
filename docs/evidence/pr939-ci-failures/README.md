@@ -22,3 +22,11 @@ The CI failure-log step reads .test_output/*.compile.log, while the verifier
 corpus retains its diagnostics in a different temporary tree. Task_13ddb5e14be94d4fba5cf4e4ee4c6c0f
 tracks lossless hosted failure-artifact retention. Neither issue is labeled an
 infrastructure failure. Full5.1 integration and publication remain open.
+
+My sanitizer job also fails the same three native artifact links with unresolved
+ASan/UBSan runtime symbols. Before those links, UBSan reports a null source passed
+to a zero-length code copy at nvm_format.c:422 and signed negative left shifts
+at forth_session.c:4220 and5728. I preserve the complete raw log. Tasks
+52f687a880464633a965a37e2777caf8 and37eb001aa5aa4df0801cc506394ffdbc track
+the two production repairs; the existing artifact link task includes sanitizers.
+These diagnostics are product findings, even though the job continued past them.
