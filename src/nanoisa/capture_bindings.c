@@ -1,4 +1,5 @@
 #include "capture_bindings.h"
+#include "isa.h"
 #include "nvm_v2_sections.h"
 #include <stdlib.h>
 #include <string.h>

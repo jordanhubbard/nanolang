@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../../src/nanoisa/capture_bindings.h"
+#include "../../src/nanoisa/isa.h"
 
 static unsigned checks, allocation_calls, live;
 static unsigned fail_allocation;
