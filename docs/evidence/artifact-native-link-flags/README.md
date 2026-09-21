@@ -46,3 +46,9 @@ separate PR939 CI evidence.
 Tasks b9e2f08776a64a67879453d7d6e6052d andbd50601a87444d93aabf751f9f33b963
 await canonical integration. Full5.1 compiler/bootstrap/backend/SDK/release
 qualification remains open.
+
+After merging current main (the independently qualified empty-append guard and
+CI log retention), fresh9576 ordinary providers and all ten original artifact
+methods pass on Linux and Darwin. Both2695-input maps remain exact. I retain
+these separate [integration reports](integration/checks.json); earlier sanitizer
+qualification remains attributed to883, not relabeled as integrated evidence.
