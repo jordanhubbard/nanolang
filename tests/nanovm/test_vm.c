@@ -87,9 +87,11 @@ static int tests_failed = 0;
     } \
 } while(0)
 
+/* I keep large automatic VM states in separate test call frames under optimization. */
 #define RUN_TEST(fn) do { \
+    void (*volatile test_entry)(void) = fn; \
     printf("  %s...\n", #fn); \
-    fn(); \
+    test_entry(); \
 } while(0)
 
 /* ========================================================================
