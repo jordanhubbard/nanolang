@@ -6421,9 +6421,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    double value; memcpy(&value, &bits, sizeof value); return value;\n}\n");
         if (mod->import_count) {
             nvm2c_puts(&b,
-                "#include <stdlib.h>\n#include <string.h>\n#include <unistd.h>\n"
-                "static int nhost_arg_count;\nstatic char **nhost_args;\n");
+                "#include <stdlib.h>\n#include <string.h>\n#include <unistd.h>\n");
             int argv_used = module_uses_host(mod, "nhost_argv");
+            if (argv_used || module_uses_host(mod, "nhost_argc"))
+                nvm2c_puts(&b, "static int nhost_arg_count;\n");
+            if (argv_used) nvm2c_puts(&b, "static char **nhost_args;\n");
             int env_used = module_uses_host(mod, "nhost_getenv");
             int tmp_used = module_uses_host(mod, "nhost_tmp_dir");
             int cwd_used = module_uses_host(mod, "nhost_getcwd");
@@ -6796,10 +6798,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         char ename[64];
         fn_c_name(mod, entry, ename, sizeof ename);
-        if (mod->import_count) nvm2c_puts(&b,
-            "int main(int argc, char **argv) {\n"
-            "    nhost_arg_count = argc; nhost_args = argv;\n");
-        else nvm2c_puts(&b, "int main(void) {\n");
+        if (module_uses_host(mod, "nhost_argc") || module_uses_host(mod, "nhost_argv")) {
+            nvm2c_puts(&b,
+                "int main(int argc, char **argv) {\n"
+                "    nhost_arg_count = argc;\n");
+            if (module_uses_host(mod, "nhost_argv"))
+                nvm2c_puts(&b, "    nhost_args = argv;\n");
+            else nvm2c_puts(&b, "    (void)argv;\n");
+        } else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
         if (b.has_maps || module_has_opcode(mod, OP_CAST_FLOAT))
             nvm2c_puts(&b, "    (void)nparse_binary64;\n");
