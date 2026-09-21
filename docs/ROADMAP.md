@@ -14344,3 +14344,14 @@ I prepare checked replacement storage, preserve the prior array on failure,
 and publish/free only after all child checks succeed. Empty tuples clear the
 old owned array. This is a source-only defensive correction, not a reproduced
 allocator failure claim.
+
+### 5.1 Tuple checker cleanup after first e456 focused sanitizer terminal
+
+I record MAC task_633d96d841b1df945dd2bcd3199e46bc before correction.
+Puck ordinary two-method controls pass; Homebrew reaches all identity assertions
+then reports 746 leaked bytes/20 allocations. The fixture's final stack-field
+cache needs explicit destruction, while actual Environment StructDef auxiliary
+vectors need their existing owned-copy lifetime completed at teardown. I audit
+producer ownership and preserve borrowed TypeInfo/module names; no blanket
+free of borrowed AST metadata. NANOISA_TUPLE_CHECKER_CLEANUP.md gives the exact
+contract. Original first terminals and all existing assertions remain required.
