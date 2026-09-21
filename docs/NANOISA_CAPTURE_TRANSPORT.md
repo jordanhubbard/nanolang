@@ -201,3 +201,12 @@ syntax-only checking passes. The first fresh Linux execution driver refuses its
 2 GiB preparation threshold before extracting source or compiling. I retain
 [that capacity refusal and driver](evidence/capture-bindings/consumer-first-linux/checks.json);
 no consumer execution result is established by this attempt.
+
+My fresh Apple Clang consumer run at 5d8ca9be9 passes 243 checks in 8.887
+seconds, with source and selected tools unchanged, the leader reaped and its process
+group gone, and 307 products retained. I preserve [all three Darwin attempts](evidence/capture-bindings/consumer-darwin/checks.json):
+Homebrew LLVM first refused its nonexistent default SDK; explicit `-isysroot`
+then reached a harness link failure for missing process-argument globals. The
+corrected harness defines those globals without changing any product guard or
+assertion. Full Linux, sanitizer and private/installed-consumer acceptance
+remains open; this result does not admit capture execution.
