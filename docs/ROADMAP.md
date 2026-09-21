@@ -14145,3 +14145,9 @@ tunnel port34113; I have not fabricated a new task or altered that listener.
 - [ ] I qualify public selection and paired producer/compiler bootstrap after
   the matched conjunction, preserving old routes; full union/nested/cyclic and
   indirect mixed graphs remain required subsequent parent dependencies.
+
+I verified actual PR936 merge8f2a6c874 before generated implementation. I also
+correct my generated design's combined128MiB wording: the qualified VM uses
+plan128MiB plus consumer128MiB (combined256MiB), with separate33554432-step
+domains. My generated consumer must preserve those existing bounds and report
+actual overlap explicitly; I do not narrow eligibility with a prose mistake.

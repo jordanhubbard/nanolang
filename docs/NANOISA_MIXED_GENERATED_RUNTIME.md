@@ -1,7 +1,8 @@
 # My shared generated mixed runtime
 
 I prepare this design from reviewed PR936 head `d6179a7be0d564858c7f303c457e9ebeae50f606`.
-Its merge and independent evidence audit remain prerequisites, not assumptions.
+I have verified its actual merge `8f2a6c874cf8c64266d65744529fe20d24eeb9fd`;
+root independently audited the query and VM evidence before merging.
 I extend `NANOISA_MIXED_GENERATED_CONJUNCTION.md` and retain the complete goals of
 `task_f36b179a0f2b4a1b99c29ccd2af66f99`,
 `task_15f955fae5cf402d92bf88794122e9a2` and
@@ -61,12 +62,18 @@ locals and staging unwind. Prior returned values remain owned until successful
 replacement. Reentry while active returns BUSY without inspecting replacement
 tables, clearing state or acquiring cleanup responsibility.
 
-Preparation retains the 128MiB combined ceiling: plan reservation, copied tables,
-instance/frame/root capacity and every overlapping temporary are charged before
-allocation. I release a reservation only after its allocation is gone. I retain
-the 33554432 charged preparation-step ceiling and account separately for every
-additional scan; if the complete composition cannot fit these limits, I present
-the measured conflict for review, not silently raise or double-charge a budget.
+My qualified VM already reserves two separate preparation domains: up to
+128MiB and33554432 steps for the copied plan, plus up to128MiB and33554432
+steps for the private consumer. Its reported sums therefore permit256MiB and
+67108864 steps. My earlier combined128MiB design sentence was inconsistent
+with that implemented boundary. I preserve the two domains in generated
+preparation rather than narrowing otherwise qualified plans. I charge copied
+tables, instance/frame/root capacity, emission staging and all overlapping
+consumer temporaries to the consumer domain; I report both components and
+their checked sum. I release a reservation only after ownership ends. Retaining
+a plan and duplicating its tables does not permit charging those copies to the
+already reserved plan domain. If full generated preparation exceeds the second
+domain, I retain the concrete conflict for review before changing a bound.
 Runtime heap allocation follows existing checked core capacity/overflow rules;
 I introduce no arbitrary execution fuel or host recursion dependence. Wasm
 memory limits are explicit target configuration and exhaustion is MEMORY with
