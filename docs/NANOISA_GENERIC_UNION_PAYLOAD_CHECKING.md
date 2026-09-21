@@ -108,3 +108,11 @@ scalar/aggregate integration remains required; this source checkpoint cannot
 claim runtime parity from checker-only tests. I add a complete scalar matrix
 with and without actual metadata, both AST representations, literal range,
 and parsed nongeneric/generic constructor forms without removing accepted cases.
+
+
+Before qualification I resolve local borrowed annotation/owner/context pointers
+through `nominal_substitute_annotation` before scalar classification. The owned
+prepared view stays alive throughout recursive checking. I pass the same
+resolved triple to composite checking rather than dropping its context. Existing
+fixed/formal record controls remain; additive explicit Box<u8> cases distinguish
+computed INT, literal255, literal256 and bool without executing emitted code.

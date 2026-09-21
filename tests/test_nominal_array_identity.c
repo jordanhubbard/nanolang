@@ -788,6 +788,21 @@ static void union_scalar_policy(void) {
         free_environment(env); free_ast(program); free_tokens(tokens, count);
     }
 }
+static void generic_byte_payload_context(void) {
+    const char *values[] = {"(+ value 256)", "255", "256", "true"};
+    for (size_t i = 0; i < sizeof values / sizeof *values; ++i) {
+        char source[512];
+        int n = snprintf(source, sizeof source,
+            "union Box<T>{Value{value:T}} "
+            "fn sample(value:int)->int{let box =Box<u8>.Value{value:%s} return 0} shadow sample{assert true}", values[i]);
+        assert(n > 0 && (size_t)n < sizeof source);
+        int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+        ASTNode *program = parse_program(tokens, count); assert(program);
+        Environment *env = create_environment(); assert(env);
+        assert(type_check_module(program, env) == (i < 2));
+        free_environment(env); free_ast(program); free_tokens(tokens, count);
+    }
+}
 static void constructor_failure_rollback(void) {
     for (int invalid = 0; invalid < 2; ++invalid) {
         char source[512];
@@ -859,7 +874,7 @@ static void emission_entry_rollback(void) {
 extern void test_nominal_constructor_allocations(void);
 int main(void) {
     test_nominal_constructor_allocations();
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); constructor_failure_rollback(); emission_entry_rollback();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); generic_byte_payload_context(); constructor_failure_rollback(); emission_entry_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }
