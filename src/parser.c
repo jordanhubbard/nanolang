@@ -1175,79 +1175,71 @@ static ASTNode *parse_prefix_op(Stage1Parser *p) {
  * Returns NULL on error.
  */
 static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name) {
-    if (!match(p, TOKEN_LT)) {
-        return NULL;  /* No generic args */
-    }
-    
-    advance(p);  /* consume '<' */
-    
-    /* Allocate TypeInfo for the generic type */
-    TypeInfo *type_info = calloc(1, sizeof(TypeInfo));
-    if (!type_info) {
-        parser_error(p, 0, 0, "Error: Failed to allocate memory for TypeInfo\n");
+    if (!match(p, TOKEN_LT)) return NULL;
+    int prior_errors = p->error_count;
+    advance(p);
+    TypeInfo *info = calloc(1, sizeof *info);
+    if (!info) {
+        parser_error(p, 0, 0, "I cannot allocate generic argument annotations\n");
         return NULL;
     }
-    
-    type_info->base_type = TYPE_GENERIC;
-    type_info->generic_name = strdup(base_name);
-    
-    /* Parse type parameters */
+    info->base_type = TYPE_GENERIC;
+    info->generic_name = strdup(base_name);
     int capacity = 4;
-    int count = 0;
-    TypeInfo **type_params = malloc(sizeof(TypeInfo*) * capacity);
-    
+    info->type_params = calloc((size_t)capacity, sizeof *info->type_params);
+    if (!info->generic_name || !info->type_params) goto fail;
     while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
-        if (count >= capacity) {
-            capacity *= 2;
-            type_params = realloc(type_params, sizeof(TypeInfo*) * capacity);
+        if (info->type_param_count == capacity) {
+            if (capacity > INT_MAX / 2 || (size_t)capacity > SIZE_MAX / 2 / sizeof *info->type_params)
+                goto fail;
+            int next = capacity * 2;
+            TypeInfo **grown = realloc(info->type_params, (size_t)next * sizeof *grown);
+            if (!grown) goto fail;
+            info->type_params = grown;
+            capacity = next;
         }
-        
-        /* Parse a type parameter */
-        TypeInfo *param_type_info = NULL;
-        Type param_type = parse_type_with_element(p, NULL, NULL, NULL, &param_type_info);
-        
-        if (param_type == TYPE_UNKNOWN) {
-            parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Failed to parse generic type parameter\n",
-                    current_token(p)->line, current_token(p)->column);
-            /* Cleanup */
-            for (int i = 0; i < count; i++) {
-                free(type_params[i]);
+        TypeInfo *argument = NULL;
+        char *name = NULL;
+        FunctionSignature *signature = NULL;
+        if (++p->recursion_depth > MAX_RECURSION_DEPTH) {
+            --p->recursion_depth;
+            parser_error(p, 0, 0, "I cannot parse generic arguments beyond my nesting limit\n");
+            goto fail;
+        }
+        Type type = parse_type_with_element(p, NULL, &name, &signature, &argument);
+        --p->recursion_depth;
+        if (type == TYPE_UNKNOWN) {
+            free(name);
+            free_function_signature(signature);
+            free_payload_type_info(argument);
+            goto fail;
+        }
+        if (!argument) {
+            argument = calloc(1, sizeof *argument);
+            if (!argument) {
+                free(name);
+                free_function_signature(signature);
+                goto fail;
             }
-            free(type_params);
-            free(type_info->generic_name);
-            free(type_info);
-            return NULL;
+            /* I retain every output: plain nominal and callable annotations
+             * use separate parser results instead of a populated TypeInfo. */
+            argument->base_type = type;
+            argument->generic_name = name;
+            argument->fn_sig = signature;
+        } else {
+            free(name);
+            free_function_signature(signature);
         }
-        
-        /* Create TypeInfo for this parameter if not already created */
-        if (!param_type_info) {
-            param_type_info = calloc(1, sizeof(TypeInfo));
-            param_type_info->base_type = param_type;
-        }
-        
-        type_params[count++] = param_type_info;
-        
-        /* Optional comma between parameters */
-        if (match(p, TOKEN_COMMA)) {
-            advance(p);
-        }
+        info->type_params[info->type_param_count++] = argument;
+        if (match(p, TOKEN_COMMA)) advance(p);
     }
-    
-    if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) {
-        /* Cleanup */
-        for (int i = 0; i < count; i++) {
-            free(type_params[i]);
-        }
-        free(type_params);
-        free(type_info->generic_name);
-        free(type_info);
-        return NULL;
-    }
-    
-    type_info->type_params = type_params;
-    type_info->type_param_count = count;
-    
-    return type_info;
+    if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) goto fail;
+    return info;
+fail:
+    if (p->error_count == prior_errors)
+        parser_error(p, 0, 0, "I cannot retain complete generic argument annotations\n");
+    free_payload_type_info(info);
+    return NULL;
 }
 
 static ASTNode *parse_primary(Stage1Parser *p);

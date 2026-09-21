@@ -445,6 +445,43 @@ static void retained_callable_consumers(void) {
     assignment_branch_growth(env, NULL, &explicit_destination, &wrong, false);
     free_environment(env);
 }
+static void constructor_annotation_parsing(void) {
+    const char *source =
+        "fn sample()->int { let box =Box<Item,fn(Item)->Item,array<Item>,List<Item>,Box<Item>>.Value{} return 0 }\n"
+        "shadow sample { assert true }\n";
+    int count = 0;
+    Token *tokens = tokenize(source, &count); assert(tokens);
+    ASTNode *program = parse_program(tokens, count); assert(program);
+    assert(program->as.program.count == 2);
+    ASTNode *body = program->as.program.items[0]->as.function.body;
+    assert(body && body->type == AST_BLOCK && body->as.block.count == 2);
+    ASTNode *constructor = body->as.block.statements[0]->as.let.value;
+    assert(constructor && constructor->type == AST_UNION_CONSTRUCT);
+    TypeInfo *info = constructor->as.union_construct.type_info;
+    assert(info && info->type_param_count == 5 && !strcmp(info->generic_name, "Box"));
+    TypeInfo **args = info->type_params;
+    assert(args[0]->base_type == TYPE_STRUCT && !strcmp(args[0]->generic_name, "Item"));
+    assert(args[1]->base_type == TYPE_FUNCTION && args[1]->fn_sig);
+    FunctionSignature *signature = args[1]->fn_sig;
+    assert(signature->param_count == 1 && signature->param_types[0] == TYPE_STRUCT);
+    assert(!strcmp(signature->param_struct_names[0], "Item"));
+    assert(signature->return_type == TYPE_STRUCT && !strcmp(signature->return_struct_name, "Item"));
+    assert(args[2]->base_type == TYPE_ARRAY && args[2]->element_type);
+    assert(args[2]->element_type->base_type == TYPE_STRUCT && !strcmp(args[2]->element_type->generic_name, "Item"));
+    assert(args[3]->base_type == TYPE_LIST_GENERIC && !strcmp(args[3]->generic_name, "Item"));
+    assert(args[4]->base_type == TYPE_UNION && args[4]->type_param_count == 1);
+    assert(!strcmp(args[4]->generic_name, "Box") && !strcmp(args[4]->type_params[0]->generic_name, "Item"));
+    free_ast(program); free_tokens(tokens, count);
+    const char *malformed[] = {
+        "fn sample()->int { let box =Box<Item,fn(Item)-> >.Value{} return 0 }",
+        "fn sample()->int { let box =Box<Item,array<Item>.Value{} return 0 }"
+    };
+    for (size_t i = 0; i < sizeof malformed / sizeof *malformed; ++i) {
+        tokens = tokenize(malformed[i], &count); assert(tokens);
+        program = parse_program(tokens, count); assert(!program);
+        free_tokens(tokens, count);
+    }
+}
 static void constructor_failure_rollback(void) {
     for (int invalid = 0; invalid < 2; ++invalid) {
         char source[512];
@@ -465,7 +502,7 @@ static void constructor_failure_rollback(void) {
     }
 }
 int main(void) {
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); constructor_failure_rollback();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); constructor_annotation_parsing(); constructor_failure_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }
