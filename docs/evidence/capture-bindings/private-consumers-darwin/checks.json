@@ -1,0 +1,114 @@
+{
+  "ordinary": {
+    "checks": {
+      "terminal": {
+        "timeout": false,
+        "capacity_refusal": false,
+        "cleanup_errors": [],
+        "returncode": 0,
+        "seconds": 8.505531165999855,
+        "leader_reaped": true,
+        "tracked_remaining": {},
+        "group_gone": true
+      },
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "products": 322
+    },
+    "source": {
+      "revision": "b99538d1b",
+      "archive_sha256": "264b1b423645625ffb13e73c0fa12053a8e3bf71cc7f82f4f88267e80bd49aeb",
+      "files": 3753
+    },
+    "archive_sha256": "a0a82e4f6b186a8dd7aaee1a4183d2a7e89125360cf554eb4e173dcf32d7f11a",
+    "assertions": [
+      277,
+      180,
+      541,
+      977
+    ],
+    "selected_tools": 17,
+    "durable_root": "/Users/jkh/nanolang-qualification/capture-private-b995-darwin-ordinary",
+    "command": {
+      "argv": [
+        "/usr/bin/make",
+        "-f",
+        "Makefile.gnu",
+        "-j2",
+        "CC=/usr/bin/clang",
+        "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+        "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "test-capture-transport-consumers",
+        "test-capture-transport",
+        "test-capture-bindings"
+      ],
+      "cwd": "/Users/jkh/nanolang-qualification/capture-private-b995-darwin-ordinary/source",
+      "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+      "sanitizers": {
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+        "LSAN_OPTIONS": ""
+      },
+      "timeout_seconds": 1800
+    }
+  },
+  "sanitizers": {
+    "checks": {
+      "terminal": {
+        "timeout": false,
+        "capacity_refusal": false,
+        "cleanup_errors": [],
+        "returncode": 0,
+        "seconds": 21.689119125003344,
+        "leader_reaped": true,
+        "tracked_remaining": {},
+        "group_gone": true
+      },
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "products": 322
+    },
+    "source": {
+      "revision": "b99538d1b",
+      "archive_sha256": "264b1b423645625ffb13e73c0fa12053a8e3bf71cc7f82f4f88267e80bd49aeb",
+      "files": 3753
+    },
+    "archive_sha256": "1bc4667da283ca3ea4b4682d13ed81fea2a12305b1d02dd88b8e7ec8659b0c97",
+    "assertions": [
+      277,
+      180,
+      541,
+      977
+    ],
+    "selected_tools": 8,
+    "durable_root": "/Users/jkh/nanolang-qualification/capture-private-b995-darwin-sanitizers",
+    "command": {
+      "argv": [
+        "/usr/bin/make",
+        "-f",
+        "Makefile.gnu",
+        "-j2",
+        "CC=/opt/homebrew/opt/llvm/bin/clang",
+        "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fno-omit-frame-pointer -fsanitize=address,undefined -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+        "LDFLAGS=-lm -fsanitize=address,undefined -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "test-capture-transport-consumers",
+        "test-capture-transport",
+        "test-capture-bindings"
+      ],
+      "cwd": "/Users/jkh/nanolang-qualification/capture-private-b995-darwin-sanitizers/source",
+      "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+      "sanitizers": {
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+        "LSAN_OPTIONS": ""
+      },
+      "timeout_seconds": 1800
+    }
+  }
+}

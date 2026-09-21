@@ -285,3 +285,14 @@ their groups are gone. The [reports and complete archive manifest](evidence/capt
 retain the first link failure and corrected executable in a 24-member archive,
 verified locally and on Puck. Fresh cross-platform and sanitizer checks remain
 required before I close this consumer extension.
+
+My fresh b99538d1b Darwin ordinary and sanitized builds now pass 277 consumer,
+180 transport, 541 allocation and 977 codec checks each. Apple Clang takes
+8.506 seconds; Homebrew Clang ASan/UBSan with leak detection takes 21.689
+seconds. Both use the measured Xcode sysroot and preserve all 3,753 source
+hashes, selected tools and 322 indexed products per configuration. Leaders
+are reaped, process groups are gone and no tracked descendants remain. I
+retain [both fresh build reports](evidence/capture-bindings/private-consumers-darwin/checks.json)
+and the products in their persistent Puck qualification directories. The
+expanded private consumers still require fresh Linux sanitizer qualification;
+full capture execution and projection remain separate unfinished requirements.
