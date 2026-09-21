@@ -14485,3 +14485,16 @@ only the external selector, preserving the Apple pass. My target-aware wrapper
 supplies that SDK for native commands and preserves explicit wasm32 commands;
 I inventory the wrapper, real compiler and selected SDK inputs. Fresh failed or
 unrun phases remain required, without source/assertion/warning-policy changes.
+
+### I preserve deterministic runtime package manifests after ABI probing
+
+- [ ] I retain the static finding that my78042 boolean probe's temporary source
+  filename enters its LLVM text/hash and therefore violates the existing
+  twice-generate header/manifest equality test. I have not executed that known
+  failing test. I pass the same fixed probe source on stdin with explicit C
+  language selection, retaining exact source and IR hashes without a random
+  input filename. Target flags, attributes and emitted products stay unchanged.
+- [ ] I review the narrow generator correction and run the unchanged package
+  reproducibility and real native/Wasm link controls on both hosts. I retain
+  existing78042 product results at their actual source pin and compare selected
+  attribute/header/product bytes before making any cross-pin claim.
