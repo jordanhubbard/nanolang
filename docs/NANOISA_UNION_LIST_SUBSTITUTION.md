@@ -41,3 +41,11 @@ remain unchanged. Full corrected source review precedes execution. Fresh
 changed provider qualification must then reach every original eighteen and
 additive eight native methods; passing annotation tests alone does not close
 native list acceptance or enum parity.
+
+My consumer audit also finds that C native generic-union payload emission sends
+`TYPE_LIST_GENERIC` to `type_to_c`, whose empty result requires a special path.
+I will emit the concrete list pointer from its complete annotation, retaining
+existing provider-forward ordering. This is a static prerequisite revealed by
+preserving the container, not a newly executed invalid C program. Compact list
+name conversion must agree with explicit `List` plus one argument; signatures
+and provider keys must use the same result.

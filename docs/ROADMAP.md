@@ -14167,3 +14167,5 @@ For the same optional-helper task, I preserve the Apple after-definition attribu
 ### 5.1: compact list identity through generic union payloads
 
 - [ ] `task_40aa248a7326409cba8fcadc4bddecdd`: I retain both 833 first discovery refusals, preserve compact list container semantics through exact formal-element substitution, audit constructor/match/native consumers and declaration-owner provenance, add both-encoding/import/collision controls, and review corrected source before fresh full qualification. My precode is `docs/NANOISA_UNION_LIST_SUBSTITUTION.md`; the unchanged eighteen original and eight additive native methods remain required.
+
+The same task's static consumer audit includes C native generic-union payload emission: preserved `TYPE_LIST_GENERIC` cannot fall through to its deliberately empty primitive C spelling. I require complete concrete list-pointer spelling and compact/explicit key agreement before any corrected run.
