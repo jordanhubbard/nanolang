@@ -219,3 +219,15 @@ process group gone; 322 products remain retained. I preserve the [sanitizer
 reports and command](evidence/capture-bindings/consumer-darwin/sanitizers.json).
 Linux consumer, installed archive and closed private-profile qualification
 remain required before I close transport acceptance.
+
+My fresh full public File gate at d1f035314 passes all three existing tests
+on Darwin in 58.232 seconds, including instrumented and linked original corpora,
+fresh installation, the installed-only bridge, native execution and uninstall.
+The source and selected tools remain unchanged; the leader and process group
+are gone with no tracked descendants. I retain 3,876 products and [both full-gate
+reports](evidence/capture-bindings/file-public-darwin/checks.json). The first
+attempt passed the instrumented corpus, then lacked the exact historical Git
+reference required by the linked parity fixture. The corrected preparation
+provides and verifies those original objects without modifying product code
+or the reference comparison. Linux and sanitized installed-package acceptance
+remain open.
