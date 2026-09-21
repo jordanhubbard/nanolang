@@ -11,6 +11,8 @@
 
 # My Roadmap
 
+- [ ] I establish capture opcode and site structure (`task_25c45c9fb03741f795809bfedd462ff6`) before execution admission. I add the three contract encodings to the shared schema/decoder, explicitly refuse them in ordinary verification, and walk actual code to require one exact CLOSURE_BIND per ordered site. I check local/upvalue slots and immutable-store refusal with a bounded, allocation-free pass. Real transport/truncation/site/work-limit controls precede integration. This is not definite-initialization, stack/type, effect, container or runtime acceptance; those dependencies remain required.
+
 - [ ] I write canonical capture payloads with atomic publication (`task_1718944456e1406789acf7793c7961ea`). I measure all descriptor extents with checked arithmetic, serialize into private scratch, and reuse the reader for complete structural validation before publishing output. The explicit budget covers simultaneous scratch and reader tables. I preserve pointer and length on refusal and require exact roundtrip bytes, invalid descriptors, budget endpoints, every allocation failure and independent recovery. This does not admit a capture feature or establish instruction/ownership verification.
   - My independently reviewed46718646a writer passes803 checks in all seven selected Linux/Darwin ordinary and sanitized configurations with exact before/after inputs. I retain [raw qualification evidence](evidence/capture-bindings/writer/checks.json). Protected integration remains pending; full shared-capture semantics stay open.
 

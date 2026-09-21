@@ -253,3 +253,23 @@ unchanged before and after every platform run. I retain commands, tools, raw
 terminals and identities in [writer evidence](evidence/capture-bindings/writer/checks.json).
 This qualifies only the payload codec; schema, instruction verification,
 producer integration and closure execution remain open.
+
+## Structural instruction checkpoint plan
+
+I next register the three exact opcodes in the shared schema and C enum. My
+ordinary verifier explicitly refuses them while consumers remain incomplete.
+I add a separate allocation-free structural pass over successfully decoded,
+unchanged capture tables and module bytes. It decodes every complete instruction
+with the shared ISA decoder, checks local/upvalue bounds and shared-store modes,
+rejects legacy closure construction, and consumes ordered sites one-to-one at
+their exact owner/offset with matching encoded site indices. Every site must be
+consumed. Its work budget charges one unit per function and code byte before
+walking that function, including unreachable instructions. A failure publishes
+no proof or changed module state.
+
+This pass does not establish stack shape, ordinary table operands, definite
+initialization, effect edges or runtime ownership. The eventual admission path
+must combine those checks; I do not call this structural result permission to
+execute. Tests retain existing payload checks and add real encode/decode,
+truncation, mode/slot/site mismatches and exact work-budget endpoints. Separate
+ordinary-verifier controls must show these newly recognized bytes still refuse.
