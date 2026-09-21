@@ -66,3 +66,24 @@ declared-function C-name reservation prevents collision with `nl_str_split`.
 The evaluator gates intrinsic dispatch with that same declaration decision.
 I have not yet substituted this builtin into the merger or executed these
 paths. Focused source, typed/inferred array and ownership fixtures remain next.
+
+My focused C fixture includes the actual evaluator translation unit, or the
+split helper selected from the actual `generate_string_operations` output.
+The full generated runtime output is retained before selection. Eight cases
+check every segment's value, distinct GC-owned address and string-array tag
+and pointer width. The evaluator receives explicitly fixture-owned input
+buffers through real identifier lookup; after the call the fixture detaches
+only those borrowed values from environment cleanup, overwrites/frees the
+inputs, performs unrelated allocations and verifies all segment contents.
+
+The fixture intercepts only owning-TU initial array and segment GC allocation
+calls, recording each index/site before returning NULL. Each measured index
+runs in a separate child and must produce the exact diagnostic and SIGABRT;
+core dumps are disabled without converting the signal to success. A separate
+normal process after each fault checks the original result again. This is
+process-isolated repeatability, not recoverable OOM or in-process recovery.
+Fresh GC/dynamic-array providers and the included evaluator/native fixture use
+the selected instrumentation. All other compiler providers remain ordinary
+with explicit before/after hashes. Interior array-growth allocations are not
+fault-injected by this fixture; existing terminal growth semantics stay open
+to their own tests. No old faulty split program is executed.
