@@ -14379,3 +14379,10 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   in the newly quoted `-I` path. I check both the copied parent and complete joined
   candidate, preserve arbitrary trusted fragments, and add a counted over-limit
   metadata refusal plus actual spaced resolved-include argv/precedence controls.
+
+- [ ] I make relative include-directory replacement transactional on allocation
+  failure. Review of907ad found that the touched branch freed its old string
+  before an unchecked strdup. I stage the new copy, refuse and destroy metadata
+  on failure, and replace only after success. My current include helper fixture
+  links ordinary module_builder.o and has no strdup-failure injection boundary;
+  I do not describe its normal-path controls as allocator-failure coverage.

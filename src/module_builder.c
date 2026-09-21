@@ -2082,8 +2082,12 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
                 cJSON_Delete(json); module_metadata_free(meta); return NULL;
             }
             if (dir_exists(candidate)) {
+                char *replacement = strdup(candidate);
+                if (!replacement) {
+                    cJSON_Delete(json); module_metadata_free(meta); return NULL;
+                }
                 free(meta->include_dirs[i]);
-                meta->include_dirs[i] = strdup(candidate);
+                meta->include_dirs[i] = replacement;
                 resolved = true;
             }
         }
