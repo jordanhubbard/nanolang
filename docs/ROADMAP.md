@@ -14398,3 +14398,11 @@ counts but compare recovery peak only with their own fresh baseline. Before any
 execution I pass the coordinator's expected requested-live peak into every range
 worker and require equality before the sweep; each recovery must retain that
 same peak. The original unexecuted fixture checkpoint remains in history.
+
+My first frozen05cd Darwin qualification launch stops before setup compilation:
+the external tool inventory assumed wasm-ld lived in Homebrew's LLVM directory.
+The installed linker belongs to the separate lld package and is already available
+through /opt/homebrew/bin. I retain the preflight exception/tool transcript and
+partial reports, correct only the external inventory path, and use fresh paths
+with file-backed outer launch output. No product or fixture executed; I do not
+classify this as a compiler failure or repeat an unrun gate under a false pass.
