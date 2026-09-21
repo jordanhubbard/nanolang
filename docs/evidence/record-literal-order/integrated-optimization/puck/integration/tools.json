@@ -1,0 +1,6 @@
+{
+  "PATH": "/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin",
+  "make": "/usr/bin/make",
+  "cc": "/usr/bin/cc",
+  "python": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3"
+}

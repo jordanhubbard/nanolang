@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/private/tmp/nanolang-literal-optimization-4cbbdd508/run.py",
+    "--child"
+  ],
+  "cwd": "/tmp/nanolang-literal-order-75051f193/source",
+  "timeout_seconds": 600,
+  "free_before": 27199909888,
+  "python": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+  "PATH": "/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin",
+  "pid": 24495,
+  "returncode": 0,
+  "seconds": 67.481387958,
+  "free_after": 26849116160
+}

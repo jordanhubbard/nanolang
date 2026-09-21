@@ -1,0 +1,1 @@
+I retain the exact successful executables in successful-products.tar.gz. Each member was rehashed and its mode checked before its uncompressed copy was removed. Restore in this directory with: tar -xzf successful-products.tar.gz

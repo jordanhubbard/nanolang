@@ -1,0 +1,80 @@
+{
+  "archive": "/tmp/nano-native-literal-order-eqeftsei/successful-products.tar.gz",
+  "archive_sha256": "d398c769f6d28d89b0ed66d3ba6245d550ee9b7cd0d6bed12537155de1cc4221",
+  "members": {
+    "nanoc_c-global_literal_initialization": {
+      "sha256": "fd81f691643a795dbfc27333b1bba115d6e1c2962e253fc4228bc7f7acdaf4c4",
+      "bytes": 8780520,
+      "mode": 509,
+      "mtime_ns": 1789968359517705664
+    },
+    "nanoc_c-record_literal_written_order": {
+      "sha256": "edb94735d3e54ae37c667e900e04d4800cbc3750162bf07d7177cad20a7a58ba",
+      "bytes": 8780016,
+      "mode": 509,
+      "mtime_ns": 1789968356482667016
+    },
+    "nanoc_c-tuple_array_literal_written_order": {
+      "sha256": "b5523db0835738647df9f9cdf752945a132052dc84d03dc7f0835c3509185f7d",
+      "bytes": 8780224,
+      "mode": 509,
+      "mtime_ns": 1789968361043228834
+    },
+    "nanoc_c-union_literal_written_order": {
+      "sha256": "b0de6f0568fb167e634dfb850f294695c9ecf9ab62301501319548a5dadd6064",
+      "bytes": 8780056,
+      "mode": 509,
+      "mtime_ns": 1789968357958685812
+    },
+    "nanoc_stage1-global_literal_initialization": {
+      "sha256": "0774aad6225c3fcb580025eba022a2675dab742ec534db7adb5ef444f83806ed",
+      "bytes": 8785736,
+      "mode": 509,
+      "mtime_ns": 1789968371350430539
+    },
+    "nanoc_stage1-record_literal_written_order": {
+      "sha256": "347c9e674d8384cd38e18fdf7ca5c1e7d39662f2de78ff51bebeeb2e472651b8",
+      "bytes": 8785264,
+      "mode": 509,
+      "mtime_ns": 1789968364350767207
+    },
+    "nanoc_stage1-tuple_array_literal_written_order": {
+      "sha256": "d67116aa849e43f80daab714aaaf699e8cf5f9eb5598a5ba30224695940e51ad",
+      "bytes": 8785544,
+      "mode": 509,
+      "mtime_ns": 1789968374687898823
+    },
+    "nanoc_stage1-union_literal_written_order": {
+      "sha256": "2ae6cc5de118a4a8b35dea21b5bebe81a7719325dd3a68fa41ec2454711b1e9c",
+      "bytes": 8785328,
+      "mode": 509,
+      "mtime_ns": 1789968367706809939
+    },
+    "nanoc_stage2-global_literal_initialization": {
+      "sha256": "5f3aa1cc02ecde972d7ebe0ac5da91385806557fba78642de58aa14d806658a8",
+      "bytes": 8785736,
+      "mode": 509,
+      "mtime_ns": 1789968384752026950
+    },
+    "nanoc_stage2-record_literal_written_order": {
+      "sha256": "67fc1223c805ce805d83fb754c11ea41ff2548e154781b6330904884e2e45ba6",
+      "bytes": 8785264,
+      "mode": 509,
+      "mtime_ns": 1789968377956940443
+    },
+    "nanoc_stage2-tuple_array_literal_written_order": {
+      "sha256": "de3bc6f92b9470b46271d453eef89dd105874bb7eb6ca7aaf580106af5d62b5c",
+      "bytes": 8785544,
+      "mode": 509,
+      "mtime_ns": 1789968388095976431
+    },
+    "nanoc_stage2-union_literal_written_order": {
+      "sha256": "bcffb3bccaf212c19c9751a7cc53587c6b79247728c2639df2c86e246ea85adb",
+      "bytes": 8785328,
+      "mode": 509,
+      "mtime_ns": 1789968381443984837
+    }
+  },
+  "verified_exact_before_removing_uncompressed_copies": true,
+  "commands_sha256": "64660ee9144b5b513f844b17e6e766f017a40359ce24de2bfe0e3dd3fe856a86"
+}
