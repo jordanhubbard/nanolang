@@ -14488,16 +14488,42 @@ unrun phases remain required, without source/assertion/warning-policy changes.
 
 ### I preserve deterministic runtime package manifests after ABI probing
 
-- [ ] I retain the static finding that my78042 boolean probe's temporary source
+- [x] I retain the static finding that my78042 boolean probe's temporary source
   filename enters its LLVM text/hash and therefore violates the existing
   twice-generate header/manifest equality test. I have not executed that known
   failing test. I pass the same fixed probe source on stdin with explicit C
   language selection, retaining exact source and IR hashes without a random
   input filename. Target flags, attributes and emitted products stay unchanged.
-- [ ] I review the narrow generator correction and run the unchanged package
+- [x] I review the narrow generator correction and run the unchanged package
   reproducibility and real native/Wasm link controls on both hosts. I retain
   existing78042 product results at their actual source pin and compare selected
   attribute/header/product bytes before making any cross-pin claim.
 
 I track this static package regression under task_1fccee0a87a7473eade4d8472b4e9b40,
-created with no dispatch and no ticket. Qualification remains pending.
+created with no dispatch and no ticket. My unchanged two-method package suite
+passes on Linux (3.027s) and Darwin (4.024s) at425bcbc786. Both repeated
+header/manifest comparisons and actual native/Wasm links pass. The generated
+header remains byte-identical to the corresponding78042 runtime header; only
+the documented probe source-identity/IR hash and generator hash differ in the
+manifest. I retain39 reports,109 content-addressed artifacts and four equal
+source/tool pairs in /tmp/nanolang-record-package-425bc-final-seal. This does
+not replace the independently attributed78042 execution qualification.
+
+My fresh persistent Darwin C759 qualification is complete: Apple ordinary
+294.515s, corrected Homebrew ordinary313.684s and sanitizer1231.672s, plus all
+four old-query/private-VM neighbors. I preserve the preceding stale-SDK compile
+terminal separately. Its seal contains155 reports,8933 artifacts and24 equal
+source/tool pairs; current selected source/tool/provider rehashes also match.
+
+My Linux78042 LLVM ordinary GCC/Clang native corpora pass301.332s/308.399s,
+including all40 actual ABI signatures and the complete73-product O0/O2 fault
+corpus. Both-engine Wasm passes629.262s with all four neighbors. The Wasm seal
+contains78 reports,4885 artifacts and12 equal source/tool pairs. Fresh Darwin
+LLVM ordinary Apple/Homebrew passes309.5s/347.739s and its native sanitizer
+passes1263.315s. Darwin Wasm/neighbors and Linux LLVM sanitizers remain pending.
+My unchanged Linux C759 full sanitizer sweep is still active. No complete
+generated-consumer/public/source/general-graph parent is closed by these
+partial matrix results. Completed seals are additionally retained by verified
+hard links under /home/jkh/nanolang-qualification/vm-effects-20260921, without
+removing or modifying original evidence.
+
