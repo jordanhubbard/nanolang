@@ -184,6 +184,25 @@ combined modes before execution until their full joint rules are qualified.
 
 ## Lifetime obligations
 
+### Entry environment and upvalue access checkpoint
+
+I validate a closure against its executing module's immutable target contract:
+module identity, function index, exact capture count and every capture mode.
+A raw function supplies no closure and is valid only for zero captures. Shared
+slots contain live one-element internal tuple cells; copied slots contain the
+ordinary value, including an ordinary source tuple. Header shape cannot grant
+capture authority: the caller must supply the exact validated target metadata,
+not a newly invented or mutable mode array.
+
+Entry validation checks the whole environment. Per-upvalue access rechecks
+identity, count, selected index/mode and cell shape. Reads retain only the
+ordinary source value and publish on success. Assignment requires shared mode
+and an independently owned incoming operand; it moves that operand into the
+cell, clears the incoming storage, then releases the previous value. Inputs and
+outputs must not alias closure/cell storage. The closure and original owners
+remain rooted during the call. These helpers do not grant public entry, infer
+target identity, reserve stack capacity or replace verifier initialization facts.
+
 ### Resolved-source construction checkpoint
 
 My internal construction helper accepts a readable borrowed source array, exact
