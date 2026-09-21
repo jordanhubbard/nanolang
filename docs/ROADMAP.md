@@ -14307,3 +14307,10 @@ lowering, exact runtime/target ABI query, shared checked preparation, full93
 operations and unchanged73-product acceptance. No LLVM/Wasm execution or public
 selection follows from the pending C qualification. The full generated/source
 and general-graph parent tasks remain open.
+
+My first LLVM preparation source delta moves the exact existing RgOutput,
+charge/write,93-operation recipe and decoded-fact helpers into
+`record_array_emission_private.inc`. A static reconstruction restores the
+original C source byte for byte; I have not rebuilt or executed it. Allocation,
+work and fact semantics are unchanged. The independent generated-byte comparison
+remains an execution gate before I accept this factoring for the LLVM consumer.
