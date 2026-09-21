@@ -14549,3 +14549,16 @@ to its recorded unittest process group. I retain native status-15, no timeout,
 reaped leader, disappeared group and empty remaining-descendant inventory.
 O0 has completed; O2 is partial. I do not claim a full Clang pass or publish
 a complete LLVM seal, and I hold new execution while capacity is insufficient.
+
+I track optimization continuation under task_075784b2789a456186e539fd6069039c
+(no dispatch, no ticket). Before changing my fixture I require an explicit
+validated native optimization selection: O0, O2, or the unchanged default
+O0,O2. I preserve every selected linked/observed product, startup/lifecycle
+control, fault position, recovery and final source-byte check. I record the
+selection in retained metadata; a partial selection cannot stand for both.
+For the remaining O2 I copy exact78042 inputs/providers into a task-owned
+/run/user/1000 tmpfs directory, overlay only the reviewed fixture, and check
+capacity on that actual output filesystem. I retain full before/after maps
+and copy every report/product to durable Puck storage with hash verification
+before claiming complete evidence. My original O0 products and full fault
+coverage must independently match their retained initial corpus hashes.
