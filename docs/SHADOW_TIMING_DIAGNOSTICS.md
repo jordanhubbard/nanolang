@@ -85,3 +85,13 @@ non-ASCII bytes, partial UTF-8 prefix bytes, newline at both boundaries,
 consecutive newlines and CRLF preservation. Source review precedes execution.
 Fresh complete bootstrap/SDK acceptance and exact selected shadows remain
 required; no timeout, selection or original predicate is weakened.
+
+My fresh full Darwin acceptance attempt at `2c9e7ecfd` still reaches the
+original ten-second C-seed shadow deadline in Stage 1 bootstrap. Timing is off
+and the retained inner stderr contains zero timing records. The outer runner
+exits 1 after 81.425 seconds, without an outer timeout, with all tracked groups
+and descendants absent and no cleanup errors. No SDK test methods run. Equal
+3781-source and 10-tool endpoint maps, 619 product entries and 51 artifact
+references remain in `/tmp/nanolang-native-sdk-2c9e-puck-evidence`. I preserve
+this first terminal separately from f440's instrumented evidence. I have not
+measured enough margin and do not retry this unchanged candidate.
