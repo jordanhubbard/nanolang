@@ -404,9 +404,23 @@ class NativeSdk(unittest.TestCase):
                     *(['--daemon-wrapper'] if daemon else [])],extra={
                         'CC':self.observer,'NANO_CC':self.observer,'SDK_CC_LOG':log,'SDK_REAL_CC':json.dumps(self.cc)},timeout=900)
                 commands=[json.loads(line) for line in log.read_text().splitlines()]
-                objects=[arg for row in commands for arg in row if arg.endswith('.o')]
-                self.assertTrue(objects)
-                for item in objects:self.assertTrue(Path(item).is_relative_to(self.generation/'obj'),item)
+                self.assertEqual(len(commands),2,commands)
+                compile_args,link_args=commands
+                self.assertIn('-c',compile_args);self.assertNotIn('-c',link_args)
+                self.assertEqual(compile_args.count('-o'),1);self.assertEqual(link_args.count('-o'),1)
+                wrapper_object=Path(compile_args[compile_args.index('-o')+1])
+                stage=wrapper_object.parent
+                self.assertEqual(wrapper_object.name,'wrapper.o')
+                self.assertEqual(stage.parent,self.outside)
+                self.assertRegex(stage.name,r'^\.nano-wrapper-[A-Za-z0-9]{6}$')
+                self.assertEqual([arg for arg in compile_args if arg.endswith('.c')],[str(stage/'source.c')])
+                self.assertEqual(link_args[link_args.index('-o')+1],str(stage/'executable'))
+                objects=[arg for arg in link_args if arg.endswith('.o')]
+                self.assertEqual(objects.count(str(wrapper_object)),1)
+                providers=[item for item in objects if item!=str(wrapper_object)]
+                self.assertTrue(providers)
+                for item in providers:self.assertTrue(Path(item).is_relative_to(self.generation/'obj'),item)
+                self.assertFalse(stage.exists())
                 if daemon:
                     socket_dir=Path(tempfile.mkdtemp(prefix='sdk-vmd-',dir='/tmp'))
                     sock=socket_dir/'vm.sock'
