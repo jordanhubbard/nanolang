@@ -13856,3 +13856,23 @@ terminals under `docs/evidence/record-lists-b50-first-array/`.
   site under task_39bfd8dc6be443e49f7eee890198cccf, preserving Union ownership,
   every assertion and allocation sweep. I continue the failed/unreached array
   sanitizer phases and full14methods with exact a448 provider reuse evidence.
+
+
+### Self-hosted record field destinations (task_90077955d5c64a42bf91358769802aba)
+
+My 6cf fixture continuation passes the previously failing array sanitizer controls
+on GCC and Homebrew, plus both focused methods with Linux Clang. Both hosts then
+stop the first full-source method: Stage1 publishes `array-refuse-field` despite
+a distinct imported record element in a local record field. I do not execute
+that output. Earlier initializer/assignment diagnostics and original terminals
+remain retained. My first STRUCT_LITERAL checker arm never visits its fields.
+
+- [ ] I check each named record literal against its exact rewritten declaration,
+  required field set and destination types; I preserve nominal array identity,
+  existing checked numeric conversions, nested records and concrete union context.
+- [ ] I share the reviewed contextual byte-array literal helper without widening
+  existing array conversions or global equality. I cover field assignment too.
+- [ ] I add direct checker shadows and paired source controls for correct fields,
+  missing/duplicate/unknown fields and scalar/nested/imported array mismatches,
+  then run fresh bootstrap and the complete original fourteen-method matrix.
+  I retain enum parity and whole-Make acceptance as required work.
