@@ -11,6 +11,8 @@
 
 # My Roadmap
 
+- [ ] I qualify the native literal-order fixtures at explicit `-O0` and `-O2` under task_865923a37b6d470c83326aed625b8897 and task_0ef97cccc6c441c59bd9eb2ec7c5ff05. I retain the default gate and every payload/effect assertion, capture actual final compiler arguments, verify the effective optimization flag, and require all three producers on Linux and Darwin. A requested environment flag alone is not acceptance evidence.
+
 - [ ] I evaluate every self-hosted native nonliteral global initializer through the typed source expression path (`task_57661a28bf114448a4ee14642e7e1b90`). I preserve ordered runtime startup and guarded primitive initialization, direct scalar literals and declaration/prototype order, and require actual three-producer global aggregate/call/reference/callable payload and effect checks plus bootstrap.
 
 - [ ] I initialize native global record literals through the actual source expression path (`task_865923a37b6d470c83326aed625b8897`). Static review found the Nano producer falls through global_init_literal to0 outside its runtime union route. I require explicit runtime initialization, preserved source order and real paired global-record tests before completing aggregate source acceptance.
