@@ -75,7 +75,7 @@ def symbols(test, label, path, dynamic=False):
     return Counter(found)
 
 
-def run(test, root, selected):
+def run(test, root, selected, *, installed=None):
     work = test.work / 'public-provider-owners'
     work.mkdir()
     # A real native host exports its canonical array/GC runtime. Python alone
@@ -108,32 +108,36 @@ unsigned owner_host_releases(void) { return releases; }
         sources={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in [host_source,*runtime_inputs]},
         image=str(host), sha256=hashlib.sha256(host.read_bytes()).hexdigest(),
         scope='canonical runtime host only; no moved provider anchors; ordinary owner gate'), indent=2)+'\n')
-    manifest = root/'modules/forth_see/module.json'
-    metadata = json.loads(manifest.read_text())
-    expected_sources = [str((manifest.parent/item).resolve())
-                        for item in metadata['c_sources']+metadata['shared_c_sources']]
-    recipe = (root/'examples/Makefile').read_text()
-    declaration = re.search(r'^FORTH_SEE_C_SOURCES\s*:?=\s*((?:[^\n]*\\\n)*[^\n]*)', recipe, re.M)
-    test.assertIsNotNone(declaration)
-    actual_sources = [str((root/'examples'/item).resolve())
-                      for item in declaration.group(1).replace('\\\n', ' ').split()]
-    test.assertEqual(actual_sources, expected_sources)
-    test.assertEqual(len(actual_sources), len(set(actual_sources)))
-    (work/'examples-provider-inputs.json').write_text(json.dumps(dict(
-        sources={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in actual_sources},
-        manifest_sha256=hashlib.sha256(manifest.read_bytes()).hexdigest(),
-        recipe_sha256=hashlib.sha256((root/'examples/Makefile').read_bytes()).hexdigest()), indent=2)+'\n')
-    import shlex
-    test.command('owner-existing-forth-see', ['make', '-C', root/'examples', '-j2',
-                 'CC='+shlex.join(test.cc), 'test-forth-see'], timeout=1800)
-    forth_binary = root/'bin/nl_forth_interpreter_vm'
-    example_products = [forth_binary, root/'build/test_forth_see', root/'modules/forth_see/.build/libforth_see.so']
-    (work/'examples-products.json').write_text(json.dumps(
-        {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in example_products}, indent=2)+'\n')
-    for path in example_products:
-        # I retain the independent recipe products inside the ordinary report tree too.
-        import shutil
-        shutil.copyfile(path, work/('examples-'+path.name))
+    if installed is None:
+        manifest = root/'modules/forth_see/module.json'
+        metadata = json.loads(manifest.read_text())
+        expected_sources = [str((manifest.parent/item).resolve())
+                            for item in metadata['c_sources']+metadata['shared_c_sources']]
+        recipe = (root/'examples/Makefile').read_text()
+        declaration = re.search(r'^FORTH_SEE_C_SOURCES\s*:?=\s*((?:[^\n]*\\\n)*[^\n]*)', recipe, re.M)
+        test.assertIsNotNone(declaration)
+        actual_sources = [str((root/'examples'/item).resolve())
+                          for item in declaration.group(1).replace('\\\n', ' ').split()]
+        test.assertEqual(actual_sources, expected_sources)
+        test.assertEqual(len(actual_sources), len(set(actual_sources)))
+        (work/'examples-provider-inputs.json').write_text(json.dumps(dict(
+            sources={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in actual_sources},
+            manifest_sha256=hashlib.sha256(manifest.read_bytes()).hexdigest(),
+            recipe_sha256=hashlib.sha256((root/'examples/Makefile').read_bytes()).hexdigest()), indent=2)+'\n')
+        import shlex
+        test.command('owner-existing-forth-see', ['make', '-C', root/'examples', '-j2',
+                     'CC='+shlex.join(test.cc), 'test-forth-see'], timeout=1800)
+        forth_binary = root/'bin/nl_forth_interpreter_vm'
+        example_products = [forth_binary, root/'build/test_forth_see', root/'modules/forth_see/.build/libforth_see.so']
+        (work/'examples-products.json').write_text(json.dumps(
+            {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in example_products}, indent=2)+'\n')
+        for path in example_products:
+            # I retain the independent recipe products inside the ordinary report tree too.
+            import shutil
+            shutil.copyfile(path, work/('examples-'+path.name))
+    else:
+        forth_binary = Path(installed['forth_binary'])
+        test.assertTrue(forth_binary.is_file())
     observer = work / 'compiler-observer.py'
     observer.write_text('#!' + sys.executable + '\nimport json,os,subprocess,sys\n'
         'fd=os.open(os.environ["OWNER_COMMAND_LOG"],os.O_WRONLY|os.O_CREAT|os.O_APPEND,0o600)\n'
@@ -161,7 +165,8 @@ unsigned owner_host_releases(void) { return releases; }
                        NANO_SHADOW_TRACE='1')
             expected, inputs = selected(path)
             (directory / 'selected-inputs.json').write_text(json.dumps(dict(expected=expected, inputs=inputs), indent=2)+'\n')
-            args = [root/'bin'/compiler, path, '-o', exe, '--keep-c']
+            command_name = 'nanoc' if installed is not None and compiler == 'nanoc_stage2' else compiler
+            args = [root/'bin'/command_name, path, '-o', exe, '--keep-c']
             if compiler == 'nanoc_c':
                 args += ['--verbose', '--llm-shadow-json', directory/'shadows.json']
             out, err = test.command(label+'-build', args, timeout=1800, extra=env)
@@ -206,7 +211,9 @@ unsigned owner_host_releases(void) { return releases; }
                                  ['otool', '-L', library] if sys.platform == 'darwin' else ['readelf', '-d', library])
                     # Each target loads in a fresh runtime-only host process.
                     test.command(label+'-'+module+'-dynamic-run',
-                                 [sys.executable, '-m', 'tests.file_cseed_provider_owners', '--dynamic', module, library, forth_binary, host])
+                                 ([sys.executable, '-m', 'tests.file_cseed_provider_owners'] if installed is None else
+                                  [sys.executable, installed['dynamic_runner']]) +
+                                 ['--dynamic', module, library, forth_binary, host])
                     artifacts.extend([obj, library])
                 if 'forth_see' in tables:
                     test.assertIn('nanoisa', tables)
