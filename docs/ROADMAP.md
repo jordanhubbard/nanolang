@@ -14237,3 +14237,11 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   run and its actual terminal; this finding does not change production command
   semantics. I quote the fixture command before fresh affected checks while
   preserving the same paths, producer/shadow corpus and argv assertions.
+  My frozen Linux run then measured the predicted observer failure: ordinary
+  returned1 after751.422seconds, with eight methods passed and the ninth failing
+  before leaf-provider compilation (`dependency: not found`). The actual helper
+  boundary probe passed; complete paired header/owner acceptance did not. My
+  separate Darwin verbose diagnostic passed1071shadows with the original10-second
+  deadline; its cause remains unassigned. One fresh Darwin bootstrap subsequently
+  passed342.741seconds and continued to the original ordinary corpus. I preserve
+  all three observations separately; no timeout widening or infrastructure label.
