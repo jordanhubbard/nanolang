@@ -2734,6 +2734,15 @@ static bool prepare_union_payload_views(Environment *env, ASTNode *expression,
 static bool union_scalar_payload_matches(ASTNode *value, Environment *env, Type expected) {
     Type actual = check_expression(value, env);
     if (actual == TYPE_UNKNOWN || expected == TYPE_UNKNOWN) return false;
+    if (actual == TYPE_STRUCT) {
+        NominalView source = {0};
+        bool is_enum = nominal_value_view(value, env, 0, &source) && !source.payload &&
+            source.info->base_type == TYPE_ENUM &&
+            env_nominal_identity(env, source.info->generic_name, source.owner, TYPE_ENUM).ordinal;
+        nominal_view_discard(&source);
+        if (!is_enum) return false;
+        actual = TYPE_ENUM;
+    }
     bool source_numeric = actual == TYPE_INT || actual == TYPE_U8 || actual == TYPE_ENUM;
     bool target_numeric = expected == TYPE_INT || expected == TYPE_U8 || expected == TYPE_ENUM;
     if (source_numeric && target_numeric) {

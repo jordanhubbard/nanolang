@@ -748,6 +748,24 @@ static void union_scalar_policy(void) {
         }
         free_environment(env);
     }
+    {
+        Environment *env = create_environment(); assert(env);
+        EnumDef enumeration = {0}; enumeration.name = strdup("Tag"); enumeration.module_name = "Enums";
+        assert(enumeration.name); env_define_enum(env, enumeration);
+        identity_record(env, "Tag", "Records");
+        for (int owner = 0; owner < 3; ++owner) {
+            char name[32]; snprintf(name, sizeof name, "named_scalar_%d", owner);
+            env_define_var(env, name, TYPE_STRUCT, false, create_void());
+            Symbol *symbol = env_get_var(env, name); assert(symbol);
+            symbol->struct_type_name = strdup("Tag"); assert(symbol->struct_type_name);
+            symbol->nominal_owner = owner == 0 ? "Enums" : owner == 1 ? "Records" : "Missing";
+            ASTNode value = {.type = AST_IDENTIFIER}; value.as.identifier = name;
+            assert(union_scalar_payload_matches(&value, env, TYPE_INT) == (owner == 0));
+            assert(union_scalar_payload_matches(&value, env, TYPE_U8) == (owner == 0));
+            assert(union_scalar_payload_matches(&value, env, TYPE_ENUM) == (owner == 0));
+        }
+        free_environment(env);
+    }
     const char *types[] = {"int", "u8", "Tag", "bool", "float", "string"};
     for (int generic = 0; generic < 2; ++generic)
     for (size_t expected = 0; expected < sizeof types / sizeof *types; ++expected)

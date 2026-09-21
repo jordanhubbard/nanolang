@@ -471,7 +471,7 @@ static void constructor_registry_controls(void) {
 }
 extern bool array_test_union_payload_views(Environment *);
 static size_t union_payload_attempt(size_t prefix, bool transient) {
-    const char *source = "module Definitions\nstruct Item{value:int} "
+    const char *source = "module Definitions\nenum Label{One,Two} struct Item{value:int} "
         "union Box<T>{Value{fixed:Item,item:T,callback:fn(T)->Item,values:array<T>}}";
     int token_count = 0; Token *tokens = tokenize(source, &token_count); CHECK(tokens);
     ASTNode *program = parse_program(tokens, token_count); CHECK(program);
@@ -482,6 +482,10 @@ static size_t union_payload_attempt(size_t prefix, bool transient) {
     char **exports = calloc(1, sizeof *exports); CHECK(exports);
     exports[0] = strdup("Box"); CHECK(exports[0]);
     env_register_namespace(env, "defs", "Definitions", NULL, 0, NULL, 0, NULL, 0, exports, 1);
+    env_define_var(env, "enum_payload", TYPE_STRUCT, false, create_void());
+    Symbol *parameter = env_get_var(env, "enum_payload"); CHECK(parameter);
+    parameter->struct_type_name = strdup("Label"); CHECK(parameter->struct_type_name);
+    parameter->nominal_owner = "Definitions";
     const void *prior = env->checker_nominal_expressions;
     size_t arrays = env->array_expression_binding_count, tuples = env->tuple_literal_binding_count;
     begin(prefix, transient); bool ok = array_test_union_payload_views(env); size_t count = stop();

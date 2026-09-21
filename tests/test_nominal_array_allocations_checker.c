@@ -211,6 +211,8 @@ bool array_test_union_payload_views(Environment *env) {
             env_nominal_identity(env, "CallerItem", "Caller", TYPE_STRUCT)) ||
         output[2].info->base_type != TYPE_FUNCTION || !output[2].owned_context ||
         output[3].info->base_type != TYPE_ARRAY || !output[3].owned_context) abort();
+    ASTNode enum_value = {.type = AST_IDENTIFIER}; enum_value.as.identifier = "enum_payload";
+    ok = union_scalar_payload_matches(&enum_value, env, TYPE_U8);
     discard_union_payload_views(output, 4);
-    return true;
+    return ok;
 }
