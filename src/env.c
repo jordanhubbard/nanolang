@@ -2109,6 +2109,61 @@ void free_payload_type_info(TypeInfo *info) {
 
 #include "env_signature_snapshot.inc"
 
+const TypeInfo *type_info_tuple_element(const TypeInfo *tuple, int index, TypeInfo *flat) {
+    if (!tuple || tuple->base_type != TYPE_TUPLE || index < 0 ||
+        index >= tuple->tuple_element_count || !tuple->tuple_types) return NULL;
+    if (tuple->type_param_count) {
+        if (tuple->type_param_count != tuple->tuple_element_count || !tuple->type_params ||
+            !tuple->type_params[index]) return NULL;
+        const TypeInfo *child = tuple->type_params[index];
+        const char *name = child->generic_name ? child->generic_name : child->opaque_type_name;
+        const char *legacy = tuple->tuple_type_names ? tuple->tuple_type_names[index] : NULL;
+        if (child->base_type != tuple->tuple_types[index] ||
+            (name != legacy && (!name || !legacy || strcmp(name, legacy)))) return NULL;
+        return child;
+    }
+    if (tuple->type_params || !flat) return NULL;
+    *flat = (TypeInfo){.base_type = tuple->tuple_types[index],
+        .generic_name = tuple->tuple_type_names ? tuple->tuple_type_names[index] : NULL};
+    return flat;
+}
+bool type_info_tuple_valid(const TypeInfo *tuple) {
+    if (!tuple || tuple->base_type != TYPE_TUPLE || tuple->tuple_element_count < 0 ||
+        tuple->type_param_count < 0 ||
+        (tuple->type_param_count && tuple->type_param_count != tuple->tuple_element_count) ||
+        (!tuple->type_param_count && tuple->type_params)) return false;
+    for (int i = 0; i < tuple->tuple_element_count; ++i) {
+        TypeInfo flat;
+        if (!type_info_tuple_element(tuple, i, &flat)) return false;
+    }
+    return true;
+}
+
+bool type_info_tuple_refresh(TypeInfo *tuple) {
+    if (!tuple || tuple->base_type != TYPE_TUPLE) return false;
+    if (!tuple->type_param_count) return type_info_tuple_valid(tuple);
+    int count = tuple->tuple_element_count;
+    if (count < 0 || tuple->type_param_count != count || !tuple->type_params ||
+        (size_t)count > SIZE_MAX / sizeof(Type) || (size_t)count > SIZE_MAX / sizeof(char *)) return false;
+    Type *types = calloc((size_t)count, sizeof *types);
+    char **names = calloc((size_t)count, sizeof *names);
+    if (!types || !names) { free(types); free(names); return false; }
+    for (int i = 0; i < count; ++i) {
+        const TypeInfo *child = tuple->type_params[i];
+        if (!child) goto fail;
+        types[i] = child->base_type;
+        const char *name = child->generic_name ? child->generic_name : child->opaque_type_name;
+        if (name && !(names[i] = strdup(name))) goto fail;
+    }
+    for (int i = 0; tuple->tuple_type_names && i < count; ++i) free(tuple->tuple_type_names[i]);
+    free(tuple->tuple_type_names); free(tuple->tuple_types);
+    tuple->tuple_type_names = names; tuple->tuple_types = types;
+    return true;
+fail:
+    for (int i = 0; i < count; ++i) free(names[i]);
+    free(names); free(types); return false;
+}
+
 /* I substitute complete concrete trees, not the flattened field name. */
 static void payload_substitute(TypeInfo **slot, const UnionDef *def, const TypeInfo *arguments) {
     TypeInfo *info = *slot;
@@ -2135,6 +2190,35 @@ static void payload_substitute(TypeInfo **slot, const UnionDef *def, const TypeI
     if (info->element_type) payload_substitute(&info->element_type, def, arguments);
     for (int i = 0; info->type_params && i < info->type_param_count; ++i)
         payload_substitute(&info->type_params[i], def, arguments);
+    if (info->base_type == TYPE_TUPLE && info->type_param_count && !type_info_tuple_refresh(info)) {
+        fprintf(stderr, "I cannot retain a substituted tuple annotation\n");
+        exit(1);
+    }
+    if (info->fn_sig) {
+        FunctionSignature *signature = info->fn_sig;
+        for (int i = 0; signature->param_type_info && i < signature->param_count; ++i) {
+            payload_substitute(&signature->param_type_info[i], def, arguments);
+            TypeInfo *child = signature->param_type_info[i];
+            if (!child) continue;
+            signature->param_types[i] = child->base_type;
+            const char *name = child->generic_name ? child->generic_name : child->opaque_type_name;
+            char *copy = payload_name(name);
+            if (!signature->param_struct_names) signature->param_struct_names = payload_alloc((size_t)signature->param_count, sizeof(char *));
+            free(signature->param_struct_names[i]); signature->param_struct_names[i] = copy;
+        }
+        payload_substitute(&signature->return_type_info, def, arguments);
+        if (signature->return_type_info) {
+            TypeInfo *child = signature->return_type_info;
+            signature->return_type = child->base_type;
+            char *name = payload_name(child->generic_name ? child->generic_name : child->opaque_type_name);
+            free(signature->return_struct_name); signature->return_struct_name = name;
+        }
+        if (signature->return_fn_sig) {
+            TypeInfo nested = {.base_type = TYPE_FUNCTION, .fn_sig = signature->return_fn_sig};
+            TypeInfo *view = &nested;
+            payload_substitute(&view, def, arguments);
+        }
+    }
 }
 TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field, const TypeInfo *arguments) {
     if (!def || arm < 0 || arm >= def->variant_count || field < 0 ||
@@ -2179,9 +2263,11 @@ static bool annotation_names_equal(const char *left, const char *right) {
 }
 static bool signatures_equal_depth(const FunctionSignature *, const FunctionSignature *, unsigned);
 static bool annotations_equal(const TypeInfo *a, const TypeInfo *b, unsigned depth) {
+    if ((a && a->base_type == TYPE_TUPLE && !type_info_tuple_valid(a)) ||
+        (b && b->base_type == TYPE_TUPLE && !type_info_tuple_valid(b))) return false;
     if (a == b) return true;
     if (!a || !b || depth > 128 || a->base_type != b->base_type ||
-        a->type_param_count != b->type_param_count ||
+        (a->base_type != TYPE_TUPLE && a->type_param_count != b->type_param_count) ||
         a->tuple_element_count != b->tuple_element_count ||
         a->row_field_count != b->row_field_count || a->type_var_count != b->type_var_count ||
         a->is_open_row != b->is_open_row ||
@@ -2189,13 +2275,19 @@ static bool annotations_equal(const TypeInfo *a, const TypeInfo *b, unsigned dep
         !annotation_names_equal(a->opaque_type_name, b->opaque_type_name) ||
         !annotation_names_equal(a->row_var_name, b->row_var_name)) return false;
     if (!annotations_equal(a->element_type, b->element_type, depth + 1)) return false;
-    for (int i = 0; i < a->type_param_count; ++i)
+    for (int i = 0; a->base_type != TYPE_TUPLE && i < a->type_param_count; ++i)
         if (!a->type_params || !b->type_params ||
             !annotations_equal(a->type_params[i], b->type_params[i], depth + 1)) return false;
-    for (int i = 0; i < a->tuple_element_count; ++i)
-        if (!a->tuple_types || !b->tuple_types || a->tuple_types[i] != b->tuple_types[i] ||
+    for (int i = 0; i < a->tuple_element_count; ++i) {
+        if (a->base_type == TYPE_TUPLE) {
+            TypeInfo af, bf;
+            const TypeInfo *ac = type_info_tuple_element(a, i, &af);
+            const TypeInfo *bc = type_info_tuple_element(b, i, &bf);
+            if (!ac || !bc || !annotations_equal(ac, bc, depth + 1)) return false;
+        } else if (!a->tuple_types || !b->tuple_types || a->tuple_types[i] != b->tuple_types[i] ||
             !annotation_names_equal(a->tuple_type_names ? a->tuple_type_names[i] : NULL,
-                                    b->tuple_type_names ? b->tuple_type_names[i] : NULL)) return false;
+                                   b->tuple_type_names ? b->tuple_type_names[i] : NULL)) return false;
+    }
     for (int i = 0; i < a->row_field_count; ++i)
         if (!a->row_field_types || !b->row_field_types ||
             a->row_field_types[i] != b->row_field_types[i] ||

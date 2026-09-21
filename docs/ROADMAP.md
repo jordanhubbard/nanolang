@@ -14321,3 +14321,26 @@ not itself correct these consumers or preserve mixed-owner inferred literals.
 - [ ] Preserve exact owner/context through tuple-index projection and inferred
   tuple child proofs; no materialized-name authority or silently reduced scope.
 - [ ] Review source adapters and qualify original and additive full methods.
+
+Before affected execution, my tuple adapter audit confirms that this lane's
+native tuple registry still compares only flat tags and emits fields without
+the SDK complete derived-type closure. I retain this as a required 5.1
+integration dependency: reconcile SDK registry ownership/declaration ordering
+and full callback/tuple emission before claiming native tuple parity. The
+private owned child proof source checkpoint and additive allocation/identity
+controls do not close native or original full-matrix acceptance.
+
+The final tuple consumer audit also finds a legacy fallback after binding
+validation: a missing tuple annotation builds a partly initialized TypeInfo
+from flat literal tags and loses nominal children. Inferred tuples now own a
+complete proof before reaching publication, and parsed explicit tuples carry
+complete annotations. I remove this fallback and refuse missing metadata before
+binding publication; I do not construct a guessed tuple after an earlier error.
+
+The same static audit finds that repeated tuple-literal checking replaces
+`element_types` with unchecked malloc storage without freeing its previous
+array. New contextual tuple checks exercise this existing consumer repeatedly.
+I prepare checked replacement storage, preserve the prior array on failure,
+and publish/free only after all child checks succeed. Empty tuples clear the
+old owned array. This is a source-only defensive correction, not a reproduced
+allocator failure claim.

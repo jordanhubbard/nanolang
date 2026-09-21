@@ -341,9 +341,15 @@ static void retained_callable_consumers(void) {
     predicate_signature.return_struct_name = NULL;
     TypeInfo mapper = {.base_type = TYPE_FUNCTION, .fn_sig = &mapper_signature};
     TypeInfo predicate = {.base_type = TYPE_FUNCTION, .fn_sig = &predicate_signature};
-    const char *fields[] = {"callback", "factory", "mapper", "predicate"};
-    TypeInfo *annotations[] = {&callable, &factory, &mapper, &predicate};
-    identity_union(env, "Callbacks", "T", fields, annotations, 4);
+    Type payload_tags[] = {TYPE_STRUCT, TYPE_STRUCT, TYPE_FUNCTION};
+    char *payload_names[] = {"Item", "T", NULL};
+    TypeInfo *payload_children[] = {&fixed, &formal, &callable};
+    TypeInfo payload_tuple = {.base_type = TYPE_TUPLE, .tuple_element_count = 3,
+        .tuple_types = payload_tags, .tuple_type_names = payload_names,
+        .type_param_count = 3, .type_params = payload_children};
+    const char *fields[] = {"callback", "factory", "mapper", "predicate", "tuple"};
+    TypeInfo *annotations[] = {&callable, &factory, &mapper, &predicate, &payload_tuple};
+    identity_union(env, "Callbacks", "T", fields, annotations, 5);
     TypeInfo *arguments[] = {&fixed};
     TypeInfo instance = {.base_type = TYPE_UNION, .generic_name = "Callbacks", .type_param_count = 1, .type_params = arguments};
     env->current_module = "Caller";
@@ -436,6 +442,74 @@ static void retained_callable_consumers(void) {
     free_function_signature(call.as.call.checked_signature); free(call.as.call.return_struct_type_name);
     free_function_signature(factory_call.as.call.checked_signature); free(factory_call.as.call.return_struct_type_name);
     field.as.field_access.field_name = "callback";
+    /* I compose independently owned children, including a retained mixed-owner callback. */
+    ASTNode *tuple_items[] = {&first, &second, &alias};
+    ASTNode tuple = {.type = AST_TUPLE_LITERAL};
+    tuple.as.tuple_literal.elements = tuple_items; tuple.as.tuple_literal.element_count = 3;
+    NominalView composed = {0}, copied = {0};
+    assert(nominal_value_view(&tuple, env, 0, &composed));
+    assert(composed.children && composed.child_count == 3 && nominal_view_composed_valid(&composed));
+    assert(nominal_view_clone(env, &composed, 0, &copied));
+    assert(copied.children != composed.children && nominal_view_equal(env, &composed, &copied, 0));
+    assert(nominal_view_child(env, &copied, 0, 0, &projected));
+    assert(nominal_equal(nominal_view_identity(env, &projected, TYPE_STRUCT),
+        env_nominal_identity(env, "Item", "Definitions", TYPE_STRUCT)));
+    nominal_view_discard(&projected);
+    assert(nominal_view_child(env, &copied, 1, 0, &projected));
+    assert(nominal_equal(nominal_view_identity(env, &projected, TYPE_STRUCT),
+        env_nominal_identity(env, "Item", "Caller", TYPE_STRUCT)));
+    nominal_view_discard(&projected);
+    env_define_var(env, "packed", TYPE_TUPLE, true, create_void());
+    assert(nominal_view_retain(env, env_get_var(env, "packed"), &composed));
+    nominal_view_discard(&copied);
+    ASTNode packed = {.type = AST_IDENTIFIER}; packed.as.identifier = "packed";
+    ASTNode index = {.type = AST_TUPLE_INDEX}; index.as.tuple_index.tuple = &packed; index.as.tuple_index.index = 2;
+    assert(check_expression(&index, env) == TYPE_FUNCTION);
+    assert(check_callable_contract(env, &expected, "Caller", &index, 0));
+    assert(!check_callable_contract(env, &swapped, "Caller", &index, 0));
+    ASTNode packed_call = {.type = AST_CALL}; packed_call.as.call.func_expr = &index;
+    packed_call.as.call.arg_count = 2; packed_call.as.call.args = call_args;
+    assert(check_indirect_call(&packed_call, env, NULL) == TYPE_STRUCT);
+    free_function_signature(packed_call.as.call.checked_signature); free(packed_call.as.call.return_struct_type_name);
+    const NominalView *packed_proof = env_get_var(env, "packed")->checker_nominal_view;
+    assert(nominal_view_matches_value(env, packed_proof, &tuple, 0));
+    ASTNode *swapped_items[] = {&second, &first, &alias}; ASTNode swapped_tuple = tuple;
+    swapped_tuple.as.tuple_literal.elements = swapped_items;
+    assert(!nominal_view_matches_value(env, packed_proof, &swapped_tuple, 0));
+    ASTNode *nested_items[] = {&packed, &alias}; ASTNode nested_tuple = {.type = AST_TUPLE_LITERAL};
+    nested_tuple.as.tuple_literal.elements = nested_items; nested_tuple.as.tuple_literal.element_count = 2;
+    ASTNode inner_index = {.type = AST_TUPLE_INDEX}; inner_index.as.tuple_index.tuple = &nested_tuple;
+    ASTNode outer_index = index; outer_index.as.tuple_index.tuple = &inner_index;
+    assert(check_callable_contract(env, &expected, "Caller", &outer_index, 0));
+    ASTNode *array_items[] = {&packed, &tuple}; ASTNode tuples = {.type = AST_ARRAY_LITERAL};
+    tuples.as.array_literal.elements = array_items; tuples.as.array_literal.element_count = 2;
+    assert(nominal_value_view(&tuples, env, 0, &composed));
+    assert(composed.children && nominal_view_element(env, &composed, 0));
+    assert(nominal_view_equal(env, &composed, packed_proof, 0)); nominal_view_discard(&composed);
+    array_items[1] = &swapped_tuple;
+    assert(!nominal_value_view(&tuples, env, 0, &composed) && !composed.info);
+    /* I also project through a real selected payload's declaration context. */
+    ASTNode payload_field = field; payload_field.as.field_access.field_name = "tuple";
+    ASTNode payload_index = {.type = AST_TUPLE_INDEX};
+    payload_index.as.tuple_index.tuple = &payload_field; payload_index.as.tuple_index.index = 2;
+    assert(check_callable_contract(env, &expected, "Caller", &payload_index, 0));
+    assert(!check_callable_contract(env, &swapped, "Caller", &payload_index, 0));
+    assert(nominal_value_view(&payload_field, env, 0, &projected));
+    assert(nominal_view_equal(env, packed_proof, &projected, 0)); nominal_view_discard(&projected);
+    branch.as.if_stmt.then_branch = &payload_index; branch.as.if_stmt.else_branch = &index;
+    assert(nominal_callable_view(&branch, env, 0, &projected)); nominal_view_discard(&projected);
+    assert(nominal_callable_view(&payload_index, env, 0, &projected));
+    env_define_var(env, "projected_callback", TYPE_FUNCTION, false, create_void());
+    assert(nominal_view_retain(env, env_get_var(env, "projected_callback"), &projected));
+    ASTNode projected_alias = {.type = AST_IDENTIFIER}; projected_alias.as.identifier = "projected_callback";
+    assert(check_callable_contract(env, &expected, "Caller", &projected_alias, 0));
+    ASTNode projected_call = {.type = AST_CALL}; projected_call.as.call.func_expr = &projected_alias;
+    projected_call.as.call.arg_count = 2; projected_call.as.call.args = call_args;
+    assert(check_indirect_call(&projected_call, env, NULL) == TYPE_STRUCT);
+    free_function_signature(projected_call.as.call.checked_signature);
+    free(projected_call.as.call.return_struct_type_name);
+    index.as.tuple_index.index = 3;
+    assert(!nominal_value_view(&index, env, 0, &projected) && !projected.info);
     const NominalView *assignment_proof = env_get_var(env, "alias")->checker_nominal_view;
     assert(assignment_proof);
     assignment_branch_growth(env, assignment_proof, NULL, &field, true);
@@ -443,6 +517,50 @@ static void retained_callable_consumers(void) {
     TypeInfo explicit_destination = {.base_type = TYPE_FUNCTION, .fn_sig = &expected};
     assignment_branch_growth(env, NULL, &explicit_destination, &field, true);
     assignment_branch_growth(env, NULL, &explicit_destination, &wrong, false);
+    free_environment(env);
+}
+static void complete_tuple_annotations(void) {
+    const char *source =
+        "struct Item { value:int }\n"
+        "fn sample(values:(fn(Item)->Item,array<Item>,(Item,fn()->Item)))->int { return 0 }\n"
+        "shadow sample { assert true }\n";
+    int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+    ASTNode *program = parse_program(tokens, count); assert(program && program->as.program.count == 3);
+    TypeInfo *tuple = program->as.program.items[1]->as.function.params[0].type_info;
+    assert(tuple && type_info_tuple_valid(tuple) && tuple->type_param_count == 3);
+    TypeInfo flat;
+    const TypeInfo *callback = type_info_tuple_element(tuple, 0, &flat);
+    assert(callback && callback->fn_sig && callback->fn_sig->param_count == 1);
+    const TypeInfo *array = type_info_tuple_element(tuple, 1, &flat);
+    assert(array && array->element_type && !strcmp(array->element_type->generic_name, "Item"));
+    const TypeInfo *nested = type_info_tuple_element(tuple, 2, &flat);
+    assert(nested && type_info_tuple_valid(nested));
+    const TypeInfo *factory = type_info_tuple_element(nested, 1, &flat);
+    assert(factory && factory->fn_sig && factory->fn_sig->return_type == TYPE_STRUCT);
+    TypeInfo *copy = NULL;
+    assert(copy_payload_type_info_checked(tuple, &copy));
+    assert(copy->type_params[0] != callback && type_infos_equal(tuple, copy));
+    copy->tuple_types[0] = TYPE_INT;
+    assert(!type_info_tuple_valid(copy) && !type_infos_equal(tuple, copy));
+    TypeInfo sentinel = {.base_type = TYPE_BOOL}, *output = &sentinel;
+    assert(!copy_payload_type_info_checked(copy, &output) && output == &sentinel);
+    free_payload_type_info(copy);
+    Environment *env = create_environment(); assert(env);
+    assert(type_check_module(program, env));
+    free_environment(env); free_ast(program); free_tokens(tokens, count);
+    /* I refuse missing metadata before the old flat fallback can publish it. */
+    env = create_environment(); assert(env);
+    ASTNode number = {.type = AST_NUMBER}, literal = {.type = AST_TUPLE_LITERAL};
+    ASTNode *elements[] = {&number};
+    literal.as.tuple_literal.elements = elements; literal.as.tuple_literal.element_count = 1;
+    ASTNode binding = {.type = AST_LET};
+    binding.as.let.name = "missing_tuple_annotation"; binding.as.let.var_type = TYPE_TUPLE;
+    binding.as.let.value = &literal;
+    TypeChecker checker = {.env = env}; int errors = g_typecheck_error_count;
+    check_statement(&checker, &binding);
+    assert(checker.has_error && !env_get_var(env, binding.as.let.name) && !binding.as.let.type_info);
+    g_typecheck_error_count = errors;
+    free(literal.as.tuple_literal.element_types);
     free_environment(env);
 }
 static void constructor_annotation_parsing(void) {
@@ -542,7 +660,7 @@ static void constructor_failure_rollback(void) {
     }
 }
 int main(void) {
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); constructor_annotation_parsing(); constructor_failure_rollback();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); constructor_failure_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }

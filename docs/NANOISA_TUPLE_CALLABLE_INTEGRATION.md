@@ -103,3 +103,24 @@ on this lane before the eventual complete branch integration. I retain the
 same public tuple APIs and representation, including complete-child validation
 and duplicated-view refresh. The final merge must preserve both implementations'
 additional checker/opaque authority and code-generation consumers.
+
+## Source checkpoint and remaining native closure
+
+I reuse the SDK d1d2/417 parser and tuple accessor representation at this source
+checkpoint. My checked copier validates duplicate tuple facts; substitution and
+materialization refresh the independent flat view after changing full children.
+Private composed proofs retain each child's original owner/context through
+clone, literal construction, nested tuple indexing, homogeneous arrays,
+mutation and callback consumers. I add actual selected-payload tuple projection
+and mixed-owner inferred tuple controls, plus separate allocation-prefix and
+transient sweeps for construction/publication and clone/projection/materialization.
+Those controls have not executed at this checkpoint.
+
+My current native tuple registry still compares flat element tags and emits
+fields through its older type spelling path. The SDK complete derived-type
+registry, temporary tuple ownership, forward declarations and nested callable
+field emission are required integration dependencies, not proved by these
+checker changes. I must reconcile that existing SDK implementation rather than
+invent a second tuple layout or naming scheme. Native tuple/callback producer
+coverage and all original 18 source plus 8 native methods remain open; I make
+no build, runtime or native-parity claim from this source review checkpoint.

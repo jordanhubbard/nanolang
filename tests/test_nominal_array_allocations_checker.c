@@ -113,6 +113,52 @@ bool array_test_callable_consumer(Environment *env, TypeInfo **output) {
     return ok;
 }
 
+/* I build a tuple through actual expression consumers, not a fabricated proof. */
+bool array_test_prepare_tuple_leaves(Environment *env) {
+    TypeInfo item = {.base_type = TYPE_STRUCT, .generic_name = "Item"};
+    const char *names[] = {"fixed", "actual"};
+    const char *owners[] = {"Definitions", "Caller"};
+    for (size_t i = 0; i < 2; ++i) {
+        env_define_var(env, names[i], TYPE_STRUCT, false, create_void());
+        NominalView leaf = {0};
+        if (!nominal_view_copy_context(env, &item, owners[i], NULL, 0, &leaf)) return false;
+        bool ok = nominal_view_retain(env, env_get_var(env, names[i]), &leaf);
+        nominal_view_discard(&leaf);
+        if (!ok) return false;
+    }
+    return true;
+}
+bool array_test_tuple_consumer(Environment *env, Symbol *publication, TypeInfo **output) {
+    ASTNode fixed = {.type = AST_IDENTIFIER}, actual = {.type = AST_IDENTIFIER};
+    ASTNode callback = {.type = AST_IDENTIFIER}, tuple = {.type = AST_TUPLE_LITERAL};
+    fixed.as.identifier = "fixed"; actual.as.identifier = "actual"; callback.as.identifier = "callback";
+    ASTNode *elements[] = {&fixed, &actual, &callback};
+    tuple.as.tuple_literal.elements = elements; tuple.as.tuple_literal.element_count = 3;
+    NominalView source = {0}, copy = {0}, projected = {0};
+    TypeInfo *concrete = NULL;
+    bool ok = nominal_value_view(&tuple, env, 0, &source);
+    if (ok && publication) ok = nominal_view_retain(env, publication, &source);
+    else if (ok) {
+        ok = nominal_view_clone(env, &source, 0, &copy) && nominal_view_wrap_array(&copy) &&
+            nominal_view_element(env, &copy, 0) && nominal_view_child(env, &copy, 2, 0, &projected) &&
+            nominal_view_equal(env, &source, &copy, 0) && nominal_view_materialize(env, &copy, 0, &concrete);
+        if (ok) {
+            TypeInfo flat;
+            const TypeInfo *child = type_info_tuple_element(concrete, 2, &flat);
+            if (!projected.owned_context || !child || child->base_type != TYPE_FUNCTION ||
+                strcmp(child->fn_sig->param_type_info[1]->type_params[0]->generic_name, "Item") ||
+                !nominal_equal(nominal_view_identity(env, &copy.children[0], TYPE_STRUCT),
+                    env_nominal_identity(env, "Item", "Definitions", TYPE_STRUCT)) ||
+                !nominal_equal(nominal_view_identity(env, &copy.children[1], TYPE_STRUCT),
+                    env_nominal_identity(env, "Item", "Caller", TYPE_STRUCT))) abort();
+            *output = concrete;
+        }
+    }
+    if (!ok) free_payload_type_info(concrete);
+    nominal_view_discard(&projected); nominal_view_discard(&copy); nominal_view_discard(&source);
+    return ok;
+}
+
 /* The AST key remains borrowed; failed publication must leave the list intact. */
 bool array_test_constructor_registry(Environment *env, ASTNode *expression) {
     TypeInfo argument = {.base_type = TYPE_STRUCT, .generic_name = "Item"};

@@ -243,6 +243,75 @@ static void callable_context_controls(void) {
     }
 }
 
+extern bool array_test_prepare_tuple_leaves(Environment *);
+extern bool array_test_tuple_consumer(Environment *, Symbol *, TypeInfo **);
+static size_t tuple_context_attempt(size_t prefix, bool transient, bool publication) {
+    Environment *env = create_environment(); CHECK(env);
+    for (int i = 0; i < 2; ++i) {
+        StructDef record = {0}; record.name = strdup("Item"); record.module_name = i ? "Caller" : "Definitions";
+        CHECK(record.name); env_define_struct(env, record);
+    }
+    env_define_var(env, "callback", TYPE_FUNCTION, false, create_void());
+    CHECK(array_test_prepare_callable(env, true) && array_test_prepare_tuple_leaves(env));
+    Symbol *binding = env_get_var(env, "callback");
+    const void *proof = binding->checker_nominal_view;
+    TypeInfo *prior = binding->type_info;
+    TypeInfo sentinel = {.base_type = TYPE_BOOL}, *output = &sentinel;
+    Symbol published = {.type_info = &sentinel, .nominal_owner = "unchanged"};
+    begin(prefix, transient);
+    bool ok = array_test_tuple_consumer(env, publication ? &published : NULL, &output);
+    size_t count = stop();
+    if (prefix == SIZE_MAX) CHECK(ok && !failed && (publication ?
+        published.checker_nominal_view != NULL : output != &sentinel));
+    else CHECK(!ok && failed && output == &sentinel && published.type_info == &sentinel &&
+        !published.checker_nominal_view && !strcmp(published.nominal_owner, "unchanged"));
+    CHECK(binding->type_info == prior && binding->checker_nominal_view == proof);
+    if (ok && !publication) free_payload_type_info(output);
+    /* Failed publication can retain an unpublished concrete copy until teardown. */
+    if (!publication) CHECK(!live);
+    free_environment(env); CHECK(!live);
+    return count;
+}
+static void tuple_context_controls(void) {
+    for (int publication = 0; publication < 2; ++publication) {
+        size_t count = tuple_context_attempt(SIZE_MAX, false, publication != 0); CHECK(count > 30);
+        printf("I measure composed tuple route %d: %zu allocation attempts.\n", publication, count);
+        for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+            tuple_context_attempt(i, transient != 0, publication != 0);
+            CHECK(tuple_context_attempt(SIZE_MAX, false, publication != 0) == count);
+        }
+    }
+}
+
+static size_t tuple_tags_attempt(size_t prefix, bool transient) {
+    Environment *env = create_environment(); CHECK(env);
+    ASTNode number = {.type = AST_NUMBER}, literal = {.type = AST_TUPLE_LITERAL};
+    ASTNode *elements[] = {&number};
+    literal.as.tuple_literal.elements = elements; literal.as.tuple_literal.element_count = 1;
+    CHECK(check_expression(&literal, env) == TYPE_TUPLE);
+    Type *prior = literal.as.tuple_literal.element_types; CHECK(prior && prior[0] == TYPE_INT);
+    begin(prefix, transient); Type result = check_expression(&literal, env); size_t count = stop();
+    if (prefix == SIZE_MAX) CHECK(result == TYPE_TUPLE && !failed &&
+        literal.as.tuple_literal.element_types != prior && literal.as.tuple_literal.element_types[0] == TYPE_INT);
+    else CHECK(result == TYPE_UNKNOWN && failed && literal.as.tuple_literal.element_types == prior && prior[0] == TYPE_INT);
+    CHECK(check_expression(&literal, env) == TYPE_TUPLE); CHECK(!live);
+    prior = literal.as.tuple_literal.element_types;
+    ASTNode unresolved = {.type = AST_IDENTIFIER}; unresolved.as.identifier = "missing_tuple_child";
+    elements[0] = &unresolved;
+    CHECK(check_expression(&literal, env) == TYPE_UNKNOWN && literal.as.tuple_literal.element_types == prior && prior[0] == TYPE_INT);
+    literal.as.tuple_literal.element_count = 0;
+    CHECK(check_expression(&literal, env) == TYPE_TUPLE && !literal.as.tuple_literal.element_types);
+    free_environment(env); CHECK(!live);
+    return count;
+}
+static void tuple_tags_controls(void) {
+    size_t count = tuple_tags_attempt(SIZE_MAX, false); CHECK(count == 1);
+    for (int transient = 0; transient < 2; ++transient) {
+        tuple_tags_attempt(0, transient != 0);
+        CHECK(tuple_tags_attempt(SIZE_MAX, false) == count);
+    }
+}
+
 extern bool array_test_constructor_registry(Environment *, ASTNode *);
 static size_t constructor_registry_attempt(size_t prefix, bool transient) {
     Environment *env = create_environment(); CHECK(env);
@@ -284,7 +353,7 @@ int main(void) {
     CHECK(copy_payload_type_info_checked(chain + 1, &out)); free_payload_type_info(out);
     CHECK(copy_payload_type_info_checked(NULL, &out) && out == NULL);
     CHECK(!copy_payload_type_info_checked(chain, NULL));
-    registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); constructor_registry_controls();
+    registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); tuple_context_controls(); tuple_tags_controls(); constructor_registry_controls();
     printf("I passed %zu separate checker annotation allocation assertions.\n", checks);
     return 0;
 }

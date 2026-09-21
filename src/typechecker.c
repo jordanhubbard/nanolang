@@ -5,6 +5,7 @@
 #include "colors.h"
 #include "builtins_registry.h"
 #include <ctype.h>
+#include <limits.h>
 
 /* Returns true if name is a single uppercase letter — a generic type variable */
 static bool is_type_variable_name(const char *name) {
@@ -392,6 +393,8 @@ typedef struct CheckerNominalView {
     TypeInfo *info;
     const char *owner;
     struct OwnedNominalContext *owned_context;
+    struct CheckerNominalView *children;
+    size_t child_count;
     bool payload;
     int variant;
 } NominalView;
@@ -438,6 +441,8 @@ typedef struct NominalSubstitution {
     const char *argument_owner;
     const struct NominalSubstitution *argument_context;
 } NominalSubstitution;
+static bool contextual_argument_matches(ASTNode *, Environment *, const TypeInfo *, const char *,
+                                        const NominalSubstitution *, unsigned);
 static bool nominal_array_requires_context(Environment *, const TypeInfo *, const char *, const NominalSubstitution *, unsigned);
 static bool nominal_array_matches_context(Environment *, const TypeInfo *, const char *, ASTNode *, unsigned, const NominalSubstitution *);
 static bool nominal_substitute_annotation(const TypeInfo **info, const char **owner,
@@ -604,7 +609,8 @@ static bool checked_annotations_equal_context(Environment *env, const TypeInfo *
         OpaqueTypeDef *right = bv.opaque_type_name ? env_get_opaque_type(env, bv.opaque_type_name) : NULL;
         if (!left || !right || left != right) return false;
     }
-    if (av.type_param_count != bv.type_param_count ||
+    if ((ak == TYPE_TUPLE && (!type_info_tuple_valid(&av) || !type_info_tuple_valid(&bv))) ||
+        (ak != TYPE_TUPLE && av.type_param_count != bv.type_param_count) ||
         av.tuple_element_count != bv.tuple_element_count || av.row_field_count != bv.row_field_count ||
         av.type_var_count != bv.type_var_count || av.is_open_row != bv.is_open_row ||
         !annotation_text_equal(av.generic_name, bv.generic_name) ||
@@ -612,7 +618,7 @@ static bool checked_annotations_equal_context(Environment *env, const TypeInfo *
         !annotation_text_equal(av.row_var_name, bv.row_var_name)) return false;
     if (ak == TYPE_ARRAY && (!av.element_type || !bv.element_type)) return false;
     if (!checked_annotations_equal_context(env, av.element_type, a_owner, bv.element_type, b_owner, depth + 1, a_context, b_context)) return false;
-    for (int i = 0; i < av.type_param_count; ++i)
+    for (int i = 0; ak != TYPE_TUPLE && i < av.type_param_count; ++i)
         if (!av.type_params || !bv.type_params || !av.type_params[i] || !bv.type_params[i] ||
             !checked_annotations_equal_context(env, av.type_params[i], a_owner, bv.type_params[i], b_owner, depth + 1, a_context, b_context)) return false;
     for (int i = 0; i < av.tuple_element_count; ++i) {
@@ -621,7 +627,10 @@ static bool checked_annotations_equal_context(Environment *env, const TypeInfo *
             .generic_name = av.tuple_type_names ? av.tuple_type_names[i] : NULL};
         TypeInfo right = {.base_type = bv.tuple_types[i],
             .generic_name = bv.tuple_type_names ? bv.tuple_type_names[i] : NULL};
-        if (!checked_annotations_equal_context(env, &left, a_owner, &right, b_owner, depth + 1, a_context, b_context)) return false;
+        const TypeInfo *ac = ak == TYPE_TUPLE ? type_info_tuple_element(&av, i, &left) : &left;
+        const TypeInfo *bc = ak == TYPE_TUPLE ? type_info_tuple_element(&bv, i, &right) : &right;
+        if (!ac || !bc || !checked_annotations_equal_context(env, ac, a_owner, bc, b_owner,
+                depth + 1, a_context, b_context)) return false;
     }
     for (int i = 0; i < av.row_field_count; ++i) {
         if (!av.row_field_types || !bv.row_field_types || !av.row_field_names || !bv.row_field_names ||
@@ -756,6 +765,13 @@ static NominalIdentity nominal_view_identity(Environment *env, const NominalView
 
 static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type type, unsigned depth) {
     NominalIdentity none = {TYPE_UNKNOWN, 0};
+    if (expr && expr->type == AST_TUPLE_INDEX) {
+        NominalView projected = {0};
+        if (!nominal_value_view(expr, env, depth + 1, &projected)) return (NominalIdentity){TYPE_UNKNOWN, 0};
+        NominalIdentity id = nominal_view_identity(env, &projected, type);
+        nominal_view_discard(&projected);
+        return id;
+    }
     if (!expr || depth > 128) return none;
     if (expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
@@ -907,14 +923,7 @@ static bool retain_union_binding_context(Environment *env, Symbol *binding,
 
 /* I compare a retained template with its context, never its flattened spelling. */
 static bool check_retained_nominal_value(Environment *env, const NominalView *expected, ASTNode *value) {
-    NominalView actual = {0};
-    bool matches = nominal_value_view(value, env, 0, &actual) &&
-        expected->payload == actual.payload && (!expected->payload || expected->variant == actual.variant) &&
-        checked_annotations_equal_context(env, expected->info, expected->owner, actual.info, actual.owner,
-            0, nominal_view_context(expected), nominal_view_context(&actual));
-    if (!matches && !expected->payload && expected->info->base_type == TYPE_ARRAY)
-        matches = nominal_array_matches_context(env, expected->info, expected->owner, value, 0, nominal_view_context(expected));
-    nominal_view_discard(&actual);
+    bool matches = nominal_view_matches_value(env, expected, value, 0);
     if (!matches) emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
         "I require the retained nominal declaration and every substituted argument owner.",
         "Preserve the selected payload variant and complete nested annotation.");
@@ -945,6 +954,7 @@ static bool nominal_array_requires_identity(Environment *env, const TypeInfo *in
     if (!info || depth > 128) return true;
     if (info->base_type == TYPE_ARRAY)
         return nominal_array_requires_identity(env, info->element_type, owner, depth + 1);
+    if (info->base_type == TYPE_TUPLE) return true;
     if (info->base_type != TYPE_STRUCT && info->base_type != TYPE_LIST_GENERIC &&
         info->base_type != TYPE_FUNCTION) return false;
     if (info->base_type != TYPE_STRUCT) return true;
@@ -995,14 +1005,15 @@ static bool nominal_array_matches_context(Environment *env, const TypeInfo *expe
         for (int i = 0; i < expected->tuple_element_count; ++i) {
             TypeInfo element = {.base_type = expected->tuple_types[i],
                 .generic_name = expected->tuple_type_names ? expected->tuple_type_names[i] : NULL};
-            if (!nominal_array_matches_context(env, &element, owner,
+            const TypeInfo *child = type_info_tuple_element(expected, i, &element);
+            if (!child || !nominal_array_matches_context(env, child, owner,
                     value->as.tuple_literal.elements[i], depth + 1, context)) return false;
         }
         return true;
     }
     NominalView actual = {0};
     if (!nominal_value_view(value, env, depth + 1, &actual)) return false;
-    bool same = checked_annotations_equal_context(env, expected, owner, actual.info, actual.owner, depth + 1, context, nominal_view_context(&actual));
+    bool same = nominal_view_matches_annotation(env, &actual, expected, owner, context, depth + 1);
     nominal_view_discard(&actual);
     return same;
 }
@@ -1040,14 +1051,13 @@ static bool check_nominal_array_mutation(Environment *env, ASTNode *call) {
     ASTNode *value = call->as.call.args[push ? 1 : 2];
     if (receiver->type == AST_ARRAY_LITERAL && receiver->as.array_literal.element_count == 0)
         return true; /* No retained element declaration exists on this literal. */
-    NominalView view = {0};
+    NominalView view = {0}, element = {0};
     bool matches = nominal_value_view(receiver, env, 0, &view) &&
-        view.info->base_type == TYPE_ARRAY && view.info->element_type;
-    if (matches && nominal_array_requires_context(env, view.info->element_type, view.owner, nominal_view_context(&view), 0))
-        matches = checked_annotations_equal_context(env, view.info->element_type, view.owner,
-                      view.info->element_type, view.owner, 0, nominal_view_context(&view), nominal_view_context(&view)) &&
-                  nominal_array_matches_context(env, view.info->element_type, view.owner, value, 0, nominal_view_context(&view));
-    nominal_view_discard(&view);
+        view.info->base_type == TYPE_ARRAY && nominal_view_child(env, &view, 0, 0, &element);
+    if (matches && (element.children || nominal_array_requires_context(env, element.info, element.owner,
+            nominal_view_context(&element), 0)))
+        matches = nominal_view_matches_value(env, &element, value, 0);
+    nominal_view_discard(&element); nominal_view_discard(&view);
     if (!matches)
         emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
             "I require the receiver's declared nominal element type for this array mutation.",
@@ -1060,6 +1070,13 @@ static bool check_nominal_array_mutation(Environment *env, ASTNode *call) {
 static bool check_nominal_contract(Environment *env, Type type, const TypeInfo *info,
                                     const char *name, const char *owner, ASTNode *value) {
     if (type == TYPE_ARRAY) return check_nominal_array_contract(env, info, owner, value);
+    if (type == TYPE_TUPLE) {
+        if (info && contextual_argument_matches(value, env, info, owner, NULL, 0)) return true;
+        emit_context_error("E001 TYPE MISMATCH", value ? value->line : 0, value ? value->column : 0, 1,
+            "I require every tuple child's complete declared annotation and owner.",
+            "Preserve nested callable and container facts at this destination.");
+        return false;
+    }
     if (type == TYPE_FUNCTION) {
         /* Unannotated legacy builtin callbacks retain their separate checks.
          * They do not provide a nominal signature for an indirect list call. */
@@ -1195,6 +1212,13 @@ static FunctionSignature *function_result_signature(ASTNode *call, Environment *
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
     if (expr->type == AST_UNION_CONSTRUCT) return expr->as.union_construct.type_info;
+    if (expr->type == AST_TUPLE_INDEX) {
+        TypeInfo *tuple = try_get_expr_type_info(expr->as.tuple_index.tuple, env);
+        int index = expr->as.tuple_index.index;
+        if (tuple && tuple->base_type == TYPE_TUPLE && tuple->type_param_count &&
+            type_info_tuple_valid(tuple) && index >= 0 && index < tuple->tuple_element_count)
+            return tuple->type_params[index];
+    }
     if (expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
         if (sym) return sym->type_info;
@@ -1708,6 +1732,15 @@ static void apply_concrete_union_arrays(Environment *env, const TypeInfo *expect
         }
         return;
     }
+    if (expected->base_type == TYPE_TUPLE && value->type == AST_TUPLE_LITERAL &&
+        expected->tuple_element_count == value->as.tuple_literal.element_count) {
+        for (int i = 0; i < expected->tuple_element_count; ++i) {
+            TypeInfo flat;
+            const TypeInfo *child = type_info_tuple_element(expected, i, &flat);
+            if (child) apply_concrete_union_arrays(env, child, expected_owner, value->as.tuple_literal.elements[i], depth + 1);
+        }
+        return;
+    }
     if (expected->base_type == TYPE_ARRAY && expected->element_type) {
         if (value->type == AST_ARRAY_LITERAL)
             for (int i = 0; i < value->as.array_literal.element_count; ++i)
@@ -1826,8 +1859,7 @@ static bool record_field_array_matches(Environment *env, const TypeInfo *expecte
         }
         NominalView actual = {0};
         if (!nominal_value_view(value, env, depth + 1, &actual)) return false;
-        bool valid = checked_annotations_equal_context(env, expected, owner, actual.info, actual.owner,
-            depth + 1, NULL, nominal_view_context(&actual));
+        bool valid = nominal_view_matches_annotation(env, &actual, expected, owner, NULL, depth + 1);
         nominal_view_discard(&actual);
         return valid;
     }
@@ -1849,6 +1881,14 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
     
     switch (expr->type) {
+        case AST_TUPLE_INDEX: {
+            NominalView projected = {0};
+            if (!nominal_value_view(expr, env, 0, &projected)) return NULL;
+            NominalIdentity id = nominal_view_identity(env, &projected, projected.info->base_type);
+            nominal_view_discard(&projected);
+            return env_nominal_name(env, id);
+        }
+
         case AST_BLOCK:
             if (expr->as.block.count > 0) {
                 ASTNode *tail = expr->as.block.statements[expr->as.block.count - 1];
@@ -2042,7 +2082,7 @@ static Type map_callback_type(ASTNode *callback, Environment *env, int *arity, T
     *arity = -1; *argument = TYPE_UNKNOWN;
     NominalView view = {0}; TypeInfo *concrete = NULL;
     if (!nominal_callable_view(callback, env, 0, &view) ||
-        !nominal_materialize(env, view.info, view.owner, nominal_view_context(&view), 0, &concrete)) {
+        !nominal_view_materialize(env, &view, 0, &concrete)) {
         nominal_view_discard(&view); return TYPE_UNKNOWN;
     }
     FunctionSignature *signature = concrete->fn_sig;
@@ -2449,9 +2489,8 @@ static Type check_reduce_call(ASTNode *call, Environment *env) {
         valid = nominal_view_copy_context(env, annotation, callable.owner, nominal_view_context(&callable), 0, &parameters[i]);
     }
     valid = valid && nominal_callable_result(env, &callable, 0, &result) &&
-        checked_annotations_equal_context(env, parameters[0].info, parameters[0].owner, result.info, result.owner,
-            0, nominal_view_context(&parameters[0]), nominal_view_context(&result)) &&
-        nominal_array_matches_context(env, parameters[0].info, parameters[0].owner, initial, 0, nominal_view_context(&parameters[0]));
+        nominal_view_equal(env, &parameters[0], &result, 0) &&
+        nominal_view_matches_value(env, &parameters[0], initial, 0);
     if (valid && array->type == AST_ARRAY_LITERAL) {
         if (!array->as.array_literal.element_count) {
             TypeInfo empty_element = {.base_type = infer_array_element_type(array, env)};
@@ -2459,12 +2498,10 @@ static Type check_reduce_call(ASTNode *call, Environment *env) {
                 parameters[1].info, parameters[1].owner, 0, NULL, nominal_view_context(&parameters[1]));
         }
         for (int i = 0; valid && i < array->as.array_literal.element_count; ++i)
-            valid = nominal_array_matches_context(env, parameters[1].info, parameters[1].owner,
-                array->as.array_literal.elements[i], 0, nominal_view_context(&parameters[1]));
+            valid = nominal_view_matches_value(env, &parameters[1], array->as.array_literal.elements[i], 0);
     } else if (valid) {
         valid = nominal_value_view(array, env, 0, &input) && nominal_view_element(env, &input, 0) &&
-            checked_annotations_equal_context(env, input.info, input.owner, parameters[1].info, parameters[1].owner,
-                0, nominal_view_context(&input), nominal_view_context(&parameters[1]));
+            nominal_view_equal(env, &input, &parameters[1], 0);
     }
     nominal_view_discard(&input); nominal_view_discard(&result);
     nominal_view_discard(&parameters[0]); nominal_view_discard(&parameters[1]); nominal_view_discard(&callable);
@@ -2545,8 +2582,9 @@ static bool contextual_argument_matches(ASTNode *argument, Environment *env, con
         for (int i = 0; matches && i < expected->tuple_element_count; ++i) {
             TypeInfo element = {.base_type = expected->tuple_types[i],
                 .generic_name = expected->tuple_type_names ? expected->tuple_type_names[i] : NULL};
-            matches = contextual_argument_matches(argument->as.tuple_literal.elements[i], env,
-                &element, owner, context, depth + 1);
+            const TypeInfo *child = type_info_tuple_element(expected, i, &element);
+            matches = child && contextual_argument_matches(argument->as.tuple_literal.elements[i], env,
+                child, owner, context, depth + 1);
         }
     } else if (matches && (kind == TYPE_STRUCT || kind == TYPE_LIST_GENERIC || kind == TYPE_FUNCTION ||
                            kind == TYPE_UNION || kind == TYPE_ARRAY || kind == TYPE_TUPLE || expected->row_field_count > 0)) {
@@ -2589,7 +2627,7 @@ static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignatu
         }
     }
     TypeInfo *concrete = NULL;
-    if (!valid || !nominal_materialize(env, callee.info, callee.owner, nominal_view_context(&callee), 0, &concrete)) {
+    if (!valid || !nominal_view_materialize(env, &callee, 0, &concrete)) {
         nominal_view_discard(&callee);
         return TYPE_UNKNOWN;
     }
@@ -5233,29 +5271,22 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_TUPLE_LITERAL: {
-            /* Type check tuple literal: (expr1, expr2, expr3) */
-            int element_count = expr->as.tuple_literal.element_count;
-            
-            /* Empty tuple is valid */
-            if (element_count == 0) {
-                expr->as.tuple_literal.element_types = NULL;
-                return TYPE_TUPLE;
-            }
-            
-            /* Allocate space for element types */
-            expr->as.tuple_literal.element_types = malloc(sizeof(Type) * element_count);
-            
-            /* Type check each element */
-            for (int i = 0; i < element_count; i++) {
-                Type elem_type = check_expression(expr->as.tuple_literal.elements[i], env);
-                if (elem_type == TYPE_UNKNOWN) {
-                    fprintf(stderr, "Error at line %d, column %d: Tuple element %d has unknown type\n",
-                            expr->line, expr->column, i);
+            int count = expr->as.tuple_literal.element_count;
+            if (count < 0 || (size_t)count > SIZE_MAX / sizeof(Type) ||
+                (count && !expr->as.tuple_literal.elements)) return TYPE_UNKNOWN;
+            Type *types = count ? malloc((size_t)count * sizeof *types) : NULL;
+            if (count && !types) return TYPE_UNKNOWN;
+            for (int i = 0; i < count; ++i) {
+                types[i] = check_expression(expr->as.tuple_literal.elements[i], env);
+                if (types[i] == TYPE_UNKNOWN) {
+                    free(types);
+                    fprintf(stderr, "I cannot resolve tuple element %d at line %d, column %d.\n",
+                            i, expr->line, expr->column);
                     return TYPE_UNKNOWN;
                 }
-                expr->as.tuple_literal.element_types[i] = elem_type;
             }
-            
+            free(expr->as.tuple_literal.element_types);
+            expr->as.tuple_literal.element_types = types;
             return TYPE_TUPLE;
         }
 
@@ -5269,6 +5300,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
             
+            NominalView projected = {0};
+            if (nominal_value_view(expr, env, 0, &projected)) {
+                Type result = projected.info->base_type;
+                nominal_view_discard(&projected);
+                return result;
+            }
             /* Get the tuple expression to check bounds */
             ASTNode *tuple_expr = expr->as.tuple_index.tuple;
             int index = expr->as.tuple_index.index;
@@ -5305,11 +5342,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
             
-            /* For function returns or other complex expressions, we can't statically determine the type.
-             * Return TYPE_INT as a conservative estimate.
-             * TODO: Store TypeInfo in function return types for complete type checking.
-             */
-            return TYPE_INT;
+            emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                "I require a complete in-range tuple element annotation.",
+                "Preserve the tuple's original child types and declaration owners.");
+            return TYPE_UNKNOWN;
         }
 
         case AST_TRY_OP: {
@@ -5724,8 +5760,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     array_owner_known = nominal_value_view(stmt->as.let.value, tc->env, 0, &array);
                     if (array_owner_known && array.info->base_type == TYPE_ARRAY) {
                         TypeInfo *concrete = NULL;
-                        if (!nominal_materialize(tc->env, array.info, array.owner,
-                                nominal_view_context(&array), 0, &concrete) ||
+                        if (!nominal_view_materialize(tc->env, &array, 0, &concrete) ||
                             !nominal_view_retain(tc->env, &inferred_proof, &array)) {
                             free_payload_type_info(concrete);
                             nominal_view_discard(&array);
@@ -5747,7 +5782,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     } else {
                         array_owner_known = false;
                         if (stmt->as.let.element_type == TYPE_STRUCT || stmt->as.let.element_type == TYPE_ARRAY ||
-                            stmt->as.let.element_type == TYPE_LIST_GENERIC || stmt->as.let.element_type == TYPE_FUNCTION) {
+                            stmt->as.let.element_type == TYPE_LIST_GENERIC || stmt->as.let.element_type == TYPE_FUNCTION ||
+                            stmt->as.let.element_type == TYPE_TUPLE) {
                             nominal_view_discard(&array);
                             emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
                                 "I cannot retain the declaration owner of this inferred array.",
@@ -5761,19 +5797,18 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 if (!inferred_proof.checker_nominal_view) {
                     NominalView source = {0};
                     bool source_known = nominal_value_view(stmt->as.let.value, tc->env, 0, &source);
-                    if (!source_known && inferred == TYPE_UNION) {
+                    if (!source_known && (inferred == TYPE_UNION || inferred == TYPE_TUPLE)) {
                         nominal_view_discard(&source);
                         emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
-                            "I cannot retain the declaration owner of this inferred union.",
+                            "I cannot retain the complete declaration proof of this inferred composite.",
                             "Preserve every concrete argument and its original owner.");
                         tc->has_error = true;
                         return TYPE_VOID;
                     }
                     if (source_known &&
-                        (source.payload || source.owned_context || (source.info->base_type == TYPE_UNION || source.info->base_type == TYPE_FUNCTION))) {
+                        (source.payload || source.owned_context || source.children || (source.info->base_type == TYPE_UNION || source.info->base_type == TYPE_FUNCTION || source.info->base_type == TYPE_TUPLE))) {
                         TypeInfo *concrete = NULL;
-                        if (!nominal_materialize(tc->env, source.info, source.owner,
-                                nominal_view_context(&source), 0, &concrete) ||
+                        if (!nominal_view_materialize(tc->env, &source, 0, &concrete) ||
                             !nominal_view_retain(tc->env, &inferred_proof, &source)) {
                             free_payload_type_info(concrete);
                             nominal_view_discard(&source);
@@ -6037,36 +6072,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Create TypeInfo for tuples or use existing from parser for generic types */
             if (!retain_let_function_type(tc, stmt, declared_type)) return TYPE_UNKNOWN;
             TypeInfo *type_info = stmt->as.let.type_info;  /* Use parser's TypeInfo if available */
-            if (!type_info && declared_type == TYPE_TUPLE && stmt->as.let.value->type == AST_TUPLE_LITERAL) {
-                /* Create TypeInfo from tuple literal */
-                ASTNode *tuple_lit = stmt->as.let.value;
-                type_info = malloc(sizeof(TypeInfo));
-                type_info->base_type = TYPE_TUPLE;
-                type_info->element_type = NULL;
-                type_info->generic_name = NULL;
-                type_info->type_params = NULL;
-                type_info->type_param_count = 0;
-                type_info->tuple_element_count = tuple_lit->as.tuple_literal.element_count;
-                
-                /* Copy tuple element types */
-                if (type_info->tuple_element_count > 0) {
-                    type_info->tuple_types = malloc(sizeof(Type) * type_info->tuple_element_count);
-                    type_info->tuple_type_names = malloc(sizeof(char*) * type_info->tuple_element_count);
-                    
-                    for (int i = 0; i < type_info->tuple_element_count; i++) {
-                        if (tuple_lit->as.tuple_literal.element_types) {
-                            type_info->tuple_types[i] = tuple_lit->as.tuple_literal.element_types[i];
-                        } else {
-                            type_info->tuple_types[i] = TYPE_UNKNOWN;
-                        }
-                        type_info->tuple_type_names[i] = NULL;  /* TODO: Handle struct/union types */
-                    }
-                } else {
-                    type_info->tuple_types = NULL;
-                    type_info->tuple_type_names = NULL;
-                }
+            if (!type_info && declared_type == TYPE_TUPLE) {
+                emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                    "I cannot publish a tuple binding without its complete child annotations.",
+                    "Preserve the parsed destination or the checked inferred tuple proof.");
+                tc->has_error = true;
+                return TYPE_UNKNOWN;
             }
-            
+
             /* Add to environment */
             /* Use declared_type which has been corrected for unions and enums */
             Type env_type = declared_type;
@@ -6403,6 +6416,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         "Preserve the function result's complete annotation.");
                     tc->has_error = true;
                 }
+                if (tc->current_function_return_type == TYPE_TUPLE &&
+                    !check_nominal_contract(tc->env, TYPE_TUPLE, tc->current_function_return_info, NULL,
+                        tc->env->current_module, stmt->as.return_stmt.value)) tc->has_error = true;
                 if (!check_record_array_contract(tc->env, tc->current_function_return_type,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name,
                         tc->env->current_module, stmt->as.return_stmt.value)) tc->has_error = true;

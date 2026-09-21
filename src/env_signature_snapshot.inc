@@ -59,6 +59,7 @@ static bool snapshot_type(const TypeInfo *source, TypeInfo **out, unsigned depth
     if (!source) { *out = NULL; return true; }
     if (depth >= 128 || source->type_param_count < 0 || source->tuple_element_count < 0 ||
         source->row_field_count < 0 || source->type_var_count < 0) return false;
+    if (source->base_type == TYPE_TUPLE && !type_info_tuple_valid(source)) return false;
     TypeInfo *copy = calloc(1, sizeof(*copy));
     if (!copy) return false;
     copy->base_type = source->base_type;

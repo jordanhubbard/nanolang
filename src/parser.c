@@ -371,6 +371,13 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             if (sig) {
                 if (fn_sig_out) {
                     *fn_sig_out = sig;
+                } else if (type_info_out) {
+                    TypeInfo *info = calloc(1, sizeof *info);
+                    if (!info) { free_function_signature(sig); return TYPE_UNKNOWN; }
+                    info->base_type = TYPE_FUNCTION; info->fn_sig = sig;
+                    *type_info_out = info;
+                } else {
+                    free_function_signature(sig);
                 }
                 return TYPE_FUNCTION;
             }
@@ -801,77 +808,71 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             type = TYPE_ARRAY;
             return type;
         case TOKEN_LPAREN: {
-            /* Parse tuple type: (Type1, Type2, Type3) */
-            advance(p);  /* consume '(' */
-            
-            /* Parse tuple element types */
-            int capacity = 4;
-            int count = 0;
-            Type *tuple_types = malloc(sizeof(Type) * capacity);
-            char **tuple_type_names = malloc(sizeof(char*) * capacity);
-            
-            /* Parse first type */
-            if (!match(p, TOKEN_RPAREN)) {
-                do {
-                    if (count >= capacity) {
-                        capacity *= 2;
-                        tuple_types = realloc(tuple_types, sizeof(Type) * capacity);
-                        tuple_type_names = realloc(tuple_type_names, sizeof(char*) * capacity);
-                    }
-                    
-                    char *elem_type_name = NULL;
-                    TypeInfo *elem_type_info = NULL;
-                    Type elem_type = parse_type_with_element(p, NULL, &elem_type_name, NULL, &elem_type_info);
-                    if (elem_type == TYPE_UNKNOWN) {
-                        free(tuple_types);
-                        for (int i = 0; i < count; i++) {
-                            if (tuple_type_names[i]) free(tuple_type_names[i]);
-                        }
-                        free(tuple_type_names);
+            /* I retain every parsed child, including nested tuple/callable facts. */
+            advance(p);
+            TypeInfo *info = calloc(1, sizeof *info);
+            if (!info) return TYPE_UNKNOWN;
+            info->base_type = TYPE_TUPLE;
+            while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF)) {
+                if (info->tuple_element_count == INT_MAX ||
+                    (size_t)info->tuple_element_count + 1 > SIZE_MAX / sizeof(TypeInfo *) ||
+                    (size_t)info->tuple_element_count + 1 > SIZE_MAX / sizeof(Type)) {
+                    free_payload_type_info(info); return TYPE_UNKNOWN;
+                }
+                TypeInfo *child = NULL;
+                FunctionSignature *signature = NULL;
+                char *name = NULL;
+                if (++p->recursion_depth > MAX_RECURSION_DEPTH) {
+                    --p->recursion_depth;
+                    parser_error(p, tok->line, tok->column, "I cannot parse tuple children beyond my nesting limit\n");
+                    free_payload_type_info(info); return TYPE_UNKNOWN;
+                }
+                Type kind = parse_type_with_element(p, NULL, &name, &signature, &child);
+                --p->recursion_depth;
+                if (kind == TYPE_UNKNOWN) {
+                    free(name); free_function_signature(signature); free_payload_type_info(child);
+                    free_payload_type_info(info); return TYPE_UNKNOWN;
+                }
+                if (!child) {
+                    child = calloc(1, sizeof *child);
+                    if (!child) {
+                        free(name); free_function_signature(signature); free_payload_type_info(info);
                         return TYPE_UNKNOWN;
                     }
-                    
-                    tuple_types[count] = elem_type;
-                    tuple_type_names[count] = elem_type_name;  /* May be NULL for primitive types */
-                    count++;
-                    
-                    if (match(p, TOKEN_COMMA)) {
-                        advance(p);  /* consume ',' */
-                    } else {
-                        break;
-                    }
-                } while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF));
-            }
-            
-            if (!expect(p, TOKEN_RPAREN, "Expected ')' after tuple types")) {
-                free(tuple_types);
-                for (int i = 0; i < count; i++) {
-                    if (tuple_type_names[i]) free(tuple_type_names[i]);
+                    child->base_type = kind; child->generic_name = name; name = NULL;
+                    child->fn_sig = signature; signature = NULL;
                 }
-                free(tuple_type_names);
-                return TYPE_UNKNOWN;
-            }
-            
-            /* Create TypeInfo for tuple if output parameter provided */
-            if (type_info_out) {
-                /* Must zero-init so unused pointer fields (e.g., generic_name) are NULL. */
-                TypeInfo *info = calloc(1, sizeof(TypeInfo));
-                info->base_type = TYPE_TUPLE;
-                info->tuple_types = tuple_types;
-                info->tuple_type_names = tuple_type_names;
-                info->tuple_element_count = count;
-                *type_info_out = info;
-            } else {
-                /* Free if not needed */
-                free(tuple_types);
-                for (int i = 0; i < count; i++) {
-                    if (tuple_type_names[i]) free(tuple_type_names[i]);
+                free(name); free_function_signature(signature);
+                const char *nominal = child->generic_name ? child->generic_name : child->opaque_type_name;
+                char *flat_name = nominal ? strdup(nominal) : NULL;
+                size_t count = (size_t)info->tuple_element_count;
+                Type *types = malloc((count + 1) * sizeof *types);
+                char **names = malloc((count + 1) * sizeof *names);
+                TypeInfo **children = malloc((count + 1) * sizeof *children);
+                if ((nominal && !flat_name) || !types || !names || !children) {
+                    free(flat_name); free(types); free(names); free(children);
+                    free_payload_type_info(child); free_payload_type_info(info); return TYPE_UNKNOWN;
                 }
-                free(tuple_type_names);
+                if (count) {
+                    memcpy(types, info->tuple_types, count * sizeof *types);
+                    memcpy(names, info->tuple_type_names, count * sizeof *names);
+                    memcpy(children, info->type_params, count * sizeof *children);
+                }
+                types[count] = child->base_type; names[count] = flat_name; children[count] = child;
+                free(info->tuple_types); free(info->tuple_type_names); free(info->type_params);
+                info->tuple_types = types; info->tuple_type_names = names; info->type_params = children;
+                ++info->tuple_element_count; info->type_param_count = info->tuple_element_count;
+                if (!match(p, TOKEN_COMMA)) break;
+                advance(p);
             }
-            
+            if (!expect(p, TOKEN_RPAREN, "I require ')' after tuple types")) {
+                free_payload_type_info(info); return TYPE_UNKNOWN;
+            }
+            if (type_info_out) *type_info_out = info;
+            else free_payload_type_info(info);
             return TYPE_TUPLE;
         }
+
         case TOKEN_LBRACE: {
             /* Open record type: {field: Type, field: Type | rowvar} */
             advance(p);  /* consume '{' */

@@ -118,7 +118,7 @@ typedef struct TypeInfo {
     
     /* For generic types: List<int> */
     char *generic_name;              /* e.g., "List" */
-    struct TypeInfo **type_params;   /* e.g., [TypeInfo{TYPE_INT}] */
+    struct TypeInfo **type_params;   /* Generic args; TYPE_TUPLE: complete owned children. */
     int type_param_count;            /* Number of type parameters */
     
     /* For tuple types: (int, string, bool) */
@@ -1059,6 +1059,9 @@ bool copy_function_signature_checked(const FunctionSignature *source, FunctionSi
 FunctionSignature *copy_function_signature(const FunctionSignature *signature);
 void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
+const TypeInfo *type_info_tuple_element(const TypeInfo *, int, TypeInfo *);
+bool type_info_tuple_valid(const TypeInfo *);
+bool type_info_tuple_refresh(TypeInfo *);
 bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);
 void free_type_info(TypeInfo *info);
 TypeInfo *copy_payload_type_info(const TypeInfo *info);

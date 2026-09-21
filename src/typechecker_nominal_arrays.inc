@@ -13,7 +13,20 @@ static bool nominal_view_copy(Environment *env, const TypeInfo *info, Type type,
     return nominal_view_copy_context(env, source, owner, NULL, 0, out);
 }
 static bool nominal_view_wrap_array(NominalView *view) {
-    if (view->payload) return false;
+    if (!view->info || view->payload) return false;
+    if (view->children) {
+        NominalView array = {0};
+        array.info = calloc(1, sizeof *array.info);
+        array.children = calloc(1, sizeof *array.children);
+        if (!array.info || !array.children || !copy_payload_type_info_checked(view->info, &array.info->element_type)) {
+            nominal_view_discard(&array); return false;
+        }
+        array.info->base_type = TYPE_ARRAY;
+        array.child_count = 1;
+        array.children[0] = *view;
+        *view = array;
+        return true;
+    }
     TypeInfo *array = calloc(1, sizeof *array);
     if (!array) return false;
     array->base_type = TYPE_ARRAY;
@@ -22,11 +35,9 @@ static bool nominal_view_wrap_array(NominalView *view) {
     return true;
 }
 static bool nominal_view_element(Environment *env, NominalView *view, unsigned depth) {
-    if (!view->info || view->info->base_type != TYPE_ARRAY || !view->info->element_type || view->payload)
-        return false;
     NominalView element = {0};
-    if (!nominal_view_copy_context(env, view->info->element_type, view->owner,
-            nominal_view_context(view), depth + 1, &element)) return false;
+    if (!view->info || view->info->base_type != TYPE_ARRAY ||
+        !nominal_view_child(env, view, 0, depth + 1, &element)) return false;
     nominal_view_discard(view);
     *view = element;
     return true;
@@ -102,8 +113,7 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
             }
             if (!view.info) view = arm;
             else {
-                bool same = checked_annotations_equal_context(env, view.info, view.owner, arm.info, arm.owner, depth + 1, nominal_view_context(&view), nominal_view_context(&arm)) &&
-                    view.payload == arm.payload && (!view.payload || view.variant == arm.variant);
+                bool same = nominal_view_equal(env, &view, &arm, depth + 1);
                 nominal_view_discard(&arm);
                 if (!same) goto fail;
             }
@@ -114,7 +124,7 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
                 : expr->type == AST_MATCH ? expr->as.match_expr.arm_bodies[i]
                 : i < expr->as.cond_expr.clause_count ? expr->as.cond_expr.values[i] : expr->as.cond_expr.else_value;
             if (body && body->type == AST_ARRAY_LITERAL &&
-                !nominal_array_matches_context(env, view.info, view.owner, body, depth + 1, nominal_view_context(&view))) goto fail;
+                !nominal_view_matches_value(env, &view, body, depth + 1)) goto fail;
         }
         *out = view; return true;
     }
@@ -138,6 +148,36 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
         }
         return nominal_field_view(expr, env, depth + 1, out);
     }
+    if (expr->type == AST_TUPLE_INDEX) {
+        NominalView tuple = {0};
+        int index = expr->as.tuple_index.index;
+        bool ok = index >= 0 && nominal_value_view(expr->as.tuple_index.tuple, env, depth + 1, &tuple) &&
+            tuple.info->base_type == TYPE_TUPLE && nominal_view_child(env, &tuple, (size_t)index, depth + 1, out);
+        nominal_view_discard(&tuple);
+        return ok;
+    }
+    if (expr->type == AST_TUPLE_LITERAL) {
+        int count = expr->as.tuple_literal.element_count;
+        if (count < 0 || (size_t)count > SIZE_MAX / sizeof(NominalView) ||
+            (size_t)count > SIZE_MAX / sizeof(TypeInfo *)) return false;
+        view.info = calloc(1, sizeof *view.info);
+        view.children = calloc(count ? (size_t)count : 1, sizeof *view.children);
+        if (!view.info || !view.children) goto fail;
+        view.info->base_type = TYPE_TUPLE;
+        view.info->tuple_element_count = view.info->type_param_count = count;
+        view.child_count = (size_t)count;
+        if (count) {
+            view.info->type_params = calloc((size_t)count, sizeof *view.info->type_params);
+            if (!view.info->type_params) goto fail;
+        }
+        for (int i = 0; i < count; ++i) {
+            if (!nominal_value_view(expr->as.tuple_literal.elements[i], env, depth + 1, &view.children[i]) ||
+                view.children[i].payload || !copy_payload_type_info_checked(view.children[i].info, &view.info->type_params[i])) goto fail;
+        }
+        if (!type_info_tuple_refresh(view.info)) goto fail;
+        *out = view;
+        return true;
+    }
     if (expr->type == AST_ARRAY_LITERAL) {
         int count = expr->as.array_literal.element_count;
         if (count <= 0) return false; /* Only a destination can type an empty array. */
@@ -149,8 +189,7 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
             }
             if (!view.info) view = element;
             else {
-                bool same = checked_annotations_equal_context(env, view.info, view.owner, element.info, element.owner, depth + 1, nominal_view_context(&view), nominal_view_context(&element)) &&
-                    view.payload == element.payload && (!view.payload || view.variant == element.variant);
+                bool same = nominal_view_equal(env, &view, &element, depth + 1);
                 nominal_view_discard(&element);
                 if (!same) goto fail;
             }
@@ -158,7 +197,7 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
         if (!view.info) goto fail;
         for (int i = 0; i < count; ++i)
             if (expr->as.array_literal.elements[i]->type == AST_ARRAY_LITERAL &&
-                !nominal_array_matches_context(env, view.info, view.owner, expr->as.array_literal.elements[i], depth + 1, nominal_view_context(&view))) goto fail;
+                !nominal_view_matches_value(env, &view, expr->as.array_literal.elements[i], depth + 1)) goto fail;
         if (!nominal_view_wrap_array(&view)) goto fail;
         *out = view; return true;
     }
@@ -174,11 +213,12 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
             view = element;
             if (!nominal_view_wrap_array(&view)) goto fail;
         } else {
+            NominalView destination = {0};
             bool ok = nominal_value_view(receiver, env, depth + 1, &view) &&
-                view.info->base_type == TYPE_ARRAY && view.info->element_type &&
-                (!nominal_array_requires_context(env, view.info->element_type, view.owner, nominal_view_context(&view), depth + 1) ||
-                 checked_annotations_equal_context(env, view.info->element_type, view.owner,
-                    element.info, element.owner, depth + 1, nominal_view_context(&view), nominal_view_context(&element)));
+                view.info->base_type == TYPE_ARRAY && nominal_view_child(env, &view, 0, depth + 1, &destination) &&
+                (!(destination.children || nominal_array_requires_context(env, destination.info, destination.owner,
+                    nominal_view_context(&destination), depth + 1)) || nominal_view_equal(env, &destination, &element, depth + 1));
+            nominal_view_discard(&destination);
             nominal_view_discard(&element);
             if (!ok) goto fail;
         }
@@ -217,17 +257,14 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
             ok = nominal_value_view(input, env, depth + 1, &view) &&
                  view.info->base_type == TYPE_ARRAY && view.info->element_type;
         if (ok) {
-            if (nominal_array_requires_context(env, view.info->element_type, view.owner, nominal_view_context(&view), depth + 1) ||
-                nominal_array_requires_context(env, parameter.info, parameter.owner, nominal_view_context(&parameter), depth + 1))
-                ok = checked_annotations_equal_context(env, view.info->element_type, view.owner, parameter.info, parameter.owner,
-                    depth + 1, nominal_view_context(&view), nominal_view_context(&parameter));
-            else {
-                const TypeInfo *element = view.info->element_type;
-                const char *owner = view.owner;
-                const NominalSubstitution *context = nominal_view_context(&view);
-                ok = nominal_substitute_annotation(&element, &owner, &context) && element &&
-                     types_match(element->base_type, parameter.info->base_type);
-            }
+            NominalView element = {0};
+            ok = nominal_view_child(env, &view, 0, depth + 1, &element);
+            if (ok && (element.children || parameter.children ||
+                nominal_array_requires_context(env, element.info, element.owner, nominal_view_context(&element), depth + 1) ||
+                nominal_array_requires_context(env, parameter.info, parameter.owner, nominal_view_context(&parameter), depth + 1)))
+                ok = nominal_view_equal(env, &element, &parameter, depth + 1);
+            else if (ok) ok = types_match(element.info->base_type, parameter.info->base_type);
+            nominal_view_discard(&element);
         }
         nominal_view_discard(&parameter);
         NominalView result = {0};

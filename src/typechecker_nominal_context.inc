@@ -52,6 +52,8 @@ fail:
     return false;
 }
 static void nominal_view_discard(NominalView *view) {
+    for (size_t i = 0; view->children && i < view->child_count; ++i) nominal_view_discard(&view->children[i]);
+    free(view->children);
     free_payload_type_info(view->info);
     free((char *)view->owner);
     nominal_context_free(view->owned_context);
@@ -82,12 +84,141 @@ fail:
     nominal_view_discard(&copy);
     return false;
 }
-static bool nominal_view_clone(Environment *env, const NominalView *source, unsigned depth, NominalView *out) {
-    if (!nominal_view_copy_context(env, source->info, source->owner, nominal_view_context(source), depth + 1, out))
+/* Composed outer metadata duplicates storage; each child remains authority. */
+static bool nominal_view_composed_valid(const NominalView *view) {
+    if (!view || !view->children || !view->info || view->owner || view->owned_context || view->payload ||
+        view->info->generic_name || view->info->opaque_type_name || view->info->fn_sig ||
+        view->info->row_field_count || view->info->type_var_count || view->info->row_var_name || view->info->is_open_row)
         return false;
-    out->payload = source->payload;
-    out->variant = source->variant;
+    const TypeInfo *info = view->info;
+    if (info->base_type == TYPE_ARRAY) {
+        return view->child_count == 1 && info->element_type && !info->type_param_count &&
+            !info->tuple_element_count && type_infos_equal(info->element_type, view->children[0].info);
+    }
+    if (info->base_type != TYPE_TUPLE || info->element_type || !type_info_tuple_valid(info) ||
+        info->tuple_element_count < 0 || (size_t)info->tuple_element_count != view->child_count) return false;
+    for (size_t i = 0; i < view->child_count; ++i) {
+        TypeInfo flat;
+        const TypeInfo *child = type_info_tuple_element(info, (int)i, &flat);
+        if (!child || !type_infos_equal(child, view->children[i].info)) return false;
+    }
     return true;
+}
+static bool nominal_view_clone(Environment *env, const NominalView *source, unsigned depth, NominalView *out) {
+    if (!source || depth > 128) return false;
+    if (!source->children) {
+        if (source->child_count || !nominal_view_copy_context(env, source->info, source->owner,
+                nominal_view_context(source), depth + 1, out)) return false;
+        out->payload = source->payload;
+        out->variant = source->variant;
+        return true;
+    }
+    if (!nominal_view_composed_valid(source) || source->child_count > SIZE_MAX / sizeof(NominalView)) return false;
+    NominalView copy = {0};
+    if (!copy_payload_type_info_checked(source->info, &copy.info)) return false;
+    copy.children = calloc(source->child_count ? source->child_count : 1, sizeof *copy.children);
+    if (!copy.children) goto fail;
+    copy.child_count = source->child_count;
+    for (size_t i = 0; i < copy.child_count; ++i)
+        if (!nominal_view_clone(env, &source->children[i], depth + 1, &copy.children[i])) goto fail;
+    *out = copy;
+    return true;
+fail:
+    nominal_view_discard(&copy);
+    return false;
+}
+static bool nominal_view_child(Environment *env, const NominalView *source, size_t index,
+                                unsigned depth, NominalView *out) {
+    if (!source || !source->info || source->payload || depth > 128) return false;
+    if (source->children) {
+        return nominal_view_composed_valid(source) && index < source->child_count &&
+            nominal_view_clone(env, &source->children[index], depth + 1, out);
+    }
+    TypeInfo flat;
+    const TypeInfo *child = NULL;
+    if (source->info->base_type == TYPE_ARRAY && index == 0) child = source->info->element_type;
+    if (source->info->base_type == TYPE_TUPLE && index <= INT_MAX)
+        child = type_info_tuple_element(source->info, (int)index, &flat);
+    return child && nominal_view_copy_context(env, child, source->owner, nominal_view_context(source), depth + 1, out);
+}
+static bool nominal_view_equal(Environment *env, const NominalView *a, const NominalView *b, unsigned depth) {
+    if (!a || !b || !a->info || !b->info || depth > 128 || a->payload != b->payload ||
+        (a->payload && a->variant != b->variant)) return false;
+    if (!a->children && !b->children)
+        return checked_annotations_equal_context(env, a->info, a->owner, b->info, b->owner,
+            depth + 1, nominal_view_context(a), nominal_view_context(b));
+    if ((a->children && !nominal_view_composed_valid(a)) || (b->children && !nominal_view_composed_valid(b)) ||
+        a->info->base_type != b->info->base_type || a->payload) return false;
+    const TypeInfo *outer[] = {a->info, b->info};
+    for (size_t i = 0; i < 2; ++i)
+        if (outer[i]->generic_name || outer[i]->opaque_type_name || outer[i]->fn_sig ||
+            outer[i]->row_field_count || outer[i]->type_var_count || outer[i]->row_var_name || outer[i]->is_open_row ||
+            (outer[i]->base_type == TYPE_ARRAY && (outer[i]->type_param_count || outer[i]->tuple_element_count)) ||
+            (outer[i]->base_type == TYPE_TUPLE && outer[i]->element_type)) return false;
+    size_t count = a->info->base_type == TYPE_ARRAY ? 1 : (size_t)a->info->tuple_element_count;
+    if (a->info->base_type != TYPE_ARRAY && (a->info->base_type != TYPE_TUPLE ||
+        !type_info_tuple_valid(a->info) || !type_info_tuple_valid(b->info) ||
+        a->info->tuple_element_count != b->info->tuple_element_count)) return false;
+    for (size_t i = 0; i < count; ++i) {
+        NominalView left = {0}, right = {0};
+        bool ok = nominal_view_child(env, a, i, depth + 1, &left) &&
+            nominal_view_child(env, b, i, depth + 1, &right) && nominal_view_equal(env, &left, &right, depth + 1);
+        nominal_view_discard(&left); nominal_view_discard(&right);
+        if (!ok) return false;
+    }
+    return true;
+}
+static bool nominal_view_matches_annotation(Environment *env, const NominalView *view,
+    const TypeInfo *info, const char *owner, const NominalSubstitution *context, unsigned depth) {
+    if (!view || !view->info || depth > 128) return false;
+    if (!view->children) return checked_annotations_equal_context(env, info, owner, view->info, view->owner,
+        depth + 1, context, nominal_view_context(view));
+    NominalView expected = {0};
+    bool ok = nominal_view_copy_context(env, info, owner, context, depth + 1, &expected) &&
+        nominal_view_equal(env, &expected, view, depth + 1);
+    nominal_view_discard(&expected);
+    return ok;
+}
+
+static bool nominal_view_matches_value(Environment *env, const NominalView *expected, ASTNode *value, unsigned depth) {
+    if (!expected || !expected->info || !value || depth > 128) return false;
+    if (expected->children && !nominal_view_composed_valid(expected)) return false;
+    if (value->type == AST_BLOCK && value->as.block.count)
+        return nominal_view_matches_value(env, expected, value->as.block.statements[value->as.block.count - 1], depth + 1);
+    if (value->type == AST_RETURN) return nominal_view_matches_value(env, expected, value->as.return_stmt.value, depth + 1);
+    if (value->type == AST_IF || value->type == AST_COND || value->type == AST_MATCH) {
+        int count = value->type == AST_IF ? 2 : value->type == AST_MATCH
+            ? value->as.match_expr.arm_count : value->as.cond_expr.clause_count + 1;
+        bool surviving = false;
+        for (int i = 0; i < count; ++i) {
+            ASTNode *body = value->type == AST_IF ? (i ? value->as.if_stmt.else_branch : value->as.if_stmt.then_branch)
+                : value->type == AST_MATCH ? value->as.match_expr.arm_bodies[i]
+                : i < value->as.cond_expr.clause_count ? value->as.cond_expr.values[i] : value->as.cond_expr.else_value;
+            if (ast_always_returns(body)) continue;
+            surviving = true;
+            if (!nominal_view_matches_value(env, expected, body, depth + 1)) return false;
+        }
+        return surviving;
+    }
+    bool array = value->type == AST_ARRAY_LITERAL && expected->info->base_type == TYPE_ARRAY;
+    bool tuple = value->type == AST_TUPLE_LITERAL && expected->info->base_type == TYPE_TUPLE;
+    if (!expected->payload && (array || tuple)) {
+        int count = array ? value->as.array_literal.element_count : value->as.tuple_literal.element_count;
+        if (count < 0 || (tuple && count != expected->info->tuple_element_count)) return false;
+        for (int i = 0; i < count; ++i) {
+            NominalView child = {0};
+            ASTNode *element = array ? value->as.array_literal.elements[i] : value->as.tuple_literal.elements[i];
+            bool ok = nominal_view_child(env, expected, array ? 0 : (size_t)i, depth + 1, &child) &&
+                nominal_view_matches_value(env, &child, element, depth + 1);
+            nominal_view_discard(&child);
+            if (!ok) return false;
+        }
+        return true;
+    }
+    NominalView actual = {0};
+    bool ok = nominal_value_view(value, env, depth + 1, &actual) && nominal_view_equal(env, expected, &actual, depth + 1);
+    nominal_view_discard(&actual);
+    return ok;
 }
 
 /* My emitted annotations are copies, not provenance authorities. */
@@ -199,7 +330,9 @@ static bool nominal_materialize(Environment *env, const TypeInfo *source, const 
         free_payload_type_info(copy->type_params[i]);
         copy->type_params[i] = parameter;
     }
-    for (int i = 0; i < source->tuple_element_count; ++i)
+    if (source->base_type == TYPE_TUPLE && source->type_param_count) {
+        if (!type_info_tuple_valid(source) || !type_info_tuple_refresh(copy)) goto fail;
+    } else for (int i = 0; i < source->tuple_element_count; ++i)
         if (!nominal_materialize_flat(env, source->tuple_types[i],
                 source->tuple_type_names ? source->tuple_type_names[i] : NULL,
                 owner, context, depth + 1, &copy->tuple_types[i], &copy->tuple_type_names[i])) goto fail;
@@ -216,11 +349,30 @@ fail:
     return false;
 }
 
+static bool nominal_view_materialize(Environment *env, const NominalView *view, unsigned depth, TypeInfo **out) {
+    if (!view || depth > 128) return false;
+    if (!view->children) return nominal_materialize(env, view->info, view->owner, nominal_view_context(view), depth + 1, out);
+    if (!nominal_view_composed_valid(view)) return false;
+    TypeInfo *copy = NULL;
+    if (!copy_payload_type_info_checked(view->info, &copy)) return false;
+    for (size_t i = 0; i < view->child_count; ++i) {
+        TypeInfo *child = NULL;
+        if (!nominal_view_materialize(env, &view->children[i], depth + 1, &child)) goto fail;
+        TypeInfo **slot = copy->base_type == TYPE_ARRAY ? &copy->element_type : &copy->type_params[i];
+        free_payload_type_info(*slot); *slot = child;
+    }
+    if (copy->base_type == TYPE_TUPLE && !type_info_tuple_refresh(copy)) goto fail;
+    *out = copy;
+    return true;
+fail:
+    free_payload_type_info(copy);
+    return false;
+}
+
 /* I publish the proof and emitted copy only after both have an owner. */
 static bool nominal_view_retain(Environment *env, Symbol *binding, NominalView *view) {
     TypeInfo *concrete = NULL;
-    if (!binding || !view->info || !nominal_materialize(env, view->info, view->owner,
-            nominal_view_context(view), 0, &concrete)) return false;
+    if (!binding || !view->info || !nominal_view_materialize(env, view, 0, &concrete)) return false;
     NominalView *retained = calloc(1, sizeof *retained);
     if (!retained) { free_payload_type_info(concrete); return false; }
     if (!env_own_checker_type_info(env, concrete)) {
