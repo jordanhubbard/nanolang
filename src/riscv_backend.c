@@ -249,10 +249,11 @@ static void rv_emit_expr(RVCtx *ctx, ASTNode *node, const char *dst) {
 
         case AST_CALL: {
             /* Push args into a0-a7 */
+            static const char *const argument_registers[] = {
+                "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"
+            };
             for (int i = 0; i < node->as.call.arg_count && i < 8; i++) {
-                char areg[8];
-                snprintf(areg, sizeof(areg), "a%d", i);
-                rv_emit_expr(ctx, node->as.call.args[i], areg);
+                rv_emit_expr(ctx, node->as.call.args[i], argument_registers[i]);
             }
             rv_insn(ctx, "call\t%s", node->as.call.name ? node->as.call.name : "unknown");
             if (strcmp(dst, "a0") != 0)
