@@ -7893,8 +7893,9 @@ register_function_pass1:;
                                                item->as.let.element_type, item->as.let.type_name);
             }
             
-            /* Verify it matches the declared type */
-            if (item->as.let.var_type != value_type) {
+            /* I retain enum narrowing only at an exact declared byte destination. */
+            bool enum_byte = item->as.let.var_type == TYPE_U8 && value_type == TYPE_ENUM;
+            if (item->as.let.var_type != value_type && !enum_byte) {
                 fprintf(stderr, "Error at line %d, column %d: Constant '%s' type mismatch (declared %s, got %s)\n",
                         item->line, item->column,
                         item->as.let.name,
@@ -8648,8 +8649,9 @@ register_function_pass2:;
                                                item->as.let.element_type, item->as.let.type_name);
             }
             
-            /* Verify it matches the declared type */
-            if (item->as.let.var_type != value_type) {
+            /* I retain enum narrowing only at an exact declared byte destination. */
+            bool enum_byte = item->as.let.var_type == TYPE_U8 && value_type == TYPE_ENUM;
+            if (item->as.let.var_type != value_type && !enum_byte) {
                 fprintf(stderr, "Error at line %d, column %d: Constant '%s' type mismatch (declared %s, got %s)\n",
                         item->line, item->column,
                         item->as.let.name,
