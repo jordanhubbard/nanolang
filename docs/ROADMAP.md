@@ -14126,3 +14126,22 @@ terminal and accurately distinguishes rebuilt package providers. Independent
 review and actual merge remain pending; full generated/public/graph/source
 requirements stay open. My compressed Darwin archive retains every CAS byte
 locally without redundant extraction under the current Linux capacity limit.
+
+### My shared generated mixed runtime after private VM qualification
+
+I retain the complete f36/15f/488 parent scope and record the next dependency in
+`NANOISA_MIXED_GENERATED_RUNTIME.md`, based on reviewed PR936 d6179a7be. Its actual
+merge remains required. MAC reads currently fail at the occupied local login
+tunnel port34113; I have not fabricated a new task or altered that listener.
+
+- [ ] I review and implement the explicit-instance counted runtime/frame API,
+  exact table/ABI correspondence, all93 operation ownership map, combined peak
+  reservations and bounded release/collection behavior before execution.
+- [ ] I emit actual C labels/operators with bounded1024-frame continuations,
+  then matched native LLVM/Wasm against the same checked runtime; I retain
+  complete current query coverage and transactionally publish generated output.
+- [ ] I qualify the unchanged VM corpus through all generated routes, faults,
+  strict supported instrumentation and installed isolated linkage on both hosts.
+- [ ] I qualify public selection and paired producer/compiler bootstrap after
+  the matched conjunction, preserving old routes; full union/nested/cyclic and
+  indirect mixed graphs remain required subsequent parent dependencies.
