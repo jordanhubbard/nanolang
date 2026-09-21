@@ -78,3 +78,24 @@ I retain the first20bdb Linux and Darwin source failures under task_c4180e737bd0
 My evaluator represents both INT and U8 with VAL_INT. At a checked exact TYPE_U8 scalar destination, I narrow its integer payload through uint8_t once. I preserve control-flow metadata, do not allocate, and leave other value kinds and destination types unchanged. The shared environment publication paths cover local/global initialization, parameters and reassignment using the retained destination type. Both evaluator function invocation paths narrow only a completed return belonging to that activation; a nonlocal return addressed to an outer handler must retain its original value. Indirect and qualified calls use the actual registered function's destination. Existing checker literal and wrong-source refusals remain authoritative.
 
 I review this source before rebuilding any provider. The seven source methods remain unchanged and mandatory. Aggregate fields/elements, full callable graph and complete verifier corpus remain required under the parent; a passing scalar prerequisite does not close those obligations.
+
+## My enum-to-byte source policy
+
+I resolve the previously recorded enum boundary under
+`task_c6b2a040c1434fc784a9d46c02a4981e` by preserving my existing checked source
+compatibility. The C checker accepts ENUM/U8, and the Nano checker accepts
+TYPE_ENUM with its TYPE_INT representation of u8. Native unsigned-byte
+assignment already narrows the enum's integer value. Both NanoISA producers
+must therefore append CAST_U8 for an actual checked enum expression at an
+exact U8 destination, just as they do for INT. This supersedes the earlier
+checkpoint's enum refusal; it does not make arbitrary named types integers.
+The C producer uses TYPE_ENUM and the Nano producer uses its actual parser
+enum declaration lookup. Enum members are expressions: a member valued -1 or
+256 narrows to 255 or 0. Direct numeric literals retain the existing 0..255
+rule. BOOL, FLOAT, unresolved names and aggregate values still refuse.
+
+I require parser-backed emission shadows for enum members and a named enum
+result, then fresh independent producer/runtime comparison and unchanged
+literal/wrong-tag controls. Existing full byte destinations, captures, source
+corpus, reconstruction and all required backend gates remain open. This
+policy correction alone cannot close the parent task.
