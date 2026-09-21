@@ -1194,6 +1194,16 @@ their individual acceptance evidence closes them.
       `5647aaab69dce489e2760ce2933aca0f2d8c7fada8059a0c002ae965ea269d93`.
       MAC `task_b877d68139a6d26162c8ad4beb9bc0b6`.
 
+- [ ] **Give my measured hosted sanitizer suite a sufficient finite budget.**
+      Exact-head release run `35543910486` reaches the instrumented unit suite
+      without a sanitizer finding, then GitHub stops that step at its existing
+      45-minute bound while a dependency bootstrap is still active. I preserve
+      ASan/UBSan flags, leak policy, assertions and test selection; I change
+      only the finite job and step bounds, then require a terminal hosted
+      rerun. The retained log has SHA-256
+      `7e61f5d3307124170c9813def3aa3ee447e4f4bffeca3ec722621b7b239ba908`.
+      MAC `task_1fc7982675604c63aaceb97f47e79677`.
+
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
       accepted integer-zero spelling for an opaque null when foreign call
       arguments are evaluated once into ordered temporaries. I reject nonzero
