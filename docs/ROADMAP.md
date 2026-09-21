@@ -14151,3 +14151,11 @@ correct my generated design's combined128MiB wording: the qualified VM uses
 plan128MiB plus consumer128MiB (combined256MiB), with separate33554432-step
 domains. My generated consumer must preserve those existing bounds and report
 actual overlap explicitly; I do not narrow eligibility with a prose mistake.
+
+My first generated-runtime source work now has a separate instance, explicit
+1024-frame continuation protocol and counted record/array/string transactions.
+It is not yet a generated consumer: complete C emission, exact copied-plan/table
+agreement, observations, ownership fixtures and LLVM/Wasm remain in progress.
+I use the core's existing iterative zero-count worklist for release and retain
+its checked preparation before collection. A strict GCC13 syntax-only check is
+not execution or acceptance. No public route or old singleton adapter changes.
