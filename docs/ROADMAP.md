@@ -13788,3 +13788,13 @@ My unqualified import source checkpoint adds one method to the retained thirteen
 (fourteen total), plus actual registry allocation and identity controls. I keep
 full bootstrap and all prior source/lifetime/whole Make gates required. No
 qualification is inferred from the static checkpoint.
+
+
+My static review of 395c identifies a shared visible type-name boundary: ordinary
+nominal annotations begin as TYPE_STRUCT placeholders, and declaration binding
+can refine them to unions. Import conflict keys therefore cannot include kind.
+
+- [ ] I reject different nominal kinds for the same importer/name in either
+  order, preserving exact same-kind/origin idempotence and original rows.
+- [ ] I retain local record precedence when imported union names are refined,
+  and add direct plus parsed controls before fresh qualification.

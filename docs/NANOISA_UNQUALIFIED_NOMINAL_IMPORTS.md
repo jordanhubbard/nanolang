@@ -105,3 +105,18 @@ retained old rows, allocation-free idempotence, conflict ordering, stale
 ordinal facts, kind separation, and independent Environment teardown. All
 previous allocation controls remain. Python parsing and diff whitespace checks
 are the only checks run before review; no C build or source program ran.
+
+
+## My cross-kind review correction, before source
+
+Ordinary nominal annotations in parser.c use a generic nominal spelling and
+TYPE_STRUCT placeholder. nominal_union_kind refines that spelling using its
+declaration; kinds are not separately named by source annotation syntax. I
+therefore treat importer/name as one visible nominal namespace. Registration
+must reject a different kind as well as a different ordinal/owner/name for an
+existing binding. Idempotence requires all facts, including kind, to agree.
+I add STRUCT/UNION/ENUM pairwise both-order controls and preserve old rows on
+refusal. My binder must honor local AST record declarations before an imported
+union can refine their same spelling; I add that local-precedence control too.
+This static finding is part of task_836004405a924cea8d45829cbe14ab61; no ambiguous
+program has been executed.
