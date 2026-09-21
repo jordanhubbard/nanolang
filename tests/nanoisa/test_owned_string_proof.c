@@ -100,13 +100,13 @@ int main(void) {
     vm.frame_count=1;vm.current_fn=0;vm.ip=m->functions[0].code_offset;
     vm.frames[0]=(VmCallFrame){.fn_idx=0,.local_count=m->functions[0].local_count,.module=m};
     vm.stack_size=m->functions[0].local_count;
-    VmTrap trap=vm_core_execute_scoped(&vm,&proof);
+    VmTrap trap=vm_core_execute_scoped(&vm,&proof,NULL,NULL);
     CHECK(trap.type==TRAP_PRINT&&admissions==1);
     const unsigned expected_admissions[]={3,5,7,9};
     for(unsigned boundary=0;boundary<4;boundary++) {
         CHECK(trap.type==TRAP_PRINT);vm_release(&vm.heap,trap.data.print.value);
         proof.module=NULL;CHECK(!vm_owned_proof_matches(&vm,&proof));
-        trap=vm_core_execute_scoped(&vm,&proof);
+        trap=vm_core_execute_scoped(&vm,&proof,NULL,NULL);
         CHECK(admissions==expected_admissions[boundary]);
         CHECK(trap.type==(boundary==3?TRAP_NONE:TRAP_PRINT));
     }

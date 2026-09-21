@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-vm-46c4d-launch.py", line 28, in <module>
+    else:assert p.suffix=='.d',relative
+                ^^^^^^^^^^^^^^
+AssertionError: obj/build_bootstrap/schema.stamp

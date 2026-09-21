@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I retain the executing instruction location in every VM call frame (`task_b7779ee196994432a18178145d93ac42`). I bound fallback debug lookup to that function and preserve the field phase under instruction fusion. Direct, indirect, tail, branch, missing-map and fused-field diagnostics require both dispatch modes on Linux and Darwin; my [contract](VM_SOURCE_LOCATIONS.md) records qualification separately from full 5.1 acceptance.
+- [x] I retain the executing instruction location in every VM call frame (`task_b7779ee196994432a18178145d93ac42`). I bound fallback debug lookup to that function and preserve the field phase under instruction fusion. Direct, indirect, tail, branch, missing-map and fused-field diagnostics require both dispatch modes on Linux and Darwin; my [contract](VM_SOURCE_LOCATIONS.md) records qualification separately from full 5.1 acceptance.
 
 - [ ] I finish exact concrete scalar-union instances in my affine product (`task_a18a9f752536469faafc4d3ebec01dfd`). My [recovery review](AFFINE_UNION_RECOVERY_REVIEW.md) rejects the recovered one-instance registry, common-position payload approximation and unfinished value-match lowering. My [replacement contract](AFFINE_SCALAR_UNION_INSTANCE_CONTRACT.md) gives each concrete instance a distinct retained layout, records exact per-variant membership/arity/payload slices in versioned ownership metadata, and requires verifier, VM and native agreement before source admission. I build on canonical PR889 guards and do not replace its parser, checker or ordinary emitter. Fresh integrated Linux and Darwin qualification remains required; PR522 and release publication stay held.
   - [x] I route version-3 scalar unions alongside ordinary resource records by inspected field shape. I do not classify every resource-bearing version-3 module as an owner-ARRAY candidate before reading its layouts, and I continue to refuse the unqualified combined owner-ARRAY/union profile. The first two-instance source artifact verifies and executes in NanoVM and strict generated native C.
@@ -13950,6 +13950,119 @@ current3716-source inventories and actual lib/provider products are rehashed.
 I submit the ready PR for independent audit. Full mixed execution and source
 parents remain open; original c032c sanitizer attribution is unchanged.
 
+### My actual mixed execution consumers after PR933
+
+I continue from actual933 merge6b44b302 with a distinct ordinary mixed VM
+activation [contract](NANOISA_MIXED_VM_ACTIVATION.md). I do not reuse affine owned
+proofs, their frame cap or a public verified bit. Full f36b/15f/488 remain open.
+
+- [ ] I review exact copied/original identity, complete93-op decoded coverage,
+  retained plan/module lifetime, private instance/results and bounded preparation.
+- [ ] I implement and review real ordinary VM dispatch/root transactions and
+  1024-frame failure unwind before fixtures; both dispatch forms remain required.
+- [ ] I qualify full private VM programs/faults and old guards, then implement
+  matching real C/native LLVM/Wasm consumers with explicit frame storage and
+  complete differential acceptance before any public selection.
+- [ ] I complete public transport/admission, paired source and the remaining
+  full mixed graph requirements from the original conjunction contract.
+
+Before private mixed VM code I record concrete handler obligations found during
+source inventory. My origin query already restricts STRUCT_NEW to a zero-field
+descriptor because its implicit constructed count is zero; I preserve that
+boundary, rather than invent nonzero-field NEW admission. Ordinary constructors
+store compact identities; the new route must map NEW/LITERAL/AGG_PACK to global
+layout identities and preserve exact counted fields without altering old routes. Existing retain increments are unchecked: private DUP/load/get and
+boxed push/slice need overflow-safe publication and partial-copy rollback.
+The cycle collector may grow its suspect buffer or collect during release;
+private transaction boundaries require a reviewed safe-point policy and measured
+cleanup under allocation failure. These are new-route implementation prerequisites,
+not claims of an executed public failure. I retain the complete93-opcode domain.
+
+Before private mixed heap implementation I refine the reviewed collector policy:
+my copied nominal declaration DAG and every runtime record/flat-array edge check
+permit an instance-local acyclic policy for this exact query. I use a charged,
+fixed258-entry iterative release stack, with no suspect-buffer allocations or
+host recursion. Old/public heaps retain their collector; nested/cyclic fullgraph
+collector acceptance remains required, not inferred from this bounded route.
+
+- [ ] Before private mixed VM execution I repair the e181 scalar wrong-tag root
+  gap (`task_f1307e3b122a4d7a96a5a52a9479f672`). Root static review found that
+  general physical-value validation still lets heap operands reach I64/F64/BOOL
+  handlers that pop before rejecting a tag without releasing those owners. I
+  audit all93 actual handlers and require exact private input-tag preflights
+  where needed, leaving ordinary behavior unchanged. I review the correction
+  and meaningful cleanup controls before any execution; e181 is not accepted.
+
+My next private VM fixture checkpoint retains two methods, both dispatch forms,
+all93 actual retired operations, scalar wrong-tag cleanup, exact1024-frame
+success/1025-call refusal, initializer roots, prior scalar/heap results and
+committed aliases, copied input destruction and finite allocation failures with
+independent recovery. Its nominal release-depth control explicitly separates
+63-level bytecode graphs within64 origins from a256-level checked heap-layer
+control. I statically corrected the new zero-field fixture's extension size
+word before execution. All acceptance boxes above remain open until frozen
+both-host qualification and independent evidence review.
+
+- [ ] Before private VM fixture execution I preserve exact input object bytes
+  in the immutability snapshot (`task_83a5bc6351ba4319805082daffc08b38`). Root
+  static review found `Input before=*c` followed by whole-object `memcmp`;
+  structure assignment does not promise padding-byte preservation. I use
+  `memcpy` for this fixture snapshot, retaining the same comparison and all
+  semantic assertions. No failing test or product defect is claimed.
+
+- [ ] I retain both3115 first compile terminals and correct only entry naming
+  and strict private formatting (`task_26a29451abd34cf98473acca2adee0fc`). Fresh
+  Linux/puck setup and exact two-method discovery passed; no runtime fixture
+  executed. The plan fixture's nested `main` macro defeats the VM fixture's
+  outer rename, causing a macro diagnostic and duplicate main. I introduce an
+  explicit plan-fixture entry-name hook with unchanged default main. GCC also
+  diagnosed two private preflight `if`/`break` statements on one line; I separate
+  the unconditional break without changing control flow. New frozen gates need
+  review; neither first terminal is relabeled as a runtime result.
+
+- [ ] I retain both4dc first link terminals and supply standalone fixture
+  argument globals (`task_e852a4626f23400a83a2381546aa6214`). Fresh setup,
+  discovery and strict C compilation passed; the complete eval/cli provider
+  closure needs `g_argc`/`g_argv` normally owned by main. I define zero/NULL
+  globals exactly as the existing private owner-array and VM fixtures do,
+  keeping every provider and assertion. No runtime case has executed.
+
+- [ ] I complete precise private record-array global flow before resuming the
+  stopped88ae VM graph (`task_d0208a61082f4a08b407768b1a8b4252`;
+  `NANOISA_RECORD_ARRAY_GLOBAL_FLOW.md`). Initial VOID, branch/call effects and
+  repeated-entry committed values remain conservative; a dominating store and
+  a still-current TYPE_CHECK snapshot can establish the exact path value.
+  I retain the original global slice/field and heap-result alias assertions,
+  immutable output, old wrapper behavior and charged finite storage/work.
+  This is a required semantic prerequisite, not a fixture weakening. Linux88ae
+  separately retained explicit setup ENOSPC; no Linux runtime case ran.
+
+My precise-global prerequisite now has a separate query-only fixture checkpoint:
+dominating/branch/callee stores, no-write multiple contexts, recursive and unused
+writers, initializer return gating, repeated committed prefixes and stale copied
+predicates through direct/transitive writes. Exact global255/256, byte/work/cell
+limits, source-owner destruction, old-wrapper comparison and all observed
+one-shot/persistent allocation positions retain exact MEMORY and fresh recovery.
+I await fixture review before fresh seven-configuration qualification; the
+original88ae stopped VM corpus remains unchanged and unaccepted.
+
+- [ ] I correct the exact derived-slice origin ordinal in the global query
+  fixture (`task_2e2bc976b4c7481c8a52e6767f9f032d`). Bothfa222 hosts passed
+  setup, discovery, strict compilation and first query eligibility, then the
+  fixture asserted bit2 for the slice. My existing scanner reserves ARRAY0
+  and record1 before the walk creates derived slice2, whose bit is4; the old
+  alias/copy fixture already tests this ordering. I preserve both first raw
+  terminals and correct only the expected identity, adding explicit origin-kind
+  controls. Query source and the original VM programs remain unchanged.
+
+My correctedb575 global query now passes all seven selected compiler forms on
+Linux/puck: linked360/observed1352 checks,59 measured one-shot/persistent failure
+positions with exact MEMORY and fresh recovery, and every named unchanged
+neighbor. `docs/evidence/record-array-global-flow.md` retains622 reports,
+1112 CAS artifacts and114 source/tool pairs, including bothfa222 first fixture
+failures. This is only the prerequisite for the unchanged private VM corpus;
+I do not close its runtime or full mixed-parent requirements from query evidence.
+
 ### My mandatory-shadow service-classification margin
 
 - [ ] I restore the unchanged ten-second mandatory-shadow deadline under
@@ -13970,3 +14083,46 @@ parents remain open; original c032c sanitizer attribution is unchanged.
   mandatory-shadow supervision tests and fresh platform CI before closing the
   bounded deadline task. This does not close the full compiler product or 5.1
   release parents.
+
+I integrate my mixed VM qualification candidate with actual main6b5713fd9,
+including merged PR935 executing-location diagnostics and the invocation-local
+service code cache. I preserve query production/fixtures byte-for-byte. Before
+execution I initialize the new instruction_ip in my private vm_ra_call_root,
+just as all ordinary root/call entries do. The private scoped route supplies no
+ordinary admission cache, so this integration does not borrow cached public
+admission. Fresh providers and the unchanged complete VM matrix are required.
+My source-location checkbox above reflects actual PR935 merge and its independent
+both-mode/two-host evidence; it does not close the mixed runtime requirements.
+
+- [ ] I update internal white-box fixture calls for the private mixed context
+  (`task_58e5fa7f876e48b38f7743c543b36c88`). All three15d1 Darwin private VM
+  configurations and query neighbors pass before ordinary-admission compilation
+  stops at13 old three-argument calls. I add an explicit NULL fourth context,
+  preserving every cache/admission assertion. Full caller inventory also finds
+  two old owned-string-proof calls using the earlier two-argument signature;
+  those receive both NULL optional contexts and their unchanged standalone proof
+  becomes an additional neighbor. I retain first terminals, reuse only exact
+  inventoried provider bytes and run corrected/unrun neighbors in fresh paths;
+  I do not replay the passing private corpus for fixture-only corrections.
+
+I retain the first46c neighbor-launch preflights separately from product tests.
+Linux did not create a new tree: free space fell below the promised2GiB setup
+minimum, so it remains capacity-gated without deleting evidence. Puck copied
+providers but stopped before any test because `obj/build_bootstrap/schema.stamp`
+is build metadata outside the historical executable/object inventory. My next
+fresh launcher keeps exact historic hash requirements for every qualified
+provider, and separately records current-only hashes for copied `.d`/`.stamp`
+metadata. This does not fabricate historical metadata hashes or repeat passing
+private VM configurations. The source and every semantic assertion stay46c.
+
+My integrated15d1 private VM now passes the full seven-configuration Linux/puck
+matrix, actual switch/goto and linked/observed forms:2375/5948 checks each,
+all93 retired recipes/256 decisions,86 preparation and8 execution allocation
+positions with both failure modes and recovery. Fixture-only46c corrected and
+unrun admission/proof/overwrite/File/package neighbors pass both hosts without
+replaying the private corpus. `docs/evidence/record-array-private-vm.md` seals
+671 reports,5001 artifacts and112 source/tool pairs, preserves every historical
+terminal and accurately distinguishes rebuilt package providers. Independent
+review and actual merge remain pending; full generated/public/graph/source
+requirements stay open. My compressed Darwin archive retains every CAS byte
+locally without redundant extraction under the current Linux capacity limit.

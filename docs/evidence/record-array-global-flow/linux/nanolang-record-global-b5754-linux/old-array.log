@@ -1,0 +1,10 @@
+I retain ordinary array authority artifacts at /tmp/nano-ordinary-array-authority-52kb351a
+test_owned_declarations_and_failures (tests.test_ordinary_array_authority.OrdinaryArrayAuthority.test_owned_declarations_and_failures) ... PASS 463 ordinary array declaration checks; no execution authority
+I covered 8 allocation positions in both failure modes
+PASS 2397 ordinary array declaration checks; no execution authority
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.763s
+
+OK

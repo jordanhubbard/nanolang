@@ -162,6 +162,12 @@ typedef struct VmHeap {
     uint32_t   cycle_capacity;
     uint64_t   cycles_collected;   /* objects reclaimed by cycle collection */
     bool       gc_running;         /* guards re-entry: collection releases */
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+    /* Set only by the private instance after exact nominal DAG validation.
+     * Ordinary heaps remain zero/disabled. No private caller exports VmHeap. */
+    bool private_record_dag;
+    struct { NanoValue value; uint32_t child; } private_release[258];
+#endif
 } VmHeap;
 
 /* ========================================================================

@@ -1,0 +1,20 @@
+{"pin": "15d1a298a1a6e5749da16aa86738fa298d8d7fd7", "source_files": 3732, "root": "/tmp/nanolang-record-vm-qualified-15d1a", "sdk": null}
+{"phase": "setup", "status": 0, "seconds": 20.525}
+{"phase": "configuration", "status": 0, "seconds": 0.064}
+{"phase": "discovery", "status": 0, "seconds": 0.064}
+{"phase": "ordinary", "status": 0, "seconds": 20.962}
+{"phase": "clang-ordinary", "status": 0, "seconds": 19.113}
+{"phase": "sanitizer", "status": 0, "seconds": 78.771}
+{"phase": "clang-sanitizer", "status": 0, "seconds": 62.894}
+{"phase": "record_array_global_flow", "status": 0, "seconds": 6.883}
+{"phase": "record_array_execution", "status": 0, "seconds": 7.131}
+{"phase": "record_array_origins", "status": 0, "seconds": 6.431}
+{"phase": "test-vm-ordinary-admission", "status": 2, "seconds": 0.465}
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-vm-15d1a-launch.py", line 20, in <module>
+    subprocess.run([sys.executable,'/tmp/nanolang-record-vm-15d1a-driver.py',str(root),'/tmp/nanolang-record-vm-15d1a-'+host],check=True,env=env)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14', '/tmp/nanolang-record-vm-15d1a-driver.py', '/tmp/nanolang-record-vm-qualified-15d1a', '/tmp/nanolang-record-vm-15d1a-linux']' returned non-zero exit status 2.

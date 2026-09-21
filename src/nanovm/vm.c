@@ -12,6 +12,7 @@
  */
 
 #include "vm.h"
+#include "record_array_runtime_private.h"
 #include "../binary64_bits.h"
 #include "../binary64_arithmetic.h"
 #include "vm_ffi.h"
@@ -1472,13 +1473,27 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
     return VM_OK;
 }
 
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+#include "record_array_vm_prepare.inc"
+#endif
+
 static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof,
-                                      VmOrdinaryAdmission *ordinary) {
+                                      VmOrdinaryAdmission *ordinary,VmRecordArrayPrivate *record_array) {
     VmOwnedInvocationProof resumed;
     bool admitted=false, required=false;
     bool reuse=vm_ordinary_admission_matches(vm,ordinary);
+    bool record_execution=false;
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+    if(record_array) {
+        if(!vm_ra_context(record_array,vm))
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require this exact private ordinary instance.");
+        record_execution=true;
+    }
+#else
+    (void)record_array;
+#endif
     if (ordinary) ordinary->valid=false;
-    if (!reuse) {
+    if (!reuse && !record_execution) {
         /* These service facts expire at the end of this classification block.
          * No host callback or bytecode dispatch occurs while they are live. */
         NvmServiceClassification service;
@@ -1529,7 +1544,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
     /* Only ordinary classification is reused. The owned frame/reference
      * checks above and all dispatch/stack checks below remain on every entry.
      * Ordinary CALL/RET/effect transitions do not change module declarations. */
-    if (ordinary && !admitted && !required && vm_ordinary_admission_eligible(vm)) {
+    if (ordinary && !record_execution && !admitted && !required && vm_ordinary_admission_eligible(vm)) {
         ordinary->vm=vm;
         ordinary->module=vm->module;
         ordinary->valid=true;
@@ -1790,6 +1805,12 @@ vm_dispatch_top:
             return trap_error(vm, VM_ERR_DECODE,
                               "No dispatch instruction at offset %u", vm->ip);
         }
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+        if(record_execution) {
+            VmResult checked=vm_ra_preflight(record_array,decoded);
+            if(checked!=VM_OK)return trap_error(vm,checked,"I require the complete private opcode root contract.");
+        }
+#endif
         DecodedInstruction instr = decoded->instruction;
         uint32_t instr_start = vm->ip;
         uint32_t stack_before = vm->stack_size;
@@ -2940,6 +2961,10 @@ dynamic_div:
             }
 
             VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+            if(record_execution && vm->frame_count>record_array->maximum_frames)
+                record_array->maximum_frames=vm->frame_count;
+#endif
             new_frame->fn_idx = callee_idx;
             new_frame->return_ip = vm->ip;
             new_frame->instruction_ip = callee->code_offset;
@@ -3936,6 +3961,9 @@ vm_return_values: ;
 
         VM_CASE(OP_STRUCT_NEW) {
             uint32_t def_idx = instr.operands[0].u32;
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+            if(record_execution)def_idx=record_array->record_layouts[def_idx];
+#endif
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, 0);
             if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the struct.");
             stack_push(vm, val_struct(s));
@@ -3984,6 +4012,9 @@ vm_return_values: ;
         VM_CASE(OP_STRUCT_LITERAL) {
             uint32_t def_idx = instr.operands[0].u32;
             uint16_t field_count = instr.operands[1].u16;
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+            if(record_execution)def_idx=record_array->record_layouts[def_idx];
+#endif
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, field_count);
             if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the struct.");
             /* Pop fields in reverse order */
@@ -4108,6 +4139,9 @@ vm_return_values: ;
                         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact ordinary mixed record identity");
                     layout=proof->records[layout].global_layout;
                 }
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+                if(record_execution)layout=record_array->record_layouts[layout];
+#endif
                 VmStruct *record = vm_struct_new(&vm->heap, layout, count);
                 if (!record) return trap_error(vm, VM_ERR_MEMORY,
                                                "AGG_PACK record allocation failed");
@@ -4631,6 +4665,10 @@ vm_dispatch_done: ;
     return trap_none();
 }
 
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+#include "record_array_vm_run.inc"
+#endif
+
 VmTrap vm_core_execute(VmState *vm) {
     if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
         VmTrap refused={.type=TRAP_ERROR};
@@ -4640,7 +4678,7 @@ VmTrap vm_core_execute(VmState *vm) {
     }
     bool mixed=vm && nvm_mixed_samples_candidate(vm->module);
     uint32_t base=mixed && vm->frame_count?vm->frames[0].stack_base:0;
-    VmTrap trap=vm_core_execute_scoped(vm,NULL,NULL);
+    VmTrap trap=vm_core_execute_scoped(vm,NULL,NULL,NULL);
     if(mixed && (trap.type==TRAP_ERROR ||
        (trap.type==TRAP_ASSERT && !val_truthy(trap.data.assert_check.condition)))) {
         while(vm->stack_size>base)vm_release(&vm->heap,stack_pop(vm));
@@ -4827,7 +4865,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
         if (vm->callback_error != VM_OK)
             return vm_error(vm, vm->callback_error, "%s", vm->callback_error_msg);
         if (!vm_owned_proof_matches(vm,proof)) proof->module=NULL;
-        VmTrap trap = vm_core_execute_scoped(vm,proof,&ordinary);
+        VmTrap trap = vm_core_execute_scoped(vm,proof,&ordinary,NULL);
         /* Invalidate before any host effect, yield, completion or error.
          * Only a successful assertion and its closed heap release may resume. */
         if (trap.type!=TRAP_ASSERT) ordinary.valid=false;
