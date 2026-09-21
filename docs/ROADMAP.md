@@ -14306,3 +14306,12 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   run and its actual terminal; this finding does not change production command
   semantics. I quote the fixture command before fresh affected checks while
   preserving the same paths, producer/shadow corpus and argv assertions.
+
+- [ ] I supervise nested SDK fixture sessions before restoring a temporarily moved
+  source tree. Root review of my unexecuted runner found that inner commands start
+  separate sessions, so an outer timeout could leave compiler/make descendants
+  alive after killing only the unittest group. I retain PID/start-time descendant
+  identities, perform bounded cross-group cleanup and require disappearance
+  before source-path recovery. I add a bounded nested-session timeout control.
+  I also verify the supplied initial source manifest's bytes and modes as well as
+  hashes; before/after equality alone does not establish the declared identity.

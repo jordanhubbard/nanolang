@@ -119,6 +119,30 @@ class NativeSdk(unittest.TestCase):
         (parent/'case.json').write_text(json.dumps(dict(identity=identity,rows=rows),indent=2)+'\n')
         return target
 
+    def test_0_nested_session_timeout_cleanup(self):
+        directory=self.work/'nested-supervision';directory.mkdir()
+        marker=directory/'child.json';survived=directory/'survived'
+        script=directory/'nested.py'
+        script.write_text('import json,os,subprocess,sys,time\nfrom pathlib import Path\n'
+            'if len(sys.argv)>3:\n'
+            ' Path(sys.argv[1]).write_text(json.dumps({"pid":os.getpid(),"group":os.getpgrp()})+"\\n")\n'
+            ' time.sleep(6);Path(sys.argv[2]).write_text("escaped");time.sleep(30)\n'
+            'else:\n'
+            ' subprocess.Popen([sys.executable,__file__,sys.argv[1],sys.argv[2],"child"],start_new_session=True)\n'
+            ' time.sleep(30)\n')
+        with self.assertRaises(AssertionError):
+            run(directory,'nested-timeout',[sys.executable,script,marker,survived],self.outside,
+                self.env,timeout=2,track_descendants=True)
+        status=json.loads((directory/'nested-timeout-status.json').read_text())
+        self.assertTrue(status['timeout']);self.assertEqual(status['returncode'],124)
+        self.assertTrue(status['group_absent']);self.assertTrue(status['descendants_absent'])
+        self.assertEqual(status['cleanup_errors'],[])
+        child=json.loads(marker.read_text());inventory=json.loads((directory/'nested-timeout-descendants.json').read_text())
+        self.assertIn(str(child['pid']),inventory['owned']);self.assertEqual(inventory['remaining'],[])
+        self.assertTrue(any(row['group']==child['group'] for row in inventory['cleanup']))
+        with self.assertRaises(ProcessLookupError):os.kill(child['pid'],0)
+        self.assertFalse(survived.exists())
+
     def test_a_root_identity_private_products_and_lists(self):
         out,_,_=self.command('installed-root',[self.probe,'root','0','installed'],extra={'NANOLANG_SDK_ROOT':self.generation})
         self.assertEqual(spans(out)['ROOT'],str(self.generation))

@@ -30,7 +30,10 @@ def main():
     def sources():
         result={row['path']:hashfile(root/row['path']) for row in records}
         for row in records:
-            assert result[row['path']]['sha256']==row['sha256'],row['path']
+            actual=result[row['path']]
+            assert actual['sha256']==row['sha256'] and actual['bytes']==row['bytes'],row['path']
+            expected_mode=int(row['mode'],8) & 0o7777 if isinstance(row['mode'],str) else row['mode'] & 0o7777
+            assert actual['mode']==expected_mode,row['path']
         return result
     def products():
         return {str(p.relative_to(root)):hashfile(p,True) for name in ('bin','obj','lib')
@@ -77,7 +80,7 @@ def main():
     dump('configuration.json',dict(source=selected,configs=configs,scope='fresh actual clean make install and full ordinary installed compiler corpus; selected two-source SDK probe instrumentation only'))
     original=root.stat();first=None
     try:
-        run(report,'installed-sdk',[sys.executable,'-m','unittest','-f','-v','tests.test_native_sdk'],root,env,timeout=21600)
+        run(report,'installed-sdk',[sys.executable,'-m','unittest','-f','-v','tests.test_native_sdk'],root,env,timeout=21600,track_descendants=True)
     except BaseException as failure:
         first=repr(failure);dump('first-failure.json',dict(error=first));raise
     finally:
@@ -85,10 +88,15 @@ def main():
         # supervisor kills it there, I restore only the exact recorded inode,
         # after the runner has completed bounded process-group cleanup.
         hidden=root.with_name(root.name+'-sdk-hidden')
-        if not root.exists() and hidden.is_dir():
+        terminal=json.loads((report/'installed-sdk-status.json').read_text())
+        cleanup_safe=terminal.get('group_absent') and terminal.get('descendants_absent') and not terminal.get('cleanup_errors')
+        if not root.exists() and hidden.is_dir() and cleanup_safe:
             current=hidden.stat()
             if (current.st_dev,current.st_ino)==(original.st_dev,original.st_ino):
                 hidden.rename(root);dump('source-path-recovery.json',dict(original=str(root),hidden=str(hidden),first_failure=first))
+        if not root.exists():
+            dump('source-path-recovery-refused.json',dict(original=str(root),hidden=str(hidden),terminal=terminal,first_failure=first))
+            raise AssertionError('I retain the moved source until descendant disappearance is established')
         after=sources();ta=toolmap();dump('source-after.json',after);dump('tools-after.json',ta);dump('products-after.json',products())
         artifacts={str(p.relative_to(report)):hashfile(p,True) for p in sorted(report.rglob('*'))
                    if p.is_file() and store not in p.parents}
