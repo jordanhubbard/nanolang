@@ -367,3 +367,14 @@ reading uninitialized metadata. The C signature parser currently has an explicit
 refusal of callback-valued parameters. I retain that documented unsupported-route
 refusal; accepted callback returns and tuple/generic callback payloads keep their
 complete signatures. This does not close the larger paired callable scope.
+
+My literal consumer audit found another coarse lookup: the iterative C emitter
+selects the first tuple typedef whose element tags match. I retain a checked
+literal context in an environment-owned table keyed by the invocation's borrowed
+AST pointer. Each row owns a complete annotation copy; repeated equal contexts
+reuse the row, and conflicting concrete contexts refuse instead of replacing it.
+I publish a row only after all strings/children/table storage succeed. Collector
+and emitter use the same row; its key grants no namespace authority. Environment
+cleanup frees the annotation and never dereferences its AST key. Original AST
+lifetime is unchanged. Generic templates still require an exact concrete context
+before using this table; I do not infer one from the literal's coarse tags.

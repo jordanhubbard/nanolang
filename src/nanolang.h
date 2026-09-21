@@ -118,7 +118,7 @@ typedef struct TypeInfo {
     
     /* For generic types: List<int> */
     char *generic_name;              /* e.g., "List" */
-    struct TypeInfo **type_params;   /* e.g., [TypeInfo{TYPE_INT}] */
+    struct TypeInfo **type_params;   /* Generic args; TYPE_TUPLE: complete owned children. */
     int type_param_count;            /* Number of type parameters */
     
     /* For tuple types: (int, string, bool) */
@@ -717,6 +717,11 @@ typedef struct {
     bool hidden_by_local_type;
 } OpaqueTypeBinding;
 
+typedef struct {
+    const ASTNode *literal; /* Borrowed invocation-local key. */
+    TypeInfo *type_info;    /* Owned complete checked context. */
+} TupleLiteralBinding;
+
 /* Effect operation signature */
 typedef struct {
     char *name;              /* Operation name (e.g., "print") */
@@ -831,6 +836,8 @@ typedef struct {
     bool opaque_resolution_failed;
     size_t *opaque_reserved_indices;
     size_t opaque_reserved_count;
+    TupleLiteralBinding *tuple_literal_bindings;
+    size_t tuple_literal_binding_count;
     EffectDef *effects;          /* Registered algebraic effects */
     int effect_count;
     int effect_capacity;
@@ -1031,6 +1038,13 @@ FunctionSignature *function_signature_from_function(const Function *function);
 FunctionSignature *copy_function_signature(const FunctionSignature *signature);
 void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
+/* I borrow complete tuple children, or fill the caller's legacy flat view. */
+const TypeInfo *type_info_tuple_element(const TypeInfo *, int, TypeInfo *);
+bool type_info_tuple_valid(const TypeInfo *);
+bool type_info_tuple_refresh(TypeInfo *);
+TypeInfo *copy_complete_type_info_checked(const TypeInfo *);
+bool env_bind_tuple_literal(Environment *, const ASTNode *, const TypeInfo *);
+const TypeInfo *env_tuple_literal_info(const Environment *, const ASTNode *);
 bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);
 void free_type_info(TypeInfo *info);
 TypeInfo *copy_payload_type_info(const TypeInfo *info);

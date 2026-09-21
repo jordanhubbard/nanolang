@@ -2718,12 +2718,20 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             /* Try to find typedef from pre-collected registry */
             const char *typedef_name = NULL;
             
-            if (g_tuple_registry && element_count > 0) {
+            const TypeInfo *checked_tuple = env_tuple_literal_info(env, expr);
+            if (checked_tuple && g_tuple_registry) {
+                for (int i = 0; i < g_tuple_registry->count; ++i)
+                    if (type_infos_equal(checked_tuple, g_tuple_registry->tuples[i])) {
+                        typedef_name = g_tuple_registry->typedef_names[i]; break;
+                    }
+                if (!typedef_name) native_opaque_name_failure();
+            }
+            if (!typedef_name && g_tuple_registry && element_count > 0) {
                 if (expr->as.tuple_literal.element_types) {
                     /* Element types are set - look up by exact match */
                     for (int i = 0; i < g_tuple_registry->count; i++) {
                         TypeInfo *registered = g_tuple_registry->tuples[i];
-                        if (registered->tuple_element_count == element_count) {
+                        if (!opaque_type_info_present(registered) && registered->tuple_element_count == element_count) {
                             bool match = true;
                             for (int j = 0; j < element_count; j++) {
                                 if (registered->tuple_types[j] != expr->as.tuple_literal.element_types[j]) {
@@ -2756,7 +2764,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     /* Look up by inferred types */
                     for (int i = 0; i < g_tuple_registry->count; i++) {
                         TypeInfo *registered = g_tuple_registry->tuples[i];
-                        if (registered->tuple_element_count == element_count) {
+                        if (!opaque_type_info_present(registered) && registered->tuple_element_count == element_count) {
                             bool match = true;
                             for (int j = 0; j < element_count; j++) {
                                 if (registered->tuple_types[j] != inferred_types[j]) {

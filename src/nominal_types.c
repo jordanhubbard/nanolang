@@ -52,6 +52,7 @@ static Type nominal_union_kind(ASTNode *program, Environment *env, Type type,
         if (item->type == AST_UNION_DEF && !strcmp(item->as.union_def.name, name))
             return TYPE_UNION;
     }
+    if (env_get_opaque_type(env, name)) return type;
     return env_get_union(env, name) ? TYPE_UNION : type;
 }
 static bool nominal_scoped_signature(ASTNode *, Environment *, FunctionSignature *, char **, int);
@@ -64,8 +65,15 @@ static bool nominal_scoped_info(ASTNode *program, Environment *env, TypeInfo *in
         !nominal_scoped_signature(program, env, info->fn_sig, formals, count)) return false;
     for (int i = 0; i < info->type_param_count; ++i)
         if (info->type_params && !nominal_scoped_info(program, env, info->type_params[i], formals, count)) return false;
-    for (int i = 0; i < info->tuple_element_count; ++i)
+    for (int i = 0; i < info->tuple_element_count; ++i) {
         if (info->tuple_type_names && !nominal_scoped_slot(program, env, &info->tuple_type_names[i], formals, count)) return false;
+        if (info->base_type == TYPE_TUPLE && info->type_param_count) {
+            if (info->type_param_count != info->tuple_element_count || !info->type_params ||
+                !info->type_params[i] || !info->tuple_types) return false;
+            info->tuple_types[i] = info->type_params[i]->base_type;
+        }
+    }
+    if (info->base_type == TYPE_TUPLE && !type_info_tuple_valid(info)) return false;
     for (int i = 0; i < info->row_field_count; ++i)
         if (info->row_field_type_names && !nominal_scoped_slot(program, env, &info->row_field_type_names[i], formals, count)) return false;
     return true;

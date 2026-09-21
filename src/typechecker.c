@@ -289,6 +289,15 @@ static FunctionSignature *function_result_signature(ASTNode *call, Environment *
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
     if (expr->type == AST_UNION_CONSTRUCT) return expr->as.union_construct.type_info;
+    if (expr->type == AST_TUPLE_LITERAL)
+        return (TypeInfo *)env_tuple_literal_info(env, expr);
+    if (expr->type == AST_TUPLE_INDEX) {
+        TypeInfo *tuple = try_get_expr_type_info(expr->as.tuple_index.tuple, env);
+        int index = expr->as.tuple_index.index;
+        if (tuple && tuple->base_type == TYPE_TUPLE && tuple->type_param_count &&
+            type_info_tuple_valid(tuple) && index >= 0 && index < tuple->tuple_element_count)
+            return tuple->type_params[index];
+    }
     if (expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
         if (sym) return sym->type_info;
@@ -780,6 +789,15 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
         check_concrete_union_arrays(env, expected, value->as.return_stmt.value, depth + 1);
         return;
     }
+    if (expected->base_type == TYPE_TUPLE && value->type == AST_TUPLE_LITERAL) {
+        if (!env_bind_tuple_literal(env, value, expected)) {
+            env->opaque_resolution_failed = true;
+            emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                "I cannot retain one complete checked tuple literal context.",
+                "Preserve its exact element annotations and allocation boundary.");
+            return;
+        }
+    }
     if ((expected->base_type == TYPE_STRUCT || expected->base_type == TYPE_OPAQUE) &&
         opaque_annotation_present(env, expected, 0)) {
         const char *name = expected->opaque_type_name ? expected->opaque_type_name : expected->generic_name;
@@ -800,7 +818,9 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
             for (int i = 0; i < expected->tuple_element_count; ++i) {
                 TypeInfo element = {.base_type = expected->tuple_types[i],
                     .generic_name = expected->tuple_type_names ? expected->tuple_type_names[i] : NULL};
-                check_concrete_union_arrays(env, &element, value->as.tuple_literal.elements[i], depth + 1);
+                const TypeInfo *child = type_info_tuple_element(expected, i, &element);
+                if (!child) { env->opaque_resolution_failed = true; return; }
+                check_concrete_union_arrays(env, child, value->as.tuple_literal.elements[i], depth + 1);
             }
             return;
         }
@@ -961,6 +981,10 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
     
     switch (expr->type) {
+        case AST_TUPLE_INDEX: {
+            TypeInfo *child = try_get_expr_type_info(expr, env);
+            return child ? (child->generic_name ? child->generic_name : child->opaque_type_name) : NULL;
+        }
         case AST_BLOCK:
             if (expr->as.block.count > 0) {
                 ASTNode *tail = expr->as.block.statements[expr->as.block.count - 1];
@@ -1647,7 +1671,9 @@ static bool reduce_types_exact(const TypeInfo *a, const TypeInfo *b,
                     a->tuple_type_names ? a->tuple_type_names[i] : NULL, NULL);
                 TypeInfo right = reduce_type_view(b->tuple_types[i],
                     b->tuple_type_names ? b->tuple_type_names[i] : NULL, NULL);
-                if (!reduce_types_exact(&left, &right, env, depth + 1)) return false;
+                const TypeInfo *lc = type_info_tuple_element(a, i, &left);
+                const TypeInfo *rc = type_info_tuple_element(b, i, &right);
+                if (!lc || !rc || !reduce_types_exact(lc, rc, env, depth + 1)) return false;
             }
             return true;
         case TYPE_FUNCTION: {
@@ -4564,6 +4590,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
             
+            TypeInfo *complete = try_get_expr_type_info(tuple_expr, env);
+            if (complete && complete->base_type == TYPE_TUPLE) {
+                TypeInfo flat;
+                const TypeInfo *child = type_info_tuple_element(complete, index, &flat);
+                if (child) return child->base_type;
+                fprintf(stderr, "I require an in-range complete tuple index annotation\n");
+                return TYPE_UNKNOWN;
+            }
             /* For function returns or other complex expressions, we can't statically determine the type.
              * Return TYPE_INT as a conservative estimate.
              * TODO: Store TypeInfo in function return types for complete type checking.
@@ -5234,7 +5268,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (!type_info && declared_type == TYPE_TUPLE && stmt->as.let.value->type == AST_TUPLE_LITERAL) {
                 /* Create TypeInfo from tuple literal */
                 ASTNode *tuple_lit = stmt->as.let.value;
-                type_info = malloc(sizeof(TypeInfo));
+                type_info = calloc(1, sizeof(TypeInfo));
+                if (!type_info) { tc->has_error = true; return TYPE_UNKNOWN; }
                 type_info->base_type = TYPE_TUPLE;
                 type_info->element_type = NULL;
                 type_info->generic_name = NULL;

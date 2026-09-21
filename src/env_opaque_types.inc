@@ -21,6 +21,10 @@ void env_free_opaque_types(Environment *env) {
     for (int i = 0; i < env->opaque_type_count; ++i) opaque_definition_clear(&env->opaque_types[i]);
     for (size_t i = 0; i < env->opaque_binding_count; ++i) opaque_binding_clear(&env->opaque_bindings[i]);
     free(env->opaque_types); free(env->opaque_bindings);
+    for (size_t i = 0; i < env->tuple_literal_binding_count; ++i)
+        free_payload_type_info(env->tuple_literal_bindings[i].type_info);
+    free(env->tuple_literal_bindings);
+    env->tuple_literal_bindings = NULL; env->tuple_literal_binding_count = 0;
     free(env->opaque_reserved_indices);
     env->opaque_reserved_indices = NULL; env->opaque_reserved_count = 0;
     env->opaque_types = NULL; env->opaque_bindings = NULL;

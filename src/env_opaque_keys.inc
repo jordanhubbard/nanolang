@@ -69,7 +69,9 @@ static void opaque_encode_signature(OpaqueKeyBuffer *b, const FunctionSignature 
     }
     TypeInfo result = {.base_type = s->return_type, .generic_name = s->return_struct_name,
         .fn_sig = s->return_fn_sig};
-    opaque_encode_info(b, s->return_type_info ? s->return_type_info : &result, depth + 1);
+    if (s->return_type_info) result = *s->return_type_info;
+    if (!result.fn_sig) result.fn_sig = s->return_fn_sig;
+    opaque_encode_info(b, &result, depth + 1);
 }
 static void opaque_encode_info(OpaqueKeyBuffer *b, const TypeInfo *t, unsigned depth) {
     if (!t) { opaque_key_bytes(b, "-", 1); return; }
@@ -78,6 +80,7 @@ static void opaque_encode_info(OpaqueKeyBuffer *b, const TypeInfo *t, unsigned d
         (t->type_param_count && !t->type_params) || (t->tuple_element_count && !t->tuple_types) ||
         (t->row_field_count && (!t->row_field_types || !t->row_field_names)) ||
         (t->type_var_count && !t->type_var_names)) { b->ok = false; return; }
+    if (t->base_type == TYPE_TUPLE && !type_info_tuple_valid(t)) { b->ok = false; return; }
     const char *opaque = opaque_key_leaf(t->opaque_type_name) ? t->opaque_type_name :
         (opaque_key_leaf(t->generic_name) ? t->generic_name : NULL);
     if (opaque) {
@@ -89,8 +92,8 @@ static void opaque_encode_info(OpaqueKeyBuffer *b, const TypeInfo *t, unsigned d
     opaque_key_bytes(b, "T", 1); opaque_key_number(b, (size_t)t->base_type);
     opaque_key_string(b, t->generic_name); opaque_key_string(b, t->opaque_type_name);
     opaque_encode_info(b, t->element_type, depth + 1);
-    opaque_key_number(b, (size_t)t->type_param_count);
-    for (int i = 0; i < t->type_param_count; ++i) {
+    opaque_key_number(b, t->base_type == TYPE_TUPLE ? 0 : (size_t)t->type_param_count);
+    for (int i = 0; t->base_type != TYPE_TUPLE && i < t->type_param_count; ++i) {
         if (!t->type_params[i]) { b->ok = false; return; }
         opaque_encode_info(b, t->type_params[i], depth + 1);
     }
@@ -98,7 +101,9 @@ static void opaque_encode_info(OpaqueKeyBuffer *b, const TypeInfo *t, unsigned d
     for (int i = 0; i < t->tuple_element_count; ++i) {
         TypeInfo item = {.base_type = t->tuple_types[i],
             .generic_name = t->tuple_type_names ? t->tuple_type_names[i] : NULL};
-        opaque_encode_info(b, &item, depth + 1);
+        const TypeInfo *child = t->base_type == TYPE_TUPLE ? type_info_tuple_element(t, i, &item) : &item;
+        if (!child) { b->ok = false; return; }
+        opaque_encode_info(b, child, depth + 1);
     }
     opaque_encode_signature(b, t->fn_sig, depth + 1);
     opaque_key_number(b, t->is_open_row ? 1 : 0); opaque_key_string(b, t->row_var_name);
@@ -306,6 +311,14 @@ static TypeInfo *opaque_copy_info(const TypeInfo *source, unsigned depth, bool *
     if (!*ok) { free_payload_type_info(copy); return NULL; }
     return copy;
 }
+TypeInfo *copy_complete_type_info_checked(const TypeInfo *source) {
+    if (!source) return NULL;
+    char *validated = opaque_type_info_key(source);
+    if (!validated) return NULL;
+    free(validated);
+    bool ok = true;
+    return opaque_copy_info(source, 0, &ok);
+}
 static void opaque_free_instance(GenericInstantiation *inst) {
     free(inst->generic_name); free(inst->concrete_name); free(inst->type_args);
     for (int i = 0; inst->type_arg_names && i < inst->type_arg_count; ++i) free(inst->type_arg_names[i]);
@@ -346,5 +359,30 @@ bool env_register_opaque_union_context(Environment *env, const TypeInfo *info, b
     free(env->generic_instances); env->generic_instances = rows;
     ++env->generic_instance_count; env->generic_instance_capacity = env->generic_instance_count;
     if (added) *added = true;
+    return true;
+}
+
+const TypeInfo *env_tuple_literal_info(const Environment *env, const ASTNode *literal) {
+    if (!env || !literal) return NULL;
+    for (size_t i = 0; i < env->tuple_literal_binding_count; ++i)
+        if (env->tuple_literal_bindings[i].literal == literal)
+            return env->tuple_literal_bindings[i].type_info;
+    return NULL;
+}
+bool env_bind_tuple_literal(Environment *env, const ASTNode *literal, const TypeInfo *info) {
+    if (!env || !literal || literal->type != AST_TUPLE_LITERAL || !type_info_tuple_valid(info) ||
+        info->tuple_element_count != literal->as.tuple_literal.element_count) return false;
+    const TypeInfo *old = env_tuple_literal_info(env, literal);
+    if (old) return type_infos_equal(old, info);
+    if (env->tuple_literal_binding_count >= SIZE_MAX / sizeof(TupleLiteralBinding)) return false;
+    TypeInfo *copy = copy_complete_type_info_checked(info);
+    if (!copy) return false;
+    size_t count = env->tuple_literal_binding_count;
+    TupleLiteralBinding *rows = malloc((count + 1) * sizeof *rows);
+    if (!rows) { free_payload_type_info(copy); return false; }
+    if (count) memcpy(rows, env->tuple_literal_bindings, count * sizeof *rows);
+    rows[count] = (TupleLiteralBinding){literal, copy};
+    free(env->tuple_literal_bindings); env->tuple_literal_bindings = rows;
+    ++env->tuple_literal_binding_count;
     return true;
 }
