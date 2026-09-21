@@ -447,7 +447,7 @@ static void retained_callable_consumers(void) {
 }
 static void constructor_annotation_parsing(void) {
     const char *source =
-        "fn sample()->int { let box =Box<Item,fn(Item)->Item,array<Item>,List<Item>,Box<Item>>.Value{} return 0 }\n"
+        "fn sample()->int { let box =Box<Item,fn(Item)->Item,array<Item>,List<Item>,Box<Item>,fn()->fn(Item)->Item>.Value{} return 0 }\n"
         "shadow sample { assert true }\n";
     int count = 0;
     Token *tokens = tokenize(source, &count); assert(tokens);
@@ -458,7 +458,7 @@ static void constructor_annotation_parsing(void) {
     ASTNode *constructor = body->as.block.statements[0]->as.let.value;
     assert(constructor && constructor->type == AST_UNION_CONSTRUCT);
     TypeInfo *info = constructor->as.union_construct.type_info;
-    assert(info && info->type_param_count == 5 && !strcmp(info->generic_name, "Box"));
+    assert(info && info->type_param_count == 6 && !strcmp(info->generic_name, "Box"));
     TypeInfo **args = info->type_params;
     assert(args[0]->base_type == TYPE_STRUCT && !strcmp(args[0]->generic_name, "Item"));
     assert(args[1]->base_type == TYPE_FUNCTION && args[1]->fn_sig);
@@ -471,6 +471,33 @@ static void constructor_annotation_parsing(void) {
     assert(args[3]->base_type == TYPE_LIST_GENERIC && !strcmp(args[3]->generic_name, "Item"));
     assert(args[4]->base_type == TYPE_UNION && args[4]->type_param_count == 1);
     assert(!strcmp(args[4]->generic_name, "Box") && !strcmp(args[4]->type_params[0]->generic_name, "Item"));
+    assert(args[5]->base_type == TYPE_FUNCTION && args[5]->fn_sig);
+    FunctionSignature *factory = args[5]->fn_sig;
+    assert(factory->return_type_info && factory->return_type_info->base_type == TYPE_FUNCTION);
+    assert(!factory->return_type_info->fn_sig && factory->return_fn_sig);
+    Environment *env = create_environment(); assert(env);
+    identity_record(env, "Item", "Parsed");
+    NominalView callee = {0}, result = {0}; TypeInfo *concrete = NULL;
+    assert(nominal_view_copy_context(env, args[5], "Parsed", NULL, 0, &callee));
+    assert(nominal_callable_result(env, &callee, 0, &result));
+    assert(result.info->fn_sig && result.info->fn_sig != factory->return_fn_sig);
+    assert(checked_signature_equal(env, result.info->fn_sig, "Parsed", factory->return_fn_sig, "Parsed", 0));
+    assert(nominal_materialize(env, args[5], "Parsed", NULL, 0, &concrete));
+    assert(concrete->fn_sig->return_type_info->fn_sig && concrete->fn_sig->return_fn_sig);
+    assert(concrete->fn_sig->return_type_info->fn_sig != concrete->fn_sig->return_fn_sig);
+    assert(checked_signature_equal(env, concrete->fn_sig->return_type_info->fn_sig, "Parsed",
+        concrete->fn_sig->return_fn_sig, "Parsed", 0));
+    assert(!factory->return_type_info->fn_sig); /* My borrowed parser source is unchanged. */
+    FunctionSignature conflict = *factory->return_fn_sig;
+    conflict.return_type = TYPE_BOOL; conflict.return_type_info = NULL; conflict.return_struct_name = NULL;
+    TypeInfo conflicting_return = *factory->return_type_info; conflicting_return.fn_sig = &conflict;
+    FunctionSignature conflicting_factory = *factory; conflicting_factory.return_type_info = &conflicting_return;
+    TypeInfo conflicting = {.base_type = TYPE_FUNCTION, .fn_sig = &conflicting_factory};
+    NominalView untouched = {.variant = 17};
+    assert(!nominal_view_copy_context(env, &conflicting, "Parsed", NULL, 0, &untouched));
+    assert(untouched.variant == 17 && !untouched.info && !untouched.owner);
+    free_payload_type_info(concrete); nominal_view_discard(&result); nominal_view_discard(&callee);
+    free_environment(env);
     free_ast(program); free_tokens(tokens, count);
     const char *malformed[] = {
         "fn sample()->int { let box =Box<Item,fn(Item)-> >.Value{} return 0 }",

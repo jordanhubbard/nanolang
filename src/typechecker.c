@@ -877,9 +877,8 @@ static bool nominal_callee_view(ASTNode *call, Environment *env, unsigned depth,
 static bool nominal_callable_result(Environment *env, const NominalView *callee, unsigned depth, NominalView *out) {
     if (depth > 128 || callee->payload || !callee->info || callee->info->base_type != TYPE_FUNCTION || !callee->info->fn_sig) return false;
     const FunctionSignature *signature = callee->info->fn_sig;
-    TypeInfo flat = {.base_type = signature->return_type, .generic_name = signature->return_struct_name,
-                     .fn_sig = signature->return_fn_sig};
-    return nominal_view_copy_context(env, signature->return_type_info ? signature->return_type_info : &flat,
+    TypeInfo result = nominal_signature_result(signature);
+    return nominal_view_copy_context(env, &result,
         callee->owner, nominal_view_context(callee), depth + 1, out);
 }
 

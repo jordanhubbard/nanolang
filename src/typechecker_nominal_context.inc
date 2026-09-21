@@ -107,6 +107,13 @@ static bool nominal_materialize_flat(Environment *env, Type original, const char
     free_payload_type_info(copy);
     return true;
 }
+/* I borrow a complete result view without transferring either source owner. */
+static TypeInfo nominal_signature_result(const FunctionSignature *signature) {
+    TypeInfo view = signature->return_type_info ? *signature->return_type_info
+        : (TypeInfo){.base_type = signature->return_type, .generic_name = signature->return_struct_name};
+    if (view.base_type == TYPE_FUNCTION && !view.fn_sig) view.fn_sig = signature->return_fn_sig;
+    return view;
+}
 static bool nominal_materialize_signature(Environment *env, const FunctionSignature *source,
     FunctionSignature *copy, const char *owner, const NominalSubstitution *context, unsigned depth) {
     if (depth > 128 || !source || !copy) return false;
@@ -134,10 +141,9 @@ static bool nominal_materialize_signature(Environment *env, const FunctionSignat
         copy->param_struct_names[i] = name ? strdup(name) : NULL;
         if (name && !copy->param_struct_names[i]) return false;
     }
-    TypeInfo flat = {.base_type = source->return_type, .generic_name = source->return_struct_name,
-        .fn_sig = source->return_fn_sig};
+    TypeInfo result = nominal_signature_result(source);
     TypeInfo *concrete = NULL;
-    if (!nominal_materialize(env, source->return_type_info ? source->return_type_info : &flat,
+    if (!nominal_materialize(env, &result,
             owner, context, depth + 1, &concrete)) return false;
     free_payload_type_info(copy->return_type_info);
     copy->return_type_info = concrete;

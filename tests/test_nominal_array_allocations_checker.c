@@ -62,7 +62,7 @@ bool array_test_owned_context(Environment *env, Symbol *output) {
     return ok;
 }
 
-bool array_test_prepare_callable(Environment *env) {
+bool array_test_prepare_callable(Environment *env, bool legacy_return) {
     TypeInfo fixed = {.base_type = TYPE_STRUCT, .generic_name = "Item"};
     TypeInfo formal = {.base_type = TYPE_STRUCT, .generic_name = "T"};
     TypeInfo list = {.base_type = TYPE_LIST_GENERIC, .generic_name = "T"};
@@ -76,8 +76,10 @@ bool array_test_prepare_callable(Environment *env) {
     TypeInfo callback = {.base_type = TYPE_FUNCTION, .fn_sig = &nested};
     Type tags[] = {TYPE_TUPLE, TYPE_LIST_GENERIC, TYPE_FUNCTION};
     TypeInfo *parameters[] = {&tuple, &list, &callback}; char *names[] = {NULL, "T", NULL};
+    TypeInfo legacy = {.base_type = TYPE_FUNCTION};
     FunctionSignature signature = {.param_count = 3, .param_types = tags, .param_type_info = parameters,
-        .param_struct_names = names, .return_type = TYPE_FUNCTION, .return_type_info = &callback, .return_fn_sig = &nested};
+        .param_struct_names = names, .return_type = TYPE_FUNCTION,
+        .return_type_info = legacy_return ? &legacy : &callback, .return_fn_sig = &nested};
     TypeInfo callable = {.base_type = TYPE_FUNCTION, .fn_sig = &signature};
     char *formals[] = {"T"}; UnionDef declaration = {.generic_param_count = 1, .generic_params = formals};
     TypeInfo *arguments[] = {&fixed}; TypeInfo instance = {.type_param_count = 1, .type_params = arguments};

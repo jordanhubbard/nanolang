@@ -209,16 +209,16 @@ static void owned_context_controls(void) {
         CHECK(owned_context_attempt(SIZE_MAX, false) == count);
     }
 }
-extern bool array_test_prepare_callable(Environment *);
+extern bool array_test_prepare_callable(Environment *, bool);
 extern bool array_test_callable_consumer(Environment *, TypeInfo **);
-static size_t callable_context_attempt(size_t prefix, bool transient) {
+static size_t callable_context_attempt(size_t prefix, bool transient, bool legacy_return) {
     Environment *env = create_environment(); CHECK(env);
     for (int i = 0; i < 2; ++i) {
         StructDef record = {0}; record.name = strdup("Item"); record.module_name = i ? "Caller" : "Definitions";
         CHECK(record.name); env_define_struct(env, record);
     }
     env_define_var(env, "callback", TYPE_FUNCTION, false, create_void());
-    CHECK(array_test_prepare_callable(env));
+    CHECK(array_test_prepare_callable(env, legacy_return));
     Symbol *binding = env_get_var(env, "callback");
     const void *proof = binding->checker_nominal_view;
     TypeInfo *prior = binding->type_info;
@@ -233,13 +233,16 @@ static size_t callable_context_attempt(size_t prefix, bool transient) {
     return count;
 }
 static void callable_context_controls(void) {
-    size_t count = callable_context_attempt(SIZE_MAX, false); CHECK(count > 30);
-    printf("I measure the retained callable consumer: %zu allocation attempts.\n", count);
-    for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
-        callable_context_attempt(i, transient != 0);
-        CHECK(callable_context_attempt(SIZE_MAX, false) == count);
+    for (int legacy = 0; legacy < 2; ++legacy) {
+        size_t count = callable_context_attempt(SIZE_MAX, false, legacy != 0); CHECK(count > 30);
+        printf("I measure retained callable form %d: %zu allocation attempts.\n", legacy, count);
+        for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+            callable_context_attempt(i, transient != 0, legacy != 0);
+            CHECK(callable_context_attempt(SIZE_MAX, false, legacy != 0) == count);
+        }
     }
 }
+
 extern bool array_test_constructor_registry(Environment *, ASTNode *);
 static size_t constructor_registry_attempt(size_t prefix, bool transient) {
     Environment *env = create_environment(); CHECK(env);
