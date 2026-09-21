@@ -205,6 +205,12 @@ owner edge; every corresponding environment slot then acquires its own edge.
 Existing cells and immutable values acquire checked references separately.
 
 Failure releases the private environment, staged cell owners and scratch.
+I reverse the transaction's acquired references directly, without ordinary
+cycle-suspect bookkeeping: each referent still has its original rooted owner
+or the staged new-cell owner. I then free the unpublished environment and
+VOID cells with exact accounting. No collector allocation or callback occurs
+during rollback. I reserve room for at most one diagnostic release per source
+before acquiring any reference; rollback cannot overflow that counter.
 It may advance diagnostic allocation/retain/release counters, but preserves
 existing source values, cell identities, reference counts and the output.
 Successful commit moves each unique local's value into its new cell and

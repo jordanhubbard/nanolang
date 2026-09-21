@@ -133,6 +133,8 @@ VmBindingResult vm_binding_closure(VmHeap *heap, uint32_t module_id,
     size_t work_limit, VmClosure **out) {
     if (!heap || !module_id || !out || (count && (!sources || !target_modes)) ||
         heap->stats.freed > heap->stats.allocated) return VM_BINDING_INVALID;
+    if ((uint64_t)count > UINT64_MAX - heap->stats.release_calls)
+        return VM_BINDING_LIMIT;
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
     if (heap->private_record_dag) return VM_BINDING_INVALID;
 #endif
@@ -226,9 +228,32 @@ VmBindingResult vm_binding_closure(VmHeap *heap, uint32_t module_id,
     *out = closure;
     return VM_BINDING_OK;
 fail:
-    if (closure) vm_release(heap, val_closure(closure));
-    for (uint16_t i = 0; i < count; ++i)
-        if (stages[i].new_cell) vm_release(heap, val_tuple(stages[i].new_cell));
+    if (closure) {
+        /* Every captured edge was acquired here. Its prior owner is still
+         * rooted; undoing the acquire cannot create a new unreachable cycle.
+         * Ordinary release would add suspect-buffer allocations and defer
+         * private cell reclamation beyond this transaction's budget. */
+        for (uint16_t i = 0; i < count; ++i) {
+            NanoValue value = closure->captures[i];
+            if (!val_is_heap_obj(value) || !value.as.obj) continue;
+            VmHeapHeader *header = value.as.obj;
+            assert(header->ref_count > 1);
+            --header->ref_count;
+            ++heap->stats.release_calls;
+        }
+        heap->stats.freed += sizeof(VmClosure) + n * sizeof(NanoValue);
+        --heap->stats.num_objects;
+        free(closure);
+    }
+    for (uint16_t i = 0; i < count; ++i) {
+        VmTuple *cell = stages[i].new_cell;
+        if (!cell) continue;
+        assert(cell->header.ref_count == 1 && !cell->header.buffered &&
+               cell->elements[0].tag == TAG_VOID);
+        heap->stats.freed += sizeof(VmTuple) + sizeof(NanoValue);
+        --heap->stats.num_objects;
+        free(cell);
+    }
     heap->stats.freed += scratch_bytes;
     free(stages);
     return result;

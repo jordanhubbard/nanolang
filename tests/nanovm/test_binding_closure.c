@@ -29,6 +29,8 @@ typedef struct {
     uint8_t modes[6];
     size_t live,objects;
     uint32_t cell_refs;
+    void **cycle_buf;
+    uint32_t cycle_count,cycle_capacity;
 } Fixture;
 static void setup(Fixture *f) {
     memset(f,0,sizeof *f);vm_heap_init(&f->heap);
@@ -50,6 +52,8 @@ static void setup(Fixture *f) {
     f->sources[4]=(VmBindingSource){.value=f->sibling->captures[0],.mode=1};
     f->live=f->heap.stats.allocated-f->heap.stats.freed;f->objects=f->heap.stats.num_objects;
     f->cell_refs=f->state->slots[0].cell->header.ref_count;
+    f->cycle_buf=f->heap.cycle_buf;f->cycle_count=f->heap.cycle_count;
+    f->cycle_capacity=f->heap.cycle_capacity;
 }
 static void unchanged(Fixture *f) {
     CHECK(f->locals[0].tag==TAG_VOID&&f->state->slots[0].cell==f->sibling->captures[0].as.tuple);
@@ -60,6 +64,8 @@ static void unchanged(Fixture *f) {
     }
     CHECK(f->heap.stats.num_objects==f->objects);
     CHECK(f->heap.stats.allocated-f->heap.stats.freed==f->live);
+    CHECK(f->heap.cycle_buf==f->cycle_buf&&f->heap.cycle_count==f->cycle_count&&
+          f->heap.cycle_capacity==f->cycle_capacity);
 }
 static void destroy(Fixture *f,VmClosure *closure) {
     if(closure)vm_release(&f->heap,val_closure(closure));
@@ -123,6 +129,10 @@ static void refusal_controls(void) {
     CHECK(construct(&f,SIZE_MAX,100,&out)==VM_BINDING_LIMIT);
     CHECK(f.locals[3].as.string->header.ref_count==UINT32_MAX);
     f.locals[3].as.string->header.ref_count=1;unchanged(&f);
+    uint64_t releases=f.heap.stats.release_calls;
+    f.heap.stats.release_calls=UINT64_MAX;
+    CHECK(construct(&f,SIZE_MAX,100,&out)==VM_BINDING_LIMIT);
+    CHECK(f.heap.stats.release_calls==UINT64_MAX);f.heap.stats.release_calls=releases;unchanged(&f);
     CHECK(out==f.sibling);
     CHECK(construct(&f,f.live+bytes,17,&out)==VM_BINDING_OK);
     published(&f,out);destroy(&f,out);
