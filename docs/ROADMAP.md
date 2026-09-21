@@ -14428,3 +14428,11 @@ not call this helper. Under task_698d43908484433fb6f18bf8c130673a I retain that
 terminal/actual C IR and restrict definition parsing to the complete emitted
 external declaration set. Every called signature remains required and compared;
 missing or mismatched declarations still fail. No production ABI changes.
+
+During frozen63b8a Darwin qualification, my read-only SSH monitor reports a
+puck.local resolution failure, then the existing SSH command closes with255 and
+"Connection to puck.local closed by remote host." The last observed native phase
+completed O0 linked and observed products and was in O2 linked products. I retain
+the connection terminals separately; the phase's final status and live worker
+state are not yet observed. I will inspect retained remote terminals before any
+continuation and will not relabel this as a passing gate or an established cause.
