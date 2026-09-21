@@ -159,7 +159,7 @@ static NativeDerivedGraph *native_derived_prepare(Environment *env, FunctionType
     for (int i = 0; i < env->function_count; ++i) {
         Function *function = &env->functions[i];
         if (native_derived_annotation_required(function->return_type_info, 0)) needed = true;
-        for (int p = 0; p < function->param_count; ++p)
+        for (int p = 0; function->params && p < function->param_count; ++p)
             if (native_derived_annotation_required(function->params[p].type_info, 0)) needed = true;
     }
     if (!needed) return NULL;
@@ -199,7 +199,7 @@ static NativeDerivedGraph *native_derived_prepare(Environment *env, FunctionType
     for (int i = 0; i < env->function_count; ++i) {
         Function *function = &env->functions[i];
         native_derived_collect(graph, function->return_type_info, 0);
-        for (int p = 0; p < function->param_count; ++p)
+        for (int p = 0; function->params && p < function->param_count; ++p)
             native_derived_collect(graph, function->params[p].type_info, 0);
     }
     for (int i = 0; i < functions->count; ++i) {
