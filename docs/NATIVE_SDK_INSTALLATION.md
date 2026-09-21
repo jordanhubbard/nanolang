@@ -349,3 +349,28 @@ must establish the preferred directory precedes the resolved fallback and SDK
 root, each spaced include remains one argument, and the unrelated trusted macro
 flag survives. I retain the original JSON coexistence, shadow/output and required
 provider-failure controls.
+
+## Final installed C command construction
+
+My `5f3e0f4e1` gates reached the original full installed provider corpus on both
+hosts after bootstrap/install and readonly three-producer concurrency passed.
+All 69 combined-provider C-seed shadows passed. Final C invocation construction
+then refused 16927 bytes on Linux and 17608 on Darwin against a 16384-byte array.
+I retain those terminals and every original provider, path and assertion.
+
+I propose sizing the unchanged final command with `snprintf(NULL, 0, ...)`,
+then allocating exactly the measured size plus NUL only when it fits a named
+65536-byte inclusive command budget. I format again into the owned allocation,
+require the same measured length, and release it on pre-invocation failure or
+immediately after synchronous `system` returns. Negative sizing, allocation
+failure, partial formatting and over-budget input use the existing precise
+compiler-command refusal and cleanup path before final compiler invocation.
+Existing input-fragment bounds and ordered trusted flags remain unchanged.
+This is a bounded shell-command interface, not arbitrary-length argv support;
+host process limits can still refuse invocation and remain actual compiler
+failures. No truncation or provider omission is allowed.
+
+I require the unchanged full installed provider success on both hosts plus a
+focused C-seed over-budget trusted-flag control that retains a prior output
+sentinel and observes the exact command-limit diagnostic. Source and fixture
+changes require review before a fresh full qualification.
