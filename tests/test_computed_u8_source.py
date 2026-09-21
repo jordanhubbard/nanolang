@@ -80,6 +80,42 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''')
 
+    def test_checked_enum_destinations_and_once_only_calls(self):
+        self.paired('''enum Edge { Below = -1, Above = 256, High = 511 }
+let mut calls: int = 0
+let mut saved: u8 = Edge.High
+fn tick() -> Edge { set calls (+ calls 1) return Edge.Above }
+shadow tick { set calls 0 assert (== (tick) Edge.Above) assert (== calls 1) }
+fn narrow(value: Edge) -> u8 { return value }
+shadow narrow { assert (== (cast_int (narrow Edge.Below)) 255) }
+fn identity(value: u8) -> u8 { return value }
+shadow identity { assert (== (cast_int (identity Edge.High)) 255) }
+fn tail() -> u8 { return (tick) }
+shadow tail { set calls 0 assert (== (cast_int (tail)) 0) assert (== calls 1) }
+fn main() -> int {
+ assert (== (cast_int saved) 255)
+ set calls 0
+ let mut value: u8 = (tick)
+ assert (== calls 1)
+ assert (== (cast_int value) 0)
+ set value Edge.Below
+ assert (== (cast_int value) 255)
+ set saved Edge.Above
+ assert (== (cast_int saved) 0)
+ let direct: u8 = (identity (tick))
+ assert (== calls 2)
+ assert (== (cast_int direct) 0)
+ let returned: u8 = (tail)
+ assert (== calls 3)
+ assert (== (cast_int returned) 0)
+ assert (== (cast_int (narrow Edge.Below)) 255)
+ assert (== (cast_int (narrow Edge.Above)) 0)
+ assert (== (cast_int (narrow Edge.High)) 255)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
     def test_qualified_byte_argument_and_return(self):
         dependency = self.artifacts / 'bytes.nano'
         dependency.write_text('module Bytes\npub fn identity(value: u8) -> u8 { return value }\n'
