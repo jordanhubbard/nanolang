@@ -13829,3 +13829,18 @@ scope is0.141s. I retain the full evidence seal and original production timeouts
 - [ ] I audit every function-table writer and test append/relocation, invalidation,
   raw truncation, same-name replacements, owner/namespace switches, collision and
   allocation failure before fresh unchanged full bootstrap and14method acceptance.
+
+
+My fresh a448 full bootstrap passes on Linux269.345s and Darwin266.576s.
+The first focused matrix stops Linux before methods because my module fixture
+wrapper does not expose realpath under strict feature macros. Darwin ordinary
+passes two methods; supported HB sanitizer completes16,744 ownership assertions
+then reports184bytes/26 leaked fixture owner strings. StructDef/EnumDef borrow
+module_name; UnionDef owns it. Original logs/maps/CAS remain intact, with terminal
+copies under `docs/evidence/record-lists-a448-first-matrix/`.
+
+- [ ] I expose the POSIX/XSI module API in my wrapper and provide borrowed
+  StructDef/EnumDef owner strings, preserving Union-owned storage and all
+  assertions/fault sweeps. I qualify only the corrected fixture checkpoint.
+- [ ] I verify unchanged a448 production and archived providers before fixture-only
+  continuation, without relabeling bootstrap as a rerun; full14methods remain.

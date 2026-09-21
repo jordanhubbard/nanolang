@@ -1,0 +1,12 @@
+{
+  "puck/homebrew-sanitizer.log": "1bb535ef3dc77c8bcc3144b2124c521003c4032c0c107197a1d84f051e3aabdf",
+  "puck/manifest.json": "0e8b1d554c0a51e2c962e8b5150f53b1bb463e2518c0efebf3cf5f443c5e2744",
+  "puck/homebrew-sanitizer-status.json": "2d4385935c060a64f8117fb8160ec0be778ccccb8f16dfd55f28165afb119751",
+  "puck/apple-ordinary.log": "3c38c34719af32ac5f603e2b3fce3b5f703b373df9b09fa0481965a652e0689b",
+  "puck/apple-ordinary-status.json": "d149d7e4379dd41b85c7fff4d29f956b90455f8cce37b519d5b44760eb6d630e",
+  "puck/scope.json": "399ad85d05dc0251183520522f2ab3297ffd9788d67151aa3763f9a91c3ea084",
+  "linux/gcc-ordinary.log": "78f60ea019e18435d70a5bc89965b42886d12029ff4c51066c91a36dee4b25c6",
+  "linux/gcc-ordinary-status.json": "b0b35dc65f9252edba1262ff36e59155b091e26278a4817c8ec153dd0f17f66b",
+  "linux/manifest.json": "932480d89a9bb9429261d609ccfadbfc9fc726bc58fc4b00e2f0d617f904d8ff",
+  "linux/scope.json": "eb9fe1529e91d6057df5a497c3b0863f796c1c15d625fc5c64d304312d9f88fa"
+}
