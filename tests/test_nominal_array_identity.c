@@ -678,6 +678,49 @@ static void dotted_constructor_checking(void) {
         free_environment(env); free_ast(program); free_tokens(tokens, count);
     }
 }
+static void constructor_payload_destinations(void) {
+    const char *forms[] = {
+        "fn sample()->int { let box:Box<Item> =Box.Value{item:%s,fixed:Item{value:1}} return 0 }",
+        "fn sample()->int { let box =Box<Item>.Value{item:%s,fixed:Item{value:1}} return 0 }",
+        "fn sample()->int { let mut box:Box<Item> =Box.Value{item:Item{value:0},fixed:Item{value:1}} set box Box.Value{item:%s,fixed:Item{value:1}} return 0 }",
+        "fn sample()->int { return (consume Box.Value{item:%s,fixed:Item{value:1}}) }",
+        "fn sample()->Box<Item> { return Box.Value{item:%s,fixed:Item{value:1}} }",
+        "fn sample()->int { let holder:Holder =Holder{box:Box.Value{item:%s,fixed:Item{value:1}}} return 0 }"
+    };
+    for (size_t route = 0; route < sizeof forms / sizeof *forms; ++route)
+    for (int wrong = 0; wrong < 3; ++wrong) {
+        char function[768], source[1400];
+        int n = snprintf(function, sizeof function, forms[route],
+            wrong == 1 ? "true" : wrong == 2 ? "Other{value:2}" : "Item{value:2}");
+        assert(n > 0 && (size_t)n < sizeof function);
+        n = snprintf(source, sizeof source,
+            "struct Item{value:int} struct Other{value:int} "
+            "union Box<T>{Value{item:T,fixed:Item}} struct Holder{box:Box<Item>} "
+            "fn consume(box:Box<Item>)->int{return 0} shadow consume{assert true} "
+            "%s shadow sample{assert true}", function);
+        assert(n > 0 && (size_t)n < sizeof source);
+        int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+        ASTNode *program = parse_program(tokens, count); assert(program);
+        Environment *env = create_environment(); assert(env);
+        assert(type_check_module(program, env) == (wrong == 0));
+        free_environment(env); free_ast(program); free_tokens(tokens, count);
+    }
+    const char *fields[] = {"item:Item{value:1},item:Item{value:2}",
+        "item:Item{value:1}", "item:Item{value:1},unknown:Item{value:2}",
+        "item:Item{value:1},fixed:Other{value:2}"};
+    for (size_t i = 0; i < sizeof fields / sizeof *fields; ++i) {
+        char source[768];
+        int n = snprintf(source, sizeof source,
+            "struct Item{value:int} struct Other{value:int} union Box<T>{Value{item:T,fixed:Item}} "
+            "fn sample()->int{let box:Box<Item> =Box.Value{%s} return 0} shadow sample{assert true}", fields[i]);
+        assert(n > 0 && (size_t)n < sizeof source);
+        int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+        ASTNode *program = parse_program(tokens, count); assert(program);
+        Environment *env = create_environment(); assert(env);
+        assert(!type_check_module(program, env));
+        free_environment(env); free_ast(program); free_tokens(tokens, count);
+    }
+}
 static void constructor_failure_rollback(void) {
     for (int invalid = 0; invalid < 2; ++invalid) {
         char source[512];
@@ -749,7 +792,7 @@ static void emission_entry_rollback(void) {
 extern void test_nominal_constructor_allocations(void);
 int main(void) {
     test_nominal_constructor_allocations();
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_failure_rollback(); emission_entry_rollback();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); constructor_failure_rollback(); emission_entry_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }

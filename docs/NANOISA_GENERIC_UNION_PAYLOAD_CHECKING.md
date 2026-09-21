@@ -49,3 +49,29 @@ AST/previous cache entries on failure with fresh recovery. The existing binder
 allocation domain remains separately attributed. Source and fixtures receive
 review before corrected execution; full eighteen source/eight native methods,
 both hosts and unchanged bootstrap deadlines remain required.
+
+
+## My source checkpoint
+
+Both AST_UNION_CONSTRUCT and the legacy dotted struct-literal constructor route
+now prepare owned field views before checking children. Unknown/duplicate fields
+retain E004; missing variant/arity checks remain at their original entry sites.
+Preparation leaves its output pointer unchanged on failure and frees every
+partially prepared view. Existing outer expression/program transactions retain
+previous checker proofs and native array/tuple rows if child checking fails.
+
+The actual allocation domain measures preparation separately from recursive
+checker behavior: a definition-owned Item and caller-owned CallerItem, formal
+payload, nested callback and array fields exercise deep context copying. Every
+measured transient/persistent prefix preserves source annotation bytes, caller
+output and earlier cache counts; independent recovery follows. Six parsed
+destination routes retain positive, wrong-tag and distinct-record controls,
+with additional duplicate/missing/unknown/fixed-record payload refusals. The
+original constructor, nested callback and eighteen/eight corpus controls remain.
+
+A generic constructor lacking both retained destination proof and complete
+explicit type arguments now refuses preparation. I found no payload-driven
+inference in this native constructor emitter: it uses the node annotation or a
+function return annotation. This is not full inference acceptance; I keep that
+remaining audit and the whole unchanged source/native matrix open. No execution
+has occurred for this checkpoint.

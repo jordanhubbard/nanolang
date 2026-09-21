@@ -469,6 +469,36 @@ static void constructor_registry_controls(void) {
         CHECK(constructor_registry_attempt(SIZE_MAX, false) == count);
     }
 }
+extern bool array_test_union_payload_views(Environment *);
+static size_t union_payload_attempt(size_t prefix, bool transient) {
+    const char *source = "module Definitions\nstruct Item{value:int} "
+        "union Box<T>{Value{fixed:Item,item:T,callback:fn(T)->Item,values:array<T>}}";
+    int token_count = 0; Token *tokens = tokenize(source, &token_count); CHECK(tokens);
+    ASTNode *program = parse_program(tokens, token_count); CHECK(program);
+    Environment *env = create_environment(); CHECK(env); CHECK(type_check_module(program, env));
+    env->current_module = "Caller";
+    StructDef record = {0}; record.name = strdup("CallerItem"); record.module_name = "Caller";
+    CHECK(record.name); env_define_struct(env, record);
+    char **exports = calloc(1, sizeof *exports); CHECK(exports);
+    exports[0] = strdup("Box"); CHECK(exports[0]);
+    env_register_namespace(env, "defs", "Definitions", NULL, 0, NULL, 0, NULL, 0, exports, 1);
+    const void *prior = env->checker_nominal_expressions;
+    size_t arrays = env->array_expression_binding_count, tuples = env->tuple_literal_binding_count;
+    begin(prefix, transient); bool ok = array_test_union_payload_views(env); size_t count = stop();
+    CHECK(prefix == SIZE_MAX ? ok && !failed : !ok && failed);
+    CHECK(!live && env->checker_nominal_expressions == prior);
+    CHECK(env->array_expression_binding_count == arrays && env->tuple_literal_binding_count == tuples);
+    free_environment(env); free_ast(program); free_tokens(tokens, token_count); CHECK(!live);
+    return count;
+}
+static void union_payload_controls(void) {
+    size_t count = union_payload_attempt(SIZE_MAX, false); CHECK(count > 10);
+    printf("I measure owned concrete union field preparation: %zu allocation attempts.\n", count);
+    for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+        union_payload_attempt(i, transient != 0);
+        CHECK(union_payload_attempt(SIZE_MAX, false) == count);
+    }
+}
 static void struct_auxiliary_teardown_controls(void) {
     for (int fields = 0; fields < 2; ++fields) {
         Environment *env = create_environment(); CHECK(env);
@@ -507,7 +537,7 @@ int main(void) {
     CHECK(copy_payload_type_info_checked(chain + 1, &out)); free_payload_type_info(out);
     CHECK(copy_payload_type_info_checked(NULL, &out) && out == NULL);
     CHECK(!copy_payload_type_info_checked(chain, NULL));
-    struct_auxiliary_teardown_controls(); registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); native_callable_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); native_emission_controls(); constructor_registry_controls();
+    struct_auxiliary_teardown_controls(); registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); native_callable_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); native_emission_controls(); constructor_registry_controls(); union_payload_controls();
     printf("I passed %zu separate checker annotation allocation assertions.\n", checks);
     return 0;
 }

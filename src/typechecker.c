@@ -1450,23 +1450,6 @@ static bool check_record_array_contract(Environment *env, Type type, Type elemen
     return check_nominal_array_contract(env, &array, owner, value);
 }
 
-/* I retain fixed union field contracts without resolving formal parameters here. */
-static void check_union_record_array_contract(Environment *env, UnionDef *def,
-                                              int arm, const char *field, ASTNode *value) {
-    if (!def->variant_field_type_info || !def->variant_field_type_info[arm]) return;
-    for (int i = 0; i < def->variant_field_counts[arm]; ++i) {
-        if (strcmp(def->variant_field_names[arm][i], field)) continue;
-        TypeInfo *info = def->variant_field_type_info[arm][i];
-        if (!info || info->base_type != TYPE_ARRAY || !info->element_type) return;
-        TypeInfo *element = info->element_type;
-        for (int j = 0; element->generic_name && j < def->generic_param_count; ++j)
-            if (!strcmp(element->generic_name, def->generic_params[j])) return;
-        check_record_array_contract(env, TYPE_ARRAY, element->base_type,
-                                    element->generic_name, def->module_name, value);
-        return;
-    }
-}
-
 /* I retain complete concrete trees for native nested payload substitution. */
 static void register_native_union_context(Environment *env, const TypeInfo *info, unsigned depth) {
     if (!info) return;
@@ -2687,6 +2670,102 @@ static bool contextual_argument_matches(ASTNode *argument, Environment *env, con
     if (matches) matches = native_bind_checked_annotation(env, expected, owner, context, argument, depth + 1);
     free_payload_type_info(concrete);
     return matches;
+}
+/* I finish all declaration borrowing before recursively checking payloads. */
+static void discard_union_payload_views(NominalView *views, int count) {
+    for (int i = 0; views && i < count; ++i) nominal_view_discard(&views[i]);
+    free(views);
+}
+static bool prepare_union_payload_views(Environment *env, ASTNode *expression,
+    UnionDef *definition, int arm, char **names, int count, NominalView **output) {
+    if (!env || !expression || !definition || !output || arm < 0 || arm >= definition->variant_count ||
+        !definition->variant_field_counts || count < 0 || count != definition->variant_field_counts[arm] ||
+        (count && (!names || !definition->variant_field_names || !definition->variant_field_names[arm] ||
+                   !definition->variant_field_types || !definition->variant_field_types[arm]))) return false;
+    NominalView constructor = {0};
+    NominalSubstitution substitution = {0};
+    const NominalSubstitution *context = NULL;
+    if (definition->generic_param_count) {
+        const NominalView *retained = nominal_constructor_view(env, expression);
+        if (retained) {
+            if (!nominal_view_clone(env, retained, 0, &constructor)) return false;
+        } else {
+            const TypeInfo *info = expression->type == AST_UNION_CONSTRUCT
+                ? expression->as.union_construct.type_info : NULL;
+            if (!info || !nominal_view_copy_context(env, info, env->current_module, NULL, 0, &constructor)) return false;
+        }
+        NominalIdentity selected = env_nominal_identity(env, constructor.info->generic_name, constructor.owner, TYPE_UNION);
+        if (constructor.payload || constructor.info->base_type != TYPE_UNION || !selected.ordinal ||
+            &env->unions[selected.ordinal - 1] != definition ||
+            constructor.info->type_param_count != definition->generic_param_count) {
+            nominal_view_discard(&constructor); return false;
+        }
+        substitution = (NominalSubstitution){definition, constructor.info, constructor.owner, nominal_view_context(&constructor)};
+        context = &substitution;
+    }
+    NominalView *views = count ? calloc((size_t)count, sizeof *views) : NULL;
+    if (count && !views) { nominal_view_discard(&constructor); return false; }
+    bool ok = true;
+    for (int i = 0; ok && i < count; ++i) {
+        int field = -1;
+        if (!names[i]) { ok = false; break; }
+        for (int prior = 0; prior < i; ++prior)
+            if (!strcmp(names[prior], names[i])) ok = false;
+        for (int j = 0; j < count; ++j)
+            if (definition->variant_field_names[arm][j] && !strcmp(names[i], definition->variant_field_names[arm][j])) {
+                if (field >= 0) ok = false;
+                field = j;
+            }
+        if (!ok || field < 0) { ok = false; break; }
+        TypeInfo flat = {.base_type = definition->variant_field_types[arm][field],
+            .generic_name = definition->variant_field_type_names && definition->variant_field_type_names[arm]
+                ? definition->variant_field_type_names[arm][field] : NULL};
+        const TypeInfo *info = definition->variant_field_type_info && definition->variant_field_type_info[arm]
+            ? definition->variant_field_type_info[arm][field] : NULL;
+        ok = nominal_view_copy_context(env, info ? info : &flat, definition->module_name, context, 0, &views[i]);
+    }
+    nominal_view_discard(&constructor);
+    if (!ok) { discard_union_payload_views(views, count); return false; }
+    *output = views;
+    return true;
+}
+static bool check_union_payload_values(Environment *env, ASTNode *expression,
+    UnionDef *definition, int arm, char **names, ASTNode **values, int count) {
+    NominalView *views = NULL;
+    if (count > 0 && names && definition && arm >= 0 && arm < definition->variant_count &&
+        definition->variant_field_counts && definition->variant_field_counts[arm] == count &&
+        definition->variant_field_names && definition->variant_field_names[arm]) {
+        for (int i = 0; i < count; ++i) {
+            int matches = 0;
+            for (int j = 0; names[i] && j < count; ++j)
+                if (definition->variant_field_names[arm][j] &&
+                    !strcmp(names[i], definition->variant_field_names[arm][j])) ++matches;
+            for (int j = 0; names[i] && j < i; ++j)
+                if (names[j] && !strcmp(names[i], names[j])) matches = -1;
+            if (matches != 1) {
+                emit_context_error("E004 UNKNOWN FIELD", expression->line, expression->column, 1,
+                    "I require every declared union field exactly once.",
+                    "Use distinct field names from this variant.");
+                return false;
+            }
+        }
+    }
+    if ((count && !values) || !prepare_union_payload_views(env, expression, definition, arm, names, count, &views)) {
+        emit_context_error("E001 TYPE MISMATCH", expression->line, expression->column, 1,
+            "I require each union field exactly once with a complete concrete destination.",
+            "Preserve the declared variant, generic arguments and every payload field identity.");
+        return false;
+    }
+    /* No pointer into the growable declaration tables is used past this point. */
+    bool ok = true;
+    for (int i = 0; ok && i < count; ++i)
+        ok = contextual_argument_matches(values[i], env, views[i].info, views[i].owner,
+                                          nominal_view_context(&views[i]), 0);
+    discard_union_payload_views(views, count);
+    if (!ok) emit_context_error("E001 TYPE MISMATCH", expression->line, expression->column, 1,
+        "I require the union payload value to match its complete concrete destination.",
+        "Preserve the actual type and every fixed or substituted declaration owner.");
+    return ok;
 }
 static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignature *legacy_signature) {
     (void)legacy_signature; /* This materialized hint cannot supply nominal authority. */
@@ -4678,68 +4757,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return TYPE_UNKNOWN;
                 }
                 
-                /* I resolve each supplied name before selecting its declared type. */
-                for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
-                    const char *field_name = expr->as.struct_literal.field_names[i];
-                    int field_index = -1;
-                    for (int j = 0; j < udef->variant_field_counts[variant_idx]; ++j)
-                        if (!strcmp(field_name, udef->variant_field_names[variant_idx][j])) field_index = j;
-                    bool duplicate = false;
-                    for (int j = 0; j < i; ++j)
-                        if (!strcmp(field_name, expr->as.struct_literal.field_names[j])) duplicate = true;
-                    if (field_index < 0 || duplicate) {
-                        emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column, 1,
-                                           "I require every declared union field exactly once.",
-                                           "Use distinct field names from this variant.");
-                        free(union_name);
-                        return TYPE_UNKNOWN;
-                    }
-                    Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
-                    Type expected = udef->variant_field_types[variant_idx][field_index];
-                    check_union_record_array_contract(env, udef, variant_idx,
-                        expr->as.struct_literal.field_names[i], expr->as.struct_literal.field_values[i]);
-
-                    /* If the expected field type refers to a generic parameter name (T, E, etc.),
-                     * treat it as a wildcard here. This struct-literal path does not carry the
-                     * concrete instantiation needed for substitution.
-                     */
-                    if (udef->generic_param_count > 0 &&
-                        udef->variant_field_type_names &&
-                        udef->variant_field_type_names[variant_idx] &&
-                        udef->variant_field_type_names[variant_idx][field_index]) {
-                        const char *expected_name = udef->variant_field_type_names[variant_idx][field_index];
-                        for (int gp = 0; gp < udef->generic_param_count; gp++) {
-                            if (udef->generic_params && udef->generic_params[gp] &&
-                                strcmp(expected_name, udef->generic_params[gp]) == 0) {
-                                goto next_union_field;
-                            }
-                        }
-                    }
-
-                    /* Generic unions (e.g., Result<T, E>) store TYPE_GENERIC for variant fields.
-                     * If we don't have concrete substitution info at this node, treat TYPE_GENERIC
-                     * as a wildcard to avoid spurious type mismatch errors.
-                     */
-                    if (expected == TYPE_GENERIC) {
-                        goto next_union_field;
-                    }
-
-                    if (!types_match(field_type, expected)) {
-                        char message[256];
-                        snprintf(message, sizeof(message),
-                                 "Field type mismatch in variant '%s.%s': got %s, expected %s.",
-                                 union_name, variant_name,
-                                 type_to_string(field_type), type_to_string(expected));
-                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1, message,
-                                           "Ensure each field value matches the variant's declared type.");
-                    }
-
-                next_union_field:
-                    ;
-                }
-                
+                bool payloads_ok = check_union_payload_values(env, expr, udef, variant_idx,
+                    expr->as.struct_literal.field_names, expr->as.struct_literal.field_values,
+                    expr->as.struct_literal.field_count);
                 free(union_name);
-                return TYPE_UNION;
+                return payloads_ok ? TYPE_UNION : TYPE_UNKNOWN;
             }
 
         not_a_union_variant:
@@ -5117,56 +5139,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
 
-            /* Check each field type */
-            for (int i = 0; i < expr->as.union_construct.field_count; i++) {
-                const char *field_name = expr->as.union_construct.field_names[i];
-
-                /* Find matching field in variant definition */
-                int field_index = -1;
-                for (int j = 0; j < expected_field_count; j++) {
-                    if (strcmp(udef->variant_field_names[variant_idx][j], field_name) == 0) {
-                        field_index = j;
-                        break;
-                    }
-                }
-
-                if (field_index < 0) {
-                    char hint[512];
-                    int hint_off = snprintf(hint, sizeof(hint), "Available fields:");
-                    for (int j = 0; j < expected_field_count && hint_off < (int)sizeof(hint) - 3; j++) {
-                        hint_off += snprintf(hint + hint_off, sizeof(hint) - hint_off,
-                                             " %s", udef->variant_field_names[variant_idx][j]);
-                    }
-                    char message[256];
-                    snprintf(message, sizeof(message), "Unknown field '%s' in variant '%s'.",
-                             field_name, expr->as.union_construct.variant_name);
-                    emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column,
-                                       (int)safe_strlen(field_name), message, hint);
-                    return TYPE_UNKNOWN;
-                }
-
-                /* Check field type */
-                Type expected_type = udef->variant_field_types[variant_idx][field_index];
-                Type actual_type = check_expression(expr->as.union_construct.field_values[i], env);
-                check_union_record_array_contract(env, udef, variant_idx, field_name,
-                    expr->as.union_construct.field_values[i]);
-
-                /* For generic unions, accept any type for generic type parameters */
-                /* TODO: Proper type substitution for generic instantiations */
-                bool is_generic_param = (expected_type == TYPE_GENERIC || expected_type == TYPE_STRUCT);
-                if (is_generic_param && udef->generic_param_count > 0) {
-                    /* This is likely a generic type parameter - accept it for now */
-                    /* The transpiler will handle concrete type generation */
-                } else if (actual_type != expected_type) {
-                    char message[256];
-                    snprintf(message, sizeof(message), "Field '%s' expects type '%s', got '%s'.",
-                             field_name, type_to_string(expected_type), type_to_string(actual_type));
-                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column,
-                                       (int)safe_strlen(field_name), message,
-                                       "Ensure the field value matches the variant's declared field type.");
-                    return TYPE_UNKNOWN;
-                }
-            }
+            if (!check_union_payload_values(env, expr, udef, variant_idx,
+                    expr->as.union_construct.field_names, expr->as.union_construct.field_values,
+                    expr->as.union_construct.field_count)) return TYPE_UNKNOWN;
 
             return TYPE_UNION;
         }

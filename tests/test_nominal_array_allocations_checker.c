@@ -182,3 +182,35 @@ bool array_test_native_publish(Environment *env, ASTNode *expression, bool late_
     nominal_view_discard(&view);
     return ok;
 }
+
+/* I observe only preparation's checked ownership graph, before child checking. */
+bool array_test_union_payload_views(Environment *env) {
+    TypeInfo item = {.base_type = TYPE_STRUCT, .generic_name = "CallerItem"};
+    TypeInfo *arguments[] = {&item};
+    TypeInfo instance = {.base_type = TYPE_UNION, .generic_name = "defs.Box",
+        .type_param_count = 1, .type_params = arguments};
+    ASTNode expression = {.type = AST_UNION_CONSTRUCT};
+    expression.as.union_construct.union_name = "defs.Box";
+    expression.as.union_construct.variant_name = "Value";
+    expression.as.union_construct.type_info = &instance;
+    ASTNode saved; memcpy(&saved, &expression, sizeof saved);
+    TypeInfo saved_info; memcpy(&saved_info, &instance, sizeof saved_info);
+    char *names[] = {"fixed", "item", "callback", "values"};
+    NominalView sentinel = {0}, *output = &sentinel;
+    UnionDef *definition = env_get_union(env, "defs.Box");
+    bool ok = prepare_union_payload_views(env, &expression, definition, 0, names, 4, &output);
+    if (memcmp(&saved, &expression, sizeof saved) || memcmp(&saved_info, &instance, sizeof saved_info)) abort();
+    if (!ok) {
+        if (output != &sentinel) abort();
+        return false;
+    }
+    if (output == &sentinel ||
+        !nominal_equal(nominal_view_identity(env, &output[0], TYPE_STRUCT),
+            env_nominal_identity(env, "Item", "Definitions", TYPE_STRUCT)) ||
+        !nominal_equal(nominal_view_identity(env, &output[1], TYPE_STRUCT),
+            env_nominal_identity(env, "CallerItem", "Caller", TYPE_STRUCT)) ||
+        output[2].info->base_type != TYPE_FUNCTION || !output[2].owned_context ||
+        output[3].info->base_type != TYPE_ARRAY || !output[3].owned_context) abort();
+    discard_union_payload_views(output, 4);
+    return true;
+}
