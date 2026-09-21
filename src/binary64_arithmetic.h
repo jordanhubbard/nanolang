@@ -18,8 +18,14 @@
 typedef char nano_rt_binary64_storage_guard[
     sizeof(double) == 8 && sizeof(uint64_t) == 8 ? 1 : -1];
 
+#if defined(__GNUC__) || defined(__clang__)
+#define NL_BINARY64_ARITHMETIC_OPTIONAL __attribute__((unused))
+#else
+#define NL_BINARY64_ARITHMETIC_OPTIONAL
+#endif
+
 /* I inspect a rounded result with integer operations, not another FP operation. */
-static inline double nano_rt_f64_arithmetic_result(double value) {
+static inline NL_BINARY64_ARITHMETIC_OPTIONAL double nano_rt_f64_arithmetic_result(double value) {
     uint64_t bits;
     memcpy(&bits, &value, sizeof(bits));
     if ((bits & UINT64_C(0x7ff0000000000000)) == UINT64_C(0x7ff0000000000000) &&
@@ -31,19 +37,19 @@ static inline double nano_rt_f64_arithmetic_result(double value) {
 }
 
 /* Each volatile store/load is a binary64 rounding and noncontraction boundary. */
-static inline double nano_rt_f64_add(double a, double b) {
+static inline NL_BINARY64_ARITHMETIC_OPTIONAL double nano_rt_f64_add(double a, double b) {
     volatile double rounded = a + b;
     return nano_rt_f64_arithmetic_result(rounded);
 }
-static inline double nano_rt_f64_sub(double a, double b) {
+static inline NL_BINARY64_ARITHMETIC_OPTIONAL double nano_rt_f64_sub(double a, double b) {
     volatile double rounded = a - b;
     return nano_rt_f64_arithmetic_result(rounded);
 }
-static inline double nano_rt_f64_mul(double a, double b) {
+static inline NL_BINARY64_ARITHMETIC_OPTIONAL double nano_rt_f64_mul(double a, double b) {
     volatile double rounded = a * b;
     return nano_rt_f64_arithmetic_result(rounded);
 }
-static inline double nano_rt_f64_div(double a, double b) {
+static inline NL_BINARY64_ARITHMETIC_OPTIONAL double nano_rt_f64_div(double a, double b) {
     uint64_t divisor;
     memcpy(&divisor, &b, sizeof(divisor));
     /* Either signed zero takes precedence even over a signaling NaN numerator. */
@@ -51,4 +57,5 @@ static inline double nano_rt_f64_div(double a, double b) {
     volatile double rounded = a / b;
     return nano_rt_f64_arithmetic_result(rounded);
 }
+#undef NL_BINARY64_ARITHMETIC_OPTIONAL
 #endif
