@@ -14321,3 +14321,10 @@ size, alignment and field offset of my boxed value/function/program/view/record/
 field tables. Unknown indices return UINT32_MAX. The query allocates nothing,
 reads no caller storage and changes no instance or existing struct/API behavior.
 It remains unexecuted pending complete LLVM source and fixture review.
+
+My separate LLVM operation writer now contains the exact93 C-route operation
+cases, with direct SSA arithmetic/labels and checked calls to the same root
+helpers. A static case-set comparison matches every case. This is an unwired
+source checkpoint: complete table emission, startup ABI comparison, shared
+preparation integration and independent fixtures remain required before any
+LLVM product can be built or executed. No current C qualification input changes.
