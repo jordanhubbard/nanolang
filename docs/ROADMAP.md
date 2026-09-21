@@ -14245,3 +14245,11 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   deadline; its cause remains unassigned. One fresh Darwin bootstrap subsequently
   passed342.741seconds and continued to the original ordinary corpus. I preserve
   all three observations separately; no timeout widening or infrastructure label.
+
+- [ ] I compare canonical paths in my actual include-closure unit fixture on
+  Darwin. The fresh6b586 Apple ordinary run returned1 after413.074seconds: four
+  methods passed, then the helper's quoted-directory assertion compared lexical
+  `/tmp` with its canonical `/private/tmp` result. My contract requires canonical
+  directories. I resolve the independently expected path through realpath before
+  quoting it, preserve every predicate and original terminal, and rerun corrected
+  fixtures with exact retained6b586 compiler/provider identities.
