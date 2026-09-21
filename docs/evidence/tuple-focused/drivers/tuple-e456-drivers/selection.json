@@ -1,0 +1,6 @@
+{
+  "pin": "e456006adf3dcabfce250d105c67656845c187e1",
+  "host": "puck",
+  "scope": "focused only",
+  "prior_driver": "/home/jkh/nanolang-qualification/record-lists-a43-drivers"
+}

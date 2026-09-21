@@ -1,0 +1,72 @@
+--- prepare-a43.py
++++ prepare-e456.py
+@@ -17,7 +17,7 @@
+ def snapshot(paths):return {str(p):entry(p) for p in sorted({pathlib.Path(x).resolve() for x in paths},key=str) if p.is_file()}
+ save('capacity-preflight.json',{'free_bytes':shutil.disk_usage(root).free,'minimum_bytes':2147483648})
+ assert shutil.disk_usage(root).free >= 2147483648, 'I require 2 GiB before preparation.'
+-pin=git('rev-parse','HEAD');assert pin=='a43f22fab827dab3ea3d0643e114a53535ec6036'
++pin=git('rev-parse','HEAD');assert pin=='e456006adf3dcabfce250d105c67656845c187e1'
+ assert not git('status','--porcelain','--untracked-files=no')
+ assert not (root/'obj').exists() and not (root/'bin').exists()
+ cc='/usr/bin/clang' if darwin else '/bin/gcc';native='/opt/homebrew/opt/llvm/bin/clang' if darwin else '/bin/gcc'
+@@ -41,7 +41,7 @@
+ if darwin:
+  env.update(SDKROOT=sdk,NANO_NATIVE_TEST_CC=shlex.join([native,'-isysroot',sdk]),NANOLANG_GUARD_SAN_CC=shlex.join([native,'-isysroot',sdk]),NMS_NATIVE_CLANG_FLAGS=shlex.join(['-isysroot',sdk]))
+ save('environment.json',{k:v for k,v in env.items() if k.startswith(('NANO','NMS','ASAN','UBSAN','LSAN')) or k in ('CC','PATH','SDKROOT')})
+-report={'head':pin,'host':platform.node(),'platform':platform.platform(),'scope':'fresh Make build/bootstrap and ordinary provider preparation only; no qualification implied; named tools and phase endpoint products retained','phases':[]};save('manifest.json',report)
++report={'head':pin,'host':platform.node(),'platform':platform.platform(),'scope':'fresh ordinary COMMON_OBJECTS/RUNTIME_OBJECTS for focused parser/checker/lifetime fixtures only; no build/bootstrap/native corpus claim','phases':[]};save('manifest.json',report)
+ def products():return snapshot(p for folder in ('bin','obj','build','tests') for p in (root/folder).rglob('*') if p.is_file() and str(p.relative_to(root)) not in tracked_set)
+ def command(label,argv,bound):
+  sb=snapshot(source);tb=snapshot(selected);save(label+'-sources-before.json',sb);save(label+'-tools-before.json',tb);save(label+'-products-before.json',products())
+@@ -90,8 +90,8 @@
+  if not command(label,args,30):sys.exit(1)
+ flags=['CC='+cc,'NMS_RUNTIME_CLANG='+llvm+'/clang','NMS_RUNTIME_OPT='+llvm+'/opt','NMS_NATIVE_CLANG_FLAGS='+env['NMS_NATIVE_CLANG_FLAGS']]
+ fragment=out/'prepare.mk'
+-fragment.write_text('include Makefile.gnu\n.PHONY: list-prepare\nlist-prepare: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_virt nano_vm\n' + "\t@printf '%s\\n' '$(COMMON_OBJECTS) $(RUNTIME_OBJECTS)' > " + str(out/'providers.txt') + '\n' + "\t@printf '%s\\n' '$(CFLAGS)' > " + str(out/'cflags.txt') + '\n' + "\t@printf '%s\\n' '$(LDFLAGS)' > " + str(out/'ldflags.txt') + '\n')
++fragment.write_text('include Makefile.gnu\n.PHONY: list-prepare\nlist-prepare: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)\n' + "\t@printf '%s\\n' '$(COMMON_OBJECTS) $(RUNTIME_OBJECTS)' > " + str(out/'providers.txt') + '\n' + "\t@printf '%s\\n' '$(CFLAGS)' > " + str(out/'cflags.txt') + '\n' + "\t@printf '%s\\n' '$(LDFLAGS)' > " + str(out/'ldflags.txt') + '\n')
+ save('prepare-fragment.json',entry(fragment))
+-for name,args,bound in [('build',['make','-j2','build',*flags],1800),('bootstrap',['make','-j2','bootstrap',*flags],1800),('provider-prepare',['make','-f',str(fragment),'-j2','list-prepare',*flags],1800)]:
++for name,args,bound in [('provider-prepare',['make','-f',str(fragment),'-j2','list-prepare',*flags],1800)]:
+  if not command(name,args,bound):sys.exit(1)
+ save('terminal.json',{'status':'PASS','head':pin,'scope':report['scope']})
+--- matrix-a43.py
++++ focused-e456.py
+@@ -10,7 +10,7 @@
+   else:d.write_bytes(b)
+  return dict(sha256=h,bytes=len(b),archive=str(d))
+ def snapshot(paths):return {str(p):item(p) for p in sorted({pathlib.Path(x).resolve() for x in paths},key=str)}
+-pin='a43f22fab827dab3ea3d0643e114a53535ec6036'
++pin='e456006adf3dcabfce250d105c67656845c187e1'
+ assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()==pin
+ assert json.loads((prior/'terminal.json').read_text())['status']=='PASS'
+ source=json.loads((prior/'source-initial.json').read_text());prepared=json.loads((prior/'provider-prepare-products-after.json').read_text());tools=json.loads((prior/'tools-initial.json').read_text())
+@@ -81,7 +81,7 @@
+  print(label,status['status'],round(status['seconds'],3),flush=True)
+  assert status['status']==0 and not status.get('error') and status.get('reaped') and not status['remaining_groups'] and status['inputs_equal'],status
+  return (out/(label+'.log')).read_text()
+-save('runner.json',item(__file__));save('scope.json',dict(pin=pin,configs=configs,source_scope='all active tracked inputs excluding historical docs/evidence, selected prepared provider objects and bin tools; complete fresh endpoints; generated module outputs separately mapped and may change',sanitizer_scope='five original fixture helpers rebuild their documented owning TUs plus actual shared native header fixture; other prepared providers and complete native source programs ordinary',tools_scope='selected compilers/subtools/runtimes; not full transitive tool closure',cleanup='bounded own observed descendant process groups; fixture also supervises each child'))
++save('runner.json',item(__file__));save('scope.json',dict(pin=pin,configs=configs,source_scope='all active tracked inputs excluding historical docs/evidence, selected prepared provider objects and bin tools; complete fresh endpoints; generated module outputs separately mapped and may change',sanitizer_scope='five original fixture helpers rebuild their documented owning TUs; remaining prepared providers ordinary; no full native programs',tools_scope='selected compilers/subtools/runtimes; not full transitive tool closure',cleanup='bounded own observed descendant process groups; fixture also supervises each child'))
+ queries=[]
+ if not darwin:
+  queries=[('gcc-asan',[ordinary,'-print-file-name=libasan.so']),('gcc-ubsan',[ordinary,'-print-file-name=libubsan.so']),('gcc-cc1',[ordinary,'-print-prog-name=cc1']),('gcc-collect2',[ordinary,'-print-prog-name=collect2'])]
+@@ -90,18 +90,10 @@
+  for n in ('asan.a','asan-preinit.a','ubsan_standalone.a'):queries.append(('clang-'+n,[other,*otherflags,'-print-file-name=libclang_rt.'+n]))
+ for label,args in queries:
+  name=command(label,args,30,env).strip();assert pathlib.Path(name).is_file(),name;selected.append(name)
+-focus=['tests.test_native_record_lists.NativeRecordLists.test_shared_storage_and_allocation_failures','tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes','tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity']
++focus=['tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes','tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity']
+ for label,cc,flags in configs:
+  reports=out/label;reports.mkdir()
+  current=dict(env,NANO_LIST_CC=shlex.join([cc]),NANO_LIST_CFLAGS=shlex.join(['-O0','-g',*flags]),NANO_LIST_LDFLAGS=shlex.join(links),NANO_LIST_OBJECTS=shlex.join(map(str,providers)),NANO_LIST_REPORT_DIR=str(reports),NANO_NATIVE_LIST_CC=ordinary,NANO_NATIVE_LIST_CFLAGS=shlex.join(otherflags if darwin else []),NANO_NATIVE_LIST_LDFLAGS=shlex.join(links))
+  save(label+'-config.json',{k:v for k,v in current.items() if k.startswith(('NANO','NMS','ASAN','LSAN','UBSAN'))})
+  command(label,[sys.executable,'-m','unittest','-v','-f',*focus],900,current)
+-reports=out/'native-source';reports.mkdir()
+-current=dict(env,NANO_LIST_CC=ordinary,NANO_LIST_CFLAGS='-O0 -g',NANO_LIST_LDFLAGS=shlex.join(links),NANO_LIST_OBJECTS=shlex.join(map(str,providers)),NANO_LIST_REPORT_DIR=str(reports),NANO_NATIVE_LIST_CC=ordinary,NANO_NATIVE_LIST_CFLAGS=shlex.join(otherflags if darwin else []),NANO_NATIVE_LIST_LDFLAGS=shlex.join(links))
+-save('native-source-config.json',{k:v for k,v in current.items() if k.startswith(('NANO','NMS','ASAN','LSAN','UBSAN'))})
+-command('native-source',[sys.executable,'-m','unittest','-v','-f','tests.test_native_record_lists'],3600,current)
+-reports=out/'full-source';reports.mkdir()
+-current=dict(env,NANO_LIST_CC=ordinary,NANO_LIST_CFLAGS='-O0 -g',NANO_LIST_LDFLAGS=shlex.join(links),NANO_LIST_OBJECTS=shlex.join(map(str,providers)),NANO_LIST_REPORT_DIR=str(reports),NANO_NATIVE_LIST_CC=ordinary,NANO_NATIVE_LIST_CFLAGS=shlex.join(otherflags if darwin else []),NANO_NATIVE_LIST_LDFLAGS=shlex.join(links))
+-save('full-source-config.json',{k:v for k,v in current.items() if k.startswith(('NANO','NMS','ASAN','LSAN','UBSAN'))})
+-command('full-source',[sys.executable,'-m','unittest','-v','-f','tests.test_generic_record_lists'],3600,current)
+-save('terminal.json',dict(status='PASS',pin=pin,scope='focused owning-TU configurations, eight additive native methods and unchanged eighteen-method full source corpus; neighbors/whole Make separate'))
++save('terminal.json',dict(status='PASS',pin=pin,scope='two original focused parser/checker/owned-lifetime methods under Apple ordinary and Homebrew ASan/UBSan; ordinary remaining prepared providers; no native or full source corpus claim'))

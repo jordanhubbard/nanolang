@@ -1,0 +1,841 @@
+{
+  "objects": 4045,
+  "bytes": 82808530,
+  "artifact_references": 131283,
+  "equal_pairs": 30,
+  "report_files": 405,
+  "terminals": [
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/terminal.json",
+      "status": "PASS",
+      "timeout": null
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/clang-asan-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer-status.json",
+      "status": 1,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0002-array-identity-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0007-checked-lifetimes-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0009-array-identity-status.json",
+      "status": 1,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0008-checked-callable-hook-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0003-array-allocation-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0005-parsed-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0001-coroutine-error-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0006-coroutine-error-allocations-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0004-owned-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0002-array-identity-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0007-checked-lifetimes-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0009-array-identity-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0008-checked-callable-hook-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0003-array-allocation-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0005-parsed-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0001-coroutine-error-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0006-coroutine-error-allocations-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0010-array-allocations-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0004-owned-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/terminal.json",
+      "status": "PASS",
+      "timeout": null
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/terminal.json",
+      "status": "PASS",
+      "timeout": null
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/clang-asan-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0002-array-identity-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0007-checked-lifetimes-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0009-array-identity-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0008-checked-callable-hook-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0003-array-allocation-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0005-parsed-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0001-coroutine-error-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0006-coroutine-error-allocations-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0010-array-allocations-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0004-owned-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0002-array-identity-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0007-checked-lifetimes-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0009-array-identity-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0008-checked-callable-hook-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0003-array-allocation-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0005-parsed-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0001-coroutine-error-build-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0006-coroutine-error-allocations-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0010-array-allocations-status.json",
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0004-owned-build-status.json",
+      "status": 0,
+      "timeout": false
+    }
+  ],
+  "failures": [
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer-status.json",
+      "status": 1,
+      "timeout": false
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0009-array-identity-status.json",
+      "status": 1,
+      "timeout": false
+    }
+  ],
+  "pairs": [
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare-sources-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare-sources-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare-tools-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare-tools-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm-tools-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm-tools-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler-tools-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler-tools-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make-sources-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make-sources-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler-tools-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler-tools-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler-sources-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler-sources-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make-tools-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make-tools-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler-sources-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler-sources-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm-sources-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm-sources-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer-inputs-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer-inputs-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/clang-asan-inputs-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/clang-asan-inputs-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary-inputs-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary-inputs-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/provider-inputs-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/provider-inputs-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/provider-inputs-before.json",
+      "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/provider-inputs-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare-sources-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare-sources-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare-tools-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare-tools-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm-tools-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm-tools-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler-tools-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler-tools-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make-sources-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make-sources-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler-tools-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler-tools-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler-sources-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler-sources-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make-tools-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make-tools-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler-sources-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler-sources-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm-sources-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm-sources-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer-inputs-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer-inputs-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/clang-asan-inputs-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/clang-asan-inputs-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary-inputs-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary-inputs-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/provider-inputs-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/provider-inputs-after.json"
+    ],
+    [
+      "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/provider-inputs-before.json",
+      "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/provider-inputs-after.json"
+    ]
+  ],
+  "reports": {
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/terminal.json": "4edcdebb20e7713a0a9deebb2a90918ecf42c94a562aee2a86181745c8661ef6",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm-products-after.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/providers.txt": "a0c6cb952bfed54a217e53581c5066c0b9cfb9d85b800ff8f703959cb2176df2",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler.log": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/tracked-paths.json": "0f61bc68a884cf986ab7bc7f46f6a82de30cf29243b1704f6afee2f928504604",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler-status.json": "47184be9c1c0a41ddc1e711afd980c43aa0190bf80ff11c6da78f116fbd1d041",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare-sources-before.json": "fe58d966fad4c72b974663656323cfe0be528a493aefae436239cf98019fb95b",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/sdk-selection.json": "3c9367771142334cf7a074a0559c56a28aa1a6c0e97ed92fe69efc8f3559c5dd",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/environment.json": "27eeecd22c7d288f0b211cc843eaf4596ebb7d23af1e96787a9a5f8bdcff9876",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler-sources-after.json": "fe58d966fad4c72b974663656323cfe0be528a493aefae436239cf98019fb95b",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler-tools-after.json": "c6151e2227e7baa3ae7359dc673d9016e0c5d5b87571180ec4dbf397fcedd6c8",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make-sources-after.json": "fe58d966fad4c72b974663656323cfe0be528a493aefae436239cf98019fb95b",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make.log": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm-status.json": "a800964991dd586417e9d39d364c59e5e62c9d5f8447287ea4152bf695bfb8b5",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler-products-after.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/sparse-policy.json": "82fddd3a6377a0c86dbdc19ef25bec676d09280435c5c894b635b4d197343f97",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler-sources-after.json": "fe58d966fad4c72b974663656323cfe0be528a493aefae436239cf98019fb95b",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler-tools-after.json": "c6151e2227e7baa3ae7359dc673d9016e0c5d5b87571180ec4dbf397fcedd6c8",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/capacity-monitor.jsonl": "fe6dbe9a2dffd78e573b81c6a75ecb9e0b6ea741925ae744b1f4dee983966164",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/source-initial.json": "fe58d966fad4c72b974663656323cfe0be528a493aefae436239cf98019fb95b",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/capacity-preflight.json": "59f196d191cbec0f6a47c10d1f9cc01f6aa93ee5c02c0ac23bb7c7f04f521701",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make-tools-after.json": "c6151e2227e7baa3ae7359dc673d9016e0c5d5b87571180ec4dbf397fcedd6c8",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm-tools-after.json": "c6151e2227e7baa3ae7359dc673d9016e0c5d5b87571180ec4dbf397fcedd6c8",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/prepare.mk": "b5eeba8d381f1e8ea766c36ba9b404dc9e300f0ece99eed3031d17aa69831f21",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/tools-initial.json": "c6151e2227e7baa3ae7359dc673d9016e0c5d5b87571180ec4dbf397fcedd6c8",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/manifest.json": "f2c59b049909e344e7c685ce68642e1d7a58cc6df1b936df2c3a9f520d89dfbd",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/ldflags.txt": "64195a2d107697adce18b4d2a05107b836e45bc02d82b5d94fc006ef6ae58995",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm.log": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare-sources-after.json": "fe58d966fad4c72b974663656323cfe0be528a493aefae436239cf98019fb95b",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare-tools-before.json": "c6151e2227e7baa3ae7359dc673d9016e0c5d5b87571180ec4dbf397fcedd6c8",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare-products-after.json": "deb4226c16dfdbc619b362b661b220571c9624c989c032ca62121df9c58c8220",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler.log": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm-tools-before.json": "c6151e2227e7baa3ae7359dc673d9016e0c5d5b87571180ec4dbf397fcedd6c8",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare-products-before.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler-tools-before.json": "c6151e2227e7baa3ae7359dc673d9016e0c5d5b87571180ec4dbf397fcedd6c8",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm-sources-after.json": "fe58d966fad4c72b974663656323cfe0be528a493aefae436239cf98019fb95b",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make-sources-before.json": "fe58d966fad4c72b974663656323cfe0be528a493aefae436239cf98019fb95b",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/runner.json": "2554032d576151a2c37f0e6c90f61151096802fbe4ba4000e5d546c0fa70392f",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare-status.json": "051e6516d4081257d4a9e60a2f9e0bd29ab99fc60286004255666dc715ef7ea7",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler-status.json": "aacb2e094e40c7bfa1f7ac1e3d7ea80ff45c00d8e23adc4b2191d5792827cf8a",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/prepare-fragment.json": "dd162e6a9a212c431cffac27b2eee1c3b42f65c036822c51e22a8838ab730d51",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make-status.json": "b5cdac3d6b83d87a3f9380fdd79905e58ca9836f9600956bf7d76c5c0538d7dc",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare-tools-after.json": "c6151e2227e7baa3ae7359dc673d9016e0c5d5b87571180ec4dbf397fcedd6c8",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler-products-before.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler-tools-before.json": "c6151e2227e7baa3ae7359dc673d9016e0c5d5b87571180ec4dbf397fcedd6c8",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler-products-before.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm-products-before.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/native-compiler-sources-before.json": "fe58d966fad4c72b974663656323cfe0be528a493aefae436239cf98019fb95b",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make-tools-before.json": "c6151e2227e7baa3ae7359dc673d9016e0c5d5b87571180ec4dbf397fcedd6c8",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/provider-prepare.log": "a5f5fb7210737e123c979eb80df6db23d6a39c4c021fb8fc3c9e99f5a1886d40",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make-products-before.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/cflags.txt": "55a19ccf6b52f7063f97f76c13b2f3b06131dee367a70973e6413426d3f5278b",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler-sources-before.json": "fe58d966fad4c72b974663656323cfe0be528a493aefae436239cf98019fb95b",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/make-products-after.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/llvm-sources-before.json": "fe58d966fad4c72b974663656323cfe0be528a493aefae436239cf98019fb95b",
+    "/home/jkh/nanolang-qualification/tuple-e456-prepare-puck-copy/compiler-products-after.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/clang-asan-products-after.json": "7b5b26dc624bf85e1f56fd5c1c7f22f5875e459a73e2cbc26ec2feb8a02111f7",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer.log": "e47a24e64569feb756e683d75729e5603685ed3f6b9c4e60ef57f8520469fa87",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer-config.json": "f106edcaf6e414f58858a7d580000e62e6488de9cb3f05035beeb3b39caa02d4",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer-products-after.json": "7b5b26dc624bf85e1f56fd5c1c7f22f5875e459a73e2cbc26ec2feb8a02111f7",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/clang-asan-inputs-after.json": "95e2a7edb298d6ecb1e72d660ea42da6ec5bf164ab80eb30c8d863a3df33e6e0",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary-products-after.json": "7b5b26dc624bf85e1f56fd5c1c7f22f5875e459a73e2cbc26ec2feb8a02111f7",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary-config.json": "7cbabc4af3dcaa5807ba152c637b2b5babab530ca37ec00b21e9103e34a2b8c4",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/clang-asan-status.json": "ae0b85739257beeff897e7a9b01231ecce9414cc80e8d0a2acf7a1ef99b2954c",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer-products-before.json": "7b5b26dc624bf85e1f56fd5c1c7f22f5875e459a73e2cbc26ec2feb8a02111f7",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/manifest.json": "6632709732ccb4d9cb266856b5cd6a32219a8e151e7a005031cff2fef4f493bb",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer-status.json": "79932ed251c9333cabe499bf800d74d8906bc3ce5c6a0725d743c6709202cdd6",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer-inputs-after.json": "d4a6af88567b81057d4a1e2b4f11540c53c0bf3c2ff406622e0ead1741d14497",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary-inputs-after.json": "d4a6af88567b81057d4a1e2b4f11540c53c0bf3c2ff406622e0ead1741d14497",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary.log": "840080e26551ff7d15df65cd4152b31ed3efbe27966f8adf7ebc90836aad8aa7",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer-inputs-before.json": "d4a6af88567b81057d4a1e2b4f11540c53c0bf3c2ff406622e0ead1741d14497",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/clang-asan.log": "3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/runner.json": "19da03cac0c8614cb55af0fb7bc4a1b3dd5bbcd88d19d1074656877d99bc3ae5",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary-status.json": "12355ff5689d5cd7d4385e489720d7d40e00b7214466b24373540185e3380fc8",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/clang-asan-inputs-before.json": "95e2a7edb298d6ecb1e72d660ea42da6ec5bf164ab80eb30c8d863a3df33e6e0",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/clang-asan-products-before.json": "7b5b26dc624bf85e1f56fd5c1c7f22f5875e459a73e2cbc26ec2feb8a02111f7",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary-inputs-before.json": "d4a6af88567b81057d4a1e2b4f11540c53c0bf3c2ff406622e0ead1741d14497",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary-products-before.json": "7b5b26dc624bf85e1f56fd5c1c7f22f5875e459a73e2cbc26ec2feb8a02111f7",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/scope.json": "05151057c40427f4a7c7ed851f2bc026d951750b5530be9ca1f7acc22fedcd4f",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0009-array-identity.stdout": "89e2fe079076c71b52ee0dd2707654c54c9287776ffcc267fcf7bc4c66b461cd",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0003-array-allocation-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0005-parsed-build-after-products.json": "74ead3bb73e6d8fcaf748e85fcacb90ae0f99e71235d068a39cf1f621a3f8179",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0001-coroutine-error-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0009-array-identity.stderr": "fb7fc0627ad3e9f699e75f74aab2ff1b14fc6652716b094ae7099d2ffae965ac",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0003-array-allocation-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0009-array-identity-after-products.json": "74ead3bb73e6d8fcaf748e85fcacb90ae0f99e71235d068a39cf1f621a3f8179",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0002-array-identity-build-status.json": "2a94c135cb8647eb0fcc30c7112f9b49a21138eadaf36b22ca139054466447b7",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0001-coroutine-error-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0005-parsed-build-command.json": "7d66ae5d0401adde9ca1934c91b3d6585d7cb4da551a09aaa8e43c52a9018e9e",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0007-checked-lifetimes-status.json": "960cc70b459ff00e9fe27c77325400c7bb172e5c7a0b093e96dd8dd54fde21a3",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0001-coroutine-error-build-command.json": "341340fb67cca72fc964789c90b1a034773421082164ea29cb135a2751711ea7",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0002-array-identity-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0002-array-identity-build-before-products.json": "1a4b8a2317392b6cd0dfda7b3956c04c7a4a2b010cd11bc011125cbe9b4e003c",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0004-owned-build-command.json": "44766d0ca84c33f5f239a550b80d3199d8ab175909d7530e2ac32c1ea39e7eb7",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0003-array-allocation-build-after-products.json": "1708fcc83aaba7b57c18f7751fb5bbfd06e46e940dbe8b0f1002d0b728ec1020",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0001-coroutine-error-build-after-products.json": "1a4b8a2317392b6cd0dfda7b3956c04c7a4a2b010cd11bc011125cbe9b4e003c",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0007-checked-lifetimes.stdout": "851ece21235cfa86de6c4836f038692cf09da7b658e6be8029b2a12dd7661e51",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0002-array-identity-build-after-products.json": "f84bfbef1476aac7d615ce708122e8e548bc904c3a328c0a6d5fc8b2eb54f6ae",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0004-owned-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0003-array-allocation-build-command.json": "1f062a5557ac620fdfba5ab1579d8e8fe4e1ded2780ce19072d444aa7a1c6e76",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/provider-inputs-after.json": "e1a74c7d4aac91c33b64ca5ebb109523fb66d0d66748e259e12721b18cdfbb82",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0006-coroutine-error-allocations-command.json": "81ee01c6668c7807897ee31c0337f49db941e33283171aa71fa02cd9fda541a6",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0002-array-identity-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0005-parsed-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0009-array-identity-status.json": "fb5f0329d279004126f28ffd906bcd7fa04eee27bddb95326d2c9b654ee377ec",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0004-owned-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0007-checked-lifetimes-after-products.json": "74ead3bb73e6d8fcaf748e85fcacb90ae0f99e71235d068a39cf1f621a3f8179",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0008-checked-callable-hook-status.json": "3dde2685ff5373498bd311e7b3c2e2dae6cb624d86ef7932d640e529c9c68b72",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0006-coroutine-error-allocations.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0003-array-allocation-build-before-products.json": "f84bfbef1476aac7d615ce708122e8e548bc904c3a328c0a6d5fc8b2eb54f6ae",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0006-coroutine-error-allocations-before-products.json": "74ead3bb73e6d8fcaf748e85fcacb90ae0f99e71235d068a39cf1f621a3f8179",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0008-checked-callable-hook.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0009-array-identity-command.json": "576e42de65f650274733f0966d17cfc623ac481a0b920966df9de20f89e4015b",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/selected-config.json": "8cebae099b73c4d579110d1e7a92178ff044a7d86aa3e77c6322917994497e18",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0007-checked-lifetimes-before-products.json": "74ead3bb73e6d8fcaf748e85fcacb90ae0f99e71235d068a39cf1f621a3f8179",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0004-owned-build-after-products.json": "5c8fe2a37079400474a39f157596821a9148c2ca3f71499bcd5c56c8f2052e51",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0005-parsed-build-before-products.json": "5c8fe2a37079400474a39f157596821a9148c2ca3f71499bcd5c56c8f2052e51",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0008-checked-callable-hook-command.json": "0c16f778d89781ba9c2fa27ab8e572d221a3af570ff596b7404454a541c935c5",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0001-coroutine-error-build-before-products.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0006-coroutine-error-allocations-after-products.json": "74ead3bb73e6d8fcaf748e85fcacb90ae0f99e71235d068a39cf1f621a3f8179",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0007-checked-lifetimes-command.json": "c80bc41efd23edff6d3d4b2ebdeafd36a05a019b5a224f971ecd68ebaaf6dbdf",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0008-checked-callable-hook-after-products.json": "74ead3bb73e6d8fcaf748e85fcacb90ae0f99e71235d068a39cf1f621a3f8179",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0003-array-allocation-build-status.json": "59563f5ce02e931865b3d99fb0cc541f2386991b4593edf19a688abe694a3138",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0009-array-identity-before-products.json": "74ead3bb73e6d8fcaf748e85fcacb90ae0f99e71235d068a39cf1f621a3f8179",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0002-array-identity-build-command.json": "c7e98feb67f49141024270af5cac36726e3baba98565fb2822a57be34b349a32",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0005-parsed-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0005-parsed-build-status.json": "2784654bbca604e910330c31927252c1bc2d0ea1de9fc06c3979ba36c20fd25f",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0001-coroutine-error-build-status.json": "ef5c48c2ed8ac421b27cae5f64967df58a083e0449aec63e7353f3dda551f98f",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0004-owned-build-before-products.json": "1708fcc83aaba7b57c18f7751fb5bbfd06e46e940dbe8b0f1002d0b728ec1020",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0006-coroutine-error-allocations-status.json": "01b2f42854ec034e1ef3a949442b4f0d8122c4cdb67c92b83979a2e27638083e",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0008-checked-callable-hook-before-products.json": "74ead3bb73e6d8fcaf748e85fcacb90ae0f99e71235d068a39cf1f621a3f8179",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0007-checked-lifetimes.stderr": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0006-coroutine-error-allocations.stdout": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0008-checked-callable-hook.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/provider-inputs-before.json": "e1a74c7d4aac91c33b64ca5ebb109523fb66d0d66748e259e12721b18cdfbb82",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/homebrew-sanitizer/nano-record-lists-1ua9oyfr/0004-owned-build-status.json": "12b4eb5fa2a074da35a3b60accb5b1854812e36d0ca57a992d5b602e729a8a03",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0009-array-identity.stdout": "89e2fe079076c71b52ee0dd2707654c54c9287776ffcc267fcf7bc4c66b461cd",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0003-array-allocation-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0005-parsed-build-after-products.json": "9beed8237843cb7c1cf45528be6dfb30f44250eb0364b0c9ef94eb34d3baeae8",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0001-coroutine-error-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0009-array-identity.stderr": "9fe90aa4cb55b2ad678e1fc4bad25c9656fe867de48ea2f6eba3a8a00aa3e6ca",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0003-array-allocation-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0009-array-identity-after-products.json": "9beed8237843cb7c1cf45528be6dfb30f44250eb0364b0c9ef94eb34d3baeae8",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0002-array-identity-build-status.json": "f4f34245cd24f93c09bdf30e9d2136b7a2e41c6ad1bf02862ac57cd9b0f78828",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0001-coroutine-error-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0010-array-allocations.stderr": "76c11a76bc80099f1cf050b93d2affb4e203c30b110d134cf8e264caf81f3220",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0005-parsed-build-command.json": "42a015b96235d7188afabe62f03f0daf5354337f26ffe736226d30a4eddc97b2",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0007-checked-lifetimes-status.json": "8ae77f500bbd8fa5cce3ebdd11d7fcd0a55810799a22ad7a376e020f7240c7fc",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0001-coroutine-error-build-command.json": "2b2f4027f0b4ce3e692655479ab2d91b46016546198e3626492bf2033153f167",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0002-array-identity-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0002-array-identity-build-before-products.json": "56bd293faae18c10929121fed63c806ab1a613f8c76ca6079ea6e403b3b9608f",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0004-owned-build-command.json": "166377f2d6fc70d96d016e0643fc1b93e216d9c0faa46964472d056db7563f5f",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0003-array-allocation-build-after-products.json": "032f2bc991dcc14a7ff4838150699d04add2eb715bbc205a75b7d2b94459c3ec",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0001-coroutine-error-build-after-products.json": "56bd293faae18c10929121fed63c806ab1a613f8c76ca6079ea6e403b3b9608f",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0007-checked-lifetimes.stdout": "851ece21235cfa86de6c4836f038692cf09da7b658e6be8029b2a12dd7661e51",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0002-array-identity-build-after-products.json": "2add479089d0aa174a12c7562821a0500ab0cfb6048178ce718a1657278b6375",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0004-owned-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0003-array-allocation-build-command.json": "8a32b135f7e2e2e5cf207f168a566ae09e39806ea16a6d3ab80f8a3f50e5d2ea",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/provider-inputs-after.json": "e1a74c7d4aac91c33b64ca5ebb109523fb66d0d66748e259e12721b18cdfbb82",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0006-coroutine-error-allocations-command.json": "ddaf4d2ee946dd347bd1e17108933c99939cd4e5e3435855c478b8293e69355a",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0002-array-identity-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0005-parsed-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0009-array-identity-status.json": "05ebc5f030f06013a129e315d56b3869ae35ffb71626beed895031e26f5b4a81",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0004-owned-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0010-array-allocations-before-products.json": "9beed8237843cb7c1cf45528be6dfb30f44250eb0364b0c9ef94eb34d3baeae8",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0007-checked-lifetimes-after-products.json": "9beed8237843cb7c1cf45528be6dfb30f44250eb0364b0c9ef94eb34d3baeae8",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0008-checked-callable-hook-status.json": "9c58b0780c06804043b043265b0adcb2005f68f6a6ba7e2dc1edf821f284e809",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0006-coroutine-error-allocations.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0003-array-allocation-build-before-products.json": "2add479089d0aa174a12c7562821a0500ab0cfb6048178ce718a1657278b6375",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0006-coroutine-error-allocations-before-products.json": "9beed8237843cb7c1cf45528be6dfb30f44250eb0364b0c9ef94eb34d3baeae8",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0008-checked-callable-hook.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0009-array-identity-command.json": "aecd9a6d51cadcec9eb7a367daf8b70cac99fa51ada0f68ee0cb9cff36714752",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/selected-config.json": "29aa699d6749697a6be2cbf16c72fbda551796b3d045f8325509955af1334d58",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0007-checked-lifetimes-before-products.json": "9beed8237843cb7c1cf45528be6dfb30f44250eb0364b0c9ef94eb34d3baeae8",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0004-owned-build-after-products.json": "f1e7c2474d6dba8fca9a20a6182f9882bb8deb8e9bd91dec90714ea80a572faf",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0005-parsed-build-before-products.json": "f1e7c2474d6dba8fca9a20a6182f9882bb8deb8e9bd91dec90714ea80a572faf",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0008-checked-callable-hook-command.json": "70089c4de2b92f3952cd5f0102fc52ef98b3b831c934acd7844a4784d474106d",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0001-coroutine-error-build-before-products.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0006-coroutine-error-allocations-after-products.json": "9beed8237843cb7c1cf45528be6dfb30f44250eb0364b0c9ef94eb34d3baeae8",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0007-checked-lifetimes-command.json": "504807226b0f47370c5ef056b6aaff58a3242264d2425e46e021e93deb358f6c",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0008-checked-callable-hook-after-products.json": "9beed8237843cb7c1cf45528be6dfb30f44250eb0364b0c9ef94eb34d3baeae8",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0003-array-allocation-build-status.json": "9420c36aaa226553651eb49df5cf737e133396280ea01d89c9657cba790dd441",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0009-array-identity-before-products.json": "9beed8237843cb7c1cf45528be6dfb30f44250eb0364b0c9ef94eb34d3baeae8",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0002-array-identity-build-command.json": "7f03ab62cd47d7dbaf5f9b66f9bde9edfa795dc1418a684d568a81d1464287a6",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0005-parsed-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0010-array-allocations-command.json": "54c6f9bfa04c17093ddbcb3b4698f66c85ea15e20830d414b411e038ad1bd81c",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0010-array-allocations-after-products.json": "9beed8237843cb7c1cf45528be6dfb30f44250eb0364b0c9ef94eb34d3baeae8",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0005-parsed-build-status.json": "c9e6dc0f6ae132d952afa6f5bdf6e46249df2793e6ec396956802aea3d454710",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0001-coroutine-error-build-status.json": "74e040af476bfb65e2a4c444bcee2315bdbbe2aafc029b2b408ee9a4853163b0",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0004-owned-build-before-products.json": "032f2bc991dcc14a7ff4838150699d04add2eb715bbc205a75b7d2b94459c3ec",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0006-coroutine-error-allocations-status.json": "4c7cc94ba91575cfa81471bf7badc59c85bbdf90ca565a19edb4a8e2f704bc77",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0008-checked-callable-hook-before-products.json": "9beed8237843cb7c1cf45528be6dfb30f44250eb0364b0c9ef94eb34d3baeae8",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0010-array-allocations-status.json": "c838f54cbadf289bde1d9a8fe40e8cd925c80857de03aa4abfe11bb44460d851",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0007-checked-lifetimes.stderr": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0006-coroutine-error-allocations.stdout": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0008-checked-callable-hook.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/provider-inputs-before.json": "e1a74c7d4aac91c33b64ca5ebb109523fb66d0d66748e259e12721b18cdfbb82",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0010-array-allocations.stdout": "7c76efe53c86dff69c6e950f01fd73413cf89f4d3c3548c0e1e96cefb5212b19",
+    "/home/jkh/nanolang-qualification/tuple-e456-focused-puck-copy/apple-ordinary/nano-record-lists-vqdggmh3/0004-owned-build-status.json": "7b01340495ef6adce38f0880f791b1c4ba577ef983755b0ed86e6ffe2fc2c6e4",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/terminal.json": "0f1f5600aba4ca832552981df1fc0426984be11adbd8efadf7fc39bc6e0183d7",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm-products-after.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/providers.txt": "a0c6cb952bfed54a217e53581c5066c0b9cfb9d85b800ff8f703959cb2176df2",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler.log": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/tracked-paths.json": "88cd70d55314881240f05426a26121c91cd6be521afe928cd7894a6c737192ee",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler-status.json": "f735c3d738928051b32c77c63f589ac3d1d345a4fb4bcaa86ba3e7c112f2a4cc",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare-sources-before.json": "03b281117ffb3760c2bef31a119534f0953b59b30d25d376fd938b264d365a79",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/sdk-selection.json": "3c9367771142334cf7a074a0559c56a28aa1a6c0e97ed92fe69efc8f3559c5dd",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/environment.json": "b0d53b88381c592533c56cb759d35bf4a28580ac9f3f7c05835e017024a0d73e",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler-sources-after.json": "03b281117ffb3760c2bef31a119534f0953b59b30d25d376fd938b264d365a79",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler-tools-after.json": "80dfe8e96ed9f2f7a10295bdc7c2d0881128421f5803815173679d70c8113b5f",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make-sources-after.json": "03b281117ffb3760c2bef31a119534f0953b59b30d25d376fd938b264d365a79",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make.log": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm-status.json": "ea30230a084096b8be7a49ef149e2ca48b9cb672891c6066c127d4aae155b6e0",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler-products-after.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/sparse-policy.json": "82fddd3a6377a0c86dbdc19ef25bec676d09280435c5c894b635b4d197343f97",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler-sources-after.json": "03b281117ffb3760c2bef31a119534f0953b59b30d25d376fd938b264d365a79",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler-tools-after.json": "80dfe8e96ed9f2f7a10295bdc7c2d0881128421f5803815173679d70c8113b5f",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/capacity-monitor.jsonl": "936064266350030c2118bd75998dcde37ba5269d1f6a264c44227627b48f2dd2",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/source-initial.json": "03b281117ffb3760c2bef31a119534f0953b59b30d25d376fd938b264d365a79",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/capacity-preflight.json": "5d3497a518d4fb38b5bce20b1938ed409d7a9a05a250e6fcfdab4703fdc96794",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make-tools-after.json": "80dfe8e96ed9f2f7a10295bdc7c2d0881128421f5803815173679d70c8113b5f",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm-tools-after.json": "80dfe8e96ed9f2f7a10295bdc7c2d0881128421f5803815173679d70c8113b5f",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/prepare.mk": "4efbcf1db6dd14b31da795f6995a263db6e3cf42a2b87bea153d7a88c8ab2f44",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/tools-initial.json": "80dfe8e96ed9f2f7a10295bdc7c2d0881128421f5803815173679d70c8113b5f",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/manifest.json": "9be0e7d53fbd84f0053f08e7158ceb559548e3af90e227a58217cda09599b5e3",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/ldflags.txt": "64195a2d107697adce18b4d2a05107b836e45bc02d82b5d94fc006ef6ae58995",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm.log": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare-sources-after.json": "03b281117ffb3760c2bef31a119534f0953b59b30d25d376fd938b264d365a79",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare-tools-before.json": "80dfe8e96ed9f2f7a10295bdc7c2d0881128421f5803815173679d70c8113b5f",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare-products-after.json": "da5c902c3cc263d30ecbd5183ed8c6fb7dc7e28343cc70d24f4d572756929c3e",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler.log": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm-tools-before.json": "80dfe8e96ed9f2f7a10295bdc7c2d0881128421f5803815173679d70c8113b5f",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare-products-before.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler-tools-before.json": "80dfe8e96ed9f2f7a10295bdc7c2d0881128421f5803815173679d70c8113b5f",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm-sources-after.json": "03b281117ffb3760c2bef31a119534f0953b59b30d25d376fd938b264d365a79",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make-sources-before.json": "03b281117ffb3760c2bef31a119534f0953b59b30d25d376fd938b264d365a79",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/runner.json": "4f84d9e01b5936bd00a56e1cad54945f9b30d28ba6afa9089abc48fd3ce33198",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare-status.json": "205ef222d2877ef3e7ea18bec14a1b58c109f592971f17c8a94e63aee528fb21",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler-status.json": "521784fb2b00f4eeebce6cbd13729c51d7adfc6031463633959286fc7814f078",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/prepare-fragment.json": "6701aab313f352609b6f0a925cd2001c15103071df50bbfe7fbb7812cd820168",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make-status.json": "20d276f5a9a4bdc04cb7b319f46188af5c992ae2015229bf8a7ee07d1aba011d",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare-tools-after.json": "80dfe8e96ed9f2f7a10295bdc7c2d0881128421f5803815173679d70c8113b5f",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler-products-before.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler-tools-before.json": "80dfe8e96ed9f2f7a10295bdc7c2d0881128421f5803815173679d70c8113b5f",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler-products-before.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm-products-before.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/native-compiler-sources-before.json": "03b281117ffb3760c2bef31a119534f0953b59b30d25d376fd938b264d365a79",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make-tools-before.json": "80dfe8e96ed9f2f7a10295bdc7c2d0881128421f5803815173679d70c8113b5f",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/provider-prepare.log": "38e32785b67852be4aa20817735c5f697e6ff8ec69ff2075e35f8b629a13718c",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make-products-before.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/cflags.txt": "55a19ccf6b52f7063f97f76c13b2f3b06131dee367a70973e6413426d3f5278b",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler-sources-before.json": "03b281117ffb3760c2bef31a119534f0953b59b30d25d376fd938b264d365a79",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/make-products-after.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/llvm-sources-before.json": "03b281117ffb3760c2bef31a119534f0953b59b30d25d376fd938b264d365a79",
+    "/home/jkh/nanolang-qualification/tuple-73b-prepare-puck-copy/compiler-products-after.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/terminal.json": "4ba4e05f1e73627b390d5f89cb28c33d02628b2c857d9d14148a3dd4244682af",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/clang-asan-products-after.json": "c8447c90edc94a2d0394be5e7639f9ac11725d192666df702360108f6bcf41ba",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer.log": "ae3a5d8e482b9034bda7bd481e634cc57708c7428cb130e9b078ed52b4b25530",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer-config.json": "ec72c900f2d2dd68bb83fc3f7d2524afc13a5105b558717a208d9065203e5d64",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer-products-after.json": "c8447c90edc94a2d0394be5e7639f9ac11725d192666df702360108f6bcf41ba",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/clang-asan-inputs-after.json": "40e60af2d3690549d45365623512345f97df912810afee4f47c8fac82bcc3b83",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary-products-after.json": "c8447c90edc94a2d0394be5e7639f9ac11725d192666df702360108f6bcf41ba",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary-config.json": "97ca06b98991e09f5ffc9f43e21e5ab6479b0541c62e079224ff2f3854e60cbc",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/clang-asan-status.json": "7fbf7745c5f6ae8114a21a47bcc72dff2bac3371cd835c674c2b88cd85ad75f5",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer-products-before.json": "c8447c90edc94a2d0394be5e7639f9ac11725d192666df702360108f6bcf41ba",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/manifest.json": "ab4a49807bfa67ef41844efa39742310c6dfa7f7e64257f7c2df3492b7d797d3",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer-status.json": "e46e522837232cb57c11b7f590d3502a0f55d470f07c665e124c88675318f759",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer-inputs-after.json": "19cfd74ed47abae0ca7ef7430009ed8717c885b48f9bed19179e75ca203d1260",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary-inputs-after.json": "19cfd74ed47abae0ca7ef7430009ed8717c885b48f9bed19179e75ca203d1260",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary.log": "ce1d5cb4c7f8126807ee9e03100a550f70fe23fea2c09145d907ad5829aa91a9",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer-inputs-before.json": "19cfd74ed47abae0ca7ef7430009ed8717c885b48f9bed19179e75ca203d1260",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/clang-asan.log": "3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/runner.json": "d5319a6bb3e6d06386bbea7e1a5abef3f7d92b4d4d3b1a97f088d5fff0a7d212",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary-status.json": "a93f75d693d6c62b2441a355bc6df384e7683358cf1491c580ec805102e9a8bc",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/clang-asan-inputs-before.json": "40e60af2d3690549d45365623512345f97df912810afee4f47c8fac82bcc3b83",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/clang-asan-products-before.json": "c8447c90edc94a2d0394be5e7639f9ac11725d192666df702360108f6bcf41ba",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary-inputs-before.json": "19cfd74ed47abae0ca7ef7430009ed8717c885b48f9bed19179e75ca203d1260",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary-products-before.json": "c8447c90edc94a2d0394be5e7639f9ac11725d192666df702360108f6bcf41ba",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/scope.json": "e44f7e18e060bc245d56a83cf6f133dadd31dc48d5761f0086f06d30356ae16d",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0009-array-identity.stdout": "89e2fe079076c71b52ee0dd2707654c54c9287776ffcc267fcf7bc4c66b461cd",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0003-array-allocation-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0005-parsed-build-after-products.json": "ec5c9bd3f361e244ea2be3d8bd03c71020677d2d9ec42224fe099e7a161bc939",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0001-coroutine-error-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0009-array-identity.stderr": "9fe90aa4cb55b2ad678e1fc4bad25c9656fe867de48ea2f6eba3a8a00aa3e6ca",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0003-array-allocation-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0009-array-identity-after-products.json": "ec5c9bd3f361e244ea2be3d8bd03c71020677d2d9ec42224fe099e7a161bc939",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0002-array-identity-build-status.json": "86790f350372f5b4089d3479354dbba07be222b5cb86918aa64e5e31b2aeafc8",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0001-coroutine-error-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0010-array-allocations.stderr": "76c11a76bc80099f1cf050b93d2affb4e203c30b110d134cf8e264caf81f3220",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0005-parsed-build-command.json": "2ea3bc4e2c4f5320d212ce928dacee6adf5c9f771d08a00b34cf37c24a5e9f66",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0007-checked-lifetimes-status.json": "3b5b0e581399062c404405ec9247b5378b725b567d6cb8635932f3c048204185",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0001-coroutine-error-build-command.json": "0fe865499bf92e2fbc37b3dec3f8781c93a484e58cad6178dd5e3d219af1cbce",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0002-array-identity-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0002-array-identity-build-before-products.json": "f0cbe4e98bcf0915a52b9de95b981ce2955bf16409f0bf95f2e02d2ef14bbd78",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0004-owned-build-command.json": "ac45300147de713e3bba700477ae724a8bbd777a82a2d9d54ec3f92b264f3d16",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0003-array-allocation-build-after-products.json": "fd9f64f3b5a66ae96836834b668be0ba8a6573bd96a5a3eade6803d187e11be2",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0001-coroutine-error-build-after-products.json": "f0cbe4e98bcf0915a52b9de95b981ce2955bf16409f0bf95f2e02d2ef14bbd78",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0007-checked-lifetimes.stdout": "851ece21235cfa86de6c4836f038692cf09da7b658e6be8029b2a12dd7661e51",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0002-array-identity-build-after-products.json": "426d5d1ffd2ea17bafd8038b845b010a656843b617def2bb2b4b5b903ae3883e",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0004-owned-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0003-array-allocation-build-command.json": "813bfe6aa5fb9e3f7ea3bd0e00f5738326649ca106f457f4432a4307fb311f7f",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/provider-inputs-after.json": "4c31be32b3f21d8fcc9fef684e40ec2ebf9b84c7ddc8069f9d7b20bc5b1e792d",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0006-coroutine-error-allocations-command.json": "cc0f8b5dc45d69515a40e9c476c14af74a34aa3e4febb5bc119cc2167e9d6703",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0002-array-identity-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0005-parsed-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0009-array-identity-status.json": "de2efcc47e00fe70d2cdf4a568e4797e7079ad1ffee4b849561e55aa1d574a15",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0004-owned-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0010-array-allocations-before-products.json": "ec5c9bd3f361e244ea2be3d8bd03c71020677d2d9ec42224fe099e7a161bc939",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0007-checked-lifetimes-after-products.json": "ec5c9bd3f361e244ea2be3d8bd03c71020677d2d9ec42224fe099e7a161bc939",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0008-checked-callable-hook-status.json": "ede306a0f85c818bab6dea46bc93c59e9a9f4cda3c70f72415186fdd02d34809",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0006-coroutine-error-allocations.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0003-array-allocation-build-before-products.json": "426d5d1ffd2ea17bafd8038b845b010a656843b617def2bb2b4b5b903ae3883e",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0006-coroutine-error-allocations-before-products.json": "ec5c9bd3f361e244ea2be3d8bd03c71020677d2d9ec42224fe099e7a161bc939",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0008-checked-callable-hook.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0009-array-identity-command.json": "6b0421c2d1208697afef7a6da1799d5d141215e71191fdd6ba3537db4a64fad9",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/selected-config.json": "188a5df0c55b8ec104b86c17926e1b9b99b282fcff7b4d72140d00aff435644c",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0007-checked-lifetimes-before-products.json": "ec5c9bd3f361e244ea2be3d8bd03c71020677d2d9ec42224fe099e7a161bc939",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0004-owned-build-after-products.json": "9d9eec84cc45e3f01cdd78ddbba49c02a753d36b196285cf39300a39585715c0",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0005-parsed-build-before-products.json": "9d9eec84cc45e3f01cdd78ddbba49c02a753d36b196285cf39300a39585715c0",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0008-checked-callable-hook-command.json": "43a7a0c0bace1208175a8481116360e589485dab1469b5ed1e12fdd5e9f93a50",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0001-coroutine-error-build-before-products.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0006-coroutine-error-allocations-after-products.json": "ec5c9bd3f361e244ea2be3d8bd03c71020677d2d9ec42224fe099e7a161bc939",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0007-checked-lifetimes-command.json": "a4a5ffeb4388d210101a4b758a91c99b5f0f36bb20ef68c468910c74e19840a1",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0008-checked-callable-hook-after-products.json": "ec5c9bd3f361e244ea2be3d8bd03c71020677d2d9ec42224fe099e7a161bc939",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0003-array-allocation-build-status.json": "db92a5df93d740e1e8a1b21a0231a536003435e86621758e863112f07a88d07c",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0009-array-identity-before-products.json": "ec5c9bd3f361e244ea2be3d8bd03c71020677d2d9ec42224fe099e7a161bc939",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0002-array-identity-build-command.json": "9bac716bf16a143a344fc9fb7168775b025c5a3a9648f9b43f2a965975f3fb5b",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0005-parsed-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0010-array-allocations-command.json": "c69498400dfc5489125b1c03f7a84198c9a6a9fc825b84da3851f94bcc40f42d",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0010-array-allocations-after-products.json": "ec5c9bd3f361e244ea2be3d8bd03c71020677d2d9ec42224fe099e7a161bc939",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0005-parsed-build-status.json": "b18285f1624573118744d33949f311a0f5eab50155114761d4cbd469470932dc",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0001-coroutine-error-build-status.json": "e094e20c0ebadf7c7c5ba25ec1ee8f5fdb4272c58ed18c7ee7013265b783a657",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0004-owned-build-before-products.json": "fd9f64f3b5a66ae96836834b668be0ba8a6573bd96a5a3eade6803d187e11be2",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0006-coroutine-error-allocations-status.json": "5dd09341a1e8815691c3a61e39955da0e277531a6cd55edb9b08bdc3e4cc713f",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0008-checked-callable-hook-before-products.json": "ec5c9bd3f361e244ea2be3d8bd03c71020677d2d9ec42224fe099e7a161bc939",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0010-array-allocations-status.json": "6ddf311af9f532f68053acf126fe6148987888d5d12332248899c1f34028c6f6",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0007-checked-lifetimes.stderr": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0006-coroutine-error-allocations.stdout": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0008-checked-callable-hook.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/provider-inputs-before.json": "4c31be32b3f21d8fcc9fef684e40ec2ebf9b84c7ddc8069f9d7b20bc5b1e792d",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0010-array-allocations.stdout": "9a81daeb031945d9ea20f833f88e08adf015132843336b523775a15eb62b9068",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/homebrew-sanitizer/nano-record-lists-zdxurn1s/0004-owned-build-status.json": "6c217d4808207c544d5aca3abd02081f8ef90b01df16f673765724dab0a5f74d",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0009-array-identity.stdout": "89e2fe079076c71b52ee0dd2707654c54c9287776ffcc267fcf7bc4c66b461cd",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0003-array-allocation-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0005-parsed-build-after-products.json": "db3ec3c32cfcec0c3d51b5889e742e390881e93c29d04e8f65b973419a21d8ce",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0001-coroutine-error-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0009-array-identity.stderr": "9fe90aa4cb55b2ad678e1fc4bad25c9656fe867de48ea2f6eba3a8a00aa3e6ca",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0003-array-allocation-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0009-array-identity-after-products.json": "db3ec3c32cfcec0c3d51b5889e742e390881e93c29d04e8f65b973419a21d8ce",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0002-array-identity-build-status.json": "b624a5bb353cd9408c6bf7b3aa72ad37e2b3772dcb7c0e97c4189dc28b382c07",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0001-coroutine-error-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0010-array-allocations.stderr": "76c11a76bc80099f1cf050b93d2affb4e203c30b110d134cf8e264caf81f3220",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0005-parsed-build-command.json": "5472ab23fedc8c2b9bb282ae7c4bc93772410585b5a5745e3df31c22451de036",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0007-checked-lifetimes-status.json": "9fae7b56c7c33252a55f387ff544ebf1072cfc11dcfff3c270b53539a2f393ca",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0001-coroutine-error-build-command.json": "70939b4166fd8f3411c9f34ff2d1818d690f4c6c86943fb6abd693d1f1df1513",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0002-array-identity-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0002-array-identity-build-before-products.json": "0b13b19a58891836087cd28111f274761963f1bbea5b32932822dd45cd8a8234",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0004-owned-build-command.json": "2729ab4d5cec3424e1da880c37eb569f14da4c362973b3e0a4036c489fdc58e6",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0003-array-allocation-build-after-products.json": "b13051fd4a81e5c2e0b38130a538e5cbe7300deae92a096986732fb5f5a88ac8",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0001-coroutine-error-build-after-products.json": "0b13b19a58891836087cd28111f274761963f1bbea5b32932822dd45cd8a8234",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0007-checked-lifetimes.stdout": "851ece21235cfa86de6c4836f038692cf09da7b658e6be8029b2a12dd7661e51",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0002-array-identity-build-after-products.json": "5b634e780322c464bc3ec583536c6bc3e64dc67b6fee6d85360b3cc9d7fbd65e",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0004-owned-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0003-array-allocation-build-command.json": "42d31e5a709fb4ba0146feed036a592f086ce9de95c5e95d886ed6e9a8abd588",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/provider-inputs-after.json": "4c31be32b3f21d8fcc9fef684e40ec2ebf9b84c7ddc8069f9d7b20bc5b1e792d",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0006-coroutine-error-allocations-command.json": "c70c534c13989d30e1cf1112e31a92d52afb3ee5ea4eedc25154a0614162492b",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0002-array-identity-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0005-parsed-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0009-array-identity-status.json": "d570226b2615f0b23e62172cbe2a77a4e744b442775653ab8f60fda963d7715a",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0004-owned-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0010-array-allocations-before-products.json": "db3ec3c32cfcec0c3d51b5889e742e390881e93c29d04e8f65b973419a21d8ce",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0007-checked-lifetimes-after-products.json": "db3ec3c32cfcec0c3d51b5889e742e390881e93c29d04e8f65b973419a21d8ce",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0008-checked-callable-hook-status.json": "48363294b30d8f171577762fc170e8057b0664a2485cb9c3e5f1bc74a2953c7e",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0006-coroutine-error-allocations.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0003-array-allocation-build-before-products.json": "5b634e780322c464bc3ec583536c6bc3e64dc67b6fee6d85360b3cc9d7fbd65e",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0006-coroutine-error-allocations-before-products.json": "db3ec3c32cfcec0c3d51b5889e742e390881e93c29d04e8f65b973419a21d8ce",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0008-checked-callable-hook.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0009-array-identity-command.json": "5323372c758310591a8c822859effdf31d4e8d93d2343c207b8223906bc9d000",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/selected-config.json": "83103cdd691647cd58e4acda74891abe7c7fcc67c21ce177d5e531b93c22923a",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0007-checked-lifetimes-before-products.json": "db3ec3c32cfcec0c3d51b5889e742e390881e93c29d04e8f65b973419a21d8ce",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0004-owned-build-after-products.json": "79b4d55aab95b0b84d261c2981a8d477594c88744cb4853427f4cc2f4c056812",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0005-parsed-build-before-products.json": "79b4d55aab95b0b84d261c2981a8d477594c88744cb4853427f4cc2f4c056812",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0008-checked-callable-hook-command.json": "f7697fe4a5a766ea3a5a7a1c16481e9bedc3bbf13fd23f8751881a52635d6b2c",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0001-coroutine-error-build-before-products.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0006-coroutine-error-allocations-after-products.json": "db3ec3c32cfcec0c3d51b5889e742e390881e93c29d04e8f65b973419a21d8ce",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0007-checked-lifetimes-command.json": "b06c040cd8144e7adb831fc48c34cfd5febbc6d22f1f95dff74fbc35cb78352d",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0008-checked-callable-hook-after-products.json": "db3ec3c32cfcec0c3d51b5889e742e390881e93c29d04e8f65b973419a21d8ce",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0003-array-allocation-build-status.json": "a286d7e8ecdb1786f7b1f73d86c2f107429b303f0a7fb1f4746f7f4567de2ade",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0009-array-identity-before-products.json": "db3ec3c32cfcec0c3d51b5889e742e390881e93c29d04e8f65b973419a21d8ce",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0002-array-identity-build-command.json": "b390846d7b0ea00bdd05f964e302451941a79ee8e2e607091dcb13309b3443de",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0005-parsed-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0010-array-allocations-command.json": "34c5c6dc433531535baacc9943d4d081e036c6818ec91c9fcf966955092ffcd5",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0010-array-allocations-after-products.json": "db3ec3c32cfcec0c3d51b5889e742e390881e93c29d04e8f65b973419a21d8ce",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0005-parsed-build-status.json": "958b5502655ec6a7a2d57c52be2907e183d5d656cf1bbb942935f729b333090d",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0001-coroutine-error-build-status.json": "51de2b33a1b28998547d037808db950a0a9fb72e35469f60f12c2202b5e17428",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0004-owned-build-before-products.json": "b13051fd4a81e5c2e0b38130a538e5cbe7300deae92a096986732fb5f5a88ac8",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0006-coroutine-error-allocations-status.json": "5c5cc24fdd7fc47153a7cbd2767d3fcbb591d926149c6c18d2ab5b1dd13dee81",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0008-checked-callable-hook-before-products.json": "db3ec3c32cfcec0c3d51b5889e742e390881e93c29d04e8f65b973419a21d8ce",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0010-array-allocations-status.json": "2f93cca0af1a17986ad31f0fd305928a69c5187c2d08ab372c932b9de44036e5",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0007-checked-lifetimes.stderr": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0006-coroutine-error-allocations.stdout": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0008-checked-callable-hook.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/provider-inputs-before.json": "4c31be32b3f21d8fcc9fef684e40ec2ebf9b84c7ddc8069f9d7b20bc5b1e792d",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0010-array-allocations.stdout": "9a81daeb031945d9ea20f833f88e08adf015132843336b523775a15eb62b9068",
+    "/home/jkh/nanolang-qualification/tuple-73b-focused-puck-copy/apple-ordinary/nano-record-lists-_fg_qo59/0004-owned-build-status.json": "6f65e4695631af7b69a9fe3fd07652e548719a137e70d4594ed2ac3bb22f8573"
+  },
+  "scope": "local retained report/CAS integrity only; no new product execution; nested terminal uses returncode, outer uses status"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "compiler",
+  "argv": [
+    "/usr/bin/clang",
+    "--version"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.02474962500000011,
+  "log": {
+    "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+    "bytes": 200,
+    "archive": "/Users/jkh/nanolang-qualification/tuple-73b-prepare/objects/d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

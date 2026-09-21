@@ -1,0 +1,28 @@
+Error at line 1, column 8: Function 'at' is already defined
+Warning: Function 'at' is missing a shadow test
+Error at line 1, column 8: Function 'array_push' is already defined
+Warning: Function 'array_push' is missing a shadow test
+Error at line 0, column 0: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 0, column 0: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 0, column 0: I require the retained nominal declaration and every substituted argument owner.
+Hint: Preserve the selected payload variant and complete nested annotation.
+Error at line 0, column 0: I require the destination's owner-aware callable signature.
+Hint: Preserve all parameter and return declarations.
+Error at line 0, column 0: I require the declared owner-aware callable value.
+Hint: Preserve complete signature metadata.
+Warning at line 2, column 1: Unused variable 'values'
+Error at line 0, column 0: I require every tuple child's complete declared annotation and owner.
+Hint: Preserve nested callable and container facts at this destination.
+Error at line 0, column 0: I cannot publish a tuple binding without its complete child annotations.
+Hint: Preserve the parsed destination or the checked inferred tuple proof.
+Error at line 1, column 49: Expected type annotation
+Error at line 1, column 49: Unexpected token in expression: GT (type=66)
+Error at line 1, column 50: Unexpected token in expression: DOT (type=18)
+Error at line 1, column 49: Expected type annotation
+Error at line 1, column 49: Unexpected token in expression: DOT (type=18)
+Warning at line 3, column 20: Unused variable 'box'
+Error at line 3, column 75: Return type mismatch: got bool, expected int.
+Hint: Ensure the returned value matches the function's declared return type.
+Warning at line 3, column 20: Unused variable 'box'

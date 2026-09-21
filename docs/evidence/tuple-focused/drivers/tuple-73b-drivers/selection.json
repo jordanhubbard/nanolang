@@ -1,0 +1,10 @@
+{
+  "pin": "73b61d06f04cf291a1960dc0b3e2b583ffefcb44",
+  "scope": "fresh corrected focused providers and unchanged two methods; no bootstrap/native parity",
+  "prior_pin": "e456006adf3dcabfce250d105c67656845c187e1",
+  "first_transport_probe": "ssh puck failed hostname resolution; puck.local read-only probe succeeded",
+  "scripts": {
+    "prepare-73b.py": "677cc5101cbcf74329776268ba592c1966cabcebe953d5056ab00607519635db",
+    "focused-73b.py": "2229001c5a3d1e8c43026d461a4d322f45165759bc89f3d63c0670d69857c4ca"
+  }
+}
