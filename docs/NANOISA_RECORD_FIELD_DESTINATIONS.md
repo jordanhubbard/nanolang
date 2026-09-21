@@ -86,3 +86,23 @@ I preserve 66 first-failure/continuation report files in
 summaries. The full maps and CAS remain in the original external report roots.
 These small committed reports do not replace the later complete qualification
 seal. Published invalid native outputs are hashed and remain unexecuted.
+
+## C-seed nested array prerequisite
+
+Before running my new negative fixtures I inspect the C-seed field path. Its
+ordinary scalar array field consumer compares ARRAY only; nested `[int]` and
+`[bool]` children can escape their destination checks. I retain the failing
+expectation rather than dropping this new paired vector.
+
+I add a bounded destination walk only at ordinary record array fields. For a
+real array literal I recurse through every member and its TypeInfo element
+annotation (maximum128levels), allowing empty literals only in a known context.
+For a nonliteral array I obtain the owned nominal annotation view, compare its
+complete owner-aware annotation to the destination, and discard that view.
+For scalar leaves I require known checked kinds and the existing destination
+conversion policy; existing nominal record/function contracts remain in force.
+Enum annotations use the exact declared owner, not a globally matching name.
+I publish a literal's element representation only after its subtree passes.
+I call this walk after the existing expression check so its empty/byte annotation
+is not immediately overwritten by inference. It does not execute values or
+change any generic global equality rule. Source review precedes gates.

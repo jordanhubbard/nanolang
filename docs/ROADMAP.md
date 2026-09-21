@@ -13881,3 +13881,9 @@ remain retained. My first STRUCT_LITERAL checker arm never visits its fields.
   omission under task_90077955d5c64a42bf91358769802aba: equal total count with a
   repeated name must not omit another required field. I retain union behavior
   and add exact equal-count paired refusal controls before claiming parity.
+
+- [ ] I repair the statically confirmed C-seed nested scalar array field gap:
+  matching outer ARRAY kinds must not admit `[[1], [true]]` as
+  `array<array<int>>`. I retain the new refusal vector, recurse against actual
+  field annotations, preserve checked byte-literal conversion, and never
+  reinterpret an existing array value. No known-invalid output is executed.
