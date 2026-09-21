@@ -5826,6 +5826,14 @@ test-binding-state:
 		src/nanovm/heap_cycles.c src/nanovm/value.c src/nanoisa/isa.c -lm
 	$(OBJ_DIR)/nanovm/test_binding_state
 
+.PHONY: test-binding-closure
+test-binding-closure:
+	@mkdir -p $(OBJ_DIR)/nanovm
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/nanovm/test_binding_closure \
+		tests/nanovm/test_binding_closure.c src/nanovm/heap_cycles.c \
+		src/nanovm/value.c src/nanoisa/isa.c -lm
+	$(OBJ_DIR)/nanovm/test_binding_closure
+
 .PHONY: test-record-array-vm
 # I rebuild every VM-layout-dependent TU with the distinct private heap layout.
 test-record-array-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)

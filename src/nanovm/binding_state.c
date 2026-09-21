@@ -109,3 +109,127 @@ void vm_binding_state_destroy(VmBindingState *state, NanoValue *locals) {
     state->heap->stats.freed += state->bytes;
     free(state);
 }
+
+typedef struct {
+    NanoValue value;
+    VmTuple *new_cell; /* Only the representative owns this staged edge. */
+    uint16_t representative;
+    bool fresh;
+} BindingCaptureStage;
+
+static bool binding_room(VmHeap *heap, size_t bytes, size_t objects,
+    uint64_t calls, size_t limit) {
+    if (heap->stats.freed > heap->stats.allocated) return false;
+    size_t live = heap->stats.allocated - heap->stats.freed;
+    return live <= limit && bytes <= limit - live &&
+        bytes <= SIZE_MAX - heap->stats.allocated &&
+        objects <= SIZE_MAX - heap->stats.num_objects &&
+        calls <= UINT64_MAX - heap->stats.allocation_calls;
+}
+
+VmBindingResult vm_binding_closure(VmHeap *heap, uint32_t module_id,
+    uint32_t function, const uint8_t *target_modes,
+    const VmBindingSource *sources, uint16_t count, size_t limit,
+    size_t work_limit, VmClosure **out) {
+    if (!heap || !module_id || !out || (count && (!sources || !target_modes)) ||
+        heap->stats.freed > heap->stats.allocated) return VM_BINDING_INVALID;
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+    if (heap->private_record_dag) return VM_BINDING_INVALID;
+#endif
+    size_t n = count;
+    if (n > SIZE_MAX / sizeof(BindingCaptureStage)) return VM_BINDING_LIMIT;
+    size_t scratch_bytes = n * sizeof(BindingCaptureStage);
+    if (!binding_room(heap, scratch_bytes, 0, count ? 1 : 0, limit))
+        return VM_BINDING_LIMIT;
+    BindingCaptureStage *stages = count ? calloc(n, sizeof(*stages)) : NULL;
+    if (count && !stages) return VM_BINDING_MEMORY;
+    heap->stats.allocated += scratch_bytes;
+    heap->stats.allocation_calls += count ? 1 : 0;
+    VmBindingResult result = VM_BINDING_INVALID;
+    VmClosure *closure = NULL;
+    size_t unique = 0;
+    for (uint16_t i = 0; i < count; ++i) {
+        if (!work_limit) { result = VM_BINDING_LIMIT; goto fail; }
+        --work_limit;
+        const VmBindingSource *source = &sources[i];
+        BindingCaptureStage *stage = &stages[i];
+        stage->representative = i;
+        if (source->mode > 1 || target_modes[i] != source->mode) goto fail;
+        if (source->state) {
+            VmBindingSlot *slot = binding_slot(source->state, source->locals, source->slot);
+            if (!slot || source->state->heap != heap || !slot->initialized ||
+                slot->shared != (source->mode != 0)) goto fail;
+            for (uint16_t j = 0; j < i; ++j) {
+                if (!work_limit) { result = VM_BINDING_LIMIT; goto fail; }
+                --work_limit;
+                if (sources[j].state != source->state) continue;
+                if (sources[j].locals != source->locals) goto fail;
+                if (source->mode && !slot->cell && sources[j].slot == source->slot)
+                    stage->representative = stages[j].representative;
+            }
+            if (source->mode) {
+                if (slot->cell) stage->value = val_tuple(slot->cell);
+                else {
+                    stage->fresh = true;
+                    if (stage->representative == i) ++unique;
+                }
+            } else stage->value = source->locals[source->slot];
+        } else {
+            if (source->locals || source->slot) goto fail;
+            stage->value = source->value;
+            if (source->mode && (source->value.tag != TAG_TUPLE ||
+                !source->value.as.tuple ||
+                source->value.as.tuple->header.obj_type != TAG_TUPLE ||
+                !source->value.as.tuple->header.ref_count ||
+                source->value.as.tuple->count != 1)) goto fail;
+        }
+    }
+    if (n > (SIZE_MAX - sizeof(VmClosure)) / sizeof(NanoValue)) {
+        result = VM_BINDING_LIMIT; goto fail;
+    }
+    size_t bytes = sizeof(VmClosure) + n * sizeof(NanoValue);
+    size_t cell_bytes = sizeof(VmTuple) + sizeof(NanoValue);
+    if (unique > (SIZE_MAX - bytes) / cell_bytes ||
+        !binding_room(heap, bytes + unique * cell_bytes, unique + 1,
+                      (uint64_t)unique + 1, limit)) {
+        result = VM_BINDING_LIMIT; goto fail;
+    }
+    closure = vm_closure_new(heap, function, count);
+    if (!closure) { result = VM_BINDING_MEMORY; goto fail; }
+    closure->callable_module = module_id;
+    for (uint16_t i = 0; i < count; ++i) {
+        BindingCaptureStage *stage = &stages[i];
+        if (stage->fresh && stage->representative == i) {
+            stage->new_cell = vm_tuple_new(heap, 1);
+            if (!stage->new_cell) { result = VM_BINDING_MEMORY; goto fail; }
+        }
+    }
+    for (uint16_t i = 0; i < count; ++i) {
+        NanoValue value = stages[i].fresh ?
+            val_tuple(stages[stages[i].representative].new_cell) : stages[i].value;
+        result = binding_retain(heap, value);
+        if (result != VM_BINDING_OK) goto fail;
+        closure->captures[i] = value;
+    }
+    /* I have acquired every edge. Publication cannot allocate or release. */
+    for (uint16_t i = 0; i < count; ++i) {
+        VmTuple *cell = stages[i].new_cell;
+        if (!cell) continue;
+        const VmBindingSource *source = &sources[i];
+        cell->elements[0] = source->locals[source->slot];
+        source->locals[source->slot] = val_void();
+        source->state->slots[source->slot].cell = cell;
+        stages[i].new_cell = NULL; /* The binding now owns the staged edge. */
+    }
+    heap->stats.freed += scratch_bytes;
+    free(stages);
+    *out = closure;
+    return VM_BINDING_OK;
+fail:
+    if (closure) vm_release(heap, val_closure(closure));
+    for (uint16_t i = 0; i < count; ++i)
+        if (stages[i].new_cell) vm_release(heap, val_tuple(stages[i].new_cell));
+    heap->stats.freed += scratch_bytes;
+    free(stages);
+    return result;
+}

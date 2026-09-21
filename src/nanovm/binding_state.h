@@ -42,4 +42,28 @@ VmBindingResult vm_binding_clear(VmBindingState *state, NanoValue *locals,
 /* I require a valid created state/current locals. I detach/release every local
  * or cell edge and leave locals VOID before existing frame-stack teardown. */
 void vm_binding_state_destroy(VmBindingState *state, NanoValue *locals);
+
+/* A local source names state/current locals/slot. A forwarded source has NULL
+ * state/locals, slot zero, and an independently rooted borrowed value: ordinary
+ * for mode0, an internal one-slot tuple cell for mode1. Nothing is consumed. */
+typedef struct {
+    VmBindingState *state;
+    NanoValue *locals;
+    NanoValue value;
+    uint16_t slot;
+    uint8_t mode;
+} VmBindingSource;
+
+/* I require resolved, rooted sources and validated target identity/modes. The
+ * caller reserves the result stack and excludes stack growth/callbacks while I
+ * run. Repeated state pointers require the same current locals pointer. Inputs
+ * and out are distinct, readable/writable for their extents. Failure preserves
+ * bindings and *out; success returns one owned closure. Limit covers accounted
+ * live heap bytes plus scratch/cells/closure. Work charges source and duplicate
+ * scan visits; diagnostic allocation/retain/release counters may advance on
+ * refusal. This helper does not validate a wire site or admit VM execution. */
+VmBindingResult vm_binding_closure(VmHeap *heap, uint32_t module_id,
+    uint32_t function, const uint8_t *target_modes,
+    const VmBindingSource *sources, uint16_t count, size_t limit,
+    size_t work_limit, VmClosure **out);
 #endif
