@@ -10,25 +10,30 @@
 #include <inttypes.h>
 #include "record_array_emission_private.inc"
 #include "record_array_llvm_operations_private.inc"
-static void rl_declarations(RgOutput *b) {
+static void rl_declarations(RgOutput *b,const char *returned,const char *parameter) {
     rg_write(b,"%%V = type { i64, i32 }\n%%Fn = type { i32, i32, i32, i32, i32, ptr, ptr }\n"
         "%%P = type { i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, ptr, ptr, ptr, ptr, ptr }\n"
         "%%View = type { ptr, i32 }\n%%Record = type { i32, i32 }\n%%Field = type { i32, i32, i32 }\n"
         "declare i32 @nrg_layout_field(i32)\ndeclare i32 @nrg_create(ptr, ptr)\n"
         "declare i32 @nrg_status(ptr)\ndeclare i32 @nrg_resume(ptr)\n"
         "declare void @nrg_fail(ptr, i32)\ndeclare void @nrg_call(ptr, i32, i32)\ndeclare void @nrg_return(ptr)\n"
-        "declare zeroext i1 @nrg_peek(ptr, i32, ptr)\ndeclare zeroext i1 @nrg_push_move(ptr, ptr)\n"
-        "declare zeroext i1 @nrg_replace(ptr, i32, ptr)\n"
-        "declare zeroext i1 @nrg_load(ptr, i1 zeroext, i32)\ndeclare zeroext i1 @nrg_store(ptr, i1 zeroext, i32)\n"
-        "declare zeroext i1 @nrg_record_new(ptr, i32)\ndeclare zeroext i1 @nrg_record_get(ptr, i32, i1 zeroext)\n"
-        "declare zeroext i1 @nrg_record_set(ptr, i32, i1 zeroext)\ndeclare zeroext i1 @nrg_array_new(ptr, i32, i32, i1 zeroext)\n"
-        "declare zeroext i1 @nrg_truth(ptr, ptr)\ndeclare zeroext i1 @nrg_equal(ptr, ptr, ptr)\n"
-        "declare i32 @nrg_order(ptr, ptr, ptr)\ndeclare zeroext i1 @nrg_format(ptr, i32)\n"
-        "declare zeroext i1 @nrg_case(ptr, i1 zeroext)\ndeclare zeroext i1 @nrg_length(ptr, i1 zeroext)\n"
-        "declare zeroext i1 @nrg_predicate(ptr, i32)\n");
+        "declare i32 @nrg_order(ptr, ptr, ptr)\n");
+    static const struct { const char *name,*arguments; } ordinary[]={
+        {"peek", "ptr, i32, ptr"}, {"push_move", "ptr, ptr"}, {"replace", "ptr, i32, ptr"},
+        {"record_new", "ptr, i32"}, {"truth", "ptr, ptr"}, {"equal", "ptr, ptr, ptr"},
+        {"format", "ptr, i32"}, {"predicate", "ptr, i32"}};
+    for(size_t i=0;i<sizeof ordinary/sizeof ordinary[0];i++)
+        rg_write(b,"declare %si1 @nrg_%s(%s)\n",returned,ordinary[i].name,ordinary[i].arguments);
+    rg_write(b,"declare %si1 @nrg_load(ptr, i1 %s, i32)\n",returned,parameter);
+    rg_write(b,"declare %si1 @nrg_store(ptr, i1 %s, i32)\n",returned,parameter);
+    rg_write(b,"declare %si1 @nrg_record_get(ptr, i32, i1 %s)\n",returned,parameter);
+    rg_write(b,"declare %si1 @nrg_record_set(ptr, i32, i1 %s)\n",returned,parameter);
+    rg_write(b,"declare %si1 @nrg_array_new(ptr, i32, i32, i1 %s)\n",returned,parameter);
+    rg_write(b,"declare %si1 @nrg_case(ptr, i1 %s)\n",returned,parameter);
+    rg_write(b,"declare %si1 @nrg_length(ptr, i1 %s)\n",returned,parameter);
     static const char *const names[]={"drop","dup","swap","array_get","array_set","array_push","array_pop","array_slice",
         "cast_int","cast_float","cast_string","concat","substring","trim","split","string_replace","character"};
-    for(size_t i=0;i<sizeof names/sizeof names[0];i++)rg_write(b,"declare zeroext i1 @nrg_%s(ptr)\n",names[i]);
+    for(size_t i=0;i<sizeof names/sizeof names[0];i++)rg_write(b,"declare %si1 @nrg_%s(ptr)\n",returned,names[i]);
 }
 static void rl_check(RlBlock *s,const char *type,const char *pointer,const char *expected) {
     uint32_t value=rl_next(s),ok=rl_next(s);
@@ -154,7 +159,9 @@ NvmArrayEligibilityResult nvm2llvm_record_array_private(const NvmModule *module,
     /* I use only the generated target prefix, never its legacy runtime body. */
     (void)&nms_runtime_ir_native;(void)&nms_runtime_ir_wasm32;
     rg_write(&b,"%s",wasm32?nms_runtime_target_wasm32:nms_runtime_target_native);
-    rl_declarations(&b);
+    const char *bool_return=wasm32?NMS_BOOL_RETURN_WASM32:NMS_BOOL_RETURN_NATIVE;
+    const char *bool_parameter=wasm32?NMS_BOOL_PARAMETER_WASM32:NMS_BOOL_PARAMETER_NATIVE;
+    rl_declarations(&b,bool_return,bool_parameter);
     for(uint32_t i=0;i<counts.strings;i++) {
         uint32_t size;if(!nvm_record_array_execution_size(plan,NVM_RA_SNAPSHOT_STRING,i,&size))goto invalid;
         rg_write(&b,"@literal_%u = private constant [%u x i8] c\"",i,size?size:1);
@@ -206,7 +213,7 @@ NvmArrayEligibilityResult nvm2llvm_record_array_private(const NvmModule *module,
     rg_write(&b,"]\n@program = private constant %%P { i32 %u, i32 16, i32 8, i32 %u, i32 %u, i32 %u, i32 %u, i32 %u, i32 %u, i32 %u, i32 %u, i32 %u, ptr @functions, ptr @literals, ptr @records, ptr @starts, ptr @fields }\n",
         NRG_ABI,NRG_FRAMES,counts.functions,counts.entry,counts.initializer,counts.globals,(unsigned)!!(header.flags&NVM_FLAG_HAS_MAIN),counts.strings,counts.records,record_fields);
     for(uint32_t fi=0;fi<counts.functions;fi++) {
-        const NvmRecordArrayExecutionFunction *f=&functions[fi];RlBlock block={&b,0};
+        const NvmRecordArrayExecutionFunction *f=&functions[fi];RlBlock block={&b,0,bool_return,bool_parameter};
         rg_write(&b,"define private void @body_%u(ptr %%p) {\nentry:\n",fi);
         for(unsigned scratch_index=0;scratch_index<3;scratch_index++) {
             char scratch="abr"[scratch_index];
@@ -226,7 +233,7 @@ NvmArrayEligibilityResult nvm2llvm_record_array_private(const NvmModule *module,
             f->signature.code_length,NRG_TYPE,NRG_ASSERT,NRG_STATE);
     }
     rg_write(&b,"define i32 @nrg_generated_create(ptr %%out) {\nentry:\n");
-    RlBlock startup={&b,0};rl_abi(&startup);
+    RlBlock startup={&b,0,bool_return,bool_parameter};rl_abi(&startup);
     char pointer[256],expected[128];
     const uint32_t program_values[]={NRG_ABI,16,8,NRG_FRAMES,counts.functions,counts.entry,counts.initializer,counts.globals,(unsigned)!!(header.flags&NVM_FLAG_HAS_MAIN),counts.strings,counts.records,record_fields};
     for(uint32_t i=0;i<12;i++) {

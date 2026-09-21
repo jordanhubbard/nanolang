@@ -25,6 +25,37 @@ def invoke(args, **kwargs):
     return result.stdout
 
 
+
+def boolean_abi(clang, opt, flags, directory, target, triple, layout):
+    # I derive ABI attributes from the selected compiler, not the build host OS.
+    source = '_Bool nms_bool_abi_probe(_Bool value) { return value; }\n'
+    path = Path(directory)/(target+'-bool.c')
+    output = Path(directory)/(target+'-bool.ll')
+    path.write_text(source)
+    invoke(clang + flags + [str(path), '-o', str(output)])
+    invoke(opt + ['-passes=verify', '-disable-output', str(output)])
+    ir = output.read_text()
+    for field, expected in (('triple', triple), ('datalayout', layout)):
+        found = re.findall(r'^target '+field+r' = "([^"]+)"$', ir, re.M)
+        if found != [expected]:
+            raise ValueError('I require matching boolean probe target metadata')
+    signatures = re.findall(r'^define ([^\n@]+)@nms_bool_abi_probe\(([^)]+)\)', ir, re.M)
+    if len(signatures) != 1:
+        raise ValueError('I require exactly one boolean ABI probe definition')
+    returned, parameter = (part.split() for part in signatures[0])
+    if returned[-1] != 'i1' or parameter[0] != 'i1' or ',' in signatures[0][1]:
+        raise ValueError('I require scalar i1 boolean ABI types')
+    def attribute(words):
+        attributes = [word for word in words if word in ('zeroext', 'signext')]
+        if len(attributes) > 1:
+            raise ValueError('I refuse ambiguous boolean extension attributes')
+        return attributes[0]+' ' if attributes else ''
+    return {'return': attribute(returned), 'parameter': attribute(parameter),
+            'source': source, 'ir': ir,
+            'source_sha256': hashlib.sha256(source.encode()).hexdigest(),
+            'ir_sha256': hashlib.sha256(ir.encode()).hexdigest()}
+
+
 def generate(clang, opt):
     version = invoke(clang + ['--version']).splitlines()[0]
     hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
@@ -55,7 +86,8 @@ def generate(clang, opt):
                 raise ValueError('I refuse test hooks in packaged runtime IR')
             variants[target] = {'ir': ir, 'triple': triple, 'layout': layout,
                                 'sha256': hashlib.sha256(ir.encode()).hexdigest(),
-                                'flags': flags}
+                                'flags': flags,
+                                'boolean_abi': boolean_abi(clang, opt, flags, directory, target, triple, layout)}
     manifest = {'schema': 1, 'clang': version, 'sources': hashes,
                 'variants': {key: {k: v for k, v in value.items() if k != 'ir'}
                              for key, value in variants.items()}}
@@ -66,6 +98,9 @@ def generate(clang, opt):
                   'target triple = "' + value['triple'] + '"\n')
         lines.append('static const char nms_runtime_target_' + target + '[] = ' +
                      json.dumps(prefix) + ';')
+        for direction in ('return', 'parameter'):
+            lines.append('#define NMS_BOOL_' + direction.upper() + '_' + target.upper() + ' ' +
+                         json.dumps(value['boolean_abi'][direction]))
         lines.append('static const char nms_runtime_ir_'+target+'[] =')
         lines += [json.dumps(line+'\n') for line in value['ir'].splitlines()]
         lines.append(';')

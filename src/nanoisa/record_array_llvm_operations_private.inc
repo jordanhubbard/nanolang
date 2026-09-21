@@ -10,7 +10,7 @@ static void rl_text(RgOutput *b,char *text,size_t capacity,const char *format,..
     if(n<0 || (size_t)n>=capacity) { b->status=NVM_ARRAY_LIMIT;return; }
     (void)rg_charge(b,0,(uint64_t)n+1);
 }
-typedef struct { RgOutput *out; uint32_t serial; } RlBlock;
+typedef struct { RgOutput *out; uint32_t serial; const char *bool_return, *bool_parameter; } RlBlock;
 static uint32_t rl_next(RlBlock *s) {
     if(s->serial==UINT32_MAX) { s->out->status=NVM_ARRAY_LIMIT;return 0; }
     return s->serial++;
@@ -26,12 +26,12 @@ static void rl_check_status(RlBlock *s) {
 }
 static void rl_call(RlBlock *s,const char *name,const char *arguments) {
     uint32_t value=rl_next(s);
-    rg_write(s->out," %%v%u = call zeroext i1 @%s(ptr %%p%s)\n",value,name,arguments);
+    rg_write(s->out," %%v%u = call %si1 @%s(ptr %%p%s)\n",value,s->bool_return,name,arguments);
     rl_guard(s,value,"error");
 }
 static void rl_peek(RlBlock *s,uint32_t distance,char scratch,uint32_t *payload,uint32_t *tag) {
     uint32_t ok=rl_next(s);*payload=rl_next(s);*tag=rl_next(s);
-    rg_write(s->out," %%v%u = call zeroext i1 @nrg_peek(ptr %%p, i32 %u, ptr %%%c)\n",ok,distance,scratch);
+    rg_write(s->out," %%v%u = call %si1 @nrg_peek(ptr %%p, i32 %u, ptr %%%c)\n",ok,s->bool_return,distance,scratch);
     rl_guard(s,ok,"error");
     rg_write(s->out," %%v%u = load i64, ptr %%%c_payload\n %%v%u = load i32, ptr %%%c_tag\n",*payload,scratch,*tag,scratch);
 }
@@ -48,7 +48,7 @@ static void rl_boolean(RlBlock *s,uint32_t count,uint32_t condition) {
     rl_replace(s,count,payload,4);
 }
 static uint32_t rl_truth(RlBlock *s,char scratch) {
-    uint32_t result=rl_next(s);rg_write(s->out," %%v%u = call zeroext i1 @nrg_truth(ptr %%p, ptr %%%c)\n",result,scratch);
+    uint32_t result=rl_next(s);rg_write(s->out," %%v%u = call %si1 @nrg_truth(ptr %%p, ptr %%%c)\n",result,s->bool_return,scratch);
     return result;
 }
 static void rl_operation(RlBlock *s,const NvmRecordArrayExecutionInstruction *r) {
@@ -110,7 +110,7 @@ static void rl_operation(RlBlock *s,const NvmRecordArrayExecutionInstruction *r)
     case OP_EQ:case OP_NE:case OP_STR_EQ:
         rl_peek(s,1,'a',&x,&xt);rl_peek(s,0,'b',&y,&yt);
         if(r->opcode==OP_STR_EQ) { rl_tag(s,xt,5);rl_tag(s,yt,5); }
-        z=rl_next(s);rg_write(b," %%v%u = call zeroext i1 @nrg_equal(ptr %%p, ptr %%a, ptr %%b)\n",z);rl_check_status(s);
+        z=rl_next(s);rg_write(b," %%v%u = call %si1 @nrg_equal(ptr %%p, ptr %%a, ptr %%b)\n",z,s->bool_return);rl_check_status(s);
         if(r->opcode==OP_NE) { ok=rl_next(s);rg_write(b," %%v%u = xor i1 %%v%u, true\n",ok,z);z=ok; }
         rl_boolean(s,2,z);break;
     case OP_LT:case OP_LE:case OP_GT:case OP_GE:
@@ -148,12 +148,12 @@ static void rl_operation(RlBlock *s,const NvmRecordArrayExecutionInstruction *r)
     case OP_STR_CONCAT:rl_call(s,"nrg_concat","");break;
     case OP_STR_SUBSTR:rl_call(s,"nrg_substring","");break;
     case OP_STR_TRIM:rl_call(s,"nrg_trim","");break;
-    case OP_STR_TO_LOWER:rl_call(s,"nrg_case",", i1 zeroext false");break;
-    case OP_STR_TO_UPPER:rl_call(s,"nrg_case",", i1 zeroext true");break;
+    case OP_STR_TO_LOWER:rl_text(b,args,sizeof args,", i1 %sfalse",s->bool_parameter);rl_call(s,"nrg_case",args);break;
+    case OP_STR_TO_UPPER:rl_text(b,args,sizeof args,", i1 %strue",s->bool_parameter);rl_call(s,"nrg_case",args);break;
     case OP_STR_SPLIT:rl_call(s,"nrg_split","");break;
     case OP_STR_REPLACE:rl_call(s,"nrg_string_replace","");break;
-    case OP_STR_LEN:rl_call(s,"nrg_length",", i1 zeroext false");break;
-    case OP_ARR_LEN:rl_call(s,"nrg_length",", i1 zeroext true");break;
+    case OP_STR_LEN:rl_text(b,args,sizeof args,", i1 %sfalse",s->bool_parameter);rl_call(s,"nrg_length",args);break;
+    case OP_ARR_LEN:rl_text(b,args,sizeof args,", i1 %strue",s->bool_parameter);rl_call(s,"nrg_length",args);break;
     case OP_STR_CHAR_AT:rl_call(s,"nrg_character","");break;
     case OP_STR_CONTAINS:rl_call(s,"nrg_predicate",", i32 0");break;
     case OP_STR_STARTS_WITH:rl_call(s,"nrg_predicate",", i32 1");break;
@@ -167,14 +167,14 @@ static void rl_operation(RlBlock *s,const NvmRecordArrayExecutionInstruction *r)
     case OP_DUP:rl_call(s,"nrg_dup","");break;
     case OP_SWAP:rl_call(s,"nrg_swap","");break;
     case OP_LOAD_LOCAL:case OP_LOAD_GLOBAL:case OP_STORE_LOCAL:case OP_STORE_GLOBAL:
-        rl_text(s->out,args,sizeof args,", i1 zeroext %s, i32 %u",r->opcode==OP_LOAD_GLOBAL||r->opcode==OP_STORE_GLOBAL?"true":"false",(uint32_t)arg);
+        rl_text(s->out,args,sizeof args,", i1 %s%s, i32 %u",s->bool_parameter,r->opcode==OP_LOAD_GLOBAL||r->opcode==OP_STORE_GLOBAL?"true":"false",(uint32_t)arg);
         rl_call(s,r->recipe==NVM_RA_ROOT_LOAD?"nrg_load":"nrg_store",args);break;
     case OP_STRUCT_NEW:case OP_STRUCT_LITERAL:case OP_AGG_PACK:
         rl_text(s->out,args,sizeof args,", i32 %u",(uint32_t)(r->opcode==OP_AGG_PACK?r->operand_bits[1]:arg));rl_call(s,"nrg_record_new",args);break;
     case OP_STRUCT_GET:case OP_AGG_GET:case OP_STRUCT_SET:case OP_AGG_SET:
-        rl_text(s->out,args,sizeof args,", i32 %u, i1 zeroext %s",(uint32_t)arg,r->opcode==OP_AGG_GET||r->opcode==OP_AGG_SET?"true":"false");rl_call(s,r->recipe==NVM_RA_ROOT_GET?"nrg_record_get":"nrg_record_set",args);break;
+        rl_text(s->out,args,sizeof args,", i32 %u, i1 %s%s",(uint32_t)arg,s->bool_parameter,r->opcode==OP_AGG_GET||r->opcode==OP_AGG_SET?"true":"false");rl_call(s,r->recipe==NVM_RA_ROOT_GET?"nrg_record_get":"nrg_record_set",args);break;
     case OP_ARR_NEW:case OP_ARR_LITERAL:
-        rl_text(s->out,args,sizeof args,", i32 %u, i32 %u, i1 zeroext %s",(uint32_t)arg,r->opcode==OP_ARR_LITERAL?(uint32_t)r->operand_bits[1]:0,r->opcode==OP_ARR_LITERAL?"true":"false");rl_call(s,"nrg_array_new",args);break;
+        rl_text(s->out,args,sizeof args,", i32 %u, i32 %u, i1 %s%s",(uint32_t)arg,r->opcode==OP_ARR_LITERAL?(uint32_t)r->operand_bits[1]:0,s->bool_parameter,r->opcode==OP_ARR_LITERAL?"true":"false");rl_call(s,"nrg_array_new",args);break;
     case OP_ASSERT:
         rl_peek(s,0,'a',&x,&xt);z=rl_truth(s,'a');rl_call(s,"nrg_drop","");rl_guard(s,z,"assert_error");break;
     case OP_JMP:rg_write(b," br label %%b%u\n",r->successors[0]);return;
