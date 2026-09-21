@@ -262,3 +262,15 @@ my selected dependency import. I retain f39d9cbd8's separated generic-close and
 assignment tokens plus call/argument counts, and 8c79bca5c's nonreserved local
 name opaque_annotation. I do not replay their known earlier malformed shadows.
 This checkpoint remains unexecuted pending source review.
+
+## Strict union formatter prerequisite
+
+I retain the first39ad Linux provider build refusal in
+`/home/jkh/nanolang-qualification/tuple-39ad-linux-prepare`. GCC O3 reports a
+possibly null variant component at the union struct-name formatter. All its
+callers pass a registered variant row; the formatter itself has no explicit
+component check. I add a nonzero refusal before formatting either union struct
+or tag names when the projected union name or variant name is absent. Valid
+spelling, buffer policy, declaration order and compiler flags remain unchanged.
+I have not executed a null-name source program. Corrected source review and
+fresh preparation precede the original focused/bootstrap/native requirements.

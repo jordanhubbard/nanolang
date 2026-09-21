@@ -14368,3 +14368,10 @@ allocator failure claim.
   review and corrected-only prefix/late-failure/recovery controls precede runs.
   MAC: task_d3d5a17bad0f48ae92c3fa4dc4d306d5. The unexecuted 1e2e862dd
   checkpoint is not qualification evidence.
+
+- [ ] I refuse absent native union/variant name components before formatting
+  their C spelling. Fresh39ad Linux strict GCC O3 preparation stopped at the
+  union variant formatter before any fixture executed; I retain that terminal
+  and review the narrow guard before fresh preparation and the full matrices.
+  MAC: task_3fb1050a410f41e7be711f628f77323a. I do not infer a source-level
+  null-name reproducer from this compile diagnostic.
