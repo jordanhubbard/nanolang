@@ -271,7 +271,7 @@ class RecordArrayLLVM(unittest.TestCase):
         for begin in range(0,calls,16):
             end=min(begin+16,calls); self.assertEqual(begin,cursor)
             value=self.wasm_invoke(f'{name}-{engine}-fault-{begin:06d}-{end:06d}',engine,product,
-                'nano_range_report',(begin,end,calls))
+                'nano_range_report',(begin,end,calls,peak))
             self.assertEqual(value,(calls<<32)|2*(end-begin))
             plan['workers'].append([begin,end,2,2*(end-begin)]); cursor=end; recoveries+=2*(end-begin)
         self.assertEqual(cursor,calls); self.assertEqual(recoveries,2*calls)

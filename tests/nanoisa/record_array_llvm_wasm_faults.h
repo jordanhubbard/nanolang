@@ -10,9 +10,9 @@ int nano_fault_baseline(void) {
     wasm_calls=ra_calls;wasm_peak=ra_peak;wasm_successes=ra_created;
     wasm_recoveries=0;return 0;
 }
-int nano_fault_range(uint32_t begin,uint32_t end,uint32_t wanted) {
+int nano_fault_range(uint32_t begin,uint32_t end,uint32_t wanted,uint32_t wanted_peak) {
     CHECK(!nano_fault_baseline());
-    CHECK(wanted==wasm_calls&&begin<end&&end<=wasm_calls&&end-begin<=16);
+    CHECK(wanted==wasm_calls&&wanted_peak==wasm_peak&&begin<end&&end<=wasm_calls&&end-begin<=16);
     for(int mode=0;mode<2;mode++)for(size_t i=begin;i<end;i++) {
         wasm_reset();ra_fail=i;ra_persistent=mode;CHECK(!sequence(1));
         CHECK(ra_calls>i&&ra_created<ra_calls&&!ra_live&&!ra_bytes&&!nms_test_live_allocations());
@@ -32,8 +32,8 @@ uint64_t nano_baseline_report(void) {
     ra_invariant(__builtin_wasm_memory_size(0)>16&&__builtin_wasm_memory_size(0)<=1024);
     return ((uint64_t)wasm_calls<<32)|(uint32_t)wasm_peak;
 }
-uint64_t nano_range_report(uint32_t begin,uint32_t end,uint32_t wanted) {
-    ra_invariant(nano_fault_range(begin,end,wanted)==0);
+uint64_t nano_range_report(uint32_t begin,uint32_t end,uint32_t wanted,uint32_t wanted_peak) {
+    ra_invariant(nano_fault_range(begin,end,wanted,wanted_peak)==0);
     ra_invariant(wasm_calls<=UINT32_MAX&&wasm_recoveries<=UINT32_MAX);
     return ((uint64_t)wasm_calls<<32)|(uint32_t)wasm_recoveries;
 }

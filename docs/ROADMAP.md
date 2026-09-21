@@ -14392,3 +14392,9 @@ My preexecution LLVM fixture self-review makes llvm-nm the default object reader
 for both native and Wasm and checks testing-hook absence in ordinary native
 runtime objects as well as Wasm. Python AST syntax and diff checks pass; they
 execute no fixture, emitted module or runtime product.
+
+Root's preexecution fixture review finds that my Wasm workers agree on allocation
+counts but compare recovery peak only with their own fresh baseline. Before any
+execution I pass the coordinator's expected requested-live peak into every range
+worker and require equality before the sweep; each recovery must retain that
+same peak. The original unexecuted fixture checkpoint remains in history.
