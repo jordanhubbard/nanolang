@@ -14401,3 +14401,11 @@ allocator failure claim.
   actual shadow progress before choosing a correction. Diagnostic overhead and
   host outcomes stay separate, and the complete source graph remains required.
   MAC: task_6ec8b514c61449d0863401584e86376b.
+
+- [ ] I resolve actual dotted union constructor syntax before qualified record
+  annotation binding, using exact local/imported union owner and selected variant.
+  I retain b33 Puck Held.Items refusal before C emission; I audit parser forms
+  and publish only a complete owned constructor conversion, retaining general
+  qualified-type refusal and original discovery/nested controls. Source review
+  and corrected allocation/owner controls precede execution.
+  MAC: task_e0fbb45b12b64012b39a632f5c90d21e.
