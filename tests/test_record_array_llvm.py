@@ -148,10 +148,15 @@ class RecordArrayLLVM(unittest.TestCase):
         self.command(label+'-abi-build', [*self.tools['clang'], *target, '-std=c11', '-O0',
             '-DNANO_RECORD_ARRAY_GENERATED_PRIVATE', '-Isrc/nanoisa', '-S', '-emit-llvm',
             'src/nanoisa/record_array_generated_private.c', '-o', str(output)])
-        actual = dict(self.abi_signature(line) for line in output.read_text().splitlines()
-                      if line.startswith('define ') and re.search(r'@nrg_\w+\(', line))
         declared = dict(self.abi_signature(line) for line in emitted.read_text().splitlines()
                         if line.startswith('declare ') and '@nrg_' in line)
+        actual = {}
+        for line in output.read_text().splitlines():
+            name = re.search(r'@(nrg_\w+)\(', line)
+            if line.startswith('define ') and name and name.group(1) in declared:
+                key, signature = self.abi_signature(line)
+                self.assertNotIn(key, actual)
+                actual[key] = signature
         self.assertGreater(len(declared), 35)
         for name, signature in declared.items():
             self.assertIn(name, actual); self.assertEqual(signature, actual[name], name)

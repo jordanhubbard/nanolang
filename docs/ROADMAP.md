@@ -14420,3 +14420,11 @@ correction, not permission to weaken generated program or runtime observations.
 Read-only comparison of the retained first parity outputs confirms all73 generated
 C files exact and all73 replay files equal under that precise identity bijection,
 with no mismatches. I retain this diagnostic separately from future gate results.
+
+My frozen87938 Darwin parity and both-target emission gates pass. The next native
+phase stops before product execution when the ABI fixture parses unrelated
+internal nrg_void, whose C return is a two-word aggregate. My generated ABI does
+not call this helper. Under task_698d43908484433fb6f18bf8c130673a I retain that
+terminal/actual C IR and restrict definition parsing to the complete emitted
+external declaration set. Every called signature remains required and compared;
+missing or mismatched declarations still fail. No production ABI changes.
