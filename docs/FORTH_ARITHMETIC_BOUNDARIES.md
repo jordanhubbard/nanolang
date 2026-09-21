@@ -87,7 +87,9 @@ boundary guard because it creates the same signed-double representation:
 nonfinite input throws -46; finite input outside [-2^127,2^127) throws -11.
 Inside that interval, the existing truncation toward zero is representable.
 I use exactly representable binary power-of-two bounds, not a rounded conversion
-of INT128_MAX. D>F remains its existing finite conversion with ordinary precision
+of INT128_MAX. After numeric checks I reserve two available data-stack slots before
+publishing either cell; insufficient space throws -3. This explicit precondition
+repairs the statically found one-slot partial-publication path. D>F remains its existing finite conversion with ordinary precision
 loss. These guards do not claim a complete floating-point word-set audit.
 
 ## Failure, lifetime and implementation boundaries
