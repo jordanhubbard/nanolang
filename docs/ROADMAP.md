@@ -14215,3 +14215,12 @@ The assignment lifetime correction snapshots exact selected metadata before
 recursive checks. Four added controls require actual symbol capacity growth,
 same-name branch shadowing, retained/explicit callback acceptance and swapped
 owner refusal. Source review precedes execution; prior 18+8 methods remain.
+
+My first fresh 06c builds stop before bootstrap because the new nominal array
+view calls types_match before its static declaration. Linux Make status2 at
+20.716437863 seconds (log SHA256 a1a832632927c60d11287345c28cbe509e4f43a68e62e778d490bc67fff6c7c6);
+Darwin status2 at9.047511625 seconds (15ed9b2c2db2f202f2aedea00bb6a986fdc3d3bc2b9e4dc41b790f1f16aec52b).
+Both source/tool endpoint maps remain equal, leaders reaped and groups gone.
+I retain both preparation roots and reports. I will add the exact static forward
+declaration before the private view include; helper semantics, strict flags and
+all assertions remain unchanged. Bootstrap and all matrices remain unreached.
