@@ -1237,6 +1237,15 @@ their individual acceptance evidence closes them.
         shadow oracle with supported exact call/`POP` sequence checks; the
         Python integration test retains its stronger selector-before-callback
         ordering assertion.
+      - [ ] The corrected fresh bootstrap passes all three stages and installs
+        the self-hosted compiler, then the original map acceptance reaches
+        `shadow choose` and exposes the same exact returned callback through a
+        direct computed call. My expression classifier mistakes that call's
+        float result for the selector's function result and refuses its
+        equality as mismatched float operands. I preserve this terminal,
+        statically resolve only the same single-return selector contract,
+        evaluate the selector once before its arguments, and retain broader
+        computed calls as checked refusals.
 
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
       accepted integer-zero spelling for an opaque null when foreign call
