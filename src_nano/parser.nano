@@ -2615,6 +2615,10 @@ fn parse_primary(p: Parser) -> Parser {
     } else {
         let tok: LexerToken = (parser_current p)
 
+        if (== tok.token_type (token_if)) {
+            return (parse_if_expression p)
+        }
+
         # I reserve uppercase Type<args>.Variant for explicit union construction.
         # Lowercase identifiers keep their ordinary infix comparison grammar.
         if (== tok.token_type (token_identifier)) {
@@ -5599,6 +5603,54 @@ fn parse_let_statement(p: Parser) -> Parser {
 
 shadow parse_let_statement {
     assert (== 1 1)
+}
+
+# I reuse statement syntax and mark only an actual expression entry.
+fn parse_if_expression(p: Parser) -> Parser {
+    let parsed: Parser = (parse_if_statement p)
+    if (parser_has_error parsed) { return parsed }
+    return (parser_mark_if_expression parsed)
+}
+
+shadow parse_if_expression {
+    let sources: array<string> = [
+        "if true { 1 } else { 2 }",
+        "(if true { 1 } else { 2 })",
+        "(if false { 1 } else if true { 2 } else { 3 })",
+        "(if true { (if false { 1 } else { 2 }) } else { 3 })",
+        "(if true { (print \"\") })"
+    ]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "if-expression.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_expression (parser_new tokens (list_LexerToken_length tokens) "if-expression.nano"))
+        assert (not (parser_has_error parsed))
+        assert (parser_is_at_end parsed)
+        assert (== parsed.last_expr_node_type ParseNodeType.PNODE_IF)
+        let node: ASTIf = (parser_get_if parsed parsed.last_expr_node_id)
+        assert node.is_expression
+        assert (>= node.then_body 0)
+        if (< i 4) { assert (>= node.else_body 0) } else { assert (== node.else_body -1) }
+        if (== i 2) { assert (not (parser_get_if parsed 0).is_expression) }
+        if (== i 3) { assert (parser_get_if parsed 0).is_expression }
+        set i (+ i 1)
+    }
+    let malformed: array<string> = [
+        "(if true { 1 } else { 2 }", "(if true 1 else { 2 })",
+        "(if { 1 } else { 2 })", "(if true { 1 } else)",
+        "(if true { 1 } else if false { 2 } else)"
+    ]
+    set i 0
+    while (< i (array_length malformed)) {
+        let tokens: List<LexerToken> = (tokenize_string (at malformed i) "if-refuse.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_expression (parser_new tokens (list_LexerToken_length tokens) "if-refuse.nano"))
+        assert (parser_has_error parsed)
+        set i (+ i 1)
+    }
+    let tokens: List<LexerToken> = (tokenize_string "if true { 1 } else { false }" "if-statement.nano" (list_CompilerDiagnostic_new))
+    let ordinary: Parser = (parse_statement (parser_new tokens (list_LexerToken_length tokens) "if-statement.nano"))
+    assert (not (parser_has_error ordinary))
+    assert (not (parser_get_if ordinary ordinary.last_expr_node_id).is_expression)
 }
 
 /* Parse if statement: if (expression) { statements } [else { statements }] */

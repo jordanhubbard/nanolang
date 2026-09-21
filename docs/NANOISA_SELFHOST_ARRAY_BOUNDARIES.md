@@ -224,3 +224,21 @@ and ordinary statement origin. Source controls exercise valid values and
 checker refusals through the existing retained routes, with all prior assertions
 kept. Parser-malformed controls require actual parser errors, not arbitrary
 compiler exits. No build or execution precedes review of this checkpoint.
+
+### My IF expression source checkpoint
+
+I add one primary-dispatch case and a wrapper that propagates parse errors
+before marking the existing IF node. Condition/body/else-if parsing, statement
+dispatch, constructors and delimiter handling are unchanged. Parser shadows
+cover five direct/grouped/nested/else-if/optional-else expressions, five malformed
+inputs and statement-origin preservation. The seventeenth source method gains
+a complete value program plus discarded heterogeneous IF, non-BOOL condition
+and nested incompatible array refusals; all its old cases remain. The other
+sixteen methods are unchanged by Python AST comparison.
+
+Source-only Python parsing, method inventory, Nano delimiter balance and
+git diff --check pass. No Nano compiler, shadow, build or fixture has executed.
+I retain the schema ABI change's fresh-provider requirement and the complete
+seventeen-method qualification, original deadlines and all earlier first
+terminals. This checkpoint awaits source review; it does not establish parser
+or backend acceptance.

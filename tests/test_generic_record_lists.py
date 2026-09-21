@@ -194,7 +194,25 @@ shadow main { assert (== (main) 0) }
 shadow main { assert (== (main) 0) }
 '''
         self.source_routes('discarded-array-positive', positive)
+        self.source_routes('if-expression-positive', '''fn choose(flag: bool) -> int {
+ return if flag { 7 } else { 9 }
+}
+shadow choose { assert (== (choose true) 7) assert (== (choose false) 9) }
+fn main() -> int {
+ let rows: array<array<int>> = (if false { [] } else if true { [[7]] } else { [[9]] })
+ let value: int = (if true { (if false { 1 } else { 7 }) } else { 9 })
+ if true { 1 } else { false }
+ if false { (print "") }
+ assert (== (at (at rows 0) 0) value)
+ assert (== value (choose true))
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
         for name, body in {
+            'if-discarded': '(if true { [1] } else { [false] }) return 0',
+            'if-condition': 'let value: int = (if 1 { 7 } else { 9 }) return 0',
+            'if-nested': 'let value: array<int> = (if true { [] } else if false { [1] } else { [false] }) return 0',
             'literal': '[1, true] return 0',
             'unreachable-literal': 'return 0 [1, true]',
             'cond': '(cond (true [1]) (else [false])) return 0',
