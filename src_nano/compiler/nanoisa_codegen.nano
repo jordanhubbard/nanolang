@@ -963,6 +963,18 @@ fn nisa_value_type_matches(parser: Parser, actual: string, expected: string) -> 
     if (== actual "int") { return (>= (nisa_enum_index parser expected) 0) }
     return false
 }
+
+fn nisa_contextual_empty_array(parser: Parser, node_id: int, node_type: int, expected: string) -> bool {
+    if (!= node_type ParseNodeType.PNODE_ARRAY_LITERAL) { return false }
+    if (not (and (str_starts_with expected "array<") (str_ends_with expected ">"))) { return false }
+    return (== (parser_get_array_literal parser node_id).element_count 0)
+}
+shadow nisa_contextual_empty_array {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let xs: array<float> = [] return 0 }" "empty.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "empty.nano")
+    assert (nisa_contextual_empty_array parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<float>")
+    assert (not (nisa_contextual_empty_array parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "float"))
+}
 shadow nisa_value_type_matches {
     let tokens: List<LexerToken> = (tokenize_string "enum Mode { Low = -3 }" "enum.nano" (diag_list_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "enum.nano")
@@ -3072,7 +3084,8 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         let mut i: int = 0
         while (< i literal.element_count) {
             let value: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
-            if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
+            if (and (not (nisa_contextual_empty_array parser value.node_id value.node_type element))
+                    (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
                 return (nisa_fail "array element does not match my declared type")
             }
             set output (+ output (nisa_emit_expected_expr parser value.node_id value.node_type element))
@@ -3101,6 +3114,15 @@ shadow nisa_emit_expected_expr {
     assert (str_contains nested_text "ARR_LITERAL 1 1")
     assert (str_contains nested_text "ARR_LITERAL 1 0")
     assert (str_ends_with nested_text "  ARR_LITERAL 7 2\n")
+    let fractional_tokens: List<LexerToken> = (tokenize_string "fn fractional() -> array<array<float>> { return [[], [1.5]] }" "fractional.nano" diagnostics)
+    let fractional_parser: Parser = (parse_program fractional_tokens (list_LexerToken_length fractional_tokens) "fractional.nano")
+    let fractional_function: ASTFunction = (parser_get_function fractional_parser 0)
+    let fractional_block: ASTBlock = (parser_get_block fractional_parser fractional_function.body)
+    let fractional_statement: ASTStmtRef = (list_ASTStmtRef_get fractional_block.statements 0)
+    let fractional_return: ASTReturn = (parser_get_return fractional_parser fractional_statement.node_id)
+    let fractional_text: string = (nisa_emit_expected_expr fractional_parser fractional_return.value fractional_return.value_type "array<array<float>>")
+    assert (str_contains fractional_text "ARR_LITERAL 3 0")
+    assert (str_ends_with fractional_text "  ARR_LITERAL 7 2\n")
     let byte_tokens: List<LexerToken> = (tokenize_string "fn byte() -> u8 { return 255 }" "byte.nano" diagnostics)
     let byte_parser: Parser = (parse_program byte_tokens (list_LexerToken_length byte_tokens) "byte.nano")
     let byte_function: ASTFunction = (parser_get_function byte_parser 0)
@@ -3469,7 +3491,8 @@ fn nisa_emit_push_call(parser: Parser, call: ASTCall, name: string) -> string {
         let declared: string = (str_substring name 5 (- (str_length name) 10))
         if (!= declared element) { return (nisa_fail "I require the list append to match its element type") }
     }
-    if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
+    if (and (not (nisa_contextual_empty_array parser value.node_id value.node_type element))
+            (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
         return (nisa_fail "I require an append value matching the element type")
     }
     let receiver: string = (nisa_emit_expected_expr parser object.node_id object.node_type container)
@@ -3487,6 +3510,13 @@ shadow nisa_emit_push_call {
     assert (== (nisa_emit_push_call parser (parser_get_call parser 0) "array_push") "")
     assert (not nisa_ok)
     let reset_again: int = (nisa_reset)
+    let empty_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { (array_push values []) return 0 }" "empty-push.nano" (diag_list_new))
+    let empty_parser: Parser = (parse_program empty_tokens (list_LexerToken_length empty_tokens) "empty-push.nano")
+    set nisa_names ["values"]
+    set nisa_types ["array<array<float>>"]
+    let empty_text: string = (nisa_emit_push_call empty_parser (parser_get_call empty_parser 0) "array_push")
+    assert (str_contains empty_text "ARR_LITERAL 3 0")
+    let reset_empty: int = (nisa_reset)
 }
 
 fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
@@ -3503,7 +3533,8 @@ fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
         let declared: string = (str_substring name 5 (- (str_length name) 9))
         if (!= declared element) { return (nisa_fail "I require the list setter to match its element type") }
     }
-    if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
+    if (and (not (nisa_contextual_empty_array parser value.node_id value.node_type element))
+            (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
         return (nisa_fail "I require a replacement value matching the element type")
     }
     return (+ (nisa_emit_call_args parser call) (+ (nisa_line "ARR_SET") (nisa_line "POP")))
