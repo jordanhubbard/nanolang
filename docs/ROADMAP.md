@@ -14008,3 +14008,9 @@ these terminals alone do not identify the failing shadow or cause. I inspect
 static access/count assumptions first. Any bounded marker diagnostic receives a
 separate source checkpoint and keeps the full graph and original deadlines. I
 do not weaken this check or execute an invalid published program.
+
+### My actual lexical block expression prerequisite
+
+I record task_c6959732bd934c429b60e42731168c71 before source changes.
+I record the actual block-expression parser prerequisite before code. The single approved c923 verbose diagnostic stops in check_if_value; full original graph, unchanged compiler/ten-second child/120-second outer, status1 at20.728991s, no timeout and exact source/tool/product input equality. Static primary dispatch lacks LBRACE, while the original cond/local vector requires a block value. I will reuse parse_block, propagate errors, and normalize only successful expression results to PNODE_BLOCK. I preserve original body/statement grammar and lexical value checking, keep original cond/local assertions, and guard function lookup after failed parse/count. Actual parser controls cover empty/grouped/nested blocks, local declarations, full consumption and missing/invalid braces. Full source controls cover lexical block values and refusals without weakening prior seventeen methods. No gate before source review; all parent acceptance remains open.
+
