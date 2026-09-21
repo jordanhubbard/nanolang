@@ -30,6 +30,13 @@ static bool capture_string(const VmRecordArrayPrivate *,VmRecordArrayRoot,uint32
 #undef vm_record_array_private_observe
 #undef vm_record_array_private_string
 
+#ifndef RECORD_GENERATED_EMIT
+#define RECORD_GENERATED_EMIT nvm2c_record_array_private
+#endif
+#ifndef RECORD_GENERATED_SUFFIX
+#define RECORD_GENERATED_SUFFIX "c"
+#endif
+
 typedef struct {
     VmRecordArrayPrivate *vm;
     FILE *trace;
@@ -67,7 +74,11 @@ static const char replay_prefix[]=
     "#define NANO_RECORD_ARRAY_GENERATED_PRIVATE 1\n"
     "#include \"record_array_generated_private.h\"\n#include <stdint.h>\n#include <string.h>\n"
     "#ifndef __wasm32__\n#include <stdio.h>\n#endif\n"
+#ifdef RECORD_LLVM_WASM_OBSERVER
+    "#ifdef NRG_OBSERVED\n#include \"record_array_llvm_wasm_alloc.h\"\n#endif\n"
+#else
     "#ifdef NRG_OBSERVED\n#include \"record_array_alloc.h\"\n#endif\n"
+#endif
     "NrgStatus nrg_generated_create(NrgInstance **);\n"
     "static uint64_t identities[4096][2];static unsigned identity_count,checks;\n"
     "static int identity(uint64_t expected,uint64_t actual){if(!expected||!actual)return 0;"
@@ -81,7 +92,7 @@ static const char replay_prefix[]=
 static NvmArrayEligibilityResult capture_create(const NvmModule *m,VmRecordArrayPrivate **out) {
     char *source=(void *)(uintptr_t)1;size_t length=SIZE_MAX;
     NvmRecordArrayGeneratedCost cost;memset(&cost,0xa5,sizeof cost);
-    NvmArrayEligibilityResult generated=nvm2c_record_array_private(m,&source,&length,&cost);
+    NvmArrayEligibilityResult generated=RECORD_GENERATED_EMIT(m,&source,&length,&cost);
     NvmArrayEligibilityResult actual=vm_record_array_private_create(m,out);
     CHECK(generated.status==actual.status);
     if(actual.status!=NVM_ARRAY_ELIGIBLE) {
@@ -96,7 +107,7 @@ static NvmArrayEligibilityResult capture_create(const NvmModule *m,VmRecordArray
     capture->number=products++;capture->vm=*out;
     CHECK(vm_record_array_private_stats(*out,&capture->baseline));
     vm_profile_enable(&(*out)->vm,true);
-    char path[4096];int n=snprintf(path,sizeof path,"%s/product-%04u.c",artifact_directory,capture->number);
+    char path[4096];int n=snprintf(path,sizeof path,"%s/product-%04u." RECORD_GENERATED_SUFFIX,artifact_directory,capture->number);
     CHECK(n>0&&(size_t)n<sizeof path);
     FILE *f=fopen(path,"wb");CHECK(f);CHECK(fwrite(source,1,length,f)==length);CHECK(!fclose(f));free(source);
     n=snprintf(path,sizeof path,"%s/product-%04u.replay.c",artifact_directory,capture->number);
@@ -173,6 +184,10 @@ static void capture_destroy(VmRecordArrayPrivate *p) {
             "CHECK(before.tag==after.tag&&before.identity==after.identity&&before.scalar_bits==after.scalar_bits);}failed=1;break;}"
             "CHECK(s==expected[i]);}nrg_destroy(p);CHECK(!ra_live&&!ra_bytes&&!nms_test_live_allocations());"
             "CHECK(!fault||failed);return 0;}\n",c->run_count);
+#ifdef RECORD_LLVM_WASM_OBSERVER
+        fputs("#include \"record_array_llvm_wasm_faults.h\"\n#endif\n"
+            "int nano_main(void){return exercise();}\n",f);
+#else
         fputs("static int number(const char *text,size_t *out){size_t n=0;if(!*text)return 0;"
             "for(;*text;text++){unsigned d=(unsigned char)*text-'0';if(d>9||n>(SIZE_MAX-d)/10)return 0;n=n*10+d;}*out=n;return 1;}\n"
             "static int faults(int argc,char **argv){CHECK(!ra_live&&!ra_bytes);ra_calls=0;ra_peak=0;ra_fail=SIZE_MAX;ra_persistent=0;"
@@ -189,6 +204,7 @@ static void capture_destroy(VmRecordArrayPrivate *p) {
             "#ifdef __wasm32__\nint nano_main(void){return exercise();}\n#else\n"
             "int main(int argc,char **argv){(void)argc;(void)argv;int status=exercise();\n#ifdef NRG_OBSERVED\nif(!status)status=faults(argc,argv);\n#endif\n"
             "printf(\"I checked %u generated replay observations; status %d.\\n\",checks,status);return status?1:0;}\n#endif\n",f);
+#endif
         CHECK(!fclose(f));*c=(Capture){0};
     }
     vm_record_array_private_destroy(p);

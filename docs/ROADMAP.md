@@ -14364,3 +14364,11 @@ argument text needed its own work reservation. Before any emission I route these
 formats through a checked helper that charges their produced bytes and refuses
 truncation. This preserves the declared bounded-work contract rather than
 assuming final-output accounting covers intermediate formatting.
+
+My first LLVM fixture checkpoint adds both-target emission allocation/buffer/work
+controls and selects LLVM through a default-preserving wrapper around my unchanged
+VM capture. My Wasm replay uses fixed nonallocating core hook observation and
+numeric baseline/range exports with both failure modes and independent recovery.
+This remains fixture preparation: the complete native/Wasm coordinator, ABI and
+memory-limit controls, Make closure and source review are still required before
+execution. My running C759 trees/providers remain unchanged.
