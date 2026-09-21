@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/bin/gcc",
+    "-O0",
+    "-g",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "/home/jkh/Src/nanolang-record-lists-qualified-303/tests/test_native_record_list_storage.c",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-rdynamic",
+    "-o",
+    "/home/jkh/nanolang-qualification/record-lists-303-linux-matrix/native-source/nano-native-record-lists-7cc0tx_8/native-storage"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-303",
+  "timeout": 180,
+  "expected": [
+    0
+  ],
+  "extra": null,
+  "TMPDIR": "/home/jkh/nanolang-qualification/record-lists-303-linux-matrix/native-source/nano-native-record-lists-7cc0tx_8/temporary",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

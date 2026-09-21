@@ -1,0 +1,34 @@
+{
+  "native-cc.py": {
+    "sha256": "d2a0ed252e09ad8fd35b2e9ad60ab964a6bf7f92b6dfba2eda095755c7ce253a",
+    "bytes": 537
+  },
+  "native-declared-list-nanoc_c-O0": {
+    "sha256": "786b1dcc8cbeb5737ed78f2f8a4bf310d364cb3bc0cc1426b656da15c3d50e58",
+    "bytes": 8779328
+  },
+  "native-declared-list-nanoc_c-O0.c": {
+    "sha256": "6b182fd83acd816703741e9babe51c90cbcc946ce1677bb373e671c9e712e82f",
+    "bytes": 64145
+  },
+  "native-declared-list-nanoc_c-O2": {
+    "sha256": "9f6a060e39166de3524de7044c194205a65385bd231ddfdf8ad1bd45af5a8d9d",
+    "bytes": 8636032
+  },
+  "native-declared-list-nanoc_c-O2.c": {
+    "sha256": "6b182fd83acd816703741e9babe51c90cbcc946ce1677bb373e671c9e712e82f",
+    "bytes": 64145
+  },
+  "native-declared-list-nanoc_stage1-O0": {
+    "sha256": "d1f04e85c927f1a0b95bbd5cfe8fad92d921b3a20b88bb4c7586155f638abb7e",
+    "bytes": 30
+  },
+  "native-declared-list.nano": {
+    "sha256": "1c486c7aea925375fd23df05be65bd7dc36f785d6ccef097850899fbc69a9c66",
+    "bytes": 402
+  },
+  "native-storage": {
+    "sha256": "c3cc111c6ebc32983571963ae977e8c9e0b163824c9c061ac62ccb1b2798c1e1",
+    "bytes": 83496
+  }
+}

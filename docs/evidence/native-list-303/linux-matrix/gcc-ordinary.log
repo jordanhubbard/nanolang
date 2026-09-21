@@ -1,0 +1,10 @@
+I retain native list artifacts at /home/jkh/nanolang-qualification/record-lists-303-linux-matrix/gcc-ordinary/nano-native-record-lists-9j0aeo20
+test_shared_storage_and_allocation_failures (tests.test_native_record_lists.NativeRecordLists.test_shared_storage_and_allocation_failures) ... ok
+I retain record-list artifacts at /home/jkh/nanolang-qualification/record-lists-303-linux-matrix/gcc-ordinary/nano-record-lists-f0e7qdem
+test_checked_storage_scheduler_and_allocation_prefixes (tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes) ... ok
+test_array_intrinsic_and_declaration_identity (tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.583s
+
+OK

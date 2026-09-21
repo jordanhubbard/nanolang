@@ -1,0 +1,82 @@
+{
+  "array-allocations": {
+    "sha256": "631b96ef132bde8dabe5a42aea661dd6540fb32ac79f9831afa81c5dc29ca2a2",
+    "bytes": 13133024
+  },
+  "array-allocations.dSYM/Contents/Info.plist": {
+    "sha256": "f5734afeb6bd7c51b33b1ddf5cf155dd0002e4cdb4c5cababc6c9a0d10ea8ef3",
+    "bytes": 646
+  },
+  "array-allocations.dSYM/Contents/Resources/DWARF/array-allocations": {
+    "sha256": "537b1650079a66ff503ea072d1460432f0cf121ab51400b4a9a1afab314d951f",
+    "bytes": 3485048
+  },
+  "array-allocations.dSYM/Contents/Resources/Relocations/aarch64/array-allocations.yml": {
+    "sha256": "a622f94c6a5a0a32915d7eb84d2b001e02cb3bf9e406dd02f44ca5570c3408b6",
+    "bytes": 212
+  },
+  "array-identity": {
+    "sha256": "c2ae9b86519de9cc1724c6dcb7433f6710fe622c4b437dd2f76a0fe69906ce6e",
+    "bytes": 12447904
+  },
+  "array-identity.dSYM/Contents/Info.plist": {
+    "sha256": "fbefd771a73c09a355feb5d7bf3d290ff40719a70e191e811316c88e4fa2de3a",
+    "bytes": 643
+  },
+  "array-identity.dSYM/Contents/Resources/DWARF/array-identity": {
+    "sha256": "eb6b32b870f80a20a679bb6eb07b9b27696fc362a9e2ede76466640eea925868",
+    "bytes": 3345394
+  },
+  "array-identity.dSYM/Contents/Resources/Relocations/aarch64/array-identity.yml": {
+    "sha256": "ef11bf4e355829b125b91fb670ebb5ae6e8b7b0156a17c391f3d59f8e9b5b810",
+    "bytes": 209
+  },
+  "coroutine-errors": {
+    "sha256": "d0e0d3cb71e7964952841af86afe4f152d471c9995c7adc62d939beadf1edd48",
+    "bytes": 94496
+  },
+  "coroutine-errors.dSYM/Contents/Info.plist": {
+    "sha256": "465ae21812d41029355f926ac40eb95150e745724cb8a3cdf2a4442baca0d3dd",
+    "bytes": 645
+  },
+  "coroutine-errors.dSYM/Contents/Resources/DWARF/coroutine-errors": {
+    "sha256": "0334160883f148d756a965eb2f81aefb0f641e2c866cf47e7a815ba453a0afa0",
+    "bytes": 41055
+  },
+  "coroutine-errors.dSYM/Contents/Resources/Relocations/aarch64/coroutine-errors.yml": {
+    "sha256": "c3529277eddfae6ac9b21d2d443878dc229eb80b9e39eeed83ae4670dd244273",
+    "bytes": 211
+  },
+  "owned-lifetimes": {
+    "sha256": "17a96ea5d7519d0ea7b6b5d32dfc2963d0959598714bf3367428ec60c67029f9",
+    "bytes": 12640192
+  },
+  "owned-lifetimes.dSYM/Contents/Info.plist": {
+    "sha256": "731914828fe11618e59b9de228262c262db5341394662d135ca07ad66195a634",
+    "bytes": 644
+  },
+  "owned-lifetimes.dSYM/Contents/Resources/DWARF/owned-lifetimes": {
+    "sha256": "e6d2f5d6239c4edcc5c820443962b92f6fe7cf7355f76c9c2b2070e384d0ddac",
+    "bytes": 3366369
+  },
+  "owned-lifetimes.dSYM/Contents/Resources/Relocations/aarch64/owned-lifetimes.yml": {
+    "sha256": "cc227d043d26b348bad243892b17bdd0afc54f8da92009c668b0ae72104e3ed5",
+    "bytes": 210
+  },
+  "parsed-lifetimes": {
+    "sha256": "cad31d4efe8414a4158de35c61933597b3cf15ac8a173175b60b04879298b8e4",
+    "bytes": 11613792
+  },
+  "parsed-lifetimes.dSYM/Contents/Info.plist": {
+    "sha256": "276e08ac0146fbbc0978be869fad63c4ce7b0619571ec176ce0a38ebc758178b",
+    "bytes": 645
+  },
+  "parsed-lifetimes.dSYM/Contents/Resources/DWARF/parsed-lifetimes": {
+    "sha256": "d3ef5ea776494ae6f7a04e30f0017f0fab744219b212b24c4208bc5a225362df",
+    "bytes": 3150821
+  },
+  "parsed-lifetimes.dSYM/Contents/Resources/Relocations/aarch64/parsed-lifetimes.yml": {
+    "sha256": "175288cbc3e9300c6748cc237eb6cf33b245932724332e40974aa225acbd80c3",
+    "bytes": 211
+  }
+}
