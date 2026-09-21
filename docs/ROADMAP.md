@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I make an empty `nvm_append_code` a no-op returning the current offset before pointer arithmetic or copying (`task_52f687a880464633a965a37e2777caf8`). I retain the PR939 UBSan null-source terminal, preserve nonempty append behavior, and require original ISA/verifier controls plus empty-before/after-data checks under strict UBSan. This is a bounded CI repair, not full sanitizer-suite acceptance.
+
 - [x] I release retained callable owners when destroying a VM (`task_4a18935d7fea402da9a6a2bfd7672e9b`). Direct/core invocation can leave trapped frames alive; I detach and release each owned callable after successful callback shutdown, preserving refusal behavior. I require a real indirect-call trap with a managed capture and the complete VM unit gate on Linux and Darwin. Full shared-capture integration remains separate. My [independent current-main qualification](evidence/vm-trapped-callable-teardown/checks.json) passes the full VM unit gate on both hosts, each274642 VM assertions plus the existing substring/callback/allocation controls.
 
 - [ ] I preserve source-relative links in copied user-guide references (`task_6d8539dc326d486f82952f7a67cfd6c2`). My first PR937 documentation job fails on the binary64 contract linked from STDLIB.md. I retain that terminal and resolve copied links from their original repository location while refusing missing local targets. All15 renderer tests and all six13-page editions pass locally; protected integration remains pending. [Evidence](evidence/userguide-source-links/checks.json).
