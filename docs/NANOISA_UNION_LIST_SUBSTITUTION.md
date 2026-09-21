@@ -161,7 +161,10 @@ materialized annotation on AST_UNION_CONSTRUCT, while a later value view reads i
 under the current module. That is not a valid origin for fixed declaration-site
 leaves. I will retain an Environment-owned expression proof keyed by the exact
 constructor AST, in addition to Symbol proofs. It borrows only the AST key, owns
-the full view, and is destroyed with its Environment before provider AST teardown.
+the full view, and is destroyed with its Environment. Its destructor never
+dereferences the borrowed AST key. Failed public checks unlink newly published
+keys before their fresh ASTs can be freed; successful keys are consulted only
+while their checked source AST remains live.
 Only constructor paths consult this registry; unrelated expressions have no cache.
 
 I will validate original explicit arguments and nested field values against the
@@ -174,3 +177,14 @@ Materialization can change emitted metadata only after that check; later views
 clone the retained proof rather than treating the copy as a new declaration.
 Registry allocation failure refuses before proof publication. No AST/schema field
 or runtime value owns this registry, and no proof crosses Environments.
+
+## My emitted local binding boundary
+
+My secondary-checker audit finds that native and NanoISA local declaration
+restoration copies emitted TypeInfo but drops the retained callable context. I
+will restore the original checked declaration's proof and owner fields using
+its exact name, source file and location before later checks consume that local.
+The proof stays owned by the same Environment; emitted spelling does not become
+new authority. I copy metadata before symbol storage can grow. Parameter
+annotations retain their original declaration owner; runtime value bindings do
+not acquire checker proof ownership.

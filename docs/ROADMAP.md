@@ -14189,3 +14189,8 @@ expected TypeInfo is later read under current_module. I require exact
 Environment-owned constructor AST provenance, explicit-argument agreement before
 materialization, conflicting-recheck refusal and checked registry allocation.
 This is a static prerequisite; no invalid output was compiled or executed.
+
+The same callable audit finds native/NanoISA local restoration dropping checked
+context while retaining materialized TypeInfo. I require exact declaration
+location/file restoration of the Environment-owned proof before secondary checks;
+no emitted spelling supplies authority. This source prerequisite is unqualified.
