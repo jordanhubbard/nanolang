@@ -668,8 +668,8 @@ typedef struct {
     char *original_name;
     char **field_names;
     Type *field_types;
-    char **field_type_names;  /* For TYPE_STRUCT/TYPE_UNION fields: actual type name (e.g., "Vec3") */
-    Type *field_element_types;  /* For TYPE_ARRAY fields: element type (e.g., TYPE_STRING for array<string>) */
+    char **field_type_names;  /* Owned strings/vector, like field_names; complete annotations below remain borrowed. */
+    Type *field_element_types;  /* Owned element-tag vector for array fields. */
     TypeInfo **field_type_info; /* Borrowed from the defining AST. */
     int field_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */

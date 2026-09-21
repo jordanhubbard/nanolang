@@ -370,6 +370,31 @@ static void constructor_registry_controls(void) {
         CHECK(constructor_registry_attempt(SIZE_MAX, false) == count);
     }
 }
+static void struct_auxiliary_teardown_controls(void) {
+    for (int fields = 0; fields < 2; ++fields) {
+        Environment *env = create_environment(); CHECK(env);
+        TypeInfo borrowed = {.base_type = TYPE_BOOL}; TypeInfo *annotations[] = {&borrowed};
+        StructDef record = {.field_count = fields, .field_type_info = annotations,
+                            .module_name = "BorrowedOwner"};
+        begin(SIZE_MAX, false);
+        record.name = array_alloc_strdup("Auxiliary");
+        record.field_names = array_alloc_calloc(1, sizeof(char *));
+        record.field_types = array_alloc_calloc(1, sizeof(Type));
+        record.field_type_names = array_alloc_calloc(1, sizeof(char *));
+        record.field_element_types = array_alloc_calloc(1, sizeof(Type));
+        CHECK(record.name && record.field_names && record.field_types && record.field_type_names && record.field_element_types);
+        if (fields) {
+            record.field_names[0] = array_alloc_strdup("value");
+            record.field_type_names[0] = array_alloc_strdup("Child");
+            CHECK(record.field_names[0] && record.field_type_names[0]);
+        }
+        env_define_struct(env, record);
+        CHECK(stop() >= 5 && !failed);
+        free_environment(env);
+        CHECK(!live && borrowed.base_type == TYPE_BOOL && annotations[0] == &borrowed);
+    }
+}
+
 int main(void) {
     size_t count = copy_attempt(SIZE_MAX, false); CHECK(count > 20);
     printf("I measure the complete TypeInfo copy: %zu allocation attempts.\n", count);
@@ -383,7 +408,7 @@ int main(void) {
     CHECK(copy_payload_type_info_checked(chain + 1, &out)); free_payload_type_info(out);
     CHECK(copy_payload_type_info_checked(NULL, &out) && out == NULL);
     CHECK(!copy_payload_type_info_checked(chain, NULL));
-    registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); constructor_registry_controls();
+    struct_auxiliary_teardown_controls(); registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); constructor_registry_controls();
     printf("I passed %zu separate checker annotation allocation assertions.\n", checks);
     return 0;
 }

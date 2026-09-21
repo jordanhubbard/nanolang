@@ -489,7 +489,9 @@ static void retained_callable_consumers(void) {
     array_items[1] = &swapped_tuple;
     assert(!nominal_value_view(&tuples, env, 0, &composed) && !composed.info);
     /* I also project through a real selected payload's declaration context. */
-    ASTNode payload_field = field; payload_field.as.field_access.field_name = "tuple";
+    ASTNode payload_field = {.type = AST_FIELD_ACCESS};
+    payload_field.as.field_access.object = &payload;
+    payload_field.as.field_access.field_name = "tuple";
     ASTNode payload_index = {.type = AST_TUPLE_INDEX};
     payload_index.as.tuple_index.tuple = &payload_field; payload_index.as.tuple_index.index = 2;
     assert(check_callable_contract(env, &expected, "Caller", &payload_index, 0));
@@ -517,6 +519,10 @@ static void retained_callable_consumers(void) {
     TypeInfo explicit_destination = {.base_type = TYPE_FUNCTION, .fn_sig = &expected};
     assignment_branch_growth(env, NULL, &explicit_destination, &field, true);
     assignment_branch_growth(env, NULL, &explicit_destination, &wrong, false);
+    free_payload_type_info(field.as.field_access.resolved_type_info);
+    field.as.field_access.resolved_type_info = NULL;
+    free_payload_type_info(payload_field.as.field_access.resolved_type_info);
+    payload_field.as.field_access.resolved_type_info = NULL;
     free_environment(env);
 }
 static void complete_tuple_annotations(void) {
