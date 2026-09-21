@@ -5816,6 +5816,14 @@ test-capture-transport: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/nanoisa/test_capture_transport \
 		tests/nanoisa/test_capture_transport.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	$(OBJ_DIR)/nanoisa/test_capture_transport
+	$(CC) $(CFLAGS) -Dcalloc=capture_test_calloc -Dfree=capture_test_free -c $(NANOISA_DIR)/capture_bindings.c -o $(OBJ_DIR)/nanoisa/capture_transport_alloc_bindings.o
+	$(CC) $(CFLAGS) -Dmalloc=capture_test_malloc -c $(NANOISA_DIR)/nvm_v2_convert.c -o $(OBJ_DIR)/nanoisa/capture_transport_alloc_convert.o
+	$(CC) $(CFLAGS) -Dfree=capture_test_free -c $(NANOISA_DIR)/nvm_format.c -o $(OBJ_DIR)/nanoisa/capture_transport_alloc_format.o
+	$(CC) $(CFLAGS) -DCAPTURE_TRANSPORT_ALLOCATION_TEST -I$(NANOISA_DIR) -o $(OBJ_DIR)/nanoisa/test_capture_transport_alloc \
+		tests/nanoisa/test_capture_transport.c $(OBJ_DIR)/nanoisa/capture_transport_alloc_bindings.o \
+		$(OBJ_DIR)/nanoisa/capture_transport_alloc_convert.o $(OBJ_DIR)/nanoisa/capture_transport_alloc_format.o \
+		$(filter-out $(OBJ_DIR)/nanoisa/capture_bindings.o $(OBJ_DIR)/nanoisa/nvm_v2_convert.o $(OBJ_DIR)/nanoisa/nvm_format.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/nanoisa/test_capture_transport_alloc
 
 .PHONY: test-capture-bindings
 test-capture-bindings:

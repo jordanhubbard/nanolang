@@ -15,6 +15,47 @@ static unsigned checks;
     fprintf(stderr, "I failed line %d: %s\n", __LINE__, #x); exit(1); \
 } } while (0)
 
+#ifdef CAPTURE_TRANSPORT_ALLOCATION_TEST
+/* I interpose only the capture payload malloc and decoder table calloc sites.
+ * Other module allocations retain their real allocator and existing coverage. */
+static void *owned[8];
+static size_t owned_count, attempts, fail_at, failures;
+static bool armed, persistent;
+static bool refuse_allocation(void) {
+    if (!armed) return false;
+    size_t index = attempts++;
+    bool refuse = index == fail_at || (persistent && index > fail_at);
+    if (refuse) ++failures;
+    return refuse;
+}
+static void remember(void *pointer) {
+    if (!armed || !pointer) return;
+    CHECK(owned_count < sizeof owned / sizeof owned[0]);
+    owned[owned_count++] = pointer;
+}
+void *capture_test_malloc(size_t size) {
+    if (refuse_allocation()) return NULL;
+    void *pointer = malloc(size);
+    remember(pointer);
+    return pointer;
+}
+void *capture_test_calloc(size_t count, size_t size) {
+    if (refuse_allocation()) return NULL;
+    void *pointer = calloc(count, size);
+    remember(pointer);
+    return pointer;
+}
+void capture_test_free(void *pointer) {
+    for (size_t i = 0; i < owned_count; ++i) {
+        if (owned[i] == pointer) {
+            owned[i] = owned[--owned_count];
+            break;
+        }
+    }
+    free(pointer);
+}
+#endif
+
 static NvmModule *fixture(bool sites, bool captures) {
     static const uint8_t ordinary[] = {OP_RET, OP_RET, OP_RET, OP_RET};
     static const uint8_t closures[] = {
@@ -158,9 +199,79 @@ static void roundtrip(bool sites) {
     free(saved_wire);
 }
 
+#ifdef CAPTURE_TRANSPORT_ALLOCATION_TEST
+static size_t allocation_attempt(const NvmModule *source, const NvmV2Module *input,
+                                 unsigned operation, size_t failure, bool lasting) {
+    NvmModule sentinel = {0}, *copy = &sentinel;
+    NvmV2Module view = {0};
+    NvmV2Result result = NVM_V2_OK;
+    char *text = NULL;
+    NvmV2Module before = *input;
+    uint8_t payload[256];
+    CHECK(source->capture_size <= sizeof payload);
+    memcpy(payload, source->capture_data, source->capture_size);
+    CHECK(owned_count == 0);
+    attempts = failures = 0;
+    fail_at = failure;
+    persistent = lasting;
+    armed = true;
+    if (operation == 0) result = nvm_v2_to_nvm_module(input, &copy);
+    else if (operation == 1) result = nvm_v2_from_nvm_module(source, &view);
+    else text = disasm_module_styled(source, DISASM_STYLE_CANONICAL);
+    armed = false;
+    size_t count = attempts;
+    if (failure != SIZE_MAX) {
+        CHECK(failures > 0);
+        if (operation < 2) CHECK(result == NVM_V2_ERR_TRUNCATED);
+        if (operation == 0) CHECK(copy == NULL);
+        if (operation == 2) CHECK(text == NULL);
+    } else {
+        CHECK(failures == 0 && result == NVM_V2_OK);
+        if (operation == 0) {
+            CHECK(copy != NULL && copy != &sentinel);
+            CHECK(copy->capture_data != source->capture_data);
+            CHECK(copy->capture_size == source->capture_size);
+            CHECK(memcmp(copy->capture_data, payload, copy->capture_size) == 0);
+        }
+        if (operation == 1) CHECK(view.capture_data == source->capture_data);
+        if (operation == 2) CHECK(text && strstr(text, ".capture_bindings"));
+    }
+    if (operation == 0 && copy && copy != &sentinel) nvm_module_free(copy);
+    nvm_v2_module_free(&view);
+    free(text);
+    CHECK(owned_count == 0);
+    CHECK(memcmp(input, &before, sizeof before) == 0);
+    CHECK(memcmp(source->capture_data, payload, source->capture_size) == 0);
+    CHECK(nvm_capture_bindings_validate_module(source) == NVM_CAPTURE_OK);
+    return count;
+}
+
+static void allocation_controls(void) {
+    NvmModule *source = fixture(true, true);
+    NvmV2Module input = {0};
+    CHECK(nvm_v2_from_nvm_module(source, &input) == NVM_V2_OK);
+    for (unsigned operation = 0; operation < 3; ++operation) {
+        size_t count = allocation_attempt(source, &input, operation, SIZE_MAX, false);
+        CHECK(count == (operation == 0 ? 3 : 2));
+        for (unsigned lasting = 0; lasting < 2; ++lasting) {
+            for (size_t index = 0; index < count; ++index) {
+                allocation_attempt(source, &input, operation, index, lasting != 0);
+                CHECK(allocation_attempt(source, &input, operation, SIZE_MAX, false) == count);
+            }
+        }
+    }
+    nvm_v2_module_free(&input);
+    nvm_module_free(source);
+    CHECK(owned_count == 0);
+}
+#endif
+
 int main(void) {
     roundtrip(false);
     roundtrip(true);
+#ifdef CAPTURE_TRANSPORT_ALLOCATION_TEST
+    allocation_controls();
+#endif
     printf("I passed %u capture transport checks.\n", checks);
     return 0;
 }

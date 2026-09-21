@@ -170,3 +170,11 @@ external preparation steps in fresh directories without changing product source
 or weakening schema checks. The original codec pass and both setup failures
 remain separate from the final successful focused run. Broader both-host,
 allocation, installed-package and execution-refusal qualification remains open.
+
+My next fixture interposes only capture payload allocation in the v2 bridge and
+the two capture decoder table allocations. It tests each transient and persistent
+failure, then an independent successful attempt, across copying to an owned
+module, creating a borrowed v2 view and producing canonical text. It requires
+the existing NULL-on-failure bridge contract, exact source bytes and unchanged
+input view, and release of every tracked payload/table. It does not claim to
+fault every unrelated module allocation. Source review precedes execution.
