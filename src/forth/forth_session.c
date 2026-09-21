@@ -352,7 +352,8 @@ enum {
     FORTH_HOST_EMPTY_BUFFERS,
     FORTH_HOST_LOAD,
     FORTH_HOST_LIST,
-    FORTH_HOST_THRU
+    FORTH_HOST_THRU,
+    FORTH_HOST_DIVMOD
 };
 
 typedef enum {
@@ -2975,57 +2976,7 @@ int64_t nl_forth_runtime(void *encoded_kind) {
 }
 
 static bool forth_install_slashmod(ForthSession *session) {
-    uint8_t code[512];
-    uint32_t off = 0;
-    uint32_t jmp_zero;
-    uint32_t jmp_same;
-    uint32_t pushq;
-
-    if (!wrap_dpop(session, code, &off, sizeof(code), 1)) return false;
-    if (!wrap_dpop(session, code, &off, sizeof(code), 0)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_LOAD_LOCAL, 0)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_LOAD_LOCAL, 1)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_I64_DIV_S)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_STORE_LOCAL, 2)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_LOAD_LOCAL, 0)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_LOAD_LOCAL, 1)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_I64_REM_S)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_STORE_LOCAL, 3)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_LOAD_LOCAL, 3)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_PUSH_I64, (int64_t)0)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_I64_EQ)) return false;
-    jmp_zero = off;
-    if (!wrap_emit(code, &off, sizeof(code), OP_JMP_TRUE, (int32_t)0)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_LOAD_LOCAL, 0)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_PUSH_I64, (int64_t)0)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_I64_LT_S)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_CAST_INT)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_LOAD_LOCAL, 1)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_PUSH_I64, (int64_t)0)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_I64_LT_S)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_CAST_INT)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_I64_XOR)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_PUSH_I64, (int64_t)0)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_I64_EQ)) return false;
-    jmp_same = off;
-    if (!wrap_emit(code, &off, sizeof(code), OP_JMP_TRUE, (int32_t)0)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_LOAD_LOCAL, 2)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_PUSH_I64, (int64_t)1)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_I64_SUB)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_STORE_LOCAL, 2)) return false;
-    pushq = off;
-    wrap_patch_rel(code, jmp_zero, pushq);
-    wrap_patch_rel(code, jmp_same, pushq);
-    if (!wrap_emit(code, &off, sizeof(code), OP_LOAD_LOCAL, 0)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_LOAD_LOCAL, 2)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_LOAD_LOCAL, 1)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_I64_MUL)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_I64_SUB)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_STORE_LOCAL, 3)) return false;
-    if (!wrap_dpush_local(session, code, &off, sizeof(code), 3)) return false;
-    if (!wrap_dpush_local(session, code, &off, sizeof(code), 2)) return false;
-    if (!wrap_emit(code, &off, sizeof(code), OP_RET)) return false;
-    return forth_publish_prim(session, "/MOD", code, off, 4, false, FORTH_HOST_NONE);
+    return forth_install_runtime_host(session, "/MOD", FORTH_HOST_DIVMOD);
 }
 
 static bool forth_install_core_colon(ForthSession *session) {
@@ -4223,9 +4174,17 @@ static __int128 forth_pack_d(int64_t lo, int64_t hi) {
     return (__int128)hi * ((__int128)1 << 64) + (__int128)(uint64_t)lo;
 }
 
-static void forth_unpack_d(__int128 d, int64_t *lo, int64_t *hi) {
+static unsigned __int128 forth_pack_ud(int64_t lo, int64_t hi) {
+    return ((unsigned __int128)(uint64_t)hi << 64) | (uint64_t)lo;
+}
+
+static void forth_unpack_ud(unsigned __int128 d, int64_t *lo, int64_t *hi) {
     *lo = (int64_t)(uint64_t)d;
-    *hi = (int64_t)(uint64_t)((unsigned __int128)d >> 64);
+    *hi = (int64_t)(uint64_t)(d >> 64);
+}
+
+static void forth_unpack_d(__int128 d, int64_t *lo, int64_t *hi) {
+    forth_unpack_ud((unsigned __int128)d, lo, hi);
 }
 
 static uint64_t forth_i64_absu(int64_t n, int *sign) {
@@ -4277,8 +4236,8 @@ static bool forth_m_star_slash(ForthSession *session) {
     int64_t qlo = 0;
     int64_t qhi = 0;
 
-    if (!forth_data_pop(session, &n2) || n2 == 0)
-        return forth_throw_now(session, -10);
+    if (!forth_data_pop(session, &n2)) return false;
+    if (n2 == 0) return forth_throw_now(session, -10);
     if (!forth_data_pop(session, &n1)) return false;
     if (!forth_dpop(session, &dlo, &dhi)) return false;
     mag = ((unsigned __int128)(uint64_t)dhi << 64) | (uint64_t)dlo;
@@ -4294,11 +4253,18 @@ static bool forth_m_star_slash(ForthSession *session) {
     mid = (p0 >> 64) + (uint64_t)p1;
     prod_lo = ((unsigned __int128)(uint64_t)mid << 64) | (uint64_t)p0;
     prod_hi = (uint64_t)(p1 >> 64) + (uint64_t)(mid >> 64);
-    if (!forth_udiv192(prod_hi, prod_lo, n2u, &q, &rem)) return false;
-    if (rsign < 0) {
-        if (rem != 0) q += 1;
-        q = ~q + 1;
+    if (!forth_udiv192(prod_hi, prod_lo, n2u, &q, &rem))
+        return forth_throw_now(session, -11);
+    {
+        unsigned __int128 limit = (unsigned __int128)1 << 127;
+        if (rsign >= 0) limit -= 1;
+        if (rsign < 0 && rem != 0) {
+            if (q >= limit) return forth_throw_now(session, -11);
+            q += 1;
+        }
+        if (q > limit) return forth_throw_now(session, -11);
     }
+    if (rsign < 0) q = ~q + 1;
     qlo = (int64_t)(uint64_t)q;
     qhi = (int64_t)(uint64_t)(q >> 64);
     return forth_dpush(session, qlo, qhi);
@@ -4319,16 +4285,16 @@ static int forth_host_dmath(ForthSession *session, uint8_t kind) {
     case FORTH_HOST_DPLUS:
         if (!forth_dpop(session, &blo, &bhi) || !forth_dpop(session, &alo, &ahi))
             return -1;
-        forth_unpack_d(forth_pack_d(alo, ahi) + forth_pack_d(blo, bhi), &alo, &ahi);
+        forth_unpack_ud(forth_pack_ud(alo, ahi) + forth_pack_ud(blo, bhi), &alo, &ahi);
         return forth_dpush(session, alo, ahi) ? 1 : -1;
     case FORTH_HOST_DMINUS:
         if (!forth_dpop(session, &blo, &bhi) || !forth_dpop(session, &alo, &ahi))
             return -1;
-        forth_unpack_d(forth_pack_d(alo, ahi) - forth_pack_d(blo, bhi), &alo, &ahi);
+        forth_unpack_ud(forth_pack_ud(alo, ahi) - forth_pack_ud(blo, bhi), &alo, &ahi);
         return forth_dpush(session, alo, ahi) ? 1 : -1;
     case FORTH_HOST_DNEGATE:
         if (!forth_dpop(session, &alo, &ahi)) return -1;
-        forth_unpack_d(-forth_pack_d(alo, ahi), &alo, &ahi);
+        forth_unpack_ud((unsigned __int128)0 - forth_pack_ud(alo, ahi), &alo, &ahi);
         return forth_dpush(session, alo, ahi) ? 1 : -1;
     case FORTH_HOST_DTWO_STAR:
         if (!forth_dpop(session, &alo, &ahi)) return -1;
@@ -4337,7 +4303,9 @@ static int forth_host_dmath(ForthSession *session, uint8_t kind) {
         return forth_dpush(session, alo, ahi) ? 1 : -1;
     case FORTH_HOST_DTWO_SLASH:
         if (!forth_dpop(session, &alo, &ahi)) return -1;
-        forth_unpack_d(forth_pack_d(alo, ahi) >> 1, &alo, &ahi);
+        alo = (int64_t)(((uint64_t)alo >> 1) | ((uint64_t)ahi << 63));
+        ahi = (int64_t)(((uint64_t)ahi >> 1) |
+                        ((uint64_t)ahi & (UINT64_C(1) << 63)));
         return forth_dpush(session, alo, ahi) ? 1 : -1;
     case FORTH_HOST_DLESS:
         if (!forth_dpop(session, &blo, &bhi) || !forth_dpop(session, &alo, &ahi))
@@ -4352,9 +4320,9 @@ static int forth_host_dmath(ForthSession *session, uint8_t kind) {
                                                                             : -1;
     case FORTH_HOST_DABS:
         if (!forth_dpop(session, &alo, &ahi)) return -1;
-        a = forth_pack_d(alo, ahi);
-        if (a < 0) a = -a;
-        forth_unpack_d(a, &alo, &ahi);
+        ua = forth_pack_ud(alo, ahi);
+        if (ahi < 0) ua = (unsigned __int128)0 - ua;
+        forth_unpack_ud(ua, &alo, &ahi);
         return forth_dpush(session, alo, ahi) ? 1 : -1;
     case FORTH_HOST_DMAX:
         if (!forth_dpop(session, &blo, &bhi) || !forth_dpop(session, &alo, &ahi))
@@ -4379,7 +4347,8 @@ static int forth_host_dmath(ForthSession *session, uint8_t kind) {
     case FORTH_HOST_MPLUS:
         if (!forth_data_pop(session, &n) || !forth_dpop(session, &alo, &ahi))
             return -1;
-        forth_unpack_d(forth_pack_d(alo, ahi) + (__int128)n, &alo, &ahi);
+        forth_unpack_ud(forth_pack_ud(alo, ahi) + (unsigned __int128)(__int128)n,
+                        &alo, &ahi);
         return forth_dpush(session, alo, ahi) ? 1 : -1;
     case FORTH_HOST_DULESS:
         if (!forth_dpop(session, &blo, &bhi) || !forth_dpop(session, &alo, &ahi))
@@ -5688,55 +5657,77 @@ static bool forth_um_mod(ForthSession *session) {
     unsigned __int128 num;
     unsigned __int128 q;
     unsigned __int128 r;
-    if (!forth_data_pop(session, &n) || n == 0) return false;
+    if (!forth_data_pop(session, &n)) return false;
+    if (n == 0) return forth_throw_now(session, -10);
     if (!forth_data_pop(session, &hi)) return false;
     if (!forth_data_pop(session, &lo)) return false;
     den = (unsigned __int128)(uint64_t)n;
     num = ((unsigned __int128)(uint64_t)hi << 64) | (uint64_t)lo;
     q = num / den;
     r = num % den;
+    if (q > UINT64_MAX) return forth_throw_now(session, -11);
     return forth_data_push(session, (int64_t)(uint64_t)r)
         && forth_data_push(session, (int64_t)(uint64_t)q);
 }
 
+/* I publish outputs only after unsigned division, rounding and range checks. */
+static int forth_signed_divide(int64_t lo, int64_t hi, int64_t divisor,
+                               bool floored, int64_t *remainder, int64_t *quotient) {
+    unsigned __int128 magnitude = forth_pack_ud(lo, hi);
+    unsigned __int128 q;
+    unsigned __int128 limit;
+    uint64_t den;
+    uint64_t rem;
+    int divisor_sign;
+    bool negative = (hi < 0) != (divisor < 0);
+    bool remainder_negative;
+    int64_t signed_q;
+    int64_t signed_r;
+    if (divisor == 0) return -10;
+    if (hi < 0) magnitude = (unsigned __int128)0 - magnitude;
+    den = forth_i64_absu(divisor, &divisor_sign);
+    q = magnitude / den;
+    rem = (uint64_t)(magnitude % den);
+    limit = (unsigned __int128)1 << 63;
+    if (!negative) limit -= 1;
+    if (floored && negative && rem != 0) {
+        if (q >= limit) return -11;
+        q += 1;
+        rem = den - rem;
+    }
+    if (q > limit) return -11;
+    signed_q = negative
+        ? (q == ((unsigned __int128)1 << 63) ? INT64_MIN : -(int64_t)q)
+        : (int64_t)q;
+    remainder_negative = floored ? divisor_sign < 0 : hi < 0;
+    signed_r = remainder_negative ? -(int64_t)rem : (int64_t)rem;
+    *remainder = signed_r;
+    *quotient = signed_q;
+    return 0;
+}
+
+static bool forth_signed_division(ForthSession *session, bool floored,
+                                  bool single_cell) {
+    int64_t divisor = 0, lo = 0, hi = 0, remainder = 0, quotient = 0;
+    int status;
+    if (!forth_data_pop(session, &divisor)) return false;
+    if (single_cell) {
+        if (!forth_data_pop(session, &lo)) return false;
+        hi = lo < 0 ? -1 : 0;
+    } else if (!forth_dpop(session, &lo, &hi)) {
+        return false;
+    }
+    status = forth_signed_divide(lo, hi, divisor, floored, &remainder, &quotient);
+    if (status != 0) return forth_throw_now(session, status);
+    return forth_data_push(session, remainder) && forth_data_push(session, quotient);
+}
+
 static bool forth_sm_rem(ForthSession *session) {
-    int64_t n = 0;
-    int64_t hi = 0;
-    int64_t lo = 0;
-    __int128 den;
-    __int128 num;
-    __int128 q;
-    __int128 r;
-    if (!forth_data_pop(session, &n) || n == 0) return false;
-    if (!forth_data_pop(session, &hi)) return false;
-    if (!forth_data_pop(session, &lo)) return false;
-    den = (__int128)n;
-    num = forth_pack_d(lo, hi);
-    q = num / den;
-    r = num % den;
-    return forth_data_push(session, (int64_t)r) && forth_data_push(session, (int64_t)q);
+    return forth_signed_division(session, false, false);
 }
 
 static bool forth_fm_mod(ForthSession *session) {
-    int64_t n = 0;
-    int64_t hi = 0;
-    int64_t lo = 0;
-    __int128 den;
-    __int128 num;
-    __int128 q;
-    __int128 r;
-    if (!forth_data_pop(session, &n) || n == 0) return false;
-    if (!forth_data_pop(session, &hi)) return false;
-    if (!forth_data_pop(session, &lo)) return false;
-    den = (__int128)n;
-    num = forth_pack_d(lo, hi);
-    q = num / den;
-    r = num % den;
-    if (r != 0 && ((num < 0) != (den < 0))) {
-        q -= 1;
-        r += den;
-    }
-    return forth_data_push(session, (int64_t)r) && forth_data_push(session, (int64_t)q);
+    return forth_signed_division(session, true, false);
 }
 
 static int64_t forth_base_value(ForthSession *session) {
@@ -7174,6 +7165,11 @@ static int forth_host_fp(ForthSession *session, uint16_t host) {
         return forth_float_push(session, (double)forth_pack_d(lo, hi)) ? 1 : -1;
     case FORTH_HOST_F_TO_D:
         if (!forth_float_pop(session, &a)) return -1;
+        if (!isfinite(a)) return forth_throw_now(session, -46) ? 1 : -1;
+        if (a < -0x1p127 || a >= 0x1p127)
+            return forth_throw_now(session, -11) ? 1 : -1;
+        if (forth_data_depth(session) > FORTH_STACK_CELLS - 2)
+            return forth_throw_now(session, -3) ? 1 : -1;
         forth_unpack_d((__int128)a, &lo, &hi);
         return forth_dpush(session, lo, hi) ? 1 : -1;
     case FORTH_HOST_FDEPTH:
@@ -8198,6 +8194,9 @@ static int forth_run_host(ForthSession *session, uint16_t host, int64_t state) {
     case FORTH_HOST_FM_MOD:
         if (state != 0) return 0;
         return forth_fm_mod(session) ? 1 : -1;
+    case FORTH_HOST_DIVMOD:
+        if (state != 0) return 0;
+        return forth_signed_division(session, true, true) ? 1 : -1;
     case FORTH_HOST_FILL:
         if (state != 0) return 0;
         {

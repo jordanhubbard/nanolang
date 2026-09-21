@@ -128,3 +128,23 @@ inner executables before Make cleanup for this new checkpoint; I do not relabel
 the deleted binaries from PR943 as recovered. Actual source/fixture review
 precedes execution. Full Forth and 5.1 parents remain open until their remaining
 requirements are independently qualified and merged.
+
+## My first implementation checkpoint
+
+My owning source changes only `src/forth/forth_session.c`: unsigned double
+packing/unpacking, unsigned modular arithmetic, explicit signed D2/ bit moves,
+common unsigned-magnitude signed division, UM/MOD and M*/ quotient checks,
+Forth-only /MOD dispatch, and finite/capacity F>D checks. Existing VM arithmetic
+and FFI source remain byte-identical. Runtime import installation precedes the
+new /MOD wrapper; my appended host identifier travels through existing uint16
+header/dispatch fields. All numeric helpers use fixed scalar locals and no new
+allocation. Result pairs have room after consuming at least two data cells;
+F>D separately checks two free slots because its input is on the float stack.
+
+My additive original-session fixtures cover explicit modular/comparison/product
+results, signed/unsigned/triple division and exact exception codes, minimum-double
+printing and aligned printing, finite conversion and exact-capacity publication.
+Every caught refusal discards restored slots without assuming their contents and
+runs an independent successful operation. I separately check an uncaught signed
+division refusal publishes neither result. This checkpoint has not been built
+or executed; source and fixture review precedes those gates.
