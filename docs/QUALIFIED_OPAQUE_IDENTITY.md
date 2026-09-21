@@ -686,3 +686,20 @@ and fresh complete qualification; it does not establish installed acceptance.
 I also refuse missing qualified owner/member pointers before length inspection,
 marking preparation failed. Valid parser-created calls are unchanged; I do not
 execute a malformed AST to test this defensive boundary.
+
+## Retaining declarations through the actual source merger
+
+At `1a9052254`, both clean bootstrap/install routes and the original installed
+C-seed `Json.Json` compile, shadows and executable passed. Both Stage 1 producers
+then refused the unchanged qualified annotation before native publication. I
+retain those first terminals separately from the earlier C-seed failure.
+
+My nominal registry consumes declarations from the actual merged parser, but
+`merge_with_imports_mode` still discarded `opaque type` lines. I remove that
+obsolete filter while retaining module-header handling, import edges, public
+declaration normalization, source-line mapping and canonical file boundaries.
+Every retained declaration reaches the existing owner/kind/name registry; I do
+not synthesize a declaration from a use or change duplicate-name policy. My
+real JSON merge shadow parses the resulting text and checks its opaque name
+and both file-owner and source-line origin maps. Existing installed three-
+producer controls remain unchanged and required. This checkpoint is unexecuted.
