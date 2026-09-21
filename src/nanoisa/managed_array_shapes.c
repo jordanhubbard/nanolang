@@ -19,7 +19,14 @@
 #define BIT(tag) ((uint16_t)(1u << (tag)))
 #define LEAVES (BIT(TAG_VOID)|BIT(TAG_INT)|BIT(TAG_U8)|BIT(TAG_FLOAT)|BIT(TAG_BOOL)|BIT(TAG_STRING)|BIT(TAG_ENUM))
 #define RECORD_ARRAY_LEAVES (BIT(TAG_INT)|BIT(TAG_U8)|BIT(TAG_FLOAT)|BIT(TAG_BOOL)|BIT(TAG_STRING))
-typedef struct { uint64_t origins; uint16_t tags; uint8_t unknown; } Value;
+/* Private path provenance fits the old Value padding. 1..256 names a loaded
+ * global; 257..512 names its TYPE_CHECK predicate. Zero carries no proof. */
+typedef struct { uint64_t origins; uint16_t tags; uint8_t unknown,relation_tag; uint16_t relation; } Value;
+typedef struct {
+    Value *exits;
+    uint64_t writes[FUNCTIONS][4];
+    uint8_t returned[FUNCTIONS];
+} GlobalFlow;
 typedef struct {
     VmDecodedFunction decoded;
     Value *states, result;
@@ -32,6 +39,7 @@ typedef struct {
     const NvmModule *module;
     Function functions[FUNCTIONS];
     Value globals[SLOTS];
+    GlobalFlow *global_flow;
     Value children[ORIGINS];
     int graph, records;
     NvmRecordPlan *plan;
@@ -74,7 +82,7 @@ void nvm_record_eligibility_free(NvmRecordEligibilityReport *report) {
 }
 void nvm_array_eligibility_free(NvmArrayEligibilityReport *report) { free(report); }
 void nvm_array_graph_eligibility_free(NvmArrayGraphEligibilityReport *report) { free(report); }
-static Value tag(uint8_t t) { Value v = {0, BIT(t), 0}; return v; }
+static Value tag(uint8_t t) { Value v = {.tags=BIT(t)}; return v; }
 static int merge(Value *to, Value from) {
     Value old = *to;
     to->tags |= from.tags; to->origins |= from.origins; to->unknown |= from.unknown;
@@ -95,6 +103,104 @@ static int verified(Analysis *a, NvmVerifyResult result) {
     return stop(a, strstr(result.error_msg, "allocat") || strstr(result.error_msg, "memory") ?
                 NVM_ARRAY_MEMORY : NVM_ARRAY_INVALID, 0, 0, result.error_msg);
 }
+static Value global_plain(Value value) { value.relation=0;value.relation_tag=0;return value; }
+static int global_merge(Value *to,Value from) {
+    Value old=*to;
+    if(!to->tags && !to->origins && !to->unknown) {
+        to->relation=from.relation;to->relation_tag=from.relation_tag;
+    } else if((from.tags || from.origins || from.unknown) &&
+              (to->relation!=from.relation || to->relation_tag!=from.relation_tag)) {
+        to->relation=0;to->relation_tag=0;
+    }
+    return merge(to,from) || old.relation!=to->relation || old.relation_tag!=to->relation_tag;
+}
+static Value *global_values(Function *f,Value *state) { return state+f->locals+f->stack; }
+static int global_invalidates(Analysis *a,Function *f,Value *state,uint32_t slot) {
+    if(!analysis_work(a,f->stride))return 0;
+    for(uint32_t i=0;i<f->stride;i++)if(state[i].relation==slot+1 || state[i].relation==SLOTS+slot+1) {
+        state[i].relation=0;state[i].relation_tag=0;
+    }
+    return 1;
+}
+/* I preflight all global indices before allocating a function state. The
+ * retained structural decoder remains owned until its ordinary transfer below. */
+static int global_prepare(Analysis *a) {
+    if(!a->structure)return 1;
+    if(!analysis_work(a,sizeof *a->global_flow))return 0;
+    a->global_flow=analysis_alloc(a,1,sizeof *a->global_flow);
+    if(!a->global_flow)return stop(a,NVM_ARRAY_MEMORY,0,0,"I could not allocate private global flow.");
+    for(uint32_t fi=0;fi<a->module->function_count;fi++) {
+        const VmDecodedFunction *f=&a->structure->decoded[fi];
+        for(uint32_t i=0;i<f->instruction_count;i++) {
+            if(!analysis_work(a,2))return 0;
+            const DecodedInstruction *in=&f->instructions[i].instruction;
+            if(in->opcode!=OP_LOAD_GLOBAL && in->opcode!=OP_STORE_GLOBAL)continue;
+            uint32_t slot=in->operands[0].u32;
+            if(slot>=SLOTS)return stop(a,NVM_ARRAY_LIMIT,fi,f->instructions[i].byte_offset,"I reached my global flow slot bound.");
+            if(a->global_count<=slot)a->global_count=slot+1;
+            if(in->opcode==OP_STORE_GLOBAL)a->global_flow->writes[fi][slot/64]|=UINT64_C(1)<<(slot%64);
+        }
+    }
+    uint64_t cells=(uint64_t)a->global_count*a->module->function_count;
+    if(cells>CELLS-a->state_cells)return stop(a,NVM_ARRAY_LIMIT,0,0,"I reached my global exit cell bound.");
+    a->state_cells+=cells;
+    if(cells) {
+        a->global_flow->exits=analysis_alloc(a,(size_t)cells,sizeof(Value));
+        if(!a->global_flow->exits)return stop(a,NVM_ARRAY_MEMORY,0,0,"I could not allocate global exits.");
+    }
+    /* I charge simultaneous walk, branch and nested seed scratch. Old modes
+     * continue to use their existing two-slot-vector stack scratch. */
+    if(!nvm_ra_bytes(&a->budget,3u*SLOTS*3u*sizeof(Value)))
+        return stop(a,NVM_ARRAY_LIMIT,0,0,"I reached my global scratch peak bound.");
+    int changed;
+    do {
+        changed=0;
+        for(uint32_t fi=0;fi<a->module->function_count;fi++) {
+            const VmDecodedFunction *f=&a->structure->decoded[fi];
+            for(uint32_t i=0;i<f->instruction_count;i++) {
+                if(!analysis_work(a,1))return 0;
+                const DecodedInstruction *in=&f->instructions[i].instruction;
+                if(in->opcode!=OP_CALL)continue;
+                uint32_t target=in->operands[0].u32;
+                if(target>=a->module->function_count)return stop(a,NVM_ARRAY_INVALID,fi,0,"I require a closed global-flow call.");
+                if(!analysis_work(a,4))return 0;
+                for(unsigned word=0;word<4;word++) {
+                    uint64_t old=a->global_flow->writes[fi][word];
+                    a->global_flow->writes[fi][word]|=a->global_flow->writes[target][word];
+                    changed|=old!=a->global_flow->writes[fi][word];
+                }
+            }
+        }
+    } while(changed);
+    return 1;
+}
+static int global_return(Analysis *a,uint32_t fi,Value *state) {
+    if(!a->global_flow)return 1;
+    if(!analysis_work(a,a->global_count+1))return 0;
+    if(!a->global_flow->returned[fi]){a->global_flow->returned[fi]=1;a->changed=1;}
+    Value *values=global_values(&a->functions[fi],state);
+    for(uint32_t slot=0;slot<a->global_count;slot++)
+        a->changed|=merge(&a->global_flow->exits[(size_t)fi*a->global_count+slot],values[slot]);
+    return 1;
+}
+/* Only a current exact global snapshot can justify a conditional refinement.
+ * Unknown values retain both edges. No executable or reusable proof is made. */
+static int global_refine(Analysis *a,Function *f,Value *state,Value condition,int truth,int *reachable) {
+    *reachable=1;
+    if(!a->global_flow || condition.relation<=SLOTS || condition.relation>SLOTS+a->global_count)return 1;
+    uint32_t slot=condition.relation-SLOTS-1;Value *value=&global_values(f,state)[slot];
+    if(value->unknown)return 1;
+    if(!analysis_work(a,ORIGINS+2))return 0;
+    if(condition.relation_tag>=16){if(truth)*reachable=0;return 1;}
+    uint16_t bit=BIT(condition.relation_tag);
+    value->tags=truth?(value->tags&bit):(value->tags&~bit);
+    if(!value->tags){*reachable=0;return 1;}
+    uint64_t origins=0;
+    for(uint32_t i=0;i<a->report.origin_count;i++)if((value->origins&(UINT64_C(1)<<i)) &&
+        ((a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY && (value->tags&BIT(TAG_ARRAY))) ||
+         (a->origin_kind[i]==NVM_HEAP_ORIGIN_RECORD && (value->tags&BIT(TAG_STRUCT)))))origins|=UINT64_C(1)<<i;
+    value->origins=origins;return 1;
+}
 static void enqueue(Function *f, uint32_t pc) {
     if (f->queued[pc]) return;
     uint32_t capacity = f->decoded.instruction_count + 1;
@@ -103,7 +209,7 @@ static void enqueue(Function *f, uint32_t pc) {
 }
 static int join(Analysis *a, uint32_t fi, uint32_t pc, Value *state, uint16_t depth) {
     Function *f = &a->functions[fi];
-    if(!analysis_work(a,(uint64_t)f->locals+depth+1))return 0;
+    if(!analysis_work(a,(uint64_t)f->locals+depth+1+(a->global_flow?a->global_count:0)))return 0;
     if (pc > f->decoded.instruction_count || depth > f->stack)
         return stop(a,NVM_ARRAY_INVALID,fi,pc,"I require bounded abstract stack successors.");
     int changed = !f->seen[pc];
@@ -111,14 +217,20 @@ static int join(Analysis *a, uint32_t fi, uint32_t pc, Value *state, uint16_t de
         return stop(a,NVM_ARRAY_INVALID,fi,pc,"I require equal stack heights at joins.");
     f->seen[pc] = 1; f->depths[pc] = depth;
     Value *target = f->states + (size_t)pc * f->stride;
-    for (uint32_t i=0;i<(uint32_t)f->locals+depth;i++) changed |= merge(&target[i],state[i]);
+    for (uint32_t i=0;i<(uint32_t)f->locals+depth;i++)
+        changed |= a->global_flow?global_merge(&target[i],state[i]):merge(&target[i],state[i]);
+    if(a->global_flow)for(uint32_t slot=0;slot<a->global_count;slot++)
+        changed|=global_merge(&global_values(f,target)[slot],global_values(f,state)[slot]);
     if (changed) { a->changed = 1; enqueue(f,pc); }
     return 1;
 }
-static int seed(Analysis *a,uint32_t fi,const Value *args) {
-    Function *f=&a->functions[fi]; Value state[SLOTS*2]={{0}};
+static int seed(Analysis *a,uint32_t fi,const Value *args,const Value *globals) {
+    Function *f=&a->functions[fi]; Value state[a->global_flow?SLOTS*3:SLOTS*2];memset(state,0,sizeof state);
+    if(!analysis_work(a,a->global_flow?SLOTS*3u:SLOTS*2u))return 0;
+    if(a->global_flow)for(uint32_t slot=0;slot<a->global_count;slot++)
+        global_values(f,state)[slot]=global_plain(globals[slot]);
     for(uint16_t i=0;i<f->locals;i++) state[i]=tag(TAG_VOID);
-    for(uint16_t i=0;i<a->module->functions[fi].arity;i++) state[i]=args[i];
+    for(uint16_t i=0;i<a->module->functions[fi].arity;i++) state[i]=a->global_flow?global_plain(args[i]):args[i];
     return join(a,fi,0,state,0);
 }
 /* An explicit producer list: unsupported transfers are unresolved, never guessed. */
@@ -396,16 +508,19 @@ static int walk(Analysis *a,uint32_t fi) {
     while(f->queued_count) {
         /* Fixed stack/seed scratch and copies; heap scans and joins charge
          * separately, including every constructor/literal operand. */
-        if(!analysis_work(a,2048))return 0;
+        if(!analysis_work(a,a->global_flow?4096:2048))return 0;
         uint32_t index=f->queue[f->head];f->head=(f->head+1)%(f->decoded.instruction_count+1);
         f->queued_count--;f->queued[index]=0;
-        Value state[SLOTS*2]={{0}};uint16_t depth=f->depths[index];
+        Value state[a->global_flow?SLOTS*3:SLOTS*2];memset(state,0,sizeof state);uint16_t depth=f->depths[index];
         memcpy(state,f->states+(size_t)index*f->stride,((size_t)f->locals+depth)*sizeof(Value));
+        if(a->global_flow)memcpy(global_values(f,state),
+            global_values(f,f->states+(size_t)index*f->stride),a->global_count*sizeof(Value));
         Value *stack=state+f->locals;
         if(index==f->decoded.instruction_count) {
             if(a->structure && depth!=entry->result_count)
                 return stop(a,NVM_ARRAY_INVALID,fi,entry->code_length,"I require the declared result depth at an implicit return.");
             if(entry->result_count)a->changed|=merge(&f->result,stack[depth-1]);
+            if(!global_return(a,fi,state))return 0;
             continue;
         }
         VmDecodedInstruction *d=&f->decoded.instructions[index];DecodedInstruction *in=&d->instruction;
@@ -418,6 +533,7 @@ static int walk(Analysis *a,uint32_t fi) {
             if(a->structure && depth!=entry->result_count)
                 return stop(a,NVM_ARRAY_INVALID,fi,d->byte_offset,"I require the declared result depth at an explicit return.");
             if(entry->result_count)a->changed|=merge(&f->result,stack[depth-1]);
+            if(!global_return(a,fi,state))return 0;
             continue;
         }
         if(pops<0 || pushes<0 || depth<pops || depth-pops+pushes>f->stack)
@@ -429,8 +545,24 @@ static int walk(Analysis *a,uint32_t fi) {
         case OP_SWAP: result=stack[depth-1];stack[depth-1]=stack[depth-2];stack[depth-2]=result;goto successors;
         case OP_LOAD_LOCAL: result=state[in->operands[0].u16];break;
         case OP_STORE_LOCAL: state[in->operands[0].u16]=stack[base];break;
-        case OP_LOAD_GLOBAL: result=a->globals[in->operands[0].u32];break;
-        case OP_STORE_GLOBAL: a->changed|=merge(&a->globals[in->operands[0].u32],stack[base]);break;
+        case OP_LOAD_GLOBAL:
+            result=a->global_flow?global_values(f,state)[in->operands[0].u32]:a->globals[in->operands[0].u32];
+            if(a->global_flow){result.relation=(uint16_t)(in->operands[0].u32+1);result.relation_tag=0;}
+            break;
+        case OP_STORE_GLOBAL: {
+            uint32_t slot=in->operands[0].u32;Value value=stack[base];
+            a->changed|=merge(&a->globals[slot],value);
+            if(a->global_flow) {
+                if(!global_invalidates(a,f,state,slot))return 0;
+                global_values(f,state)[slot]=global_plain(value);
+            }
+            break;
+        }
+        case OP_TYPE_CHECK:
+            if(a->global_flow && stack[base].relation && stack[base].relation<=a->global_count) {
+                result.relation=(uint16_t)(SLOTS+stack[base].relation);result.relation_tag=in->operands[0].u8;
+            }
+            break;
         case OP_ARR_NEW: case OP_STR_SPLIT: case OP_ARR_LITERAL:
             result=tag(TAG_ARRAY);result.origins=UINT64_C(1)<<f->origins[index];
             if(op==OP_ARR_LITERAL)for(uint32_t i=base;i<depth;i++) {
@@ -462,7 +594,16 @@ static int walk(Analysis *a,uint32_t fi) {
             write_record(a,stack[base],in->operands[0].u16,stack[depth-1]);result=stack[base];break;
         case OP_CALL: {
             uint32_t callee=in->operands[0].u32;
-            if(!seed(a,callee,stack+base))return 0;
+            if(!seed(a,callee,stack+base,a->global_flow?global_values(f,state):NULL))return 0;
+            if(a->global_flow) {
+                if(!a->global_flow->returned[callee])continue;
+                for(uint32_t slot=0;slot<a->global_count;slot++) {
+                    if(!analysis_work(a,1))return 0;
+                    if(!(a->global_flow->writes[callee][slot/64]&(UINT64_C(1)<<(slot%64))))continue;
+                    if(!global_invalidates(a,f,state,slot))return 0;
+                    global_values(f,state)[slot]=global_plain(a->global_flow->exits[(size_t)callee*a->global_count+slot]);
+                }
+            }
             result=a->functions[callee].result;break;
         }
         default:break;
@@ -474,7 +615,17 @@ static int walk(Analysis *a,uint32_t fi) {
             uint32_t relative=d->resolved_target-entry->code_offset;
             uint32_t target=relative==f->decoded.code_size?f->decoded.instruction_count:
                 f->decoded.instruction_indices[relative]-1;
-            if(!join(a,fi,target,state,depth))return 0;
+            if(a->global_flow && op!=OP_JMP) {
+                Value branch[SLOTS*3];
+                if(!analysis_work(a,SLOTS*3u))return 0;
+                memcpy(branch,state,sizeof branch);
+                /* The condition was popped, but remains in its old stack slot. */
+                Value condition=stack[depth];int reachable;
+                if(!global_refine(a,f,branch,condition,op==OP_JMP_TRUE,&reachable))return 0;
+                if(reachable && !join(a,fi,target,branch,depth))return 0;
+                if(!global_refine(a,f,state,condition,op==OP_JMP_FALSE,&reachable))return 0;
+                if(!reachable)continue;
+            } else if(!join(a,fi,target,state,depth))return 0;
             if(op==OP_JMP)continue;
         }
         if(!join(a,fi,index+1,state,depth))return 0;
@@ -559,6 +710,7 @@ static void destroy(Analysis *a) {
     }
     nvm_record_array_structure_free(a->structure);
     free(a->field_elements);
+    if(a->global_flow){free(a->global_flow->exits);free(a->global_flow);}
     nvm_record_plan_free(a->plan);
     free(a->fields);
     free(a);
@@ -588,6 +740,7 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
         stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require a closed zero-argument entry without nominal, ownership or host contracts.");goto done;
     }
     if(a->records && !prepare_records(a))goto done;
+    if(!global_prepare(a))goto done;
     uint32_t instructions=0;int initializer=-1;
     for(uint32_t fi=0;fi<m->function_count;fi++) {
         if(!analysis_work(a,(uint64_t)m->functions[fi].code_length*2u+1024u))goto done;
@@ -617,7 +770,7 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
         if(a->structure) {
             f->decoded=a->structure->decoded[fi];memset(&a->structure->decoded[fi],0,sizeof f->decoded);
         } else if(!vm_decode_function(m,fi,&f->decoded,error)){stop(a,NVM_ARRAY_MEMORY,fi,0,error);goto done;}
-        f->locals=e->local_count;f->stride=(uint32_t)f->locals+f->stack;if(!f->stride)f->stride=1;
+        f->locals=e->local_count;f->stride=(uint32_t)f->locals+f->stack+(a->global_flow?a->global_count:0);if(!f->stride)f->stride=1;
         uint32_t count=f->decoded.instruction_count+1;
         a->state_cells+=(uint64_t)count*f->stride;
         if(a->state_cells+a->field_count>CELLS){stop(a,NVM_ARRAY_LIMIT,fi,0,"I reached my stored abstract-state cell limit.");goto done;}
@@ -646,19 +799,28 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
         if(!a->fields){stop(a,NVM_ARRAY_MEMORY,0,0,"I could not allocate my record field summaries.");goto done;}
     }
     for(uint32_t i=0;i<a->global_count;i++)a->globals[i]=tag(TAG_VOID);
-    if(initializer>=0 && !seed(a,(uint32_t)initializer,NULL))goto done;
-    if(!seed(a,m->header.entry_point,NULL))goto done;
+    if(!a->global_flow) {
+        if(initializer>=0 && !seed(a,(uint32_t)initializer,NULL,NULL))goto done;
+        if(!seed(a,m->header.entry_point,NULL,NULL))goto done;
+    }
     int seeded_unused=0;
     do {
         if(!analysis_work(a,(uint64_t)m->function_count*512u+256u))goto done;
         a->changed=0;
+        if(a->global_flow) {
+            if(initializer>=0) {
+                if(!seed(a,(uint32_t)initializer,NULL,a->globals))goto done;
+                if(a->global_flow->returned[initializer] && !seed(a,m->header.entry_point,NULL,
+                    a->global_count?a->global_flow->exits+(size_t)initializer*a->global_count:a->globals))goto done;
+            } else if(!seed(a,m->header.entry_point,NULL,a->globals))goto done;
+        }
         for(uint32_t fi=0;fi<m->function_count;fi++)if(!walk(a,fi))goto done;
         if(!a->changed && !seeded_unused) {
             seeded_unused=1;
             for(uint32_t fi=0;fi<m->function_count;fi++)if(!a->functions[fi].seen[0]) {
                 Value args[SLOTS]={{0}};
                 for(uint16_t i=0;i<m->functions[fi].arity;i++)args[i].unknown=1;
-                if(!seed(a,fi,args))goto done;
+                if(!seed(a,fi,args,a->global_flow?a->globals:NULL))goto done;
             }
         }
     } while(a->changed);

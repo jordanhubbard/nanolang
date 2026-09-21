@@ -1,0 +1,22 @@
+I retain query artifacts at /tmp/nano-record-array-global-flow-h3a4qv18
+test_complete_global_flow_and_allocation_controls (tests.test_record_array_global_flow.RecordArrayGlobalFlow.test_complete_global_flow_and_allocation_controls) ... I begin dominating and joined global stores
+I begin global calls and multiple contexts
+I begin initializer and repeated committed prefixes
+I begin stale copied global predicates
+I begin complete indices and copied results
+PASS 360 private global-flow checks; no runtime admission
+I begin dominating and joined global stores
+I begin global calls and multiple contexts
+I begin initializer and repeated committed prefixes
+I begin stale copied global predicates
+I begin complete indices and copied results
+I begin exact global-flow internal limits
+I begin all global-flow allocation prefixes
+I measured 59 global allocation positions and 66819 peak payload bytes; every exact MEMORY refusal recovered
+PASS 1352 private global-flow checks; no runtime admission
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 6.797s
+
+OK

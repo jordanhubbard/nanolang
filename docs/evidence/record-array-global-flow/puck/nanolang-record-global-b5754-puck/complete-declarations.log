@@ -1,0 +1,15 @@
+I retain mixed declaration artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-ownership-declaration-ukf5dweb
+test_owned_declarations_and_failures (tests.test_ownership_declaration_projection.OwnershipDeclarationProjection.test_owned_declarations_and_failures) ... PASS 464 ordinary array declaration checks; no execution authority
+I begin complete mixed declaration controls
+PASS 1814 complete mixed declaration checks; no execution authority
+I covered 8 allocation positions in both failure modes
+PASS 2398 ordinary array declaration checks; no execution authority
+I begin complete mixed declaration controls
+I covered 13 mixed allocation positions in both failure modes; two query TUs instrumented
+PASS 10960 complete mixed declaration checks; no execution authority
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.457s
+
+OK

@@ -1,0 +1,22 @@
+{
+  "46c4d-r2/source": {
+    "entries": 3732,
+    "map": "/tmp/nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-source-after.json",
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6"
+  },
+  "46c4d-r2/tools": {
+    "entries": 11,
+    "map": "/tmp/nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-tools-after.json",
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4"
+  },
+  "46c4d-r2/providers-and-last-fixture-artifacts": {
+    "entries": 2425,
+    "map": "/tmp/nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-artifacts.json",
+    "sha256": "81e6beb254818bfc10bc621ab17d399ba6ceaed797ca22290b69f0c2dabb7541"
+  },
+  "46c4d-r2/source-archive": {
+    "sha256": "9994c8ab780111b77ca9263d7a456a1f714891ca3f73a4dc1c6ac16bf32d2fbe",
+    "bytes": 15277711,
+    "artifact": "/tmp/nanolang-record-vm-linux-neighbor-seal/objects/9994c8ab780111b77ca9263d7a456a1f714891ca3f73a4dc1c6ac16bf32d2fbe"
+  }
+}

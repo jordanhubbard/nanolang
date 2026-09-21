@@ -1,0 +1,5 @@
+Auto-merging Makefile.gnu
+Auto-merging docs/ROADMAP.md
+CONFLICT (content): Merge conflict in docs/ROADMAP.md
+Auto-merging src/nanovm/vm.c
+Automatic merge failed; fix conflicts and then commit the result.

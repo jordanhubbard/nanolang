@@ -1,0 +1,662 @@
+{
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/bin/nano_vm": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/f249ba19b5d0578c508ef8334c14dcbf3595700f3b3ab9fb29f86372e1ea2eb5",
+    "sha256": "f249ba19b5d0578c508ef8334c14dcbf3595700f3b3ab9fb29f86372e1ea2eb5"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/bin/nvm2c": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/baff5c1fcfb3677e94c1836c97612e9c3fb0369b10d2032bf2e1260c11cdc384",
+    "sha256": "baff5c1fcfb3677e94c1836c97612e9c3fb0369b10d2032bf2e1260c11cdc384"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/lib/libnano_file_runtime.a": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/7888ce7f16a0d6b3dd9cab6e124dacda2d9878109c04612aef2454b77dccb81e",
+    "sha256": "7888ce7f16a0d6b3dd9cab6e124dacda2d9878109c04612aef2454b77dccb81e"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/bcp47.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/f414cb1dc1154f66600acec97050cd35e522465536e48b66b0fa1a63e4a61819",
+    "sha256": "f414cb1dc1154f66600acec97050cd35e522465536e48b66b0fa1a63e4a61819"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/bench.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/5a003407386a352eeaaca28fb2876e365b213a02789e11287e651090c15bfded",
+    "sha256": "5a003407386a352eeaaca28fb2876e365b213a02789e11287e651090c15bfded"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/bench_native.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/1a6bec5c68bf7e656e8c76866029372ff0a5f1dee68d15268c1e792ca6563351",
+    "sha256": "1a6bec5c68bf7e656e8c76866029372ff0a5f1dee68d15268c1e792ca6563351"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/builtins_registry.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/1422d89f807bf915ab4228391078a5119ef719e425636aedb0cd359d3362d7ae",
+    "sha256": "1422d89f807bf915ab4228391078a5119ef719e425636aedb0cd359d3362d7ae"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/cJSON.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/332156fb149b5064d67c56e693ac9537ef76e0df3649a9666ce6c29d9b894b5d",
+    "sha256": "332156fb149b5064d67c56e693ac9537ef76e0df3649a9666ce6c29d9b894b5d"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/c_backend.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/9aae19ea4eb57bd2e9d9d9aa38e1179926aebad4260a95e41f8497724d2b0709",
+    "sha256": "9aae19ea4eb57bd2e9d9d9aa38e1179926aebad4260a95e41f8497724d2b0709"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/catalog.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/9620f56557fe601b27c771ebf8a44052f934048e2b3b7bc798d7ff2575507975",
+    "sha256": "9620f56557fe601b27c771ebf8a44052f934048e2b3b7bc798d7ff2575507975"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/channel.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/e5728a95804c2821185fc30ed01949d34927db16941ee9aa737bb5dff19077ce",
+    "sha256": "e5728a95804c2821185fc30ed01949d34927db16941ee9aa737bb5dff19077ce"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/coroutine.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/4c656fe8ee5ed9ecc216df7e4468113d2bf2a4a2912944a5e4dabb890fae38de",
+    "sha256": "4c656fe8ee5ed9ecc216df7e4468113d2bf2a4a2912944a5e4dabb890fae38de"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/cps_pass.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/26e56d1951770a8824c6dbd223e3626db5c9e7fe1cd4a532499b4085a466fe43",
+    "sha256": "26e56d1951770a8824c6dbd223e3626db5c9e7fe1cd4a532499b4085a466fe43"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/dce_pass.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/8bb2936b67f6d52c06f51c7c3e0ec52a074af4b00b4a324858d8e9c1626a6c8b",
+    "sha256": "8bb2936b67f6d52c06f51c7c3e0ec52a074af4b00b4a324858d8e9c1626a6c8b"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/diag_id.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/f8e16d1fd2d3894a2ec15ea78d50fa484b0ceef2d380a29312833e903001027a",
+    "sha256": "f8e16d1fd2d3894a2ec15ea78d50fa484b0ceef2d380a29312833e903001027a"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/docgen.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/02f68a2fc0715d29b35a2d6beded9c7a6d6e5649d5bd0870b4981d6bbfcb3fc7",
+    "sha256": "02f68a2fc0715d29b35a2d6beded9c7a6d6e5649d5bd0870b4981d6bbfcb3fc7"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/docgen_md.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/2c396a1a50e48a38ad23106203aea489220f5b384ab69a5a96f9ee9de8fc747a",
+    "sha256": "2c396a1a50e48a38ad23106203aea489220f5b384ab69a5a96f9ee9de8fc747a"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/dwarf_info.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/8b5e7a22afed9a85b0f65727342838889042971b128a58d405a8466554d360b9",
+    "sha256": "8b5e7a22afed9a85b0f65727342838889042971b128a58d405a8466554d360b9"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/effects.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/fe9f768366dc94bcac150b92322ae17b42da6de41e12829c84b2cf3fb9aaf421",
+    "sha256": "fe9f768366dc94bcac150b92322ae17b42da6de41e12829c84b2cf3fb9aaf421"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/emit_typed_ast.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/526bc259e77f2a3c19dc75d3d423a5654dc4bb5d5ad468f3b3f5613bc9659724",
+    "sha256": "526bc259e77f2a3c19dc75d3d423a5654dc4bb5d5ad468f3b3f5613bc9659724"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/env.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/7a28e7ce912fdd9c5440ffad0858c29136968b4ad9c02180ca0e6b1b1325c3cf",
+    "sha256": "7a28e7ce912fdd9c5440ffad0858c29136968b4ad9c02180ca0e6b1b1325c3cf"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/eval.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/d831e3b0b7b6aba340dd0d97f8f9348b430aec7fa23304f6eee187715860ce5e",
+    "sha256": "d831e3b0b7b6aba340dd0d97f8f9348b430aec7fa23304f6eee187715860ce5e"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/eval/eval_hashmap.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/deec3790077db4dd3a409722eafc9e3abc2d91d7e1cb82a7b3c04e61454a3385",
+    "sha256": "deec3790077db4dd3a409722eafc9e3abc2d91d7e1cb82a7b3c04e61454a3385"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/eval/eval_io.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/f85f413e7a52c1cfa39e7870570232de602da13ff33cddbacd399f243fa28981",
+    "sha256": "f85f413e7a52c1cfa39e7870570232de602da13ff33cddbacd399f243fa28981"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/eval/eval_math.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/98b16bae94e3771f91d8e8b031ffd4158e9afcde4e26ad0e5383b75cf0d53bd5",
+    "sha256": "98b16bae94e3771f91d8e8b031ffd4158e9afcde4e26ad0e5383b75cf0d53bd5"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/eval/eval_string.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/7409c71ccb141b490e02e18f013eb59aabc906b5616dfdfd8917d4d7247c4adb",
+    "sha256": "7409c71ccb141b490e02e18f013eb59aabc906b5616dfdfd8917d4d7247c4adb"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/fmt.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/50939ecc6ab3b7fe6f170161ea49c0656619c44e0904c33a1dcfc759a699e5b0",
+    "sha256": "50939ecc6ab3b7fe6f170161ea49c0656619c44e0904c33a1dcfc759a699e5b0"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/fold_constants.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/a34a25513a8a35f70f55c46e3994981b46ad23113ca108863b85390926315961",
+    "sha256": "a34a25513a8a35f70f55c46e3994981b46ad23113ca108863b85390926315961"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/interpreter_ffi.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/123b16f0c4f9ac29837827462adcc2d4d8a2d5e1d893712dcfe775efc8330bdb",
+    "sha256": "123b16f0c4f9ac29837827462adcc2d4d8a2d5e1d893712dcfe775efc8330bdb"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/json_diagnostics.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/f9daba53ce77803c385198238fe7e49a4f568b996838d2e23df6054495bdbd4f",
+    "sha256": "f9daba53ce77803c385198238fe7e49a4f568b996838d2e23df6054495bdbd4f"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/lexer.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/9f090ceab60d9d4fbc90061e92ac0307a574d2f38d02f91b554288c0586b22a2",
+    "sha256": "9f090ceab60d9d4fbc90061e92ac0307a574d2f38d02f91b554288c0586b22a2"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/locale.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/a454fe05d4b1d28745c66074d4e35ef2f95e1ed82f3ad2c580a1788bbcf7839c",
+    "sha256": "a454fe05d4b1d28745c66074d4e35ef2f95e1ed82f3ad2c580a1788bbcf7839c"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/module.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/890edd8ca299551b434a4075e127d9216b1e753279c4699467277b5a36176343",
+    "sha256": "890edd8ca299551b434a4075e127d9216b1e753279c4699467277b5a36176343"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/module_builder.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/1dd10d8b3f7e7e686ca174ff6618a45ba3ad281fe26ad34f3f1aea23c1f00003",
+    "sha256": "1dd10d8b3f7e7e686ca174ff6618a45ba3ad281fe26ad34f3f1aea23c1f00003"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/module_metadata.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/fa540a71f59aae2d5e0d21664f795b060093935fbd6f7d03851d8b76b9d33f8e",
+    "sha256": "fa540a71f59aae2d5e0d21664f795b060093935fbd6f7d03851d8b76b9d33f8e"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanocore_export.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/d26b5ad747082cd919e7f639ed56036b819b5cde4aea90daa3f5e8db9932ccbd",
+    "sha256": "d26b5ad747082cd919e7f639ed56036b819b5cde4aea90daa3f5e8db9932ccbd"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanocore_subset.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/25d1f6a8614ae2d8456fd9e4a9fb7176ad9809465356f5585b70c29ca84a82bd",
+    "sha256": "25d1f6a8614ae2d8456fd9e4a9fb7176ad9809465356f5585b70c29ca84a82bd"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/affine_bytecode.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/3fd9ad72cfbe45f9bb5e6ae47d06d0181ce60450c06602a68314c60939e20f87",
+    "sha256": "3fd9ad72cfbe45f9bb5e6ae47d06d0181ce60450c06602a68314c60939e20f87"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/affine_state.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/717e540ed3b18e2a59a52fb93923f27ba161830492f110a647a663ee0fb84dd2",
+    "sha256": "717e540ed3b18e2a59a52fb93923f27ba161830492f110a647a663ee0fb84dd2"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/assembler.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/f778d2e396d044b15af9960f6740c3c2c3738399eb1d4facad38039c4b4930ac",
+    "sha256": "f778d2e396d044b15af9960f6740c3c2c3738399eb1d4facad38039c4b4930ac"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/disassembler.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/3528b4b2093226ae274be74252fc0eae1ba6199ae378097f1e34068262a7734b",
+    "sha256": "3528b4b2093226ae274be74252fc0eae1ba6199ae378097f1e34068262a7734b"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/file_cli.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/9790920f596ae9b19991151e0505c12958cfae6d66f0184176ef6cd4998b88d3",
+    "sha256": "9790920f596ae9b19991151e0505c12958cfae6d66f0184176ef6cd4998b88d3"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/file_cyclic_public_abi.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/312dcc30030a98e1466759613cd55ed823683e41aa88583ac382abeb63233752",
+    "sha256": "312dcc30030a98e1466759613cd55ed823683e41aa88583ac382abeb63233752"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/file_cyclic_public_native.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/bb9e303ef41f70a9ce0d7b29f47319ddf55cf4cd078ce206653d83c1cc11faf7",
+    "sha256": "bb9e303ef41f70a9ce0d7b29f47319ddf55cf4cd078ce206653d83c1cc11faf7"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/file_flow.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/a806cf3d5aca1da6d6389fd6462ab99a4c28c509ec80d7bf32e7f2157e60789d",
+    "sha256": "a806cf3d5aca1da6d6389fd6462ab99a4c28c509ec80d7bf32e7f2157e60789d"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/file_host_grant.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/a8d94270e4245c3b642e7a4159d50772d01bb02a0bcb0e4e3f8a4c7bcf5e88dd",
+    "sha256": "a8d94270e4245c3b642e7a4159d50772d01bb02a0bcb0e4e3f8a4c7bcf5e88dd"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/file_public_native.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/84b553055fe74fbeee2459b9f81fe9ab73327218e6a84eb608b5038b9380800d",
+    "sha256": "84b553055fe74fbeee2459b9f81fe9ab73327218e6a84eb608b5038b9380800d"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/file_runtime_public.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/b0ad8ef3c50d41330464c508665f063d9d66ac2cebe89cdf9916e35745e1d93e",
+    "sha256": "b0ad8ef3c50d41330464c508665f063d9d66ac2cebe89cdf9916e35745e1d93e"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/frontend.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/44115799d10b6d07cffda373f8502c7481c1b424596c392f96c8beb7ddfce785",
+    "sha256": "44115799d10b6d07cffda373f8502c7481c1b424596c392f96c8beb7ddfce785"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/isa.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/9407ad6cd9a015cdee19ad631553c0f1e16a309da0be7cae430320566faf4648",
+    "sha256": "9407ad6cd9a015cdee19ad631553c0f1e16a309da0be7cae430320566faf4648"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/local_bindings.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/e5e1337f7945af149cf0a362de3b0c3dc3afdfc519f4d9de45d221bd6ada7e13",
+    "sha256": "e5e1337f7945af149cf0a362de3b0c3dc3afdfc519f4d9de45d221bd6ada7e13"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/managed_array_shapes.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/0ee02b3f252c9579e6bf6bc38586d99b65ed69af2273cb809520eec8ea72ceda",
+    "sha256": "0ee02b3f252c9579e6bf6bc38586d99b65ed69af2273cb809520eec8ea72ceda"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/mixed_float_proof.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/cf7318a67f02076c3dbbf184d3c2adca5d3509e1027bfe842604c503a581ec3f",
+    "sha256": "cf7318a67f02076c3dbbf184d3c2adca5d3509e1027bfe842604c503a581ec3f"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nanoisa_facade.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/1af100ad9a125bcbd597b03ebc0d9771dc53678d696a63ca9251999e45bbd273",
+    "sha256": "1af100ad9a125bcbd597b03ebc0d9771dc53678d696a63ca9251999e45bbd273"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm2c.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/3795b215b3b39b4eb5d63af791a822bc549e49f5b332a1b829db1103af364e86",
+    "sha256": "3795b215b3b39b4eb5d63af791a822bc549e49f5b332a1b829db1103af364e86"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm2c_main.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/2aaecbb443da5fa81fff4d06ff6b3123601b315e748233a7a8a3980b347ee084",
+    "sha256": "2aaecbb443da5fa81fff4d06ff6b3123601b315e748233a7a8a3980b347ee084"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm2c_shape.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/8b11dc5e11bc5e2d726c73c09796f2170dd228fc3ac750171e90e93a154839ee",
+    "sha256": "8b11dc5e11bc5e2d726c73c09796f2170dd228fc3ac750171e90e93a154839ee"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm_format.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/456a74423fe1d52c455d2d3b2ab8d118d452092d207ad84e21057222d456285c",
+    "sha256": "456a74423fe1d52c455d2d3b2ab8d118d452092d207ad84e21057222d456285c"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm_format_v2.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/896ec127b2e0715acf1c1f4ec0845e75a05fc3ee9632db7eaa752064b39fcaa2",
+    "sha256": "896ec127b2e0715acf1c1f4ec0845e75a05fc3ee9632db7eaa752064b39fcaa2"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm_v2_constants.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/ec522441037b6b9411c1872219b1480d256ef7db957f9ded5334f536af572fb4",
+    "sha256": "ec522441037b6b9411c1872219b1480d256ef7db957f9ded5334f536af572fb4"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm_v2_convert.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/5cde61e462bd61168e6d57b2b1a459c8e6197d0f17dbf463f3ef31e0012dbb19",
+    "sha256": "5cde61e462bd61168e6d57b2b1a459c8e6197d0f17dbf463f3ef31e0012dbb19"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm_v2_cursor.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/3f0de627efcdd6ff55da950dbb7974c9f732ee7bd48637cc3ee8b2833f200db7",
+    "sha256": "3f0de627efcdd6ff55da950dbb7974c9f732ee7bd48637cc3ee8b2833f200db7"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm_v2_functions.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/f820f8376fe7e4971a3b6417dc6f78affccc70733f60b0c5282d6fc337fa799d",
+    "sha256": "f820f8376fe7e4971a3b6417dc6f78affccc70733f60b0c5282d6fc337fa799d"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm_v2_imports.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/e8b20c5ce543323bdfdd27b43b3092fd03bf88c8de6a8146e0970754fbcd82ab",
+    "sha256": "e8b20c5ce543323bdfdd27b43b3092fd03bf88c8de6a8146e0970754fbcd82ab"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm_v2_layouts.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/73270753fcb3a254cbd8abf0bc5238806934a7de733112811af2cd3dee0ffdda",
+    "sha256": "73270753fcb3a254cbd8abf0bc5238806934a7de733112811af2cd3dee0ffdda"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm_v2_module.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/7fd42acf59912948e44f13822de17b12ac701f693e6b74940c5f0e5f091f4db5",
+    "sha256": "7fd42acf59912948e44f13822de17b12ac701f693e6b74940c5f0e5f091f4db5"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/nvm_v2_signatures.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/6c2a7a7c0601585014f2befbcaa15dd93b0112131ab85c62d3e8a6a5664dd166",
+    "sha256": "6c2a7a7c0601585014f2befbcaa15dd93b0112131ab85c62d3e8a6a5664dd166"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/ownership_contracts.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/8d676eb1889de83fe1535f43b63933d9f47c1877e9a038da3c384ceb21ed6217",
+    "sha256": "8d676eb1889de83fe1535f43b63933d9f47c1877e9a038da3c384ceb21ed6217"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/passive.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/5504144788c50f80d599cfd089758a84d7a97ad5f4efc28d72894220300cf303",
+    "sha256": "5504144788c50f80d599cfd089758a84d7a97ad5f4efc28d72894220300cf303"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/reference_places.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/0c8a0330548eeefa820e9c3970572445eb9db3171cfc711955cebf4bf292777b",
+    "sha256": "0c8a0330548eeefa820e9c3970572445eb9db3171cfc711955cebf4bf292777b"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/retained_layouts.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/0cfa5eb0cbc5ea284db9cb4511a2c1040068c348bfefdc84eeba780da3a9b8de",
+    "sha256": "0cfa5eb0cbc5ea284db9cb4511a2c1040068c348bfefdc84eeba780da3a9b8de"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/service_bindings.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/920db53c3f21e77045e95d77abc89d39571674f343e5844b3d40e805946c2930",
+    "sha256": "920db53c3f21e77045e95d77abc89d39571674f343e5844b3d40e805946c2930"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/service_bindings_module.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/4b34a7102b9f1f1b90994bd2e8cb395dd13afff416ed6e000c4299486a1f8044",
+    "sha256": "4b34a7102b9f1f1b90994bd2e8cb395dd13afff416ed6e000c4299486a1f8044"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/service_file_nominal.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/393093b5bb23ff94ecb3e98b3c60d21e8b510dc3868d14adfb516310d6376a63",
+    "sha256": "393093b5bb23ff94ecb3e98b3c60d21e8b510dc3868d14adfb516310d6376a63"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/service_file_nominal_plan.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/f2bc8b421505463883dc901ddb2b1a60370fb6e7c8c2689ab981437cb236032c",
+    "sha256": "f2bc8b421505463883dc901ddb2b1a60370fb6e7c8c2689ab981437cb236032c"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/verifier.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/87b1b8f61ef8ec1b64d2e838679df8410a594275eb2706757341f95a308bb73c",
+    "sha256": "87b1b8f61ef8ec1b64d2e838679df8410a594275eb2706757341f95a308bb73c"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanoisa/verifier_types.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/427499992b8e4e60f6e6a7ca95ecf5bebbad375f31c0d2aaf8ddc511515e999a",
+    "sha256": "427499992b8e4e60f6e6a7ca95ecf5bebbad375f31c0d2aaf8ddc511515e999a"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/cop_protocol.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/57a3e524483bc7dc6975ada80e387fc3e3b4aa8c33fb9695e62bb8c7d6bb383f",
+    "sha256": "57a3e524483bc7dc6975ada80e387fc3e3b4aa8c33fb9695e62bb8c7d6bb383f"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/file_cyclic_public_vm.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/9f19d5d6fa3f82d7a2f7984c89e58f4e67dd66d20cd14c206abc13ced9b25e93",
+    "sha256": "9f19d5d6fa3f82d7a2f7984c89e58f4e67dd66d20cd14c206abc13ced9b25e93"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/file_public_vm.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/148416b93031594f35c146595a3e38c0c233d40fb92eb70229611a09dc5242e2",
+    "sha256": "148416b93031594f35c146595a3e38c0c233d40fb92eb70229611a09dc5242e2"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/heap.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/197187dfcb840a862286976de720c96677ed57154af6619684a3930c5f2ac595",
+    "sha256": "197187dfcb840a862286976de720c96677ed57154af6619684a3930c5f2ac595"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/heap_cycles.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/b6accd9ffc44e4dfcb3c36d068674ffb33dc7acacaee68c2453afbcf7a5630d6",
+    "sha256": "b6accd9ffc44e4dfcb3c36d068674ffb33dc7acacaee68c2453afbcf7a5630d6"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/main.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/8661b2223a9ce987513face0b7f1c1a29193baa371040b0a8f108c108000aec3",
+    "sha256": "8661b2223a9ce987513face0b7f1c1a29193baa371040b0a8f108c108000aec3"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/value.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/48d54f83b2480ec315a68b950a329b54306660e1603c6b306d154cb8d42ed949",
+    "sha256": "48d54f83b2480ec315a68b950a329b54306660e1603c6b306d154cb8d42ed949"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/vm.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/36cc1684560cb0178a5dd67c36c5d14e1f7c89c6016154d448ffd9dfba65e41b",
+    "sha256": "36cc1684560cb0178a5dd67c36c5d14e1f7c89c6016154d448ffd9dfba65e41b"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/vm_builtins.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/c8dbdc44dc092e69a1a30e7dfbefe25f82c38a81cff09c68dd451c9d38fe685a",
+    "sha256": "c8dbdc44dc092e69a1a30e7dfbefe25f82c38a81cff09c68dd451c9d38fe685a"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/vm_callback.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/4dab3dd54fd708255e13374ab23dc24ab6bf033620aeadcc2a3a5faa5722a70f",
+    "sha256": "4dab3dd54fd708255e13374ab23dc24ab6bf033620aeadcc2a3a5faa5722a70f"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/vm_decode.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/8a04de438652d12bd1d1c5e3bdac1174c787486588f104c204ed6866b57b91c8",
+    "sha256": "8a04de438652d12bd1d1c5e3bdac1174c787486588f104c204ed6866b57b91c8"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/vm_dispatch.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/0987478f0aa4e238058dc195c5bbb406a9bcc7c979dd598963d56b15b9d26442",
+    "sha256": "0987478f0aa4e238058dc195c5bbb406a9bcc7c979dd598963d56b15b9d26442"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/vm_ffi.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/78f9951a288cb163f343c7512828f024f2813c055d4ce9a27aa28bdbd5718faf",
+    "sha256": "78f9951a288cb163f343c7512828f024f2813c055d4ce9a27aa28bdbd5718faf"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/vm_ffi_arrays.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/48bdb254b79ed22dd0f3ae0cd32a111965d4c65310f7e3e268568191713fa70f",
+    "sha256": "48bdb254b79ed22dd0f3ae0cd32a111965d4c65310f7e3e268568191713fa70f"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/vmd_client.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/69e9069decd2bfe98a96426617b5879497c56416bc590b9a332095e59e5e6c59",
+    "sha256": "69e9069decd2bfe98a96426617b5879497c56416bc590b9a332095e59e5e6c59"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nanovm/vmd_protocol.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/0251f8baf85bcbc0e3793e1fb4479f347919613cd5df072d7b86e9be3b32f842",
+    "sha256": "0251f8baf85bcbc0e3793e1fb4479f347919613cd5df072d7b86e9be3b32f842"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nominal_types.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/22f55cc3a0bab6dfc19c8654314d63611654b43df18444424c213364250d5f26",
+    "sha256": "22f55cc3a0bab6dfc19c8654314d63611654b43df18444424c213364250d5f26"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nsi_cap.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/d88dd1ca05a9445f74bf1e7ab71554aaf9d5ec90702b94c0155a5b480dd13982",
+    "sha256": "d88dd1ca05a9445f74bf1e7ab71554aaf9d5ec90702b94c0155a5b480dd13982"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nsi_file.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/f7c7a71e5522cb09862844bf1d8dcd56daf324124e76fe53945c144f4c3b9cef",
+    "sha256": "f7c7a71e5522cb09862844bf1d8dcd56daf324124e76fe53945c144f4c3b9cef"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nsi_file_plan.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/55eb08cb09af261f56cc677fde9311a9b9c0d057871961d66dc66e11334963a3",
+    "sha256": "55eb08cb09af261f56cc677fde9311a9b9c0d057871961d66dc66e11334963a3"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/nsi_file_values.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/a84eb4b49fc15620f7ccf1b474b71926d72599f7ddc9971fb5b29a468ac3f702",
+    "sha256": "a84eb4b49fc15620f7ccf1b474b71926d72599f7ddc9971fb5b29a468ac3f702"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/opencl_backend.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/c7085e16de5176e07f8b309f60d7746be7a57e0743e5eb00efb7a2939ccab914",
+    "sha256": "c7085e16de5176e07f8b309f60d7746be7a57e0743e5eb00efb7a2939ccab914"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/par_let_pass.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/b9a8cad987e78e83b275533b57de6c1fcc3f21658f36c5a4558d1c0158c7eb6b",
+    "sha256": "b9a8cad987e78e83b275533b57de6c1fcc3f21658f36c5a4558d1c0158c7eb6b"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/parser.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/9bf98ff88f5cbf14635b3cfbb0d72c0382da697f3cbdcae5f0f8d651c91b8399",
+    "sha256": "9bf98ff88f5cbf14635b3cfbb0d72c0382da697f3cbdcae5f0f8d651c91b8399"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/pgo_pass.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/58d6c20c680a4c04ed6e1fefe3b91695a265c1d0f124204263dcf9b0fbe2c1f5",
+    "sha256": "58d6c20c680a4c04ed6e1fefe3b91695a265c1d0f124204263dcf9b0fbe2c1f5"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/ptx_backend.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/7b26fe8c5e64d269a31344f3862e990ec6471961137a5b790a54cf24e0c0856a",
+    "sha256": "7b26fe8c5e64d269a31344f3862e990ec6471961137a5b790a54cf24e0c0856a"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/reflection.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/3953f88f0f46f020eb85e61bcd8db15997b8b868adfaa550b1be837795b349cc",
+    "sha256": "3953f88f0f46f020eb85e61bcd8db15997b8b868adfaa550b1be837795b349cc"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/resource_flow.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/f0e610c9bf33c01edd695b123180b944ccd8f8ce006c112918226331fe617b77",
+    "sha256": "f0e610c9bf33c01edd695b123180b944ccd8f8ce006c112918226331fe617b77"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/resource_tracking.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/afeb50d410c48c36cb074a558dd4044ab2f68d520838ae4d367850fd413ecc74",
+    "sha256": "afeb50d410c48c36cb074a558dd4044ab2f68d520838ae4d367850fd413ecc74"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/riscv_backend.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/5e38a86ca9090edd142bd97677478bf2d7f663247fdd0e3ae1a6a793688801cd",
+    "sha256": "5e38a86ca9090edd142bd97677478bf2d7f663247fdd0e3ae1a6a793688801cd"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/callback_runtime.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/de3fe51790827687c832bbe81fd2973bd5d20627a8b7a89a9133fc7d1fad2d61",
+    "sha256": "de3fe51790827687c832bbe81fd2973bd5d20627a8b7a89a9133fc7d1fad2d61"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/cli.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/8146071d5e64866a86835d4a94e1dbcf0be9e524066229640f75589678bc5a86",
+    "sha256": "8146071d5e64866a86835d4a94e1dbcf0be9e524066229640f75589678bc5a86"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/dyn_array.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/7009d31453c6e69a7a8c5143c4571c9d7c004ab23e4ba78037bc373ec99d94b8",
+    "sha256": "7009d31453c6e69a7a8c5143c4571c9d7c004ab23e4ba78037bc373ec99d94b8"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/effect_runtime.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/2a6e2c7b630446cde560f7e0820bbd2c906c993540c3dd0f0b785fa1256e082b",
+    "sha256": "2a6e2c7b630446cde560f7e0820bbd2c906c993540c3dd0f0b785fa1256e082b"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/ffi_loader.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/76565c3bcb631e6c06695852986d9a675f12403d15342db2d676f4aa2fabd470",
+    "sha256": "76565c3bcb631e6c06695852986d9a675f12403d15342db2d676f4aa2fabd470"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/gc.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/7c5a546b7e9e85a4ab6d494a036ef785a9d23cdab5b99f6710377018064ba875",
+    "sha256": "7c5a546b7e9e85a4ab6d494a036ef785a9d23cdab5b99f6710377018064ba875"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/gc_struct.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/bb8093f86e9198027172edcdf5f371438fd9d27fe294757364dcd3b571424d3b",
+    "sha256": "bb8093f86e9198027172edcdf5f371438fd9d27fe294757364dcd3b571424d3b"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTArrayLiteral.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/6e5e59f0b0044c1fb8067567edf9c55b876f7e87c81b95a84472554e7a6d8c3d",
+    "sha256": "6e5e59f0b0044c1fb8067567edf9c55b876f7e87c81b95a84472554e7a6d8c3d"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTAssert.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/0dd0b7269df4a8bf78845fc937c0479fb8a6d509aaaaf9576b682958200ac0d0",
+    "sha256": "0dd0b7269df4a8bf78845fc937c0479fb8a6d509aaaaf9576b682958200ac0d0"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTBinaryOp.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/c91da49663a0523adfb6fa6022a395cf3c2b294f47e466ec11edb81a0f3d6326",
+    "sha256": "c91da49663a0523adfb6fa6022a395cf3c2b294f47e466ec11edb81a0f3d6326"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTBlock.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/30c1a2cd8aaa79a1f4e239aad28f2cd0f8778a5562f1834338784c32bf03cac9",
+    "sha256": "30c1a2cd8aaa79a1f4e239aad28f2cd0f8778a5562f1834338784c32bf03cac9"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTBool.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/b4ae685806cc6c5429f54545cebd6397067518cca41359490e6811f1bf148740",
+    "sha256": "b4ae685806cc6c5429f54545cebd6397067518cca41359490e6811f1bf148740"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTCall.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/ba85f474cd35f10e861031c35543b0e202a36d18e04c17553653b43480895559",
+    "sha256": "ba85f474cd35f10e861031c35543b0e202a36d18e04c17553653b43480895559"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTEnum.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/cc41a21955646694d8bee9ef5f3407eb962f21ccac5d8c90831b6da853804fa5",
+    "sha256": "cc41a21955646694d8bee9ef5f3407eb962f21ccac5d8c90831b6da853804fa5"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTFieldAccess.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/21cf9a31072d2cda1a556a1a9b6d7a89174d48d5548ce8abf8d497a6eb0be08b",
+    "sha256": "21cf9a31072d2cda1a556a1a9b6d7a89174d48d5548ce8abf8d497a6eb0be08b"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTFloat.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/424b59596a242d1da778864218aacf9e2f1c7db4a9924c919fff232a11d75d49",
+    "sha256": "424b59596a242d1da778864218aacf9e2f1c7db4a9924c919fff232a11d75d49"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTFor.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/339168b7d8f4327990d09cf38150db227c29a720efb26da0bfe4de0ad00b1505",
+    "sha256": "339168b7d8f4327990d09cf38150db227c29a720efb26da0bfe4de0ad00b1505"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTFunction.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/d33d3f12d2abd0afed91805ced6f10d7d6af568fe5e7463d46a4f6923cbed5ae",
+    "sha256": "d33d3f12d2abd0afed91805ced6f10d7d6af568fe5e7463d46a4f6923cbed5ae"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTIdentifier.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/f8629b6f65791444de387012fc2fe32a4461373e4462bff7dd88daa14d9020db",
+    "sha256": "f8629b6f65791444de387012fc2fe32a4461373e4462bff7dd88daa14d9020db"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTIf.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/b5740de45ebc81c269c206ef4614e79427b9bdb13ce496fae486fe6bd1bec637",
+    "sha256": "b5740de45ebc81c269c206ef4614e79427b9bdb13ce496fae486fe6bd1bec637"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTImport.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/e345e98f40f778efda836ec2f535011969e9aa2db6fc289ad5ee6c1400e6fe07",
+    "sha256": "e345e98f40f778efda836ec2f535011969e9aa2db6fc289ad5ee6c1400e6fe07"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTLet.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/d3290c5910bb0b231348facc004087f0babaa6a7d9ddbb04bd5746bc97ad0e88",
+    "sha256": "d3290c5910bb0b231348facc004087f0babaa6a7d9ddbb04bd5746bc97ad0e88"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTMatch.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/d5741b8ad3fb734893b229bc0133e673a632d5fd6232ebc5da2cd7e7ece8e7b0",
+    "sha256": "d5741b8ad3fb734893b229bc0133e673a632d5fd6232ebc5da2cd7e7ece8e7b0"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTModuleQualifiedCall.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/0b9d71c01d1a9fd8e981d6626474386ea4105020b1ea009b046f94f3cb1457a3",
+    "sha256": "0b9d71c01d1a9fd8e981d6626474386ea4105020b1ea009b046f94f3cb1457a3"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTNumber.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/e8f73cb5e271cc043e8a7e7afc9892b59bc0626010b2bef160cba0a6ac9de5ab",
+    "sha256": "e8f73cb5e271cc043e8a7e7afc9892b59bc0626010b2bef160cba0a6ac9de5ab"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTOpaqueType.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/9ee7055bc2472b1c3436ae365f233582469368af2dde39757324aa2c8973769e",
+    "sha256": "9ee7055bc2472b1c3436ae365f233582469368af2dde39757324aa2c8973769e"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTPrint.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/9a18178963261fb36b0e7f2d2b45b03777c53a7ffbb0958b0a5e96edb85458f6",
+    "sha256": "9a18178963261fb36b0e7f2d2b45b03777c53a7ffbb0958b0a5e96edb85458f6"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTReturn.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/03f658c1cfdf88ee0af97ce6d89b9290e6e4d47905714a929ea74dc030d051fb",
+    "sha256": "03f658c1cfdf88ee0af97ce6d89b9290e6e4d47905714a929ea74dc030d051fb"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTServiceDecl.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/04b1c6e8ade0ff87c63a43bb104aa4314d660518b76fbc42e517ed73c6ac4cd1",
+    "sha256": "04b1c6e8ade0ff87c63a43bb104aa4314d660518b76fbc42e517ed73c6ac4cd1"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTSet.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/02545f352eb771af251e9afb938f57836712b7306cdae9a9f22421fa8947149e",
+    "sha256": "02545f352eb771af251e9afb938f57836712b7306cdae9a9f22421fa8947149e"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTShadow.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/2e78ed2a7c09d579b7a039571ef31c9ed0787250629f67e1482b6f265d4f66c3",
+    "sha256": "2e78ed2a7c09d579b7a039571ef31c9ed0787250629f67e1482b6f265d4f66c3"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTStmtRef.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/192d0a18e5b03d78473d32e1a316b3060196587fc05932f0caab9ae3806072e2",
+    "sha256": "192d0a18e5b03d78473d32e1a316b3060196587fc05932f0caab9ae3806072e2"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTString.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/d8c3a6a7b99f5285191ea51ac034a18684e2d5d238124f9d7f346ebf3a1e9799",
+    "sha256": "d8c3a6a7b99f5285191ea51ac034a18684e2d5d238124f9d7f346ebf3a1e9799"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTStruct.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/cbe85561936614e81753350f00f7b84b39c28372fda923c59e7ea3aefdab518d",
+    "sha256": "cbe85561936614e81753350f00f7b84b39c28372fda923c59e7ea3aefdab518d"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTStructLiteral.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/d1e27d8d1ba67564f264354a533515d3a75e5d79018fb0ec71fdb44e152d2931",
+    "sha256": "d1e27d8d1ba67564f264354a533515d3a75e5d79018fb0ec71fdb44e152d2931"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTTupleIndex.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/917ae1e85005faf1adb61f0a2527be8ac585ca3d5340abcfcd92b89bcb4eb38b",
+    "sha256": "917ae1e85005faf1adb61f0a2527be8ac585ca3d5340abcfcd92b89bcb4eb38b"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTTupleLiteral.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/dd167238e2d69b1e62b57783b5b3714709b6b91e2bb237678a91b348043d8118",
+    "sha256": "dd167238e2d69b1e62b57783b5b3714709b6b91e2bb237678a91b348043d8118"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTUnion.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/146fb4709d1588144470736acb3ad195ebc3991bc04245f698ae6acfa57ef5b7",
+    "sha256": "146fb4709d1588144470736acb3ad195ebc3991bc04245f698ae6acfa57ef5b7"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTUnionConstruct.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/2bd62ae4b63fe9b93fe7c2a2a41f437f2670143b2b8c21e9a6fe7b62e2e82d72",
+    "sha256": "2bd62ae4b63fe9b93fe7c2a2a41f437f2670143b2b8c21e9a6fe7b62e2e82d72"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTUnsafeBlock.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/03cd32443387835b11807b5f9a60cc96eb5ee24eaf4cb5241c489390240de95e",
+    "sha256": "03cd32443387835b11807b5f9a60cc96eb5ee24eaf4cb5241c489390240de95e"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_ASTWhile.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/9a303f74e656ae512a5771d8e88f30ec4c3ffa2bb979e0a3d2c6282ec4046dee",
+    "sha256": "9a303f74e656ae512a5771d8e88f30ec4c3ffa2bb979e0a3d2c6282ec4046dee"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_CompilerDiagnostic.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/c2a1de77370916dbe322591b5870739f796eecfb100d404f6f14d303f80b6881",
+    "sha256": "c2a1de77370916dbe322591b5870739f796eecfb100d404f6f14d303f80b6881"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_CompilerSourceLocation.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/8647d9d420d6c3a684991380513b92bb689c8872fb31c13103f2c441fc06ac19",
+    "sha256": "8647d9d420d6c3a684991380513b92bb689c8872fb31c13103f2c441fc06ac19"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_LexerToken.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/ef0513e9ad3b108e1ec7a1b8edbd4ce8eeb915ce993ede61ea09dfd95387d8b3",
+    "sha256": "ef0513e9ad3b108e1ec7a1b8edbd4ce8eeb915ce993ede61ea09dfd95387d8b3"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_int.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/37d1662d029c9d7482023c48a0df11ea3795724f230a717c9085373f8a6a361b",
+    "sha256": "37d1662d029c9d7482023c48a0df11ea3795724f230a717c9085373f8a6a361b"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_string.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/560b830b95174dce0847fe2f07ed506fc65274815216902245bdedd3fa7c20d3",
+    "sha256": "560b830b95174dce0847fe2f07ed506fc65274815216902245bdedd3fa7c20d3"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/list_token.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/e8b88c7ae582aa28da81d52bc999c61c7b33172a8054b9653dbeb199e8967793",
+    "sha256": "e8b88c7ae582aa28da81d52bc999c61c7b33172a8054b9653dbeb199e8967793"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/module_build_dir.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/fd93b01d1c10cb55880448c733e071a776aa0c91b8e176558ce8c1364170d01d",
+    "sha256": "fd93b01d1c10cb55880448c733e071a776aa0c91b8e176558ce8c1364170d01d"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/nl_string.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/c8ed21d13c13b215118cf11a0215a80de5b292ff0b3f6e81e096f50d2b830e2a",
+    "sha256": "c8ed21d13c13b215118cf11a0215a80de5b292ff0b3f6e81e096f50d2b830e2a"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/regex.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/40836c7780df1df451279cb02ba12140c847819e14f47ef77d57d808974fbcce",
+    "sha256": "40836c7780df1df451279cb02ba12140c847819e14f47ef77d57d808974fbcce"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/runtime/token_helpers.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/8294eaff91e30aef3f68c667703376386a00d9b0ed3495038e2c9ce4fe8af006",
+    "sha256": "8294eaff91e30aef3f68c667703376386a00d9b0ed3495038e2c9ce4fe8af006"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/stdlib_runtime.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/8d6dea11c7951fe0b1419b2d318c3f1fae9c4f54506b484763da2096962254b5",
+    "sha256": "8d6dea11c7951fe0b1419b2d318c3f1fae9c4f54506b484763da2096962254b5"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/tco_pass.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/9389a3c2185034b19a9cdda1dc4e9e1aa55d5fc3984374db8c3809ec7ac5dc82",
+    "sha256": "9389a3c2185034b19a9cdda1dc4e9e1aa55d5fc3984374db8c3809ec7ac5dc82"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/toon_output.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/24ec299a209968284385f1e281536190799142ad2b908061731fac2957bd0a17",
+    "sha256": "24ec299a209968284385f1e281536190799142ad2b908061731fac2957bd0a17"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/transpiler.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/1841568c6c6bd96b34125a268a7dd2d4abf498aadf8bf9a7aa4d2c6c619b9da2",
+    "sha256": "1841568c6c6bd96b34125a268a7dd2d4abf498aadf8bf9a7aa4d2c6c619b9da2"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/type_infer.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/2d1252c8327d80ca75147833f5d19eccfcce9c76a895c82616d835baa8fe69de",
+    "sha256": "2d1252c8327d80ca75147833f5d19eccfcce9c76a895c82616d835baa8fe69de"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/typechecker.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/8ad404cc390c600a994c5aacc298612eb2bcd6af16779293fc5867424d3ebaed",
+    "sha256": "8ad404cc390c600a994c5aacc298612eb2bcd6af16779293fc5867424d3ebaed"
+  },
+  "/private/tmp/nanolang-record-vm-qualified-46c4d-r2/obj/utf8.o": {
+    "artifact": "/private/tmp/nanolang-record-vm-46c4d-r2-puck/artifacts/3d0cafba1d28060be0627c96c3b33d435d27ed1e8287f24440f42025435efb14",
+    "sha256": "3d0cafba1d28060be0627c96c3b33d435d27ed1e8287f24440f42025435efb14"
+  }
+}

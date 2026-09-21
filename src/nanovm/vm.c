@@ -12,6 +12,7 @@
  */
 
 #include "vm.h"
+#include "record_array_runtime_private.h"
 #include "../binary64_bits.h"
 #include "../binary64_arithmetic.h"
 #include "vm_ffi.h"
@@ -288,12 +289,17 @@ static bool vm_owned_proof_matches(const VmState *vm, const VmOwnedInvocationPro
         !vm->callbacks && !vm->opcode_trace;
 }
 
-/* I retain ordinary classification only between synchronous ASSERT resumes.
- * This is not an owned proof and never enables owned execution handlers. */
+/* I retain ordinary admission only between synchronous ASSERT resumes. The
+ * File-opcode presence below is a narrower code fact: one public invocation
+ * may reuse it after host traps because its executing bytecode is immutable.
+ * Mutable service and ownership metadata are still read on every admission. */
 typedef struct {
     const VmState *vm;
     const NvmModule *module;
     bool valid;
+    const NvmModule *service_module;
+    bool service_file_known;
+    bool service_file_pending;
 } VmOrdinaryAdmission;
 
 static bool vm_ordinary_admission_eligible(const VmState *vm) {
@@ -305,6 +311,26 @@ static bool vm_ordinary_admission_matches(const VmState *vm,
                                           const VmOrdinaryAdmission *ordinary) {
     return ordinary && ordinary->valid && ordinary->vm==vm &&
         vm_ordinary_admission_eligible(vm) && ordinary->module==vm->module;
+}
+
+static NvmServiceClassification vm_invocation_service_classify(
+        const NvmModule *module, VmOrdinaryAdmission *ordinary) {
+    if (!module || !ordinary) return nvm_service_classify(module);
+    if (!ordinary->service_file_known || ordinary->service_module != module) {
+        NvmServiceClassification first = nvm_service_classify(module);
+        bool bindings = nvm_service_bindings_present(module);
+        ordinary->service_module = module;
+        ordinary->service_file_known = true;
+        /* A negative complete query proves both terms absent. A positive
+         * binding query needs one explicit code query so later metadata
+         * removal cannot hide a File instruction. */
+        ordinary->service_file_pending = first.pending &&
+            (!bindings || nvm_file_instructions_present(module));
+    }
+    return (NvmServiceClassification){
+        module,
+        nvm_service_bindings_present(module) || ordinary->service_file_pending
+    };
 }
 
 static bool vm_owned_constants_ready(const VmState *vm) {
@@ -1420,6 +1446,7 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
         if(index>=vm->stack_size)return VM_ERR_TYPE_ERROR;
         retained=vm->stack[index];
         if(decoded->super_op==VM_SUPER_LOAD_LOCAL_FIELD) {
+            frame->instruction_ip += in->byte_length;
             if(retained.tag!=TAG_STRUCT || !retained.as.sval || decoded->super_operand>=retained.as.sval->field_count)return VM_ERR_TYPE_ERROR;
             retained=retained.as.sval->fields[decoded->super_operand];
         }
@@ -1446,19 +1473,33 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
     return VM_OK;
 }
 
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+#include "record_array_vm_prepare.inc"
+#endif
+
 static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof,
-                                      VmOrdinaryAdmission *ordinary) {
+                                      VmOrdinaryAdmission *ordinary,VmRecordArrayPrivate *record_array) {
     VmOwnedInvocationProof resumed;
     bool admitted=false, required=false;
     bool reuse=vm_ordinary_admission_matches(vm,ordinary);
+    bool record_execution=false;
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+    if(record_array) {
+        if(!vm_ra_context(record_array,vm))
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require this exact private ordinary instance.");
+        record_execution=true;
+    }
+#else
+    (void)record_array;
+#endif
     if (ordinary) ordinary->valid=false;
-    if (!reuse) {
+    if (!reuse && !record_execution) {
         /* These service facts expire at the end of this classification block.
          * No host callback or bytecode dispatch occurs while they are live. */
         NvmServiceClassification service;
         const NvmServiceClassification *facts=NULL;
         if (vm && vm->module) {
-            service=nvm_service_classify(vm->module);
+            service=vm_invocation_service_classify(vm->module,ordinary);
             facts=&service;
         }
         if(vm && nvm_owned_array_route_classified(vm->module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED && !vm_owned_proof_matches(vm,proof))
@@ -1503,7 +1544,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
     /* Only ordinary classification is reused. The owned frame/reference
      * checks above and all dispatch/stack checks below remain on every entry.
      * Ordinary CALL/RET/effect transitions do not change module declarations. */
-    if (ordinary && !admitted && !required && vm_ordinary_admission_eligible(vm)) {
+    if (ordinary && !record_execution && !admitted && !required && vm_ordinary_admission_eligible(vm)) {
         ordinary->vm=vm;
         ordinary->module=vm->module;
         ordinary->valid=true;
@@ -1740,6 +1781,7 @@ vm_dispatch_top:
             VmTrap yielded = {.type = TRAP_YIELD};
             return yielded;
         }
+        frame->instruction_ip = vm->ip;
         VmReferenceActivation *reference_context=vm_reference_activation(vm,vm->frame_count-1);
         bool *dispatch_valid = NULL;
         VmDispatchModule *dispatch_module = dispatch_module_for(
@@ -1763,6 +1805,12 @@ vm_dispatch_top:
             return trap_error(vm, VM_ERR_DECODE,
                               "No dispatch instruction at offset %u", vm->ip);
         }
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+        if(record_execution) {
+            VmResult checked=vm_ra_preflight(record_array,decoded);
+            if(checked!=VM_OK)return trap_error(vm,checked,"I require the complete private opcode root contract.");
+        }
+#endif
         DecodedInstruction instr = decoded->instruction;
         uint32_t instr_start = vm->ip;
         uint32_t stack_before = vm->stack_size;
@@ -1845,6 +1893,9 @@ vm_dispatch_top:
                     return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
                                       "Local %u out of range", idx);
                 }
+                /* I have completed the local-load phase. The field access
+                 * retains its own portable source location under fusion. */
+                frame->instruction_ip = instr_start + instr.byte_length;
                 NanoValue aggregate = vm->stack[abs_idx];
                 NanoValue value = val_void();
                 if (aggregate.tag == TAG_STRUCT && aggregate.as.sval
@@ -1976,6 +2027,7 @@ vm_dispatch_top:
             for(uint16_t i=0;i<callee->local_count;i++) stack_push(vm,val_void());
             VmCallFrame *next=&vm->frames[vm->frame_count++];
             memset(next,0,sizeof(*next));next->fn_idx=1;next->return_ip=vm->ip;
+            next->instruction_ip=callee->code_offset;
             next->stack_base=base;next->local_count=callee->local_count;
             next->owned_callable=val_void();next->module=vm->module;
             frame=next;vm->current_fn=1;vm->ip=callee->code_offset;cur_fn=callee;
@@ -2909,8 +2961,13 @@ dynamic_div:
             }
 
             VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+            if(record_execution && vm->frame_count>record_array->maximum_frames)
+                record_array->maximum_frames=vm->frame_count;
+#endif
             new_frame->fn_idx = callee_idx;
             new_frame->return_ip = vm->ip;
+            new_frame->instruction_ip = callee->code_offset;
             new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
@@ -2977,6 +3034,7 @@ dynamic_div:
              * entered through goes away with it. */
             vm_release(&vm->heap, frame->owned_callable);
             frame->fn_idx = callee_idx;
+            frame->instruction_ip = callee->code_offset;
             frame->local_count = callee->local_count;
             frame->closure = NULL;
             frame->owned_callable = val_void();
@@ -3040,6 +3098,7 @@ dynamic_div:
                 VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
                 new_frame->fn_idx = callee_idx;
                 new_frame->return_ip = vm->ip;
+                new_frame->instruction_ip = callee->code_offset;
                 new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
                 new_frame->local_count = callee->local_count;
@@ -3125,6 +3184,7 @@ dynamic_div:
             activation->effect_local_start = handler->parameter_start;
             activation->owned_callable = val_void();
             activation->return_ip = vm->ip;
+            activation->instruction_ip = handler->target;
             frame = activation;
             vm->module = handler->module;
             vm->current_fn = owner->fn_idx;
@@ -3359,6 +3419,7 @@ vm_return_values: ;
             VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
             new_frame->fn_idx = fn_idx_m;
             new_frame->return_ip = vm->ip;
+            new_frame->instruction_ip = callee->code_offset;
             new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
@@ -3900,6 +3961,9 @@ vm_return_values: ;
 
         VM_CASE(OP_STRUCT_NEW) {
             uint32_t def_idx = instr.operands[0].u32;
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+            if(record_execution)def_idx=record_array->record_layouts[def_idx];
+#endif
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, 0);
             if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the struct.");
             stack_push(vm, val_struct(s));
@@ -3948,6 +4012,9 @@ vm_return_values: ;
         VM_CASE(OP_STRUCT_LITERAL) {
             uint32_t def_idx = instr.operands[0].u32;
             uint16_t field_count = instr.operands[1].u16;
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+            if(record_execution)def_idx=record_array->record_layouts[def_idx];
+#endif
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, field_count);
             if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the struct.");
             /* Pop fields in reverse order */
@@ -4072,6 +4139,9 @@ vm_return_values: ;
                         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact ordinary mixed record identity");
                     layout=proof->records[layout].global_layout;
                 }
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+                if(record_execution)layout=record_array->record_layouts[layout];
+#endif
                 VmStruct *record = vm_struct_new(&vm->heap, layout, count);
                 if (!record) return trap_error(vm, VM_ERR_MEMORY,
                                                "AGG_PACK record allocation failed");
@@ -4595,6 +4665,10 @@ vm_dispatch_done: ;
     return trap_none();
 }
 
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+#include "record_array_vm_run.inc"
+#endif
+
 VmTrap vm_core_execute(VmState *vm) {
     if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
         VmTrap refused={.type=TRAP_ERROR};
@@ -4604,7 +4678,7 @@ VmTrap vm_core_execute(VmState *vm) {
     }
     bool mixed=vm && nvm_mixed_samples_candidate(vm->module);
     uint32_t base=mixed && vm->frame_count?vm->frames[0].stack_base:0;
-    VmTrap trap=vm_core_execute_scoped(vm,NULL,NULL);
+    VmTrap trap=vm_core_execute_scoped(vm,NULL,NULL,NULL);
     if(mixed && (trap.type==TRAP_ERROR ||
        (trap.type==TRAP_ASSERT && !val_truthy(trap.data.assert_check.condition)))) {
         while(vm->stack_size>base)vm_release(&vm->heap,stack_pop(vm));
@@ -4656,19 +4730,19 @@ void vm_stack_trace(const VmState *vm, FILE *out) {
         uint32_t line = frame->current_line;
         uint32_t col  = frame->current_col;
         if (line == 0 && mod && mod->debug_count > 0) {
-            /* Find the debug entry with the largest bytecode_offset <= frame's ip.
-             * For frames other than the top frame we don't have a saved ip,
-             * so we use frame->return_ip as a proxy. */
-            uint32_t search_ip = (i == (int)vm->frame_count - 1)
-                                  ? vm->ip
-                                  : frame->return_ip;
+            /* I retain the executing instruction for each frame. The next IP
+             * names a continuation, and return_ip belongs to the caller. */
+            uint32_t search_ip = frame->instruction_ip;
+            const NvmFunctionEntry *function = frame->fn_idx < mod->function_count
+                ? &mod->functions[frame->fn_idx] : NULL;
             uint32_t best_line = 0;
             uint32_t best_col  = 0;
             uint32_t best_offset = 0;
             bool found = false;
             for (uint32_t d = 0; d < mod->debug_count; d++) {
                 uint32_t off = mod->debug_entries[d].bytecode_offset;
-                if (off <= search_ip) {
+                if (function && off >= function->code_offset &&
+                    off - function->code_offset < function->code_length && off <= search_ip) {
                     if (!found || off >= best_offset) {
                         best_offset = off;
                         best_line   = mod->debug_entries[d].source_line;
@@ -4760,6 +4834,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
     VmCallFrame *frame = &vm->frames[vm->frame_count++];
     frame->fn_idx = fn_idx;
     frame->return_ip = vm->ip;
+    frame->instruction_ip = fn->code_offset;
     frame->effect_owner = 0;
     frame->stack_base = stack_base;
     frame->local_count = fn->local_count;
@@ -4790,7 +4865,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
         if (vm->callback_error != VM_OK)
             return vm_error(vm, vm->callback_error, "%s", vm->callback_error_msg);
         if (!vm_owned_proof_matches(vm,proof)) proof->module=NULL;
-        VmTrap trap = vm_core_execute_scoped(vm,proof,&ordinary);
+        VmTrap trap = vm_core_execute_scoped(vm,proof,&ordinary,NULL);
         /* Invalidate before any host effect, yield, completion or error.
          * Only a successful assertion and its closed heap release may resume. */
         if (trap.type!=TRAP_ASSERT) ordinary.valid=false;

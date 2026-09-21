@@ -2988,6 +2988,99 @@ static void test_assertion_stack_context(void) {
     }
 }
 
+/* I distinguish the executing assertion and suspended call from their next
+ * statements, without executable DEBUG_LINE instructions masking the lookup. */
+static void test_stack_trace_executing_offsets(void) {
+    for (unsigned mode = 0; mode < 4; ++mode) {
+        uint8_t main_code[64], helper_code[64];
+        uint32_t mo = 0, ho = 0;
+        if (mode == 1) {
+            mo += emit(main_code + mo, OP_FUNCREF, (uint32_t)1);
+            mo += emit(main_code + mo, OP_CALL_INDIRECT, (int)0, (int)1);
+        } else {
+            mo += emit(main_code + mo, mode == 2 ? OP_TAIL_CALL : OP_CALL, (uint32_t)1);
+        }
+        uint32_t continuation = mo;
+        mo += emit(main_code + mo, OP_RET);
+        /* The taken branch reaches the assertion after an unrelated mapping. */
+        ho += emit(helper_code + ho, OP_PUSH_BOOL, (int)1);
+        ho += emit(helper_code + ho, OP_JMP_TRUE, (int32_t)6);
+        ho += emit(helper_code + ho, OP_NOP);
+        uint32_t selected = ho;
+        ho += emit(helper_code + ho, OP_PUSH_BOOL, (int)0);
+        ho += emit(helper_code + ho, OP_ASSERT);
+        uint32_t next_statement = ho;
+        ho += emit(helper_code + ho, OP_PUSH_I64, (int64_t)0);
+        ho += emit(helper_code + ho, OP_RET);
+        NvmModule *mod = make_multi_fn_module();
+        uint32_t main_idx = add_fn(mod, "main", main_code, mo, 0, 0);
+        add_fn(mod, "helper", helper_code, ho, 0, 0);
+        nvm_add_debug_entry(mod, 0, 100, 3);
+        nvm_add_debug_entry(mod, continuation, 101, 4);
+        if (mode != 3) {
+            nvm_add_debug_entry(mod, mo, 199, 5);
+            nvm_add_debug_entry(mod, mo + selected, 200, 6);
+            nvm_add_debug_entry(mod, mo + next_statement, 201, 7);
+        }
+        mod->header.flags |= NVM_FLAG_DEBUG_INFO | NVM_FLAG_HAS_MAIN;
+        mod->header.entry_point = main_idx;
+        mod->source_file_idx = nvm_add_string(mod, "offset.nano", 11);
+        char buf[2048] = {0};
+        FILE *out = fmemopen(buf, sizeof(buf) - 1, "w");
+        ASSERT(out != NULL, "I open the exact-location trace");
+        VmState vm;
+        vm_init(&vm, mod);
+        vm.output = out;
+        ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_ASSERT_FAILED, "I preserve the assertion failure");
+        fclose(out);
+        ASSERT(strstr(buf, "offset.nano:101") == NULL, "I do not report the caller continuation");
+        ASSERT(strstr(buf, "offset.nano:201") == NULL, "I do not report the next assertion statement");
+        if (mode != 3)
+            ASSERT(strstr(buf, "helper  offset.nano:200:6") != NULL, "I report the executing assertion");
+        else
+            ASSERT(strstr(buf, "helper  offset.nano:?") != NULL, "I report unknown instead of borrowing another function's mapping");
+        if (mode != 2)
+            ASSERT(strstr(buf, "main  offset.nano:100:3") != NULL, "I retain the suspended call location");
+        else
+            ASSERT(strstr(buf, "main  offset.nano:") == NULL, "I replace the tail-call frame");
+        vm_destroy(&vm);
+        nvm_module_free(mod);
+    }
+}
+
+static void test_stack_trace_fused_field_location(void) {
+    for (unsigned fused = 0; fused < 2; ++fused) {
+        uint8_t code[128];
+        uint32_t load = 0, field = 0;
+        uint32_t size = emit_local_field_program(code, 9, &load, &field);
+        NvmModule *mod = make_module(code, size, 0, 1);
+        mod->header.flags |= NVM_FLAG_DEBUG_INFO;
+        mod->source_file_idx = nvm_add_string(mod, "fused.nano", 10);
+        nvm_add_debug_entry(mod, load, 301, 1);
+        nvm_add_debug_entry(mod, field, 302, 2);
+        nvm_add_debug_entry(mod, size - 1, 303, 3);
+        char buf[2048] = {0};
+        FILE *out = fmemopen(buf, sizeof(buf) - 1, "w");
+        ASSERT(out != NULL, "I capture the fused field location");
+        VmState vm;
+        vm_init(&vm, mod);
+        vm.output = out;
+        vm_set_dispatch_profile(&vm, fused ? vm_dispatch_profile_all() : vm_dispatch_profile_none());
+        ASSERT(vm_rebuild_module(&vm, mod), "I rebuild the selected fusion profile");
+        uint32_t index = vm.dispatch_module.functions[0].offset_to_index[load] - 1;
+        ASSERT_EQ_INT(vm.dispatch_module.functions[0].instructions[index].super_op,
+                      fused ? VM_SUPER_LOAD_LOCAL_FIELD : VM_SUPER_NONE,
+                      "I exercise the actual requested dispatch profile");
+        ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_OUT_OF_BOUNDS, "I preserve field bounds failure");
+        fclose(out);
+        ASSERT(strstr(buf, "fused.nano:302:2") != NULL, "I report the field phase");
+        ASSERT(strstr(buf, "fused.nano:301") == NULL, "I do not report the preceding local load");
+        ASSERT(strstr(buf, "fused.nano:303") == NULL, "I do not report the continuation");
+        vm_destroy(&vm);
+        nvm_module_free(mod);
+    }
+}
+
 static void test_stack_trace_col(void) {
     /*
      * Verify col appears in the trace when source_col > 0 in the debug entry.
@@ -5901,6 +5994,8 @@ int main(void) {
     printf("\n[Stack Trace / Debug Mode]\n");
     RUN_TEST(test_stack_trace_debug_mode);
     RUN_TEST(test_assertion_stack_context);
+    RUN_TEST(test_stack_trace_executing_offsets);
+    RUN_TEST(test_stack_trace_fused_field_location);
     RUN_TEST(test_stack_trace_col);
     RUN_TEST(test_stack_trace_multi_frame);
 

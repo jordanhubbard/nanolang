@@ -1,0 +1,161 @@
+{
+  "scope": "Only two self-owned immutable query CAS stores; every original evidence path and SHA preserved; no provider/source edits",
+  "free_before": 2113654784,
+  "free_after": 2149654528,
+  "duplicate_payload_bytes": 30508913,
+  "records": [
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/97421b6f6f58db620387698f7c7670d9f7e647c920056fccd1c5b369255ce9a9",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/97421b6f6f58db620387698f7c7670d9f7e647c920056fccd1c5b369255ce9a9",
+      "sha256": "97421b6f6f58db620387698f7c7670d9f7e647c920056fccd1c5b369255ce9a9",
+      "bytes": 233,
+      "old_inode": 6070023,
+      "retained_inode": 2407932,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/4e0eb6dc540fe3529137fea5d7c6b488fbf5063cb25deed98d88f4e677a5f32e",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/4e0eb6dc540fe3529137fea5d7c6b488fbf5063cb25deed98d88f4e677a5f32e",
+      "sha256": "4e0eb6dc540fe3529137fea5d7c6b488fbf5063cb25deed98d88f4e677a5f32e",
+      "bytes": 44,
+      "old_inode": 6070054,
+      "retained_inode": 5422223,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/0dbaf7d6b5454181c9333e905a1fae30c5d78174f08042ed559264bd7e49b38c",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/0dbaf7d6b5454181c9333e905a1fae30c5d78174f08042ed559264bd7e49b38c",
+      "sha256": "0dbaf7d6b5454181c9333e905a1fae30c5d78174f08042ed559264bd7e49b38c",
+      "bytes": 67,
+      "old_inode": 6070213,
+      "retained_inode": 2407860,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/a897aa3596bbc5ef959d1e660697ce1096b77e25b058b08869424d530a99da64",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/a897aa3596bbc5ef959d1e660697ce1096b77e25b058b08869424d530a99da64",
+      "sha256": "a897aa3596bbc5ef959d1e660697ce1096b77e25b058b08869424d530a99da64",
+      "bytes": 15252356,
+      "old_inode": 6069953,
+      "retained_inode": 573875,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "old_inode": 6070251,
+      "retained_inode": 5803026,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/ad5d3afba6d13a9a8decde957317e3cb3a80cd427140fe5255eead8cbbe3c547",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/ad5d3afba6d13a9a8decde957317e3cb3a80cd427140fe5255eead8cbbe3c547",
+      "sha256": "ad5d3afba6d13a9a8decde957317e3cb3a80cd427140fe5255eead8cbbe3c547",
+      "bytes": 181,
+      "old_inode": 6070410,
+      "retained_inode": 5803056,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/bcf1a74e321840ab8a1cb83333e12a4ce1bb4db7898358aac07b7ccf0287894c",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/bcf1a74e321840ab8a1cb83333e12a4ce1bb4db7898358aac07b7ccf0287894c",
+      "sha256": "bcf1a74e321840ab8a1cb83333e12a4ce1bb4db7898358aac07b7ccf0287894c",
+      "bytes": 476,
+      "old_inode": 6069952,
+      "retained_inode": 2407586,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "old_inode": 6069842,
+      "retained_inode": 5803022,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/71d0c10c607782c593da978c73999b8399b9ce2b538f3e2856dcd8d770909ac2",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/71d0c10c607782c593da978c73999b8399b9ce2b538f3e2856dcd8d770909ac2",
+      "sha256": "71d0c10c607782c593da978c73999b8399b9ce2b538f3e2856dcd8d770909ac2",
+      "bytes": 80,
+      "old_inode": 6070263,
+      "retained_inode": 5422228,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/f300ad4ecae12360d2bd22857bb88b9eaa9c79cff5dba50ba9a0c9c7bc8d5b6f",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/f300ad4ecae12360d2bd22857bb88b9eaa9c79cff5dba50ba9a0c9c7bc8d5b6f",
+      "sha256": "f300ad4ecae12360d2bd22857bb88b9eaa9c79cff5dba50ba9a0c9c7bc8d5b6f",
+      "bytes": 326,
+      "old_inode": 6069922,
+      "retained_inode": 2407903,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/938e13459a9325b8a3c0c3a81b764bf987f298554404729fe51d52fc19e7fc5c",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/938e13459a9325b8a3c0c3a81b764bf987f298554404729fe51d52fc19e7fc5c",
+      "sha256": "938e13459a9325b8a3c0c3a81b764bf987f298554404729fe51d52fc19e7fc5c",
+      "bytes": 15252547,
+      "old_inode": 6070154,
+      "retained_inode": 573888,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/ebf949ce3d28875bc50b105e9f12d7cb042bc19691869fa2fc610a68eba2fd99",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/ebf949ce3d28875bc50b105e9f12d7cb042bc19691869fa2fc610a68eba2fd99",
+      "sha256": "ebf949ce3d28875bc50b105e9f12d7cb042bc19691869fa2fc610a68eba2fd99",
+      "bytes": 280,
+      "old_inode": 6070028,
+      "retained_inode": 2407585,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/c4d7efa5921b1aded82372ee8181bf298bc7e2e458e01bcfc70c03f780ac8644",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/c4d7efa5921b1aded82372ee8181bf298bc7e2e458e01bcfc70c03f780ac8644",
+      "sha256": "c4d7efa5921b1aded82372ee8181bf298bc7e2e458e01bcfc70c03f780ac8644",
+      "bytes": 179,
+      "old_inode": 6070041,
+      "retained_inode": 2407902,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/58421ce525833e6e29f42e15cf99c7d68ac5dd15886c5d9b759eaddd7e2b3ba2",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/58421ce525833e6e29f42e15cf99c7d68ac5dd15886c5d9b759eaddd7e2b3ba2",
+      "sha256": "58421ce525833e6e29f42e15cf99c7d68ac5dd15886c5d9b759eaddd7e2b3ba2",
+      "bytes": 123,
+      "old_inode": 6069909,
+      "retained_inode": 2407861,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/ce8d85f678ce49eb4fced7683055c6ad307a9047e9a45bff0d2e3c272c04a491",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/ce8d85f678ce49eb4fced7683055c6ad307a9047e9a45bff0d2e3c272c04a491",
+      "sha256": "ce8d85f678ce49eb4fced7683055c6ad307a9047e9a45bff0d2e3c272c04a491",
+      "bytes": 323,
+      "old_inode": 6070186,
+      "retained_inode": 2407933,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/cb0e86f3e503067b318f4e49e51aba595d73b50ed60749702464e71288644ab0",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/cb0e86f3e503067b318f4e49e51aba595d73b50ed60749702464e71288644ab0",
+      "sha256": "cb0e86f3e503067b318f4e49e51aba595d73b50ed60749702464e71288644ab0",
+      "bytes": 951,
+      "old_inode": 6070255,
+      "retained_inode": 2407964,
+      "paths_preserved": true
+    },
+    {
+      "path": "/tmp/nanolang-record-global-puck-seal-local/objects/3f9c26ee7ac7fd99f89b5e0f99c73bf69a98de6dc580a888afa73adc7f66a67d",
+      "same_bytes_at": "/tmp/nanolang-record-global-linux-seal/objects/3f9c26ee7ac7fd99f89b5e0f99c73bf69a98de6dc580a888afa73adc7f66a67d",
+      "sha256": "3f9c26ee7ac7fd99f89b5e0f99c73bf69a98de6dc580a888afa73adc7f66a67d",
+      "bytes": 566,
+      "old_inode": 6070144,
+      "retained_inode": 2407963,
+      "paths_preserved": true
+    }
+  ]
+}

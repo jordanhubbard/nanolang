@@ -1,0 +1,37 @@
+[
+  {
+    "phase": "configuration",
+    "seconds": 0.114,
+    "status": 0
+  },
+  {
+    "phase": "owned-string-proof-build",
+    "seconds": 4.726,
+    "status": 0
+  },
+  {
+    "phase": "owned-string-proof-run",
+    "seconds": 0.008,
+    "status": 0
+  },
+  {
+    "phase": "test-vm-ordinary-admission",
+    "seconds": 6.331,
+    "status": 0
+  },
+  {
+    "phase": "test-owned-array-overwrite",
+    "seconds": 7.934,
+    "status": 0
+  },
+  {
+    "phase": "test-file-private-vm",
+    "seconds": 8.438,
+    "status": 0
+  },
+  {
+    "phase": "test-file-cyclic-public",
+    "seconds": 136.266,
+    "status": 0
+  }
+]

@@ -4244,7 +4244,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         Function *function = &env->functions[i];
         StructDef *returned = function->return_type == TYPE_STRUCT && function->return_struct_type_name
             ? env_get_struct(env, function->return_struct_type_name) : NULL;
-        if(returned && is_resource_type(env,function->return_struct_type_name))return codegen_borrow_compile(program,modules,shadows);
+        if(returned && is_resource_type(env,function->return_struct_type_name))return codegen_borrow_compile(program,env,modules,shadows);
         for (int p = 0; p < function->param_count; ++p) {
             if (!function->params) continue;
             Parameter *parameter = &function->params[p];
@@ -4252,12 +4252,12 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 ? env_get_struct(env, parameter->struct_type_name) : NULL;
             if (parameter->type == TYPE_BORROW_SHARED || parameter->type == TYPE_BORROW_MUT ||
                 (record && is_resource_type(env,parameter->struct_type_name))) {
-                return codegen_borrow_compile(program, modules, shadows);
+                return codegen_borrow_compile(program, env, modules, shadows);
             }
         }
     }
 
-    if(borrow_source_uses_owner(program,env))return codegen_borrow_compile(program,modules,shadows);
+    if(borrow_source_uses_owner(program,env))return codegen_borrow_compile(program,env,modules,shadows);
 
     CgLocalName *local_names=NULL;
     CgAuthoritySlot *authority_slots=NULL;

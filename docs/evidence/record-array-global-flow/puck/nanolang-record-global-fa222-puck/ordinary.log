@@ -1,0 +1,18 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-global-flow-s4q5jo6a
+test_complete_global_flow_and_allocation_controls (tests.test_record_array_global_flow.RecordArrayGlobalFlow.test_complete_global_flow_and_allocation_controls) ... FAIL
+
+======================================================================
+FAIL: test_complete_global_flow_and_allocation_controls (tests.test_record_array_global_flow.RecordArrayGlobalFlow.test_complete_global_flow_and_allocation_controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-record-global-qualified-fa222/tests/test_record_array_global_flow.py", line 58, in test_complete_global_flow_and_allocation_controls
+    output = self.command(mode + '-run', [str(exe)])
+  File "/private/tmp/nanolang-record-global-qualified-fa222/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 1.628s
+
+FAILED (failures=1)
