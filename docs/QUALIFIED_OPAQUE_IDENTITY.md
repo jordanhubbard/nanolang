@@ -131,3 +131,63 @@ general foreign ABI or pointer-lifetime extension.
 Passing this dependency is necessary for installed paired-source acceptance. It
 does not close full File source lowering, startup/shadow execution, cyclic/indirect
 control flow, richer borrowing, or the overall5.1 release requirements.
+
+## Resolution inventory and concrete representation
+
+I found an existing C recursive nominal traversal in `src/nominal_types.c`.
+`bind_nominal_records` already visits function signatures, lets, records, union
+payloads, arrays/tuples/callables and expression children. I extend that traversal
+for opaque facts; I do not create a second annotation walker. I audit its missing
+complete record-field facts and opaque-specific TypeInfo slots explicitly.
+
+| Boundary | Existing owner | Planned opaque change |
+| --- | --- | --- |
+| C registry creation/free | env.c, Environment | Checked staged opaque rows and import-binding rows; free every owned string |
+| C source context | env_current_file, module loader cache | Copy canonical path into each row; synthetic root only when no source context was supplied |
+| C imports | process_imports_owned's actual selected module_path and ASTImport | Stage exact importing-origin/visible-name/target-identity rows after successful dependency load |
+| C annotation normalization | nominal_types.c | Rewrite authorized opaque references to immutable identity keys before signatures are registered |
+| C checking | typechecker.c, checked expression/type facts | Compare resolved declarations for opaque assignment, argument and return, including nested annotations |
+| C copying | env.c payload/signature copies, module.c metadata copies | Retain owned identity strings; no borrowed registry-entry pointer survives growth |
+| C emission | transpiler.c opaque registry lookups | Resolve identity keys to existing pointer ABI representation, never emit a source path as an identifier |
+| Nano registration/import | nominal_bindings.nano, module_bindings.nano | Add kind-aware opaque rows to the same actual-owner namespace; preserve records/unions |
+| Nano annotation consumers | nb_rewrite, nb_type, token-based signature parsing | Normalize AST and later token-parsed annotations through one map |
+| Nano checking/emission | typecheck.nano, transpiler.nano | Distinguish opaque facts from records and use their retained pointer representation |
+
+My C owning-layout choice stays inside the approved registry/binding contract:
+`OpaqueTypeDef` keeps its original `name` and separate `c_type_name`, and gains owned
+`origin` and `identity` strings. An environment-owned opaque visibility array keeps
+owned importing-origin, visible-spelling and target-identity strings. No opaque
+lookup returns a borrowed pointer that a caller retains across registry growth.
+I do not change AST/schema layouts or the unrelated record/union namespace ABI.
+The actual import boundary stages all rows for one import before publishing them;
+local declaration registration likewise validates all local duplicates/kind
+collisions and stages its new rows before publishing. Failure leaves previous
+rows intact and no partial new authority. Failed nominal AST normalization may
+leave a rejected AST partially normalized; it cannot proceed to emission and is
+freed normally. I do not claim whole-parser transactionality.
+
+C identity strings use an unambiguous counted origin/name encoding with an opaque
+kind discriminator; they are internal keys, not generated C identifiers. Registry
+lookup recognizes only an exact registered key or an authorized current-owner
+binding. Original short names remain separately available for diagnostics/ABI.
+Each origin is copied from checked realpath of an actual supplied source context;
+a NULL context has an explicit synthetic-root discriminator. A non-NULL missing
+source cannot silently become the synthetic root. The existing env_current_file
+borrow remains subject to its original lifetime; copied opaque rows do not borrow
+that pointer, parser text, import AST strings or a module-cache entry.
+
+Nano uses existing per-invocation merged-file owners and collision-free internal
+identifier allocation, with exact kind/original/owner/ABI facts retained in the
+nominal map. The original opaque AST spelling can remain source vocabulary;
+normalized references use the internal target, and emitter lookup recovers the
+opaque fact from that map. I will not add fields to the shared generated AST
+schema merely to carry this compiler-owned registry. Normalized cross-producer
+proof compares declaration tuples, not the different internal key encodings.
+
+The C seed currently accepts broad struct/opaque arguments and opaque-to-int
+legacy calls. I do not expand these conversions. Opaque-to-opaque checks must
+compare identities instead of bypassing nominal checks; unchanged historical
+scalar/foreign policies receive adjacent controls and remain separately scoped.
+The native emitter's existing known opaque C spellings are preserved; a custom
+actual opaque declaration uses the same pointer representation as the C seed,
+with no record layout or pointer lifetime inferred from its name.
