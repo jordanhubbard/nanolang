@@ -1980,6 +1980,30 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                 continue;
             }
 
+            /* I quote only an actual published provider object here. Other
+             * returned flags remain trusted command fragments in their order. */
+            bool provider_object = false;
+            for (int j = 0; j < build_info_count; ++j) {
+                if (build_infos[j]->object_file &&
+                    strcmp(link_flags[i], build_infos[j]->object_file) == 0) {
+                    provider_object = true;
+                    break;
+                }
+            }
+            if (provider_object) {
+                if (!module_append_unique_object(module_objs_buffer, link_flags[i])) {
+                    fprintf(stderr, "I could not represent all published provider object paths.\n");
+                    for (size_t k = i; k < link_flags_count; ++k) free(link_flags[k]);
+                    free(link_flags);
+                    module_builder_free(builder);
+                    for (int j = 0; j < build_info_count; ++j) module_build_info_free(build_infos[j]);
+                    free(build_infos);
+                    return false;
+                }
+                free(link_flags[i]);
+                continue;
+            }
+
             // Skip direct .tbd inputs (macOS text stubs) to avoid linker warnings
             size_t flag_len = strlen(link_flags[i]);
             if (flag_len > 4 && strcmp(link_flags[i] + flag_len - 4, ".tbd") == 0) {
