@@ -14,10 +14,13 @@ This replaces the preliminary design's separate capture/forward operations;
 forwarding is explicit in the descriptor rather than an intermediate value.
 
 I retain ordinary NanoValue tags and ordinary foreign signatures unchanged.
-Cells have a private heap object kind and explicit internal edges. They never
-become values accepted by arrays, casts, comparisons, generic stack operators,
-foreign calls or serialized constants. The collector must understand those
-edges even though no public NanoValue tag denotes a cell.
+I represent each private cell with an owned, one-slot VmTuple. The capture mode
+and binding sidecar identify its internal role; its wrapper never becomes an
+ordinary source value accepted by arrays, casts, comparisons, generic stack
+operators, foreign calls or serialized constants. An immutable source tuple
+captured in mode0 remains an ordinary tuple. A mode1 wrapper contains the source
+value, which can itself be a tuple. I do not introduce a new public value tag or
+a new private collector kind for this representation.
 
 ## Container and exact payload
 
@@ -126,8 +129,9 @@ it does not allocate a second identity for the same owner binding.
 CLOSURE_BIND first checks all descriptors, initialization, target shape, stack
 capacity and ownership restrictions without mutation. It allocates a private
 environment and staging storage with checked size arithmetic. It allocates at
-most one new cell per distinct unboxed mutable source local, retaining that
-local's current value into the private cell. Already boxed locals and shared
+most one new cell per distinct unboxed mutable source local. Each staged new
+cell initially owns VOID; its source value remains owned by the unchanged local
+until commit. Already boxed locals and shared
 upvalues retain their existing cells; immutable sources retain their values.
 Repeated references to a new cell share the staged identity.
 
@@ -139,11 +143,44 @@ existing cells and prior closures unchanged. The retained first error survives
 cleanup. Retrying from a handler sees the same prior binding identities.
 
 Commit performs no allocation, callback, collection or other fallible action.
-It transfers each new cell's owner edge to its local binding, removes the
-redundant ordinary local value edge, and publishes the fully owned closure on
+It moves each old ordinary local value into its new cell, replaces that local
+slot with VOID, transfers the staged owner edge to its local binding, and
+publishes the fully owned closure on
 the already reserved operand stack. No partially initialized environment is
 observable. There is no general rollback of user code: this transaction covers
 only construction of this environment.
+
+## Audited heap representation and remaining frame audit
+
+At f195b843e, `vm_tuple_new` allocates an owned zeroed tuple and accounts its
+bytes/object count. `release_tuple` visits every element; `release_closure`
+visits every capture. In `heap_cycles.c`, both read-only `for_each_child` and
+mutating `for_each_child_slot` already visit tuple elements and closure captures.
+The suspect buffer reconstructs the existing heap tag from the object header.
+Storing a mode1 capture as an internal `val_tuple(cell)` therefore preserves
+these existing collector edges. The binding sidecar owns the same internal
+wrapper edge through the ordinary retain/release functions; it never publishes
+that wrapper as a language result. This source audit establishes the existing
+traversal paths, not passing cycle or lifetime tests for the new feature.
+
+I keep `VmClosure.captures` as owned NanoValue slots. Mode0 stores a copied
+ordinary value; mode1 stores a checked nonnull, one-element tuple wrapper.
+The executing module's validated target metadata distinguishes these roles.
+LOAD/STORE_UPVALUE and capture forwarding must check the shape before using a
+mode1 wrapper, including entry through the public callback path. Ordinary tuple
+operators never receive the wrapper. Destruction and cycle traversal need not
+infer capture mode to release its edge correctly. Existing copied closures
+retain their current layout and release behavior.
+
+The frame audit must cover every site creating/removing `VmCallFrame`, including
+OP_CALL, OP_CALL_INDIRECT, OP_TAIL_CALL, linked calls, reference-call admission,
+OP_PERFORM, OP_EFFECT_RESUME, effect-origin return, ordinary return, runtime
+error cleanup, `vm_push_entry_frame`, nested/public callback cleanup and final
+`vm_execute` cleanup. `effect_local_index` currently maps to a lexical owner's
+ordinary slot; the new binding lookup must use that same owner for its sidecar.
+A sidecar borrowed by an effect activation must not be freed as a new owner.
+Ownership-profile and private mixed-runtime entry paths must refuse unsupported
+combined modes before execution until their full joint rules are qualified.
 
 ## Lifetime obligations
 
