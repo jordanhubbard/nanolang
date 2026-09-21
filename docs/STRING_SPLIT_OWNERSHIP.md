@@ -121,3 +121,10 @@ declaration is exempt from the later module builtin-name check. Qualified
 lookup still requires its namespace owner and existing visibility rules.
 Duplicate source declarations, private member access and extern collisions
 remain refusal controls. I do not extend this policy to unrelated builtins.
+
+I add three independent module refusals for each producer: a private source
+member selected through a namespace, duplicate public source declarations,
+and an extern/source collision with the same original name. Each preserves
+a pre-existing output sentinel and requires a diagnostic identifying
+`str_split`. Safe shadows do not invoke the invalid member; the original
+public qualified positive still checks its exact selected shadows and result.

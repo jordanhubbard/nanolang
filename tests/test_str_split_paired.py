@@ -118,3 +118,18 @@ shadow probe { assert (== (probe) 0) }
                 self.assertEqual(exe.read_bytes(),b'output sentinel\n')
                 if label in ('arity','source-type','delimiter-type'):
                     self.assertIn(b'I require two strings for str_split.',out+err)
+            module_refusals={
+                'private':'fn str_split(value: int) -> int { return (+ value 1) }\n',
+                'duplicate':'pub fn str_split(value: int) -> int { return (+ value 1) }\npub fn str_split(value: int) -> int { return (+ value 2) }\n',
+                'extern-collision':'extern fn str_split(value: int) -> int\npub fn str_split(value: int) -> int { return (+ value 1) }\n'}
+            for label,declarations in module_refusals.items():
+                name=role+'-module-refuse-'+label
+                owner=self.work/(name+'-provider.nano')
+                owner.write_text('module split_refusal_provider\n'+declarations+'shadow str_split { assert true }\n')
+                path=self.work/(name+'.nano')
+                path.write_text(f'module {json.dumps(str(owner))} as Provider\nfn main() -> int {{ return (Provider.str_split 41) }}\nshadow main {{ assert true }}\n')
+                exe=self.work/name;exe.write_bytes(b'module output sentinel\n')
+                out,err,_=native_sdk_runner.run(self.work,name+'-compile',[row['path'],path,'-o',exe],ROOT,
+                    {'NANO_SHADOW_TIMING':None,'NANO_SHADOW_TIMEOUT_SECONDS':None},expected=(1,),timeout=300)
+                self.assertEqual(exe.read_bytes(),b'module output sentinel\n')
+                self.assertIn(b'str_split',out+err)
