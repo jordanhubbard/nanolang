@@ -106,3 +106,22 @@ I publish a literal's element representation only after its subtree passes.
 I call this walk after the existing expression check so its empty/byte annotation
 is not immediately overwritten by inference. It does not execute values or
 change any generic global equality rule. Source review precedes gates.
+
+## Checked array_new result prerequisite
+
+My first81cd Linux Stage2 bootstrap reaches the new field check and refuses
+ModuleCache.parsers `(array_new 0 "")`: check_expr_node has no builtin result
+inference for array_new and returns a named UNKNOWN. Its C registry contract is
+`array_new(size: int, default: T) -> array<T>` with two arguments. My existing
+C nominal view already derives the element annotation from the actual default.
+
+I add the same source inference to the self-hosted direct-call checker, only
+when the bound name is array_new and no visible function/value symbol owns that
+name. Ordinary/extern/module/local declarations keep their existing call path.
+I require two arguments, a known assignment-compatible integer count, and a
+known fill expression type; the result is `type_array_of(actual_fill)`, never
+the requested field type. This does not coerce an existing array or replace
+ModuleCache's source. All arguments are already visited by the existing checker;
+additional visits are static checks, not extra evaluation. I cover wrong count
+type/arity, inferred string and record identity, and a visible same-named
+function's unchanged declared result. Source review precedes corrected gates.

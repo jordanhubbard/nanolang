@@ -13897,3 +13897,16 @@ a448 environment had `/opt/homebrew/bin` while this launcher did not.
 - [ ] I preserve that terminal and qualify a separate fresh81cd Darwin tree
   with the explicit previously selected Homebrew PATH, recording brew, pkg-config
   and selected OpenSSL inputs. This driver correction changes no source or gate.
+
+
+My first81cd Linux Make build passes74.676s, then explicit bootstrap fails
+Stage2 typechecking at207.596s on ModuleCache.parsers `(array_new 0 "")`.
+The self-hosted checker recognizes the builtin name but lacks an actual result
+inference branch; accepting unknown record fields would hide this prerequisite.
+
+- [ ] I infer the actual builtin array_new result from its checked fill argument
+  and validate its existing two-argument/count contract, preserving declared
+  function/local/extern name precedence and exact nominal fill identity. I add
+  inferred string/record and shadowing controls, then repeat the unchanged full
+  bootstrap and15methods after source review. I do not replace the original
+  ModuleCache expression or weaken field destination checks.
