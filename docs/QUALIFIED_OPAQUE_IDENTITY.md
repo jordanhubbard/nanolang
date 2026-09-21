@@ -432,3 +432,52 @@ actual C-seed/Stage1/Stage2 agreement, metadata round-trip and allocation-prefix
 controls, nested callback/tuple/generic and enclosing-record cases, complete
 array representation, both module-label boundaries and the unchanged Json.Json
 installed-source case. All full File/source and release holds remain open.
+
+### Array representation completion proposal
+
+The last consumer audit found a representation decision beyond C identifier
+projection. My C producer already stores record-like values with
+`ELEM_STRUCT`/`dyn_array_push_struct` and exact value bytes. My Nano producer
+currently stores records through heap-box pointers in integer slots; opaque
+pointer leaves fall through without an explicit pointer/integer conversion, and
+complete tuple/callback elements have no coherent matching path. Merely fixing
+identifier spelling would not repair the accepted opaque-bearing array cases.
+
+I propose the following bounded completion before implementing those consumers:
+
+| Element with an opaque-bearing complete annotation | Value storage | Load |
+| --- | --- | --- |
+| Opaque declaration leaf | `ELEM_STRUCT`, copy `sizeof(void*)` from an addressable pointer value | Copy the pointer value out through its actual pointer C type |
+| Tuple or generic-union value | `ELEM_STRUCT`, copy the complete generated value's `sizeof` bytes | Read the same complete generated type |
+| Callback value | `ELEM_STRUCT`, copy the function-pointer typedef value's bytes | Read that exact callback typedef |
+| Nested array | Existing `ELEM_ARRAY` pointer storage | Existing array pointer load, retaining the inner complete annotation |
+
+This introduces no DynArray field or public runtime function. The existing
+`size_t elem_size` ABI2 remains the owning runtime boundary. It does change the
+Nano emitted storage tag for these concrete accepted element shapes, so I require
+review of this choice before the consumer edits. A copied opaque pointer is
+borrowed host identity; array disposal must not close/release its target. A copied
+callback retains the existing callback escape/closure policy, not a new lifetime
+authority. Tuple/union byte copies retain the existing non-owning native value-copy
+semantics; this proposal does not invent a foreign destructor or generalized
+aggregate ownership policy.
+
+I will use one complete annotation classifier per producer for the affected
+literal/empty literal, new/default, push, set, get/at, pop, iteration and supported
+map/filter/reduce paths. Each store stages its source value once into addressable
+storage and copies its exact width. Each load uses the matching retained full C
+name, never a coarse element tag or a stripped qualifier. The C producer needs
+retained complete array contexts where AST literals currently store only an
+element tag; I will reuse the invocation-owned checked-expression context pattern
+with complete copied annotations and explicit cleanup, not change the public AST
+layout. Nano uses its already retained full annotation strings. Definition
+collection must see these contexts before code emission.
+
+I preserve ordinary nonopaque representations and unsupported-route diagnostics.
+I require accepted opaque array cases through direct values, tuple/callback and
+nested generic values, caller/callee and imported-module paths, nested arrays,
+empty initialization followed by mutation, iteration and higher-order operations
+already accepted by each frontend. Cross-producer runtime provider tests must
+observe the exact tag/width and unchanged borrowed target identity. The original
+SDK Json.Json tests remain unchanged. This proposal does not authorize execution
+or close the broader File/SDK scope.
