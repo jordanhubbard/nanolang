@@ -13983,3 +13983,11 @@ Shadows retain genuine holes, ordinary unequal/VOID statement IF and contextual
 INT/U8 branch conversion. One additive paired method brings the source corpus
 to17 without changing the prior16; no compiler or gate has executed. The
 separate actual IF-expression parser prerequisite remains open.
+
+### My IF expression parser prerequisite route
+
+I continue task_13edc03c03d149bc88bfde0be0e0fbe6 under the record-list source
+acceptance: reuse parse_if_statement through an expression-only marking wrapper
+and the existing grouped-expression delimiter path. I preserve ordinary IF and
+all prior seventeen source methods. Parser and actual source controls precede
+review; fresh schema/providers/bootstrap and the full matrix remain pending.

@@ -204,3 +204,23 @@ five checker refusals with unchanged sentinels, runner and deadlines. The prior
 sixteen methods remain byte-for-byte equivalent at the Python AST level. No
 compiler or fixture has run; regeneration is only source generation. The
 separate IF-expression parser prerequisite remains open.
+
+### My actual IF expression route plan
+
+I record task_13edc03c03d149bc88bfde0be0e0fbe6 before changing parser code.
+My primary-expression dispatcher will recognize IF and call a small wrapper
+around parse_if_statement. The wrapper propagates errors before marking the
+result as an expression. Existing parenthesized-head parsing already delegates
+to parse_expression and requires the closing parenthesis; I reuse that route
+rather than duplicate condition, block, else-if or delimiter parsing. Direct
+expression positions use the same wrapper. Statement dispatch continues calling
+parse_if_statement directly, including optional else and unequal/VOID branches.
+
+An else-if remains a statement-origin IF in its synthetic block. The consuming
+value context already requests that block tail's value and checks its branches;
+I do not mark unrelated statement nodes by token position. I add parser shadows
+for grouped/direct/nested/else-if expressions, missing delimiters/condition/body,
+and ordinary statement origin. Source controls exercise valid values and
+checker refusals through the existing retained routes, with all prior assertions
+kept. Parser-malformed controls require actual parser errors, not arbitrary
+compiler exits. No build or execution precedes review of this checkpoint.
