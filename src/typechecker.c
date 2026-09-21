@@ -767,7 +767,16 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
         const char *name = array->as.call.name;
         bool builtin_push = !strcmp(name, "array_push") &&
             env_array_push_is_builtin(env, array->line, array->column);
-        if (((builtin_push || !strcmp(name, "filter")) && array->as.call.arg_count == 2) ||
+        if (builtin_push && array->as.call.arg_count == 2) {
+            const char *receiver_name = array_record_name(array->as.call.args[0], env);
+            if (receiver_name) return receiver_name;
+            ASTNode *receiver = array->as.call.args[0];
+            if (receiver->type == AST_ARRAY_LITERAL &&
+                receiver->as.array_literal.element_count == 0)
+                return get_struct_type_name(array->as.call.args[1], env);
+            return NULL;
+        }
+        if ((!strcmp(name, "filter") && array->as.call.arg_count == 2) ||
             (!strcmp(name, "array_slice") && array->as.call.arg_count == 3))
             return array_record_name(array->as.call.args[0], env);
         if (!strcmp(name, "array_new") && array->as.call.arg_count == 2)
