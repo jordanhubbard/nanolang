@@ -156,3 +156,30 @@ return, record field and top-level initializer boundaries. I audit each before
 claiming the result contract. Original typing refusals remain; I add positive
 STRING and negative INT boundaries for direct results and retained aliases.
 I keep all allocation and complete-source acceptance requirements open.
+
+My source checkpoint retains the complete intrinsic result through
+`env_bind_array_expression`, which copies both the array and STRING child
+before committing its row. A false result sets `opaque_resolution_failed`;
+program and module checking already require that flag to remain clear. The
+existing lexical/declaration gate precedes this path. I compare known STRING
+array results in the shared contextual checker and route the actual borrowed
+record-field assignment adapter through that checker. This does not prove
+general numeric or computed-array compatibility.
+
+My paired controls retain every original program and add a STRING acceptance
+program covering inferred aliases, typed lets, sets, returns, direct and
+indirect calls and record initialization. Declared, lexical and qualified
+user functions named `str_split` return `array<int>` successfully in separate
+positive controls. New INT refusals cover aliases, sets, returns, calls,
+record initialization, globals and nested arrays, preserving output sentinels.
+Both STRING and INT array-valued borrowed record fields retain the existing
+public scalar-borrow refusal; I do not expand borrowed-source admission.
+
+A separate C fixture includes the actual checker translation unit and supplies
+an explicit existing record/exclusive-borrow environment. It checks the real
+field-assignment adapter's STRING acceptance, INT refusal and repeated stable
+result metadata. A binding-call refusal control requires no published row and
+the preparation-failure flag. This injects the binding API's false result, not
+every internal malloc site. The fixture uses ordinary complete hashed compiler
+providers; it is not public borrowed-array execution or a whole-provider
+sanitizer claim. Complete allocation qualification remains required.

@@ -83,12 +83,58 @@ shadow probe { assert (== (probe) 0) }
         module=self.work/'split-provider.nano'
         module.write_text('module split_provider\npub fn str_split(value: int) -> int { return (+ value 1) }\nshadow str_split { assert (== (str_split 41) 42) }\n')
         positives['qualified']=(f'module {json.dumps(str(module))} as Provider\nfn probe() -> int {{ assert (== (Provider.str_split 41) 42) return 0 }}\nshadow probe {{ assert (== (probe) 0) }}\n'+main,['str_split','probe','main'])
+        positives['result-context']=('''struct Words { items: array<string> }
+fn make_parts() -> array<string> { return (str_split "a,b" ",") }
+shadow make_parts { assert (== (array_length (make_parts)) 2) }
+fn count_parts(parts: array<string>) -> int { return (array_length parts) }
+shadow count_parts { assert (== (count_parts (str_split "a,b" ",")) 2) }
+fn probe() -> int {
+    let inferred = (str_split "a,b" ",")
+    let copied: array<string> = inferred
+    let mut values: array<string> = copied
+    set values (make_parts)
+    let callback: fn(array<string>)->int = count_parts
+    assert (== (callback values) 2)
+    assert (== (count_parts (str_split "a,b" ",")) 2)
+    let words: Words = Words { items: (str_split "a,b" ",") }
+    assert (== (at words.items 1) "b")
+    return 0
+}
+shadow probe { assert (== (probe) 0) }
+'''+main,['make_parts','count_parts','probe','main'])
+        positives['declared-array']=('''fn str_split(value: int) -> array<int> { return [value] }
+shadow str_split { assert (== (at (str_split 41) 0) 41) }
+fn probe() -> int { let values: array<int> = (str_split 41) assert (== (at values 0) 41) return 0 }
+shadow probe { assert (== (probe) 0) }
+'''+main,['str_split','probe','main'])
+        positives['local-array']=('''fn wrap(value: int) -> array<int> { return [value] }
+shadow wrap { assert (== (at (wrap 41) 0) 41) }
+fn probe() -> int { let str_split: fn(int)->array<int> = wrap let values: array<int> = (str_split 41) assert (== (at values 0) 41) return 0 }
+shadow probe { assert (== (probe) 0) }
+'''+main,['wrap','probe','main'])
+        array_provider=self.work/'array-provider.nano'
+        array_provider.write_text('module split_array_provider\npub fn str_split(value: int) -> array<int> { return [value] }\nshadow str_split { assert (== (at (str_split 41) 0) 41) }\n')
+        positives['qualified-array']=(f'module {json.dumps(str(array_provider))} as Provider\nfn probe() -> int {{ let values: array<int> = (Provider.str_split 41) assert (== (at values 0) 41) return 0 }}\nshadow probe {{ assert (== (probe) 0) }}\n'+main,['str_split','probe','main'])
         negatives={
             'arity':'let parts: array<string> = (str_split "a")',
             'source-type':'let parts: array<string> = (str_split 1 ",")',
             'delimiter-type':'let parts: array<string> = (str_split "a" 1)',
             'result-type':'let parts: array<int> = (str_split "a" ",")',
             'element-type':'let part: int = (at (str_split "a" ",") 0)'}
+        split='(str_split "a,b" ",")'
+        safe_main='fn main() -> int { return 0 }\nshadow main { assert true }\n'
+        boundary_refusals={
+            'alias':'fn main() -> int { let source = '+split+' let bad: array<int> = source return 0 }\nshadow main { assert true }\n',
+            'set':'fn main() -> int { let mut values: array<int> = [] set values '+split+' return 0 }\nshadow main { assert true }\n',
+            'return':'fn bad() -> array<int> { return '+split+' }\nshadow bad { assert true }\n'+safe_main,
+            'direct-call':'fn take(parts: array<int>) -> int { return (array_length parts) }\nshadow take { assert true }\nfn main() -> int { return (take '+split+') }\nshadow main { assert true }\n',
+            'indirect-call':'fn take(parts: array<int>) -> int { return (array_length parts) }\nshadow take { assert true }\nfn main() -> int { let callback: fn(array<int>)->int = take return (callback '+split+') }\nshadow main { assert true }\n',
+            'record-initializer':'struct Words { items: array<int> }\nfn main() -> int { let words: Words = Words { items: '+split+' } return 0 }\nshadow main { assert true }\n',
+            'global':'let words: array<int> = '+split+'\n'+safe_main,
+            'nested-array':'fn main() -> int { let words: array<array<int>> = ['+split+'] return 0 }\nshadow main { assert true }\n'}
+        # Public borrowed array fields remain outside the scalar-borrow profile.
+        for element in ('string','int'):
+            boundary_refusals['borrow-profile-'+element]='resource struct Words { items: array<'+element+'> }\nfn replace(view: &mut Words) -> void { set view.items '+split+' }\nshadow replace { assert true }\n'+safe_main
         for role,row in self.producers.items():
             for label,(source,names) in positives.items():
                 name=role+'-'+label;path=self.work/(name+'.nano');path.write_text(source)
@@ -133,3 +179,15 @@ shadow probe { assert (== (probe) 0) }
                     {'NANO_SHADOW_TIMING':None,'NANO_SHADOW_TIMEOUT_SECONDS':None},expected=(1,),timeout=300)
                 self.assertEqual(exe.read_bytes(),b'module output sentinel\n')
                 self.assertIn(b'str_split',out+err)
+            for label,source in boundary_refusals.items():
+                name=role+'-boundary-refuse-'+label
+                path=self.work/(name+'.nano');path.write_text(source)
+                exe=self.work/name;exe.write_bytes(b'boundary output sentinel\n')
+                out,err,_=native_sdk_runner.run(self.work,name+'-compile',[row['path'],path,'-o',exe],ROOT,
+                    {'NANO_SHADOW_TIMING':None,'NANO_SHADOW_TIMEOUT_SECONDS':None},expected=(1,),timeout=300)
+                self.assertEqual(exe.read_bytes(),b'boundary output sentinel\n')
+                if label.startswith('borrow-profile-'):
+                    self.assertIn(b'borrow',out+err)
+                else:
+                    self.assertNotIn(b'C compilation failed',out+err)
+                    self.assertNotIn(b'Failed to parse',out+err)

@@ -388,6 +388,15 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (expr->type == AST_CALL && expr->as.call.name && !expr->as.call.func_expr &&
         env_native_array_is_builtin(env, expr->as.call.name, expr->line, expr->column)) {
         const char *name = expr->as.call.name;
+        if (!strcmp(name, "str_split") && expr->as.call.arg_count == 2) {
+            TypeInfo string = {.base_type = TYPE_STRING};
+            TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = &string};
+            if (!env_bind_array_expression(env, expr, &array)) {
+                env->opaque_resolution_failed = true;
+                return NULL;
+            }
+            return (TypeInfo *)env_array_expression_info(env, expr);
+        }
         if (expr->as.call.arg_count >= 1 &&
             (!strcmp(name, "filter") || !strcmp(name, "array_slice") || !strcmp(name, "array_remove_at") ||
              (!strcmp(name, "array_push") && env_array_push_is_builtin(env, expr->line, expr->column))))
@@ -1140,6 +1149,16 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
     }
     if (expected->base_type == TYPE_ARRAY && expected->element_type) {
         const TypeInfo *element = expected->element_type;
+        const TypeInfo *result = try_get_expr_type_info(value, env);
+        if (result && result->base_type == TYPE_ARRAY && result->element_type &&
+            result->element_type->base_type == TYPE_STRING && element->base_type != TYPE_UNKNOWN) {
+            if (element->base_type != TYPE_STRING) {
+                emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                    "I require array<string> for this string-array result.",
+                    "Preserve the result's string element annotation.");
+            }
+            return;
+        }
         if (element->base_type == TYPE_STRUCT)
             check_record_array_contract(env, TYPE_ARRAY, TYPE_STRUCT, element->generic_name, value);
         else if (value->type == AST_ARRAY_LITERAL) {
@@ -5730,6 +5749,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
                 for (int i = 0; i < record->field_count; ++i) {
                     if (strcmp(record->field_names[i], stmt->as.set.field_name)) continue;
+                    check_concrete_union_arrays(tc->env,
+                        record->field_type_info ? record->field_type_info[i] : NULL,
+                        stmt->as.set.value, 0);
                     Type actual = check_expression(stmt->as.set.value, tc->env);
                     if (!types_match(actual, record->field_types[i])) {
                         fprintf(stderr, "I require the declared field type for borrowed mutation\n");
