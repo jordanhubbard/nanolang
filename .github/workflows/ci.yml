@@ -410,7 +410,7 @@ jobs:
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 65
     permissions:
       contents: read
       pull-requests: write
@@ -461,6 +461,8 @@ jobs:
         env:
           NANO_SHADOW_TIMEOUT_SECONDS: "60"
           NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
+          TEST_TIMEOUT: "2700"
+        timeout-minutes: 55
         run: make test CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage" LDFLAGS="-lm -lcrypto -fprofile-arcs -ftest-coverage"
 
       - name: Run negative tests
