@@ -14174,3 +14174,16 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   complete helper shadow checks that mapping; this does not claim recoverable Nano
   OOM. Because the imported compiler source changes, I require a fresh both-host
   bootstrap and preserve every prior compiler product under its original pin.
+
+- [ ] I repair the demonstrated 65b Forth shared-link command capacity defect.
+  Both fresh bootstraps and the first seven ordinary companion methods passed,
+  but the actual examples Forth target failed before private provider compilation.
+  A bounded debugger observation in a separate exact-source/copied-binary tree
+  shows command_ok=false immediately after constructing the 35-private-provider
+  shared link in a 4096-byte buffer. I preserve both original terminals and the
+  diagnostic setup failures. I align actual shared-link and Darwin dependency
+  recording capacity with my existing bounded 65536-byte link-query grammar,
+  reject construction failure at its actual stage, and keep the complete provider
+  list and co-import acceptance. I require fresh affected compiler/provider builds
+  and both-host qualification; no truncation, skipped provider or relaxed assertion
+  can stand in for the complete link.

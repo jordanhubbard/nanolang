@@ -5618,9 +5618,16 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         }
 
         if (shared_dir_ok) {
-            char lib_cmd[4096] = {0};
+            /* I use the same bounded command extent as my link-query grammar.
+             * Every private provider contributes its complete object path. */
+            char lib_cmd[65537] = {0};
             command_ok &= module_shared_link_command(meta, flags, object_file, shared_lib,
                                                       build_dir, lib_cmd, sizeof(lib_cmd));
+            if (!command_ok) {
+                fprintf(stderr, "I could not construct the complete shared link for %s\n", meta->name);
+                free(build_dir);
+                return NULL;
+            }
 
             /* Note: ldflags/system libs/frameworks are included above via shared_ldflags */
 
@@ -5661,7 +5668,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             /* I preserve an ordinary link when dependency capture is not
              * supported. I admit my retained compiler argument transports,
              * but not indirect user response inputs hidden from this format. */
-            char recorded_command[8192] = {0}, link_record[2048] = {0};
+            char recorded_command[65537] = {0}, link_record[2048] = {0};
             bool capture = command_ok && link_observation && module_link_response_safe(meta, flags, lib_cmd) &&
                 module_build_append(link_record, sizeof(link_record), "%s/.link-dependencies", build_dir) &&
                 module_build_append(recorded_command, sizeof(recorded_command), "%s -Xlinker -dependency_info", lib_cmd) &&
