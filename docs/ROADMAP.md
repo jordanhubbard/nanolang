@@ -14517,3 +14517,5 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   is prepared before the definition graph; contextual empty literals now request
   the actual element typedef even with no element expressions. I require actual
   global-only and empty-literal alias/initialization controls before qualification.
+
+- [ ] I qualify my reviewed opaque/carrier correction `8a090a035` under `task_2c7f68e4707b4d12b0ac8d29636fda63` with the unchanged installed SDK corpus plus actual three-producer global-only tuple/callback arrays, complete alias/spacing signatures, declaration/local array-call precedence and defined absent-element/shrinking-source diagnostics. I prepare source-only fixtures before review; no new execution or full File/release acceptance is claimed. I retain all original bootstrap, readonly installation, provider, ABI, concurrency and uninstall gates.

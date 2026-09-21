@@ -589,3 +589,39 @@ fallback. Their prepared text is emitted after typedefs/prototypes, so no
 initializer executes during compilation. Source shadows check global-only tuple
 and callback typedef placement, and actual qualification must prove initialization
 and callable lifetime without changing the runtime grant boundary.
+
+### My installed fixture checkpoint after 8a090
+
+I add `tests/native_sdk_opaque_cases.py` through the existing installed SDK suite,
+not a replacement runner. The original source-hidden `Json.Json` program and all
+original clean-install, readonly, ABI, provider, concurrent invocation and owned
+uninstall methods remain present. I run each additive source with the installed
+C seed, Stage 1 and Stage 2 (`nanoc`) and retain the existing exact selected-shadow
+multiset, generated C, compiler argv and input/product hashes. Source assets also
+have a separate before/after byte, length and mode inventory.
+
+My source corpus covers empty and populated global-only tuple/callback arrays;
+ordinary tuple/callback operations and spacing; aliases to the same opaque owner;
+distinct explicit labels in same-basename module files; reversed imports; nested
+generic opaque instances and tuple/callback compositions; emission-prefix source
+collisions; and actual C-provider observations of `ELEM_STRUCT` and `sizeof` each
+value, including an actual callback typedef. These provider observations prove a
+C ABI boundary, not a general foreign ownership or callback lifetime contract.
+The full source contract's remaining allocation and cross-producer acceptance
+obligations are not discharged by a provider observation alone.
+
+I select only already-admitted main-scope declaration names for declaration
+precedence positives. Every reviewed array operation also gets a lexical callable
+with a tuple signature incompatible with the builtin's signature. Existing
+reserved-declaration policy is unchanged. Copies survive callback-triggered source
+reallocation; one source/index counter case checks evaluation exactly once.
+
+My negative native executables have safe, meaningful shadows. Only the separately
+supervised final executable requests a negative/upper-bound index or shrinks a
+snapshot-length map/filter/iteration source. I require `SIGABRT` plus the exact
+absent-element diagnostic; I reject sanitizer diagnostics as substitutes. A tiny
+exec launcher disables core files while preserving the executable's signal status.
+I do not run a null function pointer or copy a missing element. Compile refusals
+preserve prior output bytes, require diagnostics and distinguish qualified-type
+resolution errors from runtime absence. These fixtures are source-only at this
+checkpoint: Python AST parsing and whitespace checks do not qualify any producer.

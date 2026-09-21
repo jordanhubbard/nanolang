@@ -214,7 +214,7 @@ class NativeSdk(unittest.TestCase):
         visit(source)
         return names,inputs
 
-    def compile_installed(self, label, compiler, source, extra=None):
+    def compile_installed(self, label, compiler, source, extra=None, run_expected=(0,), run_diagnostic=None):
         output=self.outside/(label+'-program');log=self.work/(label+'-cc.jsonl')
         expected,inputs=self.selected(source)
         args=[self.generation/'bin'/compiler,source,'-o',output,'--keep-c']
@@ -236,7 +236,16 @@ class NativeSdk(unittest.TestCase):
             self.assertFalse(any(str(ROOT) in arg or str(ROOT)+'-sdk-hidden' in arg for arg in argv),argv)
         self.assertTrue(any(str(self.generation) in arg for argv in commands for arg in argv))
         (self.work/(label+'-proof.json')).write_text(json.dumps(dict(inputs=inputs,expected=expected,actual=normalized,commands=commands,output=digest(output)),indent=2)+'\n')
-        self.command(label+'-run',[output])
+        run_args=[output]
+        if run_diagnostic is not None:
+            launch=self.work/(label+'-no-core.py')
+            launch.write_text('import os,resource,sys\nresource.setrlimit(resource.RLIMIT_CORE,(0,0))\nos.execv(sys.argv[1],sys.argv[1:])\n')
+            run_args=[sys.executable,launch,output]
+        out,err,_=self.command(label+'-run',run_args,expected=run_expected)
+        if run_diagnostic is not None:
+            self.assertIn(run_diagnostic,err)
+            self.assertNotIn(b'AddressSanitizer:',err)
+            self.assertNotIn(b'runtime error:',err)
         return output
 
     def test_c_installed_paired_programs_readonly_and_concurrency(self):
@@ -529,6 +538,12 @@ class NativeSdk(unittest.TestCase):
                 return out,err
         with self.hidden_source():
             headers.run(Adapter(),self.generation,installed=True)
+        self.assert_package_unchanged()
+
+    def test_k_installed_opaque_and_exact_carriers(self):
+        from tests import native_sdk_opaque_cases
+        with self.hidden_source():
+            native_sdk_opaque_cases.run(self)
         self.assert_package_unchanged()
 
     def test_y_installer_special_inputs_and_owned_boundaries(self):
