@@ -837,6 +837,117 @@ static void evaluator_symbol_pop_controls(void) {
     free_environment(env);
 }
 
+static Function *function_equivalent(Environment *env, const char *name) {
+    Function *linear = env_get_function_with_index(env, name, false);
+    Function *indexed = env_get_function(env, name);
+    CHECK(indexed == linear);
+    return indexed;
+}
+
+static void function_index_controls(void) {
+    Environment *env = create_environment(); CHECK(env);
+    char names[128][32];
+    for (int i = 0; i < 128; ++i) {
+        snprintf(names[i], sizeof names[i], "candidate_%d", i);
+        env_define_function(env, (Function){.name=names[i], .module_name="Owner"});
+        CHECK(!env->function_index);
+        CHECK(function_equivalent(env, names[i]) == &env->functions[i]);
+    }
+    size_t collisions = 0;
+    for (size_t b = 0; b < env->function_index->buckets; ++b) {
+        int previous = -1;
+        for (int i = env->function_index->heads[b]; i >= 0; i = env->function_index->next[i]) {
+            CHECK(i > previous); if (previous >= 0) ++collisions; previous = i;
+        }
+    }
+    CHECK(collisions > 0);
+    for (int i = 0; i < 128; ++i) CHECK(function_equivalent(env, names[i]) == &env->functions[i]);
+    CHECK(!function_equivalent(env, "absent_candidate"));
+    CHECK(!function_equivalent(env, NULL));
+    /* I force relocation independent of allocator address reuse. */
+    Function *replacement = malloc((size_t)env->function_capacity * sizeof(*replacement)); CHECK(replacement);
+    memcpy(replacement, env->functions, (size_t)env->function_count * sizeof(*replacement));
+    free(env->functions); env->functions = replacement;
+    CHECK(function_equivalent(env, names[127]) == &replacement[127]);
+    env->function_count = 3;
+    CHECK(!function_equivalent(env, names[127]));
+    CHECK(function_equivalent(env, names[2]) == &replacement[2]);
+    env_function_index_invalidate(env);
+    env->functions[1] = (Function){.name="replacement", .module_name="Changed"};
+    CHECK(!function_equivalent(env, names[1]));
+    CHECK(function_equivalent(env, "replacement") == &env->functions[1]);
+    env_define_function(env, (Function){.name="same", .module_name="First"});
+    env_define_function(env, (Function){.name="same", .module_name="Second"});
+    env_define_function(env, (Function){.name="same", .module_name="First"});
+    env_define_function(env, (Function){0});
+    env->current_module = "First"; CHECK(function_equivalent(env, "same") == &env->functions[3]);
+    env->current_module = "Second"; CHECK(function_equivalent(env, "same") == &env->functions[4]);
+    env->current_module = "Other"; CHECK(function_equivalent(env, "same") == &env->functions[3]);
+    for (int owner = 0; owner < 2; ++owner) {
+        env->current_module = owner ? "CallerB" : "CallerA";
+        char **exports = malloc(sizeof(*exports)); CHECK(exports); exports[0] = strdup("same"); CHECK(exports[0]);
+        env_register_namespace(env, "Alias", owner ? "Second" : "First", exports, 1, NULL, 0, NULL, 0, NULL, 0);
+    }
+    env->current_module = "CallerA"; CHECK(function_equivalent(env, "Alias.same") == &env->functions[3]);
+    env->current_module = "CallerB"; CHECK(function_equivalent(env, "Alias.same") == &env->functions[4]);
+    env->current_module = "Other"; CHECK(!function_equivalent(env, "Alias.same"));
+    CHECK(!function_equivalent(env, "Alias.absent"));
+    env_define_function(env, (Function){.name="array_push", .module_name="Other", .is_extern=true});
+    CHECK(env_function_is_builtin(function_equivalent(env, "array_push")));
+    ASTNode body = {0};
+    env_define_function(env, (Function){.name="array_push", .module_name="Other", .body=&body});
+    CHECK(function_equivalent(env, "array_push") == &env->functions[8]);
+    env->functions[8].is_extern = true;
+    CHECK(env_function_is_builtin(function_equivalent(env, "array_push")));
+    env_define_function(env, (Function){.name="str_length", .module_name="Other", .body=&body});
+    CHECK(env_function_is_builtin(function_equivalent(env, "str_length")));
+    /* I populate exact generated ordinals without invoking unrelated legacy allocators. */
+    StructDef record = {0}; record.name = strdup("IndexItem"); CHECK(record.name); env_define_struct(env, record);
+    env->generic_instances[0] = (GenericInstantiation){.list_element={TYPE_STRUCT,1}, .list_functions={11,0,0,0}};
+    env->generic_instance_count = 1;
+    env_define_function(env, (Function){.name="List_IndexItem_new", .is_extern=true});
+    CHECK(env_generated_list_element(env, function_equivalent(env, "List_IndexItem_new")).ordinal == 1);
+    env_define_function(env, (Function){.name="List_IndexItem_new", .module_name="Foreign", .body=&body});
+    CHECK(function_equivalent(env, "List_IndexItem_new") == &env->functions[11]);
+    env_define_function(env, (Function){.name="List_IndexItem_new", .module_name="Other", .body=&body});
+    CHECK(function_equivalent(env, "List_IndexItem_new") == &env->functions[12]);
+    env->generic_instances[0].list_functions[0] = 0;
+    env->current_module = NULL;
+    CHECK(function_equivalent(env, "List_IndexItem_new") == &env->functions[10]);
+    env_function_index_invalidate(env);
+    begin(SIZE_MAX, false);
+    CHECK(function_equivalent(env, "same") == &env->functions[3]);
+    size_t count = attempts; CHECK(count == 3 && live == 3 && !failures);
+    env_function_index_invalidate(env); CHECK(live == 0); end();
+    for (int once = 0; once < 2; ++once) for (size_t at = 0; at < count; ++at) {
+        begin(at, once != 0);
+        CHECK(function_equivalent(env, "same") == &env->functions[3]);
+        CHECK(failures && !env->function_index && live == 0);
+        if (!once) {
+            for (int repeat = 0; repeat < 3; ++repeat) {
+                CHECK(function_equivalent(env, "same") == &env->functions[3]);
+                CHECK(!env->function_index && live == 0);
+            }
+        }
+        failure_at = SIZE_MAX;
+        CHECK(function_equivalent(env, "same") == &env->functions[3]);
+        CHECK(env->function_index && live == 3);
+        env_function_index_invalidate(env); CHECK(live == 0); end();
+    }
+    Environment *other = create_environment(); CHECK(other);
+    env_define_function(other, (Function){.name="same"});
+    CHECK(function_equivalent(other, "same") == &other->functions[0]);
+    CHECK(function_equivalent(env, "same") == &env->functions[3]);
+    CHECK(other->function_index != env->function_index);
+    free_environment(other); free_environment(env);
+    /* The index never borrows name storage for destruction. */
+    env = create_environment(); CHECK(env);
+    char *owned_name = strdup("temporary_function_name"); CHECK(owned_name);
+    env_define_function(env, (Function){.name=owned_name});
+    CHECK(function_equivalent(env, owned_name) == &env->functions[0]);
+    free(owned_name); free_environment(env);
+}
+
 int main(int argc, char **argv) {
     if (argc == 4 && !strcmp(argv[1], "cache-init")) {
         cache_init_control(!strcmp(argv[2], "all") ? SIZE_MAX : (size_t)strtoul(argv[2], NULL, 10), atoi(argv[3]) != 0);
@@ -846,7 +957,7 @@ int main(int argc, char **argv) {
         cache_registration_control(argv[2]); return 0;
     }
     CHECK(argc == 1);
-    nominal_import_controls(); string_binding_ownership_controls(); evaluator_symbol_pop_controls(); graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); task_allocation_controls(); borrowed_staging_controls();
+    function_index_controls(); nominal_import_controls(); string_binding_ownership_controls(); evaluator_symbol_pop_controls(); graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); task_allocation_controls(); borrowed_staging_controls();
     CHECK(live == 0 && !observing);
     printf("I passed %zu checked ownership assertions.\n", checks);
     return 0;

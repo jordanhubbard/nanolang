@@ -46,6 +46,69 @@ static uint64_t symbol_name_hash(const char *name) {
     return hash;
 }
 
+/* My optional name index narrows candidates, never caches a lookup decision. */
+struct EnvFunctionIndex {
+    int *heads, *next;
+    size_t buckets;
+    int count;
+    uintptr_t table_identity;
+};
+
+void env_function_index_invalidate(Environment *env) {
+    if (!env || !env->function_index) return;
+    struct EnvFunctionIndex *index = env->function_index;
+    env->function_index = NULL;
+    free(index->heads); free(index->next); free(index);
+}
+
+static struct EnvFunctionIndex *function_index_sync(Environment *env) {
+    struct EnvFunctionIndex *index = env->function_index;
+    if (index && index->count == env->function_count && index->table_identity == (uintptr_t)env->functions)
+        return index;
+    env_function_index_invalidate(env);
+    if (env->function_count <= 0) return NULL;
+    size_t count = (size_t)env->function_count, buckets = 16;
+    if (count > SIZE_MAX / 2 || count > SIZE_MAX / sizeof(int)) return NULL;
+    while (buckets < count * 2) {
+        if (buckets > SIZE_MAX / 2) return NULL;
+        buckets *= 2;
+    }
+    if (buckets > SIZE_MAX / sizeof(int)) return NULL;
+    index = calloc(1, sizeof(*index));
+    if (!index) return NULL;
+    index->heads = malloc(buckets * sizeof(*index->heads));
+    index->next = malloc(count * sizeof(*index->next));
+    if (!index->heads || !index->next) {
+        free(index->heads); free(index->next); free(index);
+        return NULL;
+    }
+    for (size_t i = 0; i < buckets; ++i) index->heads[i] = -1;
+    for (int i = env->function_count; i-- > 0;) {
+        index->next[i] = -1;
+        if (!env->functions[i].name) continue;
+        size_t bucket = (size_t)symbol_name_hash(env->functions[i].name) & (buckets - 1);
+        index->next[i] = index->heads[bucket];
+        index->heads[bucket] = i;
+    }
+    index->buckets = buckets;
+    index->count = env->function_count;
+    index->table_identity = (uintptr_t)env->functions;
+    env->function_index = index;
+    return index;
+}
+
+static int function_candidate_first(const Environment *env,
+                                    const struct EnvFunctionIndex *index,
+                                    const char *name) {
+    return index ? index->heads[(size_t)symbol_name_hash(name) & (index->buckets - 1)]
+                 : (env->function_count > 0 ? 0 : -1);
+}
+
+static int function_candidate_next(const Environment *env,
+                                   const struct EnvFunctionIndex *index, int slot) {
+    return index ? index->next[slot] : (slot < env->function_count - 1 ? slot + 1 : -1);
+}
+
 /* I store indices and hashes, not borrowed names or Symbol pointers. Scope
  * cleanup may free names before lowering symbol_count; popping only needs the
  * saved links. Normal insertion synchronizes before reusing a popped slot. */
@@ -307,6 +370,7 @@ void free_environment(Environment *env) {
         /* Note: function names are not owned by environment - they point to AST */
         /* Freeing them causes double-free crashes */
     }
+    env_function_index_invalidate(env);
     free(env->functions);
     
     for (int i = 0; i < env->struct_count; i++) {
@@ -744,6 +808,7 @@ const char *env_function_signature_owner(Environment *env, const Function *funct
 
 /* Define function */
 void env_define_function(Environment *env, Function func) {
+    env_function_index_invalidate(env);
     if (env->function_count >= env->function_capacity) {
         env->function_capacity *= 2;
         env->functions = realloc(env->functions, sizeof(Function) * env->function_capacity);
@@ -786,10 +851,12 @@ bool env_function_is_builtin(const Function *function) {
 }
 
 /* Get function */
-Function *env_get_function(Environment *env, const char *name) {
+static Function *env_get_function_with_index(Environment *env, const char *name, bool indexed) {
     if (!name) {
         return NULL;
     }
+
+    struct EnvFunctionIndex *index = NULL;
 
     /* Check for Module.function pattern */
     const char *dot = strchr(name, '.');
@@ -812,7 +879,9 @@ Function *env_get_function(Environment *env, const char *name) {
                     if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
                         /* Look up the actual function by its original name AND module name */
                         const char *orig_mod = env->namespaces[i].module_name;
-                        for (int k = 0; k < env->function_count; k++) {
+                        index = indexed ? function_index_sync(env) : NULL;
+                        for (int k = function_candidate_first(env, index, func_name); k >= 0;
+                             k = function_candidate_next(env, index, k)) {
                             if (safe_strcmp(env->functions[k].name, func_name) == 0) {
                                 /* I bind a qualified name only to its namespace owner. */
                                 if ((!orig_mod && !env->functions[k].module_name) ||
@@ -833,8 +902,11 @@ Function *env_get_function(Environment *env, const char *name) {
     }
 
     /* I permit this non-reserved declaration only in its own module. */
-    if (strcmp(name, "array_push") == 0) {
-        for (int i = 0; i < env->function_count; i++) {
+    bool local_push = strcmp(name, "array_push") == 0;
+    if (local_push) {
+        index = indexed ? function_index_sync(env) : NULL;
+        for (int i = function_candidate_first(env, index, name); i >= 0;
+             i = function_candidate_next(env, index, i)) {
             Function *function = &env->functions[i];
             if (function->name && strcmp(function->name, name) == 0 &&
                 !function->is_extern && function->body &&
@@ -863,14 +935,18 @@ Function *env_get_function(Environment *env, const char *name) {
         }
     }
 
+    if (!local_push && indexed) index = function_index_sync(env);
+
     /* A generated list declaration never replaces a real declaration. */
     bool generated_name = false;
-    for (int i = 0; i < env->function_count; ++i)
+    for (int i = function_candidate_first(env, index, name); i >= 0;
+             i = function_candidate_next(env, index, i))
         if (env->functions[i].name && !strcmp(env->functions[i].name, name) &&
             env_generated_list_element(env, &env->functions[i]).ordinal) generated_name = true;
     if (generated_name) {
         Function *fallback = NULL;
-        for (int i = 0; i < env->function_count; ++i) {
+        for (int i = function_candidate_first(env, index, name); i >= 0;
+             i = function_candidate_next(env, index, i)) {
             Function *fn = &env->functions[i];
             if (!fn->name || strcmp(fn->name, name) || env_generated_list_element(env, fn).ordinal) continue;
             if ((!fn->module_name && !env->current_module) ||
@@ -883,7 +959,8 @@ Function *env_get_function(Environment *env, const char *name) {
     /* Check user-defined functions */
     /* First pass: prefer functions in the current module */
     {
-        for (int i = 0; i < env->function_count; i++) {
+        for (int i = function_candidate_first(env, index, name); i >= 0;
+             i = function_candidate_next(env, index, i)) {
             if (env->functions[i].name && safe_strcmp(env->functions[i].name, name) == 0) {
                 if ((!env->current_module && !env->functions[i].module_name) ||
                     (env->current_module && env->functions[i].module_name &&
@@ -895,7 +972,8 @@ Function *env_get_function(Environment *env, const char *name) {
     }
 
     /* Second pass: check all functions (global or other modules) */
-    for (int i = 0; i < env->function_count; i++) {
+    for (int i = function_candidate_first(env, index, name); i >= 0;
+             i = function_candidate_next(env, index, i)) {
         /* Skip functions with NULL names */
         if (!env->functions[i].name) {
             continue;
@@ -906,6 +984,10 @@ Function *env_get_function(Environment *env, const char *name) {
     }
 
     return NULL;
+}
+
+Function *env_get_function(Environment *env, const char *name) {
+    return env_get_function_with_index(env, name, true);
 }
 
 /* I share push identity across inference and native lowering. */

@@ -815,6 +815,7 @@ typedef struct {
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
     struct EnvNominalImport *nominal_imports; /* Owned direct importer-to-declaration edges. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
+    struct EnvFunctionIndex *function_index; /* Owned optional numeric name candidates. */
     Function *functions;
     int function_count;
     int function_capacity;
@@ -932,6 +933,8 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 Environment *create_environment(void);
 /* I invalidate cached names before replacing/appending symbols outside env_define_var. */
 void env_symbol_index_invalidate(Environment *env);
+/* I invalidate before in-place function-name replacement outside env_define_function. */
+void env_function_index_invalidate(Environment *env);
 
 /* The file whose code is currently being processed.
  *

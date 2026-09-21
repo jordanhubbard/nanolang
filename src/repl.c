@@ -312,6 +312,7 @@ static void cmd_reload(const char *path, Environment *env) {
         for (int li = 0; li < env->function_count; li++) {
             if (env->functions[li].name &&
                 strcmp(env->functions[li].name, new_fn->name) == 0) {
+                env_function_index_invalidate(env);
                 env->functions[li] = *new_fn;
                 patched++;
                 found = true;

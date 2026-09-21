@@ -92,3 +92,24 @@ where the real env.c hook domain reaches them. I do not claim expression-bounded
 arena reclamation or recoverable allocation behavior for legacy fatal allocators.
 
 No production index or acceptance execution is part of this design checkpoint.
+
+## My implementation checkpoint
+
+I completed the alias writer search across production C/includes. The remaining
+Function pointer mutation is module.c's temporary saved_main is_extern toggle;
+my candidate index retains no such facts. Scheme/ML function objects and NanoISA
+module tables are different types. REPL whole-row publication invalidates first.
+The source records table storage identity as uintptr_t, so relocation checks do
+not evaluate a pointer whose old allocation has ended. Names remain borrowed by
+Function exactly as before; index teardown uses only its owned numeric storage.
+
+My actual env.c fixture compares indexed and forced-linear live pointers across
+128 named rows, actual bucket collisions, duplicate owners, table relocation,
+truncation, same-count renamed replacement, namespace importer switches, local
+array_push/extern changes and builtin precedence. Direct generated-list ordinal
+metadata exercises live registry precedence without adding an unrelated legacy
+specialization allocation claim. The original parsed list routes still exercise
+the real registrar. I test all three new optional allocation sites with persistent
+and transient failure, repeated denied calls, recovery, independent Environments
+and teardown after borrowed names are freed. No source or fixture has executed
+at this checkpoint; full14method/bootstrap and previous allocation gates remain.
