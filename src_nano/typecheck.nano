@@ -3308,6 +3308,17 @@ fn check_builtin_function(fn_name: string) -> NSType {
     return (type_unknown_named "builtin")
 }
 
+# I expose my existing fallback authority without a second spelling table.
+pub fn tc_has_builtin_fallback(name: string) -> bool {
+    return (or (is_builtin_function name) (!= (check_builtin_function name).kind TypeKind.TYPE_UNKNOWN))
+}
+shadow tc_has_builtin_fallback {
+    assert (tc_has_builtin_fallback "str_split")
+    assert (tc_has_builtin_fallback "range")
+    assert (not (tc_has_builtin_fallback "get_argc"))
+    assert (not (tc_has_builtin_fallback "user_only_function"))
+}
+
 shadow check_builtin_function {
     let split_result: NSType = (check_builtin_function "str_split")
     assert (== split_result.kind TypeKind.TYPE_ARRAY)

@@ -155,6 +155,12 @@ shadow probe { assert (== (probe) 0) }
         private_extern.write_text('module private_extern\nextern fn get_argc() -> int\n')
         private_split=self.work/'private-split-visibility.nano'
         private_split.write_text('module private_split_visibility\nfn str_split(value: int) -> int { return value }\nshadow str_split { assert true }\n')
+        positives['visibility-namespace-keeps-builtin']=(f'module {json.dumps(str(private_split))} as PrivateOwner\n'
+            'fn probe() -> int { let values: array<string> = (str_split "a,b" ",") assert (== (array_length values) 2) assert (== (at values 0) "a") assert (== (at values 1) "b") return 0 }\n'
+            'shadow probe { assert (== (probe) 0) }\n'+main,['str_split','probe','main'])
+        positives['visibility-wildcard-keeps-builtin']=(f'from {json.dumps(str(private_split))} import *\n'
+            'fn probe() -> int { let values: array<string> = (str_split "a,b" ",") assert (== (array_length values) 2) assert (== (at values 0) "a") assert (== (at values 1) "b") return 0 }\n'
+            'shadow probe { assert (== (probe) 0) }\n'+main,['str_split','probe','main'])
         visibility_refusals={
             'qualified':f'module {owner_literal} as Visible\nfn main() -> int {{ return (Visible.hidden_value) }}\nshadow main {{ assert true }}\n',
             'selective':f'from {owner_literal} import hidden_value as chosen\nfn main() -> int {{ return (chosen) }}\nshadow main {{ assert true }}\n',

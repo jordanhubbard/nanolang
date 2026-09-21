@@ -1210,6 +1210,7 @@ fn bind_merged_functions(parsed: ParsedDeclarations, merge: MergeResult) -> bool
     let root_owner: int = (- (array_length merge.files) 1)
     let mut originals: array<string> = []
     let mut owners: array<int> = []
+    let mut builtin_fallbacks: array<bool> = []
     let count: int = (parser_get_function_count parser)
     let mut i: int = 0
     while (< i count) {
@@ -1218,6 +1219,7 @@ fn bind_merged_functions(parsed: ParsedDeclarations, merge: MergeResult) -> bool
         if (< owner 0) { return false }
         set originals (array_push originals func.name)
         set owners (array_push owners owner)
+        set builtin_fallbacks (array_push builtin_fallbacks (tc_has_builtin_fallback func.name))
         let mut name: string = func.name
         if (and (!= owner root_owner) (>= func.body 0)) {
             set name (+ prefix (+ (int_to_string owner) (+ "_" func.name)))
@@ -1226,7 +1228,7 @@ fn bind_merged_functions(parsed: ParsedDeclarations, merge: MergeResult) -> bool
         (list_ASTFunction_set parser.functions i (ASTFunction { node_type: func.node_type, line: func.line, column: func.column, name: name, param_start: func.param_start, param_count: func.param_count, return_type: func.return_type, body: func.body, is_pure: func.is_pure }))
         set i (+ i 1)
     }
-    if (not (mb_set_function_visibility originals owners prefix)) { return false }
+    if (not (mb_set_function_visibility originals owners builtin_fallbacks prefix)) { return false }
     let mut denied_owners: array<int> = []
     let mut denied_names: array<string> = []
     let mut denied_targets: array<int> = []
@@ -1273,9 +1275,12 @@ fn bind_merged_functions(parsed: ParsedDeclarations, merge: MergeResult) -> bool
                     if (== (at visibility f) 1) {
                         (mb_add_target owner name target target_owner)
                     } else {
-                        set denied_owners (array_push denied_owners owner)
-                        set denied_names (array_push denied_names name)
-                        set denied_targets (array_push denied_targets target_owner)
+                        # A wildcard/plain import does not select a private binding.
+                        if (!= imp.module_name "") {
+                            set denied_owners (array_push denied_owners owner)
+                            set denied_names (array_push denied_names name)
+                            set denied_targets (array_push denied_targets target_owner)
+                        }
                     }
                 }
             }

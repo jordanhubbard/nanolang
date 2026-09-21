@@ -119,3 +119,32 @@ compiles with normal mandatory shadows; I retain full C-seed selected names
 and completed JSON, compare the complete Nano selected multisets, and require
 the specific declaration-capture shadows. No product gate has run at this
 checkpoint.
+
+## My absent-binding correction
+
+Root's de325 source review found scope pollution before execution: a namespaced
+module containing private str_split caused my global foreign-name scan to deny
+a legitimate root builtin call. I retain the finding and correct the exact
+lookup order. The existing Nano checker now exposes a predicate composed of
+its existing is_builtin_function and known check_builtin_function result;
+I do not add a second list of exceptions in the binder. The driver records
+that fact beside each original function name/owner. Absent an actual local or
+import binding, a known existing checker fallback remains unchanged; a foreign
+nonbuiltin remains inaccessible. This preserves the checker's existing helper
+fallback vocabulary too, without claiming that every helper is a C language
+registry builtin.
+
+Explicit private selective/qualified rows still resolve to denial markers
+before any fallback. A wildcard or plain import does not select a private
+binding; it cannot use a private row to hide an unrelated builtin. I add actual
+namespace and wildcard private-str_split positives with a root two-string
+split and exact segment assertions. All original explicit private/imported
+value negatives stay unchanged. The binding shadow independently checks
+absent-binding builtin retention and explicit private denial.
+
+I checked the get_argc fixture against C source: get_argc has no row in
+builtins_registry.c and no checker builtin registration. Its evaluator/native
+runtime handler does not itself confer source visibility. The explicit extern
+fixture therefore remains a private-function refusal control to qualify,
+not an exemption based on runtime C spelling. My new checker-predicate shadow
+requires get_argc to remain outside this builtin fallback inventory.
