@@ -14372,3 +14372,12 @@ numeric baseline/range exports with both failure modes and independent recovery.
 This remains fixture preparation: the complete native/Wasm coordinator, ABI and
 memory-limit controls, Make closure and source review are still required before
 execution. My running C759 trees/providers remain unchanged.
+
+My complete LLVM coordinator checkpoint is being assembled with four explicit
+methods: both-target emission faults, exact73-product C/replay byte parity,
+native LLVM corpus and both-engine Wasm corpus. I retain240-second workers,
+exact contiguous fault positions, ABI signatures independently compiled from
+actual C, all50 ABI field mismatches plus unknown-field refusal, corrupt program
+tables before acquisition, full1024-frame observations and explicit1MiB initial/
+64MiB maximum Wasm memory with a separate4MiB exhaustion control. These are
+unexecuted fixtures; no source-review or syntax result is semantic acceptance.

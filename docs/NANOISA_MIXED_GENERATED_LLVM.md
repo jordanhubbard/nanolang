@@ -159,3 +159,44 @@ limits sufficient for that root extent, test growth/maximum failures and retain
 the full1024/1025-frame cases. A platform allocation failure is a measured MEMORY
 outcome, never permission to remove a valid graph or reduce its declared frame
 acceptance.
+
+## Complete fixture coordinator checkpoint
+
+My coordinator has exactly four methods, ordered C/replay byte correspondence,
+emission limits, native LLVM and Wasm. The caller supplies an immutable recorded
+C corpus through RECORD_LLVM_C_BASELINE. I rebuild the factored C emitter and
+compare all73 C products and replay files byte for byte before LLVM tests. Native
+and Wasm capture independently require73 programs,404 actions and all93/256
+retirement decisions; the original VM corpus is included unchanged.
+
+I compile the actual C runtime to LLVM for each target and compare every called
+function's integer/pointer/void widths and sign/zero extension attributes with
+my emitted declarations before running products. Startup controls independently
+change all50 ABI values and the unknown-field sentinel, then corrupt the program
+revision and a non-first function table entry. Refusal must preserve the output,
+perform no allocation and never reach nrg_create. The unmodified control creates
+and destroys successfully.
+
+Every ordinary and observed product uses real emitted LLVM at O0/O2. Restricted
+link inputs, retained commands and symbol reports establish the no-VM boundary.
+Selected native ASan runs explicitly instrument generated definitions after
+optimization, verify their IR and require retained address-check symbols;
+C runtime instrumentation remains separately selected. I do not claim generated
+IR UBSan. The existing native lifecycle fixture remains unchanged.
+
+My Wasm test observer uses a fixed8192-slot open-addressed map with tombstones,
+bounded probing, duplicate/unknown-pointer checks and exact byte accounting.
+It separately counts requests and successful backend allocations. Both Node and
+Wasmtime execute the full ordinary and observed corpus. Each observed range
+retains both failure modes and an independent successful recovery at every
+position, with complete numeric count/recovery manifests. Workers keep240-second
+limits; a coordinator deadline is separately selected and recorded before gates.
+The Wasm product has1MiB initial and64MiB maximum memory. Baseline controls require
+actual growth and measure peak allocation; a separately linked4MiB maximum must
+return MEMORY without acquiring an instance or leaking prior allocations. The
+ordinary runtime object must contain no nms_test symbols. These are private
+fixture/package objects, not a new installed public runtime API.
+
+I have not executed this checkpoint. Full source review, exact compiler/engine
+selection and bounded phase scheduling precede qualification. General graph,
+public selection and paired-source acceptance remain required dependencies.

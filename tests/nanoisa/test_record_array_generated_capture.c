@@ -72,7 +72,11 @@ static void trace_path(FILE *f,const uint32_t *path,uint16_t count) {
 }
 static const char replay_prefix[]=
     "#define NANO_RECORD_ARRAY_GENERATED_PRIVATE 1\n"
+#ifdef RECORD_LLVM_WASM_OBSERVER
+    "#include \"record_array_generated_private.h\"\n#include <stdint.h>\n"
+#else
     "#include \"record_array_generated_private.h\"\n#include <stdint.h>\n#include <string.h>\n"
+#endif
     "#ifndef __wasm32__\n#include <stdio.h>\n#endif\n"
 #ifdef RECORD_LLVM_WASM_OBSERVER
     "#ifdef NRG_OBSERVED\n#include \"record_array_llvm_wasm_alloc.h\"\n#endif\n"

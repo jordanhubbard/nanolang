@@ -5805,3 +5805,8 @@ test-record-array-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(R
 # I capture the unchanged private VM corpus, then link generated products without VM objects.
 test-record-array-generated: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOISA_UTF8)
 	LSAN_OPTIONS= RECORD_GENERATED_CC="$(CC)" RECORD_GENERATED_CFLAGS="$(CFLAGS)" RECORD_GENERATED_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_GENERATED_QUERY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_GENERATED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_generated
+
+.PHONY: test-record-array-llvm
+# I rebuild the target-prefix manifest before private direct LLVM acceptance.
+test-record-array-llvm: managed-runtime-package $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= RECORD_GENERATED_CC="$(CC)" RECORD_GENERATED_CFLAGS="$(CFLAGS)" RECORD_GENERATED_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_GENERATED_QUERY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_GENERATED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_llvm

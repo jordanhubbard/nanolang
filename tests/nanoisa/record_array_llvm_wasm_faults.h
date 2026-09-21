@@ -26,3 +26,20 @@ uint32_t nano_fault_calls(void) { return (uint32_t)wasm_calls; }
 uint64_t nano_fault_peak(void) { return (uint64_t)wasm_peak; }
 uint32_t nano_fault_recoveries(void) { return (uint32_t)wasm_recoveries; }
 uint32_t nano_fault_backend_successes(void) { return (uint32_t)wasm_successes; }
+uint64_t nano_baseline_report(void) {
+    ra_invariant(nano_fault_baseline()==0);
+    ra_invariant(wasm_calls<=UINT32_MAX&&wasm_peak<=UINT32_MAX);
+    ra_invariant(__builtin_wasm_memory_size(0)>16&&__builtin_wasm_memory_size(0)<=1024);
+    return ((uint64_t)wasm_calls<<32)|(uint32_t)wasm_peak;
+}
+uint64_t nano_range_report(uint32_t begin,uint32_t end,uint32_t wanted) {
+    ra_invariant(nano_fault_range(begin,end,wanted)==0);
+    ra_invariant(wasm_calls<=UINT32_MAX&&wasm_recoveries<=UINT32_MAX);
+    return ((uint64_t)wasm_calls<<32)|(uint32_t)wasm_recoveries;
+}
+int nano_memory_refusal(void) {
+    wasm_reset();NrgInstance *output=(void *)(uintptr_t)1;
+    CHECK(nrg_generated_create(&output)==NRG_MEMORY);
+    CHECK(output==(void *)(uintptr_t)1&&!ra_live&&!ra_bytes&&!nms_test_live_allocations());
+    CHECK(ra_created<ra_calls);return 0;
+}
