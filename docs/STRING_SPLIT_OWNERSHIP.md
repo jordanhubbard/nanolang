@@ -128,3 +128,31 @@ and an extern/source collision with the same original name. Each preserves
 a pre-existing output sentinel and requires a diagnostic identifying
 `str_split`. Safe shadows do not invoke the invalid member; the original
 public qualified positive still checks its exact selected shadows and result.
+
+The 90b first terminal establishes another missing result boundary: all four
+C-seed positives and argument refusals pass, but a split result is accepted
+under `array<int>`. I preserve that generated product without running it.
+My element-inference helper alone does not give contextual consumers a
+complete result annotation.
+
+I propose retaining `array<string>` through the existing owned array-expression
+metadata API, only for a direct, two-argument intrinsic call after lexical and
+declaration ownership checks. The API deep-copies the temporary array and
+STRING child together; allocation failure must set the existing preparation
+failure flag, without publishing a borrowed stack pointer or partial row.
+Existing expression lookup returns that owned fact, and inferred bindings
+copy it through their existing metadata path.
+
+At the existing contextual annotation checker I compare a known immediate
+STRING-array result against an explicit array element annotation. STRING
+matches STRING; an absent or UNKNOWN expected element remains with existing
+inference rules. An explicit different element refuses. This comparison also
+covers aliases and declared function results already carrying that exact
+STRING-array annotation; it does not change numeric array conversions or
+claim unknown producers have STRING results. Existing nested array-literal,
+tuple, control-flow and payload traversal supplies the same expected context.
+The same checker already receives binding, assignment, direct/indirect call,
+return, record field and top-level initializer boundaries. I audit each before
+claiming the result contract. Original typing refusals remain; I add positive
+STRING and negative INT boundaries for direct results and retained aliases.
+I keep all allocation and complete-source acceptance requirements open.
