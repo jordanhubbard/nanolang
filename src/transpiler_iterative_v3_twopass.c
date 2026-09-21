@@ -1001,6 +1001,7 @@ static void restore_native_match_binding(Environment *env, ASTNode *match, int a
     binding->nominal_owner = checked.nominal_owner;
     binding->callable_owner = checked.callable_owner;
     binding->inferred_nominal = checked.inferred_nominal;
+    binding->checker_nominal_view = checked.checker_nominal_view;
     binding->def_line = checked.def_line;
     binding->def_column = checked.def_column;
     binding->def_file = checked.def_file;

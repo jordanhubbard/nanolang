@@ -141,6 +141,33 @@ fn main()->int{return 0}
 shadow main { let xs=(list_Item_new) (list_Item_push xs Item{value:5}) assert (== (list_Item_pop xs).value 5) (list_Item_free xs) }
 ''')
 
+        self.native_routes('native-nested-list-projections', '''struct Item { value:int }
+union Inner<T> { Items { values:List<T> } }
+union Outer<T> { Wrapped { inner:Inner<T> } }
+struct Holder { value:Outer<Item> }
+fn build(values:List<Item>)->Outer<Item> { return Outer<Item>.Wrapped { inner:Inner<Item>.Items { values:values } } }
+shadow build { let xs=(list_Item_new) (list_Item_push xs Item{value:13}) match (build xs) { Wrapped(outer)=>{ match outer.inner { Items(inner)=>{ assert (== (list_Item_get inner.values 0).value 13) } } } } (list_Item_free xs) }
+fn main()->int {
+ let xs=(list_Item_new)
+ (list_Item_push xs Item{value:13})
+ let holder:Holder=Holder{value:(build xs)}
+ match holder.value { Wrapped(outer)=>{
+  let alias=outer
+  let inner=alias.inner
+  match inner { Items(payload)=>{
+   let saved=payload.values
+   assert (== (list_Item_length saved) 1)
+   assert (== (list_Item_get saved 0).value 13)
+  } }
+ } }
+ match (build xs) { Wrapped(outer)=>{ match outer.inner { Items(payload)=>{ assert (== (list_Item_length payload.values) 1) } } } }
+ match Outer<Item>.Wrapped{inner:Inner<Item>.Items{values:xs}} { Wrapped(outer)=>{ match outer.inner { Items(payload)=>{ assert (== (list_Item_get payload.values 0).value 13) } } } }
+ (list_Item_free xs)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
     def test_native_imported_owners_and_long_names(self):
         directory = self.work / 'owners'; directory.mkdir()
         for module, value in (('Left', 11), ('Right', 22)):
@@ -153,6 +180,34 @@ shadow sample {{ assert (== (sample) {value}) }}
 module "{directory / 'Right.nano'}" as right
 fn main()->int{{assert (== (left.sample) 11) assert (== (right.sample) 22) return 0}}
 shadow main {{ assert (== (main) 0) }}
+''')
+        (directory / 'Payloads.nano').write_text('''module Payloads
+pub struct Item { value:int }
+pub union Mixed<T> { Both { fixed:List<Item>, supplied:List<T> } }
+pub union Nested<T> { Wrapped { inner:Mixed<T> } }
+pub fn fixed()->List<Item>{let xs=(list_Item_new) (list_Item_push xs Item{value:17}) return xs}
+shadow fixed {let xs=(fixed) assert (== (list_Item_get xs 0).value 17) (list_Item_free xs)}
+pub fn inspect(value:List<Item>)->int{return (list_Item_get value 0).value}
+shadow inspect {let xs=(fixed) assert (== (inspect xs) 17) (list_Item_free xs)}
+pub fn release(value:List<Item>)->void{(list_Item_free value)}
+shadow release {(release (fixed))}
+pub fn wrap(value:List<Item>)->Nested<Item>{return Nested<Item>.Wrapped{inner:Mixed<Item>.Both{fixed:value,supplied:value}}}
+shadow wrap {let xs=(fixed) match (wrap xs){Wrapped(outer)=>{match outer.inner{Both(payload)=>{assert (== (inspect payload.supplied) 17)}}}} (release xs)}
+''')
+        self.native_routes('native-imported-list-payloads', f'''module "{directory / 'Payloads.nano'}" as p
+struct Item {{ value:int }}
+fn main()->int{{
+ let own=(list_Item_new) (list_Item_push own Item{{value:29}})
+ let fixed=(p.fixed)
+ let value:p.Nested<Item> =p.Nested<Item>.Wrapped{{inner:p.Mixed<Item>.Both{{fixed:fixed,supplied:own}}}}
+ match value {{ Wrapped(outer)=>{{let inner=outer.inner match inner {{Both(payload)=>{{
+  assert (== (p.inspect payload.fixed) 17)
+  assert (== (list_Item_get payload.supplied 0).value 29)
+ }}}}}}}}
+ match (p.wrap fixed) {{Wrapped(outer)=>{{match outer.inner{{Both(payload)=>{{assert (== (p.inspect payload.supplied) 17)}}}}}}}}
+ (p.release fixed) (list_Item_free own) return 0
+}}
+shadow main{{assert (== (main) 0)}}
 ''')
         name = 'Record_' + 'long_' * 24 + 'End'
         self.assertGreater(len(name), 64)

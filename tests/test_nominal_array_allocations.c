@@ -187,6 +187,28 @@ static void view_controls(void) {
     CHECK(!array_test_view(env, &values, 129, &out, &owner) && out == &sentinel);
     free_environment(env); CHECK(!live);
 }
+extern bool array_test_owned_context(Environment *, Symbol *);
+static size_t owned_context_attempt(size_t prefix, bool transient) {
+    Environment *env = create_environment(); CHECK(env);
+    StructDef definition = {0}; definition.name = strdup("Item"); definition.module_name = "Caller";
+    CHECK(definition.name); env_define_struct(env, definition);
+    TypeInfo sentinel = {.base_type = TYPE_BOOL};
+    Symbol output = {0}; output.type_info = &sentinel; output.nominal_owner = "unchanged";
+    begin(prefix, transient); bool ok = array_test_owned_context(env, &output); size_t count = stop();
+    if (prefix == SIZE_MAX) CHECK(ok && !failed && output.checker_nominal_view);
+    else CHECK(!ok && failed && output.type_info == &sentinel && !output.checker_nominal_view &&
+               !strcmp(output.nominal_owner, "unchanged"));
+    free_environment(env); CHECK(!live);
+    return count;
+}
+static void owned_context_controls(void) {
+    size_t count = owned_context_attempt(SIZE_MAX, false); CHECK(count > 15);
+    printf("I measure the owned nominal context: %zu allocation attempts.\n", count);
+    for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+        owned_context_attempt(i, transient != 0);
+        CHECK(owned_context_attempt(SIZE_MAX, false) == count);
+    }
+}
 int main(void) {
     size_t count = copy_attempt(SIZE_MAX, false); CHECK(count > 20);
     printf("I measure the complete TypeInfo copy: %zu allocation attempts.\n", count);
@@ -200,7 +222,7 @@ int main(void) {
     CHECK(copy_payload_type_info_checked(chain + 1, &out)); free_payload_type_info(out);
     CHECK(copy_payload_type_info_checked(NULL, &out) && out == NULL);
     CHECK(!copy_payload_type_info_checked(chain, NULL));
-    registration_controls(); view_controls();
+    registration_controls(); view_controls(); owned_context_controls();
     printf("I passed %zu separate checker annotation allocation assertions.\n", checks);
     return 0;
 }

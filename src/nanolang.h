@@ -627,7 +627,7 @@ typedef struct {
     const char *nominal_owner;
     const char *callable_owner;
     bool inferred_nominal;
-    bool union_payload_owner_known; /* Checker-only exact scrutinee annotation provenance. */
+    struct CheckerNominalView *checker_nominal_view; /* Environment-owned checker proof; no runtime Value ownership. */
 } Symbol;
 
 /* Function table entry */
@@ -976,6 +976,7 @@ NominalIdentity env_generated_list_element(Environment *env, const Function *fun
 void *env_own_checker_allocation(Environment *env, void *allocation);
 /* I transfer one independently owned annotation tree only on success. */
 bool env_own_checker_type_info(Environment *env, TypeInfo *info);
+bool env_own_checker_object(Environment *env, void *object, void (*destroy)(void *));
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);

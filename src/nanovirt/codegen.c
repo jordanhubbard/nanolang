@@ -2370,6 +2370,7 @@ static bool restore_match_binding(CG *cg, ASTNode *match, int arm, const char *o
     binding->nominal_owner = checked.nominal_owner;
     binding->callable_owner = checked.callable_owner;
     binding->inferred_nominal = checked.inferred_nominal;
+    binding->checker_nominal_view = checked.checker_nominal_view;
     binding->def_line = checked.def_line; binding->def_column = checked.def_column;
     binding->def_file = checked.def_file; binding->is_resource = checked.is_resource;
     binding->scope_end_line = match->as.match_expr.arm_bodies[arm]->scope_end_line;

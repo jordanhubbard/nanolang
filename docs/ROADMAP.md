@@ -14171,3 +14171,9 @@ For the same optional-helper task, I preserve the Apple after-definition attribu
 The same task's static consumer audit includes C native generic-union payload emission: preserved `TYPE_LIST_GENERIC` cannot fall through to its deliberately empty primitive C spelling. I require complete concrete list-pointer spelling and compact/explicit key agreement before any corrected run.
 
 For `task_40aa248a7326409cba8fcadc4bddecdd`, I retain the 3587 source-review gap: synthetic payload/alias views and nested mixed-owner fields need an owned substitution-context closure. I will propagate that exact context through checker views and keep materialized codegen annotations separate; complete source/fixture review precedes execution.
+
+My next source checkpoint for the same task owns nested projection contexts,
+retains them through aliases/iteration/repeated checks, and adds direct identity,
+allocation-prefix and native source vectors without replacing the original
+18+8 methods. I have not compiled or executed the corrected source; full
+source/fixture review and fresh complete qualification remain required.

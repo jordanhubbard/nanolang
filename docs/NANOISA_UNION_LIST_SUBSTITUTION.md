@@ -50,7 +50,7 @@ preserving the container, not a newly executed invalid C program. Compact list
 name conversion must agree with explicit `List` plus one argument; signatures
 and provider keys must use the same result.
 
-My source checkpoint retains an Environment-owned checked scrutinee annotation
+My superseded 3587 source checkpoint retains an Environment-owned checked scrutinee annotation
 copy for each expression/statement match binding when its nominal view resolves.
 A zero-initialized checker-only Symbol bit records successful provenance; unknown
 views do not become root-owner authority. Legacy non-nominal union behavior is
@@ -96,3 +96,30 @@ substituted same-spelled imported records, actual direct constructor/call/field
 scrutinees, payload aliasing and nested matches. I will preserve all prior source
 vectors and refuse unresolved or contradictory facts; no corrected execution
 precedes the complete source/fixture review.
+
+My nested source checkpoint replaces the earlier bit with an Environment-owned
+proof pointer. I copy contexts before the projection stack unwinds and materialize
+an independent annotation for emitted storage. I preserve that proof through
+both match binders, inferred aliases, repeated binding checks, assignments and
+array iteration, including the native/NanoISA match and shared loop-binding restorations. Same-Environment
+Symbol copies borrow it; no copy transfers ownership. Both ordinary Symbol
+construction and module header constant insertion initialize their whole storage.
+
+The new registry-node operation returns failure without taking ownership. If the
+materialized annotation is registered before the later proof registration fails,
+that unpublished copy remains Environment-owned until teardown; I do not claim
+allocation rollback of the registry itself. The output Symbol is unchanged.
+The allocation fixture measures every attempted allocation in the actual
+checker/env copy, materialization and publication path, denies each prefix and
+single position, verifies unchanged output, tears down retained intermediates,
+and repeats successful recovery. Legacy fatal copiers outside this checked path
+retain their prior explicit limit.
+
+My direct identity fixture checks copied nested contexts after changing the
+original arguments, compact/explicit key agreement, exact variant refusal,
+payload aliases, unresolved leaves and depth refusal. The native source fixture
+adds constructor, direct and qualified call, record field and nested match
+scrutinees with caller and definition-site records. I preserve the original
+discovery program and all prior methods. Only static Python parsing and
+`git diff --check` have run at this checkpoint; compiler and runtime acceptance
+remain pending source review.

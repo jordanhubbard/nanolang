@@ -201,6 +201,7 @@ static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file)
 struct EnvCheckerAllocation {
     void *allocation;
     bool owned_type_info;
+    void (*destroy)(void *);
     struct EnvCheckerAllocation *next;
 };
 void *env_own_checker_allocation(Environment *env, void *allocation) {
@@ -212,6 +213,7 @@ void *env_own_checker_allocation(Environment *env, void *allocation) {
     }
     entry->allocation = allocation;
     entry->owned_type_info = false;
+    entry->destroy = NULL;
     entry->next = env->checker_allocations;
     env->checker_allocations = entry;
     return allocation;
@@ -223,6 +225,19 @@ bool env_own_checker_type_info(Environment *env, TypeInfo *info) {
     if (!entry) return false;
     entry->allocation = info;
     entry->owned_type_info = true;
+    entry->destroy = NULL;
+    entry->next = env->checker_allocations;
+    env->checker_allocations = entry;
+    return true;
+}
+
+bool env_own_checker_object(Environment *env, void *object, void (*destroy)(void *)) {
+    if (!env || !object || !destroy) return false;
+    struct EnvCheckerAllocation *entry = malloc(sizeof *entry);
+    if (!entry) return false;
+    entry->allocation = object;
+    entry->owned_type_info = false;
+    entry->destroy = destroy;
     entry->next = env->checker_allocations;
     env->checker_allocations = entry;
     return true;
@@ -521,7 +536,8 @@ void free_environment(Environment *env) {
     while (env->checker_allocations) {
         struct EnvCheckerAllocation *entry = env->checker_allocations;
         env->checker_allocations = entry->next;
-        if (entry->owned_type_info) free_payload_type_info(entry->allocation);
+        if (entry->destroy) entry->destroy(entry->allocation);
+        else if (entry->owned_type_info) free_payload_type_info(entry->allocation);
         else free(entry->allocation);
         free(entry);
     }

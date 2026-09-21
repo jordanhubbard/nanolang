@@ -169,8 +169,108 @@ static void mixed_substitution_identity(void) {
     assert(checked_signature_equal_context(env, &wanted, "Definitions", &wanted, "Definitions", 0, &outer_context, &outer_context));
     free_environment(env);
 }
+static void identity_union(Environment *env, const char *name, const char *formal,
+                           const char **fields, TypeInfo **annotations, int count) {
+    UnionDef definition = {0};
+    definition.name = strdup(name); definition.module_name = strdup("Definitions");
+    definition.generic_param_count = 1; definition.generic_params = calloc(1, sizeof(char *));
+    definition.variant_count = 1; definition.variant_names = calloc(1, sizeof(char *));
+    definition.variant_field_counts = calloc(1, sizeof(int));
+    definition.variant_field_names = calloc(1, sizeof(char **));
+    definition.variant_field_types = calloc(1, sizeof(Type *));
+    definition.variant_field_type_info = calloc(1, sizeof(TypeInfo **));
+    assert(definition.name && definition.module_name && definition.generic_params && definition.variant_names &&
+           definition.variant_field_counts && definition.variant_field_names && definition.variant_field_types && definition.variant_field_type_info);
+    definition.generic_params[0] = strdup(formal); definition.variant_names[0] = strdup("Payload");
+    definition.variant_field_counts[0] = count;
+    definition.variant_field_names[0] = calloc((size_t)count, sizeof(char *));
+    definition.variant_field_types[0] = calloc((size_t)count, sizeof(Type));
+    definition.variant_field_type_info[0] = calloc((size_t)count, sizeof(TypeInfo *));
+    assert(definition.generic_params[0] && definition.variant_names[0] && definition.variant_field_names[0] &&
+           definition.variant_field_types[0] && definition.variant_field_type_info[0]);
+    for (int i = 0; i < count; ++i) {
+        definition.variant_field_names[0][i] = strdup(fields[i]);
+        definition.variant_field_types[0][i] = annotations[i]->base_type;
+        assert(definition.variant_field_names[0][i] &&
+               copy_payload_type_info_checked(annotations[i], &definition.variant_field_type_info[0][i]));
+    }
+    env_define_union(env, definition);
+    assert(env_register_nominal_import(env, "Caller", name,
+        env_nominal_identity(env, name, "Definitions", TYPE_UNION)));
+}
+static void nested_payload_views(void) {
+    Environment *env = create_environment(); assert(env);
+    identity_record(env, "Item", "Definitions"); identity_record(env, "Item", "Caller");
+    TypeInfo item = {.base_type = TYPE_STRUCT, .generic_name = "Item"};
+    TypeInfo t = {.base_type = TYPE_STRUCT, .generic_name = "T"};
+    TypeInfo fixed = {.base_type = TYPE_LIST_GENERIC, .generic_name = "Item"};
+    TypeInfo supplied = {.base_type = TYPE_LIST_GENERIC, .generic_name = "U"};
+    TypeInfo *inner_args[] = {&t};
+    TypeInfo inner = {.base_type = TYPE_UNION, .generic_name = "Inner", .type_param_count = 1, .type_params = inner_args};
+    const char *inner_fields[] = {"fixed", "supplied"}, *outer_fields[] = {"inner"};
+    TypeInfo *inner_annotations[] = {&fixed, &supplied}, *outer_annotations[] = {&inner};
+    identity_union(env, "Inner", "U", inner_fields, inner_annotations, 2);
+    identity_union(env, "Outer", "T", outer_fields, outer_annotations, 1);
+    TypeInfo *arguments[] = {&item};
+    TypeInfo root = {.base_type = TYPE_UNION, .generic_name = "Outer", .type_param_count = 1, .type_params = arguments};
+    env->current_module = "Caller";
+    env_define_var_with_type_info(env, "value", TYPE_UNION, TYPE_UNKNOWN, &root, false, create_void());
+    env_define_var(env, "outer", TYPE_STRUCT, false, create_void());
+    ASTNode value = {.type = AST_IDENTIFIER}; value.as.identifier = "value";
+    assert(retain_union_binding_context(env, env_get_var(env, "outer"), &value, "Payload"));
+    ASTNode outer = {.type = AST_IDENTIFIER}; outer.as.identifier = "outer";
+    ASTNode field = {.type = AST_FIELD_ACCESS}; field.as.field_access.object = &outer; field.as.field_access.field_name = "inner";
+    NominalView alias = {0}; assert(nominal_value_view(&field, env, 0, &alias));
+    assert(alias.owned_context && alias.info->base_type == TYPE_UNION && !alias.payload);
+    env_define_var(env, "alias", TYPE_UNION, false, create_void());
+    assert(nominal_view_retain(env, env_get_var(env, "alias"), &alias));
+    assert(!alias.info && !alias.owner && !alias.owned_context);
+    /* My retained chain no longer borrows the original argument tree. */
+    item.generic_name = "Missing";
+    ASTNode inner_value = {.type = AST_IDENTIFIER}; inner_value.as.identifier = "alias";
+    env_define_var(env, "payload", TYPE_STRUCT, false, create_void());
+    assert(retain_union_binding_context(env, env_get_var(env, "payload"), &inner_value, "Payload"));
+    assert(!retain_union_binding_context(env, env_get_var(env, "payload"), &inner_value, "Absent"));
+    ASTNode payload = {.type = AST_IDENTIFIER}; payload.as.identifier = "payload";
+    field.as.field_access.object = &payload;
+    for (int i = 0; i < 2; ++i) {
+        field.as.field_access.field_name = (char *)inner_fields[i];
+        NominalView projected = {0}; assert(nominal_value_view(&field, env, 0, &projected));
+        NominalIdentity expected = env_nominal_identity(env, "Item", i ? "Caller" : "Definitions", TYPE_STRUCT);
+        assert(nominal_equal(nominal_view_identity(env, &projected, TYPE_LIST_GENERIC), expected));
+        TypeInfo actual = {.base_type = TYPE_STRUCT, .generic_name = "Item"};
+        TypeInfo *parameter[] = {&actual};
+        TypeInfo explicit_list = {.base_type = TYPE_LIST_GENERIC, .generic_name = "List", .type_param_count = 1, .type_params = parameter};
+        assert(checked_annotations_equal_context(env, projected.info, projected.owner, &explicit_list,
+            i ? "Caller" : "Definitions", 0, nominal_view_context(&projected), NULL));
+        assert(!checked_annotations_equal_context(env, projected.info, projected.owner, &explicit_list,
+            i ? "Definitions" : "Caller", 0, nominal_view_context(&projected), NULL));
+        TypeInfo *concrete = NULL;
+        assert(nominal_materialize(env, projected.info, projected.owner, nominal_view_context(&projected), 0, &concrete));
+        assert(concrete->base_type == TYPE_LIST_GENERIC && concrete->type_param_count == 1 &&
+               !strcmp(concrete->type_params[0]->generic_name, "Item"));
+        char *compact_key = typeinfo_to_generic_arg_name(concrete);
+        char *explicit_key = typeinfo_to_generic_arg_name(&explicit_list);
+        assert(compact_key && explicit_key && !strcmp(compact_key, explicit_key));
+        free(compact_key); free(explicit_key);
+        free_payload_type_info(concrete); nominal_view_discard(&projected);
+    }
+    /* A payload alias keeps its variant, not only its union arguments. */
+    assert(nominal_value_view(&payload, env, 0, &alias) && alias.payload);
+    env_define_var(env, "payload_alias", TYPE_STRUCT, false, create_void());
+    assert(nominal_view_retain(env, env_get_var(env, "payload_alias"), &alias));
+    payload.as.identifier = "payload_alias";
+    assert(nominal_expression(&field, env, TYPE_LIST_GENERIC, 0).ordinal ==
+           env_nominal_identity(env, "Item", "Caller", TYPE_STRUCT).ordinal);
+    NominalView untouched = {.info = &root, .owner = "sentinel"};
+    assert(!nominal_view_copy_context(env, &root, "Caller", NULL, 0, &untouched));
+    assert(untouched.info == &root && !strcmp(untouched.owner, "sentinel"));
+    assert(!nominal_view_copy_context(env, &fixed, "Definitions", NULL, 129, &untouched));
+    assert(untouched.info == &root && !strcmp(untouched.owner, "sentinel"));
+    free_environment(env);
+}
 int main(void) {
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }
