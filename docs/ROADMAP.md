@@ -14253,3 +14253,18 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   directories. I resolve the independently expected path through realpath before
   quoting it, preserve every predicate and original terminal, and rerun corrected
   fixtures with exact retained6b586 compiler/provider identities.
+
+- [ ] I quote each actual published C-provider object at final C-seed command
+  construction. The9109 Linux nested/spaced header run compiled both wrappers and
+  passed all three shadows, then returned1 after5.580seconds because final link
+  flags appended bare published object paths containing spaces. I retain the
+  actual compiler argv/ld diagnostic and identify objects by exact equality with
+  the owning ModuleBuildInfo.object_file, not suffix/spelling. Other trusted
+  linker fragments retain their existing interpretation; complete quoted append
+  failure must preserve the original output. Source review precedes qualification.
+- [ ] I retain distinct same-basename Nano module objects through the final link.
+  The same9109 trace shows two physical wrapper.nano modules both published as
+  obj/nano_modules/wrapper.o. My reviewed installed SDK production already gives
+  generated module objects invocation-private directories plus registry indexes.
+  I integrate and qualify that owning boundary, rather than weaken the new
+  same-basename/import-order fixtures or add another shared-name workaround.
