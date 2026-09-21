@@ -14394,3 +14394,10 @@ allocator failure claim.
   refusal after the passingff727 component build; I preserve every opaque
   declaration/owner/line and original hello assertion without changing merger
   production code or shadow deadlines.
+
+- [ ] I measure the full nanoc_v06 C-seed shadow workload that first reached
+  the unchanged ten-second deadline on Linux b33 bootstrap. I preserve its
+  status2 terminal and the separate passing component/focused results; I identify
+  actual shadow progress before choosing a correction. Diagnostic overhead and
+  host outcomes stay separate, and the complete source graph remains required.
+  MAC: task_6ec8b514c61449d0863401584e86376b.
