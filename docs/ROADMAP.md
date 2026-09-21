@@ -14174,3 +14174,11 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   complete helper shadow checks that mapping; this does not claim recoverable Nano
   OOM. Because the imported compiler source changes, I require a fresh both-host
   bootstrap and preserve every prior compiler product under its original pin.
+
+- [ ] I complete the installed native SDK prerequisite under full source task8bbc
+  using NATIVE_SDK_INSTALLATION.md: inventory and immutable installed generation;
+  paired executable-adjacent runtime discovery; read-only SDK with invocation-owned
+  writable cache/generated products; complete production review; fresh both-host
+  three-producer installed-only programs, modules, shadows, ABI refusals and
+  uninstall checks. I preserve my65b companion qualification and all full File
+  lowering/release holds while preparing this independent source boundary.
