@@ -14153,3 +14153,7 @@ NANOISA_NATIVE_LIST_SPECIALIZATIONS.md. No native production is changed yet.
 - [ ] `task_b4e7e3d0b5a57a4b0865d8d3e6356350`: I preserve the exact Darwin 1b8 shadow crash report and stopped dependent Linux bootstrap. I initialize the new worklist before either consumer, retain full-product resets, add cold/idempotent/retention controls, then source-review before fresh corrected bootstrap and all 18+8 methods.
 
 I retain the first d58 fresh build terminals: Linux status 2 at 56.733 s and Darwin status 2 at 54.095 s. The new cold-start shadow directly refers to private globals declared below it, so the checker rejects E024 before bootstrap. I will move only those two declarations and their comment into the existing early emitter-global section; all initialization semantics and original/additive assertions remain unchanged. These reports live in the persistent home qualification roots. MAC `task_b4e7e3d0b5a57a4b0865d8d3e6356350` retains this correction prerequisite.
+
+### 5.1: strict optional native support references
+
+- [ ] `task_02a1b4af967eafa357fb0210e94679d8`: I preserve both 303 strict native-source terminals and generated C. I review the exact 52 helper/ordinary-shadow entry contract in `docs/NANOISA_NATIVE_OPTIONAL_HELPERS.md`, implement no-call references without altering helper bodies or flags, prove actual O0 link closure, then complete unchanged eight native and eighteen original methods.
