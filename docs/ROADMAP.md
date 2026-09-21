@@ -13916,3 +13916,24 @@ the same ModuleCache.parsers checker failure at216.959s. Both first bootstrap
 terminals, build logs and equal endpoint summaries are preserved under
 `docs/evidence/record-lists-81cd-bootstrap/`. Fresh f54 preparations qualify the
 reviewed87f inference plus retained original positive, not either failed81cd run.
+
+
+### Complete my self-hosted array boundaries (task_f284f62c42a8405baa281e8d6eea6834)
+
+My fresh f54 bootstrap passes Linux274.437s and Darwin288.515s, followed by
+all five focused ordinary/sanitizer configurations. The unchanged first source
+method reaches a later refusal: Stage1 accepts a local `array<array<Item>>`
+from `[[], (records.values)]` whose nonempty leaf has another module's Item.
+I preserve both terminals and unexecuted outputs under
+`docs/evidence/record-lists-f54-first-nested/`; full external maps/CAS remain.
+
+- [ ] I preserve exact known leaves when genuine empty literals join later
+  nonempty members, and validate every typed literal member at all destinations.
+  I do not use UNKNOWN metadata as proof of emptiness or nominal compatibility.
+- [ ] I complete actual builtin array push/set/slice/get/new facts, callback
+  map/filter agreement and iteration without intercepting declared callables.
+  Ignored mutation returns still require element agreement.
+- [ ] I check all value branches with their real lexical statement scopes and
+  complete array facts, preserving existing return/control-flow handling.
+- [ ] I review source/shadows before fresh unchanged bootstrap and all15methods,
+  then remaining neighbors/Make. I keep enum, backend and full-release gates open.

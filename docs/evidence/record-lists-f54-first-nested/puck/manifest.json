@@ -1,0 +1,96 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/private/tmp/nanolang-record-lists-qualified-f54",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.21887291606981307,
+    "log": {
+      "sha256": "3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc",
+      "bytes": 92,
+      "archive": "/private/tmp/nanolang-record-lists-f54-puck-matrix/objects/3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+      "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+    ],
+    "bound": 900,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/private/tmp/nanolang-record-lists-qualified-f54",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 3.8669472079491243,
+    "log": {
+      "sha256": "11844bdba0c2cebcc432ae4b2d37d791413fb964fe6f7142bed595249d8dea00",
+      "bytes": 547,
+      "archive": "/private/tmp/nanolang-record-lists-f54-puck-matrix/objects/11844bdba0c2cebcc432ae4b2d37d791413fb964fe6f7142bed595249d8dea00"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+      "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+    ],
+    "bound": 900,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/private/tmp/nanolang-record-lists-qualified-f54",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 7.6295883329585195,
+    "log": {
+      "sha256": "0822ddc3f270af48f11704733002fcce71dfda9316c0a5431dc592757d6f85dd",
+      "bytes": 551,
+      "archive": "/private/tmp/nanolang-record-lists-f54-puck-matrix/objects/0822ddc3f270af48f11704733002fcce71dfda9316c0a5431dc592757d6f85dd"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_generic_record_lists"
+    ],
+    "bound": 3600,
+    "status": 1,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/private/tmp/nanolang-record-lists-qualified-f54",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 9.899547333014198,
+    "log": {
+      "sha256": "cfa95b2606dbe74e5a8d6cb9993275e368d84b6cd49f3c2dbf72f32281bdc585",
+      "bytes": 2195,
+      "archive": "/private/tmp/nanolang-record-lists-f54-puck-matrix/objects/cfa95b2606dbe74e5a8d6cb9993275e368d84b6cd49f3c2dbf72f32281bdc585"
+    },
+    "inputs_equal": true
+  }
+]

@@ -1,0 +1,20 @@
+Warning at line 8, column 1: Unused variable 'value'
+-- E001 TYPE MISMATCH --- /tmp/nanolang-record-lists-f54-linux-matrix/full-source/nano-record-lists-96moj20e/array-refuse-initializer.nano
+I require each array leaf's original declaration owner.
+
+10| fn main() -> int { let values: array<Item> = (records.values) return 0 }
+                                                 ^
+Hint: Preserve fixed definition leaves and concrete argument identities.
+-- E001 TYPE MISMATCH --- /tmp/nanolang-record-lists-f54-linux-matrix/full-source/nano-record-lists-96moj20e/array-refuse-initializer.nano
+I require the declared nominal record type for this array.
+
+10| fn main() -> int { let values: array<Item> = (records.values) return 0 }
+                                                 ^
+Hint: Preserve every nested element declaration and its module identity.
+-- E001 TYPE MISMATCH --- /tmp/nanolang-record-lists-f54-linux-matrix/full-source/nano-record-lists-96moj20e/array-refuse-initializer.nano
+I require the declared nominal record type for this array.
+
+10| fn main() -> int { let values: array<Item> = (records.values) return 0 }
+                                                 ^
+Hint: Preserve every nested element declaration and its module identity.
+Warning at line 10, column 20: Unused variable 'values'
