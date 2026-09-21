@@ -54,6 +54,11 @@ shadow operand_byte {
     assert (== (operand_byte 4 255) 255)
     assert (== operand_trace 4)
 }
+fn operand_computed_byte(value: int) -> u8 { return value }
+shadow operand_computed_byte {
+    assert (== (operand_computed_byte 257) 1)
+    assert (== (operand_computed_byte -1) 255)
+}
 fn main() -> int {
     set operand_trace 0
     let pair: (int, int) = ((operand_mark 2), (operand_mark 1))
@@ -103,6 +108,13 @@ fn main() -> int {
     assert (== operand_trace 45)
     assert (== (at unchanged 0) 257)
     assert (== (at unchanged 1) -1)
+    set operand_trace 0
+    let direct: u8 = (operand_integer 6 257)
+    assert (== direct 1)
+    assert (== operand_trace 6)
+    assert (== (operand_byte 7 (operand_integer 8 257)) 1)
+    assert (== operand_trace 687)
+    assert (== (operand_computed_byte 256) 0)
     return 0
 }
 shadow main { assert (== (main) 0) }

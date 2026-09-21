@@ -1,0 +1,2 @@
+shadows: tests/nanovirt/fixtures/tuple_array_literal_written_order.nano:98: nl_main: Assertion `(dyn_array_get_int(nl_narrowed, 0)) == (1)' failed.
+I rejected failed shadow execution

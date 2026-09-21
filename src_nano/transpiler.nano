@@ -2917,6 +2917,7 @@ shadow array_elem_type_from_array_type {
 }
 
 fn elem_enum_from_elem_type(elem_type: string) -> string {
+    if (== elem_type "u8") { return "ELEM_U8" }
     if (== elem_type "float") { return "ELEM_FLOAT" }
     else { if (== elem_type "string") { return "ELEM_STRING" }
     else { if (== elem_type "bool") { return "ELEM_BOOL" }
@@ -2926,6 +2927,7 @@ fn elem_enum_from_elem_type(elem_type: string) -> string {
 }
 
 shadow elem_enum_from_elem_type {
+    assert (== (elem_enum_from_elem_type "u8") "ELEM_U8")
     assert (== (elem_enum_from_elem_type "array<array<int>>") "ELEM_ARRAY")
     assert (== (elem_enum_from_elem_type "float") "ELEM_FLOAT")
     assert (== (elem_enum_from_elem_type "string") "ELEM_STRING")
@@ -2936,6 +2938,7 @@ shadow elem_enum_from_elem_type {
 }
 
 fn get_fn_from_elem_type(elem_type: string) -> string {
+    if (== elem_type "u8") { return "dyn_array_get_u8" }
     if (== elem_type "float") { return "dyn_array_get_float" }
     else { if (== elem_type "string") { return "dyn_array_get_string" }
     else { if (== elem_type "bool") { return "dyn_array_get_bool" }
@@ -2945,6 +2948,7 @@ fn get_fn_from_elem_type(elem_type: string) -> string {
 }
 
 shadow get_fn_from_elem_type {
+    assert (== (get_fn_from_elem_type "u8") "dyn_array_get_u8")
     assert (== (get_fn_from_elem_type "float") "dyn_array_get_float")
     assert (== (get_fn_from_elem_type "string") "dyn_array_get_string")
     assert (== (get_fn_from_elem_type "int") "dyn_array_get_int")
@@ -2953,6 +2957,7 @@ shadow get_fn_from_elem_type {
 }
 
 fn push_fn_from_elem_type(elem_type: string) -> string {
+    if (== elem_type "u8") { return "dyn_array_push_u8" }
     if (== elem_type "float") { return "dyn_array_push_float" }
     else { if (== elem_type "string") { return "dyn_array_push_string" }
     else { if (== elem_type "bool") { return "dyn_array_push_bool" }
@@ -2982,6 +2987,7 @@ shadow is_array_of_struct {
 }
 
 shadow push_fn_from_elem_type {
+    assert (== (push_fn_from_elem_type "u8") "dyn_array_push_u8")
     assert (== (push_fn_from_elem_type "array<float>") "dyn_array_push_array")
     assert (== (push_fn_from_elem_type "float") "dyn_array_push_float")
     assert (== (push_fn_from_elem_type "bool") "dyn_array_push_bool")
@@ -2990,6 +2996,7 @@ shadow push_fn_from_elem_type {
 }
 
 fn set_fn_from_elem_type(elem_type: string) -> string {
+    if (== elem_type "u8") { return "dyn_array_set_u8" }
     if (== elem_type "float") { return "dyn_array_set_float" }
     else { if (== elem_type "string") { return "dyn_array_set_string" }
     else { if (== elem_type "bool") { return "dyn_array_set_bool" }
@@ -2999,6 +3006,7 @@ fn set_fn_from_elem_type(elem_type: string) -> string {
 }
 
 shadow set_fn_from_elem_type {
+    assert (== (set_fn_from_elem_type "u8") "dyn_array_set_u8")
     assert (== (set_fn_from_elem_type "array<int>") "dyn_array_set_array")
     assert (== (set_fn_from_elem_type "string") "dyn_array_set_string")
     assert (== (set_fn_from_elem_type "array") "dyn_array_set_array")

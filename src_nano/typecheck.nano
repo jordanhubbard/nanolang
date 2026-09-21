@@ -5947,6 +5947,7 @@ fn apply_return_type_hint(expr_type: NSType, expected_type: NSType) -> NSType {
 
 # I convert a checked literal destination without converting existing array values.
 fn check_contextual_value(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (and (== (type_to_string expected) "u8") (== actual.kind TypeKind.TYPE_INT)) { return expected }
     if (and (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) (== (type_to_string expected) "array<u8>")) {
         let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
         let mut valid: bool = true
@@ -5984,6 +5985,9 @@ shadow check_contextual_value {
     (check_contextual_value parser wrong.value wrong.value_type (type_unknown_named "mixed") expected symbols diags "byte.nano")
     assert (== (list_CompilerDiagnostic_length diags) 1)
     assert (== (parser_get_array_literal parser wrong.value).element_type before)
+    let scalar: NSType = (type_from_string "u8")
+    assert (types_equal (check_contextual_value parser 0 ParseNodeType.PNODE_IDENTIFIER (type_int) scalar symbols diags "byte.nano") scalar)
+    assert (not (types_equal (check_contextual_value parser 0 ParseNodeType.PNODE_IDENTIFIER (type_float) scalar symbols diags "byte.nano") scalar))
     let existing: ASTLet = (parser_get_let parser 2)
     assert (not (types_equal (check_contextual_value parser existing.value existing.value_type integers expected symbols diags "byte.nano") expected))
 }
