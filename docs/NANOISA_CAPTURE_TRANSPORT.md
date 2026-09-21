@@ -43,8 +43,8 @@ not provide the missing function modes or site table.
 
 ## Projection and linked identity
 
-My existing VM links separate module objects through `vm_add_module` and
-`linked_modules`. Their function indices remain module-relative. I preserve
+My existing VM links separate module objects through `vm_link_module`,
+`vm_link_named_module` and `linked_modules`. Their function indices remain module-relative. I preserve
 that identity instead of inventing a flattened linker or rebasing indices
 that did not move. Closure ownership must continue naming the actual executing
 module as well as its target function. The linked verifier and all public
