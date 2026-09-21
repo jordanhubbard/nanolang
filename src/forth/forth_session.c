@@ -4330,7 +4330,8 @@ static int forth_host_dmath(ForthSession *session, uint8_t kind) {
         return forth_dpush(session, alo, ahi) ? 1 : -1;
     case FORTH_HOST_DTWO_STAR:
         if (!forth_dpop(session, &alo, &ahi)) return -1;
-        forth_unpack_d(forth_pack_d(alo, ahi) << 1, &alo, &ahi);
+        ahi = (int64_t)(((uint64_t)ahi << 1) | ((uint64_t)alo >> 63));
+        alo = (int64_t)((uint64_t)alo << 1);
         return forth_dpush(session, alo, ahi) ? 1 : -1;
     case FORTH_HOST_DTWO_SLASH:
         if (!forth_dpop(session, &alo, &ahi)) return -1;
