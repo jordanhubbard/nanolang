@@ -14537,3 +14537,8 @@ source entries,19 selected tools and retained providers match the final GCC
 endpoint. I prepare only the unrun Clang emission/native phases on the same
 frozen source, with fresh reports and unchanged capacity/time guards, pending
 space recovery. I preserve the original terminal and do not replay GCC.
+
+My first Clang-only continuation stops before compilation because its unchanged
+driver requires a fresh configuration.log. I retain that setup terminal and
+include the read-only configuration phase in a fresh continuation report; the
+only selected execution phases remain the two unrun Clang phases.
