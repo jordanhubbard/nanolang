@@ -211,6 +211,16 @@ not claim a schema implementation, heap repair, source qualification or release.
 
 ## Payload reader checkpoint
 
+My next codec step writes the same canonical payload from borrowed descriptor
+tables. I require valid readable arrays for their declared extents, as with
+other in-process compiler APIs. I check counts, null pointers and arithmetic
+before allocating scratch. I include scratch and the reader's temporary index
+tables in one caller budget, then validate the staged bytes with the existing
+reader. I publish the owned byte buffer and length only after complete success;
+both output locations must be distinct from inputs and each other. Failure
+preserves both outputs and frees every temporary allocation. This writer does
+not grant instruction or execution authority.
+
 My first implementation isolates the payload codec in `capture_bindings.c`.
 It checks canonical function/site order, exact table counts, modes, source and
 target identities, source-slot bounds, code-span minimums, reserved bytes and
