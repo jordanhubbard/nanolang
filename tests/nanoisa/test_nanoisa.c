@@ -496,7 +496,19 @@ static void test_code_append(void) {
     uint8_t code1[] = { OP_PUSH_I64, 0x2A, 0, 0, 0, 0, 0, 0, 0 };
     uint8_t code2[] = { OP_PRINT, OP_HALT };
 
+    uint8_t *original_code = mod->code;
+    uint32_t original_capacity = mod->code_capacity;
+    ASSERT_EQ_INT(nvm_append_code(mod, NULL, 0), 0, "I return the empty code offset");
+    ASSERT(mod->code == original_code, "I preserve empty code storage");
+    ASSERT_EQ_INT(mod->code_capacity, original_capacity, "I preserve empty code capacity");
+    ASSERT_EQ_INT(mod->code_size, 0, "I keep empty code empty");
+
     uint32_t off1 = nvm_append_code(mod, code1, sizeof(code1));
+    ASSERT_EQ_INT(nvm_append_code(mod, NULL, 0), sizeof(code1), "I return the populated code offset");
+    ASSERT_EQ_INT(nvm_append_code(mod, code2, 0), sizeof(code1), "I ignore nonnull empty input");
+    ASSERT(mod->code == original_code, "I preserve populated code storage");
+    ASSERT_EQ_INT(mod->code_capacity, original_capacity, "I preserve populated code capacity");
+    ASSERT(memcmp(mod->code, code1, sizeof(code1)) == 0, "I preserve existing code bytes");
     uint32_t off2 = nvm_append_code(mod, code2, sizeof(code2));
 
     ASSERT_EQ_INT(off1, 0, "First code at offset 0");
