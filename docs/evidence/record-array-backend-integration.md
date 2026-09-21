@@ -71,9 +71,11 @@ Archive locations and verification records are retained under `closure/`.
 
 My [independent original LLVM audits](llvm-root-integrity/README.md) distinguish
 integrity, native coverage and Wasm coverage. My
-[independent integration integrity audit](backend-root-integrity/README.md)
-checks the local seal; its Git-publication correspondence is a subsequent check.
-My current integration coverage audit is retained separately for each host.
+[independent integration audits](backend-root-integrity/README.md)
+check local integrity and selected native/Wasm semantic coverage; generated C,
+startup, package and source correspondence remain separately scoped. Their
+Git-publication correspondence is a subsequent check. My complete integration
+coverage audit is retained separately for each host.
 
 I do not claim installed publication of the complete generated consumer,
 public selection, paired producer/bootstrap acceptance or full

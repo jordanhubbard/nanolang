@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "cases_per_mode_optimization": 73,
+  "configurations": [
+    {
+      "configuration": "linux-default",
+      "artifact_report": "linux/reports/ordinary-native-artifacts.json",
+      "optimizations": [
+        "O0",
+        "O2"
+      ],
+      "products": 292,
+      "verified_child_statuses": 2432,
+      "complete_fault_coverages": 146,
+      "fault_workers": 676,
+      "recoveries": 18976,
+      "partial_history_scope": null
+    },
+    {
+      "configuration": "linux-clang",
+      "artifact_report": "linux/reports/clang-ordinary-native-artifacts.json",
+      "optimizations": [
+        "O0",
+        "O2"
+      ],
+      "products": 292,
+      "verified_child_statuses": 2432,
+      "complete_fault_coverages": 146,
+      "fault_workers": 676,
+      "recoveries": 18976,
+      "partial_history_scope": null
+    },
+    {
+      "configuration": "darwin-default",
+      "artifact_report": "puck/reports/ordinary-native-artifacts.json",
+      "optimizations": [
+        "O0",
+        "O2"
+      ],
+      "products": 292,
+      "verified_child_statuses": 2432,
+      "complete_fault_coverages": 146,
+      "fault_workers": 676,
+      "recoveries": 18976,
+      "partial_history_scope": null
+    },
+    {
+      "configuration": "darwin-clang",
+      "artifact_report": "puck/reports/clang-ordinary-native-artifacts.json",
+      "optimizations": [
+        "O0",
+        "O2"
+      ],
+      "products": 292,
+      "verified_child_statuses": 2432,
+      "complete_fault_coverages": 146,
+      "fault_workers": 676,
+      "recoveries": 18976,
+      "partial_history_scope": null
+    }
+  ],
+  "seconds": 2.949035407975316,
+  "scope": "Four fresh ordinary native integration configurations. Checks actual retained products, compile/link/verifier terminals, invoked executable identity, linked observation success, symbol exclusions and exact contiguous two-mode allocation recovery logs. Startup/emission/Wasm/package, normalized corpus equivalence and fresh current-main integration are separate obligations.",
+  "qualified_source_pin": "a1bb1cb85e5551f9e5bb10491f1608877ef6b7b5"
+}
