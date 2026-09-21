@@ -14386,3 +14386,11 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   on failure, and replace only after success. My current include helper fixture
   links ordinary module_builder.o and has no strdup-failure injection boundary;
   I do not describe its normal-path controls as allocator-failure coverage.
+
+- [ ] I resolve the paired qualified opaque annotation mismatch observed during
+  installed SDK qualification at5bfd. Both hosts passed clean install/reinstall,
+  supervisor/root/invalid-generation controls and the source-hidden readonly
+  C-seed program with34shadows. Stage1 then refused the same source: its annotation
+  is Json.Json while Json.parse returns Json. I preserve both first terminals,
+  inspect actual declaration/type resolution before correction, and keep all
+  remaining paired/installed/File acceptance open.
