@@ -2729,6 +2729,20 @@ static bool prepare_union_payload_views(Environment *env, ASTNode *expression,
     *output = views;
     return true;
 }
+/* I select numeric destination compatibility explicitly, without UNKNOWN or
+ * optional-annotation wildcards. Actual destination conversion is separate. */
+static bool union_scalar_payload_matches(ASTNode *value, Environment *env, Type expected) {
+    Type actual = check_expression(value, env);
+    if (actual == TYPE_UNKNOWN || expected == TYPE_UNKNOWN) return false;
+    bool source_numeric = actual == TYPE_INT || actual == TYPE_U8 || actual == TYPE_ENUM;
+    bool target_numeric = expected == TYPE_INT || expected == TYPE_U8 || expected == TYPE_ENUM;
+    if (source_numeric && target_numeric) {
+        if (expected == TYPE_U8 && value->type == AST_NUMBER &&
+            (value->as.number < 0 || value->as.number > 255)) return false;
+        return true;
+    }
+    return actual == expected;
+}
 static bool check_union_payload_values(Environment *env, ASTNode *expression,
     UnionDef *definition, int arm, char **names, ASTNode **values, int count) {
     NominalView *views = NULL;
@@ -2758,9 +2772,16 @@ static bool check_union_payload_values(Environment *env, ASTNode *expression,
     }
     /* No pointer into the growable declaration tables is used past this point. */
     bool ok = true;
-    for (int i = 0; ok && i < count; ++i)
-        ok = contextual_argument_matches(values[i], env, views[i].info, views[i].owner,
-                                          nominal_view_context(&views[i]), 0);
+    for (int i = 0; ok && i < count; ++i) {
+        Type kind; const char *name;
+        ok = checked_annotation_kind(env, views[i].info, views[i].owner, &kind, &name);
+        if (!ok) break;
+        if (kind == TYPE_INT || kind == TYPE_U8 || kind == TYPE_ENUM || kind == TYPE_FLOAT ||
+            kind == TYPE_BOOL || kind == TYPE_STRING || kind == TYPE_VOID)
+            ok = values[i] && union_scalar_payload_matches(values[i], env, kind);
+        else ok = contextual_argument_matches(values[i], env, views[i].info, views[i].owner,
+                                                nominal_view_context(&views[i]), 0);
+    }
     discard_union_payload_views(views, count);
     if (!ok) emit_context_error("E001 TYPE MISMATCH", expression->line, expression->column, 1,
         "I require the union payload value to match its complete concrete destination.",

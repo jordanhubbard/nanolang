@@ -721,6 +721,73 @@ static void constructor_payload_destinations(void) {
         free_environment(env); free_ast(program); free_tokens(tokens, count);
     }
 }
+static void union_scalar_policy(void) {
+    Type tags[] = {TYPE_INT, TYPE_U8, TYPE_ENUM, TYPE_UNKNOWN, TYPE_BOOL, TYPE_FLOAT, TYPE_STRING, TYPE_FUNCTION};
+    for (int metadata = 0; metadata < 2; ++metadata) {
+        Environment *env = create_environment(); assert(env);
+        for (size_t a = 0; a < sizeof tags / sizeof *tags; ++a) {
+            char name[32]; snprintf(name, sizeof name, "scalar_%zu", a);
+            TypeInfo info = {.base_type = tags[a]};
+            env_define_var_with_type_info(env, name, tags[a], TYPE_UNKNOWN,
+                metadata ? &info : NULL, false, create_void());
+            ASTNode value = {.type = AST_IDENTIFIER}; value.as.identifier = name;
+            for (size_t e = 0; e + 1 < sizeof tags / sizeof *tags; ++e) {
+                bool numeric = (tags[a] == TYPE_INT || tags[a] == TYPE_U8 || tags[a] == TYPE_ENUM) &&
+                    (tags[e] == TYPE_INT || tags[e] == TYPE_U8 || tags[e] == TYPE_ENUM);
+                bool wanted = tags[a] != TYPE_UNKNOWN && tags[e] != TYPE_UNKNOWN && (numeric || tags[a] == tags[e]);
+                assert(union_scalar_payload_matches(&value, env, tags[e]) == wanted);
+            }
+        }
+        ASTNode literal = {.type = AST_NUMBER};
+        int64_t values[] = {-1, 0, 255, 256};
+        for (size_t i = 0; i < sizeof values / sizeof *values; ++i) {
+            literal.as.number = values[i];
+            assert(union_scalar_payload_matches(&literal, env, TYPE_U8) == (values[i] >= 0 && values[i] <= 255));
+            assert(union_scalar_payload_matches(&literal, env, TYPE_INT));
+            assert(union_scalar_payload_matches(&literal, env, TYPE_ENUM));
+        }
+        free_environment(env);
+    }
+    const char *types[] = {"int", "u8", "Tag", "bool", "float", "string"};
+    for (int generic = 0; generic < 2; ++generic)
+    for (size_t expected = 0; expected < sizeof types / sizeof *types; ++expected)
+    for (size_t actual = 0; actual < sizeof types / sizeof *types; ++actual) {
+        char source[768], declaration[128], constructor[64];
+        if (generic) {
+            snprintf(declaration, sizeof declaration, "union Box<T>{Value{value:T}}");
+            snprintf(constructor, sizeof constructor, "Box<%s>", types[expected]);
+        } else {
+            snprintf(declaration, sizeof declaration, "union Box{Value{value:%s}}", types[expected]);
+            snprintf(constructor, sizeof constructor, "Box");
+        }
+        int n = snprintf(source, sizeof source,
+            "enum Tag{One,Two} %s fn sample(value:%s)->int{let box =%s.Value{value:value} return 0} shadow sample{assert true}",
+            declaration, types[actual], constructor);
+        assert(n > 0 && (size_t)n < sizeof source);
+        int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+        ASTNode *program = parse_program(tokens, count); assert(program);
+        Environment *env = create_environment(); assert(env);
+        bool wanted = expected == actual || (expected < 3 && actual < 3);
+        assert(type_check_module(program, env) == wanted);
+        if (!generic) {
+            /* I also enter the legacy checker route without the full binder. */
+            Type actual_tag = actual == 0 ? TYPE_INT : actual == 1 ? TYPE_U8 : actual == 2 ? TYPE_ENUM
+                : actual == 3 ? TYPE_BOOL : actual == 4 ? TYPE_FLOAT : TYPE_STRING;
+            env_define_var(env, "payload", actual_tag, false, create_void());
+            ASTNode value = {.type = AST_IDENTIFIER}; value.as.identifier = "payload";
+            char *names[] = {"value"}; ASTNode *values[] = {&value};
+            ASTNode constructor_node = {.type = AST_STRUCT_LITERAL};
+            constructor_node.as.struct_literal.struct_name = "Box.Value";
+            constructor_node.as.struct_literal.field_count = 1;
+            constructor_node.as.struct_literal.field_names = names;
+            constructor_node.as.struct_literal.field_values = values;
+            g_typecheck_error_count = 0;
+            Type checked = check_expression(&constructor_node, env);
+            assert((checked == TYPE_UNION && g_typecheck_error_count == 0) == wanted);
+        }
+        free_environment(env); free_ast(program); free_tokens(tokens, count);
+    }
+}
 static void constructor_failure_rollback(void) {
     for (int invalid = 0; invalid < 2; ++invalid) {
         char source[512];
@@ -792,7 +859,7 @@ static void emission_entry_rollback(void) {
 extern void test_nominal_constructor_allocations(void);
 int main(void) {
     test_nominal_constructor_allocations();
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); constructor_failure_rollback(); emission_entry_rollback();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); constructor_failure_rollback(); emission_entry_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }
