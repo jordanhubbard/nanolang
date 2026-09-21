@@ -498,7 +498,7 @@ static uint64_t forth_block_cache(const ForthSession *session, uint32_t blk);
 
 static ForthSession *g_forth = NULL;
 
-int64_t nl_forth_runtime(int64_t kind);
+int64_t nl_forth_runtime(void *encoded_kind);
 
 static uint64_t align_cells(uint64_t bytes) {
     if (bytes > UINT64_MAX - (FORTH_CELL_BYTES - 1)) return UINT64_MAX;
@@ -2954,7 +2954,9 @@ static bool forth_install_bye(ForthSession *session) {
     return forth_publish_prim(session, "BYE", code, off, 0, false, FORTH_HOST_BYE);
 }
 
-int64_t nl_forth_runtime(int64_t kind) {
+int64_t nl_forth_runtime(void *encoded_kind) {
+    /* My scalar VM FFI transports TAG_INT through an intptr_t pointer carrier. */
+    int64_t kind = (int64_t)(intptr_t)encoded_kind;
     ForthSession *session = g_forth;
     int rc;
     int64_t thrown = 0;
@@ -4217,7 +4219,8 @@ static bool forth_dpush(ForthSession *session, int64_t lo, int64_t hi) {
 }
 
 static __int128 forth_pack_d(int64_t lo, int64_t hi) {
-    return ((__int128)hi << 64) | (__int128)(uint64_t)lo;
+    /* I scale the signed high cell within the representable int128 range. */
+    return (__int128)hi * ((__int128)1 << 64) + (__int128)(uint64_t)lo;
 }
 
 static void forth_unpack_d(__int128 d, int64_t *lo, int64_t *hi) {
@@ -4329,7 +4332,8 @@ static int forth_host_dmath(ForthSession *session, uint8_t kind) {
         return forth_dpush(session, alo, ahi) ? 1 : -1;
     case FORTH_HOST_DTWO_STAR:
         if (!forth_dpop(session, &alo, &ahi)) return -1;
-        forth_unpack_d(forth_pack_d(alo, ahi) << 1, &alo, &ahi);
+        ahi = (int64_t)(((uint64_t)ahi << 1) | ((uint64_t)alo >> 63));
+        alo = (int64_t)((uint64_t)alo << 1);
         return forth_dpush(session, alo, ahi) ? 1 : -1;
     case FORTH_HOST_DTWO_SLASH:
         if (!forth_dpop(session, &alo, &ahi)) return -1;
@@ -5707,7 +5711,7 @@ static bool forth_sm_rem(ForthSession *session) {
     if (!forth_data_pop(session, &hi)) return false;
     if (!forth_data_pop(session, &lo)) return false;
     den = (__int128)n;
-    num = ((__int128)hi << 64) | (__int128)(uint64_t)lo;
+    num = forth_pack_d(lo, hi);
     q = num / den;
     r = num % den;
     return forth_data_push(session, (int64_t)r) && forth_data_push(session, (int64_t)q);
@@ -5725,7 +5729,7 @@ static bool forth_fm_mod(ForthSession *session) {
     if (!forth_data_pop(session, &hi)) return false;
     if (!forth_data_pop(session, &lo)) return false;
     den = (__int128)n;
-    num = ((__int128)hi << 64) | (__int128)(uint64_t)lo;
+    num = forth_pack_d(lo, hi);
     q = num / den;
     r = num % den;
     if (r != 0 && ((num < 0) != (den < 0))) {
@@ -8332,9 +8336,9 @@ static int forth_run_host(ForthSession *session, uint16_t host, int64_t state) {
         if (state != 0) return 0;
         if (!forth_data_pop(session, &cell)) return -1;
         {
-            int64_t mag = cell < 0 ? -cell : cell;
+            uint64_t mag = cell < 0 ? (uint64_t)(-(cell + 1)) + 1u : (uint64_t)cell;
             if (cell < 0 && !forth_emit_char(session, (uint8_t)'-')) return -1;
-            if (!forth_data_push(session, mag)) return -1;
+            if (!forth_data_push(session, (int64_t)mag)) return -1;
             if (!forth_data_push(session, 0)) return -1;
             if (!forth_pict_reset(session)) return -1;
             for (;;) {

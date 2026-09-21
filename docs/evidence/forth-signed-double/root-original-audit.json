@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "pin": "b70a21c3cc3853f764f6057bd40c31d141aa162c",
+  "reports": 132,
+  "bundles": 9,
+  "CAS": 2224,
+  "source_blobs": 3732,
+  "terminal_checks": [
+    {
+      "configuration": "gcc",
+      "returncode": 0,
+      "timeout": false,
+      "group_gone": true,
+      "leader_reaped": true,
+      "seconds": 114.16180270700715
+    },
+    {
+      "configuration": "clang",
+      "returncode": 0,
+      "timeout": false,
+      "group_gone": true,
+      "leader_reaped": true,
+      "seconds": 79.76433347293641
+    },
+    {
+      "configuration": "apple",
+      "returncode": 0,
+      "timeout": false,
+      "group_gone": true,
+      "leader_reaped": true,
+      "seconds": 53.00892399999975
+    },
+    {
+      "configuration": "brew-ubsan",
+      "returncode": 0,
+      "timeout": false,
+      "group_gone": true,
+      "leader_reaped": true,
+      "seconds": 69.46420995799963
+    }
+  ],
+  "scope": "Actual Git report bytes, local retained CAS, both final source and tool before/after pairs, source Git blobs, original reported session and Double counters. No test replay or fresh remote rehash."
+}

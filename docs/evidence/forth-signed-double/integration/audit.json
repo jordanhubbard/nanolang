@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "source": "c17786680813aa9a1ad4db95ec282c8591fcdf1f",
+  "hosts": {
+    "linux": {
+      "inputs": 3732,
+      "git_exact": true,
+      "tools_unchanged": true,
+      "terminal": {
+        "configuration": "gcc",
+        "returncode": 0,
+        "timeout": false,
+        "group_gone": true,
+        "leader_reaped": true,
+        "seconds": 83.62560808402486
+      }
+    },
+    "darwin-backup": {
+      "inputs": 3732,
+      "git_exact": true,
+      "tools_unchanged": true,
+      "terminal": {
+        "configuration": "apple",
+        "returncode": 0,
+        "timeout": false,
+        "group_gone": true,
+        "leader_reaped": true,
+        "seconds": 53.248734625
+      }
+    }
+  }
+}
