@@ -1,0 +1,22 @@
+{
+  "array-allocations": {
+    "sha256": "8382101b6380b688be37de957485bdb5d2dc7dc976dd491867d216b62290027d",
+    "bytes": 19491592
+  },
+  "array-identity": {
+    "sha256": "aca4972be77766d17588f5ecb4b1331b2fb37d9256dc63684985bc503378b9f4",
+    "bytes": 18214712
+  },
+  "coroutine-errors": {
+    "sha256": "3686908ba99818dafa123dc9257980ae55e10ad18c52676e8619124434a8713b",
+    "bytes": 198408
+  },
+  "owned-lifetimes": {
+    "sha256": "909e5610c3430b6f4115e4408698826650228d6cbbb3f357b5a0a080b0f37fff",
+    "bytes": 19069432
+  },
+  "parsed-lifetimes": {
+    "sha256": "a98c93bdb2a16fe9a43f440b17b4c18223763e144c11456bff8ea385fcff39d2",
+    "bytes": 17269288
+  }
+}

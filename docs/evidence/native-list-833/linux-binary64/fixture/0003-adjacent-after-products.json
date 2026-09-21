@@ -1,0 +1,18 @@
+{
+  "temporary/nano-binary64-arithmetic-lbzj1obj/1.log": {
+    "sha256": "82a9fca2b88c6870b8d38e58aaf0d04cc9a91445ec841fc0b0451930c6fb891c",
+    "bytes": 103
+  },
+  "temporary/nano-binary64-arithmetic-lbzj1obj/2.log": {
+    "sha256": "8676a4575cabdf4005198986d749138f74da71ddb9c133697544fa92f801f089",
+    "bytes": 345
+  },
+  "temporary/nano-binary64-arithmetic-lbzj1obj/emit": {
+    "sha256": "6cb9fb724dbe3622c72b7a88dadf5bf3a9b05e90501dc432729a820b2e2a88fc",
+    "bytes": 70408
+  },
+  "temporary/nano-binary64-arithmetic-lbzj1obj/emit.c": {
+    "sha256": "c14119c7d48ec2c0819e751965a2e218d8f92ffe62b27d2c51009a1338770198",
+    "bytes": 129
+  }
+}

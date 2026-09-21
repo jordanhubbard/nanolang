@@ -1,0 +1,18 @@
+{
+  "coroutine-errors": {
+    "sha256": "4e89bf3025fd901ceee8f9189cb22c3c5fbfb1fe13d64f717272cccf2d09497a",
+    "bytes": 94496
+  },
+  "coroutine-errors.dSYM/Contents/Info.plist": {
+    "sha256": "465ae21812d41029355f926ac40eb95150e745724cb8a3cdf2a4442baca0d3dd",
+    "bytes": 645
+  },
+  "coroutine-errors.dSYM/Contents/Resources/DWARF/coroutine-errors": {
+    "sha256": "ba3d4ac28d451110f0c844490ed28d0785fc3518ae7576db2eb9611d92b662d4",
+    "bytes": 41055
+  },
+  "coroutine-errors.dSYM/Contents/Resources/Relocations/aarch64/coroutine-errors.yml": {
+    "sha256": "fc20446b7c7e96860cb130567f26c7143c8164da1b840626029fcd2c406bdece",
+    "bytes": 211
+  }
+}

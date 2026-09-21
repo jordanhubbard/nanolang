@@ -1,0 +1,5 @@
+/bin/gcc -std=c11 -I/home/jkh/Src/nanolang-record-lists-qualified-833/src -c /home/jkh/nanolang-qualification/record-lists-833-linux-binary64/fixture/temporary/nano-binary64-arithmetic-ub2j5wfe/guard.c -o /home/jkh/nanolang-qualification/record-lists-833-linux-binary64/fixture/temporary/nano-binary64-arithmetic-ub2j5wfe/guard.o -ffast-math
+In file included from /home/jkh/nanolang-qualification/record-lists-833-linux-binary64/fixture/temporary/nano-binary64-arithmetic-ub2j5wfe/guard.c:1:
+/home/jkh/Src/nanolang-record-lists-qualified-833/src/binary64_arithmetic.h:9:2: error: #error "I require ordinary IEEE arithmetic without fast-math."
+    9 | #error "I require ordinary IEEE arithmetic without fast-math."
+      |  ^~~~~

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/native-source/nano-native-record-lists-6tzdfu4t/native-declared-list-nanoc_stage1-O2"
+  ],
+  "cwd": "/Users/jkh/nanolang-qualification/record-lists-qualified-833",
+  "timeout": 15,
+  "expected": [
+    0
+  ],
+  "extra": null,
+  "TMPDIR": "/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/native-source/nano-native-record-lists-6tzdfu4t/temporary",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

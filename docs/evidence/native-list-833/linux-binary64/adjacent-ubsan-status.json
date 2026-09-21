@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/bin/gcc",
+    "-print-file-name=libubsan.so"
+  ],
+  "bound": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-833",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 0.03507362399250269,
+  "log": {
+    "sha256": "3dadcc080d9079d4e80bc487ccd7b25878c1e94b3352b04cc01c258fd88f26f3",
+    "bytes": 46,
+    "archive": "/home/jkh/nanolang-qualification/record-lists-833-linux-binary64/objects/3dadcc080d9079d4e80bc487ccd7b25878c1e94b3352b04cc01c258fd88f26f3"
+  },
+  "inputs_equal": true
+}

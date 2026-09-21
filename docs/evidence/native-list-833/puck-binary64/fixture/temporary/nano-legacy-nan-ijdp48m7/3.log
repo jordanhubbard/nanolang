@@ -1,0 +1,2 @@
+["/Users/jkh/nanolang-qualification/record-lists-qualified-833/bin/nanoc_stage2", "/Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/fixture/temporary/nano-legacy-nan-ijdp48m7/scalar.nano", "--target", "c", "-o", "/Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/fixture/temporary/nano-legacy-nan-ijdp48m7/nanoc_stage2.c"]
+I emitted C source without executing shadows; native compilation runs them.

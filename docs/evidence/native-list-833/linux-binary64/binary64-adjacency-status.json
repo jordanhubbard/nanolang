@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "/home/jkh/nanolang-qualification/run-binary64-retained-tests.py",
+    "/home/jkh/Src/nanolang-record-lists-qualified-833",
+    "/home/jkh/nanolang-qualification/record-lists-833-linux-binary64/fixture"
+  ],
+  "bound": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-833",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 13.648979112971574,
+  "log": {
+    "sha256": "d0ed616d64f70e3012b12f71fafe6c90c68a3e0bda7a628f46e173c08d55a3fd",
+    "bytes": 1752,
+    "archive": "/home/jkh/nanolang-qualification/record-lists-833-linux-binary64/objects/d0ed616d64f70e3012b12f71fafe6c90c68a3e0bda7a628f46e173c08d55a3fd"
+  },
+  "inputs_equal": true
+}

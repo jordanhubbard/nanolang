@@ -1,0 +1,13 @@
+{
+  "CC": "/bin/gcc",
+  "NANO_NATIVE_TEST_CC": "/bin/gcc",
+  "NANOLANG_GUARD_SAN_CC": "/bin/gcc",
+  "NMS_RUNTIME_CLANG": "/usr/local/bin/clang",
+  "NMS_RUNTIME_OPT": "/usr/local/bin/opt",
+  "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "NANO_BUILD_CACHE": "/home/jkh/Src/nanolang-record-lists-qualified-833/obj/module_cache",
+  "NANO_MODULE_PATH": "/home/jkh/Src/nanolang-record-lists-qualified-833/modules"
+}

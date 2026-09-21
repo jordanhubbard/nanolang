@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/bin/gcc",
+    "-print-file-name=libasan.so"
+  ],
+  "bound": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-833",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 0.028714750078506768,
+  "log": {
+    "sha256": "86004312733f99d1ebc00026d51e415f7850be77559236ce81317fa437989265",
+    "bytes": 45,
+    "archive": "/home/jkh/nanolang-qualification/record-lists-833-linux-matrix/objects/86004312733f99d1ebc00026d51e415f7850be77559236ce81317fa437989265"
+  },
+  "inputs_equal": true
+}
