@@ -269,6 +269,54 @@ static void nested_payload_views(void) {
     assert(untouched.info == &root && !strcmp(untouched.owner, "sentinel"));
     free_environment(env);
 }
+static void assignment_branch_growth(Environment *env, const NominalView *proof,
+                                     TypeInfo *explicit_type, ASTNode *value, bool valid) {
+    env_define_var_with_type_info(env, "assignment_target", TYPE_FUNCTION, TYPE_UNKNOWN,
+                                 explicit_type, true, create_void());
+    int destination_index = env->symbol_count - 1;
+    if (proof) {
+        NominalView copy = {0}; assert(nominal_view_clone(env, proof, 0, &copy));
+        assert(nominal_view_retain(env, &env->symbols[destination_index], &copy));
+    }
+    const void *retained = env->symbols[destination_index].checker_nominal_view;
+    int capacity = env->symbol_capacity;
+    assert(capacity > 0 && capacity < 4096);
+    int count = capacity + 1;
+    ASTNode *bindings = calloc((size_t)count, sizeof *bindings);
+    ASTNode **statements = calloc((size_t)count + 1, sizeof *statements);
+    char (*names)[40] = calloc((size_t)count, sizeof *names);
+    assert(bindings && statements && names);
+    ASTNode number = {.type = AST_NUMBER}, boolean = {.type = AST_BOOL};
+    boolean.as.bool_val = true;
+    for (int i = 0; i < count; ++i) {
+        snprintf(names[i], sizeof names[i], "assignment_local_%d", i);
+        bindings[i].type = AST_LET;
+        bindings[i].as.let.name = i == count - 1 ? "assignment_target" : names[i];
+        bindings[i].as.let.var_type = i == count - 1 ? TYPE_BOOL : TYPE_INT;
+        bindings[i].as.let.value = i == count - 1 ? &boolean : &number;
+        statements[i] = &bindings[i];
+    }
+    statements[count] = value;
+    ASTNode block = {.type = AST_BLOCK}; block.as.block.statements = statements; block.as.block.count = count + 1;
+    ASTNode *conditions[] = {&boolean}, *values[] = {&block};
+    ASTNode branch = {.type = AST_COND};
+    branch.as.cond_expr.clause_count = 1; branch.as.cond_expr.conditions = conditions;
+    branch.as.cond_expr.values = values; branch.as.cond_expr.else_value = value;
+    ASTNode assignment = {.type = AST_SET};
+    assignment.as.set.name = "assignment_target"; assignment.as.set.value = &branch;
+    TypeChecker checker = {.env = env};
+    int errors = g_typecheck_error_count;
+    check_statement(&checker, &assignment);
+    assert(checker.has_error == !valid);
+    assert(env->symbol_capacity > capacity);
+    assert(env->symbols[destination_index].type == TYPE_FUNCTION);
+    assert(env->symbols[destination_index].checker_nominal_view == retained);
+    /* Name-only reacquisition would select this branch-local Boolean instead. */
+    assert(env_get_var(env, "assignment_target")->type == TYPE_BOOL);
+    g_typecheck_error_count = errors;
+    for (int i = 0; i < count; ++i) assert(!bindings[i].as.let.type_info);
+    free(names); free(statements); free(bindings);
+}
 static void retained_callable_consumers(void) {
     Environment *env = create_environment(); assert(env);
     identity_record(env, "Item", "Definitions"); identity_record(env, "Item", "Caller");
@@ -387,6 +435,14 @@ static void retained_callable_consumers(void) {
     assert(check_indirect_call(&call, env, NULL) == TYPE_STRUCT);
     free_function_signature(call.as.call.checked_signature); free(call.as.call.return_struct_type_name);
     free_function_signature(factory_call.as.call.checked_signature); free(factory_call.as.call.return_struct_type_name);
+    field.as.field_access.field_name = "callback";
+    const NominalView *assignment_proof = env_get_var(env, "alias")->checker_nominal_view;
+    assert(assignment_proof);
+    assignment_branch_growth(env, assignment_proof, NULL, &field, true);
+    assignment_branch_growth(env, assignment_proof, NULL, &wrong, false);
+    TypeInfo explicit_destination = {.base_type = TYPE_FUNCTION, .fn_sig = &expected};
+    assignment_branch_growth(env, NULL, &explicit_destination, &field, true);
+    assignment_branch_growth(env, NULL, &explicit_destination, &wrong, false);
     free_environment(env);
 }
 static void constructor_failure_rollback(void) {

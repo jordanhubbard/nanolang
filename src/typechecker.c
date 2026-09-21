@@ -6149,23 +6149,33 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 return TYPE_VOID;
             }
 
+            /* RHS checking can append/reallocate symbols. I retain the exact
+             * selected declaration, never a later same-named branch binding.
+             * These annotation/proof/string pointees remain owned by the live
+             * checked AST or Environment throughout this synchronous check. */
+            const Symbol destination = *sym;
+
             if (stmt->as.set.field_name) {
-                NominalIdentity record_id = env_nominal_identity(tc->env, sym->struct_type_name,
-                                                                 sym->nominal_owner, TYPE_STRUCT);
+                NominalIdentity record_id = env_nominal_identity(tc->env, destination.struct_type_name,
+                                                                 destination.nominal_owner, TYPE_STRUCT);
                 StructDef *record = record_id.ordinal ? &tc->env->structs[record_id.ordinal - 1] : NULL;
-                if (sym->type != TYPE_BORROW_MUT || !record) {
+                if (destination.type != TYPE_BORROW_MUT || !record) {
                     fprintf(stderr, "I require an exclusive borrowed owner for field mutation\n");
                     tc->has_error = true;
                     return TYPE_VOID;
                 }
                 for (int i = 0; i < record->field_count; ++i) {
                     if (strcmp(record->field_names[i], stmt->as.set.field_name)) continue;
+                    /* The StructDef vector can grow too. Its owned field
+                     * annotations survive growth; no vector entry does. */
+                    Type expected_type = record->field_types[i];
+                    const TypeInfo *expected_info = record->field_type_info ? record->field_type_info[i] : NULL;
+                    const char *expected_name = record->field_type_names ? record->field_type_names[i] : NULL;
+                    const char *expected_owner = record->module_name;
                     Type actual = check_expression(stmt->as.set.value, tc->env);
-                    if (!check_nominal_contract(tc->env, record->field_types[i],
-                            record->field_type_info ? record->field_type_info[i] : NULL,
-                            record->field_type_names ? record->field_type_names[i] : NULL,
-                            record->module_name, stmt->as.set.value)) tc->has_error = true;
-                    if (!types_match(actual, record->field_types[i])) {
+                    if (!check_nominal_contract(tc->env, expected_type, expected_info,
+                            expected_name, expected_owner, stmt->as.set.value)) tc->has_error = true;
+                    if (!types_match(actual, expected_type)) {
                         fprintf(stderr, "I require the declared field type for borrowed mutation\n");
                         tc->has_error = true;
                     }
@@ -6176,43 +6186,43 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 return TYPE_VOID;
             }
 
-            if (!sym->is_mut) {
+            if (!destination.is_mut) {
                 fprintf(stderr, "Error at line %d, column %d: Cannot assign to immutable variable '%s'\n",
                         stmt->line, stmt->column, stmt->as.set.name);
                 tc->has_error = true;
             }
 
-            if (!sym->checker_nominal_view)
-                check_concrete_union_arrays(tc->env, sym->type_info, sym->nominal_owner, stmt->as.set.value, 0);
-            if (!sym->checker_nominal_view && sym->type == TYPE_FUNCTION &&
-                !check_callable_contract(tc->env, sym->type_info ? sym->type_info->fn_sig : NULL,
-                                         sym->callable_owner, stmt->as.set.value, 0)) {
+            if (!destination.checker_nominal_view)
+                check_concrete_union_arrays(tc->env, destination.type_info, destination.nominal_owner, stmt->as.set.value, 0);
+            Type value_type = check_expression(stmt->as.set.value, tc->env);
+            if (!destination.checker_nominal_view && destination.type == TYPE_FUNCTION &&
+                !check_callable_contract(tc->env, destination.type_info ? destination.type_info->fn_sig : NULL,
+                                         destination.callable_owner, stmt->as.set.value, 0)) {
                 emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
                     "I require the destination's owner-aware callable signature.",
                     "Preserve all parameter and return declarations.");
                 tc->has_error = true;
             }
-            Type value_type = check_expression(stmt->as.set.value, tc->env);
-            if (sym->checker_nominal_view &&
-                !check_retained_nominal_value(tc->env, sym->checker_nominal_view, stmt->as.set.value)) tc->has_error = true;
-            if (!sym->checker_nominal_view && !check_nominal_contract(tc->env, sym->type, sym->type_info,
-                    sym->struct_type_name, sym->nominal_owner, stmt->as.set.value)) tc->has_error = true;
-            if (!sym->checker_nominal_view && sym->type == TYPE_ARRAY && !check_record_array_contract(tc->env, sym->type, sym->element_type,
-                    sym->struct_type_name, sym->nominal_owner, stmt->as.set.value)) tc->has_error = true;
+            if (destination.checker_nominal_view &&
+                !check_retained_nominal_value(tc->env, destination.checker_nominal_view, stmt->as.set.value)) tc->has_error = true;
+            if (!destination.checker_nominal_view && !check_nominal_contract(tc->env, destination.type, destination.type_info,
+                    destination.struct_type_name, destination.nominal_owner, stmt->as.set.value)) tc->has_error = true;
+            if (!destination.checker_nominal_view && destination.type == TYPE_ARRAY && !check_record_array_contract(tc->env, destination.type, destination.element_type,
+                    destination.struct_type_name, destination.nominal_owner, stmt->as.set.value)) tc->has_error = true;
 
             /* Propagate element type to array literals for correct transpilation */
-            if (sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
+            if (destination.type == TYPE_ARRAY && destination.element_type != TYPE_UNKNOWN) {
                 if (stmt->as.set.value->type == AST_ARRAY_LITERAL) {
                     ASTNode *array_lit = stmt->as.set.value;
-                    check_array_literal_annotation(tc, array_lit, sym->element_type, sym->struct_type_name);
+                    check_array_literal_annotation(tc, array_lit, destination.element_type, destination.struct_type_name);
                 }
             }
 
-            if (!types_match(value_type, sym->type)) {
+            if (!types_match(value_type, destination.type)) {
                 char message[256];
                 snprintf(message, sizeof(message),
                         "Assignment expects %s but got %s.",
-                        type_to_string(sym->type), type_to_string(value_type));
+                        type_to_string(destination.type), type_to_string(value_type));
                 emit_context_error(
                     "E001 TYPE MISMATCH",
                     stmt->line,

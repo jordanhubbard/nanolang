@@ -14210,3 +14210,8 @@ Independent 9a160 review finds AST_SET retaining a Symbol vector pointer across
 RHS recursion and growth. Before gates I require a snapshot of the exact selected
 destination before all recursive checks, plus separately stable borrowed-field
 metadata and a corrected branch-growth/same-name control. No unfixed replay.
+
+The assignment lifetime correction snapshots exact selected metadata before
+recursive checks. Four added controls require actual symbol capacity growth,
+same-name branch shadowing, retained/explicit callback acceptance and swapped
+owner refusal. Source review precedes execution; prior 18+8 methods remain.

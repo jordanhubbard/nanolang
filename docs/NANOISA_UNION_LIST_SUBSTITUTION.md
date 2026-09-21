@@ -251,3 +251,12 @@ does not tear down those owners. I will exercise corrected assignments with
 branch-local bindings that cross a symbol capacity boundary and reuse the
 destination name, preserving the original destination proof and refusal policy.
 No unfixed memory-fault path will execute.
+
+My correction snapshots the selected Symbol and borrowed field metadata before
+any recursive RHS check. Explicit callable comparison follows ordinary RHS
+checking so its lexical branch bindings exist; contextual constructor preparation
+still precedes that check. Four new C controls cross the actual symbol capacity
+boundary while adding a same-named Boolean local: retained-proof and explicit
+callable destinations each accept matching owners and refuse swapped owners.
+They assert the original indexed declaration/proof remains unchanged. This is
+a corrected-only fixture checkpoint; no compiler or fixture has executed.
