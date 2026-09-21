@@ -1,0 +1,48 @@
+{
+  "source": "60a8b4d1c5c1ca53e5a38256aaa826f61bd12584",
+  "scope": "Structural payload codec only; no feature admission, opcode-boundary proof, definite initialization, heap execution or backend/source parity.",
+  "configuration_results": [
+    {
+      "host": "linux",
+      "configuration": "clang",
+      "result": "I passed 714 capture payload checks; both allocation failures recover without live tables.",
+      "elapsed_seconds": 0.0014309620019048452
+    },
+    {
+      "host": "linux",
+      "configuration": "clang-sanitized",
+      "result": "I passed 714 capture payload checks; both allocation failures recover without live tables.",
+      "elapsed_seconds": 0.01596819201949984
+    },
+    {
+      "host": "linux",
+      "configuration": "gcc",
+      "result": "I passed 714 capture payload checks; both allocation failures recover without live tables.",
+      "elapsed_seconds": 0.0015308039728552103
+    },
+    {
+      "host": "linux",
+      "configuration": "gcc-sanitized",
+      "result": "I passed 714 capture payload checks; both allocation failures recover without live tables.",
+      "elapsed_seconds": 0.007854982046410441
+    },
+    {
+      "host": "darwin",
+      "configuration": "apple",
+      "result": "I passed 714 capture payload checks; both allocation failures recover without live tables.",
+      "elapsed_seconds": 0.24077937500000002
+    },
+    {
+      "host": "darwin",
+      "configuration": "brew",
+      "result": "I passed 714 capture payload checks; both allocation failures recover without live tables.",
+      "elapsed_seconds": 0.23190170899999996
+    },
+    {
+      "host": "darwin",
+      "configuration": "brew-sanitized",
+      "result": "I passed 714 capture payload checks; both allocation failures recover without live tables.",
+      "elapsed_seconds": 0.4446882080000001
+    }
+  ]
+}
