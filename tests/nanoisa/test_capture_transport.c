@@ -1,4 +1,5 @@
 /* I qualify transport and refusal, never execution of capture-bearing code. */
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,6 +13,9 @@
 #ifdef CAPTURE_TRANSPORT_CONSUMERS
 #include "nvm2llvm.h"
 #include "vm.h"
+#include "portable_host_plan.h"
+#include "owned_array_admission.h"
+#include "mixed_samples_internal.h"
 /* I provide the process arguments required by linked runtime providers. */
 int g_argc = 0;
 char **g_argv = NULL;
@@ -275,9 +279,56 @@ static void allocation_controls(void) {
 #endif
 
 #ifdef CAPTURE_TRANSPORT_CONSUMERS
+static void private_consumer_controls(const NvmModule *module) {
+    /* These aligned markers are never dereferenced: refusal must preserve them. */
+    max_align_t marker;
+    NvmPortableReadPlan *portable = (NvmPortableReadPlan *)&marker;
+    NvmOwnedArrayLayouts *layouts = (NvmOwnedArrayLayouts *)&marker;
+    NvmOwnedArrayOrigins *origins = (NvmOwnedArrayOrigins *)&marker;
+    NvmOwnedArrayPlan *owner = (NvmOwnedArrayPlan *)&marker;
+    NvmMixedSamplesPlan *mixed = (NvmMixedSamplesPlan *)&marker;
+    CHECK(module->service_data == NULL && module->service_size == 0);
+    CHECK(nvm_capture_bindings_validate_module(module) == NVM_CAPTURE_OK);
+    uint8_t *payload = malloc(module->capture_size);
+    CHECK(payload != NULL);
+    memcpy(payload, module->capture_data, module->capture_size);
+
+    NvmPortableReadResult pr = nvm_portable_read_plan(module, &portable);
+    CHECK(pr.status == NVM_PORTABLE_READ_UNSUPPORTED);
+    CHECK(strcmp(pr.message, "I require service and capture admission before portable execution.") == 0);
+    CHECK(portable == (NvmPortableReadPlan *)&marker);
+    NvmRecordPlanResult lr = nvm_describe_owned_array_layouts(module, &layouts);
+    CHECK(lr.status == NVM_RECORD_UNRESOLVED);
+    CHECK(strcmp(lr.message, "I require service and capture admission before owner-array description.") == 0);
+    CHECK(layouts == (NvmOwnedArrayLayouts *)&marker);
+    NvmOwnerOriginResult or = nvm_analyze_owned_array_origins(module, &origins);
+    CHECK(or.status == NVM_OWNER_ORIGIN_UNRESOLVED);
+    CHECK(strcmp(or.message, "I require service and capture admission before origin analysis.") == 0);
+    CHECK(origins == (NvmOwnedArrayOrigins *)&marker);
+    NvmOwnerAuthorityResult ar = nvm_owned_array_admit(module, &owner);
+    CHECK(ar.status == NVM_OWNER_AUTH_UNRESOLVED);
+    CHECK(strcmp(ar.message, "I require service and capture execution admission before owner ARRAY admission.") == 0);
+    CHECK(owner == (NvmOwnedArrayPlan *)&marker);
+    NvmMixedShapeResult mr = nvm_mixed_samples_prepare(module, &mixed);
+    CHECK(mr.status == NVM_MIXED_SHAPE_UNRESOLVED);
+    CHECK(strcmp(mr.message, "I refuse service contracts before mixed preparation.") == 0);
+    CHECK(mixed == (NvmMixedSamplesPlan *)&marker);
+    CHECK(nvm_owned_array_route(module) == NVM_OWNER_ARRAY_NOT_SELECTED);
+    CHECK(memcmp(payload, module->capture_data, module->capture_size) == 0);
+    free(payload);
+
+    NvmModule *plain = fixture(false, false);
+    pr = nvm_portable_read_plan(plain, &portable);
+    CHECK(pr.status == NVM_PORTABLE_READ_NOT_SELECTED);
+    CHECK(portable == (NvmPortableReadPlan *)&marker);
+    CHECK(nvm_owned_array_route(plain) == NVM_OWNER_ARRAY_NOT_SELECTED);
+    nvm_module_free(plain);
+}
+
 static void consumer_controls(void) {
     /* Ordinary RET bodies isolate metadata admission from opcode refusal. */
     NvmModule *module = fixture(false, true);
+    private_consumer_controls(module);
     for (unsigned entry = 0; entry < 4; ++entry) {
         VmState *vm = calloc(1, sizeof *vm);
         CHECK(vm != NULL);
