@@ -66,7 +66,9 @@ report bytes. Original phase attribution remains in each constituent seal.
 The objects and reports are retained under
 `/home/jkh/nanolang-qualification/vm-effects-20260921/nanolang-record-generated-complete-seal`.
 The original Darwin gzip archive is checked against its recorded SHA256 and all
-6827 object members plus 217 other files. No evidence was deleted or replaced.
+6827 object members plus 217 other files. No evidence was deleted or replaced. My complete [archive record](record-array-generated/archive.json)
+retains the 2328466182-byte gzip and SHA256; I independently read and hashed all
+29848 decompressed regular members against the completed seal.
 
 LLVM sanitizer completion and fresh current-main integration remain separate
 requirements before the combined consumer checkpoint can be accepted.
