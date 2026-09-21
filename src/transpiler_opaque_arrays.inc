@@ -41,8 +41,10 @@ static void native_array_load(WorkList *list, const TypeInfo *element, const cha
                               const char *array, const char *index, const char *local) {
     if (native_array_struct_value(element)) {
         native_array_shape(list, array, ctype);
-        emit_formatted(list, "%s %s; memcpy(&%s, dyn_array_get_struct(%s, %s), sizeof(%s)); ",
-            ctype, local, local, array, index, local);
+        emit_formatted(list, "%s %s = ({ const void* _oa_slot = dyn_array_get_struct(%s, %s); "
+            "if (_oa_slot == NULL) { fputs(\"I cannot load an absent array element\\n\", stderr); abort(); } "
+            "%s _oa_loaded; memcpy(&_oa_loaded, _oa_slot, sizeof(_oa_loaded)); _oa_loaded; }); ",
+            ctype, local, array, index, ctype);
     } else emit_formatted(list, "%s %s = dyn_array_get_%s(%s, %s); ",
         ctype, local, native_array_scalar_suffix(element), array, index);
 }

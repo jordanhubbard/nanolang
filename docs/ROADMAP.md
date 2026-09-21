@@ -14492,3 +14492,12 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   snapshots and independently infer Nano tuple strings from their actual parsed
   children, including callable and opaque declarations. Contextual literals
   still use their checked expected annotation, with allocation rollback in C.
+
+- [ ] I trap an absent exact-carrier element before copying it. Independent
+  review of 8559c2273 found that dyn_array_get_struct returns NULL for an invalid
+  index, while both new emitters copy unconditionally. A callback or loop body
+  can also shrink the source below the retained iteration length. I preserve
+  single source/index evaluation and copy-before-callback semantics, but trap
+  with an explicit diagnostic on NULL instead of undefined memcpy or a fabricated
+  default value. Qualification must cover direct invalid indices and source
+  shrinkage in each supported higher-order/iteration path on both producers.

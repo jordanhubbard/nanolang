@@ -537,3 +537,17 @@ installed tests and all prior required identity, naming, layout, failure and
 provider controls. Strict host-C syntax checks are the only compiler checks run
 on this checkpoint; no bootstrap, Nano shadow, source program or SDK gate has
 executed. Final production and fixture review still precedes fresh qualification.
+
+### Absent exact-carrier load correction
+
+Independent review of 8559c2273 found an unchecked NULL result from the existing
+struct getter. I define an absent exact-carrier load as a terminal diagnostic and
+`abort`, before any copy. I call the getter once with the already staged source
+and index, retain that pointer only until the immediate typed copy, and then
+invoke the callback or body. This includes a later snapshot-length iteration
+whose source was shortened by an earlier callback/body. I neither invent a
+zero/default value nor weaken the runtime width checks. Scalar getter behavior
+and valid empty pop remain unchanged. Required subprocess controls cover negative
+and upper-bound indices plus source shrinkage in variable iteration, map/filter
+and each producer's supported reduce path, retaining the first terminal and
+checking the explicit diagnostic rather than accepting an arbitrary crash.

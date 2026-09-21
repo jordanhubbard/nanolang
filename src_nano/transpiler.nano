@@ -5804,7 +5804,12 @@ shadow native_array_shape_code {
 fn native_array_load_code(element: string, array_name: string, index_name: string, value_name: string) -> string {
     let ctype: string = (c_type_from_elem_type element)
     if (native_array_exact element) {
-        return (+ (native_array_shape_code element array_name) (+ ctype (+ " " (+ value_name (+ "; memcpy(&" (+ value_name (+ ", dyn_array_get_struct(" (+ array_name (+ ", " (+ index_name (+ "), sizeof(" (+ value_name ")); "))))))))))))
+        let mut code: string = (native_array_shape_code element array_name)
+        set code (+ code (+ ctype (+ " " (+ value_name " = ({ const void* _oa_slot = dyn_array_get_struct("))))
+        set code (+ code (+ array_name (+ ", " (+ index_name "); "))))
+        set code (+ code "if (_oa_slot == NULL) { fputs(\"I cannot load an absent array element\\n\", stderr); abort(); } ")
+        set code (+ code (+ ctype " _oa_loaded; memcpy(&_oa_loaded, _oa_slot, sizeof(_oa_loaded)); _oa_loaded; }); "))
+        return code
     }
     let access: string = (+ (get_fn_from_elem_type element) (+ "(" (+ array_name (+ ", " (+ index_name ")")))))
     if (type_is_struct element) {
@@ -5977,8 +5982,10 @@ shadow generate_native_opaque_array_call {
     let tuple_env: GenEnv = (genenv_put (genenv_new "main") "xs" "array<(int,bool)>" false)
     let tuple_code: string = (generate_native_opaque_array_call parser (parser_get_call parser 0) "at" 0 tuple_env "(int,bool)")
     assert (str_contains tuple_code "->elem_type == ELEM_STRUCT")
-    assert (str_contains tuple_code "memcpy(&_ov, dyn_array_get_struct(")
-    assert (str_contains tuple_code "sizeof(_ov)")
+    assert (str_contains tuple_code "const void* _oa_slot = dyn_array_get_struct(")
+    assert (str_contains tuple_code "if (_oa_slot == NULL)")
+    assert (str_contains tuple_code "I cannot load an absent array element")
+    assert (str_contains tuple_code "memcpy(&_oa_loaded, _oa_slot, sizeof(_oa_loaded))")
     let pop_tokens: List<LexerToken> = (tokenize_string "fn main()->int{return (array_pop xs)}" "pop.nano" (list_CompilerDiagnostic_new))
     let pop_parser: Parser = (parse_program pop_tokens (list_LexerToken_length pop_tokens) "pop.nano")
     let callback_env: GenEnv = (genenv_put (genenv_new "main") "xs" "array<fn(int)->int>" false)
