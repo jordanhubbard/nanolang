@@ -14241,3 +14241,13 @@ same empty value once and assign it to each root; allocation order, bounds,
 initialized value fields, ownership and all fixture predicates stay unchanged.
 These timings explain the measured instrumentation amplification, not a waiver
 of the failed batch. Fresh affected-provider qualification remains required.
+
+My corrected6783 fresh Linux setup and exact two-test discovery pass, then I
+stop the ordinary phase proactively when shared free space falls below2GiB.
+The retained outer terminal is SIGTERM without timeout, paired with an explicit
+capacity-stop record; this is neither a product assertion nor ENOSPC. My revised
+external driver records PID/start-time descendant identities and cleans their
+separate process groups on completion: the stopped phase records37 owned
+processes, one nested group terminated and no remaining descendants. No further
+local builds run while capacity is held. Darwin qualification proceeds in its
+separate frozen tree; these distinct histories do not relabel prior success.
