@@ -11,7 +11,7 @@
 
 # My Roadmap
 
-- [ ] I preserve source-relative links when publishing relocated generated documentation (`task_6d8539dc326d486f82952f7a67cfd6c2`). PR937's first documentation job fails because copied STDLIB text resolves its binary64 contract beside generated/builtins.html instead of its original docs directory. I retain that terminal, resolve repository references from the original source location, and require the unchanged multilingual link validator to pass.
+- [x] I preserve source-relative links in copied user-guide references (`task_6d8539dc326d486f82952f7a67cfd6c2`). I retain the first PR937 documentation failure and resolve copied links from their original repository location while refusing missing local targets. All15 renderer tests and all six13-page editions pass locally. Independently reviewed PR938 is merged at81454fdc5; hosted documentation link checks and guide build pass. Broader CI and full release acceptance remain separate. [Evidence](evidence/userguide-source-links/checks.json).
 
 - [ ] I preserve shared mutable lexical captures (`task_af8091f571a842bc90656e2c7f19b68e`) under my [owned-cell design](NANOISA_SHARED_MUTABLE_CAPTURES.md). My retained computed-byte gate observes the closure return2 while its outer binding stays1. I first specify exact versioned capture/binding operations and ownership/verifier rules, then implement both producers and all required VM/C/LLVM/Wasm consumers with sibling, nested, escaping, loop-lifetime, conversion and failure evidence. A copied-capture compatibility path or VM-only fix does not complete this task.
 
