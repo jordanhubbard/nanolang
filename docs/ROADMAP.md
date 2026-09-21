@@ -14346,3 +14346,9 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   generated module objects invocation-private directories plus registry indexes.
   I integrate and qualify that owning boundary, rather than weaken the new
   same-basename/import-order fixtures or add another shared-name workaround.
+
+- [ ] I enforce the qualification capacity reserve before copying each new SDK
+  artifact into retained storage, as well as before compilation. I record the
+  required copy size and available bytes before refusing an insufficient reserve;
+  existing evidence remains intact. My bounded nested-session control passed on
+  Linux and Darwin before fresh combined qualification.

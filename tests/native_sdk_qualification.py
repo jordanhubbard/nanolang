@@ -24,7 +24,12 @@ def main():
         value=dict(sha256=h.hexdigest(),bytes=size,mode=path.stat().st_mode & 0o7777)
         if retain:
             target=store/value['sha256']
-            if not target.exists():shutil.copyfile(path,target)
+            if not target.exists():
+                free=shutil.disk_usage(store).free
+                if free<size+2*1024**3:
+                    dump('capture-capacity-refusal.json',dict(path=str(path),bytes=size,free_bytes=free,reserve_bytes=2*1024**3))
+                    raise AssertionError('I preserve my capacity reserve before artifact capture')
+                shutil.copyfile(path,target)
             value['archive']=str(target)
         return value
     def sources():
