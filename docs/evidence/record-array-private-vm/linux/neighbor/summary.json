@@ -1,0 +1,104 @@
+{
+  "host": "linux",
+  "reports": 83,
+  "objects": 1496,
+  "bytes": 545701870,
+  "references": 4736,
+  "equal_pairs": 14,
+  "pairs": [
+    "nanolang-record-vm-46c4d-r2-linux/configuration-source-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/configuration-tools-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build-source-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build-tools-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run-source-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run-tools-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-source-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-tools-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm-source-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm-tools-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite-source-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite-tools-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission-source-before.json",
+    "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission-tools-before.json"
+  ],
+  "terminals": [
+    {
+      "path": "nanolang-record-vm-46c4d-r2-linux/configuration-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    }
+  ],
+  "scope": "Fixture-only explicit absent-context neighbor correction; exact15d1 provider reuse with current-only dependency/stamp metadata; no passing private corpus replay. Preserved initial46c capacity/copy preflights."
+}

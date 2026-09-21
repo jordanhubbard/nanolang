@@ -1,0 +1,13 @@
+{"pin": "4dc1cf4e67bbbf4c96e67d4957f01cdbeaf2f4a0", "source_files": 3724, "root": "/private/tmp/nanolang-record-vm-qualified-4dc1c", "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"}
+{"phase": "setup", "status": 0, "seconds": 8.597}
+{"phase": "configuration", "status": 0, "seconds": 0.149}
+{"phase": "discovery", "status": 0, "seconds": 0.074}
+{"phase": "ordinary", "status": 1, "seconds": 3.155}
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-vm-4dc1c-launch.py", line 19, in <module>
+    subprocess.run([sys.executable,'/tmp/nanolang-record-vm-4dc1c-driver.py',str(root),'/tmp/nanolang-record-vm-4dc1c-'+host],check=True,env=env)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/opt/homebrew/opt/python@3.14/bin/python3.14', '/tmp/nanolang-record-vm-4dc1c-driver.py', '/tmp/nanolang-record-vm-qualified-4dc1c', '/tmp/nanolang-record-vm-4dc1c-puck']' returned non-zero exit status 1.

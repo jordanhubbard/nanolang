@@ -453,7 +453,10 @@ static void plan_accounting(void) {
     printf("I measured %zu plan allocation positions and %zu peak payload bytes; each one-shot/persistent refusal recovered\n",measured,peak);
 }
 #endif
-int main(void) {
+#ifndef RECORD_ARRAY_EXECUTION_MAIN
+#define RECORD_ARRAY_EXECUTION_MAIN main
+#endif
+int RECORD_ARRAY_EXECUTION_MAIN(void) {
     CHECK(record_array_origin_controls()==0);
     puts("I begin owned execution snapshots");snapshot_controls();
     puts("I begin copied byte conversion recipes");byte_conversion_plan();

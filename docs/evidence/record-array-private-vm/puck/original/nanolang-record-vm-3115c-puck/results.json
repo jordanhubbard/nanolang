@@ -1,0 +1,22 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 8.586,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.146,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.048,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 2.097,
+    "status": 1
+  }
+]

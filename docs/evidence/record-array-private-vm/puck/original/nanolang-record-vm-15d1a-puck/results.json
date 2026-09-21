@@ -1,0 +1,52 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 8.644,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.09,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.09,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 15.198,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary",
+    "seconds": 14.824,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 35.964,
+    "status": 0
+  },
+  {
+    "phase": "record_array_global_flow",
+    "seconds": 3.827,
+    "status": 0
+  },
+  {
+    "phase": "record_array_execution",
+    "seconds": 4.082,
+    "status": 0
+  },
+  {
+    "phase": "record_array_origins",
+    "seconds": 3.706,
+    "status": 0
+  },
+  {
+    "phase": "test-vm-ordinary-admission",
+    "seconds": 0.737,
+    "status": 2
+  }
+]

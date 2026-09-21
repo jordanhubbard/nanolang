@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "make",
+    "-j2",
+    "CC=/bin/gcc-13",
+    "test-owned-array-overwrite"
+  ],
+  "selectors": {
+    "CC": "/bin/gcc-13",
+    "LSAN_OPTIONS": "",
+    "NANO_FILE_RUNTIME_CC": "/bin/gcc-13",
+    "NANO_FILE_RUNTIME_CFLAGS": "-Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -ffp-contract=off -fno-fast-math",
+    "NANO_FILE_RUNTIME_SANITIZERS": "0",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}

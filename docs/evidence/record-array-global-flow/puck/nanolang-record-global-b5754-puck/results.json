@@ -1,0 +1,122 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 8.443,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.141,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.048,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 3.403,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary",
+    "seconds": 3.436,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 7.757,
+    "status": 0
+  },
+  {
+    "phase": "ownership_contracts-build",
+    "seconds": 0.21,
+    "status": 0
+  },
+  {
+    "phase": "ownership_contracts-run",
+    "seconds": 0.268,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-build",
+    "seconds": 0.259,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-run",
+    "seconds": 0.271,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_layouts-build",
+    "seconds": 0.144,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_layouts-run",
+    "seconds": 0.271,
+    "status": 0
+  },
+  {
+    "phase": "ownership_layouts_private-build",
+    "seconds": 0.153,
+    "status": 0
+  },
+  {
+    "phase": "ownership_layouts_private-run",
+    "seconds": 0.265,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_convert-build",
+    "seconds": 0.139,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_convert-run",
+    "seconds": 0.271,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_endtoend-build",
+    "seconds": 0.149,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_endtoend-run",
+    "seconds": 0.267,
+    "status": 0
+  },
+  {
+    "phase": "old-array",
+    "seconds": 1.256,
+    "status": 0
+  },
+  {
+    "phase": "affine-union",
+    "seconds": 2.181,
+    "status": 0
+  },
+  {
+    "phase": "ownership-public",
+    "seconds": 1.352,
+    "status": 0
+  },
+  {
+    "phase": "complete-declarations",
+    "seconds": 1.536,
+    "status": 0
+  },
+  {
+    "phase": "record_array_origins",
+    "seconds": 3.283,
+    "status": 0
+  },
+  {
+    "phase": "record_array_execution",
+    "seconds": 3.54,
+    "status": 0
+  }
+]

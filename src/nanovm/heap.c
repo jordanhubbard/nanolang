@@ -152,7 +152,69 @@ static void release_tuple(VmHeap *heap, VmTuple *t);
 static void release_closure(VmHeap *heap, VmClosure *c);
 static void release_hashmap(VmHeap *heap, VmHashMap *m);
 
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+/* Exact runtime layout/flat-element checks make this graph a nominal DAG.
+ * I keep each dead parent allocated until all its edges have been released.
+ * Strings have no children; <=256 record layouts plus one array fit below258.
+ * This walk does not call vm_release and cannot allocate or run a collector. */
+static void vm_private_dag_release(VmHeap *heap,NanoValue value) {
+    uint32_t depth=0;
+    for(;;) {
+        if(val_is_heap_obj(value) && value.as.obj) {
+            VmHeapHeader *h=value.as.obj;
+            heap->stats.release_calls++;
+            assert(h->ref_count && !h->buffered);
+            if(--h->ref_count==0) {
+                if(value.tag==TAG_STRING) {
+                    VmString *s=value.as.string;
+                    heap->stats.freed+=sizeof *s+s->length+1;
+                    heap->stats.num_objects--;
+                    vm_intern_unlink(heap,s);free(s);
+                } else {
+                    assert(value.tag==TAG_ARRAY || value.tag==TAG_STRUCT);
+                    assert(depth<258);
+                    heap->private_release[depth].value=value;
+                    heap->private_release[depth++].child=0;
+                }
+            }
+        }
+        for(;;) {
+            if(!depth)return;
+            NanoValue parent=heap->private_release[depth-1].value;
+            uint32_t index=heap->private_release[depth-1].child;
+            if(parent.tag==TAG_ARRAY) {
+                VmArray *a=parent.as.array;
+                if(!a->unboxed && index<a->length) {
+                    value=a->elements[index];a->elements[index]=val_void();
+                    heap->private_release[depth-1].child++;break;
+                }
+                heap->stats.freed+=sizeof *a+(size_t)a->capacity*
+                    (a->unboxed?vm_array_elem_size(a->elem_type):sizeof(NanoValue));
+                heap->stats.num_objects--;
+                if(a->unboxed)free(a->packed);else free(a->elements);
+                free(a);
+            } else {
+                VmStruct *s=parent.as.sval;
+                /* This private route never installs reflective field names. */
+                assert(!s->field_names);
+                if(index<s->field_count) {
+                    value=s->fields[index];s->fields[index]=val_void();
+                    heap->private_release[depth-1].child++;break;
+                }
+                heap->stats.freed+=sizeof *s+(size_t)s->field_count*sizeof(NanoValue);
+                heap->stats.num_objects--;
+                free(s->fields);free(s);
+            }
+            heap->private_release[--depth].value=val_void();
+        }
+    }
+}
+#endif
+
 void vm_release(VmHeap *heap, NanoValue v) {
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+    if(heap && heap->private_record_dag){vm_private_dag_release(heap,v);return;}
+#endif
     if (!val_is_heap_obj(v)) return;
     void *ptr = v.as.obj;
     if (!ptr) return;
@@ -306,6 +368,9 @@ VmString *vm_string_new(VmHeap *heap, const char *data, uint32_t length) {
     /* Check intern table for dedup (O(1) expected via bucket chain). */
     VmString *existing = vm_intern_lookup(heap, hash, data, length);
     if (existing) {
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+        if(heap->private_record_dag && existing->header.ref_count==UINT32_MAX)return NULL;
+#endif
         existing->header.ref_count++;
         return existing;
     }
@@ -571,6 +636,10 @@ void vm_array_swap_scalar_storage(VmArray *a, VmArray *b) {
 
 bool vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {
     if (!a) return false;
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+    if(heap->private_record_dag && (v.tag!=a->elem_type ||
+       (val_is_heap_obj(v) && (!v.as.obj || ((VmHeapHeader *)v.as.obj)->ref_count==UINT32_MAX))))return false;
+#endif
     if (a->length >= a->capacity) {
         if (!array_grow(heap, a)) return false;
     }
@@ -628,6 +697,15 @@ VmArray *vm_array_slice(VmHeap *heap, VmArray *a, uint32_t start, uint32_t end) 
         return result;
     }
     for (uint32_t i = 0; i < new_len; i++) {
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+        if(heap->private_record_dag) {
+            NanoValue child=a->elements[start+i];
+            if(child.tag!=a->elem_type || (val_is_heap_obj(child) &&
+               (!child.as.obj || ((VmHeapHeader *)child.as.obj)->ref_count==UINT32_MAX))) {
+                result->length=i;vm_release(heap,val_array(result));return NULL;
+            }
+        }
+#endif
         result->elements[i] = a->elements[start + i];
         vm_retain(heap, result->elements[i]);
     }
