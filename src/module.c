@@ -1224,6 +1224,98 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
     return true;
 }
 
+/* I copy include arguments while the isolated parser's actual cache is live.
+ * This bounds only my closure workspace, not inherited metadata/parser storage. */
+#define MODULE_INCLUDE_MAX_PATHS 1024u
+#define MODULE_INCLUDE_PATH_BYTES 4096u
+
+typedef struct {
+    char *paths[MODULE_INCLUDE_MAX_PATHS];
+    size_t count;
+    size_t bytes;
+    char flags[NL_MODULE_LINK_COMMAND_CAPACITY];
+} ModuleIncludeClosure;
+
+static bool module_include_directory(ModuleIncludeClosure *closure, const char *path) {
+    if (!path || !path[0] || strlen(path) >= MODULE_INCLUDE_PATH_BYTES) return false;
+    char canonical[MODULE_INCLUDE_PATH_BYTES];
+    struct stat info;
+    if (!realpath(path, canonical) || stat(canonical, &info) != 0 || !S_ISDIR(info.st_mode))
+        return false;
+    for (size_t i = 0; i < closure->count; ++i)
+        if (strcmp(closure->paths[i], canonical) == 0) return true;
+    size_t bytes = strlen(canonical) + 1;
+    if (closure->count == MODULE_INCLUDE_MAX_PATHS ||
+        bytes > NL_MODULE_LINK_COMMAND_CAPACITY - closure->bytes) return false;
+    char *copy = strdup(canonical);
+    if (!copy) return false;
+    if (!module_append_include(closure->flags, sizeof(closure->flags), canonical)) {
+        free(copy);
+        return false;
+    }
+    closure->paths[closure->count++] = copy;
+    closure->bytes += bytes;
+    return true;
+}
+
+static void module_include_closure_free(ModuleIncludeClosure *closure) {
+    if (!closure) return;
+    for (size_t i = 0; i < closure->count; ++i) free(closure->paths[i]);
+    free(closure);
+}
+
+static ModuleIncludeClosure *module_include_closure(void) {
+    if (!module_cache || module_cache->count <= 0 ||
+        (size_t)module_cache->count > MODULE_INCLUDE_MAX_PATHS) return NULL;
+    ModuleIncludeClosure *closure = calloc(1, sizeof(*closure));
+    if (!closure) return NULL;
+    size_t requests = 0;
+    for (int i = 0; i < module_cache->count; ++i) {
+        const char *path = module_cache->loaded_paths[i];
+        char directory[MODULE_INCLUDE_PATH_BYTES];
+        if (!path || strlen(path) >= sizeof(directory)) goto failure;
+        memcpy(directory, path, strlen(path) + 1);
+        char *slash = strrchr(directory, '/');
+        if (!slash) goto failure;
+        if (slash == directory) slash[1] = '\0';
+        else *slash = '\0';
+        if (++requests > MODULE_INCLUDE_MAX_PATHS ||
+            !module_include_directory(closure, directory)) goto failure;
+        /* I preserve the existing metadata decoder's 1024-byte path bound. */
+        char manifest[1024];
+        int length = snprintf(manifest, sizeof(manifest), "%s/module.json", directory);
+        if (length < 0 || (size_t)length >= sizeof(manifest)) goto failure;
+        struct stat info;
+        if (lstat(manifest, &info) != 0) {
+            if (errno == ENOENT) continue;
+            goto failure;
+        }
+        /* I permit an ordinary symlink to a regular manifest, not a FIFO or a
+         * dangling link misclassified as an absent manifest. */
+        if (stat(manifest, &info) != 0 || !S_ISREG(info.st_mode)) goto failure;
+        ModuleBuildMetadata *metadata = module_load_metadata(directory);
+        if (!metadata) goto failure;
+        bool valid = metadata->include_dirs_count <= MODULE_INCLUDE_MAX_PATHS - requests &&
+                     (!metadata->include_dirs_count || metadata->include_dirs);
+        if (valid) {
+            requests += metadata->include_dirs_count;
+            for (size_t j = 0; j < metadata->include_dirs_count; ++j) {
+                if (!module_include_directory(closure, metadata->include_dirs[j])) {
+                    valid = false;
+                    break;
+                }
+            }
+        }
+        module_metadata_free(metadata);
+        if (!valid) goto failure;
+    }
+    return closure;
+failure:
+    fprintf(stderr, "I could not prepare the complete module dependency include closure.\n");
+    module_include_closure_free(closure);
+    return NULL;
+}
+
 /* Compile a single module to an object file */
 
 bool compile_module_to_object(const char *module_path,
@@ -1474,9 +1566,10 @@ bool compile_module_to_object(const char *module_path,
     if (!cc) cc = getenv("CC");
     if (!cc) cc = "cc";
 
-    char compile_cmd[4096];
+    char compile_cmd[NL_MODULE_LINK_COMMAND_CAPACITY];
     char inherited_flags[2048] = "";
-    bool arguments_valid = true;
+    ModuleIncludeClosure *include_closure = module_include_closure();
+    bool arguments_valid = include_closure != NULL;
     const char *root = get_project_root();
 
     for (size_t i = 0; i < extra_compile_flags_count; i++) {
@@ -1493,41 +1586,18 @@ bool compile_module_to_object(const char *module_path,
         }
     }
 
-    /* Extract the module's own directory for -I path (so it can find its own headers) */
-    char module_dir[512] = "";
-    {
-        /* Use realpath to resolve relative paths (e.g. ../modules/examples/runner.nano
-         * invoked from a subdirectory) to an absolute directory. Fallback to the
-         * root-relative heuristic if realpath fails (e.g. file not yet on disk). */
-        char abs_module_path[4096];
-        const char *resolved = realpath(module_path, abs_module_path);
-        const char *path_to_use = resolved ? abs_module_path : module_path;
-        char *mp_copy = strdup(path_to_use);
-        if (!mp_copy) arguments_valid = false;
-        char *last_slash = mp_copy ? strrchr(mp_copy, '/') : NULL;
-        if (last_slash) {
-            *last_slash = '\0';
-            int written = mp_copy[0] == '/' ?
-                snprintf(module_dir, sizeof(module_dir), "-I%s", mp_copy) :
-                snprintf(module_dir, sizeof(module_dir), "-I%s/%s", root, mp_copy);
-            if (written < 0 || (size_t)written >= sizeof(module_dir)) arguments_valid = false;
-        }
-        free(mp_copy);
-    }
-
     char *quoted_root = module_quote_path(root);
-    char *quoted_module = module_dir[0] ? module_quote_path(module_dir) : strdup("");
     char *quoted_object = module_quote_path(temp_obj_file);
     char *quoted_source = module_quote_path(temp_c_file);
-    arguments_valid = arguments_valid && quoted_root && quoted_module && quoted_object && quoted_source;
+    arguments_valid = arguments_valid && quoted_root && quoted_object && quoted_source;
     compile_cmd[0] = '\0';
     int command_length = arguments_valid ? snprintf(compile_cmd, sizeof(compile_cmd),
             "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s %s %s -c -o %s %s",
             cc, quoted_root, quoted_root, quoted_root, quoted_root, quoted_root,
             quoted_root, quoted_root, quoted_root, quoted_root,
-            quoted_module, sdl_flags, inherited_flags, quoted_object, quoted_source) : -1;
+            include_closure->flags, sdl_flags, inherited_flags, quoted_object, quoted_source) : -1;
     free(quoted_root);
-    free(quoted_module);
+    module_include_closure_free(include_closure);
     free(quoted_object);
     free(quoted_source);
     
