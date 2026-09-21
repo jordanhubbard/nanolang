@@ -1,0 +1,17 @@
+{
+  "terminal": {
+    "timeout": false,
+    "capacity_refusal": false,
+    "cleanup_errors": [],
+    "returncode": 0,
+    "seconds": 436.2975403930759,
+    "leader_reaped": true,
+    "tracked_remaining": {},
+    "group_gone": true
+  },
+  "source_unchanged": true,
+  "tools_unchanged": true,
+  "products": 3847,
+  "persistent_root": "/home/jkh/nanolang-qualification/capture-file-private-2c4-linux-gcc-sanitizers",
+  "report_archive_sha256": "78140bc9184ce48f0d7e663f041ba65748fe7fe5cf8406597cf475ae05d82112"
+}
