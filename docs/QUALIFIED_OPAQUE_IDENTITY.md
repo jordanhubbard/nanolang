@@ -331,3 +331,39 @@ annotations, distinct opaque owners, and a callback referring to its enclosing
 record. They supplement the framed-name, failed-publication, same-basename module
 and unchanged Json.Json controls. No execution is authorized by this additional
 unreviewed layout proposal itself.
+
+### Tuple child storage inventory and invariant
+
+I retain complete `TYPE_TUPLE` children in the existing `type_params` vector;
+I add no C TypeInfo field or metadata ABI layout. For this base kind only, a
+complete vector has `type_param_count == tuple_element_count`, every child is
+non-null, and each owned flat `tuple_types`/`tuple_type_names` entry reflects that
+child's base/nominal view. A legacy tuple with zero child count and no vector uses
+its existing flat entries. A nonzero unequal count or missing child is malformed,
+not a generic-instantiation request. Empty tuples retain zero counts.
+
+I inventoried every `type_params` reference in src C/headers/includes before
+editing this representation. Parser/env copy/free, nominal recursion, metadata
+pointer collection/serialization, C-backend kind checks and purity/resource walks
+already visit child vectors without assuming generic arguments. Generic union,
+HashMap/list and native monomorphization call sites require their base kind or
+non-null generic name; I preserve those conditions. NanoVirt scalar/borrow
+admission still rejects tuple shapes independently, so retaining children grants
+no new bytecode authority. Reflection/docgen/LSP keep their existing explicitly
+coarse tuple display behavior; display does not establish nominal identity.
+
+The required changed consumers are full tuple equality and native keys (which
+normalize a complete child against a legacy scalar/name view), concrete literal
+checking/reduce comparison, tuple-index retained annotation, and generic payload
+substitution. Substitution visits each full child and refreshes the owned flat
+view, rather than leaving the original formal beside a concrete child. Metadata
+round-trip must preserve both consistent views and all child graph edges.
+
+Static inventory also found two native tuple-literal temporary TypeInfo objects
+allocated without initializing fields outside the old flat tuple subset. Full
+annotation equality requires zero initialization, explicit TYPE_TUPLE and an
+explicit registry-owned temporary lifetime; I correct those paths rather than
+reading uninitialized metadata. The C signature parser currently has an explicit
+refusal of callback-valued parameters. I retain that documented unsupported-route
+refusal; accepted callback returns and tuple/generic callback payloads keep their
+complete signatures. This does not close the larger paired callable scope.

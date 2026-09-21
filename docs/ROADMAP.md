@@ -14427,3 +14427,11 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   complete typed dependencies and stage owning derived declarations before
   emitting definitions. This is a required representation repair, not a new
   refusal or a reason to replace the original installed SDK corpus.
+
+- [ ] I retain full C tuple children under the opaque identity task before
+  declaration-order qualification. The parser currently drops parsed nested
+  child annotations, and two native tuple-literal metadata temporaries leave
+  unrelated TypeInfo fields uninitialized. I record the tagged existing-vector
+  invariant and all consumer categories in QUALIFIED_OPAQUE_IDENTITY.md; I require
+  copy/free/normalization/substitution/equality/metadata round-trip controls and
+  preserve the existing explicit nested-callback-parameter refusal separately.
