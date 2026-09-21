@@ -1,0 +1,561 @@
+﻿2026-09-21T05:55:46.7894296Z Current runner version: '2.337.0'
+2026-09-21T05:55:46.7916462Z ##[group]Runner Image Provisioner
+2026-09-21T05:55:46.7917457Z Hosted Compute Agent
+2026-09-21T05:55:46.7918253Z Version: 20260828.587
+2026-09-21T05:55:46.7919113Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-21T05:55:46.7920028Z Build Date: 2026-08-28T16:44:25Z
+2026-09-21T05:55:46.7920993Z Worker ID: {ba5dc4fb-6f3c-42ba-980a-d4e8bb2a9ae6}
+2026-09-21T05:55:46.7921895Z Azure Region: westus3
+2026-09-21T05:55:46.7922653Z ##[endgroup]
+2026-09-21T05:55:46.7924781Z ##[group]Operating System
+2026-09-21T05:55:46.7925575Z Ubuntu
+2026-09-21T05:55:46.7926325Z 24.04.5
+2026-09-21T05:55:46.7926980Z LTS
+2026-09-21T05:55:46.7927652Z ##[endgroup]
+2026-09-21T05:55:46.7928452Z ##[group]Runner Image
+2026-09-21T05:55:46.7929219Z Image: ubuntu-24.04
+2026-09-21T05:55:46.7930043Z Version: 20260907.300.1
+2026-09-21T05:55:46.7931516Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260907.300/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-21T05:55:46.7933521Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260907.300
+2026-09-21T05:55:46.7934910Z ##[endgroup]
+2026-09-21T05:55:46.7936310Z ##[group]GITHUB_TOKEN Permissions
+2026-09-21T05:55:46.7938717Z Contents: read
+2026-09-21T05:55:46.7939594Z Metadata: read
+2026-09-21T05:55:46.7940187Z ##[endgroup]
+2026-09-21T05:55:46.7941913Z Secret source: Actions
+2026-09-21T05:55:46.7942869Z Cache mode: write
+2026-09-21T05:55:46.7943472Z Prepare workflow directory
+2026-09-21T05:55:46.8345172Z Prepare all required actions
+2026-09-21T05:55:46.8383252Z Getting action download info
+2026-09-21T05:55:47.1098557Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-21T05:55:47.6564715Z Complete job name: Docs (link check)
+2026-09-21T05:55:47.7159043Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-21T05:55:47.7165766Z ##[group]Run actions/checkout@v4
+2026-09-21T05:55:47.7166313Z with:
+2026-09-21T05:55:47.7166667Z   repository: jordanhubbard/nanolang
+2026-09-21T05:55:47.7169591Z   token: ***
+2026-09-21T05:55:47.7169945Z   ssh-strict: true
+2026-09-21T05:55:47.7170302Z   ssh-user: git
+2026-09-21T05:55:47.7170670Z   persist-credentials: true
+2026-09-21T05:55:47.7171051Z   clean: true
+2026-09-21T05:55:47.7171402Z   sparse-checkout-cone-mode: true
+2026-09-21T05:55:47.7171800Z   fetch-depth: 1
+2026-09-21T05:55:47.7172136Z   fetch-tags: false
+2026-09-21T05:55:47.7172488Z   show-progress: true
+2026-09-21T05:55:47.7172843Z   lfs: false
+2026-09-21T05:55:47.7173204Z   submodules: false
+2026-09-21T05:55:47.7173564Z   set-safe-directory: true
+2026-09-21T05:55:47.7173954Z   allow-unsafe-pr-checkout: false
+2026-09-21T05:55:47.7174597Z ##[endgroup]
+2026-09-21T05:55:47.8042914Z Syncing repository: jordanhubbard/nanolang
+2026-09-21T05:55:47.8044424Z ##[group]Getting Git version info
+2026-09-21T05:55:47.8045247Z Working directory is '/home/runner/work/nanolang/nanolang'
+2026-09-21T05:55:47.8046086Z [command]/usr/bin/git version
+2026-09-21T05:55:47.8106287Z git version 2.55.0
+2026-09-21T05:55:47.8127611Z ##[endgroup]
+2026-09-21T05:55:47.8144011Z Temporarily overriding HOME='/home/runner/work/_temp/8e262e79-f99b-425e-b460-d0b1665312e3' before making global git config changes
+2026-09-21T05:55:47.8146030Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-21T05:55:47.8148949Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/nanolang/nanolang
+2026-09-21T05:55:47.8845478Z Deleting the contents of '/home/runner/work/nanolang/nanolang'
+2026-09-21T05:55:47.8849491Z ##[group]Initializing the repository
+2026-09-21T05:55:47.8853497Z [command]/usr/bin/git init /home/runner/work/nanolang/nanolang
+2026-09-21T05:55:47.9938988Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-21T05:55:47.9940329Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-21T05:55:47.9941061Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-21T05:55:47.9941670Z hint: call:
+2026-09-21T05:55:47.9942134Z hint:
+2026-09-21T05:55:47.9942739Z hint: 	git config --global init.defaultBranch <name>
+2026-09-21T05:55:47.9943247Z hint:
+2026-09-21T05:55:47.9943701Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-21T05:55:47.9944623Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-21T05:55:47.9945240Z hint:
+2026-09-21T05:55:47.9945722Z hint: 	git branch -m <name>
+2026-09-21T05:55:47.9946123Z hint:
+2026-09-21T05:55:47.9946622Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-21T05:55:47.9947368Z Initialized empty Git repository in /home/runner/work/nanolang/nanolang/.git/
+2026-09-21T05:55:47.9950787Z [command]/usr/bin/git remote add origin https://github.com/jordanhubbard/nanolang
+2026-09-21T05:55:48.0641978Z ##[endgroup]
+2026-09-21T05:55:48.0642712Z ##[group]Disabling automatic garbage collection
+2026-09-21T05:55:48.0647558Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-21T05:55:48.1249620Z ##[endgroup]
+2026-09-21T05:55:48.1250547Z ##[group]Setting up auth
+2026-09-21T05:55:48.1256422Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-21T05:55:48.1291853Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-21T05:55:48.1768246Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-21T05:55:48.1798125Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-21T05:55:48.1986487Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-21T05:55:48.2016923Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-21T05:55:48.2209983Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-21T05:55:48.2526020Z ##[endgroup]
+2026-09-21T05:55:48.2526877Z ##[group]Fetching the repository
+2026-09-21T05:55:48.2534332Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +c524071200cac254e6ee36e542ad64c79d404ab1:refs/remotes/pull/937/merge
+2026-09-21T05:55:54.2934742Z From https://github.com/jordanhubbard/nanolang
+2026-09-21T05:55:54.2936242Z  * [new ref]           c524071200cac254e6ee36e542ad64c79d404ab1 -> pull/937/merge
+2026-09-21T05:55:54.2938864Z ##[endgroup]
+2026-09-21T05:55:54.2940066Z ##[group]Determining the checkout info
+2026-09-21T05:55:54.2941388Z ##[endgroup]
+2026-09-21T05:55:54.2965322Z [command]/usr/bin/git sparse-checkout disable
+2026-09-21T05:55:54.3322676Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-21T05:55:54.3353025Z ##[group]Checking out the ref
+2026-09-21T05:55:54.3355681Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/937/merge
+2026-09-21T05:55:55.5141131Z Updating files:  12% (7522/61563)
+2026-09-21T05:55:55.7713710Z Updating files:  13% (8004/61563)
+2026-09-21T05:55:56.3806740Z Updating files:  14% (8619/61563)
+2026-09-21T05:55:57.3780401Z Updating files:  15% (9235/61563)
+2026-09-21T05:55:58.0103676Z Updating files:  15% (9585/61563)
+2026-09-21T05:55:58.3796312Z Updating files:  16% (9851/61563)
+2026-09-21T05:55:58.6909146Z Updating files:  16% (10008/61563)
+2026-09-21T05:55:59.3755906Z Updating files:  17% (10466/61563)
+2026-09-21T05:56:00.1249738Z Updating files:  17% (10876/61563)
+2026-09-21T05:56:00.3849274Z Updating files:  18% (11082/61563)
+2026-09-21T05:56:01.3869026Z Updating files:  18% (11193/61563)
+2026-09-21T05:56:01.7160861Z Updating files:  18% (11552/61563)
+2026-09-21T05:56:02.2531417Z Updating files:  19% (11697/61563)
+2026-09-21T05:56:02.3802390Z Updating files:  20% (12313/61563)
+2026-09-21T05:56:03.2056239Z Updating files:  20% (12419/61563)
+2026-09-21T05:56:03.3762276Z Updating files:  21% (12929/61563)
+2026-09-21T05:56:03.9617529Z Updating files:  21% (13017/61563)
+2026-09-21T05:56:04.3791158Z Updating files:  22% (13544/61563)
+2026-09-21T05:56:04.4772784Z Updating files:  22% (13827/61563)
+2026-09-21T05:56:04.5097767Z Updating files:  23% (14160/61563)
+2026-09-21T05:56:04.6153526Z Updating files:  24% (14776/61563)
+2026-09-21T05:56:04.6496105Z Updating files:  25% (15391/61563)
+2026-09-21T05:56:04.7984399Z Updating files:  26% (16007/61563)
+2026-09-21T05:56:04.8329149Z Updating files:  27% (16623/61563)
+2026-09-21T05:56:04.8935623Z Updating files:  28% (17238/61563)
+2026-09-21T05:56:04.9145868Z Updating files:  29% (17854/61563)
+2026-09-21T05:56:04.9791538Z Updating files:  30% (18469/61563)
+2026-09-21T05:56:05.0211050Z Updating files:  31% (19085/61563)
+2026-09-21T05:56:05.0716075Z Updating files:  32% (19701/61563)
+2026-09-21T05:56:05.1735565Z Updating files:  33% (20316/61563)
+2026-09-21T05:56:05.1936275Z Updating files:  34% (20932/61563)
+2026-09-21T05:56:05.2693994Z Updating files:  35% (21548/61563)
+2026-09-21T05:56:05.3045038Z Updating files:  36% (22163/61563)
+2026-09-21T05:56:05.4137616Z Updating files:  37% (22779/61563)
+2026-09-21T05:56:05.4290398Z Updating files:  37% (23078/61563)
+2026-09-21T05:56:05.4502685Z Updating files:  38% (23394/61563)
+2026-09-21T05:56:05.6070684Z Updating files:  39% (24010/61563)
+2026-09-21T05:56:05.6547186Z Updating files:  40% (24626/61563)
+2026-09-21T05:56:05.7082371Z Updating files:  41% (25241/61563)
+2026-09-21T05:56:05.7403269Z Updating files:  42% (25857/61563)
+2026-09-21T05:56:05.7822222Z Updating files:  43% (26473/61563)
+2026-09-21T05:56:05.8149232Z Updating files:  44% (27088/61563)
+2026-09-21T05:56:05.8608117Z Updating files:  45% (27704/61563)
+2026-09-21T05:56:05.8821425Z Updating files:  46% (28319/61563)
+2026-09-21T05:56:05.9651566Z Updating files:  47% (28935/61563)
+2026-09-21T05:56:06.0055505Z Updating files:  48% (29551/61563)
+2026-09-21T05:56:06.0982433Z Updating files:  49% (30166/61563)
+2026-09-21T05:56:06.2070502Z Updating files:  50% (30782/61563)
+2026-09-21T05:56:06.2282146Z Updating files:  51% (31398/61563)
+2026-09-21T05:56:06.2803906Z Updating files:  52% (32013/61563)
+2026-09-21T05:56:06.3159008Z Updating files:  53% (32629/61563)
+2026-09-21T05:56:06.3668254Z Updating files:  54% (33245/61563)
+2026-09-21T05:56:06.3740914Z Updating files:  55% (33860/61563)
+2026-09-21T05:56:06.4290698Z Updating files:  55% (34072/61563)
+2026-09-21T05:56:06.4585983Z Updating files:  56% (34476/61563)
+2026-09-21T05:56:06.5116475Z Updating files:  57% (35091/61563)
+2026-09-21T05:56:06.5420273Z Updating files:  58% (35707/61563)
+2026-09-21T05:56:06.6029963Z Updating files:  59% (36323/61563)
+2026-09-21T05:56:06.8317527Z Updating files:  60% (36938/61563)
+2026-09-21T05:56:07.1260921Z Updating files:  61% (37554/61563)
+2026-09-21T05:56:07.3832593Z Updating files:  62% (38170/61563)
+2026-09-21T05:56:07.5889318Z Updating files:  62% (38681/61563)
+2026-09-21T05:56:08.1073281Z Updating files:  63% (38785/61563)
+2026-09-21T05:56:08.2410730Z Updating files:  64% (39401/61563)
+2026-09-21T05:56:08.3633577Z Updating files:  65% (40016/61563)
+2026-09-21T05:56:08.3847319Z Updating files:  66% (40632/61563)
+2026-09-21T05:56:08.4794287Z Updating files:  66% (40693/61563)
+2026-09-21T05:56:08.6402852Z Updating files:  67% (41248/61563)
+2026-09-21T05:56:08.9839505Z Updating files:  68% (41863/61563)
+2026-09-21T05:56:09.0888459Z Updating files:  69% (42479/61563)
+2026-09-21T05:56:09.3991500Z Updating files:  70% (43095/61563)
+2026-09-21T05:56:10.3060543Z Updating files:  70% (43455/61563)
+2026-09-21T05:56:10.3799563Z Updating files:  71% (43710/61563)
+2026-09-21T05:56:11.1219190Z Updating files:  71% (43748/61563)
+2026-09-21T05:56:11.3360460Z Updating files:  72% (44326/61563)
+2026-09-21T05:56:11.3757969Z Updating files:  73% (44941/61563)
+2026-09-21T05:56:11.7234765Z Updating files:  73% (44972/61563)
+2026-09-21T05:56:12.4061565Z Updating files:  74% (45557/61563)
+2026-09-21T05:56:13.4040491Z Updating files:  74% (45671/61563)
+2026-09-21T05:56:14.3879295Z Updating files:  74% (45862/61563)
+2026-09-21T05:56:14.4126068Z Updating files:  74% (46163/61563)
+2026-09-21T05:56:15.3759337Z Updating files:  75% (46173/61563)
+2026-09-21T05:56:16.3765779Z Updating files:  75% (46349/61563)
+2026-09-21T05:56:16.3767552Z Updating files:  75% (46779/61563)
+2026-09-21T05:56:16.5812586Z Updating files:  76% (46788/61563)
+2026-09-21T05:56:16.6643269Z Updating files:  77% (47404/61563)
+2026-09-21T05:56:16.9866764Z Updating files:  78% (48020/61563)
+2026-09-21T05:56:17.1838286Z Updating files:  79% (48635/61563)
+2026-09-21T05:56:17.3787714Z Updating files:  80% (49251/61563)
+2026-09-21T05:56:17.4263476Z Updating files:  80% (49656/61563)
+2026-09-21T05:56:17.6472092Z Updating files:  81% (49867/61563)
+2026-09-21T05:56:17.9431957Z Updating files:  82% (50482/61563)
+2026-09-21T05:56:18.2078173Z Updating files:  83% (51098/61563)
+2026-09-21T05:56:18.3807280Z Updating files:  84% (51713/61563)
+2026-09-21T05:56:18.4915662Z Updating files:  84% (52068/61563)
+2026-09-21T05:56:18.7791460Z Updating files:  85% (52329/61563)
+2026-09-21T05:56:18.8801100Z Updating files:  86% (52945/61563)
+2026-09-21T05:56:18.9427418Z Updating files:  87% (53560/61563)
+2026-09-21T05:56:19.3927049Z Updating files:  88% (54176/61563)
+2026-09-21T05:56:19.9725416Z Updating files:  88% (54479/61563)
+2026-09-21T05:56:20.3851962Z Updating files:  89% (54792/61563)
+2026-09-21T05:56:20.8790385Z Updating files:  89% (54924/61563)
+2026-09-21T05:56:21.1558508Z Updating files:  90% (55407/61563)
+2026-09-21T05:56:21.3948394Z Updating files:  91% (56023/61563)
+2026-09-21T05:56:21.8902210Z Updating files:  91% (56261/61563)
+2026-09-21T05:56:22.3191039Z Updating files:  92% (56638/61563)
+2026-09-21T05:56:22.3797044Z Updating files:  93% (57254/61563)
+2026-09-21T05:56:22.7795926Z Updating files:  93% (57303/61563)
+2026-09-21T05:56:22.9853687Z Updating files:  94% (57870/61563)
+2026-09-21T05:56:23.0121872Z Updating files:  95% (58485/61563)
+2026-09-21T05:56:23.0577611Z Updating files:  96% (59101/61563)
+2026-09-21T05:56:23.1045819Z Updating files:  97% (59717/61563)
+2026-09-21T05:56:23.1346835Z Updating files:  98% (60332/61563)
+2026-09-21T05:56:23.1716956Z Updating files:  99% (60948/61563)
+2026-09-21T05:56:23.1717531Z Updating files: 100% (61563/61563)
+2026-09-21T05:56:23.1717826Z Updating files: 100% (61563/61563), done.
+2026-09-21T05:56:23.3624904Z Note: switching to 'refs/remotes/pull/937/merge'.
+2026-09-21T05:56:23.3625293Z 
+2026-09-21T05:56:23.3625496Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-21T05:56:23.3625901Z changes and commit them, and you can discard any commits you make in this
+2026-09-21T05:56:23.3626517Z state without impacting any branches by switching back to a branch.
+2026-09-21T05:56:23.3626782Z 
+2026-09-21T05:56:23.3626967Z If you want to create a new branch to retain commits you create, you may
+2026-09-21T05:56:23.3627409Z do so (now or later) by using -c with the switch command. Example:
+2026-09-21T05:56:23.3627669Z 
+2026-09-21T05:56:23.3627781Z   git switch -c <new-branch-name>
+2026-09-21T05:56:23.3627960Z 
+2026-09-21T05:56:23.3628060Z Or undo this operation with:
+2026-09-21T05:56:23.3628237Z 
+2026-09-21T05:56:23.3628326Z   git switch -
+2026-09-21T05:56:23.3628456Z 
+2026-09-21T05:56:23.3628673Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-21T05:56:23.3628979Z 
+2026-09-21T05:56:23.3629321Z HEAD is now at c5240712 Merge bf9514e752803f1884ecef2eb5981797249478d2 into 8f2a6c874cf8c64266d65744529fe20d24eeb9fd
+2026-09-21T05:56:23.3708786Z ##[endgroup]
+2026-09-21T05:56:23.4447425Z [command]/usr/bin/git log -1 --format=%H
+2026-09-21T05:56:23.4472861Z c524071200cac254e6ee36e542ad64c79d404ab1
+2026-09-21T05:56:23.4653006Z ##[group]Run python3 scripts/check_markdown_links.py
+2026-09-21T05:56:23.4653356Z [36;1mpython3 scripts/check_markdown_links.py[0m
+2026-09-21T05:56:23.4689066Z shell: /usr/bin/bash -e {0}
+2026-09-21T05:56:23.4689281Z ##[endgroup]
+2026-09-21T05:56:24.0700398Z ✓ markdown links: OK
+2026-09-21T05:56:24.0791890Z ##[group]Run bash tests/test_performance_monitoring_docs.sh
+2026-09-21T05:56:24.0792247Z [36;1mbash tests/test_performance_monitoring_docs.sh[0m
+2026-09-21T05:56:24.0825911Z shell: /usr/bin/bash -e {0}
+2026-09-21T05:56:24.0826124Z ##[endgroup]
+2026-09-21T05:56:24.1396659Z performance monitoring docs assertions passed
+2026-09-21T05:56:24.1426293Z ##[group]Run bash tests/check_stdlib_docs.sh
+2026-09-21T05:56:24.1426559Z [36;1mbash tests/check_stdlib_docs.sh[0m
+2026-09-21T05:56:24.1457589Z shell: /usr/bin/bash -e {0}
+2026-09-21T05:56:24.1457795Z ##[endgroup]
+2026-09-21T05:56:24.4813802Z stdlib doc coverage: 158 builtins in src/builtins_registry.c, 158 documented in docs/STDLIB.md
+2026-09-21T05:56:24.4814321Z 
+2026-09-21T05:56:24.4814711Z OK: every builtin is documented and every section count is accurate.
+2026-09-21T05:56:24.4851725Z ##[group]Run python3 -m unittest tests/test_build_userguide.py
+2026-09-21T05:56:24.4852098Z [36;1mpython3 -m unittest tests/test_build_userguide.py[0m
+2026-09-21T05:56:24.4852358Z [36;1mmake userguide-html[0m
+2026-09-21T05:56:24.4884627Z shell: /usr/bin/bash -e {0}
+2026-09-21T05:56:24.4884888Z ##[endgroup]
+2026-09-21T05:56:24.8348002Z ..............
+2026-09-21T05:56:24.8348496Z ----------------------------------------------------------------------
+2026-09-21T05:56:24.8349000Z Ran 14 tests in 0.027s
+2026-09-21T05:56:24.8349177Z 
+2026-09-21T05:56:24.8349274Z OK
+2026-09-21T05:56:24.9218668Z mkdir -p obj/build_bootstrap
+2026-09-21T05:56:24.9259798Z [schema] Generating compiler schema artifacts...
+2026-09-21T05:56:24.9276745Z [schema] Using Python version (bootstrap)...
+2026-09-21T05:56:24.9616910Z [tool] Building module index generator (C)...
+2026-09-21T05:56:29.0104996Z [modules] Generating module index from manifests...
+2026-09-21T05:56:29.0192335Z Generating module index...
+2026-09-21T05:56:29.0192726Z Found 47 module manifests
+2026-09-21T05:56:29.0193164Z   ✓ preferences
+2026-09-21T05:56:29.0193356Z   ✓ github
+2026-09-21T05:56:29.0193521Z   ✓ glfw
+2026-09-21T05:56:29.0193704Z   ✓ nanoisa
+2026-09-21T05:56:29.0193864Z   ✓ tools
+2026-09-21T05:56:29.0194020Z   ✓ stdio
+2026-09-21T05:56:29.0194188Z   ✓ vector2d
+2026-09-21T05:56:29.0194353Z   ✓ uv
+2026-09-21T05:56:29.0194700Z   ✓ nano_eval
+2026-09-21T05:56:29.0194874Z   ✓ openai
+2026-09-21T05:56:29.0195042Z   ✓ nano_highlight
+2026-09-21T05:56:29.0195235Z   ✓ pybridge_matplotlib
+2026-09-21T05:56:29.0195421Z   ✓ curl
+2026-09-21T05:56:29.0195585Z   ✓ nano_tools
+2026-09-21T05:56:29.0195762Z   ✓ filesystem
+2026-09-21T05:56:29.0195931Z   ✓ audio_helpers
+2026-09-21T05:56:29.0196106Z   ✓ sdl
+2026-09-21T05:56:29.0196261Z   ✓ glew
+2026-09-21T05:56:29.0196437Z   ✓ event
+2026-09-21T05:56:29.0196616Z   ✓ pt2_state
+2026-09-21T05:56:29.0196787Z   ✓ sdl_helpers
+2026-09-21T05:56:29.0196956Z   ✓ sdl_ttf
+2026-09-21T05:56:29.0197116Z   ✓ readline
+2026-09-21T05:56:29.0197289Z   ✓ sqlite
+2026-09-21T05:56:29.0197449Z   ✓ math_ext
+2026-09-21T05:56:29.0197614Z   ✓ pt2_audio
+2026-09-21T05:56:29.0197799Z   ✓ pybridge_warp
+2026-09-21T05:56:29.0197987Z   ✓ ui_widgets
+2026-09-21T05:56:29.0198210Z   ✓ sdl_mixer
+2026-09-21T05:56:29.0198447Z   ✓ glut
+2026-09-21T05:56:29.0198729Z   ✓ sdl_image
+2026-09-21T05:56:29.0199091Z   ✓ pybridge
+2026-09-21T05:56:29.0199340Z   ✓ pt2_module
+2026-09-21T05:56:29.0199592Z   ✓ proptest
+2026-09-21T05:56:29.0199832Z   ✓ bullet
+2026-09-21T05:56:29.0200062Z   ✓ std
+2026-09-21T05:56:29.0200299Z   ✓ pty
+2026-09-21T05:56:29.0200542Z   ✓ mujoco
+2026-09-21T05:56:29.0200774Z   ✓ sdl_term
+2026-09-21T05:56:29.0201028Z   ✓ audio_viz
+2026-09-21T05:56:29.0201232Z   ✓ opengl
+2026-09-21T05:56:29.0201395Z   ✓ forth_see
+2026-09-21T05:56:29.0201557Z   ✓ stdlib
+2026-09-21T05:56:29.0201940Z   ✓ ncurses
+2026-09-21T05:56:29.0202224Z   ✓ http_server
+2026-09-21T05:56:29.0202441Z   ✓ unicode
+2026-09-21T05:56:29.0202601Z   ✓ log
+2026-09-21T05:56:29.0202690Z 
+2026-09-21T05:56:29.0202810Z ✓ Generated modules/index.json
+2026-09-21T05:56:29.0203018Z   47 modules indexed
+2026-09-21T05:56:29.0219601Z mkdir -p obj/runtime
+2026-09-21T05:56:29.0245333Z mkdir -p obj/eval
+2026-09-21T05:56:29.0297059Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bcp47.c -o obj/bcp47.o
+2026-09-21T05:56:29.1477816Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bench.c -o obj/bench.o
+2026-09-21T05:56:29.3494432Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bench_native.c -o obj/bench_native.o
+2026-09-21T05:56:29.4155302Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/builtins_registry.c -o obj/builtins_registry.o
+2026-09-21T05:56:29.4514083Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/cJSON.c -o obj/cJSON.o
+2026-09-21T05:56:30.0328759Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/c_backend.c -o obj/c_backend.o
+2026-09-21T05:56:31.2210323Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/catalog.c -o obj/catalog.o
+2026-09-21T05:56:31.3818699Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/channel.c -o obj/channel.o
+2026-09-21T05:56:31.4914087Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/coroutine.c -o obj/coroutine.o
+2026-09-21T05:56:31.6707804Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/cps_pass.c -o obj/cps_pass.o
+2026-09-21T05:56:31.9446882Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/dce_pass.c -o obj/dce_pass.o
+2026-09-21T05:56:32.1011855Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/diag_id.c -o obj/diag_id.o
+2026-09-21T05:56:32.1712349Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/docgen.c -o obj/docgen.o
+2026-09-21T05:56:32.4857316Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/docgen_md.c -o obj/docgen_md.o
+2026-09-21T05:56:32.7432949Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/dwarf_info.c -o obj/dwarf_info.o
+2026-09-21T05:56:32.8186984Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/effects.c -o obj/effects.o
+2026-09-21T05:56:33.0434089Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/emit_typed_ast.c -o obj/emit_typed_ast.o
+2026-09-21T05:56:33.2957181Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/env.c -o obj/env.o
+2026-09-21T05:56:34.0790309Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -ffp-contract=off -fno-fast-math -c src/eval.c -o obj/eval.o
+2026-09-21T05:56:36.4364876Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_hashmap.c -o obj/eval/eval_hashmap.o
+2026-09-21T05:56:36.5148371Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_io.c -o obj/eval/eval_io.o
+2026-09-21T05:56:36.7635074Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_math.c -o obj/eval/eval_math.o
+2026-09-21T05:56:36.8692588Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_string.c -o obj/eval/eval_string.o
+2026-09-21T05:56:37.0195713Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/fmt.c -o obj/fmt.o
+2026-09-21T05:56:37.1374097Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/fold_constants.c -o obj/fold_constants.o
+2026-09-21T05:56:37.2518527Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/interpreter_ffi.c -o obj/interpreter_ffi.o
+2026-09-21T05:56:37.3851292Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/json_diagnostics.c -o obj/json_diagnostics.o
+2026-09-21T05:56:37.4587192Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/lexer.c -o obj/lexer.o
+2026-09-21T05:56:37.7299822Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/locale.c -o obj/locale.o
+2026-09-21T05:56:37.7878341Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/main.c -o obj/main.o
+2026-09-21T05:56:38.3013523Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/module.c -o obj/module.o
+2026-09-21T05:56:38.9789935Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/module_builder.c -o obj/module_builder.o
+2026-09-21T05:56:41.8790602Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/module_metadata.c -o obj/module_metadata.o
+2026-09-21T05:56:42.5959362Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanocore_export.c -o obj/nanocore_export.o
+2026-09-21T05:56:42.7932478Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanocore_subset.c -o obj/nanocore_subset.o
+2026-09-21T05:56:42.9168869Z mkdir -p obj/nanoisa
+2026-09-21T05:56:42.9235656Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+2026-09-21T05:56:43.1997986Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+2026-09-21T05:56:44.5476818Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/assembler.c -o obj/nanoisa/assembler.o
+2026-09-21T05:56:45.1071484Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/disassembler.c -o obj/nanoisa/disassembler.o
+2026-09-21T05:56:45.2736787Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o
+2026-09-21T05:56:47.2242128Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/frontend.c -o obj/nanoisa/frontend.o
+2026-09-21T05:56:47.3058509Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/isa.c -o obj/nanoisa/isa.o
+2026-09-21T05:56:47.3797557Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/local_bindings.c -o obj/nanoisa/local_bindings.o
+2026-09-21T05:56:47.4675944Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o
+2026-09-21T05:56:48.6037130Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/mixed_float_proof.c -o obj/nanoisa/mixed_float_proof.o
+2026-09-21T05:56:49.0077543Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/nanoisa.c -o obj/nanoisa/nanoisa_facade.o
+2026-09-21T05:56:49.1709981Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o
+2026-09-21T05:56:52.4370607Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o obj/nanoisa/nvm2c_shape.o
+2026-09-21T05:56:52.6361361Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format.c -o obj/nanoisa/nvm_format.o
+2026-09-21T05:56:52.9688267Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format_v2.c -o obj/nanoisa/nvm_format_v2.o
+2026-09-21T05:56:53.0392191Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_constants.c -o obj/nanoisa/nvm_v2_constants.o
+2026-09-21T05:56:53.0921989Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o obj/nanoisa/nvm_v2_convert.o
+2026-09-21T05:56:53.3528519Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_cursor.c -o obj/nanoisa/nvm_v2_cursor.o
+2026-09-21T05:56:53.3875962Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_functions.c -o obj/nanoisa/nvm_v2_functions.o
+2026-09-21T05:56:53.4542420Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_imports.c -o obj/nanoisa/nvm_v2_imports.o
+2026-09-21T05:56:53.5687173Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_layouts.c -o obj/nanoisa/nvm_v2_layouts.o
+2026-09-21T05:56:53.7337582Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_module.c -o obj/nanoisa/nvm_v2_module.o
+2026-09-21T05:56:53.9012268Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_signatures.c -o obj/nanoisa/nvm_v2_signatures.o
+2026-09-21T05:56:53.9601133Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o
+2026-09-21T05:56:54.3438322Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/passive.c -o obj/nanoisa/passive.o
+2026-09-21T05:56:54.7243844Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/reference_places.c -o obj/nanoisa/reference_places.o
+2026-09-21T05:56:54.7875211Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o
+2026-09-21T05:56:55.6267726Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings.c -o obj/nanoisa/service_bindings.o
+2026-09-21T05:56:55.6672950Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings_module.c -o obj/nanoisa/service_bindings_module.o
+2026-09-21T05:56:55.8203675Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal.c -o obj/nanoisa/service_file_nominal.o
+2026-09-21T05:56:55.8755735Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal_plan.c -o obj/nanoisa/service_file_nominal_plan.o
+2026-09-21T05:56:56.0229738Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o obj/nanoisa/verifier.o
+2026-09-21T05:56:56.9136296Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier_types.c -o obj/nanoisa/verifier_types.o
+2026-09-21T05:56:57.0865576Z mkdir -p obj/nanovirt
+2026-09-21T05:56:57.0918732Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+2026-09-21T05:57:00.1799414Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/shadow_runner.c -o obj/nanovirt/shadow_runner.o
+2026-09-21T05:57:00.3352476Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP  -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+2026-09-21T05:57:00.5315408Z mkdir -p obj/nanovm
+2026-09-21T05:57:00.5369474Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/cop_protocol.c -o obj/nanovm/cop_protocol.o
+2026-09-21T05:57:00.8561810Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/heap.c -o obj/nanovm/heap.o
+2026-09-21T05:57:01.0969249Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/heap_cycles.c -o obj/nanovm/heap_cycles.o
+2026-09-21T05:57:01.3118259Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/value.c -o obj/nanovm/value.o
+2026-09-21T05:57:01.3978780Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o
+2026-09-21T05:57:04.8362847Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_builtins.c -o obj/nanovm/vm_builtins.o
+2026-09-21T05:57:05.0318343Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_callback.c -o obj/nanovm/vm_callback.o
+2026-09-21T05:57:05.1013077Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_decode.c -o obj/nanovm/vm_decode.o
+2026-09-21T05:57:05.1757272Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_dispatch.c -o obj/nanovm/vm_dispatch.o
+2026-09-21T05:57:05.2570179Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_ffi.c -o obj/nanovm/vm_ffi.o
+2026-09-21T05:57:05.9156315Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_ffi_arrays.c -o obj/nanovm/vm_ffi_arrays.o
+2026-09-21T05:57:06.0205259Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nominal_types.c -o obj/nominal_types.o
+2026-09-21T05:57:06.2377815Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_file_plan.c -o obj/nsi_file_plan.o
+2026-09-21T05:57:06.3057936Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/opencl_backend.c -o obj/opencl_backend.o
+2026-09-21T05:57:06.4728607Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/par_let_pass.c -o obj/par_let_pass.o
+2026-09-21T05:57:06.5536136Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/parser.c -o obj/parser.o
+2026-09-21T05:57:08.9338875Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/pgo_pass.c -o obj/pgo_pass.o
+2026-09-21T05:57:09.0872400Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/ptx_backend.c -o obj/ptx_backend.o
+2026-09-21T05:57:09.2559204Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/reflection.c -o obj/reflection.o
+2026-09-21T05:57:09.3691213Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/resource_flow.c -o obj/resource_flow.o
+2026-09-21T05:57:10.0538511Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/resource_tracking.c -o obj/resource_tracking.o
+2026-09-21T05:57:10.3699225Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/riscv_backend.c -o obj/riscv_backend.o
+2026-09-21T05:57:10.4986863Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/callback_runtime.c -o obj/runtime/callback_runtime.o
+2026-09-21T05:57:10.6080377Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/cli.c -o obj/runtime/cli.o
+2026-09-21T05:57:10.6338362Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/dyn_array.c -o obj/runtime/dyn_array.o
+2026-09-21T05:57:10.8163708Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/effect_runtime.c -o obj/runtime/effect_runtime.o
+2026-09-21T05:57:10.8418513Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/ffi_loader.c -o obj/runtime/ffi_loader.o
+2026-09-21T05:57:10.9729015Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/gc.c -o obj/runtime/gc.o
+2026-09-21T05:57:11.0592008Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/gc_struct.c -o obj/runtime/gc_struct.o
+2026-09-21T05:57:11.1185763Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTArrayLiteral.c -o obj/runtime/list_ASTArrayLiteral.o
+2026-09-21T05:57:11.1856495Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTAssert.c -o obj/runtime/list_ASTAssert.o
+2026-09-21T05:57:11.2535487Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTBinaryOp.c -o obj/runtime/list_ASTBinaryOp.o
+2026-09-21T05:57:11.3185454Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTBlock.c -o obj/runtime/list_ASTBlock.o
+2026-09-21T05:57:11.3854169Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTBool.c -o obj/runtime/list_ASTBool.o
+2026-09-21T05:57:11.4521736Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTCall.c -o obj/runtime/list_ASTCall.o
+2026-09-21T05:57:11.5194422Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTEnum.c -o obj/runtime/list_ASTEnum.o
+2026-09-21T05:57:11.5843310Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTFieldAccess.c -o obj/runtime/list_ASTFieldAccess.o
+2026-09-21T05:57:11.6514593Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTFloat.c -o obj/runtime/list_ASTFloat.o
+2026-09-21T05:57:11.7192121Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTFor.c -o obj/runtime/list_ASTFor.o
+2026-09-21T05:57:11.7836751Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTFunction.c -o obj/runtime/list_ASTFunction.o
+2026-09-21T05:57:11.8492221Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTIdentifier.c -o obj/runtime/list_ASTIdentifier.o
+2026-09-21T05:57:11.9172793Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTIf.c -o obj/runtime/list_ASTIf.o
+2026-09-21T05:57:11.9866781Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTImport.c -o obj/runtime/list_ASTImport.o
+2026-09-21T05:57:12.0516889Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTLet.c -o obj/runtime/list_ASTLet.o
+2026-09-21T05:57:12.1174150Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTMatch.c -o obj/runtime/list_ASTMatch.o
+2026-09-21T05:57:12.1829397Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTModuleQualifiedCall.c -o obj/runtime/list_ASTModuleQualifiedCall.o
+2026-09-21T05:57:12.2480530Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTNumber.c -o obj/runtime/list_ASTNumber.o
+2026-09-21T05:57:12.3169416Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTOpaqueType.c -o obj/runtime/list_ASTOpaqueType.o
+2026-09-21T05:57:12.3846205Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTPrint.c -o obj/runtime/list_ASTPrint.o
+2026-09-21T05:57:12.4779157Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTReturn.c -o obj/runtime/list_ASTReturn.o
+2026-09-21T05:57:12.5455905Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTServiceDecl.c -o obj/runtime/list_ASTServiceDecl.o
+2026-09-21T05:57:12.6111058Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTSet.c -o obj/runtime/list_ASTSet.o
+2026-09-21T05:57:12.6758676Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTShadow.c -o obj/runtime/list_ASTShadow.o
+2026-09-21T05:57:12.7429888Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTStmtRef.c -o obj/runtime/list_ASTStmtRef.o
+2026-09-21T05:57:12.8091375Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTString.c -o obj/runtime/list_ASTString.o
+2026-09-21T05:57:12.8775508Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTStruct.c -o obj/runtime/list_ASTStruct.o
+2026-09-21T05:57:12.9435905Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTStructLiteral.c -o obj/runtime/list_ASTStructLiteral.o
+2026-09-21T05:57:13.0095012Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTTupleIndex.c -o obj/runtime/list_ASTTupleIndex.o
+2026-09-21T05:57:13.0776480Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTTupleLiteral.c -o obj/runtime/list_ASTTupleLiteral.o
+2026-09-21T05:57:13.1427103Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTUnion.c -o obj/runtime/list_ASTUnion.o
+2026-09-21T05:57:13.2091522Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTUnionConstruct.c -o obj/runtime/list_ASTUnionConstruct.o
+2026-09-21T05:57:13.2736853Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTUnsafeBlock.c -o obj/runtime/list_ASTUnsafeBlock.o
+2026-09-21T05:57:13.3419083Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTWhile.c -o obj/runtime/list_ASTWhile.o
+2026-09-21T05:57:13.4102015Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_CompilerDiagnostic.c -o obj/runtime/list_CompilerDiagnostic.o
+2026-09-21T05:57:13.4737247Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_CompilerSourceLocation.c -o obj/runtime/list_CompilerSourceLocation.o
+2026-09-21T05:57:13.5393515Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_LexerToken.c -o obj/runtime/list_LexerToken.o
+2026-09-21T05:57:13.6055533Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_int.c -o obj/runtime/list_int.o
+2026-09-21T05:57:13.6684004Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_string.c -o obj/runtime/list_string.o
+2026-09-21T05:57:13.7357032Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_token.c -o obj/runtime/list_token.o
+2026-09-21T05:57:13.8023386Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/module_build_dir.c -o obj/runtime/module_build_dir.o
+2026-09-21T05:57:14.0111798Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/nl_string.c -o obj/runtime/nl_string.o
+2026-09-21T05:57:14.1276148Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/regex.c -o obj/runtime/regex.o
+2026-09-21T05:57:14.2000908Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/token_helpers.c -o obj/runtime/token_helpers.o
+2026-09-21T05:57:14.2384256Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/stdlib_runtime.c -o obj/stdlib_runtime.o
+2026-09-21T05:57:14.4675246Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/tco_pass.c -o obj/tco_pass.o
+2026-09-21T05:57:14.6980254Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/toon_output.c -o obj/toon_output.o
+2026-09-21T05:57:14.7546469Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/transpiler.c -o obj/transpiler.o
+2026-09-21T05:57:17.2749383Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/type_infer.c -o obj/type_infer.o
+2026-09-21T05:57:17.7615457Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/typechecker.c -o obj/typechecker.o
+2026-09-21T05:57:20.1401531Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/utf8.c -o obj/utf8.o
+2026-09-21T05:57:20.5217846Z cc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -fPIC -shared -o bin/nano_as_capture.so src/runtime/assembler_capture.c -lm -lcrypto -lffi -rdynamic -ldl
+2026-09-21T05:57:20.7286797Z Stage 1: Building C reference compiler...
+2026-09-21T05:57:28.4442960Z ✓ C Compiler: bin/nanoc_c
+2026-09-21T05:57:28.4470055Z ✓ Compiler: bin/nanoc -> bin/nanoc_c (C reference)
+2026-09-21T05:57:28.4498741Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/ffi_bindgen.c -o obj/ffi_bindgen.o
+2026-09-21T05:57:28.7081979Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nanoc-ffi obj/ffi_bindgen.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+2026-09-21T05:57:28.7330129Z ✓ Stage 1 complete (C reference binaries)
+2026-09-21T05:57:28.8028074Z 
+2026-09-21T05:57:28.8045187Z ==========================================
+2026-09-21T05:57:28.8061271Z Stage 2: Building Self-Hosted Components
+2026-09-21T05:57:28.8078210Z ==========================================
+2026-09-21T05:57:28.8094845Z Compiling components with bin/nanoc...
+2026-09-21T05:57:28.8111911Z 
+2026-09-21T05:57:28.8516256Z   Building parser...
+2026-09-21T05:57:39.9059732Z     ✓ parser compiled successfully
+2026-09-21T05:57:39.9060118Z 
+2026-09-21T05:57:39.9060240Z   Building typecheck...
+2026-09-21T05:58:01.2418933Z     ✓ typecheck compiled successfully
+2026-09-21T05:58:01.2419381Z 
+2026-09-21T05:58:01.2419540Z   Building transpiler...
+2026-09-21T05:58:19.9796573Z     ✓ transpiler compiled successfully
+2026-09-21T05:58:19.9796878Z 
+2026-09-21T05:58:19.9797185Z ✓ Stage 2: 3/3 components built successfully
+2026-09-21T05:58:19.9825345Z 
+2026-09-21T05:58:19.9842000Z ==========================================
+2026-09-21T05:58:19.9858450Z Stage 3: Bootstrap Validation
+2026-09-21T05:58:19.9875003Z ==========================================
+2026-09-21T05:58:19.9890843Z Validating self-hosted components...
+2026-09-21T05:58:19.9907095Z 
+2026-09-21T05:58:19.9940527Z   Checking parser entry assertions...
+2026-09-21T05:58:20.0011667Z     ✓ parser entry assertions passed
+2026-09-21T05:58:20.0012030Z   Checking typecheck entry assertions...
+2026-09-21T05:58:20.0086450Z     ✓ typecheck entry assertions passed
+2026-09-21T05:58:20.0086826Z   Checking transpiler entry assertions...
+2026-09-21T05:58:20.0171757Z     ✓ transpiler entry assertions passed
+2026-09-21T05:58:20.0172022Z 
+2026-09-21T05:58:20.0172353Z ✓ Stage 3: 3/3 component entry checks passed; imported shadows are separate
+2026-09-21T05:58:20.0215147Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nano_main.c -o obj/nano_main.o
+2026-09-21T05:58:20.1043706Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/proptest.c -o obj/proptest.o
+2026-09-21T05:58:20.2809380Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nano obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nano_main.o obj/proptest.o -lm -lcrypto -lffi  -rdynamic
+2026-09-21T05:58:20.3823748Z ✓ Interpreter: bin/nano
+2026-09-21T05:58:20.3840232Z 
+2026-09-21T05:58:20.3857402Z ==========================================
+2026-09-21T05:58:20.3874420Z ✅ Build Complete (3-Stage Bootstrap)
+2026-09-21T05:58:20.3891112Z ==========================================
+2026-09-21T05:58:20.3917046Z make[1]: Entering directory '/home/runner/work/nanolang/nanolang'
+2026-09-21T05:58:20.4618867Z Build Status:
+2026-09-21T05:58:20.4634612Z 
+2026-09-21T05:58:20.4651452Z   ✅ Stage 1: C reference compiler (bin/nanoc)
+2026-09-21T05:58:20.4668332Z   ✅ Stage 2: Self-hosted components compiled
+2026-09-21T05:58:20.4668662Z     • parser
+2026-09-21T05:58:20.4668918Z     • typecheck
+2026-09-21T05:58:20.4669188Z     • transpiler
+2026-09-21T05:58:20.4686651Z   ✅ Stage 3: Bootstrap validated
+2026-09-21T05:58:20.4702571Z 
+2026-09-21T05:58:20.4704535Z make[1]: Leaving directory '/home/runner/work/nanolang/nanolang'
+2026-09-21T05:58:20.4723472Z 
+2026-09-21T05:58:20.4993313Z shadow-check: no changed NanoLang files
+2026-09-21T05:58:20.9789768Z userguide: build/userguide/html/generated/builtins.html: missing target: BINARY64_BIT_TRANSPORT_CONTRACT.md
+2026-09-21T05:58:20.9790599Z Built 13 en pages in build/userguide/html
+2026-09-21T05:58:20.9791006Z Built 13 zh pages in build/userguide/html/zh
+2026-09-21T05:58:20.9791356Z Built 13 hi pages in build/userguide/html/hi
+2026-09-21T05:58:20.9791695Z Built 13 es pages in build/userguide/html/es
+2026-09-21T05:58:20.9792068Z Built 13 ar pages in build/userguide/html/ar
+2026-09-21T05:58:20.9792381Z Built 13 fr pages in build/userguide/html/fr
+2026-09-21T05:58:20.9861473Z make: *** [Makefile.gnu:3206: userguide-html] Error 1
+2026-09-21T05:58:20.9880914Z ##[error]Process completed with exit code 2.
+2026-09-21T05:58:20.9988126Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-21T05:58:20.9989316Z Post job cleanup.
+2026-09-21T05:58:21.0695033Z [command]/usr/bin/git version
+2026-09-21T05:58:21.0730075Z git version 2.55.0
+2026-09-21T05:58:21.0758531Z Temporarily overriding HOME='/home/runner/work/_temp/6969b190-c8f1-459f-b0a4-e531666bce3d' before making global git config changes
+2026-09-21T05:58:21.0759445Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-21T05:58:21.0763480Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/nanolang/nanolang
+2026-09-21T05:58:21.0809844Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-21T05:58:21.0840072Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-21T05:58:21.1084284Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-21T05:58:21.1111172Z http.https://github.com/.extraheader
+2026-09-21T05:58:21.1124554Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-21T05:58:21.1156390Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-21T05:58:21.1407809Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-21T05:58:21.1451627Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-21T05:58:21.1807723Z Cleaning up orphan processes
+2026-09-21T05:58:21.2064374Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
