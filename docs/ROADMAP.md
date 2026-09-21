@@ -14387,3 +14387,8 @@ before and after the complete baseline, separately from hook-requested live-byte
 peak. The coordinator requires16 initial pages, measured growth and no more than
 1024 pages; allocator metadata and static/stack storage are not mislabeled as
 hook-requested bytes. This remains unexecuted fixture accounting.
+
+My preexecution LLVM fixture self-review makes llvm-nm the default object reader
+for both native and Wasm and checks testing-hook absence in ordinary native
+runtime objects as well as Wasm. Python AST syntax and diff checks pass; they
+execute no fixture, emitted module or runtime product.

@@ -34,7 +34,7 @@ class RecordArrayLLVM(unittest.TestCase):
         cls.ldflags = shlex.split(os.environ.get('RECORD_GENERATED_LDFLAGS', '-lm -lcrypto -lffi -pthread'))
         cls.native_ldflags = shlex.split(os.environ.get('RECORD_GENERATED_NATIVE_LDFLAGS', '-lm -pthread'))
         cls.ir_asan = os.environ.get('RECORD_LLVM_IR_ASAN', '0') == '1'
-        cls.tools = {name: shlex.split(os.environ.get('RECORD_LLVM_' + name.upper().replace('-', '_'), name))
+        cls.tools = {name: shlex.split(os.environ.get('RECORD_LLVM_' + name.upper().replace('-', '_'), 'llvm-nm' if name=='nm' else name))
                      for name in ('clang', 'opt', 'llc', 'nm', 'wasmtime', 'node')}
         os.environ['LSAN_OPTIONS'] = ''
         (cls.artifacts / 'selection.json').write_text(json.dumps({
@@ -220,6 +220,8 @@ class RecordArrayLLVM(unittest.TestCase):
                 self.command(mode+'-runtime-build', [*self.cc, *self.flags, '-'+optimization, *testing, *hooks,
                     '-c', 'src/nanoisa/record_array_generated_private.c', '-o', str(runtime)])
                 if not observed:
+                    symbols=self.command(mode+'-runtime-nm',[*self.tools['nm'],str(runtime)])
+                    self.assertNotIn(b'nms_test_',symbols);self.assertNotIn(b'ra_test_',symbols)
                     lifecycle=self.artifacts/(mode+'-lifecycle')
                     self.command(mode+'-lifecycle-build',[*self.cc,*self.flags,'-'+optimization,
                         'tests/nanoisa/test_record_array_generated_lifecycle.c',str(runtime),
