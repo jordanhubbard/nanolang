@@ -401,6 +401,7 @@ static bool nominal_array_builtin(ASTNode *, Environment *, const char *, int);
 static bool nominal_array_requires_identity(Environment *, const TypeInfo *, const char *, unsigned);
 static bool nominal_array_matches(Environment *, const TypeInfo *, const char *, ASTNode *, unsigned);
 
+static bool types_match(Type, Type);
 static bool nominal_callable_view(ASTNode *, Environment *, unsigned, NominalView *);
 static bool nominal_callee_view(ASTNode *, Environment *, unsigned, NominalView *);
 static bool nominal_callable_result(Environment *, const NominalView *, unsigned, NominalView *);
