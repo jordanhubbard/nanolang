@@ -1276,7 +1276,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     fclose(c_file);
     if (opts->verbose) printf("✓ Generated C code: %s\n", temp_c_file);
 
-    char compile_cmd[16384];  /* Increased to handle long command lines with many modules */
+    enum { NATIVE_FINAL_COMMAND_BYTES = 65536 }; /* Inclusive of the trailing NUL. */
+    char *compile_cmd = NULL;
     
     /* Build include flags */
     char include_flags[8192] = "";
@@ -1695,16 +1696,25 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     char *quoted_output = module_quote_path(output_file);
     char *quoted_temp_source = module_quote_path(temp_c_file);
-    int cmd_len = quoted_output && quoted_temp_source ? snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s %s -o %s %s %s %s %s %s",
-            cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, quoted_output, quoted_temp_source, module_objs ? module_objs : "", runtime_files, lib_path_flags, lib_flags) : -1;
+    const char *compile_format = "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s %s -o %s %s %s %s %s %s";
+    int cmd_len = quoted_output && quoted_temp_source ? snprintf(NULL, 0,
+            compile_format, cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, quoted_output, quoted_temp_source, module_objs ? module_objs : "", runtime_files, lib_path_flags, lib_flags) : -1;
+    int formatted = -1;
+    if (include_paths_valid && cmd_len >= 0 && (size_t)cmd_len < NATIVE_FINAL_COMMAND_BYTES) {
+        /* This bound proves the NUL addition fits before I allocate. */
+        size_t command_bytes = (size_t)cmd_len + 1;
+        compile_cmd = malloc(command_bytes);
+        if (compile_cmd) formatted = snprintf(compile_cmd, command_bytes,
+            compile_format, cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, quoted_output, quoted_temp_source, module_objs ? module_objs : "", runtime_files, lib_path_flags, lib_flags);
+    }
     free(quoted_output);
     free(quoted_temp_source);
     free(module_objs);
     
-    if (!include_paths_valid || cmd_len < 0 || cmd_len >= (int)sizeof(compile_cmd)) {
+    if (!include_paths_valid || !compile_cmd || formatted != cmd_len) {
+        free(compile_cmd);
         human_diag(NL_DIAG_CC_CMD);
-        fprintf(stderr, "I could not represent all compiler arguments (%d command bytes, limit %zu).\n", cmd_len, sizeof(compile_cmd));
+        fprintf(stderr, "I could not represent all compiler arguments (%d command bytes, limit %zu).\n", cmd_len, (size_t)NATIVE_FINAL_COMMAND_BYTES);
         fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
         diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_CMD);
         if (!opts->keep_c) nano_native_remove_private_tree(generated_directory);
@@ -1726,6 +1736,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     if (opts->verbose) printf("Compiling C code: %s\n", compile_cmd);
     int result = system(compile_cmd);
+    free(compile_cmd);
 
     if (result == 0) {
         if (deterministic_outputs_enabled()) {

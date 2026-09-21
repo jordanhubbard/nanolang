@@ -300,6 +300,31 @@ class NativeSdk(unittest.TestCase):
             self.assertFalse(any(str(ROOT) in arg for arg in proof['final_command']))
         self.assert_package_unchanged()
 
+    def test_d_overbudget_final_command_preserves_output(self):
+        source=self.outside/'command-budget.nano'
+        source.write_text('fn main() -> int { return 37 }\nshadow main { assert (== (main) 37) }\n')
+        output=self.outside/'command-budget-output';sentinel=b'prior final output\n'
+        output.write_bytes(sentinel)
+        log=self.work/'command-budget-cc.jsonl';shadows=self.work/'command-budget-shadows.json'
+        extra=dict(CC=self.observer,NANO_CC=self.observer,SDK_CC_LOG=log,
+                   SDK_REAL_CC=json.dumps(self.cc),NANO_CFLAGS='-DSDK_COMMAND_BUDGET='+('0'*65536))
+        with self.hidden_source():
+            out,err,_=self.command('command-budget-refusal',
+                [self.generation/'bin/nanoc_c',source,'-o',output,'--verbose','--keep-c',
+                 '--llm-shadow-json',shadows],extra=extra,expected=(1,),timeout=1800)
+        self.assertEqual(output.read_bytes(),sentinel)
+        self.assertIn(b'C compile command too long',err)
+        match=re.search(rb'arguments \((\d+) command bytes, limit (\d+)\)',err)
+        self.assertIsNotNone(match)
+        self.assertGreaterEqual(int(match[1]),65536);self.assertEqual(int(match[2]),65536)
+        report=json.loads(shadows.read_text())
+        self.assertTrue(report['completed'] and report['success'])
+        self.assertEqual(report['failures'],[]);self.assertEqual(report['test_count'],1)
+        self.assertEqual(re.findall(rb'^Testing ([A-Za-z_][A-Za-z_0-9]*)\.\.\. ',out+b'\n'+err,re.M),[b'main'])
+        commands=[json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
+        self.assertFalse(any(str(output) in argv for argv in commands),commands)
+        self.assert_package_unchanged()
+
     def test_e_installed_abi_before_foreign_entry(self):
         directory=self.outside/'array abi';directory.mkdir()
         foreign=directory/'foreign.c'

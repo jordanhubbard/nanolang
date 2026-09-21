@@ -374,3 +374,15 @@ I require the unchanged full installed provider success on both hosts plus a
 focused C-seed over-budget trusted-flag control that retains a prior output
 sentinel and observes the exact command-limit diagnostic. Source and fixture
 changes require review before a fresh full qualification.
+
+My implementation retains the exact format and ordered argument expressions
+in both sizing and formatting calls. It admits a measured length below 65536,
+so adding the NUL is bounded before allocation; equality of the second return
+length is mandatory. I free the command on refusal and immediately after
+`system` on either host result. Earlier branches precede its allocation.
+My additive installed C-seed fixture requests a trusted flag larger than the
+budget, requires exact limit refusal after its one successful shadow, preserves
+a pre-existing output byte sentinel and checks the compiler observer never
+receives that final output path. The original 36 provider combinations and all
+three-producer SDK cases are unchanged. This source/fixture checkpoint has not
+been executed.
