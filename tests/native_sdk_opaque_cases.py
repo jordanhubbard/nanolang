@@ -194,8 +194,8 @@ let callback:fn(Again.Handle)->bool=paired.1
 assert (callback paired.0)
 """,imports+same+'union Box<T> { Value { value:T } }\n')
     positive['source-prefix-collision']=program("""
-let handle:Left.Handle=(Left.zero)
-let value:(Left.Handle,int)=(handle,37)
+let opaque_value:Left.Handle=(Left.zero)
+let value:(Left.Handle,int)=(opaque_value,37)
 assert (== value.1 (__nano_opaque_0_probe))
 """,imports+'fn __nano_opaque_0_probe()->int { return 37 }\nshadow __nano_opaque_0_probe { assert (== (__nano_opaque_0_probe) 37) }\n')
     # I observe actual native tags and widths through an ordinary C provider;

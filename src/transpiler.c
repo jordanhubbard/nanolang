@@ -280,6 +280,10 @@ static const char *get_prefixed_variant_name(const char *enum_name, const char *
 /* Get prefixed variant struct name for unions: UnionName.Variant -> nl_UnionName_Variant */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_variant_struct_name(const char *union_name, const char *variant_name) {
+    if (!union_name || !variant_name) {
+        fprintf(stderr, "I require both union and variant names before native emission\n");
+        exit(1);
+    }
     union_name = native_opaque_projection(union_name);
     static _Thread_local char buffer[512];
     snprintf(buffer, sizeof(buffer), "nl_%s_%s", union_name, variant_name);
