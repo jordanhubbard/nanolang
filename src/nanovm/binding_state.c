@@ -4,7 +4,14 @@
 
 VmBindingResult vm_binding_state_new(VmHeap *heap, const uint8_t *modes,
     uint16_t count, uint16_t arity, size_t limit, VmBindingState **out) {
-    if (!heap || !out || arity > count || (count && !modes) ||
+    return vm_binding_state_new_range(heap, modes, count, 0, arity, limit, out);
+}
+
+VmBindingResult vm_binding_state_new_range(VmHeap *heap, const uint8_t *modes,
+    uint16_t count, uint16_t start, uint16_t initialized_count,
+    size_t limit, VmBindingState **out) {
+    if (!heap || !out || start > count || initialized_count > count - start ||
+        (count && !modes) ||
         heap->stats.freed > heap->stats.allocated) return VM_BINDING_INVALID;
     for (uint16_t i = 0; i < count; ++i)
         if (modes[i] > 1) return VM_BINDING_INVALID;
@@ -20,7 +27,7 @@ VmBindingResult vm_binding_state_new(VmHeap *heap, const uint8_t *modes,
     if (!state) return VM_BINDING_MEMORY;
     state->heap = heap; state->bytes = bytes; state->count = count;
     for (uint16_t i = 0; i < count; ++i) {
-        state->slots[i].initialized = i < arity;
+        state->slots[i].initialized = i >= start && i - start < initialized_count;
         state->slots[i].shared = modes[i] != 0;
     }
     heap->stats.allocated += bytes;

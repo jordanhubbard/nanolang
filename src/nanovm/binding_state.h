@@ -25,6 +25,13 @@ typedef enum {
  * Failure preserves *out. The heap outlives this state and its owned values. */
 VmBindingResult vm_binding_state_new(VmHeap *heap, const uint8_t *modes,
     uint16_t count, uint16_t arity, size_t limit, VmBindingState **out);
+/* I prepare an activation whose arguments occupy a checked local range.
+ * This operation never moves operands or borrows another state's ownership.
+ * Before use, locals must own the range arguments and contain VOID elsewhere.
+ * Ordinary entry uses start zero; effect entry uses its parameter range. */
+VmBindingResult vm_binding_state_new_range(VmHeap *heap, const uint8_t *modes,
+    uint16_t count, uint16_t start, uint16_t initialized_count,
+    size_t limit, VmBindingState **out);
 
 /* I require the current count-element locals array. Inputs/outputs must use
  * distinct storage outside that array and cell storage. An incoming operand is
