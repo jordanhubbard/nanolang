@@ -1,0 +1,14 @@
+{
+  "PATH": "/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/usr/local/cuda/bin:/opt/bin/:/home/jkh/.codex/tmp/arg0/codex-arg0q1IvSc:/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/home/jkh/.local/share/pnpm:/home/jkh/gocode/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/cuda/bin:/snap/bin:/home/jkh/.cargo/bin:/home/jkh/.ghcup/bin:/home/jkh/.local/bin:/home/jkh/.local/bin:/sbin:/usr/sbin:/bin:/usr/bin:/home/jkh/Bin:.",
+  "CC": "/bin/gcc",
+  "NANO_NATIVE_TEST_CC": "/bin/gcc",
+  "NANOLANG_GUARD_SAN_CC": "/bin/gcc",
+  "NMS_RUNTIME_CLANG": "/usr/local/bin/clang",
+  "NMS_RUNTIME_OPT": "/usr/local/bin/opt",
+  "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "NANO_BUILD_CACHE": "/home/jkh/Src/nanolang-record-lists-qualified-d58/obj/module_cache",
+  "NANO_MODULE_PATH": "/home/jkh/Src/nanolang-record-lists-qualified-d58/modules"
+}
