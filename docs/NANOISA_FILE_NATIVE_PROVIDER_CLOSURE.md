@@ -149,3 +149,65 @@ canonical file therefore share the first owner and its original order, just like
 module requests. My fixtures must supply an actual canonical runtime alias and
 observe one final compiler input; a registry-only duplicate unit control is not
 sufficient for this corrected boundary.
+
+## My generated C module dependency headers
+
+The3bc actual public Forth wrapper exposed a distinct C-seed boundary: isolated
+module parsing recursively loads its dependencies and transpilation emits their
+metadata headers, while the module-object compiler receives only the wrapper's
+own directory and flags. I preserve the first missing-nanoisa.h terminals on both
+hosts. The source file and actual command are retained; no failed binary ran.
+
+I prepare the include closure from that isolated parser's actual module cache,
+while its canonical paths and ASTs remain live. I add each selected dependency's
+canonical declaring directory and its existing metadata include_dirs through the
+same checked path quoting used by ordinary compilation. I preserve first encounter
+order and deduplicate canonical directories. This is the same selected dependency
+namespace already used for header collection, not a new resolver, import grammar,
+provider owner or spelling-based path injection. I do not merge arbitrary
+transitive macros/link flags or compile a second provider copy.
+
+I load metadata through the existing module metadata parser, distinguish absent
+module.json from a present malformed/unreadable record, and fail before invoking
+the C compiler on required metadata/path/argument construction failure. Ordinary
+metadata origin rules remain the authority for its include directories. The
+bounded include buffer and final command must account for every appended quoted
+argument; overflow is a precise refusal, never silent omission. All temporary
+metadata/path ownership ends after copying the checked arguments, before the
+isolated AST/cache is released. I preserve the first failure and object-publication
+behavior.
+
+I require a nested ordinary module with an actual imported local header, paths
+with spaces, reversed independent import order, and compilation from a cwd that
+contains none of those headers. The existing complete owner/co-import/wrapper
+corpus remains unchanged. Installed SDK qualification repeats this boundary with
+SDK-owned and user-project origins. I retain the existing external compiler's
+header search rules; this does not claim a general C preprocessor namespace proof.
+
+My C implementation bounds the actual isolated-cache walk and total declaring-
+directory/metadata include requests to1024, each input/canonical path to4095bytes,
+retained canonical strings to65537bytes, and quoted arguments plus final command
+to65536bytes excluding the terminator. Canonical dedup preserves first encounter
+order. The owned workspace is one closure containing1024pointers/two size fields
+and65537argument bytes, plus at most65537retained path bytes and one transient
+quoted path allocation of at most16383bytes. Automatic path/manifest buffers and
+the final command/error buffers are separate. Metadata parsing retains its
+existing allocation behavior; I do not claim a total parser heap bound or new
+recoverable-OOM semantics for its inherited constructors. A returned metadata
+failure, invalid requested directory, missing required path, or overflowing
+argument refuses before the selected module's C compiler invocation. Earlier
+module preparation/shadow effects are not described as absent.
+
+I distinguish absent metadata (ENOENT at its directory entry) from a dangling
+link, directory, FIFO or other present unreadable/malformed record. Ordinary
+symlinks to regular manifests retain the existing canonical declaring origin.
+Stable source/metadata files are the existing compilation precondition; this is
+not a hostile concurrent-filesystem protocol. The narrow helper probe covers
+these cases, exact request-cap endpoints and quoted-argument capacity without
+running a compiler. Its repeated borrowed cache rows are labeled a unit control,
+not a real parser graph. The paired integration corpus compiles and executes both
+import orders of actual nested wrappers from an unrelated cwd, with spaced
+module/include paths and duplicate canonical metadata include requests, retains
+actual compiler argv, and checks the exact three selected shadows. The original
+complete provider-owner corpus remains mandatory. SDK-owned/user-project origins
+are additionally required by my installed SDK fixture checkpoint.

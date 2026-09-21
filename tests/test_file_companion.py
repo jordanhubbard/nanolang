@@ -13,6 +13,7 @@ from tests import test_file_source_plan as retained_runner
 from tests.file_companion_corpus import corpus, report_source, provider_report_source
 from tests import file_native_provider_corpus
 from tests import file_cseed_provider_owners
+from tests import file_module_dependency_headers
 ROOT=Path(__file__).resolve().parents[1]
 SMALL=('src/file_companion_snapshot.c','src/file_companion_bridge.c','src/file_source_input.c',
        'src/nsi_file_binding.c','src/nsi_file_plan.c','src/nsi.c','src/cJSON.c','src/utf8.c',
@@ -214,7 +215,21 @@ class FileCompanion(unittest.TestCase):
         for compiler in ('nanoc_stage1','nanoc_stage2'):
             self.command(compiler+'-concurrent-providers',[sys.executable,'-m','tests.file_native_provider_invocations',ROOT,self.work/(compiler+'-concurrent'),ROOT/'bin'/compiler],timeout=1100)
 
+    def test_module_include_closure_boundaries(self):
+        # I freshly compile the actual module translation unit into this probe;
+        # selected sanitizer flags cover it, while other common providers remain
+        # ordinary. I exclude the old module.o to keep exactly one implementation.
+        exe=self.work/'module-include-closure'
+        common=[p for p in self.common if p.name!='module.o']
+        self.assertEqual(len(self.common)-len(common),1)
+        self.command('module-include-build',[*self.cc,*self.flags,
+            ROOT/'tests/test_module_include_closure.c',*common,
+            *self.objects['linked'],*self.graph,*self.links,'-o',exe],timeout=300)
+        out,_=self.command('module-include-run',[exe])
+        self.assertRegex(out,rb'I passed [0-9]+ actual module include closure checks\.')
+
     def test_public_provider_owners_and_wrappers(self):
+        file_module_dependency_headers.run(self, ROOT)
         file_cseed_provider_owners.run(self, ROOT, selected)
 
     def test_native_width_and_allocation(self):

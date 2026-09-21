@@ -14280,3 +14280,29 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   did not require bootstrap or the explicit object inventory. I generate the Make
   object list from the same committed inventory, verify generated-file parity,
   and require clean install/absent-role/stale-ABI controls before qualification.
+- [ ] I propagate checked dependency include directories into each generated C
+  module wrapper. Both3bc ordinary gates passed seven methods, then the actual
+  Forth wrapper failed at imported nanoisa.h (Linux829.226s, Darwin799.682s).
+  Its isolated parser had loaded the NanoISA dependency and emitted its declared
+  header, but compile_module_to_object passed only the wrapper owner's directory
+  and flags. I retain both generated C files/argv/terminals. I prepare a generic
+  closure from the actual isolated import cache and existing module metadata,
+  preserving canonical declaring origins and bounded argument construction. I
+  do not inject a Forth-specific path or depend on the source cwd. Paired owner,
+  nested-import, outside-checkout and installed-origin checks remain required.
+
+- [ ] I retain and diagnose the6b586 Darwin bootstrap shadow deadline before
+  claiming fresh acceptance. Its first bootstrap returned2 after94.763seconds;
+  C-seed stopped the Stage1 shadow suite at the existing10-second limit. The
+  nonverbose first output does not identify the last selected shadow. Linux
+  separately completed Stage1 and was still building Stage2 at that observation.
+  I preserve the original source/tools/products/terminal and use a separately
+  recorded verbose diagnostic with unchanged supervisor deadline if needed. I do
+  not classify the unexplained timeout as infrastructure or weaken the corpus.
+
+- [ ] I quote the compiler-observer command in my new spaced dependency-header
+  fixture. Static review found that6b586 passes its intentional space-containing
+  observer path as an unquoted CC/NANO_CC command fragment. I retain the frozen
+  run and its actual terminal; this finding does not change production command
+  semantics. I quote the fixture command before fresh affected checks while
+  preserving the same paths, producer/shadow corpus and argv assertions.
