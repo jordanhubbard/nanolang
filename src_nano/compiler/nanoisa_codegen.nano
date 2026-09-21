@@ -1637,6 +1637,15 @@ fn nisa_type_ok(parser: Parser, t: string) -> bool {
         let element: string = (str_substring t 6 (- (str_length t) 7))
         if (== element "float") { return true }
         if (or (== element "bool") (or (== element "int") (== element "string"))) { return true }
+        if (and (str_starts_with element "array<") (str_ends_with element ">")) {
+            let mut leaf: string = element
+            while (and (str_starts_with leaf "array<") (str_ends_with leaf ">")) {
+                set leaf (str_substring leaf 6 (- (str_length leaf) 7))
+            }
+            return (or (or (== leaf "int") (== leaf "bool"))
+                       (or (== leaf "float")
+                           (or (== leaf "string") (>= (nisa_enum_index parser leaf) 0))))
+        }
         return (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element))
     }
     if (nisa_local_type_ok t) {
@@ -1666,6 +1675,9 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "List<Tok>")
     assert (nisa_type_ok p "List<Box>")
     assert (nisa_type_ok p "array<bool>")
+    assert (nisa_type_ok p "array<array<int>>")
+    assert (nisa_type_ok p "array<array<array<float>>>")
+    assert (not (nisa_type_ok p "array<array<Point>>"))
     assert (nisa_type_ok p "(int,string,bool)")
     assert (not (nisa_type_ok p "(int,array<int>)"))
 }
@@ -2208,6 +2220,14 @@ shadow nisa_artifact_path {
     assert (== (nisa_artifact_path 0) "")
     assert (not nisa_ok)
     let reset_again: int = (nisa_reset)
+    let nested_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { (array_push values []) return 0 }" "nested-push.nano" (diag_list_new))
+    let nested: Parser = (parse_program nested_tokens (list_LexerToken_length nested_tokens) "nested-push.nano")
+    set nisa_names ["values"]
+    set nisa_types ["array<array<int>>"]
+    let nested_text: string = (nisa_emit_push_call nested (parser_get_call nested 0) "array_push")
+    assert (str_contains nested_text "ARR_LITERAL 1 0")
+    assert (str_ends_with nested_text "  ARR_PUSH\n")
+    let reset_nested: int = (nisa_reset)
 }
 
 fn nisa_register_artifact(parser: Parser, function: ASTFunction) -> int {
@@ -2610,7 +2630,7 @@ fn nisa_element_type(parser: Parser, container: string) -> string {
     if (== container "array<bool>") { return "bool" }
     if (and (str_starts_with container "array<") (str_ends_with container ">")) {
         let element: string = (str_substring container 6 (- (str_length container) 7))
-        if (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element)) { return element }
+        if (or (nisa_type_ok parser element) (nisa_is_pin_record parser element)) { return element }
     }
     if (or (== container "array<int>") (or (== container "List<int>") (== container "list_int"))) { return "int" }
     if (or (== container "array<string>") (or (== container "List<string>") (== container "list_string"))) { return "string" }
@@ -2629,6 +2649,8 @@ shadow nisa_element_type {
     assert (== (nisa_element_type parser "List<Entry>") "Entry")
     assert (== (nisa_element_type parser "array<bool>") "bool")
     assert (== (nisa_element_type parser "array<float>") "float")
+    assert (== (nisa_element_type parser "array<array<int>>") "array<int>")
+    assert (== (nisa_element_type parser "array<array<array<string>>>") "array<array<string>>")
 }
 
 fn nisa_access_result(parser: Parser, call: ASTCall) -> string {
@@ -2737,7 +2759,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             set i (+ i 1)
         }
         if (== element "float") { return "array<float>" }
-        if (or (== element "bool") (or (== element "int") (or (== element "string") (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element))))) { return (+ "array<" (+ element ">")) }
+        if (or (nisa_type_ok parser element) (nisa_is_pin_record parser element)) { return (+ "array<" (+ element ">")) }
         return ""
     }
     if (== node_type ParseNodeType.PNODE_STRING) { return "string" }
@@ -3044,6 +3066,7 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         if (== element "string") { set tag "5" }
         if (== element "bool") { set tag "4" }
         if (== element "float") { set tag "3" }
+        if (and (str_starts_with element "array<") (str_ends_with element ">")) { set tag "7" }
         if (nisa_is_pin_record parser element) { set tag "8" }
         let mut output: string = ""
         let mut i: int = 0
@@ -3052,7 +3075,7 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
             if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
                 return (nisa_fail "array element does not match my declared type")
             }
-            set output (+ output (nisa_emit_expr parser value.node_id value.node_type))
+            set output (+ output (nisa_emit_expected_expr parser value.node_id value.node_type element))
             set i (+ i 1)
         }
         return (+ output (nisa_line_imm "ARR_LITERAL" (+ tag (+ " " (int_to_string literal.element_count)))))
@@ -3068,6 +3091,16 @@ shadow nisa_emit_expected_expr {
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<int>") "  ARR_LITERAL 1 0\n")
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<bool>") "  ARR_LITERAL 4 0\n")
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<float>") "  ARR_LITERAL 3 0\n")
+    let nested_tokens: List<LexerToken> = (tokenize_string "fn nested() -> array<array<int>> { return [[1], []] }" "nested.nano" diagnostics)
+    let nested_parser: Parser = (parse_program nested_tokens (list_LexerToken_length nested_tokens) "nested.nano")
+    let nested_function: ASTFunction = (parser_get_function nested_parser 0)
+    let nested_block: ASTBlock = (parser_get_block nested_parser nested_function.body)
+    let nested_statement: ASTStmtRef = (list_ASTStmtRef_get nested_block.statements 0)
+    let nested_return: ASTReturn = (parser_get_return nested_parser nested_statement.node_id)
+    let nested_text: string = (nisa_emit_expected_expr nested_parser nested_return.value nested_return.value_type "array<array<int>>")
+    assert (str_contains nested_text "ARR_LITERAL 1 1")
+    assert (str_contains nested_text "ARR_LITERAL 1 0")
+    assert (str_ends_with nested_text "  ARR_LITERAL 7 2\n")
     let byte_tokens: List<LexerToken> = (tokenize_string "fn byte() -> u8 { return 255 }" "byte.nano" diagnostics)
     let byte_parser: Parser = (parse_program byte_tokens (list_LexerToken_length byte_tokens) "byte.nano")
     let byte_function: ASTFunction = (parser_get_function byte_parser 0)
@@ -3371,11 +3404,12 @@ fn nisa_emit_filled_array(parser: Parser, call: ASTCall) -> string {
     if (== element "string") { set tag "5" }
     if (== element "bool") { set tag "4" }
     if (== element "float") { set tag "3" }
+    if (and (str_starts_with element "array<") (str_ends_with element ">")) { set tag "7" }
     if (nisa_is_pin_record parser element) { set tag "8" }
     let mut output: string = (nisa_emit_expr parser count.node_id count.node_type)
     let size_slot: string = (nisa_temp_local "int")
     set output (+ output (nisa_line_imm "STORE_LOCAL" size_slot))
-    set output (+ output (nisa_emit_expr parser fill.node_id fill.node_type))
+    set output (+ output (nisa_emit_expected_expr parser fill.node_id fill.node_type element))
     let fill_slot: string = (nisa_temp_local element)
     set output (+ output (nisa_line_imm "STORE_LOCAL" fill_slot))
     set output (+ output (nisa_line_imm "LOAD_LOCAL" size_slot))
@@ -3416,6 +3450,12 @@ shadow nisa_emit_filled_array {
     assert (str_contains text "I64_GE_S\n  ASSERT")
     assert (== (array_length nisa_names) 4)
     let reset_again: int = (nisa_reset)
+    let nested_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let xs: array<array<int>> = (array_new 2 []) return 0 }" "nested-filled.nano" (diag_list_new))
+    let nested: Parser = (parse_program nested_tokens (list_LexerToken_length nested_tokens) "nested-filled.nano")
+    let nested_text: string = (nisa_emit_filled_array nested (parser_get_call nested 0))
+    assert (str_contains nested_text "ARR_LITERAL 1 0")
+    assert (str_contains nested_text "ARR_NEW 7")
+    let reset_nested: int = (nisa_reset)
 }
 
 fn nisa_emit_push_call(parser: Parser, call: ASTCall, name: string) -> string {
@@ -3433,7 +3473,7 @@ fn nisa_emit_push_call(parser: Parser, call: ASTCall, name: string) -> string {
         return (nisa_fail "I require an append value matching the element type")
     }
     let receiver: string = (nisa_emit_expected_expr parser object.node_id object.node_type container)
-    let appended: string = (nisa_emit_expr parser value.node_id value.node_type)
+    let appended: string = (nisa_emit_expected_expr parser value.node_id value.node_type element)
     return (+ receiver (+ appended (nisa_line "ARR_PUSH")))
 }
 shadow nisa_emit_push_call {
@@ -4621,11 +4661,12 @@ shadow nisa_emit_typed_let {
     assert (str_contains emitted "STORE_LOCAL 0")
     assert (== (at nisa_types 0) "int")
     assert (== (nisa_reset) 0)
-    let unsupported_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let values: array<array<float>> = [[1.5]] return 0 }" "unsupported.nano" (diag_list_new))
-    let unsupported: Parser = (parse_program unsupported_tokens (list_LexerToken_length unsupported_tokens) "unsupported.nano")
-    assert (== (nisa_emit_typed_let unsupported (parser_get_let unsupported 0) "array<array<float>>") "")
-    assert (== nisa_err "unsupported local type array<array<float>>")
-    assert (== (array_length nisa_names) 0)
+    let nested_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let values: array<array<float>> = [[1.5]] return 0 }" "nested.nano" (diag_list_new))
+    let nested: Parser = (parse_program nested_tokens (list_LexerToken_length nested_tokens) "nested.nano")
+    let nested_text: string = (nisa_emit_typed_let nested (parser_get_let nested 0) "array<array<float>>")
+    assert (str_contains nested_text "ARR_LITERAL 3 1")
+    assert (str_contains nested_text "ARR_LITERAL 7 1")
+    assert (== (at nisa_types 0) "array<array<float>>")
     assert (== (nisa_reset) 0)
     let missing_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let value: int = missing return 0 }" "missing.nano" (diag_list_new))
     let missing: Parser = (parse_program missing_tokens (list_LexerToken_length missing_tokens) "missing.nano")
@@ -5688,7 +5729,7 @@ shadow nisa_emit_module_nasm {
     let good_source: string = "fn main() -> int { return 7 }"
     let good: string = (nanoisa_emit_nasm good_source)
     assert (!= good "")
-    let rejected_declaration: string = (nanoisa_emit_nasm "extern fn unsupported(xs: array<array<float>>) -> int fn main() -> int { return 0 }")
+    let rejected_declaration: string = (nanoisa_emit_nasm "extern fn unsupported(xs: array<array<Missing>>) -> int fn main() -> int { return 0 }")
     assert (== rejected_declaration "")
     assert (== (array_length nisa_names) 0)
     assert (== nisa_import_text "")
