@@ -14183,3 +14183,9 @@ prerequisite: materialized signature plus one owner loses mixed nested provenanc
 I will carry owned contextual callable values through target/result selection,
 indirect arguments, pass/return/assignment, branches and map/filter; add owning
 mixed-owner/nested/fault controls and review the complete checkpoint before gates.
+
+The same callable audit confirms a synthesized-constructor owner gap: copied
+expected TypeInfo is later read under current_module. I require exact
+Environment-owned constructor AST provenance, explicit-argument agreement before
+materialization, conflicting-recheck refusal and checked registry allocation.
+This is a static prerequisite; no invalid output was compiled or executed.
