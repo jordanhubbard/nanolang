@@ -81,7 +81,8 @@ static bool native_opaque_array_literal(WorkList *list, ASTNode *expr, Environme
 }
 static bool native_opaque_array_call(WorkList *list, ASTNode *expr, Environment *env) {
     const char *name = expr->as.call.name;
-    if (!name || expr->as.call.func_expr || expr->as.call.borrow_mode) return false;
+    if (!name || expr->as.call.func_expr || expr->as.call.borrow_mode ||
+        !env_native_array_is_builtin(env, name, expr->line, expr->column)) return false;
     bool make = !strcmp(name, "array_new"), push = !strcmp(name, "array_push"), set = !strcmp(name, "array_set");
     bool get = !strcmp(name, "at") || !strcmp(name, "array_get"), pop = !strcmp(name, "array_pop");
     bool map = !strcmp(name, "map"), filter = !strcmp(name, "filter"), reduce = !strcmp(name, "reduce");

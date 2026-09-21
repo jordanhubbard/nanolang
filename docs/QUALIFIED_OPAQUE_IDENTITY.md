@@ -551,3 +551,41 @@ and valid empty pop remain unchanged. Required subprocess controls cover negativ
 and upper-bound indices plus source shrinkage in variable iteration, map/filter
 and each producer's supported reduce path, retaining the first terminal and
 checking the explicit diagnostic rather than accepting an arbitrary crash.
+
+### Resolved call ownership, spelling and discovery corrections
+
+My native array selection now checks actual lexical/declaration ownership before
+any intrinsic spelling. In C, a visible lexical value wins; an actual body,
+extern declaration, source owner or alias row is distinct from a bodyless builtin
+placeholder. Declared calls reach the existing visibility/argument checker and
+ordinary staged native call path. Nano uses its lexical environment and resolved
+parser function/extern rows, with the same precedence in checker, inference,
+callee references and emission. I reuse the declared-call staging helper, retain
+extern ABI names, and extend the existing private declared-array-push name family
+to affected admitted declarations so runtime helper names cannot collide.
+
+I do not widen the existing declaration-admission policy. C still rejects the
+ordinary builtin declaration names it previously forbade, and its module checker
+retains its separate registry policy. Permitted declarations, externs and lexical
+callables must preserve their selected meaning; full cross-frontend builtin
+policy remains the separately recorded follow-up. Required controls distinguish
+admitted same-name calls from those unchanged declaration refusals.
+
+My array comparison reuses the complete framed annotation-token encoder for
+ordinary tuples/callbacks as well as opaque-bearing annotations. It compares
+canonical rewritten nominal identities, not raw alias text or C symbols. Actual
+alias resolution remains the nominal binding pass. Existing child-span splitters
+trim their already separated annotations; callable registry reuse compares the
+same semantic keys, retaining the exact-spelling fast path. I require whitespace
+and real alias controls, including unequal child order and unequal owners.
+
+I collect complete array leaf aliases from parsed lets/parameters and function
+returns before the definition graph. Function bodies are prepared before this
+assembly step; global text is also prepared before definitions. Empty literal
+emission explicitly requests its element alias even with zero element expressions.
+Affected global arrays, including nested arrays with an exact-carrier leaf, use
+the existing ordered startup list instead of the old complex-literal zero
+fallback. Their prepared text is emitted after typedefs/prototypes, so no
+initializer executes during compilation. Source shadows check global-only tuple
+and callback typedef placement, and actual qualification must prove initialization
+and callable lifetime without changing the runtime grant boundary.

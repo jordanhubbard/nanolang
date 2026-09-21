@@ -14501,3 +14501,19 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   with an explicit diagnostic on NULL instead of undefined memcpy or a fabricated
   default value. Qualification must cover direct invalid indices and source
   shrinkage in each supported higher-order/iteration path on both producers.
+
+- [ ] I preserve semantic annotation equality and resolved callable ownership in
+  the new paired array consumers. Root review found raw-string comparison for
+  ordinary tuple/callback annotations and intrinsic selection before local or
+  declared functions in Nano. I reuse the framed lexer annotation encoder and
+  actual checked declaration/lexical lookup, and audit the C counterpart. I
+  require whitespace/alias equivalence and same-name local/declaration controls.
+  I also verify global initializer and contextual empty-literal alias discovery
+  completes before emitting typedefs; late discovery is not accepted.
+
+- [ ] I initialize affected exact-carrier global arrays through the existing
+  ordered startup path. Static review found global_init_literal otherwise emits
+  zero for complex arrays, so it also misses their element aliases. Global text
+  is prepared before the definition graph; contextual empty literals now request
+  the actual element typedef even with no element expressions. I require actual
+  global-only and empty-literal alias/initialization controls before qualification.

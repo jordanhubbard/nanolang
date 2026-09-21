@@ -791,11 +791,23 @@ Function *env_get_function(Environment *env, const char *name) {
     return NULL;
 }
 
-/* I share push identity across inference and native lowering. */
+/* I select array intrinsics only after actual lexical/declaration resolution. */
+bool env_native_array_operation(const char *name) {
+    static const char *const names[] = {"array_new", "array_push", "array_set", "array_get", "at",
+        "array_pop", "map", "filter", "reduce", "array_slice", "array_remove_at"};
+    if (!name) return false;
+    for (size_t i = 0; i < sizeof names / sizeof *names; ++i)
+        if (!strcmp(name, names[i])) return true;
+    return false;
+}
+bool env_native_array_is_builtin(Environment *env, const char *name, int line, int column) {
+    if (!env_native_array_operation(name) || env_get_var_visible_at(env, name, line, column)) return false;
+    Function *function = env_get_function(env, name);
+    return !function || (!function->body && !function->is_extern &&
+        !function->source_file && !function->alias_of);
+}
 bool env_array_push_is_builtin(Environment *env, int line, int column) {
-    if (env_get_var_visible_at(env, "array_push", line, column)) return false;
-    Function *function = env_get_function(env, "array_push");
-    return !function || !function->body;
+    return env_native_array_is_builtin(env, "array_push", line, column);
 }
 
 /* Value creation functions */

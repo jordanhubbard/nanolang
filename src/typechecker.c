@@ -385,7 +385,8 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
                 return symbol->type_info->fn_sig->return_type_info;
         }
     }
-    if (expr->type == AST_CALL && expr->as.call.name && !expr->as.call.func_expr) {
+    if (expr->type == AST_CALL && expr->as.call.name && !expr->as.call.func_expr &&
+        env_native_array_is_builtin(env, expr->as.call.name, expr->line, expr->column)) {
         const char *name = expr->as.call.name;
         if (expr->as.call.arg_count >= 1 &&
             (!strcmp(name, "filter") || !strcmp(name, "array_slice") || !strcmp(name, "array_remove_at") ||
@@ -814,6 +815,13 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
     }
     if (array->type == AST_CALL && !array->as.call.func_expr && array->as.call.name) {
         const char *name = array->as.call.name;
+        if (!env_native_array_is_builtin(env, name, array->line, array->column)) {
+            const TypeInfo *info = try_get_expr_type_info(array, env);
+            if (info && info->base_type == TYPE_ARRAY && info->element_type)
+                return info->element_type->generic_name;
+            Function *function = env_get_function(env, name);
+            return function && function->return_type == TYPE_ARRAY ? function->return_struct_type_name : NULL;
+        }
         bool builtin_push = !strcmp(name, "array_push") &&
             env_array_push_is_builtin(env, array->line, array->column);
         if (((builtin_push || !strcmp(name, "filter")) && array->as.call.arg_count == 2) ||
@@ -1051,6 +1059,7 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
         (expected->base_type == TYPE_ARRAY && type_info_needs_array_context(expected))) {
         if (expected->base_type == TYPE_ARRAY && expected->element_type && value->type == AST_CALL &&
             !value->as.call.func_expr && value->as.call.name && value->as.call.arg_count == 2 &&
+            env_native_array_is_builtin(env, value->as.call.name, value->line, value->column) &&
             (!strcmp(value->as.call.name, "array_new") ||
              (!strcmp(value->as.call.name, "array_push") && env_array_push_is_builtin(env, value->line, value->column)))) {
             if (!strcmp(value->as.call.name, "array_push"))
@@ -1475,6 +1484,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_new") &&
+        env_native_array_is_builtin(env, array_expr->as.call.name, array_expr->line, array_expr->column) &&
         array_expr->as.call.arg_count == 2)
         return check_expression(array_expr->as.call.args[1], env);
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
@@ -1484,6 +1494,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
         return infer_array_element_type(array_expr->as.call.args[0], env);
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && strcmp(array_expr->as.call.name, "map") == 0 &&
+        env_native_array_is_builtin(env, array_expr->as.call.name, array_expr->line, array_expr->column) &&
         array_expr->as.call.arg_count == 2) {
         int arity;
         Type argument;
@@ -2696,14 +2707,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return from ? TYPE_FLOAT : TYPE_INT;
             }
 
-            /* I resolve this permitted builtin shadow through its lexical signature. */
-            if (strcmp(expr->as.call.name, "array_push") == 0) {
-                Symbol *binding = env_get_var_visible_at(env, "array_push", expr->line, expr->column);
+            /* I resolve these call spellings through lexical/declaration authority first. */
+            if (env_native_array_operation(expr->as.call.name)) {
+                Symbol *binding = env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column);
                 if (binding) {
                     binding->is_used = true;
                     if (binding->type != TYPE_FUNCTION) {
                         emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                            "I require a function value for a bound array_push call.",
+                            "I require a function value for this bound array call.",
                             "Call the declared function or a function-typed binding.");
                         return TYPE_UNKNOWN;
                     }
@@ -2711,6 +2722,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         binding->type_info ? binding->type_info->fn_sig : NULL);
                 }
             }
+
+            if (env_native_array_operation(expr->as.call.name) &&
+                !env_native_array_is_builtin(env, expr->as.call.name, expr->line, expr->column)) goto checked_array_declared_call;
 
             /* Regular function call */
             
@@ -2851,6 +2865,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNION;
             }
             
+checked_array_declared_call: ;
             /* Check if function exists */
             Function *func = env_get_function(env, expr->as.call.name);
             

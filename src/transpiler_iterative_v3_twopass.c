@@ -559,12 +559,12 @@ static const char *map_function_name(const char *name, Environment *env) {
     }
     
     /* I retain the selected declaration instead of its registry spelling. */
-    if (strcmp(name, "array_push") == 0) {
+    if (env_native_array_operation(name)) {
         Function *selected = env_get_function(env, name);
-        if (selected && selected->body && !selected->is_extern) {
+        if (selected && (selected->body || selected->is_extern || selected->source_file || selected->alias_of)) {
             extern const char *get_c_func_name_with_module(const char *, const char *, bool);
             return get_c_func_name_with_module(selected->alias_of ? selected->alias_of : selected->name,
-                                               selected->module_name, false);
+                                               selected->module_name, selected->is_extern);
         }
     }
 
@@ -1695,6 +1695,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 break;
             }
             
+            if (env_native_array_operation(func_name) &&
+                !env_native_array_is_builtin(env, func_name, expr->line, expr->column)) goto native_array_declared_call;
             if (native_opaque_array_call(list, expr, env)) break;
 
             /* Special handling for println - needs type dispatch */
@@ -2536,6 +2538,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
             else {
+native_array_declared_call: ;
                 /* Regular function call */
                 const char *mapped_name = func_name;
                 /* Use monomorphized name for generic function calls */
