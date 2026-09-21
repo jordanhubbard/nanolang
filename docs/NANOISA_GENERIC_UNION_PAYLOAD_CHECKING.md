@@ -85,22 +85,26 @@ indirect argument check compares complete metadata only when the actual value
 has it. That can make acceptance depend on expression metadata rather than
 source type. The c2dc checkpoint has not executed.
 
-I choose the existing AST_UNION_CONSTRUCT strict rule for this payload boundary,
-using the resolved declaration tag rather than an unresolved parser placeholder:
-INT accepts INT, U8 accepts U8, ENUM accepts ENUM, and the remaining scalar tags
-accept their own tag only. UNKNOWN always refuses. I align the legacy dotted
-struct-literal route with this rule; its former `types_match` broad acceptance
-is not retained. Both source spellings already normalize to the same constructor
-representation in the full binder path. This is an explicit alignment, not a
-claim that c2dc preserved both formerly inconsistent paths.
+The unexecuted strict-alignment proposal in ad9a is superseded by the reviewed
+numeric destination contract. I use an explicit numeric table at the selected
+field boundary: INT, U8 and ENUM sources may enter the existing INT/ENUM numeric
+destinations; INT/ENUM enter U8 through the intended modulo256 conversion, and
+U8 enters U8 unchanged. Direct integer literals for U8 retain the 0..255 range.
+FLOAT, BOOL, STRING and VOID do not enter these numeric destinations. UNKNOWN
+always refuses, including when actual expression metadata is absent. Other
+scalar destinations require the same checked source tag.
 
-No INT/ENUM, INT/U8 or ENUM/U8 payload conversion is introduced here. Numeric
-conversion at other existing destinations remains unchanged. The broader
-computed-U8 and enum numeric-destination contracts still require integration
-and actual lowering/evaluator parity; this checkpoint cannot close them by
-rejecting their cases or calling them accepted. Composite payloads retain the
-full contextual owner-aware checks. Scalar checks execute the checker once,
-reject UNKNOWN and compare resolved tags without metadata-dependent fallback.
-I add the complete INT/U8/ENUM/UNKNOWN matrix with and without stored primitive
-annotations, plus actual parsed nongeneric scalar-union cases in both direct
-and explicit-generic source forms before corrected qualification.
+Both constructor representations use this table. I preserve the intended
+numeric conversions rather than inheriting either the old strict AST branch or
+the broad UNKNOWN/function wildcard in types_match. The decision depends on
+the actual checked source tag, not optional TypeInfo. Complete nominal identity
+still governs composite fields; numeric enum conversion does not authorize a
+record or other aggregate conversion.
+
+The checker table does not implement value conversion by relabeling. The actual
+union field lowering and evaluator destination conversion must satisfy these
+same cases, including computed INT/ENUM modulo256 and literal range. The full
+scalar/aggregate integration remains required; this source checkpoint cannot
+claim runtime parity from checker-only tests. I add a complete scalar matrix
+with and without actual metadata, both AST representations, literal range,
+and parsed nongeneric/generic constructor forms without removing accepted cases.

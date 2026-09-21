@@ -14428,7 +14428,7 @@ allocator failure claim.
 
 - [ ] I make the reviewed union payload scalar policy explicit before c2dc
   qualification. Shared contextual matching admits INT/U8/ENUM cross pairs and
-  UNKNOWN depending on retained annotation availability. I preserve strict
-  resolved scalar tags at this payload boundary, align both AST routes, and
-  keep wider numeric-destination conversion/parity a separate required audit.
+  UNKNOWN depending on retained annotation availability. I use the explicit
+  intended numeric conversion table, preserve direct U8 literal range, reject
+  UNKNOWN, and retain actual aggregate lowering/evaluator parity as required.
   MAC: task_7e994b0b89aa40629002347160d82ef6.
