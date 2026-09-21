@@ -1,3 +1,5 @@
+- [ ] I collect callable global types before emitting native function-pointer typedefs (`task_57661a28bf114448a4ee14642e7e1b90`). My first 216ab three-producer gate passes record/union ordering but Stage1 and Stage2 reject the global fixture because nl_FnPtr_0 is declared too late. I retain that failure and require unchanged fixture acceptance after corrected bootstrap.
+
 # My Roadmap
 
 - [ ] I evaluate every self-hosted native nonliteral global initializer through the typed source expression path (`task_57661a28bf114448a4ee14642e7e1b90`). I preserve ordered runtime startup and guarded primitive initialization, direct scalar literals and declaration/prototype order, and require actual three-producer global aggregate/call/reference/callable payload and effect checks plus bootstrap.

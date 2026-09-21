@@ -4571,12 +4571,14 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
 
     /* Forward declarations for all functions (avoid implicit declarations in C99) */
     let protos: string = (generate_function_prototypes parser)
+    # I collect callable global types before emitting their typedefs.
+    let globals: string = (generate_global_constants parser)
     /* Emit function pointer typedefs before prototypes (collected during type_to_c calls) */
     set sb (cg_append sb (generate_fn_type_typedefs))
     set sb (cg_append sb protos)
 
     /* Emit top-level constant declarations */
-    set sb (cg_append sb (generate_global_constants parser))
+    set sb (cg_append sb globals)
 
     set sb (cg_append sb "/* User functions */\n")
     set sb (cg_append sb functions)
@@ -4605,6 +4607,17 @@ shadow gen_c_program_with_modules {
     assert (str_contains code "Module forward declarations")
     assert (str_contains code "int main(")
     assert (str_contains code "nl_main")
+    (reset_fn_types)
+    let callback_source: string = "fn increment(x: int) -> int { return (+ x 1) } let callback: fn(int) -> int = increment"
+    let callback_tokens: List<LexerToken> = (tokenize_string callback_source "t.nano" (list_CompilerDiagnostic_new))
+    let callback_parser: Parser = (parse_program callback_tokens (list_LexerToken_length callback_tokens) "t.nano")
+    let callback_code: string = (gen_c_program_with_modules callback_parser "")
+    let typedef_at: int = (transp_str_index_of callback_code "typedef int64_t (*nl_FnPtr_0)(int64_t);")
+    let global_at: int = (transp_str_index_of callback_code "nl_FnPtr_0 nl_callback;")
+    assert (>= typedef_at 0)
+    assert (> global_at typedef_at)
+    assert (str_contains callback_code "nl_callback = nl_increment;")
+    (reset_fn_types)
 }
 
 shadow gen_c_program {
