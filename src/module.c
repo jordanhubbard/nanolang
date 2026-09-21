@@ -1072,6 +1072,14 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 return false;
             }
             
+            if (!env_import_opaque_types(env, item, module_ast, current_file, module_path)) {
+                fprintf(stderr, "I cannot retain opaque import identities for %s\n", module_path);
+                free(module_path);
+                for (int j = 0; j < unpacked_count; ++j) free(unpacked_dirs[j]);
+                free(unpacked_dirs);
+                return false;
+            }
+
             /* Add to module list (even if already cached) */
             if (modules) {
                 module_list_add(modules, module_path);
@@ -1300,6 +1308,7 @@ bool compile_module_to_object(const char *module_path,
         module_cache = saved_cache;
         return false;
     }
+    env_set_current_file(module_env, module_path);
     module_env->emit_module_metadata = false;
     module_env->emit_c_main = false;
 

@@ -145,3 +145,14 @@ values; ordinary nested tuples/callbacks also need dependency ordering for my
 full scope. No partial registry checkpoint authorizes native qualification.
 I preserve existing list specialization selection and do not import unrelated
 peer changes merely because the branch has newer canonical ancestry.
+
+I retain the exact 568dd718c opaque identity/key source dependency plus d1d2's
+complete tuple key traversal in a separate unqualified checkpoint. Conflict
+resolution preserves my record declaration-owner resolver, checked callable
+and tuple comparisons, stable assignment destination snapshot and compact List
+C spelling. SDK opaque value checks are additive to those boundaries. The
+paired Nano nominal owner tables and native name projections remain SDK code;
+I do not introduce a second key format. Existing Make owners name the added
+include prerequisites. The tuple expression API uses my existing checked
+copier and remains defined once. The derived declaration graph, current array
+carriers and subsequent SDK corrections still follow before affected gates.

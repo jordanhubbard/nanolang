@@ -3521,7 +3521,7 @@ $(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
 # Special dependency: transpiler.o depends on transpiler_iterative_v3_twopass.c (which is #included)
 $(OBJ_DIR)/typechecker.o: $(SRC_DIR)/typechecker_nominal_arrays.inc $(SRC_DIR)/typechecker_nominal_context.inc $(SRC_DIR)/typechecker_purity.c $(SRC_DIR)/typechecker_passive.c $(SRC_DIR)/generated/purity_intrinsics.h
 
-$(OBJ_DIR)/transpiler.o: $(SRC_DIR)/transpiler.c $(SRC_DIR)/transpiler_iterative_v3_twopass.c $(HEADERS) | $(OBJ_DIR)
+$(OBJ_DIR)/transpiler.o: $(SRC_DIR)/transpiler.c $(SRC_DIR)/transpiler_iterative_v3_twopass.c $(SRC_DIR)/transpiler_opaque_names.inc $(HEADERS) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/transpiler.c -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS) | $(OBJ_DIR)
@@ -5745,7 +5745,7 @@ test-ownership-declaration-projection: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	DECLARATION_CC="$(CC)" DECLARATION_CFLAGS="$(CFLAGS)" DECLARATION_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" DECLARATION_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_ownership_declaration_projection
 
 # I rebuild evaluator storage with its owning translation unit.
-$(OBJ_DIR)/env.o: $(SRC_DIR)/env_record_lists.inc $(SRC_DIR)/env_provider_leases.inc $(SRC_DIR)/env_signature_snapshot.inc
+$(OBJ_DIR)/env.o: $(SRC_DIR)/env_record_lists.inc $(SRC_DIR)/env_provider_leases.inc $(SRC_DIR)/env_signature_snapshot.inc $(SRC_DIR)/env_opaque_types.inc $(SRC_DIR)/env_opaque_keys.inc
 
 .PHONY: test-evaluator-owned-lifetimes test-generic-record-lists
 # I require a separately recorded fresh bootstrap for the paired source methods.

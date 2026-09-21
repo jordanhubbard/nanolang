@@ -54,7 +54,7 @@ static bool build_monomorphized_name_from_typeinfo_iter(char *dest, size_t dest_
     if (!dest || !dest_size || !info || !info->generic_name || info->type_param_count <= 0) return false;
     char *name = typeinfo_to_generic_arg_name(info);
     if (!name) return false;
-    int written = snprintf(dest, dest_size, "%s", name);
+    int written = snprintf(dest, dest_size, "%s", native_opaque_projection(name));
     free(name);
     return written >= 0 && (size_t)written < dest_size;
 }
@@ -132,7 +132,7 @@ static bool match_uses_checked_int_domain(ASTNode *match) {
 
 static const char *checked_match_union_name(ASTNode *match) {
     const char *name = match ? match->as.match_expr.union_type_name : NULL;
-    if (name && name[0] != '\0') return name;
+    if (name && name[0] != '\0') return native_opaque_projection(name);
 
     fprintf(stderr,
             "I lost the checked union identity before native lowering at line %d.\n",
@@ -2872,7 +2872,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
              *      if (_nl_try_r.tag == nl_UNION_TAG_Err) return _nl_try_r;
              *      _nl_try_r.data.Ok.FIELD; })
              */
-            const char *union_name = expr->as.try_op.union_type_name;
+            const char *union_name = native_opaque_projection(expr->as.try_op.union_type_name);
             const char *ok_field  = expr->as.try_op.ok_field_name;
             if (!union_name) union_name = "Result";
             if (!ok_field)  ok_field  = "val";

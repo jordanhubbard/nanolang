@@ -86,82 +86,9 @@ static _Thread_local TypeChecker *active_statement_checker;
 
 static char *typeinfo_to_monomorphized_generic_name(TypeInfo *info);
 
-char *typeinfo_to_generic_arg_name(TypeInfo *param) {
-    if (!param) return strdup("unknown");
-    if (param->generic_name && param->type_param_count > 0)
-        return typeinfo_to_monomorphized_generic_name(param);
-
-    switch (param->base_type) {
-        case TYPE_INT:
-            return strdup("int");
-        case TYPE_U8:
-            return strdup("u8");
-        case TYPE_STRING:
-            return strdup("string");
-        case TYPE_BOOL:
-            return strdup("bool");
-        case TYPE_FLOAT:
-            return strdup("float");
-        case TYPE_STRUCT:
-        case TYPE_UNION:
-        case TYPE_ENUM:
-            if (param->generic_name) return strdup(param->generic_name);
-            return strdup("unknown");
-        case TYPE_LIST_GENERIC: {
-            if (!param->generic_name || strlen(param->generic_name) > SIZE_MAX - 6) return NULL;
-            size_t length = strlen(param->generic_name) + 6;
-            char *name = malloc(length);
-            if (name) snprintf(name, length, "List_%s", param->generic_name);
-            return name;
-        }
-        case TYPE_ARRAY: {
-            char *elem = typeinfo_to_generic_arg_name(param->element_type);
-            if (!elem) return strdup("array_unknown");
-            size_t n = strlen(elem) + 7;
-            char *out = malloc(n);
-            if (!out) {
-                free(elem);
-                return strdup("array_unknown");
-            }
-            snprintf(out, n, "array_%s", elem);
-            free(elem);
-            return out;
-        }
-        default:
-            return strdup("unknown");
-    }
-}
-
 static char *typeinfo_to_monomorphized_generic_name(TypeInfo *info) {
     if (!info || !info->generic_name) return NULL;
-    if (info->type_param_count <= 0) return strdup(info->generic_name);
-
-    size_t cap = 256;
-    char *out = malloc(cap);
-    if (!out) return NULL;
-    out[0] = '\0';
-
-    snprintf(out, cap, "%s", info->generic_name);
-    for (int i = 0; i < info->type_param_count; i++) {
-        char *arg = typeinfo_to_generic_arg_name(info->type_params[i]);
-        if (!arg) arg = strdup("unknown");
-        size_t need = strlen(out) + 1 + strlen(arg) + 1;
-        if (need > cap) {
-            cap = need * 2;
-            char *bigger = realloc(out, cap);
-            if (!bigger) {
-                free(arg);
-                free(out);
-                return NULL;
-            }
-            out = bigger;
-        }
-        strcat(out, "_");
-        strcat(out, arg);
-        free(arg);
-    }
-
-    return out;
+    return typeinfo_to_generic_arg_name(info);
 }
 
 /* Helper: Recursively check if an AST expression references a given variable name.
@@ -1275,6 +1202,26 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     return NULL;
 }
 
+/* I compare opaque values by retained declaration identity, never ABI spelling.
+ * A zero literal is the existing null spelling only for an opaque destination. */
+static bool check_opaque_value(Environment *env, Type expected_type, const char *name,
+                               ASTNode *value) {
+    if (!value || (expected_type != TYPE_STRUCT && expected_type != TYPE_OPAQUE)) return true;
+    OpaqueTypeDef *expected = name ? env_get_opaque_type(env, name) : NULL;
+    const char *actual_name = get_struct_type_name(value, env);
+    TypeInfo *actual_info = try_get_expr_type_info(value, env);
+    if (!actual_name && actual_info)
+        actual_name = actual_info->opaque_type_name ? actual_info->opaque_type_name : actual_info->generic_name;
+    OpaqueTypeDef *actual = actual_name ? env_get_opaque_type(env, actual_name) : NULL;
+    if (!expected && !actual) return expected_type != TYPE_OPAQUE;
+    if (expected && value->type == AST_NUMBER && value->as.number == 0) return true;
+    if (expected && actual && !strcmp(expected->identity, actual->identity)) return true;
+    emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+        "I require the same opaque declaration identity at this value boundary.",
+        "Use the declared opaque handle; matching C pointer spellings do not establish identity.");
+    return false;
+}
+
 static Type type_from_typeinfo(TypeInfo *info, const char **out_struct_name) {
     if (out_struct_name) *out_struct_name = NULL;
     if (!info) return TYPE_UNKNOWN;
@@ -1522,6 +1469,14 @@ static void register_native_union_context(Environment *env, const TypeInfo *info
         register_native_union_context(env, info->type_params[i], depth + 1);
     UnionDef *def = info->generic_name ? env_get_union(env, info->generic_name) : NULL;
     if (!def || !def->generic_param_count || def->generic_param_count != info->type_param_count) return;
+    bool added = false;
+    if (opaque_type_info_present(info)) {
+        if (!env_register_opaque_union_context(env, info, &added)) {
+            env->opaque_resolution_failed = true;
+            fprintf(stderr, "I cannot retain a complete opaque-bearing union annotation\n");
+            return;
+        }
+    } else {
     char **names = calloc((size_t)info->type_param_count, sizeof(char*));
     if (!names) return;
     bool complete = true;
@@ -1531,7 +1486,6 @@ static void register_native_union_context(Environment *env, const TypeInfo *info
     }
     if (complete) env_register_union_instantiation(env, info->generic_name,
                                                   (const char**)names, info->type_param_count);
-    bool added = false;
     for (int i = 0; complete && i < env->generic_instance_count; ++i) {
         GenericInstantiation *inst = &env->generic_instances[i];
         if (strcmp(inst->generic_name, info->generic_name) || inst->type_arg_count != info->type_param_count) continue;
@@ -1545,6 +1499,7 @@ static void register_native_union_context(Environment *env, const TypeInfo *info
     }
     for (int i = 0; i < info->type_param_count; ++i) free(names[i]);
     free(names);
+    }
     if (!added) return;
     for (int arm = 0; arm < def->variant_count; ++arm)
         for (int field = 0; field < def->variant_field_counts[arm]; ++field) {
@@ -1552,6 +1507,37 @@ static void register_native_union_context(Environment *env, const TypeInfo *info
             register_native_union_context(env, payload, depth + 1);
             free_payload_type_info(payload);
         }
+}
+
+/* I inspect only declaration-bearing opaque leaves; ordinary compatibility
+ * remains in the existing checks. All views are borrowed for this call. */
+static bool opaque_annotation_present(Environment *, const TypeInfo *, unsigned);
+static bool opaque_signature_present(Environment *env, const FunctionSignature *sig, unsigned depth) {
+    if (!sig) return false;
+    if (depth > 128) return true;
+    if ((sig->return_struct_name && env_get_opaque_type(env, sig->return_struct_name)) ||
+        opaque_annotation_present(env, sig->return_type_info, depth + 1) ||
+        opaque_signature_present(env, sig->return_fn_sig, depth + 1)) return true;
+    for (int i = 0; i < sig->param_count; ++i)
+        if ((sig->param_struct_names && sig->param_struct_names[i] &&
+             env_get_opaque_type(env, sig->param_struct_names[i])) ||
+            (sig->param_type_info && opaque_annotation_present(env, sig->param_type_info[i], depth + 1))) return true;
+    return false;
+}
+static bool opaque_annotation_present(Environment *env, const TypeInfo *info, unsigned depth) {
+    if (!info) return false;
+    if (depth > 128) return true;
+    if (info->base_type == TYPE_OPAQUE ||
+        (info->generic_name && env_get_opaque_type(env, info->generic_name)) ||
+        opaque_annotation_present(env, info->element_type, depth + 1) ||
+        opaque_signature_present(env, info->fn_sig, depth + 1)) return true;
+    for (int i = 0; info->type_params && i < info->type_param_count; ++i)
+        if (opaque_annotation_present(env, info->type_params[i], depth + 1)) return true;
+    for (int i = 0; info->tuple_type_names && i < info->tuple_element_count; ++i)
+        if (info->tuple_type_names[i] && env_get_opaque_type(env, info->tuple_type_names[i])) return true;
+    for (int i = 0; info->row_field_type_names && i < info->row_field_count; ++i)
+        if (info->row_field_type_names[i] && env_get_opaque_type(env, info->row_field_type_names[i])) return true;
+    return false;
 }
 
 /* I resolve payload annotations and retain owned constructor context. */
@@ -1694,6 +1680,41 @@ static void apply_concrete_union_arrays(Environment *env, const TypeInfo *expect
     if (value->type == AST_RETURN) {
         apply_concrete_union_arrays(env, expected, expected_owner, value->as.return_stmt.value, depth + 1);
         return;
+    }
+    if ((expected->base_type == TYPE_STRUCT || expected->base_type == TYPE_OPAQUE) &&
+        opaque_annotation_present(env, expected, 0)) {
+        const char *name = expected->opaque_type_name ? expected->opaque_type_name : expected->generic_name;
+        if (name && env_get_opaque_type(env, name)) {
+            check_opaque_value(env, expected->base_type, name, value);
+            return;
+        }
+    }
+    if (opaque_annotation_present(env, expected, 0)) {
+        if (expected->base_type == TYPE_ARRAY && value->type == AST_ARRAY_LITERAL) {
+            for (int i = 0; i < value->as.array_literal.element_count; ++i)
+                check_concrete_union_arrays(env, expected->element_type,
+                    value->as.array_literal.elements[i], depth + 1);
+            return;
+        }
+        if (expected->base_type == TYPE_TUPLE && value->type == AST_TUPLE_LITERAL &&
+            expected->tuple_element_count == value->as.tuple_literal.element_count && expected->tuple_types) {
+            for (int i = 0; i < expected->tuple_element_count; ++i) {
+                TypeInfo element = {.base_type = expected->tuple_types[i],
+                    .generic_name = expected->tuple_type_names ? expected->tuple_type_names[i] : NULL};
+                check_concrete_union_arrays(env, &element, value->as.tuple_literal.elements[i], depth + 1);
+            }
+            return;
+        }
+        const TypeInfo *actual = try_get_expr_type_info(value, env);
+        bool union_constructor = expected->generic_name && env_get_union(env, expected->generic_name) &&
+            (value->type == AST_UNION_CONSTRUCT || value->type == AST_STRUCT_LITERAL);
+        /* Function declarations have a separate complete signature comparison. */
+        bool direct_function = expected->base_type == TYPE_FUNCTION &&
+            value->type == AST_IDENTIFIER && env_get_function(env, value->as.identifier);
+        if (!direct_function && !union_constructor && (!actual || !type_infos_equal(expected, actual)))
+            emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                "I require complete matching opaque identities inside this annotation.",
+                "Preserve the declaring module through each container and callable type.");
     }
     if (expected->base_type == TYPE_HASHMAP && value->type == AST_CALL &&
         !value->as.call.func_expr && value->as.call.name &&
@@ -4083,8 +4104,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 bool null_literal = arg_type == TYPE_INT &&
                                     arg->type == AST_NUMBER && arg->as.number == 0;
                                 is_opaque_param = true;
-                                if (!null_literal && arg_type != TYPE_STRUCT &&
-                                    arg_type != TYPE_OPAQUE) {
+                                if (!null_literal && !check_opaque_value(env, func->params[i].type,
+                                        func->params[i].struct_type_name, arg)) {
                                     char message[256];
                                     snprintf(message, sizeof(message),
                                             "Argument %d expects opaque type `%s` or 0 (null), got %s.",
@@ -4128,6 +4149,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             }
                         }
                         
+                        if (!is_opaque_param)
+                            check_opaque_value(env, func->params[i].type, func->params[i].struct_type_name, arg);
                         if (func->params[i].type == TYPE_ARRAY) check_record_array_contract(env, func->params[i].type,
                             func->params[i].element_type, func->params[i].struct_type_name, env_function_signature_owner(env, func), arg);
                         if (!is_opaque_param && !is_opaque_arg && !types_match(arg_type, func->params[i].type)) {
@@ -4731,6 +4754,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
                 ASTNode *field_value = expr->as.struct_literal.field_values[i];
+                check_opaque_value(env, sdef->field_types[field_index],
+                    sdef->field_type_names ? sdef->field_type_names[field_index] : NULL, field_value);
                 check_nominal_contract(env, sdef->field_types[field_index],
                     sdef->field_type_info ? sdef->field_type_info[field_index] : NULL,
                     sdef->field_type_names ? sdef->field_type_names[field_index] : NULL,
@@ -5894,6 +5919,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                                 union_def->generic_param_count, info->type_param_count);
                         tc->has_error = true;
                     } else {
+                        if (opaque_type_info_present(info)) {
+                            register_native_union_context(tc->env, info, 0);
+                        } else {
                         /* Build concrete type names for registration */
                         char **type_names = malloc(sizeof(char*) * info->type_param_count);
                         for (int i = 0; i < info->type_param_count; i++) {
@@ -5910,6 +5938,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                             free(type_names[i]);
                         }
                         free(type_names);
+                        }
                     }
                 }
             }
@@ -5936,6 +5965,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (!retained_binding_view)
                 check_concrete_union_arrays(tc->env, stmt->as.let.type_info, binding_owner, stmt->as.let.value, 0);
             Type value_type = check_expression(stmt->as.let.value, tc->env);
+            if (!check_opaque_value(tc->env, declared_type, stmt->as.let.type_name, stmt->as.let.value))
+                tc->has_error = true;
             /* A projected concrete union retains its complete annotation; I
              * do not accept a different instantiation merely because both are unions. */
             if (stmt->as.let.value->type == AST_FIELD_ACCESS && stmt->as.let.type_info) {
@@ -6222,6 +6253,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     destination.struct_type_name, destination.nominal_owner, stmt->as.set.value)) tc->has_error = true;
             if (!destination.checker_nominal_view && destination.type == TYPE_ARRAY && !check_record_array_contract(tc->env, destination.type, destination.element_type,
                     destination.struct_type_name, destination.nominal_owner, stmt->as.set.value)) tc->has_error = true;
+            if (!check_opaque_value(tc->env, destination.type, destination.struct_type_name, stmt->as.set.value))
+                tc->has_error = true;
 
             /* Propagate element type to array literals for correct transpilation */
             if (destination.type == TYPE_ARRAY && destination.element_type != TYPE_UNKNOWN) {
@@ -6419,6 +6452,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 if (tc->current_function_return_type == TYPE_TUPLE &&
                     !check_nominal_contract(tc->env, TYPE_TUPLE, tc->current_function_return_info, NULL,
                         tc->env->current_module, stmt->as.return_stmt.value)) tc->has_error = true;
+                if (!check_opaque_value(tc->env, tc->current_function_return_type,
+                        tc->current_function_return_struct_name, stmt->as.return_stmt.value)) tc->has_error = true;
                 if (!check_record_array_contract(tc->env, tc->current_function_return_type,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name,
                         tc->env->current_module, stmt->as.return_stmt.value)) tc->has_error = true;
@@ -8461,16 +8496,8 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             /* Register opaque type */
             const char *type_name = item->as.opaque_type.name;
             
-            /* Check if opaque type already defined */
-            if (env_get_opaque_type(env, type_name)) {
-                fprintf(stderr, "Error at line %d, column %d: Opaque type '%s' is already defined\n",
-                        item->line, item->column, type_name);
-                tc.has_error = true;
-                continue;
-            }
-            
-            /* Register the opaque type in environment */
-            env_define_opaque_type(env, type_name);
+            /* The nominal prepass checked local duplicates and staged all rows. */
+            if (!env_define_opaque_type(env, type_name)) tc.has_error = true;
 
         } else if (item->type == AST_EFFECT_DECL) {
             if (!register_effect_declaration(item, env)) tc.has_error = true;
@@ -8920,6 +8947,9 @@ register_function_pass1:;
                 item->as.function.return_type_info->type_param_count > 0) {
                 
                 TypeInfo *info = item->as.function.return_type_info;
+                if (opaque_type_info_present(info)) {
+                    register_native_union_context(tc.env, info, 0);
+                } else {
                 char **type_names = malloc(sizeof(char*) * info->type_param_count);
                 
                 for (int ti = 0; ti < info->type_param_count; ti++) {
@@ -8936,6 +8966,7 @@ register_function_pass1:;
                     free(type_names[ti]);
                 }
                 free(type_names);
+                }
             }
 
             /* Register HashMap<K,V> instantiation for function return type */
@@ -9120,7 +9151,7 @@ register_function_pass1:;
         tc.has_error = true;
     }
 
-    return !tc.has_error && g_typecheck_error_count == 0;
+    return !tc.has_error && !env->opaque_resolution_failed && g_typecheck_error_count == 0;
 }
 
 /* Type check a module (without requiring main function) */
@@ -9327,16 +9358,8 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             /* Register opaque type */
             const char *type_name = item->as.opaque_type.name;
             
-            /* Check if opaque type already defined */
-            if (env_get_opaque_type(env, type_name)) {
-                fprintf(stderr, "Error at line %d, column %d: Opaque type '%s' is already defined\n",
-                        item->line, item->column, type_name);
-                tc.has_error = true;
-                continue;
-            }
-            
-            /* Register the opaque type in environment */
-            env_define_opaque_type(env, type_name);
+            /* The nominal prepass checked local duplicates and staged all rows. */
+            if (!env_define_opaque_type(env, type_name)) tc.has_error = true;
             
         } else if (item->type == AST_EFFECT_DECL) {
             if (!register_effect_declaration(item, env)) tc.has_error = true;
@@ -9702,6 +9725,9 @@ register_function_pass2:;
                 /* Best-effort: only register if the generic union exists */
                 UnionDef *udef = env_get_union(env, info->generic_name);
                 if (udef && udef->generic_param_count == info->type_param_count) {
+                    if (opaque_type_info_present(info)) {
+                        register_native_union_context(env, info, 0);
+                    } else {
                     char **type_names = malloc(sizeof(char*) * info->type_param_count);
                     for (int ti = 0; ti < info->type_param_count; ti++) {
                         type_names[ti] = typeinfo_to_generic_arg_name(info->type_params[ti]);
@@ -9715,6 +9741,7 @@ register_function_pass2:;
                         free(type_names[ti]);
                     }
                     free(type_names);
+                    }
                 }
             }
 
@@ -9882,7 +9909,7 @@ register_function_pass2:;
     /* Note: Modules don't require a main function */
     /* Main function check is skipped for modules */
 
-    return !tc.has_error && g_typecheck_error_count == 0;
+    return !tc.has_error && !env->opaque_resolution_failed && g_typecheck_error_count == 0;
 }
 
 /* Failed fresh ASTs can be freed by the loader. Their keys must not survive. */
