@@ -220,8 +220,13 @@ failure and preserves the caller's output object until the full decode succeeds.
 
 `make test-capture-bindings` exercises copied/shared/duplicate/forwarded source
 descriptors, every input truncation, malformed records and modes, exact allocation
-budget endpoints, both table-allocation failures and independent recovery. At the
-source-review checkpoint only strict C syntax checks have run.
+budget endpoints, both table-allocation failures and independent recovery. My independently reviewed60a8b4d1c checkpoint passes714 checks in each of
+seven selected configurations: Linux GCC/Clang ordinary and ASan/UBSan, Darwin
+Apple/Homebrew Clang ordinary and Homebrew ASan/UBSan. All seven source files
+retain exact before/after bytes and modes. I retain the first Clang toolchain
+selection failure and Darwin extraction-mode refusal alongside corrected
+[evidence](evidence/capture-bindings/payload/checks.json). No warnings, assertions
+or source code were changed to obtain these results.
 
 This codec does not yet validate opcode boundaries, establish definite binding
 initialization, emit a section or admit its feature in the container/VM. Existing
