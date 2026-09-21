@@ -215,5 +215,11 @@ shadow select_integer { assert true }
             self.assertEqual(result.returncode,1,result.stdout+result.stderr)
             self.assertIn('indirect',result.stdout)
             self.assertEqual(output.read_bytes(),b'previous')
+            source.write_text(declarations+'fn main()->int{return ((select_integer) 1)}\nshadow main { assert true }\n')
+            output.write_bytes(b'previous')
+            result=subprocess.run([ROOT/'bin/nanoisa_emit',source,'--emit-nvm','-o',output],cwd=ROOT,capture_output=True,text=True,timeout=60)
+            self.assertEqual(result.returncode,1,result.stdout+result.stderr)
+            self.assertIn('exact single-return callback selector',result.stdout)
+            self.assertEqual(output.read_bytes(),b'previous')
 
 if __name__=='__main__': unittest.main()
