@@ -164,6 +164,7 @@ shadow probe { assert (== (probe) 0) }
         visibility_refusals={
             'qualified':f'module {owner_literal} as Visible\nfn main() -> int {{ return (Visible.hidden_value) }}\nshadow main {{ assert true }}\n',
             'selective':f'from {owner_literal} import hidden_value as chosen\nfn main() -> int {{ return (chosen) }}\nshadow main {{ assert true }}\n',
+            'selective-ignored-result':f'from {owner_literal} import hidden_value as chosen\nfn main() -> int {{ (chosen) return 0 }}\nshadow main {{ assert true }}\n',
             'qualified-value':f'module {owner_literal} as Visible\nfn main() -> int {{ let callback: fn()->int = Visible.hidden_value return (callback) }}\nshadow main {{ assert true }}\n',
             'wildcard':f'from {owner_literal} import *\nfn main() -> int {{ return (hidden_value) }}\nshadow main {{ assert true }}\n',
             'private-extern':f'module {json.dumps(str(private_extern))} as External\nfn main() -> int {{ return (External.get_argc) }}\nshadow main {{ assert true }}\n',

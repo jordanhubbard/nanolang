@@ -4214,7 +4214,7 @@ shadow parser_is_value_expression {
     assert (not (parser_is_value_expression ParseNodeType.PNODE_IF))
 }
 
-fn parser_decode_import_path(raw: string) -> string {
+pub fn parser_decode_import_path(raw: string) -> string {
     let mut out: string = ""
     let mut i: int = 0
     while (< i (str_length raw)) {

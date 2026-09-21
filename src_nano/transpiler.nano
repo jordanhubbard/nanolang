@@ -549,11 +549,11 @@ shadow gen_indent {
  * Instead of: set result (+ result "text")  // O(n²) - copies entire string each time
  * Use: set parts (cg_append parts "text")    // Preserve the returned array
  */
-fn cg_append(parts: array<string>, text: string) -> array<string> {
+pub fn cg_append(parts: array<string>, text: string) -> array<string> {
     return (array_push parts text)
 }
 
-fn cg_build(parts: array<string>) -> string {
+pub fn cg_build(parts: array<string>) -> string {
     let count: int = (array_length parts)
     if (== count 0) {
         return ""
@@ -1016,7 +1016,7 @@ shadow last_double_colon_index {
     assert (== (last_double_colon_index "test") -1)
 }
 
-fn last_dot_index(s: string) -> int {
+pub fn last_dot_index(s: string) -> int {
     let len: int = (str_length s)
     let mut i: int = 0
     let mut last: int = -1

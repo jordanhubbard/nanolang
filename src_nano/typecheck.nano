@@ -4633,6 +4633,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         /* Get function name from identifier node */
         let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
         let fn_name: string = (tc_bound_name fn_id_node.name fn_id_node.line symbols)
+        if (mb_private_name fn_name) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" (+ "I cannot access this function from the current module: " fn_id_node.name) (Diagnostics.diag_location file_name call_node.line call_node.column)))
+            return (type_unknown_named fn_id_node.name)
+        }
         if (and (== fn_name "map_get") (and (== call_node.arg_count 2) (< (env_lookup symbols fn_name) 0))) {
             let receiver: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
             let receiver_type: NSType = (check_expr_node parser receiver.node_id receiver.node_type symbols diags file_name)

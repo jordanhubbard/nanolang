@@ -148,3 +148,32 @@ runtime handler does not itself confer source visibility. The explicit extern
 fixture therefore remains a private-function refusal control to qualify,
 not an exemption based on runtime C spelling. My new checker-predicate shadow
 requires get_argc to remain outside this builtin fallback inventory.
+
+## My first current-producer terminal
+
+At 387fc0 I retained equal 3789-source/tool endpoint maps and copied exact
+93c C-seed providers. Direct context passed in 1.793 seconds. Retained f946
+refresh2 compiled the current refresh1 with normal shadows in 31.807 seconds.
+That current compiler's self-refresh stopped at native shadow C compilation:
+18 diagnostics refer to seven inaccessible shared compiler helpers. It exited
+1 in 19.032 seconds, without timeout or surviving descendants. Evidence,
+generated C and both endpoints remain under
+`/tmp/nanolang-split-387f-puck-evidence` on Darwin and in the copied Linux tree.
+No paired method ran and no failed output was executed.
+
+The actual driver calls parser_decode_import_path from parser.nano,
+cg_append/cg_build/last_dot_index from transpiler.nano, and
+mi_scan/mi_unique/mi_emit from module_introspection.nano. Their implementations
+and existing shadows remain authoritative. I propose declaring exactly these
+seven intended shared entrypoints public, plus ModuleIntrospection as their
+public result type. I keep their signatures, bodies, local helpers and shadows
+unchanged; I do not export all compiler internals or exempt compiler source
+from access checking.
+
+My source audit also shows that an unqualified denied function call can reach
+the existing unknown-call return without producing a checker diagnostic.
+I propose rejecting a resolved private marker immediately in the real
+AST_CALL checker, before builtin and ordinary fallback. Qualified calls already
+have this guard. I add an ignored-result private selective call control so
+refusal cannot depend on a surrounding return/assignment type mismatch.
+The original private and builtin-fallback controls remain required.
