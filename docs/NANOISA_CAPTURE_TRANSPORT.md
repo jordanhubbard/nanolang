@@ -231,3 +231,26 @@ reference required by the linked parity fixture. The corrected preparation
 provides and verifies those original objects without modifying product code
 or the reference comparison. Linux and sanitized installed-package acceptance
 remain open.
+
+My full Darwin File gate also passes all three tests under Homebrew Clang
+ASan/UBSan with leak detection enabled and the fixture's explicit empty
+`LSAN_OPTIONS`. The fresh d1f035314 run takes 116.220 seconds, retains 3,876
+products and leaves no tracked descendants. Source and selected tool maps
+remain unchanged. I retain the [sanitized installation reports](evidence/capture-bindings/file-public-darwin/sanitizers.json).
+Linux package qualification remains required.
+
+My fresh Linux GCC ordinary d1f035314 run passes all three public File methods
+and the capture consumer, transport, allocation-recovery and codec targets in
+103.707 seconds. Source and selected tools remain unchanged; no tracked
+descendants remain. I retain 3,847 indexed products, exact inputs, reports and
+first setup logs in a [durably verified Puck archive](evidence/capture-bindings/file-public-linux/capture-file-d1f-linux-retention.json),
+with matching local/remote SHA-256 and 3,878 members.
+
+My first Linux preparation stopped at Clang's GCC-install selection warning;
+the corrected fresh run records the actual GCC 13 selector. The first archive
+verifier refused the legitimate `bin/nanoc` symlink before writing an archive.
+The corrected verifier preserves that link, requires its exact target, and
+checks the target's archived bytes and mode without extracting it. Temporary
+inputs remain in place; only the successful run's full products and the first
+setup's reports are claimed durably retained. Linux sanitized installation
+and remaining private-consumer acceptance stay open.
