@@ -26,7 +26,7 @@ MODULES = {
                 'assert (== (Isa.load_print "") "")\n'
                 '    assert (!= (Isa.last_error) "")'),
     'forth_see': ('modules/forth_see/forth_see.nano', 'Forth',
-                  'unsafe {\n    let detail: string = (Forth.nl_forth_see "dup" "")\n'
+                  'unsafe {\n    let detail: string = (Forth.see "dup" "")\n'
                   '    assert (str_contains detail "SEE: cannot load")\n    }'),
     'cjson_provider': ('modules/cjson_provider/cjson_provider.nano', 'CJsonOwner', ''),
     'nsi_file_catalog_provider': ('modules/nsi_file_catalog_provider/nsi_file_catalog_provider.nano', 'PlanOwner', ''),
@@ -52,7 +52,7 @@ def source(order, forth_binary):
     imports = '\n'.join(f'module "{MODULES[name][0]}" as {MODULES[name][1]}' for name in order)
     checks = '\n    '.join(MODULES[name][2] for name in order if MODULES[name][2])
     if 'forth_see' in order:
-        checks += ('\n    unsafe {\n    let actual: string = (Forth.nl_forth_see "dup" '
+        checks += ('\n    unsafe {\n    let actual: string = (Forth.see "dup" '
                    + json.dumps(str(forth_binary)) + ')\n'
                    '    assert (str_contains actual "ISA implementation of Forth word: dup")\n'
                    '    assert (str_contains actual "NanoISA block:")\n    }')

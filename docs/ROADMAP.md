@@ -14199,3 +14199,14 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   retain isolated module loads, and add JSON key-array lifetime/release checks.
   I do not add competing private runtime copies or preload another data module.
   Actual compiled and installed hosts remain separate required acceptance.
+
+- [ ] I provide the missing ordinary public Forth SEE wrapper required by my
+  provider co-import acceptance. Both fffbc gates passed the first seven methods,
+  then refused the fixture's qualified private nl_forth_see call with E009 before
+  provider compilation (Linux805.777s, Darwin798.735s). The module exposes only a
+  private extern; its legacy unqualified Forth consumer is separate. I add a
+  public see wrapper that copies the static foreign result, with a meaningful
+  empty-path shadow, and call that wrapper in the unchanged standalone/co-import
+  and real-bytecode assertions. I retain the original foreign export and all
+  symbol/isolated dynamic checks. This is ordinary API completion, not a change
+  to visibility rules or File authority; source review precedes fresh gates.
