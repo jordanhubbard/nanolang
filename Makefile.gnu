@@ -5825,6 +5825,12 @@ test-capture-transport: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 		$(filter-out $(OBJ_DIR)/nanoisa/capture_bindings.o $(OBJ_DIR)/nanoisa/nvm_v2_convert.o $(OBJ_DIR)/nanoisa/nvm_format.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	$(OBJ_DIR)/nanoisa/test_capture_transport_alloc
 
+.PHONY: test-capture-transport-consumers
+test-capture-transport-consumers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanoisa/nvm2llvm.o
+	$(CC) $(CFLAGS) -DCAPTURE_TRANSPORT_CONSUMERS -I$(NANOISA_DIR) -I$(NANOVM_DIR) -o $(OBJ_DIR)/nanoisa/test_capture_transport_consumers \
+		tests/nanoisa/test_capture_transport.c $(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)) $(OBJ_DIR)/nanoisa/nvm2llvm.o $(LDFLAGS)
+	$(OBJ_DIR)/nanoisa/test_capture_transport_consumers
+
 .PHONY: test-capture-bindings
 test-capture-bindings:
 	@mkdir -p $(OBJ_DIR)/nanoisa

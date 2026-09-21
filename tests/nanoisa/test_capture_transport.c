@@ -9,6 +9,10 @@
 #include "nvm2c.h"
 #include "nvm_v2_sections.h"
 #include "verifier.h"
+#ifdef CAPTURE_TRANSPORT_CONSUMERS
+#include "nvm2llvm.h"
+#include "vm.h"
+#endif
 
 static unsigned checks;
 #define CHECK(x) do { ++checks; if (!(x)) { \
@@ -267,7 +271,61 @@ static void allocation_controls(void) {
 }
 #endif
 
+#ifdef CAPTURE_TRANSPORT_CONSUMERS
+static void consumer_controls(void) {
+    /* Ordinary RET bodies isolate metadata admission from opcode refusal. */
+    NvmModule *module = fixture(false, true);
+    for (unsigned entry = 0; entry < 4; ++entry) {
+        VmState *vm = calloc(1, sizeof *vm);
+        CHECK(vm != NULL);
+        vm_init(vm, module);
+        CHECK(!vm->verified);
+        NanoValue output = val_int(731);
+        VmResult result;
+        if (entry == 0) result = vm_execute(vm);
+        else if (entry == 1) result = vm_call_function(vm, 0, NULL, 0);
+        else if (entry == 2) result = vm_invoke(vm, 0, NULL, 0, &output);
+        else result = vm_invoke_callable(vm, val_function(0), NULL, 0, &output);
+        CHECK(result == VM_ERR_TYPE_ERROR);
+        CHECK(output.tag == TAG_INT && output.as.i64 == 731);
+        CHECK(vm->frame_count == 0 && vm->stack_size == 0);
+        vm_destroy(vm);
+        free(vm);
+    }
+    NvmModule *plain = fixture(false, false);
+    VmState *vm = calloc(1, sizeof *vm);
+    CHECK(vm != NULL);
+    vm_init(vm, plain);
+    CHECK(vm_execute(vm) == VM_OK);
+    CHECK(vm_link_module(vm, module) == UINT32_MAX);
+    CHECK(vm->linked_module_count == 0);
+    vm_destroy(vm);
+    free(vm);
+    nvm_module_free(plain);
+    for (unsigned target = 0; target < 2; ++target) {
+        FILE *stream = tmpfile();
+        CHECK(stream != NULL);
+        static const char sentinel[] = "existing output";
+        CHECK(fwrite(sentinel, 1, sizeof sentinel, stream) == sizeof sentinel);
+        char error[256] = {0};
+        CHECK(!nvm2llvm_emit_target(module, stream, error, sizeof error,
+                                   "main", (NvmLlvmTarget)target));
+        CHECK(strstr(error, "capture") != NULL);
+        CHECK(ftell(stream) == (long)sizeof sentinel);
+        rewind(stream);
+        char output[sizeof sentinel];
+        CHECK(fread(output, 1, sizeof output, stream) == sizeof output);
+        CHECK(memcmp(output, sentinel, sizeof output) == 0);
+        CHECK(fclose(stream) == 0);
+    }
+    nvm_module_free(module);
+}
+#endif
+
 int main(void) {
+#ifdef CAPTURE_TRANSPORT_CONSUMERS
+    consumer_controls();
+#endif
     roundtrip(false);
     roundtrip(true);
 #ifdef CAPTURE_TRANSPORT_ALLOCATION_TEST

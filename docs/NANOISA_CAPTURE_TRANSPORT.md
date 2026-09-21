@@ -188,3 +188,10 @@ The reviewed fixture snapshots input structure bytes with `memcpy` before
 comparing them, preserving padding rather than assuming assignment copies it.
 These results cover the scoped allocation sites above. Both-host sanitizer,
 VM/LLVM/Wasm/private-consumer and installed-only acceptance remains open.
+
+My next consumer fixture uses ordinary RET bodies with structurally valid capture
+metadata to isolate admission from opcode support. It checks all four public VM
+entry APIs, unchanged result storage and empty frames/stack on refusal, linking
+refusal, and a plain-module execution control. Native LLVM and Wasm translation
+must refuse before changing an existing output stream. This fixture is awaiting
+source review and execution; it does not establish capture execution support.
