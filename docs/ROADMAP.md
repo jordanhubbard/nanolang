@@ -14542,3 +14542,10 @@ My first Clang-only continuation stops before compilation because its unchanged
 driver requires a fresh configuration.log. I retain that setup terminal and
 include the read-only configuration phase in a fresh continuation report; the
 only selected execution phases remain the two unrun Clang phases.
+
+My corrected Clang continuation passes configuration and emission, then my
+unchanged active1.5GiB guard observes1425457152 free bytes and sends SIGTERM
+to its recorded unittest process group. I retain native status-15, no timeout,
+reaped leader, disappeared group and empty remaining-descendant inventory.
+O0 has completed; O2 is partial. I do not claim a full Clang pass or publish
+a complete LLVM seal, and I hold new execution while capacity is insufficient.
