@@ -13910,3 +13910,9 @@ inference branch; accepting unknown record fields would hide this prerequisite.
   inferred string/record and shadowing controls, then repeat the unchanged full
   bootstrap and15methods after source review. I do not replace the original
   ModuleCache expression or weaken field destination checks.
+
+My corrected81cd Darwin Make build passes77.284s; its Stage2 bootstrap reaches
+the same ModuleCache.parsers checker failure at216.959s. Both first bootstrap
+terminals, build logs and equal endpoint summaries are preserved under
+`docs/evidence/record-lists-81cd-bootstrap/`. Fresh f54 preparations qualify the
+reviewed87f inference plus retained original positive, not either failed81cd run.
