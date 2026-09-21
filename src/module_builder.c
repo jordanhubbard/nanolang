@@ -5562,7 +5562,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 }
             }
 
-            char combine_cmd[8192] = {0};
+            char combine_cmd[NL_MODULE_LINK_COMMAND_CAPACITY] = {0};
 #ifdef __APPLE__
             /* I am producing one relocatable object, not a runnable image.
              * Apple Clang otherwise adds -lSystem and compiler-rt to `cc -r`;
@@ -5588,7 +5588,8 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             free(src_objects);
 
             if (combine_result != 0) {
-                fprintf(stderr, "Error: Failed to combine objects for module %s\n", meta->name);
+                fprintf(stderr, command_ok ? "I could not combine objects for module %s\n" :
+                        "I could not construct the complete object link for module %s\n", meta->name);
                 free(build_dir);
                 return NULL;
             }
@@ -5620,7 +5621,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         if (shared_dir_ok) {
             /* I use the same bounded command extent as my link-query grammar.
              * Every private provider contributes its complete object path. */
-            char lib_cmd[65537] = {0};
+            char lib_cmd[NL_MODULE_LINK_COMMAND_CAPACITY] = {0};
             command_ok &= module_shared_link_command(meta, flags, object_file, shared_lib,
                                                       build_dir, lib_cmd, sizeof(lib_cmd));
             if (!command_ok) {
@@ -5668,7 +5669,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             /* I preserve an ordinary link when dependency capture is not
              * supported. I admit my retained compiler argument transports,
              * but not indirect user response inputs hidden from this format. */
-            char recorded_command[65537] = {0}, link_record[2048] = {0};
+            char recorded_command[NL_MODULE_LINK_COMMAND_CAPACITY] = {0}, link_record[2048] = {0};
             bool capture = command_ok && link_observation && module_link_response_safe(meta, flags, lib_cmd) &&
                 module_build_append(link_record, sizeof(link_record), "%s/.link-dependencies", build_dir) &&
                 module_build_append(recorded_command, sizeof(recorded_command), "%s -Xlinker -dependency_info", lib_cmd) &&

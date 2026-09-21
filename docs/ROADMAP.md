@@ -14187,3 +14187,15 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   list and co-import acceptance. I require fresh affected compiler/provider builds
   and both-host qualification; no truncation, skipped provider or relaxed assertion
   can stand in for the complete link.
+
+- [ ] I retain and correct both next 8f119 owner-gate failures. The complete Forth
+  neighbor now passes on both hosts. Linux's exact observed35 NanoISA object paths
+  alone need8285 command bytes, beyond the old8192 aggregate-link buffer; the
+  compiler observer records no NanoISA combine invocation. I align that bounded
+  command with the shared-link grammar and test complete35-object construction
+  plus explicit overflow refusal. Darwin's isolated Python loader lacks the
+  canonical public DynArray runtime required by std_json. I supply only a fresh
+  runtime host image (DynArray/GC/GCStruct), verify moved-provider anchors absent,
+  retain isolated module loads, and add JSON key-array lifetime/release checks.
+  I do not add competing private runtime copies or preload another data module.
+  Actual compiled and installed hosts remain separate required acceptance.

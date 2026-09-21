@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <string.h>
 
+/* I bound complete module object/shared links to the link-query grammar. */
+#define NL_MODULE_LINK_COMMAND_CAPACITY 65537u
+
 /* I preserve paths as one literal shell word; compiler command configuration
  * remains a command fragment for compatibility with wrappers such as ccache. */
 static inline char *module_quote_path(const char *path) {
