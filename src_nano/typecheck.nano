@@ -4537,9 +4537,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     if (== node_type ParseNodeType.PNODE_FLOAT) { return (type_float) } else { (print "") }
     if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
         let id_node: ASTIdentifier = (parser_get_identifier parser node_id)
-        let lookup: OptionType = (env_get_type symbols (tc_bound_name id_node.name id_node.line symbols))
+        let resolved_name: string = (tc_bound_name id_node.name id_node.line symbols)
+        let lookup: OptionType = (env_get_type symbols resolved_name)
         if lookup.has_value { return lookup.value }
-        let builtin: NSType = (check_builtin_function id_node.name)
+        let builtin: NSType = (check_builtin_function resolved_name)
         let named_type: bool = (or (is_enum_name parser id_node.name) (is_union_name parser id_node.name))
         if (and (not named_type) (== builtin.kind TypeKind.TYPE_UNKNOWN)) {
             (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" (+ "I cannot find this name in the current scope: " id_node.name) (Diagnostics.diag_location file_name id_node.line id_node.column)))
@@ -4839,6 +4840,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         let mqc_node: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
         /* Use function_name which contains full qualified name (Module.function) */
         let qualified_name: string = (mb_lookup (mb_owner mqc_node.line) mqc_node.function_name)
+        if (mb_private_name qualified_name) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" (+ "I cannot access this function from the current module: " mqc_node.function_name) (Diagnostics.diag_location file_name mqc_node.line mqc_node.column)))
+            return (type_unknown_named mqc_node.function_name)
+        }
         let mut arg_index: int = 0
         while (< arg_index mqc_node.arg_count) {
             let arg: ASTStmtRef = (parser_get_call_arg parser (+ mqc_node.arg_start arg_index))

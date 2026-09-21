@@ -135,6 +135,34 @@ shadow probe { assert (== (probe) 0) }
         # Public borrowed array fields remain outside the scalar-borrow profile.
         for element in ('string','int'):
             boundary_refusals['borrow-profile-'+element]='resource struct Words { items: array<'+element+'> }\nfn replace(view: &mut Words) -> void { set view.items '+split+' }\nshadow replace { assert true }\n'+safe_main
+        visibility_owner=self.work/'visibility-provider.nano'
+        visibility_owner.write_text('module visibility_provider\n'
+            'fn hidden_value() -> int { return 40 }\nshadow hidden_value { assert (== (hidden_value) 40) }\n'
+            'pub /* I retain token visibility across comments. */ fn visible_value() -> int { return (+ (hidden_value) 2) }\nshadow visible_value { assert (== (visible_value) 42) }\n'
+            'pub fn with_lambda() -> int { let callback: fn(int)->int = fn(value: int) -> int { return (+ value 1) } return (callback 41) }\nshadow with_lambda { assert (== (with_lambda) 42) }\n')
+        visibility_names=['hidden_value','visible_value','with_lambda','probe','main']
+        owner_literal=json.dumps(str(visibility_owner))
+        for label,imports,call in (
+            ('qualified',f'module {owner_literal} as Visible\n','(Visible.visible_value)'),
+            ('selective',f'from {owner_literal} import visible_value as chosen\n','(chosen)'),
+            ('wildcard',f'from {owner_literal} import *\n','(visible_value)'),
+            ('lambda',f'module {owner_literal} as Visible\n','(Visible.with_lambda)')):
+            positives['visibility-'+label]=(imports+'fn probe() -> int { assert (== '+call+' 42) return 0 }\nshadow probe { assert (== (probe) 0) }\n'+main,visibility_names)
+        public_extern=self.work/'public-extern.nano'
+        public_extern.write_text('module public_extern\npub extern fn get_argc() -> int\n')
+        positives['visibility-public-extern']=(f'module {json.dumps(str(public_extern))} as External\nfn probe() -> int {{ assert (>= (External.get_argc) 0) return 0 }}\nshadow probe {{ assert (== (probe) 0) }}\n'+main,['probe','main'])
+        private_extern=self.work/'private-extern.nano'
+        private_extern.write_text('module private_extern\nextern fn get_argc() -> int\n')
+        private_split=self.work/'private-split-visibility.nano'
+        private_split.write_text('module private_split_visibility\nfn str_split(value: int) -> int { return value }\nshadow str_split { assert true }\n')
+        visibility_refusals={
+            'qualified':f'module {owner_literal} as Visible\nfn main() -> int {{ return (Visible.hidden_value) }}\nshadow main {{ assert true }}\n',
+            'selective':f'from {owner_literal} import hidden_value as chosen\nfn main() -> int {{ return (chosen) }}\nshadow main {{ assert true }}\n',
+            'qualified-value':f'module {owner_literal} as Visible\nfn main() -> int {{ let callback: fn()->int = Visible.hidden_value return (callback) }}\nshadow main {{ assert true }}\n',
+            'wildcard':f'from {owner_literal} import *\nfn main() -> int {{ return (hidden_value) }}\nshadow main {{ assert true }}\n',
+            'private-extern':f'module {json.dumps(str(private_extern))} as External\nfn main() -> int {{ return (External.get_argc) }}\nshadow main {{ assert true }}\n',
+            'private-extern-unqualified':f'import {json.dumps(str(private_extern))}\nfn main() -> int {{ return (get_argc) }}\nshadow main {{ assert true }}\n',
+            'private-builtin-value':f'from {json.dumps(str(private_split))} import str_split\nfn main() -> int {{ let callback: fn(int)->int = str_split return (callback 41) }}\nshadow main {{ assert true }}\n'}
         for role,row in self.producers.items():
             for label,(source,names) in positives.items():
                 name=role+'-'+label;path=self.work/(name+'.nano');path.write_text(source)
@@ -179,6 +207,15 @@ shadow probe { assert (== (probe) 0) }
                     {'NANO_SHADOW_TIMING':None,'NANO_SHADOW_TIMEOUT_SECONDS':None},expected=(1,),timeout=300)
                 self.assertEqual(exe.read_bytes(),b'module output sentinel\n')
                 self.assertIn(b'str_split',out+err)
+            for label,source in visibility_refusals.items():
+                name=role+'-visibility-refuse-'+label
+                path=self.work/(name+'.nano');path.write_text(source)
+                exe=self.work/name;exe.write_bytes(b'visibility output sentinel\n')
+                out,err,_=native_sdk_runner.run(self.work,name+'-compile',[row['path'],path,'-o',exe],ROOT,
+                    {'NANO_SHADOW_TIMING':None,'NANO_SHADOW_TIMEOUT_SECONDS':None},expected=(1,),timeout=300)
+                self.assertEqual(exe.read_bytes(),b'visibility output sentinel\n')
+                self.assertNotIn(b'C compilation failed',out+err)
+                self.assertNotIn(b'Failed to parse',out+err)
             for label,source in boundary_refusals.items():
                 name=role+'-boundary-refuse-'+label
                 path=self.work/(name+'.nano');path.write_text(source)
@@ -191,3 +228,75 @@ shadow probe { assert (== (probe) 0) }
                 else:
                     self.assertNotIn(b'C compilation failed',out+err)
                     self.assertNotIn(b'Failed to parse',out+err)
+
+    def test_actual_parser_capture_limits(self):
+        # I exercise the existing File cap and complete ordinary capture separately.
+        parser_path=json.dumps(str(ROOT/'src_nano/parser.nano'))
+        source='import '+parser_path+'\n'+'''fn main() -> int {
+    let mut source: string = ""
+    let mut index: int = 0
+    while (< index 4097) {
+        set source (+ source "pub fn value() -> int { return 1 }\\n")
+        set index (+ index 1)
+    }
+    let line_size: int = (str_length "pub fn value() -> int { return 1 }\\n")
+    let source_size: int = (str_length source)
+    let boundary_source: string = (str_substring source 0 (- source_size line_size))
+    let boundary_tokens: List<LexerToken> = (tokenize_string boundary_source "boundary.nano" (list_CompilerDiagnostic_new))
+    let boundary: ParsedDeclarations = (parse_program_declarations boundary_tokens (list_LexerToken_length boundary_tokens) "boundary.nano")
+    assert (not (parser_has_error boundary.parser))
+    assert (not boundary.truncated)
+    assert (== (array_length boundary.definitions) 4096)
+    let tokens: List<LexerToken> = (tokenize_string source "large.nano" (list_CompilerDiagnostic_new))
+    let count: int = (list_LexerToken_length tokens)
+    let limited: ParsedDeclarations = (parse_program_declarations tokens count "large.nano")
+    assert (not (parser_has_error limited.parser))
+    assert limited.truncated
+    assert (== (array_length limited.definitions) 0)
+    let complete: ParsedDeclarations = (parse_program_complete_declarations tokens count "large.nano")
+    assert (not (parser_has_error complete.parser))
+    assert (not complete.truncated)
+    assert (== (array_length complete.definitions) 4097)
+    assert (== (at complete.definitions 4096).function_index 4096)
+    let ordinary: Parser = (parse_program tokens count "large.nano")
+    assert (not (parser_has_error ordinary))
+    assert (== ordinary.functions_count 4097)
+    return 0
+}
+shadow main { assert true }
+'''
+        # Imported APIs have explicit origins; I do not rely on a transitive import.
+        source=('import '+json.dumps(str(ROOT/'src_nano/compiler/lexer.nano'))+'\n'
+                'import '+json.dumps(str(ROOT/'src_nano/compiler/diagnostics.nano'))+'\n'+source)
+        path=self.work/'capture-limits.nano';path.write_text(source)
+        baseline=None
+        for role in ('cseed','refresh1','refresh2'):
+            row=self.producers[role];name=role+'-capture-limits'
+            exe=self.work/name;temp=self.work/(name+'-tmp');temp.mkdir()
+            shadow=self.work/(name+'-shadows.json')
+            argv=[row['path'],path,'-o',exe,'--keep-c']
+            if role=='cseed':argv+=['--verbose','--llm-shadow-json',shadow]
+            out,err,_=native_sdk_runner.run(self.work,name+'-compile',argv,ROOT,
+                {'TMPDIR':temp,'NANO_SHADOW_TRACE':'1','NANO_SHADOW_TIMING':None,'NANO_SHADOW_TIMEOUT_SECONDS':None},timeout=300)
+            if role=='cseed':
+                report=json.loads(shadow.read_text())
+                self.assertTrue(report['completed'] and report['success'])
+                self.assertEqual(report['failures'],[])
+                raw=re.findall(rb'^Testing ([A-Za-z_][A-Za-z_0-9]*)\.\.\. ',out+b'\n'+err,re.M)
+                self.assertEqual(report['test_count'],len(raw))
+            else:raw=re.findall(rb'^I am testing shadow ([A-Za-z_][A-Za-z_0-9]*)$',err,re.M)
+            actual=Counter(re.sub(r'^__nano_module_+[0-9]+_','',x.decode()) for x in raw)
+            for required in ('main','parse_definition_result','definition_parse_result','parse_program_complete_declarations','parse_program_declarations','parse_program_impl'):
+                self.assertEqual(actual[required],1)
+            if baseline is None:baseline=actual
+            self.assertEqual(actual,baseline)
+            (self.work/(name+'-selection.json')).write_text(json.dumps(dict(actual),sort_keys=True,indent=2)+'\n')
+            result,_,_=native_sdk_runner.run(self.work,name+'-run',[exe],ROOT,timeout=300)
+            self.assertEqual(result,b'')
+
+
+def load_tests(loader, tests, pattern):
+    suite=loader.loadTestsFromTestCase(SplitPaired)
+    if suite.countTestCases()!=2:
+        raise AssertionError('I require exactly the original paired corpus and parser capture methods')
+    return suite

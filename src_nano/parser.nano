@@ -8276,25 +8276,37 @@ fn parse_service_declaration(p: Parser) -> Parser {
     return (parser_store_service next interface_id interface_size document_path path_size start.line start.column)
 }
 
-fn parse_definition(p: Parser) -> Parser {
+# I identify top-level functions in my actual declaration dispatch.
+pub struct DefinitionParseResult { parser: Parser, function_index: int }
+fn definition_parse_result(p: Parser, function: bool) -> DefinitionParseResult {
+    let mut index: int = -1
+    if (and function (not (parser_has_error p))) { set index p.last_expr_node_id }
+    return DefinitionParseResult { parser: p, function_index: index }
+}
+shadow definition_parse_result {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "empty.nano")
+    assert (== (definition_parse_result p false).function_index -1)
+    assert (== (definition_parse_result (parser_with_error p true) true).function_index -1)
+}
+fn parse_definition_result(p: Parser) -> DefinitionParseResult {
     if (parser_is_at_end p) {
-        return (parser_with_error p true)
+        return (definition_parse_result (parser_with_error p true) false)
     } else {
         let mut tok: LexerToken = (parser_current p)
         let mut p_work: Parser = p
         
         if (and (== tok.token_type (token_identifier)) (== tok.value "service")) {
-            return (parse_service_declaration p)
+            return (definition_parse_result (parse_service_declaration p) false)
         }
         /* Handle optional 'pub' modifier */
         if (== tok.token_type (token_pub)) {
             set p_work (parser_advance p_work)
             if (parser_is_at_end p_work) {
-                return (parser_with_error p_work true)
+                return (definition_parse_result (parser_with_error p_work true) false)
             } else {
                 set tok (parser_current p_work)
                 if (== tok.token_type LexerTokenType.TOKEN_USE) {
-                    return (parse_pub_use p_work)
+                    return (definition_parse_result (parse_pub_use p_work) false)
                 }
             }
         } else {
@@ -8304,7 +8316,7 @@ fn parse_definition(p: Parser) -> Parser {
         /* Module imports: module "path" ... */
         if (== tok.token_type LexerTokenType.TOKEN_MODULE) {
             if (== (parser_peek p_work 1) (token_string)) {
-                return (parse_module_import p_work false)
+                return (definition_parse_result (parse_module_import p_work false) false)
             } else { (print "") }
         } else { (print "") }
 
@@ -8312,7 +8324,7 @@ fn parse_definition(p: Parser) -> Parser {
         if (== tok.token_type (token_unsafe)) {
             if (and (== (parser_peek p_work 1) LexerTokenType.TOKEN_MODULE) (== (parser_peek p_work 2) (token_string))) {
                 let p1: Parser = (parser_advance p_work)
-                return (parse_module_import p1 true)
+                return (definition_parse_result (parse_module_import p1 true) false)
             } else { (print "") }
         } else { (print "") }
 
@@ -8320,15 +8332,15 @@ fn parse_definition(p: Parser) -> Parser {
         if (== tok.token_type LexerTokenType.TOKEN_MODULE) {
             let p1: Parser = (parser_advance p_work)  /* consume 'module' */
             if (parser_is_at_end p1) {
-                return (parser_with_error p1 true)
+                return (definition_parse_result (parser_with_error p1 true) false)
             } else {
                 let tok_name: LexerToken = (parser_current p1)
                 if (== tok_name.token_type (token_identifier)) {
                     let p2: Parser = (parser_advance p1)  /* consume module name */
                     /* Module declarations are stored but not used yet */
-                    return p2
+                    return (definition_parse_result p2 false)
                 } else {
-                    return (parser_with_error p1 true)
+                    return (definition_parse_result (parser_with_error p1 true) false)
                 }
             }
         } else {
@@ -8340,17 +8352,17 @@ fn parse_definition(p: Parser) -> Parser {
             /* extern can be followed by fn or struct */
             let p_after_extern: Parser = (parser_advance p_work)
             if (parser_is_at_end p_after_extern) {
-                return (parser_with_error p_after_extern true)
+                return (definition_parse_result (parser_with_error p_after_extern true) false)
             } else {
                 let next_tok: LexerToken = (parser_current p_after_extern)
                 if (== next_tok.token_type (token_fn)) {
-                    return (parse_extern_function_definition p_work)
+                    return (definition_parse_result (parse_extern_function_definition p_work) true)
                 } else {
                     if (== next_tok.token_type (token_struct)) {
                         /* I retain foreign declaration identity in the AST. */
-                        return (parse_struct_definition p_after_extern true)
+                        return (definition_parse_result (parse_struct_definition p_after_extern true) false)
                     } else {
-                        return (parser_with_error p_after_extern true)
+                        return (definition_parse_result (parser_with_error p_after_extern true) false)
                     }
                 }
             }
@@ -8359,48 +8371,48 @@ fn parse_definition(p: Parser) -> Parser {
                 /* pure fn / pure extern fn - retain the annotation for effect checking */
                 let p_after_pure: Parser = (parser_advance p_work)
                 if (parser_is_at_end p_after_pure) {
-                    return (parser_with_error p_after_pure true)
+                    return (definition_parse_result (parser_with_error p_after_pure true) false)
                 } else {
                     let next_tok: LexerToken = (parser_current p_after_pure)
                     if (== next_tok.token_type (token_fn)) {
-                        return (parser_mark_pure (parse_function_definition p_after_pure))
+                        return (definition_parse_result (parser_mark_pure (parse_function_definition p_after_pure)) true)
                     } else {
                         if (== next_tok.token_type (token_extern)) {
-                            return (parser_mark_pure (parse_extern_function_definition p_after_pure))
+                            return (definition_parse_result (parser_mark_pure (parse_extern_function_definition p_after_pure)) true)
                         } else {
-                            return (parser_with_error p_after_pure true)
+                            return (definition_parse_result (parser_with_error p_after_pure true) false)
                         }
                     }
                 }
             } else {
             if (== tok.token_type (token_fn)) {
-                return (parse_function_definition p_work)
+                return (definition_parse_result (parse_function_definition p_work) true)
             } else {
                 if (or (== tok.token_type (token_struct)) (== tok.token_type LexerTokenType.TOKEN_RESOURCE)) {
-                return (parse_struct_definition p_work false)
+                return (definition_parse_result (parse_struct_definition p_work false) false)
             } else {
                 if (== tok.token_type (token_enum)) {
-                    return (parse_enum_definition p_work)
+                    return (definition_parse_result (parse_enum_definition p_work) false)
                 } else {
                     if (== tok.token_type (token_union)) {
-                        return (parse_union_definition p_work)
+                        return (definition_parse_result (parse_union_definition p_work) false)
                     } else {
                         if (== tok.token_type (token_import)) {
-                        return (parse_import p_work)
+                        return (definition_parse_result (parse_import p_work) false)
                     } else {
                         if (== tok.token_type LexerTokenType.TOKEN_FROM) {
-                            return (parse_from_import p_work)
+                            return (definition_parse_result (parse_from_import p_work) false)
                         } else {
                             if (== tok.token_type (token_opaque)) {
-                                return (parse_opaque_type p_work)
+                                return (definition_parse_result (parse_opaque_type p_work) false)
                             } else {
                                 if (== tok.token_type (token_shadow)) {
-                                    return (parse_shadow p_work)
+                                    return (definition_parse_result (parse_shadow p_work) false)
                                 } else {
                                     if (== tok.token_type (token_let)) {
-                                        return (parse_let_statement p_work)
+                                        return (definition_parse_result (parse_let_statement p_work) false)
                                     } else {
-                                        return (parser_with_error p_work true)
+                                        return (definition_parse_result (parser_with_error p_work true) false)
                                     }
                                 }
                             }
@@ -8413,6 +8425,15 @@ fn parse_definition(p: Parser) -> Parser {
             }
         }
     }
+}
+shadow parse_definition_result {
+    let tokens: List<LexerToken> = (tokenize_string "pub fn visible() -> int { return 3 }" "visible.nano" (list_CompilerDiagnostic_new))
+    let result: DefinitionParseResult = (parse_definition_result (parser_new tokens (list_LexerToken_length tokens) "visible.nano"))
+    assert (== result.function_index 0)
+    assert (== (parser_get_function result.parser result.function_index).name "visible")
+}
+fn parse_definition(p: Parser) -> Parser {
+    return (parse_definition_result p).parser
 }
 
 shadow parse_definition {
@@ -8439,7 +8460,7 @@ shadow parse_definition {
 # I retain optional top-level facts from my real parser loop, never a second grammar.
 pub struct ParsedDefinition {
     first_token: int, after_token: int, is_public: bool,
-    before: array<int>, after: array<int>, result_kind: int, result_index: int
+    before: array<int>, after: array<int>, result_kind: int, result_index: int, function_index: int
 }
 pub struct ParsedDeclarations { parser: Parser, definitions: array<ParsedDefinition>, truncated: bool }
 
@@ -8455,7 +8476,7 @@ shadow parser_declaration_extents {
     assert (== (at extents 8) 0)
 }
 
-fn parse_program_impl(tokens: List<LexerToken>, token_count: int, file_name: string, capture: bool) -> ParsedDeclarations {
+fn parse_program_impl(tokens: List<LexerToken>, token_count: int, file_name: string, capture: bool, capture_limit: int) -> ParsedDeclarations {
     let mut p: Parser = (parser_new tokens token_count file_name)
     let mut definitions: array<ParsedDefinition> = []
     let mut truncated: bool = false
@@ -8464,14 +8485,15 @@ fn parse_program_impl(tokens: List<LexerToken>, token_count: int, file_name: str
         let mut before: array<int> = []
         let mut is_public: bool = false
         if (and capture (not truncated)) {
-            if (>= (array_length definitions) 4096) {
+            if (>= (array_length definitions) capture_limit) {
                 set truncated true
                 set definitions []
             }
             set before (parser_declaration_extents p)
             set is_public (== (parser_current p).token_type (token_pub))
         }
-        set p (parse_definition p)
+        let parsed_definition: DefinitionParseResult = (parse_definition_result p)
+        set p parsed_definition.parser
         if (and (== p.position before_pos) (not (parser_has_error p))) {
             set p (parser_with_error (parser_advance p) true)
         }
@@ -8479,7 +8501,8 @@ fn parse_program_impl(tokens: List<LexerToken>, token_count: int, file_name: str
             set definitions (array_push definitions (ParsedDefinition {
                 first_token: before_pos, after_token: p.position, is_public: is_public,
                 before: before, after: (parser_declaration_extents p),
-                result_kind: p.last_expr_node_type, result_index: p.last_expr_node_id
+                result_kind: p.last_expr_node_type, result_index: p.last_expr_node_id,
+                function_index: parsed_definition.function_index
             }))
         }
     }
@@ -8488,13 +8511,13 @@ fn parse_program_impl(tokens: List<LexerToken>, token_count: int, file_name: str
     return ParsedDeclarations { parser: p, definitions: definitions, truncated: truncated }
 }
 shadow parse_program_impl {
-    let empty: ParsedDeclarations = (parse_program_impl (list_LexerToken_new) 0 "empty.nano" false)
+    let empty: ParsedDeclarations = (parse_program_impl (list_LexerToken_new) 0 "empty.nano" false 0)
     assert (== (array_length empty.definitions) 0)
     assert (not (parser_has_error empty.parser))
 }
 
 pub fn parse_program_declarations(tokens: List<LexerToken>, token_count: int, file_name: string) -> ParsedDeclarations {
-    return (parse_program_impl tokens token_count file_name true)
+    return (parse_program_impl tokens token_count file_name true 4096)
 }
 shadow parse_program_declarations {
     let source: string = "pub fn visible() -> int { let local: int = 2 return local }\nlet global: int = 3\n"
@@ -8513,8 +8536,31 @@ shadow parse_program_declarations {
     assert (== (- (at second.after 5) (at second.before 5)) 1)
 }
 
+pub fn parse_program_complete_declarations(tokens: List<LexerToken>, token_count: int, file_name: string) -> ParsedDeclarations {
+    return (parse_program_impl tokens token_count file_name true token_count)
+}
+shadow parse_program_complete_declarations {
+    let source: string = "pub fn outer() -> int { let callback: fn(int)->int = fn(value: int) -> int { return value } return (callback 3) }\nshadow outer { assert true }\nextern fn hidden() -> int\npub extern fn visible() -> int\n"
+    let tokens: List<LexerToken> = (tokenize_string source "complete.nano" (list_CompilerDiagnostic_new))
+    let parsed: ParsedDeclarations = (parse_program_complete_declarations tokens (list_LexerToken_length tokens) "complete.nano")
+    assert (not (parser_has_error parsed.parser))
+    assert (not parsed.truncated)
+    assert (== (array_length parsed.definitions) 4)
+    let outer: ParsedDefinition = (at parsed.definitions 0)
+    assert outer.is_public
+    assert (> outer.function_index (at outer.before 0))
+    assert (== (parser_get_function parsed.parser outer.function_index).name "outer")
+    assert (== (at parsed.definitions 1).function_index -1)
+    assert (not (at parsed.definitions 2).is_public)
+    assert (at parsed.definitions 3).is_public
+    let broken: List<LexerToken> = (tokenize_string "pub fn broken(" "broken.nano" (list_CompilerDiagnostic_new))
+    let refused: ParsedDeclarations = (parse_program_complete_declarations broken (list_LexerToken_length broken) "broken.nano")
+    assert (parser_has_error refused.parser)
+    assert (== (array_length refused.definitions) 0)
+}
+
 pub fn parse_program(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
-    let result: ParsedDeclarations = (parse_program_impl tokens token_count file_name false)
+    let result: ParsedDeclarations = (parse_program_impl tokens token_count file_name false 0)
     return result.parser
 }
 
