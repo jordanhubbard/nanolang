@@ -208,3 +208,23 @@ identity evidence, not only a successful single closure call.
 
 This is the proposed wire and ownership contract for independent review. It does
 not claim a schema implementation, heap repair, source qualification or release.
+
+## Payload reader checkpoint
+
+My first implementation isolates the payload codec in `capture_bindings.c`.
+It checks canonical function/site order, exact table counts, modes, source and
+target identities, source-slot bounds, code-span minimums, reserved bytes and
+complete input consumption. Combined index-table allocation has an explicit
+caller budget. It borrows immutable payload bytes, frees its partial tables on
+failure and preserves the caller's output object until the full decode succeeds.
+
+`make test-capture-bindings` exercises copied/shared/duplicate/forwarded source
+descriptors, every input truncation, malformed records and modes, exact allocation
+budget endpoints, both table-allocation failures and independent recovery. At the
+source-review checkpoint only strict C syntax checks have run.
+
+This codec does not yet validate opcode boundaries, establish definite binding
+initialization, emit a section or admit its feature in the container/VM. Existing
+readers still refuse the proposed feature. Integration must retain that refusal
+until the schema, verifier and consumers implement the complete contract; a
+successful structural decode alone is never execution authority.

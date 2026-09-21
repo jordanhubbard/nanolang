@@ -5811,6 +5811,13 @@ test-native-literal-order: bootstrap
 test-native-literal-order-optimized: bootstrap
 	@python3 -m unittest tests.test_record_literal_order.NativeLiteralOptimization
 
+.PHONY: test-capture-bindings
+test-capture-bindings:
+	@mkdir -p $(OBJ_DIR)/nanoisa
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/nanoisa/test_capture_bindings \
+		tests/nanoisa/test_capture_bindings.c src/nanoisa/nvm_v2_cursor.c
+	$(OBJ_DIR)/nanoisa/test_capture_bindings
+
 .PHONY: test-record-array-vm
 # I rebuild every VM-layout-dependent TU with the distinct private heap layout.
 test-record-array-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
