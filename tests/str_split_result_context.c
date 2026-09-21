@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+int g_argc;
+char **g_argv;
 static bool refuse_result_binding;
 static bool split_context_bind(Environment *env, const ASTNode *node, const TypeInfo *info) {
     if (refuse_result_binding) return false;
@@ -71,7 +73,9 @@ static void check_context(const char *element, bool refuse) {
     free_ast(body_program); free_tokens(body_tokens, body_count);
     free_ast(program); free_tokens(tokens, count);
 }
-int main(void) {
+int main(int argc, char **argv) {
+    g_argc = argc;
+    g_argv = argv;
     check_context("string", false);
     check_context("int", false);
     check_context("string", true);
