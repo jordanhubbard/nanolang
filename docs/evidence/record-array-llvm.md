@@ -31,6 +31,11 @@ actual committed report bytes. The content-addressed artifacts remain under
 verified hard links under
 `/home/jkh/nanolang-qualification/vm-effects-20260921/`.
 
+My [archive record](record-array-llvm/darwin-recovery-archive.json) retains the
+202,387,709-byte gzip archive and its SHA256. I read all 17,783 decompressed
+regular file members and compared their hashes to the completed seal, rejecting
+extra, duplicate, missing or nonregular members.
+
 My final current-input check rehashes 3,752 source files, 25 selected tool files
 and 167 providers against the recorded endpoints. This covers those exact
 files; it does not claim immutability of every SDK or system library. I copied
