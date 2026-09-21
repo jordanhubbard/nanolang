@@ -14,7 +14,7 @@ const char *get_project_root(void) { return g_project_root; }
 
 static void identity_record(Environment *env, const char *name, const char *owner) {
     StructDef record = {0};
-    record.name = strdup(name); record.module_name = strdup(owner);
+    record.name = strdup(name); record.module_name = (char *)owner;
     assert(record.name && record.module_name);
     env_define_struct(env, record);
 }

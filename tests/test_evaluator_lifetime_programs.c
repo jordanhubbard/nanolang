@@ -95,8 +95,8 @@ static void foreign_facts(void) {
     for (int reverse = 0; reverse < 2; ++reverse) {
         Environment *env = create_environment(); CHECK(env);
         StructDef ordinary = {0}, foreign = {0};
-        ordinary.name = strdup("OtherRecord"); ordinary.module_name = strdup("Other");
-        foreign.name = strdup("NativeToken"); foreign.module_name = strdup("Tokens"); foreign.is_extern = true;
+        ordinary.name = strdup("OtherRecord"); ordinary.module_name = "Other";
+        foreign.name = strdup("NativeToken"); foreign.module_name = "Tokens"; foreign.is_extern = true;
         CHECK(ordinary.name && ordinary.module_name && foreign.name && foreign.module_name);
         env_define_struct(env, reverse ? foreign : ordinary);
         env_define_struct(env, reverse ? ordinary : foreign);
@@ -113,7 +113,7 @@ static void foreign_facts(void) {
         /* Direct registrations bypass the AST binder, so the resolver itself
          * must refuse both ordinary and foreign competing declarations. */
         StructDef collision = {0}; collision.name = strdup("NativeToken");
-        collision.module_name = strdup("Competing"); collision.is_extern = reverse != 0;
+        collision.module_name = "Competing"; collision.is_extern = reverse != 0;
         CHECK(collision.name && collision.module_name); env_define_struct(env, collision);
         CHECK(!env_nominal_identity(env, "NativeToken", "Contracts", TYPE_STRUCT).ordinal);
         CHECK(!env_nominal_identity(env, "native.NativeToken", NULL, TYPE_STRUCT).ordinal);
