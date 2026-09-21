@@ -116,3 +116,20 @@ prepared view stays alive throughout recursive checking. I pass the same
 resolved triple to composite checking rather than dropping its context. Existing
 fixed/formal record controls remain; additive explicit Box<u8> cases distinguish
 computed INT, literal255, literal256 and bool without executing emitted code.
+
+
+## My module enum source placeholder
+
+My ac71 Linux run reaches the parsed scalar matrix after the six destination
+routes and their refusals. Its first enum parameter is stored as TYPE_STRUCT by
+module checking, with its declared name and owner retained. Root function
+registration has a separate legacy enum-to-INT normalization. I keep the first
+refusal; no generated product executes and Puck does not replay the assertion.
+
+When the checked scalar source is TYPE_STRUCT I now propose resolving its
+existing complete nominal view. Only an exact owner-bound enum declaration can
+classify it as ENUM for the numeric table. An ordinary record, unavailable owner
+or unresolved annotation cannot supply numeric authority. The temporary owned
+view is discarded on every path. This does not alter parameter storage, enum
+representation or broad types_match behavior. Allocation-prefix controls cover
+this checked view copy and owner-collision refusals accompany the parsed matrix.

@@ -14432,3 +14432,10 @@ allocator failure claim.
   intended numeric conversion table, preserve direct U8 literal range, reject
   UNKNOWN, and retain actual aggregate lowering/evaluator parity as required.
   MAC: task_7e994b0b89aa40629002347160d82ef6.
+
+- [ ] I resolve a module enum parameter placeholder from its exact retained
+  declaration before union numeric payload classification. My ac71 matrix
+  passes the six payload destination routes, then exposes TYPE_STRUCT Tag
+  instead of ENUM in module parameter setup. I retain this first refusal and
+  use owner-aware views only; ordinary records and unknown owners stay refused.
+  MAC: task_7e994b0b89aa40629002347160d82ef6.
