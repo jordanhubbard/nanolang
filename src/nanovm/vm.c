@@ -539,6 +539,17 @@ void vm_destroy(VmState *vm) {
         return;
     }
     vm->callbacks_closed = true;
+    /* Direct/core invocation can leave frames after a trap. I detach their
+     * owned callables before destroying heap roots; borrowed effect closures
+     * do not acquire or release a second reference here. */
+    while (vm->frame_count) {
+        VmCallFrame *frame = &vm->frames[--vm->frame_count];
+        NanoValue callable = frame->owned_callable;
+        frame->owned_callable = val_void();
+        frame->closure = NULL;
+        vm_release(&vm->heap, callable);
+    }
+    vm->handler_count = 0;
     /* Release all globals */
     for (uint32_t i = 0; i < vm->global_count; i++) {
         vm_release(&vm->heap, vm->globals[i]);
