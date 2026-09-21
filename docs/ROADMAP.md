@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I explicitly pass my overridden Make compiler/link flags to artifact Python acceptance (`task_96a578e4e4d6f645c396c0a7c453a677`). My [PR945 hosted evidence](evidence/pr945-hosted/README.md) retains three coverage native-link failures and a non-product probe showing `override` drops automatic environment export. I preserve exact flags, selector precedence and original assertions, then qualify the actual owning Make recipe with ordinary, coverage and sanitizer providers. PR945 stays unchanged during hosted checks.
+
 I retain the first e384 arithmetic Linux setup terminal: the external inventory assumed `/usr/lib/gcc/aarch64-linux-gnu/13/collect2`, while selected GCC13 reports `/usr/libexec/gcc/aarch64-linux-gnu/13/collect2`. It stops before any build or test. I correct only the external tool path from the compiler-reported value and launch fresh paths with the same3733 frozen source bytes. Darwin has its separate tool list and continues independently.
 
 - [ ] Within my reviewed arithmetic task94534bf, I also prevent F>D from publishing only its low cell when one data-stack slot remains. Static output-path audit found consecutive forth_dpush calls without a two-slot precondition. Before changing that path I record the rule: finite/range checks retain priority, then I throw -3 if two result slots are unavailable; exact-capacity success and one-slot refusal preserve the prior data stack. No unfixed boundary is executed.
