@@ -12,7 +12,8 @@ from tests import test_record_array_execution
 ROOT = Path(__file__).resolve().parents[1]
 PROVIDERS = [*test_record_array_execution.PROVIDERS,
     'src/nanovm/vm_dispatch.c', 'src/nanovm/value.c', 'src/nanovm/heap.c',
-    'src/nanovm/heap_cycles.c', 'src/nanovm/vm.c', 'src/nanovm/vm_callback.c',
+    'src/nanovm/heap_cycles.c', 'src/nanovm/binding_state.c',
+    'src/nanovm/vm.c', 'src/nanovm/vm_callback.c',
     'src/nanovm/vm_ffi.c', 'src/nanovm/vm_builtins.c', 'src/nanovm/cop_protocol.c',
     'src/nanovm/vm_ffi_arrays.c', 'src/runtime/callback_runtime.c',
 ]

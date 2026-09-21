@@ -23,6 +23,7 @@
 #include "../nanoisa/nvm_v2_sections.h"
 #include "../utf8.h"
 #include <stdlib.h>
+#include <assert.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -533,6 +534,22 @@ void vm_init(VmState *vm, const NvmModule *module) {
     vm_recompute_verified(vm);
 }
 
+/* I detach binding ownership before clearing physical locals. The stack may
+ * have moved since entry; I resolve its current address only at destruction. */
+static void vm_frame_clear_bindings(VmState *vm, VmCallFrame *frame) {
+    VmBindingState *state = frame->binding_state;
+    if (!state) return;
+    assert(state->heap == &vm->heap && state->count == frame->local_count);
+    assert((uint64_t)frame->stack_base + frame->local_count <= vm->stack_capacity);
+    frame->binding_state = NULL;
+    vm_binding_state_destroy(state, vm->stack ? vm->stack + frame->stack_base : NULL);
+}
+
+static void vm_frames_clear_bindings(VmState *vm, uint32_t first) {
+    for (uint32_t i = vm->frame_count; i > first; --i)
+        vm_frame_clear_bindings(vm, &vm->frames[i - 1]);
+}
+
 void vm_destroy(VmState *vm) {
     if (vm->callbacks && vm_callback_shutdown(vm) != NANO_CALLBACK_OK) {
         /* I cannot free roots beneath a running callback or on another thread. */
@@ -544,6 +561,7 @@ void vm_destroy(VmState *vm) {
      * do not acquire or release a second reference here. */
     while (vm->frame_count) {
         VmCallFrame *frame = &vm->frames[--vm->frame_count];
+        vm_frame_clear_bindings(vm, frame);
         NanoValue callable = frame->owned_callable;
         frame->owned_callable = val_void();
         frame->closure = NULL;
@@ -2982,6 +3000,7 @@ dynamic_div:
             new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
+            new_frame->binding_state = NULL;
             new_frame->closure = NULL;
             new_frame->owned_callable = val_void();
             new_frame->module = vm->module;
@@ -3031,6 +3050,7 @@ dynamic_div:
                 vm_retain(&vm->heap, args[i]);
             }
 
+            vm_frame_clear_bindings(vm, frame);
             while (vm->stack_size > frame->stack_base) {
                 NanoValue value = stack_pop(vm);
                 vm_release(&vm->heap, value);
@@ -3113,6 +3133,7 @@ dynamic_div:
                 new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
                 new_frame->local_count = callee->local_count;
+                new_frame->binding_state = NULL;
                 new_frame->closure = closure;
                 new_frame->module = callee_module;
                 /* stack_pop transferred the callable's reference to fn_val;
@@ -3190,6 +3211,7 @@ dynamic_div:
             vm->stack_size = base + function->local_count;
             VmCallFrame *activation = &vm->frames[vm->frame_count++];
             *activation = *owner;
+            activation->binding_state = NULL;
             activation->stack_base = base;
             activation->effect_owner = handler->owner + 1;
             activation->effect_local_start = handler->parameter_start;
@@ -3208,6 +3230,7 @@ dynamic_div:
             if (!frame->effect_owner || vm->stack_size != frame->stack_base + frame->local_count + 1)
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "I can resume only an active effect with one result.");
             NanoValue value = stack_pop(vm);
+            vm_frame_clear_bindings(vm, frame);
             while (vm->stack_size > frame->stack_base) vm_release(&vm->heap, stack_pop(vm));
             uint32_t return_ip = frame->return_ip;
             vm->frame_count--;
@@ -3231,6 +3254,7 @@ dynamic_div:
                     return trap_error(vm, VM_ERR_TYPE_ERROR, "I require the lexical return result shape.");
                 NanoValue results[UINT8_MAX];
                 for (uint8_t i = count; i > 0; i--) results[i - 1] = stack_pop(vm);
+                vm_frames_clear_bindings(vm, owner + 1);
                 uint32_t keep = vm->frames[owner].stack_base + vm->frames[owner].local_count;
                 while (vm->stack_size > keep) vm_release(&vm->heap, stack_pop(vm));
                 while (vm->frame_count > owner + 1) {
@@ -3297,7 +3321,8 @@ vm_return_values: ;
             }
             vm->stack_size -= returning->result_count;
 
-            /* Clean up locals */
+            /* Clean up locals after preserving independent result operands. */
+            vm_frame_clear_bindings(vm, frame);
             while (vm->stack_size > frame->stack_base) {
                 NanoValue v = stack_pop(vm);
                 vm_release(&vm->heap, v);
@@ -3434,6 +3459,7 @@ vm_return_values: ;
             new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
+            new_frame->binding_state = NULL;
             new_frame->closure = NULL;
             new_frame->owned_callable = val_void();
             new_frame->module = target;  /* This frame runs in the target module */
@@ -4692,6 +4718,7 @@ VmTrap vm_core_execute(VmState *vm) {
     VmTrap trap=vm_core_execute_scoped(vm,NULL,NULL,NULL);
     if(mixed && (trap.type==TRAP_ERROR ||
        (trap.type==TRAP_ASSERT && !val_truthy(trap.data.assert_check.condition)))) {
+        vm_frames_clear_bindings(vm, 0);
         while(vm->stack_size>base)vm_release(&vm->heap,stack_pop(vm));
         for(uint32_t f=0;f<vm->frame_count;f++) {
             vm_release(&vm->heap,vm->frames[f].owned_callable);
@@ -4849,6 +4876,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
     frame->effect_owner = 0;
     frame->stack_base = stack_base;
     frame->local_count = fn->local_count;
+    frame->binding_state = NULL;
     frame->closure = callable.tag == TAG_CLOSURE ? callable.as.closure : NULL;
     vm_retain(&vm->heap, callable);
     frame->owned_callable = callable;
@@ -5022,6 +5050,7 @@ static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue 
         if (owned) {
             /* I unwind actual owners after an owned entry/helper failure.
              * Direct execution has no outer vm_invoke cleanup wrapper. */
+            vm_frames_clear_bindings(vm, frames);
             while (vm->stack_size > base) vm_release(&vm->heap,stack_pop(vm));
             for (uint32_t i = frames; i < vm->frame_count; ++i) {
                 vm_release(&vm->heap,vm->frames[i].owned_callable);
@@ -5147,6 +5176,7 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
             status = vm_error(vm, VM_ERR_TYPE_ERROR, "I require the callable activation to return normally.");
         else if (fn->result_count) returned = stack_pop(vm);
     }
+    vm_frames_clear_bindings(vm, frames);
     while (vm->stack_size > base) vm_release(&vm->heap, stack_pop(vm));
     for (uint32_t i = frames; i < vm->frame_count; i++) {
         vm_release(&vm->heap, vm->frames[i].owned_callable);
@@ -5235,6 +5265,7 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
         returned = stack_pop(vm);
     }
 
+    vm_frames_clear_bindings(vm, 0);
     while (vm->stack_size > stack_base) {
         vm_release(&vm->heap, stack_pop(vm));
     }
