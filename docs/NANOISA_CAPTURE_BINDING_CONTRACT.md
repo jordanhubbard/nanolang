@@ -184,6 +184,35 @@ combined modes before execution until their full joint rules are qualified.
 
 ## Lifetime obligations
 
+### Resolved-source construction checkpoint
+
+My internal construction helper accepts a readable borrowed source array, exact
+target capture modes, and the validated target's module/function identity. Each
+local source names its owning binding state, current locals array and slot.
+Each forwarded source supplies a borrowed ordinary value or shared cell and
+its already validated mode. Inputs stay live and unchanged during the call;
+no callback or stack growth occurs in the helper. Different references to the
+same state must supply the same current locals array. Outputs cannot alias any
+input or replace an unreleased owner. Wire/site identity, source accessibility,
+target metadata and result-stack reservation remain caller obligations.
+
+I resolve every source before acquiring edges. A work-budgeted scan unifies
+repeated mutable locals by state and slot, including locals mapped through an
+effect owner. Scratch is counted as accounted heap storage while live. I check
+the combined remaining closure/cell bytes and cumulative accounting counters
+before allocating them. A private new cell initially owns VOID and one staged
+owner edge; every corresponding environment slot then acquires its own edge.
+Existing cells and immutable values acquire checked references separately.
+
+Failure releases the private environment, staged cell owners and scratch.
+It may advance diagnostic allocation/retain/release counters, but preserves
+existing source values, cell identities, reference counts and the output.
+Successful commit moves each unique local's value into its new cell and
+transfers the staged cell owner to the local sidecar. No release, allocation,
+callback or collection occurs during this publication. Scratch is then freed.
+This helper does not admit the wire feature, enter a frame, or establish
+definite initialization through instruction control flow.
+
 | Event | Required ownership behavior |
 | --- | --- |
 | Read local/upvalue | Retain the ordinary value for the result; do not expose its cell. |
