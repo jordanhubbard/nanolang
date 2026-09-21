@@ -148,3 +148,14 @@ and check remaining payload budget before every capture `realloc`. My installed
 File controls now compile and run a separate bridge consumer using only installed
 headers and `libnano_file_runtime.a`. This fixture is source-reviewed work;
 its actual installed qualification remains pending.
+
+My first transport fixture constructs two module families: ordinary RET bodies
+with required modes but no closure sites, and four functions with repeated
+shared sources, copied captures, an empty target environment and forwarding.
+It checks binary identity across independent module ownership, destroys both
+borrowed sources before using the copy, and requires canonical text to preserve
+the complete serialized module. It separately checks ordinary/function/affine/
+owned/linked verification, legacy serialization and native C refusal. Verified
+assembly must refuse metadata that the internal transport assembler preserves.
+This fixture never executes capture-bearing instructions. Allocation-prefix,
+VM/LLVM/Wasm/private-consumer and installed-only controls remain required.

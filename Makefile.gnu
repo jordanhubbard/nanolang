@@ -5811,6 +5811,12 @@ test-native-literal-order: bootstrap
 test-native-literal-order-optimized: bootstrap
 	@python3 -m unittest tests.test_record_literal_order.NativeLiteralOptimization
 
+.PHONY: test-capture-transport
+test-capture-transport: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/nanoisa/test_capture_transport \
+		tests/nanoisa/test_capture_transport.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/nanoisa/test_capture_transport
+
 .PHONY: test-capture-bindings
 test-capture-bindings:
 	@mkdir -p $(OBJ_DIR)/nanoisa
