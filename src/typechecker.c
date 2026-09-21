@@ -1300,6 +1300,30 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             return NULL;
         }
         
+        case AST_MODULE_QUALIFIED_CALL: {
+            /* I read the actual namespace-selected declaration's retained name;
+             * simple named returns need not have a full TypeInfo allocation. */
+            const char *owner = expr->as.module_qualified_call.module_alias;
+            const char *name = expr->as.module_qualified_call.function_name;
+            size_t a = strlen(owner), b = strlen(name);
+            if (b > SIZE_MAX - 2 || a > SIZE_MAX - b - 2) {
+                env->opaque_resolution_failed = true;
+                return NULL;
+            }
+            char *qualified = malloc(a + b + 2);
+            if (!qualified) { env->opaque_resolution_failed = true; return NULL; }
+            memcpy(qualified, owner, a);
+            qualified[a] = '.';
+            memcpy(qualified + a + 1, name, b + 1);
+            Function *function = env_get_function(env, qualified);
+            free(qualified);
+            if (function && (function->return_type == TYPE_STRUCT ||
+                             function->return_type == TYPE_UNION ||
+                             function->return_type == TYPE_OPAQUE))
+                return function->return_struct_type_name;
+            return NULL;
+        }
+
         case AST_CALL: {
             if (!expr->as.call.func_expr && expr->as.call.name && expr->as.call.arg_count == 2 &&
                 (!strcmp(expr->as.call.name, "at") || !strcmp(expr->as.call.name, "array_get")))

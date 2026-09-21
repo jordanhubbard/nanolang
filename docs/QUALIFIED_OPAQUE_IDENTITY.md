@@ -660,3 +660,25 @@ tuple, array, callable and union values, computed boolean/string/integer roots.
 These additions audit global initialization; they do not replace root's separate
 written aggregate-field ordering acceptance or merge PR937. No corrected build,
 bootstrap, shadow or installed-source execution has run at this checkpoint.
+
+## Qualified flat return metadata after the b19c gates
+
+I retain both b19c clean bootstrap/install successes and first installed-only
+C-seed refusals in the Linux and Darwin evidence roots. Tests 0/a/b passed;
+test_c stopped at the original `Json.Json` annotation and `Json.parse` call.
+I have not qualified later SDK methods at this pin.
+
+My parser stores a simple named return in `return_struct_type_name`; its full
+`return_type_info` is optional. Nominal binding resolves that retained name in
+the declaring source before function registration. My qualified-call full-info
+query cannot recover a missing optional tree, and my flat-name query omitted
+`AST_MODULE_QUALIFIED_CALL`. I add that case through the actual namespace-selected
+function lookup, with checked temporary-name allocation and borrowed declaration
+lifetime. I return the already retained nominal name for named value kinds; I
+do not strip qualifiers, derive identity from C spelling, or bypass visibility
+checks in the actual call checker. Allocation failure marks preparation failed.
+
+My unchanged installed `Json.Json` program and complete same-owner alias,
+cross-owner argument/return/assignment and unknown-qualifier controls remain
+required across all three producers. This source correction is awaiting review
+and fresh complete qualification; it does not establish installed acceptance.
