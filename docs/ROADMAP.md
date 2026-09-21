@@ -14436,3 +14436,26 @@ completed O0 linked and observed products and was in O2 linked products. I retai
 the connection terminals separately; the phase's final status and live worker
 state are not yet observed. I will inspect retained remote terminals before any
 continuation and will not relabel this as a passing gate or an established cause.
+
+### I derive private LLVM boolean attributes from the selected target ABI
+
+- [ ] I retain frozen63b8a Linux's first ordinary native ABI refusal before any
+  generated execution. All40 called symbols exist;32 signatures disagree only
+  in boolean zeroext return/argument attributes. Linux AArch64's actual C IR
+  omits these attributes, while my emitter hardcodes them. Setup, discovery,
+  all73 C parity and both-target emission passed separately.
+- [ ] I derive boolean return and parameter attributes with a bounded C probe
+  using the same compiler/target flags as the canonical runtime package, verify
+  its triple/layout, and retain its source/IR hash and exact attributes in the
+  manifest. I use those attributes consistently in every declaration and call.
+  I preserve independent actual-runtime ABI comparison and all full-corpus gates.
+- [ ] I review the production correction before fresh qualification; full
+  generated, public, source and graph parents remain open. MAC filing is
+  attempted separately while the hub tunnel is unavailable.
+
+My bounded Puck recovery at08:18 UTC observes a new boot at08:12:11 UTC, no
+matching LLVM worker, and absent /tmp qualification/seal paths and the named
+/private/var fixture directories. The remote63 native final outcome remains
+unknown. I retain local archives and exact observed progress, inventory losses,
+then prepare any necessary fresh qualification transparently. I do not invent
+missing terminal records or assign a cause to the reboot.
