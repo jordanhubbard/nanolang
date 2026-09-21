@@ -5100,7 +5100,7 @@ shadow nisa_emit_function {
     let p5: Parser = (parse_program toks5 (list_LexerToken_length toks5) "t.nano")
     let gx: ASTFunction = (parser_get_function p5 0)
     let gx_text: string = (nisa_emit_function p5 gx)
-    assert (str_contains gx_text ".function getx 0 1 0 int 1")
+    assert (str_contains gx_text ".function getx 0 3 0 int 1")
     assert (str_contains gx_text "AGG_PACK 0 0 0 2")
     assert (str_contains gx_text "AGG_GET 0")
     let src6: string = (+ "f" "n is_pos(c: int) -> bool { return (> c 0) } shadow is_pos { assert true }")
@@ -5280,7 +5280,7 @@ shadow nisa_emit_function {
     let p29: Parser = (parse_program toks29 (list_LexerToken_length toks29) "t.nano")
     let get_s_fn: ASTFunction = (parser_get_function p29 0)
     let get_s_text: string = (nisa_emit_function p29 get_s_fn)
-    assert (str_contains get_s_text ".function get_s 0 1 0 string 1")
+    assert (str_contains get_s_text ".function get_s 0 3 0 string 1")
     assert (str_contains get_s_text "AGG_PACK")
     assert (str_contains get_s_text "AGG_GET 1")
     let src30: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n grow_t() -> string { let xs: List<Tok> = (list_Tok_new) (list_Tok_push xs Tok { t: 1, s: \"hi\" }) let p: Tok = (list_Tok_get xs 0) return p.s } shadow grow_t { assert true }"))
@@ -5288,7 +5288,7 @@ shadow nisa_emit_function {
     let p30: Parser = (parse_program toks30 (list_LexerToken_length toks30) "t.nano")
     let grow_t_fn: ASTFunction = (parser_get_function p30 0)
     let grow_t_text: string = (nisa_emit_function p30 grow_t_fn)
-    assert (str_contains grow_t_text ".function grow_t 0 2 0 string 1")
+    assert (str_contains grow_t_text ".function grow_t 0 4 0 string 1")
     assert (str_contains grow_t_text "ARR_NEW 8")
     assert (str_contains grow_t_text "ARR_PUSH")
     assert (str_contains grow_t_text "POP")
@@ -5299,7 +5299,7 @@ shadow nisa_emit_function {
     let p31: Parser = (parse_program toks31 (list_LexerToken_length toks31) "t.nano")
     let one_t_fn: ASTFunction = (parser_get_function p31 0)
     let one_t_text: string = (nisa_emit_function p31 one_t_fn)
-    assert (str_contains one_t_text ".function one_t 0 1 0 array 1")
+    assert (str_contains one_t_text ".function one_t 0 3 0 array 1")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {
