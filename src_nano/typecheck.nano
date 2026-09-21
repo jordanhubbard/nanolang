@@ -2949,6 +2949,188 @@ shadow check_list_function_call {
     assert (== t3.kind TypeKind.TYPE_VOID)
 }
 
+# I recognize the actual scalar providers separately from record operations.
+fn checked_list_operation(name: string) -> string {
+    if (not (tc_str_starts_with name "list_")) { return "" }
+    let operations: array<string> = ["with_capacity", "is_empty", "new", "get", "remove", "pop", "push", "set", "insert", "length", "capacity", "clear", "free"]
+    let mut i: int = 0
+    while (< i (array_length operations)) {
+        let operation: string = (at operations i)
+        if (and (> (str_length name) (+ 6 (str_length operation))) (tc_str_ends_with name (+ "_" operation))) { return operation }
+        set i (+ i 1)
+    }
+    return ""
+}
+shadow checked_list_operation {
+    assert (== (checked_list_operation "list_My_Record_is_empty") "is_empty")
+    assert (== (checked_list_operation "list_int_with_capacity") "with_capacity")
+    assert (== (checked_list_operation "list__new") "")
+    assert (== (checked_list_operation "other.list_Item_set") "")
+    assert (== (checked_list_operation "list_Item_missing") "")
+}
+
+fn checked_list_element(parser: Parser, spelling: string, line: int) -> NSType {
+    if (== spelling "int") { return (type_int) }
+    if (== spelling "string") { return (type_string) }
+    let key: string = (+ "#type:" spelling)
+    let bound: string = (mb_lookup (mb_owner line) key)
+    let mapped: bool = (!= bound key)
+    let mut name: string = spelling
+    if mapped { set name bound }
+    let mut count: int = 0
+    let mut foreign: bool = false
+    let mut i: int = 0
+    while (< i (parser_get_struct_def_count parser)) {
+        let definition: ASTStruct = (parser_get_struct_def parser i)
+        if (== definition.name name) {
+            set count (+ count 1)
+            set foreign definition.is_extern
+        }
+        set i (+ i 1)
+    }
+    if (!= count 1) { return (type_unknown_named spelling) }
+    # I allow only the established unique extern namespace without an import.
+    if (and (mb_active) (and (not mapped) (not foreign))) { return (type_unknown_named spelling) }
+    if (or (is_enum_name parser name) (or (is_union_name parser name) (tc_is_opaque_name parser name))) { return (type_unknown_named spelling) }
+    if (or (resource_type_is_declared parser name) (resource_has_collection_payload parser name)) { return (type_unknown_named spelling) }
+    return (type_from_element_name name)
+}
+shadow checked_list_element {
+    (mb_reset [])
+    let parser: Parser = (resource_test_parser "struct Item { value: int } extern struct Foreign { value: int } resource struct Owner { value: int } struct Outer { owner: Owner } enum Shade { Red } struct __a_Item { value: int } struct __b_Item { value: int }")
+    assert (== (checked_list_element parser "Item" 1).name "Item")
+    assert (== (checked_list_element parser "Missing" 1).kind TypeKind.TYPE_UNKNOWN)
+    assert (== (checked_list_element parser "float" 1).kind TypeKind.TYPE_UNKNOWN)
+    assert (== (checked_list_element parser "Shade" 1).kind TypeKind.TYPE_UNKNOWN)
+    assert (== (checked_list_element parser "Outer" 1).kind TypeKind.TYPE_UNKNOWN)
+    (mb_reset [1, 10])
+    assert (== (checked_list_element parser "Item" 10).kind TypeKind.TYPE_UNKNOWN)
+    assert (== (checked_list_element parser "Foreign" 10).name "Foreign")
+    (mb_add 0 "#type:Alias" "__a_Item")
+    (mb_add 1 "#type:Alias" "__b_Item")
+    assert (== (checked_list_element parser "Alias" 1).name "__a_Item")
+    assert (== (checked_list_element parser "Alias" 10).name "__b_Item")
+    (mb_reset [])
+    let competing: Parser = (resource_test_parser "extern struct Foreign { value: int } extern struct Foreign { value: int }")
+    assert (== (checked_list_element competing "Foreign" 1).kind TypeKind.TYPE_UNKNOWN)
+    let collision: Parser = (resource_test_parser "extern struct Foreign { value: int } struct Foreign { value: int }")
+    assert (== (checked_list_element collision "Foreign" 1).kind TypeKind.TYPE_UNKNOWN)
+}
+
+fn check_exact_list_call(parser: Parser, call: ASTCall, name: string, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let operation: string = (checked_list_operation name)
+    let mut element: NSType = (type_unknown_named name)
+    if (!= operation "") {
+        let spelling: string = (str_substring name 5 (- (- (str_length name) (str_length operation)) 6))
+        set element (checked_list_element parser spelling call.line)
+    }
+    let scalar: bool = (or (== element.kind TypeKind.TYPE_INT) (== element.kind TypeKind.TYPE_STRING))
+    let supported: bool = (and (!= operation "") (or (!= operation "with_capacity") scalar))
+    let list_type: NSType = (type_list_generic (type_to_string element))
+    let mut arity: int = 1
+    if (== operation "new") { set arity 0 }
+    if (or (== operation "get") (or (== operation "remove") (== operation "push"))) { set arity 2 }
+    if (or (== operation "set") (== operation "insert")) { set arity 3 }
+    let mut valid: bool = (and supported (and (!= element.kind TypeKind.TYPE_UNKNOWN) (== call.arg_count arity)))
+    let mut i: int = 0
+    while (< i call.arg_count) {
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+        let actual: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+        let writes: bool = (or (and (== operation "push") (== i 1)) (and (or (== operation "set") (== operation "insert")) (== i 2)))
+        let mut matches: bool = false
+        if writes {
+            set matches (reduce_types_exact parser actual element)
+            # I retain the existing checked enum-to-int scalar destination policy.
+            if (and (== element.kind TypeKind.TYPE_INT) (== actual.kind TypeKind.TYPE_ENUM)) {
+                set matches (is_enum_name parser actual.name)
+            }
+        } else {
+            if (and (== i 0) (!= operation "with_capacity")) {
+                set matches (reduce_types_exact parser actual list_type)
+            } else {
+                set matches (== actual.kind TypeKind.TYPE_INT)
+            }
+        }
+        if (not matches) { set valid false }
+        set i (+ i 1)
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" (+ "I require the supported list operation, exact declared element, arity and argument facts: " name) (Diagnostics.diag_location file_name call.line call.column)))
+        return (type_unknown_named name)
+    }
+    if (or (== operation "new") (== operation "with_capacity")) { return list_type }
+    if (or (== operation "get") (or (== operation "remove") (== operation "pop"))) { return element }
+    if (or (== operation "length") (== operation "capacity")) { return (type_int) }
+    if (== operation "is_empty") { return (type_bool) }
+    return (type_void)
+}
+shadow check_exact_list_call {
+    (mb_reset [])
+    let parser: Parser = (resource_test_parser "struct Item { value: int } struct Other { value: int } fn f() -> void { (list_Item_new) (list_Item_get xs 0) (list_Item_remove xs 0) (list_Item_pop xs) (list_Item_push xs item) (list_Item_set xs 0 item) (list_Item_insert xs 0 item) (list_Item_length xs) (list_Item_capacity xs) (list_Item_is_empty xs) (list_Item_clear xs) (list_Item_free xs) (list_int_with_capacity 3) (list_string_with_capacity 2) }")
+    let symbols: array<Symbol> = [(symbol_new "xs" (type_list_generic "Item") false false 0 [] (type_void)), (symbol_new "item" (type_from_element_name "Item") false false 0 [] (type_void))]
+    let expected: array<string> = ["List<Item>", "Item", "Item", "Item", "void", "void", "void", "int", "int", "bool", "void", "void", "List<int>", "List<string>"]
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let mut i: int = 0
+    while (< i (array_length expected)) {
+        let call: ASTCall = (parser_get_call parser i)
+        let name: string = (parser_get_identifier parser call.function).name
+        assert (== (type_to_string (check_exact_list_call parser call name symbols diagnostics "list.nano")) (at expected i))
+        set i (+ i 1)
+    }
+    assert (== (list_CompilerDiagnostic_length diagnostics) 0)
+    let invalid: Parser = (resource_test_parser "struct Item { value: int } struct Other { value: int } fn f() -> void { (list_Item_set xs 0 other) (list_Item_get xs true) (list_Other_length xs) (list_Item_new 1) (list_Item_pop) (list_Item_with_capacity 2) (list_Missing_new) (list_float_new) (list_Item_missing xs) (list_Item_push xs missing) }")
+    let bad_symbols: array<Symbol> = (array_push symbols (symbol_new "other" (type_from_element_name "Other") false false 0 [] (type_void)))
+    set i 0
+    while (< i 10) {
+        let call: ASTCall = (parser_get_call invalid i)
+        let name: string = (parser_get_identifier invalid call.function).name
+        let before: int = (list_CompilerDiagnostic_length diagnostics)
+        assert (== (check_exact_list_call invalid call name bad_symbols diagnostics "bad.nano").kind TypeKind.TYPE_UNKNOWN)
+        let mut emitted: int = 1
+        if (== i 9) { set emitted 2 }
+        assert (== (- (list_CompilerDiagnostic_length diagnostics) before) emitted)
+        set i (+ i 1)
+    }
+    let scalar_parser: Parser = (resource_test_parser "enum Number { One } fn f() -> void { (list_int_push numbers enum_value) (list_int_get numbers enum_value) (list_int_push words 1) }")
+    let scalar_symbols: array<Symbol> = [(symbol_new "numbers" (type_list_generic "int") false false 0 [] (type_void)), (symbol_new "words" (type_list_generic "string") false false 0 [] (type_void)), (symbol_new "enum_value" (type_from_string_with_parser scalar_parser "Number") false false 0 [] (type_void))]
+    let scalar_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (== (check_exact_list_call scalar_parser (parser_get_call scalar_parser 0) "list_int_push" scalar_symbols scalar_diags "scalar.nano").kind TypeKind.TYPE_VOID)
+    assert (== (list_CompilerDiagnostic_length scalar_diags) 0)
+    assert (== (check_exact_list_call scalar_parser (parser_get_call scalar_parser 1) "list_int_get" scalar_symbols scalar_diags "scalar.nano").kind TypeKind.TYPE_UNKNOWN)
+    assert (== (check_exact_list_call scalar_parser (parser_get_call scalar_parser 2) "list_int_push" scalar_symbols scalar_diags "scalar.nano").kind TypeKind.TYPE_UNKNOWN)
+    assert (== (list_CompilerDiagnostic_length scalar_diags) 2)
+
+}
+
+fn check_trim_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let mut valid: bool = (== call.arg_count 1)
+    let mut i: int = 0
+    while (< i call.arg_count) {
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+        let actual: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+        if (!= actual.kind TypeKind.TYPE_STRING) { set valid false }
+        set i (+ i 1)
+    }
+    if valid { return (type_string) }
+    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one known string argument for str_trim." (Diagnostics.diag_location file_name call.line call.column)))
+    return (type_unknown_named "str_trim")
+}
+shadow check_trim_call {
+    let parser: Parser = (resource_test_parser "fn f() -> void { (str_trim \" x \") (str_trim) (str_trim 1) (str_trim \"x\" \"y\") (str_trim missing) }")
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (== (check_trim_call parser (parser_get_call parser 0) [] diagnostics "trim.nano").kind TypeKind.TYPE_STRING)
+    assert (== (list_CompilerDiagnostic_length diagnostics) 0)
+    let mut i: int = 1
+    while (< i 5) {
+        let before: int = (list_CompilerDiagnostic_length diagnostics)
+        assert (== (check_trim_call parser (parser_get_call parser i) [] diagnostics "trim.nano").kind TypeKind.TYPE_UNKNOWN)
+        let mut emitted: int = 1
+        if (== i 4) { set emitted 2 }
+        assert (== (- (list_CompilerDiagnostic_length diagnostics) before) emitted)
+        set i (+ i 1)
+    }
+}
+
 /* Check if a function name is a built-in function
  * Returns true if the function is a built-in (e.g., array_push, at, str_concat)
  */
@@ -5043,15 +5225,21 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             }
             return (type_from_string_with_parser parser (type_to_string (fn_type_return_type callee_type.name)))
         } else { (print "") }
+        # I select only unbound direct intrinsics before checking arguments once.
+        let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
+        let fn_name: string = (tc_bound_name fn_id_node.name fn_id_node.line symbols)
+        if (< (env_lookup symbols fn_name) 0) {
+            if (tc_str_starts_with fn_name "list_") {
+                return (check_exact_list_call parser call_node fn_name symbols diags file_name)
+            }
+            if (== fn_name "str_trim") { return (check_trim_call parser call_node symbols diags file_name) }
+        }
         let mut i: int = 0
         while (< i call_node.arg_count) {
             let arg_ref: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start i))
             let _arg_t: NSType = (check_expr_node parser arg_ref.node_id arg_ref.node_type symbols diags file_name)
             set i (+ i 1)
         }
-        /* Get function name from identifier node */
-        let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
-        let fn_name: string = (tc_bound_name fn_id_node.name fn_id_node.line symbols)
         if (and (== fn_name "array_new") (< (env_lookup symbols fn_name) 0)) {
             return (check_array_new_call parser call_node symbols diags file_name)
         }
@@ -5118,20 +5306,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             set builtin_type (type_unknown_named fn_name)
         }
         # I keep bound mutation names on the ordinary symbol-checking path.
-        if (and (array_intrinsic_name fn_name) (>= (env_lookup symbols fn_name) 0)) {
+        if (and (or (array_intrinsic_name fn_name) (or (tc_str_starts_with fn_name "list_") (== fn_name "str_trim"))) (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
         }
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
             return builtin_type
         } else {
-            /* Check if it's a List<T> function (only for functions starting with "list_") */
-            if (tc_str_starts_with fn_name "list_") {
-                let list_type: NSType = (check_list_function_call fn_name)
-                if (!= list_type.kind TypeKind.TYPE_UNKNOWN) {
-                    return list_type
-                } else { (print "") }
-            } else { (print "") }
-
             /* Check if it's a user-defined function */
             let idx: int = (env_lookup symbols fn_name)
             if (>= idx 0) {
@@ -5216,7 +5396,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (and (== short_name "string_to_float") (>= (env_lookup symbols qualified_name) 0)) {
             set builtin_type (type_unknown_named qualified_name)
         }
-        if (array_intrinsic_name short_name) {
+        if (or (array_intrinsic_name short_name) (or (tc_str_starts_with short_name "list_") (== short_name "str_trim"))) {
             set builtin_type (type_unknown_named qualified_name)
         }
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
@@ -5224,7 +5404,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         } else { (print "") }
         # I retain the mapped helper fallback, then check callback contracts.
         let mut idx: int = (env_lookup symbols qualified_name)
-        if (and (< idx 0) (not (array_intrinsic_name short_name))) { set idx (env_lookup symbols (module_qualified_suffix qualified_name)) }
+        if (and (< idx 0) (not (or (array_intrinsic_name short_name) (or (tc_str_starts_with short_name "list_") (== short_name "str_trim"))))) { set idx (env_lookup symbols (module_qualified_suffix qualified_name)) }
         if (>= idx 0) {
             let sym: Symbol = (at symbols idx)
             if (or sym.is_function (== sym.sym_type.kind TypeKind.TYPE_FUNCTION)) {
@@ -5457,6 +5637,43 @@ shadow check_expr_node {
         set mutation_index (+ mutation_index 1)
     }
     (mb_reset [])
+    # I do not let a builtin-shaped spelling displace a real callable.
+    let list_names: array<string> = ["list_Item_set", "list_CompilerDiagnostic_new", "str_trim"]
+    let mut li: int = 0
+    while (< li (array_length list_names)) {
+        let name: string = (at list_names li)
+        let p: Parser = (resource_test_parser (+ "fn f() -> int { return (" (+ name " 7) }")))
+        let declared: Symbol = (symbol_new name (type_int) false true 1 [(type_int)] (type_int))
+        let callback: Symbol = (symbol_new name (type_from_string "fn(int)->bool") false false 0 [] (type_void))
+        let d: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+        assert (== (check_expr_node p 0 ParseNodeType.PNODE_CALL [declared] d "binding.nano").kind TypeKind.TYPE_INT)
+        assert (== (check_expr_node p 0 ParseNodeType.PNODE_CALL [declared, callback] d "binding.nano").kind TypeKind.TYPE_BOOL)
+        assert (== (list_CompilerDiagnostic_length d) 0)
+        assert (== (check_expr_node p 0 ParseNodeType.PNODE_CALL [] d "binding.nano").kind TypeKind.TYPE_UNKNOWN)
+        assert (> (list_CompilerDiagnostic_length d) 0)
+        let qualified: string = (+ "Tools." name)
+        let qp: Parser = (resource_test_parser (+ "fn f() -> int { return (" (+ qualified " 7) }")))
+        let function: ASTFunction = (parser_get_function qp 0)
+        let statement: ASTStmtRef = (list_ASTStmtRef_get (parser_get_block qp function.body).statements 0)
+        let returned: ASTReturn = (parser_get_return qp statement.node_id)
+        let qd: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+        # An unrelated qualified suffix cannot borrow the bare declaration.
+        assert (== (check_expr_node qp returned.value returned.value_type [declared] qd "qualified.nano").kind TypeKind.TYPE_UNKNOWN)
+        let actual: Symbol = (symbol_new qualified (type_int) false true 1 [(type_int)] (type_int))
+        assert (== (check_expr_node qp returned.value returned.value_type [actual] qd "qualified.nano").kind TypeKind.TYPE_INT)
+        let external: Parser = (resource_test_parser (+ "extern fn " (+ name (+ "(x: int) -> int\nfn f() -> int { return (" (+ name " 7) }")))))
+        assert (not (parser_has_error external))
+        assert (not (typecheck_phase external "extern.nano").had_error)
+        set li (+ li 1)
+    }
+    let trim_identifier: Parser = (resource_test_parser "fn f() -> void { let bare = str_trim }")
+    let bare: ASTLet = (parser_get_let trim_identifier 0)
+    let bare_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (== (check_expr_node trim_identifier bare.value bare.value_type [] bare_diags "bare.nano").kind TypeKind.TYPE_UNKNOWN)
+    assert (> (list_CompilerDiagnostic_length bare_diags) 0)
+    let trim_array: Parser = (resource_test_parser "fn f() -> void { let parts: array<string> = [(str_trim \" x \")] }")
+    assert (not (typecheck_phase trim_array "trim-array.nano").had_error)
+
 }
 
 /* NSType check a return statement expression

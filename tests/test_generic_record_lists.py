@@ -641,6 +641,66 @@ shadow main { assert (== (main) 0) }
             self.command('imported-' + compiler, [ROOT / 'bin' / compiler, FIXTURES / 'imported.nano', '-o', output, '--keep-c'], timeout=300)
             self.command('imported-run-' + compiler, [output], timeout=15)
 
+    def test_exact_list_and_trim_call_facts(self):
+        # I retain actual supported native/evaluator library routes separately
+        # from NanoISA admission. The original mutation/VM corpus is unchanged.
+        source = """struct Item { value: int }
+fn main() -> int {
+ let xs: List<Item> = (list_Item_new)
+ assert (list_Item_is_empty xs)
+ (list_Item_push xs (Item { value: 7 }))
+ (list_Item_set xs 0 (Item { value: 9 }))
+ (list_Item_insert xs 1 (Item { value: 11 }))
+ assert (== (list_Item_length xs) 2)
+ assert (>= (list_Item_capacity xs) 2)
+ let read: Item = (list_Item_get xs 0)
+ let removed: Item = (list_Item_remove xs 0)
+ let popped: Item = (list_Item_pop xs)
+ assert (== read.value 9)
+ assert (== removed.value 9)
+ assert (== popped.value 11)
+ (list_Item_push xs read)
+ (list_Item_clear xs)
+ assert (list_Item_is_empty xs)
+ (list_Item_free xs)
+ let words: array<string> = [(str_trim "  exact  ")]
+ assert (== (at words 0) "exact")
+ return 0
+}
+shadow main { assert (== (main) 0) }
+"""
+        self.source_routes('exact-list-and-trim', source, vm=False)
+        for element, first, second in (('int', '7', '9'), ('string', '"seven"', '"nine"')):
+            scalar = f"""fn main() -> int {{
+ let xs: List<{element}> = (list_{element}_with_capacity 3)
+ assert (list_{element}_is_empty xs)
+ assert (>= (list_{element}_capacity xs) 3)
+ (list_{element}_push xs {first})
+ (list_{element}_insert xs 1 {second})
+ (list_{element}_set xs 0 {second})
+ assert (== (list_{element}_get xs 0) {second})
+ assert (== (list_{element}_remove xs 0) {second})
+ assert (== (list_{element}_pop xs) {second})
+ (list_{element}_push xs {first})
+ (list_{element}_clear xs)
+ assert (== (list_{element}_length xs) 0)
+ (list_{element}_free xs)
+ return 0
+}}
+shadow main {{ assert (== (main) 0) }}
+"""
+            self.source_routes('exact-scalar-list-' + element, scalar, vm=False)
+        prelude = 'struct Item { value: int }\nstruct Other { value: int }\n'
+        for name, body in {
+            'receiver': 'let xs: List<Other> = (list_Other_new) (list_Item_length xs)',
+            'element': 'let xs: List<Item> = (list_Item_new) (list_Item_set xs 0 (Other { value: 1 }))',
+            'index': 'let xs: List<Item> = (list_Item_new) (list_Item_get xs true)',
+            'arity': '(list_Item_new 1)',
+            'trim-type': '(str_trim 1)',
+            'trim-arity': '(str_trim "x" "y")',
+        }.items():
+            self.source_routes('exact-list-refuse-' + name, prelude + 'fn main() -> int { ' + body + ' return 0 }\nshadow main { assert true }\n', True, vm=False, checker_refusal=True)
+
     def test_declared_call_precedence_and_explicit_enum_limit(self):
         source = """struct A { value: int }
 fn list_A_insert(a: int, b: int, c: int) -> int { return (+ (+ a b) c) }

@@ -14057,3 +14057,32 @@ seventeen source methods and full acceptance; source review precedes gates.
 
 I track the separate exact str_trim signature correction as task_197ae929b1f1444381d4652ea6dd0ac6;
 its source, declaration precedence controls and qualification remain pending.
+
+### My exact list call checkpoint and native identity dependency
+
+Under task_873238ff98c845a9bf94ec78a03e2950 I replace the selected direct-call
+name-only list shortcut with complete arity/argument/element checking. I retain
+int/string scalar providers explicitly, including their with_capacity operation;
+record with_capacity and unsupported scalar providers remain refused. I keep
+ordinary declared/callback precedence and prevent qualified suffix authority.
+Task_197ae929b1f1444381d4652ea6dd0ac6 restores only the checked str_trim call.
+Source and additive controls require review before any fresh execution.
+
+- [ ] Under task_2752a051dce443d0ada447c46b667561, carry the exact declaring-owner
+  record identity through native list intrinsic emission. My static audit finds
+  nb_rewrite canonicalizing colliding record/List annotations while
+  transpiler.c_func_name_for_call still emits raw list_Item_* names. I require
+  actual alias/collision parity without replacing visible callable declarations;
+  the existing imported source acceptance stays required and unchanged. I have
+  not executed generated output or attributed an observed failure to this gap.
+
+The fetched peer c9e649069..3639569c6 changes native/NanoISA emitters and
+userguide/tests/docs, not my parser/typecheck/nominal-binding files. I retain
+that incoming emitter overlap for integration; no frozen input is changed.
+
+My source checkpoint keeps all seventeen original Python test methods byte-for-
+AST identical and adds an eighteenth native/evaluator library method. New Nano
+shadows cover complete record operation results, exact receiver/index/element
+facts, scalar provider distinctions, once-only unknown-argument diagnostics,
+owner maps, duplicate/foreign/resource refusals and callable precedence. Static
+Python syntax/AST identity and patch whitespace pass; no build or gate has run.

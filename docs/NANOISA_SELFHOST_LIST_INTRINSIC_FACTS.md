@@ -89,3 +89,42 @@ prerequisite, not a removed assertion or claimed acceptance. Fresh schema,
 providers, build/bootstrap, focused allocation/sanitizer matrices and the full
 source corpus remain required on both hosts under unchanged deadlines and
 capacity guards. Broader list/enum/full-Make/release parents remain open.
+
+## My concrete checker checkpoint
+
+My operation parser recognizes is_empty and with_capacity as whole suffixes.
+The actual scalar catalog is int/string; only these providers admit
+with_capacity. Float/bool names are not evidence of an installed provider.
+My resolver uses the call owner's #type binding, then counts the actual
+canonical record declaration. Without a binding, a merged graph permits only
+one actual extern record in the established foreign namespace. Duplicate
+externs, extern/ordinary collisions and resource-bearing elements refuse.
+Standalone parsed controls use their local declarations. I retain the existing
+known enum-to-int scalar write conversion, but require exact INT index facts;
+I do not admit enum lists or establish their unresolved representation parity.
+
+I check selected arguments once before publishing a result. Existing ordinary
+call checking remains separate. My metadata-only check_list_function_call
+helper and its old shadows remain, but no actual call obtains authority from
+it. Qualified list/trim suffixes cannot fall back to a bare symbol. The trim
+signature never makes a bare identifier into a string or a function.
+
+My new direct checker controls cover every record operation, both scalar
+capacity constructors, missing/wrong arguments, exact element and owner facts,
+unsupported catalog entries, unknown operands with exact diagnostic counts,
+declared/extern/callback/qualified precedence and a real string-array trim
+initializer. They remain unexecuted until review.
+
+I separately record task_2752a051dce443d0ada447c46b667561: native list call
+spelling does not yet follow canonical colliding record names. The original
+imported list fixture is retained; this checkpoint does not claim native alias
+or collision parity. I keep all prior seventeen methods and their assertions.
+
+My Python corpus now has eighteen methods: all seventeen original method ASTs
+are unchanged, plus one additive native/evaluator library method for complete
+record operations, int/string provider operations, the trim array initializer
+and strict negative compiler diagnostics. This method does not claim NanoISA
+support for capacity/clear/free/trim; the original VM mutation routes remain
+unchanged and required. I checked Python syntax, original method AST identity
+and patch whitespace only. No source fixture, compiler, generated program or
+qualification gate has run at this checkpoint.
