@@ -249,3 +249,52 @@ main and all old assertions. Strict syntax-only checks have passed; none of the
 new fixtures or generated products has executed at this checkpoint. LLVM/Wasm,
 installed/public/source selection and the remaining full graph profile are still
 required later dependencies.
+
+### Exhaustive fault-worker scheduling contract
+
+I retain the first corrected6783 GCC sanitizer timeout unchanged. Product0063
+has1,042 measured allocation positions; its successful1,024-frame invocation
+costs0.461–0.622 seconds under the exact GCC O0 instrumented providers. Products
+0063–0066 each reach1,024 frames in the original captured corpus. The complete
+four-deep-product sweep contains thousands of independent recoveries; a single
+240-second product command is not a sufficient allowance for that measured work.
+I change only fixture scheduling, not production, allocation semantics or coverage.
+
+I first run each observed product in a baseline-only process. It performs the
+unchanged exact replay, a successful no-fault sequence and zero-live assertions,
+then reports its measured allocation-call count and peak payload bytes. I retain
+that terminal and the original product/source hashes. The count must be positive
+and representable; no cap or truncation may turn a large count into acceptance.
+
+I partition the exact half-open position interval [0,count) into consecutive
+nonoverlapping intervals of at most16 positions. Each fresh worker receives its
+explicit start/end and the expected baseline count. Before injecting any failure
+it repeats the unchanged replay and no-fault baseline, checks the exact expected
+count, and retains the baseline peak. For every assigned position it executes
+both one-shot and persistent failure modes, the original status/output/zero-live
+assertions, and an independent fresh successful recovery after each refusal.
+Neither failure nor recovery shares an instance with another trial. Every worker
+reports its exact range, count, both completed modes and recovery total; Python
+checks these against its requested interval and publishes a complete coverage
+manifest only after the contiguous union equals [0,count). Empty, overlapping,
+missing or out-of-range intervals cannot qualify a product. Linked products
+retain their existing single exact-replay command.
+
+Every compile, baseline and worker command retains the existing240-second bound,
+file-backed output, bounded TERM/KILL, leader reaping and group-disappearance
+proof. Workers run sequentially; failure stops dependent work. The external
+configuration supervisor inventories descendants by PID/start-time and performs
+bounded cleanup across their separate groups on every terminal. I set an explicit
+14,400-second aggregate configuration bound before execution: four captured
+1,024-frame workloads, provisionally estimated at1,042 positions each and four
+sequence invocations per position, project10,371 seconds using product0063's
+measured0.622-second successful invocation cost, before compilation and other
+cases. The other three counts and costs are estimates, not independent timings. This is a conservative
+scheduling allowance, not a proved runtime upper bound or permission to extend
+any worker deadline. I retain actual elapsed times and stop if either bound is
+reached. Baseline counts and actual worker timings will make this estimate
+checkable rather than silently replacing the historical1,800-second terminal.
+
+Fresh affected fixture builds are mandatory. Prior passing ordinary and Darwin
+histories stay attributed to their original pins. This change cannot establish
+LLVM/Wasm, public/source admission or remaining nested/cyclic graph acceptance.

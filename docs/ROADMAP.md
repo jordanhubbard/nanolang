@@ -14251,3 +14251,37 @@ separate process groups on completion: the stopped phase records37 owned
 processes, one nested group terminated and no remaining descendants. No further
 local builds run while capacity is held. Darwin qualification proceeds in its
 separate frozen tree; these distinct histories do not relabel prior success.
+
+### Generated C exhaustive deep-frame fault scheduling
+
+- [ ] I retain the corrected6783 GCC O0 sanitizer first240-second product0063
+  timeout, then qualify every allocation position and independent recovery in
+  bounded disjoint workers with explicit complete coverage accounting. I review
+  the aggregate phase allowance against measured work before changing it.
+
+My capacity-cleared Linux continuation passes both ordinary configurations.
+GCC sanitizer passes all73 linked O0 products and observed0000–0062, then times
+out in the1,024-frame product0063 without an assertion or sanitizer diagnostic.
+The inner leader is reaped and its group disappears; the outer phase returns1
+and its descendant inventory is empty. Darwin's full corrected matrix and four
+neighbors pass separately. I do not relabel these partial Linux results.
+
+A bounded no-fault diagnostic links the exact retained generated product,
+runtime and allocator objects. Two complete1,024-frame invocations take
+0.46056/0.62170 seconds after0.00386/0.00404-second preparation. Each measures
+1,042 allocation calls,8,533,192 peak payload bytes and zero remaining tracked
+allocations/bytes after destruction. The unchanged two-mode sweep therefore
+requires2,084 independent successful recoveries as well as every failing prefix.
+A separately hashed experimental runtime copy replaces remaining empty-value
+helper calls with the same constant; successful invocations still take
+0.27935/0.44888 seconds with identical counters. I make no production change
+from that experiment. Complete measured fault coverage remains mandatory;
+partitioning may change orchestration, never the positions or assertions.
+
+I record the preimplementation fault-worker contract in
+`NANOISA_MIXED_GENERATED_RUNTIME.md`: exact positive baseline count, consecutive
+16-position intervals, both modes and independent recovery at every position,
+complete coverage manifest, unchanged240-second worker limit and explicit
+14,400-second aggregate configuration limit derived from measured deep-case
+work. A normal MAC create attempt still fails on the occupied unmanaged34113
+login-tunnel port; I do not alter that listener or claim a ledger task exists.
