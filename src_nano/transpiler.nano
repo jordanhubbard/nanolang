@@ -5948,8 +5948,10 @@ fn native_array_callback_type(parser: Parser, reference: ASTStmtRef, env: GenEnv
     return ""
 }
 shadow native_array_callback_type {
-    let tokens: List<LexerToken> = (tokenize_string "fn pick(x:int)->bool{return true} fn main()->int{let ys:array<int>=(filter xs pick) return 0}" "t.nano" (list_CompilerDiagnostic_new))
+    let tokens: List<LexerToken> = (tokenize_string "fn pick(x:int)->bool{return true} fn main()->int{let ys:array<int> =(filter xs pick) return 0}" "t.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "t.nano")
+    assert (== (parser_get_call_count parser) 1)
+    assert (== (parser_get_call_arg_count parser) 2)
     let call: ASTCall = (parser_get_call parser 0)
     let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
     assert (== (native_array_callback_type parser callback (genenv_new "main")) "fn(int)->bool")
