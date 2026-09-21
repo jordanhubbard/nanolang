@@ -184,6 +184,37 @@ combined modes before execution until their full joint rules are qualified.
 
 ## Lifetime obligations
 
+### Effect activation binding ownership
+
+Each effect activation owns a distinct binding state for its physical local
+array. It borrows its lexical owner's callable environment, but never copies
+that owner's binding-state ownership. The existing effect owner mapping redirects
+prefix-local access to the same lexical binding and cell. Handler parameters and
+later temporary/local slots belong to the new activation. Nested activations
+follow the same owner chain for each requested slot; they do not share an entire
+local-state array indiscriminately.
+
+I prepare a state with one explicit initialized range: start and count within
+the complete local count. Ordinary calls use start0 and arity; effect calls use
+the handler's parameter_start and parameter_count. I check the range with
+subtraction before allocation, copy every validated mode, and publish only after
+successful allocation. Other slots begin clear. Preparation neither reads nor
+moves arguments. The caller reserves stack capacity and prepares this state
+before moving effect operands; on refusal, operands and existing frames stay
+owned and unchanged. The subsequent publication contains no fallible operation.
+
+On activation destruction I release only that activation's state and physical
+locals. I resolve access to an owner state before operations, without retaining
+addresses into the movable stack. A resumed or lexically returned value retains
+its independent operand ownership before any local state is destroyed. Cleanup
+must cover every existing return, tail replacement, effect resume/unwind, public
+entry failure and VM destruction path before this feature is admitted.
+
+My range-construction controls cover nonzero parameter starts, empty ranges at
+the end, oversized ranges, invalid modes, allocation refusal, output and heap
+preservation, managed parameters and full cleanup. They supplement existing
+ordinary entry/storage controls; they do not establish effect execution parity.
+
 ### Entry environment and upvalue access checkpoint
 
 I validate a closure against its executing module's immutable target contract:
