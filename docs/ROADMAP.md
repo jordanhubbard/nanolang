@@ -14221,3 +14221,12 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   preserving canonical declaring origins and bounded argument construction. I
   do not inject a Forth-specific path or depend on the source cwd. Paired owner,
   nested-import, outside-checkout and installed-origin checks remain required.
+
+- [ ] I retain and diagnose the6b586 Darwin bootstrap shadow deadline before
+  claiming fresh acceptance. Its first bootstrap returned2 after94.763seconds;
+  C-seed stopped the Stage1 shadow suite at the existing10-second limit. The
+  nonverbose first output does not identify the last selected shadow. Linux
+  separately completed Stage1 and was still building Stage2 at that observation.
+  I preserve the original source/tools/products/terminal and use a separately
+  recorded verbose diagnostic with unchanged supervisor deadline if needed. I do
+  not classify the unexplained timeout as infrastructure or weaken the corpus.
