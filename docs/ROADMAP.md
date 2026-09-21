@@ -14136,3 +14136,13 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   with all foreign consumers, staging/overflow/failure controls and fresh paired
   bootstrap required. I preserve the real publisher/AST corpus and do not replace
   it with a reduced representation or accept SIGABRT as a normal refusal.
+
+- [ ] I complete my installed native compiler/runtime SDK closure for full 5.1.
+  My current Make install copies compiler/VM/emitter binaries and the explicit
+  File package headers/archive, but not the general DynArray/runtime headers and
+  sources required by native compiler/module consumers. My native compiler still
+  discovers that runtime from its working-directory repository. I retain this
+  packaging gap under full source task8bbc: source-assisted installed-binary
+  checks do not establish standalone installed-product acceptance. I require a
+  separately specified installed runtime discovery/SDK closure, stale-ABI module
+  refusal and outside-source-tree compiler/module qualification before closing it.

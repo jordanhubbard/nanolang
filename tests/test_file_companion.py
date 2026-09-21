@@ -217,4 +217,44 @@ class FileCompanion(unittest.TestCase):
     def test_public_provider_owners_and_wrappers(self):
         file_cseed_provider_owners.run(self, ROOT, selected)
 
+    def test_native_width_and_allocation(self):
+        for suffix,defines in (('assertions',[]),('release',['-DNDEBUG'])):
+            exe=self.work/('native-width-allocation-'+suffix)
+            self.command('native-width-build-'+suffix, [*self.cc,*self.flags,*defines,
+                ROOT/'tests/test_dyn_array_allocation.c',ROOT/'src/runtime/gc.c',ROOT/'src/runtime/gc_struct.c',*self.links,'-o',exe])
+            out,_=self.command('native-width-run-'+suffix,[exe],timeout=180)
+            self.assertIn(b'I passed native array allocation boundary tests.',out)
+
+    def test_paired_large_record_arrays(self):
+        declarations=[];body=[]
+        for fields in (61,63):
+            name='Wide'+str(fields);variable='items'+str(fields);copy='copied'+str(fields)
+            declarations.append('struct '+name+' { '+', '.join('field'+str(i)+': int' for i in range(fields))+' }')
+            value=name+' { '+', '.join('field'+str(i)+': '+str(i+1) for i in range(fields))+' }'
+            replacement=name+' { '+', '.join('field'+str(i)+': '+str(1000+i) for i in range(fields))+' }'
+            body += ['let mut '+variable+': array<'+name+'> = []',
+                     'set '+variable+' (array_push '+variable+' '+value+')',
+                     'let mut index'+str(fields)+': int = 0',
+                     'while (< index'+str(fields)+' 20) { set '+variable+' (array_push '+variable+' (at '+variable+' 0)) set index'+str(fields)+' (+ index'+str(fields)+' 1) }',
+                     'let '+copy+': array<'+name+'> = (array_slice '+variable+' 0 21)',
+                     '(array_set '+copy+' 0 '+replacement+')',
+                     'assert (== (array_length '+variable+') 21)',
+                     'assert (== (at '+variable+' 20).field'+str(fields-1)+' '+str(fields)+')',
+                     'assert (== (at '+variable+' 0).field0 1)',
+                     'assert (== (at '+copy+' 0).field0 1000)']
+        source=self.work/'large-records.nano'
+        source.write_text('\n'.join(declarations)+'\nfn main() -> int {\n'+ '\n'.join(body)+'\nreturn 0\n}\nshadow main { assert (== (main) 0) }\n')
+        for compiler in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
+            exe=self.work/(compiler+'-large-records');shadow=self.work/(compiler+'-large-records.json')
+            args=[ROOT/'bin'/compiler,source,'-o',exe,'--keep-c']
+            if compiler=='nanoc_c':args+=['--llm-shadow-json',shadow,'--verbose']
+            out,err=self.command(compiler+'-large-records-build',args,timeout=600,extra={'NANO_SHADOW_TRACE':'1'})
+            if compiler=='nanoc_c':
+                result=json.loads(shadow.read_text());self.assertTrue(result['completed'] and result['success'])
+                self.assertEqual(result['test_count'],1);self.assertEqual(result['failures'],[])
+                names=re.findall(rb'^Testing ([A-Za-z_][A-Za-z_0-9]*)\.\.\. ',out+b'\n'+err,re.M)
+            else:names=re.findall(rb'^I am testing shadow ([A-Za-z_][A-Za-z_0-9]*)$',err,re.M)
+            self.assertEqual(names,[b'main'])
+            self.command(compiler+'-large-records-run',[exe])
+
 if __name__=='__main__':unittest.main()

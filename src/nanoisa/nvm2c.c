@@ -21,6 +21,7 @@
 #include "affine_bytecode.h"
 #include "verifier.h"
 #include "../nanovm/vm_decode.h"
+#include "../runtime/dyn_array.h"
 
 #include <stdarg.h>
 #include <limits.h>
@@ -5645,7 +5646,7 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
             "typedef enum { nh_int=1, nh_float=2, nh_string=3, nh_bool=4,\n"
             "    nh_array=5, nh_struct=6, nh_pointer=7, nh_u8=8 } nh_element;\n"
             "typedef struct { int64_t length, capacity; nh_element type;\n"
-            "    uint8_t width; void *data; } nh_array_value;\n");
+            "    size_t width; void *data; } nh_array_value;\n");
         const char *parameters = host->argc == 2 ? "const char *root, const char *extension" : "const char *root";
         const char *types = host->argc == 2 ? "const char *, const char *" : "const char *";
         const char *release_name = !strcmp(host->name, "fs_walkdir") ? "fs_walkdir_release" : "nl_fs_list_release";
@@ -5664,10 +5665,10 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
             "        if (!library) NVM2C_ABORT();\n");
         nvm2c_printf(b,
             "        const uint32_t *abi = (const uint32_t *)dlsym(library, \"%s__nano_array_abi\");\n"
-            "        if (!abi || *abi != 1) NVM2C_ABORT();\n"
+            "        if (!abi || *abi != %u) NVM2C_ABORT();\n"
             "        walk = (nh_array_value *(*)(%s))dlsym(library, \"%s\");\n"
             "        release = (bool (*)(nh_array_value *))dlsym(library, \"%s\");\n",
-            host->name, types, host->name, release_name);
+            host->name, NANO_DYN_ARRAY_ABI_VERSION, types, host->name, release_name);
         nvm2c_puts(b,
             "        if (!walk || !release) NVM2C_ABORT();\n"
             "        Dl_info producer, marker, companion;\n"

@@ -286,9 +286,13 @@ Variable-size batch results use ordered single calls to retain this spill path.
 Replies beyond the 16 MiB limit or allocation failure still fail closed after
 native side effects; I do not retry foreign execution or claim rollback.
 
-I currently use native array ABI version 1. `DynArray` still has a one-byte
-element width; I reject records larger than 255 bytes. This change does not
-remove that limit.
+I use native array ABI version 2. `DynArray.elem_size` is `size_t`; I retain
+the complete record width and check the storage product before allocation.
+My large-record insertion stages a borrowed value before replacing storage.
+This is flat record-byte copying, not a new owned child-graph contract. I require
+all native runtime and module consumers to rebuild together. An ABI1 or absent
+foreign declaration fails the ABI2 guard before entry. Qualification of this
+revision is tracked in `NATIVE_ARRAY_RECORD_WIDTH.md`.
 
 An array-bearing C export declares its compiled layout version beside its
 definition:

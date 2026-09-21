@@ -89,3 +89,72 @@ remain required. Installed/native array ABI acceptance must cover the changed
 header and rebuilt modules, not merely a local struct-size check. Linux builds
 remain held until capacity is stable. Full File source execution and release
 publication remain open; this prerequisite does not discharge them.
+
+## My implemented source and allocation inventory
+
+I changed the owning header to ABI2 and `size_t elem_size`. I found and corrected
+one separately emitted native layout: `nvm2c` writes a standalone
+`nh_array_value` struct, now with `size_t width`, and emits the owning header's
+version rather than a literal1. My C and Nano emitters already include the owning
+header and emit its macro. My checked VM FFI adapter, array conversion and GC
+consumers use that header. My scalar/record slice helpers use `size_t` without a
+narrow cast. Reserve, clone, get/set/pop and byte movement use the retained full
+width; their valid-runtime-object preconditions remain unchanged.
+
+`NATIVE_ARRAY_WIDTH_CONSUMERS.json` inventories88 tracked source/module/fixture
+texts found by owning-header, layout, width and ABI-authority references, including
+the exact source hashes at this checkpoint. My intentionally stale foreign
+fixtures keep the ABI1 one-byte field; `test_nvm2c.c` independently selects that
+field through `width_t`. These are negative inputs, not runtime replicas. My VM
+heap and managed LLVM/Wasm arrays retain their distinct representations.
+
+| Storage | Owner and lifetime | Checked extent |
+| --- | --- | --- |
+| DynArray header | GC/runtime, until release | `sizeof(DynArray)` with ABI2 layout |
+| Record storage | Array, replaced only after successful allocation | capacity times complete width, then checked32-byte rounding |
+| Small insertion snapshot | Automatic storage, one call |255 bytes |
+| Large insertion snapshot | Insertion call, freed after copy or failed replacement allocation | exact requested record width greater than255 |
+| Replaced storage overlap | Old array plus new storage plus snapshot until successful swap | each actual allocation independently representable; no new aggregate memory-budget claim |
+
+I check metadata, width equality and intended capacity/product before reading the
+borrowed source. I stage before replacement, so insertion from the same array
+survives growth. A failed large scratch allocation uses the existing terminal
+contract. A failed replacement frees the scratch before that same terminal. I
+retain the source array until replacement allocation succeeds. This change makes
+no general promise about recovering from process allocation failure.
+
+My C controls preserve every existing allocation/alias assertion and add widths
+255,256,488,504,4096 and65536, reserve before first insertion, alias growth, clone
+independence, set/pop, clone allocation failure and the three distinct large
+scratch/first-storage/growth-storage failures. A fixture abort observer rejects a
+terminal with undrained scratch. I compile these controls with and without NDEBUG
+in all seven selected configurations; fresh dyn_array/gc/gc_struct sources are
+inside that sanitizer scope. The ordinary paired corpus compiles real488/504-byte
+record arrays through C-seed/Stage1/Stage2, alongside the original real retained
+Parser/graph and all companion/provider fixtures.
+
+Native foreign controls now build actual ABI1 layouts with explicit1 or missing
+markers, current ABI2 layouts, and incompatible99 markers. C-seed/Stage1/Stage2
+native routes, VM artifact/logical routes and emitted standalone native calls
+must refuse stale inputs before entry. The nvm2c test observes a real entry file;
+the VM stale entry aborts if invoked. No test substitutes a status-only version
+comparison for these entry controls.
+
+I require a completely fresh bootstrap/runtime/module closure for this pin. The
+Make header dependency list already includes dyn_array.h and native_array_abi.h;
+fresh objects and private module caches avoid timestamp/profile ambiguity. I
+retain the successful148eb bootstrap as historical ABI1 evidence only. Linux
+capacity has recovered according to the root's live check; each new launch still
+checks available space.
+
+## My installation limit remains explicit
+
+My actual Make install currently provides compiler/VM/emitter binaries and the
+explicit File package, not a general native runtime SDK. The native compiler
+still discovers its runtime sources from the working-directory repository. I
+record this existing full5.1 packaging gap in the roadmap and full task8bbc.
+Source-assisted installed-binary checks are not installed-only acceptance. I
+must separately implement and qualify the installed discovery/SDK closure before
+claiming standalone installed compiler/module support. ABI2 qualification here
+retains the exact freshly rebuilt source/runtime/module closure and does not
+silently close that requirement.
