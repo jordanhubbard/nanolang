@@ -2,6 +2,9 @@
  * remain outside this independent domain. Legacy fatal signature copies are
  * not recoverable-prefix acceptance. */
 #define _POSIX_C_SOURCE 200809L
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 700
+#endif
 #define _DARWIN_C_SOURCE
 #include "../src/nanolang.h"
 #include <stdint.h>
