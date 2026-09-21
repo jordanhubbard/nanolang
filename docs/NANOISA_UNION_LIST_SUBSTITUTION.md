@@ -260,3 +260,28 @@ boundary while adding a same-named Boolean local: retained-proof and explicit
 callable destinations each accept matching owners and refuse swapped owners.
 They assert the original indexed declaration/proof remains unchanged. This is
 a corrected-only fixture checkpoint; no compiler or fixture has executed.
+
+
+### 5.1 Explicit constructor argument annotations (144 first terminal)
+
+I retain both 144 fresh build/bootstrap/provider passes. My first Linux
+GCC-ordinary focused group passes the storage and scheduler methods, then
+refuses the valid Box<Item>.Value constructor in constructor_failure_rollback
+before its assertion at line 461 (outer status 1, 4.886935102 seconds;
+log SHA256 6aeace5b3990f3d9c20b3bc978432a909c7b6c4bb92a5d9fec9019f6e99f89e4).
+Inputs remain equal and the process group is reaped. Darwin preparation passes;
+I hold its matching matrix and all dependent source/native gates.
+
+Static inspection identifies parse_generic_type_args passing NULL for the
+record-name and callable-signature outputs of parse_type_with_element. A plain
+Item argument consequently becomes TYPE_STRUCT without its declaration name;
+the complete checker correctly refuses that missing fact. This parser boundary
+also discards a direct callable argument's signature. I preserve both outputs
+in an owned TypeInfo, keep complete nested annotations, and clean partial
+arguments transactionally. I retain exact identity refusal and the original
+constructor rollback assertion.
+
+- [ ] Preserve complete explicit constructor argument annotations and check
+  parsed record, callable, nested and malformed argument controls.
+- [ ] Review the source checkpoint before corrected full qualification;
+  original 18 methods, native 8 methods and all allocation gates remain required.
