@@ -700,7 +700,9 @@ static void emission_entry_rollback(void) {
         else {
             g_typecheck_error_count = 0;
             assert(program->as.program.count == 1 && program->as.program.items[0]->type == AST_FUNCTION);
-            ok = check_expression(program->as.program.items[0]->as.function.body, env) != TYPE_UNKNOWN;
+            Type result = check_expression(program->as.program.items[0]->as.function.body, env);
+            assert(invalid ? g_typecheck_error_count > 0 : g_typecheck_error_count == 0);
+            ok = result != TYPE_UNKNOWN && g_typecheck_error_count == 0;
         }
         assert(ok == !invalid);
         assert(env_tuple_literal_info(env, &prior) == saved_tuple && type_infos_equal(saved_tuple, &tuple));
