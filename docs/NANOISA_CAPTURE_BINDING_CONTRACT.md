@@ -215,6 +215,39 @@ the end, oversized ranges, invalid modes, allocation refusal, output and heap
 preservation, managed parameters and full cleanup. They supplement existing
 ordinary entry/storage controls; they do not establish effect execution parity.
 
+### Complete frame cleanup plumbing
+
+Before feature admission, I add an optional owned binding-state pointer to each
+VmCallFrame. Legacy entries initialize it to NULL; effect frame copies explicitly
+reset it, so the borrowed lexical closure never duplicates state ownership.
+Reference-call entries already zero the complete frame. New states will be
+published only after the future entry checks and preparation succeed.
+
+I detach a state before destroying it against that frame's current physical
+locals, while the stack storage and every lexical owner still exist. The state
+leaves those locals VOID, so existing stack cleanup cannot release them twice.
+I preserve independent result/argument operands before this step. For a range
+of departing frames I destroy states from newest to oldest. I do not release a
+lexical owner's state merely because a handler activation exits.
+
+The concrete cleanup inventory is vm_destroy; tail replacement after retaining
+arguments; EFFECT_RESUME after popping its result; lexical effect RET for all
+frames above the owner; ordinary/implicit return after removing result operands;
+vm_core_execute mixed failure; vm_call_function_scoped owned failure;
+vm_invoke_callable nested cleanup; and vm_invoke outer cleanup. Each range cleanup
+runs before the existing operand-stack drain. Existing callable release behavior
+remains at its current sites. Every ordinary, indirect, linked, public and copied
+effect entry initializes the optional pointer, including reused frame slots.
+
+The Makefile VM source closure acquires binding_state.c. The private mixed VM's
+explicit provider list must acquire that same source; fixtures using the complete
+Makefile object closure retain their existing selection. I require the complete
+VM unit gate and real trapped ordinary/effect frame cleanup controls, with
+explicitly prepared states and managed values, before qualifying this plumbing.
+These controls establish lifecycle cleanup, not capture opcode entry or source
+semantics. I retain ordinary refusal until full verification and all consumers
+are implemented.
+
 ### Entry environment and upvalue access checkpoint
 
 I validate a closure against its executing module's immutable target contract:
