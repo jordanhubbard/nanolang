@@ -73,3 +73,33 @@ refusals, conflicting duplicate metadata, and every checked allocation prefix
 with recovery. Original 18 source methods and 8 native methods remain required.
 Source adapters need review before execution, and unchanged capacity/deadline
 guards apply. A clean textual SDK merge does not complete these consumers.
+
+
+## Owned child proof checkpoint
+
+I extend only the private NominalView proof, not SDK TypeInfo. A composed tuple
+owns one child view per element; an array composed from such a value owns one
+element view. Each child owns its original annotation, owner and substitution
+chain and may itself contain child views. Empty tuples use an explicitly
+present zero-child proof. The outer TypeInfo contains independent duplicate
+annotation storage for compatibility; its flattened owner never authorizes the
+children. I validate count/kind/storage agreement before consuming a composed
+view. Ordinary declaration-derived views keep their existing single-context
+representation.
+
+Clone, comparison, materialization and projection recurse through owned child
+views when present and use declaration context projection otherwise. Array
+wrapping moves the complete child proof only after allocating independent outer
+storage. Child cloning and aggregate publication commit only after every
+allocation succeeds. Teardown recursively destroys each proof once. Depth and
+count/size overflow bounds remain explicit. Branch equality, array
+homogeneity, mutation, map/filter/reduce, literal destination checking, inferred
+binding publication and assignment must call proof-aware helpers; none may
+fall back to the composed outer owner. Checked metadata copies are emission
+artifacts, not replacements for child proofs.
+
+I reuse the SDK parser/tuple helper foundation as an attributed source subset
+on this lane before the eventual complete branch integration. I retain the
+same public tuple APIs and representation, including complete-child validation
+and duplicated-view refresh. The final merge must preserve both implementations'
+additional checker/opaque authority and code-generation consumers.
