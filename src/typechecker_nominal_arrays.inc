@@ -7,6 +7,7 @@ static void nominal_view_discard(NominalView *view) {
 }
 static bool nominal_view_copy(Environment *env, const TypeInfo *info, Type type, Type element,
                               const char *name, const char *owner, NominalView *out) {
+    LIFE_COUNT(LIFE_VIEW_COPIES);
     TypeInfo scalar = {0}, container = {0};
     scalar.base_type = type == TYPE_ARRAY ? element : type;
     scalar.generic_name = (char *)name;
@@ -22,6 +23,7 @@ static bool nominal_view_copy(Environment *env, const TypeInfo *info, Type type,
     return true;
 }
 static bool nominal_view_wrap_array(NominalView *view) {
+    LIFE_COUNT(LIFE_VIEW_WRAP_ALLOC);
     TypeInfo *array = calloc(1, sizeof *array);
     if (!array) return false;
     array->base_type = TYPE_ARRAY;
@@ -45,7 +47,11 @@ static bool nominal_array_builtin(ASTNode *expr, Environment *env, const char *n
     Function *function = env_get_function(env, name);
     return env_function_is_builtin(function);
 }
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static bool lifetime_nominal_view_body(ASTNode *expr, Environment *env, unsigned depth, NominalView *out) {
+#else
 static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, NominalView *out) {
+#endif
     if (!expr || depth > 128 || !out) return false;
     NominalView view = {0};
     if (expr->type == AST_BLOCK && expr->as.block.count)
@@ -226,3 +232,13 @@ fail:
     nominal_view_discard(&view);
     return false;
 }
+
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, NominalView *out) {
+    LIFE_COUNT(LIFE_VIEW_CALLS);
+    uint64_t start = nano_lifetime_now();
+    bool result = lifetime_nominal_view_body(expr, env, depth, out);
+    nano_lifetime_elapsed(LIFE_VIEW_NS, start);
+    return result;
+}
+#endif

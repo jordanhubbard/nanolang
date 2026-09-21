@@ -49,7 +49,12 @@ static uint64_t symbol_name_hash(const char *name) {
 /* I store indices and hashes, not borrowed names or Symbol pointers. Scope
  * cleanup may free names before lowering symbol_count; popping only needs the
  * saved links. Normal insertion synchronizes before reusing a popped slot. */
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static struct EnvSymbolIndex *symbol_index_sync(Environment *env);
+static struct EnvSymbolIndex *lifetime_body_symbol_index_sync(Environment *env) {
+#else
 static struct EnvSymbolIndex *symbol_index_sync(Environment *env) {
+#endif
     struct EnvSymbolIndex *index = env->symbol_index;
     if (!index) {
         index = calloc(1, sizeof *index);
@@ -113,7 +118,12 @@ unavailable:
     return NULL;
 }
 
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file);
+static Symbol *lifetime_body_symbol_lookup(Environment *env, const char *name, bool same_file) {
+#else
 static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file) {
+#endif
     if (!env || !name) return NULL;
     struct EnvSymbolIndex *index = symbol_index_sync(env);
     uint64_t hash = symbol_name_hash(name);
@@ -508,7 +518,12 @@ static bool env_prepare_binding_string(Environment *env, Type type, Value value,
     return true;
 }
 
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);
+void lifetime_body_env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
+#else
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
+#endif
     /* Borrowed parameters retain their caller's identity and do not own its storage. */
     Value prepared;
     if (!env_prepare_binding_string(env, type, value, &prepared)) {
@@ -604,7 +619,12 @@ const char *env_current_file(Environment *env) {
     return env ? env->current_file : NULL;
 }
 
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column);
+Symbol *lifetime_body_env_get_var_visible_at(Environment *env, const char *name, int line, int column) {
+#else
 Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column) {
+#endif
     if (!env || !name) return NULL;
     if (line <= 0) return env_get_var(env, name);
 
@@ -673,7 +693,12 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 }
 
 /* Set variable value */
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+void env_set_var(Environment *env, const char *name, Value value);
+void lifetime_body_env_set_var(Environment *env, const char *name, Value value) {
+#else
 void env_set_var(Environment *env, const char *name, Value value) {
+#endif
     Symbol *sym = env_get_var(env, name);
     if (sym) {
         /* I copy before releasing the old binding, including self-assignment
@@ -786,7 +811,12 @@ bool env_function_is_builtin(const Function *function) {
 }
 
 /* Get function */
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+Function *env_get_function(Environment *env, const char *name);
+Function *lifetime_body_env_get_function(Environment *env, const char *name) {
+#else
 Function *env_get_function(Environment *env, const char *name) {
+#endif
     if (!name) {
         return NULL;
     }
@@ -1898,6 +1928,7 @@ void free_type_info(TypeInfo *info) {
 /* Payload annotations own their complete parsed tree. I never borrow a nested
  * node across AST, environment and extracted-module lifetimes. */
 static void *payload_alloc(size_t count, size_t size) {
+    LIFE_COUNT(LIFE_LEGACY_METADATA_ALLOC);
     if (count && size > SIZE_MAX / count) {
         fprintf(stderr, "I cannot represent this payload type metadata\n");
         exit(1);
@@ -2355,3 +2386,40 @@ void env_register_generic_func_instance(Environment *env, const char *orig_name,
     }
     env->generic_func_instances[env->generic_func_instance_count++] = inst;
 }
+
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static struct EnvSymbolIndex *symbol_index_sync(Environment *env) {
+    nano_lifetime_scope_enter(SCOPE_SYNC);
+    struct EnvSymbolIndex * result = lifetime_body_symbol_index_sync(env);
+    nano_lifetime_scope_exit(SCOPE_SYNC);
+    return result;
+}
+static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file) {
+    nano_lifetime_scope_enter(SCOPE_SYMBOL);
+    Symbol * result = lifetime_body_symbol_lookup(env, name, same_file);
+    nano_lifetime_scope_exit(SCOPE_SYMBOL);
+    return result;
+}
+Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column) {
+    nano_lifetime_scope_enter(SCOPE_VISIBLE);
+    Symbol * result = lifetime_body_env_get_var_visible_at(env, name, line, column);
+    nano_lifetime_scope_exit(SCOPE_VISIBLE);
+    return result;
+}
+Function *env_get_function(Environment *env, const char *name) {
+    nano_lifetime_scope_enter(SCOPE_FUNCTION);
+    Function * result = lifetime_body_env_get_function(env, name);
+    nano_lifetime_scope_exit(SCOPE_FUNCTION);
+    return result;
+}
+void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
+    nano_lifetime_scope_enter(SCOPE_DEFINE);
+    lifetime_body_env_define_var_with_type_info(env, name, type, element_type, type_info, is_mut, value);
+    nano_lifetime_scope_exit(SCOPE_DEFINE);
+}
+void env_set_var(Environment *env, const char *name, Value value) {
+    nano_lifetime_scope_enter(SCOPE_SET);
+    lifetime_body_env_set_var(env, name, value);
+    nano_lifetime_scope_exit(SCOPE_SET);
+}
+#endif

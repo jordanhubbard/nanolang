@@ -226,3 +226,11 @@ providers; no old failed binary is replayed. The external argv0 layout, capture
 helper, module roots, compiler selection and retained generated products remain
 explicit. Exclusive stage sums remain distinct from inclusive graph counters.
 No measured diagnostic result qualifies production or changes the deadline.
+
+My full-compiler observer reapplies the previously reviewed 77226 source delta.
+The one merge overlap places its definition wrapper after my new
+`env_prepare_binding_string`; the helper and corrected transfer/copy body are
+unchanged. All imported-kind resolution and incremental symbol-index cleanup
+remain exact 50de production. Only the private timing macro enables counters,
+wrappers and markers. I retain all three rebuilt owning TUs and unchanged
+providers separately. This checkpoint has not executed the graph.

@@ -1,3 +1,16 @@
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+#if defined(calloc) || defined(strdup)
+#error I require unwrapped annotation allocators for this timing domain.
+#endif
+static void *lifetime_annotation_calloc(size_t count, size_t size) {
+    LIFE_COUNT(LIFE_CHECKED_METADATA_ALLOC); return calloc(count, size);
+}
+static char *lifetime_annotation_strdup(const char *text) {
+    LIFE_COUNT(LIFE_CHECKED_METADATA_ALLOC); return strdup(text);
+}
+#define calloc lifetime_annotation_calloc
+#define strdup lifetime_annotation_strdup
+#endif
 /* I copy task callable metadata with checked rollback. My legacy compiler
  * metadata copier keeps its separate fatal allocation policy. */
 static void *snapshot_array(size_t count, size_t size) {
@@ -107,3 +120,8 @@ bool copy_payload_type_info_checked(const TypeInfo *source, TypeInfo **out) {
     if (!out) return false;
     return snapshot_type(source, out, 0);
 }
+
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+#undef calloc
+#undef strdup
+#endif

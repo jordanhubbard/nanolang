@@ -33,6 +33,13 @@
 #include <math.h>
 #include <limits.h>
 
+#include "evaluator_timing_private.h"
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+#define LIFETIME_MARK(phase, name) nano_evaluator_lifetime_marker(phase, name)
+#else
+#define LIFETIME_MARK(phase, name) ((void)0)
+#endif
+
 /* g_argc/g_argv are defined in main.c / nano_main.c */
 extern int g_argc;
 extern char **g_argv;
@@ -289,7 +296,12 @@ static Value eval_match_invariant_failure(const char *reason) {
 /* I restore lexical bindings on every exit, retaining a yielded local string. */
 /* I release only binding-owned storage. Registry result snapshots are never
  * installed directly into an owning record binding. Borrow formals stay borrowed. */
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static void eval_scope_release(Environment *env, int first, bool functions);
+static void lifetime_body_eval_scope_release(Environment *env, int first, bool functions) {
+#else
 static void eval_scope_release(Environment *env, int first, bool functions) {
+#endif
     for (int i = first; i < env->symbol_count; ++i) {
         Symbol *symbol = &env->symbols[i];
         bool borrowed = symbol->type == TYPE_BORROW_SHARED || symbol->type == TYPE_BORROW_MUT;
@@ -3182,7 +3194,12 @@ static Value eval_call(ASTNode *node, Environment *env) {
 }
 
 /* Evaluate function call */
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name);
+static Value lifetime_body_eval_call_impl(ASTNode *node, Environment *env, const char *bound_name) {
+#else
 static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name) {
+#endif
     /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
     if (node->as.call.func_expr) {
         /* Evaluate the inner function call to get the function */
@@ -4764,7 +4781,12 @@ static void discard_partial_owned_array(Array *array, int initialized) {
 }
 
 /* Evaluate expression */
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static Value eval_expression(ASTNode *expr, Environment *env);
+static Value lifetime_body_eval_expression(ASTNode *expr, Environment *env) {
+#else
 static Value eval_expression(ASTNode *expr, Environment *env) {
+#endif
     if (!expr) return create_void();
 
 
@@ -5563,7 +5585,12 @@ static Value own_function_identifier(ASTNode *expression, Environment *env,
 }
 
 /* Evaluate statement */
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static Value eval_statement(ASTNode *stmt, Environment *env);
+static Value lifetime_body_eval_statement(ASTNode *stmt, Environment *env) {
+#else
 static Value eval_statement(ASTNode *stmt, Environment *env) {
+#endif
     if (!stmt) return create_void();
 
     /* DAP breakpoint/step hook — fires before each statement when debugging */
@@ -6217,7 +6244,9 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
                     }
                 }
 
+                LIFETIME_MARK("begin", func_name);
                 eval_statement(item->as.shadow.body, env);
+                LIFETIME_MARK("end", func_name);
 
                 if (!verbose && saved_stdout_fd >= 0) {
                     fflush(stdout);
@@ -6326,8 +6355,15 @@ bool run_program(ASTNode *program, Environment *env) {
 }
 
 /* Call a function by name with arguments */
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static Value call_function_at(const char *name, Value *args, int arg_count,
+                             Environment *env, int line, int column);
+static Value lifetime_body_call_function_at(const char *name, Value *args, int arg_count,
+                             Environment *env, int line, int column) {
+#else
 static Value call_function_at(const char *name, Value *args, int arg_count,
                              Environment *env, int line, int column) {
+#endif
     Value record_list_result;
     if (eval_record_list_call(name, args, arg_count, env, &record_list_result))
         return record_list_result;
@@ -6433,3 +6469,36 @@ Value repl_eval_node(ASTNode *node, Environment *env) {
 void repl_print_value(Value val) {
     print_value(val);
 }
+
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static Value eval_expression(ASTNode *expr, Environment *env) {
+    nano_lifetime_scope_enter(SCOPE_EXPR);
+    Value result = lifetime_body_eval_expression(expr, env);
+    nano_lifetime_scope_exit(SCOPE_EXPR);
+    return result;
+}
+static Value eval_statement(ASTNode *stmt, Environment *env) {
+    nano_lifetime_scope_enter(SCOPE_STMT);
+    Value result = lifetime_body_eval_statement(stmt, env);
+    nano_lifetime_scope_exit(SCOPE_STMT);
+    return result;
+}
+static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name) {
+    nano_lifetime_scope_enter(SCOPE_CALL);
+    Value result = lifetime_body_eval_call_impl(node, env, bound_name);
+    nano_lifetime_scope_exit(SCOPE_CALL);
+    return result;
+}
+static Value call_function_at(const char *name, Value *args, int arg_count,
+                             Environment *env, int line, int column) {
+    nano_lifetime_scope_enter(SCOPE_NAMED_CALL);
+    Value result = lifetime_body_call_function_at(name, args, arg_count, env, line, column);
+    nano_lifetime_scope_exit(SCOPE_NAMED_CALL);
+    return result;
+}
+static void eval_scope_release(Environment *env, int first, bool functions) {
+    nano_lifetime_scope_enter(SCOPE_RELEASE);
+    lifetime_body_eval_scope_release(env, first, functions);
+    nano_lifetime_scope_exit(SCOPE_RELEASE);
+}
+#endif
