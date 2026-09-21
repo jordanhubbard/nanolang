@@ -1695,6 +1695,18 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 looks_like_struct = after_next->value && after_next->value[0] >= 'A' && after_next->value[0] <= 'Z';
             }
             
+            /* I retain a complete imported union literal for nominal binding. */
+            Token *second_dot = peek_token(p, 3);
+            Token *variant = peek_token(p, 4);
+            Token *constructor_brace = peek_token(p, 5);
+            bool imported_constructor = is_qualified && second_dot && variant && constructor_brace &&
+                second_dot->token_type == TOKEN_DOT && variant->token_type == TOKEN_IDENTIFIER &&
+                constructor_brace->token_type == TOKEN_LBRACE;
+            if (imported_constructor) {
+                after_brace = constructor_brace;
+                looks_like_struct = variant->value && variant->value[0] >= 'A' && variant->value[0] <= 'Z';
+            }
+
             /* Heuristic: if the token after { is a keyword like 'if', 'return', 'let', etc., 
                this is NOT a struct literal, it's a code block after a condition */
             bool looks_like_code_block = after_brace && (
@@ -1705,7 +1717,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 after_brace->token_type == TOKEN_FOR
             );
             
-            bool has_lbrace = (next && next->token_type == TOKEN_LBRACE) ||
+            bool has_lbrace = imported_constructor || (next && next->token_type == TOKEN_LBRACE) ||
                              (is_qualified && peek_token(p, 3) && peek_token(p, 3)->token_type == TOKEN_LBRACE);
 
             /* Dotted uppercase literals are parsed as struct literals first.
@@ -1719,11 +1731,32 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 /* Parse struct literal */
                 int line = tok->line;
                 int column = tok->column;
-                char *struct_name = strdup(tok->value);
-                advance(p);  /* consume struct name */
-                
+                char *struct_name;
+                if (imported_constructor) {
+                    size_t first = strlen(tok->value), second = strlen(after_next->value);
+                    size_t third = strlen(variant->value);
+                    if (first > SIZE_MAX - 3 || second > SIZE_MAX - 3 - first ||
+                        third > SIZE_MAX - 3 - first - second) {
+                        parser_error(p, line, column, "I cannot retain this imported constructor name\n");
+                        return NULL;
+                    }
+                    struct_name = malloc(first + second + third + 3);
+                    if (!struct_name) {
+                        parser_error(p, line, column, "I cannot allocate this imported constructor name\n");
+                        return NULL;
+                    }
+                    memcpy(struct_name, tok->value, first); struct_name[first] = '.';
+                    memcpy(struct_name + first + 1, after_next->value, second);
+                    struct_name[first + second + 1] = '.';
+                    memcpy(struct_name + first + second + 2, variant->value, third + 1);
+                    for (int part = 0; part < 5; ++part) advance(p);
+                } else {
+                    struct_name = strdup(tok->value);
+                    advance(p);  /* consume struct name */
+                }
+
                 /* Check for Module.StructName pattern */
-                if (current_token(p)->token_type == TOKEN_DOT) {
+                if (!imported_constructor && current_token(p)->token_type == TOKEN_DOT) {
                     advance(p);  /* consume '.' */
                     Token *type_tok = current_token(p);
                     if (type_tok->token_type != TOKEN_IDENTIFIER) {

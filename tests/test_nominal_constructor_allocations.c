@@ -152,8 +152,13 @@ static void constructor_parsed_imports(void) {
             : "fn sample()->int { let value =alias.Box.Value{value:3} return 0 }";
         int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
         ASTNode *program = parse_program(tokens, count); assert(program && program->as.program.count == 1);
-        ASTNode *node = program->as.program.items[0]->as.function.body->as.block.statements[0]->as.let.value;
+        ASTNode *body = program->as.program.items[0]->as.function.body;
+        assert(body && body->type == AST_BLOCK && body->as.block.count == 2);
+        assert(body->as.block.statements[0]->type == AST_LET && body->as.block.statements[1]->type == AST_RETURN);
+        ASTNode *node = body->as.block.statements[0]->as.let.value;
         assert(node && node->type == AST_STRUCT_LITERAL);
+        assert(!strcmp(node->as.struct_literal.struct_name, record ? "alias.Record" : "alias.Box.Value"));
+        assert(node->as.struct_literal.field_count == 1 && !strcmp(node->as.struct_literal.field_names[0], "value"));
         char **names = node->as.struct_literal.field_names;
         ASTNode **values = node->as.struct_literal.field_values;
         Environment *env = create_environment(); assert(env); env->current_module = "Caller";
@@ -177,6 +182,30 @@ static void constructor_parsed_imports(void) {
         free_environment(env); free_ast(program); free_tokens(tokens, count);
     }
 }
+static void constructor_parser_boundaries(void) {
+    const char *source = "fn sample()->int { let value =object.box.value return 0 }";
+    int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+    ASTNode *program = parse_program(tokens, count); assert(program && program->as.program.count == 1);
+    ASTNode *body = program->as.program.items[0]->as.function.body;
+    assert(body->as.block.count == 2);
+    ASTNode *node = body->as.block.statements[0]->as.let.value;
+    assert(node->type == AST_FIELD_ACCESS && !strcmp(node->as.field_access.field_name, "value"));
+    node = node->as.field_access.object;
+    assert(node->type == AST_FIELD_ACCESS && !strcmp(node->as.field_access.field_name, "box"));
+    assert(node->as.field_access.object->type == AST_IDENTIFIER);
+    assert(!strcmp(node->as.field_access.object->as.identifier, "object"));
+    free_ast(program); free_tokens(tokens, count);
+    const char *malformed[] = {
+        "fn sample()->int { let value =alias..Value{value:3} return 0 }",
+        "fn sample()->int { let value =alias.Box.{value:3} return 0 }",
+        "fn sample()->int { let value =alias.Box.Value{value:3"
+    };
+    for (size_t i = 0; i < sizeof malformed / sizeof *malformed; ++i) {
+        tokens = tokenize(malformed[i], &count); assert(tokens);
+        program = parse_program(tokens, count); assert(!program);
+        free_tokens(tokens, count);
+    }
+}
 void test_nominal_constructor_allocations(void) {
     for (int imported = 0; imported < 2; ++imported) {
         size_t total = constructor_attempt(imported != 0, SIZE_MAX, false);
@@ -187,5 +216,6 @@ void test_nominal_constructor_allocations(void) {
     }
     constructor_refusals();
     constructor_parsed_imports();
+    constructor_parser_boundaries();
     puts("I checked exact union constructor ownership and both allocation prefixes.");
 }
