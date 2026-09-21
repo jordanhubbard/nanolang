@@ -14394,3 +14394,11 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   is Json.Json while Json.parse returns Json. I preserve both first terminals,
   inspect actual declaration/type resolution before correction, and keep all
   remaining paired/installed/File acceptance open.
+
+- [ ] I complete declaration-owned qualified opaque parity under
+  task_2c7f68e4707b4d12b0ac8d29636fda63. I preserve the original Json.Json fixtures,
+  replace the C seed's suffix fallback with actual origin/namespace authority,
+  extend the Nano shared nominal map with exact opaque facts, and audit both
+  emitters/copies before qualification. My precode contract is
+  [QUALIFIED_OPAQUE_IDENTITY.md](QUALIFIED_OPAQUE_IDENTITY.md). I coordinate with
+  the list/checker owner and retain its record-only authority boundaries.
