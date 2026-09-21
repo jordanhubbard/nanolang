@@ -1,0 +1,7 @@
+I retain direct LLVM artifacts at /Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-xdizlibq
+test_00_factored_c_bytes (tests.test_record_array_llvm.RecordArrayLLVM.test_00_factored_c_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.504s
+
+OK

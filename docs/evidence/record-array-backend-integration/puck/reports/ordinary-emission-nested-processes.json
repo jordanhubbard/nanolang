@@ -1,0 +1,24 @@
+{
+  "cleanup": [],
+  "owned": {
+    "98338": {
+      "command": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python -m unittest -f -v tests.test_record_array_llvm.RecordArrayLLVM.test_01_emission_bounds",
+      "group": 98338,
+      "parent": 89766,
+      "started": "Mon Sep 21 07:41:53 2026"
+    },
+    "98351": {
+      "command": "(clang)",
+      "group": 98351,
+      "parent": 98338,
+      "started": "Mon Sep 21 07:41:54 2026"
+    },
+    "98352": {
+      "command": "(clang)",
+      "group": 98351,
+      "parent": 98351,
+      "started": "Mon Sep 21 07:41:54 2026"
+    }
+  },
+  "remaining": []
+}

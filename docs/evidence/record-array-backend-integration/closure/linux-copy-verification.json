@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "source": "/run/user/1000/nanolang-backend-integration-a1bb-20260921",
+  "destination": "/home/jkh/nanolang-qualification/backend-integration-a1bb-linux",
+  "entries": 89674,
+  "manifest_sha256": "154fa86f3560c77f53e76f0c24d8d3198b5d63dbed910feefe2b1868d8fabf67",
+  "verified_at": 1790002639.001197,
+  "original_removed": false
+}

@@ -14166,10 +14166,10 @@ I retain the complete f36/15f/488 parent scope and record the next dependency in
 merge remains required. MAC reads currently fail at the occupied local login
 tunnel port34113; I have not fabricated a new task or altered that listener.
 
-- [ ] I review and implement the explicit-instance counted runtime/frame API,
+- [x] I review and implement the explicit-instance counted runtime/frame API,
   exact table/ABI correspondence, all93 operation ownership map, combined peak
   reservations and bounded release/collection behavior before execution.
-- [ ] I emit actual C labels/operators with bounded1024-frame continuations,
+- [x] I emit actual C labels/operators with bounded1024-frame continuations,
   then matched native LLVM/Wasm against the same checked runtime; I retain
   complete current query coverage and transactionally publish generated output.
 - [ ] I qualify the unchanged VM corpus through all generated routes, faults,
@@ -14622,4 +14622,6 @@ to the sealed working branch. I require fresh ordinary both-host VM/generated
 C/LLVM/Wasm and query/package controls with exact copied input/provider maps;
 original sanitizer attribution is unchanged.
 
-- [ ] Under `task_f54e02f7eaca487c980fe298b1132791`, I retain my first a1bb Darwin integration package failure: the package lifecycle fixture requires ASan/UBSan and inherited ordinary Apple Clang, whose leak detector refuses this platform before assertions. My preceding 16 integration phases passed. I qualify only the failed/unrun package methods with the already-qualified Homebrew wrapper and explicit Xcode sysroot, unchanged sanitizer options, fresh reports and verified original source/provider endpoints. I do not replay passing phases or change production/fixture inputs. My full generated/source/graph parents remain open.
+- [x] Under `task_f54e02f7eaca487c980fe298b1132791`, I retain my first a1bb Darwin integration package failure: the package lifecycle fixture requires ASan/UBSan and inherited ordinary Apple Clang, whose leak detector refuses this platform before assertions. My preceding 16 integration phases passed. I qualify only the failed/unrun package methods with the already-qualified Homebrew wrapper and explicit Xcode sysroot, unchanged sanitizer options, fresh reports and verified original source/provider endpoints. I do not replay passing phases or change production/fixture inputs. My full generated/source/graph parents remain open.
+
+I complete my fresh a1bb integration against canonical87e0 with Linux17 passing phases and Darwin16 original passes plus a separate supported-compiler package continuation. I preserve the original Apple package failure and the earlier external Python extraction failure. My [integration seal](evidence/record-array-backend-integration.md) records exact inputs, products, coverage and durable archives; original sanitizer pins remain unchanged. Independent root integrity/native/Wasm audits remain explicitly scoped. Canonical merge and MAC reconciliation are still pending. My installed publication, public selection, paired source/bootstrap and full union/nested/cyclic/indirect graph requirements remain open; private package ABI controls do not complete those requirements.

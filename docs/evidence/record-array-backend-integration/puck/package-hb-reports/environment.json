@@ -1,0 +1,16 @@
+{
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "CARRIER_EXTRA_TOOLS": "{\"real_clang\": \"/opt/homebrew/opt/llvm/bin/clang\", \"wasm_ld\": \"/opt/homebrew/opt/lld/bin/wasm-ld\", \"ffi_header\": \"/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi/ffi.h\", \"package_wasmtime\": \"/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/wasmtime\", \"package_node\": \"/opt/homebrew/bin/node\", \"package_opt\": \"/opt/homebrew/opt/llvm/bin/opt\"}",
+  "CARRIER_PHASES": "configuration,package",
+  "CARRIER_SAN_CC": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+  "CC": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+  "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+  "LSAN_OPTIONS": "",
+  "NANO_FILE_RUNTIME_CFLAGS": "-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi",
+  "NMS_NATIVE_CLANG_FLAGS": "",
+  "PATH": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools:/opt/homebrew/opt/llvm/bin/:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "RECORD_LLVM_NATIVE_OPTIMIZATIONS": "O0,O2",
+  "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "TMPDIR": "/Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/temporary",
+  "UBSAN_OPTIONS": "halt_on_error=1"
+}
