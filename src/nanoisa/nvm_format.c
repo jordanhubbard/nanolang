@@ -410,6 +410,7 @@ uint32_t nvm_find_function(const NvmModule *mod, const char *name) {
  * ======================================================================== */
 
 uint32_t nvm_append_code(NvmModule *mod, const uint8_t *code, uint32_t size) {
+    if (size == 0) return mod->code_size;
     while (mod->code_size + size > mod->code_capacity) {
         uint32_t new_cap = mod->code_capacity * 2;
         uint8_t *new_code = realloc(mod->code, new_cap);

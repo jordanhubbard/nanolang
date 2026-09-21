@@ -319,7 +319,8 @@ bool nvm_set_function_param_types(NvmModule *mod, uint32_t index,
 bool nvm_add_callback_contract(NvmModule *mod, const NvmCallbackContract *contract);
 bool nvm_callback_contracts_valid(const NvmModule *mod);
 
-/* Append bytecode to the code section. Returns the byte offset where it was written. */
+/* I append bytecode and return its starting offset. Empty input returns the
+ * current offset without reading code (which may be NULL) or changing storage. */
 uint32_t nvm_append_code(NvmModule *mod, const uint8_t *code, uint32_t size);
 
 /* Add a debug entry (bytecode offset -> source line + column).
