@@ -14306,3 +14306,18 @@ exercise normalization with an actual parsed formal T and a real T-to-int
 substitution context. No affected fixture has executed and no assertion is
 removed; both borrowed-source ownership and independent result copies remain
 required.
+
+
+### 5.1 SDK tuple/callback consumer integration
+
+I record concrete integration obligations in
+NANOISA_TUPLE_CALLABLE_INTEGRATION.md before adapters. My current contextual
+comparator/materializer and tuple-literal checks reconstruct flat children;
+my owned value view lacks tuple-index projection. SDK full child storage does
+not itself correct these consumers or preserve mixed-owner inferred literals.
+
+- [ ] Reconcile SDK d1d2/417 complete children and callable parser carrier with
+  checked ownership, equality, duplicate-view refresh and literal contexts.
+- [ ] Preserve exact owner/context through tuple-index projection and inferred
+  tuple child proofs; no materialized-name authority or silently reduced scope.
+- [ ] Review source adapters and qualify original and additive full methods.
