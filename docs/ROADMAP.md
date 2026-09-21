@@ -11,6 +11,8 @@
 
 # My Roadmap
 
+- [ ] I bound optimized VM unit-runner stack usage without weakening checks (`task_f6d3305d88784060b6a75235d3d9d6de`). First19ab lifecycle gates pass four ordinary compiler configurations; Darwin Homebrew sanitizer aborts before the first unit test. Retained disassembly shows main reserves seven0xfff000 chunks plus0xdab000+0x80 bytes after its register save. I keep each test in a separate call frame through standard-C volatile function-pointer dispatch, preserve O3 and sanitizers, and require unchanged complete gates. Linux dependent sanitizer compilation is deliberately stopped, not labeled a product failure.
+
 - [ ] I preserve the selected coverage link closure in generated artifact acceptance (`task_b9e2f08776a64a67879453d7d6e6052d`). PR939 coverage fails three native artifact links against instrumented nano_aot_runtime.o with unresolved gcov symbols. I retain [exact hosted logs](evidence/pr939-ci-failures/checks.json), preserve every strict flag/assertion, and require ordinary plus coverage acceptance.
 
 - [ ] I retain full verifier-corpus failure diagnostics in hosted CI (`task_13ddb5e14be94d4fba5cf4e4ee4c6c0f`). The corpus writes /tmp/nano-verify-corpus logs, while CI failure reporting only reads .test_output. I require bounded lossless artifacts and explicit failure reporting; source U8/token requirements remain open independently.
