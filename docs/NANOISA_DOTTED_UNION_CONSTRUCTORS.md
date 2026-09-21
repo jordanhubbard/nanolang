@@ -60,3 +60,28 @@ Before execution I corrected three whole-object fixture snapshots to use
 `memcpy` rather than struct assignment. I compare object representations with
 `memcmp`, so the snapshot must preserve padding bytes too. This changes my
 evidence precision, not production behavior or any refusal assertion.
+
+
+## My imported parser prerequisite
+
+I retain the 51e Linux first focused assertion: my parsed alias.Box.Value
+control is a field-access node, not a named literal. My current primary parser
+recognizes a brace only after one or two name components. The third component
+falls through to ordinary field access and the brace can become a separate
+statement. Puck completed fresh providers but did not replay this assertion.
+
+I extend the existing named brace-literal route to the exact three-component
+namespace.union.variant form. I look ahead for identifier/dot/identifier/dot/
+identifier followed immediately by the brace, retain the existing uppercase
+last-component convention, and preserve all one/two-component and ordinary
+field-access routes. I allocate the complete dotted name before consuming its
+parts; failed allocation reports a parser error without partial name ownership.
+The existing field parser/destructor owns the resulting single literal. Only
+my owner/export/variant binder decides whether it is a declared constructor.
+
+I retain the original alias source and add exact body statement counts, field
+vector contents and full parser-consumption controls, including plain chained
+field access without braces, ordinary qualified records and malformed missing
+components/braces. These are parser checks only; actual imported checker/native
+acceptance remains independently required. My two-allocation binder sweep does
+not claim to instrument this new parser name allocation.

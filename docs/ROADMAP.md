@@ -14409,3 +14409,11 @@ allocator failure claim.
   qualified-type refusal and original discovery/nested controls. Source review
   and corrected allocation/owner controls precede execution.
   MAC: task_e0fbb45b12b64012b39a632f5c90d21e.
+
+- [ ] I retain the complete imported union brace-constructor spelling as one
+  parsed expression. My 51e focused terminal exposes alias.Box.Value parsed as
+  field access followed by a separate brace statement. I keep that original
+  control, add exact shape/statement-count checks, and extend literal parsing
+  without granting nominal authority or changing ordinary field access. I keep
+  first failure evidence and review allocation/cleanup before corrected gates.
+  MAC: task_6999f05320704454b524a271ad71e873.
