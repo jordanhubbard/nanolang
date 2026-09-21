@@ -14205,3 +14205,8 @@ map/filter/reduce and secondary local restoration. It adds constructor registry
 rollback and owning-path/failure-prefix/native-source controls. Static Python
 parsing still discovers all original 18 plus native eight methods; no corrected
 compiler or fixture ran. Review and complete both-host qualification remain open.
+
+Independent 9a160 review finds AST_SET retaining a Symbol vector pointer across
+RHS recursion and growth. Before gates I require a snapshot of the exact selected
+destination before all recursive checks, plus separately stable borrowed-field
+metadata and a corrected branch-growth/same-name control. No unfixed replay.

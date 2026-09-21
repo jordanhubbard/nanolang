@@ -230,3 +230,24 @@ methods remain, with no original source/assertion removed. Aggregate map/filter
 fixtures establish only checker obligations; aggregate runtime parity stays open.
 Static Python parsing and diff whitespace checks pass. I have not built or run
 this checkpoint; independent complete source/fixture review precedes execution.
+
+## My assignment destination lifetime boundary
+
+Independent source review finds that AST_SET borrows a Symbol vector entry across
+recursive RHS checking. Branch bindings can grow that vector; a later read of the
+entry is invalid even though its declaration remains live. I will snapshot the
+selected destination metadata before every RHS checker, including contextual
+constructor application and callable comparison. The snapshot retains the exact
+declaration already selected, rather than looking its name up after branch scopes
+change. Its TypeInfo, owner strings and retained proof belong to the checked AST
+or Environment and remain live through this synchronous check; the checker does
+not replace or free the selected declaration while checking its RHS.
+
+Borrowed-field assignment also borrows a StructDef vector entry. I will snapshot
+the selected field's type, annotation, name and owner before recursion. Registered
+record declarations append to a growable vector; their separately owned field
+arrays/annotations remain live until Environment/provider teardown. RHS checking
+does not tear down those owners. I will exercise corrected assignments with
+branch-local bindings that cross a symbol capacity boundary and reuse the
+destination name, preserving the original destination proof and refusal policy.
+No unfixed memory-fault path will execute.
