@@ -14417,3 +14417,11 @@ allocator failure claim.
   without granting nominal authority or changing ordinary field access. I keep
   first failure evidence and review allocation/cleanup before corrected gates.
   MAC: task_6999f05320704454b524a271ad71e873.
+
+- [ ] I check every instantiated generic union payload against its complete
+  destination annotation. My 744 focused refusal control shows Box<Item> accepts
+  a bool field under the legacy generic bypass. I retain that terminal without
+  executing a product, preserve fixed/formal owner identities and existing scalar
+  conversion policy, and review recursive declaration lifetime and rollback.
+  Original explicit/inferred constructors and all source/native gates remain.
+  MAC: task_7e994b0b89aa40629002347160d82ef6.
