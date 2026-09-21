@@ -1617,6 +1617,50 @@ static void test_core_ext_words(void) {
     PASS(test_name);
 }
 
+static void test_signed_double_boundaries(void) {
+    const char *test_name = "double: signed packing, division signs and modular doubling";
+    ForthSession *session = forth_session_create();
+    int64_t want[2];
+    const struct { const char *source; int64_t remainder, quotient; } divisions[] = {
+        { "7 S>D 2 SM/REM", 1, 3 }, { "-7 S>D 2 SM/REM", -1, -3 },
+        { "7 S>D -2 SM/REM", 1, -3 }, { "-7 S>D -2 SM/REM", -1, 3 },
+        { "7 S>D 2 FM/MOD", 1, 3 }, { "-7 S>D 2 FM/MOD", 1, -4 },
+        { "7 S>D -2 FM/MOD", -1, -4 }, { "-7 S>D -2 FM/MOD", -1, 3 },
+        { "-8 S>D 2 FM/MOD", 0, -4 }, { "-8 S>D -2 FM/MOD", 0, 4 }
+    };
+    const int64_t packing[][2] = {
+        { 0, INT64_MIN }, { -1, INT64_MIN },
+        { 0, INT64_MAX }, { -1, INT64_MAX }, { -1, -1 }, { 0, 0 }
+    };
+    const int64_t doubling[][4] = {
+        { INT64_MIN, 0, 0, 1 }, { -1, -1, -2, -1 },
+        { 0, -1, 0, -2 }, { 0, INT64_MIN, 0, 0 },
+        { -1, INT64_MAX, -2, -1 }, { 0, INT64_MAX, 0, -2 }
+    };
+    ASSERT(session != NULL, "I create the signed double session");
+    for (size_t i = 0; i < sizeof divisions / sizeof divisions[0]; ++i) {
+        ASSERT(interpret_cstr(session, divisions[i].source), "I execute signed division");
+        want[0] = divisions[i].remainder; want[1] = divisions[i].quotient;
+        ASSERT(expect_cells(session, want, 2), "I preserve exact rounding and remainder signs");
+    }
+    for (size_t i = 0; i < sizeof packing / sizeof packing[0]; ++i) {
+        ASSERT(forth_data_push(session, packing[i][0]) &&
+               forth_data_push(session, packing[i][1]), "I push exact signed double cells");
+        ASSERT(interpret_cstr(session, "0 0 D+"), "I pack and unpack through representable addition");
+        want[0] = packing[i][0]; want[1] = packing[i][1];
+        ASSERT(expect_cells(session, want, 2), "I preserve both boundary cells exactly");
+    }
+    for (size_t i = 0; i < sizeof doubling / sizeof doubling[0]; ++i) {
+        ASSERT(forth_data_push(session, doubling[i][0]) &&
+               forth_data_push(session, doubling[i][1]), "I push modular doubling cells");
+        ASSERT(interpret_cstr(session, "D2*"), "I double both cells with an unsigned carry");
+        want[0] = doubling[i][2]; want[1] = doubling[i][3];
+        ASSERT(expect_cells(session, want, 2), "I preserve exact doubled bits and carry");
+    }
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
 static void test_double_words(void) {
     const char *test_name = "double: 1. D+ 2CONSTANT 2VALUE TO";
     ForthSession *session = forth_session_create();
@@ -2021,6 +2065,7 @@ int main(void) {
     test_kernel_defects();
     test_core_remaining_words();
     test_core_ext_words();
+    test_signed_double_boundaries();
     test_double_words();
     test_interpret_file_refill();
     test_required_skips_second_load();
