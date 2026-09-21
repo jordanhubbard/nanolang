@@ -188,3 +188,9 @@ The proof stays owned by the same Environment; emitted spelling does not become
 new authority. I copy metadata before symbol storage can grow. Parameter
 annotations retain their original declaration owner; runtime value bindings do
 not acquire checker proof ownership.
+
+My branch-value comparison excludes arms that the ordinary control-flow checker
+identifies as definite function returns. Those arms have their own return
+contract and do not supply a callable/array join value. A branch with no surviving
+value cannot manufacture a nominal view. This preserves lexical control flow
+while requiring exact agreement among every surviving value arm.

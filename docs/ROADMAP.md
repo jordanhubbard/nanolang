@@ -14194,3 +14194,7 @@ The same callable audit finds native/NanoISA local restoration dropping checked
 context while retaining materialized TypeInfo. I require exact declaration
 location/file restoration of the Environment-owned proof before secondary checks;
 no emitted spelling supplies authority. This source prerequisite is unqualified.
+
+The callable branch audit also requires definite function exits to remain
+distinct from value arms. I will compare every surviving branch value and keep
+the ordinary return checks; all-terminating expressions provide no view.
