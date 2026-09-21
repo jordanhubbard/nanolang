@@ -13752,3 +13752,18 @@ in `docs/evidence/exclusive-77226/` under timing task
   and actual cleanup regression, preserving all ownership and raw-write rules.
 - [ ] I qualify the unchanged checker graph and remaining full list/bootstrap
   matrix after the correction; I measure any remaining lookup cost separately.
+
+
+My fresh 4382 preparation passes parser and checker components on both hosts,
+then fails in transpiler shadows: Linux status2/80.117s reports double free;
+Darwin status2/86.032s initially reports only failed shadows. The existing
+Darwin crash report and matching frozen binary UUID subsequently identify
+invalid free in eval_scope_release. I retain these terminals in
+`docs/evidence/record-lists-4382-preparation/`. No known faulty workload is
+replayed. Task `task_edcf1f2e8f694079ab99ec96032cd6da` tracks the new boundary.
+
+- [ ] I correct demonstrated unmanaged binding-alias ownership without losing
+  fresh transferred owners, preserving GC semantics and borrowed formals; I
+  review source and corrected-only controls before further qualification.
+- [ ] I complete the unreached bootstrap, thirteen-method source/lifetime matrix
+  and whole Make gates, preserving every previous failure attribution.
