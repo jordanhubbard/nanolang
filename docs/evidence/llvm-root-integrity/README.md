@@ -12,3 +12,23 @@ Their presence is evidence retention, not a claim that all attempts passed.
 This review establishes committed bytes and retained object identity. It does
 not establish semantic corpus coverage, current-main integration, full backend
 parity or release readiness. Those require their own completed acceptance.
+
+My separate [native coverage audit](native-coverage.py) now verifies all73
+products in linked and observed modes at O0 and O2 across seven native
+configurations. Each complete configuration has292 retained executables,
+2,432 checked build/tool/execution terminals,146 complete allocation coverage
+records,676 fault workers and18,976 recoveries. I check the actual invoked
+executable path, linked observation output, excluded VM symbols and every
+worker's contiguous range and exact two-mode recovery output.
+
+Linux Clang sanitizer O0 comes from the completed portion of the interrupted
+combined run; O2 comes from its separately attributed continuation. I exclude
+the interrupted partial O2 work from coverage. The [results](native-coverage.json)
+keep both sources explicit. Startup, emission, Wasm, package, normalized corpus
+equivalence and current-main integration require separate evidence.
+
+My [first audit script](native-coverage-first.py) stopped on Darwin's `.dSYM`
+debug companion sharing the executable basename. The corrected lookup excludes
+those debug-directory entries from command-product lookup, while the complete
+integrity audit still verifies their bytes. No product, fixture, execution or
+assertion changed to resolve this report-schema mistake.
