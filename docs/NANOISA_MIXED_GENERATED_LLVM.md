@@ -200,3 +200,12 @@ fixture/package objects, not a new installed public runtime API.
 I have not executed this checkpoint. Full source review, exact compiler/engine
 selection and bounded phase scheduling precede qualification. General graph,
 public selection and paired-source acceptance remain required dependencies.
+
+My first Darwin parity terminal corrects the replay comparison described above:
+separate actual VM captures contain different process pointer identities. All73
+retained generated C products are byte-identical. A read-only comparison also
+finds all73 replay texts identical after canonicalizing only expected nonzero
+identity literals by first occurrence between existing identity_count resets.
+The fixture keeps zero/scalar constants and every other byte exact, with controls
+that distinguish aliasing from distinct identities. Original and canonical hash
+attribution stays explicit; no runtime assertion or frozen replay is rewritten.

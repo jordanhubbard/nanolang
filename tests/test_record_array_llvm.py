@@ -58,7 +58,27 @@ class RecordArrayLLVM(unittest.TestCase):
         self.assertEqual(result.count(b'all93 emission recipes and all256 decisions'), 2)
         self.assertEqual(result.count(b'actual emission allocation positions in both modes'), 2)
 
+    @staticmethod
+    def canonical_replay(data):
+        identities={}
+        def replace(match):
+            if match.group(0)==b'identity_count=0;':
+                identities.clear();return match.group(0)
+            value=int(match.group(1))
+            if not value:return match.group(0)
+            if value not in identities:identities[value]=len(identities)+1
+            return b'identity(UINT64_C('+str(identities[value]).encode()+b'),o.identity)'
+        return re.sub(rb'identity_count=0;|identity\(UINT64_C\((\d+)\),o\.identity\)',replace,data)
+
     def test_00_factored_c_bytes(self):
+        a=b'identity(UINT64_C(123),o.identity);identity(UINT64_C(123),o.identity)'
+        b=b'identity(UINT64_C(456),o.identity);identity(UINT64_C(789),o.identity)'
+        self.assertNotEqual(self.canonical_replay(a),self.canonical_replay(b))
+        self.assertEqual(self.canonical_replay(a),self.canonical_replay(a.replace(b'123',b'999')))
+        self.assertEqual(self.canonical_replay(b'UINT64_C(123)'),b'UINT64_C(123)')
+        self.assertEqual(self.canonical_replay(b'identity(UINT64_C(0),o.identity)'),b'identity(UINT64_C(0),o.identity)')
+        self.assertEqual(self.canonical_replay(a+b'identity_count=0;'+b),
+                         self.canonical_replay(a+b'identity_count=0;'+b.replace(b'456',b'123')))
         baseline=Path(os.environ['RECORD_LLVM_C_BASELINE'])
         self.assertTrue(baseline.is_dir())
         objects=self.providers('c-parity',test_record_array_vm.PROVIDERS,
@@ -74,8 +94,12 @@ class RecordArrayLLVM(unittest.TestCase):
             for suffix in ('c','replay.c'):
                 name=f'product-{index:04d}.'+suffix
                 before=(baseline/name).read_bytes();after=(corpus/name).read_bytes()
-                self.assertEqual(before,after,name)
-                proof[name]=hashlib.sha256(after).hexdigest()
+                if suffix=='replay.c':
+                    self.assertEqual(self.canonical_replay(before),self.canonical_replay(after),name)
+                else:self.assertEqual(before,after,name)
+                proof[name]={'before':hashlib.sha256(before).hexdigest(),
+                             'after':hashlib.sha256(after).hexdigest(),
+                             'comparison':'per-run identity bijection; all other bytes exact' if suffix=='replay.c' else 'exact bytes'}
         self.assertEqual(json.loads((corpus/'corpus-counts.json').read_text())['products'],73)
         (self.artifacts/'c-parity.json').write_text(json.dumps({'baseline':str(baseline),'exact':proof},indent=2)+'\n')
 

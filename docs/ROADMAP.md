@@ -14406,3 +14406,17 @@ through /opt/homebrew/bin. I retain the preflight exception/tool transcript and
 partial reports, correct only the external inventory path, and use fresh paths
 with file-backed outer launch output. No product or fixture executed; I do not
 classify this as a compiler failure or repeat an unrun gate under a false pass.
+
+My corrected05cd Darwin setup passes9.080s and discovers exactly four methods.
+The first C parity gate then fails on recorded VM pointer identities in replay
+text from separate captures. I retain that first terminal and all produced
+artifacts. Generated C must remain byte-exact; replay comparison must preserve
+alias relations rather than demand the same process addresses. Before rerunning
+I propose canonicalizing only nonzero expected identity literals, with a fresh
+bijection at each existing identity_count reset, and comparing every other byte
+and assertion exactly. Zero identities remain zero. This is a fixture comparison
+correction, not permission to weaken generated program or runtime observations.
+
+Read-only comparison of the retained first parity outputs confirms all73 generated
+C files exact and all73 replay files equal under that precise identity bijection,
+with no mismatches. I retain this diagnostic separately from future gate results.
