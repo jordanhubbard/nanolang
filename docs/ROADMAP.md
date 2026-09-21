@@ -1231,6 +1231,12 @@ their individual acceptance evidence closes them.
       weakening the original test. The retained coverage log has SHA-256
       `52ac99538831146c5bd91af503d8be3037b19bf3b5bf499ff3b224e84240d98d`.
       MAC `task_34bf8b5232b74ed080cbd21039e6aeb6`.
+      - [ ] My first fresh Linux bootstrap builds and smokes Stage 1, then
+        Stage 2 correctly refuses the new emitter shadow's undeclared
+        `str_index_of` helper. I preserve that terminal and replace only this
+        shadow oracle with supported exact call/`POP` sequence checks; the
+        Python integration test retains its stronger selector-before-callback
+        ordering assertion.
 
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
       accepted integer-zero spelling for an opaque null when foreign call
