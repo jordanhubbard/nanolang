@@ -87,3 +87,15 @@ the selected instrumentation. All other compiler providers remain ordinary
 with explicit before/after hashes. Interior array-growth allocations are not
 fault-injected by this fixture; existing terminal growth semantics stay open
 to their own tests. No old faulty split program is executed.
+
+My paired control requires an explicit three-role compiler manifest (`cseed`,
+`refresh1`, `refresh2`) and verifies each executable hash before and after.
+The outer refresh must retain the original producer/tools/products, compile
+with every normal shadow and deadline, then self-compile once. I label this
+chain a retained-producer refresh, never fresh C-seed bootstrap. Four positive
+programs check exact/inferred string arrays and byte segments, declared/local
+same-name functions and qualified declarations. Each route retains exact
+selected shadow multisets and actual execution. Five refusals check arity,
+source/delimiter type, array result type and element type with prior output
+sentinels intact. Actual clean C-seed bootstrap and full SDK acceptance remain
+mandatory after a separately reviewed merger substitution.
