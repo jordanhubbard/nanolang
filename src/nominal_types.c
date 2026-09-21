@@ -41,6 +41,76 @@ static bool nominal_slot(ASTNode *program, Environment *env, char **slot) {
     return true;
 }
 
+/* I distinguish constructor syntax from a qualified type annotation. */
+static bool nominal_literal_constructor(ASTNode *program, Environment *env, ASTNode *node) {
+    const char *name = node->as.struct_literal.struct_name;
+    const char *dot = name ? strrchr(name, '.') : NULL;
+    if (!dot || dot == name || !dot[1]) return true;
+    if (!env_reserve_opaque_symbol_prefix(env, name)) return false;
+    size_t length = (size_t)(dot - name);
+    char *prefix = malloc(length + 1);
+    if (!prefix) return false;
+    memcpy(prefix, name, length); prefix[length] = '\0';
+    const char *owner = env->current_module;
+    ASTNode *local_union = NULL;
+    int declarations = 0;
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_MODULE_DECL) owner = item->as.module_decl.name;
+        const char *declared = item->type == AST_UNION_DEF ? item->as.union_def.name :
+            item->type == AST_STRUCT_DEF ? item->as.struct_def.name :
+            item->type == AST_ENUM_DEF ? item->as.enum_def.name :
+            item->type == AST_OPAQUE_TYPE ? item->as.opaque_type.name : NULL;
+        const char *original = item->type == AST_STRUCT_DEF ? item->as.struct_def.original_name : NULL;
+        if ((declared && !strcmp(prefix, declared)) || (original && !strcmp(prefix, original))) {
+            ++declarations;
+            if (item->type == AST_UNION_DEF) local_union = item;
+        }
+    }
+    char **variants = NULL;
+    int count = 0;
+    if (declarations) {
+        if (declarations != 1) { free(prefix); return false; }
+        if (!local_union) { free(prefix); return true; }
+        variants = local_union->as.union_def.variant_names;
+        count = local_union->as.union_def.variant_count;
+    } else {
+        NominalIdentity identity = env_nominal_identity(env, prefix, owner, TYPE_UNION);
+        if (!identity.ordinal) { free(prefix); return true; }
+        if (identity.kind != TYPE_UNION || identity.ordinal > (size_t)env->union_count) {
+            free(prefix); return false;
+        }
+        UnionDef *definition = &env->unions[identity.ordinal - 1];
+        variants = definition->variant_names;
+        count = definition->variant_count;
+    }
+    int matches = 0;
+    for (int i = 0; variants && i < count; ++i)
+        if (variants[i] && !strcmp(variants[i], dot + 1)) ++matches;
+    if (matches != 1 || node->as.struct_literal.spread_source ||
+        !env_reserve_opaque_symbol_prefix(env, prefix) ||
+        !env_reserve_opaque_symbol_prefix(env, dot + 1)) {
+        free(prefix);
+        fprintf(stderr, "I require one declared union variant without a spread source\n");
+        return false;
+    }
+    char *variant = strdup(dot + 1);
+    if (!variant) { free(prefix); return false; }
+    char *old_name = node->as.struct_literal.struct_name;
+    char **field_names = node->as.struct_literal.field_names;
+    ASTNode **field_values = node->as.struct_literal.field_values;
+    int field_count = node->as.struct_literal.field_count;
+    memset(&node->as, 0, sizeof node->as);
+    node->as.union_construct.union_name = prefix;
+    node->as.union_construct.variant_name = variant;
+    node->as.union_construct.field_names = field_names;
+    node->as.union_construct.field_values = field_values;
+    node->as.union_construct.field_count = field_count;
+    node->type = AST_UNION_CONSTRUCT;
+    free(old_name);
+    return true;
+}
+
 static bool nominal_scoped_slot(ASTNode *program, Environment *env, char **slot, char **formals, int count) {
     for (int i = 0; slot && *slot && i < count; ++i)
         if (!strcmp(*slot, formals[i])) return true;
@@ -196,6 +266,8 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
                 }
             break;
         case AST_STRUCT_LITERAL:
+            if (!nominal_literal_constructor(program, env, node)) return false;
+            if (node->type == AST_UNION_CONSTRUCT) return nominal_node(program, env, node);
             NAMES(node->as.struct_literal.field_names, node->as.struct_literal.field_count);
             SLOT(node->as.struct_literal.struct_name);
             CHILDREN(node->as.struct_literal.field_values, node->as.struct_literal.field_count);
