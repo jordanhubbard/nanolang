@@ -467,6 +467,20 @@ class NativeSdk(unittest.TestCase):
         self.assertFalse(any((partial/'bin').iterdir()) if (partial/'bin').exists() else False)
         self.assert_package_unchanged()
 
+    def test_j_installed_dependency_header_origins(self):
+        from tests import file_module_dependency_headers as headers
+        test=self
+        class Adapter:
+            work=test.work
+            cc=test.cc
+            def __getattr__(self,name):return getattr(test,name)
+            def command(self,name,args,timeout=180,extra=None):
+                out,err,_=test.command('installed-'+name,args,timeout=timeout,extra=extra)
+                return out,err
+        with self.hidden_source():
+            headers.run(Adapter(),self.generation,installed=True)
+        self.assert_package_unchanged()
+
     def test_y_installer_special_inputs_and_owned_boundaries(self):
         stage=self.work/'special-sdk';stage.mkdir();os.mkfifo(stage/'sdk.inputs')
         self.command('fifo-manifest',[sys.executable,ROOT/'scripts/native_sdk.py','verify','--root',stage],expected=(1,),timeout=15)

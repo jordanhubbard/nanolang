@@ -228,3 +228,44 @@ limits remain unchanged. My fixture checkpoint must remove a required source,
 object and each compiler role while recomputing a self-consistent generation,
 then observe root/output refusal and zero provider invocations. Wrong/duplicate
 ABI declarations and non-executable roles remain separate required controls.
+
+## My unexecuted fixture checkpoint
+
+I run actual `make install` from a fresh source tree with no bin/obj/lib products,
+retaining the empty preinstall inventory and all build output. That target owns
+fresh bootstrap and the wrapper closure; I do not describe a prebuilt binary copy
+as clean installation. Reinstall must select the same generation. The ordinary
+installed generation is shared by the host's fresh selected discovery probes:
+GCC/Clang ordinary and ASan+UBSan on Linux, Apple/Homebrew ordinary and Homebrew
+ASan+UBSan on Darwin. Those probes compile only module_build_dir.c and their C
+harness under the selected instrumentation. Installed compilers/providers remain
+ordinary; full-provider sanitizer acceptance is not implied.
+
+My fixture runs the three installed producers with the source checkout renamed
+out of its original path, from a separate user directory, and checks complete
+selected shadows plus compiler argv. It covers read-only generations,504-byte
+record arrays, local imports plus SDK JSON, simultaneous native invocations,
+all36 provider ownership/co-import cases, real Forth bytecode, standalone and
+daemon wrappers using installed objects, both dependency-header import orders,
+and missing/ABI1/ABI2/unknown native foreign providers before entry. Foreign
+incompatibility is deliberately tested outside shadows; the existing abort
+terminal and absent entry marker remain exact assertions.
+
+I retain self-consistent missing-source/object/each-compiler-role manifests,
+wrong/duplicate ABI declarations, removed executable modes and invalid overrides.
+All three installed compilers must preserve existing output and make no observed
+compiler invocation when root discovery refuses. Required user-provider compiler
+failure and required list-generator failure are explicitly modeled real tool
+terminals, with final output preservation. My partial-install control injects a
+first regular-file fsync failure through the actual Python installer and checks
+its wrapped error/cause, no committed generation and retained user sentinel.
+This labels the injection; it does not claim a measured storage-device failure.
+
+FIFO manifests, unknown generation entries and a symlinked public bin ancestor
+remain negative controls. Actual Make uninstall must remove every owned row,
+command, File archive/header and manifest while retaining unrelated prefix and
+in-generation file/directory sentinels. All commands use durable output, bounded
+process-group cleanup and retained first terminal. The complete source File
+companion/parser/schema/refusal matrix remains required independently after SDK
+qualification; no File source execution or release completion follows from this
+fixture preparation.

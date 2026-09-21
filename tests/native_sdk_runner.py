@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import signal
+import shutil
 import subprocess
 import time
 
@@ -21,6 +22,12 @@ def run(directory, name, argv, cwd, extra=None, expected=(0,), timeout=180):
               'environment': {k: env.get(k) for k in ('PATH','CC','NANO_CC','TMPDIR','NANOLANG_SDK_ROOT',
                   'NANO_BUILD_CACHE','NANO_MODULE_PATH','NANO_SHADOW_TRACE','ASAN_OPTIONS','LSAN_OPTIONS','UBSAN_OPTIONS')}}
     (directory / (name + '-command.json')).write_text(json.dumps(record, indent=2) + '\n')
+    minimum=int(env.get('NANO_SDK_MIN_FREE_BYTES','0'))
+    free=shutil.disk_usage(directory).free
+    (directory/(name+'-capacity.json')).write_text(json.dumps(dict(free_bytes=free,minimum_bytes=minimum))+'\n')
+    if free<minimum:
+        (directory/(name+'-status.json')).write_text(json.dumps(dict(first_terminal='capacity_guard',returncode=None,free_bytes=free,minimum_bytes=minimum))+'\n')
+        raise AssertionError('I retain evidence and stop below the SDK command capacity guard')
     state = {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False}
     status_file = directory / (name + '-status.json')
     def retain():
