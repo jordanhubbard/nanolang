@@ -206,7 +206,8 @@ static size_t allocation_attempt(const NvmModule *source, const NvmV2Module *inp
     NvmV2Module view = {0};
     NvmV2Result result = NVM_V2_OK;
     char *text = NULL;
-    NvmV2Module before = *input;
+    NvmV2Module before;
+    memcpy(&before, input, sizeof before);
     uint8_t payload[256];
     CHECK(source->capture_size <= sizeof payload);
     memcpy(payload, source->capture_data, source->capture_size);
