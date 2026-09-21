@@ -33,6 +33,7 @@ static VmResult vm_ra_call_root(VmRecordArrayPrivate *p,uint32_t function) {
 }
 static void vm_ra_unwind(VmRecordArrayPrivate *p) {
     VmState *vm=&p->vm;
+    vm_frames_clear_bindings(vm, 0);
     while(vm->stack_size)vm_release(&vm->heap,stack_pop(vm));
     for(uint32_t i=0;i<vm->frame_count;i++) {
         vm_release(&vm->heap,vm->frames[i].owned_callable);
