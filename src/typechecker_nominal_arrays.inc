@@ -78,6 +78,10 @@ static bool nominal_array_builtin(ASTNode *expr, Environment *env, const char *n
 static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, NominalView *out) {
     if (!expr || depth > 128 || !out) return false;
     NominalView view = {0};
+    if (expr->type == AST_UNION_CONSTRUCT || expr->type == AST_STRUCT_LITERAL) {
+        const NominalView *retained = nominal_constructor_view(env, expr);
+        if (retained) return nominal_view_clone(env, retained, depth + 1, out);
+    }
     if (expr->type == AST_BLOCK && expr->as.block.count)
         return nominal_value_view(expr->as.block.statements[expr->as.block.count - 1], env, depth + 1, out);
     if (expr->type == AST_RETURN)
@@ -90,6 +94,7 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
             ASTNode *body = expr->type == AST_IF ? (i ? expr->as.if_stmt.else_branch : expr->as.if_stmt.then_branch)
                 : expr->type == AST_MATCH ? expr->as.match_expr.arm_bodies[i]
                 : i < expr->as.cond_expr.clause_count ? expr->as.cond_expr.values[i] : expr->as.cond_expr.else_value;
+            if (ast_always_returns(body)) continue;
             NominalView arm = {0};
             if (!nominal_value_view(body, env, depth + 1, &arm)) {
                 if (body && body->type == AST_ARRAY_LITERAL) continue;
@@ -119,14 +124,8 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
             return nominal_view_clone(env, symbol->checker_nominal_view, depth + 1, out);
         if (symbol) return nominal_view_copy(env, symbol->type_info, symbol->type, symbol->element_type,
             symbol->struct_type_name, symbol->type == TYPE_FUNCTION ? symbol->callable_owner : symbol->nominal_owner, out);
-        FunctionSignature *signature = NULL;
-        const char *owner = NULL;
-        if (nominal_callable_view(expr, env, depth + 1, &signature, &owner)) {
-            TypeInfo function = {.base_type = TYPE_FUNCTION, .fn_sig = signature};
-            bool ok = nominal_view_copy(env, &function, TYPE_FUNCTION, TYPE_UNKNOWN, NULL, owner, out);
-            free_function_signature(signature);
-            return ok;
-        }
+        Function *function = nominal_direct_function(expr, env);
+        if (function) return nominal_function_view(env, function, depth + 1, out);
     }
     if (expr->type == AST_FIELD_ACCESS) {
         ASTNode *object = expr->as.field_access.object;
@@ -193,43 +192,73 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
         if (!nominal_value_view(expr->as.call.args[1], env, depth + 1, &view) || !nominal_view_wrap_array(&view)) goto fail;
         *out = view; return true;
     }
+    /* reduce's separately checked exact accumulator/result contract preserves
+     * the initializer's full annotation, including callable contexts. */
+    if (nominal_array_builtin(expr, env, "reduce", 3))
+        return nominal_value_view(expr->as.call.args[1], env, depth + 1, out);
     if (nominal_array_builtin(expr, env, "map", 2) || nominal_array_builtin(expr, env, "filter", 2)) {
         bool filter = !strcmp(expr->as.call.name, "filter");
-        FunctionSignature *callback = NULL;
-        const char *owner = NULL;
-        if (!nominal_callable_view(expr->as.call.args[1], env, depth + 1, &callback, &owner)) return false;
-        bool ok = callback->param_count == 1 && callback->param_types &&
-            nominal_value_view(expr->as.call.args[0], env, depth + 1, &view) &&
-            view.info->base_type == TYPE_ARRAY && view.info->element_type;
+        NominalView callback = {0};
+        if (!nominal_callable_view(expr->as.call.args[1], env, depth + 1, &callback)) return false;
+        const FunctionSignature *signature = callback.info->fn_sig;
+        bool ok = signature->param_count == 1 && signature->param_types;
         NominalView parameter = {0};
-        if (ok && nominal_array_requires_context(env, view.info->element_type, view.owner, nominal_view_context(&view), depth + 1)) {
-            ok = nominal_view_copy(env, callback->param_type_info ? callback->param_type_info[0] : NULL,
-                callback->param_types[0], TYPE_UNKNOWN,
-                callback->param_struct_names ? callback->param_struct_names[0] : NULL, owner, &parameter) &&
-                checked_annotations_equal_context(env, view.info->element_type, view.owner, parameter.info, owner, depth + 1, nominal_view_context(&view), nominal_view_context(&parameter));
+        if (ok) {
+            TypeInfo flat = {.base_type = signature->param_types[0],
+                .generic_name = signature->param_struct_names ? signature->param_struct_names[0] : NULL};
+            const TypeInfo *annotation = signature->param_type_info && signature->param_type_info[0]
+                ? signature->param_type_info[0] : &flat;
+            ok = nominal_view_copy_context(env, annotation, callback.owner, nominal_view_context(&callback), depth + 1, &parameter);
+        }
+        ASTNode *input = expr->as.call.args[0];
+        if (ok && input->type == AST_ARRAY_LITERAL && input->as.array_literal.element_count == 0)
+            ok = nominal_view_clone(env, &parameter, depth + 1, &view) && nominal_view_wrap_array(&view);
+        else if (ok)
+            ok = nominal_value_view(input, env, depth + 1, &view) &&
+                 view.info->base_type == TYPE_ARRAY && view.info->element_type;
+        if (ok) {
+            if (nominal_array_requires_context(env, view.info->element_type, view.owner, nominal_view_context(&view), depth + 1) ||
+                nominal_array_requires_context(env, parameter.info, parameter.owner, nominal_view_context(&parameter), depth + 1))
+                ok = checked_annotations_equal_context(env, view.info->element_type, view.owner, parameter.info, parameter.owner,
+                    depth + 1, nominal_view_context(&view), nominal_view_context(&parameter));
+            else {
+                const TypeInfo *element = view.info->element_type;
+                const char *owner = view.owner;
+                const NominalSubstitution *context = nominal_view_context(&view);
+                ok = nominal_substitute_annotation(&element, &owner, &context) && element &&
+                     types_match(element->base_type, parameter.info->base_type);
+            }
         }
         nominal_view_discard(&parameter);
-        if (ok && filter) ok = callback->return_type == TYPE_BOOL;
+        NominalView result = {0};
+        if (ok) ok = nominal_callable_result(env, &callback, depth + 1, &result);
+        if (ok && filter) ok = result.info->base_type == TYPE_BOOL;
         if (ok && !filter) {
             nominal_view_discard(&view);
-            ok = nominal_view_copy(env, callback->return_type_info, callback->return_type, TYPE_UNKNOWN,
-                callback->return_struct_name, owner, &view) && nominal_view_wrap_array(&view);
+            view = result; memset(&result, 0, sizeof result);
+            ok = nominal_view_wrap_array(&view);
         }
-        free_function_signature(callback);
+        nominal_view_discard(&result);
+        nominal_view_discard(&callback);
         if (!ok) goto fail;
         *out = view; return true;
     }
     if (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL) {
         Function *function = nominal_direct_function(expr, env);
-        if (function) return nominal_view_copy(env, function->return_type_info, function->return_type,
-            function->return_element_type, function->return_struct_type_name,
-            env_function_signature_owner(env, function), out);
-        if (expr->type == AST_CALL && expr->as.call.checked_signature) {
-            FunctionSignature *signature = expr->as.call.checked_signature;
-            const char *owner = NULL;
-            if (!nominal_callable_owner(expr, env, depth + 1, &owner)) return false;
-            return nominal_view_copy(env, signature->return_type_info, signature->return_type, TYPE_UNKNOWN,
-                signature->return_struct_name, owner, out);
+        if (function) {
+            TypeInfo callable = {.base_type = TYPE_FUNCTION, .fn_sig = function->return_fn_sig};
+            const TypeInfo *info = function->return_type_info ? function->return_type_info
+                : function->return_type == TYPE_FUNCTION ? &callable : NULL;
+            return nominal_view_copy(env, info, function->return_type, function->return_element_type,
+                function->return_struct_type_name, env_function_signature_owner(env, function), out);
+        }
+        if (expr->type == AST_CALL && (expr->as.call.checked_signature || expr->as.call.func_expr ||
+            (expr->as.call.name && env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column)))) {
+            NominalView callee = {0};
+            if (!nominal_callee_view(expr, env, depth + 1, &callee)) return false;
+            bool ok = nominal_callable_result(env, &callee, depth + 1, out);
+            nominal_view_discard(&callee);
+            return ok;
         }
     }
     if (expr->type == AST_UNION_CONSTRUCT) {

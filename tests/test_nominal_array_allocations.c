@@ -209,6 +209,65 @@ static void owned_context_controls(void) {
         CHECK(owned_context_attempt(SIZE_MAX, false) == count);
     }
 }
+extern bool array_test_prepare_callable(Environment *);
+extern bool array_test_callable_consumer(Environment *, TypeInfo **);
+static size_t callable_context_attempt(size_t prefix, bool transient) {
+    Environment *env = create_environment(); CHECK(env);
+    for (int i = 0; i < 2; ++i) {
+        StructDef record = {0}; record.name = strdup("Item"); record.module_name = i ? "Caller" : "Definitions";
+        CHECK(record.name); env_define_struct(env, record);
+    }
+    env_define_var(env, "callback", TYPE_FUNCTION, false, create_void());
+    CHECK(array_test_prepare_callable(env));
+    Symbol *binding = env_get_var(env, "callback");
+    const void *proof = binding->checker_nominal_view;
+    TypeInfo *prior = binding->type_info;
+    TypeInfo sentinel = {.base_type = TYPE_BOOL}, *output = &sentinel;
+    begin(prefix, transient); bool ok = array_test_callable_consumer(env, &output); size_t count = stop();
+    if (prefix == SIZE_MAX) CHECK(ok && !failed && output != &sentinel);
+    else CHECK(!ok && failed && output == &sentinel);
+    CHECK(binding->type_info == prior && binding->checker_nominal_view == proof);
+    if (ok) free_payload_type_info(output);
+    CHECK(!live);
+    free_environment(env); CHECK(!live);
+    return count;
+}
+static void callable_context_controls(void) {
+    size_t count = callable_context_attempt(SIZE_MAX, false); CHECK(count > 30);
+    printf("I measure the retained callable consumer: %zu allocation attempts.\n", count);
+    for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+        callable_context_attempt(i, transient != 0);
+        CHECK(callable_context_attempt(SIZE_MAX, false) == count);
+    }
+}
+extern bool array_test_constructor_registry(Environment *, ASTNode *);
+static size_t constructor_registry_attempt(size_t prefix, bool transient) {
+    Environment *env = create_environment(); CHECK(env);
+    StructDef record = {0}; record.name = strdup("Item"); record.module_name = "Caller";
+    CHECK(record.name); env_define_struct(env, record);
+    UnionDef box = {0}; box.name = strdup("Box"); box.module_name = strdup("Caller");
+    box.generic_param_count = 1; box.generic_params = calloc(1, sizeof(char *));
+    CHECK(box.name && box.module_name && box.generic_params);
+    box.generic_params[0] = strdup("T"); CHECK(box.generic_params[0]);
+    env_define_union(env, box);
+    ASTNode prior = {.type = AST_UNION_CONSTRUCT}, next = {.type = AST_UNION_CONSTRUCT};
+    CHECK(array_test_constructor_registry(env, &prior));
+    const void *head = env->checker_nominal_expressions;
+    begin(prefix, transient); bool ok = array_test_constructor_registry(env, &next); size_t count = stop();
+    if (prefix == SIZE_MAX) CHECK(ok && !failed && env->checker_nominal_expressions != head);
+    else CHECK(!ok && failed && env->checker_nominal_expressions == head);
+    CHECK(array_test_constructor_registry(env, &prior));
+    free_environment(env); CHECK(!live);
+    return count;
+}
+static void constructor_registry_controls(void) {
+    size_t count = constructor_registry_attempt(SIZE_MAX, false); CHECK(count > 5);
+    printf("I measure constructor proof publication: %zu allocation attempts.\n", count);
+    for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+        constructor_registry_attempt(i, transient != 0);
+        CHECK(constructor_registry_attempt(SIZE_MAX, false) == count);
+    }
+}
 int main(void) {
     size_t count = copy_attempt(SIZE_MAX, false); CHECK(count > 20);
     printf("I measure the complete TypeInfo copy: %zu allocation attempts.\n", count);
@@ -222,7 +281,7 @@ int main(void) {
     CHECK(copy_payload_type_info_checked(chain + 1, &out)); free_payload_type_info(out);
     CHECK(copy_payload_type_info_checked(NULL, &out) && out == NULL);
     CHECK(!copy_payload_type_info_checked(chain, NULL));
-    registration_controls(); view_controls(); owned_context_controls();
+    registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); constructor_registry_controls();
     printf("I passed %zu separate checker annotation allocation assertions.\n", checks);
     return 0;
 }

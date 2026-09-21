@@ -388,9 +388,6 @@ static Function *nominal_direct_function(ASTNode *expr, Environment *env) {
 static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type type, unsigned depth);
 static FunctionSignature *function_result_signature(ASTNode *call, Environment *env);
 
-static bool nominal_callable_view(ASTNode *expr, Environment *env, unsigned depth,
-                                   FunctionSignature **signature, const char **owner);
-
 typedef struct CheckerNominalView {
     TypeInfo *info;
     const char *owner;
@@ -404,38 +401,10 @@ static bool nominal_array_builtin(ASTNode *, Environment *, const char *, int);
 static bool nominal_array_requires_identity(Environment *, const TypeInfo *, const char *, unsigned);
 static bool nominal_array_matches(Environment *, const TypeInfo *, const char *, ASTNode *, unsigned);
 
-static bool nominal_callable_owner(ASTNode *expr, Environment *env, unsigned depth,
-                                    const char **owner) {
-    if (!expr || depth > 128) return false;
-    if (expr->type == AST_IF || expr->type == AST_COND || expr->type == AST_MATCH) {
-        FunctionSignature *signature = NULL;
-        bool valid = nominal_callable_view(expr, env, depth + 1, &signature, owner);
-        free_function_signature(signature);
-        return valid;
-    }
-    Function *fn = nominal_direct_function(expr, env);
-    if (fn) { *owner = env_function_signature_owner(env, fn); return true; }
-    const char *name = expr->type == AST_IDENTIFIER ? expr->as.identifier
-        : expr->type == AST_CALL && !expr->as.call.func_expr ? expr->as.call.name : NULL;
-    Symbol *sym = name ? env_get_var_visible_at(env, name, expr->line, expr->column) : NULL;
-    if (sym && sym->type == TYPE_FUNCTION) { *owner = sym->callable_owner; return true; }
-    if (expr->type == AST_FIELD_ACCESS) {
-        NominalIdentity id = nominal_expression(expr->as.field_access.object, env, TYPE_STRUCT, depth + 1);
-        if (!id.ordinal || id.kind != TYPE_STRUCT) return false;
-        StructDef *record = &env->structs[id.ordinal - 1];
-        for (int i = 0; i < record->field_count; ++i)
-            if (record->field_types[i] == TYPE_FUNCTION &&
-                !strcmp(record->field_names[i], expr->as.field_access.field_name)) {
-                *owner = record->module_name;
-                return true;
-            }
-    }
-    if (expr->type == AST_CALL && expr->as.call.func_expr)
-        return nominal_callable_owner(expr->as.call.func_expr, env, depth + 1, owner);
-    if (expr->type == AST_BLOCK && expr->as.block.count)
-        return nominal_callable_owner(expr->as.block.statements[expr->as.block.count - 1], env, depth + 1, owner);
-    return false;
-}
+static bool nominal_callable_view(ASTNode *, Environment *, unsigned, NominalView *);
+static bool nominal_callee_view(ASTNode *, Environment *, unsigned, NominalView *);
+static bool nominal_callable_result(Environment *, const NominalView *, unsigned, NominalView *);
+static bool nominal_function_view(Environment *, Function *, unsigned, NominalView *);
 
 static const char *list_annotation_spelling(const TypeInfo *info, const char *fallback) {
     if (!info) return fallback;
@@ -761,83 +730,6 @@ static bool checked_signature_equal(Environment *env, const FunctionSignature *a
     return checked_signature_equal_context(env, a, a_owner, b, b_owner, depth, NULL, NULL);
 }
 
-/* A representative always carries its own signature and owner together. I own
- * this signature copy; branch comparisons never change source annotations. */
-static bool nominal_callable_view(ASTNode *expr, Environment *env, unsigned depth,
-                                   FunctionSignature **signature, const char **owner) {
-    if (!expr || depth > 128 || !signature || !owner) return false;
-    *signature = NULL;
-    if (expr->type == AST_BLOCK && expr->as.block.count)
-        return nominal_callable_view(expr->as.block.statements[expr->as.block.count - 1], env,
-                                     depth + 1, signature, owner);
-    if (expr->type == AST_RETURN)
-        return nominal_callable_view(expr->as.return_stmt.value, env, depth + 1, signature, owner);
-    if (expr->type == AST_IF || expr->type == AST_COND || expr->type == AST_MATCH) {
-        int count = expr->type == AST_IF ? 2 : expr->type == AST_MATCH
-            ? expr->as.match_expr.arm_count : expr->as.cond_expr.clause_count + 1;
-        if (count <= 0) return false;
-        FunctionSignature *first = NULL;
-        const char *first_owner = NULL;
-        for (int i = 0; i < count; ++i) {
-            ASTNode *body = expr->type == AST_IF ? (i ? expr->as.if_stmt.else_branch : expr->as.if_stmt.then_branch)
-                : expr->type == AST_MATCH ? expr->as.match_expr.arm_bodies[i]
-                : i < expr->as.cond_expr.clause_count ? expr->as.cond_expr.values[i] : expr->as.cond_expr.else_value;
-            FunctionSignature *current = NULL;
-            const char *current_owner = NULL;
-            if (!nominal_callable_view(body, env, depth + 1, &current, &current_owner) ||
-                (first && !checked_signature_equal(env, first, first_owner, current, current_owner, depth + 1))) {
-                free_function_signature(current);
-                free_function_signature(first);
-                return false;
-            }
-            if (!first) { first = current; first_owner = current_owner; }
-            else free_function_signature(current);
-        }
-        *signature = first;
-        *owner = first_owner;
-        return true;
-    }
-    Function *fn = nominal_direct_function(expr, env);
-    if (fn) {
-        *signature = expr->type == AST_IDENTIFIER ? function_signature_from_function(fn)
-            : fn->return_type == TYPE_FUNCTION ? copy_function_signature(fn->return_fn_sig) : NULL;
-        *owner = env_function_signature_owner(env, fn);
-        return *signature != NULL;
-    }
-    if (expr->type == AST_CALL && expr->as.call.func_expr) {
-        FunctionSignature *callee = NULL;
-        const char *callee_owner = NULL;
-        if (!nominal_callable_view(expr->as.call.func_expr, env, depth + 1, &callee, &callee_owner)) return false;
-        if (callee->return_type == TYPE_FUNCTION) *signature = copy_function_signature(callee->return_fn_sig);
-        free_function_signature(callee);
-        *owner = callee_owner;
-        return *signature != NULL;
-    }
-    const char *name = expr->type == AST_IDENTIFIER ? expr->as.identifier
-        : expr->type == AST_CALL ? expr->as.call.name : NULL;
-    Symbol *sym = name ? env_get_var_visible_at(env, name, expr->line, expr->column) : NULL;
-    if (sym && sym->type == TYPE_FUNCTION && sym->type_info && sym->type_info->fn_sig) {
-        FunctionSignature *source = sym->type_info->fn_sig;
-        *signature = copy_function_signature(expr->type == AST_IDENTIFIER ? source : source->return_fn_sig);
-        *owner = sym->callable_owner;
-        return *signature != NULL;
-    }
-    if (expr->type == AST_FIELD_ACCESS) {
-        NominalIdentity id = nominal_expression(expr->as.field_access.object, env, TYPE_STRUCT, depth + 1);
-        if (!id.ordinal || id.kind != TYPE_STRUCT) return false;
-        StructDef *record = &env->structs[id.ordinal - 1];
-        for (int i = 0; i < record->field_count; ++i)
-            if (record->field_types[i] == TYPE_FUNCTION &&
-                !strcmp(record->field_names[i], expr->as.field_access.field_name)) {
-                TypeInfo *info = record->field_type_info ? record->field_type_info[i] : NULL;
-                *signature = copy_function_signature(info ? info->fn_sig : NULL);
-                *owner = record->module_name;
-                return *signature != NULL;
-            }
-    }
-    return false;
-}
-
 #include "typechecker_nominal_context.inc"
 
 static NominalIdentity nominal_view_identity(Environment *env, const NominalView *view, Type type) {
@@ -922,10 +814,13 @@ static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type 
         if (fn) return fn->return_type == type
             ? nominal_annotation(env, type, fn->return_type_info, fn->return_struct_type_name, env_function_signature_owner(env, fn)) : none;
         if (expr->type != AST_CALL) return none;
-        const char *owner = NULL;
-        FunctionSignature *sig = expr->as.call.checked_signature;
-        if (sig && sig->return_type == type && nominal_callable_owner(expr, env, depth + 1, &owner))
-            return nominal_annotation(env, type, sig->return_type_info, sig->return_struct_name, owner);
+        if (expr->as.call.checked_signature) {
+            NominalView result = {0};
+            bool known = nominal_value_view(expr, env, depth + 1, &result);
+            NominalIdentity identity = known ? nominal_view_identity(env, &result, type) : none;
+            nominal_view_discard(&result);
+            return identity;
+        }
         const char *name = expr->as.call.name;
         if (expr->as.call.func_expr || !name || strlen(name) <= 5 ||
             (strncmp(name, "list_", 5) && strncmp(name, "List_", 5)) ||
@@ -947,6 +842,45 @@ static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type 
 }
 
 #include "typechecker_nominal_arrays.inc"
+
+/* The callable proof owns the same context as every other nominal value. */
+static bool nominal_callable_view(ASTNode *expr, Environment *env, unsigned depth, NominalView *out) {
+    NominalView view = {0};
+    if (!nominal_value_view(expr, env, depth + 1, &view) || view.payload ||
+        !view.info || view.info->base_type != TYPE_FUNCTION || !view.info->fn_sig) {
+        nominal_view_discard(&view);
+        return false;
+    }
+    *out = view;
+    return true;
+}
+static bool nominal_function_view(Environment *env, Function *function, unsigned depth, NominalView *out) {
+    FunctionSignature *signature = function_signature_from_function(function);
+    if (!signature) return false; /* The legacy declaration copier retains its documented fatal OOM boundary. */
+    TypeInfo source = {.base_type = TYPE_FUNCTION, .fn_sig = signature};
+    bool ok = nominal_view_copy_context(env, &source, env_function_signature_owner(env, function), NULL, depth + 1, out);
+    free_function_signature(signature);
+    return ok;
+}
+static bool nominal_callee_view(ASTNode *call, Environment *env, unsigned depth, NominalView *out) {
+    if (!call || depth > 128 || (call->type != AST_CALL && call->type != AST_MODULE_QUALIFIED_CALL)) return false;
+    Function *function = nominal_direct_function(call, env);
+    if (function) return nominal_function_view(env, function, depth + 1, out);
+    if (call->type != AST_CALL) return false;
+    if (call->as.call.func_expr) return nominal_callable_view(call->as.call.func_expr, env, depth + 1, out);
+    if (!call->as.call.name) return false;
+    ASTNode identifier = {.type = AST_IDENTIFIER, .line = call->line, .column = call->column};
+    identifier.as.identifier = call->as.call.name;
+    return nominal_callable_view(&identifier, env, depth + 1, out);
+}
+static bool nominal_callable_result(Environment *env, const NominalView *callee, unsigned depth, NominalView *out) {
+    if (depth > 128 || callee->payload || !callee->info || callee->info->base_type != TYPE_FUNCTION || !callee->info->fn_sig) return false;
+    const FunctionSignature *signature = callee->info->fn_sig;
+    TypeInfo flat = {.base_type = signature->return_type, .generic_name = signature->return_struct_name,
+                     .fn_sig = signature->return_fn_sig};
+    return nominal_view_copy_context(env, signature->return_type_info ? signature->return_type_info : &flat,
+        callee->owner, nominal_view_context(callee), depth + 1, out);
+}
 
 /* I retain both the scrutinee arguments and the exact selected variant. */
 static bool retain_union_binding_context(Environment *env, Symbol *binding,
@@ -994,11 +928,13 @@ static const char *list_nominal_name(ASTNode *expr, Environment *env, Type type)
 
 static bool check_callable_contract(Environment *env, const FunctionSignature *expected,
                                      const char *expected_owner, ASTNode *value, unsigned depth) {
-    FunctionSignature *actual = NULL;
-    const char *actual_owner = NULL;
-    if (!expected || !nominal_callable_view(value, env, depth + 1, &actual, &actual_owner)) return false;
-    bool matches = checked_signature_equal(env, expected, expected_owner, actual, actual_owner, depth + 1);
-    free_function_signature(actual);
+    NominalView actual = {0};
+    if (!expected || !nominal_callable_view(value, env, depth + 1, &actual)) return false;
+    bool matches = nominal_view_context(&actual)
+        ? checked_signature_equal_context(env, expected, expected_owner, actual.info->fn_sig, actual.owner,
+            depth + 1, NULL, nominal_view_context(&actual))
+        : checked_signature_equal(env, expected, expected_owner, actual.info->fn_sig, actual.owner, depth + 1);
+    nominal_view_discard(&actual);
     return matches;
 }
 
@@ -1035,19 +971,33 @@ static bool nominal_array_matches_context(Environment *env, const TypeInfo *expe
         int count = value->type == AST_IF ? 2 : value->type == AST_MATCH
             ? value->as.match_expr.arm_count : value->as.cond_expr.clause_count + 1;
         if (count <= 0) return false;
+        bool has_value = false;
         for (int i = 0; i < count; ++i) {
             ASTNode *body = value->type == AST_IF ? (i ? value->as.if_stmt.else_branch : value->as.if_stmt.then_branch)
                 : value->type == AST_MATCH ? value->as.match_expr.arm_bodies[i]
                 : i < value->as.cond_expr.clause_count ? value->as.cond_expr.values[i] : value->as.cond_expr.else_value;
+            if (ast_always_returns(body)) continue;
+            has_value = true;
             if (!nominal_array_matches_context(env, expected, owner, body, depth + 1, context)) return false;
         }
-        return true;
+        return has_value;
     }
     if (expected->base_type == TYPE_ARRAY && value->type == AST_ARRAY_LITERAL) {
         if (!expected->element_type || value->as.array_literal.element_count < 0) return false;
         for (int i = 0; i < value->as.array_literal.element_count; ++i)
             if (!nominal_array_matches_context(env, expected->element_type, owner,
                     value->as.array_literal.elements[i], depth + 1, context)) return false;
+        return true;
+    }
+    if (expected->base_type == TYPE_TUPLE && value->type == AST_TUPLE_LITERAL) {
+        if (expected->tuple_element_count != value->as.tuple_literal.element_count ||
+            (expected->tuple_element_count && !expected->tuple_types)) return false;
+        for (int i = 0; i < expected->tuple_element_count; ++i) {
+            TypeInfo element = {.base_type = expected->tuple_types[i],
+                .generic_name = expected->tuple_type_names ? expected->tuple_type_names[i] : NULL};
+            if (!nominal_array_matches_context(env, &element, owner,
+                    value->as.tuple_literal.elements[i], depth + 1, context)) return false;
+        }
         return true;
     }
     NominalView actual = {0};
@@ -1587,6 +1537,12 @@ static bool nominal_union_array_origins(Environment *env, const TypeInfo *expect
     const char *owner, const NominalSubstitution *context, ASTNode *value, unsigned depth) {
     if (!expected || !value) return true;
     if (depth > 128 || !nominal_substitute_annotation(&expected, &owner, &context)) return false;
+    if (context && (expected->base_type == TYPE_FUNCTION || expected->base_type == TYPE_TUPLE)) {
+        /* I establish lexical branch/payload bindings before consuming their
+         * original contextual annotations. No runtime expression is evaluated. */
+        if (check_expression(value, env) == TYPE_UNKNOWN) return false;
+        return nominal_array_matches_context(env, expected, owner, value, depth + 1, context);
+    }
     if (value->type == AST_BLOCK && value->as.block.count)
         return nominal_union_array_origins(env, expected, owner, context,
             value->as.block.statements[value->as.block.count - 1], depth + 1);
@@ -1600,6 +1556,7 @@ static bool nominal_union_array_origins(Environment *env, const TypeInfo *expect
             ASTNode *body = value->type == AST_IF ? (i ? value->as.if_stmt.else_branch : value->as.if_stmt.then_branch)
                 : value->type == AST_MATCH ? value->as.match_expr.arm_bodies[i]
                 : i < value->as.cond_expr.clause_count ? value->as.cond_expr.values[i] : value->as.cond_expr.else_value;
+            if (ast_always_returns(body)) continue;
             if (!nominal_union_array_origins(env, expected, owner, context, body, depth + 1)) return false;
         }
         return true;
@@ -1654,6 +1611,14 @@ static bool nominal_union_array_origins(Environment *env, const TypeInfo *expect
         values = value->as.struct_literal.field_values;
         count = value->as.struct_literal.field_count;
     } else return true;
+    const NominalView *prior = nominal_constructor_view(env, value);
+    if (prior) {
+        if (!checked_annotations_equal_context(env, expected, owner, prior->info, prior->owner,
+                depth + 1, context, nominal_view_context(prior))) return false;
+    } else if (value->type == AST_UNION_CONSTRUCT && value->as.union_construct.type_info &&
+               value->as.union_construct.type_info->type_param_count > 0 &&
+               !checked_annotations_equal_context(env, expected, owner, value->as.union_construct.type_info,
+                   env->current_module, depth + 1, context, NULL)) return false;
     int arm = -1;
     for (int i = 0; i < definition->variant_count; ++i)
         if (!strcmp(definition->variant_names[i], variant)) arm = i;
@@ -1668,7 +1633,7 @@ static bool nominal_union_array_origins(Environment *env, const TypeInfo *expect
                     &substitution, values[i], depth + 1)) return false;
             break;
         }
-    return true;
+    return nominal_constructor_retain(env, value, expected, owner, context, depth + 1);
 }
 
 static void apply_concrete_union_arrays(Environment *env, const TypeInfo *expected,
@@ -1777,7 +1742,7 @@ static void apply_concrete_union_arrays(Environment *env, const TypeInfo *expect
         if (env_get_union(env, value->as.union_construct.union_name) != def) return;
         /* I keep explicit arguments before applying an inferred context. */
         const TypeInfo *actual = value->as.union_construct.type_info;
-        if (actual && actual->type_param_count > 0) {
+        if (actual && actual->type_param_count > 0 && !nominal_constructor_view(env, value)) {
             bool exact = actual->type_param_count == expected->type_param_count;
             for (int i = 0; exact && i < actual->type_param_count; ++i)
                 exact = actual->type_params && expected->type_params &&
@@ -2072,31 +2037,20 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
 
 static FunctionSignature *function_result_signature(ASTNode *call, Environment *env);
 
-/* I borrow the callback declaration; no temporary signature escapes this query. */
+/* These scalar summaries never replace the contextual callback proof. */
 static Type map_callback_type(ASTNode *callback, Environment *env, int *arity, Type *argument) {
-    FunctionSignature *sig = NULL;
-    *arity = -1;
-    *argument = TYPE_UNKNOWN;
-    if (callback->type == AST_IDENTIFIER) {
-        Symbol *symbol = env_get_var_visible_at(env, callback->as.identifier,
-                                               callback->line, callback->column);
-        if (symbol) {
-            sig = symbol->type_info ? symbol->type_info->fn_sig : NULL;
-        } else {
-            Function *function = env_get_function(env, callback->as.identifier);
-            if (function) {
-                *arity = function->param_count;
-                if (*arity == 1) *argument = function->params[0].type;
-                return function->return_type;
-            }
-        }
-    } else if (callback->type == AST_CALL) {
-        sig = function_result_signature(callback, env);
+    *arity = -1; *argument = TYPE_UNKNOWN;
+    NominalView view = {0}; TypeInfo *concrete = NULL;
+    if (!nominal_callable_view(callback, env, 0, &view) ||
+        !nominal_materialize(env, view.info, view.owner, nominal_view_context(&view), 0, &concrete)) {
+        nominal_view_discard(&view); return TYPE_UNKNOWN;
     }
-    if (!sig) return TYPE_UNKNOWN;
-    *arity = sig->param_count;
-    if (*arity == 1) *argument = sig->param_types[0];
-    return sig->return_type;
+    FunctionSignature *signature = concrete->fn_sig;
+    *arity = signature->param_count;
+    if (*arity == 1) *argument = signature->param_types[0];
+    Type result = signature->return_type;
+    free_payload_type_info(concrete); nominal_view_discard(&view);
+    return result;
 }
 
 Type map_transform_result_type(ASTNode *callback, Environment *env) {
@@ -2470,206 +2424,50 @@ static bool retain_let_function_type(TypeChecker *tc, ASTNode *statement, Type d
     return true;
 }
 
-/* I compare complete reduce identities without the general compatibility rules.
- * These views borrow annotations; none escape this check. */
-static TypeInfo reduce_type_view(Type type, const char *name, const TypeInfo *info) {
-    if (info) return *info;
-    TypeInfo view = {.base_type = type, .generic_name = (char *)name};
-    return view;
-}
-
-/* I recover nominal annotations erased by the legacy declaration pass. */
-static Type reduce_identity_kind(const TypeInfo *info, Environment *env) {
-    if (info->generic_name) {
-        if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_INT ||
-             info->base_type == TYPE_ENUM) && env_get_enum(env, info->generic_name))
-            return TYPE_ENUM;
-        if (info->base_type == TYPE_STRUCT && env_get_union(env, info->generic_name))
-            return TYPE_UNION;
-    }
-    return info->base_type;
-}
-
-static bool reduce_types_exact(const TypeInfo *a, const TypeInfo *b,
-                               Environment *env, unsigned depth) {
-    if (!a || !b || depth > 128 || a->is_open_row || b->is_open_row ||
-        a->type_var_count || b->type_var_count) return false;
-    Type at = reduce_identity_kind(a, env);
-    Type bt = reduce_identity_kind(b, env);
-    if (at != bt) return false;
-    switch (at) {
-        case TYPE_INT: case TYPE_U8: case TYPE_FLOAT: case TYPE_BOOL:
-        case TYPE_STRING: case TYPE_BSTRING:
-        case TYPE_LIST_INT: case TYPE_LIST_STRING: case TYPE_LIST_TOKEN:
-            return true;
-        case TYPE_ARRAY:
-            return reduce_types_exact(a->element_type, b->element_type, env, depth + 1);
-        case TYPE_STRUCT: case TYPE_ENUM: case TYPE_UNION: {
-            if (!a->generic_name || !b->generic_name) return false;
-            bool same = false;
-            if (at == TYPE_STRUCT) {
-                /* My record declarations have no generic parameter list. */
-                if (a->type_param_count || b->type_param_count) return false;
-                StructDef *left = env_get_struct(env, a->generic_name);
-                same = left && left == env_get_struct(env, b->generic_name);
-            } else if (at == TYPE_ENUM) {
-                if (a->type_param_count || b->type_param_count) return false;
-                EnumDef *left = env_get_enum(env, a->generic_name);
-                same = left && left == env_get_enum(env, b->generic_name);
-            } else {
-                UnionDef *left = env_get_union(env, a->generic_name);
-                same = left && left == env_get_union(env, b->generic_name);
-                if (left && left->generic_param_count != a->type_param_count) return false;
-            }
-            if (!same || a->type_param_count != b->type_param_count ||
-                a->type_param_count < 0) return false;
-            for (int i = 0; i < a->type_param_count; ++i)
-                if (!a->type_params || !b->type_params ||
-                    !reduce_types_exact(a->type_params[i], b->type_params[i], env, depth + 1))
-                    return false;
-            return true;
-        }
-        case TYPE_HASHMAP: case TYPE_LIST_GENERIC: {
-            int count = at == TYPE_HASHMAP ? 2 : 1;
-            if (a->type_param_count != count || b->type_param_count != count ||
-                !a->type_params || !b->type_params) return false;
-            for (int i = 0; i < count; ++i)
-                if (!reduce_types_exact(a->type_params[i], b->type_params[i], env, depth + 1))
-                    return false;
-            return true;
-        }
-        case TYPE_TUPLE:
-            if (a->tuple_element_count != b->tuple_element_count || a->tuple_element_count < 0)
-                return false;
-            for (int i = 0; i < a->tuple_element_count; ++i) {
-                if (!a->tuple_types || !b->tuple_types) return false;
-                TypeInfo left = reduce_type_view(a->tuple_types[i],
-                    a->tuple_type_names ? a->tuple_type_names[i] : NULL, NULL);
-                TypeInfo right = reduce_type_view(b->tuple_types[i],
-                    b->tuple_type_names ? b->tuple_type_names[i] : NULL, NULL);
-                if (!reduce_types_exact(&left, &right, env, depth + 1)) return false;
-            }
-            return true;
-        case TYPE_FUNCTION: {
-            FunctionSignature *left = a->fn_sig, *right = b->fn_sig;
-            if (!left || !right || left->param_count != right->param_count ||
-                left->param_count < 0) return false;
-            for (int i = 0; i < left->param_count; ++i) {
-                if (!left->param_types || !right->param_types) return false;
-                TypeInfo lp = reduce_type_view(left->param_types[i],
-                    left->param_struct_names ? left->param_struct_names[i] : NULL,
-                    left->param_type_info ? left->param_type_info[i] : NULL);
-                TypeInfo rp = reduce_type_view(right->param_types[i],
-                    right->param_struct_names ? right->param_struct_names[i] : NULL,
-                    right->param_type_info ? right->param_type_info[i] : NULL);
-                if (!reduce_types_exact(&lp, &rp, env, depth + 1)) return false;
-            }
-            TypeInfo lr = reduce_type_view(left->return_type, left->return_struct_name,
-                                            left->return_type_info);
-            TypeInfo rr = reduce_type_view(right->return_type, right->return_struct_name,
-                                            right->return_type_info);
-            if (!lr.fn_sig) lr.fn_sig = left->return_fn_sig;
-            if (!rr.fn_sig) rr.fn_sig = right->return_fn_sig;
-            if (lr.base_type == TYPE_VOID && rr.base_type == TYPE_VOID) return true;
-            return reduce_types_exact(&lr, &rr, env, depth + 1);
-        }
-        case TYPE_OPAQUE:
-            return a->opaque_type_name && b->opaque_type_name &&
-                !strcmp(a->opaque_type_name, b->opaque_type_name);
-        default:
-            return false;
-    }
-}
-
-static bool reduce_expression_matches(ASTNode *expression, const TypeInfo *expected,
-                                      Environment *env, unsigned depth) {
-    if (!expression || !expected || depth > 128) return false;
-    Type actual = check_expression(expression, env);
-    if (actual == TYPE_UNKNOWN || actual == TYPE_VOID) return false;
-    if (actual == TYPE_ARRAY && expression->type == AST_ARRAY_LITERAL) {
-        if (reduce_identity_kind(expected, env) != TYPE_ARRAY ||
-            !reduce_types_exact(expected, expected, env, depth + 1)) return false;
-        for (int i = 0; i < expression->as.array_literal.element_count; ++i)
-            if (!reduce_expression_matches(expression->as.array_literal.elements[i],
-                    expected->element_type, env, depth + 1)) return false;
-        return true;
-    }
-    const char *name = get_struct_type_name(expression, env);
-    if (actual == TYPE_ENUM && expression->type == AST_FIELD_ACCESS &&
-        expression->as.field_access.object->type == AST_IDENTIFIER)
-        name = expression->as.field_access.object->as.identifier;
-    TypeInfo view = reduce_type_view(actual, name, try_get_expr_type_info(expression, env));
-    return reduce_types_exact(&view, expected, env, depth + 1);
-}
-
+/* Reduce keeps its existing exact (non-promoting) accumulator contract. */
 static Type check_reduce_call(ASTNode *call, Environment *env) {
     if (call->as.call.arg_count != 3) {
         emit_context_error("E003 ARITY MISMATCH", call->line, call->column, 1,
-            "I require exactly three operands for reduce.",
-            "Pass an array, an initializer and a binary callback.");
+            "I require exactly three operands for reduce.", "Pass an array, an initializer and a binary callback.");
         return TYPE_UNKNOWN;
     }
-    ASTNode *array = call->as.call.args[0], *initial = call->as.call.args[1];
-    ASTNode *callback = call->as.call.args[2];
+    ASTNode *array = call->as.call.args[0], *initial = call->as.call.args[1], *callback = call->as.call.args[2];
     Type array_type = check_expression(array, env);
     Type initial_type = check_expression(initial, env);
     Type callback_type = check_expression(callback, env);
-    Function *function = NULL;
-    FunctionSignature *signature = NULL;
-    if (callback->type == AST_IDENTIFIER) {
-        Symbol *value = env_get_var_visible_at(env, callback->as.identifier,
-                                               callback->line, callback->column);
-        if (value) signature = value->type_info ? value->type_info->fn_sig : NULL;
-        else function = env_get_function(env, callback->as.identifier);
-    } else if (callback->type == AST_CALL) {
-        signature = function_result_signature(callback, env);
-    } else {
-        TypeInfo *info = try_get_expr_type_info(callback, env);
-        signature = info ? info->fn_sig : NULL;
-    }
-    TypeInfo parameters[2] = {{.base_type = TYPE_UNKNOWN}, {.base_type = TYPE_UNKNOWN}};
-    TypeInfo result = {.base_type = TYPE_UNKNOWN};
-    if (function && function->param_count == 2 && function->params) {
-        for (int i = 0; i < 2; ++i) {
-            Parameter *parameter = &function->params[i];
-            parameters[i] = reduce_type_view(parameter->type, parameter->struct_type_name,
-                                              parameter->type_info);
-            if (!parameters[i].fn_sig) parameters[i].fn_sig = parameter->fn_sig;
-        }
-        result = reduce_type_view(function->return_type, function->return_struct_type_name,
-                                  function->return_type_info);
-        if (!result.fn_sig) result.fn_sig = function->return_fn_sig;
-    } else if (signature && signature->param_count == 2 && signature->param_types) {
-        for (int i = 0; i < 2; ++i)
-            parameters[i] = reduce_type_view(signature->param_types[i],
-                signature->param_struct_names ? signature->param_struct_names[i] : NULL,
-                signature->param_type_info ? signature->param_type_info[i] : NULL);
-        result = reduce_type_view(signature->return_type, signature->return_struct_name,
-                                  signature->return_type_info);
-        if (!result.fn_sig) result.fn_sig = signature->return_fn_sig;
-    }
+    NominalView callable = {0}, parameters[2] = {{0}}, result = {0}, input = {0};
     bool valid = array_type == TYPE_ARRAY && callback_type == TYPE_FUNCTION &&
         initial_type != TYPE_UNKNOWN && initial_type != TYPE_VOID &&
-        reduce_types_exact(&parameters[0], &result, env, 0) &&
-        reduce_types_exact(&parameters[1], &parameters[1], env, 0) &&
-        reduce_expression_matches(initial, &parameters[0], env, 0);
-    if (valid && array->type == AST_ARRAY_LITERAL) {
-        Type element = infer_array_element_type(array, env);
-        Type wanted = reduce_identity_kind(&parameters[1], env);
-        /* I check nonempty leaves by identity: the container kind can still
-         * be the parser's unresolved nominal kind. Empty literals need facts. */
-        TypeInfo empty_element = {.base_type = element};
-        valid = array->as.array_literal.element_count > 0 ||
-            (element == wanted && reduce_types_exact(&empty_element, &parameters[1], env, 0));
-        for (int i = 0; valid && i < array->as.array_literal.element_count; ++i)
-            valid = reduce_expression_matches(array->as.array_literal.elements[i],
-                                               &parameters[1], env, 0);
-    } else if (valid) {
-        TypeInfo *array_info = try_get_expr_type_info(array, env);
-        TypeInfo element = reduce_type_view(infer_array_element_type(array, env), NULL,
-            array_info && array_info->base_type == TYPE_ARRAY ? array_info->element_type : NULL);
-        valid = reduce_types_exact(&element, &parameters[1], env, 0);
+        nominal_callable_view(callback, env, 0, &callable);
+    const FunctionSignature *signature = valid ? callable.info->fn_sig : NULL;
+    valid = valid && signature->param_count == 2 && signature->param_types;
+    for (int i = 0; valid && i < 2; ++i) {
+        TypeInfo flat = {.base_type = signature->param_types[i],
+            .generic_name = signature->param_struct_names ? signature->param_struct_names[i] : NULL};
+        const TypeInfo *annotation = signature->param_type_info && signature->param_type_info[i]
+            ? signature->param_type_info[i] : &flat;
+        valid = nominal_view_copy_context(env, annotation, callable.owner, nominal_view_context(&callable), 0, &parameters[i]);
     }
+    valid = valid && nominal_callable_result(env, &callable, 0, &result) &&
+        checked_annotations_equal_context(env, parameters[0].info, parameters[0].owner, result.info, result.owner,
+            0, nominal_view_context(&parameters[0]), nominal_view_context(&result)) &&
+        nominal_array_matches_context(env, parameters[0].info, parameters[0].owner, initial, 0, nominal_view_context(&parameters[0]));
+    if (valid && array->type == AST_ARRAY_LITERAL) {
+        if (!array->as.array_literal.element_count) {
+            TypeInfo empty_element = {.base_type = infer_array_element_type(array, env)};
+            valid = checked_annotations_equal_context(env, &empty_element, env->current_module,
+                parameters[1].info, parameters[1].owner, 0, NULL, nominal_view_context(&parameters[1]));
+        }
+        for (int i = 0; valid && i < array->as.array_literal.element_count; ++i)
+            valid = nominal_array_matches_context(env, parameters[1].info, parameters[1].owner,
+                array->as.array_literal.elements[i], 0, nominal_view_context(&parameters[1]));
+    } else if (valid) {
+        valid = nominal_value_view(array, env, 0, &input) && nominal_view_element(env, &input, 0) &&
+            checked_annotations_equal_context(env, input.info, input.owner, parameters[1].info, parameters[1].owner,
+                0, nominal_view_context(&input), nominal_view_context(&parameters[1]));
+    }
+    nominal_view_discard(&input); nominal_view_discard(&result);
+    nominal_view_discard(&parameters[0]); nominal_view_discard(&parameters[1]); nominal_view_discard(&callable);
     if (!valid) {
         emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
             "I require reduce to receive array<E>, an initializer A and an exact fn(A,E)->A.",
@@ -2723,49 +2521,98 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
     return true;
 }
 
-static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignature *sig) {
-    if (!sig) sig = call->as.call.checked_signature;
-    if (!sig) {
+/* I validate literal children before comparing complete nominal annotations. */
+static bool contextual_argument_matches(ASTNode *argument, Environment *env, const TypeInfo *expected,
+    const char *owner, const NominalSubstitution *context, unsigned depth) {
+    if (!argument || depth > 128 || !nominal_substitute_annotation(&expected, &owner, &context) || !expected)
+        return false;
+    Type kind; const char *name;
+    if (!checked_annotation_kind(env, expected, owner, &kind, &name)) return false;
+    if (!nominal_union_array_origins(env, expected, owner, context, argument, depth + 1)) return false;
+    TypeInfo *concrete = NULL;
+    if (!nominal_materialize(env, expected, owner, context, depth + 1, &concrete)) return false;
+    apply_concrete_union_arrays(env, concrete, owner, argument, depth + 1);
+    Type actual = check_expression(argument, env);
+    bool matches = types_match(actual, kind);
+    if (matches && kind == TYPE_ARRAY && argument->type == AST_ARRAY_LITERAL) {
+        matches = expected->element_type && argument->as.array_literal.element_count >= 0;
+        for (int i = 0; matches && i < argument->as.array_literal.element_count; ++i)
+            matches = contextual_argument_matches(argument->as.array_literal.elements[i], env,
+                expected->element_type, owner, context, depth + 1);
+    } else if (matches && kind == TYPE_TUPLE && argument->type == AST_TUPLE_LITERAL) {
+        matches = expected->tuple_element_count == argument->as.tuple_literal.element_count &&
+            (expected->tuple_element_count == 0 || expected->tuple_types);
+        for (int i = 0; matches && i < expected->tuple_element_count; ++i) {
+            TypeInfo element = {.base_type = expected->tuple_types[i],
+                .generic_name = expected->tuple_type_names ? expected->tuple_type_names[i] : NULL};
+            matches = contextual_argument_matches(argument->as.tuple_literal.elements[i], env,
+                &element, owner, context, depth + 1);
+        }
+    } else if (matches && (kind == TYPE_STRUCT || kind == TYPE_LIST_GENERIC || kind == TYPE_FUNCTION ||
+                           kind == TYPE_UNION || kind == TYPE_ARRAY || kind == TYPE_TUPLE || expected->row_field_count > 0)) {
+        matches = nominal_array_matches_context(env, expected, owner, argument, depth + 1, context);
+    } else if (matches) {
+        /* I retain the existing scalar conversion policy and base compatibility. */
+        matches = indirect_argument_matches(argument, env, concrete, kind, (int)depth + 1);
+    }
+    free_payload_type_info(concrete);
+    return matches;
+}
+static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignature *legacy_signature) {
+    (void)legacy_signature; /* This materialized hint cannot supply nominal authority. */
+    NominalView callee = {0};
+    if (!nominal_callee_view(call, env, 0, &callee)) {
         emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
-                           "I cannot determine this function value's signature.",
-                           "Declare the function value's parameter and return types.");
+            "I cannot determine this function value's complete contextual signature.",
+            "Preserve the function value's original parameter and return declarations.");
         return TYPE_UNKNOWN;
     }
-    if (sig->param_count != call->as.call.arg_count) {
+    const FunctionSignature *signature = callee.info->fn_sig;
+    if (signature->param_count != call->as.call.arg_count) {
+        nominal_view_discard(&callee);
         emit_context_error("E003 ARITY MISMATCH", call->line, call->column, 1,
-                           "I require the declared number of arguments for this function value.",
-                           "Match the function signature.");
+            "I require the declared number of arguments for this function value.", "Match the function signature.");
         return TYPE_UNKNOWN;
     }
-    const char *signature_owner = NULL;
-    bool owner_known = nominal_callable_owner(call, env, 0, &signature_owner);
-    for (int i = 0; i < call->as.call.arg_count; i++) {
-        ASTNode *argument = call->as.call.args[i];
-        TypeInfo *expected = sig->param_type_info ? sig->param_type_info[i] : NULL;
-        check_concrete_union_arrays(env, expected, signature_owner, argument, 0);
-        bool matches = indirect_argument_matches(argument, env, expected,
-                                                  sig->param_types[i], 0);
-        if (sig->param_types[i] == TYPE_LIST_GENERIC || sig->param_types[i] == TYPE_STRUCT ||
-            sig->param_types[i] == TYPE_ARRAY)
-            matches = matches && owner_known && check_nominal_contract(env, sig->param_types[i], expected,
-                sig->param_struct_names ? sig->param_struct_names[i] : NULL, signature_owner, argument);
-        if (sig->param_types[i] == TYPE_FUNCTION)
-            matches = matches && owner_known && check_callable_contract(env,
-                expected ? expected->fn_sig : NULL, signature_owner, argument, 0);
-        if (!matches) {
+    bool valid = true;
+    for (int i = 0; i < call->as.call.arg_count; ++i) {
+        TypeInfo flat = {.base_type = signature->param_types[i],
+            .generic_name = signature->param_struct_names ? signature->param_struct_names[i] : NULL};
+        const TypeInfo *expected = signature->param_type_info && signature->param_type_info[i]
+            ? signature->param_type_info[i] : &flat;
+        if (!contextual_argument_matches(call->as.call.args[i], env, expected, callee.owner,
+                                         nominal_view_context(&callee), 0)) {
+            valid = false;
             emit_context_error("E001 TYPE MISMATCH", call->as.call.args[i]->line,
-                               call->as.call.args[i]->column, 1,
-                               "I require the declared argument type for this function value.",
-                               "Match the function signature.");
+                call->as.call.args[i]->column, 1,
+                "I require the declared argument type for this function value.", "Match every original nominal owner.");
         }
     }
-    FunctionSignature *retained = copy_function_signature(sig);
-    Type result = sig->return_type;
-    char *name = sig->return_struct_name ? strdup(sig->return_struct_name) : NULL;
+    TypeInfo *concrete = NULL;
+    if (!valid || !nominal_materialize(env, callee.info, callee.owner, nominal_view_context(&callee), 0, &concrete)) {
+        nominal_view_discard(&callee);
+        return TYPE_UNKNOWN;
+    }
+    NominalView result_view = {0};
+    if (!nominal_callable_result(env, &callee, 0, &result_view)) {
+        free_payload_type_info(concrete); nominal_view_discard(&callee); return TYPE_UNKNOWN;
+    }
+    Type result = result_view.info->base_type;
+    nominal_view_discard(&result_view);
+    FunctionSignature *retained = concrete->fn_sig;
+    concrete->fn_sig = NULL;
+    free_payload_type_info(concrete);
+    retained->return_type = result;
+    if (retained->return_type_info) retained->return_type_info->base_type = result;
+    char *name = retained->return_struct_name ? strdup(retained->return_struct_name) : NULL;
+    if (retained->return_struct_name && !name) {
+        free_function_signature(retained); nominal_view_discard(&callee); return TYPE_UNKNOWN;
+    }
     free_function_signature(call->as.call.checked_signature);
     call->as.call.checked_signature = retained;
     free(call->as.call.return_struct_type_name);
     call->as.call.return_struct_type_name = name;
+    nominal_view_discard(&callee);
     return result;
 }
 
@@ -3281,17 +3128,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return TYPE_UNKNOWN;
                 }
                 
-                FunctionSignature *callee = NULL;
-                const char *callee_owner = NULL;
-                if (!nominal_callable_view(expr->as.call.func_expr, env, 0, &callee, &callee_owner)) {
-                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                        "I require a complete agreeing callable signature before this indirect call.",
-                        "Preserve every branch's parameter and return declarations.");
-                    return TYPE_UNKNOWN;
-                }
-                Type result = check_indirect_call(expr, env, callee);
-                free_function_signature(callee);
-                return result;
+                return check_indirect_call(expr, env, NULL);
             }
             
             /* Representation copies never use implicit numeric promotion. */
@@ -3333,7 +3170,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Regular function call */
             
             /* Special handling for map builtin - check before environment lookup */
-            if (strcmp(expr->as.call.name, "map") == 0) {
+            if (nominal_array_builtin(expr, env, "map", expr->as.call.arg_count)) {
                 if (expr->as.call.arg_count != 2) {
                     emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
                         "I require an array and a transform for map.", "Pass exactly two arguments.");
@@ -3353,22 +3190,38 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         "Match the transform signature to the source array.");
                     return TYPE_UNKNOWN;
                 }
+                NominalView mapped = {0};
+                bool valid = nominal_value_view(expr, env, 0, &mapped);
+                nominal_view_discard(&mapped);
+                if (!valid) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require the callback's exact contextual element contract.", "Preserve each original declaration owner.");
+                    return TYPE_UNKNOWN;
+                }
                 return TYPE_ARRAY;
             }
 
             /* Special handling for filter builtin - check before environment lookup */
-            if (strcmp(expr->as.call.name, "filter") == 0) {
-                /* filter(array, predicate_fn) -> array */
-                if (expr->as.call.arg_count >= 2) {
-                    Type array_type = check_expression(expr->as.call.args[0], env);
-                    check_expression(expr->as.call.args[1], env);  /* Check function */
-                    return array_type;
+            if (nominal_array_builtin(expr, env, "filter", expr->as.call.arg_count)) {
+                if (expr->as.call.arg_count != 2) {
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
+                        "I require an array and a predicate for filter.", "Pass exactly two arguments.");
+                    return TYPE_UNKNOWN;
                 }
-                return TYPE_ARRAY;
+                Type array_type = check_expression(expr->as.call.args[0], env);
+                Type callback_type = check_expression(expr->as.call.args[1], env);
+                NominalView filtered = {0};
+                bool valid = array_type == TYPE_ARRAY && callback_type == TYPE_FUNCTION &&
+                    nominal_value_view(expr, env, 0, &filtered);
+                nominal_view_discard(&filtered);
+                if (!valid) emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                    "I require a Boolean predicate with the array's exact contextual element contract.",
+                    "Preserve each original declaration owner.");
+                return valid ? TYPE_ARRAY : TYPE_UNKNOWN;
             }
-            
+
             /* I validate the callback as one exact accumulator/element contract. */
-            if (strcmp(expr->as.call.name, "reduce") == 0)
+            if (nominal_array_builtin(expr, env, "reduce", expr->as.call.arg_count))
                 return check_reduce_call(expr, env);
 
             /* Special handling for format builtin - variadic string interpolation */
@@ -4143,74 +3996,20 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                     /* Special handling for function-typed parameters */
                     if (func->params[i].type == TYPE_FUNCTION) {
-                        /* Argument must be an identifier (function name or function-typed variable) */
-                        if (arg->type != AST_IDENTIFIER) {
-                            emit_context_error(
-                                "E001 TYPE MISMATCH",
-                                arg->line,
-                                arg->column,
-                                1,
-                                "Function parameter expects a function name.",
-                                "Pass a function identifier or a function-typed variable."
-                            );
+                        FunctionSignature *expected_signature = func->params[i].type_info &&
+                            func->params[i].type_info->fn_sig ? func->params[i].type_info->fn_sig :
+                            func->params[i].fn_sig;
+                        const char *expected_owner = env_function_signature_owner(env, func);
+                        Type actual = check_expression(arg, env);
+                        if (actual != TYPE_FUNCTION || !check_callable_contract(env, expected_signature,
+                                expected_owner, arg, 0)) {
+                            emit_context_error("E001 TYPE MISMATCH", arg->line, arg->column, 1,
+                                "I require the complete declared function signature.",
+                                "Match every callback parameter and return declaration with its owner.");
                             return TYPE_UNKNOWN;
                         }
-                        
-                        /* First check if it's a function-typed variable */
-                        Symbol *sym = env_get_var_visible_at(env, arg->as.identifier, arg->line, arg->column);
-                        if (sym && sym->type == TYPE_FUNCTION) {
-                            /* It's a function-typed variable - mark as used and allow it */
-                            sym->is_used = true;
-                            FunctionSignature *actual = sym->type_info ? sym->type_info->fn_sig : NULL;
-                            if (!checked_signature_equal(env, func->params[i].fn_sig, env_function_signature_owner(env, func), actual, sym->callable_owner, 0)) {
-                                emit_context_error("E001 TYPE MISMATCH", arg->line, arg->column, 1,
-                                    "I require the complete declared function signature.",
-                                    "Match the callback parameter and result annotations.");
-                                return TYPE_UNKNOWN;
-                            }
-                            continue;
-                        }
-                        
-                        /* Look up the function */
-                        Function *passed_func = env_get_function(env, arg->as.identifier);
-                        if (!passed_func) {
-                            char message[256];
-                            snprintf(message, sizeof(message),
-                                    "I cannot find a function named `%s`.",
-                                    arg->as.identifier);
-                            emit_context_error(
-                                "E027 UNDEFINED FUNCTION",
-                                arg->line,
-                                arg->column,
-                                (int)safe_strlen(arg->as.identifier),
-                                message,
-                                "Check spelling or ensure the function is defined/imported."
-                            );
-                            return TYPE_UNKNOWN;
-                        }
-                        
-                        FunctionSignature *passed_sig = function_signature_from_function(passed_func);
-                        
-                        /* Compare signatures */
-                        if (!checked_signature_equal(env, func->params[i].fn_sig, env_function_signature_owner(env, func), passed_sig, env_function_signature_owner(env, passed_func), 0)) {
-                            char message[256];
-                            snprintf(message, sizeof(message),
-                                    "Argument %d expects a function with a different signature.",
-                                    i + 1);
-                            emit_context_error(
-                                "E001 TYPE MISMATCH",
-                                arg->line,
-                                arg->column,
-                                (int)safe_strlen(arg->as.identifier),
-                                message,
-                                "Match the parameter's expected function signature."
-                            );
-                            free_function_signature(passed_sig);
-                            return TYPE_UNKNOWN;
-                        }
-                        
-                        /* Clean up temporary signature */
-                        free_function_signature(passed_sig);
+                        func = env_get_function(env, expr->as.call.name);
+                        if (!func) return TYPE_UNKNOWN;
                     } else {
                         /* Handle anonymous struct literals: infer struct name from parameter type */
                         if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
@@ -5971,7 +5770,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         return TYPE_VOID;
                     }
                     if (source_known &&
-                        (source.payload || source.owned_context || source.info->base_type == TYPE_UNION)) {
+                        (source.payload || source.owned_context || (source.info->base_type == TYPE_UNION || source.info->base_type == TYPE_FUNCTION))) {
                         TypeInfo *concrete = NULL;
                         if (!nominal_materialize(tc->env, source.info, source.owner,
                                 nominal_view_context(&source), 0, &concrete) ||
@@ -5987,22 +5786,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     nominal_view_discard(&source);
                 }
                 NominalIdentity inferred_identity = nominal_expression(stmt->as.let.value, tc->env, inferred, 0);
-                const char *inferred_callable_owner = NULL;
-                FunctionSignature *inferred_signature = NULL;
+                const char *inferred_callable_owner = inferred_proof.nominal_owner;
                 bool callable_known = inferred != TYPE_FUNCTION ||
-                    nominal_callable_view(stmt->as.let.value, tc->env, 0, &inferred_signature, &inferred_callable_owner);
-                if (inferred_signature) {
-                    TypeInfo *inferred_info = calloc(1, sizeof *inferred_info);
-                    if (!inferred_info) {
-                        free_function_signature(inferred_signature);
-                        tc->has_error = true;
-                        return TYPE_VOID;
-                    }
-                    inferred_info->base_type = TYPE_FUNCTION;
-                    inferred_info->fn_sig = inferred_signature;
-                    free_payload_type_info(stmt->as.let.type_info);
-                    stmt->as.let.type_info = inferred_info;
-                }
+                    (inferred_proof.checker_nominal_view &&
+                     inferred_proof.checker_nominal_view->info->base_type == TYPE_FUNCTION);
                 bool selected_payload = inferred_proof.checker_nominal_view && inferred_proof.checker_nominal_view->payload;
                 if (((inferred == TYPE_STRUCT || inferred == TYPE_LIST_GENERIC) && !inferred_identity.ordinal && !selected_payload) ||
                     !callable_known) {
@@ -6170,7 +5957,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 stmt->as.let.var_type = TYPE_ENUM;
             }
             
-            if (declared_type == TYPE_FUNCTION) {
+            if (declared_type == TYPE_FUNCTION && !retained_binding_view) {
                 const FunctionSignature *signature = stmt->as.let.fn_sig ? stmt->as.let.fn_sig
                     : stmt->as.let.type_info ? stmt->as.let.type_info->fn_sig : NULL;
                 if (!check_callable_contract(tc->env, signature, binding_callable_owner,
@@ -6181,67 +5968,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     tc->has_error = true;
                 }
             }
-            /* Special handling for function types - need to check signatures match */
-            /* Also handle case where value_type is TYPE_INT (function-typed parameter placeholder) */
-            if (declared_type == TYPE_FUNCTION && (value_type == TYPE_FUNCTION || value_type == TYPE_INT)) {
-                /* Both are function types - check if signatures match */
-                FunctionSignature *declared_sig = stmt->as.let.fn_sig;
-                FunctionSignature *value_sig = NULL;
-                bool owns_value_sig = false;
-                
-                /* Get function signature from value expression */
-                if (stmt->as.let.value->type == AST_CALL) {
-                    /* Function call - could be calling a function-typed parameter */
-                    Function *func = env_get_function(tc->env, stmt->as.let.value->as.call.name);
-                    if (func && func->return_type == TYPE_FUNCTION) {
-                        /* Function that returns a function */
-                        value_sig = func->return_fn_sig;
-                    } else if (!func) {
-                        /* Check if it's a function-typed parameter being called */
-                        Symbol *sym = env_get_var(tc->env, stmt->as.let.value->as.call.name);
-                        if (sym && sym->type == TYPE_FUNCTION) {
-                            /* Function-typed parameter - if called with 0 args, it's the function itself */
-                            if (stmt->as.let.value->as.call.arg_count == 0) {
-                                /* TODO: Get function signature from parameter - for now allow it */
-                                /* The signature should match the declared type */
-                            }
-                        }
-                    }
-                } else if (stmt->as.let.value->type == AST_IDENTIFIER) {
-                    /* Could be function name or function-typed variable */
-                    Function *func = env_get_function(tc->env, stmt->as.let.value->as.identifier);
-                    if (func) {
-                        value_sig = function_signature_from_function(func);
-                        owns_value_sig = true;
-                    } else {
-                        /* Check if it's a function-typed variable */
-                        Symbol *sym = env_get_var(tc->env, stmt->as.let.value->as.identifier);
-                        if (sym && sym->type == TYPE_FUNCTION) {
-                            value_sig = sym->type_info ? sym->type_info->fn_sig : NULL;
-                        }
-                    }
-                } else if (stmt->as.let.value->type == AST_CALL && stmt->as.let.value->as.call.func_expr) {
-                    /* Function call returning function: ((func_call) arg1 arg2) */
-                    /* The return type will be determined at runtime */
-                    /* For now, allow it if declared type is TYPE_FUNCTION */
-                }
-                
-                /* Check if signatures match */
-                if (declared_sig && value_sig) {
-                    const char *value_owner = NULL;
-                    if (!nominal_callable_owner(stmt->as.let.value, tc->env, 0, &value_owner) ||
-                        !checked_signature_equal(tc->env, declared_sig, binding_callable_owner,
-                                                 value_sig, value_owner, 0)) {
-                        fprintf(stderr, "Error at line %d, column %d: Function signature mismatch in let statement\n", stmt->line, stmt->column);
-                        tc->has_error = true;
-                    }
-                } else if (!declared_sig || !value_sig) {
-                    /* One or both signatures missing - allow for now (runtime will handle) */
-                    /* This happens when function signatures aren't fully parsed yet, or when */
-                    /* dealing with function-typed parameters where we don't have full signature info */
-                }
-                if (owns_value_sig) free_function_signature(value_sig);
-            } else if (!types_match(value_type, declared_type)) {
+            /* Full callable signatures were checked above with their original contexts. */
+            if (declared_type != TYPE_FUNCTION && !types_match(value_type, declared_type)) {
                 char message[256];
                 snprintf(message, sizeof(message),
                         "Let binding expects %s but got %s.",
@@ -6456,7 +6184,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
             if (!sym->checker_nominal_view)
                 check_concrete_union_arrays(tc->env, sym->type_info, sym->nominal_owner, stmt->as.set.value, 0);
-            if (sym->type == TYPE_FUNCTION &&
+            if (!sym->checker_nominal_view && sym->type == TYPE_FUNCTION &&
                 !check_callable_contract(tc->env, sym->type_info ? sym->type_info->fn_sig : NULL,
                                          sym->callable_owner, stmt->as.set.value, 0)) {
                 emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
@@ -6656,6 +6384,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
                 
                 check_concrete_union_arrays(tc->env, tc->current_function_return_info, tc->env->current_module, stmt->as.return_stmt.value, 0);
+                Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
                 if (tc->current_function_return_type == TYPE_FUNCTION &&
                     !check_callable_contract(tc->env, tc->current_function_return_signature,
                         tc->env->current_module, stmt->as.return_stmt.value, 0)) {
@@ -6664,7 +6393,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         "Preserve the function result's complete annotation.");
                     tc->has_error = true;
                 }
-                Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
                 if (!check_record_array_contract(tc->env, tc->current_function_return_type,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name,
                         tc->env->current_module, stmt->as.return_stmt.value)) tc->has_error = true;
@@ -8349,6 +8077,7 @@ static bool functions_match(Function *f1, Function *f2) {
  * the bytecode emitter still needs it when choosing operand/array kinds. */
 bool type_check_root_shadows(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM || !env) return false;
+    CheckerNominalExpression *before = env->checker_nominal_expressions;
     bool ok = true;
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -8359,7 +8088,9 @@ bool type_check_root_shadows(ASTNode *program, Environment *env) {
         check_statement(&tc, item->as.shadow.body);
         if (tc.has_error) ok = false;
     }
-    return ok && g_typecheck_error_count == 0;
+    ok = ok && g_typecheck_error_count == 0;
+    if (!ok) env->checker_nominal_expressions = before;
+    return ok;
 }
 
 /* I check selected shadows in their source and authority context, then restore
@@ -8367,6 +8098,7 @@ bool type_check_root_shadows(ASTNode *program, Environment *env) {
 bool type_check_shadow_scope(ASTNode *program, Environment *env, ModuleList *modules,
                              const char *input_file, bool include_imports) {
     if (!env) return false;
+    CheckerNominalExpression *before = env->checker_nominal_expressions;
     char *root_owner = env->current_module;
     bool root_unsafe = env->current_module_is_unsafe;
     env_set_current_file(env, input_file);
@@ -8395,6 +8127,7 @@ bool type_check_shadow_scope(ASTNode *program, Environment *env, ModuleList *mod
     env_set_current_file(env, input_file);
     env->current_module_is_unsafe = root_unsafe;
     typecheck_set_current_file(input_file);
+    if (!typed) env->checker_nominal_expressions = before;
     return typed;
 }
 
@@ -8437,7 +8170,7 @@ static bool register_effect_declaration(ASTNode *item, Environment *env) {
     return true;
 }
 
-bool type_check(ASTNode *program, Environment *env) {
+static bool type_check_program_impl(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
         return false;
@@ -9365,7 +9098,7 @@ register_function_pass1:;
 }
 
 /* Type check a module (without requiring main function) */
-bool type_check_module(ASTNode *program, Environment *env) {
+static bool type_check_module_impl(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
         return false;
@@ -10124,4 +9857,18 @@ register_function_pass2:;
     /* Main function check is skipped for modules */
 
     return !tc.has_error && g_typecheck_error_count == 0;
+}
+
+/* Failed fresh ASTs can be freed by the loader. Their keys must not survive. */
+bool type_check(ASTNode *program, Environment *env) {
+    CheckerNominalExpression *before = env ? env->checker_nominal_expressions : NULL;
+    bool ok = type_check_program_impl(program, env);
+    if (!ok && env) env->checker_nominal_expressions = before;
+    return ok;
+}
+bool type_check_module(ASTNode *program, Environment *env) {
+    CheckerNominalExpression *before = env ? env->checker_nominal_expressions : NULL;
+    bool ok = type_check_module_impl(program, env);
+    if (!ok && env) env->checker_nominal_expressions = before;
+    return ok;
 }

@@ -4209,6 +4209,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     break;
                 }
             }
+            /* Copy borrowed checker metadata before definition can move symbols. */
+            bool have_checked = checked_binding != NULL;
+            Symbol checked = have_checked ? *checked_binding : (Symbol){0};
             int scope_end_line = checked_binding ? checked_binding->scope_end_line : 0;
             int scope_end_column = checked_binding ? checked_binding->scope_end_column : 0;
             const char *nominal = stmt->as.let.type_name ? stmt->as.let.type_name :
@@ -4226,6 +4229,12 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emitted_binding->def_line = stmt->line;
             emitted_binding->def_column = stmt->column;
             if (native_effect_program) emitted_binding->def_file = g_source_file_for_line_directives;
+            if (have_checked) {
+                emitted_binding->nominal_owner = checked.nominal_owner;
+                emitted_binding->callable_owner = checked.callable_owner;
+                emitted_binding->inferred_nominal = checked.inferred_nominal;
+                emitted_binding->checker_nominal_view = checked.checker_nominal_view;
+            }
             emitted_binding->scope_end_line = scope_end_line;
             emitted_binding->scope_end_column = scope_end_column;
             free(emitted_binding->struct_type_name);

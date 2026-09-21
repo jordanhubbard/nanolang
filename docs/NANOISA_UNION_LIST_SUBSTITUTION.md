@@ -194,3 +194,39 @@ identifies as definite function returns. Those arms have their own return
 contract and do not supply a callable/array join value. A branch with no surviving
 value cannot manufacture a nominal view. This preserves lexical control flow
 while requiring exact agreement among every surviving value arm.
+
+## My callable completion source checkpoint
+
+I now select callable targets and project their results through owned NominalView
+contexts. Inferred symbols retain that proof; pass/return/set, indirect arguments,
+map/filter and exact reduce callback comparisons consume original annotations.
+Indirect calls publish copied ABI signatures only after their contextual argument
+checks succeed. Full callable returns also populate the duplicate ABI signature
+from the checked materialized result. The legacy declaration-signature copier
+retains its disclosed fatal-allocation boundary; my new checked-copy fault domain
+does not claim to make that old API recoverable.
+
+I retain original constructor context before emitted annotation replacement,
+refuse conflicting destination rechecks, and unlink new registry keys on failed
+public program/module/shadow checks. The registered graph allocations still live
+until Environment teardown. I restore same-declaration local proofs in both
+emitters before secondary checks; those consumers cannot derive identity from
+materialized spelling. Existing source nominal binding supplies emitted record
+names; full contextual views remain the checker authority.
+
+My additive C controls retain selected payload callbacks, alias them, compare
+fixed Definitions.Item against formal Caller.Item, check indirect arguments and
+nested callable results, and exercise map/filter input/result identities. Separate
+fault controls cover owned callable tuple/list/nested-function materialization
+and constructor registry publication in every measured prefix/transient position.
+A parsed failed-module control requires registry rollback and destroys the AST
+before Environment cleanup. These are fixture assertions, not observed passes.
+
+My native imported-source vector adds field-to-alias calls, pass/return/set, cond
+and match selection, an early function-return arm, and nested callable returns.
+Two C-seed-only swapped-owner source refusals preserve prior output and require a
+type diagnostic before C compilation. The original 18 methods and eight native
+methods remain, with no original source/assertion removed. Aggregate map/filter
+fixtures establish only checker obligations; aggregate runtime parity stays open.
+Static Python parsing and diff whitespace checks pass. I have not built or run
+this checkpoint; independent complete source/fixture review precedes execution.

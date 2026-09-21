@@ -533,6 +533,7 @@ void free_environment(Environment *env) {
         free(env->modules);
     }
 
+    env->checker_nominal_expressions = NULL;
     while (env->checker_allocations) {
         struct EnvCheckerAllocation *entry = env->checker_allocations;
         env->checker_allocations = entry->next;

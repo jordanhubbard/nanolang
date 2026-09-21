@@ -269,8 +269,147 @@ static void nested_payload_views(void) {
     assert(untouched.info == &root && !strcmp(untouched.owner, "sentinel"));
     free_environment(env);
 }
+static void retained_callable_consumers(void) {
+    Environment *env = create_environment(); assert(env);
+    identity_record(env, "Item", "Definitions"); identity_record(env, "Item", "Caller");
+    assert(env_register_nominal_import(env, "Caller", "FixedItem",
+        env_nominal_identity(env, "Item", "Definitions", TYPE_STRUCT)));
+    TypeInfo fixed = {.base_type = TYPE_STRUCT, .generic_name = "Item"};
+    TypeInfo formal = {.base_type = TYPE_STRUCT, .generic_name = "T"};
+    Type tags[] = {TYPE_STRUCT, TYPE_STRUCT};
+    TypeInfo *parameters[] = {&fixed, &formal};
+    char *names[] = {"Item", "T"};
+    FunctionSignature signature = {.param_count = 2, .param_types = tags, .param_type_info = parameters,
+        .param_struct_names = names, .return_type = TYPE_STRUCT, .return_type_info = &formal, .return_struct_name = "T"};
+    TypeInfo callable = {.base_type = TYPE_FUNCTION, .fn_sig = &signature};
+    FunctionSignature factory_signature = {.return_type = TYPE_FUNCTION, .return_type_info = &callable, .return_fn_sig = &signature};
+    TypeInfo factory = {.base_type = TYPE_FUNCTION, .fn_sig = &factory_signature};
+    Type unary_tags[] = {TYPE_STRUCT}; TypeInfo *unary_parameters[] = {&fixed}; char *unary_names[] = {"Item"};
+    FunctionSignature mapper_signature = {.param_count = 1, .param_types = unary_tags,
+        .param_type_info = unary_parameters, .param_struct_names = unary_names,
+        .return_type = TYPE_STRUCT, .return_type_info = &formal, .return_struct_name = "T"};
+    FunctionSignature predicate_signature = mapper_signature;
+    predicate_signature.return_type = TYPE_BOOL; predicate_signature.return_type_info = NULL;
+    predicate_signature.return_struct_name = NULL;
+    TypeInfo mapper = {.base_type = TYPE_FUNCTION, .fn_sig = &mapper_signature};
+    TypeInfo predicate = {.base_type = TYPE_FUNCTION, .fn_sig = &predicate_signature};
+    const char *fields[] = {"callback", "factory", "mapper", "predicate"};
+    TypeInfo *annotations[] = {&callable, &factory, &mapper, &predicate};
+    identity_union(env, "Callbacks", "T", fields, annotations, 4);
+    TypeInfo *arguments[] = {&fixed};
+    TypeInfo instance = {.base_type = TYPE_UNION, .generic_name = "Callbacks", .type_param_count = 1, .type_params = arguments};
+    env->current_module = "Caller";
+    ASTNode constructor = {.type = AST_UNION_CONSTRUCT};
+    constructor.as.union_construct.union_name = "Callbacks";
+    constructor.as.union_construct.variant_name = "Payload";
+    assert(nominal_constructor_retain(env, &constructor, &instance, "Caller", NULL, 0));
+    const NominalView *origin = nominal_constructor_view(env, &constructor);
+    assert(origin && nominal_constructor_retain(env, &constructor, &instance, "Caller", NULL, 0));
+    assert(origin == nominal_constructor_view(env, &constructor));
+    assert(!nominal_constructor_retain(env, &constructor, &instance, "Definitions", NULL, 0));
+    env->current_module = "Definitions";
+    NominalView constructor_view = {0};
+    assert(nominal_value_view(&constructor, env, 0, &constructor_view));
+    assert(!strcmp(constructor_view.owner, "Caller")); nominal_view_discard(&constructor_view);
+    env->current_module = "Caller";
+    env_define_var_with_type_info(env, "source", TYPE_UNION, TYPE_UNKNOWN, &instance, false, create_void());
+    env_define_var(env, "payload", TYPE_STRUCT, false, create_void());
+    ASTNode source = {.type = AST_IDENTIFIER}; source.as.identifier = "source";
+    assert(retain_union_binding_context(env, env_get_var(env, "payload"), &source, "Payload"));
+    env_get_var(env, "payload")->struct_type_name = strdup("Callbacks.Payload");
+    assert(env_get_var(env, "payload")->struct_type_name);
+    ASTNode payload = {.type = AST_IDENTIFIER}; payload.as.identifier = "payload";
+    ASTNode field = {.type = AST_FIELD_ACCESS}; field.as.field_access.object = &payload; field.as.field_access.field_name = "callback";
+    NominalView projected = {0}; assert(nominal_callable_view(&field, env, 0, &projected));
+    env_define_var(env, "alias", TYPE_FUNCTION, false, create_void());
+    assert(nominal_view_retain(env, env_get_var(env, "alias"), &projected));
+    ASTNode alias = {.type = AST_IDENTIFIER}; alias.as.identifier = "alias";
+    TypeInfo fixed_alias = {.base_type = TYPE_STRUCT, .generic_name = "FixedItem"};
+    TypeInfo *expected_parameters[] = {&fixed_alias, &fixed}; char *expected_names[] = {"FixedItem", "Item"};
+    FunctionSignature expected = {.param_count = 2, .param_types = tags, .param_type_info = expected_parameters,
+        .param_struct_names = expected_names, .return_type = TYPE_STRUCT, .return_type_info = &fixed, .return_struct_name = "Item"};
+    assert(check_callable_contract(env, &expected, "Caller", &field, 0));
+    assert(check_callable_contract(env, &expected, "Caller", &alias, 0));
+    TypeInfo *swapped_parameters[] = {&fixed, &fixed_alias}; char *swapped_names[] = {"Item", "FixedItem"};
+    FunctionSignature swapped = expected; swapped.param_type_info = swapped_parameters; swapped.param_struct_names = swapped_names;
+    assert(!check_callable_contract(env, &swapped, "Caller", &alias, 0));
+    ASTNode branch = {.type = AST_IF}; branch.as.if_stmt.then_branch = &field; branch.as.if_stmt.else_branch = &alias;
+    assert(nominal_callable_view(&branch, env, 0, &projected)); nominal_view_discard(&projected);
+    ASTNode terminal = {.type = AST_RETURN}; terminal.as.return_stmt.value = &alias;
+    branch.as.if_stmt.then_branch = &terminal;
+    assert(nominal_callable_view(&branch, env, 0, &projected)); nominal_view_discard(&projected);
+    branch.as.if_stmt.else_branch = &terminal;
+    assert(!nominal_callable_view(&branch, env, 0, &projected) && !projected.info);
+    branch.as.if_stmt.then_branch = &field;
+    TypeInfo wrong_callable = {.base_type = TYPE_FUNCTION, .fn_sig = &swapped};
+    env_define_var_with_type_info(env, "wrong", TYPE_FUNCTION, TYPE_UNKNOWN, &wrong_callable, false, create_void());
+    ASTNode wrong = {.type = AST_IDENTIFIER}; wrong.as.identifier = "wrong";
+    branch.as.if_stmt.else_branch = &wrong;
+    assert(!nominal_callable_view(&branch, env, 0, &projected) && !projected.info);
+    env_define_var_with_type_info(env, "fixed", TYPE_STRUCT, TYPE_UNKNOWN, &fixed_alias, false, create_void());
+    env_define_var_with_type_info(env, "actual", TYPE_STRUCT, TYPE_UNKNOWN, &fixed, false, create_void());
+    ASTNode first = {.type = AST_IDENTIFIER}, second = {.type = AST_IDENTIFIER};
+    first.as.identifier = "fixed"; second.as.identifier = "actual";
+    ASTNode *call_args[] = {&first, &second};
+    ASTNode call = {.type = AST_CALL}; call.as.call.name = "alias"; call.as.call.arg_count = 2; call.as.call.args = call_args;
+    assert(check_indirect_call(&call, env, NULL) == TYPE_STRUCT);
+    assert(nominal_expression(&call, env, TYPE_STRUCT, 0).ordinal == env_nominal_identity(env, "Item", "Caller", TYPE_STRUCT).ordinal);
+    assert(!contextual_argument_matches(&second, env, &fixed, "Definitions", NULL, 0));
+    assert(!contextual_argument_matches(&first, env, &formal, "Definitions",
+        nominal_view_context(env_get_var(env, "alias")->checker_nominal_view), 0));
+    /* I consume retained selected-field aliases through both array callbacks. */
+    for (int i = 0; i < 2; ++i) {
+        const char *name = i ? "predicate" : "mapper";
+        field.as.field_access.field_name = (char *)name;
+        assert(nominal_callable_view(&field, env, 0, &projected));
+        env_define_var(env, name, TYPE_FUNCTION, false, create_void());
+        assert(nominal_view_retain(env, env_get_var(env, name), &projected));
+        ASTNode callback_alias = {.type = AST_IDENTIFIER}; callback_alias.as.identifier = (char *)name;
+        ASTNode *elements[] = {&first}; ASTNode array = {.type = AST_ARRAY_LITERAL};
+        array.as.array_literal.elements = elements; array.as.array_literal.element_count = 1;
+        ASTNode *operands[] = {&array, &callback_alias}; ASTNode operation = {.type = AST_CALL};
+        operation.as.call.name = i ? "filter" : "map";
+        operation.as.call.args = operands; operation.as.call.arg_count = 2;
+        assert(nominal_value_view(&operation, env, 0, &projected));
+        assert(nominal_view_element(env, &projected, 0));
+        NominalIdentity expected_owner = env_nominal_identity(env, "Item", i ? "Definitions" : "Caller", TYPE_STRUCT);
+        assert(nominal_equal(nominal_view_identity(env, &projected, TYPE_STRUCT), expected_owner));
+        nominal_view_discard(&projected);
+        elements[0] = &second;
+        assert(!nominal_value_view(&operation, env, 0, &projected) && !projected.info);
+    }
+    field.as.field_access.field_name = "factory";
+    ASTNode factory_call = {.type = AST_CALL}; factory_call.as.call.func_expr = &field;
+    assert(check_indirect_call(&factory_call, env, NULL) == TYPE_FUNCTION);
+    assert(nominal_callable_view(&factory_call, env, 0, &projected));
+    assert(projected.owned_context); nominal_view_discard(&projected);
+    call.as.call.name = NULL; call.as.call.func_expr = &factory_call;
+    assert(check_indirect_call(&call, env, NULL) == TYPE_STRUCT);
+    free_function_signature(call.as.call.checked_signature); free(call.as.call.return_struct_type_name);
+    free_function_signature(factory_call.as.call.checked_signature); free(factory_call.as.call.return_struct_type_name);
+    free_environment(env);
+}
+static void constructor_failure_rollback(void) {
+    for (int invalid = 0; invalid < 2; ++invalid) {
+        char source[512];
+        int length = snprintf(source, sizeof source,
+            "struct Item { value:int }\n"
+            "union Box<T> { Value { item:T } }\n"
+            "fn sample()->int { let box:Box<Item> =Box<Item>.Value{item:Item{value:3}} return %s }\n"
+            "shadow sample { assert true }\n", invalid ? "true" : "0");
+        assert(length > 0 && (size_t)length < sizeof source);
+        int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+        ASTNode *program = parse_program(tokens, count); assert(program);
+        Environment *env = create_environment(); assert(env);
+        bool ok = type_check_module(program, env);
+        assert(ok == !invalid);
+        assert((env->checker_nominal_expressions != NULL) == !invalid);
+        /* I mirror fresh failed-loader/root teardown: destructors never read keys. */
+        free_ast(program); free_tokens(tokens, count); free_environment(env);
+    }
+}
 int main(void) {
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); constructor_failure_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }

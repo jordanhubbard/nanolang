@@ -61,3 +61,61 @@ bool array_test_owned_context(Environment *env, Symbol *output) {
     }
     return ok;
 }
+
+bool array_test_prepare_callable(Environment *env) {
+    TypeInfo fixed = {.base_type = TYPE_STRUCT, .generic_name = "Item"};
+    TypeInfo formal = {.base_type = TYPE_STRUCT, .generic_name = "T"};
+    TypeInfo list = {.base_type = TYPE_LIST_GENERIC, .generic_name = "T"};
+    Type tuple_types[] = {TYPE_STRUCT, TYPE_LIST_GENERIC}; char *tuple_names[] = {"Item", "T"};
+    TypeInfo tuple = {.base_type = TYPE_TUPLE, .tuple_element_count = 2,
+        .tuple_types = tuple_types, .tuple_type_names = tuple_names};
+    Type nested_tags[] = {TYPE_STRUCT}; TypeInfo *nested_params[] = {&formal}; char *nested_names[] = {"T"};
+    FunctionSignature nested = {.param_count = 1, .param_types = nested_tags,
+        .param_type_info = nested_params, .param_struct_names = nested_names,
+        .return_type = TYPE_STRUCT, .return_type_info = &fixed, .return_struct_name = "Item"};
+    TypeInfo callback = {.base_type = TYPE_FUNCTION, .fn_sig = &nested};
+    Type tags[] = {TYPE_TUPLE, TYPE_LIST_GENERIC, TYPE_FUNCTION};
+    TypeInfo *parameters[] = {&tuple, &list, &callback}; char *names[] = {NULL, "T", NULL};
+    FunctionSignature signature = {.param_count = 3, .param_types = tags, .param_type_info = parameters,
+        .param_struct_names = names, .return_type = TYPE_FUNCTION, .return_type_info = &callback, .return_fn_sig = &nested};
+    TypeInfo callable = {.base_type = TYPE_FUNCTION, .fn_sig = &signature};
+    char *formals[] = {"T"}; UnionDef declaration = {.generic_param_count = 1, .generic_params = formals};
+    TypeInfo *arguments[] = {&fixed}; TypeInfo instance = {.type_param_count = 1, .type_params = arguments};
+    NominalSubstitution context = {&declaration, &instance, "Caller", NULL};
+    NominalView view = {0};
+    if (!nominal_view_copy_context(env, &callable, "Definitions", &context, 0, &view)) return false;
+    Symbol *binding = env_get_var(env, "callback");
+    bool ok = nominal_view_retain(env, binding, &view);
+    nominal_view_discard(&view);
+    return ok;
+}
+bool array_test_callable_consumer(Environment *env, TypeInfo **output) {
+    ASTNode identifier = {.type = AST_IDENTIFIER}; identifier.as.identifier = "callback";
+    ASTNode call = {.type = AST_CALL}; call.as.call.name = "callback";
+    NominalView value = {0}, callee = {0}, result = {0};
+    TypeInfo *concrete = NULL;
+    bool ok = nominal_callable_view(&identifier, env, 0, &value) &&
+        nominal_callee_view(&call, env, 0, &callee) && nominal_callable_result(env, &callee, 0, &result) &&
+        checked_annotations_equal_context(env, value.info, value.owner, callee.info, callee.owner,
+            0, nominal_view_context(&value), nominal_view_context(&callee)) &&
+        nominal_materialize(env, value.info, value.owner, nominal_view_context(&value), 0, &concrete);
+    if (ok) {
+        if (!result.owned_context || result.info->base_type != TYPE_FUNCTION ||
+            strcmp(concrete->fn_sig->param_type_info[0]->tuple_type_names[1], "Item") ||
+            concrete->fn_sig->param_type_info[1]->base_type != TYPE_LIST_GENERIC ||
+            strcmp(concrete->fn_sig->param_type_info[1]->type_params[0]->generic_name, "Item") ||
+            strcmp(concrete->fn_sig->return_fn_sig->param_type_info[0]->generic_name, "Item")) abort();
+        *output = concrete;
+    } else free_payload_type_info(concrete);
+    nominal_view_discard(&value); nominal_view_discard(&callee); nominal_view_discard(&result);
+    return ok;
+}
+
+/* The AST key remains borrowed; failed publication must leave the list intact. */
+bool array_test_constructor_registry(Environment *env, ASTNode *expression) {
+    TypeInfo argument = {.base_type = TYPE_STRUCT, .generic_name = "Item"};
+    TypeInfo *arguments[] = {&argument};
+    TypeInfo instance = {.base_type = TYPE_UNION, .generic_name = "Box",
+        .type_param_count = 1, .type_params = arguments};
+    return nominal_constructor_retain(env, expression, &instance, "Caller", NULL, 0);
+}

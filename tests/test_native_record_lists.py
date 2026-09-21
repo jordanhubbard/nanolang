@@ -209,6 +209,79 @@ fn main()->int{{
 }}
 shadow main{{assert (== (main) 0)}}
 ''')
+        (directory / 'Callbacks.nano').write_text('''module Callbacks
+pub struct Item { value:int }
+pub union Mixed<T> {
+ Run { callback:fn(Item,T)->T, factory:fn()->fn(Item,T)->T }
+}
+pub fn fixed()->Item { return Item{value:17} }
+shadow fixed { assert (== (fixed).value 17) }
+''')
+        callback_source = '''module "@CALLBACKS@" as p
+struct Item { value:int }
+fn combine(fixed:p.Item, own:Item)->Item { return Item{value:(+ fixed.value own.value)} }
+shadow combine { assert (== (combine (p.fixed) Item{value:29}).value 46) }
+fn factory()->fn(p.Item,Item)->Item { return combine }
+shadow factory { let callback=(factory) assert (== (callback (p.fixed) Item{value:29}).value 46) }
+fn invoke(callback:fn(p.Item,Item)->Item, fixed:p.Item, own:Item)->Item { return (callback fixed own) }
+shadow invoke { assert (== (invoke combine (p.fixed) Item{value:29}).value 46) }
+fn extract(value:p.Mixed<Item>)->fn(p.Item,Item)->Item {
+ return match value { Run(payload)=>payload.callback }
+}
+shadow extract {
+ let value:p.Mixed<Item> =p.Mixed<Item>.Run{callback:combine,factory:factory}
+ let callback=(extract value)
+ assert (== (callback (p.fixed) Item{value:29}).value 46)
+}
+fn choose(flag:bool, value:p.Mixed<Item>)->fn(p.Item,Item)->Item {
+ let callback=(match flag { true=>{return combine} false=>{(extract value)} })
+ return callback
+}
+shadow choose {
+ let value:p.Mixed<Item> =p.Mixed<Item>.Run{callback:combine,factory:factory}
+ let first=(choose true value) let second=(choose false value)
+ assert (== (first (p.fixed) Item{value:29}).value 46)
+ assert (== (second (p.fixed) Item{value:29}).value 46)
+}
+fn main()->int {
+ let value:p.Mixed<Item> =p.Mixed<Item>.Run{callback:combine,factory:factory}
+ match value { Run(payload)=>{
+  let mut alias=payload.callback
+  assert (== (alias (p.fixed) Item{value:29}).value 46)
+  assert (== (invoke alias (p.fixed) Item{value:29}).value 46)
+  set alias (cond (true payload.callback) (else alias))
+  assert (== (alias (p.fixed) Item{value:29}).value 46)
+  let selected=(cond (false alias) (else payload.callback))
+  assert (== (selected (p.fixed) Item{value:29}).value 46)
+  let matched=(match true { true=>alias false=>payload.callback })
+  assert (== (matched (p.fixed) Item{value:29}).value 46)
+  let maker=payload.factory
+  let nested=(maker)
+  assert (== (nested (p.fixed) Item{value:29}).value 46)
+ }}
+ let returned=(extract value)
+ assert (== (returned (p.fixed) Item{value:29}).value 46)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+'''.replace('@CALLBACKS@', str(directory / 'Callbacks.nano'))
+        self.native_routes('native-imported-callable-payloads', callback_source)
+        # I check rejection before native publication, never execute these outputs.
+        for case, original, replacement in (
+            ('argument', '(alias (p.fixed) Item{value:29})', '(alias Item{value:29} (p.fixed))'),
+            ('returned', 'fn extract(value:p.Mixed<Item>)->fn(p.Item,Item)->Item',
+                         'fn extract(value:p.Mixed<Item>)->fn(Item,p.Item)->Item'),
+        ):
+            path = self.work / ('callable-owner-' + case + '.nano')
+            path.write_text(callback_source.replace(original, replacement, 1))
+            output = self.work / ('callable-owner-' + case)
+            output.write_bytes(retained.SENTINEL)
+            out, err = self.command('callable-owner-' + case,
+                [ROOT / 'bin/nanoc_c', path, '-o', output, '--keep-c'],
+                expected=tuple(range(1, 126)), timeout=300)
+            self.assertEqual(output.read_bytes(), retained.SENTINEL)
+            self.assertIn(b'TYPE MISMATCH', out + err)
+            self.assertNotIn(b'C compilation failed', out + err)
         name = 'Record_' + 'long_' * 24 + 'End'
         self.assertGreater(len(name), 64)
         self.assertLess(len(name), 250)

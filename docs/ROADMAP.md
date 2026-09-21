@@ -14198,3 +14198,10 @@ no emitted spelling supplies authority. This source prerequisite is unqualified.
 The callable branch audit also requires definite function exits to remain
 distinct from value arms. I will compare every surviving branch value and keep
 the ordinary return checks; all-terminating expressions provide no view.
+
+My callable-context source checkpoint replaces the single-owner signature path
+with retained full views across call targets/results, aliases, value boundaries,
+map/filter/reduce and secondary local restoration. It adds constructor registry
+rollback and owning-path/failure-prefix/native-source controls. Static Python
+parsing still discovers all original 18 plus native eight methods; no corrected
+compiler or fixture ran. Review and complete both-host qualification remain open.

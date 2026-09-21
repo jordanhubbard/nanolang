@@ -3734,11 +3734,30 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         /* I re-establish this declaration's checked type. The shared checker
          * retains symbols across functions, and emitting a previous function's
          * parameter can otherwise override a same-named local's metadata. */
+        Symbol checked = {0};
+        bool have_checked = false;
+        for (int i = cg->env->symbol_count - 1; i >= 0; --i) {
+            Symbol *candidate = &cg->env->symbols[i];
+            if (candidate->name && !strcmp(candidate->name, node->as.let.name) &&
+                candidate->def_line == node->line && candidate->def_column == node->column &&
+                (!candidate->def_file || !cg->env->current_file ||
+                 !strcmp(candidate->def_file, cg->env->current_file))) {
+                checked = *candidate; have_checked = true; break;
+            }
+        }
         env_define_var_with_type_info(cg->env, node->as.let.name, node->as.let.var_type,
                                       node->as.let.element_type, node->as.let.type_info,
                                       node->as.let.is_mut, create_void());
         Symbol *local_type = env_get_var(cg->env, node->as.let.name);
         if (local_type) {
+            if (have_checked) {
+                local_type->nominal_owner = checked.nominal_owner;
+                local_type->callable_owner = checked.callable_owner;
+                local_type->inferred_nominal = checked.inferred_nominal;
+                local_type->checker_nominal_view = checked.checker_nominal_view;
+                local_type->scope_end_line = checked.scope_end_line;
+                local_type->scope_end_column = checked.scope_end_column;
+            }
             local_type->def_line = node->line;
             local_type->def_column = node->column;
             if (node->as.let.type_name)

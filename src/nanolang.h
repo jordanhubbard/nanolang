@@ -813,6 +813,7 @@ typedef struct {
     struct EnvRecordList *record_lists; /* Evaluator-owned handles, including tombstones. */
     struct EnvRecordResult *record_results; /* Cumulative borrowed result snapshots. */
     struct EnvRecordIndex *record_result_index; /* Exact typed-root membership; arena owns entries. */
+    struct CheckerNominalExpression *checker_nominal_expressions; /* Borrowed AST keys, Environment-owned proofs. */
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
     struct EnvNominalImport *nominal_imports; /* Owned direct importer-to-declaration edges. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */

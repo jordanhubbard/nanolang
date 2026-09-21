@@ -98,7 +98,8 @@ static bool nominal_materialize_flat(Environment *env, Type original, const char
     TypeInfo source = {.base_type = original, .generic_name = (char *)name};
     TypeInfo *copy = NULL;
     if (!nominal_materialize(env, &source, owner, context, depth + 1, &copy)) return false;
-    char *resolved = copy->generic_name ? typeinfo_to_generic_arg_name(copy) : NULL;
+    const char *list_element = copy->base_type == TYPE_LIST_GENERIC ? list_annotation_spelling(copy, NULL) : NULL;
+    char *resolved = list_element ? strdup(list_element) : copy->generic_name ? typeinfo_to_generic_arg_name(copy) : NULL;
     if (copy->generic_name && !resolved) { free_payload_type_info(copy); return false; }
     *type = copy->base_type;
     free(*spelling);
@@ -146,8 +147,14 @@ static bool nominal_materialize_signature(Environment *env, const FunctionSignat
     free(copy->return_struct_name);
     copy->return_struct_name = name ? strdup(name) : NULL;
     if (name && !copy->return_struct_name) return false;
-    if (source->return_fn_sig && !nominal_materialize_signature(env, source->return_fn_sig,
-            copy->return_fn_sig, owner, context, depth + 1)) return false;
+    /* The complete result annotation is authoritative; the duplicate callable
+     * ABI field must contain the same materialized signature when present. */
+    if (concrete->base_type == TYPE_FUNCTION) {
+        FunctionSignature *nested = NULL;
+        if (!copy_function_signature_checked(concrete->fn_sig, &nested)) return false;
+        free_function_signature(copy->return_fn_sig);
+        copy->return_fn_sig = nested;
+    }
     return true;
 }
 static bool nominal_materialize(Environment *env, const TypeInfo *source, const char *owner,
@@ -221,5 +228,40 @@ static bool nominal_view_retain(Environment *env, Symbol *binding, NominalView *
     binding->type_info = concrete;
     binding->nominal_owner = retained->owner;
     binding->checker_nominal_view = retained;
+    return true;
+}
+
+/* I retain constructor origins independently of mutable emitted annotations. */
+typedef struct CheckerNominalExpression {
+    const ASTNode *expression;
+    NominalView view;
+    struct CheckerNominalExpression *next;
+} CheckerNominalExpression;
+static const NominalView *nominal_constructor_view(Environment *env, const ASTNode *expression) {
+    for (CheckerNominalExpression *entry = env->checker_nominal_expressions; entry; entry = entry->next)
+        if (entry->expression == expression) return &entry->view;
+    return NULL;
+}
+static void nominal_constructor_destroy(void *object) {
+    CheckerNominalExpression *entry = object;
+    nominal_view_discard(&entry->view);
+    free(entry);
+}
+static bool nominal_constructor_retain(Environment *env, const ASTNode *expression,
+    const TypeInfo *info, const char *owner, const NominalSubstitution *context, unsigned depth) {
+    const NominalView *prior = nominal_constructor_view(env, expression);
+    if (prior) return checked_annotations_equal_context(env, info, owner, prior->info, prior->owner,
+        depth + 1, context, nominal_view_context(prior));
+    CheckerNominalExpression *entry = calloc(1, sizeof *entry);
+    if (!entry) return false;
+    if (!nominal_view_copy_context(env, info, owner, context, depth + 1, &entry->view) ||
+        entry->view.info->base_type != TYPE_UNION || entry->view.payload ||
+        !env_own_checker_object(env, entry, nominal_constructor_destroy)) {
+        nominal_constructor_destroy(entry);
+        return false;
+    }
+    entry->expression = expression;
+    entry->next = env->checker_nominal_expressions;
+    env->checker_nominal_expressions = entry;
     return true;
 }
