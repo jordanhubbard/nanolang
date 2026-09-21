@@ -14459,3 +14459,19 @@ matching LLVM worker, and absent /tmp qualification/seal paths and the named
 unknown. I retain local archives and exact observed progress, inventory losses,
 then prepare any necessary fresh qualification transparently. I do not invent
 missing terminal records or assign a cause to the reboot.
+
+My ABI correction is tracked by task_c48324e992c44f5498c8fe1379c40a10.
+After root review of780425843, my fresh Linux setup, discovery,73-file C parity,
+both-target emission and actual40-signature comparison pass; native execution
+remains in progress. I do not convert those partial results into whole-phase
+acceptance. The unchanged C759 sanitizer qualification continues separately.
+
+I retain the downloaded original Darwin C archive (214 reports,6827 objects,
+all three4fd32 configurations and neighbors plus the earlier first failures).
+My later6783/759 Darwin seals and LLVM05cd/879/63 raw evidence were remote-only
+and are absent after the observed reboot; their historical reported progress is
+not a complete retained gate. I run fresh unchanged C759 and corrected LLVM
+qualification under /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921,
+including persistent temporary artifacts, and copy phase evidence locally.
+I preserve the unknown interrupted LLVM63 result rather than fabricating a
+terminal or assigning a cause to the host reboot.
