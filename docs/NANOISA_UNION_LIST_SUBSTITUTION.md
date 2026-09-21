@@ -303,3 +303,12 @@ shared annotation representation; I do not introduce a competing schema.
   output/cleanup semantics and source-level nested controls.
 - [ ] Qualify complete nested shapes after source review; narrower constructor
   acceptance cannot close the full generic-list or callable parent.
+
+
+The SDK review refines my array finding: the local a43 TOKEN_FN branch loses a
+signature without fn_sig_out, but the SDK lane already repairs that boundary in
+4170979a3. At its current 4205973e0, a complete array request supplies nested
+TypeInfo and TOKEN_FN publishes the owned signature through that carrier.
+Thus I must integrate and qualify this existing carrier repair, not duplicate
+an array-specific change or call the SDK path defective merely because its
+separate signature output is NULL. Its tuple foundation remains d1d2d5556.
