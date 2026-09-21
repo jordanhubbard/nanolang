@@ -13887,3 +13887,13 @@ remain retained. My first STRUCT_LITERAL checker arm never visits its fields.
   `array<array<int>>`. I retain the new refusal vector, recurse against actual
   field annotations, preserve checked byte-literal conversion, and never
   reinterpret an existing array value. No known-invalid output is executed.
+
+
+My first81cd Darwin preparation returns2 after8.138s because the SSH PATH lacks
+Homebrew: Make's existing `brew --prefix openssl` query produces no include path
+and `openssl/sha.h` is not found. The actual installed header exists; retained
+a448 environment had `/opt/homebrew/bin` while this launcher did not.
+
+- [ ] I preserve that terminal and qualify a separate fresh81cd Darwin tree
+  with the explicit previously selected Homebrew PATH, recording brew, pkg-config
+  and selected OpenSSL inputs. This driver correction changes no source or gate.
