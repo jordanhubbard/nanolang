@@ -1,0 +1,123 @@
+{
+  "source": "efc99628e7cd5c51a18077a24d3159c6c584aca9",
+  "base": "81454fdc5cfe4276b60ad67dfdea5df800ea24b7",
+  "input_count": 981,
+  "files": {
+    "README.md": {
+      "sha256": "c49071b13b371c3bf05d40a816943e1c3e3d372b3f740b848d2d2ba83b90d738",
+      "bytes": 1832
+    },
+    "darwin/compiler-identity.json": {
+      "sha256": "b9820f216076159576df14151fa8c7f2242bdc498bbfce7fce2a99876aeb49c5",
+      "bytes": 143
+    },
+    "darwin/compiler-version.json": {
+      "sha256": "5edfabda16795244bb55b2bf2620149c2581c4e8cb39be13acc5a8316774c3fd",
+      "bytes": 164
+    },
+    "darwin/compiler-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "darwin/compiler-version.stdout": {
+      "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+      "bytes": 200
+    },
+    "darwin/complete.json": {
+      "sha256": "2c5c0dbd739b7cd777ddab2ab02de305824521f801eb60f5273707bfa9eba1b7",
+      "bytes": 123
+    },
+    "darwin/inputs-after.json": {
+      "sha256": "8cf191fcb597a3325f94455ec47f3a1600ae1f03bf3003dbd40d2f2a213189d7",
+      "bytes": 157750
+    },
+    "darwin/make-identity.json": {
+      "sha256": "d12b240265b92239b0f57067d3a47fc914a8dadaaf9c52797882fe34db8bdc4c",
+      "bytes": 141
+    },
+    "darwin/make-version.json": {
+      "sha256": "a036e120419070972b4abdb2ddff33742143d1d8efa3b5cced34084fabab24f8",
+      "bytes": 163
+    },
+    "darwin/make-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "darwin/make-version.stdout": {
+      "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+      "bytes": 263
+    },
+    "darwin/ordinary-vm.json": {
+      "sha256": "bd7c48d0b5e28e902cb996b3f87a17b12c87a0181d253f34473d412502ef1b9b",
+      "bytes": 192
+    },
+    "darwin/ordinary-vm.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "darwin/ordinary-vm.stdout": {
+      "sha256": "5d35349bea052829031cc2c890691e8f27637c90f00d1f8b23487371b70d7f87",
+      "bytes": 61259
+    },
+    "inputs.json": {
+      "sha256": "8342ce0c0662500b91e806ca359d86fe0db7d756d95458fb5d0a8d69869f142d",
+      "bytes": 167634
+    },
+    "linux/compiler-identity.json": {
+      "sha256": "6ac189aca6c582f2c96433f99cd02064bddeb86bf12e966cea6e29379b9661cd",
+      "bytes": 160
+    },
+    "linux/compiler-version.json": {
+      "sha256": "8e2b997d0e2a3368e8f91d9d2b834633c43f1cd1b1d76c47c2b08657e91f9495",
+      "bytes": 163
+    },
+    "linux/compiler-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "linux/compiler-version.stdout": {
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "bytes": 246
+    },
+    "linux/complete.json": {
+      "sha256": "6c28d913fac09204e61c189be073947e0e9e3f9b6d4ba2dea0b2d14462c56679",
+      "bytes": 144
+    },
+    "linux/inputs-after.json": {
+      "sha256": "8cf191fcb597a3325f94455ec47f3a1600ae1f03bf3003dbd40d2f2a213189d7",
+      "bytes": 157750
+    },
+    "linux/make-identity.json": {
+      "sha256": "2e63f20d97de18df38d6331a9fe17586002fad588a2d96932094cadee531715a",
+      "bytes": 141
+    },
+    "linux/make-version.json": {
+      "sha256": "8cb8ab13e31a5112e5e79ca836349cac6d00ac1645079a1f5a3882cc22e7a529",
+      "bytes": 163
+    },
+    "linux/make-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "linux/make-version.stdout": {
+      "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+      "bytes": 303
+    },
+    "linux/ordinary-vm.json": {
+      "sha256": "2d0c8950a82b79de5d0a9cf62c6b1c90a471674906c8bdf41ee1e262f9fe4c51",
+      "bytes": 197
+    },
+    "linux/ordinary-vm.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "linux/ordinary-vm.stdout": {
+      "sha256": "a41d1a783ddb2b34f53ce321bb9dbd188e1f5146a41c6885e3aff17ed3a67267",
+      "bytes": 38301
+    },
+    "run.py": {
+      "sha256": "d0fc97e5c8b110de382057b87a255d5213d3ef9551ac7816654903f435e37b13",
+      "bytes": 2819
+    }
+  }
+}

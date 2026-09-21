@@ -14,7 +14,7 @@ import sys
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import quote, unquote, urlsplit
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -22,6 +22,7 @@ SOURCE = ROOT / "userguide"
 OUTPUT = ROOT / "build/userguide/html"
 GENERATED = ROOT / "build/userguide/generated"
 I18N = SOURCE / "i18n"
+COPIED_SOURCES = {Path("generated/builtins.md"): Path("docs/STDLIB.md")}
 
 LOCALES = (
     ("en", "English", "ltr", "en"),
@@ -261,7 +262,8 @@ def generate_cli() -> str:
 def generate_sources() -> None:
     GENERATED.mkdir(parents=True, exist_ok=True)
     (GENERATED / "examples.md").write_text(generate_examples())
-    (GENERATED / "builtins.md").write_text((ROOT / "docs/STDLIB.md").read_text())
+    for generated, origin in COPIED_SOURCES.items():
+        (GENERATED / generated.name).write_text((ROOT / origin).read_text())
     (GENERATED / "modules.md").write_text(generate_modules())
     (GENERATED / "cli.md").write_text(generate_cli())
 
@@ -287,9 +289,16 @@ def slugify(text: str) -> str:
 
 def rewrite_href(href: str, page: Page, source_to_output: dict[Path, Path]) -> str:
     split = urlsplit(href)
-    if split.scheme or href.startswith(("#", "mailto:")):
+    if split.scheme or split.netloc or href.startswith(("#", "mailto:")):
         return href
-    import os
+    origin = COPIED_SOURCES.get(page.rel_source)
+    if origin is not None and split.path:
+        target = Path(os.path.normpath(origin.parent / unquote(split.path)))
+        if target.is_absolute() or ".." in target.parts or not (ROOT / target).is_file():
+            raise ValueError(f"{origin}: missing repository link target: {href}")
+        rewritten = (page.rel_output.name if target == origin else
+                     "https://github.com/jordanhubbard/nanolang/blob/main/" + quote(target.as_posix(), safe="/"))
+        return rewritten + (f"?{split.query}" if split.query else "") + (f"#{split.fragment}" if split.fragment else "")
     relative = Path(os.path.normpath(page.rel_source.parent / split.path))
     if relative.suffix == ".md" and relative in source_to_output:
         target_output = source_to_output[relative]
