@@ -211,3 +211,24 @@ module/include paths and duplicate canonical metadata include requests, retains
 actual compiler argv, and checks the exact three selected shadows. The original
 complete provider-owner corpus remains mandatory. SDK-owned/user-project origins
 are additionally required by my installed SDK fixture checkpoint.
+
+## My final published-object argument and generated-object identity
+
+The9109 nested/spaced control reaches both successful wrapper compilations and
+three successful shadows, then exposes an additional final-link boundary: my
+C-seed appends raw C-provider object paths as trusted flag fragments. I distinguish
+those paths through exact equality with each retained ModuleBuildInfo.object_file
+and append them with the existing checked unique-object quoting helper before
+ordinary flag handling. I preserve all non-object fragments, their order and
+existing framework/library semantics. I neither infer path authority from a file
+extension nor change the module builder's returned flag ABI. Allocation/append
+failure uses the existing owned build-info cleanup and refuses publication.
+
+That control also uses two physical wrapper.nano modules. Their old shared
+basename object location aliases. My already reviewed SDK source allocates one
+invocation-private generated-object directory and includes each selected module
+index in its filename, retaining it through final link and cleaning only the
+owning invocation. I reuse that implementation and its qualification; I do not
+rename the fixtures or create a second lifecycle design. Full File and installed
+SDK qualification therefore share this source prerequisite, while all historical
+passes and first terminals remain scoped to their original pins.

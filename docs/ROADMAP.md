@@ -14315,3 +14315,34 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   before source-path recovery. I add a bounded nested-session timeout control.
   I also verify the supplied initial source manifest's bytes and modes as well as
   hashes; before/after equality alone does not establish the declared identity.
+  My frozen Linux run then measured the predicted observer failure: ordinary
+  returned1 after751.422seconds, with eight methods passed and the ninth failing
+  before leaf-provider compilation (`dependency: not found`). The actual helper
+  boundary probe passed; complete paired header/owner acceptance did not. My
+  separate Darwin verbose diagnostic passed1071shadows with the original10-second
+  deadline; its cause remains unassigned. One fresh Darwin bootstrap subsequently
+  passed342.741seconds and continued to the original ordinary corpus. I preserve
+  all three observations separately; no timeout widening or infrastructure label.
+
+- [ ] I compare canonical paths in my actual include-closure unit fixture on
+  Darwin. The fresh6b586 Apple ordinary run returned1 after413.074seconds: four
+  methods passed, then the helper's quoted-directory assertion compared lexical
+  `/tmp` with its canonical `/private/tmp` result. My contract requires canonical
+  directories. I resolve the independently expected path through realpath before
+  quoting it, preserve every predicate and original terminal, and rerun corrected
+  fixtures with exact retained6b586 compiler/provider identities.
+
+- [ ] I quote each actual published C-provider object at final C-seed command
+  construction. The9109 Linux nested/spaced header run compiled both wrappers and
+  passed all three shadows, then returned1 after5.580seconds because final link
+  flags appended bare published object paths containing spaces. I retain the
+  actual compiler argv/ld diagnostic and identify objects by exact equality with
+  the owning ModuleBuildInfo.object_file, not suffix/spelling. Other trusted
+  linker fragments retain their existing interpretation; complete quoted append
+  failure must preserve the original output. Source review precedes qualification.
+- [ ] I retain distinct same-basename Nano module objects through the final link.
+  The same9109 trace shows two physical wrapper.nano modules both published as
+  obj/nano_modules/wrapper.o. My reviewed installed SDK production already gives
+  generated module objects invocation-private directories plus registry indexes.
+  I integrate and qualify that owning boundary, rather than weaken the new
+  same-basename/import-order fixtures or add another shared-name workaround.

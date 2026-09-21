@@ -21,7 +21,8 @@ int main(void) {
     module_cache = &cache;
     ModuleIncludeClosure *closure = module_include_closure();
     CHECK(closure); CHECK(closure->count == 1);
-    char *quoted = module_quote_path(directory); CHECK(quoted);
+    char canonical[4096]; CHECK(realpath(directory, canonical));
+    char *quoted = module_quote_path(canonical); CHECK(quoted);
     char expected[8192]; CHECK(snprintf(expected, sizeof(expected), " -I%s", quoted) > 0);
     CHECK(strcmp(expected, closure->flags) == 0); free(quoted);
     module_include_closure_free(closure);
