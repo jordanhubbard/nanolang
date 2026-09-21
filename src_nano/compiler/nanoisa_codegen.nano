@@ -2823,7 +2823,7 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
             return (nisa_line_imm "PUSH_U8" (int_to_string literal))
         }
         let actual: string = (nisa_expr_type parser node_id node_type)
-        if (== actual "int") {
+        if (or (== actual "int") (>= (nisa_enum_index parser actual) 0)) {
             return (+ (nisa_emit_expr parser node_id node_type) (nisa_line "CAST_U8"))
         }
         if (!= actual "u8") {
@@ -2917,6 +2917,18 @@ shadow nisa_emit_expected_expr {
     let narrow_text: string = (nisa_emit_expected_expr narrow_parser narrow_return.value narrow_return.value_type "u8")
     assert (str_contains narrow_text "I64_ADD")
     assert (str_ends_with narrow_text "  CAST_U8\n")
+    let enum_reset: int = (nisa_reset)
+    let enum_tokens: List<LexerToken> = (tokenize_string "enum Edge { Below = -1, Above = 256 } fn below() -> Edge { return Edge.Below } fn narrow() -> u8 { return (below) } fn above() -> Edge { return Edge.Above }" "enum-byte.nano" diagnostics)
+    let enum_parser: Parser = (parse_program enum_tokens (list_LexerToken_length enum_tokens) "enum-byte.nano")
+    assert (not (parser_has_error enum_parser))
+    let enum_member: ASTReturn = (parser_get_return enum_parser 0)
+    assert (== (nisa_emit_expected_expr enum_parser enum_member.value enum_member.value_type "u8") "  PUSH_I64 -1\n  CAST_U8\n")
+    let enum_call: ASTReturn = (parser_get_return enum_parser 1)
+    let enum_call_text: string = (nisa_emit_expected_expr enum_parser enum_call.value enum_call.value_type "u8")
+    assert (str_contains enum_call_text "CALL")
+    assert (str_ends_with enum_call_text "  CAST_U8\n")
+    let enum_above: ASTReturn = (parser_get_return enum_parser 2)
+    assert (== (nisa_emit_expected_expr enum_parser enum_above.value enum_above.value_type "u8") "  PUSH_I64 256\n  CAST_U8\n")
     let tuple_text: string = (nisa_emit_expected_expr tuple_parser tuple_return.value tuple_return.value_type "(int,string)")
     assert (str_contains tuple_text "AGG_PACK 2 0 0 2")
 }

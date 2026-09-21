@@ -840,7 +840,7 @@ static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
     if (want_float && type != TYPE_FLOAT) emit_op(cg, OP_CAST_FLOAT);
 }
 
-/* I narrow computed INT only at an exact checked byte destination. Literal
+/* I narrow checked INT/ENUM only at an exact byte destination. Literal
  * range policy remains independent of this explicit runtime conversion. */
 static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
     if (tag == TAG_U8) {
@@ -853,7 +853,7 @@ static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
             return;
         }
         Type actual = check_expression(node, cg->env);
-        if (actual == TYPE_INT) {
+        if (actual == TYPE_INT || actual == TYPE_ENUM) {
             compile_expr(cg, node);
             emit_op(cg, OP_CAST_U8);
             return;
