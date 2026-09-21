@@ -14163,3 +14163,7 @@ For `task_02a1b4af967eafa357fb0210e94679d8`, my e10 diagnostic stopped on Apple 
 For `task_02a1b4af967eafa357fb0210e94679d8`, the sizeof proposal also stops on Apple strict unused-internal-declaration diagnostics. My reviewed next direction uses an exact guarded optional-use redeclaration macro for the same 52 helpers, preserving bodies/linkage/strict flags and requiring fresh object/link closure checks. Both rejected proposals remain retained.
 
 For the same optional-helper task, I preserve the Apple after-definition attribute refusal and move to actual definition annotations across the six documented canonical/generated sources. I retain every helper body and rebuild the changed provider closure plus binary64 adjacency before claiming strict acceptance.
+
+### 5.1: compact list identity through generic union payloads
+
+- [ ] `task_40aa248a7326409cba8fcadc4bddecdd`: I retain both 833 first discovery refusals, preserve compact list container semantics through exact formal-element substitution, audit constructor/match/native consumers and declaration-owner provenance, add both-encoding/import/collision controls, and review corrected source before fresh full qualification. My precode is `docs/NANOISA_UNION_LIST_SUBSTITUTION.md`; the unchanged eighteen original and eight additive native methods remain required.
