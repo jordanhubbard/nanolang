@@ -258,7 +258,11 @@ bool nano_native_generate_list(const char *root, const char *directory,
     return waited == child && WIFEXITED(status) && WEXITSTATUS(status) == 0;
 }
 
+#ifdef __APPLE__
+extern void ffi_loader_shutdown(void) __attribute__((weak_import));
+#else
 extern void ffi_loader_shutdown(void) __attribute__((weak));
+#endif
 static void sdk_cache_shutdown(void) {
     if (getpid() != sdk_cache_owner) return;
     if (ffi_loader_shutdown) ffi_loader_shutdown();

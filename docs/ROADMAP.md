@@ -14352,3 +14352,12 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   required copy size and available bytes before refusing an insufficient reserve;
   existing evidence remains intact. My bounded nested-session control passed on
   Linux and Darwin before fresh combined qualification.
+
+- [ ] I preserve the first combined SDK clean-install bootstrap failure on
+  Darwin at ed3db: the Stage1 link reports undefined ffi_loader_shutdown from
+  compiler_support.o, before any SDK test executes. My optional shutdown hook
+  needs an Apple weak_import declaration while ELF retains weak. I preserve the
+  null check and shutdown-before-private-tree cleanup order, then require fresh
+  bootstrap and installed qualification. Separately, my first Linux setup stopped
+  before building because git archive's0664 modes differed from declared0644;
+  a fresh tree explicitly applies the declared Git modes and retains that map.
