@@ -14402,3 +14402,12 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   emitters/copies before qualification. My precode contract is
   [QUALIFIED_OPAQUE_IDENTITY.md](QUALIFIED_OPAQUE_IDENTITY.md). I coordinate with
   the list/checker owner and retain its record-only authority boundaries.
+
+- [ ] I complete opaque-aware native tuple and generic-symbol projection under
+  task_2c7f68e4707b4d12b0ac8d29636fda63. Static inventory found that C tuple typedef
+  reuse compares only coarse tags and generic-union symbols concatenate argument
+  spellings into fixed buffers. My new declaration keys must not become C tokens.
+  I retain full identities, compare complete tuple annotations, and prepare an
+  injective emission-local identifier projection with original-symbol collision
+  checks and checked storage. I do not add a refusal for an accepted generic
+  opaque instantiation. The full source checkpoint remains unqualified.

@@ -191,3 +191,66 @@ scalar/foreign policies receive adjacent controls and remain separately scoped.
 The native emitter's existing known opaque C spellings are preserved; a custom
 actual opaque declaration uses the same pointer representation as the C seed,
 with no record layout or pointer lifetime inferred from its name.
+
+## Native identifier projection checkpoint
+
+My static consumer audit found two additional required paths. C tuple typedef
+reuse compares only coarse element tags, and generic-union symbol builders append
+argument spellings through fixed 256/512-byte buffers. A declaration identity is
+not a C identifier. I keep accepted generic opaque instantiations; I do not turn
+this naming defect into a new source refusal.
+
+I propose an emission-local owned name table for every complete derived name that
+contains a registered opaque key. Its lookup key is a counted, tagged encoding
+of the complete canonical TypeInfo/signature tree: base kind, nominal identity,
+argument count and recursively framed arguments, array element, ordered tuple/row
+components, callable parameters/result and their names/borrow facts. I do not use
+the old underscore-concatenated spelling as a key: `Box<A_B,C,Opaque>` and
+`Box<A,B_C,Opaque>` must remain distinct. Exact equal encoded byte strings share
+one row; unequal strings receive distinct dense indices. The emitted spelling is `__nano_opaque_<prefix-index>_<row-index>`.
+The table never establishes declaration authority: callers first resolve the
+original opaque declarations, and the semantic registry retains origin/kind/name.
+No ABI spelling or hash substitutes for nominal equality.
+
+I reserve a prefix index against original source identifiers during my existing
+recursive nominal traversal. I retain encountered canonical decimal prefix indices
+from names beginning `__nano_opaque_<decimal>_`, without a second parser. I select
+the first unused index after all modules/root declarations have been checked.
+The selection is at most the number of distinct reserved indices, not a
+user-selected enormous integer. Noncanonical decimal strings cannot equal my
+output. I check function/parameter/type/enum/variant/field/let/loop/match names and
+identifier/call references encountered by that traversal. Generated internal
+families use different prefixes; foreign spellings explicitly present in source
+are included. Arbitrary names/macros introduced solely by trusted C headers or
+flags remain under the existing foreign build contract.
+
+This adds an environment-owned checked array of reserved indices, released with
+my new identity preparation state. It adds no AST/schema field. Native emission
+owns its separate prefix/name rows until the completed output string has copied
+their bytes. Each row owns the complete semantic key and short emitted spelling;
+no borrowed array-element pointer survives growth. Failed allocation/overflow
+refuses before output publication through the existing compiler failure boundary.
+I do not claim a total compiler heap bound or recoverable Nano process OOM.
+
+I audit every definition/reference path together: generic specialization names,
+TypeInfo-to-native names, constructor/match/tag/payload names, signatures/locals,
+to-string declarations/definitions, tuples and nested generics. Shared builders
+first construct the complete checked semantic key in dynamic storage and then
+project it; they cannot truncate a key before lookup or silently skip a required
+definition. Ordinary names without opaque facts keep their existing spelling.
+Tuple registry reuse compares complete retained annotations, and opaque tuple
+fields use the existing pointer representation rather than a fabricated record.
+
+My source-origin positive fixtures use different directories with the same base
+filename and distinct explicit module declarations. I separately retain refusal
+for duplicate default public module introspection labels. That existing label
+policy does not collapse physical origins and is not expanded here.
+
+Opaque-bearing generic registration must likewise retain a checked complete
+TypeInfo copy and deduplicate by that tree, not the old flattened argument-name
+array. I add a scoped full-tree registration path for these instantiations and
+route their annotations, constructor contexts and match caches through the same
+semantic key encoder. Existing ordinary registration remains unchanged. A copied
+key/cache is still an internal semantic fact, never accepted as a source spelling
+or a C symbol. All new registration allocations stage before publication and
+have explicit rollback; no new whole-environment recoverable-OOM claim is made.
