@@ -117,7 +117,7 @@ shadow main { assert (== (main) 0) }
         assembly = self.paired('''fn convert(n:int)->float{return 1.5}
 shadow convert { assert (== (convert 1) 1.5) }
 fn choose()->fn(int)->float{return convert}
-shadow choose { assert true }
+shadow choose { assert (== ((choose) 1) 1.5) }
 fn main()->int{
  let values:array<float> = (map [1,2] (choose))
  assert (== (array_length values) 2)
@@ -127,7 +127,9 @@ fn main()->int{
 }
 shadow main { assert (== (main) 0) }
 ''')
-        self.assertEqual(assembly.count('CALL choose'), 1)
+        # One call belongs to the exact computed shadow and one selects the
+        # callback for map; neither is repeated per element.
+        self.assertEqual(assembly.count('CALL choose'), 2)
         self.assertIn('FUNCREF convert', assembly)
         self.assertLess(assembly.index('CALL choose'), assembly.rindex('CALL convert'))
     def test_scalar_reductions_and_element_read_timing(self):
