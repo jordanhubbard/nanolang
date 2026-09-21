@@ -665,7 +665,7 @@ static void nominal_import_attempt(const char *importer, const char *owner,
                                    size_t failure, bool once, size_t *count) {
     Environment *env = create_environment(); CHECK(env);
     StructDef record = {0}; record.name = strdup("Item");
-    record.module_name = owner ? strdup(owner) : NULL;
+    record.module_name = (char *)owner;
     CHECK(record.name && (!owner || record.module_name)); env_define_struct(env, record);
     NominalIdentity identity = env_nominal_identity(env, "Item", owner, TYPE_STRUCT);
     CHECK(identity.ordinal);
@@ -701,7 +701,7 @@ static void nominal_import_controls(void) {
     Environment *env = create_environment(); CHECK(env);
     const char *owners[] = {"First", "Second", "Caller"};
     for (int i = 0; i < 3; ++i) {
-        StructDef record = {0}; record.name = strdup("Item"); record.module_name = strdup(owners[i]);
+        StructDef record = {0}; record.name = strdup("Item"); record.module_name = (char *)owners[i];
         CHECK(record.name && record.module_name); env_define_struct(env, record);
     }
     NominalIdentity first = env_nominal_identity(env, "Item", "First", TYPE_STRUCT);
@@ -722,7 +722,7 @@ static void nominal_import_controls(void) {
     env->structs[first.ordinal - 1].name[0] = saved;
     CHECK(env_nominal_identity(env, "Item", "User", TYPE_STRUCT).ordinal == first.ordinal);
     CHECK(!env_register_nominal_import(env, "User", "Invalid", (NominalIdentity){TYPE_STRUCT, 999}));
-    EnumDef enumeration = {0}; enumeration.name = strdup("Color"); enumeration.module_name = strdup("First");
+    EnumDef enumeration = {0}; enumeration.name = strdup("Color"); enumeration.module_name = "First";
     env_define_enum(env, enumeration);
     UnionDef sum = {0}; sum.name = strdup("Choice"); sum.module_name = strdup("First"); env_define_union(env, sum);
     CHECK(env_register_nominal_import(env, "User", "Color", env_nominal_identity(env, "Color", "First", TYPE_ENUM)));
@@ -741,13 +741,13 @@ static void nominal_import_controls(void) {
         CHECK(!env_nominal_identity(env, binding, "Kinds", kinds[b].kind).ordinal);
     }
     CHECK(env_register_nominal_import(env, "Caller", "Color", first));
-    EnumDef local_enum = {0}; local_enum.name = strdup("LocalColor"); local_enum.module_name = strdup("Local");
+    EnumDef local_enum = {0}; local_enum.name = strdup("LocalColor"); local_enum.module_name = "Local";
     env_define_enum(env, local_enum);
     CHECK(env_register_nominal_import(env, "Local", "LocalColor", first));
     CHECK(!env_nominal_identity(env, "LocalColor", "Local", TYPE_STRUCT).ordinal);
     CHECK(env_nominal_identity(env, "LocalColor", "Local", TYPE_ENUM).ordinal == 2);
     CHECK(env_register_nominal_import(env, "LocalRecord", "Item", kinds[2]));
-    StructDef local_record = {0}; local_record.name = strdup("Item"); local_record.module_name = strdup("LocalRecord");
+    StructDef local_record = {0}; local_record.name = strdup("Item"); local_record.module_name = "LocalRecord";
     env_define_struct(env, local_record);
     CHECK(!env_nominal_identity(env, "Item", "LocalRecord", TYPE_UNION).ordinal);
     CHECK(env_nominal_identity(env, "Item", "LocalRecord", TYPE_STRUCT).ordinal == 4);

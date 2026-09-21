@@ -1,5 +1,8 @@
 /* I expose cache identity observations without replacing loader/clear/compile code. */
 #define _POSIX_C_SOURCE 200809L
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 700
+#endif
 #include "../src/nanolang.h"
 #include <stdlib.h>
 #include <string.h>
