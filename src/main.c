@@ -1465,17 +1465,17 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         /* Check if followed by * or space (valid list type) */
         if (*end_ptr == '*' || *end_ptr == ' ' || *end_ptr == '\n') {
             size_t len = (size_t)(end_ptr - scan_ptr);
-            char type_name[256];
-            if (!len || len >= sizeof(type_name)) {
+            char provider_type_name[256];
+            if (!len || len >= sizeof(provider_type_name)) {
                 include_paths_valid = false;
                 fprintf(stderr, "I cannot represent this native list specialization name.\n");
                 continue;
             }
-            memcpy(type_name, scan_ptr, len);
-            type_name[len] = '\0';
+            memcpy(provider_type_name, scan_ptr, len);
+            provider_type_name[len] = '\0';
             /* I emitted the complete provider in the translation unit itself. */
             char provider_marker[300];
-            snprintf(provider_marker, sizeof(provider_marker), "NL_DEFINE_RECORD_LIST(%s,", type_name);
+            snprintf(provider_marker, sizeof(provider_marker), "NL_DEFINE_RECORD_LIST(%s,", provider_type_name);
             if (strstr(c_code, provider_marker)) continue;
             if (len >= sizeof(detected_types[0])) {
                 include_paths_valid = false;
@@ -1483,6 +1483,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                 continue;
             }
             
+            char type_name[sizeof(detected_types[0])];
+            memcpy(type_name, provider_type_name, len + 1);
+
             /* Skip built-in types */
             if (strcmp(type_name, "int") == 0 || 
                 strcmp(type_name, "string") == 0 || 
