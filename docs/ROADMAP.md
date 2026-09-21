@@ -14314,3 +14314,10 @@ charge/write,93-operation recipe and decoded-fact helpers into
 original C source byte for byte; I have not rebuilt or executed it. Allocation,
 work and fact semantics are unchanged. The independent generated-byte comparison
 remains an execution gate before I accept this factoring for the LLVM consumer.
+
+I add a pure private `nrg_layout_field` ABI query for the direct LLVM consumer.
+Its fixed enum covers revision/frame/root constants, status/bool sizes and every
+size, alignment and field offset of my boxed value/function/program/view/record/
+field tables. Unknown indices return UINT32_MAX. The query allocates nothing,
+reads no caller storage and changes no instance or existing struct/API behavior.
+It remains unexecuted pending complete LLVM source and fixture review.

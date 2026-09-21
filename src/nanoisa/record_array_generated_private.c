@@ -26,6 +26,61 @@ struct NrgInstance {
 _Static_assert(sizeof(NmsValue)==16 && offsetof(NmsValue,tag)==8,
                "I require my generated boxed value ABI");
 _Static_assert(NRG_ROOTS==1024u*512u+1u,"I reserve every frame and initializer root");
+uint32_t nrg_layout_field(uint32_t field) {
+    switch(field) {
+    case NRG_LAYOUT_REVISION:return (uint32_t)(NRG_ABI);
+    case NRG_LAYOUT_FRAMES:return (uint32_t)(NRG_FRAMES);
+    case NRG_LAYOUT_ROOTS:return (uint32_t)(NRG_ROOTS);
+    case NRG_LAYOUT_STATUS_SIZE:return (uint32_t)(sizeof(NrgStatus));
+    case NRG_LAYOUT_BOOL_SIZE:return (uint32_t)(sizeof(bool));
+    case NRG_LAYOUT_VALUE_SIZE:return (uint32_t)(sizeof(NmsValue));
+    case NRG_LAYOUT_VALUE_ALIGN:return (uint32_t)(offsetof(struct { char padding; NmsValue value; },value));
+    case NRG_LAYOUT_VALUE_PAYLOAD:return (uint32_t)(offsetof(NmsValue,payload));
+    case NRG_LAYOUT_VALUE_TAG:return (uint32_t)(offsetof(NmsValue,tag));
+    case NRG_LAYOUT_FUNCTION_SIZE:return (uint32_t)(sizeof(NrgFunction));
+    case NRG_LAYOUT_FUNCTION_ALIGN:return (uint32_t)(offsetof(struct { char padding; NrgFunction value; },value));
+    case NRG_LAYOUT_FUNCTION_LOCALS:return (uint32_t)(offsetof(NrgFunction,locals));
+    case NRG_LAYOUT_FUNCTION_ARITY:return (uint32_t)(offsetof(NrgFunction,arity));
+    case NRG_LAYOUT_FUNCTION_RESULT_COUNT:return (uint32_t)(offsetof(NrgFunction,result_count));
+    case NRG_LAYOUT_FUNCTION_RESULT_TAG:return (uint32_t)(offsetof(NrgFunction,result_tag));
+    case NRG_LAYOUT_FUNCTION_MAXIMUM_STACK:return (uint32_t)(offsetof(NrgFunction,maximum_stack));
+    case NRG_LAYOUT_FUNCTION_PARAMETERS:return (uint32_t)(offsetof(NrgFunction,parameters));
+    case NRG_LAYOUT_FUNCTION_BODY:return (uint32_t)(offsetof(NrgFunction,body));
+    case NRG_LAYOUT_PROGRAM_SIZE:return (uint32_t)(sizeof(NrgProgram));
+    case NRG_LAYOUT_PROGRAM_ALIGN:return (uint32_t)(offsetof(struct { char padding; NrgProgram value; },value));
+    case NRG_LAYOUT_PROGRAM_ABI:return (uint32_t)(offsetof(NrgProgram,abi));
+    case NRG_LAYOUT_PROGRAM_VALUE_SIZE:return (uint32_t)(offsetof(NrgProgram,value_size));
+    case NRG_LAYOUT_PROGRAM_VALUE_TAG_OFFSET:return (uint32_t)(offsetof(NrgProgram,value_tag_offset));
+    case NRG_LAYOUT_PROGRAM_FRAME_LIMIT:return (uint32_t)(offsetof(NrgProgram,frame_limit));
+    case NRG_LAYOUT_PROGRAM_FUNCTION_COUNT:return (uint32_t)(offsetof(NrgProgram,function_count));
+    case NRG_LAYOUT_PROGRAM_ENTRY:return (uint32_t)(offsetof(NrgProgram,entry));
+    case NRG_LAYOUT_PROGRAM_INITIALIZER:return (uint32_t)(offsetof(NrgProgram,initializer));
+    case NRG_LAYOUT_PROGRAM_GLOBAL_COUNT:return (uint32_t)(offsetof(NrgProgram,global_count));
+    case NRG_LAYOUT_PROGRAM_HAS_MAIN:return (uint32_t)(offsetof(NrgProgram,has_main));
+    case NRG_LAYOUT_PROGRAM_LITERAL_COUNT:return (uint32_t)(offsetof(NrgProgram,literal_count));
+    case NRG_LAYOUT_PROGRAM_RECORD_COUNT:return (uint32_t)(offsetof(NrgProgram,record_count));
+    case NRG_LAYOUT_PROGRAM_FIELD_COUNT:return (uint32_t)(offsetof(NrgProgram,field_count));
+    case NRG_LAYOUT_PROGRAM_FUNCTIONS:return (uint32_t)(offsetof(NrgProgram,functions));
+    case NRG_LAYOUT_PROGRAM_LITERALS:return (uint32_t)(offsetof(NrgProgram,literals));
+    case NRG_LAYOUT_PROGRAM_RECORDS:return (uint32_t)(offsetof(NrgProgram,records));
+    case NRG_LAYOUT_PROGRAM_FIELD_STARTS:return (uint32_t)(offsetof(NrgProgram,field_starts));
+    case NRG_LAYOUT_PROGRAM_FIELDS:return (uint32_t)(offsetof(NrgProgram,fields));
+    case NRG_LAYOUT_VIEW_SIZE:return (uint32_t)(sizeof(NmsView));
+    case NRG_LAYOUT_VIEW_ALIGN:return (uint32_t)(offsetof(struct { char padding; NmsView value; },value));
+    case NRG_LAYOUT_VIEW_DATA:return (uint32_t)(offsetof(NmsView,data));
+    case NRG_LAYOUT_VIEW_LENGTH:return (uint32_t)(offsetof(NmsView,length));
+    case NRG_LAYOUT_RECORD_SIZE:return (uint32_t)(sizeof(NmsRecordDescriptor));
+    case NRG_LAYOUT_RECORD_ALIGN:return (uint32_t)(offsetof(struct { char padding; NmsRecordDescriptor value; },value));
+    case NRG_LAYOUT_RECORD_GLOBAL_LAYOUT_INDEX:return (uint32_t)(offsetof(NmsRecordDescriptor,global_layout_index));
+    case NRG_LAYOUT_RECORD_FIELD_COUNT:return (uint32_t)(offsetof(NmsRecordDescriptor,field_count));
+    case NRG_LAYOUT_FIELD_SIZE:return (uint32_t)(sizeof(NrgField));
+    case NRG_LAYOUT_FIELD_ALIGN:return (uint32_t)(offsetof(struct { char padding; NrgField value; },value));
+    case NRG_LAYOUT_FIELD_TAG:return (uint32_t)(offsetof(NrgField,tag));
+    case NRG_LAYOUT_FIELD_NESTED_LAYOUT:return (uint32_t)(offsetof(NrgField,nested_layout));
+    case NRG_LAYOUT_FIELD_ELEMENT:return (uint32_t)(offsetof(NrgField,element));
+    default:return UINT32_MAX;
+    }
+}
 static bool nrg_owner(const NrgInstance *p) {
 #ifdef __wasm32__
     /* My private Wasm target has no shared-memory/thread imports. */
