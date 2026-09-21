@@ -46,6 +46,7 @@ class GenericRecordLists(unittest.TestCase):
         cls.command('coroutine-error-build', [*common, ROOT / 'tests/test_coroutine_error_allocation.c',
             *cls.links, '-o', cls.coroutine_errors])
         cls.command('array-identity-build', [*common, ROOT / 'tests/test_nominal_array_identity.c',
+            ROOT / 'tests/test_nominal_constructor_allocations.c',
             *[p for p in cls.objects if p.name != 'typechecker.o'], *cls.links, '-o', cls.array_identity])
         cls.command('array-allocation-build', [*common, ROOT / 'tests/test_nominal_array_allocations.c',
             ROOT / 'tests/test_nominal_array_allocations_checker.c',

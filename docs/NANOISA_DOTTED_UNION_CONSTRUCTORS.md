@@ -36,3 +36,22 @@ failed conversion and admit fresh independent recovery. The original18 source
 and8 native methods, both hosts and full bootstrap remain required. No source
 program or allocation-failure control runs before review of the complete source
 and fixture checkpoint.
+
+## My fixture checkpoint
+
+I include the actual nominal binder in a separate allocator-hook translation
+unit, renaming only its public entry to preserve the real provider too. Local
+and imported successful conversions each measure two string allocations. I
+refuse every measured allocation prefix in persistent and transient modes,
+compare the complete unchanged AST and child aliases, and then perform fresh
+independent recovery. Successful strings transfer to the ordinary AST destructor;
+I do not claim that destructor belongs to the hook domain.
+
+My parser/checker cases retain both dotted and explicit generic syntax, both
+forward and earlier declarations, and wrong variant/payload refusals. Separate
+parsed binder controls retain exact exported alias ownership and ordinary
+qualified record behavior. Inaccessible, wrong-owner, unknown-alias, spread,
+ambiguous-kind and duplicate-variant controls preserve the original node. I add
+these controls to the existing identity method without removing any of my
+original eighteen source or eight native methods. This checkpoint is source-only
+until review and fresh corrected qualification.

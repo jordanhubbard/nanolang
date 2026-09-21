@@ -646,6 +646,38 @@ static void constructor_annotation_parsing(void) {
         free_tokens(tokens, count);
     }
 }
+static void dotted_constructor_checking(void) {
+    const char *declaration = "struct Item { value:int } union Box<T> { Value { item:T } }\n";
+    for (int forward = 0; forward < 2; ++forward)
+    for (int explicit_type = 0; explicit_type < 2; ++explicit_type)
+    for (int invalid = 0; invalid < 3; ++invalid) {
+        char source[1024];
+        int length = snprintf(source, sizeof source,
+            "%sfn sample()->int { let box:Box<Item> =%s.%s{item:%s} return 0 }\n"
+            "shadow sample { assert true }\n%s",
+            forward ? "" : declaration, explicit_type ? "Box<Item>" : "Box",
+            invalid == 1 ? "Missing" : "Value", invalid == 2 ? "true" : "Item{value:3}",
+            forward ? declaration : "");
+        assert(length > 0 && (size_t)length < sizeof source);
+        int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+        ASTNode *program = parse_program(tokens, count); assert(program);
+        ASTNode *function = NULL;
+        for (int i = 0; i < program->as.program.count; ++i)
+            if (program->as.program.items[i]->type == AST_FUNCTION) function = program->as.program.items[i];
+        assert(function && function->as.function.body->type == AST_BLOCK);
+        ASTNode *node = function->as.function.body->as.block.statements[0]->as.let.value;
+        assert(node && (node->type == AST_STRUCT_LITERAL || node->type == AST_UNION_CONSTRUCT));
+        Environment *env = create_environment(); assert(env);
+        bool ok = type_check_module(program, env);
+        assert(ok == (invalid == 0));
+        if (ok) {
+            assert(node->type == AST_UNION_CONSTRUCT);
+            assert(!strcmp(node->as.union_construct.variant_name, "Value"));
+            assert(node->as.union_construct.field_count == 1);
+        }
+        free_environment(env); free_ast(program); free_tokens(tokens, count);
+    }
+}
 static void constructor_failure_rollback(void) {
     for (int invalid = 0; invalid < 2; ++invalid) {
         char source[512];
@@ -714,8 +746,10 @@ static void emission_entry_rollback(void) {
         free_environment(env); free_ast(program); free_tokens(tokens, count);
     }
 }
+extern void test_nominal_constructor_allocations(void);
 int main(void) {
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); constructor_failure_rollback(); emission_entry_rollback();
+    test_nominal_constructor_allocations();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_failure_rollback(); emission_entry_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }
