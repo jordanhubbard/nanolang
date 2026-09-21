@@ -142,3 +142,39 @@ They require actual checker diagnostics and preserve output sentinels.
 The runner remains unchanged, including retained products, command terminals,
 process-group cleanup and deadlines. Static Python AST inspection finds sixteen
 methods. I have not imported the runner or executed any fixture at this pin.
+
+## Review prerequisite: discarded value facts
+
+Root's static review of a0a98/2e9fe8 confirms that my expression-statement path
+can discard `fact.ok == false` for an unused nonterminal expression. My parser
+accepts bare array literals and match expressions through parse_statement's
+parse_expression fallback. A heterogeneous literal or incompatible match can
+therefore fail fact construction without adding an error. I must diagnose the
+final checked fact even when unused, including unreachable expressions, while
+allowing genuine literal holes. For an actual declared tail destination I first
+perform contextual checking, so a valid byte conversion is not rejected from
+its raw inference facts.
+
+My cond parser lowers expressions to PNODE_IF, currently erasing the distinction
+from ordinary statement IF. I add an explicit `ASTIf.is_expression: bool` in
+my shared schema. Ordinary parser_store_if constructs false; cond construction
+marks true through a checked struct copy. My checker uses this flag to validate
+all discarded expression branches without requiring value agreement from an
+ordinary statement IF. I preserve ordinary unequal/void branch successes and
+terminal control separately. The field is parser intent, not an inferred token
+location or body-shape heuristic.
+
+My constructor/copy audit covers parser.nano and the legacy nanoc_integrated
+ASTIf declaration/constructor, generated Nano/C declarations, value-based
+list_ASTIf storage and getters, module/cache/nominal copies and both parsers.
+The C seed keeps cond as AST_COND in its separate ASTNode representation and
+already has an IF expression parser; I do not alter that representation here.
+The schema generator derives fields from JSON; all affected consumers require
+fresh providers before later qualification. No NanoISA opcode or admission
+changes follow from this frontend field.
+
+I separately record task_13edc03c03d149bc88bfde0be0e0fbe6 for the missing actual
+self-hosted `(if ...)` parser route. Existing corpus cases remain requirements,
+not successful parser coverage. I retain the peer parser/type-fact overlap
+notice and require review before qualification or integration. No invalid
+output is executed to reproduce either static finding.

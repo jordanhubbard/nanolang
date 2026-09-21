@@ -13953,3 +13953,25 @@ all existing source/evaluator/VM routes. Static Python AST inspection finds
 sixteen methods; no fixture or compiler has executed. I retain the original
 full15 obligation inside this expanded corpus, with the same deadlines and
 retention driver, pending source/fixture review and capacity preflight.
+
+### Preserve discarded expression failures (task_f284f62c42a8405baa281e8d6eea6834)
+
+Root's static review confirms that unused invalid literal/match facts can be
+ignored without a diagnostic, and cond's lowering currently loses expression
+origin. I record this before correction.
+
+- [ ] I retain explicit ASTIf expression origin through schema, constructors and
+  copies, preserve ordinary statement IF, and diagnose invalid discarded facts
+  after any legitimate declared-tail contextual conversion. I add positive
+  empty/byte/ordinary-IF controls and negative discarded-expression controls,
+  then obtain review before any compiler or gate execution.
+
+### Complete my IF expression parser (task_13edc03c03d149bc88bfde0be0e0fbe6)
+
+My C seed accepts IF expressions; my self-hosted primary parser currently lacks
+that route. My existing unqualified `(if ...)` corpus is a requirement, not
+acceptance evidence. I preserve the full original source scope.
+
+- [ ] I implement and review the actual parser route with expression-origin,
+  lexical/control and both valid/refusal controls, coordinate peer overlap, and
+  qualify all actual source producers under unchanged deadlines.
