@@ -14164,3 +14164,13 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   unique top-level entry and its shadow, retain exact-one assertions, and preserve
   quoted source bytes and all original shadows. I retain both first terminals;
   no production, runtime or bootstrap input changes.
+
+- [ ] I repair the demonstrated e994 paired resolution status mismatch. Both
+  hosts reached actual Nano probe execution after C graph acceptance and mandatory
+  shadows. The257th ordinary declaration yields C LIMIT(3), but Nano collapses
+  source-plan LIMIT(2) into UNRESOLVED(5). I retain both exact stdout reports and
+  unchanged parity assertion. I map plan status exactly as C does: OK0 to PREPARED1,
+  LIMIT2 to LIMIT3, MEMORY3 to MEMORY4 and all other failures to UNRESOLVED5. A
+  complete helper shadow checks that mapping; this does not claim recoverable Nano
+  OOM. Because the imported compiler source changes, I require a fresh both-host
+  bootstrap and preserve every prior compiler product under its original pin.

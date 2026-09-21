@@ -16,6 +16,21 @@ pub struct FileResolution {
     status: int, origins: array<FileParsedOrigin>, rows: array<FileVisibility>,
     plan: FileSourcePlan, snapshots: array<FileSourceSnapshot>, work: int, text_bytes: int
 }
+# I preserve the source-plan failure categories used by the C resolver.
+fn fsr_plan_status(status: int) -> int {
+    if (== status 0) { return 1 }
+    if (== status 2) { return 3 }
+    if (== status 3) { return 4 }
+    return 5
+}
+shadow fsr_plan_status {
+    assert (== (fsr_plan_status 0) 1)
+    assert (== (fsr_plan_status 1) 5)
+    assert (== (fsr_plan_status 2) 3)
+    assert (== (fsr_plan_status 3) 4)
+    assert (== (fsr_plan_status 4) 5)
+    assert (== (fsr_plan_status 99) 5)
+}
 fn fsr_empty(status: int) -> FileResolution {
     return FileResolution { status: status, origins: [], rows: [],
         plan: FileSourcePlan { status: 4, rows: [], logical_bytes: 0 }, snapshots: [], work: 0, text_bytes: 0 }
@@ -508,7 +523,7 @@ pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, ori
         set i (+ i 1)
     }
     set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: (file_source_plan requests aliases ordinary), snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes })
-    if (!= result.plan.status 0) { set result (FileResolution { status: 5, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes }) }
+    set result (FileResolution { status: (fsr_plan_status result.plan.status), origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes })
     return result
 }
 fn fsr_unused_resolver(owner: string, path: string, root: string) -> string { return path }
