@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "tests.test_record_literal_order.NativeLiteralOrder"
+  ],
+  "cwd": "/private/tmp/nanolang-literal-order-8c2e693db/source",
+  "free_before": 31200645120,
+  "timeout_seconds": 300,
+  "pid": 14951,
+  "returncode": 1,
+  "seconds": 21.958591000000013,
+  "free_after": 31103766528
+}

@@ -4012,7 +4012,9 @@ shadow ensure_known_expr_node {
  */
 # I validate actual constructor nodes without coercing selected payload variables.
 fn check_constructor_argument(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
-    if (or (!= expected.kind TypeKind.TYPE_UNION) (!= node_type ParseNodeType.PNODE_UNION_CONSTRUCT)) { return actual }
+    if (or (!= expected.kind TypeKind.TYPE_UNION) (!= node_type ParseNodeType.PNODE_UNION_CONSTRUCT)) {
+        return (check_contextual_value parser node_id node_type actual expected symbols diags file_name)
+    }
     let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
     let concrete: string = (type_to_string expected)
     let identity: string = (resource_type_identity parser concrete literal.line)
@@ -4760,7 +4762,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                             let arg_ref2: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start j))
                             let param_t: NSType = (at sym.param_types j)
                             let arg_raw2: NSType = (check_expr_node parser arg_ref2.node_id arg_ref2.node_type symbols diags file_name)
-                            let arg_hint2: NSType = (apply_value_type_hint parser arg_ref2.node_id arg_ref2.node_type arg_raw2 param_t)
+                            let arg_hint2: NSType = (check_contextual_value parser arg_ref2.node_id arg_ref2.node_type arg_raw2 param_t symbols diags file_name)
                             let arg_t2: NSType = (check_constructor_argument parser arg_ref2.node_id arg_ref2.node_type arg_hint2 param_t symbols diags file_name)
                             let opaque_param: bool = (tc_is_opaque_name parser param_t.name)
                             let mut opaque_null: bool = false
@@ -4792,7 +4794,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                 let argument: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start argument_index))
                                 let expected: NSType = (at params argument_index)
                                 let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
-                                let hinted: NSType = (apply_value_type_hint parser argument.node_id argument.node_type raw expected)
+                                let hinted: NSType = (check_contextual_value parser argument.node_id argument.node_type raw expected symbols diags file_name)
                                 let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type hinted expected symbols diags file_name)
                                 if (not (types_equal actual expected)) {
                                     let message: string = (+ "I require the declared callback argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
@@ -5306,7 +5308,7 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
                 }
             }
         }
-        let init_type_hint: NSType = (apply_value_type_hint parser let_node.value let_node.value_type init_type_raw declared_type)
+        let init_type_hint: NSType = (check_contextual_value parser let_node.value let_node.value_type init_type_raw declared_type symbols diags file_name)
         let mut init_type: NSType = (apply_return_type_hint init_type_hint declared_type)
         if (and (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL) (and (== declared_type.kind TypeKind.TYPE_ARRAY) (== declared_type.element_type_kind TypeKind.TYPE_INT))) {
             let literal: ASTArrayLiteral = (parser_get_array_literal parser let_node.value)
@@ -5394,7 +5396,7 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
         }
     } else {
         let expr_t_raw: NSType = (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
-        let expr_t_hint: NSType = (apply_value_type_hint parser ret_node.value ret_node.value_type expr_t_raw expected_type)
+        let expr_t_hint: NSType = (check_contextual_value parser ret_node.value ret_node.value_type expr_t_raw expected_type symbols diags file_name)
         let expr_t: NSType = (apply_return_type_hint expr_t_hint expected_type)
         if (not (types_equal expr_t expected_type)) {
             let detail: string = (+ "Return value of " current_function)
@@ -5448,7 +5450,7 @@ fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>,
             return false
         } else {
             let rhs_t_raw: NSType = (check_expr_node parser set_node.value set_node.value_type symbols diags file_name)
-            let rhs_t_hint: NSType = (apply_value_type_hint parser set_node.value set_node.value_type rhs_t_raw sym.sym_type)
+            let rhs_t_hint: NSType = (check_contextual_value parser set_node.value set_node.value_type rhs_t_raw sym.sym_type symbols diags file_name)
             let rhs_t: NSType = (apply_return_type_hint rhs_t_hint sym.sym_type)
             if (not (types_equal rhs_t sym.sym_type)) {
                 let detail: string = (+ "Assignment to " set_node.target)
@@ -5941,6 +5943,49 @@ fn apply_return_type_hint(expr_type: NSType, expected_type: NSType) -> NSType {
         } else { (print "") }
     } else { (print "") }
     return expr_type
+}
+
+# I convert a checked literal destination without converting existing array values.
+fn check_contextual_value(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (and (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) (== (type_to_string expected) "array<u8>")) {
+        let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+        let mut valid: bool = true
+        let mut i: int = 0
+        while (< i literal.element_count) {
+            let element: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
+            let checked: NSType = (check_expr_node parser element.node_id element.node_type symbols diags file_name)
+            if (not (or (== checked.kind TypeKind.TYPE_INT) (== (type_to_string checked) "u8"))) {
+                set valid false
+            }
+            set i (+ i 1)
+        }
+        if valid {
+            (parser_set_array_literal_element_type parser node_id "u8")
+            return expected
+        }
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require checked integer or byte elements in this byte-array literal." (Diagnostics.diag_location file_name literal.line literal.column)))
+        return actual
+    }
+    return (apply_value_type_hint parser node_id node_type actual expected)
+}
+
+shadow check_contextual_value {
+    let parser: Parser = (resource_test_parser "fn main() -> int { let good: array<u8> = [257, -1] let wrong: array<u8> = [1, true] let existing: array<u8> = source return 0 }")
+    let expected: NSType = (type_from_string "array<u8>")
+    let integers: NSType = (type_from_string "array<int>")
+    let symbols: array<Symbol> = [(symbol_new "source" integers false false 0 (empty_param_types) (type_void))]
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let good: ASTLet = (parser_get_let parser 0)
+    assert (types_equal (check_contextual_value parser good.value good.value_type integers expected symbols diags "byte.nano") expected)
+    assert (== (parser_get_array_literal parser good.value).element_type "u8")
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+    let wrong: ASTLet = (parser_get_let parser 1)
+    let before: string = (parser_get_array_literal parser wrong.value).element_type
+    (check_contextual_value parser wrong.value wrong.value_type (type_unknown_named "mixed") expected symbols diags "byte.nano")
+    assert (== (list_CompilerDiagnostic_length diags) 1)
+    assert (== (parser_get_array_literal parser wrong.value).element_type before)
+    let existing: ASTLet = (parser_get_let parser 2)
+    assert (not (types_equal (check_contextual_value parser existing.value existing.value_type integers expected symbols diags "byte.nano") expected))
 }
 
 fn apply_value_type_hint(parser: Parser, node_id: int, node_type: int, expr_type: NSType, expected_type: NSType) -> NSType {
