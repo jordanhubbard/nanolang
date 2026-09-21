@@ -1,0 +1,2 @@
+I could not compile tests/bad.nano; log: /tmp/nanolang-verifier-retention-smoke/.test_output/verifier-corpus/corpus.IN2jv0/0000-bad.compile.log
+I retained verifier logs in .test_output/verifier-corpus/corpus.IN2jv0
