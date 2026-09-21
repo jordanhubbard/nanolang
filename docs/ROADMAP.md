@@ -14344,3 +14344,20 @@ I prepare checked replacement storage, preserve the prior array on failure,
 and publish/free only after all child checks succeed. Empty tuples clear the
 old owned array. This is a source-only defensive correction, not a reproduced
 allocator failure claim.
+
+### 5.1 remaining record registration ownership
+
+- [ ] I audit every Environment StructDef producer before changing module-name
+  ownership: both checker collectors duplicate it, while teardown currently
+  leaves it unreleased. I retain borrowed producer contracts explicitly.
+- [ ] I define and test disposal of an incoming owned StructDef rejected as a
+  duplicate by env_define_struct, without releasing the retained declaration.
+- [ ] I qualify reviewed constructor/duplicate/teardown allocation controls
+  separately from the frozen 73b61d06f auxiliary-vector correction.
+  MAC: task_3a42bcf1be0c46ce88a085b4cb54bf2c. I do not infer the full earlier
+  allocation history from this static ownership finding.
+
+- [ ] Under task_40aa248a7326409cba8fcadc4bddecdd, I replace native tuple
+  literal flat-tag/guessed-INT typedef selection with complete checked metadata
+  and stage child evaluation once in source order. I test nominal collisions,
+  nested callbacks and observable mutation ordering before native acceptance.

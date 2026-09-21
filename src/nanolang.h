@@ -853,6 +853,8 @@ typedef struct {
     bool opaque_resolution_failed;
     size_t *opaque_reserved_indices;
     size_t opaque_reserved_count;
+    TupleLiteralBinding *array_expression_bindings;
+    size_t array_expression_binding_count;
     EffectDef *effects;          /* Registered algebraic effects */
     int effect_count;
     int effect_capacity;
@@ -1008,6 +1010,8 @@ void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);
 bool env_array_push_is_builtin(Environment *env, int line, int column);
 bool env_function_is_builtin(const Function *function);
+bool env_native_array_operation(const char *name);
+bool env_native_array_is_builtin(Environment *env, const char *name, int line, int column);
 bool is_builtin_function(const char *name);
 void env_define_struct(Environment *env, StructDef struct_def);
 StructDef *env_get_struct(Environment *env, const char *name);
@@ -1093,11 +1097,20 @@ bool type_info_tuple_valid(const TypeInfo *);
 bool env_bind_tuple_literal(Environment *, const ASTNode *, const TypeInfo *);
 const TypeInfo *env_tuple_literal_info(const Environment *, const ASTNode *);
 bool type_info_tuple_refresh(TypeInfo *);
+/* I classify existing complete array value storage, not source admission. */
+bool type_info_exact_array_element(const TypeInfo *);
+bool type_info_needs_array_context(const TypeInfo *);
+bool env_bind_array_expression(Environment *, const ASTNode *, const TypeInfo *);
+const TypeInfo *env_array_expression_info(const Environment *, const ASTNode *);
+const TypeInfo *checked_expression_type_info(ASTNode *, Environment *);
+/* I return an owning signature copy; the caller releases it. */
+FunctionSignature *checked_callable_signature_copy(ASTNode *, Environment *);
 bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);
 void free_type_info(TypeInfo *info);
 TypeInfo *copy_payload_type_info(const TypeInfo *info);
 /* Like the checked signature copy, failure preserves *out. */
 bool copy_payload_type_info_checked(const TypeInfo *source, TypeInfo **out);
+TypeInfo *copy_complete_type_info_checked(const TypeInfo *source);
 void free_payload_type_info(TypeInfo *info);
 TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field, const TypeInfo *arguments);
 

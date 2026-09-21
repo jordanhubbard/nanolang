@@ -266,6 +266,7 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
             else if (ok) ok = types_match(element.info->base_type, parameter.info->base_type);
             nominal_view_discard(&element);
         }
+        if (ok) ok = native_bind_checked_view(env, &view, input, depth + 1);
         nominal_view_discard(&parameter);
         NominalView result = {0};
         if (ok) ok = nominal_callable_result(env, &callback, depth + 1, &result);

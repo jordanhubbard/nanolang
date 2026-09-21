@@ -156,3 +156,52 @@ I do not introduce a second key format. Existing Make owners name the added
 include prerequisites. The tuple expression API uses my existing checked
 copier and remains defined once. The derived declaration graph, current array
 carriers and subsequent SDK corrections still follow before affected gates.
+
+## Emission snapshot publication during SDK graph integration
+
+I retain SDK 417/8559/0b870/8a090/190b/b19 declaration and carrier machinery,
+but its plain annotation inference cannot replace my contextual checker views.
+My native metadata adapter materializes the complete retained view and keeps
+that independent snapshot in the Environment. A callable API returns a checked
+owning signature copy. Neither API grants source compatibility from emitted
+names. Actual registry-created builtin identity remains authoritative.
+
+I publish literal snapshots only after the selected destination comparison
+succeeds, or from the final inferred view. I do not eagerly register an INT
+literal tuple before a contextual U8 destination is checked. Complete child
+annotations and substitution owners survive until materialization; independent
+emission storage is not a new provenance proof. A later sibling failure still
+rejects its outer value; this is not rollback of previously accepted child
+annotations. Allocation failure records a checker error, retains original
+proofs and releases unpublished copies.
+
+The graph must cover ordinary nested tuples and callbacks as well as opaque
+leaves. The SDK's initial opaque-only activation is an integration prerequisite,
+not my full tuple acceptance boundary. I preserve list forward declarations,
+initializer discovery, checked operation evaluation order and optional helper
+annotations while reconciling both native producers.
+
+My final literal-lowering audit finds two remaining old paths: the C tuple
+emitter selects a typedef from flat tags (or invents INT fields), and its
+compound initializer does not impose left-to-right child evaluation. I replace
+that selection with the checked complete tuple snapshot and stage each child
+once in source order before assembling the typed value. Empty unit tuples keep
+the existing dummy representation. These are required corrected-only native
+controls; the old paths are not replayed to produce invalid output.
+
+### Source checkpoint boundary
+
+I reconcile SDK 4170979a3, 8559c2273, 0b8709511, 8a090a035,
+190b00ad7, b19cfa561, 8ce60bc45, 1a9052254 and 5f3e0f4e1 over my
+40ece44a9 canonical-key checkpoint. I preserve my exact builtin registry
+identity instead of adopting a bodyless-function heuristic. My checker adapter
+uses retained views instead of importing the SDK's separate plain callback
+comparison and first-element tuple inference. The Nano merger keeps this
+lane's MergeResult schema; I add the opaque-declaration preservation itself
+and its original owner/source-line assertions.
+
+I have not built or executed this integrated source. The independent e456 and
+73b focused results cover only their stated parser/checker/lifetime revisions.
+The complete native fixture additions, both-host bootstrap and unchanged
+18 plus 8 method matrices remain required. SDK packaging and full SDK
+acceptance are separate from these source dependencies.

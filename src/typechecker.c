@@ -333,6 +333,7 @@ static bool nominal_array_matches(Environment *, const TypeInfo *, const char *,
 
 static bool types_match(Type, Type);
 static bool nominal_callable_view(ASTNode *, Environment *, unsigned, NominalView *);
+static bool native_bind_checked_view(Environment *, const NominalView *, ASTNode *, unsigned);
 static bool nominal_callee_view(ASTNode *, Environment *, unsigned, NominalView *);
 static bool nominal_callable_result(Environment *, const NominalView *, unsigned, NominalView *);
 static bool nominal_function_view(Environment *, Function *, unsigned, NominalView *);
@@ -854,7 +855,7 @@ static bool check_retained_nominal_value(Environment *env, const NominalView *ex
     if (!matches) emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
         "I require the retained nominal declaration and every substituted argument owner.",
         "Preserve the selected payload variant and complete nested annotation.");
-    return matches;
+    return matches && native_bind_checked_view(env, expected, value, 0);
 }
 
 
@@ -957,12 +958,15 @@ static bool nominal_array_requires_context(Environment *env, const TypeInfo *inf
     return nominal_array_requires_identity(env, info, owner, depth);
 }
 
+#include "typechecker_native_context.inc"
+
 static bool check_nominal_array_contract(Environment *env, const TypeInfo *expected,
                                          const char *owner, ASTNode *value) {
     if (!expected || expected->base_type != TYPE_ARRAY ||
         !nominal_array_requires_identity(env, expected, owner, 0)) return true;
     if (checked_annotations_equal(env, expected, owner, expected, owner, 0) &&
-        nominal_array_matches(env, expected, owner, value, 0)) return true;
+        nominal_array_matches(env, expected, owner, value, 0))
+        return native_bind_checked_annotation(env, expected, owner, NULL, value, 0);
     emit_context_error("E001 TYPE MISMATCH", value ? value->line : 0, value ? value->column : 0, 1,
         "I require the declared nominal record type for this array.",
         "Preserve every nested element declaration and its module identity.");
@@ -1135,6 +1139,8 @@ static Type check_list_operation(ASTNode *expr, Environment *env,
 }
 
 static FunctionSignature *function_result_signature(ASTNode *call, Environment *env);
+
+static void check_concrete_union_arrays(Environment *, const TypeInfo *, const char *, ASTNode *, unsigned);
 
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
@@ -1463,10 +1469,25 @@ static void check_union_record_array_contract(Environment *env, UnionDef *def,
 
 /* I retain complete concrete trees for native nested payload substitution. */
 static void register_native_union_context(Environment *env, const TypeInfo *info, unsigned depth) {
-    if (!info || depth > 128) return;
+    if (!info) return;
+    if (depth > 128) {
+        env->opaque_resolution_failed = true;
+        fprintf(stderr, "I cannot retain a native type expansion deeper than 128 edges\n");
+        return;
+    }
     register_native_union_context(env, info->element_type, depth + 1);
     for (int i = 0; info->type_params && i < info->type_param_count; ++i)
         register_native_union_context(env, info->type_params[i], depth + 1);
+    if (info->fn_sig) {
+        FunctionSignature *signature = info->fn_sig;
+        for (int i = 0; signature->param_type_info && i < signature->param_count; ++i)
+            register_native_union_context(env, signature->param_type_info[i], depth + 1);
+        register_native_union_context(env, signature->return_type_info, depth + 1);
+        if (signature->return_fn_sig) {
+            TypeInfo result = {.base_type = TYPE_FUNCTION, .fn_sig = signature->return_fn_sig};
+            register_native_union_context(env, &result, depth + 1);
+        }
+    }
     UnionDef *def = info->generic_name ? env_get_union(env, info->generic_name) : NULL;
     if (!def || !def->generic_param_count || def->generic_param_count != info->type_param_count) return;
     bool added = false;
@@ -1507,6 +1528,21 @@ static void register_native_union_context(Environment *env, const TypeInfo *info
             register_native_union_context(env, payload, depth + 1);
             free_payload_type_info(payload);
         }
+}
+
+static void register_native_function_context(Environment *env, const Function *function) {
+    register_native_union_context(env, function->return_type_info, 0);
+    if (function->return_fn_sig) {
+        TypeInfo result = {.base_type = TYPE_FUNCTION, .fn_sig = function->return_fn_sig};
+        register_native_union_context(env, &result, 0);
+    }
+    for (int i = 0; function->params && i < function->param_count; ++i) {
+        register_native_union_context(env, function->params[i].type_info, 0);
+        if (function->params[i].fn_sig) {
+            TypeInfo parameter = {.base_type = TYPE_FUNCTION, .fn_sig = function->params[i].fn_sig};
+            register_native_union_context(env, &parameter, 0);
+        }
+    }
 }
 
 /* I inspect only declaration-bearing opaque leaves; ordinary compatibility
@@ -1692,7 +1728,7 @@ static void apply_concrete_union_arrays(Environment *env, const TypeInfo *expect
     if (opaque_annotation_present(env, expected, 0)) {
         if (expected->base_type == TYPE_ARRAY && value->type == AST_ARRAY_LITERAL) {
             for (int i = 0; i < value->as.array_literal.element_count; ++i)
-                check_concrete_union_arrays(env, expected->element_type,
+                check_concrete_union_arrays(env, expected->element_type, expected_owner,
                     value->as.array_literal.elements[i], depth + 1);
             return;
         }
@@ -1701,7 +1737,7 @@ static void apply_concrete_union_arrays(Environment *env, const TypeInfo *expect
             for (int i = 0; i < expected->tuple_element_count; ++i) {
                 TypeInfo element = {.base_type = expected->tuple_types[i],
                     .generic_name = expected->tuple_type_names ? expected->tuple_type_names[i] : NULL};
-                check_concrete_union_arrays(env, &element, value->as.tuple_literal.elements[i], depth + 1);
+                check_concrete_union_arrays(env, &element, expected_owner, value->as.tuple_literal.elements[i], depth + 1);
             }
             return;
         }
@@ -1959,6 +1995,34 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             return NULL;
         }
         
+        case AST_MODULE_QUALIFIED_CALL: {
+            /* I read the actual namespace-selected declaration's retained name;
+             * simple named returns need not have a full TypeInfo allocation. */
+            const char *owner = expr->as.module_qualified_call.module_alias;
+            const char *name = expr->as.module_qualified_call.function_name;
+            if (!owner || !name) {
+                env->opaque_resolution_failed = true;
+                return NULL;
+            }
+            size_t a = strlen(owner), b = strlen(name);
+            if (b > SIZE_MAX - 2 || a > SIZE_MAX - b - 2) {
+                env->opaque_resolution_failed = true;
+                return NULL;
+            }
+            char *qualified = malloc(a + b + 2);
+            if (!qualified) { env->opaque_resolution_failed = true; return NULL; }
+            memcpy(qualified, owner, a);
+            qualified[a] = '.';
+            memcpy(qualified + a + 1, name, b + 1);
+            Function *function = env_get_function(env, qualified);
+            free(qualified);
+            if (function && (function->return_type == TYPE_STRUCT ||
+                             function->return_type == TYPE_UNION ||
+                             function->return_type == TYPE_OPAQUE))
+                return function->return_struct_type_name;
+            return NULL;
+        }
+
         case AST_CALL: {
             if (nominal_array_builtin(expr, env, "at", 2) || nominal_array_builtin(expr, env, "array_get", 2))
                 return array_record_name(expr->as.call.args[0], env);
@@ -2614,6 +2678,7 @@ static bool contextual_argument_matches(ASTNode *argument, Environment *env, con
         /* I retain the existing scalar conversion policy and base compatibility. */
         matches = indirect_argument_matches(argument, env, concrete, kind, (int)depth + 1);
     }
+    if (matches) matches = native_bind_checked_annotation(env, expected, owner, context, argument, depth + 1);
     free_payload_type_info(concrete);
     return matches;
 }
@@ -5859,6 +5924,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     tc->has_error = true;
                     return TYPE_VOID;
                 }
+                if (inferred_proof.checker_nominal_view &&
+                    !native_bind_checked_view(tc->env, inferred_proof.checker_nominal_view, stmt->as.let.value, 0)) {
+                    tc->has_error = true; return TYPE_VOID;
+                }
                 /* Register and add to env */
                 Value val = create_void();
                 env_define_var_with_type_info(tc->env, stmt->as.let.name, inferred,
@@ -8775,9 +8844,7 @@ register_function_pass1:;
             }
 
             env_define_function(env, func);
-            register_native_union_context(env, func.return_type_info, 0);
-            for (int p = 0; p < func.param_count; ++p)
-                register_native_union_context(env, func.params[p].type_info, 0);
+            register_native_function_context(env, &func);
 
             /* Module introspection: track exported functions (public only) */
             if (item->as.function.is_pub && env->current_module) {
@@ -8812,6 +8879,16 @@ register_function_pass1:;
                     checked_list_instantiation(env, element, 0, 0);
             }
         }
+        env->current_module = saved_module;
+    }
+    for (int index = 0; index < env->union_count; ++index) {
+        UnionDef *definition = &env->unions[index];
+        if (definition->generic_param_count) continue;
+        char *saved_module = env->current_module;
+        env->current_module = definition->module_name;
+        for (int arm = 0; definition->variant_field_type_info && arm < definition->variant_count; ++arm)
+            for (int field = 0; definition->variant_field_type_info[arm] && field < definition->variant_field_counts[arm]; ++field)
+                register_native_union_context(env, definition->variant_field_type_info[arm][field], 0);
         env->current_module = saved_module;
     }
 
@@ -9546,9 +9623,7 @@ register_function_pass2:;
             f.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
 
             env_define_function(env, f);
-            register_native_union_context(env, f.return_type_info, 0);
-            for (int p = 0; p < f.param_count; ++p)
-                register_native_union_context(env, f.params[p].type_info, 0);
+            register_native_function_context(env, &f);
 
             /* Module introspection: track exported functions (public only) */
             if (item->as.function.is_pub && env->current_module) {
@@ -9577,6 +9652,16 @@ register_function_pass2:;
                     checked_list_instantiation(env, element, 0, 0);
             }
         }
+        env->current_module = saved_module;
+    }
+    for (int index = 0; index < env->union_count; ++index) {
+        UnionDef *definition = &env->unions[index];
+        if (definition->generic_param_count) continue;
+        char *saved_module = env->current_module;
+        env->current_module = definition->module_name;
+        for (int arm = 0; definition->variant_field_type_info && arm < definition->variant_count; ++arm)
+            for (int field = 0; definition->variant_field_type_info[arm] && field < definition->variant_field_counts[arm]; ++field)
+                register_native_union_context(env, definition->variant_field_type_info[arm][field], 0);
         env->current_module = saved_module;
     }
 

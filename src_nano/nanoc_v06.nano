@@ -1505,8 +1505,7 @@ fn merge_with_imports(input_file: string) -> MergeResult {
             let imp: string = (parse_import_path_from_line line)
             let is_module_decl: bool = (nlc_str_starts_with line "module ")
             let is_unsafe_module_decl: bool = (nlc_str_starts_with line "unsafe module ")
-            let is_opaque_decl: bool = (nlc_str_starts_with line "opaque type ")
-            if (or (!= imp "") (and (not is_module_decl) (and (not is_unsafe_module_decl) (not is_opaque_decl)))) {
+            if (or (!= imp "") (and (not is_module_decl) (not is_unsafe_module_decl))) {
                 let resolved_line: string = (strip_pub_decl line)
                 set parts (cg_append parts (+ resolved_line "\n"))
                 set merged_lines (+ merged_lines 1)
@@ -1520,6 +1519,23 @@ fn merge_with_imports(input_file: string) -> MergeResult {
         set i (+ i 1)
     }
     return MergeResult { source: (cg_build parts), files: files, file_starts: file_starts, source_files: source_files, source_lines: source_lines, repo_root: repo_root, root_line: root_line }
+}
+
+shadow merge_with_imports_mode {
+    let invalid: MergeResult = (merge_with_imports_mode "" true)
+    assert (== (array_length invalid.files) 0)
+    let json_path: string = (canonical "modules/std/json/json.nano")
+    let merged: MergeResult = (merge_with_imports_mode json_path false)
+    let tokens: List<LexerToken> = (tokenize_string merged.source json_path (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) json_path)
+    assert (not (parser_has_error parsed))
+    assert (== parsed.opaque_types_count 1)
+    let declaration: ASTOpaqueType = (list_ASTOpaqueType_get parsed.opaque_types 0)
+    assert (== declaration.type_name "Json")
+    let owner: int = (merged_file_owner merged.file_starts declaration.line)
+    assert (>= owner 0)
+    assert (== (at merged.files owner) json_path)
+    assert (== (at merged.source_files (- declaration.line 1)) json_path)
 }
 
 shadow merge_with_imports {
