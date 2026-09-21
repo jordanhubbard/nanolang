@@ -11,7 +11,7 @@
 
 # My Roadmap
 
-- [ ] I own optional binding state through every VM frame lifecycle under `task_af8091f571a842bc90656e2c7f19b68e`. Every entry initializes ownership; effect copies do not duplicate it. I destroy departing states before draining physical locals, preserve return/tail operands, and cover ordinary/effect/public/error/destroy paths. Explicit provider closures and real trapped managed-frame controls precede admission.
+- [ ] I own optional binding state through every VM frame lifecycle under `task_af8091f571a842bc90656e2c7f19b68e`. Every entry initializes ownership; effect copies do not duplicate it. I destroy departing states before draining physical locals, preserve return/tail operands, and cover ordinary/effect/public/error/destroy paths. Explicit provider closures and real trapped managed-frame controls precede admission. The complete include-file audit also identifies private mixed vm_ra_unwind; I include its pre-drain cleanup before any lifecycle fixture executes.
 
 - [ ] I prepare distinct effect-activation binding state under `task_af8091f571a842bc90656e2c7f19b68e`. I initialize only the handler parameter range, keep prefix accesses mapped to their lexical owner, validate range/modes before allocation and preserve operands on refusal. Ordinary entry remains the zero-start range. Range, managed-value, allocation and cleanup controls precede full frame/effect integration. My reviewed8240c0800 helper passes122 storage and485 atomic/environment checks in each of seven Linux/Darwin ordinary and sanitized configurations; [exact inputs and raw reports](evidence/capture-bindings/activation-range/checks.json) qualify preparation only.
 

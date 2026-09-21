@@ -234,7 +234,8 @@ The concrete cleanup inventory is vm_destroy; tail replacement after retaining
 arguments; EFFECT_RESUME after popping its result; lexical effect RET for all
 frames above the owner; ordinary/implicit return after removing result operands;
 vm_core_execute mixed failure; vm_call_function_scoped owned failure;
-vm_invoke_callable nested cleanup; and vm_invoke outer cleanup. Each range cleanup
+vm_invoke_callable nested cleanup; vm_invoke outer cleanup; and the private
+mixed vm_ra_unwind path, whose root entry already zeroes its whole frame. Each range cleanup
 runs before the existing operand-stack drain. Existing callable release behavior
 remains at its current sites. Every ordinary, indirect, linked, public and copied
 effect entry initializes the optional pointer, including reused frame slots.
