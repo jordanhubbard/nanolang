@@ -283,3 +283,43 @@ three new operations; verifier allocation-cleanup controls pass too. I retain
 both first compiler terminals, commands and exact source identities in
 [structural evidence](evidence/capture-bindings/structure/checks.json).
 Definite initialization and complete execution admission remain unimplemented.
+
+## Activation binding storage plan
+
+I audit the current VM before storing local references. Its stack can relocate;
+my binding state therefore owns slot metadata and optional cell edges, never a
+saved pointer into stack storage. Each operation receives the current locals
+array. A single checked allocation stores the state and all slot records, with
+copied immutable/shared modes and initialization flags. The first arity slots
+start initialized; other slots start clear. The caller still owns actual local
+values and supplies zeroed clear slots at frame entry.
+
+A read retains the selected ordinary value only after checking reference-count
+capacity; a saturated reference count refuses without changing output or
+ownership. I do not use the existing unchecked vm_retain increment as a fallible
+transaction. Assignment requires an initialized shared slot. Initialization
+starts a fresh binding even if the slot was already initialized. Both consume
+an independently owned incoming operand only after validating the operation;
+its storage must not alias the local/cell/output storage. Clear is idempotent.
+Replacement/clear detach the old local or cell edge before vm_release can run
+the cycle collector. Destruction clears each local/cell exactly once, leaves
+ordinary locals VOID for the existing stack teardown, then frees the state.
+
+State bytes contribute to VmHeap allocated/freed/allocation-call statistics but
+are not a traced heap object. The explicit creation budget bounds current
+accounted live heap bytes plus the new state; it does not claim to limit process
+resident memory, intern-table storage or all existing heap allocations. I check
+counter and size arithmetic before allocation. Existing heap allocation APIs do
+not enforce a global memory limit; closure transaction admission must account
+for its cells, environment and scratch explicitly before invoking them.
+
+Effect-local access currently follows effect_owner while the requested index is
+below effect_local_start. The eventual binding resolver must follow that same
+chain and choose that owner's state; each handler activation owns only its own
+parameter/temporary slots. My existing stack-height handler edge resets operand
+height but does not establish binding initialization or resumed lexical state.
+I must implement that separate analysis before granting capture execution.
+
+This checkpoint implements storage operations only. It does not attach cells,
+construct closures, change frame layout, admit new opcodes or weaken the pending
+full verifier/runtime/C/LLVM/Wasm obligations.
