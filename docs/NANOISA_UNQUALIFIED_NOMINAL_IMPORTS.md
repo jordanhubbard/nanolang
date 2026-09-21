@@ -120,3 +120,13 @@ refusal. My binder must honor local AST record declarations before an imported
 union can refine their same spelling; I add that local-precedence control too.
 This static finding is part of task_836004405a924cea8d45829cbe14ab61; no ambiguous
 program has been executed.
+
+
+My corrected source keys import conflicts by importer/name alone, and requires
+kind agreement for idempotence. It also prevents an imported type of another
+kind from resolving past an exact local declaration; my pre-registration AST
+binder preserves local record/enum annotations before union refinement. Direct
+controls cover all six ordered cross-kind pairs without table mutation, plus
+local enum/record precedence. Parsed controls cover all six import orders and
+an imported union with a same-spelled local record. All fourteen methods and
+previous assertions remain. No compiler or fixture has run on this correction.

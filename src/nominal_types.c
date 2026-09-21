@@ -46,6 +46,13 @@ static Type nominal_union_kind(ASTNode *program, Environment *env, Type type,
         if (!strcmp(name, formals[i])) return type;
     for (int i = 0; i < program->as.program.count; ++i) {
         ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_STRUCT_DEF &&
+            (!strcmp(item->as.struct_def.name, name) ||
+             (item->as.struct_def.original_name && !strcmp(item->as.struct_def.original_name, name)))) return type;
+        if (item->type == AST_ENUM_DEF && !strcmp(item->as.enum_def.name, name)) return type;
+    }
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *item = program->as.program.items[i];
         if (item->type == AST_UNION_DEF && !strcmp(item->as.union_def.name, name))
             return TYPE_UNION;
     }

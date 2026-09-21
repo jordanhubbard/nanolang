@@ -1081,9 +1081,8 @@ bool env_register_nominal_import(Environment *env, const char *importer,
     const char *owner = env_nominal_owner(env, identity);
     if (!declaration) return false;
     for (struct EnvNominalImport *row = env->nominal_imports; row; row = row->next) {
-        if (row->identity.kind == identity.kind && nominal_owner_equal(row->importer, importer) &&
-            !strcmp(row->name, name)) {
-            return row->identity.ordinal == identity.ordinal &&
+        if (nominal_owner_equal(row->importer, importer) && !strcmp(row->name, name)) {
+            return row->identity.kind == identity.kind && row->identity.ordinal == identity.ordinal &&
                 nominal_owner_equal(row->declaration_owner, owner) &&
                 !strcmp(row->declaration_name, declaration);
         }
@@ -1191,6 +1190,15 @@ NominalIdentity env_nominal_identity(Environment *env, const char *name,
         }
     }
     if (result.ordinal || dot) return result;
+    /* A local declaration shadows an imported spelling across nominal kinds.
+     * A TYPE_STRUCT placeholder cannot select an imported union past it. */
+    if (kind != TYPE_STRUCT && env_get_struct_owned(env, declaration_name, owner)) return none;
+    for (int i = 0; kind != TYPE_ENUM && i < env->enum_count; ++i)
+        if (nominal_owner_equal(env->enums[i].module_name, owner) && env->enums[i].name &&
+            !strcmp(env->enums[i].name, declaration_name)) return none;
+    for (int i = 0; kind != TYPE_UNION && i < env->union_count; ++i)
+        if (nominal_owner_equal(env->unions[i].module_name, owner) && env->unions[i].name &&
+            !strcmp(env->unions[i].name, declaration_name)) return none;
     return nominal_import_identity(env, declaration_name, owner, kind);
 }
 

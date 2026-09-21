@@ -729,6 +729,28 @@ static void nominal_import_controls(void) {
     CHECK(env_register_nominal_import(env, "User", "Choice", env_nominal_identity(env, "Choice", "First", TYPE_UNION)));
     CHECK(env_nominal_identity(env, "Color", "User", TYPE_ENUM).ordinal == 1);
     CHECK(env_nominal_identity(env, "Choice", "User", TYPE_UNION).ordinal == 1);
+    NominalIdentity kinds[] = {first, env_nominal_identity(env, "Color", "First", TYPE_ENUM),
+                              env_nominal_identity(env, "Choice", "First", TYPE_UNION)};
+    for (int a = 0; a < 3; ++a) for (int b = 0; b < 3; ++b) if (a != b) {
+        char binding[24]; snprintf(binding, sizeof binding, "shared_%d_%d", a, b);
+        CHECK(env_register_nominal_import(env, "Kinds", binding, kinds[a]));
+        struct EnvNominalImport *saved_row = env->nominal_imports;
+        CHECK(!env_register_nominal_import(env, "Kinds", binding, kinds[b]));
+        CHECK(env->nominal_imports == saved_row);
+        CHECK(env_nominal_identity(env, binding, "Kinds", kinds[a].kind).ordinal == kinds[a].ordinal);
+        CHECK(!env_nominal_identity(env, binding, "Kinds", kinds[b].kind).ordinal);
+    }
+    CHECK(env_register_nominal_import(env, "Caller", "Color", first));
+    EnumDef local_enum = {0}; local_enum.name = strdup("LocalColor"); local_enum.module_name = strdup("Local");
+    env_define_enum(env, local_enum);
+    CHECK(env_register_nominal_import(env, "Local", "LocalColor", first));
+    CHECK(!env_nominal_identity(env, "LocalColor", "Local", TYPE_STRUCT).ordinal);
+    CHECK(env_nominal_identity(env, "LocalColor", "Local", TYPE_ENUM).ordinal == 2);
+    CHECK(env_register_nominal_import(env, "LocalRecord", "Item", kinds[2]));
+    StructDef local_record = {0}; local_record.name = strdup("Item"); local_record.module_name = strdup("LocalRecord");
+    env_define_struct(env, local_record);
+    CHECK(!env_nominal_identity(env, "Item", "LocalRecord", TYPE_UNION).ordinal);
+    CHECK(env_nominal_identity(env, "Item", "LocalRecord", TYPE_STRUCT).ordinal == 4);
     Environment *other = create_environment(); CHECK(other);
     CHECK(!env_nominal_identity(other, "Item", "User", TYPE_STRUCT).ordinal);
     free_environment(other); free_environment(env);

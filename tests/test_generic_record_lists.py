@@ -333,6 +333,14 @@ shadow main { assert (== (main) 0) }
         for order, modules in enumerate(((origin, other), (other, origin))):
             source = ''.join(f'import "{module}"\n' for module in modules) + 'fn main() -> int { return 0 }\nshadow main { assert true }\n'
             self.source_routes('nominal-conflict-' + str(order), source, True, import_refusal=True)
+        cross = directory / 'cross-kind.nano'
+        cross.write_text('module CrossKind\npub union Token { One { value: int } }\n')
+        enum = directory / 'enum-kind.nano'
+        enum.write_text('module EnumKind\npub enum Token { One, Two }\n')
+        for first, second in ((origin, cross), (cross, origin), (origin, enum), (enum, origin), (cross, enum), (enum, cross)):
+            source = f'import "{first}"\nimport "{second}"\nfn main() -> int {{ return 0 }}\nshadow main {{ assert true }}\n'
+            self.source_routes('nominal-kinds-' + first.stem + '-' + second.stem, source, True, import_refusal=True)
+        self.source_routes('nominal-local-record-imported-union', f'import "{cross}"\n' + local.split('\n', 1)[1])
         self.source_routes('nominal-repeat', f'import "{origin}"\nimport "{origin}"\nfrom "{wrapper}" import imported_fields\n' + body)
         missing = f'from "{origin}" import Missing\nfn main() -> int {{ let values: array<Missing> = [] return 0 }}\nshadow main {{ assert true }}\n'
         self.source_routes('nominal-undefined', missing, True)
