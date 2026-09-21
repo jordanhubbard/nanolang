@@ -13991,3 +13991,20 @@ acceptance: reuse parse_if_statement through an expression-only marking wrapper
 and the existing grouped-expression delimiter path. I preserve ordinary IF and
 all prior seventeen source methods. Parser and actual source controls precede
 review; fresh schema/providers/bootstrap and the full matrix remain pending.
+
+### My fresh c923 checked-list shadow refusal
+
+I record task_7760776c77a04b40bd5ece6c7d1aacf4 before diagnosis. Fresh Linux
+and Darwin Make builds pass parser compilation, then stop in typecheck shadows
+with my checked list_ASTFunction_get refusal. Linux exits2 after54.928s and
+Darwin exits2 after57.312s. I retain actual reports under
+docs/evidence/record-lists-c923-first-build and all original products/maps/CAS
+in each preparation directory. Sources/tools stay equal, process groups are
+gone, and neither deadline nor capacity stopped these commands. Bootstrap,
+focused configurations and the complete seventeen-method corpus are unreached.
+
+The refusal combines live-handle, argument, bounds and snapshot-storage checks;
+these terminals alone do not identify the failing shadow or cause. I inspect
+static access/count assumptions first. Any bounded marker diagnostic receives a
+separate source checkpoint and keeps the full graph and original deadlines. I
+do not weaken this check or execute an invalid published program.
