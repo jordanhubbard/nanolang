@@ -16,7 +16,9 @@ typedef struct {
     NvmArrayEligibilityStatus status;
 } RgOutput;
 static bool rg_charge(RgOutput *b,uint64_t bytes,uint64_t work) {
-    if(bytes>NRG_EXTRA_BYTES-b->live || work>NRG_EXTRA_STEPS-b->work) {
+    if(b->status!=NVM_ARRAY_ELIGIBLE)return false;
+    if(b->live>NRG_EXTRA_BYTES || b->work>NRG_EXTRA_STEPS ||
+       bytes>NRG_EXTRA_BYTES-b->live || work>NRG_EXTRA_STEPS-b->work) {
         b->status=NVM_ARRAY_LIMIT;return false;
     }
     b->live+=bytes;b->work+=work;if(b->peak<b->live)b->peak=b->live;return true;

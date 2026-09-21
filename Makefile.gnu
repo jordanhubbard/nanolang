@@ -5800,3 +5800,8 @@ test-file-service-parser-sanitizers: nano_virt
 # I rebuild every VM-layout-dependent TU with the distinct private heap layout.
 test-record-array-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	LSAN_OPTIONS= RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_vm
+
+.PHONY: test-record-array-generated
+# I capture the unchanged private VM corpus, then link generated products without VM objects.
+test-record-array-generated: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= RECORD_GENERATED_CC="$(CC)" RECORD_GENERATED_CFLAGS="$(CFLAGS)" RECORD_GENERATED_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_GENERATED_QUERY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_GENERATED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_generated

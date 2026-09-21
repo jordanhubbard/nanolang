@@ -216,3 +216,36 @@ These are source checks only: no generated product has run, and no runtime,
 LLVM/Wasm, installed-package or public acceptance follows yet. The next fixtures
 must compile the actual output, execute the unchanged VM corpus, compare all
 observable roots/statuses, and exercise emission/runtime faults and mismatches.
+
+### Generated C fixture checkpoint
+
+I capture the unchanged linked VM corpus and its actual retired-opcode counters,
+then emit separate C products and replay the observed status, scalar bits,
+counted strings, nominal layouts, array element kinds and within-epoch alias
+relations. Every product links only the generated C, replay driver and counted
+runtime; the runner checks undefined symbols for VM/query dependencies. I require
+all93 retired operations and all256 support decisions before accepting capture.
+Both O0 and O2 run linked and allocation-observed products. The observed products
+sweep every measured allocation position in one-shot and persistent modes, with
+independent recovery and zero retained allocations after disposal.
+
+My separate emission fixture checks exact MEMORY classification, preserved
+pointer/length/cost outputs, output-growth failure, exact work/byte boundaries
+and recovery at every measured allocation position. Its static review required
+`rg_charge` to preserve an existing failure rather than overwrite MEMORY with a
+later LIMIT, and to check accumulated counters before subtraction. This remains
+an unexecuted source correction, with an explicit fixture predicate.
+
+Separate manual adapter controls exercise ABI revision/size/offset/frame refusal,
+wrong-thread refusal, nested BUSY and busy-destroy refusal, acquired invocation
+completion, first-error retention, prior-result preservation and subsequent
+success. They do not substitute for generated-program parity. Under the intact
+acquired lifecycle, `nms_finish(NMS_OK)` only clears active state and cannot
+introduce an allocation or collection failure after result publication.
+
+The two-method Python runner uses file-backed bounded commands and preserves
+terminal/process-cleanup records. The added VM entry macro keeps its default
+main and all old assertions. Strict syntax-only checks have passed; none of the
+new fixtures or generated products has executed at this checkpoint. LLVM/Wasm,
+installed/public/source selection and the remaining full graph profile are still
+required later dependencies.
