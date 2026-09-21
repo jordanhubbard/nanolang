@@ -5048,6 +5048,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     discard_partial_owned_array(arr.as.array_val, i);
                     return elem;
                 }
+                /* I convert each checked byte destination after its single evaluation. */
+                elem = eval_checked_scalar_destination(expr->as.array_literal.element_type, elem);
                 
                 /* Store element in array data */
                 switch (elem_type) {

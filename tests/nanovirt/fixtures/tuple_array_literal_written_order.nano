@@ -36,6 +36,15 @@ shadow operand_bool {
     assert (operand_bool 3 true)
     assert (== operand_trace 3)
 }
+fn operand_integer(id: int, value: int) -> int {
+    (operand_mark id)
+    return value
+}
+shadow operand_integer {
+    set operand_trace 0
+    assert (== (operand_integer 1 257) 257)
+    assert (== operand_trace 1)
+}
 fn operand_byte(id: int, value: u8) -> u8 {
     (operand_mark id)
     return value
@@ -83,6 +92,17 @@ fn main() -> int {
     assert (== operand_trace 23)
     assert (== (at bytes 0) 255)
     assert (== (at bytes 1) 0)
+    set operand_trace 0
+    let narrowed: array<u8> = [(operand_integer 1 257), (operand_integer 2 -1), (operand_integer 3 256)]
+    assert (== operand_trace 123)
+    assert (== (at narrowed 0) 1)
+    assert (== (at narrowed 1) 255)
+    assert (== (at narrowed 2) 0)
+    set operand_trace 0
+    let unchanged: array<int> = [(operand_integer 4 257), (operand_integer 5 -1)]
+    assert (== operand_trace 45)
+    assert (== (at unchanged 0) 257)
+    assert (== (at unchanged 1) -1)
     return 0
 }
 shadow main { assert (== (main) 0) }
