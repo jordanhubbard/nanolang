@@ -29,7 +29,7 @@ typedef struct {
     bool     present;
 } SectionPlan;
 
-#define PLAN_SLOTS 14
+#define PLAN_SLOTS 15
 
 static size_t align4(size_t n) { return (n + 3u) & ~(size_t)3u; }
 
@@ -50,6 +50,7 @@ static uint32_t required_features(const NvmV2Module *m) {
     if (m->callbacks.count) f |= NVM_V2_FEATURE_CALLBACKS;
     if (m->passive_size) f |= NVM_V2_FEATURE_PASSIVE;
     if (m->ownership_size) f |= NVM_V2_FEATURE_OWNERSHIP;
+    if (m->capture_size) f |= NVM_V2_FEATURE_CAPTURE_BINDINGS;
     if (m->service_size) f |= NVM_V2_FEATURE_SERVICE_BINDINGS;
     if (nvm_layouts_have_facts(&m->layouts)) f |= NVM_V2_FEATURE_RETAINED_LAYOUTS;
     if (m->has_debug) f |= NVM_V2_FEATURE_DEBUG;
@@ -89,6 +90,7 @@ static size_t build_plan(const NvmV2Module *m, SectionPlan *plan) {
     plan[n++] = (SectionPlan){ NVM_V2_SECTION_PASSIVE, m->passive_size, 0, m->passive_size != 0 };
     plan[n++] = (SectionPlan){ NVM_V2_SECTION_OWNERSHIP, m->ownership_size, 0, m->ownership_size != 0 };
     plan[n++] = (SectionPlan){ NVM_V2_SECTION_SERVICE_BINDINGS, m->service_size, 0, m->service_size != 0 };
+    plan[n++] = (SectionPlan){ NVM_V2_SECTION_CAPTURE_BINDINGS, m->capture_size, 0, m->capture_size != 0 };
     return n;
 }
 
@@ -106,7 +108,10 @@ NvmV2Result nvm_v2_module_serialize(const NvmV2Module *m,
     if ((m->ownership_size && !m->ownership_data) ||
         (!m->ownership_size && (m->extra_features & NVM_V2_FEATURE_OWNERSHIP)))
         return NVM_V2_ERR_FEATURE_MISMATCH;
-    if (m->passive_size || m->ownership_size || nvm_v2_service_bindings_present(m)) {
+    if ((!m->capture_data != !m->capture_size) ||
+        (!m->capture_size && (m->extra_features & NVM_V2_FEATURE_CAPTURE_BINDINGS)))
+        return NVM_V2_ERR_FEATURE_MISMATCH;
+    if (m->capture_size || m->passive_size || m->ownership_size || nvm_v2_service_bindings_present(m)) {
         NvmV2Result result = validate_cross_section(m, required_features(m) | m->extra_features);
         if (result != NVM_V2_OK) return result;
         NvmModule *checked = NULL;
@@ -181,6 +186,7 @@ NvmV2Result nvm_v2_module_serialize(const NvmV2Module *m,
         case NVM_V2_SECTION_CALLBACKS:  nvm_v2_callbacks_encode(&m->callbacks, p, z); break;
         case NVM_V2_SECTION_PASSIVE: memcpy(p, m->passive_data, z); break;
         case NVM_V2_SECTION_OWNERSHIP: memcpy(p, m->ownership_data, z); break;
+        case NVM_V2_SECTION_CAPTURE_BINDINGS: memcpy(p, m->capture_data, z); break;
         case NVM_V2_SECTION_SERVICE_BINDINGS: memcpy(p, m->service_data, z); break;
         default: break;
         }
@@ -371,6 +377,9 @@ NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
                 r = NVM_V2_ERR_SECTION_RANGE; break;
             }
             out->service_data = p; out->service_size = (uint32_t)z; break;
+        case NVM_V2_SECTION_CAPTURE_BINDINGS:
+            if (!z || z > UINT32_MAX) { r = NVM_V2_ERR_SECTION_RANGE; break; }
+            out->capture_data = p; out->capture_size = (uint32_t)z; break;
         case NVM_V2_SECTION_OWNERSHIP:
             if (!z || z > UINT32_MAX) { r = NVM_V2_ERR_SECTION_RANGE; break; }
             out->ownership_data = p; out->ownership_size = (uint32_t)z; break;
@@ -394,7 +403,10 @@ NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
     if (((h.feature_bits & NVM_V2_FEATURE_OWNERSHIP) != 0) != (out->ownership_size != 0)) {
         r = NVM_V2_ERR_FEATURE_MISMATCH; goto fail;
     }
-    if (out->passive_size || out->ownership_size || out->service_size) {
+    if (((h.feature_bits & NVM_V2_FEATURE_CAPTURE_BINDINGS) != 0) != (out->capture_size != 0)) {
+        r = NVM_V2_ERR_FEATURE_MISMATCH; goto fail;
+    }
+    if (out->capture_size || out->passive_size || out->ownership_size || out->service_size) {
         NvmModule *checked = NULL;
         r = nvm_v2_to_nvm_module(out, &checked);
         nvm_module_free(checked);
@@ -422,6 +434,8 @@ void nvm_v2_module_free(NvmV2Module *m) {
     nvm_v2_debug_free(&m->debug);
     free(m->owned_tags);
     m->owned_tags = NULL;
+    m->capture_data = NULL;
+    m->capture_size = 0;
     m->code = NULL;
     m->code_size = 0;
     m->service_data = NULL;

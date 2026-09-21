@@ -29,6 +29,7 @@
 #include "nvm_format.h"
 #include "isa.h"
 #include "verifier.h"
+#include "capture_bindings.h"
 #include "passive.h"
 #include "retained_layouts.h"
 #include "ownership_contracts.h"
@@ -107,6 +108,11 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     if (!mod || !out) return NVM_V2_ERR_INDEX_RANGE;
     memset(out, 0, sizeof *out);
     out->isa_version = NVM_V2_ISA_VERSION;
+    NvmCaptureResult captures = nvm_capture_bindings_validate_module(mod);
+    if (captures != NVM_CAPTURE_OK)
+        return captures == NVM_CAPTURE_MEMORY ? NVM_V2_ERR_TRUNCATED : NVM_V2_ERR_SECTION_RANGE;
+    out->capture_data = mod->capture_data;
+    out->capture_size = mod->capture_size;
     NvmV2Result service = nvm_service_bindings_validate(mod);
     if (service != NVM_V2_OK) return service;
     out->service_data = mod->service_data;
@@ -385,6 +391,10 @@ oom:
 NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
     if (!m || !out) return NVM_V2_ERR_INDEX_RANGE;
     *out = NULL;
+    if ((!m->capture_data != !m->capture_size) ||
+        (!m->capture_size && (m->extra_features & NVM_V2_FEATURE_CAPTURE_BINDINGS)))
+        return NVM_V2_ERR_FEATURE_MISMATCH;
+    if (m->capture_size > NVM_CAPTURE_TRANSPORT_BYTES) return NVM_V2_ERR_SECTION_RANGE;
     NvmV2Result service = nvm_v2_service_bindings_validate(m);
     if (service != NVM_V2_OK) return service;
 
@@ -543,6 +553,17 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
         mod->header.flags |= NVM_FLAG_NEEDS_EXTERN;
     if (m->has_debug)     mod->header.flags |= NVM_FLAG_DEBUG_INFO;
 
+    if (m->capture_size) {
+        mod->capture_data = malloc(m->capture_size);
+        if (!mod->capture_data) { nvm_module_free(mod); return NVM_V2_ERR_TRUNCATED; }
+        memcpy(mod->capture_data, m->capture_data, m->capture_size);
+        mod->capture_size = m->capture_size;
+        NvmCaptureResult captures = nvm_capture_bindings_validate_module(mod);
+        if (captures != NVM_CAPTURE_OK) {
+            nvm_module_free(mod);
+            return captures == NVM_CAPTURE_MEMORY ? NVM_V2_ERR_TRUNCATED : NVM_V2_ERR_SECTION_RANGE;
+        }
+    }
     if (m->service_size) {
         mod->service_data = malloc(m->service_size);
         if (!mod->service_data) { nvm_module_free(mod); return NVM_V2_ERR_TRUNCATED; }

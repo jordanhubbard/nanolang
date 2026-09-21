@@ -98,7 +98,7 @@ static NvmOrdinaryArrayResult oaa_prepare(
     bool needs=false;
     r=ownership_validate_owned(m,&p->layouts,&needs,p,projection);
     if(r!=NVM_V2_OK){status=p->failure;goto fail;}
-    if((needs && !projection) || (projection && projection->ambiguous) || m->import_count || m->module_ref_count || m->service_size || m->service_data ||
+    if(nvm_capture_bindings_present(m) || (needs && !projection) || (projection && projection->ambiguous) || m->import_count || m->module_ref_count || m->service_size || m->service_data ||
        m->passive_size || m->passive_data)p->unknown=true;
     uint32_t arrays=0;
     for(uint32_t i=0;i<p->layouts.count;i++) {

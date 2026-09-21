@@ -5,7 +5,7 @@ NvmOwnedArrayRoute nvm_owned_array_route(const NvmModule *m) {
 }
 NvmOwnedArrayRoute nvm_owned_array_route_classified(
     const NvmModule *m, const NvmServiceClassification *facts) {
-    if(!m || nvm_service_pending_classified(m,facts))return NVM_OWNER_ARRAY_NOT_SELECTED;
+    if(!m || (nvm_capture_bindings_present(m) || nvm_service_pending_classified(m,facts)))return NVM_OWNER_ARRAY_NOT_SELECTED;
     if(!m->ownership_data && !m->ownership_size)return NVM_OWNER_ARRAY_NOT_SELECTED;
     if(!m->ownership_data || !m->ownership_size)
         return NVM_OWNER_ARRAY_INVALID;
@@ -90,8 +90,8 @@ static NvmOwnerAuthorityStatus owner_array_parameter_view(const NvmModule *m,
 }
 NvmOwnerAuthorityResult nvm_owned_array_admit(const NvmModule *m,NvmOwnedArrayPlan **out) {
     if(!out)return (NvmOwnerAuthorityResult){NVM_OWNER_AUTH_INVALID,0,0,"I require an owner ARRAY admission output."};
-    if(nvm_service_execution_pending(m))
-        return (NvmOwnerAuthorityResult){NVM_OWNER_AUTH_UNRESOLVED,0,0,"I refuse service contracts before owner ARRAY admission."};
+    if((nvm_capture_bindings_present(m) || nvm_service_execution_pending(m)))
+        return (NvmOwnerAuthorityResult){NVM_OWNER_AUTH_UNRESOLVED,0,0,"I require service and capture execution admission before owner ARRAY admission."};
     NvmOwnedArrayRoute route=nvm_owned_array_route(m);
     if(route!=NVM_OWNER_ARRAY_SELECTED)
         return (NvmOwnerAuthorityResult){route==NVM_OWNER_ARRAY_INVALID?NVM_OWNER_AUTH_INVALID:NVM_OWNER_AUTH_UNRESOLVED,0,0,"I require an exact owner ARRAY candidate."};

@@ -24,6 +24,7 @@
     "../../src/nanoisa/ownership_contracts.c",
     "../../src/nanoisa/retained_layouts.c",
     "../../src/nanoisa/reference_places.c",
+    "../../src/nanoisa/capture_bindings.c",
     "../../src/nanoisa/nvm_format.c",
     "../../src/nanoisa/nvm_format_v2.c",
     "../../src/nanoisa/nvm_v2_cursor.c",

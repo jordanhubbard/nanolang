@@ -98,8 +98,8 @@ NvmPortableReadResult nvm_portable_read_plan(const NvmModule *m,
                               "I require disjoint function bodies before scanning.");
         }
     }
-    if (nvm_service_execution_pending(m))
-        STOP(NVM_PORTABLE_READ_UNSUPPORTED, "I keep pending File service authority separate.");
+    if ((nvm_capture_bindings_present(m) || nvm_service_execution_pending(m)))
+        STOP(NVM_PORTABLE_READ_UNSUPPORTED, "I require service and capture admission before portable execution.");
     if (m->ownership_data || m->ownership_size || m->layout_data || m->layout_size ||
         m->passive_data || m->passive_size || m->module_ref_count ||
         m->callback_contract_count ||

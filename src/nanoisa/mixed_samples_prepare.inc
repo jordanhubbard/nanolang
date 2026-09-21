@@ -81,7 +81,7 @@ static bool mp_signatures(const NvmModule *module,NvmMixedSamplesPlan *p) {
 }
 NvmMixedShapeResult nvm_mixed_samples_prepare(const NvmModule *module,NvmMixedSamplesPlan **out) {
     if(!out)return mp_result(NVM_MIXED_SHAPE_INVALID,"I require an output for private mixed preparation.");
-    if(nvm_service_execution_pending(module))
+    if((nvm_capture_bindings_present(module) || nvm_service_execution_pending(module)))
         return mp_result(NVM_MIXED_SHAPE_UNRESOLVED,"I refuse service contracts before mixed preparation.");
     NvmMixedSamplesProof *proof=NULL;
     NvmMixedShapeResult r=nvm_analyze_mixed_samples(module,&proof);
@@ -151,7 +151,7 @@ bool nvm_mixed_samples_candidate(const NvmModule *module) {
 }
 bool nvm_mixed_samples_candidate_classified(
     const NvmModule *module, const NvmServiceClassification *facts) {
-    if(!module || nvm_service_pending_classified(module,facts) ||
+    if(!module || (nvm_capture_bindings_present(module) || nvm_service_pending_classified(module,facts)) ||
        !module->ownership_data || !module->layout_data)return false;
     NvmV2Cursor c;uint32_t version,count,layout_count;const uint8_t *flags;
     nvm_v2_cursor_init(&c,module->ownership_data,module->ownership_size);

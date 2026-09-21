@@ -49,7 +49,7 @@ void nvm_record_array_execution_free(NvmRecordArrayExecutionPlan *p) {
 }
 static int rae_snapshot(NvmRecordArrayExecutionPlan *p,const NvmModule *m) {
     /* Closed-profile absence is checked before any unsupported pointer is read. */
-    if(m->service_data || m->service_size || m->passive_data || m->passive_size ||
+    if(nvm_capture_bindings_present(m) || m->service_data || m->service_size || m->passive_data || m->passive_size ||
        m->import_count || m->module_ref_count || m->callback_contract_count ||
        m->call_descriptors || m->call_descriptor_count) {
         p->failure=NVM_ARRAY_UNRESOLVED;return 0;
@@ -118,7 +118,7 @@ static int rae_same(NvmRecordArrayExecutionPlan *p,const NvmModule *m) {
     SAME(callback_contract_count);SAME(callback_contract_capacity);SAME(call_descriptor_count);
     SAME(struct_count);SAME(enum_count);SAME(union_count);
 #undef SAME
-    if(m->service_data || m->passive_data || m->call_descriptors ||
+    if(nvm_capture_bindings_present(m) || m->service_data || m->passive_data || m->call_descriptors ||
        !!s->function_param_types!=!!m->function_param_types)return 0;
     if(!rae_equal_bytes(p,s->header.magic,m->header.magic,4))return 0;
     for(uint32_t i=0;i<s->section_count;i++)

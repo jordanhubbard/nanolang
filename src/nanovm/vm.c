@@ -212,7 +212,7 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
 static bool vm_module_ownership_required(const NvmModule *module, bool *required,
                                           const NvmServiceClassification *facts) {
     if (required) *required=false;
-    if (!module || !required || nvm_service_pending_classified(module,facts)) return false;
+    if (!module || !required || (nvm_capture_bindings_present(module) || nvm_service_pending_classified(module,facts))) return false;
     if(nvm_owned_array_route_classified(module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED){*required=true;return true;}
     if(nvm_mixed_samples_candidate_classified(module,facts)){*required=true;return true;}
     if (!module->ownership_data && !module->ownership_size) return true;
@@ -224,7 +224,7 @@ static bool vm_module_ownership_required(const NvmModule *module, bool *required
 
 static bool vm_module_ownership_supported(const NvmModule *module, bool standalone,
                                            const NvmServiceClassification *facts) {
-    if (nvm_service_pending_classified(module,facts)) return false;
+    if ((nvm_capture_bindings_present(module) || nvm_service_pending_classified(module,facts))) return false;
     if(nvm_owned_array_route_classified(module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
         if(!standalone)return false;
         NvmOwnedArrayPlan *plan=NULL;
@@ -629,7 +629,7 @@ bool vm_memory_resize(VmState *vm, uint64_t size) {
 }
 
 static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) {
-    if (!vm || !mod || vm->frame_count != 0) return (uint32_t)-1;
+    if (!vm || !mod || nvm_capture_bindings_present(mod) || vm->frame_count != 0) return (uint32_t)-1;
     VmDecodedModule decoded;
     char decode_error[VM_DECODE_ERROR_SIZE];
     if (!vm_decode_module(mod, &decoded, decode_error)) {

@@ -268,3 +268,17 @@ NvmCaptureResult nvm_capture_bindings_verify_code(const NvmCaptureBindings *bind
     }
     return next_site == bindings->site_count ? NVM_CAPTURE_OK : NVM_CAPTURE_INVALID;
 }
+
+NvmCaptureResult nvm_capture_bindings_validate_module(const NvmModule *module) {
+    if (!module) return NVM_CAPTURE_INVALID;
+    if (!nvm_capture_bindings_present(module)) return NVM_CAPTURE_OK;
+    if (!module->capture_data || !module->capture_size) return NVM_CAPTURE_INVALID;
+    if (module->capture_size > NVM_CAPTURE_TRANSPORT_BYTES) return NVM_CAPTURE_LIMIT;
+    NvmCaptureBindings bindings = {0};
+    NvmCaptureResult result = nvm_capture_bindings_decode(module->capture_data,
+        module->capture_size, module, NVM_CAPTURE_TRANSPORT_BYTES - module->capture_size, &bindings);
+    if (result == NVM_CAPTURE_OK)
+        result = nvm_capture_bindings_verify_code(&bindings, module, NVM_CAPTURE_TRANSPORT_WORK);
+    nvm_capture_bindings_free(&bindings);
+    return result;
+}

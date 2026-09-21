@@ -14,7 +14,12 @@ payload owns a distinct allocation; my module destructor releases it once.
 My decoded `NvmCaptureBindings` tables borrow those immutable bytes and cannot
 outlive their owner. A parse, clone or replacement stages bytes and tables
 privately and publishes only after validation. Allocation failure preserves the
-prior destination and releases every unpublished allocation.
+source module and releases every unpublished allocation. The existing v2 bridge
+uses fresh output storage: `nvm_v2_to_nvm_module` clears its output pointer on
+failure, as required by my existing code-publication controls. A caller replacing
+an owned module must stage into a separate pointer and replace its prior module
+only after success. I do not change that existing API contract or claim that a
+cleared output pointer preserves its prior pointer value.
 
 My `NvmV2Module` view borrows payload bytes from its input or source module.
 Conversion back to an execution module deep-copies them before the source
@@ -103,3 +108,28 @@ path merely to reproduce a crash. Fresh Linux and Darwin ordinary and strict
 sanitizer gates retain exact source/provider identities, actual terminals and
 first failures. Integration and source bootstrap gates follow the complete
 consumer implementations.
+
+## My transport source checkpoint
+
+I now own and free the capture payload in `NvmModule`, borrow it in a v2 view,
+and deep-copy it on conversion to an execution module. My v2 reader checks the
+exact feature/section pair; reader and writer validate payload structure against
+the complete function table and code. My canonical text writer validates once
+before producing module output. It does not repeat allocating validation for
+each function or publish an empty successful string after a second validation
+fails. My string writer also refuses a failed stream close.
+
+The internal `asm_assemble_unverified` transport route accepts structurally
+valid metadata; ordinary `asm_assemble` and the public NanoLang assembly wrapper
+still require execution verification and refuse it. This distinction preserves
+the public verification contract while permitting codec roundtrip controls.
+Legacy v1 serialization refuses capture metadata. My source guards cover ordinary,
+linked, affine and type verification, VM ownership/entry selection, linking,
+FFI routes, native C/LLVM translation and closed private execution profiles.
+Service-plus-capture admission remains refused. My explicit NanoISA and Forth
+SEE provider manifests include the capture codec.
+
+This is a source checkpoint, not passing qualification. I still require an
+independent consumer audit, fixture review, real binary/text roundtrips,
+allocation recovery, destruction and unsupported-consumer controls, followed by
+fresh Linux and Darwin gates. Full capture execution and my 5.1 parent remain open.

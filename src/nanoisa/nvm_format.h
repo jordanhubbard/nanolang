@@ -238,6 +238,10 @@ typedef struct {
     uint32_t code_size;
     uint32_t code_capacity;
 
+    /* Owned required capture modes/sites; transport is not execution authority. */
+    uint8_t *capture_data;
+    uint32_t capture_size;
+
     /* Owned versioned function-mode/root ownership declarations. */
     uint8_t *ownership_data;
     uint32_t ownership_size;
@@ -292,6 +296,11 @@ typedef struct {
 /* ========================================================================
  * API Functions
  * ======================================================================== */
+
+/* I detect either half of a required capture claim, including malformed pairs. */
+static inline bool nvm_capture_bindings_present(const NvmModule *module) {
+    return module && (module->capture_data || module->capture_size);
+}
 
 /* Create a new empty module */
 NvmModule *nvm_module_new(void);

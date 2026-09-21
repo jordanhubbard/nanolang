@@ -6,6 +6,8 @@
 #include "nvm_format.h"
 
 #define NVM_CAPTURE_BINDINGS_VERSION 1u
+#define NVM_CAPTURE_TRANSPORT_BYTES ((size_t)64u * 1024u * 1024u)
+#define NVM_CAPTURE_TRANSPORT_WORK ((size_t)128u * 1024u * 1024u)
 #define NVM_CAPTURE_VALUE 0u
 #define NVM_CAPTURE_SHARED 1u
 #define NVM_CAPTURE_LOCAL 0u
@@ -58,6 +60,10 @@ NvmCaptureResult nvm_capture_bindings_encode(const NvmCaptureBindings *bindings,
  * I allocate nothing and leave every input unchanged. */
 NvmCaptureResult nvm_capture_bindings_verify_code(const NvmCaptureBindings *bindings,
     const NvmModule *module, size_t work_limit);
+
+/* I validate owned transport without granting execution. The allocation budget
+ * includes existing payload bytes and temporary decoder indices. */
+NvmCaptureResult nvm_capture_bindings_validate_module(const NvmModule *module);
 
 /* I return a decoded source only for an in-range descriptor. */
 bool nvm_capture_source(const NvmCaptureSite *site, uint16_t index,

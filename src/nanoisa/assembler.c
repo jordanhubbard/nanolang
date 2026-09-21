@@ -10,6 +10,7 @@
 #include "local_bindings.h"
 #include "isa.h"
 #include "verifier.h"
+#include "capture_bindings.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -947,14 +948,15 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return flow_directive(state, directive, p, result);
 
         if (strcmp(directive, "passive") == 0 || strcmp(directive, "layouts") == 0 ||
-            strcmp(directive, "ownership") == 0) {
+            strcmp(directive, "ownership") == 0 || strcmp(directive, "capture_bindings") == 0) {
             bool layouts = strcmp(directive, "layouts") == 0;
             bool ownership = strcmp(directive, "ownership") == 0;
-            uint8_t **payload = ownership ? &state->mod->ownership_data :
+            bool captures = strcmp(directive, "capture_bindings") == 0;
+            uint8_t **payload = captures ? &state->mod->capture_data : ownership ? &state->mod->ownership_data :
                 layouts ? &state->mod->layout_data : &state->mod->passive_data;
-            uint32_t *payload_size = ownership ? &state->mod->ownership_size :
+            uint32_t *payload_size = captures ? &state->mod->capture_size : ownership ? &state->mod->ownership_size :
                 layouts ? &state->mod->layout_size : &state->mod->passive_size;
-            if (!layouts && !ownership && state->passive_structured)
+            if (!captures && !layouts && !ownership && state->passive_structured)
                 return par_error(result, "I cannot mix raw passive chunks and producer markers.");
             char hex[4096];
             uint32_t length;
@@ -1581,6 +1583,12 @@ static NvmModule *asm_assemble_impl(const char *source, AsmResult *result,
     NvmModule *mod = state.mod;
     asm_state_cleanup(&state);
 
+    if (nvm_capture_bindings_validate_module(mod) != NVM_CAPTURE_OK) {
+        result->error = ASM_ERR_VERIFY;
+        snprintf(result->message, sizeof result->message, "I require complete capture binding transport");
+        nvm_module_free(mod);
+        return NULL;
+    }
     if (verify) {
         NvmVerifyResult verdict = nvm_verify(mod);
         if (!verdict.ok) {
