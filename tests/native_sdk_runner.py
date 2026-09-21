@@ -20,7 +20,7 @@ def run(directory, name, argv, cwd, extra=None, expected=(0,), timeout=180):
     argv = list(map(str, argv))
     record = {'argv': argv, 'cwd': str(cwd), 'expected': list(expected),
               'environment': {k: env.get(k) for k in ('PATH','CC','NANO_CC','TMPDIR','NANOLANG_SDK_ROOT',
-                  'NANO_BUILD_CACHE','NANO_MODULE_PATH','NANO_SHADOW_TRACE','ASAN_OPTIONS','LSAN_OPTIONS','UBSAN_OPTIONS')}}
+                  'NANO_BUILD_CACHE','NANO_MODULE_PATH','NANO_SHADOW_TRACE','NANOVMD_SOCKET','SDK_CC_LOG','SDK_REAL_CC','SDK_REFUSED_SOURCE','SDK_REFUSAL_HIT','ASAN_OPTIONS','LSAN_OPTIONS','UBSAN_OPTIONS')}}
     (directory / (name + '-command.json')).write_text(json.dumps(record, indent=2) + '\n')
     minimum=int(env.get('NANO_SDK_MIN_FREE_BYTES','0'))
     free=shutil.disk_usage(directory).free
