@@ -226,3 +226,22 @@ providers; no old failed binary is replayed. The external argv0 layout, capture
 helper, module roots, compiler selection and retained generated products remain
 explicit. Exclusive stage sums remain distinct from inclusive graph counters.
 No measured diagnostic result qualifies production or changes the deadline.
+
+## My 280b full compiler measurement
+
+I ran the original nanoc_v06 graph once with the reviewed observer. Its ten-second
+shadow supervisor returned failure; the outer command returned1 in50.627s with
+no outer/capacity timeout. All six input pairs match and the process group is gone.
+I retain1,331 markers/665 completed shadows. The last unmatched begin is
+`generate_list_specializations`. The measured9,980,440,936ns interval equals the
+sum of exclusive scopes. Function lookup takes5,890,789,748ns over2,114,144calls;
+symbol synchronization takes140,843,977ns. Call/definition/expression scopes take
+1,316,186,111/1,071,885,908/791,224,179ns. Observer overhead is included.
+The unmatched final interval remains unmeasured; this does not qualify production.
+
+My seal is `docs/evidence/full-compiler-280b/seal.json`:56reports,4,408unique
+objects/846,956,104bytes and six equal command pairs. The immutable object store
+is `/tmp/nanolang-full-compiler-280b-artifacts`. Frozen50de sources/tools/providers
+remain unchanged. I next design name-candidate indexing while preserving every
+live lookup decision and fallback; no lookup semantics or ownership change follows
+from the measurement alone.

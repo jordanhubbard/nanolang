@@ -13817,3 +13817,15 @@ original frozen Linux/Puck preparation roots. Fourteen methods remain unreached.
   lifetimes or reducing shadows, then complete original bootstrap and all
   fourteen methods plus neighbors/whole Make. Task
   `task_2deaad56f65c497f80546220aa1ca9d0` remains open.
+
+
+My280b full compiler diagnostic identifies function lookup as5.891s of its
+9.980s measured interval (observer overhead included). The prior synchronization
+scope is0.141s. I retain the full evidence seal and original production timeouts.
+
+- [ ] I review an Environment-owned function-name candidate index, preserving
+  exact namespace, builtin, generated-list, module and first-declaration ordering;
+  failed optional allocation falls back to the original linear scan.
+- [ ] I audit every function-table writer and test append/relocation, invalidation,
+  raw truncation, same-name replacements, owner/namespace switches, collision and
+  allocation failure before fresh unchanged full bootstrap and14method acceptance.

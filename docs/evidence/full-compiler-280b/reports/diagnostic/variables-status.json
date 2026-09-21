@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "make",
+    "-s",
+    "-f",
+    "/tmp/nanolang-full-compiler-timing-280b-linux/variables.mk",
+    "diagnostic-variables",
+    "CC=/bin/gcc"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-50de",
+  "bound": 30,
+  "timeout": false,
+  "cleanup": [],
+  "returncode": 0,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 1.040810956968926,
+  "log": {
+    "sha256": "133ee7e53dff1b735a5b7d9c3dc7d7cf771d2371ba9569e5eacb4b15cd995568",
+    "bytes": 3750,
+    "archive": "/tmp/nanolang-full-compiler-timing-280b-linux/objects/133ee7e53dff1b735a5b7d9c3dc7d7cf771d2371ba9569e5eacb4b15cd995568"
+  },
+  "inputs_equal": true
+}
