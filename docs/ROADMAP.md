@@ -14147,3 +14147,7 @@ NANOISA_NATIVE_LIST_SPECIALIZATIONS.md. No native production is changed yet.
 ### 5.1: explicit legacy native list scanner bound
 
 - [ ] `task_083bf0873b46fcd620174ed46e38abac`: I preserve the first 1b8 Linux strict GCC build failure (13.623323 s, status 2, unchanged source/tools). Before corrected preparation I separate the full inline-provider name from a checked 64-byte legacy copy; I retain strict warnings, existing refusal and all 18+8 acceptance requirements. Darwin original bootstrap remains attributed to 1b8.
+
+### 5.1: native list discovery cold initialization
+
+- [ ] `task_b4e7e3d0b5a57a4b0865d8d3e6356350`: I preserve the exact Darwin 1b8 shadow crash report and stopped dependent Linux bootstrap. I initialize the new worklist before either consumer, retain full-product resets, add cold/idempotent/retention controls, then source-review before fresh corrected bootstrap and all 18+8 methods.
