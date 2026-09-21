@@ -6798,10 +6798,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         char ename[64];
         fn_c_name(mod, entry, ename, sizeof ename);
-        if (module_uses_host(mod, "nhost_argc") || module_uses_host(mod, "nhost_argv")) {
-            nvm2c_puts(&b,
-                "int main(int argc, char **argv) {\n"
-                "    nhost_arg_count = argc;\n");
+        if (mod->import_count) {
+            nvm2c_puts(&b, "int main(int argc, char **argv) {\n");
+            if (module_uses_host(mod, "nhost_argc") || module_uses_host(mod, "nhost_argv"))
+                nvm2c_puts(&b, "    nhost_arg_count = argc;\n");
+            else nvm2c_puts(&b, "    (void)argc;\n");
             if (module_uses_host(mod, "nhost_argv"))
                 nvm2c_puts(&b, "    nhost_args = argv;\n");
             else nvm2c_puts(&b, "    (void)argv;\n");
