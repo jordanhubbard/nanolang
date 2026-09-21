@@ -5807,6 +5807,10 @@ test-nanoisa-record-order: nanoisa_emit nano_virt nano_vm
 test-native-literal-order: bootstrap
 	@python3 -m unittest tests.test_record_literal_order.NativeLiteralOrder
 
+.PHONY: test-native-literal-order-optimized
+test-native-literal-order-optimized: bootstrap
+	@python3 -m unittest tests.test_record_literal_order.NativeLiteralOptimization
+
 .PHONY: test-record-array-vm
 # I rebuild every VM-layout-dependent TU with the distinct private heap layout.
 test-record-array-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
