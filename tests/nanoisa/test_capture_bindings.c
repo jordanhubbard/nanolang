@@ -17,14 +17,23 @@ static void *checked_calloc(size_t count, size_t width) {
     if (result) ++live;
     return result;
 }
+static void *checked_malloc(size_t size) {
+    ++allocation_calls;
+    if (fail_allocation && allocation_calls == fail_allocation) return NULL;
+    void *result = malloc(size);
+    if (result) ++live;
+    return result;
+}
 static void checked_free(void *pointer) {
     if (pointer) { CHECK(live > 0); --live; }
     free(pointer);
 }
 #define calloc checked_calloc
+#define malloc checked_malloc
 #define free checked_free
 #include "../../src/nanoisa/capture_bindings.c"
 #undef calloc
+#undef malloc
 #undef free
 
 typedef struct {
@@ -81,6 +90,72 @@ static void refuse(const uint8_t *bytes, size_t size, const NvmModule *m,
     CHECK(nvm_capture_bindings_decode(bytes, size, m, limit, &output) == expected);
     CHECK(memcmp(&output, &before, sizeof(output)) == 0);
     CHECK(live == 0);
+}
+
+static void refuse_encoding(const NvmCaptureBindings *bindings, const NvmModule *m,
+    size_t limit, NvmCaptureResult expected) {
+    uint8_t sentinel = 0, *output = &sentinel;
+    size_t size = 999;
+    unsigned before = live;
+    CHECK(nvm_capture_bindings_encode(bindings, m, limit, &output, &size) == expected);
+    CHECK(output == &sentinel && size == 999 && sentinel == 0);
+    CHECK(live == before);
+}
+
+static void encode_tests(const Fixture *fixture, const NvmModule *m, size_t table_bytes) {
+    NvmCaptureBindings decoded = {0};
+    CHECK(nvm_capture_bindings_decode(fixture->bytes, fixture->used, m, table_bytes, &decoded) == NVM_CAPTURE_OK);
+    size_t budget = table_bytes + fixture->used;
+    uint8_t *output = NULL;
+    size_t size = 0;
+    CHECK(nvm_capture_bindings_encode(&decoded, m, budget, &output, &size) == NVM_CAPTURE_OK);
+    CHECK(size == fixture->used && memcmp(output, fixture->bytes, size) == 0);
+    CHECK(live == 3);
+    checked_free(output);
+    refuse_encoding(&decoded, m, budget - 1, NVM_CAPTURE_LIMIT);
+    refuse_encoding(&decoded, m, 0, NVM_CAPTURE_LIMIT);
+    refuse_encoding(NULL, m, budget, NVM_CAPTURE_INVALID);
+    NvmCaptureBindings missing = decoded;
+    missing.functions = NULL;
+    refuse_encoding(&missing, m, budget, NVM_CAPTURE_INVALID);
+    missing = decoded; missing.sites = NULL;
+    refuse_encoding(&missing, m, budget, NVM_CAPTURE_INVALID);
+    missing = decoded; missing.function_count--;
+    refuse_encoding(&missing, m, budget, NVM_CAPTURE_INVALID);
+    const uint8_t *saved = decoded.functions[0].local_modes;
+    decoded.functions[0].local_modes = NULL;
+    refuse_encoding(&decoded, m, budget, NVM_CAPTURE_INVALID);
+    uint8_t wrong_modes[2] = {2, 0};
+    decoded.functions[0].local_modes = wrong_modes;
+    refuse_encoding(&decoded, m, budget, NVM_CAPTURE_INVALID);
+    decoded.functions[0].local_modes = saved;
+    NvmCaptureSite site = decoded.sites[0];
+    decoded.sites[0].sources = NULL;
+    refuse_encoding(&decoded, m, budget, NVM_CAPTURE_INVALID);
+    decoded.sites[0] = site;
+    decoded.sites[0].target = UINT32_MAX;
+    refuse_encoding(&decoded, m, budget, NVM_CAPTURE_INVALID);
+    decoded.sites[0] = site;
+    decoded.sites[1].instruction_offset = 0;
+    refuse_encoding(&decoded, m, budget, NVM_CAPTURE_INVALID);
+    decoded.sites[1].instruction_offset = 5;
+    for (unsigned failure = 1; failure <= 3; ++failure) {
+        allocation_calls = 0; fail_allocation = failure;
+        refuse_encoding(&decoded, m, budget, NVM_CAPTURE_MEMORY);
+        fail_allocation = 0;
+        CHECK(nvm_capture_bindings_encode(&decoded, m, budget, &output, &size) == NVM_CAPTURE_OK);
+        CHECK(size == fixture->used && memcmp(output, fixture->bytes, size) == 0);
+        checked_free(output);
+        CHECK(live == 2);
+    }
+    nvm_capture_bindings_free(&decoded);
+    CHECK(live == 0);
+    NvmModule none = {0};
+    uint8_t empty[12] = {1};
+    CHECK(nvm_capture_bindings_encode(&decoded, &none, 12, &output, &size) == NVM_CAPTURE_OK);
+    CHECK(size == sizeof(empty) && memcmp(output, empty, size) == 0);
+    checked_free(output);
+    refuse_encoding(&decoded, &none, 11, NVM_CAPTURE_LIMIT);
 }
 
 int main(void) {
@@ -157,6 +232,7 @@ int main(void) {
     CHECK(nvm_capture_bindings_decode(empty, sizeof(empty), &none, 0, &decoded) == NVM_CAPTURE_OK);
     CHECK(!decoded.functions && !decoded.sites && !decoded.allocation_bytes && !live);
     nvm_capture_bindings_free(&decoded);
-    printf("I passed %u capture payload checks; both allocation failures recover without live tables.\n", checks);
+    encode_tests(&f, &m, exact);
+    printf("I passed %u capture payload checks; reader and writer allocation failures recover without live storage.\n", checks);
     return 0;
 }

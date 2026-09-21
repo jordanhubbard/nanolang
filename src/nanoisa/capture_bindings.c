@@ -119,3 +119,88 @@ invalid:
     nvm_capture_bindings_free(&parsed);
     return NVM_CAPTURE_INVALID;
 }
+
+static bool capture_extent(size_t *total, size_t amount, size_t limit) {
+    if (*total > limit || amount > limit - *total) return false;
+    *total += amount;
+    return true;
+}
+
+static void capture_word(uint8_t **cursor, uint16_t value) {
+    *(*cursor)++ = (uint8_t)value;
+    *(*cursor)++ = (uint8_t)(value >> 8);
+}
+
+static void capture_wide(uint8_t **cursor, uint32_t value) {
+    capture_word(cursor, (uint16_t)value);
+    capture_word(cursor, (uint16_t)(value >> 16));
+}
+
+NvmCaptureResult nvm_capture_bindings_encode(const NvmCaptureBindings *bindings,
+    const NvmModule *module, size_t limit, uint8_t **data, size_t *size) {
+    if (!bindings || !module || !data || !size ||
+        bindings->function_count != module->function_count ||
+        (bindings->function_count && (!bindings->functions || !module->functions)) ||
+        (bindings->site_count && !bindings->sites)) return NVM_CAPTURE_INVALID;
+    if (bindings->function_count > limit / sizeof(NvmCaptureFunction))
+        return NVM_CAPTURE_LIMIT;
+    size_t tables = (size_t)bindings->function_count * sizeof(NvmCaptureFunction);
+    if (bindings->site_count > (limit - tables) / sizeof(NvmCaptureSite))
+        return NVM_CAPTURE_LIMIT;
+    tables += (size_t)bindings->site_count * sizeof(NvmCaptureSite);
+    size_t bytes = 0, available = limit - tables;
+    if (!capture_extent(&bytes, 12, available)) return NVM_CAPTURE_LIMIT;
+    for (uint32_t i = 0; i < bindings->function_count; ++i) {
+        const NvmCaptureFunction *function = &bindings->functions[i];
+        if ((function->local_count && !function->local_modes) ||
+            (function->upvalue_count && !function->upvalue_modes))
+            return NVM_CAPTURE_INVALID;
+        if (!capture_extent(&bytes, 8, available) ||
+            !capture_extent(&bytes, function->local_count, available) ||
+            !capture_extent(&bytes, function->upvalue_count, available))
+            return NVM_CAPTURE_LIMIT;
+    }
+    for (uint32_t i = 0; i < bindings->site_count; ++i) {
+        const NvmCaptureSite *site = &bindings->sites[i];
+        if (site->capture_count && !site->sources) return NVM_CAPTURE_INVALID;
+        if (!capture_extent(&bytes, 16, available) ||
+            !capture_extent(&bytes, (size_t)site->capture_count * 4, available))
+            return NVM_CAPTURE_LIMIT;
+    }
+    uint8_t *payload = malloc(bytes);
+    if (!payload) return NVM_CAPTURE_MEMORY;
+    uint8_t *cursor = payload;
+    capture_word(&cursor, NVM_CAPTURE_BINDINGS_VERSION);
+    capture_word(&cursor, 0);
+    capture_wide(&cursor, bindings->function_count);
+    capture_wide(&cursor, bindings->site_count);
+    for (uint32_t i = 0; i < bindings->function_count; ++i) {
+        const NvmCaptureFunction *function = &bindings->functions[i];
+        capture_wide(&cursor, i);
+        capture_word(&cursor, function->local_count);
+        capture_word(&cursor, function->upvalue_count);
+        if (function->local_count) memcpy(cursor, function->local_modes, function->local_count);
+        cursor += function->local_count;
+        if (function->upvalue_count) memcpy(cursor, function->upvalue_modes, function->upvalue_count);
+        cursor += function->upvalue_count;
+    }
+    for (uint32_t i = 0; i < bindings->site_count; ++i) {
+        const NvmCaptureSite *site = &bindings->sites[i];
+        capture_wide(&cursor, site->owner);
+        capture_wide(&cursor, site->instruction_offset);
+        capture_wide(&cursor, site->target);
+        capture_word(&cursor, site->capture_count);
+        capture_word(&cursor, 0);
+        size_t sources = (size_t)site->capture_count * 4;
+        if (sources) memcpy(cursor, site->sources, sources);
+        cursor += sources;
+    }
+    NvmCaptureBindings validated = {0};
+    NvmCaptureResult result = nvm_capture_bindings_decode(payload, bytes, module,
+        limit - bytes, &validated);
+    nvm_capture_bindings_free(&validated);
+    if (result != NVM_CAPTURE_OK) { free(payload); return result; }
+    *data = payload;
+    *size = bytes;
+    return NVM_CAPTURE_OK;
+}

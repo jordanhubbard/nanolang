@@ -45,6 +45,13 @@ NvmCaptureResult nvm_capture_bindings_decode(const uint8_t *data, size_t size,
     const NvmModule *module, size_t limit, NvmCaptureBindings *out);
 void nvm_capture_bindings_free(NvmCaptureBindings *bindings);
 
+/* I serialize readable borrowed descriptor arrays, then validate with the same
+ * reader before publishing. limit bounds simultaneous payload and index bytes.
+ * Output locations must not alias inputs or each other. Failure preserves both;
+ * success transfers a malloc-owned buffer to *data (caller frees it). */
+NvmCaptureResult nvm_capture_bindings_encode(const NvmCaptureBindings *bindings,
+    const NvmModule *module, size_t limit, uint8_t **data, size_t *size);
+
 /* I return a decoded source only for an in-range descriptor. */
 bool nvm_capture_source(const NvmCaptureSite *site, uint16_t index,
     uint8_t *kind, uint8_t *mode, uint16_t *slot);
