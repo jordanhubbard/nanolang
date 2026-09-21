@@ -14175,6 +14175,42 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   OOM. Because the imported compiler source changes, I require a fresh both-host
   bootstrap and preserve every prior compiler product under its original pin.
 
+- [ ] I repair the demonstrated 65b Forth shared-link command capacity defect.
+  Both fresh bootstraps and the first seven ordinary companion methods passed,
+  but the actual examples Forth target failed before private provider compilation.
+  A bounded debugger observation in a separate exact-source/copied-binary tree
+  shows command_ok=false immediately after constructing the 35-private-provider
+  shared link in a 4096-byte buffer. I preserve both original terminals and the
+  diagnostic setup failures. I align actual shared-link and Darwin dependency
+  recording capacity with my existing bounded 65536-byte link-query grammar,
+  reject construction failure at its actual stage, and keep the complete provider
+  list and co-import acceptance. I require fresh affected compiler/provider builds
+  and both-host qualification; no truncation, skipped provider or relaxed assertion
+  can stand in for the complete link.
+
+- [ ] I retain and correct both next 8f119 owner-gate failures. The complete Forth
+  neighbor now passes on both hosts. Linux's exact observed35 NanoISA object paths
+  alone need8285 command bytes, beyond the old8192 aggregate-link buffer; the
+  compiler observer records no NanoISA combine invocation. I align that bounded
+  command with the shared-link grammar and test complete35-object construction
+  plus explicit overflow refusal. Darwin's isolated Python loader lacks the
+  canonical public DynArray runtime required by std_json. I supply only a fresh
+  runtime host image (DynArray/GC/GCStruct), verify moved-provider anchors absent,
+  retain isolated module loads, and add JSON key-array lifetime/release checks.
+  I do not add competing private runtime copies or preload another data module.
+  Actual compiled and installed hosts remain separate required acceptance.
+
+- [ ] I provide the missing ordinary public Forth SEE wrapper required by my
+  provider co-import acceptance. Both fffbc gates passed the first seven methods,
+  then refused the fixture's qualified private nl_forth_see call with E009 before
+  provider compilation (Linux805.777s, Darwin798.735s). The module exposes only a
+  private extern; its legacy unqualified Forth consumer is separate. I add a
+  public see wrapper that copies the static foreign result, with a meaningful
+  empty-path shadow, and call that wrapper in the unchanged standalone/co-import
+  and real-bytecode assertions. I retain the original foreign export and all
+  symbol/isolated dynamic checks. This is ordinary API completion, not a change
+  to visibility rules or File authority; source review precedes fresh gates.
+
 - [ ] I complete the installed native SDK prerequisite under full source task8bbc
   using NATIVE_SDK_INSTALLATION.md: inventory and immutable installed generation;
   paired executable-adjacent runtime discovery; read-only SDK with invocation-owned

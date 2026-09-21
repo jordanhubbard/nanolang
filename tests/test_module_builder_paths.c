@@ -32,6 +32,24 @@ int main(void) {
 
     char small[4] = {0};
     assert(!module_append_path_flag(small, sizeof(small), "", "too long"));
+    /* I test the actual bounded append primitive, not a completed linker run.
+     * The real companion co-import gate separately links every provider. */
+    unsigned char complete[NL_MODULE_LINK_COMMAND_CAPACITY + 1];
+    memset(complete, 0, sizeof(complete));
+    complete[NL_MODULE_LINK_COMMAND_CAPACITY] = 0xa5;
+    char object[256];
+    memset(object, 'x', sizeof(object)-1);
+    object[sizeof(object)-1] = 0;
+    for (int i = 0; i < 35; ++i)
+        assert(module_append_path_flag((char *)complete, NL_MODULE_LINK_COMMAND_CAPACITY, "", object));
+    assert(strlen((char *)complete) > 8192);
+    unsigned accepted = 35;
+    while (module_append_path_flag((char *)complete, NL_MODULE_LINK_COMMAND_CAPACITY, "", object))
+        ++accepted;
+    assert(accepted > 35 && accepted < 300);
+    assert(complete[NL_MODULE_LINK_COMMAND_CAPACITY-1] == 0);
+    assert(complete[NL_MODULE_LINK_COMMAND_CAPACITY] == 0xa5);
+    assert(access("sentinel", F_OK) != 0);
     assert(chdir(previous) == 0);
     free(previous);
     assert(rmdir(directory) == 0);

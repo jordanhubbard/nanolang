@@ -17,3 +17,13 @@ module "modules/nsi_file_catalog_provider/nsi_file_catalog_provider.nano" as For
 # The result buffer is static; copy it before the next call.
 
 extern fn nl_forth_see(_word: string, _nvm_path: string) -> string
+
+# I copy the static foreign result before another SEE call can replace it.
+pub fn see(word: string, nvm_path: string) -> string {
+    unsafe { return (+ "" (nl_forth_see word nvm_path)) }
+}
+
+shadow see {
+    let detail: string = (see "dup" "")
+    assert (str_contains detail "SEE: cannot load")
+}
