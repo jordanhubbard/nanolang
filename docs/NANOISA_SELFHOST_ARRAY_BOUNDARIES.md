@@ -88,3 +88,41 @@ Fresh full bootstrap retains the original ten-second shadow deadline and
 outer bounds. The full15 matrix, relevant neighbors and unchanged Make remain
 required. Exact C-seed/selfhost/emitter integration and enum list parity remain
 separate full5.1 obligations; no scoped pass closes them.
+
+## My source checkpoint
+
+I carry `CheckedBlock.ok`, complete value type, AST-proven empty holes and a
+separate terminating-control flag. My statement worker takes an explicit
+`value_required` flag: an ordinary statement IF need not produce a common
+value, while IF/COND/MATCH used as a value must check every alternative. A
+checked terminal branch contributes no value to a join. At a declared
+unreachable destination it satisfies that destination without creating an empty
+array fact or publishing a literal annotation. I retain warning diagnostics
+without counting them as type errors.
+
+My recursive literal facts merge later complete members into actual empty
+holes, including arrays inside tuple members. Existing identifiers/calls need
+complete facts and cannot provide holes. I publish inferred annotations only
+when complete; an unresolved genuinely empty initializer retains its AST-based
+inference rather than turning into a declared unknown array on a later visit.
+My common destination helper checks every array/tuple member, invokes concrete
+union constructor checking where required, and preserves existing scalar/byte
+conversion policy. Failed existing arrays retain their actual type plus an
+error; permissive global equality does not suppress that error.
+
+I retain exact unshadowed dispatch for array operations and preserve complete
+nested results through get, slice, iteration and callback signatures. The
+actual `array_new` path still requires complete checked fill facts, including
+nested fills; I do not add an unknown-fill constructor admission. Explicit
+empty literal syntax receives a checked destination. I also retain the full
+List annotation when it is itself an array element, rather than serializing
+its empty outer name. Qualified declared callables check all parameters and
+arity, including function-valued declarations, without selecting array
+intrinsics from a qualified suffix.
+
+I add helper shadows and retain all prior source methods and assertions.
+Static delimiter balance, added-helper shadow inventory and diff whitespace
+checks are preparation checks only. I have not built or executed this
+checkpoint. The complete paired source fixtures and original full bootstrap,
+fifteen-method corpus, instrumentation and remaining Make acceptance are still
+required after independent source review and capacity preflight.

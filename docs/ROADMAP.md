@@ -13937,3 +13937,12 @@ I preserve both terminals and unexecuted outputs under
   complete array facts, preserving existing return/control-flow handling.
 - [ ] I review source/shadows before fresh unchanged bootstrap and all15methods,
   then remaining neighbors/Make. I keep enum, backend and full-release gates open.
+
+My source checkpoint carries explicit value-required and terminal facts through
+lexical IF/COND/MATCH/block checks, recursively checks typed literal members,
+and requires complete actual array producer/consumer facts. My static consumer
+audit also found that an array element which is List<T> lost its full annotation
+through type_array_of/type_kind_to_string; I retain it in this same full-facts
+checkpoint. I preserve all prior15methods and failed f54 outputs. This source
+and its shadows are not executed or qualified; paired fixtures, independent
+review, capacity preflight and the unchanged complete gates remain required.

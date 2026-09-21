@@ -44,7 +44,9 @@ let mut tc_enclosing_return: string = "void"
 
 struct CheckedBlock {
     ok: bool,
-    value_type: NSType
+    value_type: NSType,
+    empty_holes: bool,
+    terminates: bool
 }
 
 /* Function signature for type checking */
@@ -2314,7 +2316,7 @@ shadow type_array {
 }
 
 fn type_array_of(element: NSType) -> NSType {
-    if (or (== element.kind TypeKind.TYPE_ARRAY) (== element.kind TypeKind.TYPE_UNION)) {
+    if (or (== element.kind TypeKind.TYPE_ARRAY) (or (== element.kind TypeKind.TYPE_UNION) (== element.kind TypeKind.TYPE_LIST_GENERIC))) {
         return (type_array element.kind (type_to_string element))
     }
     return (type_array element.kind element.name)
@@ -2323,6 +2325,7 @@ fn type_array_of(element: NSType) -> NSType {
 shadow type_array_of {
     let nested: NSType = (type_array_of (type_array TypeKind.TYPE_INT ""))
     assert (== (type_to_string nested) "array<array<int>>")
+    assert (== (type_to_string (type_array_of (type_list_generic "int"))) "array<List<int>>")
 }
 
 /* Create generic list type */
@@ -3457,7 +3460,7 @@ fn type_to_string(t: NSType) -> string {
 
 /* Convert type kind to string */
 fn type_kind_to_string(kind: int, name: string) -> string {
-    if (or (or (== kind TypeKind.TYPE_ARRAY) (== kind TypeKind.TYPE_ENUM)) (or (== kind TypeKind.TYPE_FUNCTION) (== kind TypeKind.TYPE_TUPLE))) {
+    if (or (== kind TypeKind.TYPE_LIST_GENERIC) (or (or (== kind TypeKind.TYPE_ARRAY) (== kind TypeKind.TYPE_ENUM)) (or (== kind TypeKind.TYPE_FUNCTION) (== kind TypeKind.TYPE_TUPLE)))) {
         if (!= name "") { return name }
         return "unknown"
     }
@@ -3474,6 +3477,7 @@ fn type_kind_to_string(kind: int, name: string) -> string {
 
 shadow type_kind_to_string {
     assert (== (type_kind_to_string TypeKind.TYPE_ARRAY "array<int>") "array<int>")
+    assert (== (type_kind_to_string TypeKind.TYPE_LIST_GENERIC "List<int>") "List<int>")
     assert (== (type_kind_to_string TypeKind.TYPE_FUNCTION "fn(int)->bool") "fn(int)->bool")
     assert (== (type_kind_to_string TypeKind.TYPE_INT "") "int")
     assert (== (type_kind_to_string TypeKind.TYPE_BOOL "") "bool")
@@ -4116,23 +4120,7 @@ shadow record_field_types_known {
 fn check_record_field_value(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
     let before: int = (list_CompilerDiagnostic_length diags)
     let checked: NSType = (check_constructor_argument parser node_id node_type actual expected symbols diags file_name)
-    if (and (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) (== expected.kind TypeKind.TYPE_ARRAY)) {
-        let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
-        let spelling: string = (array_elem_type_from_array_decl (type_to_string expected))
-        let element: NSType = (type_from_string_with_parser parser spelling)
-        let mut valid: bool = (and (!= spelling "") (!= element.kind TypeKind.TYPE_UNKNOWN))
-        let mut i: int = 0
-        while (< i literal.element_count) {
-            let member: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
-            let raw: NSType = (check_expr_node parser member.node_id member.node_type symbols diags file_name)
-            if (not (check_record_field_value parser member.node_id member.node_type raw element symbols diags file_name)) { set valid false }
-            set i (+ i 1)
-        }
-        if (!= before (list_CompilerDiagnostic_length diags)) { set valid false }
-        if valid { (parser_set_array_literal_element_type parser node_id spelling) }
-        return valid
-    }
-    return (and (== before (list_CompilerDiagnostic_length diags)) (record_field_types_known checked expected))
+    return (and (not (checked_value_errors diags before)) (record_field_types_known checked expected))
 }
 
 shadow check_record_field_value {
@@ -4159,7 +4147,7 @@ fn check_array_new_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, d
     let count_type: NSType = (check_expr_node parser count.node_id count.node_type symbols diags file_name)
     let fill: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
     let element: NSType = (check_expr_node parser fill.node_id fill.node_type symbols diags file_name)
-    if (or (== count_type.kind TypeKind.TYPE_UNKNOWN) (or (not (or (types_equal count_type (type_int)) (== (type_to_string count_type) "u8"))) (== element.kind TypeKind.TYPE_UNKNOWN))) {
+    if (or (== count_type.kind TypeKind.TYPE_UNKNOWN) (or (not (or (types_equal count_type (type_int)) (== (type_to_string count_type) "u8"))) (not (reduce_type_known parser element)))) {
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a checked integer count and a known fill type for array_new." (Diagnostics.diag_location file_name call.line call.column)))
         return (type_unknown_named "array_new")
     }
@@ -4341,7 +4329,8 @@ shadow check_match_coverage {
     assert (== (Diagnostics.diag_list_count dead) 1)
 }
 
-fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+fn check_match_value(parser: Parser, node_id: int, symbols: array<Symbol>, expected: NSType, diags: List<CompilerDiagnostic>, file_name: string) -> CheckedBlock {
+    let before: int = (list_CompilerDiagnostic_length diags)
     let m: ASTMatch = (parser_get_match parser node_id)
     
     /* Check scrutinee (expression being matched) */
@@ -4350,18 +4339,18 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
     if (and (!= scrutinee_type.kind TypeKind.TYPE_UNION) (!= scrutinee_type.kind TypeKind.TYPE_INT)) {
         let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "I require an exact int or union match scrutinee" (Diagnostics.diag_location file_name m.line m.column))
         (Diagnostics.diag_list_add diags diag)
-        return (type_unknown_named "match_error")
+        return (checked_value (type_unknown_named "match_error") false false false)
     }
     (check_match_coverage parser m scrutinee_type diags file_name)
 
     if (<= m.arm_count 0) {
-        return (type_unknown_named "empty_match")
+        return (checked_value (type_unknown_named "empty_match") false false false)
     } else {
         (print "")
     }
 
     let mut i: int = 0
-    let mut first_arm_type: NSType = (type_unknown_named "match_arm")
+    let mut joined: CheckedBlock = (checked_value (type_void) true false true)
     let union_name: string = scrutinee_type.name
 
     while (< i m.arm_count) {
@@ -4400,28 +4389,28 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
 
         let body_id: int = (at m.arm_body_ids i)
         let body_type: int = (at m.arm_body_types i)
-        let arm_type: NSType = (check_expr_node parser body_id body_type arm_symbols diags file_name)
-
-        if (parser_always_returns parser body_id body_type) {
-            set i (+ i 1)
-            continue
+        let mut fact: CheckedBlock = (check_value_facts parser body_id body_type arm_symbols diags file_name)
+        if (and (not fact.terminates) (!= expected.kind TypeKind.TYPE_UNKNOWN)) {
+            let before: int = (list_CompilerDiagnostic_length diags)
+            let value: NSType = (check_contextual_value parser body_id body_type fact.value_type expected arm_symbols diags file_name)
+            set fact (checked_value value (and (not (checked_value_errors diags before)) (and (reduce_type_known parser value) (types_equal value expected))) false false)
         }
-        if (== first_arm_type.kind TypeKind.TYPE_UNKNOWN) {
-            set first_arm_type arm_type
-        } else {
-            if (not (types_equal arm_type first_arm_type)) {
-                let msg: string = (+ "match arms must return same type (expected " (+ (type_to_string first_arm_type) (+ ", got " (+ (type_to_string arm_type) ")"))))
-                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name m.line m.column))
-                (Diagnostics.diag_list_add diags diag)
-            } else {
-                (print "")
-            }
-        }
+        set joined (join_checked_values parser joined fact)
 
         set i (+ i 1)
     }
 
-    return first_arm_type
+    return (checked_value joined.value_type (and joined.ok (not (checked_value_errors diags before))) joined.empty_holes joined.terminates)
+}
+
+fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    return (check_match_value parser node_id symbols (type_unknown_named "inference") diags file_name).value_type
+}
+shadow check_match_value {
+    let parser: Parser = (resource_test_parser "fn f() -> void { let a = match 1 { 1 => [] _ => [1] } }")
+    let result: CheckedBlock = (check_match_value parser 0 [] (type_unknown_named "inference") (list_CompilerDiagnostic_new) "match.nano")
+    assert result.ok
+    assert (== (type_to_string result.value_type) "array<int>")
 }
 
 shadow check_match_expr {
@@ -4494,6 +4483,8 @@ shadow tc_bound_name {
 }
 
 fn reduce_type_known(parser: Parser, value: NSType) -> bool {
+    # I retain the existing reserved byte spelling used by contextual conversion.
+    if (and (== value.kind TypeKind.TYPE_STRUCT) (== value.name "u8")) { return true }
     if (or (== value.kind TypeKind.TYPE_UNKNOWN) (== value.kind TypeKind.TYPE_GENERIC)) { return false }
     if (== value.kind TypeKind.TYPE_ARRAY) {
         if (== value.element_type_kind TypeKind.TYPE_UNKNOWN) { return false }
@@ -4550,6 +4541,7 @@ fn reduce_type_known(parser: Parser, value: NSType) -> bool {
 shadow reduce_type_known {
     let parser: Parser = (resource_test_parser "union Box<T> { Some { value: T } }")
     assert (reduce_type_known parser (type_from_string_with_parser parser "array<Box<int>>"))
+    assert (reduce_type_known parser (type_from_string "array<u8>"))
     assert (not (reduce_type_known parser (type_from_string_with_parser parser "array<array<unknown>>")))
     assert (not (reduce_type_known parser (type_from_string_with_parser parser "Box<unknown>")))
     assert (not (reduce_type_known parser (type_from_string_with_parser parser "Box<T>")))
@@ -4623,6 +4615,202 @@ shadow check_reduce_call {
     assert (> (list_CompilerDiagnostic_length diags) 0)
 }
 
+# I carry empty syntax and terminal control separately from missing type facts.
+fn checked_value_errors(diags: List<CompilerDiagnostic>, start: int) -> bool {
+    let mut i: int = start
+    while (< i (list_CompilerDiagnostic_length diags)) {
+        if (== (list_CompilerDiagnostic_get diags i).severity DiagnosticSeverity.DIAG_ERROR) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow checked_value_errors {
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let location: CompilerSourceLocation = (Diagnostics.diag_location "value.nano" 1 1)
+    (Diagnostics.diag_list_add diags (Diagnostics.diag_warning CompilerPhase.PHASE_TYPECHECK "W0002" "I retain this warning." location))
+    assert (not (checked_value_errors diags 0))
+    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I retain this error." location))
+    assert (checked_value_errors diags 1)
+    assert (not (checked_value_errors diags 2))
+}
+
+fn checked_value(value: NSType, ok: bool, holes: bool, terminal: bool) -> CheckedBlock {
+    return CheckedBlock { ok: ok, value_type: value, empty_holes: holes, terminates: terminal }
+}
+shadow checked_value {
+    let empty: CheckedBlock = (checked_value (type_array TypeKind.TYPE_UNKNOWN "") true true false)
+    let terminal: CheckedBlock = (checked_value (type_void) true false true)
+    assert (and empty.empty_holes (not empty.terminates))
+    assert (and terminal.terminates (not terminal.empty_holes))
+}
+
+fn array_element_fact(parser: Parser, value: NSType) -> NSType {
+    if (!= value.kind TypeKind.TYPE_ARRAY) { return (type_unknown_named "array element") }
+    return (type_from_string_with_parser parser (array_elem_type_from_array_decl (type_to_string value)))
+}
+shadow array_element_fact {
+    let parser: Parser = (resource_test_parser "struct Item { value: int }")
+    assert (== (type_to_string (array_element_fact parser (type_from_string "array<array<Item>>"))) "array<Item>")
+    assert (== (array_element_fact parser (type_int)).kind TypeKind.TYPE_UNKNOWN)
+}
+
+# My caller has already proved that every unknown leaf is an actual empty hole.
+fn merge_literal_types(parser: Parser, left: NSType, right: NSType) -> NSType {
+    if (== left.kind TypeKind.TYPE_UNKNOWN) { return right }
+    if (== right.kind TypeKind.TYPE_UNKNOWN) { return left }
+    if (and (== left.kind TypeKind.TYPE_ARRAY) (== right.kind TypeKind.TYPE_ARRAY)) {
+        let a: NSType = (array_element_fact parser left)
+        let b: NSType = (array_element_fact parser right)
+        let element: NSType = (merge_literal_types parser a b)
+        if (and (== element.kind TypeKind.TYPE_UNKNOWN) (not (and (== a.kind TypeKind.TYPE_UNKNOWN) (== b.kind TypeKind.TYPE_UNKNOWN)))) { return (type_unknown_named "incompatible members") }
+        return (type_array_of element)
+    }
+    if (and (== left.kind TypeKind.TYPE_TUPLE) (== right.kind TypeKind.TYPE_TUPLE)) {
+        let a: array<string> = (split_tuple_type_names left.name)
+        let b: array<string> = (split_tuple_type_names right.name)
+        if (!= (array_length a) (array_length b)) { return (type_unknown_named "tuple arity") }
+        let mut spelling: string = "("
+        let mut i: int = 0
+        while (< i (array_length a)) {
+            let member: NSType = (merge_literal_types parser (type_from_string_with_parser parser (at a i)) (type_from_string_with_parser parser (at b i)))
+            if (== member.kind TypeKind.TYPE_UNKNOWN) { return member }
+            if (> i 0) { set spelling (+ spelling ",") }
+            set spelling (+ spelling (type_to_string member))
+            set i (+ i 1)
+        }
+        return (type_from_string_with_parser parser (+ spelling ")"))
+    }
+    if (and (== left.kind TypeKind.TYPE_ENUM) (== right.kind TypeKind.TYPE_ENUM)) {
+        if (!= left.name right.name) { return (type_unknown_named "distinct enum members") }
+    }
+    if (types_equal left right) { return left }
+    return (type_unknown_named "incompatible members")
+}
+shadow merge_literal_types {
+    let parser: Parser = (resource_test_parser "struct Left { value: int } struct Right { value: int }")
+    assert (== (type_to_string (merge_literal_types parser (type_from_string "array<unknown>") (type_from_string "array<Left>"))) "array<Left>")
+    assert (== (merge_literal_types parser (type_from_string "array<Left>") (type_from_string "array<Right>")).kind TypeKind.TYPE_UNKNOWN)
+}
+
+fn join_checked_values(parser: Parser, left: CheckedBlock, right: CheckedBlock) -> CheckedBlock {
+    if (not (and left.ok right.ok)) { return (checked_value (type_unknown_named "invalid value") false false false) }
+    if left.terminates { return right }
+    if right.terminates { return left }
+    let merged: NSType = (merge_literal_types parser left.value_type right.value_type)
+    let valid: bool = (!= merged.kind TypeKind.TYPE_UNKNOWN)
+    return (checked_value merged valid (and valid (or left.empty_holes right.empty_holes)) false)
+}
+shadow join_checked_values {
+    let parser: Parser = (resource_test_parser "")
+    let value: CheckedBlock = (checked_value (type_int) true false false)
+    let terminal: CheckedBlock = (checked_value (type_void) true false true)
+    assert (== (join_checked_values parser terminal value).value_type.kind TypeKind.TYPE_INT)
+    assert (join_checked_values parser terminal terminal).terminates
+    assert (not (join_checked_values parser value (checked_value (type_unknown_named "missing") false false false)).ok)
+}
+
+fn check_literal_facts(parser: Parser, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> CheckedBlock {
+    let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+    if (== literal.element_count 0) {
+        if (!= literal.element_type "") {
+            let declared: NSType = (type_array_of (type_from_string_with_parser parser literal.element_type))
+            return (checked_value declared (reduce_type_known parser declared) false false)
+        }
+        return (checked_value (type_array TypeKind.TYPE_UNKNOWN "") true true false)
+    }
+    let mut result: CheckedBlock = (checked_value (type_void) true false true)
+    let mut i: int = 0
+    while (< i literal.element_count) {
+        let member: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
+        let fact: CheckedBlock = (check_value_facts parser member.node_id member.node_type symbols diags file_name)
+        # A terminating member cannot supply an element representation.
+        if fact.terminates { set result (checked_value (type_unknown_named "terminal member") false false false) }
+        else { set result (join_checked_values parser result fact) }
+        set i (+ i 1)
+    }
+    if (!= literal.element_type "") {
+        let expected: NSType = (type_array_of (type_from_string_with_parser parser literal.element_type))
+        let before: int = (list_CompilerDiagnostic_length diags)
+        let contextual: NSType = (check_contextual_value parser node_id ParseNodeType.PNODE_ARRAY_LITERAL (type_array_of result.value_type) expected symbols diags file_name)
+        return (checked_value contextual (and (not (checked_value_errors diags before)) (reduce_type_known parser contextual)) false false)
+    }
+    if (not result.ok) { return result }
+    return (checked_value (type_array_of result.value_type) true result.empty_holes false)
+}
+shadow check_literal_facts {
+    let parser: Parser = (resource_test_parser "fn f() -> void { let a = [[], [1]] let b = [[1], [true]] }")
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let first: ASTLet = (parser_get_let parser 0)
+    let second: ASTLet = (parser_get_let parser 1)
+    assert (== (type_to_string (check_literal_facts parser first.value [] diags "array.nano").value_type) "array<array<int>>")
+    assert (not (check_literal_facts parser second.value [] diags "array.nano").ok)
+}
+
+fn check_value_facts(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> CheckedBlock {
+    if (== node_type ParseNodeType.PNODE_RETURN) {
+        let valid: bool = (check_return_statement parser (parser_get_return parser node_id) (type_from_string_with_parser parser tc_enclosing_return) symbols diags file_name tc_enclosing_function)
+        return (checked_value (type_void) valid false true)
+    }
+    if (or (== node_type ParseNodeType.PNODE_BREAK) (== node_type ParseNodeType.PNODE_CONTINUE)) { return (checked_value (type_void) true false true) }
+    if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) {
+        let literal: ASTTupleLiteral = (parser_get_tuple_literal parser node_id)
+        let mut spelling: string = "("
+        let mut valid: bool = true
+        let mut holes: bool = false
+        let mut i: int = 0
+        while (< i literal.element_count) {
+            let fact: CheckedBlock = (check_value_facts parser (at literal.element_ids i) (at literal.element_types i) symbols diags file_name)
+            if (or (not fact.ok) fact.terminates) { set valid false }
+            if fact.empty_holes { set holes true }
+            if (> i 0) { set spelling (+ spelling ",") }
+            set spelling (+ spelling (type_to_string fact.value_type))
+            set i (+ i 1)
+        }
+        return (checked_value (type_from_string_with_parser parser (+ spelling ")")) valid holes false)
+    }
+    if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) { return (check_literal_facts parser node_id symbols diags file_name) }
+    if (== node_type ParseNodeType.PNODE_IF) { return (check_if_value parser node_id symbols (type_unknown_named "inference") diags file_name) }
+    if (== node_type ParseNodeType.PNODE_MATCH) { return (check_match_value parser node_id symbols (type_unknown_named "inference") diags file_name) }
+    if (== node_type ParseNodeType.PNODE_BLOCK) {
+        return (check_block_value parser node_id symbols (type_from_string_with_parser parser tc_enclosing_return) diags file_name tc_enclosing_function)
+    }
+    let actual: NSType = (check_expr_node parser node_id node_type symbols diags file_name)
+    return (checked_value actual (reduce_type_known parser actual) false false)
+}
+shadow check_value_facts {
+    let parser: Parser = (resource_test_parser "fn f() -> void { let a = unknown_array }")
+    let value: ASTLet = (parser_get_let parser 0)
+    let symbols: array<Symbol> = [(symbol_new "unknown_array" (type_array TypeKind.TYPE_UNKNOWN "") false false 0 (empty_param_types) (type_void))]
+    assert (not (check_value_facts parser value.value value.value_type symbols (list_CompilerDiagnostic_new) "array.nano").ok)
+}
+
+fn check_if_value(parser: Parser, node_id: int, symbols: array<Symbol>, expected: NSType, diags: List<CompilerDiagnostic>, file_name: string) -> CheckedBlock {
+    let branch: ASTIf = (parser_get_if parser node_id)
+    let condition: NSType = (check_expr_node parser branch.condition branch.condition_type symbols diags file_name)
+    let valid: bool = (== condition.kind TypeKind.TYPE_BOOL)
+    if (not valid) { (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require a bool condition." (Diagnostics.diag_location file_name branch.line branch.column))) }
+    let enclosing: NSType = (type_from_string_with_parser parser tc_enclosing_return)
+    let mut left: CheckedBlock = (checked_value (type_void) true false false)
+    let mut right: CheckedBlock = left
+    if (>= branch.then_body 0) {
+        set left (check_statement_values parser (parser_get_block parser branch.then_body).statements symbols enclosing expected true diags file_name tc_enclosing_function)
+    }
+    if (>= branch.else_body 0) {
+        set right (check_statement_values parser (parser_get_block parser branch.else_body).statements symbols enclosing expected true diags file_name tc_enclosing_function)
+    }
+    let joined: CheckedBlock = (join_checked_values parser left right)
+    return (checked_value joined.value_type (and valid joined.ok) joined.empty_holes joined.terminates)
+}
+shadow check_if_value {
+    let parser: Parser = (resource_test_parser "fn f() -> void { let a = (cond (true { let local: int = 1 [local] }) (else [])) }")
+    assert (not (parser_has_error parser))
+    let body: ASTBlock = (parser_get_block parser (parser_get_function parser 0).body)
+    let value: ASTLet = (parser_get_let parser (list_ASTStmtRef_get body.statements 0).node_id)
+    let fact: CheckedBlock = (check_value_facts parser value.value value.value_type [] (list_CompilerDiagnostic_new) "branch.nano")
+    assert fact.ok
+    assert (== (type_to_string fact.value_type) "array<int>")
+}
+
 fn check_map_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
     if (!= call.arg_count 2) {
@@ -4640,22 +4828,27 @@ fn check_map_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: 
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a function transform in map." location))
         return (type_unknown_named "map")
     }
-    let parameters: array<NSType> = (fn_type_param_types callback_type.name)
+    let parameters: array<NSType> = (fn_type_params_with_parser parser callback_type.name)
     if (!= (array_length parameters) 1) {
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a unary transform in map." location))
         return (type_unknown_named "map")
     }
     let parameter: NSType = (at parameters 0)
     let result: NSType = (type_from_string_with_parser parser (type_to_string (fn_type_return_type callback_type.name)))
-    if (or (== result.kind TypeKind.TYPE_VOID) (== result.kind TypeKind.TYPE_UNKNOWN)) {
+    if (or (== result.kind TypeKind.TYPE_VOID) (not (and (reduce_type_known parser parameter) (reduce_type_known parser result)))) {
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a known value-producing transform in map." location))
         return (type_unknown_named "map")
     }
-    if (and (== source_type.kind TypeKind.TYPE_ARRAY) (!= source_type.element_type_kind TypeKind.TYPE_UNKNOWN)) {
-        let expected_source: NSType = (type_array_of parameter)
-        if (!= (type_to_string source_type) (type_to_string expected_source)) {
-            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require map input elements to match the transform parameter." location))
+    let expected_source: NSType = (type_array_of parameter)
+    let checked_source: NSType = (check_contextual_value parser source.node_id source.node_type source_type expected_source symbols diags file_name)
+    if (not (reduce_types_exact parser checked_source expected_source)) { return (type_unknown_named "map source") }
+    let name: ASTIdentifier = (parser_get_identifier parser call.function)
+    if (== (tc_bound_name name.name name.line symbols) "filter") {
+        if (!= result.kind TypeKind.TYPE_BOOL) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a bool predicate result in filter." location))
+            return (type_unknown_named "filter predicate")
         }
+        return checked_source
     }
     return (type_array_of result)
 }
@@ -4670,6 +4863,94 @@ shadow check_map_call {
     assert (== result.kind TypeKind.TYPE_ARRAY)
     assert (== result.element_type_kind TypeKind.TYPE_FLOAT)
     assert (== (list_CompilerDiagnostic_length diags) 0)
+}
+
+shadow check_map_call {
+    let parser: Parser = (resource_test_parser "fn f() -> void { let a = (filter [1] predicate) }")
+    assert (not (parser_has_error parser))
+    let good: array<Symbol> = [(symbol_new "predicate" (type_bool) false true 1 [(type_int)] (type_bool))]
+    let wrong: array<Symbol> = [(symbol_new "predicate" (type_int) false true 1 [(type_int)] (type_int))]
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (== (type_to_string (check_map_call parser (parser_get_call parser 0) good diags "filter.nano")) "array<int>")
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+    assert (== (check_map_call parser (parser_get_call parser 0) wrong diags "filter.nano").kind TypeKind.TYPE_UNKNOWN)
+    assert (checked_value_errors diags 0)
+    let bound: array<Symbol> = (env_add_symbol good (symbol_new "filter" (type_int) false true 2 [(type_from_string "array<int>"), (type_from_string "fn(int)->bool")] (type_int)))
+    let clean: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (== (check_expr_node parser 0 ParseNodeType.PNODE_CALL bound clean "filter.nano").kind TypeKind.TYPE_INT)
+    assert (not (checked_value_errors clean 0))
+}
+
+fn array_intrinsic_name(name: string) -> bool {
+    return (or (== name "array_new") (or (== name "array_push") (or (== name "array_set") (or (== name "array_slice") (or (== name "at") (or (== name "array_get") (or (== name "map") (or (== name "array_map") (== name "filter")))))))))
+}
+shadow array_intrinsic_name {
+    assert (array_intrinsic_name "array_set")
+    assert (not (array_intrinsic_name "foreign.array_set"))
+}
+
+fn check_array_operation(parser: Parser, call: ASTCall, name: string, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
+    let push: bool = (== name "array_push")
+    let write: bool = (== name "array_set")
+    let slice: bool = (== name "array_slice")
+    let count: int = (cond ((or write slice) 3) (else 2))
+    if (!= call.arg_count count) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the declared array intrinsic arity." location))
+        return (type_unknown_named "array arity")
+    }
+    let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let source_fact: CheckedBlock = (check_value_facts parser source.node_id source.node_type symbols diags file_name)
+    let mut receiver: NSType = source_fact.value_type
+    let mut valid: bool = (and source_fact.ok (and (not source_fact.terminates) (== receiver.kind TypeKind.TYPE_ARRAY)))
+    if push {
+        # Only genuine empty syntax may receive its element facts from the value.
+        if (and valid (and source_fact.empty_holes (not (reduce_type_known parser receiver)))) {
+            let value: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+            let element: NSType = (check_expr_node parser value.node_id value.node_type symbols diags file_name)
+            if (reduce_type_known parser element) {
+                set receiver (check_contextual_value parser source.node_id source.node_type receiver (type_array_of element) symbols diags file_name)
+            }
+        }
+    }
+    if (not (reduce_type_known parser receiver)) { set valid false }
+    if (not push) {
+        let index: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+        let index_type: NSType = (check_expr_node parser index.node_id index.node_type symbols diags file_name)
+        if (not (or (== index_type.kind TypeKind.TYPE_INT) (== (type_to_string index_type) "u8"))) { set valid false }
+    }
+    if slice {
+        let end: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 2))
+        let end_type: NSType = (check_expr_node parser end.node_id end.node_type symbols diags file_name)
+        if (not (or (== end_type.kind TypeKind.TYPE_INT) (== (type_to_string end_type) "u8"))) { set valid false }
+    }
+    if (and valid (or push write)) {
+        let offset: int = (cond (push 1) (else 2))
+        let value: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start offset))
+        let raw: NSType = (check_expr_node parser value.node_id value.node_type symbols diags file_name)
+        let expected: NSType = (array_element_fact parser receiver)
+        let before: int = (list_CompilerDiagnostic_length diags)
+        let checked: NSType = (check_constructor_argument parser value.node_id value.node_type raw expected symbols diags file_name)
+        if (not (and (not (checked_value_errors diags before)) (and (reduce_type_known parser checked) (types_equal checked expected)))) { set valid false }
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a complete array receiver, integer indices and its exact element destination." location))
+        return (type_unknown_named "array operands")
+    }
+    if write { return (type_void) }
+    if (or push slice) { return receiver }
+    return (array_element_fact parser receiver)
+}
+shadow check_array_operation {
+    let parser: Parser = (resource_test_parser "struct Item { value: int } fn f() -> void { (array_push values true) (array_set values 0 1) let nested = (at nested_values 0) }")
+    let symbols: array<Symbol> = [(symbol_new "values" (type_from_string "array<int>") true false 0 (empty_param_types) (type_void)), (symbol_new "nested_values" (type_from_string "array<array<Item>>") false false 0 (empty_param_types) (type_void))]
+    let bad: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (== (check_array_operation parser (parser_get_call parser 0) "array_push" symbols bad "array.nano").kind TypeKind.TYPE_UNKNOWN)
+    assert (> (list_CompilerDiagnostic_length bad) 0)
+    let good: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (== (check_array_operation parser (parser_get_call parser 1) "array_set" symbols good "array.nano").kind TypeKind.TYPE_VOID)
+    assert (== (type_to_string (check_array_operation parser (parser_get_call parser 2) "at" symbols good "array.nano")) "array<Item>")
+    assert (== (list_CompilerDiagnostic_length good) 0)
 }
 
 fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
@@ -4790,8 +5071,11 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (and (or (== fn_name "reduce") (== fn_name "array_fold")) (< (env_lookup symbols fn_name) 0)) {
             return (check_reduce_call parser call_node symbols diags file_name)
         }
-        if (or (== fn_name "map") (== fn_name "array_map")) {
+        if (and (or (== fn_name "map") (or (== fn_name "array_map") (== fn_name "filter"))) (< (env_lookup symbols fn_name) 0)) {
             return (check_map_call parser call_node symbols diags file_name)
+        }
+        if (and (array_intrinsic_name fn_name) (< (env_lookup symbols fn_name) 0)) {
+            return (check_array_operation parser call_node fn_name symbols diags file_name)
         }
         if (or (== fn_name "sb_new") (or (== fn_name "sb_with_capacity") (or (== fn_name "sb_append") (or (== fn_name "sb_append_line") (or (== fn_name "sb_append_int") (or (== fn_name "sb_append_char") (or (== fn_name "sb_clear") (or (== fn_name "sb_free") (or (== fn_name "sb_is_empty") (or (== fn_name "sb_length") (or (== fn_name "sb_capacity") (== fn_name "sb_to_string")))))))))))) {
             if (or (== fn_name "sb_to_string") (or (== fn_name "sb_length") (== fn_name "sb_capacity"))) {
@@ -4807,58 +5091,6 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                     return (type_from_string "StringBuilder")
                 }
             }
-        } else { (print "") }
-        if (and (== fn_name "array_push") (and (== call_node.arg_count 2) (< (env_lookup symbols fn_name) 0))) {
-            let first: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
-            let array_type: NSType = (check_expr_node parser first.node_id first.node_type symbols diags file_name)
-            if (and (== array_type.kind TypeKind.TYPE_ARRAY) (!= array_type.element_type_kind TypeKind.TYPE_UNKNOWN)) {
-                return array_type
-            }
-            let second: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start 1))
-            let value_type: NSType = (check_expr_node parser second.node_id second.node_type symbols diags file_name)
-            return (type_array_of value_type)
-        }
-        if (or (== fn_name "at") (== fn_name "array_get")) {
-            if (>= call_node.arg_count 1) {
-                let first_arg: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
-                if (== first_arg.node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
-                    let arr: ASTArrayLiteral = (parser_get_array_literal parser first_arg.node_id)
-                    if (== arr.element_type "") {
-                        let arr_t: NSType = (check_expr_node parser first_arg.node_id first_arg.node_type symbols diags file_name)
-                        if (== arr_t.kind TypeKind.TYPE_ARRAY) {
-                            return NSType {
-                                kind: arr_t.element_type_kind,
-                                name: arr_t.element_type_name,
-                                element_type_kind: TypeKind.TYPE_UNKNOWN,
-                                element_type_name: ""
-                            }
-                        } else { (print "") }
-                    } else {
-                        let elem_t: NSType = (type_from_string_with_parser parser arr.element_type)
-                        return NSType {
-                            kind: elem_t.kind,
-                            name: elem_t.name,
-                            element_type_kind: TypeKind.TYPE_UNKNOWN,
-                            element_type_name: ""
-                        }
-                    }
-                } else {
-                    let arr_t: NSType = (check_expr_node parser first_arg.node_id first_arg.node_type symbols diags file_name)
-                    if (== arr_t.kind TypeKind.TYPE_ARRAY) {
-                        /* For nested arrays (e.g. array<array<int>>), resolve the element type fully */
-                        if (and (== arr_t.element_type_kind TypeKind.TYPE_ARRAY) (!= arr_t.element_type_name "")) {
-                            return (type_from_string_with_parser parser arr_t.element_type_name)
-                        } else {
-                            return NSType {
-                                kind: arr_t.element_type_kind,
-                                name: arr_t.element_type_name,
-                                element_type_kind: TypeKind.TYPE_UNKNOWN,
-                                element_type_name: ""
-                            }
-                        }
-                    } else { (print "") }
-                }
-            } else { (print "") }
         } else { (print "") }
         /* Check if it's a builtin function/operator */
         if (and (or (== fn_name "float_from_bits") (== fn_name "float_to_bits")) (>= (env_lookup symbols fn_name) 0)) {
@@ -4883,7 +5115,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             set builtin_type (type_unknown_named fn_name)
         }
         # I keep bound mutation names on the ordinary symbol-checking path.
-        if (and (or (== fn_name "array_set") (== fn_name "array_push")) (>= (env_lookup symbols fn_name) 0)) {
+        if (and (array_intrinsic_name fn_name) (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
         }
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
@@ -4981,7 +5213,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (and (== short_name "string_to_float") (>= (env_lookup symbols qualified_name) 0)) {
             set builtin_type (type_unknown_named qualified_name)
         }
-        if (and (or (== short_name "array_set") (== short_name "array_push")) (>= (env_lookup symbols qualified_name) 0)) {
+        if (array_intrinsic_name short_name) {
             set builtin_type (type_unknown_named qualified_name)
         }
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
@@ -4989,27 +5221,34 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         } else { (print "") }
         # I retain the mapped helper fallback, then check callback contracts.
         let mut idx: int = (env_lookup symbols qualified_name)
-        if (< idx 0) { set idx (env_lookup symbols (module_qualified_suffix qualified_name)) }
+        if (and (< idx 0) (not (array_intrinsic_name short_name))) { set idx (env_lookup symbols (module_qualified_suffix qualified_name)) }
         if (>= idx 0) {
             let sym: Symbol = (at symbols idx)
-            if sym.is_function {
+            if (or sym.is_function (== sym.sym_type.kind TypeKind.TYPE_FUNCTION)) {
+                let mut parameters: array<NSType> = sym.param_types
+                let mut result: NSType = sym.return_type
+                if (not sym.is_function) {
+                    set parameters (fn_type_params_with_parser parser sym.sym_type.name)
+                    set result (type_from_string_with_parser parser (type_to_string (fn_type_return_type sym.sym_type.name)))
+                }
+                if (!= mqc_node.arg_count (array_length parameters)) {
+                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the declared qualified call arity." (Diagnostics.diag_location file_name mqc_node.line mqc_node.column)))
+                }
                 let mut j: int = 0
                 while (< j mqc_node.arg_count) {
-                    if (< j (array_length sym.param_types)) {
-                        let expected: NSType = (at sym.param_types j)
-                        if (or (== expected.kind TypeKind.TYPE_FUNCTION) (== expected.kind TypeKind.TYPE_UNION)) {
-                            let argument: ASTStmtRef = (parser_get_call_arg parser (+ mqc_node.arg_start j))
-                            let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
-                            let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type raw expected symbols diags file_name)
-                            if (not (types_equal actual expected)) {
-                                let message: string = (+ "I require the declared qualified argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
-                                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name mqc_node.line mqc_node.column)))
-                            }
+                    if (< j (array_length parameters)) {
+                        let expected: NSType = (at parameters j)
+                        let argument: ASTStmtRef = (parser_get_call_arg parser (+ mqc_node.arg_start j))
+                        let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+                        let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type raw expected symbols diags file_name)
+                        if (not (types_equal actual expected)) {
+                            let message: string = (+ "I require the declared qualified argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
+                            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name mqc_node.line mqc_node.column)))
                         }
                     }
                     set j (+ j 1)
                 }
-                return sym.return_type
+                return result
             } else {
                 return sym.sym_type
             }
@@ -5055,77 +5294,17 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         }
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
-        let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
-        if (and (== arr.element_count 0) (== arr.element_type "")) {
-            return (type_array TypeKind.TYPE_UNKNOWN "")
-        } else {
-            if (== arr.element_type "") {
-                let first_ref: ASTStmtRef = (parser_get_array_element parser arr.element_start)
-                let first_t: NSType = (check_expr_node parser first_ref.node_id first_ref.node_type symbols diags file_name)
-                let mut i: int = 1
-                while (< i arr.element_count) {
-                    let elem_ref: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start i))
-                    let elem_t: NSType = (check_expr_node parser elem_ref.node_id elem_ref.node_type symbols diags file_name)
-                    if (not (types_equal elem_t first_t)) {
-                        return (type_array TypeKind.TYPE_UNKNOWN "")
-                    } else { (print "") }
-                    set i (+ i 1)
-                }
-                return (type_array_of first_t)
-            } else {
-                let elem_t: NSType = (type_from_string_with_parser parser arr.element_type)
-                return (type_array_of elem_t)
-            }
-        }
-    } else { (print "") }
+        let fact: CheckedBlock = (check_literal_facts parser node_id symbols diags file_name)
+        return fact.value_type
+    }
     if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
         return (check_struct_literal parser node_id symbols diags file_name)
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (check_union_construct parser node_id) } else { (print "") }
     if (== node_type ParseNodeType.PNODE_MATCH) { return (check_match_expr parser node_id symbols diags file_name) } else { (print "") }
     if (== node_type ParseNodeType.PNODE_IF) {
-        /* If-expression: type check both branches and return their common type */
-        let if_node: ASTIf = (parser_get_if parser node_id)
-
-        /* Type check condition */
-        let cond_t: NSType = (check_expr_node parser if_node.condition if_node.condition_type symbols diags file_name)
-        if (!= cond_t.kind TypeKind.TYPE_BOOL) {
-            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "if condition must be bool" (Diagnostics.diag_location file_name if_node.line if_node.column))
-            (Diagnostics.diag_list_add diags diag)
-        } else { (print "") }
-
-        /* Infer type from the then-branch block's last expression */
-        let then_block: ASTBlock = (parser_get_block parser if_node.then_body)
-        let then_stmts_len: int = (list_ASTStmtRef_length then_block.statements)
-        if (> then_stmts_len 0) {
-            let last_stmt: ASTStmtRef = (list_ASTStmtRef_get then_block.statements (- then_stmts_len 1))
-            return (check_expr_node parser last_stmt.node_id last_stmt.node_type symbols diags file_name)
-        } else {
-            return (type_int)
-        }
-    } else { (print "") }
-    if (== node_type ParseNodeType.PNODE_BLOCK) {
-        /* Block expression: infer type from last statement */
-        let blk: ASTBlock = (parser_get_block parser node_id)
-        let blk_stmts_len: int = (list_ASTStmtRef_length blk.statements)
-        if (> blk_stmts_len 0) {
-            let last_stmt: ASTStmtRef = (list_ASTStmtRef_get blk.statements (- blk_stmts_len 1))
-            return (check_expr_node parser last_stmt.node_id last_stmt.node_type symbols diags file_name)
-        } else {
-            return (type_int)
-        }
-    } else { (print "") }
-    if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
-        /* Array literal: return array<T> type */
-        let arr_lit: ASTArrayLiteral = (parser_get_array_literal parser node_id)
-        if (!= arr_lit.element_type "") {
-            let elem_kind: int = (type_kind_from_string arr_lit.element_type)
-            return (type_array elem_kind arr_lit.element_type)
-        } else {
-            /* Empty array without type info - assume int */
-            return (type_array TypeKind.TYPE_INT "int")
-        }
-    } else { (print "") }
+        return (check_if_value parser node_id symbols (type_unknown_named "inference") diags file_name).value_type
+    }
     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
         /* Field access: use heuristics for common field types (bootstrap leniency) */
         let field_node: ASTFieldAccess = (parser_get_field_access parser node_id)
@@ -5404,10 +5583,17 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
     /* Type inference: let x = expr  (no declared type) */
     if (== let_node.var_type "") {
         if (>= let_node.value 0) {
-            let inferred: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
+            let fact: CheckedBlock = (check_value_facts parser let_node.value let_node.value_type symbols diags file_name)
+            let inferred: NSType = fact.value_type
+            if (and fact.ok (and (== inferred.kind TypeKind.TYPE_ARRAY) (reduce_type_known parser inferred))) {
+                (check_contextual_value parser let_node.value let_node.value_type inferred inferred symbols diags file_name)
+            }
+            if (or (not fact.ok) fact.terminates) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require compatible, resolved values for inference; only literal empties supply holes." (Diagnostics.diag_location file_name let_node.line let_node.column)))
+            }
             let inferred_str: string = (cond ((and (== inferred.kind TypeKind.TYPE_UNION) (!= inferred.element_type_name "")) inferred.element_type_name) (else (type_to_string inferred)))
-            /* Backfill the type into the AST so the transpiler can use it */
-            (parser_set_let_var_type parser node_id inferred_str)
+            # I publish only complete inference; literal holes stay tied to their AST.
+            if (reduce_type_known parser inferred) { (parser_set_let_var_type parser node_id inferred_str) }
             let sym: Symbol = (symbol_new let_node.name inferred let_node.is_mut false 0 (empty_param_types) (type_void))
             return (env_add_symbol symbols sym)
         } else {
@@ -5417,33 +5603,11 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
         }
     } else { (print "") }
 
-    /* If initializer is an empty array literal, propagate element_type from declared type */
-    if (and (>= let_node.value 0) (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
-        let arr: ASTArrayLiteral = (parser_get_array_literal parser let_node.value)
-        if (and (== arr.element_count 0) (== arr.element_type "")) {
-            let elem_t: string = (array_elem_type_from_array_decl let_node.var_type)
-            if (not (== elem_t "")) {
-                (parser_set_array_literal_element_type parser let_node.value elem_t)
-            } else { (print "") }
-        } else { (print "") }
-    } else { (print "") }
-
     /* Get declared type */
     let declared_type: NSType = (type_from_string_with_parser parser let_node.var_type)
 
     if (>= let_node.value 0) {
         let init_type_raw: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
-        if (and (== let_node.value_type ParseNodeType.PNODE_CALL) (== init_type_raw.kind TypeKind.TYPE_ARRAY)) {
-            let initializer: ASTCall = (parser_get_call parser let_node.value)
-            if (== initializer.function_type ParseNodeType.PNODE_IDENTIFIER) {
-                let name: ASTIdentifier = (parser_get_identifier parser initializer.function)
-                if (or (== name.name "map") (== name.name "array_map")) {
-                    if (!= (type_to_string init_type_raw) (type_to_string declared_type)) {
-                        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the declared map array type to match the transform result." (Diagnostics.diag_location file_name let_node.line let_node.column)))
-                    }
-                }
-            }
-        }
         let init_type_hint: NSType = (check_contextual_value parser let_node.value let_node.value_type init_type_raw declared_type symbols diags file_name)
         let mut init_type: NSType = (apply_return_type_hint init_type_hint declared_type)
         if (and (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL) (and (== declared_type.kind TypeKind.TYPE_ARRAY) (== declared_type.element_type_kind TypeKind.TYPE_INT))) {
@@ -5765,12 +5929,13 @@ fn check_block_value(parser: Parser, block_id: int, symbols: array<Symbol>, expe
     return (check_statement_list parser block.statements symbols expected_return diags file_name current_function)
 }
 
-fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> CheckedBlock {
+fn check_statement_values(parser: Parser, statements: List<ASTStmtRef>, symbols: array<Symbol>, expected_return: NSType, expected_value: NSType, value_required: bool, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> CheckedBlock {
+    let errors_start: int = (list_CompilerDiagnostic_length diags)
     let stmt_count: int = (list_ASTStmtRef_length statements)
     let mut local_symbols: array<Symbol> = (env_copy_symbols symbols)
     let mut ok: bool = true
     let mut returned: bool = false
-    let mut value_type: NSType = (type_void)
+    let mut value_fact: CheckedBlock = (checked_value (type_void) true false false)
 
     let mut i: int = 0
     while (< i stmt_count) {
@@ -5795,6 +5960,21 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
                 set i (+ i 1)
                 continue
             }
+            let mut destination: NSType = (type_unknown_named "unused block")
+            if (== i (- stmt_count 1)) { set destination expected_value }
+            let nested: CheckedBlock = (check_statement_values parser parallel_block.statements local_symbols expected_return destination (and value_required (== i (- stmt_count 1))) diags file_name current_function)
+            if (not nested.ok) { set ok false }
+            if (not returned) {
+                if (== i (- stmt_count 1)) { set value_fact nested }
+                if nested.terminates { set returned true }
+            }
+            set i (+ i 1)
+            continue
+        }
+        if (or (== stmt.node_type ParseNodeType.PNODE_BREAK) (== stmt.node_type ParseNodeType.PNODE_CONTINUE)) {
+            set returned true
+            set i (+ i 1)
+            continue
         }
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let let_node: ASTLet = (parser_get_let parser stmt.node_id)
@@ -5803,6 +5983,13 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
             let set_node: ASTSet = (parser_get_set parser stmt.node_id)
             if (not (check_set_statement parser set_node local_symbols diags file_name)) { set ok false } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_IF) {
+            if (and value_required (and (not returned) (== i (- stmt_count 1)))) {
+                set value_fact (check_if_value parser stmt.node_id local_symbols expected_value diags file_name)
+                set returned value_fact.terminates
+                if (not value_fact.ok) { set ok false }
+                set i (+ i 1)
+                continue
+            }
             let if_node: ASTIf = (parser_get_if parser stmt.node_id)
             let cond_raw: NSType = (check_expr_node parser if_node.condition if_node.condition_type local_symbols diags file_name)
             let cond_t: NSType = (apply_return_type_hint cond_raw (type_bool))
@@ -5812,13 +5999,19 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
                 set ok false
             } else { (print "") }
 
+            let mut then_terminal: bool = false
+            let mut else_terminal: bool = false
             if (>= if_node.then_body 0) {
-                if (not (check_block parser if_node.then_body local_symbols expected_return diags file_name current_function)) { set ok false } else { (print "") }
-            } else { (print "") }
-
+                let checked: CheckedBlock = (check_statement_values parser (parser_get_block parser if_node.then_body).statements local_symbols expected_return (type_unknown_named "unused branch value") false diags file_name current_function)
+                if (not checked.ok) { set ok false }
+                set then_terminal checked.terminates
+            }
             if (>= if_node.else_body 0) {
-                if (not (check_block parser if_node.else_body local_symbols expected_return diags file_name current_function)) { set ok false } else { (print "") }
-            } else { (print "") }
+                let checked: CheckedBlock = (check_statement_values parser (parser_get_block parser if_node.else_body).statements local_symbols expected_return (type_unknown_named "unused branch value") false diags file_name current_function)
+                if (not checked.ok) { set ok false }
+                set else_terminal checked.terminates
+            }
+            if (and then_terminal else_terminal) { set returned true }
         } else { if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
             let while_node: ASTWhile = (parser_get_while parser stmt.node_id)
             let cond_raw: NSType = (check_expr_node parser while_node.condition while_node.condition_type local_symbols diags file_name)
@@ -5840,18 +6033,11 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
             if (== iter_type.kind TypeKind.TYPE_LIST_GENERIC) {
                 set loop_var_type (type_from_string_with_parser parser iter_type.element_type_name)
             } else { if (== iter_type.kind TypeKind.TYPE_ARRAY) {
-                /* Use element_type_kind directly — name is "" for array types */
-                if (== iter_type.element_type_kind TypeKind.TYPE_STRING) {
-                    set loop_var_type (type_string)
-                } else { if (== iter_type.element_type_kind TypeKind.TYPE_FLOAT) {
-                    set loop_var_type (type_float)
-                } else { if (== iter_type.element_type_kind TypeKind.TYPE_BOOL) {
-                    set loop_var_type (type_bool)
-                } else { if (== iter_type.element_type_kind TypeKind.TYPE_STRUCT) {
-                    set loop_var_type (type_from_string iter_type.element_type_name)
-                } else {
-                    set loop_var_type (type_int)
-                } } } }
+                set loop_var_type (array_element_fact parser iter_type)
+                if (not (reduce_type_known parser loop_var_type)) {
+                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require complete array element facts for iteration." (Diagnostics.diag_location file_name for_node.line for_node.column)))
+                    set ok false
+                }
             } else { (print "") } }
             /* Add loop var to symbols, then check body */
             let loop_sym: Symbol = (symbol_new for_node.var_name loop_var_type false false 0 (empty_param_types) (type_void))
@@ -5877,13 +6063,27 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
             let unsafe_block: ASTUnsafeBlock = (parser_get_unsafe_block parser stmt.node_id)
-            let checked: CheckedBlock = (check_statement_list parser unsafe_block.statements local_symbols expected_return diags file_name current_function)
+            let mut destination: NSType = (type_unknown_named "unused block")
+            if (== i (- stmt_count 1)) { set destination expected_value }
+            let checked: CheckedBlock = (check_statement_values parser unsafe_block.statements local_symbols expected_return destination (and value_required (== i (- stmt_count 1))) diags file_name current_function)
             if (not checked.ok) { set ok false }
+            if (not returned) {
+                if (== i (- stmt_count 1)) { set value_fact checked }
+                if checked.terminates { set returned true }
+            }
         } else {
             /* Expression statement */
             if (parser_is_value_expression stmt.node_type) {
-                let t: NSType = (check_expr_node parser stmt.node_id stmt.node_type local_symbols diags file_name)
-                if (== i (- stmt_count 1)) { set value_type t }
+                let fact: CheckedBlock = (check_value_facts parser stmt.node_id stmt.node_type local_symbols diags file_name)
+                if (and (not returned) (== i (- stmt_count 1))) {
+                    set value_fact fact
+                    if (and (not fact.terminates) (!= expected_value.kind TypeKind.TYPE_UNKNOWN)) {
+                        let before: int = (list_CompilerDiagnostic_length diags)
+                        let contextual: NSType = (check_contextual_value parser stmt.node_id stmt.node_type fact.value_type expected_value local_symbols diags file_name)
+                        set value_fact (checked_value contextual (and (not (checked_value_errors diags before)) (and (reduce_type_known parser contextual) (types_equal contextual expected_value))) false false)
+                    }
+                }
+                if fact.terminates { set returned true if (not fact.ok) { set ok false } }
             } else {
                 (print "")
             }
@@ -5892,7 +6092,21 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
         set i (+ i 1)
     }
 
-    return CheckedBlock { ok: ok, value_type: value_type }
+    if (checked_value_errors diags errors_start) { set ok false }
+    if returned { return (checked_value (type_void) ok false true) }
+    if (not value_required) { return (checked_value (type_void) ok false false) }
+    return (checked_value value_fact.value_type (and ok value_fact.ok) value_fact.empty_holes false)
+}
+
+fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> CheckedBlock {
+    return (check_statement_values parser statements symbols expected_return (type_unknown_named "inference") true diags file_name current_function)
+}
+shadow check_statement_values {
+    let parser: Parser = (resource_test_parser "fn f() -> int { return 1 }")
+    let function: ASTFunction = (parser_get_function parser 0)
+    let result: CheckedBlock = (check_statement_values parser (parser_get_block parser function.body).statements [] (type_int) (type_unknown_named "inference") true (list_CompilerDiagnostic_new) "block.nano" "f")
+    assert result.terminates
+    assert (not result.empty_holes)
 }
 
 shadow check_block_value {
@@ -5912,7 +6126,7 @@ shadow check_statement_list {
 }
 
 fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> bool {
-    let checked: CheckedBlock = (check_block_value parser block_id symbols expected_return diags file_name current_function)
+    let checked: CheckedBlock = (check_statement_values parser (parser_get_block parser block_id).statements symbols expected_return (type_unknown_named "unused block value") false diags file_name current_function)
     return checked.ok
 }
 
@@ -5931,7 +6145,14 @@ shadow check_statement_list {
     assert (typecheck_phase invalid "unreachable-error.nano").had_error
 }
 
-shadow check_block { assert true }
+shadow check_block {
+    let statement: Parser = (resource_test_parser "fn f() -> void { if true { (array_push [1] 2) } }")
+    assert (not (typecheck_phase statement "statement.nano").had_error)
+    let scoped: Parser = (resource_test_parser "fn f() -> int { { let value: int = 1 assert (== value 1) } return 0 }")
+    assert (not (typecheck_phase scoped "scope.nano").had_error)
+    let bad: Parser = (resource_test_parser "fn f() -> int { { let value: int = true } return 0 }")
+    assert (typecheck_phase bad "scope.nano").had_error
+}
 
 /* =============================================================================
  * AST TYPE CHECKING - Function validation
@@ -6084,24 +6305,71 @@ fn apply_return_type_hint(expr_type: NSType, expected_type: NSType) -> NSType {
 # I convert a checked literal destination without converting existing array values.
 fn check_contextual_value(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     if (and (== (type_to_string expected) "u8") (== actual.kind TypeKind.TYPE_INT)) { return expected }
-    if (and (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) (== (type_to_string expected) "array<u8>")) {
-        let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
-        let mut valid: bool = true
+    if (or (== node_type ParseNodeType.PNODE_IF) (or (== node_type ParseNodeType.PNODE_BLOCK) (== node_type ParseNodeType.PNODE_MATCH))) {
+        let mut fact: CheckedBlock = (checked_value actual false false false)
+        if (== node_type ParseNodeType.PNODE_IF) { set fact (check_if_value parser node_id symbols expected diags file_name) }
+        if (== node_type ParseNodeType.PNODE_MATCH) { set fact (check_match_value parser node_id symbols expected diags file_name) }
+        if (== node_type ParseNodeType.PNODE_BLOCK) {
+            set fact (check_statement_values parser (parser_get_block parser node_id).statements symbols (type_from_string_with_parser parser tc_enclosing_return) expected true diags file_name tc_enclosing_function)
+        }
+        # A checked terminal branch supplies no value, but satisfies this unreachable destination.
+        # I never infer an empty array or annotate a terminal expression from that fact.
+        if (and fact.terminates fact.ok) { return expected }
+        if (and fact.ok (types_equal fact.value_type expected)) { return fact.value_type }
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require every value-producing branch to match its destination." (Diagnostics.diag_location file_name 0 0)))
+        return (type_unknown_named "invalid branches")
+    }
+    if (and (== expected.kind TypeKind.TYPE_TUPLE) (== node_type ParseNodeType.PNODE_TUPLE_LITERAL)) {
+        let literal: ASTTupleLiteral = (parser_get_tuple_literal parser node_id)
+        let elements: array<string> = (split_tuple_type_names expected.name)
+        let before: int = (list_CompilerDiagnostic_length diags)
+        let mut valid: bool = (and (reduce_type_known parser expected) (== literal.element_count (array_length elements)))
         let mut i: int = 0
         while (< i literal.element_count) {
-            let element: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
-            let checked: NSType = (check_expr_node parser element.node_id element.node_type symbols diags file_name)
-            if (not (or (== checked.kind TypeKind.TYPE_INT) (== (type_to_string checked) "u8"))) {
-                set valid false
+            let id: int = (at literal.element_ids i)
+            let kind: int = (at literal.element_types i)
+            let raw: NSType = (check_expr_node parser id kind symbols diags file_name)
+            if (< i (array_length elements)) {
+                let destination: NSType = (type_from_string_with_parser parser (at elements i))
+                let checked: NSType = (check_constructor_argument parser id kind raw destination symbols diags file_name)
+                if (not (and (reduce_type_known parser checked) (types_equal checked destination))) { set valid false }
             }
             set i (+ i 1)
         }
-        if valid {
-            (parser_set_array_literal_element_type parser node_id "u8")
-            return expected
-        }
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require checked integer or byte elements in this byte-array literal." (Diagnostics.diag_location file_name literal.line literal.column)))
+        if (checked_value_errors diags before) { set valid false }
+        if valid { return expected }
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require every tuple literal member to match its destination." (Diagnostics.diag_location file_name 0 0)))
         return actual
+    }
+    if (== expected.kind TypeKind.TYPE_ARRAY) {
+        if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+            let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+            let element_type: NSType = (array_element_fact parser expected)
+            let before: int = (list_CompilerDiagnostic_length diags)
+            let mut valid: bool = (reduce_type_known parser element_type)
+            let mut i: int = 0
+            while (< i literal.element_count) {
+                let member: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
+                let raw: NSType = (check_expr_node parser member.node_id member.node_type symbols diags file_name)
+                let checked: NSType = (check_constructor_argument parser member.node_id member.node_type raw element_type symbols diags file_name)
+                if (not (and (reduce_type_known parser checked) (types_equal checked element_type))) { set valid false }
+                set i (+ i 1)
+            }
+            if (checked_value_errors diags before) { set valid false }
+            if valid {
+                (parser_set_array_literal_element_type parser node_id (type_to_string element_type))
+                return expected
+            }
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require every array literal member to match its complete destination type." (Diagnostics.diag_location file_name literal.line literal.column)))
+        } else {
+            if (reduce_types_exact parser actual expected) { return actual }
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I retain the complete declared element identity of an existing array." (Diagnostics.diag_location file_name 0 0)))
+        }
+        return actual
+    }
+    if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require an array destination for an array literal." (Diagnostics.diag_location file_name 0 0)))
+        return (type_unknown_named "array at scalar destination")
     }
     return (apply_value_type_hint parser node_id node_type actual expected)
 }
@@ -6126,6 +6394,31 @@ shadow check_contextual_value {
     assert (not (types_equal (check_contextual_value parser 0 ParseNodeType.PNODE_IDENTIFIER (type_float) scalar symbols diags "byte.nano") scalar))
     let existing: ASTLet = (parser_get_let parser 2)
     assert (not (types_equal (check_contextual_value parser existing.value existing.value_type integers expected symbols diags "byte.nano") expected))
+}
+
+shadow check_contextual_value {
+    let parser: Parser = (resource_test_parser "struct Left { value: int } struct Right { value: int } fn f() -> void { let good = [[], [Left { value: 1 }]] let bad = [[], foreign] let mixed = [[1], [true]] let unknown = missing }")
+    assert (not (parser_has_error parser))
+    let expected: NSType = (type_from_string "array<array<Left>>")
+    let symbols: array<Symbol> = [(symbol_new "foreign" (type_from_string "array<Right>") false false 0 (empty_param_types) (type_void)), (symbol_new "missing" (type_array TypeKind.TYPE_UNKNOWN "") false false 0 (empty_param_types) (type_void))]
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let good: ASTLet = (parser_get_let parser 0)
+    let raw: NSType = (check_expr_node parser good.value good.value_type symbols diags "nested.nano")
+    assert (== (type_to_string raw) "array<array<Left>>")
+    assert (reduce_types_exact parser (check_contextual_value parser good.value good.value_type raw expected symbols diags "nested.nano") expected)
+    assert (not (checked_value_errors diags 0))
+    let bad: ASTLet = (parser_get_let parser 1)
+    let before: string = (parser_get_array_literal parser bad.value).element_type
+    let foreign_raw: NSType = (check_expr_node parser bad.value bad.value_type symbols diags "nested.nano")
+    assert (== (type_to_string foreign_raw) "array<array<Right>>")
+    let rejected: NSType = (check_contextual_value parser bad.value bad.value_type foreign_raw expected symbols diags "nested.nano")
+    assert (== (type_to_string rejected) "array<array<Right>>")
+    assert (checked_value_errors diags 0)
+    assert (== (parser_get_array_literal parser bad.value).element_type before)
+    let unknown: ASTLet = (parser_get_let parser 3)
+    let start: int = (list_CompilerDiagnostic_length diags)
+    (check_contextual_value parser unknown.value unknown.value_type (type_array TypeKind.TYPE_UNKNOWN "") (type_from_string "array<int>") symbols diags "nested.nano")
+    assert (checked_value_errors diags start)
 }
 
 fn apply_value_type_hint(parser: Parser, node_id: int, node_type: int, expr_type: NSType, expected_type: NSType) -> NSType {
