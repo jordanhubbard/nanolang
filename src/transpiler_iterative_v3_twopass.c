@@ -522,6 +522,16 @@ static void emit_indent_item(WorkList *list, int level) {
 /* Function name mapping now uses the unified builtin registry */
 #include "builtins_registry.h"
 
+/* My scalar lists are registered by register_builtin_functions, separately
+ * from the registry cache. Source definitions have bodies; source externs have
+ * is_extern. Neither shares this complete registration shape. */
+static bool native_scalar_list_builtin(const char *name, Environment *env) {
+    if (!name || (strncmp(name, "list_int_", 9) && strncmp(name, "list_string_", 12))) return false;
+    Function *function = env_get_function(env, name);
+    return function && !function->is_extern && !function->body &&
+        !function->params && !function->shadow_test && !function->module_name && !function->alias_of;
+}
+
 static const char *map_function_name(const char *name, Environment *env) {
     const char *helper_name = module_helper_c_name(name);
     if (helper_name != name) return helper_name;
@@ -565,6 +575,17 @@ static const char *map_function_name(const char *name, Environment *env) {
             extern const char *get_c_func_name_with_module(const char *, const char *, bool);
             return get_c_func_name_with_module(selected->alias_of ? selected->alias_of : selected->name,
                                                selected->module_name, false);
+        }
+    }
+
+    /* I preserve an actual list declaration before consulting builtin spelling. */
+    if (!strncmp(name, "list_", 5) || !strncmp(name, "List_", 5)) {
+        if (native_scalar_list_builtin(name, env)) return name;
+        Function *selected = env_get_function(env, name);
+        if (selected && !env_function_is_builtin(selected) &&
+            !env_generated_list_element(env, selected).ordinal) {
+            return get_c_func_name_with_module(selected->alias_of ? selected->alias_of : selected->name,
+                                               selected->module_name, selected->is_extern);
         }
     }
 
@@ -1021,14 +1042,22 @@ static void build_match_arm_value(WorkList *list, ASTNode *body, Environment *en
     scope_stack_free(scopes);
 }
 
-static bool is_generic_list_runtime_fn(const char *name) {
-    if (!name) return false;
-    if (strncmp(name, "list_", 5) != 0) return false;
-    /* Built-in runtime lists (do NOT get nl_ prefix) */
-    if (strncmp(name, "list_int_", 9) == 0) return false;
-    if (strncmp(name, "list_string_", 12) == 0) return false;
-    if (strncmp(name, "list_token_", 11) == 0) return false;
-    return true;
+static bool is_generic_list_runtime_fn(const char *name, Environment *env) {
+    if (!name || !env || (strncmp(name, "list_", 5) && strncmp(name, "List_", 5)))
+        return false;
+    Function *selected = env_get_function(env, name);
+    if (selected && !env_generated_list_element(env, selected).ordinal) return false;
+    static const char *operations[] = {"new", "push", "get", "set", "insert", "remove",
+        "pop", "length", "capacity", "is_empty", "clear", "free"};
+    for (int i = 0; i < env->generic_instance_count; ++i) {
+        const char *element = native_list_element(env, &env->generic_instances[i]);
+        if (!element) continue;
+        size_t n = strlen(element);
+        if (strncmp(name + 5, element, n) || name[5 + n] != '_') continue;
+        for (size_t j = 0; j < sizeof(operations) / sizeof(operations[0]); ++j)
+            if (!strcmp(name + 6 + n, operations[j])) return true;
+    }
+    return false;
 }
 
 
@@ -2518,9 +2547,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     static _Thread_local char generic_buf[512];
                     snprintf(generic_buf, sizeof(generic_buf), "nl_%s", expr->as.call.concrete_func_name);
                     mapped_name = generic_buf;
-                } else if (is_generic_list_runtime_fn(func_name)) {
+                } else if (is_generic_list_runtime_fn(func_name, env)) {
                     static _Thread_local char buf[512];
-                    snprintf(buf, sizeof(buf), "nl_%s", func_name);
+                    snprintf(buf, sizeof(buf), "nl_list_%s", func_name + 5);
                     mapped_name = buf;
                 } else {
                     mapped_name = map_function_name(mapped_name, env);
@@ -2537,7 +2566,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (func_name && env &&
                     strcmp(func_name, "println") != 0 &&
                     strcmp(func_name, "print") != 0 &&
-                    !is_generic_list_runtime_fn(func_name)) {
+                    !is_generic_list_runtime_fn(func_name, env)) {
 
                     func_info = env_get_function(env, func_name);
 
@@ -2568,6 +2597,35 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 unsigned call_id = build_ordered_call_args(list, expr->as.call.args,
                                                            expr->as.call.arg_count, env,
                                                            capture_callee ? call_name : NULL);
+
+                bool scalar_list = !capture_callee && native_scalar_list_builtin(func_name, env);
+                if (!capture_callee && (scalar_list || is_generic_list_runtime_fn(func_name, env))) {
+                    static const char *operations[] = {"with_capacity", "is_empty", "new", "get", "set",
+                        "insert", "remove", "push", "pop", "length", "capacity", "clear", "free"};
+                    const char *operation = NULL;
+                    size_t name_length = strlen(func_name);
+                    for (size_t j = 0; j < sizeof(operations) / sizeof(operations[0]); ++j) {
+                        size_t n = strlen(operations[j]);
+                        if (name_length > n && func_name[name_length - n - 1] == '_' &&
+                            !strcmp(func_name + name_length - n, operations[j])) {
+                            operation = operations[j]; break;
+                        }
+                    }
+                    if (operation && !strcmp(operation, "with_capacity") && expr->as.call.arg_count == 1) {
+                        emit_formatted(list, "__nl_arg_%u_0 = nl_native_list_capacity(__nl_arg_%u_0); ", call_id, call_id);
+                    } else if (operation && strcmp(operation, "new") && strcmp(operation, "free") &&
+                               expr->as.call.arg_count > 0) {
+                        emit_formatted(list, "if (!__nl_arg_%u_0) nl_record_list_fail(); ", call_id);
+                        if ((!strcmp(operation, "get") || !strcmp(operation, "set") ||
+                             !strcmp(operation, "insert") || !strcmp(operation, "remove")) &&
+                            expr->as.call.arg_count > 1) {
+                            size_t element_length = name_length - strlen(operation) - 6;
+                            emit_formatted(list, "__nl_arg_%u_1 = nl_native_list_index(__nl_arg_%u_1, %slist_%.*s_length(__nl_arg_%u_0), %s); ",
+                                call_id, call_id, scalar_list ? "" : "nl_", (int)element_length, func_name + 5,
+                                call_id, !strcmp(operation, "insert") ? "true" : "false");
+                        }
+                    }
+                }
 
                 /* If wrapping needed, emit gc_wrap_external( */
                 if (needs_wrapping) {

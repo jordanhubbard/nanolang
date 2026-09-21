@@ -187,3 +187,58 @@ providers keep their own definitions. Provider selection must use the actual
 known catalog and declaration, not the old broad AST/Compiler prefix heuristic.
 The selfhost call path gets expression-local argument staging and exact owner
 mapping; C-seed keeps its existing ordered argument machinery.
+
+## My selfhost emission collection order
+
+I retain an emission-local list of canonical record keys, reset at each
+transpile_parser_mode entry, like my existing function-type emission state.
+It is a code-generation worklist, not checked runtime authority or a cache
+across compiler invocations. A selected intrinsic registers only after lexical
+callable/declaration precedence and exact owner binding select it. Declared
+parameter/local/return/field annotations contribute their already bound types.
+I collect function bodies, selected shadow bodies and global initializers
+before emitting list forward declarations, complete record definitions and
+specializations. This includes inferred/discarded constructors without selecting
+an intrinsic merely because an unrelated call has a list-like spelling.
+
+Direct helper shadows reset this worklist when they inspect it. Failed emission
+returns no product through my existing emission-error latch; the next invocation
+resets the worklist. The full source checkpoint must demonstrate this order and
+include consecutive-parser, selected-shadow and declaration-shadow controls.
+
+My scalar C list providers are registered by register_builtin_functions, not
+by env_function_is_builtin's separate cache. Their actual selected registration
+has a null body/params/shadow/module/alias and is_extern=false. Every parsed
+ordinary function has a body and every parsed foreign declaration has
+is_extern=true. I use that complete registration shape only after exact scalar
+list catalog selection; I do not classify all body-less Functions as intrinsics
+or change the common builtin-cache predicate. The source checkpoint must retain
+ordinary definition, foreign declaration and callback controls for this route.
+
+## My first complete native production checkpoint
+
+I now draft the shared checked native_record_list.h provider and both producers,
+with full catalog matching, canonical C call publication, exact selected
+selfhost calls and left-to-right argument staging. I validate full-width indices
+before narrowing both installed-provider and generated-provider calls. Native
+provider discovery consumes exact registered C records and selfhost declaration
+annotations plus actual selected emission calls; union field discovery uses the
+same concrete instances and substitutions as existing native union emission.
+I emit selected shadow bodies and global initializers before final provider
+publication, and reset the worklist for the next parser.
+
+The complete operation family reserves its generated C symbols. An actual
+callable collision produces a compiler refusal, rather than silently replacing
+that declaration with an intrinsic. Existing installed schema providers remain
+separate and require the exact catalog name plus foreign declaration. Native
+record payload ownership is unchanged. My complete source fixture matrix and
+runtime allocation/bounds controls are still pending; this checkpoint has had
+text-only delimiter/whitespace inspection, no build or execution.
+
+I preserve the old generate_list_specializations shadow's positive body and
+List_Point assertion, adding its missing Point declaration now that provider
+selection validates actual definitions. Other original checker/source methods
+remain unchanged. New emission shadows cover staged argument names, exact
+catalog boundaries, declaration precedence, inferred constructor/removal facts,
+selected shadows and consecutive parser isolation. These assertions are source
+only until the reviewed qualification runs.

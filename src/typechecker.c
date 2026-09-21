@@ -1064,6 +1064,19 @@ static bool checked_list_instantiation(Environment *env, const char *name, int l
     return false;
 }
 
+/* I match the complete operation suffix, including embedded underscores. */
+static const char *checked_list_operation_suffix(const char *name) {
+    static const char *operations[] = {"with_capacity", "is_empty", "new", "push",
+        "get", "set", "insert", "remove", "pop", "length", "capacity", "clear", "free"};
+    size_t length = name ? strlen(name) : 0;
+    for (size_t i = 0; i < sizeof(operations) / sizeof(operations[0]); ++i) {
+        size_t n = strlen(operations[i]);
+        if (length > n + 6 && name[length - n - 1] == '_' &&
+            !strcmp(name + length - n, operations[i])) return name + length - n - 1;
+    }
+    return NULL;
+}
+
 static Type check_list_operation(ASTNode *expr, Environment *env,
                                   const char *name, const char *operation,
                                   bool is_enum) {
@@ -1103,16 +1116,40 @@ static Type check_list_operation(ASTNode *expr, Environment *env,
             "Use the declared List<T> receiver and matching ordinary element type.");
         return TYPE_UNKNOWN;
     }
+    /* I publish only the selected intrinsic's exact declaration key. All owned
+     * replacements exist before mutation; ordinary callables never enter here. */
+    const char *canonical = env_nominal_name(env, expected);
+    if (!canonical || !checked_list_instantiation(env, name, expr->line, expr->column))
+        return TYPE_UNKNOWN;
+    size_t canonical_length = strlen(canonical), operation_length = strlen(operation);
+    if (canonical_length > SIZE_MAX - operation_length - 7) return TYPE_UNKNOWN;
+    size_t call_length = canonical_length + operation_length + 7;
+    char *call_name = malloc(call_length);
+    char *result_name = returns_element ? strdup(canonical) : NULL;
+    if (!call_name || (returns_element && !result_name)) {
+        free(call_name); free(result_name); return TYPE_UNKNOWN;
+    }
+    snprintf(call_name, call_length, "list_%s_%s", canonical, operation);
+    Function *collision = env_get_function(env, call_name);
+    Symbol *local_collision = env_get_var_visible_at(env, call_name, expr->line, expr->column);
+    if (local_collision || (collision && !env_generated_list_element(env, collision).ordinal)) {
+        free(call_name); free(result_name);
+        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+            "I cannot give this list intrinsic a declared callable's native name.",
+            "Keep the exact record specialization distinct from ordinary declarations.");
+        return TYPE_UNKNOWN;
+    }
+    if (strcmp(expr->as.call.name, call_name)) {
+        free(expr->as.call.name);
+        expr->as.call.name = call_name;
+    } else {
+        free(call_name);
+    }
     if (returns_element) {
-        char *copy = strdup(name);
-        if (!copy) return TYPE_UNKNOWN;
         free(expr->as.call.return_struct_type_name);
-        expr->as.call.return_struct_type_name = copy;
+        expr->as.call.return_struct_type_name = result_name;
     }
-    if (create) {
-        return checked_list_instantiation(env, name, expr->line, expr->column)
-            ? TYPE_LIST_GENERIC : TYPE_UNKNOWN;
-    }
+    if (create) return TYPE_LIST_GENERIC;
     return returns_element ? element : measure ? TYPE_INT : empty ? TYPE_BOOL : TYPE_VOID;
 }
 
@@ -3796,15 +3833,15 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Special handling for generic list functions: list_TypeName_operation */
                 const char *func_name = expr->as.call.name;
                 if (func_name && (!strncmp(func_name, "list_", 5) || !strncmp(func_name, "List_", 5))) {
-                    /* Find the last underscore to identify the operation */
-                    const char *func_suffix = strrchr(func_name, '_');
+                    const char *func_suffix = checked_list_operation_suffix(func_name);
                     if (func_suffix) {
                         /* Extract type name: "list_MyType_new" -> "MyType" */
                         const char *type_start = func_name + 5;  /* Skip "list_" */
                         int type_name_len = (int)(func_suffix - type_start);
                         if (type_name_len > 0) {
-                            char *type_name = malloc(type_name_len + 1);
-                            strncpy(type_name, type_start, type_name_len);
+                            char *type_name = malloc((size_t)type_name_len + 1);
+                            if (!type_name) return TYPE_UNKNOWN;
+                            strncpy(type_name, type_start, (size_t)type_name_len);
                             type_name[type_name_len] = '\0';
                             
                             /* Check if this type name exists as a struct or enum */

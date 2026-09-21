@@ -1445,6 +1445,16 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
             return (full_array_element_type (infer_expr_type parser source.node_id source.node_type env))
         }
         let bound: string = (genenv_get env if_id.name)
+        if (native_list_selected parser if_id env) {
+            let element: string = (native_list_call_element parser if_id)
+            let operation: string = (native_list_operation if_id.name)
+            if (== element "") { return "" }
+            if (or (== operation "new") (== operation "with_capacity")) { return (+ "List<" (+ element ">")) }
+            if (or (== operation "get") (or (== operation "remove") (== operation "pop"))) { return element }
+            if (or (== operation "length") (== operation "capacity")) { return "int" }
+            if (== operation "is_empty") { return "bool" }
+            return "void"
+        }
         if (and (== if_id.name "array_push") (is_fn_type bound)) { return (parse_fn_type_return bound) }
 
         if (and (or (== if_id.name "reduce") (== if_id.name "array_fold")) (is_fn_type bound)) { return (parse_fn_type_return bound) }
@@ -4514,6 +4524,8 @@ shadow parser_has_guarded_globals {
 /* Generate complete C program with module forward declarations */
 fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     let mut sb: array<string> = []
+    # I collect initializer calls before emitting specialization declarations.
+    let globals: string = (generate_global_constants parser)
 
     set sb (cg_append sb (gen_c_includes))
     /* Conditionally include nano_dispatch.h only when guarded globals exist,
@@ -4531,6 +4543,8 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     /* Generate enum definitions */
     set sb (cg_append sb (generate_enum_definitions_from_tokens parser))
 
+    set sb (cg_append sb "#include \"runtime/native_record_list.h\"\n")
+    set sb (cg_append sb (generate_list_forward_declarations parser))
     /* I order mixed nominal definitions by complete-value dependencies. */
     set sb (cg_append sb (generate_native_nominal_definitions parser))
 
@@ -4547,7 +4561,7 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     set sb (cg_append sb protos)
 
     /* Emit top-level constant declarations */
-    set sb (cg_append sb (generate_global_constants parser))
+    set sb (cg_append sb globals)
 
     set sb (cg_append sb "/* User functions */\n")
     set sb (cg_append sb functions)
@@ -4590,30 +4604,267 @@ shadow gen_c_program {
  * GENERIC LIST SPECIALIZATION
  * ============================================================================= */
 
+# I reset this emission worklist for each complete parser product.
+let mut native_list_keys: array<string> = []
+
+fn native_list_operation(name: string) -> string {
+    if (not (transp_str_starts_with name "list_")) { return "" }
+    let operations: array<string> = ["with_capacity", "is_empty", "new", "push", "get", "set", "insert", "remove", "pop", "length", "capacity", "clear", "free"]
+    let mut i: int = 0
+    while (< i (array_length operations)) {
+        let operation: string = (at operations i)
+        if (and (> (str_length name) (+ 6 (str_length operation))) (transp_str_ends_with name (+ "_" operation))) { return operation }
+        set i (+ i 1)
+    }
+    return ""
+}
+shadow native_list_operation {
+    assert (== (native_list_operation "list_My_Record_is_empty") "is_empty")
+    assert (== (native_list_operation "list_int_with_capacity") "with_capacity")
+    assert (== (native_list_operation "library.list_Record_new") "")
+    assert (== (native_list_operation "list__new") "")
+}
+
+fn native_list_selected(parser: Parser, identifier: ASTIdentifier, env: GenEnv) -> bool {
+    if (== (native_list_operation identifier.name) "") { return false }
+    if (!= (genenv_get env identifier.name) "") { return false }
+    let bound: string = (mb_resolve identifier.name identifier.line env.names)
+    if (or (has_function_named parser bound) (has_function_named parser identifier.name)) { return false }
+    return (== bound identifier.name)
+}
+shadow native_list_selected {
+    let tokens: List<LexerToken> = (tokenize_string "fn list_Item_new()->int{return 1} fn f()->void{(list_Item_new) (list_Other_new)}" "list-selection.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "list-selection.nano")
+    let first: ASTIdentifier = (parser_get_identifier parser (parser_get_call parser 0).function)
+    let other: ASTIdentifier = (parser_get_identifier parser (parser_get_call parser 1).function)
+    let env: GenEnv = (genenv_new "f")
+    assert (not (native_list_selected parser first env))
+    assert (native_list_selected parser other env)
+    assert (not (native_list_selected parser other (genenv_put env "list_Other_new" "fn()->int" false)))
+}
+
+fn native_list_call_element(parser: Parser, identifier: ASTIdentifier) -> string {
+    let operation: string = (native_list_operation identifier.name)
+    if (== operation "") { return "" }
+    let spelling: string = (str_substring identifier.name 5 (- (- (str_length identifier.name) (str_length operation)) 6))
+    if (or (== spelling "int") (== spelling "string")) { return spelling }
+    let key: string = (+ "#type:" spelling)
+    let bound: string = (mb_lookup (mb_owner identifier.line) key)
+    let mapped: bool = (!= bound key)
+    let mut name: string = spelling
+    if mapped { set name bound }
+    let mut found: int = 0
+    let mut foreign: bool = false
+    let mut i: int = 0
+    while (< i (parser_get_struct_def_count parser)) {
+        let definition: ASTStruct = (parser_get_struct_def parser i)
+        if (== definition.name name) { set found (+ found 1) set foreign definition.is_extern }
+        set i (+ i 1)
+    }
+    if (!= found 1) { return "" }
+    if (and (mb_active) (and (not mapped) (not foreign))) { return "" }
+    return name
+}
+shadow native_list_call_element {
+    (mb_reset [])
+    let tokens: List<LexerToken> = (tokenize_string "struct Item{n:int} fn f()->void{(list_Item_new) (list_Missing_new)}" "list-element.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "list-element.nano")
+    let identifier: ASTIdentifier = (parser_get_identifier parser (parser_get_call parser 0).function)
+    assert (== (native_list_call_element parser identifier) "Item")
+    assert (== (native_list_call_element parser (parser_get_identifier parser (parser_get_call parser 1).function)) "")
+    (mb_reset [1])
+    assert (== (native_list_call_element parser identifier) "")
+    (mb_add 0 "#type:Item" "Item")
+    assert (== (native_list_call_element parser identifier) "Item")
+    (mb_reset [])
+}
+
+fn generate_native_list_call(parser: Parser, call: ASTCall, identifier: ASTIdentifier, env: GenEnv, node_id: int) -> string {
+    let element: string = (native_list_call_element parser identifier)
+    let operation: string = (native_list_operation identifier.name)
+    if (== element "") { set reduce_emission_error "I require the exact native list record declaration." return "0" }
+    let scalar: bool = (or (== element "int") (== element "string"))
+    if (and (== operation "with_capacity") (not scalar)) { set reduce_emission_error "I have no ordinary-record with_capacity operation." return "0" }
+    let canonical: string = (+ "list_" (+ element (+ "_" operation)))
+    let mut c_name: string = (+ "nl_" canonical)
+    if scalar { set c_name canonical }
+    if (or (has_function_named parser canonical) (has_function_named parser c_name)) {
+        set reduce_emission_error "I cannot share a native list specialization symbol with a declared callable."
+        return "0"
+    }
+    (native_list_register element)
+    let mut arity: int = 1
+    if (== operation "new") { set arity 0 }
+    if (or (== operation "get") (or (== operation "remove") (== operation "push"))) { set arity 2 }
+    if (or (== operation "set") (== operation "insert")) { set arity 3 }
+    if (!= call.arg_count arity) { set reduce_emission_error "I require the exact native list operation arity." return "0" }
+    let prefix: string = (+ "_nl_list_" (+ (int_to_string node_id) "_"))
+    let mut parts: array<string> = []
+    set parts (cg_append parts "({ ")
+    let mut i: int = 0
+    while (< i call.arg_count) {
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+        let mut expected: string = "int"
+        if (and (== i 0) (!= operation "with_capacity")) { set expected (+ "List<" (+ element ">")) }
+        if (or (and (== operation "push") (== i 1)) (and (or (== operation "set") (== operation "insert")) (== i 2))) { set expected element }
+        let code: string = (generate_expression parser argument.node_id argument.node_type env expected)
+        set parts (cg_append parts (+ "__auto_type " (+ prefix (+ (int_to_string i) (+ " = (" (+ code "); "))))))
+        set i (+ i 1)
+    }
+    if (and (> call.arg_count 0) (and (!= operation "with_capacity") (!= operation "free"))) {
+        set parts (cg_append parts (+ "if (!" (+ prefix "0) nl_record_list_fail(); ")))
+    }
+    set parts (cg_append parts (+ c_name "("))
+    set i 0
+    while (< i call.arg_count) {
+        if (> i 0) { set parts (cg_append parts ", ") }
+        let value: string = (+ prefix (int_to_string i))
+        if (== operation "with_capacity") {
+            set parts (cg_append parts (+ "nl_native_list_capacity(" (+ value ")")))
+        } else {
+            if (and (== i 1) (or (== operation "get") (or (== operation "set") (or (== operation "remove") (== operation "insert"))))) {
+                let mut length_name: string = (+ "nl_list_" (+ element "_length"))
+                if scalar { set length_name (+ "list_" (+ element "_length")) }
+                let mut insertion: string = "false"
+                if (== operation "insert") { set insertion "true" }
+                set parts (cg_append parts (+ "nl_native_list_index(" (+ value (+ ", " (+ length_name (+ "(" (+ prefix (+ "0), " (+ insertion ")")))))))))
+            } else { set parts (cg_append parts value) }
+        }
+        set i (+ i 1)
+    }
+    set parts (cg_append parts "); })")
+    return (cg_build parts)
+}
+shadow generate_native_list_call {
+    set native_list_keys []
+    let tokens: List<LexerToken> = (tokenize_string "struct Item{n:int} fn f()->void{(list_Item_insert xs 1 value)}" "list-call.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "list-call.nano")
+    let call: ASTCall = (parser_get_call parser 0)
+    let identifier: ASTIdentifier = (parser_get_identifier parser call.function)
+    let env: GenEnv = (genenv_put (genenv_put (genenv_new "f") "xs" "List<Item>" false) "value" "Item" false)
+    let code: string = (generate_native_list_call parser call identifier env 7)
+    assert (str_contains code "__auto_type _nl_list_7_0 = (")
+    assert (str_contains code "__auto_type _nl_list_7_2 = (")
+    assert (str_contains code "nl_list_Item_insert(_nl_list_7_0, nl_native_list_index(_nl_list_7_1, nl_list_Item_length(_nl_list_7_0), true), _nl_list_7_2)")
+    assert (== (array_length native_list_keys) 1)
+    set native_list_keys []
+}
+
+fn native_list_register(element: string) -> void {
+    if (or (== element "") (or (== element "int") (== element "string"))) { return }
+    let mut i: int = 0
+    while (< i (array_length native_list_keys)) {
+        if (== (at native_list_keys i) element) { return }
+        set i (+ i 1)
+    }
+    set native_list_keys (array_push native_list_keys element)
+}
+shadow native_list_register {
+    set native_list_keys []
+    (native_list_register "int")
+    (native_list_register "Item")
+    (native_list_register "Item")
+    assert (== (array_length native_list_keys) 1)
+    assert (== (at native_list_keys 0) "Item")
+    set native_list_keys []
+}
+
 /* Detect List<T> usage in the program by scanning variable declarations
  * Returns: Array of unique element type names (e.g., ["Point", "int", "string"])
  */
-fn detect_list_types(parser: Parser) -> array<string> {
-    let mut list_types: array<string> = []
-    let list_seen: HashMap<string, int> = (hashset_new_string)
-    let func_count: int = (parser_get_function_count parser)
-    
+fn native_list_types_in(annotation: string, result: array<string>, seen: HashMap<string, int>) -> array<string> {
+    let mut types: array<string> = result
     let mut i: int = 0
-    while (< i func_count) {
-        let func: ASTFunction = (parser_get_function parser i)
-        
-        /* Scan function body for let statements with List<T> types */
-        if (>= func.body 0) {
-            set list_types (scan_block_for_lists parser func.body list_types list_seen)
+    while (< i (str_length annotation)) {
+        if (== (str_substring annotation i 5) "List<") {
+            let mut boundary: bool = (== i 0)
+            if (> i 0) {
+                let previous: string = (str_substring annotation (- i 1) 1)
+                set boundary (or (== previous "<") (or (== previous ",") (or (== previous "(") (or (== previous ":") (or (== previous " ") (or (== previous "&") (== previous ">")))))))
+            }
+            if boundary {
+                let mut end: int = (+ i 5)
+                let mut depth: int = 1
+                while (and (< end (str_length annotation)) (> depth 0)) {
+                    let c: string = (str_substring annotation end 1)
+                    if (== c "<") { set depth (+ depth 1) }
+                    if (== c ">") { set depth (- depth 1) }
+                    if (> depth 0) { set end (+ end 1) }
+                }
+                if (== depth 0) {
+                    let element: string = (str_substring annotation (+ i 5) (- end (+ i 5)))
+                    if (and (!= element "") (not (map_has seen element))) {
+                        (map_put seen element 1)
+                        set types (array_push types element)
+                    }
+                }
+            }
         }
-        
         set i (+ i 1)
     }
-    
-    return list_types
+    return types
+}
+shadow native_list_types_in {
+    let seen: HashMap<string, int> = (hashset_new_string)
+    let types: array<string> = (native_list_types_in "fn(List<Item>,array<List<Other>>)->List<Item>" [] seen)
+    assert (== (array_length types) 2)
+    assert (== (at types 0) "Item")
+    assert (== (at types 1) "Other")
+    assert (== (array_length (native_list_types_in "NotList<Missing>" [] (hashset_new_string))) 0)
+}
+
+fn detect_list_types(parser: Parser) -> array<string> {
+    let mut types: array<string> = []
+    let seen: HashMap<string, int> = (hashset_new_string)
+    let mut i: int = 0
+    while (< i (array_length native_list_keys)) {
+        let key: string = (at native_list_keys i)
+        set types (native_list_types_in (+ "List<" (+ key ">")) types seen)
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_let_count parser)) {
+        set types (native_list_types_in (parser_get_let parser i).var_type types seen)
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_function_count parser)) {
+        set types (native_list_types_in (parser_get_function parser i).return_type types seen)
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_struct_def_count parser)) {
+        let definition: ASTStruct = (parser_get_struct_def parser i)
+        let mut field: int = 0
+        while (< field (array_length definition.field_types)) {
+            set types (native_list_types_in (at definition.field_types field) types seen)
+            set field (+ field 1)
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_union_count parser)) {
+        let definition: ASTUnion = (parser_get_union parser i)
+        let mut instances: array<string> = [definition.name]
+        if (> definition.generic_param_count 0) { set instances (find_union_instantiations parser definition.name) }
+        let mut instance: int = 0
+        while (< instance (array_length instances)) {
+            let arguments: array<string> = (extract_type_args (at instances instance))
+            let mut field: int = 0
+            while (< field (array_length definition.variant_field_types)) {
+                let annotation: string = (substitute_type_parameters (at definition.variant_field_types field) definition.generic_params arguments)
+                set types (native_list_types_in annotation types seen)
+                set field (+ field 1)
+            }
+            set instance (+ instance 1)
+        }
+        set i (+ i 1)
+    }
+    return types
 }
 
 shadow detect_list_types {
+    set native_list_keys []
     let source: string = (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }")
     let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
@@ -4688,6 +4939,42 @@ shadow scan_block_for_lists {
     assert (== (at types 0) "Point")
 }
 
+fn native_schema_list(name: string) -> bool {
+    let providers: array<string> = ["ASTArrayLiteral", "ASTAssert", "ASTBinaryOp", "ASTBlock", "ASTBool", "ASTCall", "ASTEnum", "ASTFieldAccess", "ASTFloat", "ASTFor", "ASTFunction", "ASTIdentifier", "ASTIf", "ASTImport", "ASTLet", "ASTMatch", "ASTModuleQualifiedCall", "ASTNumber", "ASTOpaqueType", "ASTPrint", "ASTReturn", "ASTSet", "ASTShadow", "ASTStmtRef", "ASTString", "ASTStruct", "ASTStructLiteral", "ASTTupleIndex", "ASTTupleLiteral", "ASTUnion", "ASTUnionConstruct", "ASTUnsafeBlock", "ASTWhile", "CompilerDiagnostic", "CompilerSourceLocation", "LexerToken"]
+    let mut i: int = 0
+    while (< i (array_length providers)) {
+        if (== name (at providers i)) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow native_schema_list {
+    assert (native_schema_list "LexerToken")
+    assert (native_schema_list "ASTCall")
+    assert (not (native_schema_list "ASTUserRecord"))
+    assert (not (native_schema_list "CompilerUserRecord"))
+}
+
+fn generate_list_forward_declarations(parser: Parser) -> string {
+    let types: array<string> = (detect_list_types parser)
+    let mut code: string = ""
+    let mut i: int = 0
+    while (< i (array_length types)) {
+        let element: string = (at types i)
+        if (and (!= element "int") (!= element "string")) {
+            set code (+ code (+ "typedef struct List_" (+ element (+ " List_" (+ element ";\n")))))
+        }
+        set i (+ i 1)
+    }
+    return code
+}
+shadow generate_list_forward_declarations {
+    set native_list_keys []
+    let tokens: List<LexerToken> = (tokenize_string "struct Item{n:int} struct Box{items:List<Item>}" "list-forward.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "list-forward.nano")
+    assert (str_contains (generate_list_forward_declarations parser) "typedef struct List_Item List_Item;")
+}
+
 /* Generate List<T> specializations for all detected types */
 fn generate_list_specializations(parser: Parser) -> string {
     let list_types: array<string> = (detect_list_types parser)
@@ -4703,16 +4990,46 @@ fn generate_list_specializations(parser: Parser) -> string {
         while (< i type_count) {
             let elem_type: string = (at list_types i)
             
-            /* Skip types that already have C runtime implementations */
-            let skip: bool = (or (== elem_type "int") (or (== elem_type "string") (== elem_type "LexerToken")))
-            let skip2: bool = (or skip (or (transp_str_starts_with elem_type "AST") (transp_str_starts_with elem_type "Compiler")))
-            if skip2 {
-                (print "")
-            } else {
-                set parts (cg_append parts (generate_list_for_type elem_type))
-                set parts (cg_append parts "\n")
+            if (and (!= elem_type "int") (!= elem_type "string")) {
+                let mut found: int = 0
+                let mut foreign: bool = false
+                let mut j: int = 0
+                while (< j (parser_get_struct_def_count parser)) {
+                    let definition: ASTStruct = (parser_get_struct_def parser j)
+                    if (== definition.name elem_type) { set found (+ found 1) set foreign definition.is_extern }
+                    set j (+ j 1)
+                }
+                if (!= found 1) {
+                    set reduce_emission_error "I require one exact record declaration for native list storage."
+                    return ""
+                }
+                if (and foreign (native_schema_list elem_type)) {
+                    set parts (cg_append parts (+ "#include \"runtime/list_" (+ elem_type ".h\"\n")))
+                } else {
+                    let operations: array<string> = ["new", "push", "get", "set", "insert", "remove", "pop", "length", "capacity", "is_empty", "clear", "free", "validate", "index", "reserve"]
+                    let mut op: int = 0
+                    while (< op (array_length operations)) {
+                        let generated: string = (+ "nl_list_" (+ elem_type (+ "_" (at operations op))))
+                        let mut f: int = 0
+                        while (< f (parser_get_function_count parser)) {
+                            let definition: ASTFunction = (parser_get_function parser f)
+                            let mut actual: string = (c_func_name_for_definition definition.name)
+                            if (< definition.body 0) { set actual definition.name }
+                            if (== actual generated) {
+                                set reduce_emission_error "I cannot share a native list provider symbol with a declaration."
+                                return ""
+                            }
+                            set f (+ f 1)
+                        }
+                        set op (+ op 1)
+                    }
+                    let mut c_type: string = (type_to_c elem_type)
+                    if foreign { set c_type elem_type }
+                    set parts (cg_append parts (generate_list_for_c_type elem_type c_type))
+                    set parts (cg_append parts "\n")
+                }
             }
-            
+
             set i (+ i 1)
         }
         
@@ -4722,7 +5039,8 @@ fn generate_list_specializations(parser: Parser) -> string {
 }
 
 shadow generate_list_specializations {
-    let source: string = (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }")
+    set native_list_keys []
+    let source: string = (+ "struct Point { value: int } " (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }"))
     let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (generate_list_specializations p)
@@ -4730,91 +5048,29 @@ shadow generate_list_specializations {
 }
 
 /* Generate List<T> struct and functions for a specific type T */
-fn generate_list_for_type(elem_type: string) -> string {
-    let c_elem_type: string = (type_to_c elem_type)
+fn generate_list_for_c_type(elem_type: string, c_elem_type: string) -> string {
     let list_name: string = (+ "List_" elem_type)
-    
-    let mut sb: array<string> = []
-    
-    /* Struct definition */
-    set sb (cg_append sb "typedef struct ")
-    set sb (cg_append sb list_name)
-    set sb (cg_append sb " {\n")
-    set sb (cg_append sb "    ")
-    set sb (cg_append sb c_elem_type)
-    set sb (cg_append sb " *data;\n")
-    set sb (cg_append sb "    int count;\n")
-    set sb (cg_append sb "    int capacity;\n")
-    set sb (cg_append sb "} ")
-    set sb (cg_append sb list_name)
-    set sb (cg_append sb ";\n\n")
-    
-    /* Constructor: nl_list_T_new() */
-    set sb (cg_append sb list_name)
-    set sb (cg_append sb "* nl_list_")
-    set sb (cg_append sb elem_type)
-    set sb (cg_append sb "_new() {\n")
-    set sb (cg_append sb "    ")
-    set sb (cg_append sb list_name)
-    set sb (cg_append sb " *list = malloc(sizeof(")
-    set sb (cg_append sb list_name)
-    set sb (cg_append sb "));\n")
-    set sb (cg_append sb "    if (!list) return NULL;\n")
-    set sb (cg_append sb "    list->data = malloc(sizeof(")
-    set sb (cg_append sb c_elem_type)
-    set sb (cg_append sb ") * 4);\n")
-    set sb (cg_append sb "    if (!list->data) { free(list); return NULL; }\n")
-    set sb (cg_append sb "    list->count = 0;\n")
-    set sb (cg_append sb "    list->capacity = 4;\n")
-    set sb (cg_append sb "    return list;\n")
-    set sb (cg_append sb "}\n\n")
-    
-    /* Push: nl_list_T_push(list, value) */
-    set sb (cg_append sb "void nl_list_")
-    set sb (cg_append sb elem_type)
-    set sb (cg_append sb "_push(")
-    set sb (cg_append sb list_name)
-    set sb (cg_append sb " *list, ")
-    set sb (cg_append sb c_elem_type)
-    set sb (cg_append sb " value) {\n")
-    set sb (cg_append sb "    if (list->count >= list->capacity) {\n")
-    set sb (cg_append sb "        list->capacity *= 2;\n")
-    set sb (cg_append sb "        ")
-    set sb (cg_append sb c_elem_type)
-    set sb (cg_append sb " *new_data = realloc(list->data, sizeof(")
-    set sb (cg_append sb c_elem_type)
-    set sb (cg_append sb ") * list->capacity);\n")
-    set sb (cg_append sb "        if (!new_data) return;\n")
-    set sb (cg_append sb "        list->data = new_data;\n")
-    set sb (cg_append sb "    }\n")
-    set sb (cg_append sb "    list->data[list->count++] = value;\n")
-    set sb (cg_append sb "}\n\n")
-    
-    /* Get: nl_list_T_get(list, index) */
-    set sb (cg_append sb c_elem_type)
-    set sb (cg_append sb " nl_list_")
-    set sb (cg_append sb elem_type)
-    set sb (cg_append sb "_get(")
-    set sb (cg_append sb list_name)
-    set sb (cg_append sb " *list, int index) {\n")
-    set sb (cg_append sb "    return list->data[index];\n")
-    set sb (cg_append sb "}\n\n")
-    
-    /* Length: nl_list_T_length(list) */
-    set sb (cg_append sb "int nl_list_")
-    set sb (cg_append sb elem_type)
-    set sb (cg_append sb "_length(")
-    set sb (cg_append sb list_name)
-    set sb (cg_append sb " *list) {\n")
-    set sb (cg_append sb "    return list->count;\n")
-    set sb (cg_append sb "}\n")
-    
-    return (cg_build sb)
+    let mut parts: array<string> = []
+    set parts (cg_append parts "#include \"runtime/native_record_list.h\"\n")
+    set parts (cg_append parts (+ "typedef struct " (+ list_name (+ " " (+ list_name ";\n")))))
+    set parts (cg_append parts (+ "NL_DEFINE_RECORD_LIST(" (+ elem_type (+ ", " (+ c_elem_type ")\n")))))
+    return (cg_build parts)
+}
+
+shadow generate_list_for_c_type {
+    assert (str_contains (generate_list_for_c_type "Foreign" "Foreign") "NL_DEFINE_RECORD_LIST(Foreign, Foreign)")
+}
+
+fn generate_list_for_type(elem_type: string) -> string {
+    return (generate_list_for_c_type elem_type (type_to_c elem_type))
 }
 
 shadow generate_list_for_type {
     let code: string = (generate_list_for_type "Point")
     assert (str_contains code "List_Point")
+    assert (str_contains code "NL_DEFINE_RECORD_LIST(Point, nl_Point)")
+    assert (str_contains code "runtime/native_record_list.h")
+    assert (not (str_contains code "list->capacity *= 2"))
 }
 
 /* =============================================================================
@@ -5689,6 +5945,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     /* Get function name from identifier */
                     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
                     let func_name: string = (mb_resolve func_id.name func_id.line env.names)
+                    if (native_list_selected parser func_id env) {
+                        return (generate_native_list_call parser call func_id env node_id)
+                    }
                     if (and (== func_id.name "array_push") (not (legacy_push_builtin parser func_id env))) {
                         return (generate_bound_push parser call func_id env node_id)
                     }
@@ -6263,6 +6522,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         } else {
                             set c_func_name (c_func_name_for_call func_name)
                         }
+                    }
+
+                    if (and (!= (native_list_operation func_id.name) "") (has_function_named parser func_name)) {
+                        if (is_extern_function parser func_name) { set c_func_name func_name }
+                        else { set c_func_name (c_func_name_for_definition func_name) }
                     }
 
                     let mut parts: array<string> = []
@@ -8553,6 +8817,7 @@ shadow parser_has_peg2_import {
 
 fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     set reduce_emission_error ""
+    set native_list_keys []
     (build_module_alias_map parser)
     (reset_fn_types)
 
@@ -8646,6 +8911,17 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     }
     let all_functions: string = (cg_build sb)
 
+    let mut shadow_bodies: array<string> = []
+    let mut si: int = first_shadow
+    while (and (>= si 0) (< si parser.shadows_count)) {
+        let sh: ASTShadow = (list_ASTShadow_get parser.shadows si)
+        let scope: string = (+ "__nano_shadow_" (int_to_string si))
+        let env: GenEnv = GenEnv { names: global_env.names, types: global_env.types, mut_flags: global_env.mut_flags, global_flags: global_env.global_flags, underscore_name: global_env.underscore_name, scope: scope }
+        set shadow_bodies (cg_append shadow_bodies (+ "static void " (+ scope "(void) {\n")))
+        set shadow_bodies (cg_append shadow_bodies (generate_block parser sh.body 1 env "void"))
+        set shadow_bodies (cg_append shadow_bodies "}\n")
+        set si (+ si 1)
+    }
     let product: string = (gen_c_program_with_modules parser all_functions)
     if (!= reduce_emission_error "") { return "" }
     if (< first_shadow 0) { return product }
@@ -8655,16 +8931,7 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     set tests (cg_append tests "#undef NDEBUG\n#define main __nano_product_entry\n")
     set tests (cg_append tests product)
     set tests (cg_append tests "\n#undef main\n#include \"runtime/shadow_runner.h\"\n")
-    let mut si: int = first_shadow
-    while (< si parser.shadows_count) {
-        let sh: ASTShadow = (list_ASTShadow_get parser.shadows si)
-        let scope: string = (+ "__nano_shadow_" (int_to_string si))
-        let env: GenEnv = GenEnv { names: global_env.names, types: global_env.types, mut_flags: global_env.mut_flags, global_flags: global_env.global_flags, underscore_name: global_env.underscore_name, scope: scope }
-        set tests (cg_append tests (+ "static void " (+ scope "(void) {\n")))
-        set tests (cg_append tests (generate_block parser sh.body 1 env "void"))
-        set tests (cg_append tests "}\n")
-        set si (+ si 1)
-    }
+    set tests (cg_append tests (cg_build shadow_bodies))
     set tests (cg_append tests "static int __nano_shadow_entry(void) {\n")
     set si first_shadow
     while (< si parser.shadows_count) {
@@ -8698,6 +8965,22 @@ shadow transpile_parser_mode {
     assert (str_contains (transpile_last_error) "exact homogeneous")
     assert (!= (transpile_parser_mode p 0) "")
     assert (== (transpile_last_error) "")
+    let list_tokens: List<LexerToken> = (tokenize_string "struct Item { value:int } fn main()->int{let xs=(list_Item_new) (list_Item_push xs Item{value:7}) let out=(list_Item_remove xs 0) return out.value} shadow main{let xs=(list_Item_new) (list_Item_free xs)}" "list-product.nano" (list_CompilerDiagnostic_new))
+    let list_parser: Parser = (parse_program list_tokens (list_LexerToken_length list_tokens) "list-product.nano")
+    let list_code: string = (transpile_parser_mode list_parser 0)
+    assert (str_contains list_code "NL_DEFINE_RECORD_LIST(Item, nl_Item)")
+    assert (str_contains list_code "nl_list_Item_remove(")
+    assert (str_contains list_code "__nano_shadow_0")
+    assert (== (transpile_last_error) "")
+    let plain_code: string = (transpile_parser_mode p -1)
+    assert (not (str_contains plain_code "NL_DEFINE_RECORD_LIST(Item,"))
+    let declaration_tokens: List<LexerToken> = (tokenize_string "struct Item{value:int} fn list_Item_new()->int{return 9} fn main()->int{return (list_Item_new)}" "declared-list.nano" (list_CompilerDiagnostic_new))
+    let declaration_parser: Parser = (parse_program declaration_tokens (list_LexerToken_length declaration_tokens) "declared-list.nano")
+    let declaration_code: string = (transpile_parser_mode declaration_parser -1)
+    assert (str_contains declaration_code "nl_list_Item_new(")
+    assert (not (str_contains declaration_code "NL_DEFINE_RECORD_LIST(Item,"))
+    assert (== (transpile_last_error) "")
+
 }
 
 pub fn transpile_parser(parser: Parser) -> string {

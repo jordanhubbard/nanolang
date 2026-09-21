@@ -14124,3 +14124,13 @@ NANOISA_NATIVE_LIST_SPECIALIZATIONS.md. No native production is changed yet.
   PGO AST_CALL owned-name clones versus free_ast. I found the shallow-copy
   ownership mismatch statically; no faulting program was rerun. This remains
   required full-compiler work, not a native-list qualification claim.
+
+### Native list wrapper discovery prerequisite
+
+- [ ] I bound the generated List_ name extent before copying it in src/main.c,
+  retain the already-supported canonical name width, and recognize exact typed
+  inline specializations before external wrapper generation. My static audit
+  found a 64-byte unchecked extraction despite longer registered names; I have
+  not run a faulting input. This remains part of task_2752a051dce443d0ada447c46b667561.
+  The separate MAC filing attempt failed with hub_unreachable/authentication;
+  I retain its description at /tmp/native-list-wrapper-boundary.txt for filing.

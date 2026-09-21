@@ -168,16 +168,47 @@ static bool is_runtime_typedef(const char *name) {
 
 /* Schema-defined list element types have dedicated runtime list implementations */
 static bool is_schema_list_type(const char *name) {
+    static const char *types[] = {
+        "ASTArrayLiteral",
+        "ASTAssert",
+        "ASTBinaryOp",
+        "ASTBlock",
+        "ASTBool",
+        "ASTCall",
+        "ASTEnum",
+        "ASTFieldAccess",
+        "ASTFloat",
+        "ASTFor",
+        "ASTFunction",
+        "ASTIdentifier",
+        "ASTIf",
+        "ASTImport",
+        "ASTLet",
+        "ASTMatch",
+        "ASTModuleQualifiedCall",
+        "ASTNumber",
+        "ASTOpaqueType",
+        "ASTPrint",
+        "ASTReturn",
+        "ASTSet",
+        "ASTShadow",
+        "ASTStmtRef",
+        "ASTString",
+        "ASTStruct",
+        "ASTStructLiteral",
+        "ASTTupleIndex",
+        "ASTTupleLiteral",
+        "ASTUnion",
+        "ASTUnionConstruct",
+        "ASTUnsafeBlock",
+        "ASTWhile",
+        "CompilerDiagnostic",
+        "CompilerSourceLocation",
+        "LexerToken",
+    };
     if (!name) return false;
-    if (strncmp(name, "AST", 3) == 0) {
-        return true;
-    }
-    if (strcmp(name, "LexerToken") == 0) {
-        return true;
-    }
-    if (strcmp(name, "CompilerDiagnostic") == 0) {
-        return true;
-    }
+    for (size_t i = 0; i < sizeof(types) / sizeof(types[0]); ++i)
+        if (!strcmp(name, types[i])) return true;
     return false;
 }
 
@@ -935,9 +966,7 @@ static const char *get_c_func_name_with_module(const char *nano_name, const char
     }
     
     /* Don't prefix list runtime functions */
-    if (strncmp(nano_name, "list_int_", 9) == 0 || 
-        strncmp(nano_name, "list_string_", 12) == 0 ||
-        strncmp(nano_name, "nl_list_Token_", 11) == 0) {
+    if (strncmp(nano_name, "nl_list_Token_", 11) == 0) {
         return nano_name;
     }
     
@@ -1014,6 +1043,7 @@ bool g_trace_mode = false;            /* --trace: emit trace guard in next funct
 const char *g_trace_func_name = NULL; /* name of function being traced */
 
 #define TRANSPILER_INTERNAL_TYPES_DEFINED
+static const char *native_list_element(Environment *env, const GenericInstantiation *inst);
 #include "transpiler_iterative_v3_twopass.c"
 
 
@@ -1276,6 +1306,7 @@ static void generate_c_headers(StringBuilder *sb) {
     
     sb_append(sb, "\n/* nanolang runtime */\n");
     sb_append(sb, "#include \"runtime/list_int.h\"\n");
+    sb_append(sb, "#include \"runtime/native_record_list.h\"\n");
     sb_append(sb, "#include \"runtime/list_string.h\"\n");
     sb_append(sb, "#include \"runtime/list_token.h\"\n");
     sb_append(sb, "#include \"runtime/token_helpers.h\"\n");
@@ -1318,215 +1349,70 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "\n");
 }
 
-/* Generate List<T> specializations and forward declarations */
-static void generate_list_specializations(Environment *env, StringBuilder *sb) {
-    /* Forward declare List types BEFORE structs (in case structs contain List fields) */
-    int capacity_early = 32;
-    char **detected_list_types_early = malloc(sizeof(char*) * capacity_early);
-    if (!detected_list_types_early) {
-        fprintf(stderr, "Error: Out of memory allocating list types array\n");
+/* I consume the exact registered record, never a spelling-only specialization. */
+static const char *native_list_element(Environment *env, const GenericInstantiation *inst) {
+    if (!inst->generic_name || strcmp(inst->generic_name, "List")) return NULL;
+    const char *name = env_nominal_name(env, inst->list_element);
+    if (inst->list_element.kind != TYPE_STRUCT || !inst->list_element.ordinal ||
+        !name || inst->type_arg_count != 1 || !inst->type_arg_names ||
+        !inst->type_arg_names[0] || strcmp(name, inst->type_arg_names[0])) {
+        fprintf(stderr, "I cannot emit a list without its exact registered record.\n");
         exit(1);
     }
-    int detected_list_count_early = 0;
-    
-    if (env && env->generic_instances) {
-        for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
-            GenericInstantiation *inst = &env->generic_instances[i];
-            if (inst && strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names && inst->type_arg_names[0]) {
-                const char *elem_type = inst->type_arg_names[0];
-                bool found = false;
-                for (int j = 0; j < detected_list_count_early; j++) {
-                    if (strcmp(detected_list_types_early[j], elem_type) == 0) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    /* Grow array if needed */
-                    if (detected_list_count_early >= capacity_early) {
-                        capacity_early *= 2;
-                        char **new_array = realloc(detected_list_types_early, sizeof(char*) * capacity_early);
-                        if (!new_array) {
-                            fprintf(stderr, "Error: Out of memory growing list types array to %d\n", capacity_early);
-                            free(detected_list_types_early);
-                            exit(1);
-                        }
-                        detected_list_types_early = new_array;
-                    }
-                    detected_list_types_early[detected_list_count_early++] = (char*)elem_type;
-                }
-            }
-        }
-    }
-    
-    if (detected_list_count_early > 0) {
-        sb_append(sb, "/* ========== Generic List Forward Declarations ========== */\n");
-        for (int i = 0; i < detected_list_count_early; i++) {
-            sb_appendf(sb, "#ifndef FORWARD_DEFINED_List_%s\n", detected_list_types_early[i]);
-            sb_appendf(sb, "#define FORWARD_DEFINED_List_%s\n", detected_list_types_early[i]);
-            sb_appendf(sb, "typedef struct List_%s List_%s;\n", detected_list_types_early[i], detected_list_types_early[i]);
-            sb_append(sb, "#endif\n");
-        }
-        sb_append(sb, "/* ========== End Generic List Forward Declarations ========== */\n\n");
-    }
-    
-    free(detected_list_types_early);
+    return name;
 }
 
-/* Generate List<T> includes and implementations */
+/* Generate List<T> forward declarations before complete record definitions. */
+static void generate_list_specializations(Environment *env, StringBuilder *sb) {
+    if (!env) return;
+    for (int i = 0; i < env->generic_instance_count; ++i) {
+        const char *name = native_list_element(env, &env->generic_instances[i]);
+        if (!name) continue;
+        sb_appendf(sb, "#ifndef FORWARD_DEFINED_List_%s\n", name);
+        sb_appendf(sb, "#define FORWARD_DEFINED_List_%s\n", name);
+        sb_appendf(sb, "typedef struct List_%s List_%s;\n#endif\n", name, name);
+    }
+}
+
+/* Generate List<T> providers after complete record definitions. */
 static void generate_list_implementations(Environment *env, StringBuilder *sb) {
-    /* Detect generic list usage BEFORE emitting includes */
-    int capacity = 32;
-    char **detected_list_types = malloc(sizeof(char*) * capacity);
-    if (!detected_list_types) {
-        fprintf(stderr, "Error: Out of memory allocating list types array\n");
-        exit(1);
-    }
-    int detected_list_count = 0;
-    
-    /* Scan generic instantiations for List<Type> usage */
-    if (env && env->generic_instances) {
-        for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
-            GenericInstantiation *inst = &env->generic_instances[i];
-            if (inst && strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names && inst->type_arg_names[0]) {
-                const char *elem_type = inst->type_arg_names[0];
-                /* Check if already detected */
-                bool found = false;
-                for (int j = 0; j < detected_list_count; j++) {
-                    if (strcmp(detected_list_types[j], elem_type) == 0) {
-                        found = true;
-                        break;
+    if (!env) return;
+    for (int i = 0; i < env->generic_instance_count; ++i) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        const char *name = native_list_element(env, inst);
+        if (!name) continue;
+        bool duplicate = false;
+        for (int j = 0; j < i; ++j) {
+            GenericInstantiation *prior = &env->generic_instances[j];
+            if (prior->list_element.kind == inst->list_element.kind &&
+                prior->list_element.ordinal == inst->list_element.ordinal) duplicate = true;
+        }
+        if (duplicate) continue;
+        StructDef *record = &env->structs[inst->list_element.ordinal - 1];
+        if (record->is_extern && is_schema_list_type(name)) {
+            sb_appendf(sb, "#include \"runtime/list_%s.h\"\n", name);
+        } else {
+            static const char *operations[] = {"new", "push", "get", "set", "insert", "remove",
+                "pop", "length", "capacity", "is_empty", "clear", "free", "validate", "index", "reserve"};
+            for (size_t op = 0; op < sizeof(operations) / sizeof(operations[0]); ++op) {
+                char generated[512];
+                snprintf(generated, sizeof(generated), "nl_list_%s_%s", name, operations[op]);
+                for (int f = 0; f < env->function_count; ++f) {
+                    Function *function = &env->functions[f];
+                    if (!function->name || env_generated_list_element(env, function).ordinal) continue;
+                    const char *actual = get_c_func_name_with_module(function->alias_of ? function->alias_of : function->name,
+                                                                    function->module_name, function->is_extern);
+                    if (!strcmp(actual, generated)) {
+                        fprintf(stderr, "I cannot share a native list provider symbol with a declaration.\n");
+                        exit(1);
                     }
                 }
-                if (!found) {
-                    /* Grow array if needed */
-                    if (detected_list_count >= capacity) {
-                        capacity *= 2;
-                        char **new_array = realloc(detected_list_types, sizeof(char*) * capacity);
-                        if (!new_array) {
-                            fprintf(stderr, "Error: Out of memory growing list types array to %d\n", capacity);
-                            free(detected_list_types);
-                            exit(1);
-                        }
-                        detected_list_types = new_array;
-                    }
-                    detected_list_types[detected_list_count++] = (char*)elem_type;
-                }
             }
+            const char *c_type = record->is_extern ? name : get_prefixed_type_name(name);
+            sb_append(sb, "#include \"runtime/native_record_list.h\"\n");
+            sb_appendf(sb, "NL_DEFINE_RECORD_LIST(%s, %s)\n\n", name, c_type);
         }
     }
-    
-    if (detected_list_count > 0) {
-        bool emitted_runtime_includes = false;
-        for (int i = 0; i < detected_list_count; i++) {
-            const char *type_name = detected_list_types[i];
-            if (is_schema_list_type(type_name)) {
-                if (!emitted_runtime_includes) {
-                    sb_append(sb, "/* ========== Schema List Runtime Includes ========== */\n");
-                    emitted_runtime_includes = true;
-                }
-                sb_appendf(sb, "#include \"runtime/list_%s.h\"\n", type_name);
-            }
-        }
-        if (emitted_runtime_includes) {
-            sb_append(sb, "/* ========== End Schema List Runtime Includes ========== */\n\n");
-        }
-
-        bool emitted_specializations = false;
-        for (int i = 0; i < detected_list_count; i++) {
-            const char *type_name = detected_list_types[i];
-            if (is_schema_list_type(type_name)) {
-                continue;
-            }
-
-            if (!emitted_specializations) {
-                sb_append(sb, "/* ========== Generic List Specializations ========== */\n\n");
-                emitted_specializations = true;
-            }
-
-            const char *prefixed = get_prefixed_type_name(type_name);
-            char *prefixed_elem_type = prefixed ? strdup(prefixed) : NULL;
-            if (!prefixed_elem_type) {
-                fprintf(stderr, "Error: Out of memory duplicating prefixed list type for %s\n", type_name);
-                exit(1);
-            }
-            char specialized_name[256];
-            snprintf(specialized_name, sizeof(specialized_name), "List_%s", type_name);
-
-            sb_appendf(sb, "struct %s {\n", specialized_name);
-            sb_appendf(sb, "    %s *data;\n", prefixed_elem_type);
-            sb_appendf(sb, "    int count;\n");
-            sb_appendf(sb, "    int capacity;\n");
-            sb_appendf(sb, "};\n\n");
-
-            sb_appendf(sb, "List_%s* nl_list_%s_new(void) {\n", type_name, type_name);
-            sb_appendf(sb, "    %s *list = malloc(sizeof(%s));\n", specialized_name, specialized_name);
-            sb_appendf(sb, "    if (!list) return NULL;\n");
-            sb_appendf(sb, "    list->capacity = 4;\n");
-            sb_appendf(sb, "    list->count = 0;\n");
-            sb_appendf(sb, "    list->data = malloc(sizeof(%s) * list->capacity);\n", prefixed_elem_type);
-            sb_appendf(sb, "    if (!list->data) { free(list); return NULL; }\n");
-            sb_appendf(sb, "    return list;\n");
-            sb_appendf(sb, "}\n\n");
-
-            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, %s value) {\n",
-                      type_name, type_name, prefixed_elem_type);
-            sb_appendf(sb, "    if (!list) return;\n");
-            sb_appendf(sb, "    if (list->count >= list->capacity) {\n");
-            sb_appendf(sb, "        int new_capacity = list->capacity * 2;\n");
-            sb_appendf(sb, "        %s *new_data = realloc(list->data, sizeof(%s) * new_capacity);\n",
-                      prefixed_elem_type, prefixed_elem_type);
-            sb_appendf(sb, "        if (!new_data) return;\n");
-            sb_appendf(sb, "        list->data = new_data;\n");
-            sb_appendf(sb, "        list->capacity = new_capacity;\n");
-            sb_appendf(sb, "    }\n");
-            sb_appendf(sb, "    list->data[list->count++] = value;\n");
-            sb_appendf(sb, "}\n\n");
-
-            sb_appendf(sb, "%s nl_list_%s_get(List_%s *list, int index) {\n",
-                      prefixed_elem_type, type_name, type_name);
-            sb_appendf(sb, "    return list->data[index];\n");
-            sb_appendf(sb, "}\n\n");
-
-            sb_appendf(sb, "void nl_list_%s_set(List_%s *list, int index, %s value) {\n",
-                      type_name, type_name, prefixed_elem_type);
-            sb_appendf(sb, "    if (!list) return;\n");
-            sb_appendf(sb, "    if (index < 0 || index >= list->count) return;\n");
-            sb_appendf(sb, "    list->data[index] = value;\n");
-            sb_appendf(sb, "}\n\n");
-
-            sb_appendf(sb, "int nl_list_%s_length(List_%s *list) {\n", type_name, type_name);
-            sb_appendf(sb, "    return list ? list->count : 0;\n");
-            sb_appendf(sb, "}\n\n");
-
-            /* Emit unqualified aliases (without nl_ prefix) so user code that
-             * declares 'extern fn list_X_push(...)' resolves to the generated
-             * implementation without needing forward declarations. */
-            sb_appendf(sb, "#ifndef list_%s_new\n", type_name);
-            sb_appendf(sb, "#define list_%s_new nl_list_%s_new\n", type_name, type_name);
-            sb_appendf(sb, "#endif\n");
-            sb_appendf(sb, "#ifndef list_%s_push\n", type_name);
-            sb_appendf(sb, "#define list_%s_push nl_list_%s_push\n", type_name, type_name);
-            sb_appendf(sb, "#endif\n");
-            sb_appendf(sb, "#ifndef list_%s_get\n", type_name);
-            sb_appendf(sb, "#define list_%s_get nl_list_%s_get\n", type_name, type_name);
-            sb_appendf(sb, "#endif\n");
-            sb_appendf(sb, "#ifndef list_%s_set\n", type_name);
-            sb_appendf(sb, "#define list_%s_set nl_list_%s_set\n", type_name, type_name);
-            sb_appendf(sb, "#endif\n");
-            sb_appendf(sb, "#ifndef list_%s_length\n", type_name);
-            sb_appendf(sb, "#define list_%s_length nl_list_%s_length\n", type_name, type_name);
-            sb_appendf(sb, "#endif\n\n");
-
-            free(prefixed_elem_type);
-        }
-
-        if (emitted_specializations) {
-            sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
-        }
-    }
-    
-    free(detected_list_types);
 }
 
 static void generate_hashmap_specializations(Environment *env, StringBuilder *sb) {

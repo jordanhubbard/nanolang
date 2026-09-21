@@ -1419,9 +1419,14 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                     end++;
                 }
                 if (*end == '*' || *end == ' ' || *end == '\n' || *end == ';') {
-                    int len = end - ptr;
+                    size_t len = (size_t)(end - ptr);
                     char type_name[64];
-                    strncpy(type_name, ptr, len);
+                    if (!len || len >= sizeof(type_name)) {
+                        include_paths_valid = false;
+                        fprintf(stderr, "I cannot represent this schema list wrapper name.\n");
+                        continue;
+                    }
+                    memcpy(type_name, ptr, len);
                     type_name[len] = '\0';
                     
                     if (strcmp(type_name, "int") != 0 && strcmp(type_name, "string") != 0 && strcmp(type_name, "token") != 0 && strcmp(type_name, "Generic") != 0) {
@@ -1459,10 +1464,24 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         
         /* Check if followed by * or space (valid list type) */
         if (*end_ptr == '*' || *end_ptr == ' ' || *end_ptr == '\n') {
-            int len = end_ptr - scan_ptr;
-            char type_name[64];
-            strncpy(type_name, scan_ptr, len);
+            size_t len = (size_t)(end_ptr - scan_ptr);
+            char type_name[256];
+            if (!len || len >= sizeof(type_name)) {
+                include_paths_valid = false;
+                fprintf(stderr, "I cannot represent this native list specialization name.\n");
+                continue;
+            }
+            memcpy(type_name, scan_ptr, len);
             type_name[len] = '\0';
+            /* I emitted the complete provider in the translation unit itself. */
+            char provider_marker[300];
+            snprintf(provider_marker, sizeof(provider_marker), "NL_DEFINE_RECORD_LIST(%s,", type_name);
+            if (strstr(c_code, provider_marker)) continue;
+            if (len >= sizeof(detected_types[0])) {
+                include_paths_valid = false;
+                fprintf(stderr, "I cannot represent this legacy external list wrapper name.\n");
+                continue;
+            }
             
             /* Skip built-in types */
             if (strcmp(type_name, "int") == 0 || 
