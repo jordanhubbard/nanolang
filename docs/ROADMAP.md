@@ -14210,3 +14210,14 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   and real-bytecode assertions. I retain the original foreign export and all
   symbol/isolated dynamic checks. This is ordinary API completion, not a change
   to visibility rules or File authority; source review precedes fresh gates.
+
+- [ ] I propagate checked dependency include directories into each generated C
+  module wrapper. Both3bc ordinary gates passed seven methods, then the actual
+  Forth wrapper failed at imported nanoisa.h (Linux829.226s, Darwin799.682s).
+  Its isolated parser had loaded the NanoISA dependency and emitted its declared
+  header, but compile_module_to_object passed only the wrapper owner's directory
+  and flags. I retain both generated C files/argv/terminals. I prepare a generic
+  closure from the actual isolated import cache and existing module metadata,
+  preserving canonical declaring origins and bounded argument construction. I
+  do not inject a Forth-specific path or depend on the source cwd. Paired owner,
+  nested-import, outside-checkout and installed-origin checks remain required.

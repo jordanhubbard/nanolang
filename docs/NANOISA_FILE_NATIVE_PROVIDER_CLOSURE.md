@@ -149,3 +149,37 @@ canonical file therefore share the first owner and its original order, just like
 module requests. My fixtures must supply an actual canonical runtime alias and
 observe one final compiler input; a registry-only duplicate unit control is not
 sufficient for this corrected boundary.
+
+## My generated C module dependency headers
+
+The3bc actual public Forth wrapper exposed a distinct C-seed boundary: isolated
+module parsing recursively loads its dependencies and transpilation emits their
+metadata headers, while the module-object compiler receives only the wrapper's
+own directory and flags. I preserve the first missing-nanoisa.h terminals on both
+hosts. The source file and actual command are retained; no failed binary ran.
+
+I prepare the include closure from that isolated parser's actual module cache,
+while its canonical paths and ASTs remain live. I add each selected dependency's
+canonical declaring directory and its existing metadata include_dirs through the
+same checked path quoting used by ordinary compilation. I preserve first encounter
+order and deduplicate canonical directories. This is the same selected dependency
+namespace already used for header collection, not a new resolver, import grammar,
+provider owner or spelling-based path injection. I do not merge arbitrary
+transitive macros/link flags or compile a second provider copy.
+
+I load metadata through the existing module metadata parser, distinguish absent
+module.json from a present malformed/unreadable record, and fail before invoking
+the C compiler on required metadata/path/argument construction failure. Ordinary
+metadata origin rules remain the authority for its include directories. The
+bounded include buffer and final command must account for every appended quoted
+argument; overflow is a precise refusal, never silent omission. All temporary
+metadata/path ownership ends after copying the checked arguments, before the
+isolated AST/cache is released. I preserve the first failure and object-publication
+behavior.
+
+I require a nested ordinary module with an actual imported local header, paths
+with spaces, reversed independent import order, and compilation from a cwd that
+contains none of those headers. The existing complete owner/co-import/wrapper
+corpus remains unchanged. Installed SDK qualification repeats this boundary with
+SDK-owned and user-project origins. I retain the existing external compiler's
+header search rules; this does not claim a general C preprocessor namespace proof.
