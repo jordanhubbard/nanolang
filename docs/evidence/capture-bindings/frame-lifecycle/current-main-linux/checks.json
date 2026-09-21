@@ -1,0 +1,17 @@
+{
+  "source_commit": "141a3f80e",
+  "canonical_merge": "3ff27be5792f688d04f92d50c7117b2307d35656",
+  "command": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "test-nanovm"
+  ],
+  "exit_code": 0,
+  "assertions": 274729,
+  "failed": 0,
+  "raw_log_sha256": "6606df409217086d17401325806d328e743d73393a772e072f8b0e73d05c6983",
+  "stored_log_sha256": "928e317394253365b4dba38b7bd7327aa56d50968b8899a5e05eb2b9b3c98830",
+  "scope": "Local Linux ordinary integration check using the existing worktree. This is not a fresh seven-configuration source-inventory qualification; original corrected-source evidence remains separately pinned."
+}
