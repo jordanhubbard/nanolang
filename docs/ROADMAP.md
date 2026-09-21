@@ -14380,3 +14380,10 @@ allocator failure claim.
   owning tuple/lifetime fixtures. I retain1b29 strict C99 compile refusal and
   add guarded XOPEN700 before headers, preserving production and all assertions.
   MAC: task_c87e9c77a6fe4bb2a569de6651c5bf70. Fresh focused controls remain required.
+
+- [ ] For task_d3d5a17bad0f48ae92c3fa4dc4d306d5, I preserve the direct checker
+  result/diagnostic contract in the rollback fixture. The parser wraps function
+  tails as RETURN; a block can return VOID while recording a tail error. I check
+  both its result and explicitly reset diagnostic count, requiring invalid
+  positive/valid zero counts without changing cache/pointer assertions. I retain
+  the3125 Linux assertion and hold Puck before replaying it.
