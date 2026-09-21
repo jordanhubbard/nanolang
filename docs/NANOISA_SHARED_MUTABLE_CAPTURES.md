@@ -30,6 +30,10 @@ it. Ordinary reads and assignments access its value, while a new declaration
 replaces the local binding rather than mutating a cell retained by an earlier
 closure. Lexical cleanup drops the local reference without overwriting the
 escaped value. Immutable captures retain their existing value semantics.
+Capture mode follows the declaring binding's mutability, not whether a
+particular closure writes it: a read-only sibling must still share a mutable
+binding's cell. I preserve existing affine/resource capture refusals; an owned
+cell does not make a resource owner an ordinary shareable value.
 
 I need explicit internal operations for capturing a local binding, forwarding
 an existing captured binding, initializing a new binding and clearing a local
@@ -45,6 +49,9 @@ capture mode and slot; arbitrary arrays, foreign calls or unrelated operations
 must not consume internal cell references. Unsupported backends must refuse
 before producing runnable output until their complete lowering is qualified.
 Refusal is an implementation-stage boundary, not final 5.1 acceptance.
+Direct, indirect, tail and foreign-callback entry paths must all check the
+target's required capture shape. A raw function entry cannot fabricate the
+environment expected by a capturing function.
 
 ## Lifetime, failure and execution audit
 
@@ -60,6 +67,11 @@ lose the previous local value or mutate a prior closure. Return, tail call,
 trap, handler unwind, cancellation and destruction retain their existing
 ownership obligations. I require an explicit allocation/lifetime table and
 independent source review before executing changed heap code.
+That table must state parameter-value copying and tail-argument retains, plus
+the exact multi-capture staging/rollback sequence when an allocation fails
+after earlier captures were prepared. Handler continuation and retry must
+preserve the prior binding values and existing alias identities. A successful
+single-cell allocation alone does not establish whole-closure failure behavior.
 
 Both source producers and C/LLVM/Wasm consumers must implement the same
 identity and conversion rules without embedding an opcode interpreter in AOT
