@@ -14475,3 +14475,13 @@ qualification under /Users/jkh/nanolang-qualification/vm-effects-recovery-202609
 including persistent temporary artifacts, and copy phase evidence locally.
 I preserve the unknown interrupted LLVM63 result rather than fabricating a
 terminal or assigning a cause to the host reboot.
+
+My fresh persistent Darwin C759 Apple ordinary phase passes294.515s. The next
+Homebrew phase stops at compilation before fixture execution: its default
+/Library/Developer/CommandLineTools/SDKs/MacOSX27.sdk is absent after recovery.
+SDKROOT already names the current xcrun SDK, but this compiler still requires an
+explicit native -isysroot selection. I retain this first terminal and correct
+only the external selector, preserving the Apple pass. My target-aware wrapper
+supplies that SDK for native commands and preserves explicit wasm32 commands;
+I inventory the wrapper, real compiler and selected SDK inputs. Fresh failed or
+unrun phases remain required, without source/assertion/warning-policy changes.
