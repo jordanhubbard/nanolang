@@ -14054,3 +14054,6 @@ contract is docs/NANOISA_SELFHOST_LIST_INTRINSIC_FACTS.md: complete supported
 operation signatures, exact nominal receiver/element identity and declaration
 precedence, plus the separate unshadowed str_trim signature. I preserve all
 seventeen source methods and full acceptance; source review precedes gates.
+
+I track the separate exact str_trim signature correction as task_197ae929b1f1444381d4652ea6dd0ac6;
+its source, declaration precedence controls and qualification remain pending.
