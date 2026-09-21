@@ -14158,3 +14158,8 @@ terminal and accurately distinguishes rebuilt package providers. Independent
 review and actual merge remain pending; full generated/public/graph/source
 requirements stay open. My compressed Darwin archive retains every CAS byte
 locally without redundant extraction under the current Linux capacity limit.
+
+### My Forth arithmetic source qualification at e384c06bd
+
+- [x] I qualified the reviewed complete arithmetic table and additive boundary fixtures against the original session/Core/Double/float targets: all 28 phases pass across seven Linux/Darwin configurations, including strict UBSan. I retain complete source/tool/product maps, actual executed binaries, and the first external inventory failure in [my sealed evidence](evidence/forth-arithmetic.md).
+- [ ] I require independent evidence review and actual canonical integration before closing `task_94534bf8291349a380ed1c88a93e3cb0` or `task_bbeaab3cfaa9cbc34398272b8a1947ea`. Full Forth and 5.1 acceptance remains open.
