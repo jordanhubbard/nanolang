@@ -5781,4 +5781,8 @@ $(OBJ_DIR)/env.o $(OBJ_DIR)/eval.o: $(SRC_DIR)/eval_u8.h
 
 .PHONY: test-nanoisa-record-order
 test-nanoisa-record-order: nanoisa_emit nano_virt nano_vm
-	@python3 -m unittest tests.test_record_literal_order
+	@python3 -m unittest tests.test_record_literal_order.RecordLiteralOrder
+
+.PHONY: test-native-literal-order
+test-native-literal-order: bootstrap
+	@python3 -m unittest tests.test_record_literal_order.NativeLiteralOrder

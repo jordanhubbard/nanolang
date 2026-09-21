@@ -31,3 +31,34 @@ class RecordLiteralOrder(unittest.TestCase):
                     self.assertEqual(result.returncode, 0,
                                      f'{producer} {stage}; retained in {artifacts}\n'
                                      + (result.stdout + result.stderr).decode(errors='replace'))
+
+
+class NativeLiteralOrder(unittest.TestCase):
+    def test_native_aggregates_and_global_initialization(self):
+        artifacts = Path(tempfile.mkdtemp(prefix='nano-native-literal-order-'))
+        commands = []
+        for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):
+            self.assertTrue((ROOT / 'bin' / compiler).is_file(),
+                            'I require fresh bootstrap before this three-producer gate.')
+            for fixture in ('record_literal_written_order', 'union_literal_written_order',
+                            'global_literal_initialization'):
+                with self.subTest(compiler=compiler, fixture=fixture):
+                    source = ROOT / 'tests/nanovirt/fixtures' / (fixture + '.nano')
+                    binary = artifacts / (compiler + '-' + fixture)
+                    for stage, command in (
+                        ('compile', [ROOT / 'bin' / compiler, source, '-o', binary]),
+                        ('run', [binary]),
+                    ):
+                        args = list(map(str, command))
+                        row = {'command': args, 'stage': stage}
+                        commands.append(row)
+                        (artifacts / 'commands.json').write_text(json.dumps(commands, indent=2))
+                        result = subprocess.run(args, capture_output=True, timeout=90)
+                        row['returncode'] = result.returncode
+                        prefix = compiler + '-' + fixture + '-' + stage
+                        (artifacts / (prefix + '.stdout')).write_bytes(result.stdout)
+                        (artifacts / (prefix + '.stderr')).write_bytes(result.stderr)
+                        (artifacts / 'commands.json').write_text(json.dumps(commands, indent=2))
+                        self.assertEqual(result.returncode, 0,
+                                         f'{prefix}; retained in {artifacts}\n'
+                                         + (result.stdout + result.stderr).decode(errors='replace'))
