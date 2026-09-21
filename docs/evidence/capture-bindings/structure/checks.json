@@ -1,0 +1,81 @@
+{
+  "source": "d8fc4c8e4",
+  "results": {
+    "first": [
+      {
+        "argv": [
+          "/usr/bin/gcc",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O1",
+          "tests/nanoisa/test_capture_bindings.c",
+          "src/nanoisa/nvm_v2_cursor.c",
+          "src/nanoisa/isa.c",
+          "-o",
+          "/tmp/nanolang-capture-bindings-5fbdc4773/reports-linux/gcc"
+        ],
+        "returncode": 1,
+        "timed_out": false,
+        "group_gone": true,
+        "elapsed_seconds": 0.11462230002507567
+      },
+      {
+        "argv": [
+          "/usr/bin/clang",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O1",
+          "tests/nanoisa/test_capture_bindings.c",
+          "src/nanoisa/nvm_v2_cursor.c",
+          "src/nanoisa/isa.c",
+          "-o",
+          "/private/tmp/nanolang-capture-bindings-5fbdc4773/reports-darwin/apple"
+        ],
+        "returncode": 1,
+        "timed_out": false,
+        "group_gone": true,
+        "elapsed_seconds": 0.280752291
+      }
+    ],
+    "corrected": [
+      {
+        "source": "d8fc4c8e4cf6ff0f9bbc5cd93d57bc4ac917a860",
+        "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+        "configurations": 4,
+        "status": "pass"
+      },
+      {
+        "source": "d8fc4c8e4cf6ff0f9bbc5cd93d57bc4ac917a860",
+        "platform": "macOS-26.6.2-arm64-arm-64bit",
+        "configurations": 3,
+        "status": "pass"
+      }
+    ],
+    "verifier": [
+      {
+        "source": "d8fc4c8e4cf6ff0f9bbc5cd93d57bc4ac917a860",
+        "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+        "status": "pass"
+      },
+      {
+        "source": "d8fc4c8e4cf6ff0f9bbc5cd93d57bc4ac917a860",
+        "platform": "macOS-26.6.2-arm64-arm-64bit",
+        "status": "pass"
+      }
+    ]
+  },
+  "checks": {
+    "capture": 977,
+    "configurations": 7,
+    "schema_per_host": 33,
+    "ordinary_verifier_per_host": 97
+  },
+  "review": "Independent review of2d867 plus5fbd, direct ISA include correction d8fc after first compile refusal.",
+  "scope": "Payload and exact instruction structure only. Ordinary execution still refuses these operations. Definite initialization, stack/type/effect integration, container and runtime remain open."
+}

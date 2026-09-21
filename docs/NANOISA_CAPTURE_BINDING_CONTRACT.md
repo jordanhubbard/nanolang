@@ -273,3 +273,13 @@ must combine those checks; I do not call this structural result permission to
 execute. Tests retain existing payload checks and add real encode/decode,
 truncation, mode/slot/site mismatches and exact work-budget endpoints. Separate
 ordinary-verifier controls must show these newly recognized bytes still refuse.
+
+My independently reviewed2d867 structure checkpoint required a direct isa.h
+include correction after the first Linux/Darwin compilations stopped before
+execution. Corrected d8fc passes977 payload/structure checks across seven
+ordinary/sanitized configurations and33 schema tests on each host. Fresh
+ordinary verifier builds pass97 tests each, including explicit refusal of all
+three new operations; verifier allocation-cleanup controls pass too. I retain
+both first compiler terminals, commands and exact source identities in
+[structural evidence](evidence/capture-bindings/structure/checks.json).
+Definite initialization and complete execution admission remain unimplemented.
