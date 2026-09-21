@@ -879,6 +879,14 @@ static int try_eval_bool_const(ASTNode *expr) {
 /* Forward declarations */
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
 
+/* I spell checked byte narrowing explicitly without evaluating twice. */
+static void build_scalar_destination(WorkList *list, ASTNode *expr,
+                                     Environment *env, Type destination) {
+    if (destination == TYPE_U8) emit_literal(list, "(uint8_t)(");
+    build_expr(list, expr, env);
+    if (destination == TYPE_U8) emit_literal(list, ")");
+}
+
 /* I bind arguments in source order before entering an ordinary C call. */
 static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
                                         int arg_count, Environment *env,
@@ -3890,7 +3898,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             if (in_effect_handler) {
                 if (stmt->as.return_stmt.value) {
                     emit_formatted(list, "*(%s *)_frame->lexical_result = ", effect_c_type(effect_lexical_return, effect_lexical_name, env));
-                    build_expr(list, stmt->as.return_stmt.value, env);
+                    build_scalar_destination(list, stmt->as.return_stmt.value, env, effect_lexical_return);
                     emit_literal(list, "; ");
                 }
                 if (effect_lexical_return == TYPE_OPAQUE || effect_lexical_return == TYPE_HASHMAP ||
@@ -3903,7 +3911,8 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, "return");
             if (stmt->as.return_stmt.value) {
                 emit_literal(list, " ");
-                build_expr(list, stmt->as.return_stmt.value, env);
+                Type return_type = g_current_function ? g_current_function->as.function.return_type : TYPE_UNKNOWN;
+                build_scalar_destination(list, stmt->as.return_stmt.value, env, return_type);
             }
             emit_literal(list, ";\n");
             break;
@@ -4144,7 +4153,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         stmt->as.let.value->as.array_literal.element_type = stmt->as.let.element_type;
                     }
                     emit_literal(list, " = ");
-                    build_expr(list, stmt->as.let.value, env);
+                    build_scalar_destination(list, stmt->as.let.value, env, stmt->as.let.var_type);
                 }
                 emit_literal(list, ";\n");
             }
@@ -4249,7 +4258,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 }
             }
             
-            build_expr(list, stmt->as.set.value, env);
+            Symbol *byte_target = env_get_var_visible_at(env, stmt->as.set.name, stmt->line, stmt->column);
+            Type destination = byte_target ? byte_target->type : TYPE_UNKNOWN;
+            build_scalar_destination(list, stmt->as.set.value, env, destination);
             emit_literal(list, ";\n");
             break;
             

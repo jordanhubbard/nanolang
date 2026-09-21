@@ -84,6 +84,8 @@ shadow main { assert (== (main) 0) }
         self.paired('''enum Edge { Below = -1, Above = 256, High = 511 }
 let mut calls: int = 0
 let mut saved: u8 = Edge.High
+fn constant_byte() -> u8 { return Edge.High }
+shadow constant_byte { assert (== (cast_int (constant_byte)) 255) }
 fn tick() -> Edge { set calls (+ calls 1) return Edge.Above }
 shadow tick { set calls 0 assert (== (tick) Edge.Above) assert (== calls 1) }
 fn narrow(value: Edge) -> u8 { return value }
@@ -94,6 +96,11 @@ fn tail() -> u8 { return (tick) }
 shadow tail { set calls 0 assert (== (cast_int (tail)) 0) assert (== calls 1) }
 fn main() -> int {
  assert (== (cast_int saved) 255)
+ let mut member: u8 = Edge.High
+ assert (== (cast_int member) 255)
+ set member Edge.Above
+ assert (== (cast_int member) 0)
+ assert (== (cast_int (constant_byte)) 255)
  set calls 0
  let mut value: u8 = (tick)
  assert (== calls 1)
