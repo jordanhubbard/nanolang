@@ -14177,3 +14177,9 @@ retains them through aliases/iteration/repeated checks, and adds direct identity
 allocation-prefix and native source vectors without replacing the original
 18+8 methods. I have not compiled or executed the corrected source; full
 source/fixture review and fresh complete qualification remain required.
+
+For the same union-list task, independent cd7 review finds a callable-consumer
+prerequisite: materialized signature plus one owner loses mixed nested provenance.
+I will carry owned contextual callable values through target/result selection,
+indirect arguments, pass/return/assignment, branches and map/filter; add owning
+mixed-owner/nested/fault controls and review the complete checkpoint before gates.

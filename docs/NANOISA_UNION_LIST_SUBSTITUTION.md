@@ -123,3 +123,33 @@ scrutinees with caller and definition-site records. I preserve the original
 discovery program and all prior methods. Only static Python parsing and
 `git diff --check` have run at this checkpoint; compiler and runtime acceptance
 remain pending source review.
+
+## My callable consumer completion
+
+The cd7 review finds that my old callable view copies a materialized signature
+and a single owner. That cannot represent a selected payload signature with both
+fixed definition-site records and substituted caller records. Its ordinary-record
+field lookup also misses selected payload fields. A retained proof that never
+reaches the consumer does not establish provenance.
+
+I will use the same owned NominalView for callable values. Selecting a call target
+and projecting its result are separate operations: a direct declaration supplies
+its declaration signature, a function expression or symbol supplies its retained
+view, and result projection copies the return annotation under that view's exact
+context. Function-valued returns repeat this operation without flattening owners.
+Branch representatives compare whole context-bearing annotations. Materialized
+signatures remain emitted/ABI metadata and cannot authorize identities.
+
+Indirect arguments preserve the existing coarse type/arity check and compare
+nominal leaves against the original contextual parameter annotation, recursively
+through literals and complete annotations. Scalar conversions retain their existing
+rules. Callable pass/return/assignment, inferred aliases, map/filter callback
+parameters and results, and repeated checks must consume the same owned view.
+No unresolved or swapped nominal leaf is accepted by matching spelling.
+
+I will add owning-path controls that retain a mixed-owner callable payload,
+project it into an alias, select it as a call target, compare branches and project
+nested callable returns. Nested tuple/list/function annotations and every measured
+new checked allocation prefix remain required. This amendment does not qualify
+cd7 or drop any original 18+8 method. Complete source and fixture review precedes
+all execution.
