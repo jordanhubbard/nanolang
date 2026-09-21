@@ -1,0 +1,16 @@
+{
+  "first_job": "https://github.com/jordanhubbard/nanolang/actions/runs/35566388743/job/106228933335",
+  "first_result": "userguide-html failed on relocated binary64 contract link",
+  "corrected_commands": [
+    "python3 -m unittest tests.test_build_userguide",
+    "python3 scripts/build_userguide.py --check"
+  ],
+  "renderer_tests": 15,
+  "guide_editions": 6,
+  "pages_per_edition": 13,
+  "scope": "Local renderer and unchanged multilingual site validation; hosted CI and merge remain separate.",
+  "sha256": {
+    "first-ci.log": "59ba09b4288d9822aa076950b1e60ec5265495783f3c648e2453f391f1feadcb",
+    "corrected-guide.log": "12b6402bfa687956e2127eb9c9144219dc3087b43da65c101d732125dc868142"
+  }
+}
