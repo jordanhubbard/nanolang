@@ -93,5 +93,11 @@ remain separate regression obligations. I do not call a VM-only fix complete.
    native optimization configurations and all required hosts/backends. I then
    resume the entire computed-byte source gate and compiler bootstrap gates.
 
+My [wire and ownership contract](NANOISA_CAPTURE_BINDING_CONTRACT.md) proposes
+atomic descriptor-based environment construction, explicit binding init/clear,
+required container metadata and an allocation/rollback table. It refines the
+separate capture/forward operation sketch above without exposing cells on the
+ordinary operand stack. Independent review precedes schema and heap changes.
+
 This is a design checkpoint. No shared-cell production code or qualification
 is claimed here, and the full task remains open.
