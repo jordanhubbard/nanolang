@@ -14222,3 +14222,11 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   I select both origins in original file order and resolve metadata-root-relative
   paths against the actual owning origin. Same-origin checkout behavior remains
   unchanged. Mixed project/SDK provider fixtures must verify exact compiler argv.
+
+- [ ] I reject a nonregular SDK manifest before opening it and validate the public
+  bin ancestor before uninstalling owned links. Independent d0c192 review found
+  read_manifest could open a FIFO before the later inventory walk, and uninstall
+  could follow a static prefix/bin symlink to an external matching link. I use
+  lstat regular-file validation and the existing checked owned-path walk before
+  any unlink. I retain explicit FIFO and symlink-bin negative fixture requirements;
+  this does not add a hostile concurrent filesystem-race claim.

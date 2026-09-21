@@ -82,8 +82,9 @@ def manifest(rows):
 
 def read_manifest(root):
     p = owned_path(root, MANIFEST)
-    if p.stat().st_size > 4 * 1024 * 1024:
-        raise ValueError('I refuse an oversized SDK manifest')
+    info = p.lstat()
+    if not stat.S_ISREG(info.st_mode) or info.st_size > 4 * 1024 * 1024:
+        raise ValueError('I require a bounded regular SDK manifest')
     data = p.read_bytes()
     if not data.startswith(HEADER):
         raise ValueError('I require native array ABI2 in my SDK')
@@ -338,7 +339,7 @@ def uninstall(prefix):
             directories.update(generation / v for v in Path(r['path']).parents
                                if str(v) != '.')
         for name in PUBLIC + ('nano_as_capture.so',):
-            command = prefix / 'bin' / name
+            command = owned_path(prefix, 'bin') / name
             expected = '../lib/nanolang/sdk/' + identity + '/bin/' + name
             if command.is_symlink() and os.readlink(command) == expected:
                 command.unlink()
