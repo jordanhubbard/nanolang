@@ -14045,3 +14045,12 @@ repository-root detection uses src_nano/nanoc_v06.nano, already present.
 Filesystem-mutating root shadows use fresh mktemp directories. I now include
 tests/examples/schema in both phase-coherent layouts, verify the two required
 fixture paths before launch, and keep all actual tracked source hashes.
+
+### My measured list/trim checker prerequisites
+
+I map all nineteen discarded errors to actual list set calls using the single
+retained 1dca diagnostic, under task_873238ff98c845a9bf94ec78a03e2950. My precode
+contract is docs/NANOISA_SELFHOST_LIST_INTRINSIC_FACTS.md: complete supported
+operation signatures, exact nominal receiver/element identity and declaration
+precedence, plus the separate unshadowed str_trim signature. I preserve all
+seventeen source methods and full acceptance; source review precedes gates.

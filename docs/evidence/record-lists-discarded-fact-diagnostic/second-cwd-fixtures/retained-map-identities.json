@@ -1,0 +1,30 @@
+{
+  "environment.json": {
+    "sha256": "317bb3d1e18193305b8909d6e3c2ebac74ab476bf57e797f31a85aac5b2c8916",
+    "bytes": 427
+  },
+  "build-stage1-products-after.json": {
+    "sha256": "7ceaf0e700fc24fc2dbb327169747b86ae05ecce856d3854263a2abb37e3934c",
+    "bytes": 174359
+  },
+  "build-stage1-products-before.json": {
+    "sha256": "022a506eee9a5937a9c6f3e1948f0cf43c67480b1a2fc8794abc163170b7fc61",
+    "bytes": 333
+  },
+  "external-layout.json": {
+    "sha256": "a5b01b5ac54b471ceddf911bd0a6933601071be18579a2b623a0b677232dc290",
+    "bytes": 799
+  },
+  "build-stage1-before.json": {
+    "sha256": "0b78ddcf5de77ed9f2e728fbdd06d4ba7f1f241d1611694d494a2ad7cd31cfeb",
+    "bytes": 2618815
+  },
+  "inputs-before.json": {
+    "sha256": "df5475c2761ce25c3b1e3230951f19d01b2c38824a113e8c6c4d2384e0917906",
+    "bytes": 2618485
+  },
+  "build-stage1-after.json": {
+    "sha256": "0b78ddcf5de77ed9f2e728fbdd06d4ba7f1f241d1611694d494a2ad7cd31cfeb",
+    "bytes": 2618815
+  }
+}
