@@ -126,3 +126,36 @@ qualified generated target-prefix header solely as a declaration prerequisite;
 no new compiler package, generated LLVM module or runtime product has executed.
 Independent native/wasm ABI probes and full source review remain prerequisites
 to the execution fixture checkpoint.
+
+## Fixture preparation boundaries
+
+My native LLVM fixture will reuse the actual VM capture and unchanged replay
+observations, compiling the direct emitted IR and shared runtime at O0/O2.
+Runtime allocation observers remain explicit. Native IR sanitizers must be
+applied to generated definitions before the real optimization/code-generation
+pipeline; instrumented C runtime flags alone cannot qualify generated IR.
+
+My current C replay's Wasm entry exercises observations only; it does not run
+its native argv-driven fault sweep. I therefore cannot reuse that entry as
+Wasm allocation acceptance. The Wasm observer must attach to the existing
+NMS_TESTING-only allocation request/created/destroyed hooks, because its backend
+uses linear-memory allocation rather than libc malloc. It must track attempted
+requests, successful allocations, exact live bytes/peak and one-shot/persistent
+faults, including instance/root storage and core collection buffers. The native
+malloc wrapper is not evidence for this different backend.
+
+A Wasm worker takes explicit numeric range/count/mode inputs through a dedicated
+test export. It verifies the same complete baseline and per-position recovery
+contract, returns exact counters through test-only exports and retains every
+engine terminal. The coordinator rejects missing/overlapping positions or
+mismatched counts. Both engines must demonstrate the complete observed corpus;
+ordinary nano_main success alone does not discharge this requirement. The
+packaged runtime separately proves these testing exports/hooks absent.
+
+The generated instance reserves over8MiB for its full1024-frame root extent.
+I therefore do not reuse the earlier4MiB manual adapter harness as the generated
+Wasm memory bound. I select and record explicit initial/maximum linear-memory
+limits sufficient for that root extent, test growth/maximum failures and retain
+the full1024/1025-frame cases. A platform allocation failure is a measured MEMORY
+outcome, never permission to remove a valid graph or reduce its declared frame
+acceptance.

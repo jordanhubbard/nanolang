@@ -14351,3 +14351,9 @@ I reserve4096 bytes for named LLVM scratch and charge512 additional work units
 per operation plus every formatted byte. Strict corrected GCC syntax passes;
 no emitted LLVM, Wasm or new runtime product has executed. Complete independent
 source review and the unchanged corpus fixture remain required before gates.
+
+My LLVM fixture design explicitly separates Wasm observation replay from actual
+allocation-fault acceptance. Wasm uses core testing allocation hooks and numeric
+range exports, not the native malloc/argv wrapper, and its full1024-frame roots
+already exceed8MiB. I preserve complete fault/engine/frame coverage and qualify
+new explicit memory limits rather than reuse the old4MiB manual harness claim.
