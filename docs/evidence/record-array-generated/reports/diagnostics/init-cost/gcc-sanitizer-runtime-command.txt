@@ -1,0 +1,1 @@
+/usr/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -O0 -g -Wall -Wextra -Werror -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -DNMS_TESTING -Isrc/nanoisa -Itests/nanoisa -fsanitize=address,undefined -fno-omit-frame-pointer -DRA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h -c src/nanoisa/record_array_generated_private.c -o /tmp/nanolang-record-generated-init-cost/gcc-sanitizer.o

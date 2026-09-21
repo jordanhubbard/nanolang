@@ -1,0 +1,8 @@
+{
+  "scope": "SDK selector only. Reuse exact checked source and current original provider entries; fresh fixture builds and reports for failed/unrun phases. Original Apple pass and HB compiler failure retained.",
+  "sha256": {
+    "/tmp/nanolang-recovery-native-sdk-clang": "e8887481e0df8922f520032f377b524b30d18adb5bb4fbae60c8a5797affcbb5",
+    "/tmp/nanolang-record-generated-75979-sdk-launch.py": "71a07aaa281f51d3e29e7db99bcfa12ecfa5db6fff34c4f7459714f50968e3b6",
+    "/tmp/nanolang-record-generated-75979-sdk-supervise.py": "bdc6108786364478849c759abc3be0fb51bb12db1296c232be405597f074870d"
+  }
+}

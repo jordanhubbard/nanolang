@@ -1,0 +1,1860 @@
+{
+  "cleanup": [],
+  "owned": {
+    "3130": {
+      "command": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python -m unittest -f -v tests.test_record_array_generated",
+      "group": 3130,
+      "parent": 2672,
+      "started": "Mon Sep 21 01:26:26 2026"
+    },
+    "3142": {
+      "command": "<defunct>",
+      "group": 3142,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:27 2026"
+    },
+    "3152": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/emission",
+      "group": 3152,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:28 2026"
+    },
+    "3165": {
+      "command": "<defunct>",
+      "group": 3165,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:29 2026"
+    },
+    "3186": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -c src/nanovm/cop_protocol.c -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-cop_protocol.o",
+      "group": 3186,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:30 2026"
+    },
+    "3188": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -triple arm64-apple-macosx26.2.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name cop_protocol.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -mllvm -extra-vectorizer-passes -pointer-tbaa -fno-strict-return -ffp-contract=off -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=26.2 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debug-info-kind=standalone -dwarf-version=5 -debugger-tuning=lldb -fdebug-compilation-dir=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-generated-qualified-75979 -target-linker-version 1230.1 -fcoverage-compilation-dir=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-generated-qualified-75979 -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -I /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I /opt/homebrew/opt/openssl@3/include -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/SubFrameworks -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/Library/Frameworks -O3 -Wall -Wextra -Werror -Wall -Wextra -Werror -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -std=c99 -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fmax-type-align=16 -fcommon -vectorize-loops -vectorize-slp -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-cop_protocol.o -x c src/nanovm/cop_protocol.c",
+      "group": 3186,
+      "parent": 3186,
+      "started": "Mon Sep 21 01:26:30 2026"
+    },
+    "3193": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa tests/nanoisa/test_record_array_generated_capture.c src/nanoisa/nvm2c_record_array_private.c tests/nanoisa/record_array_alloc.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-managed_array_shapes.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-verifier.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-verifier_types.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-vm_decode.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-ownership_contracts.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-nvm_v2_layouts.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-retained_layouts.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-vm_dispatch.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-value.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-heap.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-heap_cycles.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-vm_callback.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-vm_ffi.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-vm_builtins.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-cop_protocol.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-vm_ffi_arrays.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture-callback_runtime.o obj/bcp47.o obj/bench.o obj/bench_native.o obj/builtins_registry.o obj/cJSON.o obj/c_backend.o obj/catalog.o obj/channel.o obj/coroutine.o obj/cps_pass.o obj/dce_pass.o obj/diag_id.o obj/docgen.o obj/docgen_md.o obj/dwarf_info.o obj/effects.o obj/emit_typed_ast.o obj/env.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_io.o obj/eval/eval_math.o obj/eval/eval_string.o obj/fmt.o obj/fold_constants.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/lexer.o obj/locale.o obj/module.o obj/module_builder.o obj/module_metadata.o obj/nanocore_export.o obj/nanocore_subset.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/file_flow.o obj/nanoisa/frontend.o obj/nanoisa/isa.o obj/nanoisa/local_bindings.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/nanoisa_facade.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/passive.o obj/nanoisa/reference_places.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nominal_types.o obj/nsi_file_plan.o obj/opencl_backend.o obj/par_let_pass.o obj/parser.o obj/pgo_pass.o obj/ptx_backend.o obj/reflection.o obj/resource_flow.o obj/resource_tracking.o obj/riscv_backend.o obj/runtime/cli.o obj/runtime/dyn_array.o obj/runtime/effect_runtime.o obj/runtime/ffi_loader.o obj/runtime/gc.o obj/runtime/gc_struct.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTString.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTWhile.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_LexerToken.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_token.o obj/runtime/module_build_dir.o obj/runtime/nl_string.o obj/runtime/regex.o obj/runtime/token_helpers.o obj/stdlib_runtime.o obj/tco_pass.o obj/toon_output.o obj/transpiler.o obj/type_infer.o obj/typechecker.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture",
+      "group": 3193,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:31 2026"
+    },
+    "3194": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -triple arm64-apple-macosx26.2.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -dumpdir /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name test_record_array_generated_capture.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -mllvm -extra-vectorizer-passes -pointer-tbaa -fno-strict-return -ffp-contract=off -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=26.2 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debug-info-kind=standalone -dwarf-version=5 -debugger-tuning=lldb -fdebug-compilation-dir=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-generated-qualified-75979 -target-linker-version 1230.1 -fcoverage-compilation-dir=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-generated-qualified-75979 -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -I /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I /opt/homebrew/opt/openssl@3/include -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/SubFrameworks -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/Library/Frameworks -O3 -Wall -Wextra -Werror -Wall -Wextra -Werror -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -std=c99 -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fmax-type-align=16 -fcommon -vectorize-loops -vectorize-slp -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/test_record_array_generated_capture-20ee74.o -x c tests/nanoisa/test_record_array_generated_capture.c",
+      "group": 3193,
+      "parent": 3193,
+      "started": "Mon Sep 21 01:26:31 2026"
+    },
+    "3213": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/capture /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus",
+      "group": 3213,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:32 2026"
+    },
+    "3230": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0000",
+      "group": 3230,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:34 2026"
+    },
+    "3253": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0004.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0004.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0004",
+      "group": 3253,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:35 2026"
+    },
+    "3256": {
+      "command": "(ld)",
+      "group": 3253,
+      "parent": 3253,
+      "started": "Mon Sep 21 01:26:35 2026"
+    },
+    "3281": {
+      "command": "(nm)",
+      "group": 3281,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:36 2026"
+    },
+    "3314": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0011.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0011.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0011",
+      "group": 3314,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:37 2026"
+    },
+    "3316": {
+      "command": "(clang)",
+      "group": 3314,
+      "parent": 3314,
+      "started": "Mon Sep 21 01:26:37 2026"
+    },
+    "3343": {
+      "command": "(clang)",
+      "group": 3343,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:38 2026"
+    },
+    "3346": {
+      "command": "(ld)",
+      "group": 3343,
+      "parent": 3343,
+      "started": "Mon Sep 21 01:26:38 2026"
+    },
+    "3377": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0019.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0019.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0019",
+      "group": 3377,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:39 2026"
+    },
+    "3379": {
+      "command": "(clang)",
+      "group": 3377,
+      "parent": 3377,
+      "started": "Mon Sep 21 01:26:39 2026"
+    },
+    "3410": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0022",
+      "group": 3410,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:40 2026"
+    },
+    "3434": {
+      "command": "<defunct>",
+      "group": 3434,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:41 2026"
+    },
+    "3463": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0030.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0030.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0030",
+      "group": 3463,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:42 2026"
+    },
+    "3505": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0034.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0034.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0034",
+      "group": 3505,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:43 2026"
+    },
+    "3506": {
+      "command": "(clang)",
+      "group": 3505,
+      "parent": 3505,
+      "started": "Mon Sep 21 01:26:43 2026"
+    },
+    "3534": {
+      "command": "<defunct>",
+      "group": 3534,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:44 2026"
+    },
+    "3569": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0042",
+      "group": 3569,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:45 2026"
+    },
+    "3598": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0046",
+      "group": 3598,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:46 2026"
+    },
+    "3627": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0050",
+      "group": 3627,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:47 2026"
+    },
+    "3656": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0054",
+      "group": 3656,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:48 2026"
+    },
+    "3685": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0058",
+      "group": 3685,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:49 2026"
+    },
+    "3708": {
+      "command": "<defunct>",
+      "group": 3708,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:50 2026"
+    },
+    "3743": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0065",
+      "group": 3743,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:51 2026"
+    },
+    "3782": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0069.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0069.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0069",
+      "group": 3782,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:52 2026"
+    },
+    "3823": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-linked-0072",
+      "group": 3823,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:53 2026"
+    },
+    "3848": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0002.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0002.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0002",
+      "group": 3848,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:54 2026"
+    },
+    "3850": {
+      "command": "(clang)",
+      "group": 3848,
+      "parent": 3848,
+      "started": "Mon Sep 21 01:26:54 2026"
+    },
+    "3873": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0005.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0005.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0005",
+      "group": 3873,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:55 2026"
+    },
+    "3874": {
+      "command": "(clang)",
+      "group": 3873,
+      "parent": 3873,
+      "started": "Mon Sep 21 01:26:55 2026"
+    },
+    "3904": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0008 --fault-baseline",
+      "group": 3904,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:56 2026"
+    },
+    "3936": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0011 --fault-baseline",
+      "group": 3936,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:57 2026"
+    },
+    "3970": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0013.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0013.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0013",
+      "group": 3970,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:58 2026"
+    },
+    "3990": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0013.dSYM /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0013",
+      "group": 3970,
+      "parent": 3970,
+      "started": "Mon Sep 21 01:26:58 2026"
+    },
+    "3992": {
+      "command": "(O0-observed-0013)",
+      "group": 3992,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:26:58 2026"
+    },
+    "4032": {
+      "command": "(O0-observed-0016)",
+      "group": 4032,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:01 2026"
+    },
+    "4061": {
+      "command": "<defunct>",
+      "group": 4061,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:02 2026"
+    },
+    "4110": {
+      "command": "(nm)",
+      "group": 4110,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:03 2026"
+    },
+    "4120": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0022.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0022.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0022",
+      "group": 4120,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:04 2026"
+    },
+    "4124": {
+      "command": "(ld)",
+      "group": 4120,
+      "parent": 4120,
+      "started": "Mon Sep 21 01:27:04 2026"
+    },
+    "4227": {
+      "command": "(O0-observed-0024)",
+      "group": 4227,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:08 2026"
+    },
+    "4261": {
+      "command": "<defunct>",
+      "group": 4261,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:09 2026"
+    },
+    "4331": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0029.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0029.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0029",
+      "group": 4331,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:10 2026"
+    },
+    "4336": {
+      "command": "(ld)",
+      "group": 4331,
+      "parent": 4331,
+      "started": "Mon Sep 21 01:27:10 2026"
+    },
+    "4404": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0031 --fault-baseline",
+      "group": 4404,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:11 2026"
+    },
+    "4421": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0033.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0033.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0033",
+      "group": 4421,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:12 2026"
+    },
+    "4423": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -triple arm64-apple-macosx26.2.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -dumpdir /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0033- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0033.replay.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=off -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=26.2 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debug-info-kind=standalone -dwarf-version=5 -debugger-tuning=lldb -fdebug-compilation-dir=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-generated-qualified-75979 -target-linker-version 1230.1 -fcoverage-compilation-dir=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-generated-qualified-75979 -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -I /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I /opt/homebrew/opt/openssl@3/include -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/SubFrameworks -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/Library/Frameworks -O0 -Wall -Wextra -Werror -Wall -Wextra -Werror -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -std=c99 -ferror-limit 19 -pthread -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fmax-type-align=16 -fcommon -vectorize-loops -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/product-0033-2a3328.o -x c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0033.replay.c",
+      "group": 4421,
+      "parent": 4421,
+      "started": "Mon Sep 21 01:27:12 2026"
+    },
+    "4464": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0034.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0034.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0034",
+      "group": 4464,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:13 2026"
+    },
+    "4467": {
+      "command": "(clang)",
+      "group": 4464,
+      "parent": 4464,
+      "started": "Mon Sep 21 01:27:13 2026"
+    },
+    "4648": {
+      "command": "<defunct>",
+      "group": 4648,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:15 2026"
+    },
+    "4669": {
+      "command": "<defunct>",
+      "group": 4669,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:16 2026"
+    },
+    "4691": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0043.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0043.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0043",
+      "group": 4691,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:17 2026"
+    },
+    "4696": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -no_deduplicate -dynamic -arch arm64 -platform_version macos 26.2.0 26.2 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -O0 -mllvm -enable-linkonceodr-outlining -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0043 -L/opt/homebrew/opt/openssl@3/lib /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/product-0043-e27a2e.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/product-0043-cea3dc.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-allocator.o -lm -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a",
+      "group": 4691,
+      "parent": 4691,
+      "started": "Mon Sep 21 01:27:17 2026"
+    },
+    "4705": {
+      "command": "<defunct>",
+      "group": 4705,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:18 2026"
+    },
+    "4799": {
+      "command": "(O0-observed-0046)",
+      "group": 4799,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:20 2026"
+    },
+    "4938": {
+      "command": "<defunct>",
+      "group": 4938,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:22 2026"
+    },
+    "4993": {
+      "command": "(clang)",
+      "group": 4993,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:23 2026"
+    },
+    "4996": {
+      "command": "(ld)",
+      "group": 4993,
+      "parent": 4993,
+      "started": "Mon Sep 21 01:27:23 2026"
+    },
+    "5042": {
+      "command": "(O0-observed-0056)",
+      "group": 5042,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:24 2026"
+    },
+    "5152": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0062.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0062.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0062",
+      "group": 5152,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:26 2026"
+    },
+    "5159": {
+      "command": "(ld)",
+      "group": 5152,
+      "parent": 5152,
+      "started": "Mon Sep 21 01:27:26 2026"
+    },
+    "5218": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 0 16 1042",
+      "group": 5218,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:27 2026"
+    },
+    "5252": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 32 48 1042",
+      "group": 5252,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:28 2026"
+    },
+    "5275": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 80 96 1042",
+      "group": 5275,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:29 2026"
+    },
+    "5354": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 112 128 1042",
+      "group": 5354,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:30 2026"
+    },
+    "5489": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 176 192 1042",
+      "group": 5489,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:32 2026"
+    },
+    "5510": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 208 224 1042",
+      "group": 5510,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:33 2026"
+    },
+    "5527": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 256 272 1042",
+      "group": 5527,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:34 2026"
+    },
+    "5535": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 288 304 1042",
+      "group": 5535,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:35 2026"
+    },
+    "5547": {
+      "command": "<defunct>",
+      "group": 5547,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:36 2026"
+    },
+    "5559": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 368 384 1042",
+      "group": 5559,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:37 2026"
+    },
+    "5565": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 400 416 1042",
+      "group": 5565,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:38 2026"
+    },
+    "5577": {
+      "command": "<defunct>",
+      "group": 5577,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:39 2026"
+    },
+    "5610": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 480 496 1042",
+      "group": 5610,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:40 2026"
+    },
+    "5622": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 512 528 1042",
+      "group": 5622,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:41 2026"
+    },
+    "5626": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 544 560 1042",
+      "group": 5626,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:42 2026"
+    },
+    "5639": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 576 592 1042",
+      "group": 5639,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:43 2026"
+    },
+    "5725": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 608 624 1042",
+      "group": 5725,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:44 2026"
+    },
+    "5728": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 640 656 1042",
+      "group": 5728,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:45 2026"
+    },
+    "5742": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 672 688 1042",
+      "group": 5742,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:46 2026"
+    },
+    "5756": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 704 720 1042",
+      "group": 5756,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:47 2026"
+    },
+    "5790": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 736 752 1042",
+      "group": 5790,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:48 2026"
+    },
+    "5797": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 768 784 1042",
+      "group": 5797,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:50 2026"
+    },
+    "5805": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 800 816 1042",
+      "group": 5805,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:51 2026"
+    },
+    "5808": {
+      "command": "(O0-observed-0063)",
+      "group": 5808,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:51 2026"
+    },
+    "5812": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 848 864 1042",
+      "group": 5812,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:52 2026"
+    },
+    "5818": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 880 896 1042",
+      "group": 5818,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:54 2026"
+    },
+    "5826": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 912 928 1042",
+      "group": 5826,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:55 2026"
+    },
+    "5829": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 928 944 1042",
+      "group": 5829,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:56 2026"
+    },
+    "5834": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 960 976 1042",
+      "group": 5834,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:57 2026"
+    },
+    "5836": {
+      "command": "(O0-observed-0063)",
+      "group": 5836,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:57 2026"
+    },
+    "5842": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 1008 1024 1042",
+      "group": 5842,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:27:59 2026"
+    },
+    "5854": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0063 --fault-range 1040 1042 1042",
+      "group": 5854,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:00 2026"
+    },
+    "5864": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 0 16 1042",
+      "group": 5864,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:01 2026"
+    },
+    "5872": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 48 64 1042",
+      "group": 5872,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:02 2026"
+    },
+    "5875": {
+      "command": "(O0-observed-0064)",
+      "group": 5875,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:03 2026"
+    },
+    "5882": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 128 144 1042",
+      "group": 5882,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:04 2026"
+    },
+    "5893": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 176 192 1042",
+      "group": 5893,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:06 2026"
+    },
+    "5906": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 208 224 1042",
+      "group": 5906,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:06 2026"
+    },
+    "5918": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 256 272 1042",
+      "group": 5918,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:08 2026"
+    },
+    "5927": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 288 304 1042",
+      "group": 5927,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:08 2026"
+    },
+    "5935": {
+      "command": "(O0-observed-0064)",
+      "group": 5935,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:09 2026"
+    },
+    "5942": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 368 384 1042",
+      "group": 5942,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:11 2026"
+    },
+    "5955": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 400 416 1042",
+      "group": 5955,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:12 2026"
+    },
+    "5962": {
+      "command": "(O0-observed-0064)",
+      "group": 5962,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:12 2026"
+    },
+    "5974": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 480 496 1042",
+      "group": 5974,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:14 2026"
+    },
+    "5982": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 512 528 1042",
+      "group": 5982,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:15 2026"
+    },
+    "5989": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 544 560 1042",
+      "group": 5989,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:16 2026"
+    },
+    "6001": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 576 592 1042",
+      "group": 6001,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:17 2026"
+    },
+    "6012": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 608 624 1042",
+      "group": 6012,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:18 2026"
+    },
+    "6018": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 640 656 1042",
+      "group": 6018,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:19 2026"
+    },
+    "6023": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 672 688 1042",
+      "group": 6023,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:20 2026"
+    },
+    "6030": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 704 720 1042",
+      "group": 6030,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:21 2026"
+    },
+    "6040": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 736 752 1042",
+      "group": 6040,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:22 2026"
+    },
+    "6046": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 768 784 1042",
+      "group": 6046,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:23 2026"
+    },
+    "6054": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 800 816 1042",
+      "group": 6054,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:24 2026"
+    },
+    "6060": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 832 848 1042",
+      "group": 6060,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:25 2026"
+    },
+    "6063": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 848 864 1042",
+      "group": 6063,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:26 2026"
+    },
+    "6075": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 880 896 1042",
+      "group": 6075,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:27 2026"
+    },
+    "6079": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 912 928 1042",
+      "group": 6079,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:28 2026"
+    },
+    "6082": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 928 944 1042",
+      "group": 6082,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:29 2026"
+    },
+    "6085": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 960 976 1042",
+      "group": 6085,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:30 2026"
+    },
+    "6087": {
+      "command": "<defunct>",
+      "group": 6087,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:31 2026"
+    },
+    "6100": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 1008 1024 1042",
+      "group": 6100,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:32 2026"
+    },
+    "6107": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0064 --fault-range 1040 1042 1042",
+      "group": 6107,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:34 2026"
+    },
+    "6120": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 16 32 1043",
+      "group": 6120,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:35 2026"
+    },
+    "6123": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 48 64 1043",
+      "group": 6123,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:35 2026"
+    },
+    "6127": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 96 112 1043",
+      "group": 6127,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:37 2026"
+    },
+    "6132": {
+      "command": "<defunct>",
+      "group": 6132,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:37 2026"
+    },
+    "6138": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 176 192 1043",
+      "group": 6138,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:39 2026"
+    },
+    "6143": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 224 240 1043",
+      "group": 6143,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:40 2026"
+    },
+    "6147": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 256 272 1043",
+      "group": 6147,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:41 2026"
+    },
+    "6151": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 304 320 1043",
+      "group": 6151,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:42 2026"
+    },
+    "6156": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 336 352 1043",
+      "group": 6156,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:43 2026"
+    },
+    "6166": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 384 400 1043",
+      "group": 6166,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:44 2026"
+    },
+    "6171": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 416 432 1043",
+      "group": 6171,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:45 2026"
+    },
+    "6174": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 448 464 1043",
+      "group": 6174,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:46 2026"
+    },
+    "6184": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 496 512 1043",
+      "group": 6184,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:47 2026"
+    },
+    "6197": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 528 544 1043",
+      "group": 6197,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:48 2026"
+    },
+    "6236": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 560 576 1043",
+      "group": 6236,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:49 2026"
+    },
+    "6239": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 592 608 1043",
+      "group": 6239,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:50 2026"
+    },
+    "6242": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 624 640 1043",
+      "group": 6242,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:51 2026"
+    },
+    "6249": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 656 672 1043",
+      "group": 6249,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:52 2026"
+    },
+    "6254": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 688 704 1043",
+      "group": 6254,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:53 2026"
+    },
+    "6260": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 720 736 1043",
+      "group": 6260,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:54 2026"
+    },
+    "6268": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 752 768 1043",
+      "group": 6268,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:55 2026"
+    },
+    "6276": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 784 800 1043",
+      "group": 6276,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:57 2026"
+    },
+    "6280": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 800 816 1043",
+      "group": 6280,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:57 2026"
+    },
+    "6295": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 832 848 1043",
+      "group": 6295,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:58 2026"
+    },
+    "6305": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 864 880 1043",
+      "group": 6305,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:28:59 2026"
+    },
+    "6310": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 896 912 1043",
+      "group": 6310,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:01 2026"
+    },
+    "6312": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 912 928 1043",
+      "group": 6312,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:01 2026"
+    },
+    "6318": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 944 960 1043",
+      "group": 6318,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:03 2026"
+    },
+    "6333": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 976 992 1043",
+      "group": 6333,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:04 2026"
+    },
+    "6336": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 992 1008 1043",
+      "group": 6336,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:04 2026"
+    },
+    "6340": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0065 --fault-range 1024 1040 1043",
+      "group": 6340,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:06 2026"
+    },
+    "6357": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-baseline",
+      "group": 6357,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:07 2026"
+    },
+    "6374": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 32 48 1043",
+      "group": 6374,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:08 2026"
+    },
+    "6387": {
+      "command": "(O0-observed-0066)",
+      "group": 6387,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:09 2026"
+    },
+    "6403": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 112 128 1043",
+      "group": 6403,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:10 2026"
+    },
+    "6407": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 160 176 1043",
+      "group": 6407,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:11 2026"
+    },
+    "6414": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 192 208 1043",
+      "group": 6414,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:12 2026"
+    },
+    "6419": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 240 256 1043",
+      "group": 6419,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:13 2026"
+    },
+    "6423": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 272 288 1043",
+      "group": 6423,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:14 2026"
+    },
+    "6428": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 320 336 1043",
+      "group": 6428,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:15 2026"
+    },
+    "6431": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 352 368 1043",
+      "group": 6431,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:16 2026"
+    },
+    "6434": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 384 400 1043",
+      "group": 6434,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:17 2026"
+    },
+    "6440": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 432 448 1043",
+      "group": 6440,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:18 2026"
+    },
+    "6446": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 464 480 1043",
+      "group": 6446,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:19 2026"
+    },
+    "6449": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 496 512 1043",
+      "group": 6449,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:20 2026"
+    },
+    "6455": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 544 560 1043",
+      "group": 6455,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:22 2026"
+    },
+    "6458": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 576 592 1043",
+      "group": 6458,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:22 2026"
+    },
+    "6462": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 608 624 1043",
+      "group": 6462,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:23 2026"
+    },
+    "6467": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 640 656 1043",
+      "group": 6467,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:24 2026"
+    },
+    "6470": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 672 688 1043",
+      "group": 6470,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:25 2026"
+    },
+    "6473": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 704 720 1043",
+      "group": 6473,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:26 2026"
+    },
+    "6478": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 736 752 1043",
+      "group": 6478,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:28 2026"
+    },
+    "6483": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 768 784 1043",
+      "group": 6483,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:29 2026"
+    },
+    "6487": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 800 816 1043",
+      "group": 6487,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:30 2026"
+    },
+    "6497": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 832 848 1043",
+      "group": 6497,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:31 2026"
+    },
+    "6504": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 848 864 1043",
+      "group": 6504,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:31 2026"
+    },
+    "6509": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 880 896 1043",
+      "group": 6509,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:33 2026"
+    },
+    "6516": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 912 928 1043",
+      "group": 6516,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:34 2026"
+    },
+    "6519": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 928 944 1043",
+      "group": 6519,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:35 2026"
+    },
+    "6522": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 960 976 1043",
+      "group": 6522,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:36 2026"
+    },
+    "6529": {
+      "command": "<defunct>",
+      "group": 6529,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:37 2026"
+    },
+    "6536": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0066 --fault-range 1008 1024 1043",
+      "group": 6536,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:38 2026"
+    },
+    "6569": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O0-observed-0068 --fault-baseline",
+      "group": 6569,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:40 2026"
+    },
+    "6592": {
+      "command": "(O0-observed-0070)",
+      "group": 6592,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:41 2026"
+    },
+    "6616": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -c src/nanoisa/record_array_generated_private.c -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o",
+      "group": 6616,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:42 2026"
+    },
+    "6617": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -triple arm64-apple-macosx26.2.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name record_array_generated_private.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=off -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=26.2 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debug-info-kind=standalone -dwarf-version=5 -debugger-tuning=lldb -fdebug-compilation-dir=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-generated-qualified-75979 -target-linker-version 1230.1 -fcoverage-compilation-dir=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-generated-qualified-75979 -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -I /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I /opt/homebrew/opt/openssl@3/include -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/SubFrameworks -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/Library/Frameworks -O2 -Wall -Wextra -Werror -Wall -Wextra -Werror -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -std=c99 -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fmax-type-align=16 -fcommon -vectorize-loops -vectorize-slp -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -x c src/nanoisa/record_array_generated_private.c",
+      "group": 6616,
+      "parent": 6616,
+      "started": "Mon Sep 21 01:29:42 2026"
+    },
+    "6635": {
+      "command": "<defunct>",
+      "group": 6635,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:43 2026"
+    },
+    "6666": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0004.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0004.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0004",
+      "group": 6666,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:44 2026"
+    },
+    "6689": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0007.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0007.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0007",
+      "group": 6689,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:46 2026"
+    },
+    "6711": {
+      "command": "(clang)",
+      "group": 6711,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:46 2026"
+    },
+    "6715": {
+      "command": "(dsymutil)",
+      "group": 6711,
+      "parent": 6711,
+      "started": "Mon Sep 21 01:29:47 2026"
+    },
+    "6734": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0013.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0013.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0013",
+      "group": 6734,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:48 2026"
+    },
+    "6737": {
+      "command": "(clang)",
+      "group": 6734,
+      "parent": 6734,
+      "started": "Mon Sep 21 01:29:48 2026"
+    },
+    "6770": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0016.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0016.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0016",
+      "group": 6770,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:49 2026"
+    },
+    "6771": {
+      "command": "(clang)",
+      "group": 6770,
+      "parent": 6770,
+      "started": "Mon Sep 21 01:29:49 2026"
+    },
+    "6803": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0018.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0018.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0018",
+      "group": 6803,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:50 2026"
+    },
+    "6804": {
+      "command": "(clang)",
+      "group": 6803,
+      "parent": 6803,
+      "started": "Mon Sep 21 01:29:50 2026"
+    },
+    "6826": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0021.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0021.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0021",
+      "group": 6826,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:51 2026"
+    },
+    "6849": {
+      "command": "<defunct>",
+      "group": 6849,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:52 2026"
+    },
+    "6880": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0027.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0027.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0027",
+      "group": 6880,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:53 2026"
+    },
+    "6901": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0030.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0030.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0030",
+      "group": 6901,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:54 2026"
+    },
+    "6902": {
+      "command": "(clang)",
+      "group": 6901,
+      "parent": 6901,
+      "started": "Mon Sep 21 01:29:54 2026"
+    },
+    "6925": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0033.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0033.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0033",
+      "group": 6925,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:55 2026"
+    },
+    "6926": {
+      "command": "(clang)",
+      "group": 6925,
+      "parent": 6925,
+      "started": "Mon Sep 21 01:29:55 2026"
+    },
+    "6948": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0036.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0036.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0036",
+      "group": 6948,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:56 2026"
+    },
+    "6968": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0038",
+      "group": 6968,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:57 2026"
+    },
+    "6991": {
+      "command": "(O2-linked-0041)",
+      "group": 6991,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:58 2026"
+    },
+    "7016": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0045.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0045.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0045",
+      "group": 7016,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:29:59 2026"
+    },
+    "7017": {
+      "command": "(clang)",
+      "group": 7016,
+      "parent": 7016,
+      "started": "Mon Sep 21 01:29:59 2026"
+    },
+    "7044": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0048.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0048.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0048",
+      "group": 7044,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:00 2026"
+    },
+    "7046": {
+      "command": "(clang)",
+      "group": 7044,
+      "parent": 7044,
+      "started": "Mon Sep 21 01:30:00 2026"
+    },
+    "7061": {
+      "command": "<defunct>",
+      "group": 7061,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:01 2026"
+    },
+    "7089": {
+      "command": "<defunct>",
+      "group": 7089,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:02 2026"
+    },
+    "7112": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0056.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0056.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0056",
+      "group": 7112,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:03 2026"
+    },
+    "7114": {
+      "command": "(clang)",
+      "group": 7112,
+      "parent": 7112,
+      "started": "Mon Sep 21 01:30:03 2026"
+    },
+    "7141": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0059.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0059.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-runtime.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0059",
+      "group": 7141,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:04 2026"
+    },
+    "7165": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0061",
+      "group": 7165,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:05 2026"
+    },
+    "7190": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0064",
+      "group": 7190,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:06 2026"
+    },
+    "7210": {
+      "command": "<defunct>",
+      "group": 7210,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:07 2026"
+    },
+    "7239": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-linked-0069",
+      "group": 7239,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:08 2026"
+    },
+    "7256": {
+      "command": "(clang)",
+      "group": 7256,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:10 2026"
+    },
+    "7259": {
+      "command": "(ld)",
+      "group": 7256,
+      "parent": 7256,
+      "started": "Mon Sep 21 01:30:10 2026"
+    },
+    "7275": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0000 --fault-baseline",
+      "group": 7275,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:11 2026"
+    },
+    "7294": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0003.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0003.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0003",
+      "group": 7294,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:12 2026"
+    },
+    "7295": {
+      "command": "(clang)",
+      "group": 7294,
+      "parent": 7294,
+      "started": "Mon Sep 21 01:30:12 2026"
+    },
+    "7316": {
+      "command": "<defunct>",
+      "group": 7316,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:13 2026"
+    },
+    "7339": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0007 --fault-baseline",
+      "group": 7339,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:14 2026"
+    },
+    "7366": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0010 --fault-baseline",
+      "group": 7366,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:15 2026"
+    },
+    "7386": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0013.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0013.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0013",
+      "group": 7386,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:16 2026"
+    },
+    "7387": {
+      "command": "(clang)",
+      "group": 7386,
+      "parent": 7386,
+      "started": "Mon Sep 21 01:30:16 2026"
+    },
+    "7409": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0015 --fault-baseline",
+      "group": 7409,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:17 2026"
+    },
+    "7433": {
+      "command": "(clang)",
+      "group": 7433,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:18 2026"
+    },
+    "7437": {
+      "command": "(dsymutil)",
+      "group": 7433,
+      "parent": 7433,
+      "started": "Mon Sep 21 01:30:18 2026"
+    },
+    "7450": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0019 --fault-baseline",
+      "group": 7450,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:19 2026"
+    },
+    "7471": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0022.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0022.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0022",
+      "group": 7471,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:20 2026"
+    },
+    "7473": {
+      "command": "(clang)",
+      "group": 7471,
+      "parent": 7471,
+      "started": "Mon Sep 21 01:30:20 2026"
+    },
+    "7528": {
+      "command": "<defunct>",
+      "group": 7528,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:22 2026"
+    },
+    "7558": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0030 --fault-baseline",
+      "group": 7558,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:23 2026"
+    },
+    "7588": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0033 --fault-baseline",
+      "group": 7588,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:24 2026"
+    },
+    "7614": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0036.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0036.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0036",
+      "group": 7614,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:25 2026"
+    },
+    "7615": {
+      "command": "(clang)",
+      "group": 7614,
+      "parent": 7614,
+      "started": "Mon Sep 21 01:30:25 2026"
+    },
+    "7645": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0038 --fault-baseline",
+      "group": 7645,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:26 2026"
+    },
+    "7683": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0041 --fault-baseline",
+      "group": 7683,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:27 2026"
+    },
+    "7703": {
+      "command": "<defunct>",
+      "group": 7703,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:28 2026"
+    },
+    "7729": {
+      "command": "<defunct>",
+      "group": 7729,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:29 2026"
+    },
+    "7754": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0049 --fault-baseline",
+      "group": 7754,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:30 2026"
+    },
+    "7782": {
+      "command": "<defunct>",
+      "group": 7782,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:31 2026"
+    },
+    "7810": {
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0055.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus/product-0055.replay.c /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-runtime.o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-allocator.o -lm -pthread -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0055",
+      "group": 7810,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:33 2026"
+    },
+    "7812": {
+      "command": "(clang)",
+      "group": 7810,
+      "parent": 7810,
+      "started": "Mon Sep 21 01:30:33 2026"
+    },
+    "7838": {
+      "command": "<defunct>",
+      "group": 7838,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:33 2026"
+    },
+    "7864": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0060 --fault-baseline",
+      "group": 7864,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:35 2026"
+    },
+    "7885": {
+      "command": "(clang)",
+      "group": 7885,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:36 2026"
+    },
+    "7890": {
+      "command": "(dsymutil)",
+      "group": 7885,
+      "parent": 7885,
+      "started": "Mon Sep 21 01:30:36 2026"
+    },
+    "7899": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0063 --fault-range 80 96 1042",
+      "group": 7899,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:37 2026"
+    },
+    "7909": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0063 --fault-range 192 208 1042",
+      "group": 7909,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:38 2026"
+    },
+    "7923": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0063 --fault-range 320 336 1042",
+      "group": 7923,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:39 2026"
+    },
+    "7934": {
+      "command": "<defunct>",
+      "group": 7934,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:40 2026"
+    },
+    "7945": {
+      "command": "(O2-observed-0063)",
+      "group": 7945,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:41 2026"
+    },
+    "7955": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0063 --fault-range 640 656 1042",
+      "group": 7955,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:42 2026"
+    },
+    "7966": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0063 --fault-range 736 752 1042",
+      "group": 7966,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:43 2026"
+    },
+    "7979": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0063 --fault-range 832 848 1042",
+      "group": 7979,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:44 2026"
+    },
+    "7986": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0063 --fault-range 912 928 1042",
+      "group": 7986,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:45 2026"
+    },
+    "7999": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0063 --fault-range 992 1008 1042",
+      "group": 7999,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:46 2026"
+    },
+    "8015": {
+      "command": "(O2-observed-0064)",
+      "group": 8015,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:47 2026"
+    },
+    "8026": {
+      "command": "(O2-observed-0064)",
+      "group": 8026,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:48 2026"
+    },
+    "8039": {
+      "command": "(O2-observed-0064)",
+      "group": 8039,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:49 2026"
+    },
+    "8060": {
+      "command": "<defunct>",
+      "group": 8060,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:50 2026"
+    },
+    "8075": {
+      "command": "<defunct>",
+      "group": 8075,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:51 2026"
+    },
+    "8090": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0064 --fault-range 592 608 1042",
+      "group": 8090,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:52 2026"
+    },
+    "8102": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0064 --fault-range 704 720 1042",
+      "group": 8102,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:53 2026"
+    },
+    "8113": {
+      "command": "(O2-observed-0064)",
+      "group": 8113,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:54 2026"
+    },
+    "8124": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0064 --fault-range 880 896 1042",
+      "group": 8124,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:55 2026"
+    },
+    "8132": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0064 --fault-range 976 992 1042",
+      "group": 8132,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:57 2026"
+    },
+    "8145": {
+      "command": "(O2-observed-0065)",
+      "group": 8145,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:57 2026"
+    },
+    "8156": {
+      "command": "(O2-observed-0065)",
+      "group": 8156,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:30:59 2026"
+    },
+    "8188": {
+      "command": "(O2-observed-0065)",
+      "group": 8188,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:00 2026"
+    },
+    "8201": {
+      "command": "(O2-observed-0065)",
+      "group": 8201,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:01 2026"
+    },
+    "8213": {
+      "command": "<defunct>",
+      "group": 8213,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:02 2026"
+    },
+    "8232": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0065 --fault-range 624 640 1043",
+      "group": 8232,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:03 2026"
+    },
+    "8241": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0065 --fault-range 720 736 1043",
+      "group": 8241,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:04 2026"
+    },
+    "8254": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0065 --fault-range 816 832 1043",
+      "group": 8254,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:05 2026"
+    },
+    "8271": {
+      "command": "(O2-observed-0065)",
+      "group": 8271,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:06 2026"
+    },
+    "8283": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0065 --fault-range 992 1008 1043",
+      "group": 8283,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:07 2026"
+    },
+    "8308": {
+      "command": "<defunct>",
+      "group": 8308,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:08 2026"
+    },
+    "8343": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0066 --fault-range 144 160 1043",
+      "group": 8343,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:09 2026"
+    },
+    "8368": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0066 --fault-range 272 288 1043",
+      "group": 8368,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:10 2026"
+    },
+    "8387": {
+      "command": "<defunct>",
+      "group": 8387,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:11 2026"
+    },
+    "8398": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0066 --fault-range 512 528 1043",
+      "group": 8398,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:12 2026"
+    },
+    "8406": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0066 --fault-range 624 640 1043",
+      "group": 8406,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:13 2026"
+    },
+    "8414": {
+      "command": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/O2-observed-0066 --fault-range 720 736 1043",
+      "group": 8414,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:14 2026"
+    },
+    "8424": {
+      "command": "(O2-observed-0066)",
+      "group": 8424,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:15 2026"
+    },
+    "8435": {
+      "command": "<defunct>",
+      "group": 8435,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:16 2026"
+    },
+    "8443": {
+      "command": "<defunct>",
+      "group": 8443,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:17 2026"
+    },
+    "8455": {
+      "command": "<defunct>",
+      "group": 8455,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:18 2026"
+    },
+    "8481": {
+      "command": "(O2-observed-0069)",
+      "group": 8481,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:19 2026"
+    },
+    "8505": {
+      "command": "<defunct>",
+      "group": 8505,
+      "parent": 3130,
+      "started": "Mon Sep 21 01:31:20 2026"
+    }
+  },
+  "remaining": []
+}

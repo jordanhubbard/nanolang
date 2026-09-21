@@ -1,0 +1,44 @@
+{
+  "created": 1789985643.1150463,
+  "source_seals": [
+    {
+      "seal": "/tmp/nanolang-record-generated-linux-first-seal",
+      "summary_sha256": "61b776a43cfd674f58267760f2ca8946fe10632e1175dd62ce98d0519395b34d",
+      "reports": 253
+    },
+    {
+      "seal": "/tmp/nanolang-record-generated-puck-seal-local",
+      "summary_sha256": "062afd37e850298ac6b6b29ba36ed78ab5c6b7404dd998f7817af8ef539a2fd9",
+      "reports": 214
+    },
+    {
+      "seal": "/tmp/nanolang-record-generated-linux-partition-history-seal",
+      "summary_sha256": "e658723d649e69cc37a2fc20e4817dd0260ea0b48d62cc624f8566549814b17e",
+      "reports": 94
+    },
+    {
+      "seal": "/tmp/nanolang-record-generated-darwin-recovery-seal",
+      "summary_sha256": "e60858be88ef57b4deb9792b330fe5a84e2f8f66a7a74f32a034c0966f2766c3",
+      "reports": 155
+    },
+    {
+      "seal": "/tmp/nanolang-record-generated-linux-complete-seal",
+      "summary_sha256": "a90bd3e07a9753bf5d7bd40004c42ec60666d4494b7c233d1bae867fbad278bf",
+      "reports": 123
+    }
+  ],
+  "reports": 946,
+  "objects": 28899,
+  "object_bytes": 6765906543,
+  "references": 104132,
+  "equal_pairs": 122,
+  "original_darwin_archive": {
+    "path": "/tmp/nanolang-record-generated-puck-evidence.tar.gz",
+    "sha256": "200310e10909bdb8f5dc9e42f50471168630e4f2885d35a02fe030f5eb209a1f",
+    "objects_verified": 6827,
+    "other_files_verified": 217
+  },
+  "scope": "C source and fixture histories remain separately attributed; all preserved first failures remain in original raw reports. Later remote-only evidence lost at the documented reboot is not reconstructed or counted.",
+  "diagnostic_references": 95,
+  "diagnostic_source_seal": "/tmp/nanolang-record-generated-cumulative-final-seal"
+}

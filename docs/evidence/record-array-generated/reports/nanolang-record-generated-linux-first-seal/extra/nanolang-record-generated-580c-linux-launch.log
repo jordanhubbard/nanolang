@@ -1,0 +1,11 @@
+{"pin": "580c1280679404639801b758da8124e17073578c", "source_files": 3741, "root": "/tmp/nanolang-record-generated-qualified-580c", "sdk": null}
+{"phase": "setup", "status": 0, "seconds": 21.421}
+{"phase": "configuration", "status": 0, "seconds": 0.064}
+{"phase": "discovery", "status": 0, "seconds": 0.114}
+{"phase": "ordinary", "status": 1, "seconds": 4.023}
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-generated-580c-launch.py", line 20, in <module>
+    subprocess.run([sys.executable,'/tmp/nanolang-record-generated-580c-driver.py',str(root),'/tmp/nanolang-record-generated-580c-'+host],check=True,env=env)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/tmp/nanolang-record-generated-580c-driver.py', '/tmp/nanolang-record-generated-qualified-580c', '/tmp/nanolang-record-generated-580c-linux']' returned non-zero exit status 1.

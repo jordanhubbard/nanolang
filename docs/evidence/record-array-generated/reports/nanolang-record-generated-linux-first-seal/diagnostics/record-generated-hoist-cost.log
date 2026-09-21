@@ -1,0 +1,9 @@
+gcc-ordinary iteration=0 create=0.004605755 destroy=0.001457682 allocation_calls=2
+iteration=1 create=0.003509324 destroy=0.000000880 allocation_calls=4
+
+gcc-sanitizer iteration=0 create=0.004644811 destroy=0.000796778 allocation_calls=2
+iteration=1 create=0.005301060 destroy=0.000926236 allocation_calls=4
+
+clang-sanitizer iteration=0 create=0.009313895 destroy=0.000956892 allocation_calls=2
+iteration=1 create=0.008887777 destroy=0.000705945 allocation_calls=4
+

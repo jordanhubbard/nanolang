@@ -50,8 +50,8 @@ new persistent Darwin matrix is separately attributed. My earlier Linux ABI
 refusal and the source correction remain separate histories for the final seal.
 
 Linux ordinary GCC/Clang native, full Wasm and neighboring queries have passed.
-Linux generated-C fault qualification and the queued LLVM sanitizer phases are
-still active/pending at this documentation checkpoint. The independent package
+Linux generated-C fault qualification is complete and separately sealed. The
+LLVM sanitizer continuation remains active at this documentation checkpoint. The independent package
 425bcbc786 correction passes its unchanged two-method suite on both hosts, with
 headers byte-identical to the qualified 78042 outputs; it is not a relabeling of
 execution source. I will publish the complete cumulative manifests and fresh

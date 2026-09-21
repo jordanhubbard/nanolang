@@ -1,0 +1,37 @@
+[
+  {
+    "phase": "configuration",
+    "seconds": 0.274,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary",
+    "seconds": 313.684,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 1231.672,
+    "status": 0
+  },
+  {
+    "phase": "old-private-vm",
+    "seconds": 14.733,
+    "status": 0
+  },
+  {
+    "phase": "record_array_global_flow",
+    "seconds": 3.724,
+    "status": 0
+  },
+  {
+    "phase": "record_array_execution",
+    "seconds": 4.145,
+    "status": 0
+  },
+  {
+    "phase": "record_array_origins",
+    "seconds": 3.615,
+    "status": 0
+  }
+]
