@@ -14387,3 +14387,10 @@ allocator failure claim.
   both its result and explicitly reset diagnostic count, requiring invalid
   positive/valid zero counts without changing cache/pointer assertions. I retain
   the3125 Linux assertion and hold Puck before replaying it.
+
+- [ ] Under task_40aa248a7326409cba8fcadc4bddecdd, I bind the imported
+  opaque-preservation shadow to this lane's actual one-argument
+  merge_with_imports API. I retain the undefined peer-mode shadow bootstrap
+  refusal after the passingff727 component build; I preserve every opaque
+  declaration/owner/line and original hello assertion without changing merger
+  production code or shadow deadlines.
