@@ -728,8 +728,8 @@ Function *env_get_function(Environment *env, const char *name) {
         return NULL;
     }
 
-    /* I permit this non-reserved declaration only in its own module. */
-    if (strcmp(name, "array_push") == 0) {
+    /* I permit these non-reserved declarations only in their own module. */
+    if (strcmp(name, "array_push") == 0 || strcmp(name, "str_split") == 0) {
         for (int i = 0; i < env->function_count; i++) {
             Function *function = &env->functions[i];
             if (function->name && strcmp(function->name, name) == 0 &&

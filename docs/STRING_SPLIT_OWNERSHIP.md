@@ -99,3 +99,11 @@ selected shadow multisets and actual execution. Five refusals check arity,
 source/delimiter type, array result type and element type with prior output
 sentinels intact. Actual clean C-seed bootstrap and full SDK acceptance remain
 mandatory after a separately reviewed merger substitution.
+
+The first paired execution exposes one missing C lookup boundary after both
+retained-producer refreshes pass: `env_get_function` still prefers the registry
+except for a same-module, non-extern, body-bearing `array_push` declaration.
+I add `str_split` to that exact preference, preserving the original owner and
+body requirements. The failing declared-name fixture is unchanged. This is a
+source correction, not a fixture escape or an extension of foreign binding
+policy. All first terminals and successful prerequisite phases remain distinct.
