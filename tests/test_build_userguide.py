@@ -44,6 +44,19 @@ class UserGuideBuildTests(unittest.TestCase):
         )
         self.assertEqual(rendered, "<code>2 + 3 * 4</code>")
 
+    def test_copied_reference_preserves_original_link_base(self):
+        page = next(p for p in build_userguide.parse_nav()
+                    if p.rel_source == Path("generated/builtins.md"))
+        rendered = build_userguide.render_inline(
+            "[contract](BINARY64_BIT_TRANSPORT_CONTRACT.md#transport) "
+            "[self](STDLIB.md#arrays) [local](#arrays)", page, {})
+        self.assertIn('href="https://github.com/jordanhubbard/nanolang/blob/main/'
+                      'docs/BINARY64_BIT_TRANSPORT_CONTRACT.md#transport"', rendered)
+        self.assertIn('href="builtins.html#arrays"', rendered)
+        self.assertIn('href="#arrays"', rendered)
+        with self.assertRaisesRegex(ValueError, "missing repository link target"):
+            build_userguide.render_inline("[missing](__missing_contract__.md)", page, {})
+
     def test_markdown_structures(self):
         source = """# Page
 
