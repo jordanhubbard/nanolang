@@ -159,3 +159,14 @@ owned/linked verification, legacy serialization and native C refusal. Verified
 assembly must refuse metadata that the internal transport assembler preserves.
 This fixture never executes capture-bearing instructions. Allocation-prefix,
 VM/LLVM/Wasm/private-consumer and installed-only controls remain required.
+
+My first fresh Linux GCC ordinary run at e82158064 passes180 transport checks,
+977 existing codec checks and33 schema controls in7.883seconds. Tracked source
+and selected tool maps remain unchanged;79 products remain under the durable
+qualification root with recorded hashes. I retain [the reports and drivers](evidence/capture-bindings/transport-first-linux/checks.json).
+The first setup used quoted Git path output and failed before compilation; the
+second lacked the Git baseline required by schema-check. I corrected these
+external preparation steps in fresh directories without changing product source
+or weakening schema checks. The original codec pass and both setup failures
+remain separate from the final successful focused run. Broader both-host,
+allocation, installed-package and execution-refusal qualification remains open.
