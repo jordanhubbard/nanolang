@@ -18,7 +18,9 @@ The existing `nb_register`/`nb_import`/`nb_rewrite` pipeline rewrites declaratio
 field annotations and literals before checking; its canonical names preserve
 owner collisions. An absent or ambiguous declaration is a diagnostic.
 
-I visit source field values in source order, once in the ordinary record helper.
+I visit source field values in source order in the ordinary record helper.
+Existing constructor/context helpers can revisit nodes for static checking; this
+is not runtime evaluation.
 I require the exact declared field count, reject unknown and repeated field
 names, and check every present value even when another field is invalid. I use
 the declared annotation through `type_from_string_with_parser`, recursively
@@ -32,7 +34,7 @@ checker defines it, rather than widening nominal or array equality.
 I also use the same contextual helper for existing record field assignments.
 I do not alter global `types_equal`, module visibility, resource authority,
 record layouts, mutation order or runtime ownership. Contextual byte-array
-literal checking is root's a59e2b1c3 shared helper; I import that exact reviewed
+literal checking is root's a59e2b1c3 shared helper plus cfa24ac13 scalar INT-to-byte guard; I import that exact reviewed
 delta rather than implementing another byte policy.
 
 ## Scope and required checks
@@ -51,3 +53,14 @@ array refusal. A negative compiler exit counts only with the expected checker
 diagnostic and unchanged output sentinel. Fresh full bootstrap keeps the
 original ten-second shadow deadline. Full fourteen methods, selected ownership
 sanitizers, neighbors and unchanged Make remain required before closure.
+
+I distinguish a real empty array literal from UNKNOWN element facts: I recursively
+check every nonempty literal member against its actual destination, and only
+annotate a literal after all members pass. Existing array values must retain
+known element facts through nested array levels. I do not let the global empty
+array compatibility rule accept a heterogeneous nonempty field.
+
+My static C-seed review additionally finds missing duplicate-name checks in
+ordinary record literals (the union loop already has them). A count match alone
+does not prove completeness. I retain this as a separate required parity repair
+before claiming paired equal-count duplicate refusal. No invalid program was run.

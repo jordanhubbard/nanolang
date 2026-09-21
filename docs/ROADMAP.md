@@ -13876,3 +13876,8 @@ remain retained. My first STRUCT_LITERAL checker arm never visits its fields.
   missing/duplicate/unknown fields and scalar/nested/imported array mismatches,
   then run fresh bootstrap and the complete original fourteen-method matrix.
   I retain enum parity and whole-Make acceptance as required work.
+
+- [ ] I repair the statically confirmed C-seed ordinary record duplicate-name
+  omission under task_90077955d5c64a42bf91358769802aba: equal total count with a
+  repeated name must not omit another required field. I retain union behavior
+  and add exact equal-count paired refusal controls before claiming parity.
