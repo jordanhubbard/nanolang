@@ -8936,11 +8936,32 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
 register_function_pass2:;
             const char *func_name = item->as.function.name;
             
+            /* I preserve this non-reserved source declaration across module lookup. */
+            const bool source_split = !item->as.function.is_extern &&
+                item->as.function.body && strcmp(func_name, "str_split") == 0;
             /* Check for duplicate function definitions */
             Function *existing = env_get_function(env, func_name);
+            if (source_split) {
+                /* I must not let builtin lookup hide an owned extern collision. */
+                for (int i = 0; i < env->function_count; i++) {
+                    Function *candidate = &env->functions[i];
+                    if (candidate->name && strcmp(candidate->name, func_name) == 0 &&
+                        (candidate->is_extern || candidate->body) &&
+                        ((!env->current_module && !candidate->module_name) ||
+                         (env->current_module && candidate->module_name &&
+                          strcmp(env->current_module, candidate->module_name) == 0))) {
+                        existing = candidate;
+                        break;
+                    }
+                }
+            }
             /* I distinguish an imported name from a duplicate in this module. */
             if (existing && !existing->is_extern && !item->as.function.is_extern && existing->module_name &&
                 (!env->current_module || strcmp(existing->module_name, env->current_module) != 0)) {
+                existing = NULL;
+            }
+            if (source_split && existing && !existing->is_extern &&
+                !existing->body && !existing->module_name && is_builtin_function(func_name)) {
                 existing = NULL;
             }
             if (existing) {
@@ -8976,7 +8997,7 @@ register_function_pass2:;
             /* We check this in the first pass, but also here for module type checking */
             
             /* Check if function name shadows a built-in */
-            if (is_builtin_function(func_name)) {
+            if (is_builtin_function(func_name) && !source_split) {
                 fprintf(stderr, "Error at line %d, column %d: Function '%s' shadows a built-in function\n",
                         item->line, item->column, func_name);
                 tc.has_error = true;

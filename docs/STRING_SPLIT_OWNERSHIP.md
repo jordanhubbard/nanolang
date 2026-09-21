@@ -107,3 +107,17 @@ I add `str_split` to that exact preference, preserving the original owner and
 body requirements. The failing declared-name fixture is unchanged. This is a
 source correction, not a fixture escape or an extension of foreign binding
 policy. All first terminals and successful prerequisite phases remain distinct.
+
+My next corrected paired run stops at the qualified-module case after its
+contents, same-module declaration and local-callable cases pass. Module
+registration differs from root registration: it treats the bodyless builtin
+registry result as a duplicate and then rejects every builtin spelling. I
+permit only a non-extern, body-bearing `str_split` source declaration here.
+Only an ownerless, non-extern, bodyless builtin result may be ignored; a real
+source definition or extern remains a collision. I inspect exact same-owner
+function rows before accepting the bodyless registry result, because ordinary
+builtin lookup otherwise hides extern rows too. The same exact source
+declaration is exempt from the later module builtin-name check. Qualified
+lookup still requires its namespace owner and existing visibility rules.
+Duplicate source declarations, private member access and extern collisions
+remain refusal controls. I do not extend this policy to unrelated builtins.
