@@ -1697,6 +1697,43 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
     apply_concrete_union_arrays(env, expected, owner, value, depth);
 }
 
+/* I validate actual record-field array destinations before publishing their
+ * element representation. Existing arrays keep their exact owned annotation. */
+static bool record_field_array_matches(Environment *env, const TypeInfo *expected,
+                                       const char *owner, ASTNode *value, unsigned depth) {
+    if (!expected || !value || depth > 128 || expected->base_type == TYPE_UNKNOWN) return false;
+    if (expected->base_type == TYPE_ARRAY) {
+        if (!expected->element_type) return false;
+        if (value->type == AST_ARRAY_LITERAL) {
+            if (value->as.array_literal.element_count < 0) return false;
+            bool valid = true;
+            for (int i = 0; i < value->as.array_literal.element_count; ++i)
+                if (!record_field_array_matches(env, expected->element_type, owner,
+                        value->as.array_literal.elements[i], depth + 1)) valid = false;
+            if (valid) {
+                Type element = expected->element_type->base_type;
+                if (element == TYPE_UNKNOWN) return false;
+                if (element == TYPE_STRUCT && env_nominal_identity(env,
+                        expected->element_type->generic_name, owner, TYPE_ENUM).ordinal) element = TYPE_ENUM;
+                value->as.array_literal.element_type = element;
+            }
+            return valid;
+        }
+        NominalView actual = {0};
+        if (!nominal_value_view(value, env, depth + 1, &actual)) return false;
+        bool valid = checked_annotations_equal(env, expected, owner, actual.info, actual.owner, depth + 1);
+        nominal_view_discard(&actual);
+        return valid;
+    }
+    if (nominal_array_requires_identity(env, expected, owner, depth + 1))
+        return nominal_array_matches(env, expected, owner, value, depth + 1);
+    Type required = expected->base_type;
+    if (required == TYPE_STRUCT && env_nominal_identity(env, expected->generic_name, owner, TYPE_ENUM).ordinal)
+        required = TYPE_ENUM;
+    Type actual = check_expression(value, env);
+    return actual != TYPE_UNKNOWN && types_match(actual, required);
+}
+
 /* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
 const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     if (expr && expr->type == AST_IDENTIFIER) {
@@ -4732,6 +4769,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     field_value->as.array_literal.element_type = resolved_array_element(
                         sdef->field_element_types[field_index],
                         sdef->field_type_names ? sdef->field_type_names[field_index] : NULL, env);
+                }
+                if (sdef->field_types[field_index] == TYPE_ARRAY &&
+                    (!sdef->field_type_info || !record_field_array_matches(env,
+                        sdef->field_type_info[field_index], sdef->module_name, field_value, 0))) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require each record array field to match its complete declared element types.",
+                        "Keep every nested element and existing array in its declared type.");
                 }
                 if (!types_match(field_type, sdef->field_types[field_index])) {
                     char message[256];
