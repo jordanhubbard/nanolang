@@ -2797,28 +2797,27 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
             
+            char temporary[64];
+            ordered_literal_name(env, temporary, "tuple_literal");
+            emit_literal(list, "({ ");
             if (typedef_name) {
-                /* Use typedef */
-                emit_formatted(list, "(%s){", typedef_name);
+                emit_formatted(list, "%s ", typedef_name);
             } else {
-                /* Fall back to inline struct */
-                emit_literal(list, "(struct { ");
+                emit_literal(list, "struct { ");
                 for (int i = 0; i < element_count; i++) {
-                    Type elem_type = expr->as.tuple_literal.element_types ? 
+                    Type elem_type = expr->as.tuple_literal.element_types ?
                                    expr->as.tuple_literal.element_types[i] : TYPE_INT;
-                    const char *c_type = type_to_c(elem_type);
-                    emit_formatted(list, "%s _%d; ", c_type, i);
+                    emit_formatted(list, "%s _%d; ", type_to_c(elem_type), i);
                 }
-                emit_literal(list, "}){");
+                emit_literal(list, "} ");
             }
-            
-            /* Emit field initializers IN ORDER */
+            emit_formatted(list, "%s = {0}; ", temporary);
             for (int i = 0; i < element_count; i++) {
-                if (i > 0) emit_literal(list, ", ");
-                emit_formatted(list, "._%d = ", i);
+                emit_formatted(list, "%s._%d = ", temporary, i);
                 build_expr(list, expr->as.tuple_literal.elements[i], env);
+                emit_literal(list, "; ");
             }
-            emit_literal(list, "}");
+            emit_formatted(list, "%s; })", temporary);
             break;
         }
         
@@ -3063,12 +3062,21 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     elem_type = check_expression(expr->as.array_literal.elements[0], env);
                 }
                 
-                /* Generate call to appropriate helper function */
+                /* I evaluate scalar operands once before the variadic call. */
+                bool scalar_literal = elem_type == TYPE_INT || elem_type == TYPE_ENUM ||
+                    elem_type == TYPE_U8 || elem_type == TYPE_FLOAT ||
+                    elem_type == TYPE_STRING || elem_type == TYPE_BOOL;
+                unsigned scalar_values = 0;
+                if (scalar_literal) {
+                    emit_literal(list, "({ ");
+                    scalar_values = build_ordered_call_args(list,
+                        expr->as.array_literal.elements, count, env, NULL);
+                }
                 if (elem_type == TYPE_INT || elem_type == TYPE_ENUM) {
                     emit_formatted(list, "dynarray_literal_int(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", (int64_t)(");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "__nl_arg_%u_%d", scalar_values, i);
                         emit_literal(list, ")");
                     }
                     emit_literal(list, ")");
@@ -3076,28 +3084,28 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_formatted(list, "dynarray_literal_u8(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_FLOAT) {
                     emit_formatted(list, "dynarray_literal_float(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_STRING) {
                     emit_formatted(list, "dynarray_literal_string(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_BOOL) {
                     emit_formatted(list, "dynarray_literal_bool(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_STRUCT) {
@@ -3141,6 +3149,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                     emit_literal(list, "}");
                 }
+                if (scalar_literal) emit_literal(list, "; })");
             }
             break;
         }

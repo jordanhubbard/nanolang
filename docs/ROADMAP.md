@@ -1,4 +1,4 @@
-- [ ] I collect callable global types before emitting native function-pointer typedefs (`task_57661a28bf114448a4ee14642e7e1b90`). My first 216ab three-producer gate passes record/union ordering but Stage1 and Stage2 reject the global fixture because nl_FnPtr_0 is declared too late. I retain that failure and require unchanged fixture acceptance after corrected bootstrap.
+- [ ] I collect callable global types before emitting native function-pointer typedefs (`task_57661a28bf114448a4ee14642e7e1b90`). My first 216ab three-producer gate passes record/union ordering but Stage1 and Stage2 reject the global fixture because nl_FnPtr_0 is declared too late. I retain that failure; corrected 2d89 bootstrap and all nine unchanged Linux native fixture pairs pass. Full cross-platform qualification remains open.
 
 # My Roadmap
 

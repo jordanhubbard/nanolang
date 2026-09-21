@@ -6770,16 +6770,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                             let elem_expected: array<string> = (tuple_split_types tuple_t)
 
                                             let mut tuple_parts: array<string> = []
-                                            set tuple_parts (cg_append tuple_parts "((")
-                                            set tuple_parts (cg_append tuple_parts tuple_name)
-                                            set tuple_parts (cg_append tuple_parts "){ ")
+                                            let temporary: string = (literal_c_temporary parser env "tuple_literal")
+                                            set tuple_parts (cg_append tuple_parts (+ "({ " (+ tuple_name (+ " " (+ temporary " = {0}; ")))))
 
                                             let mut i: int = 0
                                             while (< i tl.element_count) {
-                                                if (> i 0) {
-                                                    set tuple_parts (cg_append tuple_parts ", ")
-                                                } else { (print "") }
-
                                                 let vid: int = (at tl.element_ids i)
                                                 let vty: int = (at tl.element_types i)
                                                 let mut exp_i: string = ""
@@ -6788,14 +6783,15 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                                 } else { (print "") }
 
                                                 let vcode: string = (generate_expression parser vid vty env exp_i)
-                                                set tuple_parts (cg_append tuple_parts "._")
+                                                set tuple_parts (cg_append tuple_parts (+ temporary "._"))
                                                 set tuple_parts (cg_append tuple_parts (int_to_string i))
                                                 set tuple_parts (cg_append tuple_parts " = ")
                                                 set tuple_parts (cg_append tuple_parts vcode)
+                                                set tuple_parts (cg_append tuple_parts "; ")
                                                 set i (+ i 1)
                                             }
 
-                                            set tuple_parts (cg_append tuple_parts " })")
+                                            set tuple_parts (cg_append tuple_parts (+ temporary "; })"))
                                             return (cg_build tuple_parts)
                                         } else {
                                             if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) {

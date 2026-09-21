@@ -47,3 +47,9 @@ The complete component build passes with the nonliteral classifier and C-seed gl
 ## First three-producer native gate
 
 My 216ab bootstrap passes, including installed-compiler independence. In /tmp/nano-native-literal-order-z2tus_tj I retain all gate commands and outputs: C seed passes all three fixtures; Stage1 and Stage2 pass record and union fixtures but reject global initialization with unknown nl_FnPtr_0. I generate globals after flushing the function-type registry. I will prepare global text before that flush, preserving emitted typedef/prototype/global order, and test the unchanged payload/effect fixture.
+
+## Tuple and scalar-array sequencing
+
+My corrected callable-global bootstrap and unchanged nine native producer/fixture combinations pass. Next, under task_0ef97cccc6c441c59bd9eb2ec7c5ff05, I replace native tuple compound initializers with typed temporary field assignments in both producers. For C-seed scalar arrays I stage each operand before entering variadic helpers. I retain their existing argument conversions and ownership conventions; I require trace and payload checks before qualification. My self-hosted array path already emits sequential pushes. Full contextual types, ownership, platform and optimization coverage remains required.
+
+My first corrected C-seed tuple/array fixture compiles and runs successfully, with exact tuple21, array321 and nested-array123 traces and payload assertions. I retain its command/output directory at /tmp/nano-tuple-array-cseed-first-rfoz7zvg. Fresh tuple/array bootstrap is running; no Stage1/Stage2 or Darwin tuple/array acceptance claim yet.

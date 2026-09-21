@@ -1,0 +1,32 @@
+# I evaluate tuple and array elements once in their written order.
+let mut operand_trace: int = 0
+fn operand_mark(value: int) -> int {
+    set operand_trace (+ (* operand_trace 10) value)
+    return value
+}
+shadow operand_mark {
+    set operand_trace 0
+    assert (== (operand_mark 4) 4)
+    assert (== operand_trace 4)
+}
+fn main() -> int {
+    set operand_trace 0
+    let pair: (int, int) = ((operand_mark 2), (operand_mark 1))
+    assert (== operand_trace 21)
+    assert (== pair.0 2)
+    assert (== pair.1 1)
+    set operand_trace 0
+    let values: array<int> = [(operand_mark 3), (operand_mark 2), (operand_mark 1)]
+    assert (== operand_trace 321)
+    assert (== (array_length values) 3)
+    assert (== (at values 0) 3)
+    assert (== (at values 1) 2)
+    assert (== (at values 2) 1)
+    set operand_trace 0
+    let nested: array<array<int>> = [[(operand_mark 1), (operand_mark 2)], [(operand_mark 3)]]
+    assert (== operand_trace 123)
+    assert (== (at (at nested 0) 1) 2)
+    assert (== (at (at nested 1) 0) 3)
+    return 0
+}
+shadow main { assert (== (main) 0) }

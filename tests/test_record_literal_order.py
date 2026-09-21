@@ -41,7 +41,7 @@ class NativeLiteralOrder(unittest.TestCase):
             self.assertTrue((ROOT / 'bin' / compiler).is_file(),
                             'I require fresh bootstrap before this three-producer gate.')
             for fixture in ('record_literal_written_order', 'union_literal_written_order',
-                            'global_literal_initialization'):
+                            'global_literal_initialization', 'tuple_array_literal_written_order'):
                 with self.subTest(compiler=compiler, fixture=fixture):
                     source = ROOT / 'tests/nanovirt/fixtures' / (fixture + '.nano')
                     binary = artifacts / (compiler + '-' + fixture)
