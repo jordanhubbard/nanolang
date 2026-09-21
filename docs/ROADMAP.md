@@ -14182,3 +14182,43 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   three-producer installed-only programs, modules, shadows, ABI refusals and
   uninstall checks. I preserve my65b companion qualification and all full File
   lowering/release holds while preparing this independent source boundary.
+
+- [ ] I include the actual native wrapper object closure in my installed SDK.
+  My source-capable nano_virt locates prebuilt obj/ providers adjacent to its real
+  executable; source/header installation alone cannot publish an ordinary wrapper
+  outside a checkout. I retain one checked inventory of every object named by
+  wrapper_gen.c, rebuild it through the existing Make closure, and include its
+  exact bytes/modes in generation identity. I preserve the public command paths
+  through generation symlinks and require installed native/daemon wrapper checks.
+
+- [ ] I give generated C module objects invocation-private ownership in my SDK
+  closure. The actual compile_modules paths still publish Nano object names under
+  cwd/obj/nano_modules, independently of the manifest cache. I move those products
+  into the owning compiler's private work directory, include a per-module index to
+  distinguish equal basenames, and keep them through the final native link. Source
+  manifest-cache policy stays unchanged. Requested C diagnostics and failed module
+  C sources retain their whole known work directory with its exact path reported.
+  Ordinary cleanup runs only in the creating PID, after loader registry shutdown;
+  forked shadow children cannot remove the parent's work. Concurrent installed and
+  source compiler fixtures remain required before I claim this boundary complete.
+
+- [ ] I preserve unowned empty directories during SDK uninstall. Static review of
+  my unexecuted installer draft found that walking all generation directories
+  could remove an unrelated empty sentinel. I derive removable directories only
+  from manifest-owned file parents, validate every remaining owned file before
+  deleting any, and retain unknown stage identities instead of recursive cleanup.
+  I require explicit empty-directory and changed-input preservation fixtures.
+
+- [ ] I complete both generated-list wrapper include paths when moving their
+  products into private directories. Static review found the unexecuted draft
+  still named the old temporary root in two generated C includes. I use the
+  same-directory list filename and fail before compilation if wrapper creation
+  fails; actual installed generic-list programs must verify both paths.
+
+- [ ] I retain each selected SDK module's metadata origin independently of the
+  user's project root. Static review found my existing Nano provider collector
+  selects only project-root modules; a mixed user-project/installed-SDK graph
+  would omit SDK providers or root their include/dependency paths in the project.
+  I select both origins in original file order and resolve metadata-root-relative
+  paths against the actual owning origin. Same-origin checkout behavior remains
+  unchanged. Mixed project/SDK provider fixtures must verify exact compiler argv.

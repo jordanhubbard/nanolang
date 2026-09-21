@@ -1,4 +1,5 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkdtemp */
+#include "runtime/module_build_dir.h"
 #include "nanolang.h"
 #include "module_builder.h"
 #include "shell_path.h"
@@ -20,7 +21,14 @@ char *mkdtemp(char *template);
 
 /* Weak default so binaries that don't define get_project_root() still link */
 __attribute__((weak)) const char *get_project_root(void) {
-    return ".";
+    static char root[4096];
+    static bool initialized;
+    if (!initialized) {
+        bool installed;
+        initialized = true;
+        if (nano_native_sdk_root(root, sizeof(root), &installed) != NANO_SDK_OK) root[0] = 0;
+    }
+    return root[0] ? root : ".";
 }
 
 /* Module cache to prevent duplicate imports and preserve ASTs */
@@ -560,6 +568,19 @@ const char *resolve_module_path(const char *module_path, const char *current_fil
         return package_path;
     }
     
+    /* I add installed standard inputs only after the existing local/package
+     * search. Explicit relative paths returned through their original branch. */
+    {
+        const char *root = get_project_root();
+        const char *prefixes[] = {"stdlib/", "modules/", ""};
+        for (size_t i = 0; i < sizeof(prefixes)/sizeof(prefixes[0]); ++i) {
+            char candidate[4096];
+            int n = snprintf(candidate, sizeof(candidate), "%s/%s%s", root, prefixes[i], module_path);
+            if (n < 0 || (size_t)n >= sizeof(candidate)) continue;
+            FILE *file = fopen(candidate, "rb");
+            if (file) { fclose(file); return strdup(candidate); }
+        }
+    }
     /* Fallback: return module_path as-is (will fail if not found) */
     return strdup(module_path);
 }
@@ -1441,17 +1462,15 @@ bool compile_module_to_object(const char *module_path,
                     if (strcmp(type_name, "LexerToken") == 0) c_type = "Token";
                     else if (strcmp(type_name, "NSType") == 0) c_type = "NSType";
 
-                    char gen_cmd[512];
-                    snprintf(gen_cmd, sizeof(gen_cmd),
-                             "./scripts/generate_list.sh %s /tmp %s > /dev/null 2>&1",
-                             type_name, c_type);
-                    if (verbose) {
-                        printf("[Modules] Generating List<%s> runtime...\n", type_name);
+                    if (!nano_native_generate_list(get_project_root(), build_dir, type_name, c_type)) {
+                        fprintf(stderr, "I could not generate the required List<%s> runtime\n", type_name);
+                        nano_native_remove_private_tree(build_dir);
+                        free(c_code);
+                        clear_module_cache();
+                        module_cache = saved_cache;
+                        free_environment(module_env);
+                        return false;
                     }
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-                    system(gen_cmd);
-#pragma GCC diagnostic pop
                 }
             }
         }
@@ -1519,17 +1538,19 @@ bool compile_module_to_object(const char *module_path,
     char *quoted_module = module_dir[0] ? module_quote_path(module_dir) : strdup("");
     char *quoted_object = module_quote_path(temp_obj_file);
     char *quoted_source = module_quote_path(temp_c_file);
-    arguments_valid = arguments_valid && quoted_root && quoted_module && quoted_object && quoted_source;
+    char *quoted_generated = module_quote_path(build_dir);
+    arguments_valid = arguments_valid && quoted_root && quoted_module && quoted_object && quoted_source && quoted_generated;
     compile_cmd[0] = '\0';
     int command_length = arguments_valid ? snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s %s %s -c -o %s %s",
+            "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s %s %s -I%s -c -o %s %s",
             cc, quoted_root, quoted_root, quoted_root, quoted_root, quoted_root,
             quoted_root, quoted_root, quoted_root, quoted_root,
-            quoted_module, sdl_flags, inherited_flags, quoted_object, quoted_source) : -1;
+            quoted_module, sdl_flags, inherited_flags, quoted_generated, quoted_object, quoted_source) : -1;
     free(quoted_root);
     free(quoted_module);
     free(quoted_object);
     free(quoted_source);
+    free(quoted_generated);
     
     if (verbose) {
         printf("Compiling module: %s\n", compile_cmd);
@@ -1575,6 +1596,7 @@ bool compile_module_to_object(const char *module_path,
             fprintf(stderr, "Compilation errors:\n%s\n", error_output);
         }
         /* Keep C file for debugging */
+        nano_native_retain_private_work();
         fprintf(stderr, "C file kept at: %s\n", temp_c_file);
         free(c_code);
         clear_module_cache();
@@ -1586,9 +1608,9 @@ bool compile_module_to_object(const char *module_path,
     
     /* Clean up temporary C file */
     if (!verbose) {
-        remove(temp_c_file);
-        rmdir(build_dir);
+        nano_native_remove_private_tree(build_dir);
     } else {
+        nano_native_retain_private_work();
         printf("✓ Compiled module to object file: %s\n", output_obj);
         printf("  C source kept at: %s\n", temp_c_file);
     }
@@ -1681,6 +1703,11 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
         printf("[Modules] Processing %d module(s)...\n", modules->count);
     }
     
+    char generated_objects[4096];
+    if (nano_native_module_objects_dir(generated_objects, sizeof(generated_objects)) != NANO_SDK_OK) {
+        fprintf(stderr, "I could not create a private generated-module directory\n");
+        return false;
+    }
     /* Create module builder */
     const char *module_path_env = getenv("NANO_MODULE_PATH");
     ModuleBuilder *builder = module_builder_new(module_path_env);
@@ -1762,10 +1789,6 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                  * earlier ones and we end up linking only the last compiled Nano object, causing
                  * undefined references on strict linkers (Linux CI).
                  */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-                system("mkdir -p obj/nano_modules 2>/dev/null");
-#pragma GCC diagnostic pop
 
                 const char *last_slash = strrchr(module_path, '/');
                 const char *base_name = last_slash ? last_slash + 1 : module_path;
@@ -1777,10 +1800,12 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                     *dot = '\0';
                 }
 
-                char nano_obj[512];
-                snprintf(nano_obj, sizeof(nano_obj), "obj/nano_modules/%s_nano_%s.o", meta->name, base_without_ext);
+                char nano_obj[8192];
+                int object_length = snprintf(nano_obj, sizeof(nano_obj), "%s/%d_%s_nano_%s.o",
+                                             generated_objects, i, meta->name, base_without_ext);
                 
-                if (!compile_module_to_object(module_path, nano_obj, env, verbose, info->compile_flags, info->compile_flags_count)) {
+                if (object_length < 0 || (size_t)object_length >= sizeof(nano_obj) ||
+                    !compile_module_to_object(module_path, nano_obj, env, verbose, info->compile_flags, info->compile_flags_count)) {
                     fprintf(stderr, "Error: Failed to compile nanolang parts of module '%s'\n", meta->name);
                     module_metadata_free(meta);
                     free(module_dir);
@@ -1821,7 +1846,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
             }
             
             /* Generate object file name from module path */
-            char obj_file[512];
+            char obj_file[8192];
             const char *last_slash = strrchr(module_path, '/');
             const char *base_name = last_slash ? last_slash + 1 : module_path;
             
@@ -1840,16 +1865,13 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
              * If we also emit modules to obj/<name>.o (e.g. lexer.nano -> obj/lexer.o),
              * we can clobber C objects and break linking.
              */
-            snprintf(obj_file, sizeof(obj_file), "obj/nano_modules/%s.o", base_without_ext);
+            int object_length = snprintf(obj_file, sizeof(obj_file), "%s/%d_%s.o",
+                                         generated_objects, i, base_without_ext);
 
-            /* Ensure obj directory exists */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-            system("mkdir -p obj/nano_modules 2>/dev/null");
-#pragma GCC diagnostic pop
 
             /* Compile module to object file */
-            if (!compile_module_to_object(module_path, obj_file, env, verbose, NULL, 0)) {
+            if (object_length < 0 || (size_t)object_length >= sizeof(obj_file) ||
+                !compile_module_to_object(module_path, obj_file, env, verbose, NULL, 0)) {
                 fprintf(stderr, "Error: Failed to compile module '%s'\n", module_path);
                 free(module_dir);
                 module_builder_free(builder);

@@ -8,7 +8,10 @@ I change no qualified source, provider or fixture tree here.
 
 My current Make install copies compiler/VM/emitter binaries and the explicit File
 package. It omits the general runtime headers, C sources, standard modules,
-module manifests and generator inputs consumed by native compilation. My C seed
+module manifests and generator inputs consumed by native compilation. My source
+bytecode CLI additionally needs the exact prebuilt obj/ closure named by
+wrapper_gen.c for ordinary and daemon wrappers. I install that checked object
+inventory in the same generation, retaining its bytes/modes in package identity. My C seed
 infers a root two directories above argv[0]; PATH-only invocation can fall back
 to cwd. My Nano driver finds a source repository by searching cwd/input ancestors.
 Neither establishes an installed runtime outside a source checkout.
@@ -27,7 +30,9 @@ I propose one immutable package generation at
 `PREFIX/bin/nanoc` and `PREFIX/bin/nanoc_c` select the generation's corresponding
 real binaries through relative symlinks. The generation retains Stage1 as an
 internal qualification/debug binary; it does not add a public Stage1 command.
-Existing VM/emitter and explicit File package commands/headers retain their paths.
+Existing VM/emitter commands retain their public paths through generation-relative
+symlinks too; source-capable nano_virt must discover the same generation. Explicit
+File package commands/headers retain their paths.
 
 A checked, committed relative-path inventory selects SDK inputs, including source,
 headers, generated schema, module metadata, script/template inputs and module data
@@ -39,8 +44,9 @@ archives carry the inventory, so installation does not require Git. A verificati
 tool rejects absolute paths, traversal, duplicate paths, unexpected symlink inputs,
 missing files and input/output overlap before copying.
 
-The generation identity is SHA256 over ordered counted path bytes, lengths and
-SHA256 content digests, plus the exact C-seed/Stage1/Stage2 binary bytes. The
+The generation identity is SHA256 over ordered canonical manifest rows containing
+relative path bytes, file lengths, SHA256 content digests and modes, including
+rows for the exact C-seed/Stage1/Stage2 binaries. The
 manifest records native array ABI2 and every copied byte identity. The manifest
 itself is a derived output, excluded from its own digest. This is package identity,
 not a signature or an authority grant. Installed files are trusted compiler inputs;
@@ -49,7 +55,8 @@ I do not claim protection against a party modifying that trusted installation.
 I stage a complete generation privately under the destination parent, verify the
 copied inventory, then rename it into its final identity directory without
 replacing a different generation. An existing same-identity directory is usable
-only after exact inventory verification. Only then do I atomically replace each
+only after exact inventory verification, including file modes and the complete
+set of owned directories. Unexpected files, directories and symlinks refuse reuse. Only then do I atomically replace each
 public compiler symlink. An already running compiler retains its original real
 executable path and SDK generation. I keep old generations until explicit uninstall
 or a separately authorized cleanup; I do not delete them during upgrade.
@@ -92,7 +99,10 @@ existing checked generation/cache protocol in a writable user-selected cache.
 An explicit NANO_BUILD_CACHE retains precedence. Otherwise an installed compiler
 creates an invocation-private cache beneath the selected temporary directory,
 records ownership and releases it after compiler/module-loader shutdown. Source
-checkouts retain their current default cache policy. I never create .build inside
+checkouts retain their current default manifest cache policy. Generated C module
+objects use a separate invocation-private objects directory on both installed and
+source routes: the old shared obj/nano_modules names cannot satisfy concurrent
+compiler isolation. I retain these objects until the final native link completes. I never create .build inside
 an installed SDK or silently share an unowned /tmp basename across invocations.
 
 I inventory both module-level and final-compilation list-generation call sites.
@@ -138,3 +148,54 @@ cache checks and final ordered native provider profiles.
 This checkpoint cannot close paired File nominal resolution/lowering, actual
 source File execution, startup/shadow effects, cyclic/indirect/richer-borrow work
 or full release acceptance. I keep those original requirements open.
+
+## My first production checkpoint
+
+I place discovery in the existing module_build_dir owning translation unit. Its
+installed checks consume sdk.inputs and every named regular file before returning
+an output path; the path and installed flag remain untouched on failure. The
+C seed and nano_virt call preparation before ordinary compilation. My Nano driver
+calls the same data bridge before import preparation; the bridge retains one
+process/thread-local result and returns a copied Nano string. The ABI query is an
+explicit exception: it reports the compiled constant without SDK preparation and
+performs no provider work. It exists so installation can validate fresh binaries.
+
+I keep project-origin import search separate from the runtime root. My native
+metadata collector now selects project and SDK modules in original selected-file
+order. Each module's metadata-root-relative flags and dependencies use its owning
+root; identical roots retain the original behavior. I neither suppress providers
+by name nor delegate Nano source resolution to the bridge.
+
+| Boundary | My owned state and checked extent | My failure/lifetime rule |
+| --- | --- | --- |
+| Installation inventory | At most8192 files, at most1GiB total file bytes, each relative path at most2048 UTF-8 bytes, manifest at most4MiB | I preflight before hashing/copying and refuse changed copy lengths. Python objects and allocator overhead are not a1GiB heap guarantee. |
+| Installation streams | One1MiB hashing/copy buffer, counted file bytes; no whole binary copy in memory | I verify copied bytes/modes and exact file/directory sets before exclusive publication. |
+| Manifest verification | Python manifest at most4MiB plus bounded rows/path sets; C4096-byte row,2049-byte previous path,4096-byte resolved path and8192-byte hash buffer | C consumes one row/file at a time, checks ordered unique rows and the generation digest. Libc/OpenSSL allocation is outside an exact project-heap bound. |
+| Root discovery | Three4096-byte automatic paths; caller capacity checked before publication | OS executable identity selects source or installed root. Source markers and compiled ABI must agree. An invalid override refuses without fallback. |
+| Private work | One4096-byte process path, creating PID, retention flag; per-call private objects directories | Only the creating process removes work, after loader shutdown. Requested diagnostics retain the known path. Cleanup failure reports that path and does not overwrite an earlier result. |
+| Generated lists | C main creates one private directory; module compilation uses its existing private directory; identifier lengths at most127 | I execute the exact script with argv, check its terminal, and include generated files from their actual directory. Parent compiler/shadow supervision remains the time bound; I add no independent general supervisor. |
+| Uninstall | Manifest-owned files and their exact ancestor set | I validate all surviving owned files before deletion, preserve modified inputs and unknown files/empty directories, and remove only exact owned public links. |
+
+These extents bound selected package work, not total compiler memory. Existing
+parser, code generator, Python, OpenSSL and process-allocation failure semantics
+remain explicit. I make no paired recoverable-OOM claim. The installed C verifier
+checks recorded bytes and executable bits; write-bit removal for a read-only SDK
+is allowed during execution. Installer reuse and uninstall require exact recorded
+modes, so qualification restores its own read-only mode changes before uninstall.
+
+I treat the installation prefix and selected compiler inputs as trusted, stable
+administrative state while installation runs. I reject observed symlinks and
+unknown entries, use an authoritative no-replace generation rename, and retain a
+stage whose root inode no longer matches mine. I do not claim hostile concurrent
+ancestor-substitution protection. Generation publication and each command link
+are distinct commit points; a later failure reports whether my new generation
+committed. Completed links and generations are retained for explicit recovery.
+The existing explicit File archive/header installation remains a separate Make
+step with its own failure status.
+
+My current source-only checks are C99 strict syntax for the five affected C
+translation units, Python syntax, all1158 selected input paths, and diff checks.
+They do not establish linking, installation, bootstrap, generated-source behavior
+or shadows. The121 wrapper objects must be freshly built, checked against the
+actual wrapper inventory, and installed with the compiler generation. I require
+the complete fixture checkpoint before executing this implementation.

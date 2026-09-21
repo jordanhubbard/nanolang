@@ -18,6 +18,7 @@ import "src_nano/compiler/lexer.nano"
 import "src_nano/parser.nano"
 import "src_nano/compiler/file_source_resolution.nano"
 module "modules/file_companion/file_companion.nano" as SourceCompanion
+module "modules/compiler_support/compiler_support.nano" as NativeSdk
 import "src_nano/typecheck.nano"
 import "src_nano/transpiler.nano"
 import "src_nano/compiler/nanoisa_codegen.nano"
@@ -725,6 +726,22 @@ shadow strip_pub_decl {
     assert (== (strip_pub_decl "let x: int = 5") "let x: int = 5")
 }
 
+fn native_sdk_import_candidate(import_path: string) -> string {
+    let root: string = (NativeSdk.runtime_root)
+    if (== root "") { return "" }
+    let prefixes: array<string> = ["stdlib/", "modules/", ""]
+    let mut i: int = 0
+    while (< i (array_length prefixes)) {
+        let candidate: string = (nl_path_join root (+ (at prefixes i) import_path))
+        if (file_exists candidate) { return candidate }
+        set i (+ i 1)
+    }
+    return ""
+}
+shadow native_sdk_import_candidate {
+    assert (== (native_sdk_import_candidate "__missing_sdk_input_719389.nano") "")
+}
+
 fn resolve_import_path(current_file: string, import_path: string, repo_root: string) -> string {
     if (== import_path "") {
         return ""
@@ -748,6 +765,8 @@ fn resolve_import_path(current_file: string, import_path: string, repo_root: str
                     return repo_candidate
                 } else { (print "") }
             } else { (print "") }
+            let sdk_candidate: string = (native_sdk_import_candidate import_path)
+            if (!= sdk_candidate "") { return sdk_candidate }
             return (nl_path_join "modules" import_path)
         } else {
             if (nlc_str_starts_with import_path "/") {
@@ -759,6 +778,12 @@ fn resolve_import_path(current_file: string, import_path: string, repo_root: str
                     /* I resolve bare paths beside their importer before repository fallback. */
                     let relative: string = (nl_path_join (nl_path_dirname current_file) import_path)
                     if (file_exists relative) { return relative }
+                    if (!= repo_root "") {
+                        let project_candidate: string = (nl_path_join repo_root import_path)
+                        if (file_exists project_candidate) { return project_candidate }
+                    }
+                    let sdk_candidate: string = (native_sdk_import_candidate import_path)
+                    if (!= sdk_candidate "") { return sdk_candidate }
                     if (!= repo_root "") {
                         return (nl_path_join repo_root import_path)
                     } else {
@@ -1441,14 +1466,25 @@ shadow nlc_path_basename {
     assert (== (nlc_path_basename "test.c") "test.c")
 }
 
-fn collect_module_dirs(files: array<string>, repo_root: string) -> array<string> {
-    let modules_prefix: string = (+ repo_root "/modules/")
-    let std_prefix: string = (+ repo_root "/modules/std/")
+fn native_module_origin(path: string, project_root: string, runtime_root: string) -> string {
+    if (nlc_str_starts_with path (+ runtime_root "/modules/")) { return runtime_root }
+    return project_root
+}
+shadow native_module_origin {
+    assert (== (native_module_origin "/sdk/modules/a/a.nano" "/project" "/sdk") "/sdk")
+    assert (== (native_module_origin "/project/modules/a/a.nano" "/project" "/sdk") "/project")
+    assert (== (native_module_origin "/sdk-other/modules/a/a.nano" "/project" "/sdk") "/project")
+}
+
+fn collect_module_dirs(files: array<string>, repo_root: string, runtime_root: string) -> array<string> {
     let mut dirs: array<string> = []
     let mut seen: array<string> = []
     let mut i: int = 0
     while (< i (array_length files)) {
         let f: string = (at files i)
+        let origin: string = (native_module_origin f repo_root runtime_root)
+        let modules_prefix: string = (+ origin "/modules/")
+        let std_prefix: string = (+ origin "/modules/std/")
         if (and (nlc_str_starts_with f modules_prefix) (not (nlc_str_starts_with f std_prefix))) {
             let dir: string = (nl_path_dirname f)
             let mut dup: bool = false
@@ -1468,7 +1504,10 @@ fn collect_module_dirs(files: array<string>, repo_root: string) -> array<string>
 }
 
 shadow collect_module_dirs {
-    assert (== 1 1)
+    let dirs: array<string> = (collect_module_dirs ["/project/modules/a/a.nano", "/sdk/modules/b/b.nano", "/project/modules/a/other.nano", "/sdk/modules/std/fs.nano"] "/project" "/sdk")
+    assert (== (array_length dirs) 2)
+    assert (== (at dirs 0) "/project/modules/a")
+    assert (== (at dirs 1) "/sdk/modules/b")
 }
 
 struct NativeCapturedFlags { value: string, ok: bool }
@@ -1496,7 +1535,7 @@ shadow native_capture_flags { assert (not (native_capture_flags "").ok) }
 
 fn collect_module_build_flags(files: array<string>, repo_root: string, runtime_root: string, native_dir: string, verbose: bool) -> ModuleBuildFlags {
     if (== native_dir "") { return (native_build_empty) }
-    let mut module_dirs: array<string> = (collect_module_dirs files repo_root)
+    let mut module_dirs: array<string> = (collect_module_dirs files repo_root runtime_root)
     let mut cflags: string = ""
     let mut ldflags: string = ""
     if (> (array_length module_dirs) 5000) { return (native_build_empty) }
@@ -1508,6 +1547,7 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, runtime_r
     let mut i: int = 0
     while (< i (array_length module_dirs)) {
         let dir: string = (at module_dirs i)
+        let metadata_root: string = (native_module_origin (+ dir "/") repo_root runtime_root)
         let json_path: string = (nl_path_join dir "module.json")
         if (file_exists json_path) {
             let json_text: string = (file_read json_path)
@@ -1600,7 +1640,7 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, runtime_r
                 let flag: string = (at mod_cflags ci)
                 if (nlc_str_starts_with flag "-I") {
                     let rel_path: string = (str_substring flag 2 (- (str_length flag) 2))
-                    set cflags (native_profile_append cflags (+ " -I" (native_shell_quote (nl_path_join repo_root rel_path))))
+                    set cflags (native_profile_append cflags (+ " -I" (native_shell_quote (nl_path_join metadata_root rel_path))))
                     if (== cflags "") { return (native_build_empty) }
                 } else {
                     set cflags (native_profile_append cflags (+ " " flag))
@@ -1613,7 +1653,7 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, runtime_r
             let inc_dirs: array<string> = (json_extract_string_array json_text "include_dirs")
             let mut ii: int = 0
             while (< ii (array_length inc_dirs)) {
-                set cflags (native_profile_append cflags (+ " -I" (native_shell_quote (nl_path_join repo_root (at inc_dirs ii)))))
+                set cflags (native_profile_append cflags (+ " -I" (native_shell_quote (nl_path_join metadata_root (at inc_dirs ii)))))
                 if (== cflags "") { return (native_build_empty) }
                 set ii (+ ii 1)
             }
@@ -1652,7 +1692,7 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, runtime_r
             let mut pending: array<string> = []
             let mut di: int = 0
             while (< di (array_length deps)) {
-                let dep_dir: string = (canonical (nl_path_join repo_root (+ "modules/" (at deps di))))
+                let dep_dir: string = (canonical (nl_path_join metadata_root (+ "modules/" (at deps di))))
                 if (or (== dep_dir "") (not (file_exists (nl_path_join dep_dir "module.json")))) { return (native_build_empty) }
                 let mut seen: bool = false
                 let mut j: int = 0
@@ -2243,12 +2283,10 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     /* Step 0: Merge imports into single source */
     /* Find repository root for absolute paths to runtime sources  */
     /* Start search from current working directory, not input file location */
-    let mut repo_root: string = (find_repo_root (getcwd))
+    let repo_root: string = (NativeSdk.runtime_root)
     if (== repo_root "") {
-        /* Fallback: use current working directory */
-        set repo_root (getcwd)
-    } else {
-        (print "")
+        (println "I require a complete compatible native SDK or source root")
+        return 1
     }
 
     if verbose {
@@ -2805,6 +2843,12 @@ shadow native_array_abi_link_flags {
 }
 
 fn main() -> int {
+    if (== (get_argc) 2) {
+        if (== (get_argv 1) "--native-array-abi") {
+            (println (int_to_string (NativeSdk.native_array_abi)))
+            return 0
+        }
+    }
     let opts: CompileOptions = (parse_args)
     if (!= opts.error "") {
         (println opts.error)

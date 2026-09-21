@@ -250,7 +250,7 @@ SCHEMA_JSON = schema/compiler_schema.json
 SCHEMA_OUTPUTS = $(SRC_NANO_DIR)/generated/compiler_schema.nano $(SRC_NANO_DIR)/generated/compiler_ast.nano $(SRC_DIR)/generated/compiler_schema.h src/nanoisa/generated_schema.h
 SCHEMA_STAMP = $(BUILD_DIR)/schema.stamp
 
-HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(RUNTIME_DIR)/module_build_dir.h $(SRC_DIR)/module_builder.h $(SRC_DIR)/bcp47.h $(SRC_DIR)/locale.h $(SRC_DIR)/utf8.h $(SRC_DIR)/diag_id.h
+HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(RUNTIME_DIR)/module_build_dir.h $(RUNTIME_DIR)/native_sdk.inc $(SRC_DIR)/module_builder.h $(SRC_DIR)/bcp47.h $(SRC_DIR)/locale.h $(SRC_DIR)/utf8.h $(SRC_DIR)/diag_id.h
 HEADERS += $(RUNTIME_DIR)/native_array_abi.h
 
 .PHONY: schema schema-check
@@ -4073,33 +4073,20 @@ coverage-check: coverage.info
 	fi
 
 # Install binaries
-install: $(COMPILER) vm nvm2c file-public-runtime
-	install -d $(PREFIX)/bin
-	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
-	install -m 755 bin/nano_virt $(PREFIX)/bin/nano_virt
-	install -m 755 bin/nano_vm $(PREFIX)/bin/nano_vm
-	install -m 755 bin/nano_cop $(PREFIX)/bin/nano_cop
-	install -m 755 bin/nano_vmd $(PREFIX)/bin/nano_vmd
-	install -m 755 bin/nanoisa $(PREFIX)/bin/nanoisa
-	install -m 755 bin/nvm2c $(PREFIX)/bin/nvm2c
+install: $(COMPILER) vm nvm2c file-public-runtime scripts/native_sdk_inputs.json
+	python3 scripts/native_sdk.py install --source "$(CURDIR)" --prefix "$(PREFIX)"
 	install -d "$(PREFIX)/lib"
 	install -m 644 "$(FILE_PUBLIC_LIBRARY)" "$(PREFIX)/lib/libnano_file_runtime.a"
 	@set -e; for header in $(FILE_PUBLIC_HEADERS); do \
 		install -d "$(PREFIX)/include/nanolang/file/$$(dirname "$$header")"; \
 		install -m 644 "$(SRC_DIR)/$$header" "$(PREFIX)/include/nanolang/file/$$header"; \
 	done
-ifeq ($(UNAME_S),Linux)
-	install -m 755 bin/nano_as_capture.so $(PREFIX)/bin/nano_as_capture.so
-endif
 	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa, nvm2c; explicit File runtime package)"
 
 uninstall:
-	rm -f "$(PREFIX)/lib/libnano_file_runtime.a" "$(PREFIX)/bin/nvm2c"
+	python3 scripts/native_sdk.py uninstall --prefix "$(PREFIX)"
+	rm -f "$(PREFIX)/lib/libnano_file_runtime.a"
 	@for header in $(FILE_PUBLIC_HEADERS); do rm -f "$(PREFIX)/include/nanolang/file/$$header"; done
-ifeq ($(UNAME_S),Linux)
-	rm -f $(PREFIX)/bin/nano_as_capture.so
-endif
-	rm -f $(PREFIX)/bin/nanoc $(PREFIX)/bin/nano_virt $(PREFIX)/bin/nano_vm $(PREFIX)/bin/nano_cop $(PREFIX)/bin/nano_vmd $(PREFIX)/bin/nanoisa
 	@echo "Uninstalled from $(PREFIX)/bin"
 
 # Valgrind checks

@@ -1,3 +1,5 @@
+#include "runtime/module_build_dir.h"
+#include "runtime/dyn_array.h"
 #include "runtime/shadow_timeout.h"
 #include "nanovirt/shadow_runner.h"
 #include "nanolang.h"
@@ -138,33 +140,10 @@ const char *get_project_root(void) {
     return g_project_root[0] ? g_project_root : ".";
 }
 
-static void resolve_project_root(const char *argv0) {
-    char exe_path[PATH_MAX];
-    if (realpath(argv0, exe_path) == NULL) {
-        /* Fallback: use CWD */
-        if (getcwd(g_project_root, sizeof(g_project_root)) == NULL) {
-            strcpy(g_project_root, ".");
-        }
-        return;
-    }
-    /* Strip binary name: /path/to/bin/nanoc_c -> /path/to/bin */
-    char *slash = strrchr(exe_path, '/');
-    if (slash) {
-        *slash = '\0';
-        /* Strip bin/: /path/to/bin -> /path/to */
-        slash = strrchr(exe_path, '/');
-        if (slash) {
-            *slash = '\0';
-        }
-    }
-    {
-        size_t n = strlen(exe_path);
-        if (n >= sizeof(g_project_root)) {
-            n = sizeof(g_project_root) - 1;
-        }
-        memcpy(g_project_root, exe_path, n);
-        g_project_root[n] = '\0';
-    }
+static bool resolve_project_root(void) {
+    bool installed;
+    return nano_native_sdk_root(g_project_root, sizeof(g_project_root), &installed) == NANO_SDK_OK &&
+           nano_native_sdk_prepare() == NANO_SDK_OK;
 }
 
 static void json_escape(FILE *out, const char *s) {
@@ -1115,6 +1094,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Phase 4.5: Build imported modules (object + shared libs) */
     if (modules->count > 0) {
+        if (opts->keep_c) nano_native_retain_private_work();
         if (!compile_modules(modules, env, &module_objs,
                              module_compile_flags, sizeof(module_compile_flags),
                              opts->verbose)) {
@@ -1389,6 +1369,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     /* Detect and generate generic list types from the C code AND compiler_schema.h */
     char generated_lists[1024] = "";
+    char generated_directory[4096];
+    int generated_length = snprintf(generated_directory, sizeof(generated_directory),
+                                    "%s/nanolang-lists-XXXXXX", get_tmp_dir());
+    bool generated_ready = generated_length >= 0 && (size_t)generated_length < sizeof(generated_directory) &&
+                           mkdtemp(generated_directory) != NULL;
+    if (!generated_ready) generated_directory[0] = 0;
+    include_paths_valid = include_paths_valid && generated_ready;
     char detected_types[64][64]; /* Increased to handle more types */
     int detected_count = 0;
     
@@ -1516,21 +1503,15 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                     c_type = nl_prefixed_type;
                 }
                 
-                char gen_cmd[8192];
-                snprintf(gen_cmd, sizeof(gen_cmd),
-                        "%s/scripts/generate_list.sh %s %s %s > /dev/null 2>&1",
-                        get_project_root(), type_name, get_tmp_dir(), c_type);
-                if (opts->verbose) {
-                    printf("Generating List<%s> runtime...\n", type_name);
+                if (!generated_ready || !nano_native_generate_list(get_project_root(), generated_directory, type_name, c_type)) {
+                    fprintf(stderr, "I could not generate the required List<%s> runtime\n", type_name);
+                    include_paths_valid = false;
+                    break;
                 }
-                int gen_result = system(gen_cmd);
-                if (gen_result != 0 && opts->verbose) {
-                    fprintf(stderr, "Warning: Failed to generate list_%s runtime\n", type_name);
-                }
-                
+
                 /* Create wrapper that includes struct definition */
-                char wrapper_file[512];
-                snprintf(wrapper_file, sizeof(wrapper_file), "%s/list_%s_wrapper.c", get_tmp_dir(), type_name);
+                char wrapper_file[8192];
+                snprintf(wrapper_file, sizeof(wrapper_file), "%s/list_%s_wrapper.c", generated_directory, type_name);
                 FILE *wrapper = fopen(wrapper_file, "w");
                 if (wrapper) {
                     /* Extract struct definition from generated C code */
@@ -1599,7 +1580,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                         fprintf(wrapper, "\n/* Guard macro set - typedef already defined above */\n");
                         fprintf(wrapper, "#define NL_%s_DEFINED\n\n", type_upper);
                         fprintf(wrapper, "/* Include list implementation */\n");
-                        fprintf(wrapper, "#include \"%s/list_%s.c\"\n", get_tmp_dir(), type_name);
+                        fprintf(wrapper, "#include \"list_%s.c\"\n", type_name);
                     } else {
                         /* Fallback: just include the list file.
                          * We include schema headers in case it's a schema type. */
@@ -1610,14 +1591,17 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                         fprintf(wrapper, "#include <string.h>\n\n");
                         fprintf(wrapper, "#include \"nanolang.h\"\n");
                         fprintf(wrapper, "#include \"generated/compiler_schema.h\"\n\n");
-                        fprintf(wrapper, "#include \"%s/list_%s.c\"\n", get_tmp_dir(), type_name);
+                        fprintf(wrapper, "#include \"list_%s.c\"\n", type_name);
                     }
-                    fclose(wrapper);
+                    if (ferror(wrapper)) include_paths_valid = false;
+                    if (fclose(wrapper)) include_paths_valid = false;
+                } else {
+                    include_paths_valid = false;
                 }
                 
                 /* Add wrapper to compile list */
                 char list_file[256];
-                int list_length = snprintf(list_file, sizeof(list_file), "%s/list_%s_wrapper.c", get_tmp_dir(), type_name);
+                int list_length = snprintf(list_file, sizeof(list_file), "%s/list_%s_wrapper.c", generated_directory, type_name);
                 if (list_length < 0 || (size_t)list_length >= sizeof(list_file)) include_paths_valid = false;
                 include_paths_valid = module_append_path_flag(generated_lists, sizeof(generated_lists), "", list_file) && include_paths_valid;
             }
@@ -1673,7 +1657,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Add TMPDIR to include path for generated list headers */
     char include_flags_with_tmp[12288];
     snprintf(include_flags_with_tmp, sizeof(include_flags_with_tmp), "%s", include_flags);
-    include_paths_valid = module_append_include(include_flags_with_tmp, sizeof(include_flags_with_tmp), get_tmp_dir()) && include_paths_valid;
+    include_paths_valid = module_append_include(include_flags_with_tmp, sizeof(include_flags_with_tmp), generated_directory) && include_paths_valid;
     
     const char *cc = getenv("NANO_CC");
     if (!cc) cc = getenv("CC");
@@ -1723,6 +1707,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         fprintf(stderr, "I could not represent all compiler arguments (%d command bytes, limit %zu).\n", cmd_len, sizeof(compile_cmd));
         fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
         diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_CMD);
+        if (!opts->keep_c) nano_native_remove_private_tree(generated_directory);
         free(c_code);
         free_ast(program);
         free_tokens(tokens, token_count);
@@ -1753,6 +1738,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         human_diag(NL_DIAG_CC_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_FAILED);
         /* Cleanup */
+        if (!opts->keep_c) nano_native_remove_private_tree(generated_directory);
         free(c_code);
         free_ast(program);
         free_tokens(tokens, token_count);
@@ -1780,6 +1766,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     nl_list_CompilerDiagnostic_free(diags);
 
     /* Cleanup */
+    if (!opts->keep_c) nano_native_remove_private_tree(generated_directory);
     free(c_code);
     free_ast(program);
     free_tokens(tokens, token_count);
@@ -1799,7 +1786,14 @@ int main(int argc, char *argv[]) {
     g_argv = argv;
 
     /* Resolve project root from binary location (enables compilation from any CWD) */
-    resolve_project_root(argv[0]);
+    if (argc == 2 && strcmp(argv[1], "--native-array-abi") == 0) {
+        printf("%u\n", NANO_DYN_ARRAY_ABI_VERSION);
+        return 0;
+    }
+    if (!resolve_project_root()) {
+        fprintf(stderr, "I require a complete compatible native SDK or source root\n");
+        return 1;
+    }
     
     /* Handle --version */
     if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
