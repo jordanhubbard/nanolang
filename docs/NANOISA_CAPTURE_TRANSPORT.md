@@ -210,3 +210,12 @@ then reached a harness link failure for missing process-argument globals. The
 corrected harness defines those globals without changing any product guard or
 assertion. Full Linux, sanitizer and private/installed-consumer acceptance
 remains open; this result does not admit capture execution.
+
+My fresh Homebrew Clang ASan/UBSan run at 5d8ca9be9 passes the same 243
+consumer checks, 180 transport checks, 541 allocation-enabled transport checks
+and existing codec controls, with leak detection enabled. It completes in
+21.551 seconds with unchanged source/tool maps, the leader reaped and its
+process group gone; 322 products remain retained. I preserve the [sanitizer
+reports and command](evidence/capture-bindings/consumer-darwin/sanitizers.json).
+Linux consumer, installed archive and closed private-profile qualification
+remain required before I close transport acceptance.
