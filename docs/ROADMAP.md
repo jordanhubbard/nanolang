@@ -14134,3 +14134,7 @@ NANOISA_NATIVE_LIST_SPECIALIZATIONS.md. No native production is changed yet.
   not run a faulting input. This remains part of task_2752a051dce443d0ada447c46b667561.
   The separate MAC filing attempt failed with hub_unreachable/authentication;
   I retain its description at /tmp/native-list-wrapper-boundary.txt for filing.
+- [ ] I complete corrected-only native wrapper-boundary acceptance under
+  task_1df19951939ca5ac58ad89d10efcabf9; my bounded retry filed it after the first
+  retained authentication failure. Source checkpoint 10e790a46 remains unbuilt
+  pending independent review and the complete additive native fixture checkpoint.

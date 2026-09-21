@@ -242,3 +242,40 @@ remain unchanged. New emission shadows cover staged argument names, exact
 catalog boundaries, declaration precedence, inferred constructor/removal facts,
 selected shadows and consecutive parser isolation. These assertions are source
 only until the reviewed qualification runs.
+
+## My corrected-only qualification fixture plan
+
+1. I preserve all eighteen existing source methods and their assertions, including
+   actual LexerToken mutation and all evaluator/borrowed/scheduler controls. The
+   native extension adds cases; it does not substitute a reduced corpus.
+2. I instantiate the actual shared header in one bounded C fixture with plain
+   record and nested record/string fields. I exercise all twelve operations,
+   first/last/empty positions, repeated growth, full INT64 index extremes,
+   copied removed values, vacated slots and clear/free ownership. Test-only
+   allocator/exit hooks observe constructor partial cleanup and every measured
+   constructor/growth allocation prefix, unchanged storage on refusal and fresh
+   recovery. Hook scope is this header and list_capacity.h, not the compiler.
+   Separate real subprocess cases verify the actual exit(1) diagnostic rather
+   than treating the hook's nonlocal return as the production failure policy.
+3. I add source programs for both native producers: inferred and discarded
+   constructors, signature/field/nested annotation discovery, concrete union
+   fields, imported same-spelled record owners, receiver/index/value trace order,
+   callbacks/declared/foreign list-like names, selected shadows, and consecutive
+   parser products. I compile the corrected longer supported canonical name to
+   exercise the actual wrapper scanner. I retain declaration-collision refusal
+   as an emitter refusal, not checker evidence. No old faulting revision runs.
+4. I compile actual C-seed/Stage1/Stage2 outputs with strict warnings and ordinary
+   O0/O2, then selected supported sanitizer controls on both hosts. Full-width
+   scalar/schema indices must be refused by the emitted guard before any legacy
+   provider narrows them. I preserve compile/output sentinels and exact command
+   terminals before assertions; failure cleanup remains bounded by process group.
+5. Only after full source/fixture review do I run fresh bootstrap and the complete
+   eighteen-method corpus plus added controls, using the existing ten-second
+   shadow policy and explicit current source/tool/provider maps. Successful 0e72
+   gates remain their original evidence, not qualification of this new native
+   implementation. Whole make test, enum parity, integration and fixed-point
+   acceptance remain separate required continuations.
+
+The wrapper-boundary MAC retry succeeded as
+`task_1df19951939ca5ac58ad89d10efcabf9`. Its first authentication failure remains
+recorded; no shared tunnel was changed.
