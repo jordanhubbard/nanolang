@@ -53,3 +53,9 @@ My 216ab bootstrap passes, including installed-compiler independence. In /tmp/na
 My corrected callable-global bootstrap and unchanged nine native producer/fixture combinations pass. Next, under task_0ef97cccc6c441c59bd9eb2ec7c5ff05, I replace native tuple compound initializers with typed temporary field assignments in both producers. For C-seed scalar arrays I stage each operand before entering variadic helpers. I retain their existing argument conversions and ownership conventions; I require trace and payload checks before qualification. My self-hosted array path already emits sequential pushes. Full contextual types, ownership, platform and optimization coverage remains required.
 
 My first corrected C-seed tuple/array fixture compiles and runs successfully, with exact tuple21, array321 and nested-array123 traces and payload assertions. I retain its command/output directory at /tmp/nano-tuple-array-cseed-first-rfoz7zvg. Fresh tuple/array bootstrap is running; no Stage1/Stage2 or Darwin tuple/array acceptance claim yet.
+
+## Scalar variadic boundary
+
+My ordered staging preserves operand C types, but helper varargs read fixed types. I ledger task_8c8a62af03c043e49594d49f9c74a70d before changing this boundary. I will explicitly convert U8 through uint8_t then promoted int, float through double, bool through int and string through const char*. INT already converts through int64_t. I do not run mismatched old varargs to establish this static defect.
+
+My dbac tuple/array bootstrap and all twelve Linux producer/fixture combinations pass. I preserve commands, logs and product hashes in docs/evidence/record-literal-order/native-tuple-array. This checkpoint covers integer/nested-array ordering and prior record/union/global regressions. The next scalar ABI fixture extends float, string, bool and byte payload/effects; it does not replace the earlier evidence.

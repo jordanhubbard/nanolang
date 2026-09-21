@@ -3084,28 +3084,28 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_formatted(list, "dynarray_literal_u8(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        emit_formatted(list, "__nl_arg_%u_%d", scalar_values, i);
+                        emit_formatted(list, "(int)(uint8_t)__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_FLOAT) {
                     emit_formatted(list, "dynarray_literal_float(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        emit_formatted(list, "__nl_arg_%u_%d", scalar_values, i);
+                        emit_formatted(list, "(double)__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_STRING) {
                     emit_formatted(list, "dynarray_literal_string(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        emit_formatted(list, "__nl_arg_%u_%d", scalar_values, i);
+                        emit_formatted(list, "(const char*)__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_BOOL) {
                     emit_formatted(list, "dynarray_literal_bool(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        emit_formatted(list, "__nl_arg_%u_%d", scalar_values, i);
+                        emit_formatted(list, "(int)__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_STRUCT) {
