@@ -13844,3 +13844,15 @@ copies under `docs/evidence/record-lists-a448-first-matrix/`.
   assertions/fault sweeps. I qualify only the corrected fixture checkpoint.
 - [ ] I verify unchanged a448 production and archived providers before fixture-only
   continuation, without relabeling bootstrap as a rerun; full14methods remain.
+
+
+My b50 corrected ownership/index method passes GCC and Homebrew sanitizers.
+Both then reach array identity and expose43bytes/5 fixture owner leaks at
+identity_record. A static sweep finds three more matching borrowed owner strdup
+sites in the not-yet-executed foreign_facts setup. I retain both first array
+terminals under `docs/evidence/record-lists-b50-first-array/`.
+
+- [ ] I correct every remaining selected fixture StructDef owner provisioning
+  site under task_39bfd8dc6be443e49f7eee890198cccf, preserving Union ownership,
+  every assertion and allocation sweep. I continue the failed/unreached array
+  sanitizer phases and full14methods with exact a448 provider reuse evidence.
