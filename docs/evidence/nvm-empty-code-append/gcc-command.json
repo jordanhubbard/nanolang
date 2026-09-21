@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/usr/bin/make",
+    "-j2",
+    "test-nanoisa",
+    "test-verifier",
+    "OBJ_DIR=obj-empty-gcc",
+    "CC=/usr/bin/gcc-13",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -fsanitize=undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+    "LDFLAGS=-lm -lcrypto -fsanitize=undefined",
+    "PYTHON_WITH_YAML=/usr/bin/python3"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-empty-code-append",
+  "environment": {
+    "PATH": "/usr/bin:/bin:/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/usr/local/cuda/bin:/opt/bin/:/home/jkh/.codex/tmp/arg0/codex-arg0q1IvSc:/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/home/jkh/.local/share/pnpm:/home/jkh/gocode/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/cuda/bin:/snap/bin:/home/jkh/.cargo/bin:/home/jkh/.ghcup/bin:/home/jkh/.local/bin:/home/jkh/.local/bin:/sbin:/usr/sbin:/bin:/usr/bin:/home/jkh/Bin:.",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": "",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}
