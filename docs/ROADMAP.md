@@ -14111,3 +14111,16 @@ emitter already stages regular calls with build_ordered_call_args. I preserve
 that behavior; only the selfhost plain-C list path lacks the required ordering.
 The native design is corrected before production. This refinement does not
 change the demonstrated missing operations, unchecked access or identity gaps.
+
+The concrete native audit chooses existing owned C AST call-name canonicalization
+plus GenericInstantiation.list_element, not new borrowed metadata or a portable
+schema field. Details and actual native string/record lifetime limits are in
+NANOISA_NATIVE_LIST_SPECIALIZATIONS.md. No native production is changed yet.
+
+- [ ] Task_bff42f7451f243b39149c04408df05f8: correct C generic-list whole-suffix
+  parsing for is_empty; the operation checker and evaluator already know the
+  full name, but the C outer dispatcher currently splits only at the last `_`.
+- [ ] Task_ec4cdac029ef4d20a3a54f046ca10a79: independently repair/audit optional
+  PGO AST_CALL owned-name clones versus free_ast. I found the shallow-copy
+  ownership mismatch statically; no faulting program was rerun. This remains
+  required full-compiler work, not a native-list qualification claim.

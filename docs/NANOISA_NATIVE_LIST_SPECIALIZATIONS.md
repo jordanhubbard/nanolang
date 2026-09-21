@@ -127,3 +127,63 @@ new output is published. I do not silently truncate a discovery list.
 
 I keep full list, enum parity, bootstrap/fixed-point, whole-Make and release
 criteria open. This design is not source qualification or backend admission.
+
+## My concrete C identity and lifetime audit
+
+My C binder already writes canonical record names into StructDef.name while
+retaining original_name and module_name. env_nominal_identity selects the exact
+owner/declaration; env_nominal_name returns that declaration's canonical name.
+GenericInstantiation.list_element already stores the checked kind/ordinal, and
+env_register_list_instantiation refuses a same-spelled different identity.
+I will reuse these facts rather than add an Environment-borrowed AST pointer.
+
+For a successfully selected ordinary record-list call I will transactionally
+canonicalize the existing owned AST_CALL.name to list_<canonical>_<operation>,
+and retain canonical return_struct_type_name for element-returning operations.
+Every selected operation must register/validate its exact specialization, not
+only new. I allocate replacement strings before publication, preserve the old
+call on failure, and never rewrite a declared/extern/callback route. The
+emitter checks the actual registered list_element and canonical declaration,
+not a current-owner guess from the raw source name. It rejects a real callable
+or generated-C symbol collision rather than silently redirecting it. Existing
+compiler metadata allocation limitations remain separate from checked runtime
+growth; this is not an all-checker OOM-recovery claim.
+
+This uses existing call-name ownership: create_node zero-initializes it,
+parser clone_ast_node duplicates it, free_ast frees it, and the canonical
+main pipeline finishes typechecking/shadows before its optional PGO transform.
+It adds no C AST field, borrowed Environment lifetime or portable schema field.
+All downstream consumers keep the same selected operation and exact canonical
+element: evaluator and NanoISA resolve canonical declarations, while native
+emission uses the existing exact specialization registry. I must add source
+controls for repeated checking and all those consumers before qualification.
+The generic C dispatcher also needs whole-suffix parsing for is_empty; the
+evaluator already has it. Task_bff42f7451f243b39149c04408df05f8 records that
+specific source mismatch. Unsupported NanoISA operations remain refused.
+
+The C-seed scope tracker explicitly does not release TYPE_STRING locals. Native
+managed strings start with ref_count=1; plain C record assignment does not
+invoke gc_struct_set_field or gc_struct_free. The selfhost emitter likewise
+uses the native record layout, not evaluator Value/arena graphs. Thus I preserve
+record-by-value and existing pointer-field representations without adding
+recursive frees/retains to slot movement or free. List clear/free reclaim only
+their own storage. This is not expression-bounded managed-memory reclamation,
+foreign-handle ownership or a deep-copy claim. Opaque/provider ownership still
+follows its existing contract; no list operation becomes an owner of arbitrary
+foreign pointees. The copied record and string controls remain required.
+
+I also found an independent existing PGO issue: clone_node bitwise-copies the
+owned AST_CALL.name and calls it a shared constant, while free_ast frees it.
+Task_ec4cdac029ef4d20a3a54f046ca10a79 retains that static clone/destruction audit;
+no old memory-faulting program was run. This list repair adds no new field to
+that ownership graph, and it does not claim optional PGO graph qualification.
+The full compiler/release requirement still includes that repair.
+
+For the native bodies I propose one shared typed C macro/header containing the
+checked ordinary-list operations. Both producers emit the exact forward typedef,
+complete record definition, then the macro specialization; this avoids two
+independent copies of growth/bounds logic. Existing schema/int/string runtime
+providers keep their own definitions. Provider selection must use the actual
+known catalog and declaration, not the old broad AST/Compiler prefix heuristic.
+The selfhost call path gets expression-local argument staging and exact owner
+mapping; C-seed keeps its existing ordered argument machinery.
