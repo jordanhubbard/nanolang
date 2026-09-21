@@ -5,6 +5,18 @@
 #include "env_record_lists.inc"
 #include "env_provider_leases.inc"
 
+struct EnvNominalImport {
+    struct EnvNominalImport *next;
+    char *importer, *name, *declaration_owner, *declaration_name;
+    NominalIdentity identity;
+};
+static void nominal_import_free(struct EnvNominalImport *row) {
+    if (!row) return;
+    free(row->importer); free(row->name);
+    free(row->declaration_owner); free(row->declaration_name);
+    free(row);
+}
+
 typedef struct {
     uint64_t hash;
     int previous; /* I encode slot + 1; -1 marks a slot without a name. */
@@ -270,6 +282,11 @@ void env_require_destroyable(Environment *env) {
 void free_environment(Environment *env) {
     env_require_destroyable(env);
     env_symbol_index_invalidate(env);
+    while (env->nominal_imports) {
+        struct EnvNominalImport *row = env->nominal_imports;
+        env->nominal_imports = row->next;
+        nominal_import_free(row);
+    }
     for (int i = 0; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
         if (env->symbols[i].struct_type_name) {
@@ -1055,6 +1072,54 @@ static bool nominal_owner_equal(const char *a, const char *b) {
     return (!a && !b) || (a && b && !strcmp(a, b));
 }
 
+/* I retain exact registered facts, never a name chosen from unrelated modules.
+ * Idempotent rows allocate nothing. Conflicting imports fail before publication. */
+bool env_register_nominal_import(Environment *env, const char *importer,
+                                 const char *name, NominalIdentity identity) {
+    if (!env || !name || !*name) return false;
+    const char *declaration = env_nominal_name(env, identity);
+    const char *owner = env_nominal_owner(env, identity);
+    if (!declaration) return false;
+    for (struct EnvNominalImport *row = env->nominal_imports; row; row = row->next) {
+        if (row->identity.kind == identity.kind && nominal_owner_equal(row->importer, importer) &&
+            !strcmp(row->name, name)) {
+            return row->identity.ordinal == identity.ordinal &&
+                nominal_owner_equal(row->declaration_owner, owner) &&
+                !strcmp(row->declaration_name, declaration);
+        }
+    }
+    struct EnvNominalImport *row = calloc(1, sizeof *row);
+    if (!row) return false;
+    row->identity = identity;
+    row->importer = importer ? strdup(importer) : NULL;
+    row->name = strdup(name);
+    row->declaration_owner = owner ? strdup(owner) : NULL;
+    row->declaration_name = strdup(declaration);
+    if ((importer && !row->importer) || !row->name ||
+        (owner && !row->declaration_owner) || !row->declaration_name) {
+        nominal_import_free(row);
+        return false;
+    }
+    row->next = env->nominal_imports;
+    env->nominal_imports = row;
+    return true;
+}
+
+static NominalIdentity nominal_import_identity(Environment *env, const char *name,
+                                                const char *owner, Type kind) {
+    NominalIdentity none = {TYPE_UNKNOWN, 0}, result = none;
+    for (const struct EnvNominalImport *row = env->nominal_imports; row; row = row->next) {
+        if (row->identity.kind != kind || !nominal_owner_equal(row->importer, owner) ||
+            strcmp(row->name, name)) continue;
+        const char *current = env_nominal_name(env, row->identity);
+        if (!current || strcmp(current, row->declaration_name) ||
+            !nominal_owner_equal(env_nominal_owner(env, row->identity), row->declaration_owner) ||
+            result.ordinal) return none;
+        result = row->identity;
+    }
+    return result;
+}
+
 NominalIdentity env_nominal_identity(Environment *env, const char *name,
                                      const char *owner, Type kind) {
     NominalIdentity none = {TYPE_UNKNOWN, 0};
@@ -1125,7 +1190,8 @@ NominalIdentity env_nominal_identity(Environment *env, const char *name,
             result.ordinal = (size_t)i + 1;
         }
     }
-    return result;
+    if (result.ordinal || dot) return result;
+    return nominal_import_identity(env, declaration_name, owner, kind);
 }
 
 const char *env_nominal_name(Environment *env, NominalIdentity identity) {

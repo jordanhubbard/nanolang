@@ -72,3 +72,36 @@ the caller. Parsed controls must distinguish this definition-site transitivity
 from unbound caller spellings. Qualified and selective alias refusal behavior
 remains unchanged. Later full bootstrap may expose other legacy accepted
 boundaries; I will record and review them rather than bypass exact provenance.
+
+
+## My complete source and fixture checkpoint
+
+My Environment owns a linked table with four optional/required copied strings
+and a kind/ordinal pair per row. Registration validates the existing declaration,
+allocates unpublished storage, and atomically prepends only complete rows. Exact
+repeats allocate nothing; same importer/name/kind with another origin returns
+false without changing the existing table. Resolution revalidates copied
+name/owner against the ordinal and never chooses a global same-spelled record.
+A real local declaration takes precedence. Teardown detaches and frees rows
+before declaration storage. The Environment constructor's calloc initializes
+the new field; no Environment-by-value copy is introduced.
+
+The actual module loader registers only selected direct declarations after a
+completed load. Renamed selective type aliases remain on the existing refusal
+path. Qualified aliases retain their original table. The record binder now
+uses exact declaration/import authority instead of env_get_struct's global
+fallback; union placeholder classification uses the same owner-aware resolver.
+Registration is transactional per row; an import failure stops processing,
+without claiming rollback of previously completed imports or declarations.
+
+The original thirteen methods remain, with one new method (fourteen total).
+It exercises selective/plain/wildcard/repeated imports, definition-site field
+and array/list annotations, local same-spelled records, both conflict orders,
+undefined selected names, no dependency-namespace promotion, and unchanged
+selective type-alias refusal across the existing producer/evaluator routes.
+Actual env.c allocation hooks exercise every registration allocation for NULL
+and named importer/source owners, persistent/transient failure and recovery,
+retained old rows, allocation-free idempotence, conflict ordering, stale
+ordinal facts, kind separation, and independent Environment teardown. All
+previous allocation controls remain. Python parsing and diff whitespace checks
+are the only checks run before review; no C build or source program ran.

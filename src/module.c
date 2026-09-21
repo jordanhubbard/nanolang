@@ -921,6 +921,42 @@ ASTNode *load_module_from_package(const char *package_path, Environment *env, ch
     return module_ast;
 }
 
+/* I bind only declarations reached by this actual direct unqualified import.
+ * Definition-site rows remain in their own module; I do not export namespaces. */
+static bool register_nominal_imports(Environment *env, ASTNode *import,
+                                      ASTNode *program, const char *path) {
+    if (import->as.import_stmt.module_alias) return true;
+    char *owner = module_program_name(program, path);
+    if (!owner) return false;
+    bool ok = true;
+    for (int i = 0; ok && i < program->as.program.count; ++i) {
+        ASTNode *node = program->as.program.items[i];
+        Type kind;
+        const char *name, *actual;
+        if (node->type == AST_STRUCT_DEF) {
+            kind = TYPE_STRUCT; actual = node->as.struct_def.name;
+            name = node->as.struct_def.original_name ? node->as.struct_def.original_name : actual;
+        } else if (node->type == AST_ENUM_DEF) {
+            kind = TYPE_ENUM; name = actual = node->as.enum_def.name;
+        } else if (node->type == AST_UNION_DEF) {
+            kind = TYPE_UNION; name = actual = node->as.union_def.name;
+        } else continue;
+        bool selected = !import->as.import_stmt.is_selective || import->as.import_stmt.is_wildcard;
+        for (int j = 0; !selected && j < import->as.import_stmt.import_symbol_count; ++j) {
+            const char *original = import->as.import_stmt.import_symbols[j];
+            const char *alias = import->as.import_stmt.import_aliases ? import->as.import_stmt.import_aliases[j] : NULL;
+            if (!strcmp(original, name) && (!alias || !*alias || !strcmp(alias, original))) selected = true;
+        }
+        if (!selected) continue;
+        NominalIdentity identity = env_nominal_identity(env, actual, owner, kind);
+        const char *registered_owner = env_nominal_owner(env, identity);
+        ok = identity.ordinal && registered_owner && !strcmp(registered_owner, owner) &&
+             env_register_nominal_import(env, env->current_module, name, identity);
+    }
+    free(owner);
+    return ok;
+}
+
 static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
 
 /* I apply an explicit module declaration before registering its import aliases. */
@@ -1058,6 +1094,14 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 }
             }
             
+            if (!register_nominal_imports(env, item, module_ast, module_path)) {
+                fprintf(stderr, "I cannot bind conflicting or incomplete nominal imports.\n");
+                free(module_path);
+                for (int k = 0; k < unpacked_count; ++k) free(unpacked_dirs[k]);
+                free(unpacked_dirs);
+                return false;
+            }
+
             /* Register namespace if module has an alias */
             if (module_alias) {
                 /* Extract function names, struct names, enum names, union names from module */

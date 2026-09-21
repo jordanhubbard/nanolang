@@ -813,6 +813,7 @@ typedef struct {
     struct EnvRecordResult *record_results; /* Cumulative borrowed result snapshots. */
     struct EnvRecordIndex *record_result_index; /* Exact typed-root membership; arena owns entries. */
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
+    struct EnvNominalImport *nominal_imports; /* Owned direct importer-to-declaration edges. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
     Function *functions;
     int function_count;
@@ -986,6 +987,7 @@ void env_define_struct(Environment *env, StructDef struct_def);
 StructDef *env_get_struct(Environment *env, const char *name);
 StructDef *env_get_struct_owned(Environment *env, const char *name, const char *owner);
 NominalIdentity env_nominal_identity(Environment *env, const char *name, const char *owner, Type kind);
+bool env_register_nominal_import(Environment *env, const char *importer, const char *name, NominalIdentity identity);
 const char *env_nominal_name(Environment *env, NominalIdentity identity);
 const char *env_nominal_owner(Environment *env, NominalIdentity identity);
 bool bind_nominal_records(ASTNode *program, Environment *env);

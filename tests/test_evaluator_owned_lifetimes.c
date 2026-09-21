@@ -661,6 +661,79 @@ static void cache_registration_control(const char *path) {
 /* I retain the existing numeric-link index across actual evaluator cleanup.
  * No allocation may hide a full rebuild during pop/lookup; slot insertion still
  * follows the normal same-file synchronization path. */
+static void nominal_import_attempt(const char *importer, const char *owner,
+                                   size_t failure, bool once, size_t *count) {
+    Environment *env = create_environment(); CHECK(env);
+    StructDef record = {0}; record.name = strdup("Item");
+    record.module_name = owner ? strdup(owner) : NULL;
+    CHECK(record.name && (!owner || record.module_name)); env_define_struct(env, record);
+    NominalIdentity identity = env_nominal_identity(env, "Item", owner, TYPE_STRUCT);
+    CHECK(identity.ordinal);
+    CHECK(env_register_nominal_import(env, "Existing", "Retained", identity));
+    struct EnvNominalImport *previous = env->nominal_imports;
+    begin(failure, once);
+    bool ok = env_register_nominal_import(env, importer, "ImportedItem", identity);
+    end(); *count = attempts;
+    if (failure == SIZE_MAX) {
+        CHECK(ok && env->nominal_imports != previous);
+        CHECK(env_nominal_identity(env, "ImportedItem", importer, TYPE_STRUCT).ordinal == identity.ordinal);
+        size_t retained = live;
+        CHECK(!observing); attempts = failures = 0; failure_at = 0; transient = false; observing = true;
+        CHECK(env_register_nominal_import(env, importer, "ImportedItem", identity));
+        end(); CHECK(attempts == 0 && failures == 0 && live == retained);
+    } else {
+        CHECK(!ok && failures && env->nominal_imports == previous && live == 0);
+        CHECK(!env_nominal_identity(env, "ImportedItem", importer, TYPE_STRUCT).ordinal);
+        CHECK(env_nominal_identity(env, "Retained", "Existing", TYPE_STRUCT).ordinal == identity.ordinal);
+        CHECK(env_register_nominal_import(env, importer, "ImportedItem", identity));
+    }
+    free_environment(env); CHECK(live == 0);
+}
+static void nominal_import_controls(void) {
+    for (int importer = 0; importer < 2; ++importer) for (int owner = 0; owner < 2; ++owner) {
+        size_t count; nominal_import_attempt(importer ? "Caller" : NULL, owner ? "Source" : NULL, SIZE_MAX, false, &count);
+        CHECK(count == (size_t)(3 + importer + owner));
+        for (int once = 0; once < 2; ++once) for (size_t i = 0; i < count; ++i) {
+            size_t ignored;
+            nominal_import_attempt(importer ? "Caller" : NULL, owner ? "Source" : NULL, i, once != 0, &ignored);
+        }
+    }
+    Environment *env = create_environment(); CHECK(env);
+    const char *owners[] = {"First", "Second", "Caller"};
+    for (int i = 0; i < 3; ++i) {
+        StructDef record = {0}; record.name = strdup("Item"); record.module_name = strdup(owners[i]);
+        CHECK(record.name && record.module_name); env_define_struct(env, record);
+    }
+    NominalIdentity first = env_nominal_identity(env, "Item", "First", TYPE_STRUCT);
+    NominalIdentity second = env_nominal_identity(env, "Item", "Second", TYPE_STRUCT);
+    CHECK(first.ordinal && second.ordinal && first.ordinal != second.ordinal);
+    CHECK(env_register_nominal_import(env, "User", "Item", first));
+    struct EnvNominalImport *before = env->nominal_imports;
+    CHECK(!env_register_nominal_import(env, "User", "Item", second) && env->nominal_imports == before);
+    CHECK(env_register_nominal_import(env, "Reverse", "Item", second));
+    CHECK(!env_register_nominal_import(env, "Reverse", "Item", first));
+    CHECK(env_register_nominal_import(env, "Caller", "Item", first));
+    CHECK(env_nominal_identity(env, "Item", "Caller", TYPE_STRUCT).ordinal == 3);
+    CHECK(!env_nominal_identity(env, "Item", "Unrelated", TYPE_STRUCT).ordinal);
+    CHECK(!env_nominal_identity(env, "Item", "User", TYPE_ENUM).ordinal);
+    char saved = env->structs[first.ordinal - 1].name[0];
+    env->structs[first.ordinal - 1].name[0] = 'X';
+    CHECK(!env_nominal_identity(env, "Item", "User", TYPE_STRUCT).ordinal);
+    env->structs[first.ordinal - 1].name[0] = saved;
+    CHECK(env_nominal_identity(env, "Item", "User", TYPE_STRUCT).ordinal == first.ordinal);
+    CHECK(!env_register_nominal_import(env, "User", "Invalid", (NominalIdentity){TYPE_STRUCT, 999}));
+    EnumDef enumeration = {0}; enumeration.name = strdup("Color"); enumeration.module_name = strdup("First");
+    env_define_enum(env, enumeration);
+    UnionDef sum = {0}; sum.name = strdup("Choice"); sum.module_name = strdup("First"); env_define_union(env, sum);
+    CHECK(env_register_nominal_import(env, "User", "Color", env_nominal_identity(env, "Color", "First", TYPE_ENUM)));
+    CHECK(env_register_nominal_import(env, "User", "Choice", env_nominal_identity(env, "Choice", "First", TYPE_UNION)));
+    CHECK(env_nominal_identity(env, "Color", "User", TYPE_ENUM).ordinal == 1);
+    CHECK(env_nominal_identity(env, "Choice", "User", TYPE_UNION).ordinal == 1);
+    Environment *other = create_environment(); CHECK(other);
+    CHECK(!env_nominal_identity(other, "Item", "User", TYPE_STRUCT).ordinal);
+    free_environment(other); free_environment(env);
+}
+
 static void string_binding_ownership_controls(void) {
     Environment *env = create_environment();
     Value fresh = text_value(strdup("original"));
@@ -751,7 +824,7 @@ int main(int argc, char **argv) {
         cache_registration_control(argv[2]); return 0;
     }
     CHECK(argc == 1);
-    string_binding_ownership_controls(); evaluator_symbol_pop_controls(); graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); task_allocation_controls(); borrowed_staging_controls();
+    nominal_import_controls(); string_binding_ownership_controls(); evaluator_symbol_pop_controls(); graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); task_allocation_controls(); borrowed_staging_controls();
     CHECK(live == 0 && !observing);
     printf("I passed %zu checked ownership assertions.\n", checks);
     return 0;

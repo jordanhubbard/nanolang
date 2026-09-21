@@ -13,8 +13,13 @@ static const char *nominal_name(ASTNode *program, Environment *env, const char *
              (item->as.struct_def.original_name && !strcmp(item->as.struct_def.original_name, name))))
             return item->as.struct_def.name;
     }
-    StructDef *record = env_get_struct(env, name);
-    return record ? record->name : name;
+    const char *owner = env->current_module;
+    for (int i = 0; i < program->as.program.count; ++i)
+        if (program->as.program.items[i]->type == AST_MODULE_DECL)
+            owner = program->as.program.items[i]->as.module_decl.name;
+    NominalIdentity identity = env_nominal_identity(env, name, owner, TYPE_STRUCT);
+    const char *bound = env_nominal_name(env, identity);
+    return bound ? bound : name;
 }
 
 static bool nominal_slot(ASTNode *program, Environment *env, char **slot) {
@@ -44,7 +49,11 @@ static Type nominal_union_kind(ASTNode *program, Environment *env, Type type,
         if (item->type == AST_UNION_DEF && !strcmp(item->as.union_def.name, name))
             return TYPE_UNION;
     }
-    return env_get_union(env, name) ? TYPE_UNION : type;
+    const char *owner = env->current_module;
+    for (int i = 0; i < program->as.program.count; ++i)
+        if (program->as.program.items[i]->type == AST_MODULE_DECL)
+            owner = program->as.program.items[i]->as.module_decl.name;
+    return env_nominal_identity(env, name, owner, TYPE_UNION).ordinal ? TYPE_UNION : type;
 }
 static bool nominal_scoped_signature(ASTNode *, Environment *, FunctionSignature *, char **, int);
 static bool nominal_scoped_info(ASTNode *program, Environment *env, TypeInfo *info, char **formals, int count) {

@@ -13782,3 +13782,9 @@ this progress does not establish the earlier crash's allocation history.
   Task `task_836004405a924cea8d45829cbe14ab61` owns this prerequisite.
 - [ ] I review the import provenance source and focused fixtures, then resume
   fresh full bootstrap and every remaining list/evaluator/whole Make gate.
+
+
+My unqualified import source checkpoint adds one method to the retained thirteen
+(fourteen total), plus actual registry allocation and identity controls. I keep
+full bootstrap and all prior source/lifetime/whole Make gates required. No
+qualification is inferred from the static checkpoint.

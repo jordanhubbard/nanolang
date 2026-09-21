@@ -278,6 +278,69 @@ shadow main { assert (== (main) 0) }
         forward = 'struct Holder { values: List<Element> }\nstruct Element { value: int }\nfn main() -> int { let xs: List<Element> = (list_Element_new) return 0 }\nshadow main { assert (== (main) 0) }\n'
         self.source_routes('ordinary-forward-list', forward)
 
+    def test_unqualified_nominal_import_provenance(self):
+        directory = self.work / 'nominal-imports'; directory.mkdir()
+        origin = directory / 'origin.nano'
+        origin.write_text('''module ImportOrigin
+pub struct Token { value: int }
+pub struct Packet { items: array<Token> }
+pub fn import_token() -> Token { return Token { value: 17 } }
+shadow import_token { assert (== (import_token).value 17) }
+pub fn import_packet() -> Packet { return Packet { items: [(import_token)] } }
+shadow import_packet { assert (== (at (import_packet).items 0).value 17) }
+''')
+        wrapper = directory / 'wrapper.nano'
+        wrapper.write_text(f'from "{origin}" import Token, Packet, import_packet\n' + '''module ImportWrapper
+pub fn imported_fields(value: Packet) -> array<Token> { return value.items }
+shadow imported_fields { assert (== (at (imported_fields (import_packet)) 0).value 17) }
+''')
+        body = '''fn main() -> int {
+ let packet: Packet = (import_packet)
+ let items: array<Token> = (imported_fields packet)
+ let copied: array<Token> = items
+ assert (== (at copied 0).value 17)
+ let values: List<Token> = (list_Token_new)
+ (list_Token_push values (at items 0))
+ assert (== (list_Token_get values 0).value 17)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+        for name, declaration in (('selective', f'from "{origin}" import Token, Packet, import_packet'),
+                                  ('plain', f'import "{origin}"'),
+                                  ('wildcard', f'from "{origin}" import *')):
+            self.source_routes('nominal-' + name, declaration + f'\nfrom "{wrapper}" import imported_fields\n' + body)
+        # Definition-site leaves remain usable without leaking a wrapper's aliases.
+        inferred = f'from "{origin}" import import_packet\nfrom "{wrapper}" import imported_fields\n' + '''fn main() -> int {
+ let result = (imported_fields (import_packet))
+ assert (== (at result 0).value 17)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+        self.source_routes('nominal-definition-site', inferred)
+        local = f'import "{origin}"\n' + '''struct Token { text: string }
+fn main() -> int {
+ let values: array<Token> = [Token { text: "local" }]
+ assert (== (at values 0).text "local")
+ return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+        self.source_routes('nominal-local-precedence', local)
+        other = directory / 'other.nano'
+        other.write_text('module OtherOrigin\npub struct Token { value: int }\n')
+        for order, modules in enumerate(((origin, other), (other, origin))):
+            source = ''.join(f'import "{module}"\n' for module in modules) + 'fn main() -> int { return 0 }\nshadow main { assert true }\n'
+            self.source_routes('nominal-conflict-' + str(order), source, True, import_refusal=True)
+        self.source_routes('nominal-repeat', f'import "{origin}"\nimport "{origin}"\nfrom "{wrapper}" import imported_fields\n' + body)
+        missing = f'from "{origin}" import Missing\nfn main() -> int {{ let values: array<Missing> = [] return 0 }}\nshadow main {{ assert true }}\n'
+        self.source_routes('nominal-undefined', missing, True)
+        unbound = f'from "{wrapper}" import imported_fields\nfn main() -> int {{ let values: array<Token> = [] return 0 }}\nshadow main {{ assert true }}\n'
+        self.source_routes('nominal-no-namespace-promotion', unbound, True)
+        renamed = f'from "{origin}" import Token as Renamed\nfn main() -> int {{ return 0 }}\nshadow main {{ assert true }}\n'
+        self.source_routes('nominal-type-alias-still-refused', renamed, True, import_refusal=True)
+
     def test_real_cache_generations_and_private_compiler(self):
         # I use the actual private compiler, including a fresh missing-input path.
         module = self.work / 'cache-input.nano'
