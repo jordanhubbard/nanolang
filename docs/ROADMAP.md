@@ -14361,3 +14361,10 @@ allocator failure claim.
   literal flat-tag/guessed-INT typedef selection with complete checked metadata
   and stage child evaluation once in source order. I test nominal collisions,
   nested callbacks and observable mutation ordering before native acceptance.
+
+- [ ] I make native tuple/array emission cache publication transactional across
+  recursive child failures and failed program/module/shadow/expression checks.
+  I release only newly appended owned rows and retain prior snapshots; source
+  review and corrected-only prefix/late-failure/recovery controls precede runs.
+  MAC: task_d3d5a17bad0f48ae92c3fa4dc4d306d5. The unexecuted 1e2e862dd
+  checkpoint is not qualification evidence.

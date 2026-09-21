@@ -205,3 +205,34 @@ I have not built or executed this integrated source. The independent e456 and
 The complete native fixture additions, both-host bootstrap and unchanged
 18 plus 8 method matrices remain required. SDK packaging and full SDK
 acceptance are separate from these source dependencies.
+
+## Failed-check emission cache transaction
+
+Root review of unexecuted 1e2e862dd finds that my recursive emission publisher
+appends a root row before later children can fail. A failed checker entry can
+then free its AST while my Environment still retains that address as a cache
+key. MAC task_d3d5a17bad0f48ae92c3fa4dc4d306d5 owns this correction.
+
+I checkpoint the tuple and array row counts at each complete recursive
+publication, emitted-snapshot API, direct expression check, program check,
+module check, root shadow check and imported shadow scope. A failed operation
+frees and zeros only newly appended owned snapshots and restores those counts.
+Rows are append-only: existing keys either compare equal without mutation or
+refuse. Prior snapshot pointers stay stable even if the backing vector grew.
+The vector itself is private and has no external borrowed row pointers. I need
+no new allocation to roll back. A newly empty vector is released and nulled.
+
+Nested calls use stack-local checkpoints; there is no ambient cache transaction
+or reuse across Environments. A failed outer entry also removes successful child
+publications made since its checkpoint. I include failure after binding but
+before final Environment-owned output registration. Direct expression failure
+includes UNKNOWN, a newly reported checker error, or a new metadata-failure
+flag. Main's later shadow failure destroys the Environment with the program;
+the failed shadow entry still removes its newly appended rows. Previously
+accepted ASTs remain borrowed under their existing Environment/cache lifetime
+contract; this transaction does not extend that lifetime.
+
+I audit every early return in these entry wrappers and test corrected-only
+initial/growth allocation prefixes, recursive late-child failure, malformed
+later siblings, preservation of prior owned rows, and fresh success. I do not
+execute a stale-key reproduction on 1e2e862dd.
