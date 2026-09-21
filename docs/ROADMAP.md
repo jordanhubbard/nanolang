@@ -1231,13 +1231,14 @@ their individual acceptance evidence closes them.
       weakening the original test. The retained coverage log has SHA-256
       `52ac99538831146c5bd91af503d8be3037b19bf3b5bf499ff3b224e84240d98d`.
       MAC `task_34bf8b5232b74ed080cbd21039e6aeb6`.
-      - [ ] My first fresh Linux bootstrap builds and smokes Stage 1, then
+      - [x] My first fresh Linux bootstrap builds and smokes Stage 1, then
         Stage 2 correctly refuses the new emitter shadow's undeclared
         `str_index_of` helper. I preserve that terminal and replace only this
         shadow oracle with supported exact call/`POP` sequence checks; the
         Python integration test retains its stronger selector-before-callback
-        ordering assertion.
-      - [ ] The corrected fresh bootstrap passes all three stages and installs
+        ordering assertion. The replacement bootstrap and focused gates pass;
+        [evidence](evidence/canonical-returned-functional-callbacks.md).
+      - [x] The corrected fresh bootstrap passes all three stages and installs
         the self-hosted compiler, then the original map acceptance reaches
         `shadow choose` and exposes the same exact returned callback through a
         direct computed call. My expression classifier mistakes that call's
@@ -1245,7 +1246,10 @@ their individual acceptance evidence closes them.
         equality as mismatched float operands. I preserve this terminal,
         statically resolve only the same single-return selector contract,
         evaluate the selector once before its arguments, and retain broader
-        computed calls as checked refusals.
+        computed calls as checked refusals. Fresh bootstrap, the original
+        regression, all nine functional-array methods, 2,426 translator
+        checks, 1,412 shape checks, 86 Cut A checks and 90 adjacent emitter
+        methods pass; [evidence](evidence/canonical-returned-functional-callbacks.md).
 
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
       accepted integer-zero spelling for an opaque null when foreign call
