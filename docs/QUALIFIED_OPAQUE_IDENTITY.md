@@ -682,3 +682,7 @@ My unchanged installed `Json.Json` program and complete same-owner alias,
 cross-owner argument/return/assignment and unknown-qualifier controls remain
 required across all three producers. This source correction is awaiting review
 and fresh complete qualification; it does not establish installed acceptance.
+
+I also refuse missing qualified owner/member pointers before length inspection,
+marking preparation failed. Valid parser-created calls are unchanged; I do not
+execute a malformed AST to test this defensive boundary.

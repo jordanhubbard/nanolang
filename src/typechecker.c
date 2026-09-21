@@ -1305,6 +1305,10 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
              * simple named returns need not have a full TypeInfo allocation. */
             const char *owner = expr->as.module_qualified_call.module_alias;
             const char *name = expr->as.module_qualified_call.function_name;
+            if (!owner || !name) {
+                env->opaque_resolution_failed = true;
+                return NULL;
+            }
             size_t a = strlen(owner), b = strlen(name);
             if (b > SIZE_MAX - 2 || a > SIZE_MAX - b - 2) {
                 env->opaque_resolution_failed = true;
