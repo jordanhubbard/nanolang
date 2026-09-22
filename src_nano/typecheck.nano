@@ -322,23 +322,41 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
     # Reserved scalar types cannot contain a nominal resource payload.
     if (or (== type_name "int") (or (== type_name "float") (or (== type_name "bool") (or (== type_name "string") (== type_name "void"))))) { return false }
     if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_instantiated_classify parser type_name 0 0 collections_only) }
+    let struct_count: int = (parser_get_struct_def_count parser)
+    let union_count: int = (parser_get_union_count parser)
     let mut collections: array<string> = []
     let mut bearing: array<string> = []
     let mut i: int = 0
-    while (< i (parser_get_struct_def_count parser)) {
+    while (< i struct_count) {
         let def: ASTStruct = (parser_get_struct_def parser i)
         if def.is_resource { set bearing (array_push bearing (resource_type_identity parser def.name def.line)) }
         set i (+ i 1)
     }
     if (== (array_length bearing) 0) { return false }
+    # My declaration identities stay fixed while only the fact sets grow.
+    let mut struct_keys: array<string> = []
+    set i 0
+    while (< i struct_count) {
+        let def: ASTStruct = (parser_get_struct_def parser i)
+        set struct_keys (array_push struct_keys (resource_type_identity parser def.name def.line))
+        set i (+ i 1)
+    }
+    let mut union_keys: array<string> = []
+    set i 0
+    while (< i union_count) {
+        let def: ASTUnion = (parser_get_union parser i)
+        set union_keys (array_push union_keys (resource_type_identity parser def.name def.line))
+        set i (+ i 1)
+    }
     # A cycle alone creates no obligation. I propagate only from resource roots.
     let mut changed: bool = true
     while changed {
         set changed false
         set i 0
-        while (< i (parser_get_struct_def_count parser)) {
+        while (< i struct_count) {
             let def: ASTStruct = (parser_get_struct_def parser i)
-            if (or (not (resource_name_in bearing (resource_type_identity parser def.name def.line))) (not (resource_name_in collections (resource_type_identity parser def.name def.line)))) {
+            let key: string = (at struct_keys i)
+            if (or (not (resource_name_in bearing key)) (not (resource_name_in collections key))) {
                 let mut field: int = 0
                 let mut owns: bool = false
                 let mut unsupported: bool = false
@@ -348,16 +366,16 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
                     if (resource_concrete_payload_fact parser spelling def.line [] bearing collections true [] 0) { set unsupported true }
                     set field (+ field 1)
                 }
-                let key: string = (resource_type_identity parser def.name def.line)
                 if (and owns (not (resource_name_in bearing key))) { set bearing (array_push bearing key) set changed true }
                 if (and unsupported (not (resource_name_in collections key))) { set collections (array_push collections key) set changed true }
             }
             set i (+ i 1)
         }
         set i 0
-        while (< i (parser_get_union_count parser)) {
+        while (< i union_count) {
             let def: ASTUnion = (parser_get_union parser i)
-            if (or (not (resource_name_in bearing (resource_type_identity parser def.name def.line))) (not (resource_name_in collections (resource_type_identity parser def.name def.line)))) {
+            let key: string = (at union_keys i)
+            if (or (not (resource_name_in bearing key)) (not (resource_name_in collections key))) {
                 let mut field: int = 0
                 let mut owns: bool = false
                 let mut unsupported: bool = false
@@ -367,7 +385,6 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
                     if (resource_concrete_payload_fact parser spelling def.line def.generic_params bearing collections true [] 0) { set unsupported true }
                     set field (+ field 1)
                 }
-                let key: string = (resource_type_identity parser def.name def.line)
                 if (and owns (not (resource_name_in bearing key))) { set bearing (array_push bearing key) set changed true }
                 if (and unsupported (not (resource_name_in collections key))) { set collections (array_push collections key) set changed true }
             }
@@ -376,7 +393,7 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
     }
     let queried: string = (resource_type_identity parser type_name 0)
     let mut ui: int = 0
-    while (< ui (parser_get_union_count parser)) {
+    while (< ui union_count) {
         let def: ASTUnion = (parser_get_union parser ui)
         let mut offset: int = 0
         let mut variant: int = 0
@@ -412,6 +429,21 @@ shadow resource_classify {
     assert (not (resource_classify parser "Handle" true))
     assert (not (resource_classify parser "Plain" false))
     assert (not (resource_classify parser "Plain" true))
+}
+
+shadow resource_classify {
+    # I recompute identities when module owners change between invocations.
+    let parser: Parser = (resource_test_parser "struct Handle { number: int }\nresource struct Handle { fd: int }\n")
+    (mb_reset [1, 2])
+    assert (not (resource_classify parser "#record:0" false))
+    assert (resource_classify parser "#record:1" false)
+    (mb_reset [1, 1])
+    assert (resource_classify parser "#record:0" false)
+    assert (not (resource_classify parser "#record:1" false))
+    (mb_reset [])
+    let plain: Parser = (resource_test_parser "struct Plain { number: int }")
+    assert (not (resource_classify plain "Plain" false))
+    assert (not (resource_classify plain "Plain" true))
 }
 
 fn resource_type_is_declared(parser: Parser, type_name: string) -> bool {
