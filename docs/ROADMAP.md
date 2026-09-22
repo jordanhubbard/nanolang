@@ -17221,3 +17221,5 @@ I refine task71bc before implementation with the concrete COP loader lock audit:
 - [ ] I replace or otherwise prove the supported threaded daemon's no-exec COP boundary before release, including native callback-worker coexistence (MAC `task_f1cde0aa640f4c1fb33cbdf3ab3fb678`); `COP_THREADED_EXEC_WORKER.md` records the required exec-worker protocol audit and acceptance separately from loader-lock quiescence.
 
 - [ ] I qualify the explicit inherited SDK cleanup-hook probe after preserving8c93's original Darwin sanitizer libSystem-only fork/exit leak terminal; `SDK_FORK_EXIT_PROBE_LIFECYCLE.md` retains ordinary actual-exit coverage and requires parent real-atexit ordering without suppression.
+
+- [ ] I replace COP raw opaque pointer transport with reviewed worker-generation/slot authority before exec-worker acceptance (task_f1cde0aa640f4c1fb33cbdf3ab3fb678). I preserve same-worker identity and local pointer behavior, refuse stale/foreign/nonzero-parent pointers before FFI, and audit callback/boxed-value/array-refusal consumers; current eight-byte codec roundtrips do not establish ownership.
