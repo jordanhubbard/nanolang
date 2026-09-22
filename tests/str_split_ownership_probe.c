@@ -75,7 +75,8 @@ static const struct SplitCase split_cases[] = {
     {"abc", "", 3, {"a", "b", "c"}},
     {"", "", 0, {NULL}},
     {"same", "unmatched", 1, {"same"}},
-    {"a::b::::", "::", 4, {"a", "b", "", ""}}
+    {"a::b::::", "::", 4, {"a", "b", "", ""}},
+    {"a\nb", "\n", 2, {"a", "b"}}
 };
 int main(int argc, char **argv) {
     struct rlimit no_core = {0, 0};
@@ -87,6 +88,13 @@ int main(int argc, char **argv) {
     gc_init();
     char *source = strdup(test->input), *delimiter = strdup(test->delimiter);
     assert(source && delimiter);
+    if (index == 8) {
+        static const char counted[] = "a\nb\0\nlost";
+        free(source);
+        source = malloc(sizeof counted);
+        assert(source);
+        memcpy(source, counted, sizeof counted);
+    }
     split_active = 1;
     DynArray *result = split_actual(source, delimiter);
     split_active = 0;

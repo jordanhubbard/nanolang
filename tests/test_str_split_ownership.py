@@ -47,7 +47,7 @@ class SplitOwnership(unittest.TestCase):
         if after!=cls.before:raise AssertionError('ordinary split providers changed')
     def sweep(self,label,exe):
         reports=[]
-        for case in range(8):
+        for case in range(9):
             out,_,_=self.command(f'{label}-{case}-normal',[exe,case,0])
             fact=json.loads(out);self.assertEqual(fact['case'],case)
             self.assertEqual(fact['allocations'],fact['segments']+1)
