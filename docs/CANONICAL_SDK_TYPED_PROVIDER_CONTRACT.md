@@ -396,3 +396,60 @@ budgets; ordinary conversion is unchanged. It is still unlinked, and does not
 substitute for complete generation copy or module/ABI validation.
 
 My signature snapshot controls retain duplicate and unused rows with exact subject indices, then overwrite/free all borrowed inputs before querying the owned result. Both one-shot and persistent failures cover all seven measured allocating sites, each followed by independent recovery; exact byte-budget and invalid-selector/tag/count refusals preserve outputs without allocation. Empty snapshots remain valid transport. These controls remain source-only pending review; no full module or ABI authority follows.
+
+## I copy complete module generations without hidden legacy conversion
+
+My next bounded implementation retains the complete NvmV2Module representation,
+not a lossy NvmModule bridge. The existing direct V2 serializer preserves table
+indices, but its sizing path calls nvm_v2_to_nvm_module whenever ownership,
+passive, capture or service data is present. That path performs additional
+allocation and profile validation. I therefore cannot use an unbudgeted
+serialize/deserialize roundtrip as my generation-copy primitive or silently
+exclude those sections.
+
+I propose a private owned module snapshot with these explicit copies:
+
+- I retain every signature row/tag and exact selector through the already
+  qualified signature snapshot, including duplicate and unused rows.
+- I copy metadata, constants, functions, globals, imports, callbacks, links and
+  debug row arrays with their original counts and ordinal order.
+- I copy each layout header and every field row, retaining name/nested indices,
+  kind and field count exactly; no projection or spelling-derived substitution.
+- I copy constant payload bytes by length, including physical zero bytes, code
+  by its uint64 size, and capture/ownership/passive/service bytes by their actual
+  sizes. Shared source payloads may have separate owned copies; no old pointer
+  is retained as generation storage.
+- I preserve isa_version, entry_point, has_debug and extra_features. owned_tags
+  is an allocation convention, not semantic data: the signature snapshot owns
+  the new tag bytes independently of the source's owned_tags allocation.
+
+Existing public V2 decoders bound uint32 table counts against encoded remaining
+bytes; ordinary layout fields have uint16 counts. They do not impose my raw SDK
+4096-row limit on all module tables. I preserve that distinction. The existing
+32MiB generation allocation budget and 1048576 work budget are explicit private
+SDK preparation limits, not new global module validity rules. I return LIMIT
+before allocation if this preparation cannot represent an otherwise valid large
+module; no ordinary loader or execution admission is changed by this primitive.
+
+Before allocation I validate nonzero-count pointer presence, multiplication,
+addition and uint64-to-size_t conversions and charge every owned table, layout
+field, payload byte and snapshot object, including the signature snapshot's
+storage. Work counts every visited table/field/tag/payload unit according to a
+single monotonic bound; I do not first scan an unbounded table to calculate it.
+The source and reachable storage must remain readable and unchanged throughout
+preparation. I do not promise safety for arbitrary invalid C pointers.
+
+I publish only a complete private snapshot. Failure leaves the source and caller
+output unchanged and frees every partial allocation. Its read-only view follows
+the same contractual read-only nested-pointer rule as the signature transport;
+no deep-const enforcement or execution authority is claimed. Destruction uses
+explicit ownership of each copied allocation and never invokes old module/cache
+teardown. Later descriptor attachment/crossvalidation must charge this snapshot
+and its additional plans together before publishing an exclusively owned new
+generation. All current sections remain required in that future validation.
+
+Controls must retain all table counts and unused rows, binary constant/code and
+auxiliary bytes, empty-but-present DEBUG, selector sentinels, source mutation
+independence, old-generation continued readability, negative structural inputs,
+exact budgets and every allocation prefix with recovery. This private primitive
+still grants no descriptor, VM, nvm2c or installed SDK admission.

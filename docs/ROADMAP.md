@@ -17256,3 +17256,11 @@ I preserve the reviewed union match semantics while checking the pure empty-lite
 predicate before registry membership. Ordinary identifier and payload matches
 therefore do not scan retained union roots. The same original owning method and
 additive union consumers require fresh ordinary/sanitizer gates on both hosts.
+
+I refine the canonical SDK immutable-generation prerequisite after auditing the
+actual V2 serializer: optional-section sizing invokes the legacy bridge and
+hidden allocation, so I will not use a naive roundtrip or omit those sections.
+The complete field-copy contract now inventories every module table/payload,
+retains unused signature indices through the qualified snapshot, and distinguishes
+existing uint32/uint16 module dimensions from explicit bounded SDK preparation.
+This is a source contract checkpoint, not descriptor or installed SDK acceptance.
