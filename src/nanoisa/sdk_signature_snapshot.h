@@ -13,7 +13,9 @@ typedef struct NvmSdkSignatureSnapshot NvmSdkSignatureSnapshot;
 NvmSdkResult nvm_sdk_signature_snapshot_prepare(const NvmV2Module *source,
     size_t byte_limit, NvmSdkSignatureSnapshot **out);
 void nvm_sdk_signature_snapshot_free(NvmSdkSignatureSnapshot *);
-/* I expose immutable owned rows, live until snapshot_free. No old-module alias
+/* I expose contractually read-only owned rows, live until snapshot_free.
+ * Nested pointer fields use existing mutable C types: callers must not mutate
+ * them. This is not a deep-const or module-admission guarantee. No old-module alias
  * survives preparation. bytes reports all owned snapshot allocations. */
 const NvmV2Signatures *nvm_sdk_signature_snapshot_rows(const NvmSdkSignatureSnapshot *);
 size_t nvm_sdk_signature_snapshot_bytes(const NvmSdkSignatureSnapshot *);

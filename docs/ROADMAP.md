@@ -17202,3 +17202,10 @@ checkpoint: retained identity, result lease, actual scalar-DONE teardown and
 foreign evaluator refusal controls. Union registry destruction remains inactive
 until this source/control closure is reviewed. Roota0bb cleanup merged cleanly;
 its two-argument scope helper required an exact fixture-wrapper adaptation.
+
+I correct the private SDK signature fixture's unproved unused-row claim before
+execution: the existing row2 is selected by a link. I add distinct BOOL-to-STRING
+row3 with no selector, preserve it after source invalidation, and check function
+subject1 selects row0 plus unchanged output for an invalid subject. The const
+rows accessor is a contractual read-only view; nested C pointers are not deep
+const, and no immutable SDK admission follows from this transport helper.
