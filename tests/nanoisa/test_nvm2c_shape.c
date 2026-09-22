@@ -356,7 +356,36 @@ static void test_finite_variant_integer_array(void) {
     nvm_shape_destroy(&g);
 }
 
+static void test_byte_identity(void) {
+    for (int conversion = 0; conversion < 2; ++conversion) {
+        NvmShapeGraph g = {0};
+        NvmShapeId bytes = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId ints = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, bytes, 0), nvm_shape_new(&g, NVM_SHAPE_U8)));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, ints, 0), nvm_shape_new(&g, NVM_SHAPE_INT)));
+        if (conversion) {
+            CHECK(nvm_shape_convert(&g, bytes, ints));
+            CHECK(!nvm_shape_solve_conversions(&g));
+        } else CHECK(!nvm_shape_unify(&g, bytes, ints));
+        CHECK(g.error != NULL); nvm_shape_destroy(&g);
+    }
+    const NvmShapeKind members[] = {NVM_SHAPE_INT, NVM_SHAPE_U8, NVM_SHAPE_FLOAT, NVM_SHAPE_BOOL};
+    for (size_t i = 0; i < sizeof members / sizeof members[0]; ++i) {
+        NvmShapeGraph g = {0};
+        NvmShapeId value = nvm_shape_new(&g, members[i]);
+        NvmShapeId mixed = nvm_shape_new(&g, NVM_SHAPE_BYTE_INTEGER);
+        CHECK(nvm_shape_convert(&g, value, mixed));
+        CHECK(nvm_shape_solve_conversions(&g) == (i < 2));
+        nvm_shape_destroy(&g);
+    }
+    NvmShapeGraph g = {0};
+    CHECK(nvm_shape_convert(&g, nvm_shape_new(&g, NVM_SHAPE_U8), nvm_shape_new(&g, NVM_SHAPE_NUMERIC)));
+    CHECK(!nvm_shape_solve_conversions(&g));
+    nvm_shape_destroy(&g);
+}
+
 int main(void) {
+    test_byte_identity();
     test_finite_variant_integer_array();
     test_explicit_variant_scalar_storage();
     test_numeric_union_payload();

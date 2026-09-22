@@ -15,7 +15,7 @@ struct NvmShapeNode {
 typedef struct { NvmShapeId a, b; } ShapePair;
 
 static const char *kind_name(NvmShapeKind kind) {
-    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar", "variant-int-array"};
+    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar", "variant-int-array", "u8", "byte-integer"};
     return names[kind];
 }
 
@@ -58,7 +58,7 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
 
 NvmShapeId nvm_shape_new(NvmShapeGraph *g, NvmShapeKind kind) {
     if (g->error) return 0;
-    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_VARIANT_INT_ARRAY)
+    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_BYTE_INTEGER)
         return fail(g, "I cannot create an invalid shape kind");
     if (g->count >= UINT32_MAX)
         return fail(g, "I cannot represent another shape ID");
@@ -238,7 +238,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             if (!payload || !flow_kind(g, payload, to, changed)) break;
             to = NVM_SHAPE_OPTIONAL;
         }
-        if (!pair.exact && (from == NVM_SHAPE_STRING || from == NVM_SHAPE_INT ||
+        if (!pair.exact && (from == NVM_SHAPE_STRING || from == NVM_SHAPE_INT || from == NVM_SHAPE_U8 ||
                             from == NVM_SHAPE_BOOL || from == NVM_SHAPE_FLOAT || from == NVM_SHAPE_ARRAY ||
                             from == NVM_SHAPE_MAP) && to == NVM_SHAPE_OPTIONAL) {
             NvmShapeId payload = nvm_shape_child(g, target, 0);
@@ -251,6 +251,8 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
          * numeric member without changing the producer or OPTIONAL itself. */
         if (to == NVM_SHAPE_NUMERIC &&
             (from == NVM_SHAPE_INT || from == NVM_SHAPE_FLOAT)) continue;
+        if (to == NVM_SHAPE_BYTE_INTEGER &&
+            (from == NVM_SHAPE_INT || from == NVM_SHAPE_U8)) continue;
         /* Only an explicitly seeded variant payload set accepts these
          * exact scalar producers. I do not change their source constraints. */
         if (to == NVM_SHAPE_VARIANT_SCALAR &&

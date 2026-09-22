@@ -87,3 +87,31 @@ then the unchanged actual producer/backend O0/O2 matrix under its original
 bounds. I preserve the first failed artifact, command/source/tool identities,
 and full original 17-method acceptance. This contract does not claim LLVM or
 Wasm parity from a native C result.
+
+## I retain my implementation checkpoint limits
+
+My source checkpoint adds UARR kind13 and exact U8/INT|U8 payload shapes,
+constructor/read/write handling, exact byte global discovery, physical word
+storage, root-tracer edges and helper emission. The integer extractor is
+unchanged. My C-bytecode producer reestablishes declared byte let/return
+literal context, converts each member once, and repeated checker queries keep
+the checked byte annotation. The byte literal annotation helper validates
+all member kinds and direct literal range before publication. Existing direct
+argument and record-field literal routes use that same validation.
+
+I add a native fixture without changing the original17 fixture. It covers
+constructor mutation, exact read tags, calls/results, same-kind joins, record
+and global aliases, allocation churn, INT|U8 joins followed by explicit cast,
+repeated shadow/main production, and compile refusals with retained outputs.
+The existing shape fixture gains exact byte-array conflict and finite-set
+conversion controls. No product compilation or execution has occurred.
+
+One contract obligation remains open at the source checker boundary: the root
+base's `check_record_array_contract` returns immediately for scalar elements,
+so it does not establish refusal of an existing array<int> at an array<u8>
+destination. Its legacy inferred-element helper also has spelling-based
+array_new/map shortcuts. I do not use those shortcuts as new authority or
+claim a checked existing-array conversion policy. This requires a complete
+scalar-array destination adapter coordinated with the candidate's retained
+contextual facts before full source acceptance, in addition to review and
+qualification of this backend checkpoint.

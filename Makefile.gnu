@@ -5863,3 +5863,7 @@ test-record-array-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(R
 test-llvm-scalar-tail-frames: nano_vm nanoisa_dump nvm2c nvm2llvm nvm2wasm
 	python3 -m unittest -f -v tests.test_llvm_tail_frames
 test-units: test-llvm-scalar-tail-frames
+
+.PHONY: test-native-byte-array-identity
+test-native-byte-array-identity: nvm2c nanoisa_dump nano_vm nano_virt test-nvm2c-shapes
+	@python3 -m unittest -v tests.test_native_byte_array_identity
