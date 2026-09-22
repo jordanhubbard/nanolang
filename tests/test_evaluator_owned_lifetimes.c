@@ -103,11 +103,15 @@ static Value record_value(StructValue *r) { Value v = {0}; v.type = VAL_STRUCT; 
 static void graph_attempt(size_t at, bool once, size_t *count) {
     char payload[] = "kept";
     Value fields[] = {text_value(payload), integer(37)};
+    fields[0].is_return = fields[0].is_break = fields[0].is_continue = true;
+    fields[0].return_target = &fields[0];
     fields[1].is_return = fields[1].is_break = fields[1].is_continue = true;
     fields[1].return_target = &fields[1];
     char *names[] = {"text", "number"};
     StructValue record = {.struct_name = "Item", .field_names = names, .field_values = fields, .field_count = 2};
     Value nested[] = {record_value(&record), text_value(payload), integer(73)};
+    nested[1].is_return = nested[1].is_break = nested[1].is_continue = true;
+    nested[1].return_target = &nested[1];
     nested[2].is_return = nested[2].is_break = nested[2].is_continue = true;
     nested[2].return_target = &nested[2];
     TupleValue tuple = {.elements = nested, .element_count = 3};
@@ -124,10 +128,16 @@ static void graph_attempt(size_t at, bool once, size_t *count) {
         payload[0] = 'X'; fields[1] = integer(99);
         StructValue *copied = output.as.tuple_val->elements[0].as.struct_val;
         CHECK(!strcmp(copied->field_values[0].as.string_val, "kept"));
+        CHECK(copied->field_values[0].as.string_val != fields[0].as.string_val);
+        CHECK(!copied->field_values[0].is_return && !copied->field_values[0].is_break &&
+              !copied->field_values[0].is_continue && !copied->field_values[0].return_target);
         CHECK(copied->field_values[1].as.int_val == 37);
         CHECK(!copied->field_values[1].is_return && !copied->field_values[1].is_break &&
               !copied->field_values[1].is_continue && !copied->field_values[1].return_target);
         CHECK(!strcmp(output.as.tuple_val->elements[1].as.string_val, "kept"));
+        CHECK(output.as.tuple_val->elements[1].as.string_val != nested[1].as.string_val);
+        CHECK(!output.as.tuple_val->elements[1].is_return && !output.as.tuple_val->elements[1].is_break &&
+              !output.as.tuple_val->elements[1].is_continue && !output.as.tuple_val->elements[1].return_target);
         CHECK(output.as.tuple_val->elements[2].as.int_val == 73);
         CHECK(!output.as.tuple_val->elements[2].is_return && !output.as.tuple_val->elements[2].is_break &&
               !output.as.tuple_val->elements[2].is_continue && !output.as.tuple_val->elements[2].return_target);

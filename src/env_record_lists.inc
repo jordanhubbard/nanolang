@@ -192,11 +192,16 @@ static bool clone_value_at(Value source, Value *out, unsigned depth) {
             dst->field_count = i + 1;
             Value child = src->field_values[i];
             if (depth + 1 >= 128) goto fail;
-            if (child.type == VAL_STRING || child.type == VAL_STRUCT || child.type == VAL_TUPLE) {
+            child.is_return = child.is_break = child.is_continue = false;
+            child.return_target = NULL;
+            if (child.type == VAL_STRING) {
+                child.as.string_val = strdup(src->field_values[i].as.string_val ?
+                                             src->field_values[i].as.string_val : "");
+                if (!child.as.string_val) goto fail;
+                dst->field_values[i] = child;
+            } else if (child.type == VAL_STRUCT || child.type == VAL_TUPLE) {
                 if (!clone_value_at(child, &dst->field_values[i], depth + 1)) goto fail;
             } else {
-                child.is_return = child.is_break = child.is_continue = false;
-                child.return_target = NULL;
                 dst->field_values[i] = child;
             }
         }
@@ -214,11 +219,16 @@ static bool clone_value_at(Value source, Value *out, unsigned depth) {
         for (int i = 0; i < src->element_count; ++i) {
             Value child = src->elements[i];
             if (depth + 1 >= 128) goto fail;
-            if (child.type == VAL_STRING || child.type == VAL_STRUCT || child.type == VAL_TUPLE) {
+            child.is_return = child.is_break = child.is_continue = false;
+            child.return_target = NULL;
+            if (child.type == VAL_STRING) {
+                child.as.string_val = strdup(src->elements[i].as.string_val ?
+                                             src->elements[i].as.string_val : "");
+                if (!child.as.string_val) goto fail;
+                dst->elements[i] = child;
+            } else if (child.type == VAL_STRUCT || child.type == VAL_TUPLE) {
                 if (!clone_value_at(child, &dst->elements[i], depth + 1)) goto fail;
             } else {
-                child.is_return = child.is_break = child.is_continue = false;
-                child.return_target = NULL;
                 dst->elements[i] = child;
             }
             ++dst->element_count;
