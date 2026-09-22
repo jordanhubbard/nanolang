@@ -955,7 +955,7 @@ static Function *env_get_function_with_index(Environment *env, const char *name,
         }
     }
 
-    if (!local_push && indexed) index = function_index_sync(env);
+    if (!local_array_declaration && indexed) index = function_index_sync(env);
 
     /* A generated list declaration never replaces a real declaration. */
     bool generated_name = false;

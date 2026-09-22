@@ -15570,3 +15570,5 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
   signed string-length correction ecaf373f0 with its additive ninth native gate.
   Source review precedes fresh both-host bootstrap and complete original SDK,
   File, native and allocation acceptance; no prior pin becomes this result.
+
+- [ ] I retain both fresh integrated `2c1d22025` build failures: `env_get_function_with_index` still names `local_push` after I renamed the declaration-selection flag to `local_array_declaration`. GCC and Apple Clang refuse before bootstrap (11.968s and 9.569s); source/tool maps remain equal and supervised groups/descendants are absent. I correct only the stale second index-sync guard to the existing flag, preserving same-owner `array_push`/`str_split` precedence, registry lookup and indexed/unindexed behavior. Fresh complete both-host qualification remains required; I have not reached SDK or installed acceptance.
