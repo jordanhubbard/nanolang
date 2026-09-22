@@ -22,7 +22,10 @@ typedef enum {
     NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_NUMERIC, NVM_SHAPE_VARIANT_SCALAR, NVM_SHAPE_VARIANT_INT_ARRAY, NVM_SHAPE_U8, NVM_SHAPE_BYTE_INTEGER
 } NvmShapeKind;
 typedef struct NvmShapeNode NvmShapeNode;
-typedef struct { NvmShapeId source, target; } NvmShapeConversion;
+typedef struct {
+    NvmShapeId source, target;
+    uint8_t record_storage;
+} NvmShapeConversion;
 typedef struct {
     NvmShapeNode *nodes;
     size_t count, capacity;
@@ -44,6 +47,10 @@ int nvm_shape_unify(NvmShapeGraph *graph, NvmShapeId a, NvmShapeId b);
 /* Storage conversion does not equate source and destination nodes. I solve
  * these directed constraints after collecting the module's exact shapes. */
 int nvm_shape_convert(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target);
+/* A native record store may copy a checked optional field into exact field
+ * storage only when the optional payload proves the same exact kind. */
+int nvm_shape_convert_record_storage(NvmShapeGraph *graph, NvmShapeId source,
+                                     NvmShapeId target);
 int nvm_shape_solve_conversions(NvmShapeGraph *graph);
 
 #endif

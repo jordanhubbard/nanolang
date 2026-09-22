@@ -3326,6 +3326,29 @@ static void test_unsupported_classifier_instructions(void) {
     }
 }
 
+static void test_string_split_structured_c(void) {
+    const char *source =
+        ".string input \"a,,b\"\n.string comma \",\"\n.string empty \"\"\n"
+        ".string a \"a\"\n.entry main\n"
+        ".function main 0 1 0 int 1\n"
+        "PUSH_STR input\nPUSH_STR comma\nSTR_SPLIT\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 3\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nSTR_LEN\nPUSH_I64 1\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\nSTR_LEN\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+        "PUSH_STR input\nPUSH_STR empty\nSTR_SPLIT\nARR_LEN\nPUSH_I64 4\nI64_EQ\nASSERT\n"
+        "PUSH_I64 0\nRET\n.end\n";
+    NvmModule *module = assemble_ok(source, "structured string split");
+    if (!module) return;
+    char *c = emit_or_fail(module, "I emit checked structured-C string splitting");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0 && status == 0,
+              "I preserve delimiter, empty segment and byte-split behavior");
+        free(c);
+    }
+    nvm_module_free(module);
+}
+
 static void test_array_result_kinds(void) {
     const int tags[] = {1, 5, 8};
     const char *elements[] = {"PUSH_I64 42", "PUSH_STR text", "PUSH_I64 42\nAGG_PACK 0 0 0 1"};
@@ -4180,6 +4203,7 @@ static void test_native_map_runtime(void) {
 static void test_null_module(void) {
     test_native_map_runtime();
     test_unsupported_classifier_instructions();
+    test_string_split_structured_c();
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
     CHECK(c == NULL, "null module is refused");
@@ -4984,6 +5008,21 @@ static void test_array_valued_record_fields(void) {
     test_delayed_array_element_facts();
     test_record_array_fields();
     test_empty_diagnostic_record_fields();
+    const char *moved = ".string text \"hello\"\n.entry main\n"
+        ".function make 0 1 0 struct 1\nPUSH_STR text\nARR_LITERAL 5 1\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nPUSH_VOID\nSTORE_LOCAL 0\nRET\n.end\n"
+        ".function main 0 0 0 int 1\nCALL make\nAGG_GET 0\nPUSH_I64 0\nARR_GET\nSTR_LEN\nRET\n.end\n";
+    NvmModule *moved_module = assemble_ok(moved, "moved array record field");
+    if (moved_module) {
+        char *c = emit_or_fail(moved_module, "I retain an array field across its dead moved-from cleanup");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 5,
+                  "I clear a moved-from local without changing the packed array representation");
+            free(c);
+        }
+        nvm_module_free(moved_module);
+    }
     for (int strings = 0; strings < 2; ++strings) {
         for (int empty = 0; empty < 2; ++empty) {
             char source[4096], line[256];
@@ -5288,7 +5327,7 @@ static void test_generic_ordering(void) {
 }
 
 static void test_classifier_local_bounds(void) {
-    const unsigned counts[] = {1, 257, 512, 1024};
+    const unsigned counts[] = {1, 257, 512, 1024, 1196, 2048};
     for (size_t i = 0; i < sizeof counts / sizeof counts[0]; ++i) {
         char source[768];
         snprintf(source, sizeof source,
@@ -5349,7 +5388,7 @@ static void test_classifier_local_bounds(void) {
     char *c = nvm2c_emit(m, err, sizeof err);
     CHECK(c == NULL && strstr(err, "too many locals") != NULL, "I reject oversized locals before writing classifier state");
     free(c);
-    m->functions[0].local_count = 1025;
+    m->functions[0].local_count = 2049;
     c = nvm2c_emit(m, err, sizeof err);
     CHECK(c == NULL && strstr(err, "too many locals") != NULL, "I reject one past my supported local ceiling");
     free(c);
@@ -6492,18 +6531,13 @@ static NvmModule *make_local_count_fixture(uint16_t arity, uint16_t local_count)
     NvmModule *m = nvm_module_new();
     if (!m) return NULL;
     uint32_t name = nvm_add_string(m, "main", 4);
+    uint16_t slot = local_count ? (uint16_t)(local_count - 1) : 0;
     uint8_t code[] = {
         OP_PUSH_I64, 7, 0, 0, 0, 0, 0, 0, 0,
-        OP_STORE_LOCAL, 0xff, 0x03,
-        OP_LOAD_LOCAL, 0xff, 0x03,
+        OP_STORE_LOCAL, (uint8_t)(slot & 0xff), (uint8_t)(slot >> 8),
+        OP_LOAD_LOCAL, (uint8_t)(slot & 0xff), (uint8_t)(slot >> 8),
         OP_RET
     };
-    if (local_count < 1024) {
-        code[10] = 0;
-        code[11] = 0;
-        code[13] = 0;
-        code[14] = 0;
-    }
     nvm_append_code(m, code, sizeof code);
     NvmFunctionEntry fn;
     memset(&fn, 0, sizeof fn);
@@ -6535,6 +6569,28 @@ static void test_1024_locals_compile_and_run(void) {
     }
     free(c);
     nvm_module_free(m);
+}
+
+static void test_stage2_local_ceiling_compile_and_run(void) {
+    const uint16_t counts[] = {1196, 2048};
+    for (size_t i = 0; i < sizeof counts / sizeof counts[0]; ++i) {
+        NvmModule *m = make_local_count_fixture(0, counts[i]);
+        CHECK(m != NULL, "Stage2-sized local fixture allocates");
+        if (!m) continue;
+        char err[256];
+        char *c = nvm2c_emit(m, err, sizeof err);
+        CHECK(c != NULL, "nvm2c accepts the checked Stage2 local boundary");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0,
+                  "Stage2-sized generated C compiles and runs");
+            CHECK(status == 7, "highest Stage2-sized local preserves its value");
+        } else {
+            printf("    nvm2c error: %s\n", err);
+        }
+        free(c);
+        nvm_module_free(m);
+    }
 }
 
 static void test_arity_exceeding_locals_is_refused(void) {
@@ -6733,6 +6789,7 @@ int main(int argc, char **argv) {
     test_wrapper_names_are_ordinary_string_data();
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
     test_1024_locals_compile_and_run();
+    test_stage2_local_ceiling_compile_and_run();
     test_arity_exceeding_locals_is_refused();
     test_record_result_crosses_direct_call();
     test_add_is_structured_c_and_runs();

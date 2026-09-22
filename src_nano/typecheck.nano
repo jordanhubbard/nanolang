@@ -3204,6 +3204,13 @@ fn checked_list_element(parser: Parser, spelling: string, line: int) -> NSType {
     let mapped: bool = (!= bound key)
     let mut name: string = spelling
     if mapped { set name bound }
+    let enum_element: bool = (is_enum_name parser name)
+    if enum_element {
+        # An imported enum requires the same owner binding as an imported
+        # record. Its runtime list representation remains exact integer data.
+        if (and (mb_active) (not mapped)) { return (type_unknown_named spelling) }
+        return (type_from_string_with_parser parser name)
+    } else { (print "") }
     let mut count: int = 0
     let mut foreign: bool = false
     let mut i: int = 0
@@ -3218,7 +3225,7 @@ fn checked_list_element(parser: Parser, spelling: string, line: int) -> NSType {
     if (!= count 1) { return (type_unknown_named spelling) }
     # I allow only the established unique extern namespace without an import.
     if (and (mb_active) (and (not mapped) (not foreign))) { return (type_unknown_named spelling) }
-    if (or (is_enum_name parser name) (or (is_union_name parser name) (tc_is_opaque_name parser name))) { return (type_unknown_named spelling) }
+    if (or (is_union_name parser name) (tc_is_opaque_name parser name)) { return (type_unknown_named spelling) }
     if (or (resource_type_is_declared parser name) (resource_has_collection_payload parser name)) { return (type_unknown_named spelling) }
     return (type_from_element_name name)
 }
@@ -3228,7 +3235,7 @@ shadow checked_list_element {
     assert (== (checked_list_element parser "Item" 1).name "Item")
     assert (== (checked_list_element parser "Missing" 1).kind TypeKind.TYPE_UNKNOWN)
     assert (== (checked_list_element parser "float" 1).kind TypeKind.TYPE_UNKNOWN)
-    assert (== (checked_list_element parser "Shade" 1).kind TypeKind.TYPE_UNKNOWN)
+    assert (== (checked_list_element parser "Shade" 1).kind TypeKind.TYPE_ENUM)
     assert (== (checked_list_element parser "Outer" 1).kind TypeKind.TYPE_UNKNOWN)
     (mb_reset [1, 10])
     assert (== (checked_list_element parser "Item" 10).kind TypeKind.TYPE_UNKNOWN)
@@ -3326,6 +3333,19 @@ shadow check_exact_list_call {
     assert (== (check_exact_list_call scalar_parser (parser_get_call scalar_parser 1) "list_int_get" scalar_symbols scalar_diags "scalar.nano").kind TypeKind.TYPE_UNKNOWN)
     assert (== (check_exact_list_call scalar_parser (parser_get_call scalar_parser 2) "list_int_push" scalar_symbols scalar_diags "scalar.nano").kind TypeKind.TYPE_UNKNOWN)
     assert (== (list_CompilerDiagnostic_length scalar_diags) 2)
+
+    let enum_parser: Parser = (resource_test_parser "enum Number { One } fn f() -> void { (list_Number_new) (list_Number_push values Number.One) (list_Number_get values 0) (list_Number_length values) }")
+    let enum_symbols: array<Symbol> = [(symbol_new "values" (type_list_generic "Number") false false 0 [] (type_void))]
+    let enum_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let enum_expected: array<TypeKind> = [TypeKind.TYPE_LIST_GENERIC, TypeKind.TYPE_VOID, TypeKind.TYPE_ENUM, TypeKind.TYPE_INT]
+    set i 0
+    while (< i 4) {
+        let enum_call: ASTCall = (parser_get_call enum_parser i)
+        let enum_name: string = (parser_get_identifier enum_parser enum_call.function).name
+        assert (== (check_exact_list_call enum_parser enum_call enum_name enum_symbols enum_diags "enum.nano").kind (at enum_expected i))
+        set i (+ i 1)
+    }
+    assert (== (list_CompilerDiagnostic_length enum_diags) 0)
 
 }
 

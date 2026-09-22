@@ -827,6 +827,7 @@ shadow nisa_string_binary_opcode {
 fn nisa_is_inline_call(name: string) -> bool {
     if (or (== name "float_from_bits") (== name "float_to_bits")) { return true }
     if (== name "str_trim") { return true }
+    if (== name "str_split") { return true }
     if (or (== name "abs") (nisa_functional_name name)) { return true }
     if (== name "cast_int") { return true }
     if (== name "float_to_string") { return true }
@@ -848,6 +849,7 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "float_from_bits")
     assert (nisa_is_inline_call "float_to_bits")
     assert (nisa_is_inline_call "str_trim")
+    assert (nisa_is_inline_call "str_split")
     assert (nisa_is_inline_call "cast_int")
     assert (nisa_is_inline_call "float_to_string")
     assert (nisa_is_inline_call "string_to_float")
@@ -2020,9 +2022,9 @@ shadow nisa_emit_map_call {
 # I name a bounded host ABI. Other externs need an explicit future contract.
 fn nisa_host_result(name: string) -> string {
     if (== name "atan") { return "float" }
-    let strings: array<string> = ["vm_string_from_char", "get_argv", "nl_os_getenv", "file_read", "vm_file_read", "path_normalize", "nl_exec_capture", "vm_getenv", "vm_getcwd", "vm_tmp_dir", "vm_mktemp", "vm_mktemp_dir"]
-    let integers: array<string> = ["strlen", "get_argc", "file_write", "vm_file_write", "file_delete", "file_compare_identity", "file_compare_destinations", "nl_exec_shell", "vm_chdir", "vm_dir_create", "vm_setenv"]
-    let booleans: array<string> = ["vm_is_alnum", "file_exists", "vm_file_exists", "vm_dir_exists"]
+    let strings: array<string> = ["vm_string_from_char", "get_argv", "nl_os_getenv", "file_read", "vm_file_read", "path_normalize", "nl_exec_capture", "vm_getenv", "vm_getcwd", "vm_tmp_dir", "vm_mktemp", "vm_mktemp_dir", "nl_file_companion_text", "nl_file_source_catalog_string"]
+    let integers: array<string> = ["strlen", "get_argc", "file_write", "vm_file_write", "file_delete", "file_compare_identity", "file_compare_destinations", "nl_exec_shell", "vm_chdir", "vm_dir_create", "vm_setenv", "nl_file_companion_open", "nl_file_companion_number", "nl_file_companion_source", "nl_file_source_metadata", "nl_file_source_catalog_number"]
+    let booleans: array<string> = ["vm_is_alnum", "file_exists", "vm_file_exists", "vm_dir_exists", "nl_file_companion_destroy"]
     let mut i: int = 0
     while (< i (array_length strings)) {
         if (== name (at strings i)) { return "string" }
@@ -2048,6 +2050,11 @@ shadow nisa_host_result {
     assert (== (nisa_host_result "get_argc") "int")
     assert (== (nisa_host_result "file_exists") "bool")
     assert (== (nisa_host_result "vm_is_alnum") "bool")
+    assert (== (nisa_host_result "nl_file_companion_text") "string")
+    assert (== (nisa_host_result "nl_file_companion_number") "int")
+    assert (== (nisa_host_result "nl_file_companion_destroy") "bool")
+    assert (== (nisa_host_result "nl_file_source_catalog_string") "string")
+    assert (== (nisa_host_result "nl_file_source_catalog_number") "int")
     assert (== (nisa_host_result "arbitrary_foreign_function") "")
 }
 
@@ -2056,29 +2063,44 @@ fn nisa_host_arity(name: string) -> int {
     if (or (== name "get_argc") (or (== name "vm_getcwd") (== name "vm_tmp_dir"))) { return 0 }
     if (or (== name "file_write") (or (== name "vm_file_write")
             (or (== name "file_compare_identity") (or (== name "file_compare_destinations") (== name "vm_setenv"))))) { return 2 }
+    if (or (== name "nl_file_companion_open") (or (== name "nl_file_companion_source") (== name "nl_file_source_metadata"))) { return 2 }
+    if (or (== name "nl_file_companion_number") (== name "nl_file_companion_text")) { return 3 }
+    if (or (== name "nl_file_source_catalog_string") (== name "nl_file_source_catalog_number")) { return 4 }
     return 1
 }
 shadow nisa_host_arity {
     assert (== (nisa_host_arity "get_argc") 0)
     assert (== (nisa_host_arity "vm_getenv") 1)
     assert (== (nisa_host_arity "file_write") 2)
+    assert (== (nisa_host_arity "nl_file_companion_text") 3)
+    assert (== (nisa_host_arity "nl_file_source_catalog_string") 4)
     assert (== (nisa_host_arity "unknown") -1)
 }
 
-fn nisa_host_parameter(name: string) -> string {
+fn nisa_host_parameter(name: string, index: int) -> string {
     if (== name "atan") { return "float" }
     if (<= (nisa_host_arity name) 0) { return "" }
     if (or (== name "vm_is_alnum") (or (== name "get_argv") (== name "vm_string_from_char"))) { return "int" }
+    if (or (== name "nl_file_companion_number") (or (== name "nl_file_companion_text") (== name "nl_file_companion_destroy"))) { return "int" }
+    if (or (== name "nl_file_source_catalog_string") (== name "nl_file_source_catalog_number")) { return "int" }
+    if (or (== name "nl_file_companion_open") (or (== name "nl_file_companion_source") (== name "nl_file_source_metadata"))) {
+        if (== index 0) { return "string" }
+        return "int"
+    }
     return "string"
 }
 shadow nisa_host_parameter {
-    assert (== (nisa_host_parameter "strlen") "string")
-    assert (== (nisa_host_parameter "atan") "float")
-    assert (== (nisa_host_parameter "get_argv") "int")
-    assert (== (nisa_host_parameter "vm_is_alnum") "int")
-    assert (== (nisa_host_parameter "vm_string_from_char") "int")
-    assert (== (nisa_host_parameter "vm_getenv") "string")
-    assert (== (nisa_host_parameter "get_argc") "")
+    assert (== (nisa_host_parameter "strlen" 0) "string")
+    assert (== (nisa_host_parameter "atan" 0) "float")
+    assert (== (nisa_host_parameter "get_argv" 0) "int")
+    assert (== (nisa_host_parameter "vm_is_alnum" 0) "int")
+    assert (== (nisa_host_parameter "vm_string_from_char" 0) "int")
+    assert (== (nisa_host_parameter "vm_getenv" 0) "string")
+    assert (== (nisa_host_parameter "get_argc" 0) "")
+    assert (== (nisa_host_parameter "nl_file_companion_open" 0) "string")
+    assert (== (nisa_host_parameter "nl_file_companion_open" 1) "int")
+    assert (== (nisa_host_parameter "nl_file_companion_text" 2) "int")
+    assert (== (nisa_host_parameter "nl_file_source_catalog_string" 3) "int")
 }
 
 fn nisa_builtin_host_symbol(name: string) -> string {
@@ -2147,7 +2169,7 @@ fn nisa_import_add(symbol: string) -> int {
     set nisa_import_text (+ nisa_import_text (+ ".import \"\" \"" (+ symbol (+ "\" " result))))
     let mut i: int = 0
     while (< i (nisa_host_arity symbol)) {
-        set nisa_import_text (+ nisa_import_text (+ " " (nisa_host_parameter symbol)))
+        set nisa_import_text (+ nisa_import_text (+ " " (nisa_host_parameter symbol i)))
         set i (+ i 1)
     }
     set nisa_import_text (+ nisa_import_text "\n")
@@ -2157,6 +2179,10 @@ shadow nisa_import_add {
     let _: int = (nisa_reset)
     assert (== (nisa_import_add "vm_getenv") 0)
     assert (== nisa_import_text ".import \"\" \"vm_getenv\" string string\n")
+    assert (== (nisa_import_add "nl_file_companion_text") 1)
+    assert (str_contains nisa_import_text "\"nl_file_companion_text\" string int int int")
+    assert (== (nisa_import_add "nl_file_source_catalog_string") 2)
+    assert (str_contains nisa_import_text "\"nl_file_source_catalog_string\" string int int int int")
     let _2: int = (nisa_reset)
 }
 
@@ -2532,7 +2558,7 @@ fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
     let mut i: int = 0
     while (< i function.param_count) {
         let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
-        if (!= parameter.var_type (nisa_host_parameter function.name)) {
+        if (!= parameter.var_type (nisa_host_parameter function.name i)) {
             let rejected: string = (nisa_fail (+ "extern parameter does not match my host ABI: " function.name))
             return -1
         }
@@ -2549,6 +2575,26 @@ shadow nisa_register_extern {
     assert (== (nisa_register_extern parser (parser_get_function parser 0)) 0)
     assert (str_contains nisa_import_text "string int")
     let _2: int = (nisa_reset)
+    let companion_tokens: List<LexerToken> = (tokenize_string "extern fn nl_file_companion_open(wire: string, size: int) -> int" "companion.nano" diagnostics)
+    let companion_parser: Parser = (parse_program companion_tokens (list_LexerToken_length companion_tokens) "companion.nano")
+    assert (== (nisa_register_extern companion_parser (parser_get_function companion_parser 0)) 0)
+    assert (str_contains nisa_import_text "\"nl_file_companion_open\" int string int")
+    let _3: int = (nisa_reset)
+    let wrong_tokens: List<LexerToken> = (tokenize_string "extern fn nl_file_companion_open(wire: int, size: int) -> int" "wrong.nano" diagnostics)
+    let wrong_parser: Parser = (parse_program wrong_tokens (list_LexerToken_length wrong_tokens) "wrong.nano")
+    assert (== (nisa_register_extern wrong_parser (parser_get_function wrong_parser 0)) -1)
+    assert (not nisa_ok)
+    let _4: int = (nisa_reset)
+    let catalog_tokens: List<LexerToken> = (tokenize_string "extern fn nl_file_source_catalog_number(kind: int, ordinal: int, field: int, member: int) -> int" "catalog.nano" diagnostics)
+    let catalog_parser: Parser = (parse_program catalog_tokens (list_LexerToken_length catalog_tokens) "catalog.nano")
+    assert (== (nisa_register_extern catalog_parser (parser_get_function catalog_parser 0)) 0)
+    assert (str_contains nisa_import_text "\"nl_file_source_catalog_number\" int int int int int")
+    let _5: int = (nisa_reset)
+    let wrong_catalog_tokens: List<LexerToken> = (tokenize_string "extern fn nl_file_source_catalog_string(kind: int, ordinal: int, field: int) -> string" "wrong_catalog.nano" diagnostics)
+    let wrong_catalog_parser: Parser = (parse_program wrong_catalog_tokens (list_LexerToken_length wrong_catalog_tokens) "wrong_catalog.nano")
+    assert (== (nisa_register_extern wrong_catalog_parser (parser_get_function wrong_catalog_parser 0)) -1)
+    assert (not nisa_ok)
+    let _6: int = (nisa_reset)
 }
 
 fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string {
@@ -2557,7 +2603,7 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string 
     while (< i call.arg_count) {
         let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
         let argument_type: string = (nisa_expr_type parser argument.node_id argument.node_type)
-        if (!= argument_type (nisa_host_parameter symbol)) { return (nisa_fail "host call parameter type mismatch") }
+        if (!= argument_type (nisa_host_parameter symbol i)) { return (nisa_fail "host call parameter type mismatch") }
         set i (+ i 1)
     }
     let mut index: int = (nisa_import_find symbol)
@@ -3002,6 +3048,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         if (== target_name "string_to_int") { return "int" }
         if (and (== target_name "string_to_float") (< (nisa_call_index parser call) 0)) { return "float" }
         if (and (== target_name "str_trim") (< (nisa_call_index parser call) 0)) { return "string" }
+        if (and (== target_name "str_split") (< (nisa_call_index parser call) 0)) { return "array<string>" }
         if (and (== (nisa_map_opcode target_name) "HM_GET") (== call.arg_count 2)) {
             let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
             return (nisa_map_value_type (nisa_expr_type parser receiver.node_id receiver.node_type))
@@ -4377,6 +4424,18 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         }
         return (+ (nisa_emit_call_args parser call) (nisa_line "STR_TRIM"))
     }
+    if (and (== function_name "str_split") (< declared_index 0)) {
+        if (!= call.arg_count 2) { return (nisa_fail "I require two string operands for str_split") }
+        let mut i: int = 0
+        while (< i call.arg_count) {
+            let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+            if (!= (nisa_expr_type parser argument.node_id argument.node_type) "string") {
+                return (nisa_fail "I require two string operands for str_split")
+            }
+            set i (+ i 1)
+        }
+        return (+ (nisa_emit_call_args parser call) (nisa_line "STR_SPLIT"))
+    }
     if (== function_name "range") { return (nisa_fail "I require range inside a for loop") }
     if (== function_name "array_new") { return (nisa_emit_filled_array parser call) }
     if (nisa_is_set_call function_name) { return (nisa_emit_set_call parser call function_name) }
@@ -4558,6 +4617,13 @@ shadow nisa_emit_call {
     assert nisa_ok
     assert (str_contains trimmed "STR_TRIM")
     assert (str_contains trimmed "STR_CONCAT")
+    let split: string = (nanoisa_emit_nasm "fn main() -> array<string> { return (str_split \"a,b\" \",\") }")
+    assert nisa_ok
+    assert (str_contains split "STR_SPLIT")
+    let declared_split: string = (nanoisa_emit_nasm (+ "f" "n str_split(value: int) -> int { return (+ value 1) } shadow str_split { assert true } fn main() -> int { return (str_split 41) }"))
+    assert nisa_ok
+    assert (str_contains declared_split "CALL str_split")
+    assert (not (str_contains declared_split "STR_SPLIT"))
     let joined: string = (nanoisa_emit_nasm (+ "f" "n main() -> string { return (str_concat \"a\" \"b\") }"))
     assert (str_contains joined "STR_CONCAT")
     let parsed: string = (nanoisa_emit_nasm "fn main() -> float { return (string_to_float \"2.5tail\") }")
