@@ -1,0 +1,706 @@
+{
+  "nanolang-record-llvm-63b8a-linux/c-baseline-before.json": {
+    "sha256": "822f8a23cbd095b7401ba68bca109b1c99f8c4ec07a8fc6f2ad8ceb4cb93a642",
+    "bytes": 20516
+  },
+  "nanolang-record-llvm-63b8a-linux/clang-version.txt": {
+    "sha256": "e642c7956111b181d1d8d0485d79ce16f1882356b0f49113cb36714408b04118",
+    "bytes": 440
+  },
+  "nanolang-record-llvm-63b8a-linux/configuration-artifacts.json": {
+    "sha256": "5e1e8b4350d0e10372c22473e399f85278093d7c7c5cbe2b94c1cfaa5424785d",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-63b8a-linux/configuration-command.json": {
+    "sha256": "654363c44ebbbcaadc038229cb22e49abba69e8b735f0a782eee7af59d8c714c",
+    "bytes": 729
+  },
+  "nanolang-record-llvm-63b8a-linux/configuration-inputs-before.json": {
+    "sha256": "5e1e8b4350d0e10372c22473e399f85278093d7c7c5cbe2b94c1cfaa5424785d",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-63b8a-linux/configuration-nested-processes.json": {
+    "sha256": "91026f2b7dd6b61a3047bf2eb88ac09189d58eb720db712dd9e1f792a2981abc",
+    "bytes": 299
+  },
+  "nanolang-record-llvm-63b8a-linux/configuration-source-after.json": {
+    "sha256": "81a54f4e120365c97e32c6312fb311154f089056e67392d3ae05fe6a88d72c63",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-63b8a-linux/configuration-source-before.json": {
+    "sha256": "81a54f4e120365c97e32c6312fb311154f089056e67392d3ae05fe6a88d72c63",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-63b8a-linux/configuration-space-before.json": {
+    "sha256": "31683d9b1da57185634923b18f562daf75ce1e1bd6d7fe782d09c2a15992f565",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-63b8a-linux/configuration-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-63b8a-linux/configuration-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-63b8a-linux/configuration-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-63b8a-linux/configuration.log": {
+    "sha256": "ace92959db5f3dd49a684a77baf50e31b413ecc6ac4b38911d0e57a019522a34",
+    "bytes": 4743
+  },
+  "nanolang-record-llvm-63b8a-linux/discovery-artifacts.json": {
+    "sha256": "5e1e8b4350d0e10372c22473e399f85278093d7c7c5cbe2b94c1cfaa5424785d",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-63b8a-linux/discovery-command.json": {
+    "sha256": "c9721e932d91dff7bd4f82c60ad776ad61392ecce556f9b1c4af401388a8ef4d",
+    "bytes": 777
+  },
+  "nanolang-record-llvm-63b8a-linux/discovery-inputs-before.json": {
+    "sha256": "5e1e8b4350d0e10372c22473e399f85278093d7c7c5cbe2b94c1cfaa5424785d",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-63b8a-linux/discovery-nested-processes.json": {
+    "sha256": "e4a65f20fa651cf76eb3485abee858ec0a7c7360db19866b9c4cbf2ff877144b",
+    "bytes": 382
+  },
+  "nanolang-record-llvm-63b8a-linux/discovery-source-after.json": {
+    "sha256": "81a54f4e120365c97e32c6312fb311154f089056e67392d3ae05fe6a88d72c63",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-63b8a-linux/discovery-source-before.json": {
+    "sha256": "81a54f4e120365c97e32c6312fb311154f089056e67392d3ae05fe6a88d72c63",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-63b8a-linux/discovery-space-before.json": {
+    "sha256": "30833d7f75a896f5ad7f507e4915a1871159d9f948d0d5626564361369f8fc7a",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-63b8a-linux/discovery-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-63b8a-linux/discovery-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-63b8a-linux/discovery-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-63b8a-linux/discovery.log": {
+    "sha256": "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d",
+    "bytes": 2
+  },
+  "nanolang-record-llvm-63b8a-linux/driver.py": {
+    "sha256": "fd3382ab7753fa86380fa82ee65fe21fedb960faa03d3cb9b8087c9e2e9f66cb",
+    "bytes": 11891
+  },
+  "nanolang-record-llvm-63b8a-linux/environment.json": {
+    "sha256": "1ad24663d9d74cfc6ac04d939a24eb853db0347fd8779d1711002575d25e6ed4",
+    "bytes": 1049
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-emission-artifacts.json": {
+    "sha256": "9502234332186bf50d5d8974e86c07b03783f3af0c4d2e516dad574183f70a16",
+    "bytes": 62068
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-emission-command.json": {
+    "sha256": "ab505214c58a1506c951483d2628c87b777da4a914a7102a91a645440440fe72",
+    "bytes": 5689
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-emission-inputs-before.json": {
+    "sha256": "5e1e8b4350d0e10372c22473e399f85278093d7c7c5cbe2b94c1cfaa5424785d",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-emission-nested-processes.json": {
+    "sha256": "9fc474b77ab781794ee6e09d60a83d12052a1fb407976c8c26a96d2a65bef528",
+    "bytes": 5891
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-emission-source-after.json": {
+    "sha256": "81a54f4e120365c97e32c6312fb311154f089056e67392d3ae05fe6a88d72c63",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-emission-source-before.json": {
+    "sha256": "81a54f4e120365c97e32c6312fb311154f089056e67392d3ae05fe6a88d72c63",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-emission-space-before.json": {
+    "sha256": "57b331fe3992676396cc22882689fbbbcd09e3631bce06a6ce8670e88e39a3fe",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-emission-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-emission-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-emission-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-emission.log": {
+    "sha256": "e1d4dc60e8a34f59bc222d59935bdb40ee88f6ee093f114be21d80629b27bd4d",
+    "bytes": 270
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-native-artifacts.json": {
+    "sha256": "13b9fce17d38fd1f2cb1debb4f1dcf0e4c47df193136221e3f02106aec6ce1b1",
+    "bytes": 122552
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-native-command.json": {
+    "sha256": "d3d1244f435a7b7324027933ec8d8ec87beab61224607507ae3c023a59383743",
+    "bytes": 5687
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-native-inputs-before.json": {
+    "sha256": "5e1e8b4350d0e10372c22473e399f85278093d7c7c5cbe2b94c1cfaa5424785d",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-native-nested-processes.json": {
+    "sha256": "3111aaf0a72174def5c4183cab8b42de62ed2c55316c838610af86bb8ae07ccd",
+    "bytes": 10601
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-native-source-after.json": {
+    "sha256": "81a54f4e120365c97e32c6312fb311154f089056e67392d3ae05fe6a88d72c63",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-native-source-before.json": {
+    "sha256": "81a54f4e120365c97e32c6312fb311154f089056e67392d3ae05fe6a88d72c63",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-native-space-before.json": {
+    "sha256": "bf1194466eeb2c869a19fd4e31bc81fbc2f84fe0c2663128309260f0655fc5e1",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-native-terminal.json": {
+    "sha256": "9c48e2d31e2528cc424010ec13d2e61ce78f55bb22f86a6cf4c0e85365bfb45c",
+    "bytes": 175
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-native-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-native-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-native.log": {
+    "sha256": "4ce1876ba20deccec6727fe3ffe7ca11e0188be543f06500469dc2ea30e3501d",
+    "bytes": 1522
+  },
+  "nanolang-record-llvm-63b8a-linux/ordinary-version.txt": {
+    "sha256": "5698ba2bce15103316282b418bf772fd5ce99fbe60fd5ba2987d69fa39f61e58",
+    "bytes": 249
+  },
+  "nanolang-record-llvm-63b8a-linux/parity-artifacts.json": {
+    "sha256": "4f074cf5e11bf07639a34d33bf7702c075b48f929d72c7da442a952aaf21b960",
+    "bytes": 119729
+  },
+  "nanolang-record-llvm-63b8a-linux/parity-command.json": {
+    "sha256": "357a3ec341ce9998ee01070caac1fb927bd908dae743fe28bbb95e301d626bf9",
+    "bytes": 5690
+  },
+  "nanolang-record-llvm-63b8a-linux/parity-inputs-before.json": {
+    "sha256": "5e1e8b4350d0e10372c22473e399f85278093d7c7c5cbe2b94c1cfaa5424785d",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-63b8a-linux/parity-nested-processes.json": {
+    "sha256": "3e1d6043f9d2d67df85a0e01017299681b486cc3218dd074c81c4a1fe3e599fe",
+    "bytes": 8721
+  },
+  "nanolang-record-llvm-63b8a-linux/parity-source-after.json": {
+    "sha256": "81a54f4e120365c97e32c6312fb311154f089056e67392d3ae05fe6a88d72c63",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-63b8a-linux/parity-source-before.json": {
+    "sha256": "81a54f4e120365c97e32c6312fb311154f089056e67392d3ae05fe6a88d72c63",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-63b8a-linux/parity-space-before.json": {
+    "sha256": "1cebc301088b6078561dbbf19550593d99f652b7fe5b1acd6754900ccf7daa19",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-63b8a-linux/parity-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-63b8a-linux/parity-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-63b8a-linux/parity-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-63b8a-linux/parity.log": {
+    "sha256": "c552daa8014239c3598d8e3017b8b94680597b195a43110e82878ef82615caa4",
+    "bytes": 273
+  },
+  "nanolang-record-llvm-63b8a-linux/providers.mk": {
+    "sha256": "2c1636a660adb5df08ef6442466c64d45c80e21258befa2c39956e0feeb86834",
+    "bytes": 327
+  },
+  "nanolang-record-llvm-63b8a-linux/results.json": {
+    "sha256": "40e979b55d5c6db25383385b5064be3ca5f50a860f2d1df3b8d9f45f71f5a109",
+    "bytes": 455
+  },
+  "nanolang-record-llvm-63b8a-linux/sanitizer-version.txt": {
+    "sha256": "5698ba2bce15103316282b418bf772fd5ce99fbe60fd5ba2987d69fa39f61e58",
+    "bytes": 249
+  },
+  "nanolang-record-llvm-63b8a-linux/setup-artifacts.json": {
+    "sha256": "5e1e8b4350d0e10372c22473e399f85278093d7c7c5cbe2b94c1cfaa5424785d",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-63b8a-linux/setup-command.json": {
+    "sha256": "52e89028ddfb280d53a65aa0a70b3c32b446dff91cbebc252bd8b12d4b276d2f",
+    "bytes": 792
+  },
+  "nanolang-record-llvm-63b8a-linux/setup-inputs-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-record-llvm-63b8a-linux/setup-nested-processes.json": {
+    "sha256": "878783925d89c2e8d27b74c157c5a7bc6d2e8df1c037a7fe834df1f7280f842f",
+    "bytes": 22328
+  },
+  "nanolang-record-llvm-63b8a-linux/setup-source-after.json": {
+    "sha256": "81a54f4e120365c97e32c6312fb311154f089056e67392d3ae05fe6a88d72c63",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-63b8a-linux/setup-source-before.json": {
+    "sha256": "81a54f4e120365c97e32c6312fb311154f089056e67392d3ae05fe6a88d72c63",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-63b8a-linux/setup-space-before.json": {
+    "sha256": "028c5fb8896e8cc15f6b46d320d6996d23f8b1589265f52f3760ef627e09b0d7",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-63b8a-linux/setup-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-63b8a-linux/setup-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-63b8a-linux/setup-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-63b8a-linux/setup.log": {
+    "sha256": "ec6f9ded65a75b59ec6e134463807a9abe560012ce1d00113c1db235c07c032c",
+    "bytes": 31864
+  },
+  "nanolang-record-llvm-78042-linux/c-baseline-after.json": {
+    "sha256": "822f8a23cbd095b7401ba68bca109b1c99f8c4ec07a8fc6f2ad8ceb4cb93a642",
+    "bytes": 20516
+  },
+  "nanolang-record-llvm-78042-linux/c-baseline-before.json": {
+    "sha256": "822f8a23cbd095b7401ba68bca109b1c99f8c4ec07a8fc6f2ad8ceb4cb93a642",
+    "bytes": 20516
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-emission-artifacts.json": {
+    "sha256": "a63190d8b834aa4b09f88b176d016886ca6f24aae59beb3891d2822e796e58b8",
+    "bytes": 62068
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-emission-command.json": {
+    "sha256": "559209a28eb4e7913ce54634909839a92fcf2bf8eafe1557c266a52bc4528007",
+    "bytes": 5750
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-emission-inputs-before.json": {
+    "sha256": "062cbba115516551483f2025d6836aba2a1eff0a0743e326b18a2a0b4be5a9a3",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-emission-nested-processes.json": {
+    "sha256": "b987a766e0a7ed161b99d52c9385a126cb1b5a0662daef26b81e04abfc3a99ba",
+    "bytes": 4190
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-emission-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-emission-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-emission-space-before.json": {
+    "sha256": "399601cab294dd3e1b5065a1c1e039fb880f6219e4e48a66618fbc2eeec9d4d0",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-emission-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-emission-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-emission-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-emission.log": {
+    "sha256": "3620d971a81d65103421a94a8082380c169c440ac7e70751275b32a7ff87d690",
+    "bytes": 270
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-native-artifacts.json": {
+    "sha256": "5b07de95985d74a7817dc54bf59fc43737d82b7564337463c4cb07c413387e9b",
+    "bytes": 3357026
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-native-command.json": {
+    "sha256": "05681250f3f9e05458d4e89deb42f0718b39727a52ca83f7ab797a61c8062195",
+    "bytes": 5748
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-native-inputs-before.json": {
+    "sha256": "062cbba115516551483f2025d6836aba2a1eff0a0743e326b18a2a0b4be5a9a3",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-native-nested-processes.json": {
+    "sha256": "e648daec0ee00cc3aedc319651e6b880fdfdf056f5686cc0f93686d66af5b3f2",
+    "bytes": 84652
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-native-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-native-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-native-space-before.json": {
+    "sha256": "ed3ff0ee6f7f23c76930f260f848019f24bda014e13fb79e11fd6189d60da0bd",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-native-terminal.json": {
+    "sha256": "50f82496ebc9640a2d7d1bffdb60e9b78871091b2da917af4377067281de260c",
+    "bytes": 175
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-native-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-native-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/clang-ordinary-native.log": {
+    "sha256": "132be92882f238b1ea0934bb1ced0d004fc12ef7037e2e263e346abd67ccfe8c",
+    "bytes": 268
+  },
+  "nanolang-record-llvm-78042-linux/clang-version.txt": {
+    "sha256": "e642c7956111b181d1d8d0485d79ce16f1882356b0f49113cb36714408b04118",
+    "bytes": 440
+  },
+  "nanolang-record-llvm-78042-linux/configuration-artifacts.json": {
+    "sha256": "062cbba115516551483f2025d6836aba2a1eff0a0743e326b18a2a0b4be5a9a3",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-78042-linux/configuration-command.json": {
+    "sha256": "3ff7411206ac1811460b02bd024d5611330cab801be78b132d5586b0728f73c0",
+    "bytes": 729
+  },
+  "nanolang-record-llvm-78042-linux/configuration-inputs-before.json": {
+    "sha256": "062cbba115516551483f2025d6836aba2a1eff0a0743e326b18a2a0b4be5a9a3",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-78042-linux/configuration-nested-processes.json": {
+    "sha256": "be505299f137521aca2adb040da074e26cda7226e3dc4cf6676854b761f0ddd8",
+    "bytes": 299
+  },
+  "nanolang-record-llvm-78042-linux/configuration-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/configuration-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/configuration-space-before.json": {
+    "sha256": "d74dce4fdfd733bbaa938932a7c6e14f1c993d419d89b045eb92a05348d65a4d",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-linux/configuration-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-linux/configuration-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/configuration-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/configuration.log": {
+    "sha256": "ace92959db5f3dd49a684a77baf50e31b413ecc6ac4b38911d0e57a019522a34",
+    "bytes": 4743
+  },
+  "nanolang-record-llvm-78042-linux/discovery-artifacts.json": {
+    "sha256": "062cbba115516551483f2025d6836aba2a1eff0a0743e326b18a2a0b4be5a9a3",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-78042-linux/discovery-command.json": {
+    "sha256": "c9721e932d91dff7bd4f82c60ad776ad61392ecce556f9b1c4af401388a8ef4d",
+    "bytes": 777
+  },
+  "nanolang-record-llvm-78042-linux/discovery-inputs-before.json": {
+    "sha256": "062cbba115516551483f2025d6836aba2a1eff0a0743e326b18a2a0b4be5a9a3",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-78042-linux/discovery-nested-processes.json": {
+    "sha256": "bfd408644f402f582ad61fbd377e02f437a44091b50e10be7f2990d050d8a799",
+    "bytes": 382
+  },
+  "nanolang-record-llvm-78042-linux/discovery-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/discovery-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/discovery-space-before.json": {
+    "sha256": "02cd2fd44cbd670d30dde0380714b6334df12faff66cfae7205a172ef8f6b583",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-linux/discovery-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-linux/discovery-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/discovery-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/discovery.log": {
+    "sha256": "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d",
+    "bytes": 2
+  },
+  "nanolang-record-llvm-78042-linux/driver.py": {
+    "sha256": "fd3382ab7753fa86380fa82ee65fe21fedb960faa03d3cb9b8087c9e2e9f66cb",
+    "bytes": 11891
+  },
+  "nanolang-record-llvm-78042-linux/environment.json": {
+    "sha256": "a80c2065d5ef55fed531640512c1aa2faac6ac90feef3258c5769871fc5309b6",
+    "bytes": 1095
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-emission-artifacts.json": {
+    "sha256": "48bdf3cd4b86501ac21ba8d266261addeb50c6732fbcd7cefdab85b12caf2a16",
+    "bytes": 62068
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-emission-command.json": {
+    "sha256": "ab505214c58a1506c951483d2628c87b777da4a914a7102a91a645440440fe72",
+    "bytes": 5689
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-emission-inputs-before.json": {
+    "sha256": "062cbba115516551483f2025d6836aba2a1eff0a0743e326b18a2a0b4be5a9a3",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-emission-nested-processes.json": {
+    "sha256": "279c39904d33b2a93913a20c9a3751d40fd338cf5d282677f026b7233d24422e",
+    "bytes": 4589
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-emission-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-emission-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-emission-space-before.json": {
+    "sha256": "0311bea10056b410c3b8c5adcd663a80e9eda99ea1fd9227c05068d3d23eadcc",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-emission-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-emission-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-emission-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-emission.log": {
+    "sha256": "5dd0700ecce4d4b81eec86bb038dd72b97713e1a9049aacedf82a43260e4e8e0",
+    "bytes": 270
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-native-artifacts.json": {
+    "sha256": "e8e4ccb4f4615266e5655ce4404269673ea386e115a98ab78682da4c91cf134e",
+    "bytes": 3357026
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-native-command.json": {
+    "sha256": "d3d1244f435a7b7324027933ec8d8ec87beab61224607507ae3c023a59383743",
+    "bytes": 5687
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-native-inputs-before.json": {
+    "sha256": "062cbba115516551483f2025d6836aba2a1eff0a0743e326b18a2a0b4be5a9a3",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-native-nested-processes.json": {
+    "sha256": "27da7fed27a824f7834d1ebf60f20c19559ca8aa09488f01e134c3cbaae11ada",
+    "bytes": 95493
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-native-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-native-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-native-space-before.json": {
+    "sha256": "e1f261ea3aef8ed6fd2ab60b2afc9a7052214c7cde1b1ecf487f534e17e87d0b",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-native-terminal.json": {
+    "sha256": "50f82496ebc9640a2d7d1bffdb60e9b78871091b2da917af4377067281de260c",
+    "bytes": 175
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-native-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-native-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-native.log": {
+    "sha256": "ec372966d081afe80dd47dd709050fbfb53bda5040cd8acbfef7f7514275e034",
+    "bytes": 268
+  },
+  "nanolang-record-llvm-78042-linux/ordinary-version.txt": {
+    "sha256": "5698ba2bce15103316282b418bf772fd5ce99fbe60fd5ba2987d69fa39f61e58",
+    "bytes": 249
+  },
+  "nanolang-record-llvm-78042-linux/parity-artifacts.json": {
+    "sha256": "00a334e3ef74961c300af0a9195b1c5b3f6127962800a3b97aa93a40ac73c001",
+    "bytes": 119729
+  },
+  "nanolang-record-llvm-78042-linux/parity-command.json": {
+    "sha256": "357a3ec341ce9998ee01070caac1fb927bd908dae743fe28bbb95e301d626bf9",
+    "bytes": 5690
+  },
+  "nanolang-record-llvm-78042-linux/parity-inputs-before.json": {
+    "sha256": "062cbba115516551483f2025d6836aba2a1eff0a0743e326b18a2a0b4be5a9a3",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-78042-linux/parity-nested-processes.json": {
+    "sha256": "6f045caeaf7ad4c191aca5f2eaea66b90c3d37f7346fa52b2789dfa9b27239e7",
+    "bytes": 9938
+  },
+  "nanolang-record-llvm-78042-linux/parity-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/parity-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/parity-space-before.json": {
+    "sha256": "31f4648abe3d443b59652cb578fd59efd9f2b1b75393f2b0dab296d7a9eebe6c",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-linux/parity-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-linux/parity-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/parity-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/parity.log": {
+    "sha256": "990b266c01f627653137f48a5ff366777582d4793e883d91d104ba94cb4258e6",
+    "bytes": 273
+  },
+  "nanolang-record-llvm-78042-linux/providers.mk": {
+    "sha256": "2c1636a660adb5df08ef6442466c64d45c80e21258befa2c39956e0feeb86834",
+    "bytes": 327
+  },
+  "nanolang-record-llvm-78042-linux/results.json": {
+    "sha256": "8ef647077829f15262e3d0643cd013231f96966f64b3f5c968503a5a3eb46da9",
+    "bytes": 630
+  },
+  "nanolang-record-llvm-78042-linux/sanitizer-version.txt": {
+    "sha256": "5698ba2bce15103316282b418bf772fd5ce99fbe60fd5ba2987d69fa39f61e58",
+    "bytes": 249
+  },
+  "nanolang-record-llvm-78042-linux/setup-artifacts.json": {
+    "sha256": "062cbba115516551483f2025d6836aba2a1eff0a0743e326b18a2a0b4be5a9a3",
+    "bytes": 48696
+  },
+  "nanolang-record-llvm-78042-linux/setup-command.json": {
+    "sha256": "c40256dd98edb72ad6526e1fc4088b242a19284bac5fbf0227d0d6b4e74646f7",
+    "bytes": 792
+  },
+  "nanolang-record-llvm-78042-linux/setup-inputs-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-record-llvm-78042-linux/setup-nested-processes.json": {
+    "sha256": "8afc5d07e6bdb05c59c483101714a1767ffff036751d05d25d3cbebdb1dab823",
+    "bytes": 21068
+  },
+  "nanolang-record-llvm-78042-linux/setup-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/setup-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-linux/setup-space-before.json": {
+    "sha256": "54d31152e97461b286261f4599622a53c69cef6319815661d09c2cf35dfe0d15",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-linux/setup-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-linux/setup-tools-after.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/setup-tools-before.json": {
+    "sha256": "3f514ac183b49748af800b127d0c5cb07f3ec3e16636ae78b2fbced501ffc5f3",
+    "bytes": 2789
+  },
+  "nanolang-record-llvm-78042-linux/setup.log": {
+    "sha256": "ec6f9ded65a75b59ec6e134463807a9abe560012ce1d00113c1db235c07c032c",
+    "bytes": 31864
+  },
+  "extra/nanolang-record-llvm-63b8a-linux-abi-diagnosis.json": {
+    "sha256": "118af0a9316782a081ad73106d3d5d6249e91a0d391805d955409772e58e3b33",
+    "bytes": 15848
+  },
+  "extra/nanolang-record-llvm-puck-reboot-observation.json": {
+    "sha256": "9aeff7c04d6983ea5dfb9b828a0262e58511d75d4eb52fad326eda3bd39024f4",
+    "bytes": 954
+  },
+  "extra/nanolang-record-llvm-78042-prelaunch.json": {
+    "sha256": "336e0bc37ae17f55c770c2b3d843a85db2058e507f68bbab1f139094124b4748",
+    "bytes": 690
+  },
+  "extra/nanolang-record-llvm-78042-outer.json": {
+    "sha256": "f487c4e8f0711c047c0fda38a6590020811269863559bb58e907d1048f6f3ad1",
+    "bytes": 160
+  },
+  "extra/nanolang-record-llvm-78042-outer.log": {
+    "sha256": "735b431addd9771d5934785193edd0a689b5994fd33fe74d45da7d4f9272d57a",
+    "bytes": 1008
+  }
+}

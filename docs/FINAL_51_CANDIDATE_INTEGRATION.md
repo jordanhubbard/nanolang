@@ -21,3 +21,7 @@ My second merge joins root `3a7665809` to first candidate `69c3aea16`. The inter
 - Make rules retain all SDK/native and root targets/dependencies. The NanoISA provider list adds capture bindings while retaining the existing single `nsi_file_plan.c` entry, not a duplicate copy. SDK provider ownership, installed discovery and ABI inputs remain unchanged pending final inventory regeneration.
 
 My strict C syntax-only check first finds a missing `AST_SERVICE_DECL` case in the native private-name traversal introduced by combining these AST domains. I retain that diagnostic and explicitly classify this descriptor-only declaration with the nonbinding leaves; its fields contain no AST expression or source local binding. The corrected exact command `gcc -std=c99 -D_GNU_SOURCE -Isrc -Wall -Wextra -Werror -fsyntax-only src/env.c src/eval.c src/typechecker.c src/transpiler.c src/nanovirt/codegen.c` passes. This checks C syntax and warnings only: no compiler product, Nano shadow, imported snapshot consumer or full gate is executed. Owner review and all subsequent integrations remain required.
+
+## I retain backend execution before CI composition
+
+I merge backend `57542f703` after the root checkpoint. Its only production conflict is an additive Makefile tail: I keep both the root LLVM scalar-tail gate and the private generated-record-array C/LLVM gates with their exact object/flag selection. I retain both roadmap histories and the additional committed-report integrity paragraph from the candidate. No product runs at this source checkpoint.

@@ -658,7 +658,7 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nano_vm nvm2c nvm2c-runtime nanois
 		tests/nanoisa/test_nanoisa_src_nano.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_src_nano \
 		/tmp/nanolang_cut_a_c.nvm /tmp/nanolang_cut_a_src.nasm
-	@python3 -m unittest -v tests.test_nanoisa_flat_records tests.test_nanoisa_artifact_imports tests.test_nanoisa_shadow_emitter tests.test_nanoisa_tuple_values
+	@CC="$(CC)" LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_nanoisa_flat_records tests.test_nanoisa_artifact_imports tests.test_nanoisa_shadow_emitter tests.test_nanoisa_tuple_values
 	@rm -f tests/nanoisa/test_nanoisa_src_nano
 
 .PHONY: nanoisa_dump
@@ -5897,3 +5897,12 @@ test-record-array-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(R
 test-llvm-scalar-tail-frames: nano_vm nanoisa_dump nvm2c nvm2llvm nvm2wasm
 	python3 -m unittest -f -v tests.test_llvm_tail_frames
 test-units: test-llvm-scalar-tail-frames
+.PHONY: test-record-array-generated
+# I capture the unchanged private VM corpus, then link generated products without VM objects.
+test-record-array-generated: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= RECORD_GENERATED_CC="$(CC)" RECORD_GENERATED_CFLAGS="$(CFLAGS)" RECORD_GENERATED_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_GENERATED_QUERY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_GENERATED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_generated
+
+.PHONY: test-record-array-llvm
+# I rebuild the target-prefix manifest before private direct LLVM acceptance.
+test-record-array-llvm: managed-runtime-package $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= RECORD_GENERATED_CC="$(CC)" RECORD_GENERATED_CFLAGS="$(CFLAGS)" RECORD_GENERATED_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_GENERATED_QUERY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_GENERATED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_llvm

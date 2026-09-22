@@ -1,0 +1,12 @@
+[
+  {
+    "phase": "configuration",
+    "seconds": 0.269,
+    "status": 0
+  },
+  {
+    "phase": "package",
+    "seconds": 3.5,
+    "status": 0
+  }
+]

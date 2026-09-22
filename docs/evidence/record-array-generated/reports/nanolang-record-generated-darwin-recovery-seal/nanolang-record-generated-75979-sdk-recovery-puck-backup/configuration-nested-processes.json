@@ -1,0 +1,12 @@
+{
+  "cleanup": [],
+  "owned": {
+    "9668": {
+      "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/make -s -f Makefile.gnu -f /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-generated-75979-puck-sdk/providers.mk CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang array-config",
+      "group": 9668,
+      "parent": 9656,
+      "started": "Mon Sep 21 01:35:55 2026"
+    }
+  },
+  "remaining": []
+}

@@ -24,6 +24,7 @@
 - [ ] I preserve `byte` as my `u8` alias throughout canonical source compilation (`task_6e2f718d08e53c091ef37768acf1df3c`). My bdf three canonical compiler builds pass, but the unchanged byte fixture is refused at `let d: byte = 7`. My Nano lexer omits the alias and my parser preserves its spelling, leaving the checker to treat it as a nominal record. I recognize the existing keyword alias and normalize type spelling at parsing, with nested-array and callback controls; I retain the original first terminal and require fresh three-producer qualification. My first corrected compiler build stops in a pre-existing lowering shadow that names a function `byte`, now correctly reserved as a type keyword. I retain that terminal and rename only the fixture function before rebuilding; payload and exact assembly assertions stay unchanged.
 
 - [x] I define signed-double division overflow and quotient range in Forth (`task_bbeaab3cfaa9cbc34398272b8a1947ea`, related `task_94534bf8291349a380ed1c88a93e3cb0`). Static PR943 review finds SM/REM and FM/MOD check zero but can divide the minimum signed128 value by minus one before narrowing the quotient to a cell. I specify range, diagnostic and stack behavior, guard arithmetic before evaluation, and review corrected boundary controls before execution. No unfixed overflowing case is executed. Existing bounded packing/division-sign qualification does not close this full5.1 obligation. PR944 merged as87e0cef0e after source review and all28 original Forth phases across seven Linux/Darwin configurations; independent root review verifies3733 source blobs and all28 retained executables in [the sealed evidence](evidence/forth-arithmetic.md). The corresponding arithmetic and division MAC tasks are complete; the full5.1 scope remains open.
+- [x] I explicitly pass my overridden Make compiler/link flags to artifact Python acceptance (`task_96a578e4e4d6f645c396c0a7c453a677`). My [PR945 hosted evidence](evidence/pr945-hosted/README.md) retains three coverage native-link failures and a non-product probe showing `override` drops automatic environment export. I preserve exact flags, selector precedence and original assertions, then qualify the actual owning Make recipe with ordinary, coverage and sanitizer providers. PR945 stays unchanged during hosted checks. My [fresh actual-Make evidence](evidence/pr945-make-flags/README.md) passes all 90 original methods in ordinary, coverage and the explicitly mixed ASan/UBSan-runtime configuration. I retain the all-provider 60-second shadow timeout and do not claim LSan or full sanitizer-provider acceptance; canonical PR947 merged at e0c7eb76d and root reconciled the bounded task after verifying ancestry. Hosted byte/list corpus failures, the20-minute sanitizer step terminal and cancelled Pages remain recorded separately.
 
 I retain the first e384 arithmetic Linux setup terminal: the external inventory assumed `/usr/lib/gcc/aarch64-linux-gnu/13/collect2`, while selected GCC13 reports `/usr/libexec/gcc/aarch64-linux-gnu/13/collect2`. It stops before any build or test. I correct only the external tool path from the compiler-reported value and launch fresh paths with the same3733 frozen source bytes. Darwin has its separate tool list and continues independently.
 
@@ -15232,7 +15233,7 @@ fixed258-entry iterative release stack, with no suspect-buffer allocations or
 host recursion. Old/public heaps retain their collector; nested/cyclic fullgraph
 collector acceptance remains required, not inferred from this bounded route.
 
-- [ ] Before private mixed VM execution I repair the e181 scalar wrong-tag root
+- [x] Before private mixed VM execution I repair the e181 scalar wrong-tag root
   gap (`task_f1307e3b122a4d7a96a5a52a9479f672`). Root static review found that
   general physical-value validation still lets heap operands reach I64/F64/BOOL
   handlers that pop before rejecting a tag without releasing those owners. I
@@ -15250,14 +15251,14 @@ control. I statically corrected the new zero-field fixture's extension size
 word before execution. All acceptance boxes above remain open until frozen
 both-host qualification and independent evidence review.
 
-- [ ] Before private VM fixture execution I preserve exact input object bytes
+- [x] Before private VM fixture execution I preserve exact input object bytes
   in the immutability snapshot (`task_83a5bc6351ba4319805082daffc08b38`). Root
   static review found `Input before=*c` followed by whole-object `memcmp`;
   structure assignment does not promise padding-byte preservation. I use
   `memcpy` for this fixture snapshot, retaining the same comparison and all
   semantic assertions. No failing test or product defect is claimed.
 
-- [ ] I retain both3115 first compile terminals and correct only entry naming
+- [x] I retain both3115 first compile terminals and correct only entry naming
   and strict private formatting (`task_26a29451abd34cf98473acca2adee0fc`). Fresh
   Linux/puck setup and exact two-method discovery passed; no runtime fixture
   executed. The plan fixture's nested `main` macro defeats the VM fixture's
@@ -15267,14 +15268,14 @@ both-host qualification and independent evidence review.
   the unconditional break without changing control flow. New frozen gates need
   review; neither first terminal is relabeled as a runtime result.
 
-- [ ] I retain both4dc first link terminals and supply standalone fixture
+- [x] I retain both4dc first link terminals and supply standalone fixture
   argument globals (`task_e852a4626f23400a83a2381546aa6214`). Fresh setup,
   discovery and strict C compilation passed; the complete eval/cli provider
   closure needs `g_argc`/`g_argv` normally owned by main. I define zero/NULL
   globals exactly as the existing private owner-array and VM fixtures do,
   keeping every provider and assertion. No runtime case has executed.
 
-- [ ] I complete precise private record-array global flow before resuming the
+- [x] I complete precise private record-array global flow before resuming the
   stopped88ae VM graph (`task_d0208a61082f4a08b407768b1a8b4252`;
   `NANOISA_RECORD_ARRAY_GLOBAL_FLOW.md`). Initial VOID, branch/call effects and
   repeated-entry committed values remain conservative; a dominating store and
@@ -15293,7 +15294,7 @@ one-shot/persistent allocation positions retain exact MEMORY and fresh recovery.
 I await fixture review before fresh seven-configuration qualification; the
 original88ae stopped VM corpus remains unchanged and unaccepted.
 
-- [ ] I correct the exact derived-slice origin ordinal in the global query
+- [x] I correct the exact derived-slice origin ordinal in the global query
   fixture (`task_2e2bc976b4c7481c8a52e6767f9f032d`). Bothfa222 hosts passed
   setup, discovery, strict compilation and first query eligibility, then the
   fixture asserted bit2 for the slice. My existing scanner reserves ARRAY0
@@ -15981,7 +15982,7 @@ admission. Fresh providers and the unchanged complete VM matrix are required.
 My source-location checkbox above reflects actual PR935 merge and its independent
 both-mode/two-host evidence; it does not close the mixed runtime requirements.
 
-- [ ] I update internal white-box fixture calls for the private mixed context
+- [x] I update internal white-box fixture calls for the private mixed context
   (`task_58e5fa7f876e48b38f7743c543b36c88`). All three15d1 Darwin private VM
   configurations and query neighbors pass before ordinary-admission compilation
   stops at13 old three-argument calls. I add an explicit NULL fourth context,
@@ -16013,6 +16014,454 @@ terminal and accurately distinguishes rebuilt package providers. Independent
 review and actual merge remain pending; full generated/public/graph/source
 requirements stay open. My compressed Darwin archive retains every CAS byte
 locally without redundant extraction under the current Linux capacity limit.
+
+### My shared generated mixed runtime after private VM qualification
+
+I retain the complete f36/15f/488 parent scope and record the next dependency in
+`NANOISA_MIXED_GENERATED_RUNTIME.md`, based on reviewed PR936 d6179a7be. Its actual
+merge remains required. MAC reads currently fail at the occupied local login
+tunnel port34113; I have not fabricated a new task or altered that listener.
+
+- [x] I review and implement the explicit-instance counted runtime/frame API,
+  exact table/ABI correspondence, all93 operation ownership map, combined peak
+  reservations and bounded release/collection behavior before execution.
+- [x] I emit actual C labels/operators with bounded1024-frame continuations,
+  then matched native LLVM/Wasm against the same checked runtime; I retain
+  complete current query coverage and transactionally publish generated output.
+- [ ] I qualify the unchanged VM corpus through all generated routes, faults,
+  strict supported instrumentation and installed isolated linkage on both hosts.
+- [ ] I qualify public selection and paired producer/compiler bootstrap after
+  the matched conjunction, preserving old routes; full union/nested/cyclic and
+  indirect mixed graphs remain required subsequent parent dependencies.
+
+I verified actual PR936 merge8f2a6c874 before generated implementation. I also
+correct my generated design's combined128MiB wording: the qualified VM uses
+plan128MiB plus consumer128MiB (combined256MiB), with separate33554432-step
+domains. My generated consumer must preserve those existing bounds and report
+actual overlap explicitly; I do not narrow eligibility with a prose mistake.
+
+My first generated-runtime source work now has a separate instance, explicit
+1024-frame continuation protocol and counted record/array/string transactions.
+It is not yet a generated consumer: complete C emission, exact copied-plan/table
+agreement, observations, ownership fixtures and LLVM/Wasm remain in progress.
+I use the core's existing iterative zero-count worklist for release and retain
+its checked preparation before collection. A strict GCC13 syntax-only check is
+not execution or acceptance. No public route or old singleton adapter changes.
+
+My bounded private VM/query/fixture repair rows above are now complete from
+actual PR936 merge8f2a6c874 and the independent query/VM evidence audits. Their
+historical first-terminal descriptions remain historical. Root reconciled the
+bounded MAC repairs; generated consumers/public/source/full-graph parents remain
+open. My new generated C source is still under implementation and static review;
+its first syntax-only pass exposed incorrect catalog member spellings and
+formatting in the new emitter, corrected without running any generated product.
+
+My first private generated C checkpoint now includes all93 actual emission
+cases, exact copied instruction/edge comparison and a table-agreement startup
+wrapper. Runtime operations use explicit frames and the checked counted core;
+no generated bytecode interpreter is embedded. Strict syntax and static93/93
+inventory checks pass, but generated execution, full ownership/fault fixtures,
+LLVM/Wasm and installed/public/source qualification are still unmeasured.
+
+Before generated capture execution, my first syntax-only fixture check found
+that an outer `main` rename is reset by the nested plan/origin fixture includes.
+I add an explicit `RECORD_ARRAY_VM_MAIN` hook at the final VM fixture entry,
+retaining its default `main` and every original program/assertion. This is the
+same bounded inclusion issue as the prior plan-fixture repair, not a runtime
+failure. MAC child creation still fails at occupied tunnel port34113; I retain
+the exact failure here instead of claiming a new ledger task exists.
+
+My generated emission fixture's static boundary review also requires the first
+failure to survive later output accounting: `rg_charge` now returns immediately
+for an existing failure and checks accumulated bounds before subtraction. I
+retain an exact MEMORY-not-LIMIT control with output sentinels and independent
+recovery. This source correction and the full generated C fixtures remain
+unexecuted pending checkpoint review; no runtime acceptance is inferred.
+
+### Generated C dynamic stack agreement correction (580c first terminals)
+
+Both fresh hosts pass setup and two-method discovery, then stop at the emission
+fixture's positive `all_copy_domains` baseline, before allocation injection or
+any generated product execution. I preserve both original reports and products.
+Static comparison identifies a generated fact-checker defect: literal and RET
+rows retain the catalog's dynamic `push_count=-1` instead of matching the copied
+plan's literal push1 and RET push0. AGG_PACK must read its explicit operand3
+count; STRUCT_NEW keeps catalog pop0 and remains admitted only for empty layouts
+by the unchanged origin query. I correct exact facts, not eligibility/assertions.
+MAC creation again failed at occupied unmanaged tunnel port34113; this entry
+retains the discovery until ledger access is restored. Corrected gates require a
+new frozen pin; neither original terminal is relabeled.
+
+My fresh29e74 emission checks pass on both hosts:2268 checks and98 actual
+allocation positions in both failure modes with recovery. The unchanged corpus
+captures all93 retired operations,73 products and404 runs. Both lifecycle
+controls pass37 checks. Linux then stops compiling replay0005 because its alias
+helper is unused; Darwin stops compiling product0000 because its embedded
+canonical binary64/conversion helpers are unused. Earlier Linux products0000–0004
+passed. I preserve these strict compiler terminals and add explicit function
+address references in the startup/replay functions. No helper is evaluated and
+no warning is suppressed; original assertions, generated arithmetic and strict
+flags remain unchanged. Corrected products require fresh compilation.
+
+### Generated C GCC sanitizer batch bound and nested cleanup
+
+The corrected4fd32 checkpoint passes both ordinary compiler configurations on
+both hosts. Darwin also passes its complete supported sanitizer configuration
+and all four unchanged neighbors. Linux GCC sanitizer passes emission, linked
+O0 products0000–0072 and observed O0 products0000–0006, then reaches the unchanged
+1800-second outer limit while product0007 runs. I retain timeout124, not a product
+assertion or infrastructure diagnosis. Because inner commands own distinct
+process groups, an external bounded supervisor separately inventories and
+terminates the surviving product group; its final inventory is empty. I retain
+that cleanup proof separately from the outer leader/group terminal. A denied
+read-only debugger attachment establishes no cause. Before any optimization, I
+measure no-fault initialization with ordinary versus instrumented compilers;
+all93/256,73 products and allocation/lifecycle predicates remain required.
+
+My retained no-fault diagnostic isolates initialization cost: two GCC O0
+ASan+UBSan creates take4.33076/4.44653 seconds, versus ordinary0.00384/0.00352 and
+Clang ASan+UBSan0.01113/0.01094. A separately hashed source copy hoists the same
+`nrg_void()` result before the524289-root initialization loop: GCC sanitizer
+creates then take0.00464/0.00530 seconds, ordinary0.00461/0.00351 and Clang
+sanitizer0.00931/0.00889. Each version performs exactly two successful allocations
+per create and retains zero objects/bytes after destroy. I therefore compute the
+same empty value once and assign it to each root; allocation order, bounds,
+initialized value fields, ownership and all fixture predicates stay unchanged.
+These timings explain the measured instrumentation amplification, not a waiver
+of the failed batch. Fresh affected-provider qualification remains required.
+
+My corrected6783 fresh Linux setup and exact two-test discovery pass, then I
+stop the ordinary phase proactively when shared free space falls below2GiB.
+The retained outer terminal is SIGTERM without timeout, paired with an explicit
+capacity-stop record; this is neither a product assertion nor ENOSPC. My revised
+external driver records PID/start-time descendant identities and cleans their
+separate process groups on completion: the stopped phase records37 owned
+processes, one nested group terminated and no remaining descendants. No further
+local builds run while capacity is held. Darwin qualification proceeds in its
+separate frozen tree; these distinct histories do not relabel prior success.
+
+### Generated C exhaustive deep-frame fault scheduling
+
+- [ ] I retain the corrected6783 GCC O0 sanitizer first240-second product0063
+  timeout, then qualify every allocation position and independent recovery in
+  bounded disjoint workers with explicit complete coverage accounting. I review
+  the aggregate phase allowance against measured work before changing it.
+
+My capacity-cleared Linux continuation passes both ordinary configurations.
+GCC sanitizer passes all73 linked O0 products and observed0000–0062, then times
+out in the1,024-frame product0063 without an assertion or sanitizer diagnostic.
+The inner leader is reaped and its group disappears; the outer phase returns1
+and its descendant inventory is empty. Darwin's full corrected matrix and four
+neighbors pass separately. I do not relabel these partial Linux results.
+
+A bounded no-fault diagnostic links the exact retained generated product,
+runtime and allocator objects. Two complete1,024-frame invocations take
+0.46056/0.62170 seconds after0.00386/0.00404-second preparation. Each measures
+1,042 allocation calls,8,533,192 peak payload bytes and zero remaining tracked
+allocations/bytes after destruction. The unchanged two-mode sweep therefore
+requires2,084 independent successful recoveries as well as every failing prefix.
+A separately hashed experimental runtime copy replaces remaining empty-value
+helper calls with the same constant; successful invocations still take
+0.27935/0.44888 seconds with identical counters. I make no production change
+from that experiment. Complete measured fault coverage remains mandatory;
+partitioning may change orchestration, never the positions or assertions.
+
+I record the preimplementation fault-worker contract in
+`NANOISA_MIXED_GENERATED_RUNTIME.md`: exact positive baseline count, consecutive
+16-position intervals, both modes and independent recovery at every position,
+complete coverage manifest, unchanged240-second worker limit and explicit
+14,400-second aggregate configuration limit derived from measured deep-case
+work. A normal MAC create attempt still fails on the occupied unmanaged34113
+login-tunnel port; I do not alter that listener or claim a ledger task exists.
+
+My fixture checkpoint now emits explicit baseline/range modes with checked
+size parsing and range bounds. The original sequence and replay predicates stay
+intact; each recovery additionally checks the baseline allocation-call count.
+Python verifies each exact worker report, its baseline peak, contiguous coverage,
+both modes and2*count successful recoveries before writing a complete manifest.
+Only Python AST parsing and diff checks have run; changed workers remain unrun
+pending source review. The external aggregate driver must use the declared
+14,400-second configuration bound when this checkpoint is qualified.
+
+Root filed my bounded scheduling repair as MAC
+`task_d2af224fa254d1f0857e66e4aa6b2df7` through its working default profile.
+The generated/public/full-graph parent tasks remain open.
+
+### Direct mixed LLVM/Wasm continuation after generated C
+
+I prepare the next source checkpoint in a separate worktree while the frozen C
+fault corpus runs. `NANOISA_MIXED_GENERATED_LLVM.md` fixes the direct-block
+lowering, exact runtime/target ABI query, shared checked preparation, full93
+operations and unchanged73-product acceptance. No LLVM/Wasm execution or public
+selection follows from the pending C qualification. The full generated/source
+and general-graph parent tasks remain open.
+
+My first LLVM preparation source delta moves the exact existing RgOutput,
+charge/write,93-operation recipe and decoded-fact helpers into
+`record_array_emission_private.inc`. A static reconstruction restores the
+original C source byte for byte; I have not rebuilt or executed it. Allocation,
+work and fact semantics are unchanged. The independent generated-byte comparison
+remains an execution gate before I accept this factoring for the LLVM consumer.
+
+I add a pure private `nrg_layout_field` ABI query for the direct LLVM consumer.
+Its fixed enum covers revision/frame/root constants, status/bool sizes and every
+size, alignment and field offset of my boxed value/function/program/view/record/
+field tables. Unknown indices return UINT32_MAX. The query allocates nothing,
+reads no caller storage and changes no instance or existing struct/API behavior.
+It remains unexecuted pending complete LLVM source and fixture review.
+
+My separate LLVM operation writer now contains the exact93 C-route operation
+cases, with direct SSA arithmetic/labels and checked calls to the same root
+helpers. A static case-set comparison matches every case. This is an unwired
+source checkpoint: complete table emission, startup ABI comparison, shared
+preparation integration and independent fixtures remain required before any
+LLVM product can be built or executed. No current C qualification input changes.
+
+During static review of the unexecuted LLVM writer, I found that a char-based
+scratch-name iterator could wrap after its final name on signed-char targets.
+Before compilation or emission I replace it with an explicit three-element
+bounded iteration. I also require F64_DIV to branch around division for either
+signed-zero divisor, matching the C arithmetic helper even for a signaling NaN
+numerator. These are source-review corrections, not observed gate failures.
+
+My first strict syntax check retains a compile terminal for the new LLVM writer:
+I initially referenced a nonexistent counts.has_main field. The original C
+route obtains that fact from the copied header's NVM_FLAG_HAS_MAIN bit. I preserve
+the failed source/log and use that exact copied-header expression in both the
+LLVM table and startup comparison before the next syntax check. No LLVM program
+has been emitted or executed.
+
+My complete private LLVM source checkpoint now emits native/wasm32 target tables,
+all93 direct operation blocks, explicit resume switches and all50 runtime ABI
+checks before creation, with complete table/pointer/tag agreement. The shared
+fact ledger and checked preparation cover all functions and control edges.
+I reserve4096 bytes for named LLVM scratch and charge512 additional work units
+per operation plus every formatted byte. Strict corrected GCC syntax passes;
+no emitted LLVM, Wasm or new runtime product has executed. Complete independent
+source review and the unchanged corpus fixture remain required before gates.
+
+My LLVM fixture design explicitly separates Wasm observation replay from actual
+allocation-fault acceptance. Wasm uses core testing allocation hooks and numeric
+range exports, not the native malloc/argv wrapper, and its full1024-frame roots
+already exceed8MiB. I preserve complete fault/engine/frame coverage and qualify
+new explicit memory limits rather than reuse the old4MiB manual harness claim.
+
+My LLVM source audit also finds temporary snprintf formatting outside the shared
+output writer: the final emitted bytes were charged, but temporary ABI/pointer/
+argument text needed its own work reservation. Before any emission I route these
+formats through a checked helper that charges their produced bytes and refuses
+truncation. This preserves the declared bounded-work contract rather than
+assuming final-output accounting covers intermediate formatting.
+
+My first LLVM fixture checkpoint adds both-target emission allocation/buffer/work
+controls and selects LLVM through a default-preserving wrapper around my unchanged
+VM capture. My Wasm replay uses fixed nonallocating core hook observation and
+numeric baseline/range exports with both failure modes and independent recovery.
+This remains fixture preparation: the complete native/Wasm coordinator, ABI and
+memory-limit controls, Make closure and source review are still required before
+execution. My running C759 trees/providers remain unchanged.
+
+My complete LLVM coordinator checkpoint is being assembled with four explicit
+methods: both-target emission faults, exact73-product C/replay byte parity,
+native LLVM corpus and both-engine Wasm corpus. I retain240-second workers,
+exact contiguous fault positions, ABI signatures independently compiled from
+actual C, all50 ABI field mismatches plus unknown-field refusal, corrupt program
+tables before acquisition, full1024-frame observations and explicit1MiB initial/
+64MiB maximum Wasm memory with a separate4MiB exhaustion control. These are
+unexecuted fixtures; no source-review or syntax result is semantic acceptance.
+
+My Wasm fixture additionally records actual fresh-instance linear-memory pages
+before and after the complete baseline, separately from hook-requested live-byte
+peak. The coordinator requires16 initial pages, measured growth and no more than
+1024 pages; allocator metadata and static/stack storage are not mislabeled as
+hook-requested bytes. This remains unexecuted fixture accounting.
+
+My preexecution LLVM fixture self-review makes llvm-nm the default object reader
+for both native and Wasm and checks testing-hook absence in ordinary native
+runtime objects as well as Wasm. Python AST syntax and diff checks pass; they
+execute no fixture, emitted module or runtime product.
+
+Root's preexecution fixture review finds that my Wasm workers agree on allocation
+counts but compare recovery peak only with their own fresh baseline. Before any
+execution I pass the coordinator's expected requested-live peak into every range
+worker and require equality before the sweep; each recovery must retain that
+same peak. The original unexecuted fixture checkpoint remains in history.
+
+My first frozen05cd Darwin qualification launch stops before setup compilation:
+the external tool inventory assumed wasm-ld lived in Homebrew's LLVM directory.
+The installed linker belongs to the separate lld package and is already available
+through /opt/homebrew/bin. I retain the preflight exception/tool transcript and
+partial reports, correct only the external inventory path, and use fresh paths
+with file-backed outer launch output. No product or fixture executed; I do not
+classify this as a compiler failure or repeat an unrun gate under a false pass.
+
+My corrected05cd Darwin setup passes9.080s and discovers exactly four methods.
+The first C parity gate then fails on recorded VM pointer identities in replay
+text from separate captures. I retain that first terminal and all produced
+artifacts. Generated C must remain byte-exact; replay comparison must preserve
+alias relations rather than demand the same process addresses. Before rerunning
+I propose canonicalizing only nonzero expected identity literals, with a fresh
+bijection at each existing identity_count reset, and comparing every other byte
+and assertion exactly. Zero identities remain zero. This is a fixture comparison
+correction, not permission to weaken generated program or runtime observations.
+
+Read-only comparison of the retained first parity outputs confirms all73 generated
+C files exact and all73 replay files equal under that precise identity bijection,
+with no mismatches. I retain this diagnostic separately from future gate results.
+
+My frozen87938 Darwin parity and both-target emission gates pass. The next native
+phase stops before product execution when the ABI fixture parses unrelated
+internal nrg_void, whose C return is a two-word aggregate. My generated ABI does
+not call this helper. Under task_698d43908484433fb6f18bf8c130673a I retain that
+terminal/actual C IR and restrict definition parsing to the complete emitted
+external declaration set. Every called signature remains required and compared;
+missing or mismatched declarations still fail. No production ABI changes.
+
+During frozen63b8a Darwin qualification, my read-only SSH monitor reports a
+puck.local resolution failure, then the existing SSH command closes with255 and
+"Connection to puck.local closed by remote host." The last observed native phase
+completed O0 linked and observed products and was in O2 linked products. I retain
+the connection terminals separately; the phase's final status and live worker
+state are not yet observed. I will inspect retained remote terminals before any
+continuation and will not relabel this as a passing gate or an established cause.
+
+### I derive private LLVM boolean attributes from the selected target ABI
+
+- [ ] I retain frozen63b8a Linux's first ordinary native ABI refusal before any
+  generated execution. All40 called symbols exist;32 signatures disagree only
+  in boolean zeroext return/argument attributes. Linux AArch64's actual C IR
+  omits these attributes, while my emitter hardcodes them. Setup, discovery,
+  all73 C parity and both-target emission passed separately.
+- [ ] I derive boolean return and parameter attributes with a bounded C probe
+  using the same compiler/target flags as the canonical runtime package, verify
+  its triple/layout, and retain its source/IR hash and exact attributes in the
+  manifest. I use those attributes consistently in every declaration and call.
+  I preserve independent actual-runtime ABI comparison and all full-corpus gates.
+- [ ] I review the production correction before fresh qualification; full
+  generated, public, source and graph parents remain open. MAC filing is
+  attempted separately while the hub tunnel is unavailable.
+
+My bounded Puck recovery at08:18 UTC observes a new boot at08:12:11 UTC, no
+matching LLVM worker, and absent /tmp qualification/seal paths and the named
+/private/var fixture directories. The remote63 native final outcome remains
+unknown. I retain local archives and exact observed progress, inventory losses,
+then prepare any necessary fresh qualification transparently. I do not invent
+missing terminal records or assign a cause to the reboot.
+
+My ABI correction is tracked by task_c48324e992c44f5498c8fe1379c40a10.
+After root review of780425843, my fresh Linux setup, discovery,73-file C parity,
+both-target emission and actual40-signature comparison pass; native execution
+remains in progress. I do not convert those partial results into whole-phase
+acceptance. The unchanged C759 sanitizer qualification continues separately.
+
+I retain the downloaded original Darwin C archive (214 reports,6827 objects,
+all three4fd32 configurations and neighbors plus the earlier first failures).
+My later6783/759 Darwin seals and LLVM05cd/879/63 raw evidence were remote-only
+and are absent after the observed reboot; their historical reported progress is
+not a complete retained gate. I run fresh unchanged C759 and corrected LLVM
+qualification under /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921,
+including persistent temporary artifacts, and copy phase evidence locally.
+I preserve the unknown interrupted LLVM63 result rather than fabricating a
+terminal or assigning a cause to the host reboot.
+
+My fresh persistent Darwin C759 Apple ordinary phase passes294.515s. The next
+Homebrew phase stops at compilation before fixture execution: its default
+/Library/Developer/CommandLineTools/SDKs/MacOSX27.sdk is absent after recovery.
+SDKROOT already names the current xcrun SDK, but this compiler still requires an
+explicit native -isysroot selection. I retain this first terminal and correct
+only the external selector, preserving the Apple pass. My target-aware wrapper
+supplies that SDK for native commands and preserves explicit wasm32 commands;
+I inventory the wrapper, real compiler and selected SDK inputs. Fresh failed or
+unrun phases remain required, without source/assertion/warning-policy changes.
+
+### I preserve deterministic runtime package manifests after ABI probing
+
+- [x] I retain the static finding that my78042 boolean probe's temporary source
+  filename enters its LLVM text/hash and therefore violates the existing
+  twice-generate header/manifest equality test. I have not executed that known
+  failing test. I pass the same fixed probe source on stdin with explicit C
+  language selection, retaining exact source and IR hashes without a random
+  input filename. Target flags, attributes and emitted products stay unchanged.
+- [x] I review the narrow generator correction and run the unchanged package
+  reproducibility and real native/Wasm link controls on both hosts. I retain
+  existing78042 product results at their actual source pin and compare selected
+  attribute/header/product bytes before making any cross-pin claim.
+
+I track this static package regression under task_1fccee0a87a7473eade4d8472b4e9b40,
+created with no dispatch and no ticket. My unchanged two-method package suite
+passes on Linux (3.027s) and Darwin (4.024s) at425bcbc786. Both repeated
+header/manifest comparisons and actual native/Wasm links pass. The generated
+header remains byte-identical to the corresponding78042 runtime header; only
+the documented probe source-identity/IR hash and generator hash differ in the
+manifest. I retain39 reports,109 content-addressed artifacts and four equal
+source/tool pairs in /tmp/nanolang-record-package-425bc-final-seal. This does
+not replace the independently attributed78042 execution qualification.
+
+My fresh persistent Darwin C759 qualification is complete: Apple ordinary
+294.515s, corrected Homebrew ordinary313.684s and sanitizer1231.672s, plus all
+four old-query/private-VM neighbors. I preserve the preceding stale-SDK compile
+terminal separately. Its seal contains155 reports,8933 artifacts and24 equal
+source/tool pairs; current selected source/tool/provider rehashes also match.
+
+My Linux78042 LLVM ordinary GCC/Clang native corpora pass301.332s/308.399s,
+including all40 actual ABI signatures and the complete73-product O0/O2 fault
+corpus. Both-engine Wasm passes629.262s with all four neighbors. The Wasm seal
+contains78 reports,4885 artifacts and12 equal source/tool pairs. Fresh Darwin
+LLVM ordinary Apple/Homebrew passes309.5s/347.739s and its native sanitizer
+passes1263.315s. Darwin Wasm/neighbors and Linux LLVM sanitizers remain pending.
+My unchanged Linux C759 full sanitizer sweep is still active. No complete
+generated-consumer/public/source/general-graph parent is closed by these
+partial matrix results. Completed seals are additionally retained by verified
+hard links under /home/jkh/nanolang-qualification/vm-effects-20260921, without
+removing or modifying original evidence.
+
+My original78042 Linux LLVM GCC sanitizer corpus completes successfully in
+11435.264 seconds with unchanged14400-second phase and240-second child bounds.
+I retain the following Clang-emission capacity refusal before process launch:
+1736740864 free bytes is below my unchanged2GiB preflight. My outer status is1
+(driver125); this does not change the preceding GCC pass into a product failure.
+My finalizer stops without publishing a complete sanitizer seal. Current3752
+source entries,19 selected tools and retained providers match the final GCC
+endpoint. I prepare only the unrun Clang emission/native phases on the same
+frozen source, with fresh reports and unchanged capacity/time guards, pending
+space recovery. I preserve the original terminal and do not replay GCC.
+
+My first Clang-only continuation stops before compilation because its unchanged
+driver requires a fresh configuration.log. I retain that setup terminal and
+include the read-only configuration phase in a fresh continuation report; the
+only selected execution phases remain the two unrun Clang phases.
+
+My corrected Clang continuation passes configuration and emission, then my
+unchanged active1.5GiB guard observes1425457152 free bytes and sends SIGTERM
+to its recorded unittest process group. I retain native status-15, no timeout,
+reaped leader, disappeared group and empty remaining-descendant inventory.
+O0 has completed; O2 is partial. I do not claim a full Clang pass or publish
+a complete LLVM seal, and I hold new execution while capacity is insufficient.
+
+I track optimization continuation under task_075784b2789a456186e539fd6069039c
+(no dispatch, no ticket). Before changing my fixture I require an explicit
+validated native optimization selection: O0, O2, or the unchanged default
+O0,O2. I preserve every selected linked/observed product, startup/lifecycle
+control, fault position, recovery and final source-byte check. I record the
+selection in retained metadata; a partial selection cannot stand for both.
+For the remaining O2 I copy exact78042 inputs/providers into a task-owned
+/run/user/1000 tmpfs directory, overlay only the reviewed fixture, and check
+capacity on that actual output filesystem. I retain full before/after maps
+and copy every report/product to durable Puck storage with hash verification
+before claiming complete evidence. My original O0 products and full fault
+coverage must independently match their retained initial corpus hashes.
+
+My O2-only continuation at fixture aed76cdb3 completes341.809 seconds, with
+all146 O0/O2 generated inputs agreeing under exact LLVM bytes and the reviewed
+replay identity bijection. I durably verify every13,364-member O2 archive entry
+on Puck before acceptance. My cumulative LLVM seal now retains637 reports,
+37,086CAS objects,136,103 references and90 equal source/tool pairs. Its
+1,835,080,438-byte archive verifies37,726 members both locally and on Puck
+(SHA2564371569db550bf6c99e8c04297e0e622e378f4da493d0ed9833a049cb540784d).
+The three capacity/setup terminals remain distinct; original production78042,
+package425b and fixtureaed76 attribution is explicit. Fresh current-main
+generated C/LLVM/VM/Wasm/query/package integration remains required; full
+public/source/general-graph parents remain open.
 
 ### My Forth arithmetic source qualification at e384c06bd
 
@@ -16082,3 +16531,28 @@ My corrected3e tail gate passes original untyped100000-deep self recursion with 
 - [ ] I preserve byte-array identity in native reconstruction (`task_046cd53fee0443aca7d87a26bfe4a9fd`). Fresh `facc` passes component build, callable authority, full bootstrap and all three canonical producers. The mutation method then passes C-seed and actual C-bytecode NanoVM, but its generated C O0 program stops at `nvalue_require_int`. Static classification erases TAG_U8 literal arrays into integer-word storage; I require distinct byte-array facts and matching tagged reads/writes through calls and joins, not weaker integer checks. Original paired assertions and full release holds remain.
 
 - [ ] I complete the native private-name traversal after combining the SDK service AST with native local staging. Strict syntax-only compilation of the combined source diagnoses missing `AST_SERVICE_DECL` in `native_subtree_uses_name`; that declaration contains descriptor strings/counts and no expression or local binding. I classify it explicitly with the existing nonbinding declaration leaves, retain the exhaustive switch, and preserve the earlier diagnostic without executing a compiler product.
+- [x] I completed independent evidence review and canonical integration at PR944 merge87e0cef0e2473b5a9987615d15f8a38fe2a0e445; root reconciled `task_94534bf8291349a380ed1c88a93e3cb0` and `task_bbeaab3cfaa9cbc34398272b8a1947ea`. Full 5.1 acceptance remains open.
+
+I integrate my completed generated C/LLVM qualification onto canonical
+87e0cef0e on a separate ready branch. Incoming production consists of the
+reviewed VM callable teardown, empty bytecode append guard/header contract,
+conditional ordinary native host argument state, and separately qualified
+Forth arithmetic outside this provider closure. My private generated runtime,
+emitters, shared ABI package, query and conformance corpus remain byte-identical
+to the sealed working branch. I require fresh ordinary both-host VM/generated
+C/LLVM/Wasm and query/package controls with exact copied input/provider maps;
+original sanitizer attribution is unchanged.
+
+- [x] Under `task_f54e02f7eaca487c980fe298b1132791`, I retain my first a1bb Darwin integration package failure: the package lifecycle fixture requires ASan/UBSan and inherited ordinary Apple Clang, whose leak detector refuses this platform before assertions. My preceding 16 integration phases passed. I qualify only the failed/unrun package methods with the already-qualified Homebrew wrapper and explicit Xcode sysroot, unchanged sanitizer options, fresh reports and verified original source/provider endpoints. I do not replay passing phases or change production/fixture inputs. My full generated/source/graph parents remain open.
+
+I complete my fresh a1bb integration against canonical87e0 with Linux17 passing phases and Darwin16 original passes plus a separate supported-compiler package continuation. I preserve the original Apple package failure and the earlier external Python extraction failure. My [integration seal](evidence/record-array-backend-integration.md) records exact inputs, products, coverage and durable archives; original sanitizer pins remain unchanged. Independent root integrity/native/Wasm audits remain explicitly scoped. Canonical merge and MAC reconciliation are still pending. My installed publication, public selection, paired source/bootstrap and full union/nested/cyclic/indirect graph requirements remain open; private package ABI controls do not complete those requirements.
+
+- [x] I integrated task_3e1f6ea4464540c09ad3b6ba8a82ff94: strict GCC sanitizer builds reject formatted RISC-V argument-register names. I use the exact bounded a0 through a7 names, preserving argument order and the existing eight-register limit. The corrected full File/capture GCC and Clang sanitizer gates pass on the capture branch; I require a fresh isolated-main compile and existing cross-backend gate before integration. This does not extend my RISC-V ABI or argument count. My isolated qualification was independently reviewed and canonical PR946 merged at162e7c02f; the existing hosted byte/list refusals and sanitizer deadline remain separate open gates.
+
+### My generated-backend integration onto e0c7eb76d
+
+I preserve original061e8a5fb/a1bb qualification and integrate actual main e0c7eb76d separately. The incoming source delta is the reviewed RISC-V argument-register table, which changes the compiler provider, and explicit Make CC/LDFLAGS propagation for the owning90-method suite. My generated C/LLVM/Wasm/VM/query production and fixtures remain byte-identical. I resolve only additive roadmap history; fresh both-host compiler/provider preparation, owning90 methods and package closure remain required. I do not replay unchanged fault workers or relabel their older source pin. Full source/public/general-graph and release gates remain open.
+
+I retain the first current-main Puck staging terminal before any extraction/build: the default Xcode Python3.9.6 lacks tarfile.extractall(filter=...). The source directory remained empty. Explicit installed Homebrew Python3.14.7 then verified the archive, all3753 source hashes and modes, and extracted successfully; both actual Python paths/hashes and statuses are retained. This is external transport selection, not a product failure or a passing product gate.
+
+I retain my fresh current-main generated backend refresh at source2a41f3f5: both hosts pass the original90-method owning suite and both package methods after fresh providers. Exact2530 unchanged inputs plus two reviewed compiler/Make changes are recorded alongside454 reports/658 CAS objects and3753 actual Git source matches. The earlier complete generated fault/engine matrices retain their original pins; I do not replay them for unchanged runtime/emitter/ABI inputs. Independent review and actual PR945 integration remain required; full public/source/graph/release acceptance stays open.

@@ -1,0 +1,13 @@
+{"unchanged_reused_provider_entries": 167, "prior_map_sha256": "c4e63d334ca6c94c9a56fa44114e229c343a0d0e8f510a13f077b4722b7c8401"}
+{"pin": "7804258431ed8fba21fa33c5507b06ad9a1bbd94", "source_files": 3752, "root": "/tmp/nanolang-record-llvm-qualified-78042", "free_bytes": 3953156096, "selected": {"RECORD_LLVM_WASMTIME": "/home/jkh/.local/bin/wasmtime", "RECORD_LLVM_NODE": "/home/linuxbrew/.linuxbrew/bin/node", "RECORD_LLVM_C_BASELINE": "/tmp/nano-record-array-generated-x9fej2n6/corpus", "RECORD_LLVM_CLANG": "/usr/local/bin/clang", "RECORD_LLVM_OPT": "/usr/local/bin/opt", "RECORD_LLVM_LLC": "/usr/local/bin/llc", "RECORD_LLVM_NM": "/usr/local/bin/llvm-nm"}}
+{"phase": "configuration", "status": 0, "seconds": 0.211}
+{"phase": "clang-sanitizer-emission", "status": 0, "seconds": 6.814}
+{"phase": "clang-sanitizer-native", "status": -15, "seconds": 925.303}
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-llvm-78042-linux-clang-continuation-r2-launch.py", line 32, in <module>
+    subprocess.run([sys.executable,'/tmp/nanolang-record-llvm-78042-driver.py',str(root),'/tmp/nanolang-record-llvm-78042-'+host+'-clang-continuation-r2'],check=True,env=env)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14', '/tmp/nanolang-record-llvm-78042-driver.py', '/tmp/nanolang-record-llvm-qualified-78042', '/tmp/nanolang-record-llvm-78042-linux-clang-continuation-r2']' returned non-zero exit status 241.

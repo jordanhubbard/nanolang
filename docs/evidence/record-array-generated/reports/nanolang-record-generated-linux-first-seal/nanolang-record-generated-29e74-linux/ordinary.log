@@ -1,0 +1,21 @@
+I retain generated artifacts at /tmp/nano-record-array-generated-o9x25q8k
+test_emission_allocation_and_bounds (tests.test_record_array_generated.RecordArrayGenerated.test_emission_allocation_and_bounds) ... I checked all93 emission recipes and all256 decisions, output sentinels and exact work/buffer boundaries.
+I checked 98 actual emission allocation positions in both modes with independent recovery.
+I passed 2268 generated emission checks; no public admission.
+ok
+test_unchanged_corpus_generated_c (tests.test_record_array_generated.RecordArrayGenerated.test_unchanged_corpus_generated_c) ... FAIL
+
+======================================================================
+FAIL: test_unchanged_corpus_generated_c (tests.test_record_array_generated.RecordArrayGenerated.test_unchanged_corpus_generated_c)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-generated-qualified-29e74/tests/test_record_array_generated.py", line 115, in test_unchanged_corpus_generated_c
+    self.command(name + '-build', [*self.cc, *self.flags, opt, *testing,
+  File "/tmp/nanolang-record-generated-qualified-29e74/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 2 tests in 15.258s
+
+FAILED (failures=1)

@@ -1,0 +1,11 @@
+{"pin": "75979e19a23cf7dd9d36e0fa6d1e9ce78a935ce5", "source_files": 3741, "root": "/tmp/nanolang-record-generated-qualified-75979", "sdk": null}
+{"phase": "setup", "status": 0, "seconds": 21.218}
+{"phase": "configuration", "status": 0, "seconds": 0.198}
+{"phase": "discovery", "status": 0, "seconds": 0.183}
+{"phase": "ordinary", "status": 0, "seconds": 297.488}
+{"phase": "sanitizer", "status": 0, "seconds": 11350.402}
+{"phase": "clang-sanitizer", "status": 0, "seconds": 1225.142}
+{"phase": "old-private-vm", "status": 0, "seconds": 20.831}
+{"phase": "record_array_global_flow", "status": 0, "seconds": 6.838}
+{"phase": "record_array_execution", "status": 0, "seconds": 7.379}
+{"phase": "record_array_origins", "status": 0, "seconds": 6.328}

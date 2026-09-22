@@ -1,0 +1,11 @@
+{
+  "pin": "a1bb1cb85e5551f9e5bb10491f1608877ef6b7b5",
+  "started": 1790000393.7155354,
+  "driver_sha256": "2be05af0e6f1e9fbd5326df14e0c2fd6d57d430bc2572c60a0e6091d7e886969",
+  "output_filesystem": "/run/user/1000/nanolang-backend-integration-a1bb-20260921",
+  "preflight_bytes": 2147483648,
+  "active_bytes": 1610612736,
+  "driver_pid": 3591010,
+  "returncode": 0,
+  "finished": 1790002323.5687096
+}

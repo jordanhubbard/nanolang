@@ -1,0 +1,94 @@
+{
+  "nanolang-record-generated-75979-puck": {
+    "source": {
+      "entries": 3741,
+      "map_sha256": "c90b08836d61681b3d89efc0999ebab1e092422417349efa3c0ea2b0a30410e5"
+    },
+    "tools": {
+      "entries": 17,
+      "map_sha256": "e1ffc1399283f6a0370a864f9719140c374df31bd561a60f0265d5f6acd86b11"
+    },
+    "providers": {
+      "entries": 165,
+      "map_sha256": "cee10f381f11a33db096444e0b14b1fa1b107db59c0d2ae11624d023cd2b955e"
+    },
+    "phases": [
+      {
+        "phase": "setup",
+        "seconds": 9.06,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.167,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.165,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 294.515,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 0.465,
+        "status": 1
+      }
+    ]
+  },
+  "nanolang-record-generated-75979-puck-sdk": {
+    "source": {
+      "entries": 3741,
+      "map_sha256": "c90b08836d61681b3d89efc0999ebab1e092422417349efa3c0ea2b0a30410e5"
+    },
+    "tools": {
+      "entries": 18,
+      "map_sha256": "c4a9b1a2420fd084cf0770e3dfa5c41bfb31c76d237e2d27c7ca6cdc2fb21689"
+    },
+    "providers": {
+      "entries": 165,
+      "map_sha256": "ec228a50a2ce60dfbad57c3e1294bce80bc5d75b75f44fe66ed8af71fb767e85"
+    },
+    "phases": [
+      {
+        "phase": "configuration",
+        "seconds": 0.274,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 313.684,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 1231.672,
+        "status": 0
+      },
+      {
+        "phase": "old-private-vm",
+        "seconds": 14.733,
+        "status": 0
+      },
+      {
+        "phase": "record_array_global_flow",
+        "seconds": 3.724,
+        "status": 0
+      },
+      {
+        "phase": "record_array_execution",
+        "seconds": 4.145,
+        "status": 0
+      },
+      {
+        "phase": "record_array_origins",
+        "seconds": 3.615,
+        "status": 0
+      }
+    ]
+  }
+}

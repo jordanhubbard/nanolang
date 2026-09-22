@@ -1,0 +1,62 @@
+{
+  "580c/source": {
+    "entries": 3741,
+    "map": "/tmp/nanolang-record-generated-580c-linux/ordinary-source-after.json",
+    "sha256": "c4258e4fa27124cb2ed18cc2e06a8cbc4ed12fae96b45be37dc41c53510cac43"
+  },
+  "580c/tools": {
+    "entries": 11,
+    "map": "/tmp/nanolang-record-generated-580c-linux/ordinary-tools-after.json",
+    "sha256": "da87a68090afa9cdd9d483ed7d6507e320e7da3802c1a4b779a9f433174b4e27"
+  },
+  "580c/providers-and-last-fixture-artifacts": {
+    "entries": 210,
+    "map": "/tmp/nanolang-record-generated-580c-linux/ordinary-artifacts.json",
+    "sha256": "dd9756ddb37c36dfa2f840339482ccba8e132d91d8571e880ab9560506eab5da"
+  },
+  "580c/source-archive": {
+    "sha256": "b725036d80404271db7d85f5081c0f3db2f62a51c235cbaa56571995f26e360a",
+    "bytes": 15176762,
+    "artifact": "/tmp/nanolang-record-generated-linux-first-seal/objects/b725036d80404271db7d85f5081c0f3db2f62a51c235cbaa56571995f26e360a"
+  },
+  "29e74/source": {
+    "entries": 3741,
+    "map": "/tmp/nanolang-record-generated-29e74-linux/ordinary-source-after.json",
+    "sha256": "0cd3382fe4e27e72ee6bfa739a0838663c30f900ebe6ed1bffe71540c4460687"
+  },
+  "29e74/tools": {
+    "entries": 11,
+    "map": "/tmp/nanolang-record-generated-29e74-linux/ordinary-tools-after.json",
+    "sha256": "da87a68090afa9cdd9d483ed7d6507e320e7da3802c1a4b779a9f433174b4e27"
+  },
+  "29e74/providers-and-last-fixture-artifacts": {
+    "entries": 535,
+    "map": "/tmp/nanolang-record-generated-29e74-linux/ordinary-artifacts.json",
+    "sha256": "d3114bf174558a1c307e730af289ca6b56494118f4ce14b8936e0c0d4da31f59"
+  },
+  "29e74/source-archive": {
+    "sha256": "a2f3a0ad9a8764253af044c0f392b145c9ba4095a8a078e76036bdc29aaeea4d",
+    "bytes": 15177020,
+    "artifact": "/tmp/nanolang-record-generated-linux-first-seal/objects/a2f3a0ad9a8764253af044c0f392b145c9ba4095a8a078e76036bdc29aaeea4d"
+  },
+  "4fd32/source": {
+    "entries": 3741,
+    "map": "/tmp/nanolang-record-generated-4fd32-linux/sanitizer-source-after.json",
+    "sha256": "8a3eed9414a13b3ae86ace2b684c04636d99f0f9e6c6bae0e0bf5b25119fb93e"
+  },
+  "4fd32/tools": {
+    "entries": 11,
+    "map": "/tmp/nanolang-record-generated-4fd32-linux/sanitizer-tools-after.json",
+    "sha256": "da87a68090afa9cdd9d483ed7d6507e320e7da3802c1a4b779a9f433174b4e27"
+  },
+  "4fd32/providers-and-last-fixture-artifacts": {
+    "entries": 1528,
+    "map": "/tmp/nanolang-record-generated-4fd32-linux/sanitizer-artifacts.json",
+    "sha256": "87e143d3785f5d2e3e0a8a80411ed2e4bd71940fc89d6010c872024a172cee09"
+  },
+  "4fd32/source-archive": {
+    "sha256": "1edd55e9aa5c029e144ffaa70dd8c6f91f22f2db81a55698069869fd79e81010",
+    "bytes": 15177404,
+    "artifact": "/tmp/nanolang-record-generated-linux-first-seal/objects/1edd55e9aa5c029e144ffaa70dd8c6f91f22f2db81a55698069869fd79e81010"
+  }
+}

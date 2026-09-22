@@ -1,0 +1,18 @@
+I retain generated artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-generated-ntbm33on
+test_emission_allocation_and_bounds (tests.test_record_array_generated.RecordArrayGenerated.test_emission_allocation_and_bounds) ... FAIL
+
+======================================================================
+FAIL: test_emission_allocation_and_bounds (tests.test_record_array_generated.RecordArrayGenerated.test_emission_allocation_and_bounds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-record-generated-qualified-580c/tests/test_record_array_generated.py", line 67, in test_emission_allocation_and_bounds
+    output = self.command('emission-run', [str(executable)])
+  File "/private/tmp/nanolang-record-generated-qualified-580c/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 2.059s
+
+FAILED (failures=1)

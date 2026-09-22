@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "archive": "/Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/sealed-evidence.tar.gz",
+  "sha256": "c624ebf60f35b008908f5f465dd490896b1c14ddf5ad444559c6a730cdd4187a",
+  "bytes": 186285937,
+  "members": 18579,
+  "manifest_sha256": "ff30163d6f469d6ab9d5902c55a30298cfd060d3e1b9e1e9c802724dcfb1fc26",
+  "source": "a1bb1cb85e5551f9e5bb10491f1608877ef6b7b5",
+  "finished": 1790003389.8553212,
+  "scope": "Local archive verification; independent durable peer copy remains required before temporary-data cleanup."
+}

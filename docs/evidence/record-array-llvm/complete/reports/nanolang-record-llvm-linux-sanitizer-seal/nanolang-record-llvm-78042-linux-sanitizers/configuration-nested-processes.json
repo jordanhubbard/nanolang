@@ -1,0 +1,12 @@
+{
+  "cleanup": [],
+  "owned": {
+    "2015942": {
+      "command": "make -s -f Makefile.gnu -f /tmp/nanolang-record-llvm-78042-linux-sanitizers/providers.mk CC=/bin/gcc-13 array-config",
+      "group": 2015942,
+      "parent": 2015933,
+      "started": "Mon Sep 21 02:58:32 2026"
+    }
+  },
+  "remaining": []
+}

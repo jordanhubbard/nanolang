@@ -1,0 +1,2 @@
+iteration=0 create=0.004644811 destroy=0.000796778 allocation_calls=2
+iteration=1 create=0.005301060 destroy=0.000926236 allocation_calls=4

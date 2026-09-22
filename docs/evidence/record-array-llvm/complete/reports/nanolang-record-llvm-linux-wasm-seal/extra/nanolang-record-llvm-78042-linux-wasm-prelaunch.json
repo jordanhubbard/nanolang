@@ -1,0 +1,12 @@
+{
+  "scope": "Fresh failed/unrun Wasm plus neighbors; same exact corrected source and verified ordinary providers. Complete two engines/O0/O2/fault positions. No sanitizer overlap with C759.",
+  "sha256": {
+    "/tmp/nanolang-record-llvm-78042-linux-wasm-launch.py": "aa078487a29318915f74c744a074a6d544883623731fa5afea5f335abb0eb5b5",
+    "/tmp/nanolang-record-llvm-78042-linux-wasm-supervise.py": "f588714bb9554035db425aa2bb89f314b45cca30baa0b4f47bad8d630455b5d0"
+  },
+  "bounds": {
+    "wasm": 28800,
+    "other": 1800,
+    "child": 240
+  }
+}

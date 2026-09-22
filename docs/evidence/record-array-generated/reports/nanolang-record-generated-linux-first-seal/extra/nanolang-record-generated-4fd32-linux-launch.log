@@ -1,0 +1,13 @@
+{"pin": "4fd32d23ba457bfb988ad870350288ba23d8930f", "source_files": 3741, "root": "/tmp/nanolang-record-generated-qualified-4fd32", "sdk": null}
+{"phase": "setup", "status": 0, "seconds": 21.671}
+{"phase": "configuration", "status": 0, "seconds": 0.115}
+{"phase": "discovery", "status": 0, "seconds": 0.065}
+{"phase": "ordinary", "status": 0, "seconds": 265.814}
+{"phase": "clang-ordinary", "status": 0, "seconds": 269.561}
+{"phase": "sanitizer", "status": 124, "seconds": 1800.051}
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-generated-4fd32-launch.py", line 20, in <module>
+    subprocess.run([sys.executable,'/tmp/nanolang-record-generated-4fd32-driver.py',str(root),'/tmp/nanolang-record-generated-4fd32-'+host],check=True,env=env)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/tmp/nanolang-record-generated-4fd32-driver.py', '/tmp/nanolang-record-generated-qualified-4fd32', '/tmp/nanolang-record-generated-4fd32-linux']' returned non-zero exit status 124.

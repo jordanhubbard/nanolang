@@ -1,0 +1,11 @@
+{
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "CARRIER_EXTRA_TOOLS": "{\"package_clang\": \"/usr/local/bin/clang\", \"package_opt\": \"/usr/local/bin/opt\", \"wasmtime\": \"/home/jkh/.local/bin/wasmtime\", \"node\": \"/home/jkh/.local/bin/node\", \"retention_runner\": \"/tmp/nanolang-record-package-retain.py\"}",
+  "CARRIER_PHASES": "",
+  "CARRIER_SAN_CC": "/bin/gcc-13",
+  "CC": "/bin/gcc-13",
+  "LSAN_OPTIONS": "",
+  "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+  "PATH": "/home/jkh/.local/bin:/usr/local/bin:/home/linuxbrew/.linuxbrew/bin:/usr/bin:/bin",
+  "UBSAN_OPTIONS": "halt_on_error=1"
+}

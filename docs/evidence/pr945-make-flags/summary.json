@@ -1,0 +1,177 @@
+{
+  "source": "585a6bc1219f7768f3fff59477ed9a96374cf9e6",
+  "reports": 4030,
+  "report_bytes": 12255655,
+  "cas": 2901,
+  "cas_bytes": 1022109475,
+  "pairs": [
+    [
+      "ordinary",
+      "ordinary-actual-make-source-before.json",
+      "ordinary-actual-make-source-after.json"
+    ],
+    [
+      "ordinary",
+      "ordinary-actual-make-tools-before.json",
+      "ordinary-actual-make-tools-after.json"
+    ],
+    [
+      "coverage",
+      "coverage-actual-make-source-before.json",
+      "coverage-actual-make-source-after.json"
+    ],
+    [
+      "coverage",
+      "coverage-actual-make-tools-before.json",
+      "coverage-actual-make-tools-after.json"
+    ],
+    [
+      "full-sanitizer-first",
+      "sanitizers-actual-make-source-before.json",
+      "sanitizers-actual-make-source-after.json"
+    ],
+    [
+      "full-sanitizer-first",
+      "sanitizers-actual-make-tools-before.json",
+      "sanitizers-actual-make-tools-after.json"
+    ],
+    [
+      "mixed-sanitizer",
+      "ordinary-provider-preparation-source-before.json",
+      "ordinary-provider-preparation-source-after.json"
+    ],
+    [
+      "mixed-sanitizer",
+      "ordinary-provider-preparation-tools-before.json",
+      "ordinary-provider-preparation-tools-after.json"
+    ],
+    [
+      "mixed-sanitizer",
+      "instrumented-runtime-source-before.json",
+      "instrumented-runtime-source-after.json"
+    ],
+    [
+      "mixed-sanitizer",
+      "instrumented-runtime-tools-before.json",
+      "instrumented-runtime-tools-after.json"
+    ],
+    [
+      "mixed-sanitizer",
+      "mixed-sanitizer-actual-make-source-before.json",
+      "mixed-sanitizer-actual-make-source-after.json"
+    ],
+    [
+      "mixed-sanitizer",
+      "mixed-sanitizer-actual-make-tools-before.json",
+      "mixed-sanitizer-actual-make-tools-after.json"
+    ]
+  ],
+  "terminals": [
+    {
+      "label": "ordinary",
+      "file": "ordinary-actual-make-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "label": "coverage",
+      "file": "coverage-actual-make-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "label": "full-sanitizer-first",
+      "file": "sanitizers-actual-make-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 2,
+      "timeout": false
+    },
+    {
+      "label": "mixed-sanitizer",
+      "file": "instrumented-runtime-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "label": "mixed-sanitizer",
+      "file": "ordinary-provider-preparation-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "label": "mixed-sanitizer",
+      "file": "mixed-sanitizer-actual-make-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    }
+  ],
+  "verified_native_links": [
+    {
+      "command": "144226-865-command.json",
+      "binary_sha256": "f84e492068195592bfcd0eafa9f7845b0e14a25d3cbb7bcf7b40b89a6e87b3e4",
+      "runtime_sha256": "787e463767f8c73318e6943f8755493b3157a9c6ac29c3b1005ac2d623d0431f",
+      "executions": [
+        "144226-866-command.json"
+      ]
+    },
+    {
+      "command": "144226-896-command.json",
+      "binary_sha256": "1280ee84c8dbe187d6de900b127c281e109f00b4dc5900f513c56dd8411f1f4d",
+      "runtime_sha256": "787e463767f8c73318e6943f8755493b3157a9c6ac29c3b1005ac2d623d0431f",
+      "executions": [
+        "144226-898-command.json"
+      ]
+    },
+    {
+      "command": "144226-857-command.json",
+      "binary_sha256": "381e295c5edaccfed68797c1afefa981161e748b35ac172c84ead504bdb3f4f2",
+      "runtime_sha256": "787e463767f8c73318e6943f8755493b3157a9c6ac29c3b1005ac2d623d0431f",
+      "executions": [
+        "144226-858-command.json"
+      ]
+    }
+  ],
+  "limits": [
+    "Original ordinary and coverage fixture temporary products were cleaned by unchanged tests; retained provider objects and raw90-method results remain.",
+    "Mixed run observer retains actual fixture TemporaryDirectories and subprocess commands/results; it does not reconstruct compiler-owned deleted transient files.",
+    "All-provider sanitizer compiler shadow timed out at existing60s; mixed sanitizer result is ordinary compiler/providers with instrumented AOT runtime.",
+    "ASAN detect_leaks=0 follows hosted flags; no LSan acceptance claim."
+  ],
+  "postphase_product_references": 7908,
+  "all_report_product_references": 9457
+}

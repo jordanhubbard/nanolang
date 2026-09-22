@@ -1,0 +1,10 @@
+{
+  "original": "/tmp/nanolang-record-generated-qualified-4fd32/src/nanoisa/record_array_generated_private.c",
+  "original_sha256": "74876d4fb79176781004a2794fa1f4cbc795ec08363f2312fbab070d836f0a9a",
+  "copy": "/tmp/record-generated-hoisted-runtime.c",
+  "copy_sha256": "7df74f77c3fb04865b4090aef6f5b7cb17046451df6980cbe20175367fb9be47",
+  "exact_replacement": {
+    "old": "    for(uint32_t i=0;i<NRG_ROOTS;i++)p->roots[i]=nrg_void();",
+    "new": "    NmsValue empty=nrg_void();\n    for(uint32_t i=0;i<NRG_ROOTS;i++)p->roots[i]=empty;"
+  }
+}

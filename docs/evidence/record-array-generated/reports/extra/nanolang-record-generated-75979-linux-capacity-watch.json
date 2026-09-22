@@ -1,0 +1,7 @@
+{
+  "driver_pid": 653647,
+  "threshold_bytes": 1610612736,
+  "minimum_free_bytes": 2097176576,
+  "capacity_stop": false,
+  "driver_absent": true
+}

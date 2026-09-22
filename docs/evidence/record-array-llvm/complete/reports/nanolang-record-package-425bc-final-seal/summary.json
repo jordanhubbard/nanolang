@@ -1,0 +1,42 @@
+{
+  "histories": [
+    "/tmp/nanolang-record-package-425bc-linux",
+    "/tmp/nanolang-record-package-425bc-puck-backup"
+  ],
+  "reports": 39,
+  "objects": 109,
+  "object_bytes": 26305412,
+  "references": 329,
+  "equal_pairs": 4,
+  "pairs": [
+    "nanolang-record-package-425bc-linux/package-source-before.json",
+    "nanolang-record-package-425bc-linux/package-tools-before.json",
+    "nanolang-record-package-425bc-puck-backup/package-source-before.json",
+    "nanolang-record-package-425bc-puck-backup/package-tools-before.json"
+  ],
+  "terminals": [
+    {
+      "path": "nanolang-record-package-425bc-linux/package-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-package-425bc-puck-backup/package-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    }
+  ],
+  "scope": "Only the explicitly selected completed histories. No current host-input rehash or full matrix acceptance is inferred; independent final inventory required."
+}

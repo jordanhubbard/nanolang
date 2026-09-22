@@ -1,0 +1,17 @@
+{
+  "pin": "7804258431ed8fba21fa33c5507b06ad9a1bbd94",
+  "source_files": 3752,
+  "sha256": {
+    "driver.py": "fd3382ab7753fa86380fa82ee65fe21fedb960faa03d3cb9b8087c9e2e9f66cb",
+    "launch.py": "b38554198d20ddd805354d61a42406e5b681debecb2722c612ab8ab68ea110ad",
+    "supervise.py": "7bbef96eaa4464bfde085e4a08916198fd8675c1ade589707decafa465515233",
+    "source.tar.gz": "34a38a06e9c1dfc267ca776d0109d09faf63216bd036750892bf0a6c6ed3b697"
+  },
+  "bounds": {
+    "native": 14400,
+    "wasm": 28800,
+    "other": 1800,
+    "child": 240
+  },
+  "Linux_selection": "fresh setup/discovery/parity and both ordinary configurations only; sanitizer continuation after separate C759 sanitizer jobs"
+}

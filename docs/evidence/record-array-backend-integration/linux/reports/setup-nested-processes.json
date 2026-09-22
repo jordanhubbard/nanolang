@@ -1,0 +1,324 @@
+{
+  "cleanup": [],
+  "owned": {
+    "3591027": {
+      "command": "make -f Makefile.gnu -f /run/user/1000/nanolang-backend-integration-a1bb-20260921/reports/providers.mk -j2 CC=/bin/gcc-13 array-providers nano_vm nvm2c managed-runtime-package",
+      "group": 3591027,
+      "parent": 3591010,
+      "started": "Mon Sep 21 07:19:53 2026"
+    },
+    "3591111": {
+      "command": "python3 scripts/embed_managed_runtime.py --clang /usr/local/bin/clang --opt /usr/local/bin/opt --header obj/nanoisa/managed_runtime_ir.h --manifest obj/nanoisa/managed_runtime_ir.json",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:19:54 2026"
+    },
+    "3591125": {
+      "command": "/usr/local/bin/clang -std=c11 -O2 -ffreestanding -fno-builtin -fno-ident -Wall -Wextra -Werror -S -emit-llvm --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 src/nanoisa/managed_module.c -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-runtime-ir-4dfju_w6/native.ll",
+      "group": 3591027,
+      "parent": 3591111,
+      "started": "Mon Sep 21 07:19:54 2026"
+    },
+    "3591127": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/nanovm/heap.c -o obj/nanovm/heap.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:19:54 2026"
+    },
+    "3591129": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/nanovm/heap.d -MP -MQ obj/nanovm/heap.o -D _GNU_SOURCE src/nanovm/heap.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanovm/ -dumpbase heap.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccsdekIm.s",
+      "group": 3591027,
+      "parent": 3591127,
+      "started": "Mon Sep 21 07:19:54 2026"
+    },
+    "3591147": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:19:54 2026"
+    },
+    "3591150": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/nanovm/vm.d -MP -MQ obj/nanovm/vm.o -D _GNU_SOURCE src/nanovm/vm.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanovm/ -dumpbase vm.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/cc0tMJP2.s",
+      "group": 3591027,
+      "parent": 3591147,
+      "started": "Mon Sep 21 07:19:54 2026"
+    },
+    "3591257": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/nanovm/vm_ffi.c -o obj/nanovm/vm_ffi.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:19:55 2026"
+    },
+    "3591269": {
+      "command": "[as]",
+      "group": 3591027,
+      "parent": 3591257,
+      "started": "Mon Sep 21 07:19:55 2026"
+    },
+    "3591312": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:19:56 2026"
+    },
+    "3591315": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/file_flow.d -MP -MQ obj/nanoisa/file_flow.o -D _GNU_SOURCE src/nanoisa/file_flow.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase file_flow.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccZPP11Y.s",
+      "group": 3591027,
+      "parent": 3591312,
+      "started": "Mon Sep 21 07:19:56 2026"
+    },
+    "3591415": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:19:58 2026"
+    },
+    "3591418": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/managed_array_shapes.d -MP -MQ obj/nanoisa/managed_array_shapes.o -D _GNU_SOURCE src/nanoisa/managed_array_shapes.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase managed_array_shapes.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/cchNGz4C.s",
+      "group": 3591027,
+      "parent": 3591415,
+      "started": "Mon Sep 21 07:19:58 2026"
+    },
+    "3591443": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:19:58 2026"
+    },
+    "3591446": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/affine_bytecode.d -MP -MQ obj/nanoisa/affine_bytecode.o -D _GNU_SOURCE src/nanoisa/affine_bytecode.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase affine_bytecode.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccQFsvHU.s",
+      "group": 3591027,
+      "parent": 3591443,
+      "started": "Mon Sep 21 07:19:58 2026"
+    },
+    "3591488": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:19:58 2026"
+    },
+    "3591491": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/affine_state.d -MP -MQ obj/nanoisa/affine_state.o -D _GNU_SOURCE src/nanoisa/affine_state.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase affine_state.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccK5sUGn.s",
+      "group": 3591027,
+      "parent": 3591488,
+      "started": "Mon Sep 21 07:19:58 2026"
+    },
+    "3591503": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:19:59 2026"
+    },
+    "3591505": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/retained_layouts.d -MP -MQ obj/nanoisa/retained_layouts.o -D _GNU_SOURCE src/nanoisa/retained_layouts.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase retained_layouts.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/cccfKTWp.s",
+      "group": 3591027,
+      "parent": 3591503,
+      "started": "Mon Sep 21 07:19:59 2026"
+    },
+    "3591673": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/assembler.c -o obj/nanoisa/assembler.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:00 2026"
+    },
+    "3591676": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/assembler.d -MP -MQ obj/nanoisa/assembler.o -D _GNU_SOURCE src/nanoisa/assembler.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase assembler.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccMq0coJ.s",
+      "group": 3591027,
+      "parent": 3591673,
+      "started": "Mon Sep 21 07:20:00 2026"
+    },
+    "3591684": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/disassembler.c -o obj/nanoisa/disassembler.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:00 2026"
+    },
+    "3591700": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:01 2026"
+    },
+    "3591703": {
+      "command": "[cc1]",
+      "group": 3591027,
+      "parent": 3591700,
+      "started": "Mon Sep 21 07:20:01 2026"
+    },
+    "3591740": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/nanoisa.c -o obj/nanoisa/nanoisa_facade.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:01 2026"
+    },
+    "3591829": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/parser.c -o obj/parser.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:02 2026"
+    },
+    "3591832": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/parser.d -MP -MQ obj/parser.o -D _GNU_SOURCE src/parser.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase parser.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccNcvPet.s",
+      "group": 3591027,
+      "parent": 3591829,
+      "started": "Mon Sep 21 07:20:02 2026"
+    },
+    "3591992": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/typechecker.c -o obj/typechecker.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:03 2026"
+    },
+    "3591995": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/typechecker.d -MP -MQ obj/typechecker.o -D _GNU_SOURCE src/typechecker.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase typechecker.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccfq40zu.s",
+      "group": 3591027,
+      "parent": 3591992,
+      "started": "Mon Sep 21 07:20:03 2026"
+    },
+    "3591996": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/transpiler.c -o obj/transpiler.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:04 2026"
+    },
+    "3591999": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/transpiler.d -MP -MQ obj/transpiler.o -D _GNU_SOURCE src/transpiler.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase transpiler.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccpSCwkn.s",
+      "group": 3591027,
+      "parent": 3591996,
+      "started": "Mon Sep 21 07:20:04 2026"
+    },
+    "3592081": {
+      "command": "as -I src --gdwarf-5 -EL -mabi=lp64 -o obj/typechecker.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccfq40zu.s",
+      "group": 3591027,
+      "parent": 3591992,
+      "started": "Mon Sep 21 07:20:05 2026"
+    },
+    "3592196": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/module_metadata.c -o obj/module_metadata.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:06 2026"
+    },
+    "3592199": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/module_metadata.d -MP -MQ obj/module_metadata.o -D _GNU_SOURCE src/module_metadata.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase module_metadata.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/cc0zN8l4.s",
+      "group": 3591027,
+      "parent": 3592196,
+      "started": "Mon Sep 21 07:20:06 2026"
+    },
+    "3592200": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/cJSON.c -o obj/cJSON.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:06 2026"
+    },
+    "3592203": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/cJSON.d -MP -MQ obj/cJSON.o -D _GNU_SOURCE src/cJSON.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase cJSON.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccECcyxM.s",
+      "group": 3591027,
+      "parent": 3592200,
+      "started": "Mon Sep 21 07:20:06 2026"
+    },
+    "3592211": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/module_builder.c -o obj/module_builder.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:07 2026"
+    },
+    "3592214": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/module_builder.d -MP -MQ obj/module_builder.o -D _GNU_SOURCE src/module_builder.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase module_builder.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccpmYsk6.s",
+      "group": 3591027,
+      "parent": 3592211,
+      "started": "Mon Sep 21 07:20:07 2026"
+    },
+    "3592226": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -ffp-contract=off -fno-fast-math -c src/eval.c -o obj/eval.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:07 2026"
+    },
+    "3592229": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/eval.d -MP -MQ obj/eval.o -D _GNU_SOURCE src/eval.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase eval.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccMyO3ru.s",
+      "group": 3591027,
+      "parent": 3592226,
+      "started": "Mon Sep 21 07:20:07 2026"
+    },
+    "3592364": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/type_infer.c -o obj/type_infer.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:09 2026"
+    },
+    "3592367": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/type_infer.d -MP -MQ obj/type_infer.o -D _GNU_SOURCE src/type_infer.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase type_infer.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccYkVPZY.s",
+      "group": 3591027,
+      "parent": 3592364,
+      "started": "Mon Sep 21 07:20:09 2026"
+    },
+    "3592369": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/effects.c -o obj/effects.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:09 2026"
+    },
+    "3592372": {
+      "command": "[cc1]",
+      "group": 3591027,
+      "parent": 3592369,
+      "started": "Mon Sep 21 07:20:09 2026"
+    },
+    "3592425": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/c_backend.c -o obj/c_backend.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:10 2026"
+    },
+    "3592428": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/c_backend.d -MP -MQ obj/c_backend.o -D _GNU_SOURCE src/c_backend.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase c_backend.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccDC4XTu.s",
+      "group": 3591027,
+      "parent": 3592425,
+      "started": "Mon Sep 21 07:20:10 2026"
+    },
+    "3592454": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/docgen_md.c -o obj/docgen_md.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:10 2026"
+    },
+    "3592457": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/docgen_md.d -MP -MQ obj/docgen_md.o -D _GNU_SOURCE src/docgen_md.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase docgen_md.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/ccWfyTE2.s",
+      "group": 3591027,
+      "parent": 3592454,
+      "started": "Mon Sep 21 07:20:10 2026"
+    },
+    "3592714": {
+      "command": "[gcc-13]",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:11 2026"
+    },
+    "3592775": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/runtime/list_CompilerDiagnostic.c -o obj/runtime/list_CompilerDiagnostic.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:11 2026"
+    },
+    "3592777": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/runtime/list_CompilerDiagnostic.d -MP -MQ obj/runtime/list_CompilerDiagnostic.o -D _GNU_SOURCE src/runtime/list_CompilerDiagnostic.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/runtime/ -dumpbase list_CompilerDiagnostic.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/cclocbRK.s",
+      "group": 3591027,
+      "parent": 3592775,
+      "started": "Mon Sep 21 07:20:11 2026"
+    },
+    "3593035": {
+      "command": "/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/runtime/gc.c -o obj/runtime/gc.o",
+      "group": 3591027,
+      "parent": 3591027,
+      "started": "Mon Sep 21 07:20:13 2026"
+    },
+    "3593038": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/runtime/gc.d -MP -MQ obj/runtime/gc.o -D _GNU_SOURCE src/runtime/gc.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/runtime/ -dumpbase gc.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/cc8XeZf8.s",
+      "group": 3591027,
+      "parent": 3593035,
+      "started": "Mon Sep 21 07:20:13 2026"
+    }
+  },
+  "remaining": []
+}
