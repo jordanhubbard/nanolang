@@ -2562,7 +2562,7 @@ void test_eval_string_loop_bindings(void) {
             } else list_string_free(list);
             if (repeat == 7) run_ctx_free(&ctx);
             ASSERT(strcmp(result.as.string_val, expected) == 0);
-            free(result.as.string_val);
+            env_discard_value_snapshot(result);
         }
     }
 }
