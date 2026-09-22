@@ -743,7 +743,7 @@ Function *env_get_function(Environment *env, const char *name) {
         for (int i = 0; i < env->function_count; i++) {
             Function *function = &env->functions[i];
             if (function->name && strcmp(function->name, name) == 0 &&
-                !function->is_extern && function->body &&
+                (function->is_extern || function->body) &&
                 ((!env->current_module && !function->module_name) ||
                  (env->current_module && function->module_name &&
                   strcmp(env->current_module, function->module_name) == 0)))
@@ -814,7 +814,7 @@ bool env_function_is_builtin(const Function *function, const char *name) {
 bool env_array_push_is_builtin(Environment *env, int line, int column) {
     if (env_get_var_visible_at(env, "array_push", line, column)) return false;
     Function *function = env_get_function(env, "array_push");
-    return !function || !function->body;
+    return env_function_is_builtin(function, "array_push");
 }
 
 /* Value creation functions */

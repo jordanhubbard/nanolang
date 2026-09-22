@@ -1311,6 +1311,8 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
     if (strcmp(name, "array_push") == 0 && argc == 2) {
+        if (!env_function_is_builtin(env_get_function(cg->env, name), "array_push"))
+            return false;
         compile_expr(cg, args[0]); /* array */
         if (node->as.call.checked_u8_array_mutation)
             compile_expected_tag(cg, args[1], TAG_U8);

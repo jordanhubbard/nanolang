@@ -3209,6 +3209,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
 
     /* Infer anonymous struct literal names from parameter types before evaluating */
     Function *named_func = env_get_function(env, name);
+    bool is_builtin_array_push = env_function_is_builtin(named_func, "array_push");
     for (int i = 0; i < node->as.call.arg_count && named_func && i < named_func->param_count; i++) {
         ASTNode *arg = node->as.call.args[i];
         if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
@@ -3716,7 +3717,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     if (strcmp(name, "reduce") == 0 || strcmp(name, "array_fold") == 0) return builtin_reduce(args, env);
     
     /* Dynamic array operations (GC-managed) */
-    if (strcmp(name, "array_push") == 0 && (!named_func || !named_func->body)) {
+    if (strcmp(name, "array_push") == 0 && is_builtin_array_push) {
         if (node->as.call.checked_u8_array_mutation && !bound_name &&
             node->as.call.arg_count == 2)
             args[1] = eval_checked_scalar_destination(TYPE_U8, args[1]);
