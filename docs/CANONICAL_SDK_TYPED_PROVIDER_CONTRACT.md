@@ -174,3 +174,106 @@ holds are closed only by their own complete reviewed runtime/source acceptance,
 never by SDK descriptor transport success. I preserve first terminals and output
 sentinels, stop dependent gates on failure and claim only the actual measured
 producer/backend/instrumentation scope.
+
+## I refine the wire proposal around retained indices
+
+This amendment follows the actual `ownership_array_fields.inc` and
+`ownership_declaration_projection` inventory. I do not add an independent
+recursive type graph to the provider section. The retained ARRAY_FIELDS type
+pool already contains scalar, string, array-child and record-layout references;
+its declaration projection owns copied rows and bindings. Existing limits are
+4096 type rows,65536 field bindings,64 array levels,1048576 charged steps and
+16MiB owned declaration storage. The private layout profile separately limits
+256 layouts and65536 fields. Its current grammar does not admit opaque, tuple,
+union or callable rows; that is an actual extension requirement, not permission
+to treat a rejected row as unknown.
+
+I propose a new shared ARRAY_FIELDS extension revision, selected only with the
+new typed-provider feature. Existing revision1 bytes and acceptance remain
+unchanged. Shared rows retain their current8-byte tag/reserved/referent encoding:
+scalar/string referents stay NO_INDEX, arrays reference another retained type
+row, records reference existing LAYOUTS. Added tuple/union rows reference the
+same retained layout table. Opaque rows reference exact nominal declarations;
+function rows reference exact signature-detail rows. These last two referents
+are checked against the provider contract after both sections have been decoded.
+The common declaration projection exposes the resulting complete rows; SDK
+consumers must not parse a competing private type table.
+
+The provider section then contains only facts missing from current sections:
+nominal identity records, provider requirements, exact signature details and
+bindings to actual imports/functions/fields. Every layout uses its existing
+index. Every exact signature detail records its existing coarse SIGNATURES index
+plus retained type-row indices for parameters/results. Coarse signatures remain
+deduplicated by tags; different opaque owners may share that coarse index while
+requiring distinct exact detail rows. I compare exact detail identity for typed
+indirect calls, not coarse signature equality alone. Layout-field bindings add
+exact child facts only where the existing layout tag/referent is insufficient;
+they must agree with all existing layout/ownership fields. A nominal record row
+maps its original owner/name/kind and ordered generic arguments to its retained
+layout index, rather than creating a second layout. Opaque rows have NO_LAYOUT.
+
+I propose feature bit11 (`0x00000800`) and section type`0x10`, the next unused
+values in the audited candidate. The known-feature mask becomes`0x00000fff` and
+the section-type maximum becomes`0x10`; the existing16-section in-memory bound
+is sufficient for all16 defined section kinds. These assignments require owner
+review and a fresh collision check against the final candidate before coding.
+The provider codec revision is1. The shared ownership extension uses an explicit
+new revision/version gate; no existing ownership-v3 ARRAY_FIELDS revision1 row
+is reinterpreted. Unknown sections/features/revisions refuse at the normal
+container/ownership boundary.
+
+Proposed inclusive new-section limits are4096 nominal rows,4096 providers,
+4096 exact signature-detail rows,65536 bindings and65536 total parameter/result/
+generic-argument references. Counts are u32; per-signature arity stays within the
+existing u16 field. The existing retained callback ABI's16-argument limit remains
+specific to that ABI, not an invented general extern cap. The new section is at
+most16MiB; complete preparation charges its bytes plus the owned shared
+projection against a32MiB combined bound, and all new graph/cross-reference work
+against1048576 steps. Existing shared declaration preparation keeps its own
+16MiB and step bounds. Allocation products are checked with subtraction-form
+remaining budgets before allocation; zero counts allocate nothing. These are
+new descriptor-profile limits, not blanket limits for modules without the
+feature. Before admission I must verify all original SDK fixture maxima fit and
+publish any necessary reviewed extension; a codec-limit refusal cannot replace
+required SDK acceptance.
+
+Array/storage edge depth retains64. Complete by-value layout cycles refuse;
+callback-to-enclosing-record declaration edges use a visited worklist and may
+cycle without consuming artificial infinite depth. Every edge examination,
+identity comparison and interning collision comparison is charged; deduplication
+cannot hide unbounded quadratic work. The first revision may conservatively
+reach its published work limit, but must not claim linear complexity without
+measurement. Wire indices are validated before dereference and exact table
+extents/reserved zeros are checked before publishing an owned projection.
+
+## I attach atomically and refuse incomplete consumers first
+
+I propose separate raw decode/encode, module validation, owned plan preparation
+and attach entry points. Raw codec success means transport only. Each API has
+explicit INVALID/LIMIT/MEMORY outcomes; legacy TRUNCATED-to-memory ambiguity is
+not copied into the new API. Failure preserves caller outputs. Attach prepares
+all section/type/signature/string changes and validation in temporary owned
+storage, then swaps the complete module state once; failure frees only staged
+storage. Identical valid attachment is a no-op, conflicting attachment refuses.
+Call-descriptor caches are invalidated only after successful publication, with
+no active generation/dispatch leases. I do not mutate a module while executing
+or invalidate borrowed string/type pointers under a live call.
+
+The first source checkpoint must enumerate every reader/writer and executing or
+dropping consumer from actual callers of v2 loading, bridging, serialization and
+module validation. Deserialization, assembly/disassembly, pretty-printing,
+linking and v1 bridging either preserve the complete feature or refuse it;
+lossy fallback is forbidden. VM, nvm2c, nvm2hl, LLVM/Wasm backends, daemon/cop and
+packaging tools refuse unsupported typed-provider execution before provider
+loading or output publication until their exact adapter is implemented. Presence
+includes malformed partial claims, as in existing File/capture guards. This
+initial refusal checkpoint is a dependency, not completion: the full required
+VM/nvm2c and installed SDK execution adapters must follow before final release.
+
+Static and corrected-only controls cover feature/payload agreement, exact row
+bounds, full referenced type/signature/layout/nominal identity, empty/boundary
+payloads, same-tag distinct owners, declaration cycles versus storage cycles,
+unchanged-output allocation failure, cache/lease-safe publication and exact
+round-trip preservation. Actual provider entry markers, stale ABI and source-
+hidden installed executions remain later reviewed acceptance. No arbitrary
+module-generation or foreign-call execution follows from transport tests.

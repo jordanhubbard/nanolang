@@ -17076,3 +17076,15 @@ new byte-word root/field and len/get/set/push discriminator occurrences to15,
 retain recursive-array13 and public TAG_MAP13, audit every literal occurrence,
 and add a combined nested-string-array/byte-array retention and mutation control
 before execution review. Existing individual byte and recursive-array gates stay.
+
+### I reuse retained type rows for canonical SDK descriptors
+
+After reading the existing ARRAY_FIELDS codec and owned declaration projection,
+I refine the proposal to extend that shared type pool instead of adding a second
+recursive provider type graph. Exact nominal and signature overlays reference
+existing layouts/coarse signatures and retained type indices. I propose the next
+unused feature/section values, explicit revision gates, inclusive count/byte/work
+limits, atomic attachment and preserve-or-refuse behavior for every consumer in
+`docs/CANONICAL_SDK_TYPED_PROVIDER_CONTRACT.md`. Owner review and final collision/
+fixture-limit audits precede implementation; initial transport refusal is only a
+dependency of the full required SDK execution adapters.
