@@ -14582,3 +14582,9 @@ allocator failure claim.
 - [x] I retain the first 33e Puck native failure after fresh full bootstrap and focused ownership passes: unchanged `native-nested-list-projections` reaches Stage1 O0 host compilation with `nl_Inner_Item_` and `nl_Outer_Item_` constructor spellings, while declarations and matches use `nl_Inner_Item` and `nl_Outer_Item`. I do not execute the rejected product (task_60f95962d16d4f7aa0a52deb9fda4dc8).
 - [ ] I trace complete checked constructor annotations through canonical C spelling, repair the actual lowering boundary without suffix guessing, and retain both constructor forms and nested owner/projection controls before fresh qualification.
 - [ ] I complete my original 18 source plus 9 native methods and both-host gates. My 33e Puck bootstrap passed in 322.133 seconds; the native corpus and original 18 are not complete.
+
+### I preserve independent module metadata lifetimes
+
+- [ ] I integrate the reviewed owning snapshot correction for module descriptors before broad native qualification (`task_c65cfe23d7434c429b7f6f79d3838178`, VM lane). My current `extract_module_metadata` shallow-copies `StructDef.field_type_names` and `field_element_types`; my Environment destructor now frees those arrays. Complete descriptor and borrowed annotation lifetimes require the same audit. I preserve my separately owned 46b module-name copies and do not free borrowed complete annotations by inference.
+
+My constructor correction 6340ae7ab is source-reviewed but unexecuted. I hold affected builds and corpora until this shared lifetime prerequisite is corrected and reviewed. My 33e first terminal and bootstrap success are retained at evidence checkpoint c3fec6062.
