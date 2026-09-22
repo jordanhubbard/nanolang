@@ -654,7 +654,7 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nano_vm nvm2c nvm2c-runtime nanois
 		tests/nanoisa/test_nanoisa_src_nano.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_src_nano \
 		/tmp/nanolang_cut_a_c.nvm /tmp/nanolang_cut_a_src.nasm
-	@python3 -m unittest -v tests.test_nanoisa_flat_records tests.test_nanoisa_artifact_imports tests.test_nanoisa_shadow_emitter tests.test_nanoisa_tuple_values
+	@CC="$(CC)" LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_nanoisa_flat_records tests.test_nanoisa_artifact_imports tests.test_nanoisa_shadow_emitter tests.test_nanoisa_tuple_values
 	@rm -f tests/nanoisa/test_nanoisa_src_nano
 
 .PHONY: nanoisa_dump
