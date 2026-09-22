@@ -254,3 +254,27 @@ signature/body/module fields retain the existing borrowed ownership contract.
 The fixture uses complete ordinary provider objects excluding main/module,
 with its own CLI state. It does not claim whole-provider sanitization or
 unrelated environment rollback. No new product execution has occurred.
+
+My 99a Darwin C visibility checkpoint passes the rebuilt C-seed corpus and
+actual alias allocation fixture. The next original Nano record-initializer
+negative compiles successfully; I do not execute it. The paired outer terminal
+is exit 1 after 123.573 seconds, without timeout or cleanup error, with all
+process groups and descendants absent. Complete source/tool endpoints remain
+equal. My retained Nano producers remain attributed to c481; this is not a
+fresh bootstrap. Evidence is retained in
+/tmp/nanolang-split-99a-puck-evidence and
+/tmp/nanolang-split-99a-puck-continuation on both hosts.
+
+Before correction, my Nano record-literal checker returns the record identity
+without traversing initializer expressions. My existing field mutation adapter
+already compares actual and declared types, but constructor fields bypass it.
+I propose a shared declared-field STRING-array compatibility boundary using
+actual parsed field annotations and check_expr_node results. I retain complete
+array<string> results from the existing call checker, including declared and
+lexical calls; no str_split spelling shortcut supplies authority. Known
+STRING-array mismatches must refuse in either direction. Empty array contextual
+behavior and unrelated numeric/computed-array compatibility remain unchanged.
+I require original record initializer/mutation negatives and additive positive
+STRING fields, non-STRING declared-call fields, and nested record initializer
+controls before another producer refresh. General record shape completeness
+is not established by this bounded prerequisite.
