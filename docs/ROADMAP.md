@@ -17173,3 +17173,5 @@ I qualify reviewed e3a parser correction on Linux with exact retained instrument
 - [ ] I reduce repeated declaration identity/count lookup within one resource fixed-point classification, under the unchanged aggregate shadow deadline (task_96b40bc1ccd644bca2131878fa6cf372). I retain c5084b874's actual failed original invocation and all source controls; source review precedes affected execution. Contract: `docs/RESOURCE_CLASSIFICATION_LOCAL_KEYS.md`.
 
 - [x] I qualified54e's original/additive five resource bodies under the reviewed original-module selector and unchanged60-second deadline. Declaration classification measured3.419s versus prior8.564s; full preparation remains unqualified and its original terminal retained. Evidence: `docs/evidence/resource-keys-focused/`.
+
+- [ ] I preserve the private resource selector's target-specific evaluator flag omission as an attribution limitation (global sanitizer flags present, eval.o FP flags absent). The untouched original compiler is required for full corrected component acceptance; focused7174 evidence is not exact evaluator Make-policy parity.
