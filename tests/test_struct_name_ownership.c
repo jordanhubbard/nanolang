@@ -208,15 +208,24 @@ static void metadata_callback_annotation(void) {
         .param_type_info=parameters,.return_type=TYPE_STRUCT,.return_struct_name=name,
         .return_type_info=&child};
     TypeInfo callback={.base_type=TYPE_FUNCTION,.fn_sig=&signature};
-    TypeInfo *annotations[]={&callback};
+    Type tuple_types[]={TYPE_FUNCTION,TYPE_ARRAY}; char *tuple_names[]={NULL,NULL};
+    TypeInfo *children[]={&callback,&array};
+    TypeInfo tuple={.base_type=TYPE_TUPLE,.type_params=children,.type_param_count=2,
+        .tuple_types=tuple_types,.tuple_type_names=tuple_names,.tuple_element_count=2};
+    TypeInfo *annotations[]={&tuple};
     Environment *env=create_environment(); assert(env);
     StructDef record={.name=strdup("CallbackHolder"),.field_count=1,.field_type_info=annotations,
         .field_names=calloc(1,sizeof(char *)),.field_types=calloc(1,sizeof(Type))};
     assert(record.name && record.field_names && record.field_types);
     record.field_names[0]=strdup("callback"); assert(record.field_names[0]);
-    record.field_types[0]=TYPE_FUNCTION; env_define_struct(env,record);
+    record.field_types[0]=TYPE_TUPLE; env_define_struct(env,record);
     ModuleMetadata *snapshot=extract_module_metadata(env,"ExactOwner"); assert(snapshot);
-    TypeInfo *copy=snapshot->structs[0].field_type_info[0];
+    TypeInfo *tuple_copy=snapshot->structs[0].field_type_info[0];
+    assert(tuple_copy!=&tuple && tuple_copy->type_params!=children && tuple_copy->tuple_types!=tuple_types);
+    assert(tuple_copy->tuple_type_names!=tuple_names && tuple_copy->type_param_count==2);
+    assert(tuple_copy->tuple_element_count==2 && tuple_copy->tuple_types[0]==TYPE_FUNCTION);
+    assert(tuple_copy->type_params[1]!=&array && tuple_copy->type_params[1]->element_type!=&child);
+    TypeInfo *copy=tuple_copy->type_params[0];
     assert(copy!=&callback && copy->fn_sig!=&signature);
     assert(copy->fn_sig->param_type_info[0]!=&array);
     assert(copy->fn_sig->param_type_info[0]->element_type!=&child);
@@ -247,6 +256,38 @@ static void metadata_empty_vectors(void) {
         assert(!copy->field_type_info && !copy->module_name && !copy->original_name);
         free_environment(env); assert(!strcmp(copy->name,"Empty")); free_module_metadata(snapshot);
     }
+}
+
+static void checker_module_name_ownership(void) {
+    const char *sources[] = {
+        "module First struct A{value:int} enum E{One}",
+        "module Second struct B{value:int} enum F{One}"
+    };
+    Environment *env = create_environment(); assert(env);
+    env->current_module = "BorrowedPrior";
+    ASTNode *programs[2]; Token *tokens[2]; int counts[2];
+    char *first_context = NULL;
+    for (int i = 0; i < 2; ++i) {
+        tokens[i] = tokenize(sources[i], &counts[i]); assert(tokens[i]);
+        programs[i] = parse_program(tokens[i], counts[i]); assert(programs[i]);
+        assert(type_check_module(programs[i], env));
+        if (!i) first_context = env->current_module;
+    }
+    assert(!strcmp(first_context, "First") && !strcmp(env->current_module, "Second"));
+    assert(env->struct_count == 2 && env->enum_count == 2);
+    ModuleMetadata *meta = extract_module_metadata(env, "Snapshot"); assert(meta);
+    assert(meta->struct_count == 2 && meta->enum_count == 2);
+    for (int i = 0; i < 2; ++i) {
+        assert(meta->structs[i].module_name != env->structs[i].module_name);
+        assert(meta->enums[i].module_name != env->enums[i].module_name);
+    }
+    free_environment(env);
+    for (int i = 0; i < 2; ++i) { free_ast(programs[i]); free_tokens(tokens[i], counts[i]); }
+    for (int i = 0; i < 2; ++i) {
+        assert(!strcmp(meta->structs[i].module_name, i ? "Second" : "First"));
+        assert(!strcmp(meta->enums[i].module_name, i ? "Second" : "First"));
+    }
+    free_module_metadata(meta);
 }
 
 static const StructDef *fatal_source;
@@ -343,7 +384,7 @@ int main(void) {
         }
     }
     parsed_parameter_names(); parsed_record_lifetimes(0); parsed_record_lifetimes(1); auxiliary_vectors();
-    metadata_snapshot_lifetimes(0); metadata_snapshot_lifetimes(1); metadata_empty_vectors(); metadata_callback_annotation(); metadata_fault_positions();
+    metadata_snapshot_lifetimes(0); metadata_snapshot_lifetimes(1); metadata_empty_vectors(); metadata_callback_annotation(); metadata_fault_positions(); checker_module_name_ownership();
     puts("Parser/record ownership: qualified parameters, both destruction orders, zero/nonzero auxiliary vectors and borrowed annotations PASS");
     puts("Struct name ownership: four paths, exact copies, borrowed controls, all allocation positions/two modes/recovery PASS");
     return 0;
