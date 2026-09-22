@@ -1,0 +1,23 @@
+{
+  "name": "fresh-observer-build",
+  "argv": [
+    "make",
+    "-j2",
+    "CC=/bin/gcc",
+    "bin/nanoc_c"
+  ],
+  "bound_seconds": 900,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 2.6217894540168345,
+  "log": {
+    "sha256": "41f581baaab086c0f7fe9f450990c017b407eae882fd34464acc6e1ddbcf63d7",
+    "bytes": 557,
+    "archive": "/home/jkh/nanolang-qualification/list-search-4369-timed/objects/41f581baaab086c0f7fe9f450990c017b407eae882fd34464acc6e1ddbcf63d7"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

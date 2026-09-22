@@ -1,0 +1,23 @@
+{
+  "name": "timed-full-driver",
+  "argv": [
+    "/home/jkh/nanolang-qualification/list-search-4369-source/bin/nanoc_c",
+    "src_nano/nanoc_v06.nano",
+    "-o",
+    "/home/jkh/nanolang-qualification/list-search-4369-timed/nanoc_stage1"
+  ],
+  "bound_seconds": 120,
+  "status": 1,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 50.66830126196146,
+  "log": {
+    "sha256": "47096f78cd63e783d805e97a1851cba27846f4978524e145a26a2bb22c923f8b",
+    "bytes": 810618,
+    "archive": "/home/jkh/nanolang-qualification/list-search-4369-timed/objects/47096f78cd63e783d805e97a1851cba27846f4978524e145a26a2bb22c923f8b"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}
