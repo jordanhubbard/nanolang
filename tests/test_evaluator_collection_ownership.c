@@ -277,6 +277,20 @@ static Value dynamic_value(DynArray *array) {
     result.as.dyn_array_val = array; return result;
 }
 
+static void string_array_result_refusals(void) {
+    const char *sources[] = {
+        "fn wrong(xs:array<int>,ys:array<int>)->array<string>{return (+ xs ys)} fn main()->int{return 0}",
+        "fn wrong(xs:array<string>,s:bool)->array<string>{return (+ xs s)} fn main()->int{return 0}",
+        "fn wrong(xs:array<string>,ys:array<string>)->array<string>{return (- xs ys)} fn main()->int{return 0}",
+        "struct Named { text:string } fn wrong(xs:array<Named>,ys:array<Named>)->array<string>{return (+ xs ys)} fn main()->int{return 0}"
+    };
+    for (size_t i = 0; i < sizeof sources / sizeof *sources; ++i) {
+        RunCtx ctx;
+        assert(!run_ctx_init(&ctx, sources[i])); /* Checker refusal, never evaluated. */
+        run_ctx_free(&ctx);
+    }
+}
+
 static void dynamic_child_owners(void) {
     const char *source =
         "struct DynamicChild { label:string }\n"
@@ -397,6 +411,7 @@ int main(int argc, char **argv) {
     child_case(3, 0, 0, true); child_case(4, 0, 0, true);
     public_string_alias();
     record_projection_owners();
+    string_array_result_refusals();
     dynamic_child_owners();
     completed_collection_tasks();
     /* I retain the actual source callback/partial-literal assertions unchanged. */
