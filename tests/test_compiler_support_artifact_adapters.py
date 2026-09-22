@@ -67,10 +67,11 @@ class CompilerSupportArtifactAdapters(unittest.TestCase):
             self.assertEqual(assembly.count(b".import_kind"), 2)
             imports = [shlex.split(line.decode()) for line in assembly.splitlines()
                        if line.startswith(b".import ")]
-            libraries = {entry[1] for entry in imports}
-            self.assertEqual(len(libraries), 1)
-            library = Path(next(iter(libraries)))
-            before = hashlib.sha256(library.read_bytes()).hexdigest()
+            self.assertEqual({entry[2]: entry[3:] for entry in imports},
+                             {"nlc_native_array_abi": ["int"], "nlc_runtime_root": ["string"]})
+            libraries = {Path(entry[1]) for entry in imports}
+            before = {str(library): hashlib.sha256(library.read_bytes()).hexdigest()
+                      for library in libraries}
             oracle_source, oracle = self.artifacts / "oracle.c", self.artifacts / "oracle"
             oracle_source.write_text('#include <assert.h>\n#include <dlfcn.h>\n'
                 '#include <inttypes.h>\n#include <stdio.h>\n'
@@ -85,17 +86,25 @@ class CompilerSupportArtifactAdapters(unittest.TestCase):
                               *(["-Wl,--export-dynamic", "-ldl"]
                                 if sys.platform.startswith("linux") else []),
                               *self.links, "-o", oracle])
-            abi, actual_root = self.run_checked([oracle, library]).split(b"\n", 1)
-            expected = abi + b"\n"
-            self.assertEqual(actual_root, str(ROOT).encode() + b"\n")
+            oracle_results = {}
+            for library in sorted(libraries):
+                abi, actual_root = self.run_checked([oracle, library]).split(b"\n", 1)
+                self.assertEqual(actual_root, str(ROOT).encode() + b"\n")
+                oracle_results[str(library)] = abi.decode()
+            self.assertEqual(len(set(oracle_results.values())), 1)
+            abi_library = next(entry[1] for entry in imports if entry[2] == "nlc_native_array_abi")
+            expected = oracle_results[abi_library].encode() + b"\n"
             asm, module = self.artifacts / "input.nasm", self.artifacts / "input.nvm"
             asm.write_bytes(assembly)
             self.run_checked([ROOT / "bin/nanoisa", "asm", asm, "-o", module])
             self.assertEqual(self.run_checked([ROOT / "bin/nano_vm", module]), expected)
             self.assertEqual(self.native(module), expected)
-            self.assertEqual(hashlib.sha256(library.read_bytes()).hexdigest(), before)
+            self.assertEqual({str(library): hashlib.sha256(library.read_bytes()).hexdigest()
+                              for library in libraries}, before)
             (self.artifacts / "provider.json").write_text(json.dumps(
-                {"path": str(library), "sha256": before, "actual_abi": expected.decode()}, indent=2))
+                {"imports": imports, "sha256": before, "oracle_abi": oracle_results,
+                 "declaration_owners": {"nlc_native_array_abi": 0, "nlc_runtime_root": 1},
+                 "owner_sources": {"0": str(provider_source), "1": str(provider_source)}}, indent=2))
 
     def test_mutable_borrowed_root_is_snapshotted(self):
         source, library = self.artifacts / "provider.c", self.artifacts / "provider.so"
