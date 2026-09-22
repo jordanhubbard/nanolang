@@ -233,3 +233,29 @@ bool array_test_prepare_union_projection(Environment *env, ASTNode *constructor,
     nominal_view_discard(&view);
     return ok;
 }
+
+/* I preserve the exact prior proof/cache suffix and outer annotation on every
+ * failed owned destination preparation/publication path. */
+bool array_test_scalar_destination_seed(Environment *env, ASTNode *prior) {
+    TypeInfo integer = {.base_type = TYPE_INT};
+    TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = &integer};
+    return check_array_destination_annotation(env, &array, NULL, NULL, prior, 0);
+}
+bool array_test_scalar_destination(Environment *env, ASTNode *outer) {
+    TypeInfo byte = {.base_type = TYPE_U8};
+    TypeInfo inner = {.base_type = TYPE_ARRAY, .element_type = &byte};
+    TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = &inner};
+    NativeContextMark before = native_context_mark(env);
+    CheckerNominalExpression *proof = env->checker_nominal_expressions;
+    Type old = outer->as.array_literal.element_type;
+    g_typecheck_error_count = 0;
+    bool ok = check_array_destination_annotation(env, &array, NULL, NULL, outer, 0);
+    if (active_array_destination) abort();
+    if (!ok && (env->checker_nominal_expressions != proof ||
+        env->array_expression_binding_count != before.arrays ||
+        env->tuple_literal_binding_count != before.tuples ||
+        outer->as.array_literal.element_type != old)) abort();
+    if (ok && (!nominal_constructor_view(env, outer) ||
+        !env_array_expression_info(env, outer) || g_typecheck_error_count)) abort();
+    return ok;
+}

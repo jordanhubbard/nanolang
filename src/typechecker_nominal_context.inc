@@ -183,6 +183,10 @@ static bool nominal_view_matches_annotation(Environment *env, const NominalView 
 static bool nominal_view_matches_value(Environment *env, const NominalView *expected, ASTNode *value, unsigned depth) {
     if (!expected || !expected->info || !value || depth > 128) return false;
     if (expected->children && !nominal_view_composed_valid(expected)) return false;
+    if (value->type == AST_ARRAY_LITERAL || value->type == AST_TUPLE_LITERAL) {
+        const NominalView *retained = nominal_constructor_view(env, value);
+        if (retained) return nominal_view_equal(env, expected, retained, depth + 1);
+    }
     if (value->type == AST_BLOCK && value->as.block.count)
         return nominal_view_matches_value(env, expected, value->as.block.statements[value->as.block.count - 1], depth + 1);
     if (value->type == AST_RETURN) return nominal_view_matches_value(env, expected, value->as.return_stmt.value, depth + 1);
@@ -404,6 +408,26 @@ static void nominal_constructor_destroy(void *object) {
     CheckerNominalExpression *entry = object;
     nominal_view_discard(&entry->view);
     free(entry);
+}
+/* I retain checked literal conversions as complete proofs, independently of
+ * flattened native emission rows. A different destination cannot replace one. */
+static bool nominal_literal_retain(Environment *env, const ASTNode *expression,
+                                  const NominalView *view, unsigned depth) {
+    if (!view || !view->info || view->payload ||
+        (view->info->base_type != TYPE_ARRAY && view->info->base_type != TYPE_TUPLE)) return false;
+    const NominalView *prior = nominal_constructor_view(env, expression);
+    if (prior) return nominal_view_equal(env, prior, view, depth + 1);
+    CheckerNominalExpression *entry = calloc(1, sizeof *entry);
+    if (!entry) return false;
+    if (!nominal_view_clone(env, view, depth + 1, &entry->view) ||
+        !env_own_checker_object(env, entry, nominal_constructor_destroy)) {
+        nominal_constructor_destroy(entry);
+        return false;
+    }
+    entry->expression = expression;
+    entry->next = env->checker_nominal_expressions;
+    env->checker_nominal_expressions = entry;
+    return true;
 }
 static bool nominal_constructor_retain(Environment *env, const ASTNode *expression,
     const TypeInfo *info, const char *owner, const NominalSubstitution *context, unsigned depth) {
