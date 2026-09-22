@@ -14576,3 +14576,9 @@ allocator failure claim.
 - [x] I retain my 66a uninstrumented ten-second refusal and independent 066ea observer success (1,086 shadows, 8.950973-second interpreter interval) separately at evidence checkpoint e2a231ffb. I have not explained the original refusal.
 - [ ] I integrate reviewed SDK bae599477 private completion proof onto 66a: shared pre-fork start, final flush before timestamp publication, complete on-time record and ordinary zero exit, unchanged child alarm and parent termination. I preserve selected payload code and all original 18 source plus 9 native methods. I copy the exact header and focused fixtures; my lane has no SDK inventory to amend. The fixture runner is an explicitly attributed dependency.
 - [ ] I source-review the adapted main/Make changes, run focused ordinary/sanitizer and actual compiler controls, then complete fresh original-bound bootstrap and the original matrices on both hosts. SDK qualification does not establish my native lane's acceptance.
+
+### I retain exact generic constructor storage names
+
+- [x] I retain the first 33e Puck native failure after fresh full bootstrap and focused ownership passes: unchanged `native-nested-list-projections` reaches Stage1 O0 host compilation with `nl_Inner_Item_` and `nl_Outer_Item_` constructor spellings, while declarations and matches use `nl_Inner_Item` and `nl_Outer_Item`. I do not execute the rejected product (task_60f95962d16d4f7aa0a52deb9fda4dc8).
+- [ ] I trace complete checked constructor annotations through canonical C spelling, repair the actual lowering boundary without suffix guessing, and retain both constructor forms and nested owner/projection controls before fresh qualification.
+- [ ] I complete my original 18 source plus 9 native methods and both-host gates. My 33e Puck bootstrap passed in 322.133 seconds; the native corpus and original 18 are not complete.
