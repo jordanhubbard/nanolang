@@ -1,0 +1,421 @@
+{
+  "d555-ordinary-reports": {
+    "bundle_sha256": "9a54a2ba9c5dd88ae3da8c6cd096c4975ba0f8d0db8dee854f53fd6229a573f1",
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 155,
+        "sha256": "6f0479f630b8d688c43b0390f84c52f37d24c076f25b63338a17298be88a31a4"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2970,
+        "sha256": "728e3581d073635bc9d025a83e8d68b54287ecdacdc4e3e1ea47edf4317cf2af"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8438,
+        "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+      },
+      {
+        "path": "sdk.json",
+        "bytes": 132,
+        "sha256": "59ecf6a576fe058d6cc12ad0eef796e4809f3c3733a50f72fb076e65d636feb8"
+      },
+      {
+        "path": "test-struct-name-ownership-space-before.json",
+        "bytes": 64,
+        "sha256": "2c72dac7fe2c56a7d42f20af32b62c78efc0245b02f1e5aa906f2e2b9d36dc8e"
+      }
+    ],
+    "objects": 0,
+    "equal_pairs": 0,
+    "results": null
+  },
+  "d555-ordinary-r2-reports": {
+    "bundle_sha256": "e1be8e9f8b8fd35e1d9818ac37bdb95e4007a38a3b0d5752c16e72ff68dada6c",
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 155,
+        "sha256": "6f0479f630b8d688c43b0390f84c52f37d24c076f25b63338a17298be88a31a4"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2970,
+        "sha256": "728e3581d073635bc9d025a83e8d68b54287ecdacdc4e3e1ea47edf4317cf2af"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8438,
+        "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+      },
+      {
+        "path": "final.json",
+        "bytes": 142,
+        "sha256": "85a220242d901a6d31e34c58356616356b5b91f70f0096eba407c4ac1eb42db1"
+      },
+      {
+        "path": "results.json",
+        "bytes": 93,
+        "sha256": "c999f1c20f656a2c55c4e36b06cc19ca24a47e3ec1040294bdfb90f51dddee32"
+      },
+      {
+        "path": "sdk.json",
+        "bytes": 132,
+        "sha256": "59ecf6a576fe058d6cc12ad0eef796e4809f3c3733a50f72fb076e65d636feb8"
+      },
+      {
+        "path": "test-struct-name-ownership-artifacts.json",
+        "bytes": 36675,
+        "sha256": "b3513b6ee46b1699d6b32dc1c463134a6bfe3bb96d19e6fbde977b82c067f6df"
+      },
+      {
+        "path": "test-struct-name-ownership-command.json",
+        "bytes": 419,
+        "sha256": "10c541460e71223ee270021876cba72f9ef04b692d2d11a59bd3d33c6d1e69c8"
+      },
+      {
+        "path": "test-struct-name-ownership-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "test-struct-name-ownership-nested-processes.json",
+        "bytes": 1408,
+        "sha256": "9802fe3997298a4e18028c6d1fe0b378f3ebe61fd456dae51612ac99aff0387d"
+      },
+      {
+        "path": "test-struct-name-ownership-source-after.json",
+        "bytes": 400561,
+        "sha256": "43904edf16be5329be2a6fd13d5a6b6cf14b6878e0d4f5e079b23cb62e34f4b3"
+      },
+      {
+        "path": "test-struct-name-ownership-source-before.json",
+        "bytes": 400561,
+        "sha256": "43904edf16be5329be2a6fd13d5a6b6cf14b6878e0d4f5e079b23cb62e34f4b3"
+      },
+      {
+        "path": "test-struct-name-ownership-space-before.json",
+        "bytes": 64,
+        "sha256": "0a1a146192903276e63968d2e8dde44d54af97d0f8f125e42e991a05a1022687"
+      },
+      {
+        "path": "test-struct-name-ownership-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-struct-name-ownership-tools-after.json",
+        "bytes": 1993,
+        "sha256": "ec45a64cc15f837b7fb52ff5ed01234f3e9f47cc5a04a11ff4490077ac17ea79"
+      },
+      {
+        "path": "test-struct-name-ownership-tools-before.json",
+        "bytes": 1993,
+        "sha256": "ec45a64cc15f837b7fb52ff5ed01234f3e9f47cc5a04a11ff4490077ac17ea79"
+      },
+      {
+        "path": "test-struct-name-ownership.log",
+        "bytes": 44438,
+        "sha256": "8d67485789e9503c2b37025a16e609619c9211edff2a114597aea028184c3c23"
+      }
+    ],
+    "objects": 105,
+    "equal_pairs": 2,
+    "results": [
+      {
+        "phase": "test-struct-name-ownership",
+        "seconds": 3.375,
+        "status": 0
+      }
+    ]
+  },
+  "d555-sanitizer-r2-reports": {
+    "bundle_sha256": "e5f64d226b940fa78708c2048c2cbc90927cd595ac73df6f69b0475f0bc2758e",
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 157,
+        "sha256": "350028277d9012bbe0c0cef42b28b06c3f6716fb463a95d87952f53779aef43f"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2970,
+        "sha256": "728e3581d073635bc9d025a83e8d68b54287ecdacdc4e3e1ea47edf4317cf2af"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8438,
+        "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+      },
+      {
+        "path": "results.json",
+        "bytes": 93,
+        "sha256": "68647f18c0ab9e596708d5f0f5ec72c51cde8631c401efb38ef5cd8b6105dccf"
+      },
+      {
+        "path": "sdk.json",
+        "bytes": 132,
+        "sha256": "59ecf6a576fe058d6cc12ad0eef796e4809f3c3733a50f72fb076e65d636feb8"
+      },
+      {
+        "path": "test-struct-name-ownership-artifacts.json",
+        "bytes": 36885,
+        "sha256": "c0b3627f64e81185b2a325db00fd0641358411e87288d650381db83c813a5736"
+      },
+      {
+        "path": "test-struct-name-ownership-command.json",
+        "bytes": 519,
+        "sha256": "e281827a525f21283ea989e37874b76c870e7c17c4c90b1d139b35dda79b3daa"
+      },
+      {
+        "path": "test-struct-name-ownership-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "test-struct-name-ownership-nested-processes.json",
+        "bytes": 7938,
+        "sha256": "563306680fd7576c1ae6674294d50021c32344655ef7ae24a39c8c77fa766f00"
+      },
+      {
+        "path": "test-struct-name-ownership-source-after.json",
+        "bytes": 400561,
+        "sha256": "43904edf16be5329be2a6fd13d5a6b6cf14b6878e0d4f5e079b23cb62e34f4b3"
+      },
+      {
+        "path": "test-struct-name-ownership-source-before.json",
+        "bytes": 400561,
+        "sha256": "43904edf16be5329be2a6fd13d5a6b6cf14b6878e0d4f5e079b23cb62e34f4b3"
+      },
+      {
+        "path": "test-struct-name-ownership-space-before.json",
+        "bytes": 64,
+        "sha256": "9bd7157ccbea450df84c4b038be89247db98050ad71ec76d9b9cf0db4737e4c7"
+      },
+      {
+        "path": "test-struct-name-ownership-terminal.json",
+        "bytes": 174,
+        "sha256": "c39856a35bff3f4c03333ee91e6e94e5c635f17cc9442766dd1e589118d61ebf"
+      },
+      {
+        "path": "test-struct-name-ownership-tools-after.json",
+        "bytes": 1977,
+        "sha256": "023f004006086f62e3c4619173f796aa51bffdc8288dc740f36dc13f16dda3a9"
+      },
+      {
+        "path": "test-struct-name-ownership-tools-before.json",
+        "bytes": 1977,
+        "sha256": "023f004006086f62e3c4619173f796aa51bffdc8288dc740f36dc13f16dda3a9"
+      },
+      {
+        "path": "test-struct-name-ownership.log",
+        "bytes": 55769,
+        "sha256": "31fc9f0935186b7e3b3afda459c565bcaa52e09535c728ef60b9220936a288cb"
+      }
+    ],
+    "objects": 105,
+    "equal_pairs": 2,
+    "results": [
+      {
+        "phase": "test-struct-name-ownership",
+        "seconds": 8.361,
+        "status": 2
+      }
+    ]
+  },
+  "6cf0-ordinary-reports": {
+    "bundle_sha256": "623c32c80972bdb9bb1056e4194a4635226c843d0984c11f7ab8d5b123d6a69a",
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 155,
+        "sha256": "4b2b5e5362d206af7cf3d0ca1b6359a3ac8b466304d445b156802b1e16b25d6a"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 3009,
+        "sha256": "a4eeb36db751cdab93c8dcc842f10946f620561eb66bee820fa681b426530f2f"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8438,
+        "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+      },
+      {
+        "path": "final.json",
+        "bytes": 142,
+        "sha256": "64cd6a8957c4de6a9fc83374e4d2dfc9cd36041c8ce694757671e709912b3f1b"
+      },
+      {
+        "path": "results.json",
+        "bytes": 93,
+        "sha256": "ac71ff3ea2082d87f5d5aaaf25d60e1969bfdc1ecf485a2e2d92b9896726c3d6"
+      },
+      {
+        "path": "sdk.json",
+        "bytes": 132,
+        "sha256": "59ecf6a576fe058d6cc12ad0eef796e4809f3c3733a50f72fb076e65d636feb8"
+      },
+      {
+        "path": "test-struct-name-ownership-artifacts.json",
+        "bytes": 36360,
+        "sha256": "871f75219e37ac205a38d92d634e781e40b6f412cf6f00e836ce0ff2c3e85872"
+      },
+      {
+        "path": "test-struct-name-ownership-command.json",
+        "bytes": 463,
+        "sha256": "15f597c72692b681adf4c5a7ee62c09fcba5751d75815e7aa7174c14009e7a61"
+      },
+      {
+        "path": "test-struct-name-ownership-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "test-struct-name-ownership-nested-processes.json",
+        "bytes": 1283,
+        "sha256": "0f246646af0ac49b43c42c3233b3563c1d438334eb5557a7b9093d62e533384f"
+      },
+      {
+        "path": "test-struct-name-ownership-source-after.json",
+        "bytes": 400561,
+        "sha256": "6c64b64b5049abd1944610cb7e2299b77617fb246d9755154eb19a841b399c14"
+      },
+      {
+        "path": "test-struct-name-ownership-source-before.json",
+        "bytes": 400561,
+        "sha256": "6c64b64b5049abd1944610cb7e2299b77617fb246d9755154eb19a841b399c14"
+      },
+      {
+        "path": "test-struct-name-ownership-space-before.json",
+        "bytes": 64,
+        "sha256": "7347d6186624e52d74d0cb04dc7afbdf4088e367b34025dcb7b04104efdaa5bf"
+      },
+      {
+        "path": "test-struct-name-ownership-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-struct-name-ownership-tools-after.json",
+        "bytes": 1993,
+        "sha256": "e93bdc0fdc99857855340a9738bd5909c8cee6cc82602c372461d75bb4c0d2cb"
+      },
+      {
+        "path": "test-struct-name-ownership-tools-before.json",
+        "bytes": 1993,
+        "sha256": "e93bdc0fdc99857855340a9738bd5909c8cee6cc82602c372461d75bb4c0d2cb"
+      },
+      {
+        "path": "test-struct-name-ownership.log",
+        "bytes": 44313,
+        "sha256": "986637281137abfae020fb92b351c3a0a154ab0887f007b09a618ae161887b32"
+      }
+    ],
+    "objects": 105,
+    "equal_pairs": 2,
+    "results": [
+      {
+        "phase": "test-struct-name-ownership",
+        "seconds": 3.122,
+        "status": 0
+      }
+    ]
+  },
+  "6cf0-sanitizer-reports": {
+    "bundle_sha256": "48ae71647bd30cc84ca1e8cc2f653397361c145df63ef6f6a8fc633c52c389a0",
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 157,
+        "sha256": "12b9c6e83872468c85245b05b4b09adc3d37ce6c3747a853206c35647895c3d5"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 3009,
+        "sha256": "a4eeb36db751cdab93c8dcc842f10946f620561eb66bee820fa681b426530f2f"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8438,
+        "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+      },
+      {
+        "path": "results.json",
+        "bytes": 93,
+        "sha256": "b913a51e435f20e11e94d14da7d9ed81488b7cdca1088756cf0587c676c3d6a2"
+      },
+      {
+        "path": "sdk.json",
+        "bytes": 132,
+        "sha256": "59ecf6a576fe058d6cc12ad0eef796e4809f3c3733a50f72fb076e65d636feb8"
+      },
+      {
+        "path": "test-struct-name-ownership-artifacts.json",
+        "bytes": 36570,
+        "sha256": "0abf3943f7bd66a597a7e080441aee343d0be4bebb1aa76120ad9547a13ccab8"
+      },
+      {
+        "path": "test-struct-name-ownership-command.json",
+        "bytes": 563,
+        "sha256": "764d1d5e378634570f3959c9421d4277e6b1208eae3698ac82cccf55403489f9"
+      },
+      {
+        "path": "test-struct-name-ownership-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "test-struct-name-ownership-nested-processes.json",
+        "bytes": 4282,
+        "sha256": "d9a2b2c5136920fe61f6dd1692f38b09549852459e9c869dd6e124d8ee5120dc"
+      },
+      {
+        "path": "test-struct-name-ownership-source-after.json",
+        "bytes": 400561,
+        "sha256": "6c64b64b5049abd1944610cb7e2299b77617fb246d9755154eb19a841b399c14"
+      },
+      {
+        "path": "test-struct-name-ownership-source-before.json",
+        "bytes": 400561,
+        "sha256": "6c64b64b5049abd1944610cb7e2299b77617fb246d9755154eb19a841b399c14"
+      },
+      {
+        "path": "test-struct-name-ownership-space-before.json",
+        "bytes": 64,
+        "sha256": "0851e4235e27869be9e6d5fbd05bfca77ff44cd92c2fdbe06276ef97844a219e"
+      },
+      {
+        "path": "test-struct-name-ownership-terminal.json",
+        "bytes": 174,
+        "sha256": "c39856a35bff3f4c03333ee91e6e94e5c635f17cc9442766dd1e589118d61ebf"
+      },
+      {
+        "path": "test-struct-name-ownership-tools-after.json",
+        "bytes": 1977,
+        "sha256": "fefbcd86c5e845f7269ad65d90b7fc188ec5f40e38cf0066ee51d01454478a7b"
+      },
+      {
+        "path": "test-struct-name-ownership-tools-before.json",
+        "bytes": 1977,
+        "sha256": "fefbcd86c5e845f7269ad65d90b7fc188ec5f40e38cf0066ee51d01454478a7b"
+      },
+      {
+        "path": "test-struct-name-ownership.log",
+        "bytes": 69915,
+        "sha256": "37d410fd823dd3f556644e84679c3b95323a481d4f39f8db2c452772c008965c"
+      }
+    ],
+    "objects": 105,
+    "equal_pairs": 2,
+    "results": [
+      {
+        "phase": "test-struct-name-ownership",
+        "seconds": 7.795,
+        "status": 2
+      }
+    ]
+  }
+}

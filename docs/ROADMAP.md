@@ -17018,3 +17018,8 @@ My final candidate exposes a required integration boundary: PR522 already routes
 ### I rebuild ownership probes when included implementation changes
 
 My integrated ownership probe Make rules omit actual textual implementation dependencies: the hooked Environment object reads `env*.inc`, and the hooked typechecker reads `typechecker*.inc`, `typechecker_purity.c` and `typechecker_passive.c`. I add these prerequisites before reusable builds so changed ownership logic cannot reuse stale fault-instrumented objects. This is an incremental-build correction; the previously sealed fresh-source results keep their original scope.
+
+
+I retain the third PR948 artifact transfer connection failure separately: sanitizer-result-units-08 returned1 after30.406seconds connecting to the hosted blob endpoint. Twelve complete archives are verified; the partial file/status remain. I continue missing artifacts only in a fresh directory after rehashing completed inputs, preserving the600-second transport bound and all actual product terminals.
+
+I qualified source4f7317344 default-all ownership controls on both hosts, ordinary and ASan/UBSan with LSan: all four gates pass with23 snapshot allocation positions in both modes and fresh recovery, plus original lookup and parsed lifecycle controls. I retain exact reports/products in [my focused snapshot seal](evidence/struct-snapshot-ownership/README.md), and preserve all first terminals separately. Integration and broader imported gates remain open.
