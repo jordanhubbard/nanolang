@@ -14492,3 +14492,11 @@ allocator failure claim.
   its existing str_len mapping before fresh corrected gates. No primitive
   semantics, assertion predicate or deadline is weakened.
   MAC: task_716077fe2eb14ec89ead2ce9f2bb3cc2.
+
+- [ ] I retain both4d focused-launcher missing-main refusals before shadow work.
+  The external driver selected transpiler.nano rather than Make's
+  transpiler_driver.nano. I correct orchestration to the actual Make stage2
+  target, retain identical reviewed4d production and all original assertions,
+  then require full build/bootstrap/provider closure. This is a command-selection
+  failure, not a newly demonstrated compiler defect.
+  MAC: task_716077fe2eb14ec89ead2ce9f2bb3cc2.
