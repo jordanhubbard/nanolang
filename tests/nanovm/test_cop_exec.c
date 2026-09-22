@@ -194,9 +194,21 @@ int main(int argc, char **argv) {
     }
     spawn_mode = 0;
     int fd = open("/dev/null", O_RDONLY); assert(fd >= 0);
-    int sentinel = fcntl(fd, F_DUPFD, 256); assert(sentinel >= 256); close(fd);
+    int sentinel = fcntl(fd, F_DUPFD_CLOEXEC, 16); assert(sentinel >= 16); close(fd);
+    int descriptor_flags = fcntl(sentinel, F_GETFD); assert(descriptor_flags >= 0);
+    /* I deliberately expose this owned descriptor to prove the spawn actions
+     * close it, rather than relying on ordinary kernel CLOEXEC behavior. */
+    descriptor_flags &= ~FD_CLOEXEC;
+    assert(fcntl(sentinel, F_SETFD, descriptor_flags) == 0);
+    struct stat sentinel_before, sentinel_after;
+    assert(fstat(sentinel, &sentinel_before) == 0);
     assert(call(&vm, module, &heap, 2, val_int(sentinel)).as.i64 == 1);
-    assert(fcntl(sentinel, F_GETFD) >= 0); close(sentinel);
+    assert(fcntl(sentinel, F_GETFD) == descriptor_flags);
+    assert(fstat(sentinel, &sentinel_after) == 0);
+    assert(sentinel_after.st_dev == sentinel_before.st_dev &&
+           sentinel_after.st_ino == sentinel_before.st_ino &&
+           sentinel_after.st_mode == sentinel_before.st_mode);
+    close(sentinel);
     assert(call(&vm, module, &heap, 0, val_int(1)).as.i64 == 1);
     pid_t original = vm.cop_pid;
     NanoValue arguments[] = {val_int(2), val_int(3)}, results[2];

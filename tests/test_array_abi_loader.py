@@ -62,10 +62,6 @@ class ArrayAbiLoader(unittest.TestCase):
                 #include <string.h>
                 #include <sys/wait.h>
                 #include <unistd.h>
-                /* I do not exercise artifact-directory discovery in this probe. */
-                bool nano_module_artifact_dir(const char *p, char *d, size_t n) {
-                    (void)p; (void)d; (void)n; return false;
-                }
                 int main(int argc, char **argv) {
                     assert(argc == 2);
                     assert(ffi_loader_init(false));
