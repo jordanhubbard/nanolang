@@ -17196,3 +17196,9 @@ unchanged. A retained identity token prevents address-reuse authorization. DONE
 scalar results may release their extra Environment lease only under matching
 snapshotted declared-type/runtime-tag proof; other graphs retain it until explicit
 release. This preserves original scalar teardown while protecting borrowed leaves.
+
+I implement only task992713's contextual task-lifetime prerequisite in this
+checkpoint: retained identity, result lease, actual scalar-DONE teardown and
+foreign evaluator refusal controls. Union registry destruction remains inactive
+until this source/control closure is reviewed. Roota0bb cleanup merged cleanly;
+its two-argument scope helper required an exact fixture-wrapper adaptation.

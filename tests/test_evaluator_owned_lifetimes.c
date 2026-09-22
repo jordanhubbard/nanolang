@@ -966,6 +966,99 @@ static void function_index_controls(void) {
     free(owned_name); free_environment(env);
 }
 
+extern int lifetime_context_spawn(Environment *, Type, CoroFn, void *,
+    CoroArgDropFn, CoroResultDropFn, CoroResultCloneFn);
+static Environment *context_env;
+static int context_id, context_args, context_results, context_runs, context_mode;
+static bool context_fail_clone;
+static Value context_graph, context_scalar_value;
+static void context_arg_drop(void *arg) {
+    CHECK(arg == context_env && !nano_coro_release(context_id));
+    ++context_args;
+}
+static void context_result_drop(Value value) {
+    CHECK(!nano_coro_release(context_id));
+    if (value.type == VAL_STRUCT) CHECK(!env_can_destroy(context_env));
+    ++context_results; env_discard_value_snapshot(value);
+}
+static bool context_clone(Value value, Value *out) {
+    CHECK(!env_can_destroy(context_env) && !nano_coro_release(context_id));
+    return !context_fail_clone && env_clone_value_snapshot(value, out);
+}
+static Value context_callback(void *arg, int id) {
+    CHECK(arg == context_env && id == context_id && !env_can_destroy(context_env));
+    CHECK(!nano_coro_release(id) && !nano_coro_cancel(id));
+    ++context_runs;
+    if (context_mode == 1) nano_coro_complete(context_graph);
+    if (context_mode == 2) nano_coro_error("context error");
+    Value copy; CHECK(env_clone_value_snapshot(context_graph, &copy)); return copy;
+}
+static Value context_scalar_callback(void *arg, int id) {
+    CHECK(arg == context_env && id == context_id); return context_scalar_value;
+}
+static void contextual_task_controls(void) {
+    for (size_t failure = 0; failure < 2; ++failure) {
+        begin(failure, true);
+        Environment *absent = create_environment();
+        end(); CHECK(!absent && failures == 1 && live == 0);
+    }
+    context_env = create_environment(); CHECK(context_env);
+    size_t references = context_env->task_identity->references;
+    context_env->task_identity->references = SIZE_MAX;
+    CHECK(!env_task_identity_retain(context_env->task_identity));
+    context_env->task_identity->references = references;
+    Value callable = create_function("held", NULL);
+    CHECK(env_retire_value(context_env, callable));
+    UnionValue borrowed_union = {.union_name = "Borrowed", .variant_name = "Empty"};
+    Array borrowed_array = {.element_type = VAL_INT};
+    Value union_leaf = {0}, array_leaf = {0};
+    union_leaf.type = VAL_UNION; union_leaf.as.union_val = &borrowed_union;
+    array_leaf.type = VAL_ARRAY; array_leaf.as.array_val = &borrowed_array;
+    char *names[] = {"callback", "union", "array"};
+    Value values[] = {callable, union_leaf, array_leaf};
+    context_graph = create_struct("Graph", names, values, 3);
+    for (context_mode = 0; context_mode < 3; ++context_mode) {
+        context_args = context_results = context_runs = 0;
+        context_id = lifetime_context_spawn(context_env, TYPE_STRUCT, context_callback,
+            context_env, context_arg_drop, context_result_drop, context_clone);
+        CHECK(context_id >= 0 && !env_can_destroy(context_env));
+        CHECK(nano_scheduler_step() && context_runs == 1 && context_args == 1);
+        if (context_mode == 2) {
+            CHECK(env_can_destroy(context_env) && context_results == 1);
+        } else {
+            CHECK(!env_can_destroy(context_env));
+            Value out = integer(89), before = out;
+            context_fail_clone = true;
+            CHECK(!nano_coro_result_copy(context_id, &out) && !memcmp(&out, &before, sizeof out));
+            context_fail_clone = false;
+            CHECK(nano_coro_result_copy(context_id, &out));
+            Value *fields = out.as.struct_val->field_values;
+            CHECK(!strcmp(fields[0].as.function_val.function_name, "held"));
+            CHECK(fields[1].as.union_val == &borrowed_union && fields[2].as.array_val == &borrowed_array);
+            env_discard_value_snapshot(out);
+        }
+        CHECK(nano_coro_release(context_id) && env_can_destroy(context_env));
+        CHECK(!nano_coro_release(context_id));
+    }
+    context_args = 0;
+    context_id = lifetime_context_spawn(context_env, TYPE_STRUCT, context_callback,
+        context_env, context_arg_drop, context_result_drop, context_clone);
+    CHECK(context_id >= 0 && nano_coro_cancel(context_id) && context_args == 1 && env_can_destroy(context_env));
+    CHECK(nano_coro_release(context_id));
+    const Type declared[] = {TYPE_INT, TYPE_U8, TYPE_ENUM, TYPE_BOOL, TYPE_FLOAT, TYPE_VOID,
+        TYPE_OPAQUE, TYPE_UNKNOWN, TYPE_STRUCT, TYPE_BOOL};
+    for (size_t i = 0; i < sizeof declared / sizeof *declared; ++i) {
+        context_scalar_value = i == 3 ? create_bool(true) : i == 4 ? create_float(1.5) :
+            i == 5 ? create_void() : integer(7);
+        context_id = lifetime_context_spawn(context_env, declared[i], context_scalar_callback,
+            context_env, context_arg_drop, context_result_drop, context_clone);
+        CHECK(context_id >= 0 && nano_scheduler_step() && nano_coro_is_done(context_id));
+        CHECK(env_can_destroy(context_env) == (i < 6));
+        CHECK(nano_coro_release(context_id) && env_can_destroy(context_env));
+    }
+    env_discard_value_snapshot(context_graph);
+    free_environment(context_env); context_env = NULL;
+}
 int main(int argc, char **argv) {
     if (argc == 4 && !strcmp(argv[1], "cache-init")) {
         cache_init_control(!strcmp(argv[2], "all") ? SIZE_MAX : (size_t)strtoul(argv[2], NULL, 10), atoi(argv[3]) != 0);
@@ -975,7 +1068,7 @@ int main(int argc, char **argv) {
         cache_registration_control(argv[2]); return 0;
     }
     CHECK(argc == 1);
-    function_index_controls(); nominal_import_controls(); string_binding_ownership_controls(); evaluator_symbol_pop_controls(); graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); task_allocation_controls(); borrowed_staging_controls();
+    function_index_controls(); nominal_import_controls(); string_binding_ownership_controls(); evaluator_symbol_pop_controls(); graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); contextual_task_controls(); task_allocation_controls(); borrowed_staging_controls();
     CHECK(live == 0 && !observing);
     printf("I passed %zu checked ownership assertions.\n", checks);
     return 0;

@@ -62,6 +62,7 @@ typedef struct {
     int arg_count;
     Environment *env;   /* One checked lease after preparation. */
     bool leased;
+    Type declared_result; /* Selected before recursive argument evaluation. */
 } CoroCallArgs;
 
 /* Top-level callable values already own metadata at the public call boundary.
@@ -110,11 +111,12 @@ static void coro_bundle_drop(void *raw) {
     free(ca);
 }
 
-static CoroCallArgs *coro_bundle_new(Environment *env, const char *name, int argc) {
+static CoroCallArgs *coro_bundle_new(Environment *env, const char *name, int argc, Type declared) {
     if (!env || !name || argc < 0 || (size_t)argc > SIZE_MAX / sizeof(Value)) return NULL;
     CoroCallArgs *ca = calloc(1, sizeof(*ca));
     if (!ca) return NULL;
     ca->env = env;
+    ca->declared_result = declared;
     ca->func_name = strdup(name);
     ca->args = calloc(argc ? (size_t)argc : 1, sizeof(Value));
     ca->owned_args = calloc(argc ? (size_t)argc : 1, sizeof(bool));
@@ -138,14 +140,61 @@ static Value coro_trampoline(void *raw_arg, int coro_id) {
     return call_function(ca->func_name, ca->args, ca->arg_count, ca->env);
 }
 
+typedef struct {
+    Environment *leased_env;
+    EnvTaskIdentity *identity;
+    Type declared_result;
+} EvalTaskOwner;
+
+static void eval_task_owner_drop(void *raw) {
+    EvalTaskOwner *owner = raw;
+    if (!owner) return;
+    if (owner->leased_env) env_release_evaluation_lease(owner->leased_env);
+    env_task_identity_release(owner->identity);
+    free(owner);
+}
+
+static void eval_task_owner_settle(void *raw, CoroStatus status, Value result) {
+    EvalTaskOwner *owner = raw;
+    bool independent =
+        ((owner->declared_result == TYPE_INT || owner->declared_result == TYPE_U8 ||
+          owner->declared_result == TYPE_ENUM) && result.type == VAL_INT) ||
+        (owner->declared_result == TYPE_BOOL && result.type == VAL_BOOL) ||
+        (owner->declared_result == TYPE_FLOAT && result.type == VAL_FLOAT) ||
+        (owner->declared_result == TYPE_VOID && result.type == VAL_VOID);
+    if (status != CORO_DONE || independent) {
+        env_release_evaluation_lease(owner->leased_env);
+        owner->leased_env = NULL;
+    }
+}
+
+static EvalTaskOwner *eval_task_owner_new(Environment *env, Type declared) {
+    EvalTaskOwner *owner = calloc(1, sizeof(*owner));
+    if (!owner) return NULL;
+    if (!env_task_identity_retain(env->task_identity)) { free(owner); return NULL; }
+    owner->identity = env->task_identity;
+    owner->declared_result = declared;
+    if (!env_acquire_evaluation_lease(env)) { eval_task_owner_drop(owner); return NULL; }
+    owner->leased_env = env;
+    return owner;
+}
+
 static int coro_bundle_enqueue(CoroCallArgs *ca) {
     if (!env_acquire_evaluation_lease(ca->env)) return -1;
     ca->leased = true;
-    return nano_coro_spawn_owned(coro_trampoline, ca, coro_bundle_drop,
-        eval_owned_task_drop, eval_owned_task_clone);
+    EvalTaskOwner *owner = eval_task_owner_new(ca->env, ca->declared_result);
+    if (!owner) return -1;
+    int id = nano_coro_spawn_contextual(coro_trampoline, ca, coro_bundle_drop,
+        eval_owned_task_drop, eval_owned_task_clone, owner, owner->identity,
+        eval_task_owner_settle, eval_task_owner_drop);
+    if (id < 0) eval_task_owner_drop(owner);
+    return id;
 }
 
 static Value eval_task_result(Environment *env, int id, bool await) {
+    if (!env || !nano_coro_context_matches(id, env->task_identity)) {
+        fprintf(stderr, "I cannot access a task owned by another Environment.\n"); exit(1);
+    }
     Value result;
     bool ok = await ? nano_coro_await_copy(id, &result) : nano_coro_result_copy(id, &result);
     if (!ok) {
@@ -3365,7 +3414,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                 fprintf(stderr, "I cannot enqueue a deferred borrowed argument.\n"); exit(1);
             }
         }
-        CoroCallArgs *ca = coro_bundle_new(env, async_fn_name, extra_args);
+        CoroCallArgs *ca = coro_bundle_new(env, async_fn_name, extra_args, deferred ? deferred->return_type : TYPE_UNKNOWN);
         if (!ca) { fprintf(stderr, "I cannot prepare task argument storage.\n"); exit(1); }
         for (int i = 0; i < extra_args; ++i) {
             Value value = eval_expression(node->as.call.args[i + 1], env);
@@ -4772,7 +4821,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
      * When an async fn is called, spawn a coroutine and run it to completion.
      * In synchronous/test mode the behaviour is identical to before. */
     if (func->is_async && func->body != NULL) {
-        CoroCallArgs *ca = coro_bundle_new(env, name, node->as.call.arg_count);
+        CoroCallArgs *ca = coro_bundle_new(env, name, node->as.call.arg_count, func->return_type);
         if (ca) {
             bool copied = true;
             for (int i = 0; copied && i < ca->arg_count; ++i) {

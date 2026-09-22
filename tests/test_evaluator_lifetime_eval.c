@@ -29,7 +29,7 @@ void lifetime_task_drop(Value value) { eval_owned_task_drop(value); }
 /* I use the real bundle preparation/rollback functions; this queued-only control
  * cancels before attempting to call its deliberately absent fixture target. */
 bool lifetime_prepare_bundle(Environment *env, Value source, int *out) {
-    CoroCallArgs *bundle = coro_bundle_new(env, "queued_fixture_target", 1);
+    CoroCallArgs *bundle = coro_bundle_new(env, "queued_fixture_target", 1, TYPE_UNKNOWN);
     if (!bundle) return false;
     if (!coro_bundle_argument(bundle, 0, source, false)) { coro_bundle_drop(bundle); return false; }
     int id = coro_bundle_enqueue(bundle);
@@ -43,5 +43,28 @@ Value lifetime_stage_argument(Environment *env, ASTNode *expression, const char 
 
 /* I expose the actual cleanup boundary without duplicating its implementation. */
 void lifetime_scope_release(Environment *env, int first, bool functions) {
-    eval_scope_release(env, first, functions);
+    (void)functions; /* The owning production boundary now retires every callable. */
+    eval_scope_release(env, first);
+}
+
+int lifetime_enqueue_named(Environment *env, const char *name) {
+    Function *function = env_get_function(env, name);
+    CoroCallArgs *bundle = coro_bundle_new(env, name, 0, function ? function->return_type : TYPE_UNKNOWN);
+    if (!bundle) return -1;
+    int id = coro_bundle_enqueue(bundle);
+    if (id < 0) coro_bundle_drop(bundle);
+    return id;
+}
+Value lifetime_task_result(Environment *env, int id, bool await) {
+    return eval_task_result(env, id, await);
+}
+
+int lifetime_context_spawn(Environment *env, Type declared, CoroFn fn, void *arg,
+    CoroArgDropFn arg_drop, CoroResultDropFn drop, CoroResultCloneFn clone) {
+    EvalTaskOwner *owner = eval_task_owner_new(env, declared);
+    if (!owner) return -1;
+    int id = nano_coro_spawn_contextual(fn, arg, arg_drop, drop, clone,
+        owner, owner->identity, eval_task_owner_settle, eval_task_owner_drop);
+    if (id < 0) eval_task_owner_drop(owner);
+    return id;
 }

@@ -168,9 +168,82 @@ static void task_callable(void) {
     CHECK(out.as.function_val.signature != &signature && out.as.function_val.signature->param_type_info[0] != &argument);
     CHECK(!strcmp(out.as.function_val.function_name, "callable")); lifetime_task_drop(out);
 }
+extern int lifetime_enqueue_named(Environment *, const char *);
+extern Value lifetime_task_result(Environment *, int, bool);
+static Environment *task_env, *task_foreign;
+static ASTNode *task_ast;
+static Token *task_tokens;
+static int task_token_count, task_id = -1, task_calls;
+static bool task_expect_ready;
+static void task_control_cleanup(void) {
+    if (task_id >= 0) {
+        if (task_expect_ready) {
+            CHECK(!nano_coro_is_done(task_id) && task_calls == 0);
+            Symbol *calls = env_get_var(task_env, "calls");
+            CHECK(calls && calls->value.type == VAL_INT && calls->value.as.int_val == 0);
+        }
+        if (!nano_coro_is_done(task_id)) CHECK(nano_coro_cancel(task_id));
+        CHECK(nano_coro_release(task_id)); task_id = -1;
+    }
+    if (task_foreign) { free_environment(task_foreign); task_foreign = NULL; }
+    if (task_env) { CHECK(env_can_destroy(task_env)); free_environment(task_env); task_env = NULL; }
+    if (task_ast) { free_ast(task_ast); task_ast = NULL; }
+    if (task_tokens) { free_tokens(task_tokens, task_token_count); task_tokens = NULL; }
+    clear_module_cache();
+}
+static Value task_raw_callback(void *unused, int id) {
+    (void)unused; (void)id; ++task_calls; return create_int(7);
+}
+static void task_context_control(const char *mode) {
+    CHECK(atexit(task_control_cleanup) == 0);
+    const char *source =
+        "let mut calls: int = 0\n"
+        "fn scalar() -> int { set calls (+ calls 1) return 7 }\n"
+        "shadow scalar { assert (== (scalar) 7) }\n"
+        "fn words() -> string { return \"kept\" }\n"
+        "shadow words { assert (== (words) \"kept\") }\n";
+    task_tokens = tokenize(source, &task_token_count); CHECK(task_tokens);
+    task_ast = parse_program(task_tokens, task_token_count); CHECK(task_ast);
+    task_env = create_environment(); task_foreign = create_environment(); CHECK(task_env && task_foreign);
+    typecheck_set_current_file("<task-context>");
+    CHECK(type_check(task_ast, task_env) && run_program(task_ast, task_env));
+    bool raw = !strcmp(mode, "task-raw");
+    task_id = raw ? nano_coro_spawn(task_raw_callback, NULL) : lifetime_enqueue_named(task_env, "scalar");
+    CHECK(task_id >= 0);
+    if (!strcmp(mode, "task-foreign-ready") || raw) {
+        task_expect_ready = true;
+        (void)lifetime_task_result(raw ? task_env : task_foreign, task_id, true);
+        CHECK(false);
+    }
+    CHECK(nano_coro_context_matches(task_id, task_env->task_identity));
+    Value result = lifetime_task_result(task_env, task_id, true);
+    CHECK(nano_coro_is_done(task_id) && result.type == VAL_INT && result.as.int_val == 7);
+    CHECK(env_can_destroy(task_env));
+    if (!strcmp(mode, "task-foreign-done")) {
+        (void)lifetime_task_result(task_foreign, task_id, false); CHECK(false);
+    }
+    EnvTaskIdentity *retained = task_env->task_identity;
+    free_environment(task_env); task_env = NULL;
+    CHECK(nano_coro_context_matches(task_id, retained));
+    task_env = create_environment(); CHECK(task_env && task_env->task_identity != retained);
+    CHECK(!nano_coro_context_matches(task_id, task_env->task_identity));
+    CHECK(nano_coro_release(task_id)); task_id = -1;
+    /* I reuse the checked declarations in a fresh Environment. */
+    CHECK(type_check(task_ast, task_env) && run_program(task_ast, task_env));
+    task_id = lifetime_enqueue_named(task_env, "words"); CHECK(task_id >= 0);
+    result = lifetime_task_result(task_env, task_id, true);
+    CHECK(result.type == VAL_STRING && !strcmp(result.as.string_val, "kept"));
+    env_discard_value_snapshot(result);
+    CHECK(nano_coro_is_done(task_id) && !env_can_destroy(task_env));
+    CHECK(nano_coro_release(task_id)); task_id = -1;
+    CHECK(env_can_destroy(task_env));
+    task_control_cleanup();
+    puts("I retained task identity, scalar teardown and completed result leases.");
+}
 int main(int argc, char **argv) {
     CHECK(argc >= 2); nano_scheduler_init();
-    if (!strcmp(argv[1], "program") || !strcmp(argv[1], "escape") || !strcmp(argv[1], "reject")) {
+    if (!strncmp(argv[1], "task-", 5)) { CHECK(argc == 2); task_context_control(argv[1]); }
+    else if (!strcmp(argv[1], "program") || !strcmp(argv[1], "escape") || !strcmp(argv[1], "reject")) {
         CHECK(argc == 3); program(argv[2], !strcmp(argv[1], "escape"), !strcmp(argv[1], "reject"));
     } else if (!strncmp(argv[1], "declarations-", 13)) {
         CHECK(argc == 3); declarations(argv[2], argv[1]);

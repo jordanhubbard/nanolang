@@ -111,8 +111,10 @@ Environment destruction releases its token reference, not task references.
 Failed preparation leaves no published task/token or leaked lease. Reference
 count overflow is checked before transfer.
 
-I audited the original scalar lifecycle: test_eval_coroutine_spawn_and_run frees
-its Environment after scheduler_run without releasing the scalar DONE handle.
+The original test_eval_coroutine_spawn_and_run includes scheduler_run in source,
+but run_ctx_init may only register main: it does not prove an actual scalar DONE
+transition. I retain that test and add an actual checked call which observes DONE
+before freeing its Environment, without first releasing its scalar task handle.
 Existing generic owned-scheduler controls also require argument leases to end
 at completion; those controls keep using the unchanged old API. I will preserve
 both behaviors. Contextual tasks retain their identity token until release, but
@@ -141,3 +143,30 @@ identity survival after scalar owner destruction/address reuse, and explicit
 release of graph results. Copy failures preserve output and retained ownership.
 These are the final proposed contracts for review; implementation and execution
 remain held until review, and full original leak closure remains separate.
+
+## I checkpoint the task lifetime prerequisite separately
+
+My first implementation adds only contextual task lifetime/identity support; it
+does not activate union registry teardown. I snapshot the selected function's
+coarse return type before recursive argument evaluation, avoiding a new fallible
+lookup/cache publication during enqueue. Ordinary owned scheduler APIs remain
+unchanged. The parsed control actually checks and invokes scalar through the
+real bundle, observes DONE and value7, frees its Environment before task release,
+and proves a new Environment cannot match the retained token. A string task
+conservatively retains its lease through release. Fresh process refusal controls
+retain normal atexit cleanup and require exact diagnostic/exit1 for foreign READY,
+foreign DONE and raw C task access through evaluator. READY refusal checks that
+the actual checked scalar's global counter stayed zero.
+
+Additive owning controls keep the original allocation sweeps and scheduler cases,
+exercise a record containing borrowed union/array and Environment-owned callable
+leaves after argument drop, early completion, ERROR, cancellation, clone failure,
+active-hook refusal and stale release. Matching scalar categories and opaque,
+unknown and mismatched tags distinguish early lease release from retention. Two
+new Environment/token allocation failures and identity-reference overflow are
+checked before execution. The fixture wrapper follows root's reviewed two-argument
+scope-retirement API; its existing bool parameter remains for old callers.
+
+Strict C99 syntax with warnings as errors passes for scheduler and fixture TUs;
+production env/eval syntax and Python syntax pass. No runtime gate has run. Full
+source/control review precedes the separately planned union ownership activation.

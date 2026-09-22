@@ -39,6 +39,7 @@ typedef Value (*CoroFn)(void *arg, int coro_id);
 typedef void (*CoroArgDropFn)(void *arg);
 typedef void (*CoroResultDropFn)(Value owned);
 typedef bool (*CoroResultCloneFn)(Value borrowed, Value *out);
+typedef void (*CoroContextSettleFn)(void *context, CoroStatus status, Value result);
 
 /* ── NanoCoroutine ─────────────────────────────────────────────────────── */
 #define MAX_COROUTINES   64
@@ -52,6 +53,10 @@ typedef struct NanoCoroutine {
     CoroArgDropFn arg_drop;
     CoroResultDropFn result_drop;
     CoroResultCloneFn result_clone;
+    void *result_context;
+    const void *context_identity;
+    CoroArgDropFn context_drop;
+    CoroContextSettleFn context_settle;
     Value result;        /* Result value when CORO_DONE */
     char *error_msg;     /* Error message when CORO_ERROR */
     int awaiting_id;     /* -1 = not awaiting; >= 0 = waiting for this coro */
@@ -82,8 +87,19 @@ int nano_coro_spawn(CoroFn fn, void *arg);
  * transfers nothing. Legacy spawn keeps borrowed argument/result semantics. */
 int nano_coro_spawn_owned(CoroFn fn, void *arg, CoroArgDropFn arg_drop,
                          CoroResultDropFn result_drop, CoroResultCloneFn result_clone);
+/* Additive contextual ownership. Enqueue transfers nothing on failure.
+ * Settlement runs once after the callback/temporary drop (or cancellation),
+ * before argument drop. Context disposal follows result drop at release.
+ * Clone hooks own their copied storage; reference leaves may borrow context.
+ * Copies containing those leaves require their owner to remain alive. */
+int nano_coro_spawn_contextual(CoroFn fn, void *arg, CoroArgDropFn arg_drop,
+    CoroResultDropFn result_drop, CoroResultCloneFn result_clone,
+    void *context, const void *identity, CoroContextSettleFn settle,
+    CoroArgDropFn context_drop);
+bool nano_coro_context_matches(int coro_id, const void *identity);
 bool nano_coro_cancel(int coro_id);
-/* Independent copies for owned DONE tasks; output is unchanged on failure. */
+/* Independent copies for ordinary owned DONE tasks; contextual tasks retain
+ * their documented borrowed-leaf contract. Output is unchanged on failure. */
 bool nano_coro_result_copy(int coro_id, Value *out);
 bool nano_coro_await_copy(int coro_id, Value *out);
 

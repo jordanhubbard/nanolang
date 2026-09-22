@@ -825,6 +825,7 @@ typedef struct {
 } ImportTracker;
 
 typedef struct EnvEvaluationProvider EnvEvaluationProvider;
+typedef struct EnvTaskIdentity EnvTaskIdentity;
 
 /* Environment for variable and function storage */
 typedef struct {
@@ -832,7 +833,8 @@ typedef struct {
     int symbol_count;
     int symbol_capacity;
     struct EnvProviderEdge *evaluation_providers;
-    size_t evaluation_leases; /* Queued/active evaluator bundles prevent teardown. */
+    size_t evaluation_leases; /* Pending calls and borrowed completed results prevent teardown. */
+    EnvTaskIdentity *task_identity; /* Separate identity survives scalar task completion. */
     struct EnvRecordList *record_lists; /* Evaluator-owned handles, including tombstones. */
     struct EnvRecordResult *record_results; /* Cumulative borrowed result snapshots. */
     struct EnvRecordIndex *record_result_index; /* Exact typed-root membership; arena owns entries. */
@@ -986,6 +988,8 @@ EnvEvaluationProvider *env_provider_new(void);
 bool env_register_provider(Environment *env, EnvEvaluationProvider *provider);
 bool env_provider_close(EnvEvaluationProvider *provider);
 void env_provider_release(EnvEvaluationProvider *provider);
+bool env_task_identity_retain(EnvTaskIdentity *identity);
+void env_task_identity_release(EnvTaskIdentity *identity);
 bool env_acquire_evaluation_lease(Environment *env);
 void env_release_evaluation_lease(Environment *env);
 bool env_can_destroy(Environment *env);

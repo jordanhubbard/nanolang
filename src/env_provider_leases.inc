@@ -1,3 +1,18 @@
+/* Identity carries no Environment pointer; retained task references prevent
+ * address reuse even after a scalar task's Environment is destroyed. */
+struct EnvTaskIdentity { size_t references; };
+bool env_task_identity_retain(EnvTaskIdentity *identity) {
+    if (!identity || !identity->references || identity->references == SIZE_MAX) return false;
+    ++identity->references;
+    return true;
+}
+void env_task_identity_release(EnvTaskIdentity *identity) {
+    if (!identity || !identity->references) {
+        fprintf(stderr, "I cannot release an invalid task identity.\n"); exit(1);
+    }
+    if (--identity->references == 0) free(identity);
+}
+
 /* I track exact AST-provider generations. No pointer into a ModuleCache is
  * retained here; references keep this identity alive after its cache closes. */
 struct EnvEvaluationProvider {

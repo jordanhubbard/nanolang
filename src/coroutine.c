@@ -97,6 +97,32 @@ int nano_coro_spawn_owned(CoroFn fn, void *arg, CoroArgDropFn arg_drop,
     return coro_spawn(fn, arg, arg_drop, result_drop, result_clone);
 }
 
+int nano_coro_spawn_contextual(CoroFn fn, void *arg, CoroArgDropFn arg_drop,
+    CoroResultDropFn result_drop, CoroResultCloneFn result_clone,
+    void *context, const void *identity, CoroContextSettleFn settle,
+    CoroArgDropFn context_drop) {
+    if (!context || !identity || !settle || !context_drop) return -1;
+    int id = nano_coro_spawn_owned(fn, arg, arg_drop, result_drop, result_clone);
+    if (id < 0) return -1;
+    NanoCoroutine *coro = coro_by_id(id);
+    coro->result_context = context;
+    coro->context_identity = identity;
+    coro->context_settle = settle;
+    coro->context_drop = context_drop;
+    return id;
+}
+
+bool nano_coro_context_matches(int id, const void *identity) {
+    NanoCoroutine *coro = coro_by_id(id);
+    return coro && identity && coro->context_identity == identity;
+}
+
+static void coro_settle_context(NanoCoroutine *coro) {
+    CoroContextSettleFn settle = coro->context_settle;
+    coro->context_settle = NULL;
+    if (settle) settle(coro->result_context, coro->status, coro->result);
+}
+
 static void coro_drop_argument(NanoCoroutine *coro) {
     CoroArgDropFn drop = coro->arg_drop;
     if (!drop) return; /* Legacy borrowed arguments stay observable until release. */
@@ -133,6 +159,12 @@ bool nano_coro_release(int id) {
     coro->result.type = VAL_VOID;
     coro_drop_argument(coro);
     if (drop) drop(result);
+    CoroArgDropFn context_drop = coro->context_drop;
+    void *context = coro->result_context;
+    coro->context_drop = NULL;
+    coro->result_context = NULL;
+    coro->context_identity = NULL;
+    if (context_drop) context_drop(context);
     free(coro->error_msg);
     memset(coro, 0, sizeof(*coro));
     coro->id = -1;
@@ -147,6 +179,7 @@ bool nano_coro_cancel(int id) {
     if (!coro || coro->active || coro->status != CORO_READY) return false;
     coro->active = true;
     coro_fail(coro, "I cancelled this pending task.");
+    coro_settle_context(coro);
     coro_drop_argument(coro);
     coro->active = false;
     return true;
@@ -171,6 +204,7 @@ static bool coro_run(int slot) {
         CoroResultDropFn drop = coro->result_drop;
         if (drop) drop(result);
     }
+    coro_settle_context(coro);
     coro_drop_argument(coro);
     g_scheduler.current = previous;
     coro->active = false;

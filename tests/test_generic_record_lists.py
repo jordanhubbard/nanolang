@@ -130,6 +130,10 @@ class GenericRecordLists(unittest.TestCase):
         return out, err
 
     def test_checked_storage_scheduler_and_allocation_prefixes(self):
+        self.command('task-context', [self.programs, 'task-context'])
+        for mode in ('task-foreign-ready', 'task-foreign-done', 'task-raw'):
+            out, err = self.command(mode, [self.programs, mode], expected=(1,))
+            self.assertEqual(err, 'I cannot access a task owned by another Environment.\n')
         self.command('coroutine-error-allocations', [self.coroutine_errors])
         out, _ = self.command('checked-lifetimes', [self.owned])
         self.assertIn(b'checked ownership assertions', out)

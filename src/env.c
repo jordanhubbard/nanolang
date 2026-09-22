@@ -255,6 +255,10 @@ Environment *create_environment(void) {
      * defaults to false/NULL/0 instead of holding allocator garbage. Four
      * fields had already drifted that way -- see the diagnostics block. */
     Environment *env = calloc(1, sizeof(Environment));
+    if (!env) return NULL;
+    env->task_identity = calloc(1, sizeof(*env->task_identity));
+    if (!env->task_identity) { free(env); return NULL; }
+    env->task_identity->references = 1;
     env->symbols = malloc(sizeof(Symbol) * 8);
     env->symbol_count = 0;
     env->symbol_capacity = 8;
@@ -566,6 +570,7 @@ void free_environment(Environment *env) {
         else free(entry->allocation);
         free(entry);
     }
+    env_task_identity_release(env->task_identity);
     free(env);
 }
 
