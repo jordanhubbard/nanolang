@@ -152,7 +152,8 @@ static void record_names_attempt(int fields_count, size_t at, bool once, size_t 
     for (int i = 0; i < fields_count; ++i) { names[i] = name; values[i] = integer(i); }
     StructValue record = {.struct_name=type_name, .field_names=names,
                          .field_values=values, .field_count=fields_count};
-    Value result = integer(919), sentinel = result;
+    Value result = integer(919), sentinel;
+    memcpy(&sentinel, &result, sizeof result);
     begin(at, once);
     bool ok = env_clone_record(record_value(&record), &result);
     *count = attempts; end();
