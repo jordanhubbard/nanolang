@@ -143,6 +143,11 @@ def snapshot(output, name):
             raise ValueError('I require my selected tool: ' + name_)
         tools[name_] = {'path': executable, 'resolved': os.path.realpath(executable),
                         'sha256': file_hash(executable)}
+    for name_ in ('clang', 'opt', 'llvm-as', 'llvm-dis', 'lli', 'llc', 'llvm-nm', 'wasm-ld'):
+        executable = shutil.which(name_)
+        if executable:
+            tools[name_] = {'path': executable, 'resolved': os.path.realpath(executable),
+                            'sha256': file_hash(executable)}
     products = {}
     for base in ('bin', 'obj', 'obj-runtime', 'lib'):
         if Path(base).exists():

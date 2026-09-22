@@ -406,7 +406,7 @@ jobs:
         timeout-minutes: 10
         run: |
           ./scripts/ci-apt-install.sh \
-            build-essential \
+            build-essential clang llvm lld \
             pkg-config \
             libssl-dev libffi-dev \
             libsdl2-dev \
@@ -414,6 +414,14 @@ jobs:
             libsdl2-mixer-dev \
             libsdl2-ttf-dev \
             libutf8proc-dev
+
+      - name: Select matching distribution LLVM tools
+        run: |
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          for tool in clang opt llvm-as llvm-dis lli llc llvm-nm wasm-ld; do
+            test -x "$LLVM_BIN/$tool"
+          done
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
 
       - name: Verify exact head and complete unit inventory
         id: verify

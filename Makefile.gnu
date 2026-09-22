@@ -974,7 +974,7 @@ test-selfhost-array-compatibility: bootstrap3
 test-units: test-selfhost-array-compatibility test-selfhost-map-types test-selfhost-map-results test-selfhost-returned-calls test-selfhost-rejection-gate
 
 .PHONY: test-selfhost-byte-array-identity
-test-selfhost-byte-array-identity:
+test-selfhost-byte-array-identity: bootstrap3
 	@python3 -m unittest -v tests.test_selfhost_byte_array_identity
 
 test-units: test-selfhost-byte-array-identity
@@ -4807,7 +4807,7 @@ test-nanoisa-local-inference: bootstrap nano_vm nvm2c
 
 .PHONY: test-passive-flow-frontends
 test-units: test-passive-flow-frontends
-test-passive-flow-frontends: bootstrap nanoisa_emit nano_virt nano_vm nanoisa_dump
+test-passive-flow-frontends: bootstrap nanoisa_emit nano_virt nano_vm nanoisa_dump nvm2c
 	python3 -m unittest tests.test_passive_flow_frontends
 .PHONY: test-affine-state
 test-units: test-affine-state
@@ -5510,10 +5510,12 @@ test-file-nominal: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 test-units: test-file-nominal
 test-file-nominal-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	FILE_NOMINAL_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_NOMINAL_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_nominal
+OWNED_ARRAY_ORIGIN_CFLAGS ?= $(CFLAGS)
+OWNED_ARRAY_ORIGIN_LDFLAGS ?= $(LDFLAGS)
 .PHONY: test-owned-array-origins
 test-units: test-owned-array-origins
 test-owned-array-origins: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
-	OWNED_ARRAY_ORIGIN_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_origins
+	CC="$(CC)" OWNED_ARRAY_ORIGIN_CFLAGS="$(OWNED_ARRAY_ORIGIN_CFLAGS)" OWNED_ARRAY_ORIGIN_LDFLAGS="$(OWNED_ARRAY_ORIGIN_LDFLAGS)" OWNED_ARRAY_ORIGIN_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_origins
 
 .PHONY: test-file-nominal-module
 test-file-nominal-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o nvm2llvm nvm2hl nvm2c
