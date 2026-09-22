@@ -65,6 +65,10 @@ typedef struct {
     char **field_names;      /* Array of field names */
     Value *field_values;     /* Array of field values */
     int field_count;         /* Number of fields */
+    /* I own this complete field-name buffer when non-NULL. Its individual
+     * names stay writable but are released only through env_discard_record.
+     * Zero keeps the individually allocated name representation. */
+    char *field_name_storage;
 } StructValue;
 
 /* Union value (tagged union) */

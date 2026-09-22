@@ -125,8 +125,9 @@ void env_discard_value_snapshot(Value owned) {
         if (!record) return;
         for (int i = 0; i < record->field_count; ++i) {
             env_discard_value_snapshot(record->field_values[i]);
-            free(record->field_names[i]);
+            if (!record->field_name_storage) free(record->field_names[i]);
         }
+        free(record->field_name_storage);
         free(record->field_names);
         free(record->field_values);
         free(record->struct_name);
@@ -162,6 +163,13 @@ static bool clone_value_at(Value source, Value *out, unsigned depth) {
             (src->field_count && (!src->field_names || !src->field_values)) ||
             (size_t)src->field_count > SIZE_MAX / sizeof(Value) ||
             (size_t)src->field_count > SIZE_MAX / sizeof(char *)) return false;
+        size_t name_bytes = 0;
+        for (int i = 0; i < src->field_count; ++i) {
+            if (!src->field_names[i]) return false;
+            size_t length = strlen(src->field_names[i]);
+            if (length == SIZE_MAX || length + 1 > SIZE_MAX - name_bytes) return false;
+            name_bytes += length + 1;
+        }
         StructValue *dst = calloc(1, sizeof(*dst));
         if (!dst) return false;
         copy.as.struct_val = dst;
@@ -170,10 +178,16 @@ static bool clone_value_at(Value source, Value *out, unsigned depth) {
         dst->field_names = calloc(count, sizeof(*dst->field_names));
         dst->field_values = calloc(count, sizeof(*dst->field_values));
         if (!dst->struct_name || !dst->field_names || !dst->field_values) goto fail;
+        if (name_bytes) {
+            dst->field_name_storage = malloc(name_bytes);
+            if (!dst->field_name_storage) goto fail;
+        }
+        char *next_name = dst->field_name_storage;
         for (int i = 0; i < src->field_count; ++i) {
-            if (!src->field_names[i]) goto fail;
-            dst->field_names[i] = strdup(src->field_names[i]);
-            if (!dst->field_names[i]) goto fail;
+            size_t bytes = strlen(src->field_names[i]) + 1;
+            dst->field_names[i] = next_name;
+            memcpy(next_name, src->field_names[i], bytes);
+            next_name += bytes;
             dst->field_values[i].type = VAL_VOID;
             dst->field_count = i + 1;
             if (!clone_value_at(src->field_values[i], &dst->field_values[i], depth + 1)) goto fail;

@@ -17429,3 +17429,7 @@ shared typed revision2/profile and provider admission work continues.
 - [ ] I measure per-body record snapshot and field-copy volume through private exact-provider counters before choosing a further compiler deadline repair (task_96b40bc1ccd644bca2131878fa6cf372). Contract: `docs/RECORD_COPY_COST_DIAGNOSTIC.md`; production ownership and both original deadlines remain unchanged.
 
 - [x] I retain reviewed private946 record counters: original parse_block_recursive makes44,239 Parser clone attempts and3,406,403 field-name copies; original resource_concrete_payload_fact makes6,083/468,391. Both unchanged bodies pass; full79.506seconds includes compilation and is not full shadow/CI acceptance. Evidence: `docs/evidence/record-copy-cost/`.
+
+- [ ] I reduce per-field record snapshot metadata allocations with independent per-record name storage, preserving mutation independence and transactional disposal (task_96b40bc1ccd644bca2131878fa6cf372). Contract: `docs/EVALUATOR_RECORD_NAME_STORAGE.md`; source review and original lifetime gates precede deadline qualification.
+
+- [x] I qualify51d independent record-name storage with fresh complete providers and the original lifetime/collection methods on Linux and macOS, ordinary and ASan/UBSan/LSan. All eight methods pass; source/provider/tool maps remain identical and groups are gone. Evidence: `docs/evidence/record-name-storage/`. Compiler deadline and full release gates remain open.
