@@ -34,5 +34,7 @@
   ],
   "explicit_replacements": {
     "src_nano/nanoc_v06.nano:native_source_already_linked": "I retain all three canonical identity properties in native_provider_add against its actual registry; I do not restore the superseded cJSON-only suppression."
-  }
+  },
+  "pin": "f44712e0265064784d1bea1cb9109f3b4424fc89",
+  "supplement": "I subsequently carry the exact reviewed4d1444560 shadow expectation correction; these hashes describe the frozen integration merge."
 }
