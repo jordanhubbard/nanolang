@@ -583,6 +583,22 @@ static bool types_match(Type t1, Type t2) {
     return false;
 }
 
+/* I distinguish direct byte literals from computed integer narrowing. */
+static bool byte_literal_fits(Type expected, const ASTNode *value) {
+    if (expected != TYPE_U8 || !value) return true;
+    if (value->type == AST_NUMBER)
+        return value->as.number >= 0 && value->as.number <= 255;
+    if (value->type == AST_PREFIX_OP && value->as.prefix_op.op == TOKEN_MINUS &&
+        value->as.prefix_op.arg_count == 1 && value->as.prefix_op.args &&
+        value->as.prefix_op.args[0] && value->as.prefix_op.args[0]->type == AST_NUMBER)
+        return value->as.prefix_op.args[0]->as.number == 0;
+    return true;
+}
+
+static bool scalar_value_matches(Type actual, Type expected, const ASTNode *value) {
+    return types_match(actual, expected) && byte_literal_fits(expected, value);
+}
+
 /* I resolve nominal enum annotations before selecting scalar array operations. */
 static Type resolved_array_element(Type element, const char *name, Environment *env) {
     return element == TYPE_STRUCT && name && env_get_enum(env, name) ? TYPE_ENUM : element;
@@ -1771,7 +1787,7 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
                                       int depth) {
     if (depth > 128) return false;
     Type actual = check_expression(argument, env);
-    if (!types_match(actual, expected ? expected->base_type : fallback)) return false;
+    if (!scalar_value_matches(actual, expected ? expected->base_type : fallback, argument)) return false;
     if (!expected) return true;
     if (expected->base_type == TYPE_ARRAY && expected->element_type &&
         argument->type == AST_ARRAY_LITERAL) {
@@ -1852,7 +1868,7 @@ static Type check_perform(ASTNode *expr, Environment *env) {
     }
     for (int i = 0; i < count; i++) {
         Type actual = check_expression(expr->as.effect_op.args[i], env);
-        if (!types_match(actual, op->params[i].type)) {
+        if (!scalar_value_matches(actual, op->params[i].type, expr->as.effect_op.args[i])) {
             emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 7,
                                "I require the declared operation's argument type for perform.",
                                "Match the effect operation signature.");
@@ -3345,7 +3361,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         
                         check_record_array_contract(env, func->params[i].type,
                             func->params[i].element_type, func->params[i].struct_type_name, arg);
-                        if (!is_opaque_param && !is_opaque_arg && !types_match(arg_type, func->params[i].type)) {
+                        if (!is_opaque_param && !is_opaque_arg && !scalar_value_matches(arg_type, func->params[i].type, arg)) {
                             char message[256];
                             snprintf(message, sizeof(message),
                                     "Argument %d expects %s, got %s.",
@@ -4452,8 +4468,16 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_RETURN: {
-            /* Return statements can appear in blocks that are used as expressions */
+            /* Return statements can appear in blocks that are used as expressions. */
             if (expr->as.return_stmt.value) {
+                if (active_statement_checker && !byte_literal_fits(
+                        active_statement_checker->current_function_return_type, expr->as.return_stmt.value)) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require a direct u8 literal between 0 and 255.",
+                        "Use a computed integer expression for explicit byte narrowing.");
+                    active_statement_checker->has_error = true;
+                    return TYPE_UNKNOWN;
+                }
                 return check_expression(expr->as.return_stmt.value, env);
             }
             return TYPE_VOID;
@@ -5125,7 +5149,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     /* dealing with function-typed parameters where we don't have full signature info */
                 }
                 if (owns_value_sig) free_function_signature(value_sig);
-            } else if (!types_match(value_type, declared_type)) {
+            } else if (!scalar_value_matches(value_type, declared_type, stmt->as.let.value)) {
                 char message[256];
                 snprintf(message, sizeof(message),
                         "Let binding expects %s but got %s.",
@@ -5307,7 +5331,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 for (int i = 0; i < record->field_count; ++i) {
                     if (strcmp(record->field_names[i], stmt->as.set.field_name)) continue;
                     Type actual = check_expression(stmt->as.set.value, tc->env);
-                    if (!types_match(actual, record->field_types[i])) {
+                    if (!scalar_value_matches(actual, record->field_types[i], stmt->as.set.value)) {
                         fprintf(stderr, "I require the declared field type for borrowed mutation\n");
                         tc->has_error = true;
                     }
@@ -5337,7 +5361,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
 
-            if (!types_match(value_type, sym->type)) {
+            if (!scalar_value_matches(value_type, sym->type, stmt->as.set.value)) {
                 char message[256];
                 snprintf(message, sizeof(message),
                         "Assignment expects %s but got %s.",
@@ -5488,7 +5512,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 if (!check_record_array_contract(tc->env, tc->current_function_return_type,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name,
                         stmt->as.return_stmt.value)) tc->has_error = true;
-                if (!types_match(return_type, tc->current_function_return_type)) {
+                if (!scalar_value_matches(return_type, tc->current_function_return_type, stmt->as.return_stmt.value)) {
                     char message[256];
                     snprintf(message, sizeof(message), "Return type mismatch: got %s, expected %s.",
                              type_to_string(return_type), type_to_string(tc->current_function_return_type));
@@ -7893,9 +7917,11 @@ register_function_pass1:;
                                                item->as.let.element_type, item->as.let.type_name);
             }
             
-            /* I retain enum narrowing only at an exact declared byte destination. */
-            bool enum_byte = item->as.let.var_type == TYPE_U8 && value_type == TYPE_ENUM;
-            if (item->as.let.var_type != value_type && !enum_byte) {
+            /* I retain checked numeric narrowing only at an exact byte destination. */
+            bool numeric_byte = item->as.let.var_type == TYPE_U8 &&
+                (value_type == TYPE_INT || value_type == TYPE_ENUM);
+            if ((item->as.let.var_type != value_type && !numeric_byte) ||
+                !byte_literal_fits(item->as.let.var_type, item->as.let.value)) {
                 fprintf(stderr, "Error at line %d, column %d: Constant '%s' type mismatch (declared %s, got %s)\n",
                         item->line, item->column,
                         item->as.let.name,
@@ -8649,9 +8675,11 @@ register_function_pass2:;
                                                item->as.let.element_type, item->as.let.type_name);
             }
             
-            /* I retain enum narrowing only at an exact declared byte destination. */
-            bool enum_byte = item->as.let.var_type == TYPE_U8 && value_type == TYPE_ENUM;
-            if (item->as.let.var_type != value_type && !enum_byte) {
+            /* I retain checked numeric narrowing only at an exact byte destination. */
+            bool numeric_byte = item->as.let.var_type == TYPE_U8 &&
+                (value_type == TYPE_INT || value_type == TYPE_ENUM);
+            if ((item->as.let.var_type != value_type && !numeric_byte) ||
+                !byte_literal_fits(item->as.let.var_type, item->as.let.value)) {
                 fprintf(stderr, "Error at line %d, column %d: Constant '%s' type mismatch (declared %s, got %s)\n",
                         item->line, item->column,
                         item->as.let.name,

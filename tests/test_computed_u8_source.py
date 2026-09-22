@@ -191,6 +191,40 @@ shadow main { assert (== (main) 0) }
                 self.assertEqual(output.read_bytes(), b'previous module\n')
         self.artifacts = original
 
+    def test_native_literal_boundaries_preserve_output(self):
+        original = self.artifacts
+        dependency = original / 'literal-bytes.nano'
+        dependency.write_text('module Bytes\npub fn identity(value: u8) -> u8 { return value }\n'
+            'shadow identity { assert true }\n')
+        identity = 'fn identity(value: u8) -> u8 { return value }\nshadow identity { assert true }\n'
+        for value in (-1, 0, 255, 256):
+            forms = {
+                'global': f'let stored: u8 = {value}\nfn probe() -> int {{ assert (== (cast_int stored) {value}) return 0 }}\n',
+                'local': f'fn probe() -> int {{ let stored: u8 = {value} assert (== (cast_int stored) {value}) return 0 }}\n',
+                'store': f'fn probe() -> int {{ let mut stored: u8 = 0 set stored {value} assert (== (cast_int stored) {value}) return 0 }}\n',
+                'return': f'fn result() -> u8 {{ return {value} }}\nshadow result {{ assert true }}\nfn probe() -> int {{ assert (== (cast_int (result)) {value}) return 0 }}\n',
+                'direct': identity + f'fn probe() -> int {{ assert (== (cast_int (identity {value})) {value}) return 0 }}\n',
+                'indirect': identity + f'fn probe() -> int {{ let call: fn(u8) -> u8 = identity assert (== (cast_int (call {value})) {value}) return 0 }}\n',
+                'qualified': f'module "{dependency}" as Bytes\nfn probe() -> int {{ assert (== (cast_int (Bytes.identity {value})) {value}) return 0 }}\n',
+                'effect-argument': f'effect Byte {{ send : u8 -> int }}\nfn probe() -> int {{ let result = handle {{ perform Byte.send({value}) }} with {{ send item -> {{ assert (== (cast_int item) {value}) 0 }} }} return result }}\n',
+                'effect-return': f'effect Ask {{ ask : int -> int }}\nfn result() -> u8 {{ let ignored = handle {{ perform Ask.ask(1) }} with {{ ask item -> {{ return {value} }} }} return 0 }}\nshadow result {{ assert true }}\nfn probe() -> int {{ assert (== (cast_int (result)) {value}) return 0 }}\n',
+            }
+            for route, text in forms.items():
+                self.artifacts = original / (route + '-' + str(value)); self.artifacts.mkdir()
+                source = self.artifacts / 'source.nano'
+                source.write_text(text + 'shadow probe { assert true }\nfn main() -> int { return (probe) }\nshadow main { assert true }\n')
+                output = self.artifacts / 'native'
+                if 0 <= value <= 255:
+                    self.run_actual([ROOT / 'bin/nanoc_c', source, '-o', output])
+                    self.run_actual([output])
+                else:
+                    output.write_bytes(b'previous native output\n')
+                    result = self.run_trap([ROOT / 'bin/nanoc_c', source, '-o', output])
+                    self.assertGreater(result['returncode'], 0, route)
+                    self.assertIn('Type checking failed', result['stdout'] + result['stderr'])
+                    self.assertEqual(output.read_bytes(), b'previous native output\n')
+        self.artifacts = original
+
     def test_reconstruction_keeps_exact_narrowing(self):
         checks = ''
         for value in (0, 1, 127, 128, 200, 201, 255, 256, 257, -1, -256, -9223372036854775808, 9223372036854775807):
