@@ -8681,6 +8681,12 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             }
             
         } else if (item->type == AST_UNION_DEF) {
+            const int variant_count = item->as.union_def.variant_count;
+            if (variant_count < 0 || (size_t)variant_count > SIZE_MAX / sizeof(TypeInfo **)) {
+                fprintf(stderr, "I require a bounded nonnegative union variant count.\n");
+                tc.has_error = true;
+                continue;
+            }
             const char *union_name = item->as.union_def.name;
             
             /* Check if union already defined */
@@ -8694,7 +8700,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             /* Register the union */
             UnionDef udef = {0};
             udef.name = strdup(union_name);
-            udef.variant_count = item->as.union_def.variant_count;
+            udef.variant_count = variant_count;
             
             /* Duplicate variant names */
             udef.variant_names = malloc(sizeof(char*) * udef.variant_count);
@@ -9555,6 +9561,12 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             }
             
         } else if (item->type == AST_UNION_DEF) {
+            const int variant_count = item->as.union_def.variant_count;
+            if (variant_count < 0 || (size_t)variant_count > SIZE_MAX / sizeof(TypeInfo **)) {
+                fprintf(stderr, "I require a bounded nonnegative union variant count.\n");
+                tc.has_error = true;
+                continue;
+            }
             const char *union_name = item->as.union_def.name;
             
             /* Check if union already defined */
@@ -9568,7 +9580,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             /* Register the union */
             UnionDef udef = {0};
             udef.name = strdup(union_name);
-            udef.variant_count = item->as.union_def.variant_count;
+            udef.variant_count = variant_count;
             
             /* Allocate variant names */
             udef.variant_names = malloc(sizeof(char*) * udef.variant_count);

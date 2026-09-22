@@ -115,6 +115,19 @@ static void check_nominal_owners(void) {
     assert(functions_match(env, &a, &a)); assert(!functions_match(env, &a, &b));
     env->current_module = NULL; free_environment(env);
 }
+static void check_union_count_refusal(void) {
+    for (int module = 0; module < 2; ++module) {
+        Parsed p = parsed("union Counted { Empty {} } fn main() -> int { return 0 } shadow main { assert true }");
+        ASTNode *node = p.program->as.program.items[0]; assert(node->type == AST_UNION_DEF);
+        int original = node->as.union_def.variant_count; assert(original == 1);
+        node->as.union_def.variant_count = -1;
+        Environment *env = create_environment(); assert(env);
+        assert(!(module ? type_check_module(p.program, env) : type_check(p.program, env)));
+        assert(env->union_count == 0);
+        node->as.union_def.variant_count = original;
+        free_environment(env); dispose(p);
+    }
+}
 int main(int argc, char **argv) {
     g_argc = argc; g_argv = argv;
     check_order(false); check_order(true);
@@ -123,7 +136,7 @@ int main(int argc, char **argv) {
     check_signature("extern fn p() -> array<int>", "extern fn p() -> array<string>", false);
     check_signature("extern fn p(a: fn(int) -> int) -> int", "extern fn p(a: fn(string) -> int) -> int", false);
     check_signature("extern fn p(a: (int, string)) -> int", "extern fn p(a: (int, int)) -> int", false);
-    check_publication(); check_alias_conflict(); check_nominal_owners();
+    check_publication(); check_alias_conflict(); check_nominal_owners(); check_union_count_refusal();
     puts("I retained exact extern declaration owners, complete signatures and unpublished failed labels.");
     return 0;
 }

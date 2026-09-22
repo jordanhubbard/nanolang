@@ -26,7 +26,7 @@ class ExternDeclarationOwners(unittest.TestCase):
             native_sdk_runner.run(work,'build',[*cc,*flags,ROOT/'tests/extern_declaration_owners.c',*providers,*links,'-o',exe],ROOT,timeout=300)
             out,err,_=native_sdk_runner.run(work,'run',[exe],ROOT,timeout=60)
             self.assertEqual(out,b'I retained exact extern declaration owners, complete signatures and unpublished failed labels.\n')
-            self.assertEqual(err,b'')
+            self.assertEqual(err,b'I require a bounded nonnegative union variant count.\n'*2)
             (work/'scope.json').write_text(json.dumps({'scope':'actual included C checker; ordinary complete providers; no foreign invocation', 'controls':'both module registration orders, index refresh, same-owner idempotence, complete array/callback/tuple mismatches, both staged label allocation failures and recovery', 'exclusion':'not a full allocator sweep or historical collector OOM policy change'},indent=2)+'\n')
         finally:
             after={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in providers}
