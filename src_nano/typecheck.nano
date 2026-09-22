@@ -2853,13 +2853,13 @@ shadow tc_is_opaque_name {
 
 # I identify a selected payload through its actual declaration, never its suffix alone.
 fn tc_selected_payload_union(parser: Parser, spelling: string) -> int {
+    let dot: int = (selected_payload_dot spelling)
+    if (< dot 0) { return -1 }
     let mut i: int = 0
     while (< i (parser_get_struct_def_count parser)) {
         if (== (parser_get_struct_def parser i).name spelling) { return -1 }
         set i (+ i 1)
     }
-    let dot: int = (selected_payload_dot spelling)
-    if (< dot 0) { return -1 }
     let concrete: string = (str_substring spelling 0 dot)
     let base: string = (base_type_name concrete)
     let variant: string = (str_substring spelling (+ dot 1) (- (str_length spelling) (+ dot 1)))
