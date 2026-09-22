@@ -160,12 +160,16 @@ int main(int argc, char **argv) {
     }
     assert(ffi_loader_init(false));
     assert(ffi_loader_open(argv[1], argv[1]));
+    char parent_work[4096];
+    assert(nano_native_module_objects_dir(parent_work, sizeof parent_work) == NANO_SDK_OK);
+    assert(access(parent_work, F_OK) == 0);
     busy_refusal(false);
     busy_refusal(true);
     waiting_writer_refusal();
     concurrent_reopen();
     unprepared_child();
     prepared_child(argv[1], argv[2], true);
+    assert(access(parent_work, F_OK) == 0);
     assert(!ffi_loader_find(argv[2]));
     assert(nano_native_register_loader_shutdown(ffi_loader_shutdown));
     ffi_loader_shutdown();

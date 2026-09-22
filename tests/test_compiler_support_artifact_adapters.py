@@ -186,6 +186,7 @@ class CompilerSupportArtifactAdapters(unittest.TestCase):
                           *self.links, "-o", library])
         fresh = library.with_name("fresh-" + library.name)
         shutil.copyfile(library, fresh)
+        hashes = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in [library, fresh]}
         control, probe = self.artifacts / "loader-controls", self.artifacts / "sdk-probe"
         makefile = self.artifacts / "loader.mk"
         recipes = []
@@ -210,6 +211,7 @@ class CompilerSupportArtifactAdapters(unittest.TestCase):
         for mode in ['fresh', 'conflict']:
             result = self.run_checked([control, library, fresh, mode])
             self.assertEqual(result, b'I preserved fresh-child SDK registration authority.\n')
+        self.assertEqual(hashes, {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in hashes})
 
 
 if __name__ == "__main__":
