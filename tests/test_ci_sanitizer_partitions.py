@@ -36,11 +36,13 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(sum(w['targets'].count('test-added-required-control') for w in added['workers']), 1)
 
     def test_database_refuses_missing_tail_duplicates_and_syntax(self):
-        good = 'test-units: ' + ' '.join(self.inventory())
-        self.assertEqual(partition.parse_database(good), self.inventory())
+        good = 'test-units: ' + ' '.join(t for t in self.inventory() if t != 'test-units-tail') + '\n\t+@$(MAKE) test-units-tail'
+        self.assertCountEqual(partition.parse_database(good), self.inventory())
         bad = ['', good + '\n' + good, good + ' test-units-tail',
                good.replace('test-units-tail', ''), good + ' | test-extra',
-               good + ' $(DYNAMIC)', good + ' ; echo unsafe', good + ' test_control']
+               good + ' $(DYNAMIC)', good + ' ; echo unsafe', good + ' test_control',
+               good.split('\n')[0], good + '\n\t@echo extra',
+               good.replace('$(MAKE)', 'make'), good.replace('test-units: ', 'test-units: test-units-tail ')]
         for text in bad:
             with self.subTest(text=text), self.assertRaises(ValueError):
                 partition.parse_database(text)
@@ -107,6 +109,26 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertIn('test-units-tail', targets)
         self.assertIn('test-verify-all-programs', targets)
         self.assertIn('test-nanovm', targets)
+
+    def test_parallel_make_tail_waits_for_every_prerequisite(self):
+        makefile = (ROOT / 'Makefile.gnu').read_text()
+        marker = '\t+@$(MAKE) test-units-tail'
+        self.assertEqual(makefile.count(marker), 1)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            # Actual parallel Make, with different completion delays; the recursive
+            # recipe is copied from production and observes both completed files.
+            (root / 'Makefile').write_text(
+                '.PHONY: test-units first second test-units-tail\n'
+                'test-units: first second\n' + marker + '\n'
+                'first:\n\t@sleep 0.1; touch first.done\n'
+                'second:\n\t@sleep 0.2; touch second.done\n'
+                'test-units-tail:\n\t@test -f first.done && test -f second.done\n'
+                '\t@printf "both prerequisites finished\\n" > tail.done\n')
+            result = subprocess.run(['make', '-j4', 'test-units'], cwd=root,
+                                    capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual((root / 'tail.done').read_text(), 'both prerequisites finished\n')
 
     def test_workflow_requires_aggregate_and_preserves_limits(self):
         import yaml

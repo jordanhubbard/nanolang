@@ -31,11 +31,7 @@ def save(path, value):
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
 
 
-def parse_database(text):
-    rows = [line for line in text.splitlines() if line.startswith('test-units:')]
-    if len(rows) != 1:
-        raise ValueError('I require one resolved test-units rule.')
-    targets = rows[0].split()[1:]
+def validate_targets(targets):
     if not targets or len(targets) != len(set(targets)) or any(
             not re.fullmatch(r'test-[a-z0-9-]+', item) for item in targets):
         raise ValueError('I refuse ambiguous or unsupported unit prerequisites.')
@@ -43,6 +39,28 @@ def parse_database(text):
         if required not in targets:
             raise ValueError('I require the original dedicated workers and trailing recipe.')
     return targets
+
+
+def parse_database(text):
+    lines = text.splitlines()
+    starts = [index for index, line in enumerate(lines) if line.startswith('test-units:')]
+    if len(starts) != 1:
+        raise ValueError('I require one resolved test-units rule.')
+    start = starts[0]
+    targets = lines[start].split()[1:]
+    if 'test-units-tail' in targets:
+        raise ValueError('I require the ordinary tail after all prerequisites, not parallel with them.')
+    recipe = []
+    for line in lines[start + 1:]:
+        if not line:
+            break
+        if line.startswith('\t'):
+            recipe.append(line)
+        elif not line.startswith('#'):
+            raise ValueError('I cannot identify the complete ordinary unit recipe.')
+    if recipe != ['\t+@$(MAKE) test-units-tail']:
+        raise ValueError('I require the exact sole post-prerequisite tail invocation.')
+    return validate_targets([*targets, 'test-units-tail'])
 
 
 def resolve(output):
@@ -59,6 +77,7 @@ def resolve(output):
 
 
 def plan(head, targets):
+    validate_targets(targets)
     workers = [{'id': 'forth', 'targets': [DEDICATED[0]]},
                {'id': 'source', 'targets': [DEDICATED[1]]}]
     remainder = [target for target in targets if target not in DEDICATED]
@@ -75,7 +94,7 @@ def plan(head, targets):
 def checked_plan(path):
     value = json.loads(Path(path).read_text())
     # Regeneration validates assignment, order, flags, identity and the digest.
-    if value != plan(value['head'], parse_database('test-units: ' + ' '.join(value['targets']))):
+    if value != plan(value['head'], value['targets']):
         raise ValueError('I refuse a modified partition manifest.')
     return value
 
