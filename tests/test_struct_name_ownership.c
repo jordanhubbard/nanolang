@@ -2,6 +2,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include "../src/nanolang.h"
 #include <assert.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
@@ -87,10 +88,25 @@ int main(void) {
         size_t count=lookup_case(kind,0,0);
         assert(count == (kind == 3 ? 2u : 3u));
         for (int mode=0; mode<2; ++mode) for (size_t pos=1; pos<=count; ++pos) {
+            int errors[2]; assert(pipe(errors)==0);
             pid_t child=fork(); assert(child>=0);
-            if (!child) { (void)lookup_case(kind,pos,mode); exit(0); }
+            if (!child) {
+                close(errors[0]); assert(dup2(errors[1],STDERR_FILENO)>=0); close(errors[1]);
+                (void)lookup_case(kind,pos,mode); exit(0);
+            }
+            close(errors[1]);
+            char message[4096]; size_t used=0;
+            for (;;) {
+                assert(used<sizeof(message)-1);
+                ssize_t got=read(errors[0],message+used,sizeof(message)-1-used);
+                if (got<0 && errno==EINTR) continue;
+                assert(got>=0); if (!got) break; used+=(size_t)got;
+            }
+            message[used]='\0'; close(errors[0]);
             int status=0; assert(waitpid(child,&status,0)==child && WIFEXITED(status));
-            /* The last allocation is the existing fatal registry metadata path. */
+            /* An unrelated sanitizer failure must not satisfy expected exit one. */
+            assert(!strcmp(message,pos == count ?
+                "I could not allocate checker ownership metadata\n" : ""));
             assert(WEXITSTATUS(status) == (pos == count ? 1 : 0));
             (void)lookup_case(kind,0,0);
         }

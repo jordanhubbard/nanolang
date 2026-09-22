@@ -1103,6 +1103,7 @@ $(OBJ_DIR)/struct_name_typechecker.o: $(SRC_DIR)/typechecker.c $(SRC_DIR)/nanola
 $(OBJ_DIR)/struct_name_env.o: $(SRC_DIR)/env.c $(SRC_DIR)/nanolang.h | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -Dmalloc=struct_name_test_malloc -c $< -o $@
 .PHONY: test-struct-name-ownership
+test-units: test-struct-name-ownership
 test-struct-name-ownership: $(OBJ_DIR)/struct_name_typechecker.o $(OBJ_DIR)/struct_name_env.o $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_struct_name_ownership tests/test_struct_name_ownership.c $(OBJ_DIR)/struct_name_typechecker.o $(OBJ_DIR)/struct_name_env.o $(filter-out $(OBJ_DIR)/typechecker.o $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	$(OBJ_DIR)/test_struct_name_ownership
