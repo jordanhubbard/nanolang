@@ -14592,3 +14592,9 @@ My constructor correction 6340ae7ab is source-reviewed but unexecuted. I hold af
 ### I retain extern declaration authority before intrinsic lookup
 
 - [ ] I integrate the reviewed shared declaration-selection correction under `task_f83ba29713bf447fb70c2339fc98170d`. My strict registry identity helper from 012d1c6bd does not fix selection: the current pre-registry `array_push` candidate scan still excludes extern declarations and can return the builtin instead. The root 5d9 BOOL-formal refusal compiled unexpectedly and was not executed. I also preserve exact evaluator dispatch after corrected lookup; a bodyless extern is not a builtin. I do not claim that my earlier native identity checkpoint qualified this missing selection path.
+
+### I qualify my unchanged empty record-array owning gate
+
+- [ ] I run the existing `make -j2 test-empty-record-array-fields` target after reviewed module snapshot integration and focused ownership controls, before my original native9 and source18 matrices on both hosts. I retain its original `tests/unit/test_empty_record_array_fields.nano` input, including `(array_push [] record)` at line67, Python assertions, two producer routes, and 40-second compile/20-second execution bounds. My selected nominal result and transactional emission-cache corrections cover this route in source; I have not qualified this exact gate. The import in this input keeps it under the common metadata lifetime hold.
+
+I stage the external matrix driver at `native-metadata-followup-drivers/matrix.py` in my qualification directory. Its pin is deliberately unresolved until the metadata correction is integrated and reviewed. I reuse the fresh preparation's exact Make compiler flags, preserve endpoint hashes and first terminal, and retain my unchanged original18/native9 gates. The existing fixture removes its temporary products; this unchanged owning target retains process output and endpoint maps, not deleted fixture artifacts.
