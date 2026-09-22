@@ -236,6 +236,7 @@ static void *sdk_test_malloc(size_t bytes) { return oaa_test_calloc(bytes,1); }
 #include "../../src/nanoisa/sdk_signature_snapshot.c"
 #include "../../src/nanoisa/sdk_module_snapshot.c"
 #include "../../src/nanoisa/sdk_provider_codec.c"
+#include "../../src/nanoisa/sdk_provider_validation.c"
 #ifdef OAA_INSTRUMENT
 #undef malloc
 #undef calloc
@@ -436,6 +437,161 @@ static void typed_profile_controls(void) {
     memset(&c,0,sizeof c);typed_facts(p);nvm_ownership_declarations_free(p);
 }
 
+typedef struct {
+    Typed typed;char names[32][24];NvmSdkNominalRow nominal[6];
+    NvmSdkSignatureRow signature;NvmSdkBindingRow bindings[3];uint32_t refs[3],policies[3];
+    NvmSdkLifetimeRows rows;
+} DescriptionCase;
+static void description_case(DescriptionCase *c) {
+    memset(c,0,sizeof *c);typed_make(&c->typed);
+    for(unsigned i=0;i<32;i++) {
+        int n=snprintf(c->names[i],sizeof c->names[i],"name%u",i);CHECK(n>0&&(size_t)n<sizeof c->names[i]);
+        c->typed.names[i].payload=(uint8_t *)c->names[i];c->typed.names[i].length=(uint32_t)n;
+    }
+    c->nominal[0]=(NvmSdkNominalRow){30,0,NVM_SDK_NOMINAL_RECORD,0,0,0};
+    c->nominal[1]=(NvmSdkNominalRow){30,2,NVM_SDK_NOMINAL_UNION,2,0,0};
+    c->nominal[2]=(NvmSdkNominalRow){30,3,NVM_SDK_NOMINAL_ENUM,3,0,0};
+    c->nominal[3]=(NvmSdkNominalRow){31,0,NVM_SDK_NOMINAL_RECORD,4,0,0};
+    c->nominal[4]=(NvmSdkNominalRow){30,9,NVM_SDK_NOMINAL_OPAQUE,UINT32_MAX,0,0};
+    c->nominal[5]=c->nominal[0];
+    patch(c->typed.wire,c->typed.types+5*8+4,4);patch(c->typed.wire,c->typed.types+6*8+4,0);
+    c->signature=(NvmSdkSignatureRow){2,0,1,1,1};c->refs[0]=4;c->refs[1]=2;
+    c->bindings[0]=(NvmSdkBindingRow){NVM_SDK_BIND_FUNCTION,0,UINT32_MAX,0,UINT32_MAX};
+    c->bindings[1]=(NvmSdkBindingRow){NVM_SDK_BIND_FIELD,0,2,6,UINT32_MAX};
+    c->bindings[2]=(NvmSdkBindingRow){NVM_SDK_BIND_FIELD,0,3,5,UINT32_MAX};
+    c->rows.declarations=(NvmSdkProviderRows){c->nominal,NULL,&c->signature,c->bindings,c->refs,6,0,1,3,2};
+    c->rows.binding_policies=c->policies;
+}
+static void description_wire_free(void *p) {
+#ifdef OAA_INSTRUMENT
+    oaa_test_free(p);
+#else
+    free(p);
+#endif
+}
+static void description_controls(void) {
+    DescriptionCase c;description_case(&c);uint8_t *wire=NULL;size_t bytes=0;
+    CHECK(nvm_sdk_provider_lifetime_encode(&c.rows,NVM_SDK_PROVIDER_MAX_BYTES,&wire,&bytes)==NVM_SDK_OK);
+    NvmPreparationBudget budget=typed_budget(),initial=budget;NvmSdkDescription *p=NULL;
+    CHECK(nvm_sdk_description_prepare(&c.typed.m,wire,bytes,&budget,&p)==NVM_SDK_OK);
+    const NvmV2Module *owned=nvm_sdk_description_module(p);CHECK(owned&&owned!=&c.typed.m&&owned->functions.items[0].signature_idx==2);
+    CHECK(owned->constants.items[0].payload!=(uint8_t *)c.names[0]&&owned->constants.items[0].length==5);
+    size_t charge=initial.bytes-budget.bytes;uint32_t work=initial.steps-budget.steps;nvm_sdk_description_free(p);
+    budget=(NvmPreparationBudget){charge,work};p=NULL;
+    CHECK(nvm_sdk_description_prepare(&c.typed.m,wire,bytes,&budget,&p)==NVM_SDK_OK&&!budget.bytes&&!budget.steps);nvm_sdk_description_free(p);
+    for(unsigned dimension=0;dimension<2;dimension++) {
+        budget=(NvmPreparationBudget){charge-(dimension==0),work-(dimension==1)};NvmPreparationBudget before=budget;p=(void *)(uintptr_t)1;
+        CHECK(nvm_sdk_description_prepare(&c.typed.m,wire,bytes,&budget,&p)==NVM_SDK_LIMIT);
+        CHECK(p==(void *)(uintptr_t)1&&budget.bytes==before.bytes&&budget.steps==before.steps);
+    }
+#ifdef OAA_INSTRUMENT
+    size_t baseline=live;calls=0;budget=typed_budget();p=NULL;
+    CHECK(nvm_sdk_description_prepare(&c.typed.m,wire,bytes,&budget,&p)==NVM_SDK_OK);
+    size_t measured=calls;nvm_sdk_description_free(p);CHECK(live==baseline);
+    for(unsigned mode=0;mode<2;mode++)for(size_t i=0;i<measured;i++) {
+        calls=0;fail_at=i;persistent=mode!=0;budget=typed_budget();NvmPreparationBudget before=budget;p=(void *)(uintptr_t)1;
+        CHECK(nvm_sdk_description_prepare(&c.typed.m,wire,bytes,&budget,&p)==NVM_SDK_MEMORY);
+        CHECK(p==(void *)(uintptr_t)1&&live==baseline&&budget.bytes==before.bytes&&budget.steps==before.steps);
+        fail_at=SIZE_MAX;persistent=false;budget=typed_budget();p=NULL;
+        CHECK(nvm_sdk_description_prepare(&c.typed.m,wire,bytes,&budget,&p)==NVM_SDK_OK);nvm_sdk_description_free(p);CHECK(live==baseline);
+    }
+#endif
+    description_wire_free(wire);
+#define DESC_BAD(change) do {description_case(&c);change;wire=NULL;bytes=0;CHECK(nvm_sdk_provider_lifetime_encode(&c.rows,NVM_SDK_PROVIDER_MAX_BYTES,&wire,&bytes)==NVM_SDK_OK);budget=typed_budget();NvmPreparationBudget before=budget;p=(void *)(uintptr_t)1;CHECK(nvm_sdk_description_prepare(&c.typed.m,wire,bytes,&budget,&p)==NVM_SDK_INVALID);CHECK(p==(void *)(uintptr_t)1&&budget.bytes==before.bytes&&budget.steps==before.steps);description_wire_free(wire);} while(0)
+    DESC_BAD(c.nominal[5].layout=4);
+    DESC_BAD(c.nominal[5].owner=31);
+    DESC_BAD(c.nominal[3].owner=30);
+    DESC_BAD(c.nominal[2].kind=NVM_SDK_NOMINAL_RECORD);
+    DESC_BAD(c.nominal[4].name=UINT32_MAX);
+    DESC_BAD(c.signature.coarse_signature=1);
+    DESC_BAD(c.bindings[2]=c.bindings[1]);
+    DESC_BAD(c.bindings[1].detail=5);
+    DESC_BAD(c.refs[0]=5);
+    DESC_BAD(c.typed.names[30].tag=TAG_INT);
+    DESC_BAD(c.names[0][2]=0);
+    DESC_BAD(c.names[16][2]=0);
+    /* Generic-key cycles without a reference edge refuse before equality. */
+    DESC_BAD(c.nominal[3].argument_count=1;c.nominal[3].argument_first=2;c.refs[2]=1;c.rows.declarations.reference_count=3);
+#undef DESC_BAD
+    /* The same generic reference is permitted through an ARRAY edge. */
+    description_case(&c);c.nominal[3].argument_count=1;c.nominal[3].argument_first=2;
+    c.refs[2]=7;c.rows.declarations.reference_count=3;
+    wire=NULL;bytes=0;CHECK(nvm_sdk_provider_lifetime_encode(&c.rows,NVM_SDK_PROVIDER_MAX_BYTES,&wire,&bytes)==NVM_SDK_OK);
+    budget=typed_budget();p=NULL;CHECK(nvm_sdk_description_prepare(&c.typed.m,wire,bytes,&budget,&p)==NVM_SDK_OK);
+    nvm_sdk_description_free(p);description_wire_free(wire);
+    description_case(&c);wire=NULL;bytes=0;CHECK(nvm_sdk_provider_lifetime_encode(&c.rows,NVM_SDK_PROVIDER_MAX_BYTES,&wire,&bytes)==NVM_SDK_OK);
+    budget=typed_budget();p=NULL;CHECK(nvm_sdk_description_prepare(&c.typed.m,wire,bytes,&budget,&p)==NVM_SDK_OK);
+    memset(&c,0,sizeof c);description_wire_free(wire);owned=nvm_sdk_description_module(p);
+    CHECK(owned&&owned->functions.items[0].signature_idx==2&&owned->constants.items[0].length==5&&!memcmp(owned->constants.items[0].payload,"name0",5));
+    nvm_sdk_description_free(p);
+}
+
+typedef struct {
+    DescriptionCase base;NvmV2Signature coarse[4];uint8_t string_tag;
+    NvmSdkSignatureRow exact[2];NvmSdkBindingRow bindings[4];uint32_t refs[3],selectors[4];
+    NvmV2Import import;NvmSdkProviderRow provider;NvmSdkCallPolicy policies[2];
+    NvmSdkLifetimeNode nodes[2];
+} PolicyCase;
+static void policy_case(PolicyCase *c) {
+    memset(c,0,sizeof *c);description_case(&c->base);DescriptionCase *b=&c->base;
+    memcpy(c->coarse,b->typed.signatures,sizeof b->typed.signatures);c->string_tag=TAG_STRING;
+    c->coarse[3]=(NvmV2Signature){1,1,&c->string_tag,&c->string_tag};
+    b->typed.m.signatures=(NvmV2Signatures){c->coarse,4};
+    b->typed.wire[b->typed.types+7*8]=TAG_STRING;patch(b->typed.wire,b->typed.types+7*8+4,UINT32_MAX);
+    c->exact[0]=b->signature;c->exact[1]=(NvmSdkSignatureRow){3,2,1,2,1};
+    c->refs[0]=b->refs[0];c->refs[1]=b->refs[1];c->refs[2]=7;
+    memcpy(c->bindings,b->bindings,sizeof b->bindings);
+    c->bindings[3]=(NvmSdkBindingRow){NVM_SDK_BIND_IMPORT,0,UINT32_MAX,1,0};c->selectors[3]=1;
+    c->import=(NvmV2Import){22,23,3,NVM_V2_IMPORT_ARTIFACT};b->typed.m.imports=(NvmV2Imports){&c->import,1};
+    c->provider=(NvmSdkProviderRow){22,24,25,26,27,28};
+    c->nodes[0]=(NvmSdkLifetimeNode){7,NVM_SDK_BORROW_CALL,UINT32_MAX,UINT32_MAX,0,0,0};
+    c->nodes[1]=(NvmSdkLifetimeNode){7,NVM_SDK_SNAPSHOT_RESULT,UINT32_MAX,UINT32_MAX,0,0,0};
+    c->policies[0]=(NvmSdkCallPolicy){0,1,1,1,UINT32_MAX};c->policies[1]=c->policies[0];
+    b->rows.declarations=(NvmSdkProviderRows){b->nominal,&c->provider,c->exact,c->bindings,c->refs,6,1,2,4,3};
+    b->rows.binding_policies=c->selectors;b->rows.policies=c->policies;b->rows.nodes=c->nodes;
+    b->rows.policy_count=2;b->rows.node_count=2;
+}
+static void description_policy_controls(void) {
+    PolicyCase c;policy_case(&c);uint8_t *wire=NULL;size_t bytes=0;NvmSdkDescription *p=NULL;
+    CHECK(nvm_sdk_provider_lifetime_encode(&c.base.rows,NVM_SDK_PROVIDER_MAX_BYTES,&wire,&bytes)==NVM_SDK_OK);
+    NvmPreparationBudget budget=typed_budget();
+    CHECK(nvm_sdk_description_prepare(&c.base.typed.m,wire,bytes,&budget,&p)==NVM_SDK_OK);
+    const NvmV2Module *owned=nvm_sdk_description_module(p);
+    CHECK(owned&&owned->imports.count==1&&owned->imports.items[0].signature_idx==3&&owned->signatures.count==4);
+    nvm_sdk_description_free(p);
+#ifdef OAA_INSTRUMENT
+    size_t baseline=live;calls=0;budget=typed_budget();p=NULL;
+    CHECK(nvm_sdk_description_prepare(&c.base.typed.m,wire,bytes,&budget,&p)==NVM_SDK_OK);
+    size_t measured=calls;nvm_sdk_description_free(p);CHECK(live==baseline);
+    for(unsigned mode=0;mode<2;mode++)for(size_t i=0;i<measured;i++) {
+        calls=0;fail_at=i;persistent=mode!=0;budget=typed_budget();NvmPreparationBudget before=budget;p=(void *)(uintptr_t)1;
+        CHECK(nvm_sdk_description_prepare(&c.base.typed.m,wire,bytes,&budget,&p)==NVM_SDK_MEMORY);
+        CHECK(p==(void *)(uintptr_t)1&&live==baseline&&budget.bytes==before.bytes&&budget.steps==before.steps);
+        fail_at=SIZE_MAX;persistent=false;budget=typed_budget();p=NULL;
+        CHECK(nvm_sdk_description_prepare(&c.base.typed.m,wire,bytes,&budget,&p)==NVM_SDK_OK);nvm_sdk_description_free(p);CHECK(live==baseline);
+    }
+#endif
+    description_wire_free(wire);
+#define POLICY_BAD(change) do {policy_case(&c);change;wire=NULL;bytes=0;CHECK(nvm_sdk_provider_lifetime_encode(&c.base.rows,NVM_SDK_PROVIDER_MAX_BYTES,&wire,&bytes)==NVM_SDK_OK);budget=typed_budget();NvmPreparationBudget before=budget;p=(void *)(uintptr_t)1;CHECK(nvm_sdk_description_prepare(&c.base.typed.m,wire,bytes,&budget,&p)==NVM_SDK_INVALID);CHECK(p==(void *)(uintptr_t)1&&budget.bytes==before.bytes&&budget.steps==before.steps);description_wire_free(wire);} while(0)
+    POLICY_BAD(c.nodes[0].mode=NVM_SDK_SNAPSHOT_RESULT);
+    POLICY_BAD(c.nodes[1].mode=NVM_SDK_BORROW_CALL);
+    POLICY_BAD(c.nodes[1].mode=NVM_SDK_BORROW_ARGUMENT_RESULT;c.nodes[1].owner_argument=1);
+    POLICY_BAD(c.nodes[0].owner_argument=0);
+    POLICY_BAD(c.nodes[0].hook_set=29);
+    POLICY_BAD(c.nodes[1].type=0);
+    /* Policy zero is unused by the import, but its own call context still matters. */
+    POLICY_BAD(c.policies[0].parameter_first=1);
+    POLICY_BAD(c.policies[0].result_first=0);
+    POLICY_BAD(c.policies[1].execution=0);
+    POLICY_BAD(c.import.signature_idx=2);
+    POLICY_BAD(c.provider.target=UINT32_MAX);
+#undef POLICY_BAD
+    policy_case(&c);c.nodes[1].mode=NVM_SDK_BORROW_ARGUMENT_RESULT;c.nodes[1].owner_argument=0;
+    wire=NULL;bytes=0;CHECK(nvm_sdk_provider_lifetime_encode(&c.base.rows,NVM_SDK_PROVIDER_MAX_BYTES,&wire,&bytes)==NVM_SDK_OK);
+    budget=typed_budget();p=NULL;CHECK(nvm_sdk_description_prepare(&c.base.typed.m,wire,bytes,&budget,&p)==NVM_SDK_OK);
+    nvm_sdk_description_free(p);description_wire_free(wire);
+}
+
 int main(void){
     setvbuf(stdout,NULL,_IONBF,0);CHECK(ordinary_controls_main()==0);
     puts("I begin complete mixed declaration controls");positive(false);positive(true);malformed();borrowed_suffix();union_only();union_budget(7);union_budget(8);mixed_maximum();old_profiles();
@@ -453,6 +609,6 @@ int main(void){
     calls=0;union_budget(8);CHECK(!calls&&!live);
     printf("I covered %zu mixed allocation positions in both failure modes; two query TUs instrumented\n",measured);
 #endif
-    retained_v2();typed_profile_controls();
+    retained_v2();typed_profile_controls();description_controls();description_policy_controls();
     printf("PASS %u complete mixed declaration checks; no execution authority\n",checks);return 0;
 }
