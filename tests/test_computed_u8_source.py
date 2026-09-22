@@ -133,6 +133,32 @@ shadow main { assert (== (main) 0) }
             'fn main() -> int { assert (== (cast_int (narrowed 256)) 1) return 0 }\n'
             'shadow main { assert (== (main) 0) }\n')
 
+    def test_forward_byte_parameter_and_global_call(self):
+        self.paired('''let initial: u8 = (later (+ 255 2))
+fn earlier(value: int) -> u8 { return (later value) }
+shadow earlier { assert (== (cast_int (earlier 257)) 1) }
+fn later(value: u8) -> u8 { return value }
+shadow later { let value: u8 = 255 assert (== (cast_int (later value)) 255) }
+fn main() -> int {
+ assert (== (cast_int initial) 1)
+ assert (== (cast_int (earlier 258)) 2)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
+    def test_transitive_byte_parameter_signature(self):
+        leaf = self.artifacts / 'leaf.nano'
+        leaf.write_text('module Leaf\npub fn identity(value: u8) -> u8 { return value }\n'
+            'shadow identity { let value: u8 = 255 assert (== (cast_int (identity value)) 255) }\n')
+        middle = self.artifacts / 'middle.nano'
+        middle.write_text(f'module "{leaf}" as leaf\n'
+            'pub fn bridge(value: int) -> u8 { return (leaf.identity value) }\n'
+            'shadow bridge { assert (== (cast_int (bridge 257)) 1) }\n')
+        self.paired(f'module "{middle}" as middle\n'
+            'fn main() -> int { assert (== (cast_int (middle.bridge 258)) 2) return 0 }\n'
+            'shadow main { assert (== (main) 0) }\n')
+
     def test_checked_c_indirect_arguments_and_captured_precedence(self):
         # The independent Nano emitter still refuses indirect calls. I qualify
         # the existing C producer route explicitly without substituting it.

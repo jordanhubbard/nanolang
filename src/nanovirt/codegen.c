@@ -4295,6 +4295,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
 
             uint32_t idx = nvm_add_function(cg.module, &fn);
+            /* Callers and globals need destination tags before body emission. */
+            record_function_parameters(&cg, item, idx);
 
             if (cg.fn_count < MAX_FUNCTIONS) {
                 cg.functions[cg.fn_count].name = (char *)name;
@@ -4432,6 +4434,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                             fn.result_tag = type_to_tag(mitem->as.function.return_type, mitem->as.function.return_struct_type_name, cg.env);
                             fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
                             idx = nvm_add_function(cg.module, &fn);
+                            record_function_parameters(&cg, mitem, idx);
                             if (cg.fn_count < MAX_FUNCTIONS) {
                                 cg.functions[cg.fn_count].name = (char *)use_name;
                                 cg.functions[cg.fn_count].fn_idx = idx;
@@ -4636,6 +4639,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         fn.result_tag = type_to_tag(mitem->as.function.return_type, mitem->as.function.return_struct_type_name, cg.env);
                         fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
                         uint32_t idx = nvm_add_function(cg.module, &fn);
+                        record_function_parameters(&cg, mitem, idx);
                         cg.functions[cg.fn_count].name = (char *)fname;
                         cg.functions[cg.fn_count].fn_idx = idx;
                         cg.functions[cg.fn_count].body = mitem->as.function.body;
