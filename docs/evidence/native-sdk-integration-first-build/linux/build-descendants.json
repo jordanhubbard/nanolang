@@ -1,0 +1,474 @@
+{
+  "owned": {
+    "3343136": {
+      "parent": 3343102,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:43 2026",
+      "command": "make -j2 CC=/usr/bin/gcc build"
+    },
+    "3343154": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:43 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -Isrc -Isrc/runtime -Imodules/std tools/generate_module_index.c modules/std/fs.c src/cJSON.c src/runtime/dyn_array.c src/runtime/gc.c src/runtime/gc_struct.c -o bin/generate_module_index"
+    },
+    "3343174": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:43 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/ffi_bindgen.c -o obj/ffi_bindgen.o"
+    },
+    "3343175": {
+      "parent": 3343174,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:43 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/ffi_bindgen.d -MP -MQ obj/ffi_bindgen.o -D _GNU_SOURCE src/ffi_bindgen.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase ffi_bindgen.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cczpmp0Y.s"
+    },
+    "3343177": {
+      "parent": 3343154,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:43 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/runtime -I modules/std -imultiarch aarch64-linux-gnu -D _GNU_SOURCE src/cJSON.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir bin/generate_module_index- -dumpbase cJSON.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccWQnKSM.s"
+    },
+    "3343191": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:43 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o"
+    },
+    "3343194": {
+      "parent": 3343191,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:43 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/affine_bytecode.d -MP -MQ obj/nanoisa/affine_bytecode.o -D _GNU_SOURCE src/nanoisa/affine_bytecode.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase affine_bytecode.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccupVjjl.s"
+    },
+    "3343200": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:43 2026",
+      "command": "[gcc] <defunct>"
+    },
+    "3343203": {
+      "parent": 3343200,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:43 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/affine_state.d -MP -MQ obj/nanoisa/affine_state.o -D _GNU_SOURCE src/nanoisa/affine_state.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase affine_state.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccFXwRC2.s"
+    },
+    "3343223": {
+      "parent": 3343154,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:43 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/runtime -I modules/std -imultiarch aarch64-linux-gnu -D _GNU_SOURCE src/runtime/dyn_array.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir bin/generate_module_index- -dumpbase dyn_array.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccWQnKSM.s"
+    },
+    "3343309": {
+      "parent": 3343154,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:43 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/runtime -I modules/std -imultiarch aarch64-linux-gnu -D _GNU_SOURCE src/runtime/gc_struct.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir bin/generate_module_index- -dumpbase gc_struct.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccWQnKSM.s"
+    },
+    "3343314": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:44 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/assembler.c -o obj/nanoisa/assembler.o"
+    },
+    "3343316": {
+      "parent": 3343314,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:44 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/assembler.d -MP -MQ obj/nanoisa/assembler.o -D _GNU_SOURCE src/nanoisa/assembler.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase assembler.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccbPqKhu.s"
+    },
+    "3343337": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:44 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o"
+    },
+    "3343340": {
+      "parent": 3343337,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:44 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/file_flow.d -MP -MQ obj/nanoisa/file_flow.o -D _GNU_SOURCE src/nanoisa/file_flow.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase file_flow.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cc6qwTmA.s"
+    },
+    "3343369": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:44 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/frontend.c -o obj/nanoisa/frontend.o"
+    },
+    "3343375": {
+      "parent": 3343369,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:44 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/frontend.d -MP -MQ obj/nanoisa/frontend.o -D _GNU_SOURCE src/nanoisa/frontend.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase frontend.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cc3WvQWf.s"
+    },
+    "3343394": {
+      "parent": 3343391,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:45 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/managed_array_shapes.d -MP -MQ obj/nanoisa/managed_array_shapes.o -D _GNU_SOURCE src/nanoisa/managed_array_shapes.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase managed_array_shapes.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cccYk2Z3.s"
+    },
+    "3343391": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:45 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o"
+    },
+    "3343449": {
+      "parent": 3343337,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:46 2026",
+      "command": "as -I src -I src/nanoisa --gdwarf-5 -EL -mabi=lp64 -o obj/nanoisa/file_flow.o /tmp/cc6qwTmA.s"
+    },
+    "3343432": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:45 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/mixed_float_proof.c -o obj/nanoisa/mixed_float_proof.o"
+    },
+    "3343435": {
+      "parent": 3343432,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:45 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/mixed_float_proof.d -MP -MQ obj/nanoisa/mixed_float_proof.o -D _GNU_SOURCE src/nanoisa/mixed_float_proof.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase mixed_float_proof.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccnQHu01.s"
+    },
+    "3343460": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:46 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o"
+    },
+    "3343463": {
+      "parent": 3343460,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:46 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/nvm2c.d -MP -MQ obj/nanoisa/nvm2c.o -D _GNU_SOURCE src/nanoisa/nvm2c.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase nvm2c.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccQIKarC.s"
+    },
+    "3343469": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:46 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o obj/nanoisa/nvm2c_shape.o"
+    },
+    "3343471": {
+      "parent": 3343469,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:46 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/nvm2c_shape.d -MP -MQ obj/nanoisa/nvm2c_shape.o -D _GNU_SOURCE src/nanoisa/nvm2c_shape.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase nvm2c_shape.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccMOw4ZJ.s"
+    },
+    "3343489": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:46 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format.c -o obj/nanoisa/nvm_format.o"
+    },
+    "3343493": {
+      "parent": 3343489,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:46 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/nvm_format.d -MP -MQ obj/nanoisa/nvm_format.o -D _GNU_SOURCE src/nanoisa/nvm_format.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase nvm_format.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccSuLqbf.s"
+    },
+    "3343508": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:46 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format_v2.c -o obj/nanoisa/nvm_format_v2.o"
+    },
+    "3343526": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:46 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o obj/nanoisa/nvm_v2_convert.o"
+    },
+    "3343529": {
+      "parent": 3343526,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:46 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/nvm_v2_convert.d -MP -MQ obj/nanoisa/nvm_v2_convert.o -D _GNU_SOURCE src/nanoisa/nvm_v2_convert.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase nvm_v2_convert.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccUe9JNR.s"
+    },
+    "3343573": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:47 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_imports.c -o obj/nanoisa/nvm_v2_imports.o"
+    },
+    "3343575": {
+      "parent": 3343573,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:47 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/nvm_v2_imports.d -MP -MQ obj/nanoisa/nvm_v2_imports.o -D _GNU_SOURCE src/nanoisa/nvm_v2_imports.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase nvm_v2_imports.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccvOA3qa.s"
+    },
+    "3343603": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:47 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_module.c -o obj/nanoisa/nvm_v2_module.o"
+    },
+    "3343606": {
+      "parent": 3343603,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:47 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/nvm_v2_module.d -MP -MQ obj/nanoisa/nvm_v2_module.o -D _GNU_SOURCE src/nanoisa/nvm_v2_module.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase nvm_v2_module.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cc0c7Jxz.s"
+    },
+    "3343626": {
+      "parent": 3343623,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:47 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/ownership_contracts.d -MP -MQ obj/nanoisa/ownership_contracts.o -D _GNU_SOURCE src/nanoisa/ownership_contracts.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase ownership_contracts.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccyUfQBQ.s"
+    },
+    "3343623": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:47 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o"
+    },
+    "3343638": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:47 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/passive.c -o obj/nanoisa/passive.o"
+    },
+    "3343641": {
+      "parent": 3343638,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:47 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/passive.d -MP -MQ obj/nanoisa/passive.o -D _GNU_SOURCE src/nanoisa/passive.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase passive.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccuaiUDZ.s"
+    },
+    "3343666": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:48 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o"
+    },
+    "3343669": {
+      "parent": 3343666,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:48 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/retained_layouts.d -MP -MQ obj/nanoisa/retained_layouts.o -D _GNU_SOURCE src/nanoisa/retained_layouts.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase retained_layouts.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cc1fNxtO.s"
+    },
+    "3343697": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:48 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal_plan.c -o obj/nanoisa/service_file_nominal_plan.o"
+    },
+    "3343700": {
+      "parent": 3343697,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:48 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/service_file_nominal_plan.d -MP -MQ obj/nanoisa/service_file_nominal_plan.o -D _GNU_SOURCE src/nanoisa/service_file_nominal_plan.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase service_file_nominal_plan.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccQodvpr.s"
+    },
+    "3343702": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:48 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o obj/nanoisa/verifier.o"
+    },
+    "3343705": {
+      "parent": 3343702,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:48 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src/nanoisa -imultiarch aarch64-linux-gnu -MMD obj/nanoisa/verifier.d -MP -MQ obj/nanoisa/verifier.o -D _GNU_SOURCE src/nanoisa/verifier.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanoisa/ -dumpbase verifier.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccFByDVY.s"
+    },
+    "3343733": {
+      "parent": 3343723,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:49 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/nanovirt/codegen.d -MP -MQ obj/nanovirt/codegen.o -D _GNU_SOURCE src/nanovirt/codegen.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanovirt/ -dumpbase codegen.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccOwXzH1.s"
+    },
+    "3343723": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:49 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o"
+    },
+    "3343808": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:49 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/nanovirt/shadow_runner.c -o obj/nanovirt/shadow_runner.o"
+    },
+    "3343843": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:49 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/nanovm/cop_protocol.c -o obj/nanovm/cop_protocol.o"
+    },
+    "3343846": {
+      "parent": 3343843,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:49 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/nanovm/cop_protocol.d -MP -MQ obj/nanovm/cop_protocol.o -D _GNU_SOURCE src/nanovm/cop_protocol.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanovm/ -dumpbase cop_protocol.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cccMhLyn.s"
+    },
+    "3343866": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:50 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/nanovm/heap_cycles.c -o obj/nanovm/heap_cycles.o"
+    },
+    "3343869": {
+      "parent": 3343866,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:50 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/nanovm/heap_cycles.d -MP -MQ obj/nanovm/heap_cycles.o -D _GNU_SOURCE src/nanovm/heap_cycles.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanovm/ -dumpbase heap_cycles.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccoZk37x.s"
+    },
+    "3343892": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:50 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o"
+    },
+    "3343895": {
+      "parent": 3343892,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:50 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/nanovm/vm.d -MP -MQ obj/nanovm/vm.o -D _GNU_SOURCE src/nanovm/vm.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanovm/ -dumpbase vm.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cc90vcdk.s"
+    },
+    "3344019": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:52 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/nanovm/vm_decode.c -o obj/nanovm/vm_decode.o"
+    },
+    "3344022": {
+      "parent": 3344019,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:52 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/nanovm/vm_decode.d -MP -MQ obj/nanovm/vm_decode.o -D _GNU_SOURCE src/nanovm/vm_decode.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanovm/ -dumpbase vm_decode.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccbS9642.s"
+    },
+    "3344036": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:52 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/nanovm/vm_ffi.c -o obj/nanovm/vm_ffi.o"
+    },
+    "3344039": {
+      "parent": 3344036,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:52 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/nanovm/vm_ffi.d -MP -MQ obj/nanovm/vm_ffi.o -D _GNU_SOURCE src/nanovm/vm_ffi.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanovm/ -dumpbase vm_ffi.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccgVJWPq.s"
+    },
+    "3344097": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:52 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/nanovm/vm_ffi_arrays.c -o obj/nanovm/vm_ffi_arrays.o"
+    },
+    "3344098": {
+      "parent": 3344097,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:52 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/nanovm/vm_ffi_arrays.d -MP -MQ obj/nanovm/vm_ffi_arrays.o -D _GNU_SOURCE src/nanovm/vm_ffi_arrays.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/nanovm/ -dumpbase vm_ffi_arrays.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccSEkptk.s"
+    },
+    "3344112": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:52 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/bench.c -o obj/bench.o"
+    },
+    "3344115": {
+      "parent": 3344112,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:52 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/bench.d -MP -MQ obj/bench.o -D _GNU_SOURCE src/bench.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase bench.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccAVQKJs.s"
+    },
+    "3344152": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:53 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/cJSON.c -o obj/cJSON.o"
+    },
+    "3344155": {
+      "parent": 3344152,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:53 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/cJSON.d -MP -MQ obj/cJSON.o -D _GNU_SOURCE src/cJSON.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase cJSON.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccCQ2QqV.s"
+    },
+    "3344217": {
+      "parent": 3344152,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:53 2026",
+      "command": "as -I src --gdwarf-5 -EL -mabi=lp64 -o obj/cJSON.o /tmp/ccCQ2QqV.s"
+    },
+    "3344219": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:53 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/c_backend.c -o obj/c_backend.o"
+    },
+    "3344222": {
+      "parent": 3344219,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:53 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/c_backend.d -MP -MQ obj/c_backend.o -D _GNU_SOURCE src/c_backend.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase c_backend.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccNZ5cwU.s"
+    },
+    "3344250": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:53 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/catalog.c -o obj/catalog.o"
+    },
+    "3344252": {
+      "parent": 3344250,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:53 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/catalog.d -MP -MQ obj/catalog.o -D _GNU_SOURCE src/catalog.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase catalog.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccgPQTe8.s"
+    },
+    "3344262": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:54 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/coroutine.c -o obj/coroutine.o"
+    },
+    "3344265": {
+      "parent": 3344262,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:54 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/coroutine.d -MP -MQ obj/coroutine.o -D _GNU_SOURCE src/coroutine.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase coroutine.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccl2rrXU.s"
+    },
+    "3344278": {
+      "parent": 3344219,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:54 2026",
+      "command": "as -I src --gdwarf-5 -EL -mabi=lp64 -o obj/c_backend.o /tmp/ccNZ5cwU.s"
+    },
+    "3344322": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:54 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/dwarf_info.c -o obj/dwarf_info.o"
+    },
+    "3344325": {
+      "parent": 3344322,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:54 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/dwarf_info.d -MP -MQ obj/dwarf_info.o -D _GNU_SOURCE src/dwarf_info.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase dwarf_info.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccVbjXzG.s"
+    },
+    "3344327": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:54 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/effects.c -o obj/effects.o"
+    },
+    "3344350": {
+      "parent": 3344327,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:54 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/effects.d -MP -MQ obj/effects.o -D _GNU_SOURCE src/effects.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase effects.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cc4hj0Vt.s"
+    },
+    "3344393": {
+      "parent": 3344389,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:54 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -MMD obj/emit_typed_ast.d -MP -MQ obj/emit_typed_ast.o -D _GNU_SOURCE src/emit_typed_ast.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase emit_typed_ast.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccCpheeL.s"
+    },
+    "3344389": {
+      "parent": 3343136,
+      "group": 3343136,
+      "started": "Mon Sep 21 20:14:54 2026",
+      "command": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -MMD -MP -c src/emit_typed_ast.c -o obj/emit_typed_ast.o"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}
