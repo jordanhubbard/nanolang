@@ -5419,9 +5419,10 @@ fn parse_block(p: Parser) -> Parser {
 
 shadow parse_block_recursive {
     let mut source: string = "fn probe() -> int { "
+    let assertions: string = "assert true assert true assert true assert true assert true assert true assert true assert true assert true assert true "
     let mut i: int = 0
-    while (< i 520) {
-        set source (str_concat source "assert true ")
+    while (< i 52) {
+        set source (str_concat source assertions)
         set i (+ i 1)
     }
     set source (str_concat source "return 0 }")
@@ -5580,9 +5581,10 @@ fn parse_unsafe_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: 
 }
 shadow parse_unsafe_block_recursive {
     let mut source: string = "fn probe() -> int { unsafe { "
+    let assertions: string = "assert true assert true assert true assert true assert true assert true assert true assert true assert true assert true "
     let mut i: int = 0
-    while (< i 520) {
-        set source (str_concat source "assert true ")
+    while (< i 52) {
+        set source (str_concat source assertions)
         set i (+ i 1)
     }
     set source (str_concat source "} return 0 }")
