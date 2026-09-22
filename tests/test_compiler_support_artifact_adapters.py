@@ -104,7 +104,8 @@ class CompilerSupportArtifactAdapters(unittest.TestCase):
             'const char *nlc_runtime_root(void) { static char text[32]; static int calls; '
             'snprintf(text, sizeof text, "root-%d", ++calls); return text; }\n')
         self.run_checked([*self.compiler, "-std=c11", "-Wall", "-Wextra", "-Werror",
-                          *self.flags, "-shared", "-fPIC", source, *self.links, "-o", library])
+                          *self.flags, "-dynamiclib" if sys.platform == "darwin" else "-shared",
+                          "-fPIC", source, *self.links, "-o", library])
         asm, module = self.artifacts / "input.nasm", self.artifacts / "input.nvm"
         asm.write_text(f'.import {json.dumps(str(library))} "nlc_native_array_abi" int\n'
             '.import_kind 0 artifact\n'
