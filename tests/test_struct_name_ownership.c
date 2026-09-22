@@ -178,6 +178,38 @@ static void metadata_snapshot_lifetimes(int snapshot_first) {
     }
 }
 
+static void metadata_callback_annotation(void) {
+    char name[]="ExactOwner.Child";
+    TypeInfo child={.base_type=TYPE_STRUCT,.generic_name=name};
+    TypeInfo array={.base_type=TYPE_ARRAY,.element_type=&child};
+    TypeInfo *parameters[]={&array}; Type parameter_types[]={TYPE_ARRAY};
+    FunctionSignature signature={.param_count=1,.param_types=parameter_types,
+        .param_type_info=parameters,.return_type=TYPE_STRUCT,.return_struct_name=name,
+        .return_type_info=&child};
+    TypeInfo callback={.base_type=TYPE_FUNCTION,.fn_sig=&signature};
+    TypeInfo *annotations[]={&callback};
+    Environment *env=create_environment(); assert(env);
+    StructDef record={.name=strdup("CallbackHolder"),.field_count=1,.field_type_info=annotations,
+        .field_names=calloc(1,sizeof(char *)),.field_types=calloc(1,sizeof(Type))};
+    assert(record.name && record.field_names && record.field_types);
+    record.field_names[0]=strdup("callback"); assert(record.field_names[0]);
+    record.field_types[0]=TYPE_FUNCTION; env_define_struct(env,record);
+    ModuleMetadata *snapshot=extract_module_metadata(env,"ExactOwner"); assert(snapshot);
+    TypeInfo *copy=snapshot->structs[0].field_type_info[0];
+    assert(copy!=&callback && copy->fn_sig!=&signature);
+    assert(copy->fn_sig->param_type_info[0]!=&array);
+    assert(copy->fn_sig->param_type_info[0]->element_type!=&child);
+    free_environment(env); name[0]='X'; child.base_type=TYPE_BOOL;
+    assert(copy->fn_sig->param_types[0]==TYPE_ARRAY);
+    assert(copy->fn_sig->param_type_info[0]->element_type->base_type==TYPE_STRUCT);
+    assert(!strcmp(copy->fn_sig->param_type_info[0]->element_type->generic_name,"ExactOwner.Child"));
+    assert(!strcmp(copy->fn_sig->return_struct_name,"ExactOwner.Child"));
+    assert(copy->fn_sig->return_type_info->base_type==TYPE_STRUCT);
+    assert(!strcmp(copy->fn_sig->return_type_info->generic_name,"ExactOwner.Child"));
+    free_module_metadata(snapshot);
+    assert(callback.fn_sig==&signature && signature.param_type_info==parameters);
+}
+
 static void metadata_empty_vectors(void) {
     for (int allocated=0;allocated<2;++allocated) {
         Environment *env=create_environment(); assert(env);
@@ -225,7 +257,7 @@ int main(void) {
         }
     }
     parsed_parameter_names(); parsed_record_lifetimes(0); parsed_record_lifetimes(1); auxiliary_vectors();
-    metadata_snapshot_lifetimes(0); metadata_snapshot_lifetimes(1); metadata_empty_vectors();
+    metadata_snapshot_lifetimes(0); metadata_snapshot_lifetimes(1); metadata_empty_vectors(); metadata_callback_annotation();
     puts("Parser/record ownership: qualified parameters, both destruction orders, zero/nonzero auxiliary vectors and borrowed annotations PASS");
     puts("Struct name ownership: four paths, exact copies, borrowed controls, all allocation positions/two modes/recovery PASS");
     return 0;
