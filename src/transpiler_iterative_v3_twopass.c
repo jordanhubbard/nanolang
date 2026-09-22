@@ -2580,14 +2580,14 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         build_expr(list, expr->as.call.args[1], env);  /* index */
                         emit_literal(list, ")))");
                     } else {
-                        /* Generate: dyn_array_set_struct(arr, idx, &value, sizeof(nl_StructName)) */
-                        emit_literal(list, "dyn_array_set_struct(");
-                        build_expr(list, expr->as.call.args[0], env);  /* array */
-                        emit_literal(list, ", ");
-                        build_expr(list, expr->as.call.args[1], env);  /* index */
-                        emit_literal(list, ", &(");
-                        build_expr(list, expr->as.call.args[2], env);  /* value */
-                        emit_formatted(list, "), sizeof(nl_%s))", struct_name);
+                        /* I address a named value after evaluating all operands in order. */
+                        emit_literal(list, "({ ");
+                        unsigned call_id = build_ordered_call_args(
+                            list, expr->as.call.args, 3, env, NULL);
+                        emit_formatted(list,
+                            "dyn_array_set_struct(__nl_arg_%u_0, __nl_arg_%u_1, "
+                            "&__nl_arg_%u_2, sizeof(__nl_arg_%u_2)); })",
+                            call_id, call_id, call_id, call_id);
                     }
                 } else {
                     /* Map element type to suffix for primitive types */
