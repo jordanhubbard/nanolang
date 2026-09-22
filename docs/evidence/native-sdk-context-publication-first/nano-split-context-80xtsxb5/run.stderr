@@ -1,0 +1,1 @@
+Assertion failed: (result && result->base_type == TYPE_ARRAY && result->element_type), function check_context, file str_split_result_context.c, line 61.
