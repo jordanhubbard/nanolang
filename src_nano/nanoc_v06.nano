@@ -1413,18 +1413,21 @@ shadow native_provider_add {
     let again: NativeProviderSet = (native_provider_add first value)
     assert again.ok
     assert (== (array_length again.rows) 1)
+    assert (== (array_length empty.rows) 1)
     let conflict: NativeProviderSet = (native_provider_add again (NativeProvider { source: "/a/x.c", compiler: "cc", language: "c99", profile: " -DB", runtime: false }))
     assert (not conflict.ok)
     # I retain the former native_source_already_linked properties in my actual registry.
     let json: NativeProvider = NativeProvider { source: "/repo/src/cJSON.c", compiler: "cc", language: "c99", profile: " -DA", runtime: true }
-    let json_first: NativeProviderSet = (native_provider_add empty json)
+    let json_empty: NativeProviderSet = NativeProviderSet { rows: [], ok: true }
+    let json_first: NativeProviderSet = (native_provider_add json_empty json)
     let json_again: NativeProviderSet = (native_provider_add json_first json)
     assert json_again.ok
     assert (== (array_length json_again.rows) 1)
     let other: NativeProviderSet = (native_provider_add json_first (NativeProvider { source: "/other/cJSON.c", compiler: "cc", language: "c99", profile: " -DA", runtime: false }))
     assert other.ok
     assert (== (array_length other.rows) 2)
-    let absent: NativeProviderSet = (native_provider_add empty (NativeProvider { source: "", compiler: "cc", language: "c99", profile: " -DA", runtime: false }))
+    let absent_empty: NativeProviderSet = NativeProviderSet { rows: [], ok: true }
+    let absent: NativeProviderSet = (native_provider_add absent_empty (NativeProvider { source: "", compiler: "cc", language: "c99", profile: " -DA", runtime: false }))
     assert (not absent.ok)
     assert (== (array_length absent.rows) 0)
 }
