@@ -209,3 +209,11 @@ Linux first log: `979aac2e9ea00669335e9dcba95c0c838fdfc65f66d4fb6cee333d46600036
 Puck first log: `f1bfe7214bbfc590648d570115c3eba0203332e90f7ec721897e6476e11a57d6`.
 No dependent full bootstrap, focused matrix, native9 or original18 gate started.
 The correction has only static delimiter and diff checks pending source review.
+
+## I keep constructor source annotations until C conversion
+
+My 33e first native terminal exposes two connected lowering defects. A constructor with an explicit `Inner<Item>` annotation and no expected type reaches `mangle_name`, which produces `Inner_Item_`. My declaration generator instead uses canonical `Inner_Item`. The payload lookup also compares the full explicit annotation with a declaration's base name, so it loses the nested field context.
+
+I retain the checked explicit generic annotation. Only a plain constructor may take a generic expected annotation, and only when their complete canonical base names agree. I convert that source annotation through `type_to_c` once for both the compound-literal carrier and tag prefix. I look up payload fields by the same exact canonical base declaration and substitute its fields with the retained complete annotation. This is lowering of checked facts, not a new declaration resolver or permission to accept conflicting explicit arguments.
+
+I preserve the original nested constructor program. I add generated-output controls for direct explicit, nested explicit and contextually supplied arguments, with exact carrier/tag checks and no trailing-underscore spelling. My original 18 source and 9 native methods remain required; neither this design nor a shadow substitutes for their actual producer runs.
