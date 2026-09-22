@@ -159,6 +159,22 @@ int main(int argc, char **argv) {
     NanoValue local = call(NULL, module, &heap, 0, &zero, 1);
     assert(local.tag == TAG_OPAQUE && !local.opaque_owner && local.as.obj);
     assert(call(NULL, module, &heap, 2, &local, 1).as.i64 == 41);
+    NanoValue refused_out = val_int(919), refused_saved;
+    memcpy(&refused_saved, &refused_out, sizeof refused_saved);
+    char refused_error[256] = {0};
+    int64_t local_calls = call(NULL, module, &heap, 4, NULL, 0).as.i64;
+    assert(!vm_ffi_call(module, 0, NULL, 1, &refused_out, &heap,
+                        refused_error, sizeof refused_error));
+    assert(refused_error[0] && !memcmp(&refused_out, &refused_saved, sizeof refused_out));
+    refused_error[0] = 0;
+    assert(!vm_ffi_call(module, 0, &zero, -1, &refused_out, &heap,
+                        refused_error, sizeof refused_error));
+    assert(refused_error[0] && !memcmp(&refused_out, &refused_saved, sizeof refused_out));
+    refused_error[0] = 0;
+    assert(!vm_ffi_call_captured(module, 0, &zero, 1, &refused_out, &heap, NULL,
+                                 refused_error, sizeof refused_error));
+    assert(refused_error[0] && !memcmp(&refused_out, &refused_saved, sizeof refused_out));
+    assert(call(NULL, module, &heap, 4, NULL, 0).as.i64 == local_calls);
     VmState *failed = isolated();
     NanoValue array = val_array(vm_array_new(&heap, TAG_INT, 1));
     assert(array.as.array && vm_array_push(&heap, array.as.array, val_int(7)));
