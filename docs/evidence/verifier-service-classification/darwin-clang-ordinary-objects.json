@@ -1,0 +1,598 @@
+{
+  "a8f877a094a149f5c7949126e1854c61963eb2dbaa84d2859001bba463de000c": {
+    "bytes": 12224,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/a8f877a094a149f5c7949126e1854c61963eb2dbaa84d2859001bba463de000c"
+  },
+  "fe0a3e0a4c67f2c69f9c434bc099b4f8d7058e754d4dfc04d16c0f05a69a672f": {
+    "bytes": 408032,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/fe0a3e0a4c67f2c69f9c434bc099b4f8d7058e754d4dfc04d16c0f05a69a672f"
+  },
+  "5975841b9c305d1fd0cdfe04a43d9d15699e7c5cc8d784d1deec94c4ea67d8e2": {
+    "bytes": 11192,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/5975841b9c305d1fd0cdfe04a43d9d15699e7c5cc8d784d1deec94c4ea67d8e2"
+  },
+  "8443847e09dd3d24bc6f019cd39652c9aaddca7dcd3417e09554043ccad3a476": {
+    "bytes": 10216,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/8443847e09dd3d24bc6f019cd39652c9aaddca7dcd3417e09554043ccad3a476"
+  },
+  "a6c6cd6fcd9510a671df99612c0a429ac8af24d5fc0019fd217466a10b6e683b": {
+    "bytes": 45744,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/a6c6cd6fcd9510a671df99612c0a429ac8af24d5fc0019fd217466a10b6e683b"
+  },
+  "68072c1d3d137d59267307d3176440d2e04b3b0637c19c52588c32c502d7125c": {
+    "bytes": 11352,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/68072c1d3d137d59267307d3176440d2e04b3b0637c19c52588c32c502d7125c"
+  },
+  "4647b288c8330deb5326296b9b757a92df10602e8a6bef8726a6e804e2762520": {
+    "bytes": 11280,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/4647b288c8330deb5326296b9b757a92df10602e8a6bef8726a6e804e2762520"
+  },
+  "200ef0794986ed8baf8210064ab5e01ce7842a681e07a0c7af0b2bc392f3be9f": {
+    "bytes": 11056,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/200ef0794986ed8baf8210064ab5e01ce7842a681e07a0c7af0b2bc392f3be9f"
+  },
+  "9f2ed7301d7f8b66b924dfc5a3d4c97aef73743158c955e7ac2cea72730e1717": {
+    "bytes": 20128,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/9f2ed7301d7f8b66b924dfc5a3d4c97aef73743158c955e7ac2cea72730e1717"
+  },
+  "ce030ec2f87a3ab4c718d9ccd4d6bb22be168ca17ace792f94a934840b47353e": {
+    "bytes": 40984,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/ce030ec2f87a3ab4c718d9ccd4d6bb22be168ca17ace792f94a934840b47353e"
+  },
+  "9e212fbc1018c8f1a9b65a87849189df754f4ee2f5fbaf07a8018d07cfcc32bf": {
+    "bytes": 49672,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/9e212fbc1018c8f1a9b65a87849189df754f4ee2f5fbaf07a8018d07cfcc32bf"
+  },
+  "ce000e298a8e579b096d1a0f9ef556e05099399997185d284f7167a6de5ad8e8": {
+    "bytes": 20416,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/ce000e298a8e579b096d1a0f9ef556e05099399997185d284f7167a6de5ad8e8"
+  },
+  "9d440e7da4b081bf69f0b9af0e251875775be5aeeefc67257618e8db4488b587": {
+    "bytes": 11856,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/9d440e7da4b081bf69f0b9af0e251875775be5aeeefc67257618e8db4488b587"
+  },
+  "d9665a41213d3b1ebf9304a71152224c48f36cb8b102de2db3c276e3a1f4d62b": {
+    "bytes": 49488,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/d9665a41213d3b1ebf9304a71152224c48f36cb8b102de2db3c276e3a1f4d62b"
+  },
+  "0f5d59af587f10e8793f0ac13e108a0c9c88d34e3495306d5bd2ad9649087566": {
+    "bytes": 14576,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/0f5d59af587f10e8793f0ac13e108a0c9c88d34e3495306d5bd2ad9649087566"
+  },
+  "c2641bc5104cc6a97be4a8ee74c87604c3646ae0963eb1bf13d029517496e429": {
+    "bytes": 445864,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/c2641bc5104cc6a97be4a8ee74c87604c3646ae0963eb1bf13d029517496e429"
+  },
+  "edf37023eb774b1dd50b53ac0074cab55148436b4c67d9f45c52ee0d02edd872": {
+    "bytes": 137288,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/edf37023eb774b1dd50b53ac0074cab55148436b4c67d9f45c52ee0d02edd872"
+  },
+  "86c63f775daf3548c98680cf4a10f5324012cd0630110d7cf19159a115b15d89": {
+    "bytes": 7968,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/86c63f775daf3548c98680cf4a10f5324012cd0630110d7cf19159a115b15d89"
+  },
+  "434a2ebd522b5917ebc745834144c72669c079942d43c85d21b4c4b126dec05a": {
+    "bytes": 7080,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/434a2ebd522b5917ebc745834144c72669c079942d43c85d21b4c4b126dec05a"
+  },
+  "c8976f9612eb06a779d2f51723d46c5740d66737a75b08728e83c3fae94110c8": {
+    "bytes": 9624,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/c8976f9612eb06a779d2f51723d46c5740d66737a75b08728e83c3fae94110c8"
+  },
+  "2584d2f99df288c4759264b0a9b68cc084601bb2e7bfbe0df5b0356b76a80390": {
+    "bytes": 12336,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/2584d2f99df288c4759264b0a9b68cc084601bb2e7bfbe0df5b0356b76a80390"
+  },
+  "704c13813e2e2fd9c551f2d3fa8d81d359c2048a96163618bb101c397bf63991": {
+    "bytes": 11736,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/704c13813e2e2fd9c551f2d3fa8d81d359c2048a96163618bb101c397bf63991"
+  },
+  "05d76f5eaf6f302b41e5ba9bd439ee946f87cb871062ada82a689136fbae63cd": {
+    "bytes": 16832,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/05d76f5eaf6f302b41e5ba9bd439ee946f87cb871062ada82a689136fbae63cd"
+  },
+  "9a2e524ab811d3ecff52dbfb9709d9339d3b4e4a470c449275d1ee08d8409e5a": {
+    "bytes": 108952,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/9a2e524ab811d3ecff52dbfb9709d9339d3b4e4a470c449275d1ee08d8409e5a"
+  },
+  "6222d13657b23b93a06bd262b98c8a0c7c64a61d52f4db74c792be633a3dbd61": {
+    "bytes": 11056,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/6222d13657b23b93a06bd262b98c8a0c7c64a61d52f4db74c792be633a3dbd61"
+  },
+  "0379f0356eba7351e6447ba226fff52adf7202f27fda22242b9317d566c3454d": {
+    "bytes": 52048,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/0379f0356eba7351e6447ba226fff52adf7202f27fda22242b9317d566c3454d"
+  },
+  "e14d683500cb92cb73c7ee5f1a3e0f98cffcefc97d1e22fde004e94de1ae7a5e": {
+    "bytes": 11440,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/e14d683500cb92cb73c7ee5f1a3e0f98cffcefc97d1e22fde004e94de1ae7a5e"
+  },
+  "896e71aa2bc3c970b410499d07c7d4530589ea413007789d31e73ed6f007538e": {
+    "bytes": 30856,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/896e71aa2bc3c970b410499d07c7d4530589ea413007789d31e73ed6f007538e"
+  },
+  "14e888645e5aa344d074c51c8713d618f7d7875fe691ea0c223a4c4fb4bf4a54": {
+    "bytes": 42696,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/14e888645e5aa344d074c51c8713d618f7d7875fe691ea0c223a4c4fb4bf4a54"
+  },
+  "02f96dd171a750d9d49350ad6aa3241207ba413a1b804365cfab7601ab996cdf": {
+    "bytes": 74024,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/02f96dd171a750d9d49350ad6aa3241207ba413a1b804365cfab7601ab996cdf"
+  },
+  "06079b4b202f5a58f4bc10fcdc2d6a1effd26a894f2576b93727d4de78a89169": {
+    "bytes": 19000,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/06079b4b202f5a58f4bc10fcdc2d6a1effd26a894f2576b93727d4de78a89169"
+  },
+  "cd45e05f241a7d372311f80e0d463389b01e7ef64c0f4bc1bd3d320d3d7122c1": {
+    "bytes": 160808,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/cd45e05f241a7d372311f80e0d463389b01e7ef64c0f4bc1bd3d320d3d7122c1"
+  },
+  "5b6b35c29eb30bec562c483102655542cb046452f3b7d516e17ee3b4f2963df8": {
+    "bytes": 40888,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/5b6b35c29eb30bec562c483102655542cb046452f3b7d516e17ee3b4f2963df8"
+  },
+  "078c299edfad55dfcda32d251a8ea0ead3a06b9387b6d41268923520b940183d": {
+    "bytes": 8407632,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/078c299edfad55dfcda32d251a8ea0ead3a06b9387b6d41268923520b940183d"
+  },
+  "04566b5f2bcf34397e68d7b55415a446cd7b918a10897884f9b2095713af560e": {
+    "bytes": 15680,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/04566b5f2bcf34397e68d7b55415a446cd7b918a10897884f9b2095713af560e"
+  },
+  "aeed0b1b451434594c428f2634caa51ace66bd9cf808ddfc0e233babd04fd58a": {
+    "bytes": 19520,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/aeed0b1b451434594c428f2634caa51ace66bd9cf808ddfc0e233babd04fd58a"
+  },
+  "05986548482bafbdc0da66996f63c13b1d3f178c285bd0d650ab4c900ef9086a": {
+    "bytes": 7328,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/05986548482bafbdc0da66996f63c13b1d3f178c285bd0d650ab4c900ef9086a"
+  },
+  "b0322a5d900b1b11cb1a59a37acc480a1b9c4b1e3cf00e9a1841ad5aa46a82c3": {
+    "bytes": 3376,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/b0322a5d900b1b11cb1a59a37acc480a1b9c4b1e3cf00e9a1841ad5aa46a82c3"
+  },
+  "e0f85695229dc95dd9a85ca95c8cb6b0343abc7a74ed4c2f5a33cdb0893a0ad5": {
+    "bytes": 22608,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/e0f85695229dc95dd9a85ca95c8cb6b0343abc7a74ed4c2f5a33cdb0893a0ad5"
+  },
+  "5341f9b9b0c070d2c09c7d224fb5538487aa5466f38b92493224ef7ea534c9e9": {
+    "bytes": 38640,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/5341f9b9b0c070d2c09c7d224fb5538487aa5466f38b92493224ef7ea534c9e9"
+  },
+  "297c31c859f417d797a260566d8818f8bd74c2b3f247d84b3ac4338ea3db87ea": {
+    "bytes": 34672,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/297c31c859f417d797a260566d8818f8bd74c2b3f247d84b3ac4338ea3db87ea"
+  },
+  "187355f4fcd6e8ff25cfe6a369ddf7496a66c93e0b7d4fb8f8a89e77e2cd86d1": {
+    "bytes": 24800,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/187355f4fcd6e8ff25cfe6a369ddf7496a66c93e0b7d4fb8f8a89e77e2cd86d1"
+  },
+  "34a8363795df2c184c47d8836366a9840c7f6d597bfb140ab12cbb9a08fbc221": {
+    "bytes": 11600,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/34a8363795df2c184c47d8836366a9840c7f6d597bfb140ab12cbb9a08fbc221"
+  },
+  "4209e1a9449d44a910734d9aa76843202e83e56664da649f77e1b5fe3721e0b5": {
+    "bytes": 239400,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/4209e1a9449d44a910734d9aa76843202e83e56664da649f77e1b5fe3721e0b5"
+  },
+  "e13ef7bb610c081d51281b4c21bc39b9b95d3debe295cc6fa994f1b5cf080267": {
+    "bytes": 12176,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/e13ef7bb610c081d51281b4c21bc39b9b95d3debe295cc6fa994f1b5cf080267"
+  },
+  "25803dd1e309dbea9708f8bdd9347aaf039a9c57e73e4373ee1a73cec2552d8b": {
+    "bytes": 11128,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/25803dd1e309dbea9708f8bdd9347aaf039a9c57e73e4373ee1a73cec2552d8b"
+  },
+  "5ad42b6ddb2be1b6e05c4e4072da8c67f730cbf58f1ad24320c7059796074592": {
+    "bytes": 12360,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/5ad42b6ddb2be1b6e05c4e4072da8c67f730cbf58f1ad24320c7059796074592"
+  },
+  "97d10755d91e845f751bcf75bbd39ebe53b33a95fe3395d6b28b33c26f7fd2f0": {
+    "bytes": 58648,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/97d10755d91e845f751bcf75bbd39ebe53b33a95fe3395d6b28b33c26f7fd2f0"
+  },
+  "78b2c09f73577b52794fbcd04b583c72c197943fcb15f887f6bd28ff8e66860e": {
+    "bytes": 11064,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/78b2c09f73577b52794fbcd04b583c72c197943fcb15f887f6bd28ff8e66860e"
+  },
+  "11b4c5aacab702189dc4f904b34537bca277e4ffaa1512a9f21c9c2511ed76d8": {
+    "bytes": 51664,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/11b4c5aacab702189dc4f904b34537bca277e4ffaa1512a9f21c9c2511ed76d8"
+  },
+  "f0f819804aea06d667528b637f52942019d88d18529f203f333ad5cacd7b9bcf": {
+    "bytes": 593824,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/f0f819804aea06d667528b637f52942019d88d18529f203f333ad5cacd7b9bcf"
+  },
+  "b215d813b24ce60792303d00c6bd207bc10eb2051bc765eabb96db82a426d333": {
+    "bytes": 11064,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/b215d813b24ce60792303d00c6bd207bc10eb2051bc765eabb96db82a426d333"
+  },
+  "619d11eb003fb855581dcbd5b3fa7716502365f0db0f9b78d6bfe920cd35e8de": {
+    "bytes": 41288,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/619d11eb003fb855581dcbd5b3fa7716502365f0db0f9b78d6bfe920cd35e8de"
+  },
+  "aa8021717a10129ed2fb9501c1c7005a86b82282b93d05f1071f346357928a3b": {
+    "bytes": 15336,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/aa8021717a10129ed2fb9501c1c7005a86b82282b93d05f1071f346357928a3b"
+  },
+  "3404c69b7519998424516bf4aba1fd4a737e94b4385be68c0f1f00e608075bdd": {
+    "bytes": 11016,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/3404c69b7519998424516bf4aba1fd4a737e94b4385be68c0f1f00e608075bdd"
+  },
+  "1a3d6e68dda081e38871a2ee81218d526b5546f04a8ff5209a93032039613ce8": {
+    "bytes": 9736,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/1a3d6e68dda081e38871a2ee81218d526b5546f04a8ff5209a93032039613ce8"
+  },
+  "9c90cb990984ba968d98991839dbf130286c837fb3e2c494cc33afe64ebb67d9": {
+    "bytes": 126456,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/9c90cb990984ba968d98991839dbf130286c837fb3e2c494cc33afe64ebb67d9"
+  },
+  "6469acc11b206c24e309c1d667700a97c212b91450527f719e54edb4622ac84c": {
+    "bytes": 11120,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/6469acc11b206c24e309c1d667700a97c212b91450527f719e54edb4622ac84c"
+  },
+  "9e1fdce112f4dbea05362297ac078dc35a1304d358ce40ce7d266bb1c49dc510": {
+    "bytes": 26304,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/9e1fdce112f4dbea05362297ac078dc35a1304d358ce40ce7d266bb1c49dc510"
+  },
+  "4d9ee1ef22adc01475900173bbfd94dda1508e4ca6c0b7ad51957193411589da": {
+    "bytes": 171816,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/4d9ee1ef22adc01475900173bbfd94dda1508e4ca6c0b7ad51957193411589da"
+  },
+  "c1f9de76a19539b50380070bfec6ba97592bc722c3fc70588fd76ceb8711cba6": {
+    "bytes": 8032,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/c1f9de76a19539b50380070bfec6ba97592bc722c3fc70588fd76ceb8711cba6"
+  },
+  "20a4dfb4a5ea0783448e24ad8d1a7e21f579be6a7c395f2dd055cb75f7ba2bdb": {
+    "bytes": 49816,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/20a4dfb4a5ea0783448e24ad8d1a7e21f579be6a7c395f2dd055cb75f7ba2bdb"
+  },
+  "ab13fd451e01f1c9d0aa93748e49158353776fb7f066e46938973d564789d499": {
+    "bytes": 377560,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/ab13fd451e01f1c9d0aa93748e49158353776fb7f066e46938973d564789d499"
+  },
+  "05d97495218d497e93b641d97c2c7fe9f6f46b8290cdfbc9e62f244a3111b529": {
+    "bytes": 90448,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/05d97495218d497e93b641d97c2c7fe9f6f46b8290cdfbc9e62f244a3111b529"
+  },
+  "f36655717d7615ebbcdedbb2fa3cefe3176154a95cd9d8ae919227cbec36a721": {
+    "bytes": 25624,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/f36655717d7615ebbcdedbb2fa3cefe3176154a95cd9d8ae919227cbec36a721"
+  },
+  "0e8e5f6495b7d841348ea024c7bc7f6a40b5e0fbc8b1e1c0e25479a33db7c45f": {
+    "bytes": 65072,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/0e8e5f6495b7d841348ea024c7bc7f6a40b5e0fbc8b1e1c0e25479a33db7c45f"
+  },
+  "46f89a3b9aaef57e9af3093091d164bdf985d8685f5b09ba659eb47e98d11112": {
+    "bytes": 13096,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/46f89a3b9aaef57e9af3093091d164bdf985d8685f5b09ba659eb47e98d11112"
+  },
+  "5138d996ca236b361764e96fc0a0a6c49ff7f2c23ee14745033a9459fb927b00": {
+    "bytes": 27736,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/5138d996ca236b361764e96fc0a0a6c49ff7f2c23ee14745033a9459fb927b00"
+  },
+  "ab967d1a1df2b8803ee3a78995b0dd9b75309e1ca2ff8c223d2716960d1ba22b": {
+    "bytes": 28584,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/ab967d1a1df2b8803ee3a78995b0dd9b75309e1ca2ff8c223d2716960d1ba22b"
+  },
+  "11d0318cb10fb1643b97a17597266c0b004904a1bb826f7be91df5a191038612": {
+    "bytes": 1134280,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/11d0318cb10fb1643b97a17597266c0b004904a1bb826f7be91df5a191038612"
+  },
+  "5f821dbf03c41621dda983e069e8cc9f46402ed0f94c51117e4eddf5d3dc2e36": {
+    "bytes": 28256,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/5f821dbf03c41621dda983e069e8cc9f46402ed0f94c51117e4eddf5d3dc2e36"
+  },
+  "6e9a91ec6e0e8dcafbf77c96b8f86e3c7836b0cafc50e1f20edb2b6f8db14c39": {
+    "bytes": 22456,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/6e9a91ec6e0e8dcafbf77c96b8f86e3c7836b0cafc50e1f20edb2b6f8db14c39"
+  },
+  "7cb394bc02be07473f115fe4d4dc244bf222d59538b030ff1b044b8e9e5dfa47": {
+    "bytes": 39536,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/7cb394bc02be07473f115fe4d4dc244bf222d59538b030ff1b044b8e9e5dfa47"
+  },
+  "1866195d2bd2b287082602a2cfd022ec6530716b466c028d03b43e2ef7dcf5c6": {
+    "bytes": 12160,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/1866195d2bd2b287082602a2cfd022ec6530716b466c028d03b43e2ef7dcf5c6"
+  },
+  "c8a84b76216b9c3c28e7f8990c9ecfa1cd34455b240530e7e33f880f5bc41ab7": {
+    "bytes": 19728,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/c8a84b76216b9c3c28e7f8990c9ecfa1cd34455b240530e7e33f880f5bc41ab7"
+  },
+  "4fec5b3e64d72a252ab50fa7f4464866d711ea50af44354c05f767f4f9e7ba34": {
+    "bytes": 38856,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/4fec5b3e64d72a252ab50fa7f4464866d711ea50af44354c05f767f4f9e7ba34"
+  },
+  "d82a8a2d89e50d70cc0aa19458c7152351b221f5ac8879ba7bfbd8044b201334": {
+    "bytes": 139464,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/d82a8a2d89e50d70cc0aa19458c7152351b221f5ac8879ba7bfbd8044b201334"
+  },
+  "706ed80d0a66c7ffc3b92c11bc06f5051decef94d5f2b94f2d8f5343bec1d06a": {
+    "bytes": 17488,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/706ed80d0a66c7ffc3b92c11bc06f5051decef94d5f2b94f2d8f5343bec1d06a"
+  },
+  "51a8022129cdb8f007816ed7f4c703dfe46744266eb60547766ed74a9456c1ef": {
+    "bytes": 11072,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/51a8022129cdb8f007816ed7f4c703dfe46744266eb60547766ed74a9456c1ef"
+  },
+  "a593d5443bdd0f7941e3e00e75daaf3520260b57facf1b205959bd8debc7b99f": {
+    "bytes": 12000,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/a593d5443bdd0f7941e3e00e75daaf3520260b57facf1b205959bd8debc7b99f"
+  },
+  "78aaf15c97b00dac3251d77b4f3de7450de40c7cb860d457b62af532d4a89ddb": {
+    "bytes": 11208,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/78aaf15c97b00dac3251d77b4f3de7450de40c7cb860d457b62af532d4a89ddb"
+  },
+  "cd6934585c24a3d1b78b54de5f78fe49582d372b0f1b1a39342fd87f97600705": {
+    "bytes": 11240,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/cd6934585c24a3d1b78b54de5f78fe49582d372b0f1b1a39342fd87f97600705"
+  },
+  "5cc1c130ccda624c4f80cfecc3b0d9705bb263b15688dbb4bab75da6e6b3f43d": {
+    "bytes": 21392,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/5cc1c130ccda624c4f80cfecc3b0d9705bb263b15688dbb4bab75da6e6b3f43d"
+  },
+  "88f99c07b32a75a377a05436543ab3ce055bb055989ea5a844ec5b6d68131607": {
+    "bytes": 31984,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/88f99c07b32a75a377a05436543ab3ce055bb055989ea5a844ec5b6d68131607"
+  },
+  "c6369495adc06d683ebf0a7bcfb4245daa649df9a0cc850d42565aa161571193": {
+    "bytes": 20016,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/c6369495adc06d683ebf0a7bcfb4245daa649df9a0cc850d42565aa161571193"
+  },
+  "23103b7113916f05832ef54807d4241ede5e5e00df9a6957b54ad225b9d45c13": {
+    "bytes": 16624,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/23103b7113916f05832ef54807d4241ede5e5e00df9a6957b54ad225b9d45c13"
+  },
+  "68aaf69c6a365bf2016c6c316f05d42640c353ba092d353a8c483c8518f09b5e": {
+    "bytes": 38096,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/68aaf69c6a365bf2016c6c316f05d42640c353ba092d353a8c483c8518f09b5e"
+  },
+  "48b71318d62b98a5edf6d4a37b6056a8a101f02c0a87947d684c8a6327268828": {
+    "bytes": 11096,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/48b71318d62b98a5edf6d4a37b6056a8a101f02c0a87947d684c8a6327268828"
+  },
+  "42fc7ee32b300aa48cf5c026bb1d0ccb548eadcfb01fe22ef770802df5d4b46d": {
+    "bytes": 10648,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/42fc7ee32b300aa48cf5c026bb1d0ccb548eadcfb01fe22ef770802df5d4b46d"
+  },
+  "56ff8d02c1184af4a3eb68720056a608940247f0de8126cd2746a05b267eefbd": {
+    "bytes": 11048,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/56ff8d02c1184af4a3eb68720056a608940247f0de8126cd2746a05b267eefbd"
+  },
+  "c431e7f05524f2d484a97bf8c75a99799daa37b7aeb3191279c9b81655c45855": {
+    "bytes": 39992,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/c431e7f05524f2d484a97bf8c75a99799daa37b7aeb3191279c9b81655c45855"
+  },
+  "9039982416d3b3bcf2f0a8cc9bb690a6e10214d0bdee1b8acc595016296ab4a6": {
+    "bytes": 10664,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/9039982416d3b3bcf2f0a8cc9bb690a6e10214d0bdee1b8acc595016296ab4a6"
+  },
+  "9a5cb68bc2dc2970dd7c783315261ab370bcafbef8c96b592826889cdf60d72c": {
+    "bytes": 11608,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/9a5cb68bc2dc2970dd7c783315261ab370bcafbef8c96b592826889cdf60d72c"
+  },
+  "33b8ec33303e8df5dbe92dcfb4adfb330da7c435aa76af9f817e8cf26cc8ac23": {
+    "bytes": 11048,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/33b8ec33303e8df5dbe92dcfb4adfb330da7c435aa76af9f817e8cf26cc8ac23"
+  },
+  "413034cb5d1570ecb6452ce6fe222c6c49117a7d074a47e92f60292b0a890fb0": {
+    "bytes": 11160,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/413034cb5d1570ecb6452ce6fe222c6c49117a7d074a47e92f60292b0a890fb0"
+  },
+  "3f56fd8ff3f82ee42aa179f4e1ed58e45e3a9ef2f73ea5969dc2db898db6fd28": {
+    "bytes": 90360,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/3f56fd8ff3f82ee42aa179f4e1ed58e45e3a9ef2f73ea5969dc2db898db6fd28"
+  },
+  "652aaa125ba2fa0cad8a7a500c08c7bf419bd3dd8ad366c7a5d32230fc0ee32e": {
+    "bytes": 46184,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/652aaa125ba2fa0cad8a7a500c08c7bf419bd3dd8ad366c7a5d32230fc0ee32e"
+  },
+  "7d2a5b9910996ba352a65a226f3a648543849cd8ace169a11456ea38ee4305ba": {
+    "bytes": 51032,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/7d2a5b9910996ba352a65a226f3a648543849cd8ace169a11456ea38ee4305ba"
+  },
+  "2e7e4469a20740ecd9dc116951cb885f8dda96dd4662cd038cf84c04d1c831f6": {
+    "bytes": 189328,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/2e7e4469a20740ecd9dc116951cb885f8dda96dd4662cd038cf84c04d1c831f6"
+  },
+  "51de317b733a3482a39f1a20bcc7e386843b9c2e04065ab76162be14d9ab23c0": {
+    "bytes": 13544,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/51de317b733a3482a39f1a20bcc7e386843b9c2e04065ab76162be14d9ab23c0"
+  },
+  "874269e6162e6e5e6f294d34baf467665098bc4ee3485aaf34e6595e53095a09": {
+    "bytes": 67368,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/874269e6162e6e5e6f294d34baf467665098bc4ee3485aaf34e6595e53095a09"
+  },
+  "74c4c406760d8999ee7f55f6e57f4200a7a04eeb396a96be70f3cb4e95a88335": {
+    "bytes": 11288,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/74c4c406760d8999ee7f55f6e57f4200a7a04eeb396a96be70f3cb4e95a88335"
+  },
+  "56d6a05a50122beeeb5bf2240152eb6c9d0d14e2be134a1008fcb4fa47b07f90": {
+    "bytes": 6392,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/56d6a05a50122beeeb5bf2240152eb6c9d0d14e2be134a1008fcb4fa47b07f90"
+  },
+  "3db3fa625829f68cf2941e18e42af04745ee12d69e9b9a9902e94c3ad84c06f0": {
+    "bytes": 14880,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/3db3fa625829f68cf2941e18e42af04745ee12d69e9b9a9902e94c3ad84c06f0"
+  },
+  "23a7b661db7ba53eb8cc0f90c7f40d5c660ebad134ff225522547305be2428fe": {
+    "bytes": 30744,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/23a7b661db7ba53eb8cc0f90c7f40d5c660ebad134ff225522547305be2428fe"
+  },
+  "1d4e6c560519d14b62f91192a4817242e2a38de70192b676640821abc30368c0": {
+    "bytes": 78856,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/1d4e6c560519d14b62f91192a4817242e2a38de70192b676640821abc30368c0"
+  },
+  "05e515d761a6162f04f829e36c420d74686375f57956c7377e184eb42026310c": {
+    "bytes": 11024,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/05e515d761a6162f04f829e36c420d74686375f57956c7377e184eb42026310c"
+  },
+  "55fae19b561b6932efae6dfcef03f696c9184626a91b2ff64602cb7506eeba23": {
+    "bytes": 11184,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/55fae19b561b6932efae6dfcef03f696c9184626a91b2ff64602cb7506eeba23"
+  },
+  "3d58cc3300cee2f2844fb817406ae847f17aa0dc8f17a6c2434819f5f7a8781c": {
+    "bytes": 49080,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/3d58cc3300cee2f2844fb817406ae847f17aa0dc8f17a6c2434819f5f7a8781c"
+  },
+  "08605cecf939d38d1959ea86eeda173e32ff82b28ac480dddeca5dda0356cc18": {
+    "bytes": 9336,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/08605cecf939d38d1959ea86eeda173e32ff82b28ac480dddeca5dda0356cc18"
+  },
+  "edf65346155e6b8cc6ff7f629cc804e11870e7c9377707c28dab04e493751bd0": {
+    "bytes": 23560,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/edf65346155e6b8cc6ff7f629cc804e11870e7c9377707c28dab04e493751bd0"
+  },
+  "08e72defbf3ac012fb6095063a8fa4797e2bbaecda1d11f151eb569732d16c2d": {
+    "bytes": 10984,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/08e72defbf3ac012fb6095063a8fa4797e2bbaecda1d11f151eb569732d16c2d"
+  },
+  "29215b2e0fa3e4174ab27d25fea15a7548296bf6dc06d1c831fd50639e068fdc": {
+    "bytes": 43688,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/29215b2e0fa3e4174ab27d25fea15a7548296bf6dc06d1c831fd50639e068fdc"
+  },
+  "af86ea7de041d779f3e8988ed10bb8b7dc70634ae39831f73f1ed493efed57eb": {
+    "bytes": 511584,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/af86ea7de041d779f3e8988ed10bb8b7dc70634ae39831f73f1ed493efed57eb"
+  },
+  "f7462a400f8ad696b86ed1433545d6616f7367357a1fb6e3a93575392588c72b": {
+    "bytes": 19992,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/f7462a400f8ad696b86ed1433545d6616f7367357a1fb6e3a93575392588c72b"
+  },
+  "7be11f3fe5bbbc3da6834832b546878beb381c5b16cbb0d7c5cab54a08d37d56": {
+    "bytes": 11768,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/7be11f3fe5bbbc3da6834832b546878beb381c5b16cbb0d7c5cab54a08d37d56"
+  },
+  "00da8ce87b95f8c0e9d3867ebf44bf32aa88d2bc18d9b9f2198c0b85010a333d": {
+    "bytes": 12136,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/00da8ce87b95f8c0e9d3867ebf44bf32aa88d2bc18d9b9f2198c0b85010a333d"
+  },
+  "a533ecdefa7c0ae104767a6ce8ec1993ecbc2ffb8b6a4e9df4e1c97ba46ff89e": {
+    "bytes": 12176,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/a533ecdefa7c0ae104767a6ce8ec1993ecbc2ffb8b6a4e9df4e1c97ba46ff89e"
+  },
+  "e646946a6e2b69bbc69a1bbfacc36de2fd89027017695b854882a34ec5d5a2eb": {
+    "bytes": 11544,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/e646946a6e2b69bbc69a1bbfacc36de2fd89027017695b854882a34ec5d5a2eb"
+  },
+  "c1f8d6ab1fdbc2497b92c40cc96df1a1ee531d4d010d5d1ba84a03fe1b292c19": {
+    "bytes": 11048,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/c1f8d6ab1fdbc2497b92c40cc96df1a1ee531d4d010d5d1ba84a03fe1b292c19"
+  },
+  "da6947312dab3623758097b740b82249f1c13de655334e4a772b483aa8328629": {
+    "bytes": 11048,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/da6947312dab3623758097b740b82249f1c13de655334e4a772b483aa8328629"
+  },
+  "c6acabb7612ec5d47fe1a00951bd37da89af56e97288b797fa2c309b5b22353e": {
+    "bytes": 26232,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/c6acabb7612ec5d47fe1a00951bd37da89af56e97288b797fa2c309b5b22353e"
+  },
+  "ab1a7a98cc83084a427f70d0217fbf5f56ef11aa1fa63d0ad289a5d82599aa74": {
+    "bytes": 4112,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/ab1a7a98cc83084a427f70d0217fbf5f56ef11aa1fa63d0ad289a5d82599aa74"
+  },
+  "fb3283c70243dec901aecf569f348ca9e99fcdefc165aa5476161f16df281ffb": {
+    "bytes": 18344,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/fb3283c70243dec901aecf569f348ca9e99fcdefc165aa5476161f16df281ffb"
+  },
+  "277b148ff2afbe768dc5662660614fa48d4c5788a25c5c8642c5a2571f48a7d1": {
+    "bytes": 11248,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/277b148ff2afbe768dc5662660614fa48d4c5788a25c5c8642c5a2571f48a7d1"
+  },
+  "38c120b3264152ff84f7855f98480a06decf021618ede11ee2575c0d59317a3f": {
+    "bytes": 38496,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/38c120b3264152ff84f7855f98480a06decf021618ede11ee2575c0d59317a3f"
+  },
+  "6fdcc22d40d13ab46687e9823dccd3b0d5440e2518535f946382c2ef13a96f02": {
+    "bytes": 229864,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/6fdcc22d40d13ab46687e9823dccd3b0d5440e2518535f946382c2ef13a96f02"
+  },
+  "18f5fc4cadd604254cb87dc87a11e2da76f2d9e3abc1bd2c47f606efd526c80a": {
+    "bytes": 11272,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/18f5fc4cadd604254cb87dc87a11e2da76f2d9e3abc1bd2c47f606efd526c80a"
+  },
+  "b299f9b23459ad110b09c516a5d62e1fbb89425b5dbdd3d17e9517160b1636ac": {
+    "bytes": 43040,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/b299f9b23459ad110b09c516a5d62e1fbb89425b5dbdd3d17e9517160b1636ac"
+  },
+  "a67979ec32af3b5467f7acda0534985fadf5df428c61a65ee8b2efbbec9ff360": {
+    "bytes": 4064,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/a67979ec32af3b5467f7acda0534985fadf5df428c61a65ee8b2efbbec9ff360"
+  },
+  "bf707190eb6977c91fb8bcba96c117a219a6f9e0ccc321a30806fcc52ed77ca0": {
+    "bytes": 24064,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/bf707190eb6977c91fb8bcba96c117a219a6f9e0ccc321a30806fcc52ed77ca0"
+  },
+  "3accd79672f55a16ff56f4bc6c22e269a9dfc9b2c3da37f70a845bfbb3dd886c": {
+    "bytes": 47736,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/3accd79672f55a16ff56f4bc6c22e269a9dfc9b2c3da37f70a845bfbb3dd886c"
+  },
+  "dea4062d9375dd0934c001023a54951d383983b330b251367cab6aa705a62ab6": {
+    "bytes": 242512,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/dea4062d9375dd0934c001023a54951d383983b330b251367cab6aa705a62ab6"
+  },
+  "bee7f3ddb802e63ce9429a8e5068732dd5866b6145f90ee7d940a2956bcc72a7": {
+    "bytes": 84776,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/bee7f3ddb802e63ce9429a8e5068732dd5866b6145f90ee7d940a2956bcc72a7"
+  },
+  "8141dbf2a92b10a05b164f387398ec69de20e1db84bec0fb4f8c51b13ec91474": {
+    "bytes": 11192,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/8141dbf2a92b10a05b164f387398ec69de20e1db84bec0fb4f8c51b13ec91474"
+  },
+  "8785bfde37014310f02cad0ecaf13a396cfc1c9f3be7d38623d44db4db9b9b22": {
+    "bytes": 10552,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/8785bfde37014310f02cad0ecaf13a396cfc1c9f3be7d38623d44db4db9b9b22"
+  },
+  "ab21ad3016b86dde831bfbf6e44874752657ad880b45152f08dd85843fba6e19": {
+    "bytes": 42432,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/ab21ad3016b86dde831bfbf6e44874752657ad880b45152f08dd85843fba6e19"
+  },
+  "c99dacbeb1190ab4b9b57840c013e228bc51ceed8eec2df968a0e21855ade3a3": {
+    "bytes": 13816,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/c99dacbeb1190ab4b9b57840c013e228bc51ceed8eec2df968a0e21855ade3a3"
+  },
+  "4e3fba4eabaaf144566bf35416ff66f9b06c1023110ba3354142fcd4bcb998b2": {
+    "bytes": 10704,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/4e3fba4eabaaf144566bf35416ff66f9b06c1023110ba3354142fcd4bcb998b2"
+  },
+  "dba9226354fe69a43cd171687150cf6bd4a5ad3f2972049a2518a398d53eb630": {
+    "bytes": 309736,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/dba9226354fe69a43cd171687150cf6bd4a5ad3f2972049a2518a398d53eb630"
+  },
+  "99ea6d35d3b680901a339c20fa593e8c89e51d9d26f99132cc74d47d6702ce43": {
+    "bytes": 340288,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/99ea6d35d3b680901a339c20fa593e8c89e51d9d26f99132cc74d47d6702ce43"
+  },
+  "08b02288bc7bbe3e61e126019f9f1c32f85c8a479bb8f1cf95ef528e8bb28ecc": {
+    "bytes": 56520,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/08b02288bc7bbe3e61e126019f9f1c32f85c8a479bb8f1cf95ef528e8bb28ecc"
+  },
+  "370b2cb7808637476696a43ab78db2ac57b767e9b20ea4ccbcabf5165ce8dd92": {
+    "bytes": 38528,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/370b2cb7808637476696a43ab78db2ac57b767e9b20ea4ccbcabf5165ce8dd92"
+  },
+  "7932352fca73b6e2dbbea529784b8144fc1749298138636a470d3c0b053acee5": {
+    "bytes": 32184,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/7932352fca73b6e2dbbea529784b8144fc1749298138636a470d3c0b053acee5"
+  },
+  "531ae08ac0aac7aac83690000bf2dbd8c40a4ad639d6356cb4ba2db041f7b1d4": {
+    "bytes": 150016,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/531ae08ac0aac7aac83690000bf2dbd8c40a4ad639d6356cb4ba2db041f7b1d4"
+  },
+  "31b13e8c39681aba4806fb249370b4ddd63bedb784e86024a7396dd5a646f9b1": {
+    "bytes": 36160,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/31b13e8c39681aba4806fb249370b4ddd63bedb784e86024a7396dd5a646f9b1"
+  },
+  "f4a99f21b0ad3a13617e7df2337758932cffb638796112e1da00f29d919d0e92": {
+    "bytes": 24248,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/f4a99f21b0ad3a13617e7df2337758932cffb638796112e1da00f29d919d0e92"
+  },
+  "a40b9e15d84f4348a4d59849cb27a7dcbb4d1884ddd647817052ee760108e4db": {
+    "bytes": 12056,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/a40b9e15d84f4348a4d59849cb27a7dcbb4d1884ddd647817052ee760108e4db"
+  },
+  "ad49262aa9b0917bce571b0fb98e37d622c25091d1d33cbfc683ccef54b8ccc4": {
+    "bytes": 22960,
+    "path": "/home/jkh/nanolang-qualification/verifier-service-53a-puck-retained/verifier-service-53a-clang-ordinary-reports/artifacts/ad49262aa9b0917bce571b0fb98e37d622c25091d1d33cbfc683ccef54b8ccc4"
+  }
+}
