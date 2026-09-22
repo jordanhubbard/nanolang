@@ -17177,3 +17177,5 @@ I qualify reviewed e3a parser correction on Linux with exact retained instrument
 - [ ] I preserve the private resource selector's target-specific evaluator flag omission as an attribution limitation (global sanitizer flags present, eval.o FP flags absent). The untouched original compiler is required for full corrected component acceptance; focused7174 evidence is not exact evaluator Make-policy parity.
 
 - [x] I retained corrected54e's full original typecheck terminal: unchanged60-second deadline,433 complete bodies and the same instantiated-resource frontier; full-context classification savings were smaller than focused timing. Evidence: `docs/evidence/resource-keys-full-typecheck/`. Complete component/CI acceptance remains open.
+
+- [ ] I replace full Parser snapshots along six recursive resource helper paths with an invocation-local two-list declaration view, preserving public boundaries and original logic/tests (task_96b40bc1ccd644bca2131878fa6cf372). Contract: `docs/RESOURCE_CLASSIFICATION_DECLARATION_VIEW.md`; source review and focused timing precede another complete component attempt.
