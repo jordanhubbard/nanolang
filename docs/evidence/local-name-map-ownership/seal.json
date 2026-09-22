@@ -1,0 +1,222 @@
+{
+  "ordinary": {
+    "source": "44d4eaf4f",
+    "bundle": "ordinary.tar.gz",
+    "sha256": "5df0147ced7fc11e20a0235aa3d27a84b027fa5fd30be07b67c6a7b3f1a57b38",
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 124,
+        "sha256": "03d679717114bb4a1937e3646e8af538b5491211a4af2d33279047e8f57805e4"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2267,
+        "sha256": "49d507686bf95981a44162aec6efb9f938f6b9ef98dc24af9b38a46d697990ac"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8438,
+        "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+      },
+      {
+        "path": "final.json",
+        "bytes": 139,
+        "sha256": "c113f971f46aba6af63ea70a4c0a1515e26b5eebb8d4e519f2de44bf867121b1"
+      },
+      {
+        "path": "results.json",
+        "bytes": 90,
+        "sha256": "e0a565b4a8a55d7d9c86d366b25fedc2ea4175109087cdc95a77c04464a0d0ae"
+      },
+      {
+        "path": "test-map-declared-tags-artifacts.json",
+        "bytes": 59397,
+        "sha256": "d1a7f92d3ba27e5bd1dc0a92402628686ccc62d36ec071329a200776cd272394"
+      },
+      {
+        "path": "test-map-declared-tags-command.json",
+        "bytes": 227,
+        "sha256": "ab592c13c771b9e41e8a5758a1e9b36ab77d20b331af5f9c657906e9fef800a5"
+      },
+      {
+        "path": "test-map-declared-tags-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "test-map-declared-tags-nested-processes.json",
+        "bytes": 8993,
+        "sha256": "4c36c7a07da5c32d79e868c26ef042c8fbc8f8ac60e1279acf29e9e7f1ff5735"
+      },
+      {
+        "path": "test-map-declared-tags-source-after.json",
+        "bytes": 399894,
+        "sha256": "92fec89c2280afb54c8ab4b30e54eb2d4b0752fb39b0471b27d29383e1647cea"
+      },
+      {
+        "path": "test-map-declared-tags-source-before.json",
+        "bytes": 399894,
+        "sha256": "92fec89c2280afb54c8ab4b30e54eb2d4b0752fb39b0471b27d29383e1647cea"
+      },
+      {
+        "path": "test-map-declared-tags-space-before.json",
+        "bytes": 64,
+        "sha256": "2ae026832590b0fdb3c4f8b1c8a1139662a9ac8c546ab76bcd40689f73674126"
+      },
+      {
+        "path": "test-map-declared-tags-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-map-declared-tags-tools-after.json",
+        "bytes": 2307,
+        "sha256": "49f8161701fee162c5760112d6f60680c54307a65d5e8a4b6bede5c94205c76a"
+      },
+      {
+        "path": "test-map-declared-tags-tools-before.json",
+        "bytes": 2307,
+        "sha256": "49f8161701fee162c5760112d6f60680c54307a65d5e8a4b6bede5c94205c76a"
+      },
+      {
+        "path": "test-map-declared-tags.log",
+        "bytes": 33040,
+        "sha256": "1cc1ebdacb0d562db9813b7cb1ad47061a38093c07b723fe1d0a8787691bf476"
+      }
+    ],
+    "objects": 173,
+    "object_bytes": 60890352,
+    "equal_pairs": 2,
+    "artifact_references": 173,
+    "terminals": {
+      "test-map-declared-tags-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      }
+    },
+    "results": [
+      {
+        "phase": "test-map-declared-tags",
+        "seconds": 17.351,
+        "status": 0
+      }
+    ]
+  },
+  "sanitizer": {
+    "source": "44d4eaf4f",
+    "bundle": "sanitizer.tar.gz",
+    "sha256": "04c1a85925824c5f3bb8166bf0f6973f307b50a3b9e6d831802d00ad38d306cb",
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 126,
+        "sha256": "ee974c37925755745d7f32d7afff73297c819e2f3b95275740124950c1060032"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2267,
+        "sha256": "49d507686bf95981a44162aec6efb9f938f6b9ef98dc24af9b38a46d697990ac"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8438,
+        "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+      },
+      {
+        "path": "final.json",
+        "bytes": 139,
+        "sha256": "5e86fdc7d053f69b6fd44365b328c9d4212deced4883e342a5d91dfb278d1764"
+      },
+      {
+        "path": "results.json",
+        "bytes": 90,
+        "sha256": "66e4174c0672be5a605ceca75c5acab276c06f34c18605d2782bba1e811a7ce1"
+      },
+      {
+        "path": "test-map-declared-tags-artifacts.json",
+        "bytes": 59743,
+        "sha256": "165158c08021889ced225bee4ddbcf17df7ce0c6cb071e24efbc59735bb7b41c"
+      },
+      {
+        "path": "test-map-declared-tags-command.json",
+        "bytes": 309,
+        "sha256": "ceebca2ce0f489b83aba38d232013012bcafb72d60e8bc2daaa2aa6db01942c1"
+      },
+      {
+        "path": "test-map-declared-tags-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "test-map-declared-tags-nested-processes.json",
+        "bytes": 22373,
+        "sha256": "f7806f82bd71b746c232a952403dbe77344db6e22cee618ebea2b97574d9cec3"
+      },
+      {
+        "path": "test-map-declared-tags-source-after.json",
+        "bytes": 399894,
+        "sha256": "92fec89c2280afb54c8ab4b30e54eb2d4b0752fb39b0471b27d29383e1647cea"
+      },
+      {
+        "path": "test-map-declared-tags-source-before.json",
+        "bytes": 399894,
+        "sha256": "92fec89c2280afb54c8ab4b30e54eb2d4b0752fb39b0471b27d29383e1647cea"
+      },
+      {
+        "path": "test-map-declared-tags-space-before.json",
+        "bytes": 64,
+        "sha256": "d78093e15dee6051ff3fc69a3bb9e79d20b7ddd8de893b90ffeeaa54c81ef160"
+      },
+      {
+        "path": "test-map-declared-tags-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-map-declared-tags-tools-after.json",
+        "bytes": 2307,
+        "sha256": "49f8161701fee162c5760112d6f60680c54307a65d5e8a4b6bede5c94205c76a"
+      },
+      {
+        "path": "test-map-declared-tags-tools-before.json",
+        "bytes": 2307,
+        "sha256": "49f8161701fee162c5760112d6f60680c54307a65d5e8a4b6bede5c94205c76a"
+      },
+      {
+        "path": "test-map-declared-tags.log",
+        "bytes": 42271,
+        "sha256": "2b49ea8d9362342c7ac5638e6443ef2b4625ceb8e28d3a3dcc127a9bc5da5c44"
+      }
+    ],
+    "objects": 173,
+    "object_bytes": 251108616,
+    "equal_pairs": 2,
+    "artifact_references": 173,
+    "terminals": {
+      "test-map-declared-tags-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      }
+    },
+    "results": [
+      {
+        "phase": "test-map-declared-tags",
+        "seconds": 68.857,
+        "status": 0
+      }
+    ]
+  }
+}
