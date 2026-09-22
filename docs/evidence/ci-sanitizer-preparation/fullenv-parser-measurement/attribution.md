@@ -1,0 +1,7 @@
+# My full-import parser measurement
+
+I use exact retained53cc Cseed and capture companion, a fresh53cc checkout, and the original typecheck_driver three-import header. Each of two diagnostic root shadows contains one byte-identical original520-statement parser body. My supported --root-shadows-only selection reports19 loaded modules, one initialized root and one successful shadow per invocation. Both180-second outer/original60-second shadow bounds remain unchanged.
+
+Ordinary block body14.520044159seconds and unsafe block body13.373277226seconds pass; full compilations73.480/72.263seconds pass. Both groups disappear, leaders are reaped and supervision reports no error. Source/tool endpoint maps agree. I retain both actual executable bytes/modes and all reported native-work products.
+
+These bodies total27.893seconds, compared with27.985seconds in the earlier corrected parser-only e3a measurement. I cannot attribute the failed full typecheck aggregate deadline to imported function/metadata population alone. I do not claim a statistical performance bound from this single sample. Root-only also skips dependency shadow typechecking, module initialization and preceding shadow side effects; these are explicit remaining distinctions. Actual53cc original parser/typecheck logs share their first335 shadow labels before diverging into main versus additional passive/module-binding shadows. No failed complete typecheck workload is replayed here.
