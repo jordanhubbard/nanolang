@@ -1647,6 +1647,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     }
                     free(field_names);
                     free(field_values);
+                    free_ast(spread_src);
                     return NULL;
                 }
 
@@ -6129,6 +6130,7 @@ void free_ast(ASTNode *node) {
             break;
         case AST_STRUCT_LITERAL:
             free(node->as.struct_literal.struct_name);
+            free_ast(node->as.struct_literal.spread_source);
             for (int i = 0; i < node->as.struct_literal.field_count; i++) {
                 free(node->as.struct_literal.field_names[i]);
                 free_ast(node->as.struct_literal.field_values[i]);

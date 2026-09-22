@@ -195,10 +195,20 @@ static void constructor_parser_boundaries(void) {
     assert(node->as.field_access.object->type == AST_IDENTIFIER);
     assert(!strcmp(node->as.field_access.object->as.identifier, "object"));
     free_ast(program); free_tokens(tokens, count);
+    tokens = tokenize("fn sample()->int { let value ={..base, value:3} return 0 }", &count);
+    assert(tokens); program = parse_program(tokens, count); assert(program);
+    body = program->as.program.items[0]->as.function.body;
+    assert(body->as.block.count == 2);
+    node = body->as.block.statements[0]->as.let.value;
+    assert(node->type == AST_STRUCT_LITERAL && node->as.struct_literal.field_count == 1);
+    assert(node->as.struct_literal.spread_source && node->as.struct_literal.spread_source->type == AST_IDENTIFIER);
+    assert(!strcmp(node->as.struct_literal.spread_source->as.identifier, "base"));
+    free_ast(program); free_tokens(tokens, count);
     const char *malformed[] = {
         "fn sample()->int { let value =alias..Value{value:3} return 0 }",
         "fn sample()->int { let value =alias.Box.{value:3} return 0 }",
-        "fn sample()->int { let value =alias.Box.Value{value:3"
+        "fn sample()->int { let value =alias.Box.Value{value:3",
+        "fn sample()->int { let value ={..base, value:3"
     };
     for (size_t i = 0; i < sizeof malformed / sizeof *malformed; ++i) {
         tokens = tokenize(malformed[i], &count); assert(tokens);
