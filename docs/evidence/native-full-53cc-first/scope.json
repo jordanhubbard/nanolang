@@ -1,0 +1,10 @@
+{
+  "pin": "53cc4f4e039f2a8765b6200c2d8fc3abfb2302c0",
+  "build_seconds": 141.093033583,
+  "bootstrap_seconds": 31.507212833,
+  "bootstrap_exit": 2,
+  "bootstrap_timeout": false,
+  "first_failure": "C compiler rejects taking address of sequential record literal rvalue in file_source_resolution module",
+  "archive_sha256": "4cf4c8867f3a6f835b81748d41776a6f462a749cc85348237176d58a7b55ce49",
+  "dependent_gates": "not reached"
+}
