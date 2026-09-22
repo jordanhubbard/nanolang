@@ -17310,3 +17310,11 @@ precedes the next unchanged whole-checker qualification.
 - [ ] I close the statically identified fixed-record array_set owned-slot overwrite (73e eval.c:1445): clone replacement first, then discard the previous independently owned slot before assignment. The collection registry alone would release only the final slot; I do not execute the old leaking mutation path.
 
 - [ ] I reject oversized evaluator array lengths/map projections before narrowing to int and allocation, and replace owned string slots copy-first so aliased source leaves remain live during the copy. These existing static hazards were found during531 source review; I add oversize refusal and real alias controls before execution.
+
+I retain first1c4 Linux whole-checker failure in the new lexical-callback positive:
+its nested function-type parameter spelling is rejected by the existing parser.
+All original reduce identity/refusal cases passed first. I correct only the new
+callback annotation to supported fn(array<Point>,Point,int)->Other and pass7 as
+its third argument. The local name reduce, three-argument guard, Point initializer
+and Other-positive/Point-negative expectations remain. Puck1c4 and sanitizers
+were staged/unrun; fresh corrected whole-checker qualification remains required.

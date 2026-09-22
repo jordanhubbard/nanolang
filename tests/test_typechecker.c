@@ -972,9 +972,9 @@ void test_tc_reduce_record_result_identity(void) {
     char source[2048];
     snprintf(source,sizeof source,"%sfn apply(xs:array<Point>,initial:Point)->Other{return (reduce xs initial fold)}",prefix);
     ASSERT(!tc_module_passes(source));
-    snprintf(source,sizeof source,"%sfn apply(xs:array<Point>,initial:Point,reduce:fn(array<Point>,Point,fn(Point,Point)->Point)->Other)->Other{return (reduce xs initial fold)}",prefix);
+    snprintf(source,sizeof source,"%sfn apply(xs:array<Point>,initial:Point,reduce:fn(array<Point>,Point,int)->Other)->Other{return (reduce xs initial 7)}",prefix);
     ASSERT(tc_module_passes(source));
-    snprintf(source,sizeof source,"%sfn apply(xs:array<Point>,initial:Point,reduce:fn(array<Point>,Point,fn(Point,Point)->Point)->Other)->Point{return (reduce xs initial fold)}",prefix);
+    snprintf(source,sizeof source,"%sfn apply(xs:array<Point>,initial:Point,reduce:fn(array<Point>,Point,int)->Other)->Point{return (reduce xs initial 7)}",prefix);
     ASSERT(!tc_module_passes(source));
 }
 
