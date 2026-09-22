@@ -975,18 +975,25 @@ static void emission_entry_rollback(void) {
         free_environment(env); free_ast(program); free_tokens(tokens, count);
     }
 }
+#define SCALAR_BYTE_HELPER "fn byte_value(n:int)->u8{return n} shadow byte_value{assert (== (byte_value 258) 2)} "
 static void scalar_array_source(const char *source, bool expected) {
-    int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+    size_t source_length = strlen(source);
+    assert(source_length <= SIZE_MAX - sizeof(SCALAR_BYTE_HELPER));
+    size_t length = sizeof(SCALAR_BYTE_HELPER) + source_length;
+    char *complete = malloc(length); assert(complete);
+    int written = snprintf(complete, length, "%s%s", SCALAR_BYTE_HELPER, source);
+    assert(written >= 0 && (size_t)written < length);
+    int count = 0; Token *tokens = tokenize(complete, &count); assert(tokens);
     ASTNode *program = parse_program(tokens, count); assert(program);
     Environment *env = create_environment(); assert(env);
     bool ok = type_check_module(program, env);
     assert(ok == expected);
     assert(active_array_destination == NULL);
-    free_environment(env); free_ast(program); free_tokens(tokens, count);
+    free_environment(env); free_ast(program); free_tokens(tokens, count); free(complete);
 }
 static void scalar_array_borrowed_destination(void) {
     for (int invalid = 0; invalid < 2; ++invalid) {
-        const char *source = "resource struct Words { items:array<u8> } fn main()->int{return 0} shadow main{assert true}";
+        const char *source = SCALAR_BYTE_HELPER "resource struct Words { items:array<u8> } fn main()->int{return 0} shadow main{assert true}";
         int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
         ASTNode *program = parse_program(tokens, count); assert(program);
         Environment *env = create_environment(); assert(env && type_check(program, env));
@@ -997,7 +1004,7 @@ static void scalar_array_borrowed_destination(void) {
         TypeInfo integers = {.base_type = TYPE_ARRAY, .element_type = &integer};
         env_define_var_with_type_info(env, "integers", TYPE_ARRAY, TYPE_INT, &integers, false, create_void());
         const char *body = invalid ? "fn probe()->void{set view.items integers}"
-            : "fn probe()->void{set view.items [1,(cast_u8 2)]}";
+            : "fn probe()->void{set view.items [1,(byte_value 2)]}";
         int body_count = 0; Token *body_tokens = tokenize(body, &body_count); assert(body_tokens);
         ASTNode *body_program = parse_program(body_tokens, body_count); assert(body_program && body_program->as.program.count == 1);
         ASTNode *block = body_program->as.program.items[0]->as.function.body;
@@ -1024,17 +1031,17 @@ static void scalar_array_borrowed_destination(void) {
 
 static void scalar_array_destinations(void) {
     const char *positive[] = {
-        "fn main()->int{let a:array<u8> = [1,(cast_u8 2),(+ 255 3)] return 0}",
+        "fn main()->int{let a:array<u8> = [1,(byte_value 2),(+ 255 3)] return 0}",
         "let global:array<u8> = [1,(+ 255 3)] fn main()->int{return 0}",
-        "fn main()->int{let mut a:array<u8> = [] set a [1,(cast_u8 2)] return 0}",
-        "fn bytes()->array<u8>{return [1,(cast_u8 2)]} fn main()->int{return 0}",
-        "fn take(a:array<u8>)->int{return 0} fn main()->int{return (take [1,(cast_u8 2)])}",
-        "fn take(a:array<u8>)->int{return 0} fn main()->int{let f:fn(array<u8>)->int = take return (f [1,(cast_u8 2)])}",
-        "struct Holder{items:array<u8>} fn main()->int{let h:Holder = Holder{items:[1,(cast_u8 2)]} return 0}",
-        "union Box<T>{Some{items:T}} fn main()->int{let h:Box<array<u8>> = Box.Some{items:[1,(cast_u8 2)]} return 0}",
-        "fn main()->int{let a:array<array<u8>> = [[],[1,(cast_u8 2)]] return 0}",
-        "fn main()->int{let a:array<u8> = (cond (true [1,(cast_u8 2)]) (else [])) return 0}",
-        "union Pick{Some{value:int}} fn main()->int{let a:array<u8> = (match Pick.Some{value:258}{Some(p)=>{let x:int = p.value [x,(cast_u8 2)]}}) return 0}",
+        "fn main()->int{let mut a:array<u8> = [] set a [1,(byte_value 2)] return 0}",
+        "fn bytes()->array<u8>{return [1,(byte_value 2)]} fn main()->int{return 0}",
+        "fn take(a:array<u8>)->int{return 0} fn main()->int{return (take [1,(byte_value 2)])}",
+        "fn take(a:array<u8>)->int{return 0} fn main()->int{let f:fn(array<u8>)->int = take return (f [1,(byte_value 2)])}",
+        "struct Holder{items:array<u8>} fn main()->int{let h:Holder = Holder{items:[1,(byte_value 2)]} return 0}",
+        "union Box<T>{Some{items:T}} fn main()->int{let h:Box<array<u8>> = Box.Some{items:[1,(byte_value 2)]} return 0}",
+        "fn main()->int{let a:array<array<u8>> = [[],[1,(byte_value 2)]] return 0}",
+        "fn main()->int{let a:array<u8> = (cond (true [1,(byte_value 2)]) (else [])) return 0}",
+        "union Pick{Some{value:int}} fn main()->int{let a:array<u8> = (match Pick.Some{value:258}{Some(p)=>{let x:int = p.value [x,(byte_value 2)]}}) return 0}",
         "fn main()->int{let a:array<u8> = [(cond ((at [true] 0) 1) (else 2))] return 0}",
         "enum Tag{One} fn main()->int{let a:array<Tag> = [Tag.One] return 0}",
         "fn main()->int{let a:array<u8> = [1] let b:array<u8> = a return 0}",
