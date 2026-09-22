@@ -9,6 +9,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "service_bindings_module.h"
+#include "service_classification_private.h"
 #include "verifier.h"
 #include "managed_array_shapes.h"
 #include "record_array_structure_private.h"
@@ -370,9 +371,10 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
 
 /* I keep policy selection outside these shared checks. The original module
  * and function tables remain the inputs; no copied/stripped module is used. */
-static NvmVerifyResult verify_module_ranges(const NvmModule *mod) {
+static NvmVerifyResult verify_module_ranges_classified(const NvmModule *mod,
+                                                       const NvmServiceClassification *facts) {
     if (!mod) return fail("module is NULL");
-    if (nvm_service_execution_pending(mod))
+    if (nvm_service_pending_classified(mod, facts))
         return fail("I require reviewed service lifetime and dispatch admission before execution");
     if (!mod->code && mod->code_size > 0)
         return fail("code pointer is NULL but code_size=%u", mod->code_size);
@@ -478,11 +480,16 @@ static NvmVerifyResult verify_module_contracts_and_imports(const NvmModule *mod)
     return ok_result();
 }
 
-static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affine_only,
-                                        bool *owned_admitted, bool mixed_composed) {
+static NvmVerifyResult verify_module_ranges(const NvmModule *mod) {
+    return verify_module_ranges_classified(mod, NULL);
+}
+
+static NvmVerifyResult verify_structure_checked_classified(const NvmModule *mod, bool affine_only,
+                                        bool *owned_admitted, bool mixed_composed,
+                                        const NvmServiceClassification *facts) {
     if (owned_admitted) *owned_admitted=false;
     bool admitted=false;
-    NvmVerifyResult ranges = verify_module_ranges(mod);
+    NvmVerifyResult ranges = verify_module_ranges_classified(mod, facts);
     if (!ranges.ok) return ranges;
 
     bool needs_ownership = false;
@@ -507,6 +514,13 @@ static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affin
 
     if (owned_admitted) *owned_admitted=admitted;
     return ok_result();
+}
+
+/* Private preparation retains its original fresh-query and budget behavior. */
+static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affine_only,
+                                        bool *owned_admitted, bool mixed_composed) {
+    return verify_structure_checked_classified(mod, affine_only, owned_admitted,
+                                               mixed_composed, NULL);
 }
 
 /* All existing public routes keep the original ownership validation. The only
@@ -898,19 +912,20 @@ static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_id
 static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_idx,
                                            const NvmModule *const *linked_modules,
                                            uint32_t linked_count,
-                                           uint16_t *out_max_stack) {
-    if(nvm_service_execution_pending(mod))
+                                           uint16_t *out_max_stack,
+                                           const NvmServiceClassification *facts) {
+    if(nvm_service_pending_classified(mod, facts))
         return fail("I refuse service contracts before mixed execution selection");
-    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
+    if(nvm_owned_array_route_classified(mod, facts)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
         if(linked_count)return fail("I refuse linked owner ARRAY execution contracts");
         return verify_owned_arrays(mod,fn_idx,out_max_stack);
     }
-    if(nvm_mixed_samples_candidate(mod)) {
+    if(nvm_mixed_samples_candidate_classified(mod, facts)) {
         if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
         return verify_mixed_samples(mod,fn_idx,out_max_stack);
     }
     bool owned_admitted=false;
-    NvmVerifyResult structure = verify_structure(mod, false, &owned_admitted);
+    NvmVerifyResult structure = verify_structure_checked_classified(mod, false, &owned_admitted, false, facts);
     if (!structure.ok) return structure;
     if (fn_idx >= mod->function_count)
         return fail("function index %u >= function_count %u",
@@ -1082,13 +1097,15 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
 }
 
 NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
-    return verify_function_impl(mod, fn_idx, NULL, 0, NULL);
+    NvmServiceClassification facts = nvm_service_classify(mod);
+    return verify_function_impl(mod, fn_idx, NULL, 0, NULL, &facts);
 }
 
 NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
                                               uint32_t fn_idx,
                                               uint16_t *out_max_stack) {
-    return verify_function_impl(mod, fn_idx, NULL, 0, out_max_stack);
+    NvmServiceClassification facts = nvm_service_classify(mod);
+    return verify_function_impl(mod, fn_idx, NULL, 0, out_max_stack, &facts);
 }
 
 /* ========================================================================
@@ -1096,18 +1113,19 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
  * ======================================================================== */
 
 NvmVerifyResult nvm_verify(const NvmModule *mod) {
-    if(nvm_service_execution_pending(mod))
+    NvmServiceClassification facts = nvm_service_classify(mod);
+    if(nvm_service_pending_classified(mod, &facts))
         return fail("I refuse service contracts before mixed execution selection");
-    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return verify_owned_arrays(mod,0,NULL);
-    if(nvm_mixed_samples_candidate(mod))return verify_mixed_samples(mod,0,NULL);
+    if(nvm_owned_array_route_classified(mod, &facts)!=NVM_OWNER_ARRAY_NOT_SELECTED)return verify_owned_arrays(mod,0,NULL);
+    if(nvm_mixed_samples_candidate_classified(mod, &facts))return verify_mixed_samples(mod,0,NULL);
     /* I reuse only this invocation's completed full owned-module proof. */
     bool owned_admitted=false;
-    NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
+    NvmVerifyResult r = verify_structure_checked_classified(mod, false, &owned_admitted, false, &facts);
     if (!r.ok || owned_admitted) return r;
 
     /* Phase 2: per-function bytecode validation */
     for (uint32_t i = 0; i < mod->function_count; i++) {
-        r = verify_function_impl(mod, i, NULL, 0, NULL);
+        r = verify_function_impl(mod, i, NULL, 0, NULL, &facts);
         if (!r.ok) return r;
     }
 
@@ -1123,16 +1141,17 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
     for (uint32_t i=0; i<linked_count; i++)
         if (nvm_service_execution_pending(linked_modules[i]))
             return fail("I refuse linked service contracts before reviewed dispatch admission");
-    if(nvm_service_execution_pending(mod))
+    NvmServiceClassification facts = nvm_service_classify(mod);
+    if(nvm_service_pending_classified(mod, &facts))
         return fail("I refuse service contracts before mixed execution selection");
     for(uint32_t i=0;i<linked_count;i++)
         if(nvm_owned_array_route(linked_modules[i])!=NVM_OWNER_ARRAY_NOT_SELECTED)
             return fail("I refuse an owner ARRAY candidate or invalid descriptor in a linked graph");
-    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
+    if(nvm_owned_array_route_classified(mod, &facts)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
         if(linked_count)return fail("I refuse linked owner ARRAY execution contracts");
         return verify_owned_arrays(mod,0,NULL);
     }
-    if(nvm_mixed_samples_candidate(mod)) {
+    if(nvm_mixed_samples_candidate_classified(mod, &facts)) {
         if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
         return verify_mixed_samples(mod,0,NULL);
     }
@@ -1150,13 +1169,13 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
     }
     /* Zero linked modules retain the same invocation-local owned proof. */
     bool owned_admitted=false;
-    NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
+    NvmVerifyResult r = verify_structure_checked_classified(mod, false, &owned_admitted, false, &facts);
     if (!r.ok || (!linked_count && owned_admitted)) return r;
 
     /* Phase 2: per-function validation, resolving OP_CALL_MODULE against the
      * supplied linked-module table so cross-module call operands are bounded. */
     for (uint32_t i = 0; i < mod->function_count; i++) {
-        r = verify_function_impl(mod, i, linked_modules, linked_count, NULL);
+        r = verify_function_impl(mod, i, linked_modules, linked_count, NULL, &facts);
         if (!r.ok) return r;
     }
 
