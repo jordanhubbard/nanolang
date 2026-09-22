@@ -2936,7 +2936,7 @@ shadow nisa_emit_expected_expr {
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<int>") "  ARR_LITERAL 1 0\n")
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<bool>") "  ARR_LITERAL 4 0\n")
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<float>") "  ARR_LITERAL 3 0\n")
-    let byte_tokens: List<LexerToken> = (tokenize_string "fn byte() -> u8 { return 255 }" "byte.nano" diagnostics)
+    let byte_tokens: List<LexerToken> = (tokenize_string "fn byte_value() -> u8 { return 255 }" "byte.nano" diagnostics)
     let byte_parser: Parser = (parse_program byte_tokens (list_LexerToken_length byte_tokens) "byte.nano")
     let byte_function: ASTFunction = (parser_get_function byte_parser 0)
     let byte_block: ASTBlock = (parser_get_block byte_parser byte_function.body)
