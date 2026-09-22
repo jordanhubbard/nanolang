@@ -17183,3 +17183,5 @@ I qualify reviewed e3a parser correction on Linux with exact retained instrument
 - [x] I qualify all eleven focused resource-view shadows at946 with the original module context and60-second alarm; bodies total13.151seconds. I retain corrected evaluator FP flags and the prior comparison limitation. Evidence: `docs/evidence/resource-view-focused/`. Full604-shadow component and separate10-second bootstrap obligations remain open.
 
 - [x] I retain full946 first terminal:435 bodies complete, pending resource_transfer_supported under original60seconds. The prior instantiated frontier completes, but604-shadow acceptance and bootstrap10 remain open. I also retain the missing-alias preflight before any compiler execution. Evidence: `docs/evidence/resource-view-full-typecheck/`.
+
+- [ ] I measure per-body record snapshot and field-copy volume through private exact-provider counters before choosing a further compiler deadline repair (task_96b40bc1ccd644bca2131878fa6cf372). Contract: `docs/RECORD_COPY_COST_DIAGNOSTIC.md`; production ownership and both original deadlines remain unchanged.
