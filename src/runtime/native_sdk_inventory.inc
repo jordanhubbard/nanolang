@@ -1168,6 +1168,7 @@ static const char *const sdk_required_inputs[] = {
     "src/runtime/regex.c",
     "src/runtime/schema_lists.c",
     "src/runtime/sdl_helpers.c",
+    "src/runtime/shadow_completion.h",
     "src/runtime/shadow_runner.h",
     "src/runtime/shadow_timeout.h",
     "src/runtime/shadow_timing.h",
