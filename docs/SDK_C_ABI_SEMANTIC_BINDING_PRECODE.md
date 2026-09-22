@@ -1,0 +1,35 @@
+# I bind C storage rows to my retained declarations
+
+I start from candidate9386c1672 in an isolated worktree. My qualified metadata parser owns canonical JSON; my qualified private description owns the complete module, declaration plan and provider/lifetime transport. Neither input grants execution authority. I keep the active candidate and its hosted CI untouched.
+
+## Resolution precedes binding
+
+My description retains nominal owner/name/kind/generic arguments, original layout ordinals, complete shared types, and exact function/import signature selectors. It does not retain source namespace aliases or import visibility. `typed_abi.semantic` is a source annotation, not a unique-short-name lookup request. I cannot reconstruct source visibility from an arbitrary matching nominal row.
+
+I separate annotation resolution from C storage binding without creating another semantic type graph. The checked producer must resolve each annotation using its existing complete type and owner context, at the same point that it assigns retained shared type indices. Its private selection records pair metadata row ordinal with that exact shared type index. Function selections retain the actual declaration binding ordinal, not a signature chosen only by coarse tags. The selection belongs to the exact description generation and canonical metadata bytes. It may not be supplied by a loader, a provider library, or an unchecked public numeric mapping API.
+
+A selection's source spelling is not identity. The producer must establish the owner/visibility proof before publication; same-origin aliases may select the same exact type, while two owners with the same short name remain different. A selection made for another description or different metadata must refuse even when row counts and names match. There is no fallback from missing provenance to a unique name, C typedef, layout shape or environment address. Until the actual checked producer bridge exists, private test selections exercise only graph binding and cannot produce a generated executable adapter.
+
+## One graph and complete mapping
+
+I reuse the description's existing declaration, nominal and signature readers and its charged complete-type comparator. I expose bounded read-only query wrappers rather than copy or approximate that comparator. The description already validates reference-edge cycle rules before coinductive equality; a C storage binder must not re-admit a by-value cycle via a visited-pair shortcut.
+
+I bind every metadata type row, including unused rows. Kind must match the selected exact type. Scalars require their precise tag; STRING is not OPAQUE, and U8 is not INT. Records, tuples, enums and unions retain their actual layout and original field/variant ordinals. Opaque identity retains its exact nominal key independently of the C typedef. Function types retain the exact complete signature. A C member path maps one original ordered field; variant mappings retain each original partition and count. Missing/extra fields, enum cases or variants refuse. C member spelling does not rename semantic fields.
+
+An array row's `element` binding must be completely equal to the selected array's element in the same shared graph. Every nested field/variant/signature type that glue will convert must have an explicit compatible storage row. I reject ambiguous multiple storage representations for one semantic type unless a later explicit edge selection disambiguates them. I do not choose the first matching typedef. Reference recursion is retained symbolically for later bounded conversion; no recursive allocation or foreign entry occurs here.
+
+Each metadata function row binds the exact checked declaration subject and original signature selector. Its name must match that declaration in the selected provider context. Parameter/result counts and complete type identities must match ordered storage rows; null result requires actual zero results, and one tuple result is distinct from multiple results. The provider requirement selected by the declaration must match the intended description row. Different function rows may use one C symbol only when their complete generated C prototypes agree; semantic signature coincidence alone does not establish C prototype agreement.
+
+Target, library, digests, header declarations and C compatibility remain separate checks: textual `target` equality to the selected provider requirement is a consistency condition, not evidence about the loaded process or image. The C compiler will check declared typedefs/member paths/constants/prototypes in deterministic generated source. It must not use casts to hide a mismatch.
+
+## Owned output and refusal
+
+My output is an independently owned private binding plan, retaining a complete description generation, canonical metadata and numeric selection/mapping facts. It cannot alias caller JSON, source environments, layout storage or temporary selections. I publish only into an unpublished output slot. One staged `NvmPreparationBudget` covers actual clones, all repeated validation/comparison passes, live plan storage and scratch allocations cumulatively. Refusal leaves caller budget and output unchanged and releases every initialized allocation prefix. Source resolution work is also charged; it is not an unmetered callback inside preparation.
+
+I will retain the old absent-metadata path and all existing wrappers unchanged. No runtime feature bit, module cache, image loader, VM descriptor, AOT emitter or COP worker becomes executable through this private API.
+
+## Checkpoints and controls
+
+First I expose exact description queries and the existing complete-type comparator with transactional budget/output behavior. Then I implement checked producer selection provenance and the numeric C storage binder together, followed by independent owning controls. Controls include same-owner aliases, same-name foreign owners, unused rows, exact field/variant partitions, array/callable complete types, original signature selector mismatches, symbol prototype conflicts, missing nested mappings, metadata/generation mismatch, permitted reference cycles and refused by-value cycles. Every allocation prefix has one-shot and persistent refusal plus fresh recovery; exact/minus-one budgets and unchanged sentinel outputs remain required.
+
+Only after this source and focused qualification checkpoint do I generate deterministic C glue and compile-only prototype/layout controls. Immutable image anchoring, recursive lifetime conversion, issued callback authority, COP reentry policy and complete installed canonical acceptance remain required later work, not acceptance inferred from private binding.
