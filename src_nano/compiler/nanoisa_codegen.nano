@@ -1632,6 +1632,7 @@ fn nisa_type_ok(parser: Parser, t: string) -> bool {
     if (>= (nisa_enum_index parser t) 0) { return true }
     if (and (str_starts_with t "array<") (str_ends_with t ">")) {
         let element: string = (str_substring t 6 (- (str_length t) 7))
+        if (or (== element "u8") (== element "byte")) { return true }
         if (== element "float") { return true }
         if (or (== element "bool") (or (== element "int") (== element "string"))) { return true }
         return (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element))
@@ -1658,6 +1659,8 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "u8")
     assert (nisa_type_ok p "Point")
     assert (nisa_type_ok p "Tok")
+    assert (nisa_type_ok p "array<u8>")
+    assert (nisa_type_ok p "array<byte>")
     assert (nisa_type_ok p "array<string>")
     assert (nisa_type_ok p "List<string>")
     assert (nisa_type_ok p "List<Tok>")
@@ -4989,6 +4992,8 @@ shadow nisa_result_tag {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_result_tag p "void") "void")
     assert (== (nisa_result_tag p "u8") "u8")
+    assert (== (nisa_result_tag p "array<u8>") "array")
+    assert (== (nisa_result_tag p "array<byte>") "array")
     assert (== (nisa_result_tag p "Tok") "struct")
     assert (== (nisa_result_tag p "Box") "struct")
     assert (== (nisa_result_tag p "List<Tok>") "array")
