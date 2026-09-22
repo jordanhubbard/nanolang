@@ -3373,11 +3373,13 @@ fn nisa_emit_push_call(parser: Parser, call: ASTCall, name: string) -> string {
         let declared: string = (str_substring name 5 (- (str_length name) 10))
         if (!= declared element) { return (nisa_fail "I require the list append to match its element type") }
     }
-    if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
+    if (and (!= element "u8") (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
         return (nisa_fail "I require an append value matching the element type")
     }
     let receiver: string = (nisa_emit_expected_expr parser object.node_id object.node_type container)
-    let appended: string = (nisa_emit_expr parser value.node_id value.node_type)
+    let mut appended: string = ""
+    if (== element "u8") { set appended (nisa_emit_expected_expr parser value.node_id value.node_type element) }
+    else { set appended (nisa_emit_expr parser value.node_id value.node_type) }
     return (+ receiver (+ appended (nisa_line "ARR_PUSH")))
 }
 shadow nisa_emit_push_call {
@@ -3391,6 +3393,13 @@ shadow nisa_emit_push_call {
     assert (== (nisa_emit_push_call parser (parser_get_call parser 0) "array_push") "")
     assert (not nisa_ok)
     let reset_again: int = (nisa_reset)
+    let byte_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { (array_push values (+ 255 2)) return 0 }" "byte-push.nano" (diag_list_new))
+    let byte_parser: Parser = (parse_program byte_tokens (list_LexerToken_length byte_tokens) "byte-push.nano")
+    set nisa_names ["values"]
+    set nisa_types ["array<u8>"]
+    let byte_text: string = (nisa_emit_push_call byte_parser (parser_get_call byte_parser 0) "array_push")
+    assert (str_contains byte_text "LOAD_LOCAL 0\n  PUSH_I64 255\n  PUSH_I64 2\n  I64_ADD\n  CAST_U8\n  ARR_PUSH")
+    let reset_byte: int = (nisa_reset)
 }
 
 fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
@@ -3407,8 +3416,14 @@ fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
         let declared: string = (str_substring name 5 (- (str_length name) 9))
         if (!= declared element) { return (nisa_fail "I require the list setter to match its element type") }
     }
-    if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
+    if (and (!= element "u8") (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
         return (nisa_fail "I require a replacement value matching the element type")
+    }
+    if (== element "u8") {
+        let receiver: string = (nisa_emit_expr parser object.node_id object.node_type)
+        let position: string = (nisa_emit_expr parser index.node_id index.node_type)
+        let replacement: string = (nisa_emit_expected_expr parser value.node_id value.node_type element)
+        return (+ receiver (+ position (+ replacement (+ (nisa_line "ARR_SET") (nisa_line "POP")))))
     }
     return (+ (nisa_emit_call_args parser call) (+ (nisa_line "ARR_SET") (nisa_line "POP")))
 }
@@ -3420,6 +3435,9 @@ shadow nisa_emit_set_call {
     set nisa_types ["array<int>"]
     let text: string = (nisa_emit_set_call parser (parser_get_call parser 0) "array_set")
     assert (str_contains text "ARR_SET\n  POP")
+    set nisa_types ["array<u8>"]
+    let byte_text: string = (nisa_emit_set_call parser (parser_get_call parser 0) "array_set")
+    assert (str_contains byte_text "PUSH_U8 7\n  ARR_SET\n  POP")
     let reset: int = (nisa_reset)
 }
 

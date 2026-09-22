@@ -232,6 +232,29 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''')
 
+    def test_byte_array_mutation_destinations(self):
+        self.paired('''let mut order: int = 0
+fn receiver() -> array<u8> { set order (+ (* order 10) 1) let a: array<u8> = [1] return a }
+shadow receiver { set order 0 assert (== (array_length (receiver)) 1) assert (== order 1) }
+fn value() -> int { set order (+ (* order 10) 2) return 258 }
+shadow value { set order 0 assert (== (value) 258) assert (== order 2) }
+fn position() -> int { set order (+ (* order 10) 3) return 0 }
+shadow position { set order 0 assert (== (position) 0) assert (== order 3) }
+fn main() -> int {
+ set order 0
+ let mut a: array<u8> = (array_push (receiver) (value))
+ assert (== order 12)
+ assert (== (array_length a) 2)
+ assert (== (cast_int (at a 1)) 2)
+ set order 0
+ (array_set a (position) (value))
+ assert (== order 32)
+ assert (== (cast_int (at a 0)) 2)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
     def test_array_pop_receiver_type_and_once_only_evaluation(self):
         self.paired('''let mut calls: int = 0
 fn receiver() -> array<int> { set calls (+ calls 1) return [17, 42] }
