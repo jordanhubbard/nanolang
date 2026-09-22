@@ -17276,3 +17276,10 @@ owning methods plus reviewed constructor/result_map/task additions pass with
 unchanged source/provider/tool maps and no process groups. I retain raw evidence
 in `docs/evidence/evaluator-union-roots`; collection ownership and full evaluator
 acceptance remain open. I do not claim complete SDK or release qualification.
+
+I retain da88 full C typechecker regression's first ordinary link terminals on
+both hosts: my external driver used base requested flags instead of the actual
+Make-expanded flags already captured in cflags.txt/ldflags.txt. Crypto/FFI symbols
+therefore remained undefined; no test or sanitizer executed. I correct only the
+driver to consume those authoritative flags, then require fresh preparation and
+the unchanged whole fixture. The candidate source and assertions are unchanged.
