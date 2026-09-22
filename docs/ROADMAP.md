@@ -14570,3 +14570,9 @@ allocator failure claim.
   one-argument wrapper parser with nested/callback/malformed controls, and rerun
   only reviewed corrected sources. Bootstrap and all dependent matrices remain
   unreached. MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
+
+### Native 66a shadow deadline observation
+
+- [x] I retain my 66a Linux component build pass and first explicit-bootstrap ten-second shadow deadline (task_6ec8b514c61449d0863401584e86376b). My 1800-second outer bound did not expire. My source and tool endpoints agree; the process group was reaped.
+- [ ] I observe one independent copy of the original full compiler input with the reviewed 7bd timing header and call sites, freshly rebuilt main/eval objects, unchanged remaining 66a providers, a ten-second child bound, a 120-second outer bound, and an output sentinel. I retain observer overhead and cumulative child CPU limits. I do not import the separately proposed supervisor correction or infer this failure from another branch.
+- [ ] I complete my original bootstrap and all 18 source plus 9 native methods on both hosts after reviewed dependencies. My Puck 66a preparation remains staged and unrun.
