@@ -82,3 +82,25 @@ missing main before shadows (0.114/0.439 seconds). I preserve those orchestratio
 terminals and correct selection to actual make stage2. The next trees independently
 copy verified ecaf products, label reuse explicitly, then require full Make
 build/bootstrap/providers and original18+9. No acceptance follows these failures.
+
+
+My corrected4d actual Make component, build, full bootstrap and provider phases
+pass on both hosts. Full bootstrap takes306.391 seconds on Linux and317.710 on
+Puck with the original child10/outer1800 bounds. These trees independently copy
+verified ecaf C-seed providers; I do not claim a new C-seed source rebuild.
+My five focused configurations pass: Linux GCC ordinary15.192s, GCC sanitizer
+47.289s, Clang sanitizer31.171s; Puck Apple ordinary8.852s and Homebrew sanitizer
+25.963s. I retain their actual selected tools, source and product maps.
+
+The unchanged native matrix then reaches two distinct host compile refusals.
+Puck exits1 after19.925s: Stage1 discovery emits List_Item's typedef twice under
+strict C99 -Werror. Linux exits1 after73.130s: later nested union projection emits
+nl_Outer.Wrapped for a payload alias and nl_Outer for a concrete constructor match.
+Neither rejected output executes. Both native suites stop in their second method;
+my original18 source corpus and the remaining native methods are unreached.
+Source/input maps remain equal and both groups are fully reaped. I file the
+separate forward-declaration and union-projection tasks on my production lane.
+
+[My4d terminal records and retained report identities](list-search-bisection-timing/4d-acceptance/retained-reports.json)
+include locally copied Puck logs/statuses. This supplement is not a complete CAS
+archive seal and does not close the full source/native/Make or release gates.

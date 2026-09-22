@@ -1,0 +1,83 @@
+[modules] Generating module index from manifests...
+
+==========================================
+Stage 3: Bootstrap Validation
+==========================================
+Generating module index...
+Found 47 module manifests
+  ✓ sdl_ttf
+  ✓ math_ext
+  ✓ stdio
+  ✓ pybridge_warp
+  ✓ openai
+  ✓ pt2_module
+  ✓ std
+  ✓ sdl_mixer
+  ✓ pybridge_matplotlib
+  ✓ glut
+  ✓ nano_tools
+  ✓ sdl_image
+  ✓ audio_viz
+  ✓ pt2_state
+  ✓ nanoisa
+  ✓ mujoco
+  ✓ curl
+  ✓ ui_widgets
+  ✓ http_server
+  ✓ event
+  ✓ pt2_audio
+  ✓ opengl
+  ✓ sdl_term
+  ✓ stdlib
+  ✓ filesystem
+  ✓ glew
+  ✓ unicode
+  ✓ github
+  ✓ forth_see
+  ✓ pty
+  ✓ proptest
+  ✓ preferences
+  ✓ glfw
+  ✓ ncurses
+  ✓ bullet
+  ✓ readline
+  ✓ nano_eval
+  ✓ sdl
+  ✓ pybridge
+  ✓ nano_highlight
+  ✓ uv
+  ✓ tools
+  ✓ sdl_helpers
+  ✓ vector2d
+  ✓ sqlite
+  ✓ audio_helpers
+  ✓ log
+
+✓ Generated modules/index.json
+  47 modules indexed
+Validating self-hosted components...
+
+  Checking parser entry assertions...
+    ✓ parser entry assertions passed
+  Checking typecheck entry assertions...
+    ✓ typecheck entry assertions passed
+  Checking transpiler entry assertions...
+    ✓ transpiler entry assertions passed
+
+✓ Stage 3: 3/3 component entry checks passed; imported shadows are separate
+
+==========================================
+✅ Build Complete (3-Stage Bootstrap)
+==========================================
+make[1]: Entering directory '/home/jkh/nanolang-qualification/record-lists-4d-make-linux-source'
+Build Status:
+
+  ✅ Stage 1: C reference compiler (bin/nanoc)
+  ✅ Stage 2: Self-hosted components compiled
+    • parser
+    • typecheck
+    • transpiler
+  ✅ Stage 3: Bootstrap validated
+
+make[1]: Leaving directory '/home/jkh/nanolang-qualification/record-lists-4d-make-linux-source'
+

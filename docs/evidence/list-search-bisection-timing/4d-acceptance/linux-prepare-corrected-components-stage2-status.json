@@ -1,0 +1,26 @@
+{
+  "name": "corrected-components-stage2",
+  "argv": [
+    "make",
+    "-j2",
+    "stage2",
+    "CC=/bin/gcc",
+    "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+    "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 54.125943307066336,
+  "log": {
+    "sha256": "6cf6a0c72870856b8a86dad14a2afd14804bd92c1ce5e8401ad268718d351772",
+    "bytes": 503,
+    "archive": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/objects/6cf6a0c72870856b8a86dad14a2afd14804bd92c1ce5e8401ad268718d351772"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

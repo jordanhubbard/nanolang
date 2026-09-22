@@ -1,0 +1,81 @@
+[modules] Generating module index from manifests...
+
+==========================================
+Stage 3: Bootstrap Validation
+==========================================
+Validating self-hosted components...
+
+  Checking parser entry assertions...
+    ✓ parser entry assertions passed
+  Checking typecheck entry assertions...
+Generating module index...
+Found 47 module manifests
+  ✓ vector2d
+  ✓ preferences
+  ✓ audio_helpers
+  ✓ tools
+  ✓ pt2_state
+  ✓ ncurses
+  ✓ unicode
+  ✓ pty
+  ✓ pybridge_warp
+  ✓ math_ext
+  ✓ pt2_module
+  ✓ sdl_image
+  ✓ readline
+  ✓ mujoco
+  ✓ nano_eval
+  ✓ std
+  ✓ filesystem
+  ✓ ui_widgets
+  ✓ sqlite
+  ✓ sdl_ttf
+  ✓ uv
+  ✓ curl
+  ✓ pybridge
+  ✓ nano_highlight
+  ✓ glut
+  ✓ stdio
+  ✓ pybridge_matplotlib
+  ✓ github
+  ✓ http_server
+  ✓ sdl
+  ✓ bullet
+  ✓ audio_viz
+  ✓ stdlib
+  ✓ glew
+  ✓ pt2_audio
+  ✓ forth_see
+  ✓ glfw
+  ✓ nanoisa
+  ✓ sdl_term
+  ✓ event
+  ✓ nano_tools
+  ✓ sdl_helpers
+  ✓ proptest
+  ✓ openai
+  ✓ opengl
+  ✓ sdl_mixer
+  ✓ log
+
+✓ Generated modules/index.json
+  47 modules indexed
+    ✓ typecheck entry assertions passed
+  Checking transpiler entry assertions...
+    ✓ transpiler entry assertions passed
+
+✓ Stage 3: 3/3 component entry checks passed; imported shadows are separate
+
+==========================================
+✅ Build Complete (3-Stage Bootstrap)
+==========================================
+Build Status:
+
+  ✅ Stage 1: C reference compiler (bin/nanoc)
+  ✅ Stage 2: Self-hosted components compiled
+    • parser
+    • typecheck
+    • transpiler
+  ✅ Stage 3: Bootstrap validated
+
+

@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "-f",
+    "tests.test_native_record_lists"
+  ],
+  "bound": 3600,
+  "status": 1,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-source",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 73.13027517509181,
+  "log": {
+    "sha256": "d532a952caeab048c2abdc90d93890a9c7177c1575f219520954a9a053859487",
+    "bytes": 5835,
+    "archive": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/objects/d532a952caeab048c2abdc90d93890a9c7177c1575f219520954a9a053859487"
+  },
+  "inputs_equal": true
+}

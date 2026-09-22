@@ -1,0 +1,31 @@
+I retain native list artifacts at /home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source/nano-native-record-lists-g_k907rj
+test_native_declared_and_callback_precedence (tests.test_native_record_lists.NativeRecordLists.test_native_declared_and_callback_precedence) ... ok
+test_native_discovery_and_copied_results (tests.test_native_record_lists.NativeRecordLists.test_native_discovery_and_copied_results) ... FAIL
+
+======================================================================
+FAIL: test_native_discovery_and_copied_results (tests.test_native_record_lists.NativeRecordLists.test_native_discovery_and_copied_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-source/tests/test_native_record_lists.py", line 163, in test_native_discovery_and_copied_results
+            self.native_routes('native-nested-list-projections', '''struct Item { value:int }
+            ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Inner<T> { Items { values:List<T> } }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<22 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-source/tests/test_native_record_lists.py", line 95, in native_routes
+    self.command(label + '-build', [ROOT / 'bin' / compiler, path, '-o', output, '--keep-c'],
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 timeout=300, extra=extra)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-source/tests/test_generic_record_lists.py", line 127, in command
+    raise AssertionError((name, status, out[-8000:], err[-8000:]))
+AssertionError: ('0038-native-nested-list-projections-nanoc_c-O0-build', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'child_returncode': 1, 'elapsed': 1.317360540968366}, b'', b'/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source/nano-native-record-lists-g_k907rj/native-nested-list-projections.nano: In function \xe2\x80\x98nl_main\xe2\x80\x99:\n/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source/nano-native-record-lists-g_k907rj/native-nested-list-projections.nano:16:17: error: \xe2\x80\x98nl_Outer\xe2\x80\x99 undeclared (first use in this function)\n   16 |    assert (== (list_Item_length saved) 1)\n      |                 ^~~~~~~~\n/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source/nano-native-record-lists-g_k907rj/native-nested-list-projections.nano:16:17: note: each undeclared identifier is reported only once for each function it appears in\n/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source/nano-native-record-lists-g_k907rj/native-nested-list-projections.nano:16:33: error: expected \xe2\x80\x98;\xe2\x80\x99 before \xe2\x80\x98alias\xe2\x80\x99\n   16 |    assert (== (list_Item_length saved) 1)\n      |                                 ^~~~~~\n      |                                 ;\n/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source/nano-native-record-lists-g_k907rj/native-nested-list-projections.nano:17:39: error: \xe2\x80\x98alias\xe2\x80\x99 undeclared (first use in this function)\n   17 |    assert (== (list_Item_get saved 0).value 13)\n      |                                       ^~~~~\n/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source/nano-native-record-lists-g_k907rj/native-nested-list-projections.nano:22:17: error: expected \xe2\x80\x98;\xe2\x80\x99 before \xe2\x80\x98_m\xe2\x80\x99\n   22 |  (list_Item_free xs)\n      |                 ^~~\n      |                 ;\n/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source/nano-native-record-lists-g_k907rj/native-nested-list-projections.nano:23:17: error: \xe2\x80\x98_m\xe2\x80\x99 undeclared (first use in this function); did you mean \xe2\x80\x98tm\xe2\x80\x99?\n   23 |  return 0\n      |                 ^ \n      |                 tm\n/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source/nano-native-record-lists-g_k907rj/native-nested-list-projections.nano:24:18: error: \xe2\x80\x98nl_Outer_TAG_Wrapped\xe2\x80\x99 undeclared (first use in this function); did you mean \xe2\x80\x98nl_Outer_Item_Wrapped\xe2\x80\x99?\n   24 | }\n      |                  ^                   \n      |                  nl_Outer_Item_Wrapped\n/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source/nano-native-record-lists-g_k907rj/native-nested-list-projections.nano:25:17: error: unknown type name \xe2\x80\x98nl_Outer_Wrapped\xe2\x80\x99; did you mean \xe2\x80\x98nl_Outer_Item_Wrapped\xe2\x80\x99?\n   25 | shadow main { assert (== (main) 0) }\n      |                 ^~~~~~~~~~~~~~~~\n      |                 nl_Outer_Item_Wrapped\n/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source/nano-native-record-lists-g_k907rj/native-nested-list-projections.nano:27:45: error: request for member \xe2\x80\x98inner\xe2\x80\x99 in something not a structure or union\n/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source/nano-native-record-lists-g_k907rj/native-nested-list-projections.nano:25:34: warning: variable \xe2\x80\x98outer\xe2\x80\x99 set but not used [-Wunused-but-set-variable]\n   25 | shadow main { assert (== (main) 0) }\n      |                                  ^~~  \nC compilation failed\n')
+
+----------------------------------------------------------------------
+Ran 2 tests in 73.022s
+
+FAILED (failures=1)

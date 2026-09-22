@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/usr/local/bin/clang",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-print-file-name=libclang_rt.ubsan_standalone.a"
+  ],
+  "bound": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-source",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 0.028913020039908588,
+  "log": {
+    "sha256": "190c89fa892958c08f74e7e4b03ecec3e9324653fadb5cc5a72f19df46a155ec",
+    "bytes": 85,
+    "archive": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/objects/190c89fa892958c08f74e7e4b03ecec3e9324653fadb5cc5a72f19df46a155ec"
+  },
+  "inputs_equal": true
+}

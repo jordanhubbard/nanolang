@@ -1,0 +1,26 @@
+{
+  "name": "bootstrap",
+  "argv": [
+    "make",
+    "-j2",
+    "bootstrap",
+    "CC=/bin/gcc",
+    "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+    "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 306.39056648802944,
+  "log": {
+    "sha256": "a330cf6c24328d22bb805b37afb1319e049f8c1830ab042acc3d7e63132aa94c",
+    "bytes": 30099,
+    "archive": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/objects/a330cf6c24328d22bb805b37afb1319e049f8c1830ab042acc3d7e63132aa94c"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

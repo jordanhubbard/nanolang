@@ -1,0 +1,886 @@
+{
+  "source": "4d1444560",
+  "scope": "terminal records and retained report identities, not a complete CAS archive seal",
+  "roots": {
+    "linux-prepare": {
+      "root": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare",
+      "reports": [
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/bootstrap-products-after.json",
+          "sha256": "51fe358548959bc5309a64b2de48b3322589829bb10a044934865cf99e74a0ff",
+          "bytes": 337103
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/bootstrap-products-before.json",
+          "sha256": "7fc714b14eaa74e9fc072ae9ae6ed3f0887a66e59e0b8c14180d46018ec94fc7",
+          "bytes": 144153
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/bootstrap-sources-after.json",
+          "sha256": "d6307a3ae2ae4e4c9a91745073baf3c49df722f869feaf71cc36e3f0e75e575f",
+          "bytes": 1390117
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/bootstrap-sources-before.json",
+          "sha256": "d6307a3ae2ae4e4c9a91745073baf3c49df722f869feaf71cc36e3f0e75e575f",
+          "bytes": 1390117
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/bootstrap-status.json",
+          "sha256": "b3afdc26dc224bb20f4aa0206a7c42bbf55aaac0875164c0f3ffc0e8e74d6b4b",
+          "bytes": 752
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/bootstrap-tools-after.json",
+          "sha256": "2c5c0dcc56a6bd9e58f558e81d9f481a4083f71761dc6d1e1968ec836ef7ae62",
+          "bytes": 3307
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/bootstrap-tools-before.json",
+          "sha256": "2c5c0dcc56a6bd9e58f558e81d9f481a4083f71761dc6d1e1968ec836ef7ae62",
+          "bytes": 3307
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/build-products-after.json",
+          "sha256": "7fc714b14eaa74e9fc072ae9ae6ed3f0887a66e59e0b8c14180d46018ec94fc7",
+          "bytes": 144153
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/build-products-before.json",
+          "sha256": "7fc714b14eaa74e9fc072ae9ae6ed3f0887a66e59e0b8c14180d46018ec94fc7",
+          "bytes": 144153
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/build-sources-after.json",
+          "sha256": "d6307a3ae2ae4e4c9a91745073baf3c49df722f869feaf71cc36e3f0e75e575f",
+          "bytes": 1390117
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/build-sources-before.json",
+          "sha256": "d6307a3ae2ae4e4c9a91745073baf3c49df722f869feaf71cc36e3f0e75e575f",
+          "bytes": 1390117
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/build-status.json",
+          "sha256": "0cc3c2ba49d1aac8e798c862db769e09cec47970ff35b38c8d8a6dd4ea5de5a2",
+          "bytes": 742
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/build-tools-after.json",
+          "sha256": "2c5c0dcc56a6bd9e58f558e81d9f481a4083f71761dc6d1e1968ec836ef7ae62",
+          "bytes": 3307
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/build-tools-before.json",
+          "sha256": "2c5c0dcc56a6bd9e58f558e81d9f481a4083f71761dc6d1e1968ec836ef7ae62",
+          "bytes": 3307
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/capacity-preflight.json",
+          "sha256": "e29654dbe3cf0d2307175e2e33e4486f1f43948a3137b57bce52885b6ea0d3d1",
+          "bytes": 64
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/corrected-components-stage2-products-after.json",
+          "sha256": "7fc714b14eaa74e9fc072ae9ae6ed3f0887a66e59e0b8c14180d46018ec94fc7",
+          "bytes": 144153
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/corrected-components-stage2-products-before.json",
+          "sha256": "4a06764520027d4fe8a9fe0d884c6945e2c4e5d8bf527ff37494fbd76fe8f151",
+          "bytes": 132874
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/corrected-components-stage2-sources-after.json",
+          "sha256": "d6307a3ae2ae4e4c9a91745073baf3c49df722f869feaf71cc36e3f0e75e575f",
+          "bytes": 1390117
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/corrected-components-stage2-sources-before.json",
+          "sha256": "d6307a3ae2ae4e4c9a91745073baf3c49df722f869feaf71cc36e3f0e75e575f",
+          "bytes": 1390117
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/corrected-components-stage2-status.json",
+          "sha256": "5ef8f5bc7cc416101a2c1ea4f3d38bd4bede18efb6bc18a1aaa713cd460304fa",
+          "bytes": 765
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/corrected-components-stage2-tools-after.json",
+          "sha256": "2c5c0dcc56a6bd9e58f558e81d9f481a4083f71761dc6d1e1968ec836ef7ae62",
+          "bytes": 3307
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/corrected-components-stage2-tools-before.json",
+          "sha256": "2c5c0dcc56a6bd9e58f558e81d9f481a4083f71761dc6d1e1968ec836ef7ae62",
+          "bytes": 3307
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/environment.json",
+          "sha256": "aa79b8ba214817f6e155ad09a037f6ba9d1306e3575e13a656691c584075c54a",
+          "bytes": 1174
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/inherited-diagnostic-inputs.json",
+          "sha256": "b3aa6de3274a72a35b1d3c699dbc3fe4d9e3911b08d34c7c9b2f927f5ad04822",
+          "bytes": 167337
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/manifest.json",
+          "sha256": "ce644a94a40f3d636bb1092c64bcebc4c00bdaac11a67d34cc3a61730cd9e484",
+          "bytes": 3954
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/prepare-fragment.json",
+          "sha256": "ca9bf88f1faf8846046c31bc88bd90cc5046e4eca07352359b4b962216320181",
+          "bytes": 256
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/provider-prepare-products-after.json",
+          "sha256": "02fd1a038c3ac158c95cb43eaf1621d36861306b49e848743dcb0958dcc2da37",
+          "bytes": 348764
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/provider-prepare-products-before.json",
+          "sha256": "51fe358548959bc5309a64b2de48b3322589829bb10a044934865cf99e74a0ff",
+          "bytes": 337103
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/provider-prepare-sources-after.json",
+          "sha256": "d6307a3ae2ae4e4c9a91745073baf3c49df722f869feaf71cc36e3f0e75e575f",
+          "bytes": 1390117
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/provider-prepare-sources-before.json",
+          "sha256": "d6307a3ae2ae4e4c9a91745073baf3c49df722f869feaf71cc36e3f0e75e575f",
+          "bytes": 1390117
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/provider-prepare-status.json",
+          "sha256": "ab285295c5997ee4f06d40ca273ecff867623a5922e686978b6dcbb8e884cb45",
+          "bytes": 857
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/provider-prepare-tools-after.json",
+          "sha256": "2c5c0dcc56a6bd9e58f558e81d9f481a4083f71761dc6d1e1968ec836ef7ae62",
+          "bytes": 3307
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/provider-prepare-tools-before.json",
+          "sha256": "2c5c0dcc56a6bd9e58f558e81d9f481a4083f71761dc6d1e1968ec836ef7ae62",
+          "bytes": 3307
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/runner.json",
+          "sha256": "800796d4414f19665b27141c55536d079ee331207a70bc5d3afa435499a0df49",
+          "bytes": 258
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/source-initial.json",
+          "sha256": "d6307a3ae2ae4e4c9a91745073baf3c49df722f869feaf71cc36e3f0e75e575f",
+          "bytes": 1390117
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/sparse-policy.json",
+          "sha256": "82fddd3a6377a0c86dbdc19ef25bec676d09280435c5c894b635b4d197343f97",
+          "bytes": 81
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/terminal.json",
+          "sha256": "3ff0b4ea3e0d064f0c29be6498cf30d37a864b33f1ea48f4ddbd7932e27d391f",
+          "bytes": 327
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/tools-initial.json",
+          "sha256": "2c5c0dcc56a6bd9e58f558e81d9f481a4083f71761dc6d1e1968ec836ef7ae62",
+          "bytes": 3307
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/tracked-paths.json",
+          "sha256": "d877cbf419e1939a77ae5758998a50a8bfcb714fbc215ce883f8876dede0361b",
+          "bytes": 3394329
+        }
+      ]
+    },
+    "puck-prepare": {
+      "root": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy",
+      "reports": [
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/bootstrap-products-after.json",
+          "sha256": "1f43d74c6f64e0bcac7180d3525dac3c84028b1761e86227cd42aa10eba3b471",
+          "bytes": 225613
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/bootstrap-products-before.json",
+          "sha256": "327a3f464fc378bbcbcc61ec7dab5b97fec2a88171293ec2c2342aea54e7925b",
+          "bytes": 131246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/bootstrap-sources-after.json",
+          "sha256": "0346fe0e8a4ae82350e852eea91e0bec025ebe35e32209d5bda6fd4855de538c",
+          "bytes": 1352747
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/bootstrap-sources-before.json",
+          "sha256": "0346fe0e8a4ae82350e852eea91e0bec025ebe35e32209d5bda6fd4855de538c",
+          "bytes": 1352747
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/bootstrap-status.json",
+          "sha256": "631ad9e02ec10875a6651dea3f64803b0e02030ee4b2c20321b9a7bc366f7eec",
+          "bytes": 825
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/bootstrap-tools-after.json",
+          "sha256": "d1ef1e88d48309a749c4dfb6093c2a18bf20f88598f49e0eb0d195a569eac9ee",
+          "bytes": 5616
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/bootstrap-tools-before.json",
+          "sha256": "d1ef1e88d48309a749c4dfb6093c2a18bf20f88598f49e0eb0d195a569eac9ee",
+          "bytes": 5616
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/build-products-after.json",
+          "sha256": "327a3f464fc378bbcbcc61ec7dab5b97fec2a88171293ec2c2342aea54e7925b",
+          "bytes": 131246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/build-products-before.json",
+          "sha256": "327a3f464fc378bbcbcc61ec7dab5b97fec2a88171293ec2c2342aea54e7925b",
+          "bytes": 131246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/build-sources-after.json",
+          "sha256": "0346fe0e8a4ae82350e852eea91e0bec025ebe35e32209d5bda6fd4855de538c",
+          "bytes": 1352747
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/build-sources-before.json",
+          "sha256": "0346fe0e8a4ae82350e852eea91e0bec025ebe35e32209d5bda6fd4855de538c",
+          "bytes": 1352747
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/build-status.json",
+          "sha256": "cab023a1da778ae2a79ddaae85c8eabce1f308a0ca737804ed9cea9336fef9bb",
+          "bytes": 820
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/build-tools-after.json",
+          "sha256": "d1ef1e88d48309a749c4dfb6093c2a18bf20f88598f49e0eb0d195a569eac9ee",
+          "bytes": 5616
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/build-tools-before.json",
+          "sha256": "d1ef1e88d48309a749c4dfb6093c2a18bf20f88598f49e0eb0d195a569eac9ee",
+          "bytes": 5616
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/capacity-preflight.json",
+          "sha256": "8708379ea2d5391f34d57d92e2987d37c6c61fa6c0dfd0a205c371ed592f9af2",
+          "bytes": 64
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/corrected-components-stage2-products-after.json",
+          "sha256": "327a3f464fc378bbcbcc61ec7dab5b97fec2a88171293ec2c2342aea54e7925b",
+          "bytes": 131246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/corrected-components-stage2-products-before.json",
+          "sha256": "d8008cbf6210b1201ece8ac54396855e26d02e2e8a99086c7ce9e2fddd6ab323",
+          "bytes": 125149
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/corrected-components-stage2-sources-after.json",
+          "sha256": "0346fe0e8a4ae82350e852eea91e0bec025ebe35e32209d5bda6fd4855de538c",
+          "bytes": 1352747
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/corrected-components-stage2-sources-before.json",
+          "sha256": "0346fe0e8a4ae82350e852eea91e0bec025ebe35e32209d5bda6fd4855de538c",
+          "bytes": 1352747
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/corrected-components-stage2-status.json",
+          "sha256": "9b0a5183b276ee857ca88bdfafd99c8f7bf588a5433321d9d12fffdb17b3d6ad",
+          "bytes": 837
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/corrected-components-stage2-tools-after.json",
+          "sha256": "d1ef1e88d48309a749c4dfb6093c2a18bf20f88598f49e0eb0d195a569eac9ee",
+          "bytes": 5616
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/corrected-components-stage2-tools-before.json",
+          "sha256": "d1ef1e88d48309a749c4dfb6093c2a18bf20f88598f49e0eb0d195a569eac9ee",
+          "bytes": 5616
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/environment.json",
+          "sha256": "e5b50c452d5729f9de85394d8ea27ebc7f945635b48c7a09d81ddec75bbf3932",
+          "bytes": 1053
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/inherited-diagnostic-inputs.json",
+          "sha256": "b3b4a2a160d3904f64ecadd7fe901c62c65cad858d19e7141d888a31a21084b1",
+          "bytes": 166143
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/manifest.json",
+          "sha256": "d13d458e4a354e80a6b6d7764acdb6d09b7e37e53e93282cebdb2245506c73f7",
+          "bytes": 4228
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/prepare-fragment.json",
+          "sha256": "8ab6c6b191737abb1fbfedd623d174a510a71f93c7b64483051db70df61d4e6e",
+          "bytes": 251
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/provider-prepare-products-after.json",
+          "sha256": "34aef28b6e3c69f6878a2c76326ace7c12e22ef27d0bbf13efe5aefdded27ce9",
+          "bytes": 236948
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/provider-prepare-products-before.json",
+          "sha256": "1f43d74c6f64e0bcac7180d3525dac3c84028b1761e86227cd42aa10eba3b471",
+          "bytes": 225613
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/provider-prepare-sources-after.json",
+          "sha256": "0346fe0e8a4ae82350e852eea91e0bec025ebe35e32209d5bda6fd4855de538c",
+          "bytes": 1352747
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/provider-prepare-sources-before.json",
+          "sha256": "0346fe0e8a4ae82350e852eea91e0bec025ebe35e32209d5bda6fd4855de538c",
+          "bytes": 1352747
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/provider-prepare-status.json",
+          "sha256": "92c028a36a380985cd08e56e4087133be5c029404747a374062713049954cf9e",
+          "bytes": 931
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/provider-prepare-tools-after.json",
+          "sha256": "d1ef1e88d48309a749c4dfb6093c2a18bf20f88598f49e0eb0d195a569eac9ee",
+          "bytes": 5616
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/provider-prepare-tools-before.json",
+          "sha256": "d1ef1e88d48309a749c4dfb6093c2a18bf20f88598f49e0eb0d195a569eac9ee",
+          "bytes": 5616
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/runner.json",
+          "sha256": "a00798d05d9a53cf65eb34943c3ee4bd6e51520602915487bc5117698447a3e7",
+          "bytes": 253
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/sdk-selection.json",
+          "sha256": "3c9367771142334cf7a074a0559c56a28aa1a6c0e97ed92fe69efc8f3559c5dd",
+          "bytes": 284
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/source-initial.json",
+          "sha256": "0346fe0e8a4ae82350e852eea91e0bec025ebe35e32209d5bda6fd4855de538c",
+          "bytes": 1352747
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/sparse-policy.json",
+          "sha256": "82fddd3a6377a0c86dbdc19ef25bec676d09280435c5c894b635b4d197343f97",
+          "bytes": 81
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/terminal.json",
+          "sha256": "3ff0b4ea3e0d064f0c29be6498cf30d37a864b33f1ea48f4ddbd7932e27d391f",
+          "bytes": 327
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/tools-initial.json",
+          "sha256": "d1ef1e88d48309a749c4dfb6093c2a18bf20f88598f49e0eb0d195a569eac9ee",
+          "bytes": 5616
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-make-puck-prepare-copy/tracked-paths.json",
+          "sha256": "d877cbf419e1939a77ae5758998a50a8bfcb714fbc215ce883f8876dede0361b",
+          "bytes": 3394329
+        }
+      ]
+    },
+    "linux-matrix": {
+      "root": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix",
+      "reports": [
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan-inputs-after.json",
+          "sha256": "1d6a3b1b1d91752324f056d50201ad0d1bc2805cab9e038e289e73b745bf2414",
+          "bytes": 1412298
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan-inputs-before.json",
+          "sha256": "1d6a3b1b1d91752324f056d50201ad0d1bc2805cab9e038e289e73b745bf2414",
+          "bytes": 1412298
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan-preinit.a-inputs-after.json",
+          "sha256": "678a9c566f15a9edba3a756459d06fde6acaff0621e9912f45184bcacc3c368c",
+          "bytes": 1412983
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan-preinit.a-inputs-before.json",
+          "sha256": "678a9c566f15a9edba3a756459d06fde6acaff0621e9912f45184bcacc3c368c",
+          "bytes": 1412983
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan-preinit.a-products-after.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan-preinit.a-products-before.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan-preinit.a-status.json",
+          "sha256": "eb35a02c92f8fc55415ceb6762dab43598c3382658801b1725918c3217649822",
+          "bytes": 672
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan-products-after.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan-products-before.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan-status.json",
+          "sha256": "6b4299bef43644ecfbb487e502d6b834c5a687cc14fe901bd99025e8359a742e",
+          "bytes": 665
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan.a-inputs-after.json",
+          "sha256": "a16f8df3729832b6e06b6193f317fc7d831583691b5c1a10be463ac7986425d5",
+          "bytes": 1412641
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan.a-inputs-before.json",
+          "sha256": "a16f8df3729832b6e06b6193f317fc7d831583691b5c1a10be463ac7986425d5",
+          "bytes": 1412641
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan.a-products-after.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan.a-products-before.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-asan.a-status.json",
+          "sha256": "4fdd569ea13671cce81ef98d9b7c52cecd0dd5cb18cf3ea8edb1f0e485ffa658",
+          "bytes": 664
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-sanitizer-config.json",
+          "sha256": "375732bbe46581b5bf657b5640ab8c18954f6106307fb4657b9ac7ab0a5ef3b2",
+          "bytes": 10024
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-sanitizer-inputs-after.json",
+          "sha256": "22b29bac276734e21ac4d695b669d02924f31fa3555d99d4e2602274bb8f1f31",
+          "bytes": 1413683
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-sanitizer-inputs-before.json",
+          "sha256": "22b29bac276734e21ac4d695b669d02924f31fa3555d99d4e2602274bb8f1f31",
+          "bytes": 1413683
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-sanitizer-products-after.json",
+          "sha256": "a2fcd6a11c716078520fb7ca0dc1527a242c19cf97c111d6f0542df75ccdf0f0",
+          "bytes": 344473
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-sanitizer-products-before.json",
+          "sha256": "a2fcd6a11c716078520fb7ca0dc1527a242c19cf97c111d6f0542df75ccdf0f0",
+          "bytes": 344473
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-sanitizer-status.json",
+          "sha256": "ff5fabddc10b2f427fb369dcb2e23305ed61b0c2f5e1ab898eee10dceaaae851",
+          "bytes": 963
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-ubsan_standalone.a-inputs-after.json",
+          "sha256": "3e0ef2a1bc70fa4a9d00891ee72bef51ca8f09c25ef5d58cc8ee537c27225cb3",
+          "bytes": 1413330
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-ubsan_standalone.a-inputs-before.json",
+          "sha256": "3e0ef2a1bc70fa4a9d00891ee72bef51ca8f09c25ef5d58cc8ee537c27225cb3",
+          "bytes": 1413330
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-ubsan_standalone.a-products-after.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-ubsan_standalone.a-products-before.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/clang-ubsan_standalone.a-status.json",
+          "sha256": "57f1dae4ffc80e5cb72f867a8eaf4443e902017383a06a09e8233ac1628c2df7",
+          "bytes": 677
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-asan-inputs-after.json",
+          "sha256": "db034fecb05cb0e9d2afcd3380b8cf97e87e7a22affc3203ca9a9c787ca485d0",
+          "bytes": 1411047
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-asan-inputs-before.json",
+          "sha256": "db034fecb05cb0e9d2afcd3380b8cf97e87e7a22affc3203ca9a9c787ca485d0",
+          "bytes": 1411047
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-asan-products-after.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-asan-products-before.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-asan-status.json",
+          "sha256": "746f43a27208a62cc743a17cf52feaf6c001e7e77de7683e0a003059f3a3d3fb",
+          "bytes": 585
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-cc1-inputs-after.json",
+          "sha256": "5b21ff7be678beb53cc5e70e14ffafd0787369e40f441684d81a8300e6d66956",
+          "bytes": 1411673
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-cc1-inputs-before.json",
+          "sha256": "5b21ff7be678beb53cc5e70e14ffafd0787369e40f441684d81a8300e6d66956",
+          "bytes": 1411673
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-cc1-products-after.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-cc1-products-before.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-cc1-status.json",
+          "sha256": "621351c439e8e94ee294f012d0c5f2597008fbcd44eadf778ace0978207bccdf",
+          "bytes": 579
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-collect2-inputs-after.json",
+          "sha256": "2c78a8516a536ed37c0da9124e15c3895eaf6ed0c456a687c4e67f0364c1d47f",
+          "bytes": 1411984
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-collect2-inputs-before.json",
+          "sha256": "2c78a8516a536ed37c0da9124e15c3895eaf6ed0c456a687c4e67f0364c1d47f",
+          "bytes": 1411984
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-collect2-products-after.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-collect2-products-before.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-collect2-status.json",
+          "sha256": "4fde7d658c260f31958c06bbf5af3df9564776897719d946b91b0401cc219a6d",
+          "bytes": 583
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-ordinary-config.json",
+          "sha256": "23725c075beeb000a88aebb6958194d5db2564dfc876718c7b3e014866b24886",
+          "bytes": 9904
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-ordinary-inputs-after.json",
+          "sha256": "22b29bac276734e21ac4d695b669d02924f31fa3555d99d4e2602274bb8f1f31",
+          "bytes": 1413683
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-ordinary-inputs-before.json",
+          "sha256": "22b29bac276734e21ac4d695b669d02924f31fa3555d99d4e2602274bb8f1f31",
+          "bytes": 1413683
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-ordinary-products-after.json",
+          "sha256": "a2fcd6a11c716078520fb7ca0dc1527a242c19cf97c111d6f0542df75ccdf0f0",
+          "bytes": 344473
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-ordinary-products-before.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-ordinary-status.json",
+          "sha256": "3c06e388b9c1544172d1fae0742c48c3df08fed0f234b58b646c655b9ec480d8",
+          "bytes": 963
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-sanitizer-config.json",
+          "sha256": "fc151414cc2c705c5c0c465a1f8e7dbbebe1ad029782fdfd1fde58139f1bf3c7",
+          "bytes": 9958
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-sanitizer-inputs-after.json",
+          "sha256": "22b29bac276734e21ac4d695b669d02924f31fa3555d99d4e2602274bb8f1f31",
+          "bytes": 1413683
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-sanitizer-inputs-before.json",
+          "sha256": "22b29bac276734e21ac4d695b669d02924f31fa3555d99d4e2602274bb8f1f31",
+          "bytes": 1413683
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-sanitizer-products-after.json",
+          "sha256": "a2fcd6a11c716078520fb7ca0dc1527a242c19cf97c111d6f0542df75ccdf0f0",
+          "bytes": 344473
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-sanitizer-products-before.json",
+          "sha256": "a2fcd6a11c716078520fb7ca0dc1527a242c19cf97c111d6f0542df75ccdf0f0",
+          "bytes": 344473
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-sanitizer-status.json",
+          "sha256": "9b03fe36cdafe18a8ce0dada4520854939c648c1cb14b4e844316308e2f8ae8e",
+          "bytes": 961
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-ubsan-inputs-after.json",
+          "sha256": "5ed08fc8a4becb1922be0591153550b50469202dde7d89e3ac76e9da04cd53b2",
+          "bytes": 1411360
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-ubsan-inputs-before.json",
+          "sha256": "5ed08fc8a4becb1922be0591153550b50469202dde7d89e3ac76e9da04cd53b2",
+          "bytes": 1411360
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-ubsan-products-after.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-ubsan-products-before.json",
+          "sha256": "4f4fe7d4bfb24a69d9a7f8e8212cd495f39c1ba587e698ea16764d4b3f1ddf26",
+          "bytes": 343688
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/gcc-ubsan-status.json",
+          "sha256": "b597d8dda50b08064197e8632494517a7902f005db652c390a0dde5f6573532c",
+          "bytes": 587
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/manifest.json",
+          "sha256": "dd9a11ed3923d5c4cd1c4d1cde553911cb14effd847d8e3a64e6a0488ed89241",
+          "bytes": 9131
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source-config.json",
+          "sha256": "7d0696c80e09e2559c3c55482eae33bd8736c4415484925bedebe5780573cddf",
+          "bytes": 9905
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source-inputs-after.json",
+          "sha256": "22b29bac276734e21ac4d695b669d02924f31fa3555d99d4e2602274bb8f1f31",
+          "bytes": 1413683
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source-inputs-before.json",
+          "sha256": "22b29bac276734e21ac4d695b669d02924f31fa3555d99d4e2602274bb8f1f31",
+          "bytes": 1413683
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source-products-after.json",
+          "sha256": "a2fcd6a11c716078520fb7ca0dc1527a242c19cf97c111d6f0542df75ccdf0f0",
+          "bytes": 344473
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source-products-before.json",
+          "sha256": "a2fcd6a11c716078520fb7ca0dc1527a242c19cf97c111d6f0542df75ccdf0f0",
+          "bytes": 344473
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/native-source-status.json",
+          "sha256": "de83d0ab3a647011dbef3b99a3dea0b3957658b3526078daad9c35ef934c9282",
+          "bytes": 685
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/runner.json",
+          "sha256": "cdcfa24b565432bae4b19fd0843c703a1ea63036bd9c3743e77ec50441993237",
+          "bytes": 251
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-linux-matrix/scope.json",
+          "sha256": "09d9004bbb9fd3da702b4e8a8abd01dd692c11c3e8edc73f40bd0774af68f0e6",
+          "bytes": 1111
+        }
+      ]
+    },
+    "puck-matrix": {
+      "root": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy",
+      "reports": [
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/apple-ordinary-config.json",
+          "sha256": "3a7a07bd598a3da9a1184ed523192b5da7eb59976042f9feff6cd17c735c0086",
+          "bytes": 9895
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/apple-ordinary-inputs-after.json",
+          "sha256": "5fa3eeab18536af8d6257234f35f7121a6af3ee852526b286fb8d521dae67e45",
+          "bytes": 1375998
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/apple-ordinary-inputs-before.json",
+          "sha256": "5fa3eeab18536af8d6257234f35f7121a6af3ee852526b286fb8d521dae67e45",
+          "bytes": 1375998
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/apple-ordinary-products-after.json",
+          "sha256": "83afdaf458e6764b5788ff73142eac821b0ad3eae2dd7262b7003c36fa9b48c2",
+          "bytes": 233246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/apple-ordinary-products-before.json",
+          "sha256": "83afdaf458e6764b5788ff73142eac821b0ad3eae2dd7262b7003c36fa9b48c2",
+          "bytes": 233246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/apple-ordinary-status.json",
+          "sha256": "21cf5813bff715992b6893eafbb1229c87f6458b80d580116086a8b161779b4a",
+          "bytes": 947
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/clang-asan-inputs-after.json",
+          "sha256": "a2cfc04652a9f11fd5dc51cf538a8f22fe4beb68cfa1f135e630bd17f9934853",
+          "bytes": 1375643
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/clang-asan-inputs-before.json",
+          "sha256": "a2cfc04652a9f11fd5dc51cf538a8f22fe4beb68cfa1f135e630bd17f9934853",
+          "bytes": 1375643
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/clang-asan-products-after.json",
+          "sha256": "83afdaf458e6764b5788ff73142eac821b0ad3eae2dd7262b7003c36fa9b48c2",
+          "bytes": 233246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/clang-asan-products-before.json",
+          "sha256": "83afdaf458e6764b5788ff73142eac821b0ad3eae2dd7262b7003c36fa9b48c2",
+          "bytes": 233246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/clang-asan-status.json",
+          "sha256": "e87af475d54915bb9fa4bcd078c44f75109a5079239e151d94c28acefd061693",
+          "bytes": 741
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/homebrew-sanitizer-config.json",
+          "sha256": "9d4b8f19a8b7f4c85b3e92b56e3592b472b8082145edc913bb146800120de9e2",
+          "bytes": 10075
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/homebrew-sanitizer-inputs-after.json",
+          "sha256": "5fa3eeab18536af8d6257234f35f7121a6af3ee852526b286fb8d521dae67e45",
+          "bytes": 1375998
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/homebrew-sanitizer-inputs-before.json",
+          "sha256": "5fa3eeab18536af8d6257234f35f7121a6af3ee852526b286fb8d521dae67e45",
+          "bytes": 1375998
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/homebrew-sanitizer-products-after.json",
+          "sha256": "83afdaf458e6764b5788ff73142eac821b0ad3eae2dd7262b7003c36fa9b48c2",
+          "bytes": 233246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/homebrew-sanitizer-products-before.json",
+          "sha256": "83afdaf458e6764b5788ff73142eac821b0ad3eae2dd7262b7003c36fa9b48c2",
+          "bytes": 233246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/homebrew-sanitizer-status.json",
+          "sha256": "228f3c5026afc20519a74ca262c8622c8ac3a01a948a22b261341b652b23dfdd",
+          "bytes": 945
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/manifest.json",
+          "sha256": "27cbd387b3bd956e6adb60bed6566de2df2dbea81aee7a8ec3b934f2333ebe13",
+          "bytes": 3507
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/native-source-config.json",
+          "sha256": "f06e12b4325115344febb26648a4606616d001d7dd1e15fda5ed7abad0843ba5",
+          "bytes": 9894
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/native-source-inputs-after.json",
+          "sha256": "5fa3eeab18536af8d6257234f35f7121a6af3ee852526b286fb8d521dae67e45",
+          "bytes": 1375998
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/native-source-inputs-before.json",
+          "sha256": "5fa3eeab18536af8d6257234f35f7121a6af3ee852526b286fb8d521dae67e45",
+          "bytes": 1375998
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/native-source-products-after.json",
+          "sha256": "83afdaf458e6764b5788ff73142eac821b0ad3eae2dd7262b7003c36fa9b48c2",
+          "bytes": 233246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/native-source-products-before.json",
+          "sha256": "83afdaf458e6764b5788ff73142eac821b0ad3eae2dd7262b7003c36fa9b48c2",
+          "bytes": 233246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/native-source-status.json",
+          "sha256": "43992d48b0a2f91b3005a410e1a5340ccc3763b0b04f596e8165bae324a3961f",
+          "bytes": 671
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/runner.json",
+          "sha256": "2c89867508e073bde10f6c3d5252296b7b9524f10e651f69f5cfeb2f57bcc1d2",
+          "bytes": 246
+        },
+        {
+          "path": "/home/jkh/nanolang-qualification/record-lists-4d-puck-matrix-copy/scope.json",
+          "sha256": "80d624846fb533f0d54f9666387d8877a92359fd75f256a1f222e4b792b658d1",
+          "bytes": 1054
+        }
+      ]
+    }
+  }
+}

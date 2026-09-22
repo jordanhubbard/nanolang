@@ -1,0 +1,10 @@
+I retain native list artifacts at /Users/jkh/nanolang-qualification/record-lists-4d-matrix/homebrew-sanitizer/nano-native-record-lists-iali46ep
+test_shared_storage_and_allocation_failures (tests.test_native_record_lists.NativeRecordLists) ... ok
+I retain record-list artifacts at /Users/jkh/nanolang-qualification/record-lists-4d-matrix/homebrew-sanitizer/nano-record-lists-xan7ajip
+test_checked_storage_scheduler_and_allocation_prefixes (tests.test_generic_record_lists.GenericRecordLists) ... ok
+test_array_intrinsic_and_declaration_identity (tests.test_generic_record_lists.GenericRecordLists) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 25.851s
+
+OK

@@ -1,0 +1,28 @@
+{
+  "name": "provider-prepare",
+  "argv": [
+    "make",
+    "-f",
+    "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/prepare.mk",
+    "-j2",
+    "list-prepare",
+    "CC=/bin/gcc",
+    "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+    "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 1.569920988054946,
+  "log": {
+    "sha256": "1e4a8937aa926a6367ce7114a3463b8474b5bdfd135e3163242bb08e927ce8a4",
+    "bytes": 10093,
+    "archive": "/home/jkh/nanolang-qualification/record-lists-4d-make-linux-prepare/objects/1e4a8937aa926a6367ce7114a3463b8474b5bdfd135e3163242bb08e927ce8a4"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

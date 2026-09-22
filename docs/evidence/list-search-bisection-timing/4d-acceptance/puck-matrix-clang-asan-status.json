@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-isysroot",
+    "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+  ],
+  "bound": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/Users/jkh/nanolang-qualification/record-lists-4d-make-source",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 0.2209594159999999,
+  "log": {
+    "sha256": "3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc",
+    "bytes": 92,
+    "archive": "/Users/jkh/nanolang-qualification/record-lists-4d-matrix/objects/3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc"
+  },
+  "inputs_equal": true
+}
