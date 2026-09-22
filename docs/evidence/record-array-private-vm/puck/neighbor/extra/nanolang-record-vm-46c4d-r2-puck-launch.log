@@ -1,0 +1,8 @@
+{"pin": "46c4d1692cf9bc9b52c2f84e71464dee8642d75b", "source_files": 3732, "root": "/private/tmp/nanolang-record-vm-qualified-46c4d-r2", "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"}
+{"phase": "configuration", "status": 0, "seconds": 0.183}
+{"phase": "owned-string-proof-build", "status": 0, "seconds": 1.187}
+{"phase": "owned-string-proof-run", "status": 0, "seconds": 0.417}
+{"phase": "test-vm-ordinary-admission", "status": 0, "seconds": 3.095}
+{"phase": "test-owned-array-overwrite", "status": 0, "seconds": 6.459}
+{"phase": "test-file-private-vm", "status": 0, "seconds": 6.554}
+{"phase": "test-file-cyclic-public", "status": 0, "seconds": 71.858}

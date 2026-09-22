@@ -1,0 +1,120 @@
+# I evaluate tuple and array elements once in their written order.
+let mut operand_trace: int = 0
+fn operand_mark(value: int) -> int {
+    set operand_trace (+ (* operand_trace 10) value)
+    return value
+}
+shadow operand_mark {
+    set operand_trace 0
+    assert (== (operand_mark 4) 4)
+    assert (== operand_trace 4)
+}
+fn operand_float(id: int, value: float) -> float {
+    (operand_mark id)
+    return value
+}
+shadow operand_float {
+    set operand_trace 0
+    assert (== (operand_float 1 1.5) 1.5)
+    assert (== operand_trace 1)
+}
+fn operand_string(id: int, value: string) -> string {
+    (operand_mark id)
+    return value
+}
+shadow operand_string {
+    set operand_trace 0
+    assert (== (operand_string 2 "two") "two")
+    assert (== operand_trace 2)
+}
+fn operand_bool(id: int, value: bool) -> bool {
+    (operand_mark id)
+    return value
+}
+shadow operand_bool {
+    set operand_trace 0
+    assert (operand_bool 3 true)
+    assert (== operand_trace 3)
+}
+fn operand_integer(id: int, value: int) -> int {
+    (operand_mark id)
+    return value
+}
+shadow operand_integer {
+    set operand_trace 0
+    assert (== (operand_integer 1 257) 257)
+    assert (== operand_trace 1)
+}
+fn operand_byte(id: int, value: u8) -> u8 {
+    (operand_mark id)
+    return value
+}
+shadow operand_byte {
+    set operand_trace 0
+    assert (== (operand_byte 4 255) 255)
+    assert (== operand_trace 4)
+}
+fn operand_computed_byte(value: int) -> u8 { return value }
+shadow operand_computed_byte {
+    assert (== (operand_computed_byte 257) 1)
+    assert (== (operand_computed_byte -1) 255)
+}
+fn main() -> int {
+    set operand_trace 0
+    let pair: (int, int) = ((operand_mark 2), (operand_mark 1))
+    assert (== operand_trace 21)
+    assert (== pair.0 2)
+    assert (== pair.1 1)
+    set operand_trace 0
+    let values: array<int> = [(operand_mark 3), (operand_mark 2), (operand_mark 1)]
+    assert (== operand_trace 321)
+    assert (== (array_length values) 3)
+    assert (== (at values 0) 3)
+    assert (== (at values 1) 2)
+    assert (== (at values 2) 1)
+    set operand_trace 0
+    let nested: array<array<int>> = [[(operand_mark 1), (operand_mark 2)], [(operand_mark 3)]]
+    assert (== operand_trace 123)
+    assert (== (at (at nested 0) 1) 2)
+    assert (== (at (at nested 1) 0) 3)
+    set operand_trace 0
+    let floats: array<float> = [(operand_float 1 1.5), (operand_float 2 2.5)]
+    assert (== operand_trace 12)
+    assert (== (at floats 0) 1.5)
+    assert (== (at floats 1) 2.5)
+    set operand_trace 0
+    let strings: array<string> = [(operand_string 2 "two"), (operand_string 1 "one")]
+    assert (== operand_trace 21)
+    assert (== (at strings 0) "two")
+    assert (== (at strings 1) "one")
+    set operand_trace 0
+    let flags: array<bool> = [(operand_bool 3 true), (operand_bool 2 false)]
+    assert (== operand_trace 32)
+    assert (at flags 0)
+    assert (not (at flags 1))
+    set operand_trace 0
+    let bytes: array<u8> = [(operand_byte 2 255), (operand_byte 3 0)]
+    assert (== operand_trace 23)
+    assert (== (at bytes 0) 255)
+    assert (== (at bytes 1) 0)
+    set operand_trace 0
+    let narrowed: array<u8> = [(operand_integer 1 257), (operand_integer 2 -1), (operand_integer 3 256)]
+    assert (== operand_trace 123)
+    assert (== (at narrowed 0) 1)
+    assert (== (at narrowed 1) 255)
+    assert (== (at narrowed 2) 0)
+    set operand_trace 0
+    let unchanged: array<int> = [(operand_integer 4 257), (operand_integer 5 -1)]
+    assert (== operand_trace 45)
+    assert (== (at unchanged 0) 257)
+    assert (== (at unchanged 1) -1)
+    set operand_trace 0
+    let direct: u8 = (operand_integer 6 257)
+    assert (== direct 1)
+    assert (== operand_trace 6)
+    assert (== (operand_byte 7 (operand_integer 8 257)) 1)
+    assert (== operand_trace 687)
+    assert (== (operand_computed_byte 256) 0)
+    return 0
+}
+shadow main { assert (== (main) 0) }

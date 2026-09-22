@@ -195,6 +195,8 @@ typedef struct {
     int has_record_array_getter;
     int has_owned_strings;
     int has_owned_aggregates;
+    int scalar_tail_frames;
+    uint16_t scalar_tail_arity;
     size_t global_count;
     size_t local_width;
     uint8_t *array_results;
@@ -348,6 +350,14 @@ static const char *c_local_type(uint8_t kind) {
     if (kind == NVM2C_VK_MAP) return "nmap_t";
     if (kind == NVM2C_VK_VALUE) return "nmap_value";
     return "int64_t";
+}
+
+static const char *scalar_tail_member(const char *type) {
+    if (!strcmp(type, "int64_t")) return "i";
+    if (!strcmp(type, "double")) return "f";
+    if (!strcmp(type, "const char *")) return "s";
+    if (!strcmp(type, "nmap_value")) return "v";
+    return NULL;
 }
 
 static uint8_t fn_local_kind(const Nvm2cBuf *b, const uint8_t *kinds, uint32_t fn, uint16_t slot) {
@@ -2430,7 +2440,7 @@ static void emit_prototype(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     }
     char name[64];
     fn_c_name(mod, idx, name, sizeof name);
-    nvm2c_printf(b, "static %s %s(", rt, name);
+    nvm2c_printf(b, "static %s%s %s(", b->scalar_tail_frames ? "inline " : "", rt, name);
     if (fn->arity == 0) {
         nvm2c_puts(b, "void");
     } else {
@@ -3169,16 +3179,21 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     char name[64];
     uint16_t i;
     fn_c_name(mod, idx, name, sizeof name);
-    nvm2c_printf(b, "static %s %s(", rt, name);
+    if (b->scalar_tail_frames) nvm2c_printf(b, "static uint32_t ntail_body_%u(", idx);
+    else nvm2c_printf(b, "static %s %s(", rt, name);
     if (fn->arity == 0) {
-        nvm2c_puts(b, "void");
+        if (!b->scalar_tail_frames) nvm2c_puts(b, "void");
     } else {
         for (i = 0; i < fn->arity; i++) {
             if (i) nvm2c_puts(b, ", ");
             nvm2c_printf(b, "%s a%u", c_local_type(fn_local_kind(b, kinds, idx, i)), (unsigned)i);
         }
     }
+    if (b->scalar_tail_frames)
+        nvm2c_printf(b, "%sntail_value *transfer, ntail_value *returned", fn->arity ? ", " : "");
     nvm2c_puts(b, ") {\n    (void)ni64_from_bits;\n");
+    if (b->scalar_tail_frames)
+        nvm2c_puts(b, "    uint32_t next = UINT32_MAX;\n    (void)transfer; (void)returned;\n");
 
     unsigned record_locals = 0;
     for (i = 0; i < fn->local_count; i++)
@@ -4716,6 +4731,27 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 terminated = 1;
                 break;
             }
+            if (b->scalar_tail_frames) {
+                int args[NVM2C_MAX_LOCALS];
+                for (int i = (int)cf->arity - 1; i >= 0; --i) {
+                    args[i] = stack_pop_expect(b, &st, fn_local_kind(b, kinds, callee, (uint16_t)i),
+                                               "scalar TAIL_CALL argument");
+                    if (b->failed) goto done;
+                }
+                if (st.sp) { nvm2c_fail(b, "scalar TAIL_CALL leaves extra stack values"); goto done; }
+                nvm2c_puts(b, "    {\n");
+                for (uint16_t i = 0; i < cf->arity; ++i) {
+                    uint8_t kind = fn_local_kind(b, kinds, callee, i);
+                    nvm2c_printf(b, "        %s tc%u = %s[%d];\n", c_local_type(kind),
+                                 i, stack_array_name(kind), args[i]);
+                }
+                for (uint16_t i = 0; i < cf->arity; ++i)
+                    nvm2c_printf(b, "        transfer[%u].%s = tc%u;\n", i,
+                        scalar_tail_member(c_local_type(fn_local_kind(b, kinds, callee, i))), i);
+                nvm2c_printf(b, "        next = %u;\n        goto L_return;\n    }\n", callee);
+                terminated = 1;
+                break;
+            }
             char call[NVM2C_CALL_SIZE];
             if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {
                 goto done;
@@ -4903,7 +4939,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     if (b->has_maps) nvm2c_puts(b, "    nroot_head = nroots.prev; nroot_destroy(&nroots.live);\n");
     nvm2c_puts(b, "    free(r);\n");
     if (record_locals) nvm2c_puts(b, "    free(rl);\n");
-    nvm2c_puts(b, strcmp(rt, "void") ? "    return nresult;\n}\n\n" : "    return;\n}\n\n");
+    if (b->scalar_tail_frames) {
+        if (strcmp(rt, "void"))
+            nvm2c_printf(b, "    if (next == UINT32_MAX) returned->%s = nresult;\n", scalar_tail_member(rt));
+        nvm2c_puts(b, "    return next;\n}\n\n");
+    } else nvm2c_puts(b, strcmp(rt, "void") ? "    return nresult;\n}\n\n" : "    return;\n}\n\n");
 
     if (b->failed) goto done;
     /* Prescan targets also include skipped jumps. Keep every join decision,
@@ -4982,6 +5022,38 @@ done:
     free(labels);
     free(joins);
     free(join_set);
+}
+
+static void emit_scalar_tail_dispatch(Nvm2cBuf *b, const NvmModule *mod, const uint8_t *kinds) {
+    nvm2c_puts(b, "static ntail_value ntail_dispatch(uint32_t target, ntail_value *arguments) {\n"
+                  "    ntail_value result = {0};\n    while (target != UINT32_MAX) {\n"
+                  "        switch (target) {\n");
+    for (uint32_t i = 0; i < mod->function_count; ++i) {
+        if (!b->emitted_functions[i]) continue;
+        nvm2c_printf(b, "        case %u: target = ntail_body_%u(", i, i);
+        for (uint16_t p = 0; p < mod->functions[i].arity; ++p)
+            nvm2c_printf(b, "arguments[%u].%s, ", p,
+                         scalar_tail_member(c_local_type(fn_local_kind(b, kinds, i, p))));
+        nvm2c_puts(b, "arguments, &result); break;\n");
+    }
+    nvm2c_puts(b, "        default: NVM2C_ABORT();\n        }\n    }\n    return result;\n}\n");
+    for (uint32_t i = 0; i < mod->function_count; ++i) {
+        if (!b->emitted_functions[i]) continue;
+        const NvmFunctionEntry *fn = &mod->functions[i];
+        const char *rt = c_result_type(b, fn, i);
+        char name[64]; fn_c_name(mod, i, name, sizeof name);
+        nvm2c_printf(b, "static inline %s %s(", rt, name);
+        if (!fn->arity) nvm2c_puts(b, "void");
+        for (uint16_t p = 0; p < fn->arity; ++p)
+            nvm2c_printf(b, "%s%s a%u", p ? ", " : "", c_local_type(fn_local_kind(b, kinds, i, p)), p);
+        nvm2c_printf(b, ") {\n    ntail_value arguments[%u] = {{0}};\n", b->scalar_tail_arity);
+        for (uint16_t p = 0; p < fn->arity; ++p)
+            nvm2c_printf(b, "    arguments[%u].%s = a%u;\n", p,
+                         scalar_tail_member(c_local_type(fn_local_kind(b, kinds, i, p))), p);
+        if (fn->result_count)
+            nvm2c_printf(b, "    return ntail_dispatch(%u, arguments).%s;\n}\n", i, scalar_tail_member(rt));
+        else nvm2c_printf(b, "    (void)ntail_dispatch(%u, arguments);\n}\n", i);
+    }
 }
 
 static int module_has_opcode(const NvmModule *mod, uint8_t op) {
@@ -5946,6 +6018,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (err && err_len) snprintf(err, err_len, "module is null");
         return NULL;
     }
+    if (nvm_capture_bindings_present(mod)) {
+        if (err && err_len) snprintf(err, err_len, "I require capture binding translation admission");
+        return NULL;
+    }
     if (nvm_service_execution_pending(mod)) {
         if (err && err_len) snprintf(err, err_len,
             "I require reviewed service lifetime and dispatch admission before translation");
@@ -6422,9 +6498,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    double value; memcpy(&value, &bits, sizeof value); return value;\n}\n");
         if (mod->import_count) {
             nvm2c_puts(&b,
-                "#include <stdlib.h>\n#include <string.h>\n#include <unistd.h>\n"
-                "static int nhost_arg_count;\nstatic char **nhost_args;\n");
+                "#include <stdlib.h>\n#include <string.h>\n#include <unistd.h>\n");
             int argv_used = module_uses_host(mod, "nhost_argv");
+            if (argv_used || module_uses_host(mod, "nhost_argc"))
+                nvm2c_puts(&b, "static int nhost_arg_count;\n");
+            if (argv_used) nvm2c_puts(&b, "static char **nhost_args;\n");
             int env_used = module_uses_host(mod, "nhost_getenv");
             int tmp_used = module_uses_host(mod, "nhost_tmp_dir");
             int cwd_used = module_uses_host(mod, "nhost_getcwd");
@@ -6761,6 +6839,35 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                                                 need_iarr_get, need_sarr_get, need_print);
     }
 
+    if (module_has_opcode(mod, OP_TAIL_CALL) &&
+        nvm_verify_profile(mod, NVM_PROFILE_CLOSED_LITERAL_STRINGS).ok) {
+        if (mod->function_count == UINT32_MAX) {
+            nvm2c_fail(&b, "I cannot reserve a scalar tail completion sentinel"); goto fail;
+        }
+        b.scalar_tail_frames = 1;
+        b.scalar_tail_arity = 1;
+        for (uint32_t i = 0; i < mod->function_count; ++i) {
+            if (!b.emitted_functions[i]) continue;
+            const NvmFunctionEntry *fn = &mod->functions[i];
+            if (fn->arity > NVM2C_MAX_LOCALS) {
+                nvm2c_fail(&b, "I cannot represent scalar tail arguments"); goto fail;
+            }
+            if (fn->arity > b.scalar_tail_arity) b.scalar_tail_arity = fn->arity;
+            const char *rt = c_result_type(&b, fn, i);
+            if (!rt || (fn->result_count && !scalar_tail_member(rt))) {
+                nvm2c_fail(&b, "I require a checked scalar tail result carrier"); goto fail;
+            }
+            for (uint16_t p = 0; p < fn->local_count; ++p) {
+                const char *type = c_local_type(fn_local_kind(&b, kinds, i, p));
+                if (!scalar_tail_member(type) || (!b.has_maps && !strcmp(type, "nmap_value"))) {
+                    nvm2c_fail(&b, "I require checked scalar tail local carriers"); goto fail;
+                }
+            }
+        }
+        nvm2c_puts(&b, "typedef union { int64_t i; double f; const char *s;");
+        if (b.has_maps) nvm2c_puts(&b, " nmap_value v;");
+        nvm2c_puts(&b, " } ntail_value;\n");
+    }
     {
         uint32_t i;
         for (i = 0; i < mod->function_count; i++) {
@@ -6779,6 +6886,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (b.failed) goto fail;
         }
     }
+    if (b.scalar_tail_frames) emit_scalar_tail_dispatch(&b, mod, kinds);
 
     {
         uint32_t entry = mod->header.entry_point;
@@ -6797,10 +6905,15 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         char ename[64];
         fn_c_name(mod, entry, ename, sizeof ename);
-        if (mod->import_count) nvm2c_puts(&b,
-            "int main(int argc, char **argv) {\n"
-            "    nhost_arg_count = argc; nhost_args = argv;\n");
-        else nvm2c_puts(&b, "int main(void) {\n");
+        if (mod->import_count) {
+            nvm2c_puts(&b, "int main(int argc, char **argv) {\n");
+            if (module_uses_host(mod, "nhost_argc") || module_uses_host(mod, "nhost_argv"))
+                nvm2c_puts(&b, "    nhost_arg_count = argc;\n");
+            else nvm2c_puts(&b, "    (void)argc;\n");
+            if (module_uses_host(mod, "nhost_argv"))
+                nvm2c_puts(&b, "    nhost_args = argv;\n");
+            else nvm2c_puts(&b, "    (void)argv;\n");
+        } else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
         if (b.has_maps || module_has_opcode(mod, OP_CAST_FLOAT))
             nvm2c_puts(&b, "    (void)nparse_binary64;\n");

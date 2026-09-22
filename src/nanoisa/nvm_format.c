@@ -141,6 +141,7 @@ void nvm_module_free(NvmModule *mod) {
     free(mod->passive_data);
     free(mod->layout_data);
     free(mod->ownership_data);
+    free(mod->capture_data);
     free(mod->service_data);
     free(mod->metadata);
     free(mod->module_refs);    free(mod->call_descriptors);
@@ -410,6 +411,7 @@ uint32_t nvm_find_function(const NvmModule *mod, const char *name) {
  * ======================================================================== */
 
 uint32_t nvm_append_code(NvmModule *mod, const uint8_t *code, uint32_t size) {
+    if (size == 0) return mod->code_size;
     while (mod->code_size + size > mod->code_capacity) {
         uint32_t new_cap = mod->code_capacity * 2;
         uint8_t *new_code = realloc(mod->code, new_cap);
@@ -648,7 +650,7 @@ bool nvm_file_instructions_present(const NvmModule *m) {
 }
 
 uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
-    if (nvm_file_instructions_present(mod) || mod->service_data || mod->service_size || mod->metadata_count || mod->callback_contract_count || mod->passive_size || mod->layout_size || mod->ownership_size) {
+    if (nvm_capture_bindings_present(mod) || nvm_file_instructions_present(mod) || mod->service_data || mod->service_size || mod->metadata_count || mod->callback_contract_count || mod->passive_size || mod->layout_size || mod->ownership_size) {
         if (out_size) *out_size = 0;
         return NULL;
     }

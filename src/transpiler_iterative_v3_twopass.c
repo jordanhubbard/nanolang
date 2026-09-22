@@ -345,7 +345,7 @@ static bool native_subtree_uses_name(ASTNode *root, const char *name) {
         case AST_NUMBER: case AST_FLOAT: case AST_STRING: case AST_BOOL:
         case AST_BREAK: case AST_CONTINUE: case AST_STRUCT_DEF: case AST_ENUM_DEF:
         case AST_UNION_DEF: case AST_IMPORT: case AST_MODULE_DECL: case AST_OPAQUE_TYPE:
-        case AST_QUALIFIED_NAME: case AST_EFFECT_DECL:
+        case AST_QUALIFIED_NAME: case AST_EFFECT_DECL: case AST_SERVICE_DECL:
             break;
         }
     }
@@ -1078,6 +1078,14 @@ static int try_eval_bool_const(ASTNode *expr) {
 /* Forward declarations */
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
 
+/* I spell checked byte narrowing explicitly without evaluating twice. */
+static void build_scalar_destination(WorkList *list, ASTNode *expr,
+                                     Environment *env, Type destination) {
+    if (destination == TYPE_U8) emit_literal(list, "(uint8_t)(");
+    build_expr(list, expr, env);
+    if (destination == TYPE_U8) emit_literal(list, ")");
+}
+
 /* I bind arguments in source order before entering an ordinary C call. */
 static unsigned next_ordered_call_id(Environment *env, int arg_count) {
     static _Thread_local unsigned next_call_id;
@@ -1329,6 +1337,29 @@ static void build_ordered_hashmap_call(WorkList *list, ASTNode *call, Environmen
 }
 
 #include "transpiler_opaque_arrays.inc"
+/* I keep generated literal roots disjoint from visible source bindings. */
+static void ordered_literal_name(Environment *env, char name[64], const char *kind) {
+    unsigned index = 0;
+    do {
+        snprintf(name, 64, "__nano_%s_%u", kind, index++);
+    } while (env_get_var(env, name) || env_get_function(env, name));
+}
+
+static void build_ordered_union_literal(WorkList *list, Environment *env,
+                                        const char *c_type, const char *tag_owner,
+                                        const char *variant, int count,
+                                        char **names, ASTNode **values) {
+    char temporary[64];
+    ordered_literal_name(env, temporary, "union_literal");
+    emit_formatted(list, "({ %s %s = {0}; %s.tag = nl_%s_TAG_%s; ",
+                   c_type, temporary, temporary, tag_owner, variant);
+    for (int i = 0; i < count; ++i) {
+        emit_formatted(list, "%s.data.%s.%s = ", temporary, variant, names[i]);
+        build_expr(list, values[i], env);
+        emit_literal(list, "; ");
+    }
+    emit_formatted(list, "%s; })", temporary);
+}
 
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
     if (!expr) return;
@@ -2692,23 +2723,21 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                    suffix, call_id, call_id);
                 }
             }
-            else if (strcmp(func_name, "array_pop") == 0 && expr->as.call.arg_count == 1) {
-                /* Detect element type from array argument */
-                Type elem_type = TYPE_INT;  /* Default to int */
-                const char *struct_name = NULL;
-                
-                ASTNode *array_arg = expr->as.call.args[0];
-                if (array_arg->type == AST_IDENTIFIER) {
-                    const char *array_name = array_arg->as.identifier;
-                    Symbol *sym = env_get_var_visible_at(env, array_name, array_arg->line, array_arg->column);
-                    if (sym && sym->element_type != TYPE_UNKNOWN) {
-                        elem_type = sym->element_type;
-                        if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
-                            struct_name = sym->struct_type_name;
-                        }
-                    }
+            else if (strcmp(func_name, "array_pop") == 0 && expr->as.call.arg_count == 1 &&
+                     !env_get_var_visible_at(env, func_name, expr->line, expr->column) &&
+                     env_function_is_named_builtin(env_get_function(env, func_name), "array_pop")) {
+                Type elem_type = check_expression(expr, env);
+                const char *struct_name = elem_type == TYPE_STRUCT
+                    ? checked_array_record_name(expr->as.call.args[0], env) : NULL;
+                bool supported = elem_type == TYPE_INT || elem_type == TYPE_U8 ||
+                    elem_type == TYPE_FLOAT || elem_type == TYPE_BOOL ||
+                    elem_type == TYPE_STRING || elem_type == TYPE_ARRAY ||
+                    elem_type == TYPE_ENUM || (elem_type == TYPE_STRUCT && struct_name);
+                if (!supported) {
+                    fprintf(stderr, "I require a checked native array_pop element type.\n");
+                    exit(1);
                 }
-                
+
                 /* For structs, use dyn_array_pop_struct */
                 if (elem_type == TYPE_STRUCT && struct_name) {
                     /* Generate: ({ bool _s; nl_StructName _v; dyn_array_pop_struct(arr, &_v, sizeof(nl_StructName), &_s); _v; }) */
@@ -3083,23 +3112,10 @@ native_array_declared_call: ;
                                 break;
                             }
 
-                            if (is_generic) {
-                                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", prefixed_union, monomorphized_name, variant_name);
-                            } else {
-                                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", prefixed_union, union_name_buf, variant_name);
-                            }
-
-                            if (field_count > 0) {
-                                emit_formatted(list, ", .data.%s = {", variant_name);
-                                for (int i = 0; i < field_count; i++) {
-                                    if (i > 0) emit_literal(list, ", ");
-                                    emit_formatted(list, ".%s = ", expr->as.struct_literal.field_names[i]);
-                                    build_expr(list, expr->as.struct_literal.field_values[i], env);
-                                }
-                                emit_literal(list, "}");
-                            }
-
-                            emit_literal(list, "}");
+                            build_ordered_union_literal(list, env, prefixed_union,
+                                is_generic ? monomorphized_name : union_name_buf,
+                                variant_name, field_count, expr->as.struct_literal.field_names,
+                                expr->as.struct_literal.field_values);
                             break;
                         }
                     }
@@ -3137,36 +3153,32 @@ native_array_declared_call: ;
             }
             
             ASTNode *spread = expr->as.struct_literal.spread_source;
-            char spread_name[64];
+            char temporary[64], spread_name[64];
+            ordered_literal_name(env, temporary, "record_literal");
+            ordered_literal_name(env, spread_name, "spread_literal");
+            emit_formatted(list, "({ %s %s = %s; ", get_prefixed_type_name(struct_name), temporary,
+                           sdef && sdef->field_count == 0 ? "{}" : "{0}");
             if (spread && sdef) {
-                unsigned index = 0;
-                do {
-                    snprintf(spread_name, sizeof(spread_name), "__nano_spread_%u", index++);
-                } while (env_get_var(env, spread_name) || env_get_function(env, spread_name));
-                emit_formatted(list, "({ __auto_type %s = ", spread_name);
+                emit_formatted(list, "__auto_type %s = ", spread_name);
                 build_expr(list, spread, env);
                 emit_formatted(list, "; (void)%s; ", spread_name);
-            }
-            emit_formatted(list, "(%s){", get_prefixed_type_name(struct_name));
-            for (int i = 0; i < field_count; i++) {
-                if (i > 0) emit_literal(list, ", ");
-                emit_formatted(list, ".%s = ", expr->as.struct_literal.field_names[i]);
-                build_expr(list, expr->as.struct_literal.field_values[i], env);
-            }
-            if (spread && sdef) {
-                int emitted = field_count;
-                for (int i = 0; i < sdef->field_count; i++) {
+                /* I snapshot inherited values before explicit source effects. */
+                for (int i = 0; i < sdef->field_count; ++i) {
                     bool overridden = false;
-                    for (int j = 0; j < field_count; j++)
+                    for (int j = 0; j < field_count; ++j)
                         if (!strcmp(sdef->field_names[i], expr->as.struct_literal.field_names[j]))
                             overridden = true;
-                    if (overridden) continue;
-                    if (emitted++) emit_literal(list, ", ");
-                    emit_formatted(list, ".%s = %s.%s", sdef->field_names[i], spread_name, sdef->field_names[i]);
+                    if (!overridden)
+                        emit_formatted(list, "%s.%s = %s.%s; ", temporary,
+                            sdef->field_names[i], spread_name, sdef->field_names[i]);
                 }
             }
-            emit_literal(list, "}");
-            if (spread && sdef) emit_literal(list, "; })");
+            for (int i = 0; i < field_count; ++i) {
+                emit_formatted(list, "%s.%s = ", temporary, expr->as.struct_literal.field_names[i]);
+                build_expr(list, expr->as.struct_literal.field_values[i], env);
+                emit_literal(list, "; ");
+            }
+            emit_formatted(list, "%s; })", temporary);
             break;
         }
         
@@ -3202,27 +3214,10 @@ native_array_declared_call: ;
                 break;
             }
             
-            /* Generate union construction: (UnionName){ .tag = TAG, .data.variant = {...} } */
-            if (is_generic) {
-                /* For generic unions, use monomorphized tag name */
-                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
-                              prefixed_union, monomorphized_name, variant_name);
-            } else {
-                /* For non-generic unions, use base tag name */
-                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
-                              prefixed_union, union_name, variant_name);
-            }
-            
-            if (expr->as.union_construct.field_count > 0) {
-                emit_formatted(list, ", .data.%s = {", variant_name);
-                for (int i = 0; i < expr->as.union_construct.field_count; i++) {
-                    if (i > 0) emit_literal(list, ", ");
-                    emit_formatted(list, ".%s = ", expr->as.union_construct.field_names[i]);
-                    build_expr(list, expr->as.union_construct.field_values[i], env);
-                }
-                emit_literal(list, "}");
-            }
-            emit_literal(list, "}");
+            build_ordered_union_literal(list, env, prefixed_union,
+                is_generic ? monomorphized_name : union_name,
+                variant_name, expr->as.union_construct.field_count,
+                expr->as.union_construct.field_names, expr->as.union_construct.field_values);
             break;
         }
         
@@ -3268,12 +3263,21 @@ native_array_declared_call: ;
                     elem_type = check_expression(expr->as.array_literal.elements[0], env);
                 }
                 
-                /* Generate call to appropriate helper function */
+                /* I evaluate scalar operands once before the variadic call. */
+                bool scalar_literal = elem_type == TYPE_INT || elem_type == TYPE_ENUM ||
+                    elem_type == TYPE_U8 || elem_type == TYPE_FLOAT ||
+                    elem_type == TYPE_STRING || elem_type == TYPE_BOOL;
+                unsigned scalar_values = 0;
+                if (scalar_literal) {
+                    emit_literal(list, "({ ");
+                    scalar_values = build_ordered_call_args(list,
+                        expr->as.array_literal.elements, count, env, NULL);
+                }
                 if (elem_type == TYPE_INT || elem_type == TYPE_ENUM) {
                     emit_formatted(list, "dynarray_literal_int(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", (int64_t)(");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "__nl_arg_%u_%d", scalar_values, i);
                         emit_literal(list, ")");
                     }
                     emit_literal(list, ")");
@@ -3281,28 +3285,28 @@ native_array_declared_call: ;
                     emit_formatted(list, "dynarray_literal_u8(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "(int)(uint8_t)__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_FLOAT) {
                     emit_formatted(list, "dynarray_literal_float(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "(double)__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_STRING) {
                     emit_formatted(list, "dynarray_literal_string(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "(const char*)__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_BOOL) {
                     emit_formatted(list, "dynarray_literal_bool(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "(int)__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_STRUCT) {
@@ -3346,6 +3350,7 @@ native_array_declared_call: ;
                     }
                     emit_literal(list, "}");
                 }
+                if (scalar_literal) emit_literal(list, "; })");
             }
             break;
         }
@@ -4086,7 +4091,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             if (in_effect_handler) {
                 if (stmt->as.return_stmt.value) {
                     emit_formatted(list, "*(%s *)_frame->lexical_result = ", effect_c_type(effect_lexical_return, effect_lexical_name, env));
-                    build_expr(list, stmt->as.return_stmt.value, env);
+                    build_scalar_destination(list, stmt->as.return_stmt.value, env, effect_lexical_return);
                     emit_literal(list, "; ");
                 }
                 if (effect_lexical_return == TYPE_OPAQUE || effect_lexical_return == TYPE_HASHMAP ||
@@ -4099,7 +4104,8 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, "return");
             if (stmt->as.return_stmt.value) {
                 emit_literal(list, " ");
-                build_expr(list, stmt->as.return_stmt.value, env);
+                Type return_type = g_current_function ? g_current_function->as.function.return_type : TYPE_UNKNOWN;
+                build_scalar_destination(list, stmt->as.return_stmt.value, env, return_type);
             }
             emit_literal(list, ";\n");
             break;
@@ -4365,7 +4371,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         stmt->as.let.value->as.array_literal.element_type = stmt->as.let.element_type;
                     }
                     emit_literal(list, " = ");
-                    build_expr(list, stmt->as.let.value, env);
+                    build_scalar_destination(list, stmt->as.let.value, env, stmt->as.let.var_type);
                 }
                 emit_literal(list, ";\n");
             }
@@ -4485,7 +4491,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 }
             }
             
-            build_expr(list, stmt->as.set.value, env);
+            Symbol *byte_target = env_get_var_visible_at(env, stmt->as.set.name, stmt->line, stmt->column);
+            Type destination = byte_target ? byte_target->type : TYPE_UNKNOWN;
+            build_scalar_destination(list, stmt->as.set.value, env, destination);
             emit_literal(list, ";\n");
             break;
             

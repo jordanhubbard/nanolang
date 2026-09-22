@@ -1410,6 +1410,22 @@ static bool types_match(Type t1, Type t2) {
     return false;
 }
 
+/* I distinguish direct byte literals from computed integer narrowing. */
+static bool byte_literal_fits(Type expected, const ASTNode *value) {
+    if (expected != TYPE_U8 || !value) return true;
+    if (value->type == AST_NUMBER)
+        return value->as.number >= 0 && value->as.number <= 255;
+    if (value->type == AST_PREFIX_OP && value->as.prefix_op.op == TOKEN_MINUS &&
+        value->as.prefix_op.arg_count == 1 && value->as.prefix_op.args &&
+        value->as.prefix_op.args[0] && value->as.prefix_op.args[0]->type == AST_NUMBER)
+        return value->as.prefix_op.args[0]->as.number == 0;
+    return true;
+}
+
+static bool scalar_value_matches(Type actual, Type expected, const ASTNode *value) {
+    return types_match(actual, expected) && byte_literal_fits(expected, value);
+}
+
 /* I resolve nominal enum annotations before selecting scalar array operations. */
 static Type resolved_array_element(Type element, const char *name, Environment *env) {
     return element == TYPE_STRUCT && name && env_get_enum(env, name) ? TYPE_ENUM : element;
@@ -1445,7 +1461,7 @@ static bool hashmap_extract_kv(TypeInfo *hm_info, Type *out_key, Type *out_value
 }
 
 /* My borrowed spelling is the canonical registered declaration name. */
-static const char *array_record_name(ASTNode *array, Environment *env) {
+const char *checked_array_record_name(ASTNode *array, Environment *env) {
     NominalView view = {0};
     if (!nominal_value_view(array, env, 0, &view)) return NULL;
     NominalIdentity id = nominal_view_element(env, &view, 0)
@@ -2045,7 +2061,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
 
         case AST_CALL: {
             if (nominal_array_builtin(expr, env, "at", 2) || nominal_array_builtin(expr, env, "array_get", 2))
-                return array_record_name(expr->as.call.args[0], env);
+                return checked_array_record_name(expr->as.call.args[0], env);
             /* Check if return_struct_type_name was set by type checker (for generic list get) */
             if (expr->as.call.return_struct_type_name) {
                 return expr->as.call.return_struct_type_name;
@@ -2647,7 +2663,7 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
                                       int depth) {
     if (depth > 128) return false;
     Type actual = check_expression(argument, env);
-    if (!types_match(actual, expected ? expected->base_type : fallback)) return false;
+    if (!scalar_value_matches(actual, expected ? expected->base_type : fallback, argument)) return false;
     if (!expected) return true;
     if (expected->base_type == TYPE_ARRAY && expected->element_type &&
         argument->type == AST_ARRAY_LITERAL) {
@@ -2922,7 +2938,7 @@ static Type check_perform(ASTNode *expr, Environment *env) {
             : op->params[i].type == TYPE_FUNCTION ? &callable : NULL;
         if (!check_nominal_contract(env, op->params[i].type, annotation,
                 op->params[i].struct_type_name, effect->module_name,
-                expr->as.effect_op.args[i]) || !types_match(actual, op->params[i].type)) {
+                expr->as.effect_op.args[i]) || !scalar_value_matches(actual, op->params[i].type, expr->as.effect_op.args[i])) {
             emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 7,
                                "I require the declared operation's argument type for perform.",
                                "Match the effect operation signature.");
@@ -2959,7 +2975,7 @@ static bool check_array_access_arguments(ASTNode *call, Environment *env) {
     if (valid) {
         /* I retain element identity while the lexical environment is available.
          * Bytecode field selection runs after these local scopes are gone. */
-        const char *name = array_record_name(array, env);
+        const char *name = checked_array_record_name(array, env);
         char *retained = name ? strdup(name) : NULL;
         free(call->as.call.return_struct_type_name);
         call->as.call.return_struct_type_name = retained;
@@ -3106,7 +3122,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Handle unary minus: (- x) */
                 if (op == TOKEN_MINUS && arg_count == 1) {
                     Type arg_type = check_expression(expr->as.prefix_op.args[0], env);
-                    if (arg_type == TYPE_INT) return TYPE_INT;
+                    if (arg_type == TYPE_INT || arg_type == TYPE_U8) return TYPE_INT;
                     if (arg_type == TYPE_FLOAT) return TYPE_FLOAT;
                     if (arg_type == TYPE_ARRAY) {
                         Type elem = infer_array_element_type(expr->as.prefix_op.args[0], env);
@@ -3119,8 +3135,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         return TYPE_UNKNOWN;
                     }
                     emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                        "Unary minus requires a numeric type (int or float)",
-                        "Check that the operand is an int or float variable");
+                        "I require int, u8 or float for scalar negation",
+                        "I promote a byte operand to int before negation");
                     return TYPE_UNKNOWN;
                 }
                 
@@ -3395,6 +3411,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_CALL: {
+            expr->as.call.checked_u8_array_mutation = false;
             if (expr->as.call.borrow_mode) {
                 emit_context_error("E0036", expr->line, expr->column, 1,
                     "I allow a borrow only as a declared direct-call argument", "Keep the borrow call-scoped.");
@@ -3634,9 +3651,52 @@ checked_array_declared_call: ;
             /* Check if function exists */
             Function *func = env_get_function(env, expr->as.call.name);
             
+            if (env_function_is_named_builtin(func, "array_pop")) {
+                if (expr->as.call.arg_count != 1) {
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
+                        "I require one array receiver for array_pop.", "Pass exactly one array.");
+                    return TYPE_UNKNOWN;
+                }
+                ASTNode *receiver = expr->as.call.args[0];
+                if (check_expression(receiver, env) != TYPE_ARRAY) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require an array receiver for array_pop.", "Pass a typed array.");
+                    return TYPE_UNKNOWN;
+                }
+                return infer_array_element_type(receiver, env);
+            }
+
             /* Check visibility */
             if (func && !is_function_accessible(func, env, expr->line, expr->column)) {
                 return TYPE_UNKNOWN;
+            }
+
+            /* I retain an exact checked byte destination for source evaluation. */
+            bool byte_push = env_function_is_named_builtin(func, "array_push") &&
+                !env_get_var_visible_at(env, "array_push", expr->line, expr->column);
+            bool byte_set = env_function_is_named_builtin(func, "array_set") &&
+                !env_get_var_visible_at(env, "array_set", expr->line, expr->column);
+            int mutation_arity = byte_push ? 2 : 3;
+            if ((byte_push || byte_set) && expr->as.call.arg_count == mutation_arity &&
+                check_expression(expr->as.call.args[0], env) == TYPE_ARRAY &&
+                infer_array_element_type(expr->as.call.args[0], env) == TYPE_U8) {
+                bool valid = true;
+                if (byte_set) {
+                    Type index = check_expression(expr->as.call.args[1], env);
+                    valid = index == TYPE_INT || index == TYPE_U8;
+                }
+                ASTNode *value = expr->as.call.args[mutation_arity - 1];
+                Type actual = check_expression(value, env);
+                valid = valid && (actual == TYPE_INT || actual == TYPE_U8 || actual == TYPE_ENUM) &&
+                    scalar_value_matches(actual, TYPE_U8, value);
+                if (!valid) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require a checked byte value and an integer index for byte array mutation.",
+                        "Use a byte literal in 0..255 or a computed integer value.");
+                    return TYPE_UNKNOWN;
+                }
+                expr->as.call.checked_u8_array_mutation = true;
+                return byte_push ? TYPE_ARRAY : TYPE_VOID;
             }
 
             if (strcmp(expr->as.call.name, "array_push") == 0 &&
@@ -3706,43 +3766,6 @@ checked_array_declared_call: ;
                         }
                     }
                     return TYPE_ARRAY;
-                }
-                
-                if (strcmp(expr->as.call.name, "array_pop") == 0) {
-                    /* array_pop(array) -> element type (infer from array) */
-                    if (expr->as.call.arg_count >= 1) {
-                        ASTNode *array_arg = expr->as.call.args[0];
-                        check_expression(array_arg, env);
-                        
-                        const TypeInfo *complete = try_get_expr_type_info(array_arg, env);
-                        if (complete && complete->base_type == TYPE_ARRAY && complete->element_type)
-                            return complete->element_type->base_type;
-
-                        /* Try to infer element type from array */
-                        if (array_arg->type == AST_IDENTIFIER) {
-                            Symbol *sym = env_get_var_visible_at(env, array_arg->as.identifier, array_arg->line, array_arg->column);
-                            if (sym && sym->element_type != TYPE_UNKNOWN) {
-                                return sym->element_type;
-                            }
-                        }
-
-                        if (array_arg->type == AST_CALL && array_arg->as.call.name) {
-                            if (strcmp(array_arg->as.call.name, "file_read_bytes") == 0 ||
-                                strcmp(array_arg->as.call.name, "bytes_from_string") == 0) {
-                                return TYPE_U8;
-                            }
-                            if (strcmp(array_arg->as.call.name, "array_slice") == 0 && array_arg->as.call.arg_count >= 1) {
-                                ASTNode *inner = array_arg->as.call.args[0];
-                                if (inner && inner->type == AST_IDENTIFIER) {
-                                    Symbol *sym = env_get_var_visible_at(env, inner->as.identifier, inner->line, inner->column);
-                                    if (sym && sym->element_type != TYPE_UNKNOWN) {
-                                        return sym->element_type;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    return TYPE_INT;  /* Default fallback */
                 }
                 
                 if (strcmp(expr->as.call.name, "array_remove_at") == 0) {
@@ -4409,7 +4432,7 @@ checked_array_declared_call: ;
                             check_opaque_value(env, func->params[i].type, func->params[i].struct_type_name, arg);
                         if (func->params[i].type == TYPE_ARRAY) check_record_array_contract(env, func->params[i].type,
                             func->params[i].element_type, func->params[i].struct_type_name, env_function_signature_owner(env, func), arg);
-                        if (!is_opaque_param && !is_opaque_arg && !types_match(arg_type, func->params[i].type)) {
+                        if (!is_opaque_param && !is_opaque_arg && !scalar_value_matches(arg_type, func->params[i].type, arg)) {
                             char message[256];
                             snprintf(message, sizeof(message),
                                     "Argument %d expects %s, got %s.",
@@ -5406,8 +5429,16 @@ checked_array_declared_call: ;
         }
 
         case AST_RETURN: {
-            /* Return statements can appear in blocks that are used as expressions */
+            /* Return statements can appear in blocks that are used as expressions. */
             if (expr->as.return_stmt.value) {
+                if (active_statement_checker && !byte_literal_fits(
+                        active_statement_checker->current_function_return_type, expr->as.return_stmt.value)) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require a direct u8 literal between 0 and 255.",
+                        "Use a computed integer expression for explicit byte narrowing.");
+                    active_statement_checker->has_error = true;
+                    return TYPE_UNKNOWN;
+                }
                 return check_expression(expr->as.return_stmt.value, env);
             }
             return TYPE_VOID;
@@ -5916,7 +5947,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         const TypeInfo *element = concrete->element_type;
                         if (element) {
                             stmt->as.let.element_type = element->base_type;
-                            const char *name = array_record_name(stmt->as.let.value, tc->env);
+                            const char *name = checked_array_record_name(stmt->as.let.value, tc->env);
                             if (name) {
                                 free(stmt->as.let.type_name);
                                 stmt->as.let.type_name = strdup(name);
@@ -6158,7 +6189,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
             /* Full callable signatures were checked above with their original contexts. */
-            if (declared_type != TYPE_FUNCTION && !types_match(value_type, declared_type)) {
+            if (declared_type != TYPE_FUNCTION && !scalar_value_matches(value_type, declared_type, stmt->as.let.value)) {
                 char message[256];
                 snprintf(message, sizeof(message),
                         "Let binding expects %s but got %s.",
@@ -6344,7 +6375,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                                                 stmt->as.set.value, 0);
                     if (!check_nominal_contract(tc->env, expected_type, expected_info,
                             expected_name, expected_owner, stmt->as.set.value)) tc->has_error = true;
-                    if (!types_match(actual, expected_type)) {
+                    if (!scalar_value_matches(actual, expected_type, stmt->as.set.value)) {
                         fprintf(stderr, "I require the declared field type for borrowed mutation\n");
                         tc->has_error = true;
                     }
@@ -6389,7 +6420,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
 
-            if (!types_match(value_type, destination.type)) {
+            if (!scalar_value_matches(value_type, destination.type, stmt->as.set.value)) {
                 char message[256];
                 snprintf(message, sizeof(message),
                         "Assignment expects %s but got %s.",
@@ -6582,7 +6613,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 if (!check_record_array_contract(tc->env, tc->current_function_return_type,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name,
                         tc->env->current_module, stmt->as.return_stmt.value)) tc->has_error = true;
-                if (!types_match(return_type, tc->current_function_return_type)) {
+                if (!scalar_value_matches(return_type, tc->current_function_return_type, stmt->as.return_stmt.value)) {
                     char message[256];
                     snprintf(message, sizeof(message), "Return type mismatch: got %s, expected %s.",
                              type_to_string(return_type), type_to_string(tc->current_function_return_type));
@@ -9075,8 +9106,11 @@ register_function_pass1:;
                                                item->as.let.element_type, item->as.let.type_name);
             }
             
-            /* Verify it matches the declared type */
-            if (item->as.let.var_type != value_type) {
+            /* I retain checked numeric narrowing only at an exact byte destination. */
+            bool numeric_byte = item->as.let.var_type == TYPE_U8 &&
+                (value_type == TYPE_INT || value_type == TYPE_ENUM);
+            if ((item->as.let.var_type != value_type && !numeric_byte) ||
+                !byte_literal_fits(item->as.let.var_type, item->as.let.value)) {
                 fprintf(stderr, "Error at line %d, column %d: Constant '%s' type mismatch (declared %s, got %s)\n",
                         item->line, item->column,
                         item->as.let.name,
@@ -9882,8 +9916,11 @@ register_function_pass2:;
                                                item->as.let.element_type, item->as.let.type_name);
             }
             
-            /* Verify it matches the declared type */
-            if (item->as.let.var_type != value_type) {
+            /* I retain checked numeric narrowing only at an exact byte destination. */
+            bool numeric_byte = item->as.let.var_type == TYPE_U8 &&
+                (value_type == TYPE_INT || value_type == TYPE_ENUM);
+            if ((item->as.let.var_type != value_type && !numeric_byte) ||
+                !byte_literal_fits(item->as.let.var_type, item->as.let.value)) {
                 fprintf(stderr, "Error at line %d, column %d: Constant '%s' type mismatch (declared %s, got %s)\n",
                         item->line, item->column,
                         item->as.let.name,

@@ -29,7 +29,7 @@ NvmFileHostGrant *file_public_test_grant(void){return public_grant;}
 /* The bridge checks the actual public sentinel before reconstructing the old
  * passive view expected by unchanged corpus assertions. */
 static NvmFileRuntimeReport public_vm_bridge(const uint8_t *bytes,size_t size,NvmFileRuntimeView *out){
- NvmFileScalar scalar;memset(&scalar,0xa5,sizeof scalar);NvmFileScalar before=scalar;
+ NvmFileScalar scalar;memset(&scalar,0xa5,sizeof scalar);NvmFileScalar before;memcpy(&before,&scalar,sizeof before);
  NvmFileRuntimeReport report=nvm_file_execute_bytes(public_grant,bytes,size,out?&scalar:NULL);
  public_calls++;
  if(report.status==NVM_FILE_RUNTIME_OK){
@@ -66,7 +66,7 @@ static void public_busy_checks(void){
 #ifndef FILE_NATIVE_CAPTURE
  file_public_native_busy_check();
 #endif
- NvmFileScalar out;memset(&out,0xa5,sizeof out);NvmFileScalar before=out;
+ NvmFileScalar out;memset(&out,0xa5,sizeof out);NvmFileScalar before;memcpy(&before,&out,sizeof before);
  NvmFileRuntimeReport r=nvm_file_execute_bytes(public_grant,public_wire,public_size,&out);
  CHECK(r.status==NVM_FILE_RUNTIME_BUSY && !r.acquired && !memcmp(&out,&before,sizeof out));
  char *text=(char *)(uintptr_t)1;char error[64];memset(error,'x',sizeof error);
@@ -80,7 +80,7 @@ static void public_nested(void){if(public_reentry){public_busy_checks();public_r
 /* Worker checks use independent outputs; only the owning main thread reads
  * instrumentation counters after joining. CHECK's shared counter is avoided. */
 static void *public_contender(void *unused){
- (void)unused;NvmFileScalar out={TAG_INT,913},before=out;
+ (void)unused;NvmFileScalar out={TAG_INT,913},before;memcpy(&before,&out,sizeof before);
  NvmFileRuntimeReport r=nvm_file_execute_bytes(public_grant,public_wire,public_size,&out);
  char *text=(char *)(uintptr_t)1;char error[8]="held";
  if(r.status!=NVM_FILE_RUNTIME_BUSY || r.acquired || memcmp(&out,&before,sizeof out) ||
@@ -97,7 +97,7 @@ static void public_free(void *p){
 }
 static void public_reject(const uint8_t *bytes,size_t n,NvmFileRuntimeStatus expected){
  unsigned opens=open_attempts,loads=loader_attempts,forks=fork_attempts;
- NvmFileScalar out;memset(&out,0xa5,sizeof out);NvmFileScalar old=out;
+ NvmFileScalar out;memset(&out,0xa5,sizeof out);NvmFileScalar old;memcpy(&old,&out,sizeof old);
  NvmFileRuntimeReport r=nvm_file_execute_bytes(public_grant,bytes,n,&out);
  CHECK(r.status==expected && !r.acquired && !memcmp(&out,&old,sizeof out));
  char *text=(char *)(uintptr_t)1;char diagnostic[256];
@@ -109,7 +109,9 @@ static void public_wire_refusals(const uint8_t *wire,size_t n){
  NvmV2Header h;CHECK(nvm_v2_read_header(bytes,n,&h)==NVM_V2_OK);uint32_t features=h.feature_bits;
  const uint32_t required[]={NVM_V2_FEATURE_FFI,NVM_V2_FEATURE_RETAINED_LAYOUTS,NVM_V2_FEATURE_OWNERSHIP,NVM_V2_FEATURE_SERVICE_BINDINGS};
  for(unsigned i=0;i<4;i++){h.feature_bits=features & ~required[i];nvm_v2_write_header(bytes,&h);public_reject(bytes,n,NVM_FILE_RUNTIME_INVALID);}
- h.feature_bits=features|UINT32_C(0x400);nvm_v2_write_header(bytes,&h);public_reject(bytes,n,NVM_FILE_RUNTIME_INVALID);
+ CHECK(!(UINT32_C(0x80000000)&NVM_V2_FEATURE_KNOWN_MASK));
+ h.feature_bits=features|UINT32_C(0x80000000);nvm_v2_write_header(bytes,&h);public_reject(bytes,n,NVM_FILE_RUNTIME_INVALID);
+ h.feature_bits=features|NVM_V2_FEATURE_CAPTURE_BINDINGS;nvm_v2_write_header(bytes,&h);public_reject(bytes,n,NVM_FILE_RUNTIME_UNRESOLVED);
  h.feature_bits=features|NVM_V2_FEATURE_CALLBACKS;nvm_v2_write_header(bytes,&h);public_reject(bytes,n,NVM_FILE_RUNTIME_UNRESOLVED);
  memcpy(bytes,wire,n);NvmV2SectionEntry svc=section(bytes,n,NVM_V2_SECTION_SERVICE_BINDINGS);
  bytes[svc.offset]=1;rehash(bytes,n);public_reject(bytes,n,NVM_FILE_RUNTIME_INVALID);
@@ -155,7 +157,7 @@ static void public_boundaries(void){
 #endif
  public_wire_refusals(bytes,n);
  public_wire=bytes;public_size=n;unsigned opens=open_attempts,loads=loader_attempts,forks=fork_attempts;
- NvmFileScalar out;memset(&out,0xa5,sizeof out);NvmFileScalar before=out;
+ NvmFileScalar out;memset(&out,0xa5,sizeof out);NvmFileScalar before;memcpy(&before,&out,sizeof before);
  NvmFileRuntimeReport r=nvm_file_execute_bytes(NULL,bytes,n,&out);
  CHECK(r.status==NVM_FILE_RUNTIME_INVALID && !r.acquired && !memcmp(&out,&before,sizeof out));
  CHECK(nvm_file_host_enter(public_grant,NVM_FILE_HOST_ABI+1,NVM_FILE_HOST_CATALOG)==NVM_FILE_HOST_UNRESOLVED);

@@ -87,9 +87,11 @@ static int tests_failed = 0;
     } \
 } while(0)
 
+/* I keep large automatic VM states in separate test call frames under optimization. */
 #define RUN_TEST(fn) do { \
+    void (*volatile test_entry)(void) = fn; \
     printf("  %s...\n", #fn); \
-    fn(); \
+    test_entry(); \
 } while(0)
 
 /* ========================================================================
@@ -2767,6 +2769,127 @@ static void test_closure_call_releases_the_callable(void) {
     nvm_module_free(mod);
 }
 
+static void test_destroy_releases_trapped_callable(void) {
+    AsmResult assembled;
+    NvmModule *module = asm_assemble(
+        ".function trapped 0 0 1 void 0\nPUSH_BOOL 0\nASSERT\nRET\n.end\n"
+        ".function caller 0 0 0 void 0\nPUSH_I64 42\nTUPLE_NEW 1\n"
+        "CLOSURE_NEW 0 1\nCALL_INDIRECT 0 0\nRET\n.end\n", &assembled);
+    ASSERT(module, "I assemble a managed closure with an assertion failure");
+    NvmVerifyResult verified = nvm_verify(module);
+    ASSERT(verified.ok, "I verify the complete trap teardown program");
+    VmState vm;vm_init(&vm,module);
+    size_t baseline = vm.heap.stats.num_objects;
+    ASSERT_EQ_INT(vm_call_function(&vm,1,NULL,0),VM_ERR_ASSERT_FAILED,
+                  "I retain the actual indirect-call assertion terminal");
+    ASSERT_EQ_INT(vm.frame_count,2,"I leave both direct/core frames for explicit teardown");
+    ASSERT(vm.frames[1].owned_callable.tag == TAG_CLOSURE,
+           "The trapped frame still owns its invoked closure");
+    ASSERT_EQ_INT(vm.heap.stats.num_objects,baseline+2,
+                  "The closure and its managed tuple are live before teardown");
+    vm_destroy(&vm);
+    ASSERT_EQ_INT(vm.frame_count,0,"I detach every frame during destruction");
+    ASSERT_EQ_INT(vm.handler_count,0,"I remove handlers after their frames");
+    ASSERT_EQ_INT(vm.heap.stats.num_objects,0,"I release the callable and its captured tuple");
+    ASSERT(vm.heap.stats.allocated == vm.heap.stats.freed,
+           "I balance accounted heap bytes after trapped callable destruction");
+    nvm_module_free(module);
+}
+
+/* I install reviewed state only after the real trap, then exercise existing
+ * frame exits. This checks lifecycle plumbing, not capture opcode admission. */
+static void test_binding_frame_cleanup(void) {
+    for (unsigned mode = 0; mode < 3; ++mode) {
+        const char *source = mode == 1 ?
+            ".function paused 1 1 0 int 1\nPUSH_BOOL 0\nASSERT\n"
+            "LOAD_LOCAL 0\nTAIL_CALL 1\n.end\n"
+            ".function finish 1 1 0 int 1\nLOAD_LOCAL 0\nSTR_LEN\nRET\n.end\n" :
+            ".function paused 1 1 0 int 1\nPUSH_BOOL 0\nASSERT\n"
+            "LOAD_LOCAL 0\nSTR_LEN\nRET\n.end\n";
+        AsmResult assembled; NvmModule *module = asm_assemble(source, &assembled);
+        ASSERT(module, "I assemble ordinary binding cleanup controls");
+        ASSERT(nvm_verify(module).ok, "I verify ordinary return and tail paths");
+        VmState vm; vm_init(&vm, module);
+        size_t baseline = vm.heap.stats.num_objects;
+        VmString *string = vm_string_new(&vm.heap, "parameter", 9);
+        ASSERT(string, "I allocate a managed parameter");
+        NanoValue argument = val_string(string);
+        ASSERT_EQ_INT(vm_call_function(&vm, 0, &argument, 1), VM_ERR_ASSERT_FAILED,
+                      "I pause the real frame before its exit path");
+        ASSERT_EQ_INT(vm.frame_count, 1, "I keep one trapped physical frame");
+        ASSERT(!vm.frames[0].binding_state, "Legacy entry initializes absent binding state");
+        const uint8_t shared = 1;
+        ASSERT_EQ_INT(vm_binding_state_new(&vm.heap, &shared, 1, 1, SIZE_MAX,
+                      &vm.frames[0].binding_state), VM_BINDING_OK, "I prepare the actual parameter owner");
+        if (mode == 2) {
+            VmBindingSource capture = {.state=vm.frames[0].binding_state,
+                .locals=vm.stack+vm.frames[0].stack_base, .slot=0, .mode=1};
+            VmClosure *closure = NULL;
+            ASSERT_EQ_INT(vm_binding_closure(&vm.heap, 1, 0, &shared, &capture, 1,
+                          SIZE_MAX, 1, &closure), VM_BINDING_OK, "I box the actual managed parameter");
+            vm_release(&vm.heap, val_closure(closure));
+        } else {
+            VmTrap trap = vm_core_execute(&vm);
+            ASSERT_EQ_INT(trap.type, TRAP_NONE, "I complete the actual return or tail call");
+            ASSERT_EQ_INT(vm.frame_count, 0, "I remove the finished frame");
+            ASSERT(!vm.frames[0].binding_state, "I detach state before reusing or removing a frame");
+            ASSERT_EQ_INT(vm.stack_size, 1, "I preserve exactly the result operand");
+            ASSERT_EQ_INT(vm.stack[0].as.i64, 9, "I retain the tail argument until the callee consumes it");
+            vm_gc_collect_cycles(&vm.heap);
+            ASSERT_EQ_INT(vm.heap.stats.num_objects, baseline, "I release the managed parameter");
+        }
+        vm_destroy(&vm);
+        ASSERT(!vm.frames[0].binding_state, "Destruction leaves no frame state owner");
+        ASSERT_EQ_INT(vm.heap.stats.num_objects, 0, "I reclaim boxed and unboxed frame values");
+        ASSERT(vm.heap.stats.allocated == vm.heap.stats.freed, "I balance frame state and heap bytes");
+        nvm_module_free(module);
+    }
+}
+
+static void test_binding_effect_cleanup(void) {
+    for (unsigned mode = 0; mode < 3; ++mode) {
+        const char *finish = mode == 2 ? "RET\n.end\n" : "EFFECT_RESUME\n.end\n";
+        char source[1024];
+        snprintf(source, sizeof source,
+            ".function handled 0 3 0 int 1\nPUSH_I64 10\nTUPLE_NEW 1\nSTORE_LOCAL 0\n"
+            "HANDLER_PUSH 0 arm 1 1\nPUSH_I64 20\nTUPLE_NEW 1\nPERFORM 0 1\n"
+            "HANDLER_POP 1\nRET\narm:\nPUSH_BOOL 0\nASSERT\nPUSH_I64 42\n%s", finish);
+        AsmResult assembled; NvmModule *module = asm_assemble(source, &assembled);
+        ASSERT(module, "I assemble real effect cleanup paths");
+        ASSERT(nvm_verify(module).ok, "I verify the complete handler and caller control flow");
+        VmState vm; vm_init(&vm, module);
+        size_t baseline = vm.heap.stats.num_objects;
+        ASSERT_EQ_INT(vm_call_function(&vm, 0, NULL, 0), VM_ERR_ASSERT_FAILED,
+                      "I pause inside an actual effect activation");
+        ASSERT_EQ_INT(vm.frame_count, 2, "I retain lexical and activation frames");
+        ASSERT(!vm.frames[0].binding_state && !vm.frames[1].binding_state,
+               "Legacy effect copying does not duplicate a binding owner");
+        const uint8_t modes[] = {1, 1, 0};
+        ASSERT_EQ_INT(vm_binding_state_new_range(&vm.heap, modes, 3, 0, 1, SIZE_MAX,
+                      &vm.frames[0].binding_state), VM_BINDING_OK, "I prepare the lexical local owner");
+        ASSERT_EQ_INT(vm_binding_state_new_range(&vm.heap, modes, 3, 1, 1, SIZE_MAX,
+                      &vm.frames[1].binding_state), VM_BINDING_OK, "I prepare the distinct handler parameter owner");
+        ASSERT(vm.frames[0].binding_state != vm.frames[1].binding_state, "I keep physical owners distinct");
+        if (mode) {
+            VmTrap trap = vm_core_execute(&vm);
+            ASSERT_EQ_INT(trap.type, TRAP_NONE, "I complete resume or lexical return");
+            ASSERT_EQ_INT(vm.frame_count, 0, "I remove both completed frames");
+            ASSERT_EQ_INT(vm.handler_count, 0, "I prune departed handlers");
+            ASSERT(!vm.frames[0].binding_state && !vm.frames[1].binding_state,
+                   "I detach both owners exactly once");
+            ASSERT_EQ_INT(vm.stack_size, 1, "I preserve the effect result");
+            ASSERT_EQ_INT(vm.stack[0].as.i64, 42, "I preserve the returned effect value");
+            vm_gc_collect_cycles(&vm.heap);
+            ASSERT_EQ_INT(vm.heap.stats.num_objects, baseline, "I release both managed local values");
+        }
+        vm_destroy(&vm);
+        ASSERT(!vm.frames[0].binding_state && !vm.frames[1].binding_state,
+               "I leave no binding owner after effect teardown");
+        ASSERT(vm.heap.stats.allocated == vm.heap.stats.freed, "I balance activation state and heap bytes");
+        nvm_module_free(module);
+    }
+}
+
 static void test_direct_function_reference(void) {
     NvmModule *mod = make_multi_fn_module();
     uint8_t callee_code[32];
@@ -2983,6 +3106,99 @@ static void test_assertion_stack_context(void) {
         } else {
             ASSERT(strstr(buf, "Stack trace") == NULL, "ordinary assert remains quiet");
         }
+        vm_destroy(&vm);
+        nvm_module_free(mod);
+    }
+}
+
+/* I distinguish the executing assertion and suspended call from their next
+ * statements, without executable DEBUG_LINE instructions masking the lookup. */
+static void test_stack_trace_executing_offsets(void) {
+    for (unsigned mode = 0; mode < 4; ++mode) {
+        uint8_t main_code[64], helper_code[64];
+        uint32_t mo = 0, ho = 0;
+        if (mode == 1) {
+            mo += emit(main_code + mo, OP_FUNCREF, (uint32_t)1);
+            mo += emit(main_code + mo, OP_CALL_INDIRECT, (int)0, (int)1);
+        } else {
+            mo += emit(main_code + mo, mode == 2 ? OP_TAIL_CALL : OP_CALL, (uint32_t)1);
+        }
+        uint32_t continuation = mo;
+        mo += emit(main_code + mo, OP_RET);
+        /* The taken branch reaches the assertion after an unrelated mapping. */
+        ho += emit(helper_code + ho, OP_PUSH_BOOL, (int)1);
+        ho += emit(helper_code + ho, OP_JMP_TRUE, (int32_t)6);
+        ho += emit(helper_code + ho, OP_NOP);
+        uint32_t selected = ho;
+        ho += emit(helper_code + ho, OP_PUSH_BOOL, (int)0);
+        ho += emit(helper_code + ho, OP_ASSERT);
+        uint32_t next_statement = ho;
+        ho += emit(helper_code + ho, OP_PUSH_I64, (int64_t)0);
+        ho += emit(helper_code + ho, OP_RET);
+        NvmModule *mod = make_multi_fn_module();
+        uint32_t main_idx = add_fn(mod, "main", main_code, mo, 0, 0);
+        add_fn(mod, "helper", helper_code, ho, 0, 0);
+        nvm_add_debug_entry(mod, 0, 100, 3);
+        nvm_add_debug_entry(mod, continuation, 101, 4);
+        if (mode != 3) {
+            nvm_add_debug_entry(mod, mo, 199, 5);
+            nvm_add_debug_entry(mod, mo + selected, 200, 6);
+            nvm_add_debug_entry(mod, mo + next_statement, 201, 7);
+        }
+        mod->header.flags |= NVM_FLAG_DEBUG_INFO | NVM_FLAG_HAS_MAIN;
+        mod->header.entry_point = main_idx;
+        mod->source_file_idx = nvm_add_string(mod, "offset.nano", 11);
+        char buf[2048] = {0};
+        FILE *out = fmemopen(buf, sizeof(buf) - 1, "w");
+        ASSERT(out != NULL, "I open the exact-location trace");
+        VmState vm;
+        vm_init(&vm, mod);
+        vm.output = out;
+        ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_ASSERT_FAILED, "I preserve the assertion failure");
+        fclose(out);
+        ASSERT(strstr(buf, "offset.nano:101") == NULL, "I do not report the caller continuation");
+        ASSERT(strstr(buf, "offset.nano:201") == NULL, "I do not report the next assertion statement");
+        if (mode != 3)
+            ASSERT(strstr(buf, "helper  offset.nano:200:6") != NULL, "I report the executing assertion");
+        else
+            ASSERT(strstr(buf, "helper  offset.nano:?") != NULL, "I report unknown instead of borrowing another function's mapping");
+        if (mode != 2)
+            ASSERT(strstr(buf, "main  offset.nano:100:3") != NULL, "I retain the suspended call location");
+        else
+            ASSERT(strstr(buf, "main  offset.nano:") == NULL, "I replace the tail-call frame");
+        vm_destroy(&vm);
+        nvm_module_free(mod);
+    }
+}
+
+static void test_stack_trace_fused_field_location(void) {
+    for (unsigned fused = 0; fused < 2; ++fused) {
+        uint8_t code[128];
+        uint32_t load = 0, field = 0;
+        uint32_t size = emit_local_field_program(code, 9, &load, &field);
+        NvmModule *mod = make_module(code, size, 0, 1);
+        mod->header.flags |= NVM_FLAG_DEBUG_INFO;
+        mod->source_file_idx = nvm_add_string(mod, "fused.nano", 10);
+        nvm_add_debug_entry(mod, load, 301, 1);
+        nvm_add_debug_entry(mod, field, 302, 2);
+        nvm_add_debug_entry(mod, size - 1, 303, 3);
+        char buf[2048] = {0};
+        FILE *out = fmemopen(buf, sizeof(buf) - 1, "w");
+        ASSERT(out != NULL, "I capture the fused field location");
+        VmState vm;
+        vm_init(&vm, mod);
+        vm.output = out;
+        vm_set_dispatch_profile(&vm, fused ? vm_dispatch_profile_all() : vm_dispatch_profile_none());
+        ASSERT(vm_rebuild_module(&vm, mod), "I rebuild the selected fusion profile");
+        uint32_t index = vm.dispatch_module.functions[0].offset_to_index[load] - 1;
+        ASSERT_EQ_INT(vm.dispatch_module.functions[0].instructions[index].super_op,
+                      fused ? VM_SUPER_LOAD_LOCAL_FIELD : VM_SUPER_NONE,
+                      "I exercise the actual requested dispatch profile");
+        ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_OUT_OF_BOUNDS, "I preserve field bounds failure");
+        fclose(out);
+        ASSERT(strstr(buf, "fused.nano:302:2") != NULL, "I report the field phase");
+        ASSERT(strstr(buf, "fused.nano:301") == NULL, "I do not report the preceding local load");
+        ASSERT(strstr(buf, "fused.nano:303") == NULL, "I do not report the continuation");
         vm_destroy(&vm);
         nvm_module_free(mod);
     }
@@ -5873,6 +6089,9 @@ int main(void) {
     RUN_TEST(test_heap_destroy_collects_cycles);
     RUN_TEST(test_array_remove_releases_the_element);
     RUN_TEST(test_closure_call_releases_the_callable);
+    RUN_TEST(test_destroy_releases_trapped_callable);
+    RUN_TEST(test_binding_frame_cleanup);
+    RUN_TEST(test_binding_effect_cleanup);
     RUN_TEST(test_direct_function_reference);
 
     printf("\n[I/O]\n");
@@ -5901,6 +6120,8 @@ int main(void) {
     printf("\n[Stack Trace / Debug Mode]\n");
     RUN_TEST(test_stack_trace_debug_mode);
     RUN_TEST(test_assertion_stack_context);
+    RUN_TEST(test_stack_trace_executing_offsets);
+    RUN_TEST(test_stack_trace_fused_field_location);
     RUN_TEST(test_stack_trace_col);
     RUN_TEST(test_stack_trace_multi_frame);
 

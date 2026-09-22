@@ -1,0 +1,151 @@
+In file included from tests/nanoisa/test_capture_bindings.c:34:
+tests/nanoisa/../../src/nanoisa/capture_bindings.c: In function ‘nvm_capture_bindings_verify_code’:
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:228:13: error: unknown type name ‘DecodedInstruction’
+  228 |             DecodedInstruction instruction;
+      |             ^~~~~~~~~~~~~~~~~~
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:229:30: error: implicit declaration of function ‘isa_decode’ [-Werror=implicit-function-declaration]
+  229 |             uint32_t width = isa_decode(module->code + function->code_offset + position,
+      |                              ^~~~~~~~~~
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:232:32: error: request for member ‘opcode’ in something not a structure or union
+  232 |             switch (instruction.opcode) {
+      |                                ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:233:18: error: ‘OP_CLOSURE_NEW’ undeclared (first use in this function)
+  233 |             case OP_CLOSURE_NEW:
+      |                  ^~~~~~~~~~~~~~
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:233:18: note: each undeclared identifier is reported only once for each function it appears in
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:235:18: error: ‘OP_BIND_INIT_LOCAL’ undeclared (first use in this function)
+  235 |             case OP_BIND_INIT_LOCAL: case OP_BIND_CLEAR_LOCAL:
+      |                  ^~~~~~~~~~~~~~~~~~
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:235:43: error: ‘OP_BIND_CLEAR_LOCAL’ undeclared (first use in this function)
+  235 |             case OP_BIND_INIT_LOCAL: case OP_BIND_CLEAR_LOCAL:
+      |                                           ^~~~~~~~~~~~~~~~~~~
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:236:18: error: ‘OP_LOAD_LOCAL’ undeclared (first use in this function)
+  236 |             case OP_LOAD_LOCAL: case OP_STORE_LOCAL: {
+      |                  ^~~~~~~~~~~~~
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:236:38: error: ‘OP_STORE_LOCAL’ undeclared (first use in this function)
+  236 |             case OP_LOAD_LOCAL: case OP_STORE_LOCAL: {
+      |                                      ^~~~~~~~~~~~~~
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:237:44: error: request for member ‘operands’ in something not a structure or union
+  237 |                 uint16_t slot = instruction.operands[0].u16;
+      |                                            ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:239:33: error: request for member ‘opcode’ in something not a structure or union
+  239 |                     (instruction.opcode == OP_STORE_LOCAL &&
+      |                                 ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:244:18: error: ‘OP_LOAD_UPVALUE’ undeclared (first use in this function)
+  244 |             case OP_LOAD_UPVALUE: case OP_STORE_UPVALUE: {
+      |                  ^~~~~~~~~~~~~~~
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:244:40: error: ‘OP_STORE_UPVALUE’ undeclared (first use in this function); did you mean ‘NVM_CAPTURE_UPVALUE’?
+  244 |             case OP_LOAD_UPVALUE: case OP_STORE_UPVALUE: {
+      |                                        ^~~~~~~~~~~~~~~~
+      |                                        NVM_CAPTURE_UPVALUE
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:245:44: error: request for member ‘operands’ in something not a structure or union
+  245 |                 uint16_t slot = instruction.operands[1].u16;
+      |                                            ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:246:32: error: request for member ‘operands’ in something not a structure or union
+  246 |                 if (instruction.operands[0].u16 || slot >= binding->upvalue_count ||
+      |                                ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:247:33: error: request for member ‘opcode’ in something not a structure or union
+  247 |                     (instruction.opcode == OP_STORE_UPVALUE &&
+      |                                 ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:252:18: error: ‘OP_CLOSURE_BIND’ undeclared (first use in this function)
+  252 |             case OP_CLOSURE_BIND:
+      |                  ^~~~~~~~~~~~~~~
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:254:32: error: request for member ‘operands’ in something not a structure or union
+  254 |                     instruction.operands[0].u32 != next_site ||
+      |                                ^
+tests/nanoisa/test_capture_bindings.c: In function ‘code_tests’:
+tests/nanoisa/test_capture_bindings.c:166:9: error: ‘OP_CLOSURE_BIND’ undeclared (first use in this function)
+  166 |         OP_CLOSURE_BIND,0,0,0,0, OP_CLOSURE_BIND,1,0,0,0,
+      |         ^~~~~~~~~~~~~~~
+tests/nanoisa/test_capture_bindings.c:167:9: error: ‘OP_PUSH_VOID’ undeclared (first use in this function)
+  167 |         OP_PUSH_VOID, OP_BIND_INIT_LOCAL,1,0, OP_LOAD_LOCAL,1,0,
+      |         ^~~~~~~~~~~~
+tests/nanoisa/test_capture_bindings.c:167:23: error: ‘OP_BIND_INIT_LOCAL’ undeclared (first use in this function)
+  167 |         OP_PUSH_VOID, OP_BIND_INIT_LOCAL,1,0, OP_LOAD_LOCAL,1,0,
+      |                       ^~~~~~~~~~~~~~~~~~
+tests/nanoisa/test_capture_bindings.c:167:47: error: ‘OP_LOAD_LOCAL’ undeclared (first use in this function)
+  167 |         OP_PUSH_VOID, OP_BIND_INIT_LOCAL,1,0, OP_LOAD_LOCAL,1,0,
+      |                                               ^~~~~~~~~~~~~
+tests/nanoisa/test_capture_bindings.c:168:9: error: ‘OP_STORE_LOCAL’ undeclared (first use in this function)
+  168 |         OP_STORE_LOCAL,0,0, OP_BIND_CLEAR_LOCAL,1,0,
+      |         ^~~~~~~~~~~~~~
+tests/nanoisa/test_capture_bindings.c:168:29: error: ‘OP_BIND_CLEAR_LOCAL’ undeclared (first use in this function)
+  168 |         OP_STORE_LOCAL,0,0, OP_BIND_CLEAR_LOCAL,1,0,
+      |                             ^~~~~~~~~~~~~~~~~~~
+tests/nanoisa/test_capture_bindings.c:169:34: error: ‘OP_LOAD_UPVALUE’ undeclared (first use in this function)
+  169 |         OP_CLOSURE_BIND,2,0,0,0, OP_LOAD_UPVALUE,0,0,0,0,
+      |                                  ^~~~~~~~~~~~~~~
+tests/nanoisa/test_capture_bindings.c:170:9: error: ‘OP_STORE_UPVALUE’ undeclared (first use in this function); did you mean ‘NVM_CAPTURE_UPVALUE’?
+  170 |         OP_STORE_UPVALUE,0,0,0,0, OP_RET
+      |         ^~~~~~~~~~~~~~~~
+      |         NVM_CAPTURE_UPVALUE
+tests/nanoisa/test_capture_bindings.c:170:35: error: ‘OP_RET’ undeclared (first use in this function)
+  170 |         OP_STORE_UPVALUE,0,0,0,0, OP_RET
+      |                                   ^~~~~~
+tests/nanoisa/test_capture_bindings.c:187:13: error: ‘OP_PUSH_I64’ undeclared (first use in this function)
+  187 |         {0, OP_PUSH_I64}, /* site hidden inside another instruction */
+      |             ^~~~~~~~~~~
+tests/nanoisa/test_capture_bindings.c:188:13: error: ‘OP_NOP’ undeclared (first use in this function)
+  188 |         {0, OP_NOP}, /* descriptor no longer names a closure */
+      |             ^~~~~~
+tests/nanoisa/test_capture_bindings.c:189:13: error: ‘OP_CLOSURE_NEW’ undeclared (first use in this function)
+  189 |         {0, OP_CLOSURE_NEW}, /* legacy environment refused */
+      |             ^~~~~~~~~~~~~~
+tests/nanoisa/test_capture_bindings.c:221:9: error: unknown type name ‘DecodedInstruction’
+  221 |         DecodedInstruction in = {0}, out = {0};
+      |         ^~~~~~~~~~~~~~~~~~
+tests/nanoisa/test_capture_bindings.c:222:11: error: request for member ‘opcode’ in something not a structure or union
+  222 |         in.opcode = opcodes[i];
+      |           ^
+tests/nanoisa/test_capture_bindings.c:223:23: error: request for member ‘operands’ in something not a structure or union
+  223 |         if (i == 2) in.operands[0].u32 = UINT32_C(0x12345678);
+      |                       ^
+tests/nanoisa/test_capture_bindings.c:224:16: error: request for member ‘operands’ in something not a structure or union
+  224 |         else in.operands[0].u16 = UINT16_C(0x5678);
+      |                ^
+tests/nanoisa/test_capture_bindings.c:226:27: error: implicit declaration of function ‘isa_encode’ [-Werror=implicit-function-declaration]
+  226 |         uint32_t length = isa_encode(&in, bytes, sizeof(bytes));
+      |                           ^~~~~~~~~~
+tests/nanoisa/test_capture_bindings.c:229:47: error: comparison of integer expressions of different signedness: ‘int’ and ‘uint32_t’ {aka ‘unsigned int’} [-Werror=sign-compare]
+  229 |         CHECK(isa_decode(bytes, length, &out) == length && out.opcode == in.opcode);
+      |                                               ^~
+tests/nanoisa/test_capture_bindings.c:9:39: note: in definition of macro ‘CHECK’
+    9 | #define CHECK(x) do { ++checks; if (!(x)) { \
+      |                                       ^
+tests/nanoisa/test_capture_bindings.c:229:63: error: request for member ‘opcode’ in something not a structure or union
+  229 |         CHECK(isa_decode(bytes, length, &out) == length && out.opcode == in.opcode);
+      |                                                               ^
+tests/nanoisa/test_capture_bindings.c:9:39: note: in definition of macro ‘CHECK’
+    9 | #define CHECK(x) do { ++checks; if (!(x)) { \
+      |                                       ^
+tests/nanoisa/test_capture_bindings.c:229:76: error: request for member ‘opcode’ in something not a structure or union
+  229 |         CHECK(isa_decode(bytes, length, &out) == length && out.opcode == in.opcode);
+      |                                                                            ^
+tests/nanoisa/test_capture_bindings.c:9:39: note: in definition of macro ‘CHECK’
+    9 | #define CHECK(x) do { ++checks; if (!(x)) { \
+      |                                       ^
+tests/nanoisa/test_capture_bindings.c:230:27: error: request for member ‘operands’ in something not a structure or union
+  230 |         CHECK(i == 2 ? out.operands[0].u32 == in.operands[0].u32 : out.operands[0].u16 == in.operands[0].u16);
+      |                           ^
+tests/nanoisa/test_capture_bindings.c:9:39: note: in definition of macro ‘CHECK’
+    9 | #define CHECK(x) do { ++checks; if (!(x)) { \
+      |                                       ^
+tests/nanoisa/test_capture_bindings.c:230:49: error: request for member ‘operands’ in something not a structure or union
+  230 |         CHECK(i == 2 ? out.operands[0].u32 == in.operands[0].u32 : out.operands[0].u16 == in.operands[0].u16);
+      |                                                 ^
+tests/nanoisa/test_capture_bindings.c:9:39: note: in definition of macro ‘CHECK’
+    9 | #define CHECK(x) do { ++checks; if (!(x)) { \
+      |                                       ^
+tests/nanoisa/test_capture_bindings.c:230:71: error: request for member ‘operands’ in something not a structure or union
+  230 |         CHECK(i == 2 ? out.operands[0].u32 == in.operands[0].u32 : out.operands[0].u16 == in.operands[0].u16);
+      |                                                                       ^
+tests/nanoisa/test_capture_bindings.c:9:39: note: in definition of macro ‘CHECK’
+    9 | #define CHECK(x) do { ++checks; if (!(x)) { \
+      |                                       ^
+tests/nanoisa/test_capture_bindings.c:230:93: error: request for member ‘operands’ in something not a structure or union
+  230 |         CHECK(i == 2 ? out.operands[0].u32 == in.operands[0].u32 : out.operands[0].u16 == in.operands[0].u16);
+      |                                                                                             ^
+tests/nanoisa/test_capture_bindings.c:9:39: note: in definition of macro ‘CHECK’
+    9 | #define CHECK(x) do { ++checks; if (!(x)) { \
+      |                                       ^
+cc1: all warnings being treated as errors

@@ -20,6 +20,7 @@ SPEC.loader.exec_module(generator)
 # falls to the `default:` arm; the test below asserts that partition is exact,
 # so adding a verifier rule without listing it here is a deliberate failure.
 SPECIALIZED_VERIFIER_OPCODES = {
+    "OP_BIND_INIT_LOCAL", "OP_BIND_CLEAR_LOCAL", "OP_CLOSURE_BIND",
     "OP_BORROW_PATH_SHARED", "OP_BORROW_PATH_EXCLUSIVE", "OP_REBORROW_SHARED", "OP_REBORROW_EXCLUSIVE",
     "OP_REGION_BEGIN", "OP_REGION_END",
     "OP_BORROW_LOCAL_SHARED", "OP_BORROW_LOCAL_EXCLUSIVE", "OP_REF_GET", "OP_REF_SET",
@@ -138,6 +139,8 @@ class NanoisaSchemaTests(unittest.TestCase):
             "OP_FILE_SERVICE": 0x91, "OP_FILE_RESULT_BRANCH": 0x92,
             "OP_FILE_RESULT_TAKE": 0x93, "OP_FILE_DROP_LOCAL": 0x94,
             "OP_FILE_DROP_STACK": 0x95, "OP_FILE_END_BORROW": 0x96,
+            "OP_BIND_INIT_LOCAL": 0x97, "OP_BIND_CLEAR_LOCAL": 0x98,
+            "OP_CLOSURE_BIND": 0x99,
         }
         self.assertEqual({name: expected[name] for name in non_executing},
                          non_executing)

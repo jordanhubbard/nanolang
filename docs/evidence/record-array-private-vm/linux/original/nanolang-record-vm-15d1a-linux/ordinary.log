@@ -1,0 +1,74 @@
+I retain private VM artifacts at /tmp/nano-record-array-vm-jbm01rg5
+test_instrumented_private_vm (tests.test_record_array_vm.RecordArrayVm.test_instrumented_private_vm) ... I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I begin private_bounds_and_busy
+I begin affinity_and_retain_overflow
+I begin boxed_partial_copy_cleanup
+I begin recipe_and_dispatch_agreement
+I retired all 93 recipes and checked all 256 opcode decisions and independent maps.
+I begin allocation_prefixes
+I checked 86 preparation and 8 execution allocation positions in both modes with independent recovery.
+I passed 5948 private mixed VM checks; no public or generated consumer admission.
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I begin private_bounds_and_busy
+I begin affinity_and_retain_overflow
+I begin boxed_partial_copy_cleanup
+I begin recipe_and_dispatch_agreement
+I retired all 93 recipes and checked all 256 opcode decisions and independent maps.
+I begin allocation_prefixes
+I checked 86 preparation and 8 execution allocation positions in both modes with independent recovery.
+I passed 5948 private mixed VM checks; no public or generated consumer admission.
+ok
+test_linked_private_vm (tests.test_record_array_vm.RecordArrayVm.test_linked_private_vm) ... I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I passed 2375 private mixed VM checks; no public or generated consumer admission.
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I passed 2375 private mixed VM checks; no public or generated consumer admission.
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 20.868s
+
+OK

@@ -1,0 +1,10 @@
+{"pin": "88ae049f9eaa18b5d24ddce27265ef6b4f02f8e2", "source_files": 3724, "root": "/tmp/nanolang-record-vm-qualified-88ae0", "sdk": null}
+{"phase": "setup", "status": 2, "seconds": 5.718}
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-vm-88ae0-launch.py", line 19, in <module>
+    subprocess.run([sys.executable,'/tmp/nanolang-record-vm-88ae0-driver.py',str(root),'/tmp/nanolang-record-vm-88ae0-'+host],check=True,env=env)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14', '/tmp/nanolang-record-vm-88ae0-driver.py', '/tmp/nanolang-record-vm-qualified-88ae0', '/tmp/nanolang-record-vm-88ae0-linux']' returned non-zero exit status 2.

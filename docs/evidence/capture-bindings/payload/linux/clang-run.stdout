@@ -1,0 +1,1 @@
+I passed 714 capture payload checks; both allocation failures recover without live tables.

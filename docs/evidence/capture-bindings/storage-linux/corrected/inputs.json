@@ -1,0 +1,70 @@
+{
+  "source": "1482e18e30d4962dccb9189c739692974a91df7c",
+  "inputs": {
+    "run.py": {
+      "sha256": "f66130f37218081714aad770a51cac35cb380bbc25b417a18ab49a57d5489297",
+      "bytes": 3966,
+      "mode": 436
+    },
+    "src/binary64_format.h": {
+      "sha256": "96f65f47fa6c769dbba59013b86c9649ca5f4c6c15be6c6edd528c7d68347cdd",
+      "bytes": 1882,
+      "mode": 420
+    },
+    "src/nanoisa/generated_schema.h": {
+      "sha256": "604a8c09a0bd06d9db5aec7ed9b0dff9b127ad29c14adc48587cb500a8a39c8e",
+      "bytes": 27126,
+      "mode": 420
+    },
+    "src/nanoisa/isa.c": {
+      "sha256": "4d77cf7e8f951f388218432e596f9dd7279727438f612be53b9f7fadd5b6eb59",
+      "bytes": 9852,
+      "mode": 420
+    },
+    "src/nanoisa/isa.h": {
+      "sha256": "e540389ef8fb793498736eb717796122ceb396e5ff6894adabd0532173655fa5",
+      "bytes": 19096,
+      "mode": 420
+    },
+    "src/nanovm/binding_state.c": {
+      "sha256": "dd46dbd3903d3c3b95e1ef70c48b319b3cc2292b4f16df8153ffdeb637c0d6b8",
+      "bytes": 4556,
+      "mode": 436
+    },
+    "src/nanovm/binding_state.h": {
+      "sha256": "231b33ff29b3c360151f59d8d08eb37e453802d9fd898475d152f1f8a3c56371",
+      "bytes": 2073,
+      "mode": 436
+    },
+    "src/nanovm/heap.c": {
+      "sha256": "db93629a891ec4ba4ba5869920758fdfa9646c84fff6f265c342774f11d7e325",
+      "bytes": 35484,
+      "mode": 420
+    },
+    "src/nanovm/heap.h": {
+      "sha256": "2650ac4738974f7ff3b8b9aeabdfb615dddd1600f26061cee2a9e697bef4d640",
+      "bytes": 11075,
+      "mode": 420
+    },
+    "src/nanovm/heap_cycles.c": {
+      "sha256": "5fe9ba89e07a0907ac9d1ed6f403b13d227a0035af06337fb2db16b836ff710f",
+      "bytes": 17109,
+      "mode": 420
+    },
+    "src/nanovm/value.c": {
+      "sha256": "5d18b054b3e173162d5b5dff8e40aa5b6b032a5e110fd8c4f1dccfe2e6b94210",
+      "bytes": 8785,
+      "mode": 420
+    },
+    "src/nanovm/value.h": {
+      "sha256": "b71d9c1f12887db20324286d841ceabe8ea04d42fd453d3902a7371c38c147a1",
+      "bytes": 6073,
+      "mode": 420
+    },
+    "tests/nanovm/test_binding_state.c": {
+      "sha256": "fec255f2ecbfda271960fa6efc4430bbb19576b448a2644fb35c5b035b04dc13",
+      "bytes": 7935,
+      "mode": 436
+    }
+  }
+}

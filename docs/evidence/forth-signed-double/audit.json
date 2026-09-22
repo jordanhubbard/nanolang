@@ -1,0 +1,153 @@
+{
+  "status": "PASS",
+  "histories": {
+    "qualification": {
+      "inputs": 1094,
+      "source_unchanged": true,
+      "terminals": [
+        {
+          "configuration": "gcc",
+          "returncode": 2,
+          "timeout": false,
+          "group_gone": true,
+          "leader_reaped": true,
+          "seconds": 114.51774031098466
+        }
+      ]
+    },
+    "8bcc-linux": {
+      "inputs": 1094,
+      "source_unchanged": true,
+      "terminals": [
+        {
+          "configuration": "gcc",
+          "returncode": 2,
+          "timeout": false,
+          "group_gone": true,
+          "leader_reaped": true,
+          "seconds": 0.06394297198858112
+        }
+      ]
+    },
+    "8bcc-r2-linux": {
+      "inputs": 1096,
+      "source_unchanged": true,
+      "terminals": [
+        {
+          "configuration": "gcc",
+          "returncode": 2,
+          "timeout": false,
+          "group_gone": true,
+          "leader_reaped": true,
+          "seconds": 113.01547779294197
+        }
+      ]
+    },
+    "8bcc-darwin-backup": {
+      "inputs": 1096,
+      "source_unchanged": true,
+      "terminals": [
+        {
+          "configuration": "apple",
+          "returncode": 2,
+          "timeout": false,
+          "group_gone": true,
+          "leader_reaped": true,
+          "seconds": 9.034862540998802
+        }
+      ]
+    },
+    "full4ad3-linux": {
+      "inputs": 3732,
+      "source_unchanged": true,
+      "terminals": [
+        {
+          "configuration": "gcc",
+          "returncode": 0,
+          "timeout": false,
+          "group_gone": true,
+          "leader_reaped": true,
+          "seconds": 114.91942781896796
+        },
+        {
+          "configuration": "clang",
+          "returncode": 2,
+          "timeout": false,
+          "group_gone": true,
+          "leader_reaped": true,
+          "seconds": 48.84126116998959
+        }
+      ]
+    },
+    "full4ad3-darwin-backup": {
+      "inputs": 3732,
+      "source_unchanged": true,
+      "terminals": [
+        {
+          "configuration": "apple",
+          "returncode": 0,
+          "timeout": false,
+          "group_gone": true,
+          "leader_reaped": true,
+          "seconds": 53.66743104200032
+        },
+        {
+          "configuration": "brew-ubsan",
+          "returncode": 2,
+          "timeout": false,
+          "group_gone": true,
+          "leader_reaped": true,
+          "seconds": 41.12445283300076
+        }
+      ]
+    },
+    "full2d0d-linux": {
+      "inputs": 3732,
+      "source_unchanged": true,
+      "terminals": [
+        {
+          "configuration": "gcc",
+          "returncode": 0,
+          "timeout": false,
+          "group_gone": true,
+          "leader_reaped": true,
+          "seconds": 114.16180270700715
+        },
+        {
+          "configuration": "clang",
+          "returncode": 0,
+          "timeout": false,
+          "group_gone": true,
+          "leader_reaped": true,
+          "seconds": 79.76433347293641
+        }
+      ]
+    },
+    "full2d0d-darwin-backup": {
+      "inputs": 3732,
+      "source_unchanged": true,
+      "terminals": [
+        {
+          "configuration": "apple",
+          "returncode": 0,
+          "timeout": false,
+          "group_gone": true,
+          "leader_reaped": true,
+          "seconds": 53.00892399999975
+        },
+        {
+          "configuration": "brew-ubsan",
+          "returncode": 0,
+          "timeout": false,
+          "group_gone": true,
+          "leader_reaped": true,
+          "seconds": 69.46420995799963
+        }
+      ]
+    }
+  },
+  "limits": [
+    "Historical Linux tool inventory has no after map; final corrected Linux before/after tool maps are present.",
+    "The full arithmetic overflow policy remains open; accepted original session and Double tests are the measured scope."
+  ]
+}

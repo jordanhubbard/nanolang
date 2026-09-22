@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "eval_u8.h"
 #include "builtins_registry.h"
 #include "runtime/gc.h"
 #include <string.h>
@@ -17,6 +18,9 @@ static void nominal_import_free(struct EnvNominalImport *row) {
     free(row);
 }
 #include <limits.h>
+
+static Function builtin_function_cache[256];
+static bool builtin_function_initialized[256];
 
 typedef struct {
     uint64_t hash;
@@ -593,6 +597,7 @@ static bool env_prepare_binding_string(Environment *env, Type type, Value value,
 }
 
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
+    value = eval_checked_scalar_destination(type, value);
     /* Borrowed parameters retain their caller's identity and do not own its storage. */
     Value prepared;
     if (!env_prepare_binding_string(env, type, value, &prepared)) {
@@ -760,6 +765,7 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 void env_set_var(Environment *env, const char *name, Value value) {
     Symbol *sym = env_get_var(env, name);
     if (sym) {
+        value = eval_checked_scalar_destination(sym->type, value);
         /* I copy before releasing the old binding, including self-assignment
          * and a record field borrowed from that binding. */
         if (value.type == VAL_STRUCT || value.type == VAL_TUPLE || value.type == VAL_STRING) {
@@ -1026,6 +1032,17 @@ bool env_native_array_is_builtin(Environment *env, const char *name, int line, i
 }
 bool env_array_push_is_builtin(Environment *env, int line, int column) {
     return env_native_array_is_builtin(env, "array_push", line, column);
+}
+
+/* I compare the resolved function with the registry entry, not its spelling. */
+bool env_function_is_named_builtin(const Function *function, const char *name) {
+    if (!env_function_is_builtin(function) || !name) return false;
+    for (int i = 0; i < builtin_registry_count && (size_t)i < sizeof builtin_function_cache / sizeof *builtin_function_cache; ++i) {
+        if ((builtin_registry[i].flags & BUILTIN_LANG) &&
+            strcmp(builtin_registry[i].name, name) == 0)
+            return function == &builtin_function_cache[i];
+    }
+    return false;
 }
 
 /* Value creation functions */

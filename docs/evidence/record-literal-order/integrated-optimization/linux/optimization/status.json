@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "/tmp/nanolang-literal-optimization-4cbbdd508/run.py",
+    "--child"
+  ],
+  "cwd": "/tmp/nanolang-literal-order-75051f193/source",
+  "timeout_seconds": 600,
+  "free_before": 2968121344,
+  "python": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+  "PATH": "/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin",
+  "pid": 4189766,
+  "returncode": 0,
+  "seconds": 95.01657435193192,
+  "free_after": 2670813184
+}

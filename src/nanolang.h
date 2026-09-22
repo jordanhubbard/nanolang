@@ -290,6 +290,7 @@ struct ASTNode {
             Type map_key_type; /* Checked scalar constructor context. */
             Type map_value_type;
             bool map_context_checked;
+            bool checked_u8_array_mutation; /* Checked builtin destination; values remain VAL_INT. */
             FunctionSignature *checked_signature; /* Owned indirect-call context after lexical checking. */
             char *concrete_func_name;  /* For generic function calls: monomorphized name (e.g., "identity_int") */
         } call;
@@ -1017,6 +1018,8 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);
+const char *checked_array_record_name(ASTNode *array, Environment *env);
+bool env_function_is_named_builtin(const Function *function, const char *name);
 bool env_array_push_is_builtin(Environment *env, int line, int column);
 bool env_function_is_builtin(const Function *function);
 bool env_native_array_operation(const char *name);

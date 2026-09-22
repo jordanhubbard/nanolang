@@ -2895,6 +2895,33 @@ shadow genenv_c_name {
     assert (== (genenv_c_name (genenv_put env "_" "int" false) "_") "nl__")
 }
 
+# I keep literal temporaries outside every visible source C binding.
+fn literal_c_temporary(parser: Parser, env: GenEnv, kind: string) -> string {
+    let mut index: int = 0
+    let mut candidate: string = ""
+    let mut collision: bool = true
+    while collision {
+        set candidate (+ "__nano_" (+ kind (+ "_" (int_to_string index))))
+        set collision (has_function_named parser candidate)
+        let mut i: int = 0
+        while (< i (array_length env.names)) {
+            if (== candidate (genenv_c_name env (at env.names i))) { set collision true }
+            set i (+ i 1)
+        }
+        set index (+ index 1)
+    }
+    return candidate
+}
+shadow literal_c_temporary {
+    let tokens: List<LexerToken> = (tokenize_string "fn __nano_record_literal_0() -> int { return 0 }" "temporary.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "temporary.nano")
+    let env: GenEnv = (genenv_new "main")
+    assert (== (literal_c_temporary parser env "record_literal") "__nano_record_literal_1")
+    let scoped: GenEnv = (genenv_with_underscore (genenv_put env "_" "int" false) "__nano_record_literal_1")
+    assert (== (literal_c_temporary parser scoped "record_literal") "__nano_record_literal_2")
+    assert (== (literal_c_temporary parser env "union_literal") "__nano_union_literal_0")
+}
+
 fn genenv_get(env: GenEnv, name: string) -> string {
     let mut i: int = (- (array_length env.names) 1)
     while (>= i 0) {
@@ -3131,6 +3158,7 @@ shadow array_elem_type_from_array_type {
 }
 
 fn elem_enum_from_elem_type(elem_type: string) -> string {
+    if (== elem_type "u8") { return "ELEM_U8" }
     if (== elem_type "float") { return "ELEM_FLOAT" }
     else { if (== elem_type "string") { return "ELEM_STRING" }
     else { if (== elem_type "bool") { return "ELEM_BOOL" }
@@ -3140,6 +3168,7 @@ fn elem_enum_from_elem_type(elem_type: string) -> string {
 }
 
 shadow elem_enum_from_elem_type {
+    assert (== (elem_enum_from_elem_type "u8") "ELEM_U8")
     assert (== (elem_enum_from_elem_type "array<array<int>>") "ELEM_ARRAY")
     assert (== (elem_enum_from_elem_type "float") "ELEM_FLOAT")
     assert (== (elem_enum_from_elem_type "string") "ELEM_STRING")
@@ -3150,6 +3179,7 @@ shadow elem_enum_from_elem_type {
 }
 
 fn get_fn_from_elem_type(elem_type: string) -> string {
+    if (== elem_type "u8") { return "dyn_array_get_u8" }
     if (== elem_type "float") { return "dyn_array_get_float" }
     else { if (== elem_type "string") { return "dyn_array_get_string" }
     else { if (== elem_type "bool") { return "dyn_array_get_bool" }
@@ -3159,6 +3189,7 @@ fn get_fn_from_elem_type(elem_type: string) -> string {
 }
 
 shadow get_fn_from_elem_type {
+    assert (== (get_fn_from_elem_type "u8") "dyn_array_get_u8")
     assert (== (get_fn_from_elem_type "float") "dyn_array_get_float")
     assert (== (get_fn_from_elem_type "string") "dyn_array_get_string")
     assert (== (get_fn_from_elem_type "int") "dyn_array_get_int")
@@ -3167,6 +3198,7 @@ shadow get_fn_from_elem_type {
 }
 
 fn push_fn_from_elem_type(elem_type: string) -> string {
+    if (== elem_type "u8") { return "dyn_array_push_u8" }
     if (== elem_type "float") { return "dyn_array_push_float" }
     else { if (== elem_type "string") { return "dyn_array_push_string" }
     else { if (== elem_type "bool") { return "dyn_array_push_bool" }
@@ -3196,6 +3228,7 @@ shadow is_array_of_struct {
 }
 
 shadow push_fn_from_elem_type {
+    assert (== (push_fn_from_elem_type "u8") "dyn_array_push_u8")
     assert (== (push_fn_from_elem_type "array<float>") "dyn_array_push_array")
     assert (== (push_fn_from_elem_type "float") "dyn_array_push_float")
     assert (== (push_fn_from_elem_type "bool") "dyn_array_push_bool")
@@ -3204,6 +3237,7 @@ shadow push_fn_from_elem_type {
 }
 
 fn set_fn_from_elem_type(elem_type: string) -> string {
+    if (== elem_type "u8") { return "dyn_array_set_u8" }
     if (== elem_type "float") { return "dyn_array_set_float" }
     else { if (== elem_type "string") { return "dyn_array_set_string" }
     else { if (== elem_type "bool") { return "dyn_array_set_bool" }
@@ -3213,6 +3247,7 @@ fn set_fn_from_elem_type(elem_type: string) -> string {
 }
 
 shadow set_fn_from_elem_type {
+    assert (== (set_fn_from_elem_type "u8") "dyn_array_set_u8")
     assert (== (set_fn_from_elem_type "array<int>") "dyn_array_set_array")
     assert (== (set_fn_from_elem_type "string") "dyn_array_set_string")
     assert (== (set_fn_from_elem_type "array") "dyn_array_set_array")
@@ -4923,6 +4958,17 @@ shadow gen_c_program_with_modules {
     assert (str_contains code "nl_main")
     assert native_list_keys_ready
     assert (== (array_length native_list_keys) 0)
+    (reset_fn_types)
+    let callback_source: string = "fn increment(x: int) -> int { return (+ x 1) } let callback: fn(int) -> int = increment"
+    let callback_tokens: List<LexerToken> = (tokenize_string callback_source "t.nano" (list_CompilerDiagnostic_new))
+    let callback_parser: Parser = (parse_program callback_tokens (list_LexerToken_length callback_tokens) "t.nano")
+    let callback_code: string = (gen_c_program_with_modules callback_parser "")
+    let typedef_at: int = (transp_str_index_of callback_code "typedef int64_t (*nl_FnPtr_0)(int64_t);")
+    let global_at: int = (transp_str_index_of callback_code "nl_FnPtr_0 nl_callback;")
+    assert (>= typedef_at 0)
+    assert (> global_at typedef_at)
+    assert (str_contains callback_code "nl_callback = nl_increment;")
+    (reset_fn_types)
 }
 
 shadow gen_c_program {
@@ -7871,7 +7917,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             return (cg_build arr_parts)
                         } else {
                             if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
-                                /* Struct literal -> compound literal */
+                                # I sequence written fields into a private typed temporary.
                                 let sl: ASTStructLiteral = (parser_get_struct_literal parser node_id)
                                 
                                 let mut c_type_parts: array<string> = []
@@ -7879,36 +7925,29 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 set c_type_parts (cg_append c_type_parts (mangle_name sl.struct_name))
                                 let c_type: string = (cg_build c_type_parts)
                                 
+                                let temporary: string = (literal_c_temporary parser env "record_literal")
                                 let mut struct_parts: array<string> = []
-                                set struct_parts (cg_append struct_parts "((")
-                                set struct_parts (cg_append struct_parts c_type)
-                                set struct_parts (cg_append struct_parts "){ ")
-
+                                let empty_initializer: string = (cond ((== sl.field_count 0) " = {}; ") (else " = {0}; "))
+                                set struct_parts (cg_append struct_parts (+ "({ " (+ c_type (+ " " (+ temporary empty_initializer)))))
                                 let mut i: int = 0
                                 while (< i sl.field_count) {
-                                    if (> i 0) {
-                                        set struct_parts (cg_append struct_parts ", ")
-                                    } else { (print "") }
-
                                     let fname: string = (at sl.field_names i)
                                     let vid: int = (at sl.field_value_ids i)
                                     let vty: int = (at sl.field_value_types i)
                                     let field_expected: string = (lookup_struct_field_type parser sl.struct_name fname)
                                     let vcode: string = (generate_expression parser vid vty env field_expected)
-
-                                    set struct_parts (cg_append struct_parts ".")
+                                    set struct_parts (cg_append struct_parts (+ temporary "."))
                                     set struct_parts (cg_append struct_parts (mangle_name fname))
                                     set struct_parts (cg_append struct_parts " = ")
                                     set struct_parts (cg_append struct_parts vcode)
-
+                                    set struct_parts (cg_append struct_parts "; ")
                                     set i (+ i 1)
                                 }
-
-                                set struct_parts (cg_append struct_parts " })")
+                                set struct_parts (cg_append struct_parts (+ temporary "; })"))
                                 return (cg_build struct_parts)
                             } else {
                                 if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
-                                    /* Union construction -> compound literal */
+                                    # I set the tag and sequence written payload expressions.
                                     let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
 
                                     # I lower the checked complete annotation, not raw generic punctuation.
@@ -7921,41 +7960,25 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                     let union_c: string = (type_to_c actual_union_name)
                                     let tag_name: string = (+ union_c (+ "_TAG_" uc.variant_name))
 
+                                    let temporary: string = (literal_c_temporary parser env "union_literal")
                                     let mut union_construct_parts: array<string> = []
-                                    set union_construct_parts (cg_append union_construct_parts "((")
-                                    set union_construct_parts (cg_append union_construct_parts union_c)
-                                    set union_construct_parts (cg_append union_construct_parts "){ .tag = ")
-                                    set union_construct_parts (cg_append union_construct_parts tag_name)
-                                    set union_construct_parts (cg_append union_construct_parts ", .data.")
-                                    set union_construct_parts (cg_append union_construct_parts uc.variant_name)
-                                    set union_construct_parts (cg_append union_construct_parts " = ")
-
-                                    if (== uc.field_count 0) {
-                                        set union_construct_parts (cg_append union_construct_parts "{0}")
-                                    } else {
-                                        set union_construct_parts (cg_append union_construct_parts "{")
-                                        let mut i: int = 0
-                                        while (< i uc.field_count) {
-                                            if (> i 0) {
-                                                set union_construct_parts (cg_append union_construct_parts ", ")
-                                            } else { (print "") }
-
-                                            let fname: string = (at uc.field_names i)
-                                            let vid: int = (at uc.field_value_ids i)
-                                            let vty: int = (at uc.field_value_types i)
-                                            let field_expected: string = (lookup_union_payload_type parser actual_union_name uc.variant_name fname actual_union_name)
-                                            let vcode: string = (generate_expression parser vid vty env field_expected)
-
-                                            set union_construct_parts (cg_append union_construct_parts ".")
-                                            set union_construct_parts (cg_append union_construct_parts (mangle_name fname))
-                                            set union_construct_parts (cg_append union_construct_parts " = ")
-                                            set union_construct_parts (cg_append union_construct_parts vcode)
-                                            set i (+ i 1)
-                                        }
-                                        set union_construct_parts (cg_append union_construct_parts "}")
+                                    set union_construct_parts (cg_append union_construct_parts (+ "({ " (+ union_c (+ " " (+ temporary " = {0}; ")))))
+                                    set union_construct_parts (cg_append union_construct_parts (+ temporary (+ ".tag = " (+ tag_name "; "))))
+                                    let mut i: int = 0
+                                    while (< i uc.field_count) {
+                                        let fname: string = (at uc.field_names i)
+                                        let vid: int = (at uc.field_value_ids i)
+                                        let vty: int = (at uc.field_value_types i)
+                                        let field_expected: string = (lookup_union_payload_type parser actual_union_name uc.variant_name fname actual_union_name)
+                                        let vcode: string = (generate_expression parser vid vty env field_expected)
+                                        set union_construct_parts (cg_append union_construct_parts (+ temporary (+ ".data." (+ uc.variant_name "."))))
+                                        set union_construct_parts (cg_append union_construct_parts (mangle_name fname))
+                                        set union_construct_parts (cg_append union_construct_parts " = ")
+                                        set union_construct_parts (cg_append union_construct_parts vcode)
+                                        set union_construct_parts (cg_append union_construct_parts "; ")
+                                        set i (+ i 1)
                                     }
-
-                                    set union_construct_parts (cg_append union_construct_parts " })")
+                                    set union_construct_parts (cg_append union_construct_parts (+ temporary "; })"))
                                     return (cg_build union_construct_parts)
                                 } else {
                                     if (== node_type ParseNodeType.PNODE_MATCH) {
@@ -7975,16 +7998,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                             let elem_expected: array<string> = (tuple_split_types tuple_t)
 
                                             let mut tuple_parts: array<string> = []
-                                            set tuple_parts (cg_append tuple_parts "((")
-                                            set tuple_parts (cg_append tuple_parts tuple_name)
-                                            set tuple_parts (cg_append tuple_parts "){ ")
+                                            let temporary: string = (literal_c_temporary parser env "tuple_literal")
+                                            set tuple_parts (cg_append tuple_parts (+ "({ " (+ tuple_name (+ " " (+ temporary " = {0}; ")))))
 
                                             let mut i: int = 0
                                             while (< i tl.element_count) {
-                                                if (> i 0) {
-                                                    set tuple_parts (cg_append tuple_parts ", ")
-                                                } else { (print "") }
-
                                                 let vid: int = (at tl.element_ids i)
                                                 let vty: int = (at tl.element_types i)
                                                 let mut exp_i: string = ""
@@ -7993,14 +8011,15 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                                 } else { (print "") }
 
                                                 let vcode: string = (generate_expression parser vid vty env exp_i)
-                                                set tuple_parts (cg_append tuple_parts "._")
+                                                set tuple_parts (cg_append tuple_parts (+ temporary "._"))
                                                 set tuple_parts (cg_append tuple_parts (int_to_string i))
                                                 set tuple_parts (cg_append tuple_parts " = ")
                                                 set tuple_parts (cg_append tuple_parts vcode)
+                                                set tuple_parts (cg_append tuple_parts "; ")
                                                 set i (+ i 1)
                                             }
 
-                                            set tuple_parts (cg_append tuple_parts " })")
+                                            set tuple_parts (cg_append tuple_parts (+ temporary "; })"))
                                             return (cg_build tuple_parts)
                                         } else {
                                             if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) {
@@ -9826,7 +9845,8 @@ shadow generate_global_constants {
     let unions: Parser = (parse_program union_tokens (list_LexerToken_length union_tokens) "t.nano")
     let globals: string = (generate_global_constants unions)
     assert (str_contains globals "nl_Box_int nl_box;")
-    assert (str_contains globals "nl_box = ((nl_Box_int)")
+    assert (str_contains globals "nl_box = ({ nl_Box_int __nano_union_literal_0 = {0};")
+    assert (str_contains globals "__nano_union_literal_0.data.Value.value = 7;")
     assert (str_contains globals "nl_Box_int_TAG_Value")
     let saved_required: bool = native_array_derived_required
     let saved_tuples: array<string> = native_tuple_annotations

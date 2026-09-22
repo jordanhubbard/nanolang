@@ -324,15 +324,55 @@ static bool graph_allocation_instruction(uint8_t opcode) {
     default: return false;
     }
 }
-static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth, bool managed, bool mutable_arrays, bool graph_arrays, bool records) {
+/* Each body returns before I select its successor. Only ordinary calls nest
+ * trampoline invocations; scalar/static-string values own no heap roots. */
+static void scalar_trampoline(FILE *out, const NvmModule *m) {
+    fputs("define internal %V @scalar_dispatch(i32 %first, ptr %arguments) {\n"
+          "entry:\n br label %select\nselect:\n"
+          " %target = phi i32 [ %first, %entry ], [ %next, %again ]\n"
+          " switch i32 %target, label %invalid [\n", out);
+    for (uint32_t i = 0; i < m->function_count; ++i)
+        fprintf(out, " i32 %u, label %%invoke%u\n", i, i);
+    fputs(" ]\n", out);
+    for (uint32_t i = 0; i < m->function_count; ++i) {
+        fprintf(out, "invoke%u:\n", i);
+        for (uint16_t a = 0; a < m->functions[i].arity; ++a) {
+            fprintf(out, " %%f%u_p%u = getelementptr %%V, ptr %%arguments, i64 %u\n", i, a, a);
+            fprintf(out, " %%f%u_a%u = load %%V, ptr %%f%u_p%u\n", i, a, i, a);
+        }
+        fprintf(out, " %%r%u = call %%T @f%u(", i, i);
+        for (uint16_t a = 0; a < m->functions[i].arity; ++a)
+            fprintf(out, "%%V %%f%u_a%u, ", i, a);
+        fputs("ptr %arguments)\n br label %returned\n", out);
+    }
+    fputs("returned:\n %response = phi %T ", out);
+    for (uint32_t i = 0; i < m->function_count; ++i)
+        fprintf(out, "%s[ %%r%u, %%invoke%u ]", i ? ", " : "", i, i);
+    fputs("\n %next = extractvalue %T %response, 1\n"
+          " %complete = icmp eq i32 %next, -1\n"
+          " br i1 %complete, label %done, label %again\n"
+          "again:\n br label %select\ndone:\n"
+          " %value = extractvalue %T %response, 0\n ret %V %value\n"
+          "invalid:\n call void @llvm.trap()\n unreachable\n}\n", out);
+}
+
+static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth, bool managed, bool mutable_arrays, bool graph_arrays, bool records, bool tail_frames, uint32_t argument_count) {
     FrameOutput frame = {.out = out, .managed = managed};
     const NvmFunctionEntry *f = &m->functions[index];
-    fprintf(out, "define internal %s @f%u(", managed ? "%R" : f->result_count ? "%V" : "void", index);
+    fprintf(out, "define internal %s @f%u(", managed ? "%R" : tail_frames ? "%T" : f->result_count ? "%V" : "void", index);
     for (uint16_t i = 0; i < f->arity; ++i) fprintf(out, "%s%%V %%arg%u", i ? ", " : "", i);
+    if (tail_frames) fprintf(out, "%sptr %%transfer", f->arity ? ", " : "");
     fprintf(out, ") {\nentry:\n %%stack = alloca [%u x %%V]\n %%sp = alloca i64\n"
         " store i64 0, ptr %%sp\n %%locals = alloca [%u x %%V]\n"
         " store [%u x %%V] zeroinitializer, ptr %%locals\n", depth ? depth : 1,
         f->local_count ? f->local_count : 1, f->local_count ? f->local_count : 1);
+    if (tail_frames) {
+        fprintf(out, " %%outgoing = alloca [%u x %%V]\n", argument_count);
+        for (uint16_t i = 0; i < f->arity; ++i)
+            if (m->function_param_types && m->function_param_types[index] &&
+                m->function_param_types[index][i] != TAG_VOID)
+                fprintf(out, " call i64 @integer(%%V %%arg%u, i8 %u)\n", i, m->function_param_types[index][i]);
+    }
     if (managed && (mutable_arrays || records))
         fprintf(out, " %%literal_bits = alloca [%u x i64]\n %%literal_tags = alloca [%u x i32]\n",
                 depth ? depth : 1, depth ? depth : 1);
@@ -445,10 +485,26 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             }
             terminates = 1; break;
         }
-        case OP_CALL: {
+        case OP_CALL: case OP_TAIL_CALL: {
             uint32_t callee = ins.operands[0].u32;
             for (uint16_t i = m->functions[callee].arity; i > 0; --i)
                 fprintf(out, " %%p%u_arg%u = call %%V @pop(ptr %%stack, ptr %%sp)\n", pc, i - 1);
+            if (tail_frames) {
+                bool tail = ins.opcode == OP_TAIL_CALL;
+                for (uint16_t i = 0; i < m->functions[callee].arity; ++i) {
+                    fprintf(out, " %%p%u_slot%u = getelementptr %%V, ptr %%%s, i64 %u\n",
+                            pc, i, tail ? "transfer" : "outgoing", i);
+                    fprintf(out, " store %%V %%p%u_arg%u, ptr %%p%u_slot%u\n", pc, i, pc, i);
+                }
+                if (tail) {
+                    fprintf(out, " ret %%T { %%V zeroinitializer, i32 %u }\n", callee);
+                    terminates = 1;
+                } else {
+                    fprintf(out, " %%p%u_a = call %%V @scalar_dispatch(i32 %u, ptr %%outgoing)\n", pc, callee);
+                    if (m->functions[callee].result_count) push(&frame, pc, "a");
+                }
+                break;
+            }
             if (managed) fprintf(out, " %%p%u_call = call %%R @f%u(", pc, callee);
             else if (m->functions[callee].result_count)
                 fprintf(out, " %%p%u_a = call %%V @f%u(", pc, callee);
@@ -739,9 +795,13 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
     fprintf(out, "b%u:\n br label %%return_result\nreturn_result:\n"
         " %%result_count = load i64, ptr %%sp\n %%result_shape = icmp eq i64 %%result_count, %u\n"
         " call void @check(i1 %%result_shape)\n", f->code_length, f->result_count);
-    if (f->result_count)
+    if (f->result_count) {
         fprintf(out, " %%returned = call %%V @pop(ptr %%stack, ptr %%sp)\n"
-            " call i64 @integer(%%V %%returned, i8 %u)\n ret %%V %%returned\n}\n", f->result_tag);
+            " call i64 @integer(%%V %%returned, i8 %u)\n", f->result_tag);
+        if (tail_frames)
+            fputs(" %finished = insertvalue %T { %V zeroinitializer, i32 -1 }, %V %returned, 0\n ret %T %finished\n}\n", out);
+        else fputs(" ret %V %returned\n}\n", out);
+    } else if (tail_frames) fputs(" ret %T { %V zeroinitializer, i32 -1 }\n}\n", out);
     else fputs(" ret void\n}\n", out);
 }
 int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size, const char *entry, NvmLlvmTarget target) {
@@ -756,6 +816,8 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
     if (!strcmp(entry, "nano_try_entry") || !strcmp(entry, "nano_dispose") || !strncmp(entry, "nano_runtime_", 13))
         return refuse(error, size, "I reserve managed runtime entry names");
     if (!m || !out) return refuse(error, size, "I require a module and output stream");
+    if (nvm_capture_bindings_present(m))
+        return refuse(error, size, "I require capture binding translation admission");
     if (nvm_service_execution_pending(m))
         return refuse(error, size, "I require reviewed service lifetime and dispatch admission before translation");
     NvmVerifyResult verified = nvm_verify_profile(m, NVM_PROFILE_CLOSED_LITERAL_STRINGS);
@@ -765,16 +827,20 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
     /* I size storage from every verified literal global operand, matching
      * VM module allocation. Verification bounds index+1 by NVM_MAX_GLOBALS. */
     bool mutable_arrays = false;
+    bool tail_frames = false;
+    uint32_t argument_count = 1;
     uint32_t global_count = 0;
     uint32_t initializer = m->function_count;
     for (uint32_t i = 0; i < m->function_count; ++i) {
         const NvmFunctionEntry *f = &m->functions[i];
+        if (f->arity > argument_count) argument_count = f->arity;
         const char *name = nvm_get_string(m, f->name_idx);
         if (initializer == m->function_count && name && !strcmp(name, "__init__"))
             initializer = i;
         for (uint32_t pc = 0; pc < f->code_length;) {
             DecodedInstruction ins = {0};
             uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
+            tail_frames |= ins.opcode == OP_TAIL_CALL;
             mutable_arrays |= ins.opcode == OP_ARR_NEW || ins.opcode == OP_ARR_PUSH ||
                               ins.opcode == OP_ARR_SET || ins.opcode == OP_ARR_POP ||
                               ins.opcode == OP_ARR_LITERAL || ins.opcode == OP_ARR_SLICE;
@@ -785,6 +851,10 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
             pc += width;
         }
     }
+    /* My supported targets use at most sixteen bytes per tagged value. */
+    if (tail_frames && (managed || m->function_count >= UINT32_MAX ||
+                        argument_count > UINT32_MAX / 16u))
+        return refuse(error, size, "I cannot represent this scalar tail-frame contract");
     NvmManagedHeapPlan *heap = NULL;
     int graph_arrays = 0;
     if (managed && (mutable_arrays || m->struct_count || m->layout_size || m->ownership_size)) {
@@ -797,6 +867,7 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
     if (managed) fputs(target == NVM_LLVM_WASM32 ? nms_runtime_ir_wasm32 : nms_runtime_ir_native, out);
     else fputs(target == NVM_LLVM_WASM32 ? nms_runtime_target_wasm32 : nms_runtime_target_native, out);
     runtime(out, managed);
+    if (tail_frames) fputs("%T = type { %V, i32 }\n", out);
     if (global_count)
         fprintf(out, "@globals = internal global [%u x %%V] zeroinitializer\n", global_count);
     float_runtime(out);
@@ -808,7 +879,7 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
         uint16_t depth = 0;
         verified = nvm_verify_function_max_stack(m, i, &depth);
         if (!verified.ok) { nvm_managed_heap_plan_free(heap); return refuse(error, size, "I cannot establish scalar stack depth"); }
-        function(out, m, i, depth, managed, mutable_arrays, graph_arrays != 0, records != NULL);
+        function(out, m, i, depth, managed, mutable_arrays, graph_arrays != 0, records != NULL, tail_frames, argument_count);
     }
     if (managed) {
         managed_entry(out, m, entry, initializer, global_count, graph_arrays != 0, records);
@@ -816,7 +887,18 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
         if (ferror(out)) return refuse(error, size, "I could not write managed LLVM IR");
         return 1;
     }
+    if (tail_frames) scalar_trampoline(out, m);
     fprintf(out, "define i32 @%s() {\n", entry);
+    if (tail_frames) {
+        fprintf(out, " %%arguments = alloca [%u x %%V]\n", argument_count);
+        if (initializer < m->function_count)
+            fprintf(out, " %%initialized = call %%V @scalar_dispatch(i32 %u, ptr %%arguments)\n", initializer);
+        fprintf(out, " %%value = call %%V @scalar_dispatch(i32 %u, ptr %%arguments)\n"
+                " %%n = extractvalue %%V %%value, 0\n %%status = trunc i64 %%n to i32\n ret i32 %%status\n}\n",
+                m->header.entry_point);
+        if (ferror(out)) return refuse(error, size, "I could not write scalar tail-frame IR");
+        return 1;
+    }
     if (initializer < m->function_count) {
         if (m->functions[initializer].result_count)
             fprintf(out, " %%initialized = call %%V @f%u()\n", initializer);

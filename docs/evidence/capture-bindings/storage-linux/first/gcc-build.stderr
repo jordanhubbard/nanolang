@@ -1,0 +1,3 @@
+/bin/ld: /tmp/ccZmxKqZ.o: in function `val_to_cstring':
+/tmp/nanolang-binding-state-f2bac81a8/src/nanovm/value.c:246:(.text+0xa2c): undefined reference to `isa_tag_name'
+collect2: error: ld returned 1 exit status

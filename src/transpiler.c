@@ -4098,7 +4098,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
                 sb_append(sb, type_to_c(item->as.let.var_type));
             }
             sb_appendf(sb, " %s = ", item->as.let.name);
+            if (item->as.let.var_type == TYPE_U8) sb_append(sb, "(uint8_t)(");
             transpile_expression(sb, item->as.let.value, env);
+            if (item->as.let.var_type == TYPE_U8) sb_append(sb, ")");
             sb_append(sb, ";\n");
             continue;
         }
@@ -4135,7 +4137,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
         sb_appendf(sb, " %s", item->as.let.name);
         if (is_const_init) {
             sb_append(sb, " = ");
+            if (item->as.let.var_type == TYPE_U8) sb_append(sb, "(uint8_t)(");
             transpile_expression(sb, item->as.let.value, env);
+            if (item->as.let.var_type == TYPE_U8) sb_append(sb, ")");
         }
         sb_append(sb, ";\n");
 
@@ -4165,7 +4169,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
         for (int i = 0; i < runtime_init_count; i++) {
             ASTNode *item = runtime_inits[i];
             sb_appendf(sb, "    %s = ", item->as.let.name);
+            if (item->as.let.var_type == TYPE_U8) sb_append(sb, "(uint8_t)(");
             transpile_expression(sb, item->as.let.value, env);
+            if (item->as.let.var_type == TYPE_U8) sb_append(sb, ")");
             sb_append(sb, ";\n");
         }
         sb_append(sb, "}\n");

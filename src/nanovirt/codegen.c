@@ -59,6 +59,7 @@ typedef struct {
     char *name;
     uint16_t slot;
     CgLocalName *advisory;
+    Type declared_type; /* Checked lexical destination, independent of shared Environment. */
     char *struct_type;  /* Struct type name for field resolution (NULL if not a struct) */
 } Local;
 
@@ -83,6 +84,7 @@ typedef struct {
 typedef struct {
     char *name;
     char **field_names;
+    Type *field_types;       /* I borrow exact declared scalar destinations. */
     char **field_type_names;  /* Struct type names for struct-typed fields (NULL entries for non-struct) */
     int field_count;
     uint32_t def_idx;
@@ -108,6 +110,7 @@ typedef struct {
 typedef struct {
     char *name;
     uint16_t slot;
+    Type declared_type;
 } GlobalVar;
 
 typedef struct {
@@ -123,6 +126,7 @@ typedef struct {
     char *name;              /* Variable name */
     uint16_t parent_slot;    /* Slot in parent's locals (or parent's upvalues) */
     bool is_local;           /* true = parent local, false = parent upvalue */
+    Type declared_type;
 } Upvalue;
 
 typedef struct CgPassive {
@@ -286,6 +290,7 @@ static uint16_t local_add(CG *cg, const char *name, int line) {
     binding->slot = slot;
     binding->struct_type = NULL;
     binding->advisory = NULL;
+    binding->declared_type = TYPE_UNKNOWN;
     cg->local_count++;
     return slot;
 }
@@ -302,6 +307,8 @@ static uint8_t ordinary_slot_tag(Type type) {
     }
 }
 static void local_name_begin(CG *cg,uint16_t slot,const char *name,Type type,int line) {
+    for (int i = cg->local_binding_count - 1; i >= 0; --i)
+        if (cg->locals[i].slot == slot) { cg->locals[i].declared_type = type; break; }
     if(cg->struct_count && cg->names_enabled && !cg->had_error) {
         CgAuthoritySlot *fact=malloc(sizeof *fact);
         if(!fact){cg_error(cg,line,"I cannot retain a declared local tag");return;}
@@ -382,6 +389,14 @@ static int16_t upvalue_add(CG *cg, const char *name, uint16_t parent_slot, bool 
     cg->upvalues[idx].name = (char *)name;
     cg->upvalues[idx].parent_slot = parent_slot;
     cg->upvalues[idx].is_local = is_local;
+    cg->upvalues[idx].declared_type = TYPE_UNKNOWN;
+    if (is_local) {
+        for (int i = cg->parent->local_binding_count - 1; i >= 0; --i)
+            if (cg->parent->locals[i].slot == parent_slot) {
+                cg->upvalues[idx].declared_type = cg->parent->locals[i].declared_type;
+                break;
+            }
+    } else cg->upvalues[idx].declared_type = cg->parent->upvalues[parent_slot].declared_type;
     cg->upvalue_count++;
     return idx;
 }
@@ -825,8 +840,8 @@ static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
     if (want_float && type != TYPE_FLOAT) emit_op(cg, OP_CAST_FLOAT);
 }
 
-/* An integer literal acquires the byte tag only from an exact checked
- * destination. I do not turn arbitrary integer expressions into bytes. */
+/* I narrow checked INT/ENUM only at an exact byte destination. Literal
+ * range policy remains independent of this explicit runtime conversion. */
 static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
     if (tag == TAG_U8) {
         if (node && node->type == AST_NUMBER) {
@@ -837,7 +852,13 @@ static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
             emit_op(cg, OP_PUSH_U8, (uint8_t)node->as.number);
             return;
         }
-        if (check_expression(node, cg->env) != TYPE_U8) {
+        Type actual = check_expression(node, cg->env);
+        if (actual == TYPE_INT || actual == TYPE_ENUM) {
+            compile_expr(cg, node);
+            emit_op(cg, OP_CAST_U8);
+            return;
+        }
+        if (actual != TYPE_U8) {
             cg_error(cg, node ? node->line : 0, "I require the declared byte value type");
             return;
         }
@@ -1391,10 +1412,12 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
     if (strcmp(name, "array_push") == 0 && argc == 2) {
-        if (!env_function_is_builtin(env_get_function(cg->env, name)))
+        if (!env_function_is_named_builtin(env_get_function(cg->env, name), "array_push"))
             return false;
         compile_expr(cg, args[0]); /* array */
-        compile_expr(cg, args[1]); /* value */
+        if (node->as.call.checked_u8_array_mutation)
+            compile_expected_tag(cg, args[1], TAG_U8);
+        else compile_expr(cg, args[1]); /* value */
         emit_op(cg, OP_ARR_PUSH);
         return true;
     }
@@ -1408,7 +1431,9 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     if (strcmp(name, "array_set") == 0 && argc == 3) {
         compile_expr(cg, args[0]); /* array */
         compile_expr(cg, args[1]); /* index */
-        compile_expr(cg, args[2]); /* value */
+        if (node->as.call.checked_u8_array_mutation)
+            compile_expected_tag(cg, args[2], TAG_U8);
+        else compile_expr(cg, args[2]); /* value */
         emit_op(cg, OP_ARR_SET);
         emit_op(cg, OP_POP); /* array_set is declared void */
         return true;
@@ -2537,26 +2562,16 @@ static void compile_expr(CG *cg, ASTNode *node) {
             break;
         }
         int16_t slot = local_find(cg, id);
-        if (slot >= 0) {
-            emit_op(cg, OP_LOAD_LOCAL, (int)slot);
-        } else {
+        int16_t captured = slot < 0 ? upvalue_resolve(cg, id) : -1;
+        if (slot >= 0) emit_op(cg, OP_LOAD_LOCAL, (int)slot);
+        else if (captured >= 0) emit_op(cg, OP_LOAD_UPVALUE, 0, (int)captured);
+        else {
             int16_t gslot = global_find(cg, id);
-            if (gslot >= 0) {
-                emit_op(cg, OP_LOAD_GLOBAL, (uint32_t)gslot);
-            } else {
-                /* Check if it's a function name (function-as-value) */
+            if (gslot >= 0) emit_op(cg, OP_LOAD_GLOBAL, (uint32_t)gslot);
+            else {
                 int32_t fn_idx = fn_find(cg, id);
-                if (fn_idx >= 0) {
-                    emit_op(cg, OP_FUNCREF, (uint32_t)fn_idx);
-                } else {
-                    /* Check if it's a captured variable from parent scope */
-                    int16_t uv = upvalue_resolve(cg, id);
-                    if (uv >= 0) {
-                        emit_op(cg, OP_LOAD_UPVALUE, 0, (int)uv);
-                    } else {
-                        cg_error(cg, node->line, "undefined variable '%s'", id);
-                    }
-                }
+                if (fn_idx >= 0) emit_op(cg, OP_FUNCREF, (uint32_t)fn_idx);
+                else cg_error(cg, node->line, "undefined variable '%s'", id);
             }
         }
         break;
@@ -2599,6 +2614,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             compile_expr(cg, args[0]);
             switch (op) {
                 case TOKEN_MINUS:
+                    if (arg_type == TYPE_U8) emit_op(cg, OP_CAST_INT);
                     emit_op(cg, arg_type == TYPE_FLOAT ? OP_F64_NEG : OP_I64_NEG);
                     break;
                 case TOKEN_NOT: emit_op(cg, OP_BOOL_NOT); break;
@@ -2675,14 +2691,22 @@ static void compile_expr(CG *cg, ASTNode *node) {
          * entry in the function table is not a substitute for that value. */
         int16_t callable_slot = name ? local_find(cg, name) : -1;
         int16_t callable_upvalue = name && callable_slot < 0 ? upvalue_resolve(cg, name) : -1;
-        if (callable_slot >= 0 || callable_upvalue >= 0 || node->as.call.func_expr) {
+        Symbol *callable_binding = name ? env_get_var_visible_at(cg->env, name, node->line, node->column) : NULL;
+        int16_t callable_global = callable_slot < 0 && callable_upvalue < 0 &&
+            callable_binding && callable_binding->type == TYPE_FUNCTION ? global_find(cg, name) : -1;
+        if (callable_slot >= 0 || callable_upvalue >= 0 || callable_global >= 0 || node->as.call.func_expr) {
             /* I snapshot the callee before arguments can mutate its binding. */
             if (node->as.call.func_expr) compile_expr(cg, node->as.call.func_expr);
             else if (callable_slot >= 0) emit_op(cg, OP_LOAD_LOCAL, (int)callable_slot);
-            else emit_op(cg, OP_LOAD_UPVALUE, 0, (int)callable_upvalue);
+            else if (callable_upvalue >= 0) emit_op(cg, OP_LOAD_UPVALUE, 0, (int)callable_upvalue);
+            else emit_op(cg, OP_LOAD_GLOBAL, (int)callable_global);
             uint16_t saved_callee = local_add(cg, "", node->line);
             emit_op(cg, OP_STORE_LOCAL, (int)saved_callee);
-            for (int i = 0; i < argc; i++) compile_expr(cg, node->as.call.args[i]);
+            const FunctionSignature *signature = node->as.call.checked_signature;
+            for (int i = 0; i < argc; i++)
+                compile_expected_tag(cg, node->as.call.args[i],
+                    signature && signature->param_types && i < signature->param_count &&
+                    signature->param_types[i] == TYPE_U8 ? TAG_U8 : TAG_COUNT);
             emit_op(cg, OP_LOAD_LOCAL, (int)saved_callee);
             emit_op(cg, OP_CALL_INDIRECT, argc,
                     check_expression(node, cg->env) == TYPE_VOID ? 0 : 1);
@@ -2751,15 +2775,15 @@ static void compile_expr(CG *cg, ASTNode *node) {
         const char *func_name = node->as.module_qualified_call.function_name;
         int argc = node->as.module_qualified_call.arg_count;
 
-        /* Emit arguments left-to-right */
-        for (int i = 0; i < argc; i++) {
-            compile_expr(cg, node->as.module_qualified_call.args[i]);
-        }
-
-        /* Try qualified name "Module.function" in bytecode functions first */
+        /* I resolve the same qualified declaration before contextual arguments. */
         char qname[512];
         snprintf(qname, sizeof(qname), "%s.%s", mod_alias, func_name);
         int32_t fn_idx = fn_find(cg, qname);
+        if (fn_idx < 0) fn_idx = fn_find(cg, func_name);
+        uint8_t *tags = fn_idx >= 0 ? cg->module->function_param_types[fn_idx] : NULL;
+        for (int i = 0; i < argc; i++)
+            compile_expected_tag(cg, node->as.module_qualified_call.args[i],
+                tags && i < cg->module->functions[fn_idx].arity ? tags[i] : TAG_COUNT);
         if (fn_idx >= 0) {
             emit_op(cg, OP_CALL, (uint32_t)fn_idx);
         } else {
@@ -2890,7 +2914,6 @@ static void compile_expr(CG *cg, ASTNode *node) {
         }
         ASTNode *spread = node->as.struct_literal.spread_source;
         CgStructDef *spread_def = NULL;
-        uint16_t spread_slot = 0;
         if (spread) {
             const char *spread_name = infer_expr_struct_type(cg, spread);
             spread_def = spread_name ? struct_find(cg, spread_name) : NULL;
@@ -2898,38 +2921,74 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 cg_error(cg, node->line, "I cannot resolve this spread source's record layout");
                 break;
             }
-            compile_expr(cg, spread);
-            spread_slot = local_add(cg, "__spread_source__", node->line);
-            emit_op(cg, OP_STORE_LOCAL, (int)spread_slot);
         }
-        /* Push field values in definition order */
-        for (int i = 0; i < sd->field_count; i++) {
-            /* Find matching field in the literal */
-            bool found = false;
-            for (int j = 0; j < node->as.struct_literal.field_count; j++) {
-                if (strcmp(node->as.struct_literal.field_names[j],
-                           sd->field_names[i]) == 0) {
-                    compile_expr(cg, node->as.struct_literal.field_values[j]);
-                    found = true;
-                    break;
-                }
+        /* I validate the complete mapping before emitting any field effects.
+         * Anonymous locals root each value until declaration-order packing. */
+        int fields = sd->field_count;
+        int written = node->as.struct_literal.field_count;
+        if (fields < 0 || fields > MAX_LOCALS || written < 0 || written > fields ||
+            fields + (spread != NULL) > MAX_LOCALS - cg->local_count ||
+            fields + (spread != NULL) > MAX_LOCALS - cg->local_binding_count) {
+            cg_error(cg, node->line, "I require a complete record within my local-slot limit");
+            break;
+        }
+        int *source = malloc((size_t)(fields ? fields : 1) * sizeof *source);
+        int *inherited = malloc((size_t)(fields ? fields : 1) * sizeof *inherited);
+        uint16_t *slots = malloc((size_t)(fields ? fields : 1) * sizeof *slots);
+        if (!source || !inherited || !slots) {
+            free(source); free(inherited); free(slots);
+            cg_error(cg, node->line, "I cannot stage this record's field mapping");
+            break;
+        }
+        for (int i = 0; i < fields; ++i) source[i] = inherited[i] = -1;
+        for (int j = 0; j < written && !cg->had_error; ++j) {
+            int field = struct_field_index(sd, node->as.struct_literal.field_names[j]);
+            if (field < 0 || source[field] >= 0) {
+                cg_error(cg, node->line, "I require unique declared record fields");
+                break;
             }
-            if (!found) {
-                if (spread_def) {
-                    int16_t field = struct_field_index(spread_def, sd->field_names[i]);
-                    if (field < 0) {
-                        cg_error(cg, node->line, "I cannot inherit field '%s' from this spread source", sd->field_names[i]);
-                        break;
-                    }
+            source[field] = j;
+        }
+        for (int i = 0; i < fields && !cg->had_error; ++i) {
+            if (source[i] < 0) {
+                inherited[i] = spread_def ? struct_field_index(spread_def, sd->field_names[i]) : -1;
+                if (inherited[i] < 0)
+                    cg_error(cg, node->line, "I require a value for record field '%s'", sd->field_names[i]);
+            }
+        }
+        if (!cg->had_error) {
+            uint16_t spread_slot = spread ? local_add(cg, "", node->line) : 0;
+            for (int i = 0; i < fields; ++i) slots[i] = local_add(cg, "", node->line);
+            if (spread) {
+                compile_expr(cg, spread);
+                emit_op(cg, OP_STORE_LOCAL, (int)spread_slot);
+                /* I snapshot inherited scalars before any explicit override. */
+                for (int i = 0; i < fields; ++i) if (source[i] < 0) {
                     emit_op(cg, OP_LOAD_LOCAL, (int)spread_slot);
-                    emit_op(cg, OP_AGG_GET, (int)field);
-                } else {
+                    emit_op(cg, OP_AGG_GET, inherited[i]);
+                    emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+                }
+            }
+            for (int j = 0; j < written && !cg->had_error; ++j) {
+                int field = struct_field_index(sd, node->as.struct_literal.field_names[j]);
+                compile_expected_tag(cg, node->as.struct_literal.field_values[j],
+                                     sd->field_types ? ordinary_slot_tag(sd->field_types[field]) : TAG_COUNT);
+                emit_op(cg, OP_STORE_LOCAL, (int)slots[field]);
+            }
+            if (!cg->had_error) {
+                for (int i = 0; i < fields; ++i) emit_op(cg, OP_LOAD_LOCAL, (int)slots[i]);
+                emit_op(cg, OP_AGG_PACK, AGG_RECORD, sd->def_idx, 0, fields);
+                for (int i = 0; i < fields; ++i) {
                     emit_op(cg, OP_PUSH_VOID);
+                    emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+                }
+                if (spread) {
+                    emit_op(cg, OP_PUSH_VOID);
+                    emit_op(cg, OP_STORE_LOCAL, (int)spread_slot);
                 }
             }
         }
-        emit_op(cg, OP_AGG_PACK, AGG_RECORD, sd->def_idx, 0,
-                sd->field_count);
+        free(source); free(inherited); free(slots);
         break;
     }
 
@@ -3784,28 +3843,30 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         }
         int16_t slot = local_find(cg, node->as.set.name);
         if (slot >= 0) {
-            Symbol *binding = env_get_var_visible_at(cg->env, node->as.set.name,
-                                                     node->line, node->column);
-            if (binding && binding->type == TYPE_U8)
+            Type destination = TYPE_UNKNOWN;
+            for (int i = cg->local_binding_count - 1; i >= 0; --i)
+                if (cg->locals[i].slot == (uint16_t)slot) {
+                    destination = cg->locals[i].declared_type; break;
+                }
+            if (destination == TYPE_U8)
                 compile_expected_tag(cg, node->as.set.value, TAG_U8);
             else
                 compile_stored_expr(cg, node->as.set.value);
             emit_op(cg, OP_STORE_LOCAL, (int)slot);
         } else {
-            int16_t gslot = global_find(cg, node->as.set.name);
-            if (gslot >= 0) {
-                compile_stored_expr(cg, node->as.set.value);
+            int16_t uv = upvalue_resolve(cg, node->as.set.name);
+            int16_t gslot = uv < 0 ? global_find(cg, node->as.set.name) : -1;
+            if (uv >= 0) {
+                if (cg->upvalues[uv].declared_type == TYPE_U8)
+                    compile_expected_tag(cg, node->as.set.value, TAG_U8);
+                else compile_stored_expr(cg, node->as.set.value);
+                emit_op(cg, OP_STORE_UPVALUE, 0, (int)uv);
+            } else if (gslot >= 0) {
+                if (cg->globals[gslot].declared_type == TYPE_U8)
+                    compile_expected_tag(cg, node->as.set.value, TAG_U8);
+                else compile_stored_expr(cg, node->as.set.value);
                 emit_op(cg, OP_STORE_GLOBAL, (uint32_t)gslot);
-            } else {
-                /* Check upvalues for captured mutable variables */
-                int16_t uv = upvalue_resolve(cg, node->as.set.name);
-                if (uv >= 0) {
-                    compile_stored_expr(cg, node->as.set.value);
-                    emit_op(cg, OP_STORE_UPVALUE, 0, (int)uv);
-                } else {
-                    cg_error(cg, node->line, "undefined variable '%s'", node->as.set.name);
-                }
-            }
+            } else cg_error(cg, node->line, "undefined variable '%s'", node->as.set.name);
         }
         break;
     }
@@ -4389,6 +4450,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
 
             uint32_t idx = nvm_add_function(cg.module, &fn);
+            /* Callers and globals need destination tags before body emission. */
+            record_function_parameters(&cg, item, idx);
 
             if (cg.fn_count < MAX_FUNCTIONS) {
                 cg.functions[cg.fn_count].name = (char *)name;
@@ -4407,6 +4470,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             CgStructDef *sd = &cg.structs[cg.struct_count];
             sd->name = item->as.struct_def.name;
             sd->field_names = item->as.struct_def.field_names;
+            sd->field_types = item->as.struct_def.field_types;
             sd->field_type_names = item->as.struct_def.field_type_names;
             sd->field_count = item->as.struct_def.field_count;
             sd->def_idx = cg.struct_count;
@@ -4525,6 +4589,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                             fn.result_tag = type_to_tag(mitem->as.function.return_type, mitem->as.function.return_struct_type_name, cg.env);
                             fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
                             idx = nvm_add_function(cg.module, &fn);
+                            record_function_parameters(&cg, mitem, idx);
                             if (cg.fn_count < MAX_FUNCTIONS) {
                                 cg.functions[cg.fn_count].name = (char *)use_name;
                                 cg.functions[cg.fn_count].fn_idx = idx;
@@ -4585,6 +4650,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                             CgStructDef *sd = &cg.structs[cg.struct_count];
                             sd->name = mitem->as.struct_def.name;
                             sd->field_names = mitem->as.struct_def.field_names;
+                            sd->field_types = mitem->as.struct_def.field_types;
                             sd->field_type_names = mitem->as.struct_def.field_type_names;
                             sd->field_count = mitem->as.struct_def.field_count;
                             sd->def_idx = cg.struct_count;
@@ -4644,6 +4710,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         }
                         if (!dup) {
                             cg.globals[cg.global_count].name = mitem->as.let.name;
+                            cg.globals[cg.global_count].declared_type = mitem->as.let.var_type;
                             cg.globals[cg.global_count].slot = cg.global_count;
                             cg.global_count++;
                         }
@@ -4700,6 +4767,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         /* Register top-level let bindings as globals */
         if (item->type == AST_LET && cg.global_count < MAX_GLOBALS) {
             cg.globals[cg.global_count].name = item->as.let.name;
+                            cg.globals[cg.global_count].declared_type = item->as.let.var_type;
             cg.globals[cg.global_count].slot = cg.global_count;
             cg.global_count++;
         }
@@ -4726,6 +4794,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         fn.result_tag = type_to_tag(mitem->as.function.return_type, mitem->as.function.return_struct_type_name, cg.env);
                         fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
                         uint32_t idx = nvm_add_function(cg.module, &fn);
+                        record_function_parameters(&cg, mitem, idx);
                         cg.functions[cg.fn_count].name = (char *)fname;
                         cg.functions[cg.fn_count].fn_idx = idx;
                         cg.functions[cg.fn_count].body = mitem->as.function.body;
@@ -4758,6 +4827,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         CgStructDef *sd = &cg.structs[cg.struct_count];
                         sd->name = mitem->as.struct_def.name;
                         sd->field_names = mitem->as.struct_def.field_names;
+                        sd->field_types = mitem->as.struct_def.field_types;
                         sd->field_type_names = mitem->as.struct_def.field_type_names;
                         sd->field_count = mitem->as.struct_def.field_count;
                         sd->def_idx = cg.struct_count;
@@ -4822,6 +4892,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                     }
                     if (!dup) {
                         cg.globals[cg.global_count].name = mitem->as.let.name;
+                            cg.globals[cg.global_count].declared_type = mitem->as.let.var_type;
                         cg.globals[cg.global_count].slot = cg.global_count;
                         cg.global_count++;
                     }
@@ -4882,7 +4953,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 for (int m = 0; m < mod_ast->as.program.count; m++) {
                     ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
                     if (mitem->type == AST_LET) {
-                        compile_expr(&cg, mitem->as.let.value);
+                        compile_expected_tag(&cg, mitem->as.let.value,
+                            mitem->as.let.var_type == TYPE_U8 ? TAG_U8 : TAG_COUNT);
                         int16_t gslot = global_find(&cg, mitem->as.let.name);
                         if (gslot >= 0) {
                             emit_op(&cg, OP_STORE_GLOBAL, (uint32_t)gslot);
@@ -4895,7 +4967,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         for (int i = 0; i < program->as.program.count; i++) {
             ASTNode *item = bytecode_declaration(program->as.program.items[i]);
             if (item->type == AST_LET) {
-                compile_expr(&cg, item->as.let.value);
+                compile_expected_tag(&cg, item->as.let.value,
+                            item->as.let.var_type == TYPE_U8 ? TAG_U8 : TAG_COUNT);
                 int16_t gslot = global_find(&cg, item->as.let.name);
                 if (gslot >= 0) {
                     emit_op(&cg, OP_STORE_GLOBAL, (uint32_t)gslot);

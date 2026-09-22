@@ -371,6 +371,8 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
 /* I keep policy selection outside these shared checks. The original module
  * and function tables remain the inputs; no copied/stripped module is used. */
 static NvmVerifyResult verify_module_ranges(const NvmModule *mod) {
+    if (nvm_capture_bindings_present(mod))
+        return fail("I require capture binding execution admission");
     if (!mod) return fail("module is NULL");
     if (nvm_service_execution_pending(mod))
         return fail("I require reviewed service lifetime and dispatch admission before execution");
@@ -556,6 +558,9 @@ static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_id
 
         /* Validate operands based on opcode */
         switch (instr.opcode) {
+
+        case OP_BIND_INIT_LOCAL: case OP_BIND_CLEAR_LOCAL: case OP_CLOSURE_BIND:
+            FAIL_DECODED("I require complete capture binding admission before execution.");
 
         case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
         case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
@@ -899,6 +904,8 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
                                            const NvmModule *const *linked_modules,
                                            uint32_t linked_count,
                                            uint16_t *out_max_stack) {
+    if (nvm_capture_bindings_present(mod))
+        return fail("I require capture binding execution admission");
     if(nvm_service_execution_pending(mod))
         return fail("I refuse service contracts before mixed execution selection");
     if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
@@ -926,6 +933,8 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
 #include "record_array_structure.inc"
 
 NvmVerifyResult nvm_verify_affine_function(const NvmModule *mod, uint32_t fn_idx) {
+    if (nvm_capture_bindings_present(mod))
+        return fail("I require capture binding execution admission");
     NvmVerifyResult structure=verify_structure(mod,true,NULL);
     if (!structure.ok) return structure;
     NvmAffineAnalysis analysis=nvm_affine_analyze_function(mod,fn_idx);
@@ -981,6 +990,8 @@ static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
 }
 
 NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
+    if (nvm_capture_bindings_present(mod))
+        return fail("I require capture binding execution admission");
     NvmVerifyResult structure = verify_structure(mod, true,NULL);
     if (!structure.ok) return structure;
     if (!mod->ownership_size || (!mod->function_count || mod->function_count>NVM_OWNED_MAX_FUNCTIONS) || mod->header.entry_point != 0 ||
@@ -1096,6 +1107,8 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
  * ======================================================================== */
 
 NvmVerifyResult nvm_verify(const NvmModule *mod) {
+    if (nvm_capture_bindings_present(mod))
+        return fail("I require capture binding execution admission");
     if(nvm_service_execution_pending(mod))
         return fail("I refuse service contracts before mixed execution selection");
     if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return verify_owned_arrays(mod,0,NULL);
@@ -1121,8 +1134,13 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
         return fail("linked_count %u but linked_modules table is NULL", linked_count);
 
     for (uint32_t i=0; i<linked_count; i++)
+        if (nvm_capture_bindings_present(linked_modules[i]))
+            return fail("I require linked capture binding execution admission");
+    for (uint32_t i=0; i<linked_count; i++)
         if (nvm_service_execution_pending(linked_modules[i]))
             return fail("I refuse linked service contracts before reviewed dispatch admission");
+    if (nvm_capture_bindings_present(mod))
+        return fail("I require capture binding execution admission");
     if(nvm_service_execution_pending(mod))
         return fail("I refuse service contracts before mixed execution selection");
     for(uint32_t i=0;i<linked_count;i++)
@@ -1250,7 +1268,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
                 ins.opcode == OP_STRUCT_LITERAL || ins.opcode == OP_STRUCT_GET ||
                 ins.opcode == OP_STRUCT_SET || ins.opcode == OP_AGG_PACK ||
                 ins.opcode == OP_AGG_GET || ins.opcode == OP_AGG_SET);
-            if (!width || (!profile_supported(ins.opcode) && !literal_op && !record_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
+            if (!width || (!profile_supported(ins.opcode) && !literal_op && !record_op && !(ins.opcode == OP_TAIL_CALL && !managed_profile))) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
             pc += width;
         }
     }

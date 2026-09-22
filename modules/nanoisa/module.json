@@ -20,6 +20,7 @@
     "../../src/nanoisa/service_file_nominal_plan.c",
     "../../src/nanoisa/service_bindings.c",
     "../../src/nanoisa/service_bindings_module.c",
+    "../../src/nanoisa/capture_bindings.c",
     "../../src/nanoisa/nvm_format.c",
     "../../src/nanoisa/nvm_format_v2.c",
     "../../src/nanoisa/nvm_v2_cursor.c",

@@ -24,8 +24,12 @@ static void intrinsic_identity(void) {
     for (size_t i = 0; i < sizeof names / sizeof *names; ++i) {
         Function *builtin = env_get_function(env, names[i]);
         assert(builtin && env_function_is_builtin(builtin));
+        assert(env_function_is_named_builtin(builtin, names[i]));
+        assert(!env_function_is_named_builtin(builtin, "str_length"));
+        assert(!env_function_is_named_builtin(builtin, NULL));
         Function copy = *builtin;
         assert(!env_function_is_builtin(&copy));
+        assert(!env_function_is_named_builtin(&copy, names[i]));
         Function foreign = {0};
         foreign.name = (char *)names[i]; foreign.is_extern = true; foreign.module_name = "Foreign"; foreign.is_pub = true;
         foreign.param_count = builtin->param_count; foreign.return_type = TYPE_INT;
@@ -45,6 +49,7 @@ static void intrinsic_identity(void) {
     env_register_namespace(env, "foreign", "Foreign", exports, 1, NULL, 0, NULL, 0, NULL, 0);
     Function *selected = env_get_function(env, "foreign.array_push");
     assert(selected && selected->is_extern && !env_function_is_builtin(selected));
+    assert(!env_function_is_named_builtin(selected, "array_push"));
     ASTNode qualified = {0}; qualified.type = AST_MODULE_QUALIFIED_CALL;
     qualified.as.module_qualified_call.module_alias = "foreign";
     qualified.as.module_qualified_call.function_name = "array_push";

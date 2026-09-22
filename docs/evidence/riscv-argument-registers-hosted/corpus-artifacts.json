@@ -1,0 +1,35 @@
+[
+  {
+    "host": "linux-x64",
+    "archive": "linux-x64-corpus.zip",
+    "bytes": 696161,
+    "sha256": "4474fea1c8c9ad9ae380305b274c5f05805ff1d89383989b40b55354780f1746",
+    "member_count": 524,
+    "failed_case_diagnostics": {
+      "corpus.vhWWtu/0160-test_u8_basic.compile.log": "I could not compile shadows at line 8: I require the declared byte value type\n",
+      "corpus.vhWWtu/0169-token_value_bytes.compile.log": "Warning at line 20, column 5: Unused variable 'i'\nI could not compile shadows at line 21: undefined function 'list_LexerToken_insert'\n"
+    }
+  },
+  {
+    "host": "darwin-arm64",
+    "archive": "darwin-arm64-corpus.zip",
+    "bytes": 694608,
+    "sha256": "7f5395e6ae740d6eed4e2b460e92b3953ea373238a2e9278142334090793ff98",
+    "member_count": 524,
+    "failed_case_diagnostics": {
+      "corpus.3M2wxg/0160-test_u8_basic.compile.log": "I could not compile shadows at line 8: I require the declared byte value type\n",
+      "corpus.3M2wxg/0169-token_value_bytes.compile.log": "Warning at line 20, column 5: Unused variable 'i'\nI could not compile shadows at line 21: undefined function 'list_LexerToken_insert'\n"
+    }
+  },
+  {
+    "host": "linux-arm64",
+    "archive": "linux-arm64-corpus.zip",
+    "bytes": 696159,
+    "sha256": "d31bab9232b161df4d3dd405d38494ff2ad026fc4fdc6651e01c18336963c58a",
+    "member_count": 524,
+    "failed_case_diagnostics": {
+      "corpus.aOPuRu/0160-test_u8_basic.compile.log": "I could not compile shadows at line 8: I require the declared byte value type\n",
+      "corpus.aOPuRu/0169-token_value_bytes.compile.log": "Warning at line 20, column 5: Unused variable 'i'\nI could not compile shadows at line 21: undefined function 'list_LexerToken_insert'\n"
+    }
+  }
+]

@@ -74,6 +74,51 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''')
 
+    def test_byte_lexical_returns_preserve_once_only_effects(self):
+        self.check_program('''enum Edge { Above = 256, High = 511 }
+effect Ask { ask : int -> int }
+let mut calls: int = 0
+let mut continued: int = 0
+fn tick() -> Edge { set calls (+ calls 1) return Edge.Above }
+fn send() -> int {
+    let value = perform Ask.ask(7)
+    set continued (+ continued 1)
+    return value
+}
+fn member() -> u8 {
+    let value = handle { (send) } with { ask n -> { return Edge.High } }
+    set continued (+ continued 10)
+    return value
+}
+fn once() -> u8 {
+    let value = handle { (send) } with { ask n -> { return (tick) } }
+    set continued (+ continued 10)
+    return value
+}
+fn exercise() -> int {
+    set calls 0
+    set continued 0
+    assert (== (cast_int (member)) 255)
+    assert (== calls 0)
+    assert (== continued 0)
+    assert (== (cast_int (once)) 0)
+    assert (== calls 1)
+    assert (== continued 0)
+    return 0
+}
+shadow tick { assert (== (exercise) 0) }
+shadow send { assert (== (exercise) 0) }
+shadow member { assert (== (exercise) 0) }
+shadow once { assert (== (exercise) 0) }
+shadow exercise { assert (== (exercise) 0) }
+fn main() -> int {
+    assert (== (exercise) 0)
+    (println "I dispatched the effect.")
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
     def test_ordered_multiple_and_zero_arguments(self):
         self.check_program('''
 effect Recorder { pair : int int -> void, tick : void -> void }

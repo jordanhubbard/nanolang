@@ -9,6 +9,7 @@
 
 #include "value.h"
 #include "heap.h"
+#include "binding_state.h"
 #include "vm_decode.h"
 #include "vm_dispatch.h"
 #include "../nanoisa/isa.h"
@@ -71,9 +72,11 @@ typedef struct {
     uint16_t effect_local_start;
     uint32_t fn_idx;          /* Function table index */
     uint32_t return_ip;       /* Instruction pointer to return to */
+    uint32_t instruction_ip;  /* Executing instruction; retained at a suspended call. */
     uint32_t stack_base;      /* Stack index where this frame's locals begin */
     uint16_t local_count;     /* Number of locals (including params) */
     VmClosure *closure;       /* Non-NULL if this is a closure call */
+    VmBindingState *binding_state; /* Owned physical locals; never the effect owner's state. */
     /* The callable this frame was entered through, when the frame owns a
      * reference to it. CALL_INDIRECT pops the callable off the stack, which
      * transfers the stack's reference; the frame has to hold it for the

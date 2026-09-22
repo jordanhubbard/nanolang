@@ -1,0 +1,7 @@
+{
+  "compiler": [
+    "cc"
+  ],
+  "optimization": "-O2",
+  "recorder": "/tmp/nano-native-literal-order-_pkbsbzb/record-cc.py"
+}

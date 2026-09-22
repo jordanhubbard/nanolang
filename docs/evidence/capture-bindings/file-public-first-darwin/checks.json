@@ -1,0 +1,18 @@
+{
+  "terminal": {
+    "timeout": false,
+    "capacity_refusal": false,
+    "cleanup_errors": [],
+    "returncode": 2,
+    "seconds": 22.726787458999752,
+    "leader_reaped": true,
+    "tracked_remaining": {},
+    "group_gone": true
+  },
+  "source_unchanged": true,
+  "tools_unchanged": true,
+  "products": 764,
+  "revision": "5d8ca9be9",
+  "archive_sha256": "fdc061703da553dcc60281e77992b5ae3bca78aeb5504ffad059c9d362cd8d31",
+  "diagnosis": "Stale unknown-feature 0x400 control now names recognized capture metadata; fixed at d1f035314 with separate reserved-bit INVALID and capture UNRESOLVED checks. Fresh corrected full gate remains required."
+}

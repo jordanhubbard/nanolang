@@ -399,7 +399,7 @@ vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump nvm2c
 
 NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
-NANOISA_SOURCES = $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/service_file_nominal.c $(NANOISA_DIR)/service_file_nominal_plan.c $(NANOISA_DIR)/service_bindings.c $(NANOISA_DIR)/service_bindings_module.c $(NANOISA_DIR)/mixed_float_proof.c $(NANOISA_DIR)/managed_array_shapes.c $(NANOISA_DIR)/local_bindings.c $(NANOISA_DIR)/affine_bytecode.c $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
+NANOISA_SOURCES = $(NANOISA_DIR)/capture_bindings.c $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/service_file_nominal.c $(NANOISA_DIR)/service_file_nominal_plan.c $(NANOISA_DIR)/service_bindings.c $(NANOISA_DIR)/service_bindings_module.c $(NANOISA_DIR)/mixed_float_proof.c $(NANOISA_DIR)/managed_array_shapes.c $(NANOISA_DIR)/local_bindings.c $(NANOISA_DIR)/affine_bytecode.c $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
 	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c $(NANOISA_DIR)/nvm2c_shape.c \
 	$(NANOISA_DIR)/frontend.c
@@ -412,7 +412,7 @@ NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 
 # I link exactly one explicit File runtime owner; generic consumers still refuse.
 FILE_PUBLIC_LIBRARY = lib/libnano_file_runtime.a
-FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/file_flow nanoisa/isa \
+FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/capture_bindings nanoisa/file_flow nanoisa/isa \
 	nanoisa/managed_array_shapes nanoisa/mixed_float_proof nanoisa/nvm_format \
 	nanoisa/nvm_format_v2 nanoisa/nvm_v2_constants nanoisa/nvm_v2_convert \
 	nanoisa/nvm_v2_cursor nanoisa/nvm_v2_functions nanoisa/nvm_v2_imports \
@@ -680,7 +680,7 @@ test-nanoisa-dump: nanoisa_dump
 
 NANOVM_DIR = $(SRC_DIR)/nanovm
 NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/heap_cycles.c $(NANOVM_DIR)/vm.c $(NANOVM_DIR)/vm_callback.c $(NANOVM_DIR)/vm_ffi.c $(NANOVM_DIR)/vm_builtins.c $(NANOVM_DIR)/cop_protocol.c
-NANOVM_SOURCES += $(NANOVM_DIR)/vm_ffi_arrays.c
+NANOVM_SOURCES += $(NANOVM_DIR)/vm_ffi_arrays.c $(NANOVM_DIR)/binding_state.c
 NANOVM_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(NANOVM_SOURCES)) $(OBJ_DIR)/runtime/callback_runtime.o
 
 $(VM_DECODE_OBJECT): $(NANOVM_DIR)/vm_decode.c $(NANOVM_DIR)/vm_decode.h \
@@ -4869,7 +4869,8 @@ test-managed-record-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_shapes
 
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_array_shapes.h $(NANOISA_DIR)/managed_record_shapes.h $(NANOISA_DIR)/managed_record_plan.h $(NANOISA_DIR)/ownership_contracts.h
-$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_execution.h $(NANOISA_DIR)/managed_record_array_execution.inc
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_execution.h $(NANOISA_DIR)/managed_record_array_execution.inc $(NANOISA_DIR)/record_array_snapshot_private.h
+$(OBJ_DIR)/nanovm/vm.o: $(NANOVM_DIR)/record_array_runtime_private.h $(NANOVM_DIR)/record_array_vm_prepare.inc $(NANOVM_DIR)/record_array_vm_run.inc
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_origins.h $(NANOISA_DIR)/record_array_origins.inc $(NANOISA_DIR)/record_array_structure_private.h
 $(OBJ_DIR)/nanoisa/verifier.o: $(NANOISA_DIR)/record_array_structure_private.h $(NANOISA_DIR)/record_array_structure.inc
 $(OBJ_DIR)/nanoisa/verifier_types.o: $(NANOISA_DIR)/record_array_structure_private.h
@@ -5776,6 +5777,11 @@ NANO_NATIVE_LIST_LDFLAGS ?=
 .PHONY: test-native-record-lists
 test-native-record-lists:
 	NANO_LIST_CC="$(CC)" NANO_LIST_CFLAGS="$(CFLAGS)" NANO_LIST_LDFLAGS="$(LDFLAGS)" NANO_NATIVE_LIST_CC="$(NANO_NATIVE_LIST_CC)" NANO_NATIVE_LIST_CFLAGS="$(NANO_NATIVE_LIST_CFLAGS)" NANO_NATIVE_LIST_LDFLAGS="$(NANO_NATIVE_LIST_LDFLAGS)" python3 -m unittest -f -v tests.test_native_record_lists
+.PHONY: test-record-array-global-flow
+# I qualify private path globals without executing bytecode or opening admission.
+test-record-array-global-flow: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_global_flow
+
 .PHONY: test-record-array-origins
 # I inspect private mixed origins; this target never executes a module.
 test-record-array-origins: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
@@ -5824,3 +5830,70 @@ $(OBJ_DIR)/main.o $(OBJ_DIR)/file_source_resolution.o: $(SRC_DIR)/file_source_re
 $(OBJ_DIR)/file_source_input.o: $(SRC_DIR)/file_source_input.h $(SRC_DIR)/file_companion_snapshot.h $(SRC_DIR)/utf8.h
 $(OBJ_DIR)/file_companion_snapshot.o: $(FILE_COMPANION_HEADERS)
 $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi_file_plan.o $(OBJ_DIR)/nsi.o: $(FILE_COMPANION_HEADERS)
+# My checked scalar evaluator destinations share this exact helper.
+$(OBJ_DIR)/env.o $(OBJ_DIR)/eval.o: $(SRC_DIR)/eval_u8.h
+
+.PHONY: test-nanoisa-record-order
+test-nanoisa-record-order: nanoisa_emit nano_virt nano_vm
+	@python3 -m unittest tests.test_record_literal_order.RecordLiteralOrder
+
+.PHONY: test-native-literal-order
+test-native-literal-order: bootstrap
+	@python3 -m unittest tests.test_record_literal_order.NativeLiteralOrder
+
+.PHONY: test-native-literal-order-optimized
+test-native-literal-order-optimized: bootstrap
+	@python3 -m unittest tests.test_record_literal_order.NativeLiteralOptimization
+
+.PHONY: test-capture-transport
+test-capture-transport: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/nanoisa/test_capture_transport \
+		tests/nanoisa/test_capture_transport.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/nanoisa/test_capture_transport
+	$(CC) $(CFLAGS) -Dcalloc=capture_test_calloc -Dfree=capture_test_free -c $(NANOISA_DIR)/capture_bindings.c -o $(OBJ_DIR)/nanoisa/capture_transport_alloc_bindings.o
+	$(CC) $(CFLAGS) -Dmalloc=capture_test_malloc -c $(NANOISA_DIR)/nvm_v2_convert.c -o $(OBJ_DIR)/nanoisa/capture_transport_alloc_convert.o
+	$(CC) $(CFLAGS) -Dfree=capture_test_free -c $(NANOISA_DIR)/nvm_format.c -o $(OBJ_DIR)/nanoisa/capture_transport_alloc_format.o
+	$(CC) $(CFLAGS) -DCAPTURE_TRANSPORT_ALLOCATION_TEST -I$(NANOISA_DIR) -o $(OBJ_DIR)/nanoisa/test_capture_transport_alloc \
+		tests/nanoisa/test_capture_transport.c $(OBJ_DIR)/nanoisa/capture_transport_alloc_bindings.o \
+		$(OBJ_DIR)/nanoisa/capture_transport_alloc_convert.o $(OBJ_DIR)/nanoisa/capture_transport_alloc_format.o \
+		$(filter-out $(OBJ_DIR)/nanoisa/capture_bindings.o $(OBJ_DIR)/nanoisa/nvm_v2_convert.o $(OBJ_DIR)/nanoisa/nvm_format.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/nanoisa/test_capture_transport_alloc
+
+.PHONY: test-capture-transport-consumers
+test-capture-transport-consumers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_DIR)/portable_host_plan.c
+	$(CC) $(CFLAGS) -DCAPTURE_TRANSPORT_CONSUMERS -I$(NANOISA_DIR) -I$(NANOVM_DIR) -o $(OBJ_DIR)/nanoisa/test_capture_transport_consumers \
+		tests/nanoisa/test_capture_transport.c $(NANOISA_DIR)/portable_host_plan.c $(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)) $(OBJ_DIR)/nanoisa/nvm2llvm.o $(LDFLAGS)
+	$(OBJ_DIR)/nanoisa/test_capture_transport_consumers
+
+.PHONY: test-capture-bindings
+test-capture-bindings:
+	@mkdir -p $(OBJ_DIR)/nanoisa
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/nanoisa/test_capture_bindings \
+		tests/nanoisa/test_capture_bindings.c src/nanoisa/nvm_v2_cursor.c src/nanoisa/isa.c
+	$(OBJ_DIR)/nanoisa/test_capture_bindings
+
+.PHONY: test-binding-state
+test-binding-state:
+	@mkdir -p $(OBJ_DIR)/nanovm
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/nanovm/test_binding_state \
+		tests/nanovm/test_binding_state.c src/nanovm/heap.c \
+		src/nanovm/heap_cycles.c src/nanovm/value.c src/nanoisa/isa.c -lm
+	$(OBJ_DIR)/nanovm/test_binding_state
+
+.PHONY: test-binding-closure
+test-binding-closure:
+	@mkdir -p $(OBJ_DIR)/nanovm
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/nanovm/test_binding_closure \
+		tests/nanovm/test_binding_closure.c src/nanovm/heap_cycles.c \
+		src/nanovm/value.c src/nanoisa/isa.c -lm
+	$(OBJ_DIR)/nanovm/test_binding_closure
+
+.PHONY: test-record-array-vm
+# I rebuild every VM-layout-dependent TU with the distinct private heap layout.
+test-record-array-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	LSAN_OPTIONS= RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_vm
+
+.PHONY: test-llvm-scalar-tail-frames
+test-llvm-scalar-tail-frames: nano_vm nanoisa_dump nvm2c nvm2llvm nvm2wasm
+	python3 -m unittest -f -v tests.test_llvm_tail_frames
+test-units: test-llvm-scalar-tail-frames

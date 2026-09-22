@@ -1,6 +1,7 @@
 """I retain artifact namespace, ABI and source owner during NanoISA lowering."""
 import json
 import os
+import shlex
 from pathlib import Path
 import subprocess
 import sys
@@ -36,6 +37,13 @@ class ArtifactImports(unittest.TestCase):
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
         return result
 
+    def native_command(self, *args):
+        # I link against the same selected runtime instrumentation as my build.
+        compiler = shlex.split(os.environ.get("NANO_NATIVE_TEST_CC") or
+                               os.environ.get("CC") or "cc")
+        link_flags = shlex.split(os.environ.get("LDFLAGS", ""))
+        return self.command(*compiler, *args, *link_flags)
+
     def module(self, directory, name, result):
         path = directory / name
         path.mkdir()
@@ -69,7 +77,7 @@ class ArtifactImports(unittest.TestCase):
             self.command(ROOT / "bin/nano_vm", module)
             c_source, binary = directory / "out.c", directory / "native"
             self.command(ROOT / "bin/nvm2c", module, "-o", c_source)
-            self.command("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_source, "-ldl", "-o", binary)
+            self.native_command("-std=c11", "-Wall", "-Wextra", "-Werror", c_source, "-ldl", "-o", binary)
             self.command(binary)
 
     def test_cseed_and_selfhost_preserve_exact_artifact_abi_and_code(self):
@@ -121,7 +129,7 @@ class ArtifactImports(unittest.TestCase):
             self.command(ROOT / "bin/nano_vm", module)
             c_source, binary = directory / "out.c", directory / "native"
             self.command(ROOT / "bin/nvm2c", module, "-o", c_source)
-            self.command("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_source, "-ldl", "-o", binary)
+            self.native_command("-std=c11", "-Wall", "-Wextra", "-Werror", c_source, "-ldl", "-o", binary)
             self.command(binary)
 
     def test_actual_assembly_publication_and_diagnostic_vm_native(self):
@@ -149,7 +157,7 @@ class ArtifactImports(unittest.TestCase):
             self.command(ROOT / "bin/nano_vm", target)
             c_source, binary = directory / "out.c", directory / "native"
             self.command(ROOT / "bin/nvm2c", module, "-o", c_source)
-            self.command("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_source,
+            self.native_command("-std=c11", "-Wall", "-Wextra", "-Werror", c_source,
                          ROOT / "bin/nano_aot_runtime.o", "-lm",
                          *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
                          "-o", binary)
@@ -192,7 +200,7 @@ class ArtifactImports(unittest.TestCase):
             first = target.read_bytes()
             c_source, binary = directory / "out.c", directory / "native"
             self.command(ROOT / "bin/nvm2c", module, "-o", c_source)
-            self.command("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_source,
+            self.native_command("-std=c11", "-Wall", "-Wextra", "-Werror", c_source,
                          ROOT / "bin/nano_aot_runtime.o", "-lm",
                          *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
                          "-o", binary)
@@ -270,7 +278,7 @@ class ArtifactImports(unittest.TestCase):
             self.command(ROOT/'bin/nanoisa', 'asm', text, '-o', module)
             c_source, binary = directory/'module.c', directory/'native'
             self.command(ROOT/'bin/nvm2c', module, '-o', c_source)
-            self.command('cc', '-std=c11', '-Wall', '-Wextra', '-Werror', c_source,
+            self.native_command('-std=c11', '-Wall', '-Wextra', '-Werror', c_source,
                          ROOT/'bin/nano_aot_runtime.o', '-lm',
                          *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []), '-o', binary)
             for command in ((ROOT/'bin/nano_vm', module), (binary,)):

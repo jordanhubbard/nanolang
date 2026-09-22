@@ -1,0 +1,8 @@
+{"pin": "46c4d1692cf9bc9b52c2f84e71464dee8642d75b", "source_files": 3732, "root": "/tmp/nanolang-record-vm-qualified-46c4d-r2", "sdk": null}
+{"phase": "configuration", "status": 0, "seconds": 0.114}
+{"phase": "owned-string-proof-build", "status": 0, "seconds": 4.726}
+{"phase": "owned-string-proof-run", "status": 0, "seconds": 0.008}
+{"phase": "test-vm-ordinary-admission", "status": 0, "seconds": 6.331}
+{"phase": "test-owned-array-overwrite", "status": 0, "seconds": 7.934}
+{"phase": "test-file-private-vm", "status": 0, "seconds": 8.438}
+{"phase": "test-file-cyclic-public", "status": 0, "seconds": 136.266}

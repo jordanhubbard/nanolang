@@ -1,0 +1,152 @@
+mkdir -p obj/nanoisa
+mkdir -p obj
+mkdir -p obj/nanovm
+mkdir -p obj/build_bootstrap
+mkdir -p obj/runtime
+mkdir -p obj/eval
+[schema] Generating compiler schema artifacts...
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o
+[schema] Using Python version (bootstrap)...
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal.c -o obj/nanoisa/service_file_nominal.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal_plan.c -o obj/nanoisa/service_file_nominal_plan.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings.c -o obj/nanoisa/service_bindings.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings_module.c -o obj/nanoisa/service_bindings_module.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/mixed_float_proof.c -o obj/nanoisa/mixed_float_proof.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/local_bindings.c -o obj/nanoisa/local_bindings.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/reference_places.c -o obj/nanoisa/reference_places.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/passive.c -o obj/nanoisa/passive.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/isa.c -o obj/nanoisa/isa.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier_types.c -o obj/nanoisa/verifier_types.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format.c -o obj/nanoisa/nvm_format.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format_v2.c -o obj/nanoisa/nvm_format_v2.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_cursor.c -o obj/nanoisa/nvm_v2_cursor.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_constants.c -o obj/nanoisa/nvm_v2_constants.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_signatures.c -o obj/nanoisa/nvm_v2_signatures.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_layouts.c -o obj/nanoisa/nvm_v2_layouts.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_functions.c -o obj/nanoisa/nvm_v2_functions.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_imports.c -o obj/nanoisa/nvm_v2_imports.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_module.c -o obj/nanoisa/nvm_v2_module.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o obj/nanoisa/nvm_v2_convert.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/assembler.c -o obj/nanoisa/assembler.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/disassembler.c -o obj/nanoisa/disassembler.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o obj/nanoisa/verifier.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o obj/nanoisa/nvm2c_shape.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/frontend.c -o obj/nanoisa/frontend.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/nanoisa.c -o obj/nanoisa/nanoisa_facade.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_decode.c -o obj/nanovm/vm_decode.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_dispatch.c -o obj/nanovm/vm_dispatch.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_file_plan.c -o obj/nsi_file_plan.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/utf8.c -o obj/utf8.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -Isrc/nanoisa -o obj/test_verifier_cleanup tests/nanoisa/test_verifier_cleanup.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+I released verifier allocations across rejection, allocation failure and success.
+Running NVM verifier tests...
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o tests/nanoisa/test_verifier \
+	tests/nanoisa/test_verifier.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+  capture binding transport requires complete execution admission PASS
+  effect handler operands and separately rooted arm stacks     PASS
+
+[verifier] NanoVM bytecode verifier tests...
+
+  nvm_verify: NULL module returns error                        PASS
+  nvm_verify: empty module (no functions) ok                   PASS
+  nvm_verify: valid function with NOP+RET                      PASS
+  nvm_verify: entry_point >= function_count fails              PASS
+  nvm_verify: function code_offset > code_size fails           PASS
+  nvm_verify: wrapped function code range fails                PASS
+  nvm_verify: adjacent function code ranges pass               PASS
+  nvm_verify: overlapping function code ranges fail            PASS
+  nvm_verify: contained function code range fails              PASS
+  nvm_verify: empty function ranges own no bytes               PASS
+  nvm_verify: code_length beyond code_size fails               PASS
+  nvm_verify: function name_idx >= string_count fails          PASS
+  nvm_verify: invalid function result signature fails          PASS
+  nvm_verify: multiple homogeneous results pass                PASS
+  nvm_verify: invalid function result tag fails                PASS
+  nvm_verify: unknown opcode byte fails                        PASS
+  nvm_verify: valid forward JMP passes                         PASS
+  nvm_verify: JMP target outside function fails                PASS
+  nvm_verify: JMP target negative offset fails                 PASS
+  nvm_verify: valid JMP_TRUE passes                            PASS
+  nvm_verify: JMP_FALSE target out of bounds fails             PASS
+  nvm_verify: JMP target inside operand fails                  PASS
+  nvm_verify: MATCH_TAG target inside operand fails            PASS
+  nvm_verify: branch past function end fails                   PASS
+  nvm_verify: JMP target at function end passes                PASS
+  vm_decode: module records instructions and boundaries        PASS
+  nvm_verify: OP_CALL to valid function index passes           PASS
+  nvm_verify: OP_CALL to invalid function index fails          PASS
+  nvm_verify: OP_TAIL_CALL validates target and result signature PASS
+  nvm_verify: OP_CALL requires callee arity                    PASS
+  nvm_verify: OP_CALL contributes declared result count        PASS
+  nvm_verify: OP_PUSH_STR to valid string index passes         PASS
+  nvm_verify: OP_PUSH_STR with invalid string index fails      PASS
+  nvm_verify: OP_LOAD_LOCAL valid slot passes                  PASS
+  nvm_verify: OP_LOAD_LOCAL slot >= local_count fails          PASS
+  nvm_verify: OP_STORE_LOCAL slot >= local_count fails         PASS
+  nvm_verify: OP_LOAD_UPVALUE valid slot passes                PASS
+  nvm_verify: OP_LOAD_UPVALUE index >= upvalue_count fails     PASS
+  nvm_verify: flattened upvalue depth must be zero             PASS
+  nvm_verify: global index beyond VM table fails               PASS
+  nvm_verify: OP_STRUCT_NEW with valid def_idx passes          PASS
+  nvm_verify: OP_STRUCT_NEW with def_idx >= struct_count fails PASS
+  nvm_verify: OP_STRUCT_NEW with struct_count=0 skips validation PASS
+  nvm_verify: OP_ENUM_VAL with def_idx >= enum_count fails     PASS
+  nvm_verify: OP_UNION_CONSTRUCT with def_idx >= union_count fails PASS
+  nvm_verify: OP_CLOSURE_NEW with invalid fn_idx fails         PASS
+  nvm_verify: OP_CLOSURE_NEW with valid fn_idx passes          PASS
+  nvm_verify: closure capture count matches callee upvalues    PASS
+  nvm_verify: aggregate count requires enough fields           PASS
+  nvm_verify: OP_TYPE_CHECK rejects invalid tag                PASS
+  nvm_verify: OP_MATCH_TAG target out of bounds fails          PASS
+  nvm_verify: null code pointer with code_size > 0 fails       PASS
+  nvm_verify: OP_CALL_EXTERN with invalid import index fails   PASS
+  nvm_verify: OP_CALL_EXTERN with valid import signature passes PASS
+  nvm_verify: import with valid signature tags passes          PASS
+  nvm_verify: import with invalid return type tag fails        PASS
+  nvm_verify: import with invalid param type tag fails         PASS
+  nvm_verify: import with NANO_MAX_FFI_ARGS params verifies    PASS
+  nvm_verify: import exceeding NANO_MAX_FFI_ARGS fails         PASS
+  nvm_verify: OP_CALL_MODULE is a recognized linked call       PASS
+  nvm_verify: arithmetic opcodes pass verification             PASS
+  nvm_verify: fixed stack effect detects underflow             PASS
+  nvm_verify: incompatible branch stack heights fail           PASS
+  nvm_verify: compatible branch stack heights pass             PASS
+  nvm_verify: a branch may target code after another return    PASS
+  nvm_verify_function: validates incremental function          PASS
+  nvm_verify_linked: OP_CALL_MODULE resolves against linked table PASS
+  nvm_verify_linked: declared call shape must match the callee PASS
+  nvm_verify: the walk does not stop at a portable-ISA opcode  PASS
+  nvm_verify_linked: OP_CALL_MODULE module index out of range fails PASS
+  nvm_verify_linked: OP_CALL_MODULE NULL linked module fails   PASS
+  nvm_verify_linked: OP_CALL_MODULE callee fn index out of range fails PASS
+  nvm_verify_linked: OP_CALL_MODULE with empty table verifies structurally PASS
+  nvm_verify: OP_ARR_NEW with invalid element type tag fails   PASS
+  nvm_verify: OP_HM_NEW with invalid value type tag fails      PASS
+  nvm_verify: OP_TYPE_CHECK with invalid expected tag fails    PASS
+  nvm_verify: valid type tags on ARR_NEW/HM_NEW/TYPE_CHECK pass PASS
+  types: an integer op on a string operand fails               PASS
+  types: an integer op on float operands fails                 PASS
+  types: the matching float op verifies                        PASS
+  types: an unknown operand type is not an error               PASS
+  types: a merge of different types widens to unknown          PASS
+  ownership: returning while still holding a retain fails      PASS
+  ownership: releasing a reference never retained fails        PASS
+  ownership: a matched retain/release pair verifies            PASS
+  ownership: a balance that depends on the branch taken fails  PASS
+  return shape: returning more values than declared fails      PASS
+  return shape: returning nothing when a result is declared fails PASS
+  return shape: the implicit return at end of code is checked too PASS
+  return shape: implicit rejection releases ownership state    PASS
+  return shape: a clean implicit return is still legal         PASS
+  max_stack: a function with no instructions is 0              PASS
+  max_stack: reports the deepest reachable height              PASS
+  max_stack: an underflowing function reports no depth         PASS
+  max_stack: a function index past the table fails             PASS
+
+All 97 tests passed.

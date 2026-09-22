@@ -238,6 +238,10 @@ typedef struct {
     uint32_t code_size;
     uint32_t code_capacity;
 
+    /* Owned required capture modes/sites; transport is not execution authority. */
+    uint8_t *capture_data;
+    uint32_t capture_size;
+
     /* Owned versioned function-mode/root ownership declarations. */
     uint8_t *ownership_data;
     uint32_t ownership_size;
@@ -293,6 +297,11 @@ typedef struct {
  * API Functions
  * ======================================================================== */
 
+/* I detect either half of a required capture claim, including malformed pairs. */
+static inline bool nvm_capture_bindings_present(const NvmModule *module) {
+    return module && (module->capture_data || module->capture_size);
+}
+
 /* Create a new empty module */
 NvmModule *nvm_module_new(void);
 
@@ -319,7 +328,8 @@ bool nvm_set_function_param_types(NvmModule *mod, uint32_t index,
 bool nvm_add_callback_contract(NvmModule *mod, const NvmCallbackContract *contract);
 bool nvm_callback_contracts_valid(const NvmModule *mod);
 
-/* Append bytecode to the code section. Returns the byte offset where it was written. */
+/* I append bytecode and return its starting offset. Empty input returns the
+ * current offset without reading code (which may be NULL) or changing storage. */
 uint32_t nvm_append_code(NvmModule *mod, const uint8_t *code, uint32_t size);
 
 /* Add a debug entry (bytecode offset -> source line + column).

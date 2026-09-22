@@ -108,12 +108,12 @@ static void private_transitions(VmDispatchProfile profile,unsigned width) {
     VmState vm;vm_init(&vm,m);vm_set_dispatch_profile(&vm,profile);enter_core(&vm);
     vm.memory=calloc(8,1);CHECK(vm.memory);vm.memory_size=8;
     VmOrdinaryAdmission cert={0};VmOwnedInvocationProof proof={0};pending_calls=0;
-    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(cert.valid && pending_calls==1);
-    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(cert.valid && pending_calls==1 && vm.frame_count==2);
-    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(cert.valid && pending_calls==1 && vm.frame_count==1);
-    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(!cert.valid && pending_calls==1 && vm.memory[0]==9);
-    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(cert.valid && pending_calls==1);
-    CHECK(vm_core_execute_scoped(&vm,&proof,&cert).type==TRAP_NONE && pending_calls==1);
+    assertion(vm_core_execute_scoped(&vm,&proof,&cert,NULL));CHECK(cert.valid && pending_calls==1);
+    assertion(vm_core_execute_scoped(&vm,&proof,&cert,NULL));CHECK(cert.valid && pending_calls==1 && vm.frame_count==2);
+    assertion(vm_core_execute_scoped(&vm,&proof,&cert,NULL));CHECK(cert.valid && pending_calls==1 && vm.frame_count==1);
+    assertion(vm_core_execute_scoped(&vm,&proof,&cert,NULL));CHECK(!cert.valid && pending_calls==1 && vm.memory[0]==9);
+    assertion(vm_core_execute_scoped(&vm,&proof,&cert,NULL));CHECK(cert.valid && pending_calls==1);
+    CHECK(vm_core_execute_scoped(&vm,&proof,&cert,NULL).type==TRAP_NONE && pending_calls==1);
     CHECK(vm.stack_size==1 && vm.stack[0].as.i64==42 && !vm.frame_count);
     vm_destroy(&vm);nvm_module_free(m);
 }
@@ -142,11 +142,11 @@ static void exclusions(VmDispatchProfile profile) {
         if(mode==1){modeled_pump=true;vm.callbacks=(NanoCallbackRuntime *)&modeled_pump;}
         if(mode==2){linked=ordinary("PUSH_I64 8\nRET\n",false);CHECK(vm_link_module(&vm,linked)!=UINT32_MAX);}
         enter_core(&vm);VmOrdinaryAdmission cert={0};VmOwnedInvocationProof proof={0};pending_calls=0;
-        assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(!cert.valid);
+        assertion(vm_core_execute_scoped(&vm,&proof,&cert,NULL));CHECK(!cert.valid);
         unsigned first=pending_calls;CHECK(first==(mode==2?2u:1u));
-        assertion(vm_core_execute_scoped(&vm,&proof,&cert));
+        assertion(vm_core_execute_scoped(&vm,&proof,&cert,NULL));
         CHECK(!cert.valid && pending_calls==(mode==2?first+1:first));
-        CHECK(vm_core_execute_scoped(&vm,&proof,&cert).type==TRAP_NONE &&
+        CHECK(vm_core_execute_scoped(&vm,&proof,&cert,NULL).type==TRAP_NONE &&
               pending_calls==(mode==2?first+2:first));
         if(mode==1){vm.callbacks=NULL;modeled_pump=false;}
         vm_destroy(&vm);nvm_module_free(linked);nvm_module_free(m);
@@ -241,13 +241,13 @@ static void refusal_and_owned(void) {
     CHECK(vm_invoke(&vm,0,NULL,0,&out)==VM_ERR_TYPE_ERROR && out.as.i64==-9);
     CHECK(!external_calls && !prints && !vm.stack_size && !vm.frame_count);
     enter_core(&vm);VmOrdinaryAdmission rejected={0};VmOwnedInvocationProof absent={0};
-    CHECK(vm_core_execute_scoped(&vm,&absent,&rejected).type==TRAP_ERROR && !rejected.valid);
+    CHECK(vm_core_execute_scoped(&vm,&absent,&rejected,NULL).type==TRAP_ERROR && !rejected.valid);
     vm_destroy(&vm);nvm_module_free(m);
     m=fixture("PUSH_I64 42\nOWN_PACK 0\nOWN_STORE_LOCAL 0\nPUSH_BOOL 1\nASSERT\nOWN_UNPACK_LOCAL 0\nRET\n",false,false);
     CHECK(nvm_verify(m).ok);vm_init(&vm,m);VmOwnedInvocationProof proof={0};CHECK(vm_ownership_admit(&vm,&proof));
-    enter_core(&vm);VmOrdinaryAdmission cert={0};assertion(vm_core_execute_scoped(&vm,&proof,&cert));
+    enter_core(&vm);VmOrdinaryAdmission cert={0};assertion(vm_core_execute_scoped(&vm,&proof,&cert,NULL));
     CHECK(!cert.valid && vm.references.active);
-    CHECK(vm_core_execute_scoped(&vm,&proof,&cert).type==TRAP_NONE && !cert.valid);
+    CHECK(vm_core_execute_scoped(&vm,&proof,&cert,NULL).type==TRAP_NONE && !cert.valid);
     CHECK(vm.stack_size==1 && vm.stack[0].as.i64==42 && !vm.references.active);
     vm_destroy(&vm);nvm_module_free(m);
 }
@@ -323,7 +323,7 @@ static void bare_file_refusals(void) {
         enter_core(&vm);VmOrdinaryAdmission cert={0};VmOwnedInvocationProof proof={0};
         uint32_t stack=vm.stack_size,frames=vm.frame_count;
         pending_calls=0;
-        VmTrap trap=vm_core_execute_scoped(&vm,&proof,&cert);
+        VmTrap trap=vm_core_execute_scoped(&vm,&proof,&cert,NULL);
         CHECK(trap.type==TRAP_ERROR && trap.data.error.code==VM_ERR_TYPE_ERROR);
         CHECK(!cert.valid && pending_calls==1 && vm.stack_size==stack && vm.frame_count==frames);
         CHECK(!prints && !external_calls);

@@ -969,6 +969,22 @@ shadow nisa_value_type_matches {
     assert (not (nisa_value_type_matches parser "Mode" "bool"))
 }
 
+# I promote bytes for integer operations without changing declared value contracts.
+fn nisa_integer_operand(parser: Parser, actual: string) -> bool {
+    return (or (== actual "u8") (nisa_value_type_matches parser actual "int"))
+}
+shadow nisa_integer_operand {
+    let tokens: List<LexerToken> = (tokenize_string "enum Mode { Low = -3 }" "integer.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "integer.nano")
+    assert (nisa_integer_operand parser "u8")
+    assert (nisa_integer_operand parser "int")
+    assert (nisa_integer_operand parser "Mode")
+    assert (not (nisa_integer_operand parser "float"))
+    assert (not (nisa_integer_operand parser "bool"))
+    assert (not (nisa_integer_operand parser "array<u8>"))
+    assert (not (nisa_value_type_matches parser "u8" "int"))
+}
+
 # I retain concrete spelling at the source boundary; wire IDs name declarations.
 fn nisa_union_base(name: string) -> string {
     let compact: string = (nisa_compact_type name)
@@ -1632,6 +1648,7 @@ fn nisa_type_ok(parser: Parser, t: string) -> bool {
     if (>= (nisa_enum_index parser t) 0) { return true }
     if (and (str_starts_with t "array<") (str_ends_with t ">")) {
         let element: string = (str_substring t 6 (- (str_length t) 7))
+        if (or (== element "u8") (== element "byte")) { return true }
         if (== element "float") { return true }
         if (or (== element "bool") (or (== element "int") (== element "string"))) { return true }
         return (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element))
@@ -1658,6 +1675,8 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "u8")
     assert (nisa_type_ok p "Point")
     assert (nisa_type_ok p "Tok")
+    assert (nisa_type_ok p "array<u8>")
+    assert (nisa_type_ok p "array<byte>")
     assert (nisa_type_ok p "array<string>")
     assert (nisa_type_ok p "List<string>")
     assert (nisa_type_ok p "List<Tok>")
@@ -2435,6 +2454,7 @@ shadow nisa_declared_push {
 }
 
 fn nisa_element_type(parser: Parser, container: string) -> string {
+    if (or (== container "array<u8>") (== container "array<byte>")) { return "u8" }
     if (== container "array<float>") { return "float" }
     if (== container "array<bool>") { return "bool" }
     if (and (str_starts_with container "array<") (str_ends_with container ">")) {
@@ -2458,6 +2478,50 @@ shadow nisa_element_type {
     assert (== (nisa_element_type parser "List<Entry>") "Entry")
     assert (== (nisa_element_type parser "array<bool>") "bool")
     assert (== (nisa_element_type parser "array<float>") "float")
+}
+
+# I admit only the exact unbound scalar conversion supported by CAST_STRING.
+fn nisa_to_string_result(parser: Parser, call: ASTCall) -> string {
+    if (or (>= (nisa_local_find "to_string") 0) (>= (nisa_global_find "to_string" call.line) 0)) {
+        return (nisa_fail "I cannot use a bound value as a to_string intrinsic")
+    }
+    if (!= call.arg_count 1) { return (nisa_fail "I require one scalar argument for to_string") }
+    let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
+    if (or (== actual "int") (or (== actual "u8") (or (== actual "float") (or (== actual "bool") (== actual "string"))))) { return "string" }
+    return (nisa_fail "I require int, u8, float, bool or string for to_string")
+}
+shadow nisa_to_string_result {
+    let text: string = (nanoisa_emit_nasm "fn main()->string { let value:u8=200 return (to_string value) }")
+    assert (str_contains text "LOAD_LOCAL 0\n  CAST_STRING\n  RET")
+    assert (== (nanoisa_emit_nasm "fn main()->string { return (to_string) }") "")
+    assert (== (nanoisa_emit_nasm "fn main()->string { return (to_string [1]) }") "")
+    assert (== (nanoisa_emit_nasm "fn main()->string { let to_string:int=1 return (to_string 7) }") "")
+    let declared: string = (nanoisa_emit_nasm "fn to_string(value:int)->int{return value} fn main()->int{return (to_string 7)}")
+    assert (str_contains declared "TAIL_CALL to_string")
+    assert (not (str_contains declared "CAST_STRING"))
+    let reset: int = (nisa_reset)
+}
+
+fn nisa_pop_result(parser: Parser, call: ASTCall) -> string {
+    if (!= call.arg_count 1) { return (nisa_fail "I require one array receiver for array_pop") }
+    let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let container: string = (nisa_expr_type parser receiver.node_id receiver.node_type)
+    if (not (str_starts_with container "array<")) { return (nisa_fail "I require an array receiver for array_pop") }
+    let element: string = (nisa_element_type parser container)
+    if (== element "") { return (nisa_fail "I require a supported array element type for array_pop") }
+    return element
+}
+shadow nisa_pop_result {
+    let reset: int = (nisa_reset)
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string (+ "f" "n pop(bytes: array<u8>) -> u8 { return (array_pop bytes) }") "pop.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "pop.nano")
+    set nisa_names ["bytes"]
+    set nisa_types ["array<u8>"]
+    assert (== (nisa_pop_result parser (parser_get_call parser 0)) "u8")
+    assert (== (nisa_element_type parser "array<byte>") "u8")
+    let final_reset: int = (nisa_reset)
 }
 
 fn nisa_access_result(parser: Parser, call: ASTCall) -> string {
@@ -2619,6 +2683,11 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
                 return ""
             }
         }
+        if (and (== target_name "to_string") (< (nisa_call_index parser call) 0)) { return (nisa_to_string_result parser call) }
+        if (and (== target_name "array_pop") (< (nisa_call_index parser call) 0)) {
+            if (or (>= (nisa_local_find target_name) 0) (>= (nisa_global_find target_name call.line) 0)) { return "" }
+            return (nisa_pop_result parser call)
+        }
         if (== target_name "range") { return "array<int>" }
         if (== target_name "array_new") {
             if (!= call.arg_count 2) { return "" }
@@ -2668,7 +2737,11 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     }
     if (== node_type ParseNodeType.PNODE_BINARY_OP) {
         let binary: ASTBinaryOp = (parser_get_binary_op parser node_id)
-        if binary.is_unary { return (nisa_expr_type parser binary.right binary.right_type) }
+        if binary.is_unary {
+            let operand: string = (nisa_expr_type parser binary.right binary.right_type)
+            if (== operand "u8") { return "int" }
+            return operand
+        }
         if (or (== binary.op LexerTokenType.TOKEN_EQ)
                (or (== binary.op LexerTokenType.TOKEN_NE)
                    (or (== binary.op LexerTokenType.TOKEN_LT)
@@ -2684,7 +2757,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         if (and (== binary.op LexerTokenType.TOKEN_PLUS)
                 (and (== left "string") (== right "string"))) { return "string" }
         if (and (== left "float") (== right "float")) { return "float" }
-        if (and (nisa_value_type_matches parser left "int") (nisa_value_type_matches parser right "int")) { return "int" }
+        if (and (nisa_integer_operand parser left) (nisa_integer_operand parser right)) { return "int" }
     }
     return ""
 }
@@ -2822,7 +2895,11 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
             if (or (< literal 0) (> literal 255)) { return (nisa_fail "I require a byte literal from 0 through 255") }
             return (nisa_line_imm "PUSH_U8" (int_to_string literal))
         }
-        if (!= (nisa_expr_type parser node_id node_type) "u8") {
+        let actual: string = (nisa_expr_type parser node_id node_type)
+        if (or (== actual "int") (>= (nisa_enum_index parser actual) 0)) {
+            return (+ (nisa_emit_expr parser node_id node_type) (nisa_line "CAST_U8"))
+        }
+        if (!= actual "u8") {
             return (nisa_fail "I require the declared byte value type")
         }
     }
@@ -2866,6 +2943,7 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
         let mut tag: string = "1"
         let element: string = (nisa_element_type parser expected)
+        if (== element "u8") { set tag "2" }
         if (== element "string") { set tag "5" }
         if (== element "bool") { set tag "4" }
         if (== element "float") { set tag "3" }
@@ -2874,10 +2952,14 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         let mut i: int = 0
         while (< i literal.element_count) {
             let value: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
-            if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
-                return (nisa_fail "array element does not match my declared type")
+            if (== element "u8") {
+                set output (+ output (nisa_emit_expected_expr parser value.node_id value.node_type "u8"))
+            } else {
+                if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
+                    return (nisa_fail "array element does not match my declared type")
+                }
+                set output (+ output (nisa_emit_expr parser value.node_id value.node_type))
             }
-            set output (+ output (nisa_emit_expr parser value.node_id value.node_type))
             set i (+ i 1)
         }
         return (+ output (nisa_line_imm "ARR_LITERAL" (+ tag (+ " " (int_to_string literal.element_count)))))
@@ -2885,6 +2967,11 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
     return (nisa_emit_expr parser node_id node_type)
 }
 shadow nisa_emit_expected_expr {
+    let byte_array_diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let byte_array_tokens: List<LexerToken> = (tokenize_string (+ "f" "n values() -> array<u8> { return [1, 255] }") "bytes.nano" byte_array_diagnostics)
+    let byte_array_parser: Parser = (parse_program byte_array_tokens (list_LexerToken_length byte_array_tokens) "bytes.nano")
+    let byte_array_text: string = (nisa_emit_expected_expr byte_array_parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<u8>")
+    assert (== byte_array_text "  PUSH_U8 1\n  PUSH_U8 255\n  ARR_LITERAL 2 2\n")
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = (+ "f" "n main() -> array<string> { return [] }")
     let tokens: List<LexerToken> = (tokenize_string source "array.nano" diagnostics)
@@ -2893,7 +2980,7 @@ shadow nisa_emit_expected_expr {
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<int>") "  ARR_LITERAL 1 0\n")
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<bool>") "  ARR_LITERAL 4 0\n")
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<float>") "  ARR_LITERAL 3 0\n")
-    let byte_tokens: List<LexerToken> = (tokenize_string "fn byte() -> u8 { return 255 }" "byte.nano" diagnostics)
+    let byte_tokens: List<LexerToken> = (tokenize_string "fn byte_value() -> u8 { return 255 }" "byte.nano" diagnostics)
     let byte_parser: Parser = (parse_program byte_tokens (list_LexerToken_length byte_tokens) "byte.nano")
     let byte_function: ASTFunction = (parser_get_function byte_parser 0)
     let byte_block: ASTBlock = (parser_get_block byte_parser byte_function.body)
@@ -2906,6 +2993,25 @@ shadow nisa_emit_expected_expr {
     let tuple_block: ASTBlock = (parser_get_block tuple_parser tuple_function.body)
     let tuple_statement: ASTStmtRef = (list_ASTStmtRef_get tuple_block.statements 0)
     let tuple_return: ASTReturn = (parser_get_return tuple_parser tuple_statement.node_id)
+    let narrow_source: string = (+ "f" "n narrow() -> u8 { return (+ 255 2) }")
+    let narrow_tokens: List<LexerToken> = (tokenize_string narrow_source "narrow.nano" diagnostics)
+    let narrow_parser: Parser = (parse_program narrow_tokens (list_LexerToken_length narrow_tokens) "narrow.nano")
+    let narrow_return: ASTReturn = (parser_get_return narrow_parser 0)
+    let narrow_text: string = (nisa_emit_expected_expr narrow_parser narrow_return.value narrow_return.value_type "u8")
+    assert (str_contains narrow_text "I64_ADD")
+    assert (str_ends_with narrow_text "  CAST_U8\n")
+    let enum_reset: int = (nisa_reset)
+    let enum_tokens: List<LexerToken> = (tokenize_string "enum Edge { Below = -1, Above = 256 } fn below() -> Edge { return Edge.Below } fn narrow() -> u8 { return (below) } fn above() -> Edge { return Edge.Above }" "enum-byte.nano" diagnostics)
+    let enum_parser: Parser = (parse_program enum_tokens (list_LexerToken_length enum_tokens) "enum-byte.nano")
+    assert (not (parser_has_error enum_parser))
+    let enum_member: ASTReturn = (parser_get_return enum_parser 0)
+    assert (== (nisa_emit_expected_expr enum_parser enum_member.value enum_member.value_type "u8") "  PUSH_I64 -1\n  CAST_U8\n")
+    let enum_call: ASTReturn = (parser_get_return enum_parser 1)
+    let enum_call_text: string = (nisa_emit_expected_expr enum_parser enum_call.value enum_call.value_type "u8")
+    assert (str_contains enum_call_text "CALL")
+    assert (str_ends_with enum_call_text "  CAST_U8\n")
+    let enum_above: ASTReturn = (parser_get_return enum_parser 2)
+    assert (== (nisa_emit_expected_expr enum_parser enum_above.value enum_above.value_type "u8") "  PUSH_I64 256\n  CAST_U8\n")
     let tuple_text: string = (nisa_emit_expected_expr tuple_parser tuple_return.value tuple_return.value_type "(int,string)")
     assert (str_contains tuple_text "AGG_PACK 2 0 0 2")
 }
@@ -2974,39 +3080,72 @@ fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
     } else {
         let sidx: int = (nisa_struct_index parser lit.struct_name)
         let sd: ASTStruct = (parser_get_struct_def parser sidx)
-        let mut out: string = ""
+        if (!= lit.field_count sd.field_count) {
+            return (nisa_fail "I require every declared record field exactly once")
+        }
+        let mut destinations: array<int> = []
+        let mut slots: array<string> = []
         let mut i: int = 0
-        while (< i sd.field_count) {
-            let fname: string = (at sd.field_names i)
-            let mut found: bool = false
+        while (< i lit.field_count) {
+            let fname: string = (at lit.field_names i)
+            let mut destination: int = (- 0 1)
             let mut j: int = 0
-            while (< j lit.field_count) {
-                if (== (at lit.field_names j) fname) {
-                    let vid: int = (at lit.field_value_ids j)
-                    let vty: int = (at lit.field_value_types j)
-                    let expected: string = (at sd.field_types i)
-                    let contextual_array: bool = (and (== vty ParseNodeType.PNODE_ARRAY_LITERAL)
-                        (and (str_starts_with expected "array<") (nisa_type_ok parser expected)))
-                    let contextual_map: bool = (and (!= (nisa_map_value_type expected) "")
-                        (nisa_is_map_constructor parser vid vty))
-                    if (and (not (or contextual_array contextual_map)) (not (nisa_value_type_matches parser (nisa_expr_type parser vid vty) expected))) {
-                        return (nisa_fail (+ "I require the declared type for record field " fname))
-                    }
-                    set out (+ out (nisa_emit_expected_expr parser vid vty expected))
-                    set found true
-                    set j lit.field_count
-                } else {
-                    set j (+ j 1)
+            while (< j sd.field_count) {
+                if (== fname (at sd.field_names j)) { set destination j }
+                set j (+ j 1)
+            }
+            if (< destination 0) {
+                return (nisa_fail (+ "unknown record field " fname))
+            }
+            set j 0
+            while (< j i) {
+                if (== (at destinations j) destination) {
+                    return (nisa_fail (+ "duplicate record field " fname))
                 }
+                set j (+ j 1)
             }
-            if (not found) {
-                return (nisa_fail (+ "missing record field " fname))
-            } else {
-                set i (+ i 1)
+            let vid: int = (at lit.field_value_ids i)
+            let vty: int = (at lit.field_value_types i)
+            let expected: string = (at sd.field_types destination)
+            let contextual_array: bool = (and (== vty ParseNodeType.PNODE_ARRAY_LITERAL)
+                (and (str_starts_with expected "array<") (nisa_type_ok parser expected)))
+            let contextual_map: bool = (and (!= (nisa_map_value_type expected) "")
+                (nisa_is_map_constructor parser vid vty))
+            if (and (not (or contextual_array contextual_map)) (not (nisa_value_type_matches parser (nisa_expr_type parser vid vty) expected))) {
+                return (nisa_fail (+ "I require the declared type for record field " fname))
             }
+            set destinations (array_push destinations destination)
+            set i (+ i 1)
+        }
+        # I reserve all anonymous roots before nested expressions add locals.
+        set i 0
+        while (< i sd.field_count) {
+            set slots (array_push slots (nisa_temp_local (at sd.field_types i)))
+            set i (+ i 1)
+        }
+        let mut out: string = ""
+        set i 0
+        while (< i lit.field_count) {
+            let destination: int = (at destinations i)
+            set out (+ out (nisa_emit_expected_expr parser (at lit.field_value_ids i)
+                (at lit.field_value_types i) (at sd.field_types destination)))
+            set out (+ out (nisa_line_imm "STORE_LOCAL" (at slots destination)))
+            set i (+ i 1)
+        }
+        set i 0
+        while (< i sd.field_count) {
+            set out (+ out (nisa_line_imm "LOAD_LOCAL" (at slots i)))
+            set i (+ i 1)
         }
         let imm: string = (+ "0 " (+ (int_to_string sidx) (+ " 0 " (int_to_string sd.field_count))))
-        return (+ out (nisa_line_imm "AGG_PACK" imm))
+        set out (+ out (nisa_line_imm "AGG_PACK" imm))
+        set i 0
+        while (< i sd.field_count) {
+            set out (+ out (nisa_line "PUSH_VOID"))
+            set out (+ out (nisa_line_imm "STORE_LOCAL" (at slots i)))
+            set i (+ i 1)
+        }
+        return out
     }
 }
 
@@ -3035,6 +3174,17 @@ shadow nisa_emit_struct_literal {
     assert (str_contains text2 "PUSH_I64 1")
     assert (str_contains text2 "PUSH_STR")
     assert (str_contains text2 "AGG_PACK 0 0 0 2")
+    let reset_reverse: int = (nisa_reset)
+    let src3: string = (+ "struct Point { x: int, y: int } " (+ "f" "n getx() -> int { let p: Point = Point { y: 4, x: 3 } return p.x } shadow getx { assert true }"))
+    let toks3: List<LexerToken> = (tokenize_string src3 "t.nano" diags)
+    let p3: Parser = (parse_program toks3 (list_LexerToken_length toks3) "t.nano")
+    let func3: ASTFunction = (parser_get_function p3 0)
+    let block3: ASTBlock = (parser_get_block p3 func3.body)
+    let stmt3: ASTStmtRef = (list_ASTStmtRef_get block3.statements 0)
+    let l3: ASTLet = (parser_get_let p3 stmt3.node_id)
+    let text3: string = (nisa_emit_struct_literal p3 l3.value)
+    assert (str_contains text3 "PUSH_I64 4\n  STORE_LOCAL 1\n  PUSH_I64 3\n  STORE_LOCAL 0")
+    assert (str_contains text3 "LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  AGG_PACK 0 0 0 2\n  PUSH_VOID\n  STORE_LOCAL 0\n  PUSH_VOID\n  STORE_LOCAL 1")
     let _2: int = (nisa_reset)
 }
 
@@ -3247,11 +3397,13 @@ fn nisa_emit_push_call(parser: Parser, call: ASTCall, name: string) -> string {
         let declared: string = (str_substring name 5 (- (str_length name) 10))
         if (!= declared element) { return (nisa_fail "I require the list append to match its element type") }
     }
-    if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
+    if (and (!= element "u8") (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
         return (nisa_fail "I require an append value matching the element type")
     }
     let receiver: string = (nisa_emit_expected_expr parser object.node_id object.node_type container)
-    let appended: string = (nisa_emit_expr parser value.node_id value.node_type)
+    let mut appended: string = ""
+    if (== element "u8") { set appended (nisa_emit_expected_expr parser value.node_id value.node_type element) }
+    else { set appended (nisa_emit_expr parser value.node_id value.node_type) }
     return (+ receiver (+ appended (nisa_line "ARR_PUSH")))
 }
 shadow nisa_emit_push_call {
@@ -3265,6 +3417,13 @@ shadow nisa_emit_push_call {
     assert (== (nisa_emit_push_call parser (parser_get_call parser 0) "array_push") "")
     assert (not nisa_ok)
     let reset_again: int = (nisa_reset)
+    let byte_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { (array_push values (+ 255 2)) return 0 }" "byte-push.nano" (diag_list_new))
+    let byte_parser: Parser = (parse_program byte_tokens (list_LexerToken_length byte_tokens) "byte-push.nano")
+    set nisa_names ["values"]
+    set nisa_types ["array<u8>"]
+    let byte_text: string = (nisa_emit_push_call byte_parser (parser_get_call byte_parser 0) "array_push")
+    assert (str_contains byte_text "LOAD_LOCAL 0\n  PUSH_I64 255\n  PUSH_I64 2\n  I64_ADD\n  CAST_U8\n  ARR_PUSH")
+    let reset_byte: int = (nisa_reset)
 }
 
 fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
@@ -3281,8 +3440,14 @@ fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
         let declared: string = (str_substring name 5 (- (str_length name) 9))
         if (!= declared element) { return (nisa_fail "I require the list setter to match its element type") }
     }
-    if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
+    if (and (!= element "u8") (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
         return (nisa_fail "I require a replacement value matching the element type")
+    }
+    if (== element "u8") {
+        let receiver: string = (nisa_emit_expr parser object.node_id object.node_type)
+        let position: string = (nisa_emit_expr parser index.node_id index.node_type)
+        let replacement: string = (nisa_emit_expected_expr parser value.node_id value.node_type element)
+        return (+ receiver (+ position (+ replacement (+ (nisa_line "ARR_SET") (nisa_line "POP")))))
     }
     return (+ (nisa_emit_call_args parser call) (+ (nisa_line "ARR_SET") (nisa_line "POP")))
 }
@@ -3294,6 +3459,9 @@ shadow nisa_emit_set_call {
     set nisa_types ["array<int>"]
     let text: string = (nisa_emit_set_call parser (parser_get_call parser 0) "array_set")
     assert (str_contains text "ARR_SET\n  POP")
+    set nisa_types ["array<u8>"]
+    let byte_text: string = (nisa_emit_set_call parser (parser_get_call parser 0) "array_set")
+    assert (str_contains byte_text "PUSH_U8 7\n  ARR_SET\n  POP")
     let reset: int = (nisa_reset)
 }
 
@@ -3513,6 +3681,17 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
 
     if (and (or (== function_name "float_from_bits") (== function_name "float_to_bits")) (or (>= (nisa_local_find function_name) 0) (>= (nisa_global_find function_name call.line) 0))) {
         return (nisa_fail "I cannot use a bound value as a binary64 bit intrinsic")
+    }
+    if (and (== function_name "to_string") (< declared_index 0)) {
+        if (== (nisa_to_string_result parser call) "") { return "" }
+        return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_STRING"))
+    }
+    if (and (== function_name "array_pop") (< declared_index 0)) {
+        if (or (>= (nisa_local_find function_name) 0) (>= (nisa_global_find function_name call.line) 0)) {
+            return (nisa_fail "I cannot use a bound value as an array_pop intrinsic")
+        }
+        if (== (nisa_pop_result parser call) "") { return "" }
+        return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_POP"))
     }
     if (< declared_index 0) {
         if (== function_name "abs") { return (nisa_emit_abs parser call) }
@@ -3880,9 +4059,10 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                     let left_type: string = (nisa_expr_type parser binop.left binop.left_type)
                     let right_type: string = (nisa_expr_type parser binop.right binop.right_type)
                     if binop.is_unary {
-                        let operand: string = (nisa_emit_expr parser binop.right binop.right_type)
+                        let mut operand: string = (nisa_emit_expr parser binop.right binop.right_type)
                         if (== right_type "float") { return (+ operand (nisa_line "F64_NEG")) }
-                        if (nisa_value_type_matches parser right_type "int") { return (+ operand (nisa_line "I64_NEG")) }
+                        if (== right_type "u8") { set operand (+ operand (nisa_line "CAST_INT")) }
+                        if (nisa_integer_operand parser right_type) { return (+ operand (nisa_line "I64_NEG")) }
                         return (nisa_fail "I require a numeric unary operand")
                     }
                     if (or (== binop.op LexerTokenType.TOKEN_AND) (== binop.op LexerTokenType.TOKEN_OR)) {
@@ -3940,8 +4120,10 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                             if (== mnemonic "") {
                                 return (nisa_fail "unsupported integer operator")
                             } else {
-                                let left: string = (nisa_emit_expr parser binop.left binop.left_type)
-                                let right: string = (nisa_emit_expr parser binop.right binop.right_type)
+                                let mut left: string = (nisa_emit_expr parser binop.left binop.left_type)
+                                if (== left_type "u8") { set left (+ left (nisa_line "CAST_INT")) }
+                                let mut right: string = (nisa_emit_expr parser binop.right binop.right_type)
+                                if (== right_type "u8") { set right (+ right (nisa_line "CAST_INT")) }
                                 return (+ (+ left right) (nisa_line mnemonic))
                             }
                         }
@@ -4640,6 +4822,9 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         } else {
             if nisa_void_return { return (nisa_fail "a void function cannot return a value") }
         }
+        if (and (== nisa_return_type "u8") (!= (nisa_expr_type parser r.value r.value_type) "u8")) {
+            return (+ (nisa_emit_expected_expr parser r.value r.value_type nisa_return_type) (nisa_line "RET"))
+        }
         if (or (== r.value_type ParseNodeType.PNODE_CALL) (== r.value_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
             let call: ASTCall = (nisa_get_call parser r.value r.value_type)
             if (and (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
@@ -4654,6 +4839,9 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                 }
                 if (and (== function_name "map_new") (< call_index 0)) {
                     return (+ (nisa_emit_expected_expr parser r.value r.value_type nisa_return_type) (nisa_line "RET"))
+                }
+                if (and (== function_name "to_string") (< call_index 0)) {
+                    return (+ (nisa_emit_call parser call) (nisa_line "RET"))
                 }
                 if (and (!= (nisa_string_binary_opcode function_name) "") (< call_index 0)) {
                     return (+ (nisa_emit_call parser call) (nisa_line "RET"))
@@ -4886,6 +5074,8 @@ shadow nisa_result_tag {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_result_tag p "void") "void")
     assert (== (nisa_result_tag p "u8") "u8")
+    assert (== (nisa_result_tag p "array<u8>") "array")
+    assert (== (nisa_result_tag p "array<byte>") "array")
     assert (== (nisa_result_tag p "Tok") "struct")
     assert (== (nisa_result_tag p "Box") "struct")
     assert (== (nisa_result_tag p "List<Tok>") "array")
@@ -5042,7 +5232,7 @@ shadow nisa_emit_function {
     let p5: Parser = (parse_program toks5 (list_LexerToken_length toks5) "t.nano")
     let gx: ASTFunction = (parser_get_function p5 0)
     let gx_text: string = (nisa_emit_function p5 gx)
-    assert (str_contains gx_text ".function getx 0 1 0 int 1")
+    assert (str_contains gx_text ".function getx 0 3 0 int 1")
     assert (str_contains gx_text "AGG_PACK 0 0 0 2")
     assert (str_contains gx_text "AGG_GET 0")
     let src6: string = (+ "f" "n is_pos(c: int) -> bool { return (> c 0) } shadow is_pos { assert true }")
@@ -5222,7 +5412,7 @@ shadow nisa_emit_function {
     let p29: Parser = (parse_program toks29 (list_LexerToken_length toks29) "t.nano")
     let get_s_fn: ASTFunction = (parser_get_function p29 0)
     let get_s_text: string = (nisa_emit_function p29 get_s_fn)
-    assert (str_contains get_s_text ".function get_s 0 1 0 string 1")
+    assert (str_contains get_s_text ".function get_s 0 3 0 string 1")
     assert (str_contains get_s_text "AGG_PACK")
     assert (str_contains get_s_text "AGG_GET 1")
     let src30: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n grow_t() -> string { let xs: List<Tok> = (list_Tok_new) (list_Tok_push xs Tok { t: 1, s: \"hi\" }) let p: Tok = (list_Tok_get xs 0) return p.s } shadow grow_t { assert true }"))
@@ -5230,7 +5420,7 @@ shadow nisa_emit_function {
     let p30: Parser = (parse_program toks30 (list_LexerToken_length toks30) "t.nano")
     let grow_t_fn: ASTFunction = (parser_get_function p30 0)
     let grow_t_text: string = (nisa_emit_function p30 grow_t_fn)
-    assert (str_contains grow_t_text ".function grow_t 0 2 0 string 1")
+    assert (str_contains grow_t_text ".function grow_t 0 4 0 string 1")
     assert (str_contains grow_t_text "ARR_NEW 8")
     assert (str_contains grow_t_text "ARR_PUSH")
     assert (str_contains grow_t_text "POP")
@@ -5241,7 +5431,7 @@ shadow nisa_emit_function {
     let p31: Parser = (parse_program toks31 (list_LexerToken_length toks31) "t.nano")
     let one_t_fn: ASTFunction = (parser_get_function p31 0)
     let one_t_text: string = (nisa_emit_function p31 one_t_fn)
-    assert (str_contains one_t_text ".function one_t 0 1 0 array 1")
+    assert (str_contains one_t_text ".function one_t 0 3 0 array 1")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

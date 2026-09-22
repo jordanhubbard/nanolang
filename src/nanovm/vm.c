@@ -12,6 +12,7 @@
  */
 
 #include "vm.h"
+#include "record_array_runtime_private.h"
 #include "../binary64_bits.h"
 #include "../binary64_arithmetic.h"
 #include "vm_ffi.h"
@@ -22,6 +23,7 @@
 #include "../nanoisa/nvm_v2_sections.h"
 #include "../utf8.h"
 #include <stdlib.h>
+#include <assert.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -210,7 +212,7 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
 static bool vm_module_ownership_required(const NvmModule *module, bool *required,
                                           const NvmServiceClassification *facts) {
     if (required) *required=false;
-    if (!module || !required || nvm_service_pending_classified(module,facts)) return false;
+    if (!module || !required || (nvm_capture_bindings_present(module) || nvm_service_pending_classified(module,facts))) return false;
     if(nvm_owned_array_route_classified(module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED){*required=true;return true;}
     if(nvm_mixed_samples_candidate_classified(module,facts)){*required=true;return true;}
     if (!module->ownership_data && !module->ownership_size) return true;
@@ -222,7 +224,7 @@ static bool vm_module_ownership_required(const NvmModule *module, bool *required
 
 static bool vm_module_ownership_supported(const NvmModule *module, bool standalone,
                                            const NvmServiceClassification *facts) {
-    if (nvm_service_pending_classified(module,facts)) return false;
+    if ((nvm_capture_bindings_present(module) || nvm_service_pending_classified(module,facts))) return false;
     if(nvm_owned_array_route_classified(module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
         if(!standalone)return false;
         NvmOwnedArrayPlan *plan=NULL;
@@ -532,12 +534,40 @@ void vm_init(VmState *vm, const NvmModule *module) {
     vm_recompute_verified(vm);
 }
 
+/* I detach binding ownership before clearing physical locals. The stack may
+ * have moved since entry; I resolve its current address only at destruction. */
+static void vm_frame_clear_bindings(VmState *vm, VmCallFrame *frame) {
+    VmBindingState *state = frame->binding_state;
+    if (!state) return;
+    assert(state->heap == &vm->heap && state->count == frame->local_count);
+    assert((uint64_t)frame->stack_base + frame->local_count <= vm->stack_capacity);
+    frame->binding_state = NULL;
+    vm_binding_state_destroy(state, vm->stack ? vm->stack + frame->stack_base : NULL);
+}
+
+static void vm_frames_clear_bindings(VmState *vm, uint32_t first) {
+    for (uint32_t i = vm->frame_count; i > first; --i)
+        vm_frame_clear_bindings(vm, &vm->frames[i - 1]);
+}
+
 void vm_destroy(VmState *vm) {
     if (vm->callbacks && vm_callback_shutdown(vm) != NANO_CALLBACK_OK) {
         /* I cannot free roots beneath a running callback or on another thread. */
         return;
     }
     vm->callbacks_closed = true;
+    /* Direct/core invocation can leave frames after a trap. I detach their
+     * owned callables before destroying heap roots; borrowed effect closures
+     * do not acquire or release a second reference here. */
+    while (vm->frame_count) {
+        VmCallFrame *frame = &vm->frames[--vm->frame_count];
+        vm_frame_clear_bindings(vm, frame);
+        NanoValue callable = frame->owned_callable;
+        frame->owned_callable = val_void();
+        frame->closure = NULL;
+        vm_release(&vm->heap, callable);
+    }
+    vm->handler_count = 0;
     /* Release all globals */
     for (uint32_t i = 0; i < vm->global_count; i++) {
         vm_release(&vm->heap, vm->globals[i]);
@@ -599,7 +629,7 @@ bool vm_memory_resize(VmState *vm, uint64_t size) {
 }
 
 static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) {
-    if (!vm || !mod || vm->frame_count != 0) return (uint32_t)-1;
+    if (!vm || !mod || nvm_capture_bindings_present(mod) || vm->frame_count != 0) return (uint32_t)-1;
     VmDecodedModule decoded;
     char decode_error[VM_DECODE_ERROR_SIZE];
     if (!vm_decode_module(mod, &decoded, decode_error)) {
@@ -1445,6 +1475,7 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
         if(index>=vm->stack_size)return VM_ERR_TYPE_ERROR;
         retained=vm->stack[index];
         if(decoded->super_op==VM_SUPER_LOAD_LOCAL_FIELD) {
+            frame->instruction_ip += in->byte_length;
             if(retained.tag!=TAG_STRUCT || !retained.as.sval || decoded->super_operand>=retained.as.sval->field_count)return VM_ERR_TYPE_ERROR;
             retained=retained.as.sval->fields[decoded->super_operand];
         }
@@ -1471,13 +1502,27 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
     return VM_OK;
 }
 
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+#include "record_array_vm_prepare.inc"
+#endif
+
 static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof,
-                                      VmOrdinaryAdmission *ordinary) {
+                                      VmOrdinaryAdmission *ordinary,VmRecordArrayPrivate *record_array) {
     VmOwnedInvocationProof resumed;
     bool admitted=false, required=false;
     bool reuse=vm_ordinary_admission_matches(vm,ordinary);
+    bool record_execution=false;
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+    if(record_array) {
+        if(!vm_ra_context(record_array,vm))
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require this exact private ordinary instance.");
+        record_execution=true;
+    }
+#else
+    (void)record_array;
+#endif
     if (ordinary) ordinary->valid=false;
-    if (!reuse) {
+    if (!reuse && !record_execution) {
         /* These service facts expire at the end of this classification block.
          * No host callback or bytecode dispatch occurs while they are live. */
         NvmServiceClassification service;
@@ -1528,7 +1573,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
     /* Only ordinary classification is reused. The owned frame/reference
      * checks above and all dispatch/stack checks below remain on every entry.
      * Ordinary CALL/RET/effect transitions do not change module declarations. */
-    if (ordinary && !admitted && !required && vm_ordinary_admission_eligible(vm)) {
+    if (ordinary && !record_execution && !admitted && !required && vm_ordinary_admission_eligible(vm)) {
         ordinary->vm=vm;
         ordinary->module=vm->module;
         ordinary->valid=true;
@@ -1765,6 +1810,7 @@ vm_dispatch_top:
             VmTrap yielded = {.type = TRAP_YIELD};
             return yielded;
         }
+        frame->instruction_ip = vm->ip;
         VmReferenceActivation *reference_context=vm_reference_activation(vm,vm->frame_count-1);
         bool *dispatch_valid = NULL;
         VmDispatchModule *dispatch_module = dispatch_module_for(
@@ -1788,6 +1834,12 @@ vm_dispatch_top:
             return trap_error(vm, VM_ERR_DECODE,
                               "No dispatch instruction at offset %u", vm->ip);
         }
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+        if(record_execution) {
+            VmResult checked=vm_ra_preflight(record_array,decoded);
+            if(checked!=VM_OK)return trap_error(vm,checked,"I require the complete private opcode root contract.");
+        }
+#endif
         DecodedInstruction instr = decoded->instruction;
         uint32_t instr_start = vm->ip;
         uint32_t stack_before = vm->stack_size;
@@ -1870,6 +1922,9 @@ vm_dispatch_top:
                     return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
                                       "Local %u out of range", idx);
                 }
+                /* I have completed the local-load phase. The field access
+                 * retains its own portable source location under fusion. */
+                frame->instruction_ip = instr_start + instr.byte_length;
                 NanoValue aggregate = vm->stack[abs_idx];
                 NanoValue value = val_void();
                 if (aggregate.tag == TAG_STRUCT && aggregate.as.sval
@@ -2001,6 +2056,7 @@ vm_dispatch_top:
             for(uint16_t i=0;i<callee->local_count;i++) stack_push(vm,val_void());
             VmCallFrame *next=&vm->frames[vm->frame_count++];
             memset(next,0,sizeof(*next));next->fn_idx=1;next->return_ip=vm->ip;
+            next->instruction_ip=callee->code_offset;
             next->stack_base=base;next->local_count=callee->local_count;
             next->owned_callable=val_void();next->module=vm->module;
             frame=next;vm->current_fn=1;vm->ip=callee->code_offset;cur_fn=callee;
@@ -2934,11 +2990,17 @@ dynamic_div:
             }
 
             VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+            if(record_execution && vm->frame_count>record_array->maximum_frames)
+                record_array->maximum_frames=vm->frame_count;
+#endif
             new_frame->fn_idx = callee_idx;
             new_frame->return_ip = vm->ip;
+            new_frame->instruction_ip = callee->code_offset;
             new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
+            new_frame->binding_state = NULL;
             new_frame->closure = NULL;
             new_frame->owned_callable = val_void();
             new_frame->module = vm->module;
@@ -2988,6 +3050,7 @@ dynamic_div:
                 vm_retain(&vm->heap, args[i]);
             }
 
+            vm_frame_clear_bindings(vm, frame);
             while (vm->stack_size > frame->stack_base) {
                 NanoValue value = stack_pop(vm);
                 vm_release(&vm->heap, value);
@@ -3002,6 +3065,7 @@ dynamic_div:
              * entered through goes away with it. */
             vm_release(&vm->heap, frame->owned_callable);
             frame->fn_idx = callee_idx;
+            frame->instruction_ip = callee->code_offset;
             frame->local_count = callee->local_count;
             frame->closure = NULL;
             frame->owned_callable = val_void();
@@ -3065,9 +3129,11 @@ dynamic_div:
                 VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
                 new_frame->fn_idx = callee_idx;
                 new_frame->return_ip = vm->ip;
+                new_frame->instruction_ip = callee->code_offset;
                 new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
                 new_frame->local_count = callee->local_count;
+                new_frame->binding_state = NULL;
                 new_frame->closure = closure;
                 new_frame->module = callee_module;
                 /* stack_pop transferred the callable's reference to fn_val;
@@ -3145,11 +3211,13 @@ dynamic_div:
             vm->stack_size = base + function->local_count;
             VmCallFrame *activation = &vm->frames[vm->frame_count++];
             *activation = *owner;
+            activation->binding_state = NULL;
             activation->stack_base = base;
             activation->effect_owner = handler->owner + 1;
             activation->effect_local_start = handler->parameter_start;
             activation->owned_callable = val_void();
             activation->return_ip = vm->ip;
+            activation->instruction_ip = handler->target;
             frame = activation;
             vm->module = handler->module;
             vm->current_fn = owner->fn_idx;
@@ -3162,6 +3230,7 @@ dynamic_div:
             if (!frame->effect_owner || vm->stack_size != frame->stack_base + frame->local_count + 1)
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "I can resume only an active effect with one result.");
             NanoValue value = stack_pop(vm);
+            vm_frame_clear_bindings(vm, frame);
             while (vm->stack_size > frame->stack_base) vm_release(&vm->heap, stack_pop(vm));
             uint32_t return_ip = frame->return_ip;
             vm->frame_count--;
@@ -3185,6 +3254,7 @@ dynamic_div:
                     return trap_error(vm, VM_ERR_TYPE_ERROR, "I require the lexical return result shape.");
                 NanoValue results[UINT8_MAX];
                 for (uint8_t i = count; i > 0; i--) results[i - 1] = stack_pop(vm);
+                vm_frames_clear_bindings(vm, owner + 1);
                 uint32_t keep = vm->frames[owner].stack_base + vm->frames[owner].local_count;
                 while (vm->stack_size > keep) vm_release(&vm->heap, stack_pop(vm));
                 while (vm->frame_count > owner + 1) {
@@ -3251,7 +3321,8 @@ vm_return_values: ;
             }
             vm->stack_size -= returning->result_count;
 
-            /* Clean up locals */
+            /* Clean up locals after preserving independent result operands. */
+            vm_frame_clear_bindings(vm, frame);
             while (vm->stack_size > frame->stack_base) {
                 NanoValue v = stack_pop(vm);
                 vm_release(&vm->heap, v);
@@ -3384,9 +3455,11 @@ vm_return_values: ;
             VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
             new_frame->fn_idx = fn_idx_m;
             new_frame->return_ip = vm->ip;
+            new_frame->instruction_ip = callee->code_offset;
             new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
+            new_frame->binding_state = NULL;
             new_frame->closure = NULL;
             new_frame->owned_callable = val_void();
             new_frame->module = target;  /* This frame runs in the target module */
@@ -3925,6 +3998,9 @@ vm_return_values: ;
 
         VM_CASE(OP_STRUCT_NEW) {
             uint32_t def_idx = instr.operands[0].u32;
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+            if(record_execution)def_idx=record_array->record_layouts[def_idx];
+#endif
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, 0);
             if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the struct.");
             stack_push(vm, val_struct(s));
@@ -3973,6 +4049,9 @@ vm_return_values: ;
         VM_CASE(OP_STRUCT_LITERAL) {
             uint32_t def_idx = instr.operands[0].u32;
             uint16_t field_count = instr.operands[1].u16;
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+            if(record_execution)def_idx=record_array->record_layouts[def_idx];
+#endif
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, field_count);
             if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the struct.");
             /* Pop fields in reverse order */
@@ -4097,6 +4176,9 @@ vm_return_values: ;
                         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact ordinary mixed record identity");
                     layout=proof->records[layout].global_layout;
                 }
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+                if(record_execution)layout=record_array->record_layouts[layout];
+#endif
                 VmStruct *record = vm_struct_new(&vm->heap, layout, count);
                 if (!record) return trap_error(vm, VM_ERR_MEMORY,
                                                "AGG_PACK record allocation failed");
@@ -4620,6 +4702,10 @@ vm_dispatch_done: ;
     return trap_none();
 }
 
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+#include "record_array_vm_run.inc"
+#endif
+
 VmTrap vm_core_execute(VmState *vm) {
     if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
         VmTrap refused={.type=TRAP_ERROR};
@@ -4629,9 +4715,10 @@ VmTrap vm_core_execute(VmState *vm) {
     }
     bool mixed=vm && nvm_mixed_samples_candidate(vm->module);
     uint32_t base=mixed && vm->frame_count?vm->frames[0].stack_base:0;
-    VmTrap trap=vm_core_execute_scoped(vm,NULL,NULL);
+    VmTrap trap=vm_core_execute_scoped(vm,NULL,NULL,NULL);
     if(mixed && (trap.type==TRAP_ERROR ||
        (trap.type==TRAP_ASSERT && !val_truthy(trap.data.assert_check.condition)))) {
+        vm_frames_clear_bindings(vm, 0);
         while(vm->stack_size>base)vm_release(&vm->heap,stack_pop(vm));
         for(uint32_t f=0;f<vm->frame_count;f++) {
             vm_release(&vm->heap,vm->frames[f].owned_callable);
@@ -4681,19 +4768,19 @@ void vm_stack_trace(const VmState *vm, FILE *out) {
         uint32_t line = frame->current_line;
         uint32_t col  = frame->current_col;
         if (line == 0 && mod && mod->debug_count > 0) {
-            /* Find the debug entry with the largest bytecode_offset <= frame's ip.
-             * For frames other than the top frame we don't have a saved ip,
-             * so we use frame->return_ip as a proxy. */
-            uint32_t search_ip = (i == (int)vm->frame_count - 1)
-                                  ? vm->ip
-                                  : frame->return_ip;
+            /* I retain the executing instruction for each frame. The next IP
+             * names a continuation, and return_ip belongs to the caller. */
+            uint32_t search_ip = frame->instruction_ip;
+            const NvmFunctionEntry *function = frame->fn_idx < mod->function_count
+                ? &mod->functions[frame->fn_idx] : NULL;
             uint32_t best_line = 0;
             uint32_t best_col  = 0;
             uint32_t best_offset = 0;
             bool found = false;
             for (uint32_t d = 0; d < mod->debug_count; d++) {
                 uint32_t off = mod->debug_entries[d].bytecode_offset;
-                if (off <= search_ip) {
+                if (function && off >= function->code_offset &&
+                    off - function->code_offset < function->code_length && off <= search_ip) {
                     if (!found || off >= best_offset) {
                         best_offset = off;
                         best_line   = mod->debug_entries[d].source_line;
@@ -4785,9 +4872,11 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
     VmCallFrame *frame = &vm->frames[vm->frame_count++];
     frame->fn_idx = fn_idx;
     frame->return_ip = vm->ip;
+    frame->instruction_ip = fn->code_offset;
     frame->effect_owner = 0;
     frame->stack_base = stack_base;
     frame->local_count = fn->local_count;
+    frame->binding_state = NULL;
     frame->closure = callable.tag == TAG_CLOSURE ? callable.as.closure : NULL;
     vm_retain(&vm->heap, callable);
     frame->owned_callable = callable;
@@ -4815,7 +4904,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
         if (vm->callback_error != VM_OK)
             return vm_error(vm, vm->callback_error, "%s", vm->callback_error_msg);
         if (!vm_owned_proof_matches(vm,proof)) proof->module=NULL;
-        VmTrap trap = vm_core_execute_scoped(vm,proof,&ordinary);
+        VmTrap trap = vm_core_execute_scoped(vm,proof,&ordinary,NULL);
         /* Invalidate before any host effect, yield, completion or error.
          * Only a successful assertion and its closed heap release may resume. */
         if (trap.type!=TRAP_ASSERT) ordinary.valid=false;
@@ -4961,6 +5050,7 @@ static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue 
         if (owned) {
             /* I unwind actual owners after an owned entry/helper failure.
              * Direct execution has no outer vm_invoke cleanup wrapper. */
+            vm_frames_clear_bindings(vm, frames);
             while (vm->stack_size > base) vm_release(&vm->heap,stack_pop(vm));
             for (uint32_t i = frames; i < vm->frame_count; ++i) {
                 vm_release(&vm->heap,vm->frames[i].owned_callable);
@@ -5086,6 +5176,7 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
             status = vm_error(vm, VM_ERR_TYPE_ERROR, "I require the callable activation to return normally.");
         else if (fn->result_count) returned = stack_pop(vm);
     }
+    vm_frames_clear_bindings(vm, frames);
     while (vm->stack_size > base) vm_release(&vm->heap, stack_pop(vm));
     for (uint32_t i = frames; i < vm->frame_count; i++) {
         vm_release(&vm->heap, vm->frames[i].owned_callable);
@@ -5174,6 +5265,7 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
         returned = stack_pop(vm);
     }
 
+    vm_frames_clear_bindings(vm, 0);
     while (vm->stack_size > stack_base) {
         vm_release(&vm->heap, stack_pop(vm));
     }

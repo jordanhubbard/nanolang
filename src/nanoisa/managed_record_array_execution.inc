@@ -1,6 +1,7 @@
 /* I share this translation unit's exact origin whitelist and owned report.
  * No old selector or verifier calls this new non-admitting entry. */
 #include "managed_record_array_execution.h"
+#include "record_array_snapshot_private.h"
 struct NvmRecordArrayExecutionPlan {
     NvmModule snapshot;
     NvmRecordArrayOrigins *origins;
@@ -35,18 +36,20 @@ static void *rae_zero(NvmRecordArrayExecutionPlan *p,size_t n,size_t width) {
     if(!rae_charge(p,bytes,bytes))return NULL;
     void *v=calloc(n,width);if(!v)p->failure=NVM_ARRAY_MEMORY;return v;
 }
-void nvm_record_array_execution_free(NvmRecordArrayExecutionPlan *p) {
-    if(!p)return;
-    NvmModule *m=&p->snapshot;
+static void rae_snapshot_free(NvmModule *m) {
     if(m->strings)for(uint32_t i=0;i<m->string_count;i++)free(m->strings[i]);
     if(m->function_param_types)for(uint32_t i=0;i<m->function_count;i++)free(m->function_param_types[i]);
     free(m->strings);free(m->string_lengths);free(m->functions);free(m->function_param_types);
     free(m->code);free(m->ownership_data);free(m->layout_data);free(m->metadata);free(m->debug_entries);
+}
+void nvm_record_array_execution_free(NvmRecordArrayExecutionPlan *p) {
+    if(!p)return;
+    rae_snapshot_free(&p->snapshot);
     nvm_record_array_origins_free(p->origins);free(p->instructions);free(p);
 }
 static int rae_snapshot(NvmRecordArrayExecutionPlan *p,const NvmModule *m) {
     /* Closed-profile absence is checked before any unsupported pointer is read. */
-    if(m->service_data || m->service_size || m->passive_data || m->passive_size ||
+    if(nvm_capture_bindings_present(m) || m->service_data || m->service_size || m->passive_data || m->passive_size ||
        m->import_count || m->module_ref_count || m->callback_contract_count ||
        m->call_descriptors || m->call_descriptor_count) {
         p->failure=NVM_ARRAY_UNRESOLVED;return 0;
@@ -115,7 +118,7 @@ static int rae_same(NvmRecordArrayExecutionPlan *p,const NvmModule *m) {
     SAME(callback_contract_count);SAME(callback_contract_capacity);SAME(call_descriptor_count);
     SAME(struct_count);SAME(enum_count);SAME(union_count);
 #undef SAME
-    if(m->service_data || m->passive_data || m->call_descriptors ||
+    if(nvm_capture_bindings_present(m) || m->service_data || m->passive_data || m->call_descriptors ||
        !!s->function_param_types!=!!m->function_param_types)return 0;
     if(!rae_equal_bytes(p,s->header.magic,m->header.magic,4))return 0;
     for(uint32_t i=0;i<s->section_count;i++)
@@ -419,4 +422,79 @@ bool nvm_record_array_execution_origin_counts(const NvmRecordArrayExecutionPlan 
 bool nvm_record_array_execution_descriptor(const NvmRecordArrayExecutionPlan *p,uint32_t i,NvmRecordArrayExecutionDescriptor *out) {
     if(!p || !out || i>=p->counts.records)return false;
     *out=p->descriptors[i];return true;
+}
+
+/* I materialize a second exact image without exposing the plan's owned module.
+ * The instance retains both owners; callers may not mutate the borrowed image. */
+struct NvmRecordArrayImage { NvmRecordArrayExecutionPlan storage; };
+/* The caller reserves this complete image/copy/comparison bound before
+ * materialization. Counts belong to an already copied, immutable plan. */
+bool nvm_record_array_image_bound(const NvmRecordArrayExecutionPlan *plan,
+                                 NvmRecordArrayImageCost *out) {
+    if(!plan || !out)return false;
+    const NvmModule *m=&plan->snapshot;
+    uint64_t bytes=sizeof(NvmRecordArrayImage),compare=1028;
+    bytes+=(uint64_t)m->function_count*sizeof *m->functions+m->code_size+
+        (uint64_t)m->ownership_size+m->layout_size+
+        (uint64_t)m->metadata_count*sizeof *m->metadata+
+        (uint64_t)m->debug_count*sizeof *m->debug_entries+
+        (uint64_t)m->string_count*(sizeof *m->strings+sizeof *m->string_lengths);
+    compare+=(uint64_t)m->function_count*16+m->code_size+
+        (uint64_t)m->ownership_size+m->layout_size+
+        (uint64_t)m->metadata_count*2+(uint64_t)m->debug_count*3;
+    if(m->function_param_types)bytes+=(uint64_t)m->function_count*sizeof *m->function_param_types;
+    for(uint32_t i=0;i<m->function_count;i++)
+        if(m->function_param_types && m->function_param_types[i]) {
+            bytes+=m->functions[i].arity?m->functions[i].arity:1;
+            compare+=m->functions[i].arity;
+        }
+    for(uint32_t i=0;i<m->string_count;i++) {
+        bytes+=(uint64_t)m->string_lengths[i]+1;
+        compare+=(uint64_t)m->string_lengths[i]+2;
+    }
+    /* I include this cost scan, defined-field copying and fixed section rows. */
+    uint64_t work=bytes+compare+1024+(uint64_t)m->function_count*8+
+        (uint64_t)m->string_count*4;
+    if(bytes>NVM_RECORD_ARRAY_EXECUTION_BYTES || work>NVM_RECORD_ARRAY_EXECUTION_STEPS)return false;
+    *out=(NvmRecordArrayImageCost){bytes,work};return true;
+}
+NvmArrayEligibilityResult nvm_record_array_image_copy(
+        const NvmRecordArrayExecutionPlan *plan,NvmRecordArrayImage **out) {
+    NvmArrayEligibilityResult result={NVM_ARRAY_INVALID,0,0,"I require a copied plan and image output."};
+    if(!plan || !out)return result;
+    NvmRecordArrayImageCost bound;
+    if(!nvm_record_array_image_bound(plan,&bound)){result.status=NVM_ARRAY_LIMIT;return result;}
+    /* I reserve this fixed owner and its zeroing before allocation. Every
+     * later copied allocation is charged by the same snapshot helpers. */
+    if(sizeof(NvmRecordArrayImage)>NVM_RECORD_ARRAY_EXECUTION_BYTES ||
+       sizeof(NvmRecordArrayImage)>NVM_RECORD_ARRAY_EXECUTION_STEPS) {
+        result.status=NVM_ARRAY_LIMIT;return result;
+    }
+    NvmRecordArrayImage *image=calloc(1,sizeof *image);
+    if(!image){result.status=NVM_ARRAY_MEMORY;return result;}
+    NvmRecordArrayExecutionPlan *copy=&image->storage;
+    copy->failure=NVM_ARRAY_INVALID;
+    copy->bytes=sizeof *image;copy->work=sizeof *image;
+    if(!rae_snapshot(copy,&plan->snapshot) ||
+       !rae_same(copy,&plan->snapshot)) {
+        result.status=copy->failure;nvm_record_array_image_free(image);return result;
+    }
+    if(copy->bytes>bound.bytes_reserved || copy->work>bound.work_charged) {
+        result.status=NVM_ARRAY_LIMIT;nvm_record_array_image_free(image);return result;
+    }
+    copy->bytes=bound.bytes_reserved;copy->work=bound.work_charged;
+    *out=image;result.status=NVM_ARRAY_ELIGIBLE;
+    snprintf(result.message,sizeof result.message,"I copied an exact private image without executable admission.");
+    return result;
+}
+const NvmModule *nvm_record_array_image_borrow(const NvmRecordArrayImage *image) {
+    return image?&image->storage.snapshot:NULL;
+}
+bool nvm_record_array_image_cost(const NvmRecordArrayImage *image,NvmRecordArrayImageCost *out) {
+    if(!image || !out)return false;
+    *out=(NvmRecordArrayImageCost){image->storage.bytes,image->storage.work};return true;
+}
+void nvm_record_array_image_free(NvmRecordArrayImage *image) {
+    if(!image)return;
+    rae_snapshot_free(&image->storage.snapshot);free(image);
 }
