@@ -1,17 +1,26 @@
 /* I run actual descriptor calls and replace only the result-copy allocator. */
 #include <assert.h>
+#include <errno.h>
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../../src/nanovm/vm_ffi.h"
 #include "../../src/nanovm/cop_protocol.h"
 static bool refuse_copy;
+static bool refuse_fork;
+static pid_t fixture_fork(void);
 static VmString *fixture_string_new(VmHeap *heap, const char *text, uint32_t length);
 #define vm_string_new fixture_string_new
+#define fork fixture_fork
 #include "../../src/nanovm/vm_ffi.c"
+#undef fork
 #undef vm_string_new
 static VmString *fixture_string_new(VmHeap *heap, const char *text, uint32_t length) {
     return refuse_copy ? NULL : vm_string_new(heap, text, length);
+}
+static pid_t fixture_fork(void) {
+    if (refuse_fork) { errno = EAGAIN; return -1; }
+    return fork();
 }
 int g_argc;
 char **g_argv;
@@ -88,6 +97,11 @@ int main(int argc, char **argv) {
     isolated->cop_sig_send_fd = isolated->cop_sig_recv_fd = -1;
     isolated->cop_timeout_ms = 5000;
     isolated->isolate_ffi = true;
+    refuse_fork = true;
+    assert(!vm_ffi_cop_start(isolated, module));
+    refuse_fork = false;
+    assert(ffi_loader_is_initialized());
+    assert(isolated->cop_pid == -1);
     CopBatchCall batch[] = {{0, NULL, 0}, {1, args, 1}, {2, args, 2}};
     NanoValue results[3];
     assert(vm_ffi_call_cop_batch(isolated, module, batch, 3, results, &heap, error, sizeof error));

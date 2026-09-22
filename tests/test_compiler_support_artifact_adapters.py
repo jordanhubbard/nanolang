@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import shlex
+import shutil
 import sys
 import tempfile
 import unittest
@@ -175,6 +176,40 @@ class CompilerSupportArtifactAdapters(unittest.TestCase):
                           'artifact-borrowed-controls'])
         result = self.run_checked([control, library])
         self.assertEqual(result, b'I checked borrowed-string ABI, refusal, recovery and isolated snapshots.\n')
+
+    def test_loader_prepared_fork_contract(self):
+        library = self.artifacts / ("loader.dylib" if sys.platform == "darwin" else "loader.so")
+        self.run_checked([*self.compiler, "-std=c11", "-Wall", "-Wextra", "-Werror",
+                          *self.flags, "-fPIC",
+                          *( ["-dynamiclib"] if sys.platform == "darwin" else ["-shared"] ),
+                          ROOT / "tests/nanovm/artifact_borrowed_strings.c",
+                          *self.links, "-o", library])
+        fresh = library.with_name("fresh-" + library.name)
+        shutil.copyfile(library, fresh)
+        control, probe = self.artifacts / "loader-controls", self.artifacts / "sdk-probe"
+        makefile = self.artifacts / "loader.mk"
+        recipes = []
+        for source, output in [(ROOT / "tests/nanovm/test_loader_fork_admission.c", control),
+                               (ROOT / "tests/native_sdk_probe.c", probe)]:
+            recipes.append('\t$(CC) $(CFLAGS) -D_GNU_SOURCE -pthread ' + str(source) +
+                           ' $(OBJ_DIR)/runtime/module_build_dir.o $(LDFLAGS) -o ' + str(output))
+        makefile.write_text('.PHONY: artifact-loader-controls\nartifact-loader-controls:\n' +
+                            '\n'.join(recipes) + '\n')
+        self.run_checked(['make', '-s', '-f', 'Makefile.gnu', '-f', makefile,
+                          'CC=' + shlex.join(self.compiler),
+                          'CFLAGS=' + shlex.join(['-std=c11', '-g', '-O1', '-Wall', '-Wextra',
+                                                 '-Werror', '-fPIC', '-Isrc', *self.flags]),
+                          'LDFLAGS=' + shlex.join(['-lm', *self.links]),
+                          'artifact-loader-controls'])
+        with patch.dict(os.environ, {'NANOLANG_SDK_ROOT': str(ROOT)}):
+            result = self.run_checked([probe, 'callback', '0', 'checkout'])
+        self.assertEqual(result.count(b'CALLBACK before private cleanup'), 1)
+        self.assertIn(b'PASS callback and private cleanup order', result)
+        result = self.run_checked([control, library, fresh])
+        self.assertEqual(result, b'I checked prepared loader admission and process ownership.\n')
+        for mode in ['fresh', 'conflict']:
+            result = self.run_checked([control, library, fresh, mode])
+            self.assertEqual(result, b'I preserved fresh-child SDK registration authority.\n')
 
 
 if __name__ == "__main__":

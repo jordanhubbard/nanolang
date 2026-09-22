@@ -1112,17 +1112,26 @@ bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
         return false;
     }
 
-    pid_t pid = fork();
+    /* I cannot strand admission closed if this daemon client is cancelled. */
+    int prior_cancel_state = PTHREAD_CANCEL_ENABLE;
+    bool cancellation_disabled =
+        pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &prior_cancel_state) == 0;
+    FfiLoaderFork loader_fork;
+    bool prepared = cancellation_disabled && ffi_loader_fork_prepare(&loader_fork);
+    pid_t pid = prepared ? fork() : -1;
+    if (prepared && pid != 0) ffi_loader_fork_parent(&loader_fork);
     if (pid < 0) {
         munmap(mailbox, mbox_size);
         close(sig_to_child[0]);  close(sig_to_child[1]);
         close(sig_from_child[0]); close(sig_from_child[1]);
         close(data_to_child[0]); close(data_to_child[1]);
         close(data_from_child[0]); close(data_from_child[1]);
+        if (cancellation_disabled) pthread_setcancelstate(prior_cancel_state, NULL);
         return false;
     }
 
     if (pid == 0) {
+        if (!ffi_loader_fork_child(&loader_fork)) _exit(1);
         /* Child: close parent-side pipe ends and run the cop logic inline
          * (no exec — mailbox pointer is valid because we forked, not exec'd) */
         close(sig_to_child[1]);
@@ -1148,6 +1157,7 @@ bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
     vm->cop_sig_recv_fd = sig_from_child[0];
     vm->cop_in_fd = data_to_child[1];
     vm->cop_out_fd = data_from_child[0];
+    pthread_setcancelstate(prior_cancel_state, NULL);
 
     /* Wait for ready signal from child (up to 5 s) */
     struct pollfd pfd = { .fd = vm->cop_sig_recv_fd, .events = POLLIN };
