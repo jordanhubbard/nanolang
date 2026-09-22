@@ -5683,7 +5683,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             for (int i = 0; i < count; i++) {
                 const char *param = frame->handler_param_groups
                     ? frame->handler_param_groups[arm_idx][i] : legacy_param;
-                env_define_var(henv, param, TYPE_UNKNOWN, false, args[i]);
+                Value argument = args[i];
+                if (argument.type == VAL_FUNCTION)
+                    argument = create_function(argument.as.function_val.function_name,
+                        copy_function_signature(argument.as.function_val.signature));
+                env_define_var(henv, param, TYPE_UNKNOWN, false, argument);
             }
             free(args);
 
@@ -5692,8 +5696,25 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             Value handler_result = eval_statement(frame->handler_bodies[arm_idx], henv);
             g_eval_return_target = saved_return_target;
 
-            /* Restore scope. */
-            henv->symbol_count = saved_sym;
+            /* My result must outlive the parameter bindings I now retire. */
+            handler_result = eval_preserve_value(henv, handler_result);
+            if (handler_result.type == VAL_FUNCTION) {
+                for (int i = saved_sym; i < henv->symbol_count; ++i) {
+                    Value binding = henv->symbols[i].value;
+                    if (binding.type == VAL_FUNCTION &&
+                        binding.as.function_val.function_name ==
+                            handler_result.as.function_val.function_name) {
+                        Value copy = create_function(
+                            handler_result.as.function_val.function_name,
+                            copy_function_signature(handler_result.as.function_val.signature));
+                        copy.is_return = handler_result.is_return;
+                        copy.return_target = handler_result.return_target;
+                        handler_result = copy;
+                        break;
+                    }
+                }
+            }
+            eval_scope_release(henv, saved_sym, true);
 
             /* I preserve lexical returns; ordinary final values resume perform. */
             handler_result.is_break    = false;
