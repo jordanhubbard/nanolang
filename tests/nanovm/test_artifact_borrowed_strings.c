@@ -2,26 +2,30 @@
 #include <assert.h>
 #include <errno.h>
 #include <dlfcn.h>
+#include <spawn.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../../src/nanovm/vm_ffi.h"
 #include "../../src/nanovm/cop_protocol.h"
 static bool refuse_copy;
-static bool refuse_fork;
-static pid_t fixture_fork(void);
+static bool refuse_spawn;
+static int fixture_spawn(pid_t *, const char *, const posix_spawn_file_actions_t *,
+                         const posix_spawnattr_t *, char *const [], char *const []);
 static VmString *fixture_string_new(VmHeap *heap, const char *text, uint32_t length);
 #define vm_string_new fixture_string_new
-#define fork fixture_fork
+#define posix_spawn fixture_spawn
 #include "../../src/nanovm/vm_ffi.c"
-#undef fork
+#undef posix_spawn
 #undef vm_string_new
 static VmString *fixture_string_new(VmHeap *heap, const char *text, uint32_t length) {
     return refuse_copy ? NULL : vm_string_new(heap, text, length);
 }
-static pid_t fixture_fork(void) {
-    if (refuse_fork) { errno = EAGAIN; return -1; }
-    return fork();
+static int fixture_spawn(pid_t *pid, const char *path, const posix_spawn_file_actions_t *actions,
+                         const posix_spawnattr_t *attributes, char *const argv[], char *const envp[]) {
+    if (refuse_spawn) return EAGAIN;
+    return posix_spawn(pid, path, actions, attributes, argv, envp);
 }
+
 int g_argc;
 char **g_argv;
 char g_project_root[4096] = ".";
@@ -97,9 +101,9 @@ int main(int argc, char **argv) {
     isolated->cop_sig_send_fd = isolated->cop_sig_recv_fd = -1;
     isolated->cop_timeout_ms = 5000;
     isolated->isolate_ffi = true;
-    refuse_fork = true;
+    refuse_spawn = true;
     assert(!vm_ffi_cop_start(isolated, module));
-    refuse_fork = false;
+    refuse_spawn = false;
     assert(ffi_loader_is_initialized());
     assert(isolated->cop_pid == -1);
     CopBatchCall batch[] = {{0, NULL, 0}, {1, args, 1}, {2, args, 2}};

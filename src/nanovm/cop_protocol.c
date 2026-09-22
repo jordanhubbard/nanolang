@@ -7,6 +7,7 @@
 
 #include "cop_protocol.h"
 #include "vm_ffi.h"
+#include "../nanoisa/service_bindings_module.h"
 #include "heap.h"
 #include "../utf8.h"
 #include "../nanoisa/nvm_format.h"
@@ -736,31 +737,15 @@ static void cop_child_run_batch(CopMailbox *mailbox, uint32_t batch_count,
     cop_put_u32(mailbox->resp_batch_count, done);
 }
 
-/* ========================================================================
- * cop_child_main — shared-memory mailbox fast path (in-process child)
- *
- * Called after fork() in vm_ffi_cop_start(). The module pointer is valid
- * because we forked (not exec'd), so the parent's deserialized module is
- * directly accessible.  Communication uses two 1-byte signal pipes and the
- * mmap'd CopMailbox for all request/response data.
- * ======================================================================== */
-
-void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
-                    int sig_in_fd, int sig_out_fd,
-                    int data_in_fd, int data_out_fd,
-                    const NvmModule *module) {
-    (void)mailbox_size;
-
-    VmHeap heap;
-    CopOpaqueWorker worker = {0};
-    vm_heap_init(&heap);
-
-    /* Initialize FFI — module is already deserialized in the parent's address space */
+/* I reconstruct providers from declared import identity in the fresh image. */
+bool cop_worker_load_imports(const NvmModule *module) {
+    if (!module || nvm_capture_bindings_present(module) ||
+        nvm_service_execution_pending(module)) return false;
     vm_ffi_init();
     for (uint32_t i = 0; i < module->import_count; i++) {
         const char *mod_name = nvm_get_string(module, module->imports[i].module_name_idx);
         if (mod_name && mod_name[0]) {
-            vm_ffi_load_module(mod_name);
+            if (!vm_ffi_load_import(module, i)) return false;
         }
     }
 
@@ -775,7 +760,7 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
     for (uint32_t i = 0; i < module->import_count; i++) {
         const char *fn  = nvm_get_string(module, module->imports[i].function_name_idx);
         const char *mod = nvm_get_string(module, module->imports[i].module_name_idx);
-        if (fn && (!mod || mod[0] == '\0')) {
+        if (module->imports[i].kind <= NVM_IMPORT_COPROCESS && fn && (!mod || mod[0] == '\0')) {
             for (int k = 0; known[k].prefix; k++) {
                 if (strncmp(fn, known[k].prefix, strlen(known[k].prefix)) == 0) {
                     vm_ffi_load_module(known[k].mod);
@@ -785,9 +770,21 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
         }
     }
 
+    return true;
+}
+
+void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
+                    int sig_in_fd, int sig_out_fd,
+                    int data_in_fd, int data_out_fd,
+                    const NvmModule *module) {
+    if (!mailbox || mailbox_size != sizeof(CopMailbox)) return;
+    VmHeap heap;
+    CopOpaqueWorker worker = {0};
+    vm_heap_init(&heap);
+    if (!cop_worker_load_imports(module)) goto done;
     /* Signal ready to parent */
     uint8_t sig = 1;
-    if (write(sig_out_fd, &sig, 1) != 1) goto done;
+    if (write(sig_out_fd, COP_EXEC_READY, COP_EXEC_READY_SIZE) != COP_EXEC_READY_SIZE) goto done;
 
     {
         struct pollfd channels[2] = {{ .fd = sig_in_fd, .events = POLLIN },
@@ -892,5 +889,5 @@ done:
     cop_opaque_worker_clear(&worker);
     vm_ffi_shutdown();
     vm_heap_destroy(&heap);
-    _exit(0);
+    return;
 }

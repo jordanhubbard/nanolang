@@ -178,9 +178,11 @@ static inline uint64_t cop_get_u64(const uint8_t *p) {
     return v;
 }
 
-/* Run the cop logic in a forked child (no exec).  Never returns.
- * mailbox, sig_in_fd, sig_out_fd are inherited from the parent's
- * address space.  module is the NvmModule whose imports are served. */
+/* My private exec startup has a complete versioned record, distinct from ACK. */
+#define COP_EXEC_READY "NCOP\x01\0\0\0"
+#define COP_EXEC_READY_SIZE 8
+bool cop_worker_load_imports(const NvmModule *module);
+/* I return after closing worker state; the exec caller owns module and mapping. */
 void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                     int sig_in_fd, int sig_out_fd,
                     int data_in_fd, int data_out_fd,

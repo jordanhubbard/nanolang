@@ -708,10 +708,10 @@ $(OBJ_DIR)/nanovm:
 
 # My isolated opaque regression uses actual artifact calls and exact production helpers.
 .PHONY: test-cop-opaque
-test-cop-opaque: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+test-cop-opaque: nano_cop $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -fPIC $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) tests/nanovm/opaque_provider.c -o $(OBJ_DIR)/opaque_provider.so $(LDFLAGS)
 	$(CC) $(CFLAGS) -D_GNU_SOURCE tests/nanovm/test_cop_opaque.c $(filter-out $(OBJ_DIR)/nanovm/cop_opaque.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS) -o $(OBJ_DIR)/test_cop_opaque
-	$(OBJ_DIR)/test_cop_opaque "$(abspath $(OBJ_DIR)/opaque_provider.so)"
+	NANOLANG_SDK_ROOT="$(CURDIR)" $(OBJ_DIR)/test_cop_opaque "$(abspath $(OBJ_DIR)/opaque_provider.so)"
 
 .PHONY: test-nanovm
 SAIL_VM_ORACLE ?= $(OBJ_DIR)/nanovm/sail_vm_oracle
@@ -763,12 +763,12 @@ test-vm-callback-allocation: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJEC
 	@$(OBJ_DIR)/nanovm/test_callback_allocation
 
 .PHONY: test-cop-protocol
-test-cop-protocol: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+test-cop-protocol: nano_cop $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running cop_protocol unit tests..."
 	$(CC) $(CFLAGS) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o tests/nanovm/test_cop_protocol \
 		tests/nanovm/test_cop_protocol.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	@./tests/nanovm/test_cop_protocol
+	@NANOLANG_SDK_ROOT="$(CURDIR)" ./tests/nanovm/test_cop_protocol
 	@rm -f tests/nanovm/test_cop_protocol
 
 .PHONY: test-cop-fuzz
@@ -890,7 +890,7 @@ test-selfhost-array-abi: bootstrap3
 test-array-abi-loader:
 	python3 -m unittest tests.test_array_abi_loader
 
-test-vm-ffi: test-array-abi-loader $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+test-vm-ffi: nano_cop test-array-abi-loader $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -fPIC $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -pthread tests/nanovm/ffi_callback_fixture.c -o obj/ffi_callback_fixture.so $(LDFLAGS)
 	$(CC) $(CFLAGS) -pthread tests/nanovm/test_retained_image_failure.c $(OBJ_DIR)/runtime/module_build_dir.o -o obj/test_retained_image_failure $(LDFLAGS)
 	@obj/test_retained_image_failure
@@ -902,7 +902,7 @@ test-vm-ffi: test-array-abi-loader $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON
 	$(CC) $(CFLAGS) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o tests/nanovm/test_vm_ffi \
 		tests/nanovm/test_vm_ffi.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	@./tests/nanovm/test_vm_ffi
+	@NANOLANG_SDK_ROOT="$(CURDIR)" ./tests/nanovm/test_vm_ffi
 	@rm -f tests/nanovm/test_vm_ffi
 
 .PHONY: test-vm-path-normalize-sanitizers
@@ -940,6 +940,15 @@ $(OBJ_DIR)/nanovm/main.o: $(NANOVM_DIR)/main.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/
 
 $(OBJ_DIR)/nanovm/vmd_main.o: $(NANOVM_DIR)/vmd_main.c $(NANOVM_DIR)/vmd_server.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# My public isolated callers need the validated sibling worker.
+nano_vm nano_vmd: nano_cop
+
+.PHONY: test-cop-exec
+test-cop-exec: nano_cop $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -fPIC $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) tests/nanovm/exec_provider.c -o $(OBJ_DIR)/exec_provider.so $(LDFLAGS)
+	$(CC) $(CFLAGS) -D_GNU_SOURCE -pthread tests/nanovm/test_cop_exec.c $(filter-out $(OBJ_DIR)/nanovm/vm_ffi.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS) -o $(OBJ_DIR)/test_cop_exec
+	NANOLANG_SDK_ROOT="$(CURDIR)" $(OBJ_DIR)/test_cop_exec "$(abspath $(OBJ_DIR)/exec_provider.so)"
 
 # ── Co-Process FFI (nano_cop) ────────────────────────────────────────────────
 nano_cop: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/cop_main.o | bin
@@ -1017,7 +1026,7 @@ test-units: test-cop-lifecycle-harness
 
 test-cop-lifecycle: nano_vm nano_virt nano_vmd nano_cop $(OBJ_DIR)/test_cop_lifecycle
 	@echo "Running co-process lifecycle tests..."
-	@scripts/test_cop_lifecycle.sh
+	@NANOLANG_SDK_ROOT="$(CURDIR)" scripts/test_cop_lifecycle.sh
 
 # Differential testing: Coq-extracted reference interpreter vs NanoVM
 .PHONY: test-differential

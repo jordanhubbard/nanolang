@@ -24,6 +24,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <poll.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 /* Required by runtime/cli.c */
 int g_argc = 0;
@@ -50,44 +53,7 @@ static bool handle_init(int in_fd, uint32_t payload_len) {
     free(blob);
     if (!g_module) return false;
 
-    /* Initialize FFI and load all referenced modules */
-    vm_ffi_init();
-    for (uint32_t i = 0; i < g_module->import_count; i++) {
-        const char *mod_name = nvm_get_string(g_module, g_module->imports[i].module_name_idx);
-        if (mod_name && mod_name[0]) {
-            vm_ffi_load_module(mod_name);
-        }
-    }
-
-    /* For imports with empty module names (bare extern fn declarations),
-     * try loading well-known standard modules by function name prefix. */
-    static const struct { const char *prefix; const char *module; } known_modules[] = {
-        {"path_",    "std/fs"},
-        {"fs_",      "std/fs"},
-        {"file_",    "std/fs"},
-        {"dir_",     "std/fs"},
-        {"regex_",   "std/regex"},
-        {"process_", "std/process"},
-        {"json_",    "std/json"},
-        {"bstr_",    "std/bstring"},
-        {NULL, NULL}
-    };
-
-    for (uint32_t i = 0; i < g_module->import_count; i++) {
-        const char *fn_name = nvm_get_string(g_module,
-                                              g_module->imports[i].function_name_idx);
-        const char *mod_name = nvm_get_string(g_module,
-                                               g_module->imports[i].module_name_idx);
-        if (fn_name && (!mod_name || mod_name[0] == '\0')) {
-            for (int k = 0; known_modules[k].prefix; k++) {
-                if (strncmp(fn_name, known_modules[k].prefix,
-                           strlen(known_modules[k].prefix)) == 0) {
-                    vm_ffi_load_module(known_modules[k].module);
-                    break;
-                }
-            }
-        }
-    }
+    if (!cop_worker_load_imports(g_module)) return false;
 
     /* Signal ready */
     cop_send_simple(STDOUT_FILENO, COP_MSG_READY);
@@ -114,7 +80,37 @@ static bool handle_ffi_req(int in_fd, uint32_t payload_len) {
     return sent;
 }
 
-int main(void) {
+/* My exec mode accepts only the fixed private descriptor protocol. */
+static int mailbox_main(void) {
+    struct stat mailbox_stat, module_stat;
+    if (fstat(3, &mailbox_stat) != 0 || !S_ISREG(mailbox_stat.st_mode) ||
+        mailbox_stat.st_size != (off_t)sizeof(CopMailbox) ||
+        fstat(8, &module_stat) != 0 || !S_ISREG(module_stat.st_mode) ||
+        module_stat.st_size <= 0 || module_stat.st_size > COP_MAX_PAYLOAD) return 1;
+    for (int i = 3; i <= 8; ++i)
+        if (fcntl(i, F_SETFD, FD_CLOEXEC) != 0) return 1;
+    void *bytes = mmap(NULL, (size_t)module_stat.st_size, PROT_READ, MAP_PRIVATE, 8, 0);
+    if (bytes == MAP_FAILED) return 1;
+    NanoisaErr error;
+    NvmModule *module = nanoisa_load_bytes(bytes, (uint32_t)module_stat.st_size, &error);
+    munmap(bytes, (size_t)module_stat.st_size);
+    close(8);
+    if (!module) return 1;
+    CopMailbox *mailbox = mmap(NULL, sizeof(CopMailbox), PROT_READ | PROT_WRITE,
+                               MAP_SHARED, 3, 0);
+    close(3);
+    if (mailbox == MAP_FAILED) { nvm_module_free(module); return 1; }
+    cop_child_main(mailbox, sizeof(CopMailbox), 4, 5, 6, 7, module);
+    for (int i = 4; i <= 7; ++i) close(i);
+    munmap(mailbox, sizeof(CopMailbox));
+    nvm_module_free(module);
+    return 0;
+}
+
+int main(int argc, char **argv) {
+    if (argc == 2 && strcmp(argv[1], "--mailbox-v1") == 0) return mailbox_main();
+    if (argc != 1) return 1;
+
     /* Co-process reads from stdin, writes to stdout */
     vm_heap_init(&g_heap);
 

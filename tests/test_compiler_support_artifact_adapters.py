@@ -19,6 +19,9 @@ class CompilerSupportArtifactAdapters(unittest.TestCase):
     command = test_file_cyclic.FileCyclic.command
 
     def setUp(self):
+        sdk = patch.dict(os.environ, {"NANOLANG_SDK_ROOT": str(ROOT)})
+        sdk.start()
+        self.addCleanup(sdk.stop)
         self.artifacts = Path(tempfile.mkdtemp(prefix="nano-compiler-support-adapters-"))
         print("I retain compiler-support adapter products at", self.artifacts, flush=True)
         self.serial = 0

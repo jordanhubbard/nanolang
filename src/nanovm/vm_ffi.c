@@ -1130,110 +1130,161 @@ bool vm_ffi_call_captured(const NvmModule *module, uint32_t import_idx,
 #include <poll.h>
 #include <errno.h>
 
-/* MAP_ANON is BSD; MAP_ANONYMOUS is the POSIX/Linux name */
-#ifndef MAP_ANON
-#  ifdef MAP_ANONYMOUS
-#    define MAP_ANON MAP_ANONYMOUS
-#  else
-#    define MAP_ANON 0x1000  /* macOS value */
-#  endif
-#endif
+#include "runtime/module_build_dir.h"
+#include "../../modules/nanoisa/nanoisa.h"
+#include <spawn.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <limits.h>
 
-/* ========================================================================
- * Co-process lifecycle (shared-memory mailbox fast path)
- * ======================================================================== */
+extern char **environ;
+
+/* I keep every owned spawn source outside the fixed child descriptor range. */
+static int cop_spawn_fd(int fd) {
+    if (fd < 0) return -1;
+    int copy = fcntl(fd, F_DUPFD_CLOEXEC, 16);
+    close(fd);
+    return copy;
+}
+
+static int cop_private_file(void) {
+    char path[] = "/tmp/nanolang-cop-XXXXXX";
+    int fd = mkstemp(path);
+    if (fd < 0) return -1;
+    if (unlink(path) != 0) { close(fd); return -1; }
+    return cop_spawn_fd(fd);
+}
+
+static bool cop_spawn_pipe(int fds[2]) {
+    int pair[2];
+#ifdef __linux__
+    if (pipe2(pair, O_CLOEXEC) != 0) return false;
+#else
+    if (pipe(pair) != 0) return false;
+#endif
+    fds[0] = cop_spawn_fd(pair[0]);
+    fds[1] = cop_spawn_fd(pair[1]);
+    return fds[0] >= 0 && fds[1] >= 0;
+}
+
+static bool cop_snapshot_write(int fd, const uint8_t *bytes, size_t size) {
+    while (size) {
+        ssize_t count = write(fd, bytes, size);
+        if (count < 0 && errno == EINTR) continue;
+        if (count <= 0) return false;
+        bytes += count;
+        size -= (size_t)count;
+    }
+    return lseek(fd, 0, SEEK_SET) == 0;
+}
+
+static bool cop_spawn_ready(int fd, int64_t deadline) {
+    uint8_t bytes[COP_EXEC_READY_SIZE];
+    size_t offset = 0;
+    while (offset < sizeof bytes) {
+        int64_t now = cop_now_ms();
+        if (now < 0 || now >= deadline) return false;
+        struct pollfd wait = {.fd = fd, .events = POLLIN};
+        int ready = poll(&wait, 1, (int)(deadline - now));
+        if (ready < 0 && errno == EINTR) continue;
+        if (ready <= 0) return false;
+        ssize_t count = read(fd, bytes + offset, sizeof bytes - offset);
+        if (count < 0 && errno == EINTR) continue;
+        if (count <= 0) return false;
+        offset += (size_t)count;
+    }
+    return memcmp(bytes, COP_EXEC_READY, sizeof bytes) == 0;
+}
 
 bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
-    if (nvm_capture_bindings_present(module) || nvm_service_execution_pending(module)) return false;
+    if (!vm || !module || nvm_capture_bindings_present(module) ||
+        nvm_service_execution_pending(module)) return false;
     if (vm->cop_pid > 0) return !vm->cop_opaque.generation || cop_opaque_owner_live(&vm->cop_opaque);
 
-    /* Create the shared-memory mailbox — inherited across fork() */
-    size_t mbox_size = sizeof(CopMailbox);
-    CopMailbox *mailbox = (CopMailbox *)mmap(NULL, mbox_size,
-                                             PROT_READ | PROT_WRITE,
-                                             MAP_SHARED | MAP_ANON, -1, 0);
-    if (mailbox == MAP_FAILED) return false;
-    memset(mailbox, 0, mbox_size);
+    char root[4096], path[4096];
+    bool installed;
+    struct stat st;
+    if (nano_native_sdk_root(root, sizeof root, &installed) != NANO_SDK_OK) return false;
+    int length = snprintf(path, sizeof path, "%s/bin/nano_cop", root);
+    if (length < 0 || (size_t)length >= sizeof path || stat(path, &st) != 0 ||
+        !S_ISREG(st.st_mode) || access(path, X_OK) != 0) return false;
 
-    /* Signal pipes serve small mailbox calls; data pipes carry large calls
-     * to the same worker and therefore the same native module state. */
-    int sig_to_child[2] = {-1, -1}, sig_from_child[2] = {-1, -1};
-    int data_to_child[2] = {-1, -1}, data_from_child[2] = {-1, -1};
-    if (pipe(sig_to_child) != 0 || pipe(sig_from_child) != 0 ||
-        pipe(data_to_child) != 0 || pipe(data_from_child) != 0) {
-        for (int i = 0; i < 2; ++i) {
-            if (sig_to_child[i] >= 0) close(sig_to_child[i]);
-            if (sig_from_child[i] >= 0) close(sig_from_child[i]);
-            if (data_to_child[i] >= 0) close(data_to_child[i]);
-            if (data_from_child[i] >= 0) close(data_from_child[i]);
-        }
-        munmap(mailbox, mbox_size);
-        return false;
-    }
-
-    /* I cannot strand admission closed if this daemon client is cancelled. */
-    int prior_cancel_state = PTHREAD_CANCEL_ENABLE;
-    bool cancellation_disabled =
-        pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &prior_cancel_state) == 0;
+    /* I hold cancellation until I publish the worker or reclaim every resource. */
+    int prior_cancel_state;
+    if (pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &prior_cancel_state) != 0) return false;
+    bool ok = false, actions_live = false, attr_live = false;
+    posix_spawn_file_actions_t actions;
+    posix_spawnattr_t attributes;
+    int fds[10];
+    for (size_t i = 0; i < sizeof fds / sizeof fds[0]; ++i) fds[i] = -1;
+    CopMailbox *mailbox = MAP_FAILED;
+    pid_t pid = -1;
+    uint8_t *snapshot = NULL;
+    uint32_t snapshot_size = 0;
+    NanoisaErr error;
+    int64_t now = cop_now_ms();
+    if (now < 0) goto cleanup;
+    int64_t deadline = now + 5000;
+    snapshot = nanoisa_save_bytes(module, &snapshot_size, &error);
+    if (!snapshot || !snapshot_size || snapshot_size > COP_MAX_PAYLOAD) goto cleanup;
+    fds[0] = cop_private_file();
+    fds[1] = cop_private_file();
+    if (fds[0] < 0 || fds[1] < 0 || ftruncate(fds[0], sizeof(CopMailbox)) != 0 ||
+        !cop_snapshot_write(fds[1], snapshot, snapshot_size)) goto cleanup;
+    free(snapshot); snapshot = NULL;
+    mailbox = mmap(NULL, sizeof(CopMailbox), PROT_READ | PROT_WRITE, MAP_SHARED, fds[0], 0);
+    if (mailbox == MAP_FAILED) goto cleanup;
+    memset(mailbox, 0, sizeof(CopMailbox));
+    for (int i = 2; i < 10; i += 2) if (!cop_spawn_pipe(fds + i)) goto cleanup;
     cop_opaque_owner_clear(&vm->cop_opaque);
-    bool opaque_ready = cop_opaque_owner_start(&vm->cop_opaque);
-    FfiLoaderFork loader_fork;
-    bool prepared = cancellation_disabled && opaque_ready && ffi_loader_fork_prepare(&loader_fork);
-    pid_t pid = prepared ? fork() : -1;
-    if (prepared && pid != 0) ffi_loader_fork_parent(&loader_fork);
-    if (pid < 0) {
-        cop_opaque_owner_clear(&vm->cop_opaque);
-        munmap(mailbox, mbox_size);
-        close(sig_to_child[0]);  close(sig_to_child[1]);
-        close(sig_from_child[0]); close(sig_from_child[1]);
-        close(data_to_child[0]); close(data_to_child[1]);
-        close(data_from_child[0]); close(data_from_child[1]);
-        if (cancellation_disabled) pthread_setcancelstate(prior_cancel_state, NULL);
-        return false;
+    if (!cop_opaque_owner_start(&vm->cop_opaque)) goto cleanup;
+
+    if (posix_spawn_file_actions_init(&actions) != 0) goto cleanup;
+    actions_live = true;
+    /* mailbox, signal read/write, data read/write, module snapshot */
+    const int sources[] = {fds[0], fds[2], fds[5], fds[6], fds[9], fds[1]};
+    for (int i = 0; i < 6; ++i)
+        if (posix_spawn_file_actions_adddup2(&actions, sources[i], i + 3) != 0) goto cleanup;
+    if (posix_spawnattr_init(&attributes) != 0) goto cleanup;
+    attr_live = true;
+#ifdef __APPLE__
+    if (posix_spawnattr_setflags(&attributes, POSIX_SPAWN_CLOEXEC_DEFAULT) != 0) goto cleanup;
+    for (int i = 0; i < 3; ++i) {
+        if (fcntl(i, F_GETFD) != -1 &&
+            posix_spawn_file_actions_addinherit_np(&actions, i) != 0) goto cleanup;
     }
-
-    if (pid == 0) {
-        if (!ffi_loader_fork_child(&loader_fork)) _exit(1);
-        /* Child: close parent-side pipe ends and run the cop logic inline
-         * (no exec — mailbox pointer is valid because we forked, not exec'd) */
-        close(sig_to_child[1]);
-        close(sig_from_child[0]);
-        close(data_to_child[1]);
-        close(data_from_child[0]);
-        cop_child_main(mailbox, mbox_size,
-                       sig_to_child[0], sig_from_child[1],
-                       data_to_child[0], data_from_child[1], module);
-        _exit(0);  /* cop_child_main never returns normally */
+#else
+    if (posix_spawn_file_actions_addclosefrom_np(&actions, 9) != 0) goto cleanup;
+#endif
+    char *argv[] = {path, "--mailbox-v1", NULL};
+    if (posix_spawn(&pid, path, &actions, &attributes, argv, environ) != 0) { pid = -1; goto cleanup; }
+    /* Only the parent's four protocol ends survive here. */
+    const int close_indices[] = {0, 1, 2, 5, 6, 9};
+    for (size_t i = 0; i < sizeof close_indices / sizeof close_indices[0]; ++i) {
+        int at = close_indices[i]; close(fds[at]); fds[at] = -1;
     }
-
-    /* Parent: close child-side pipe ends */
-    close(sig_to_child[0]);
-    close(sig_from_child[1]);
-    close(data_to_child[0]);
-    close(data_from_child[1]);
-
+    if (!cop_spawn_ready(fds[4], deadline)) goto cleanup;
     vm->cop_pid = pid;
     vm->cop_mailbox = mailbox;
-    vm->cop_mailbox_size = mbox_size;
-    vm->cop_sig_send_fd = sig_to_child[1];
-    vm->cop_sig_recv_fd = sig_from_child[0];
-    vm->cop_in_fd = data_to_child[1];
-    vm->cop_out_fd = data_from_child[0];
+    vm->cop_mailbox_size = sizeof(CopMailbox);
+    vm->cop_sig_send_fd = fds[3]; vm->cop_sig_recv_fd = fds[4];
+    vm->cop_in_fd = fds[7]; vm->cop_out_fd = fds[8];
+    fds[3] = fds[4] = fds[7] = fds[8] = -1;
+    pid = -1; mailbox = MAP_FAILED;
+    ok = true;
+cleanup:
+    free(snapshot);
+    if (actions_live) posix_spawn_file_actions_destroy(&actions);
+    if (attr_live) posix_spawnattr_destroy(&attributes);
+    for (size_t i = 0; i < sizeof fds / sizeof fds[0]; ++i) if (fds[i] >= 0) close(fds[i]);
+    if (pid > 0) {
+        kill(pid, SIGKILL);
+        while (waitpid(pid, NULL, 0) < 0 && errno == EINTR) {}
+    }
+    if (mailbox != MAP_FAILED) munmap(mailbox, sizeof(CopMailbox));
+    if (!ok) cop_opaque_owner_clear(&vm->cop_opaque);
     pthread_setcancelstate(prior_cancel_state, NULL);
-
-    /* Wait for ready signal from child (up to 5 s) */
-    struct pollfd pfd = { .fd = vm->cop_sig_recv_fd, .events = POLLIN };
-    if (poll(&pfd, 1, 5000) <= 0) {
-        vm_ffi_cop_stop(vm);
-        return false;
-    }
-    uint8_t byte;
-    if (read(vm->cop_sig_recv_fd, &byte, 1) != 1) {
-        vm_ffi_cop_stop(vm);
-        return false;
-    }
-
-    return true;
+    return ok;
 }
 
 void vm_ffi_cop_stop(VmState *vm) {
