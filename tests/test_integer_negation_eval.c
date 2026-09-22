@@ -31,6 +31,8 @@ int main(void) {
         ASSERT(result.type==VAL_ARRAY);
         ASSERT_EQ(((long long *)result.as.array_val->data)[0],expected[i]);
         ASSERT_EQ(((long long *)fixed.as.array_val->data)[0],input[i]);
+        free(result.as.array_val->data); free(result.as.array_val);
+        free(fixed.as.array_val->data); free(fixed.as.array_val);
         DynArray *dynamic=dyn_array_new(ELEM_INT);
         dynamic=dyn_array_push_int(dynamic,input[i]);
         Value array=create_void(); array.type=VAL_DYN_ARRAY; array.as.dyn_array_val=dynamic;
@@ -40,10 +42,12 @@ int main(void) {
             ASSERT(result.type==VAL_DYN_ARRAY);
             ASSERT_EQ(dyn_array_get_int(result.as.dyn_array_val,0),expected[i]);
             ASSERT_EQ(dyn_array_get_int(dynamic,0),input[i]);
+            gc_release(result.as.dyn_array_val);
         }
         result=call_function("reduced",&array,1,ctx.env);
         ASSERT(result.type==VAL_INT); ASSERT_EQ(result.as.int_val,expected[i]);
         ASSERT_EQ(dyn_array_get_int(dynamic,0),input[i]);
+        gc_release(dynamic);
     }
     run_ctx_free(&ctx);
     puts("I retain 30 exact integer negation results and unchanged inputs across five evaluator paths.");
