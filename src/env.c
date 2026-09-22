@@ -588,16 +588,6 @@ void env_define_var_with_element_type(Environment *env, const char *name, Type t
     env_define_var_with_type_info(env, name, type, element_type, NULL, is_mut, value);
 }
 
-/* The most recent symbol with this name defined in the file currently being
- * processed. Used where "the same variable, seen again" is the question --
- * which is only ever true within one file. Matching by name alone lets a
- * definition inherit metadata from an unrelated symbol in another module,
- * which is the same cross-file confusion that made source-position lookups
- * wrong. */
-static Symbol *env_get_var_same_file(Environment *env, const char *name) {
-    return symbol_lookup(env, name, true);
-}
-
 /* I preserve fresh unmanaged string transfer, but an existing binding or
  * arena root is already owned elsewhere. I copy only that exact provenance.
  * Failure leaves both the input owner and the output unchanged. */
