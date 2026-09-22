@@ -1,0 +1,133 @@
+{
+  "scope": "I inventory direct function calls against each actual imported component source declaration; builtin/generated-list calls are outside this source-function export inventory. All three actual driver assertions and dependency shadows remain unchanged.",
+  "rows": [
+    {
+      "driver": "src_nano/parser_driver.nano",
+      "owner": "src_nano/compiler/lexer.nano",
+      "name": "tokenize_string",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/parser_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parser_is_at_end",
+      "public_before": false
+    },
+    {
+      "driver": "src_nano/parser_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parser_has_error",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/parser_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parse_program",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/parser_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parser_get_function_count",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/parser_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parser_get_function",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/parser_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parser_get_number",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/parser_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parser_get_return",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/parser_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parser_get_block",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/typecheck_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parser_has_error",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/typecheck_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parse_program",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/typecheck_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parser_get_function_count",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/typecheck_driver.nano",
+      "owner": "src_nano/compiler/lexer.nano",
+      "name": "tokenize_string",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/typecheck_driver.nano",
+      "owner": "src_nano/typecheck.nano",
+      "name": "typecheck_phase",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/transpiler_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parser_has_error",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/transpiler_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parse_program",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/transpiler_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parser_get_function_count",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/transpiler_driver.nano",
+      "owner": "src_nano/compiler/lexer.nano",
+      "name": "tokenize_string",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/transpiler_driver.nano",
+      "owner": "src_nano/transpiler.nano",
+      "name": "transpile_parser",
+      "public_before": true
+    },
+    {
+      "driver": "src_nano/transpiler_driver.nano",
+      "owner": "src_nano/transpiler.nano",
+      "name": "transpile_parser_shadows",
+      "public_before": true
+    }
+  ],
+  "correction": [
+    {
+      "driver": "src_nano/parser_driver.nano",
+      "owner": "src_nano/parser.nano",
+      "name": "parser_is_at_end",
+      "public_before": false
+    }
+  ]
+}

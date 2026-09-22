@@ -261,7 +261,7 @@ shadow parser_allocate_id {
 }
 
 /* Check if parser is at end of token stream */
-fn parser_is_at_end(p: Parser) -> bool {
+pub fn parser_is_at_end(p: Parser) -> bool {
     if (>= p.position p.token_count) {
         return true
     } else {
