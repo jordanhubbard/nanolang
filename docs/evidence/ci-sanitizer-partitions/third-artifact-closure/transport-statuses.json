@@ -1,0 +1,202 @@
+{
+  "archives/sanitizer-plan.status.json": {
+    "returncode": 0,
+    "seconds": 1.1964573620352894,
+    "stderr": ""
+  },
+  "archives/sanitizer-result-forth.status.json": {
+    "returncode": 0,
+    "seconds": 1.4821707470109686,
+    "stderr": ""
+  },
+  "archives/sanitizer-result-negative.status.json": {
+    "returncode": 0,
+    "seconds": 1.461214432027191,
+    "stderr": ""
+  },
+  "archives/sanitizer-result-source.status.json": {
+    "returncode": 0,
+    "seconds": 1.6117263529449701,
+    "stderr": ""
+  },
+  "archives/sanitizer-result-units-00.status.json": {
+    "returncode": 0,
+    "seconds": 1.4808454880258068,
+    "stderr": ""
+  },
+  "archives/sanitizer-result-units-01.status.json": {
+    "returncode": 0,
+    "seconds": 1.4978641630150378,
+    "stderr": ""
+  },
+  "archives/sanitizer-result-units-02.status.json": {
+    "returncode": 0,
+    "seconds": 1.5602580800186843,
+    "stderr": ""
+  },
+  "archives/sanitizer-result-units-03.status.json": {
+    "returncode": 0,
+    "seconds": 1.4755157309118658,
+    "stderr": ""
+  },
+  "archives/sanitizer-result-units-04.status.json": {
+    "returncode": 0,
+    "seconds": 2.2748587479582056,
+    "stderr": ""
+  },
+  "archives/sanitizer-result-units-05.status.json": {
+    "returncode": 0,
+    "seconds": 1.5703840509522706,
+    "stderr": ""
+  },
+  "archives/sanitizer-result-units-06.status.json": {
+    "returncode": 0,
+    "seconds": 1.49886370904278,
+    "stderr": ""
+  },
+  "archives/sanitizer-result-units-07.status.json": {
+    "returncode": 0,
+    "seconds": 1.5086292199557647,
+    "stderr": ""
+  },
+  "archives/sanitizer-result-units-08.status.json": {
+    "returncode": 1,
+    "seconds": 30.406189669971354,
+    "stderr": "error connecting to productionresultssa5.blob.core.windows.net\ncheck your internet connection or https://githubstatus.com\n"
+  },
+  "archives-continuation/sanitizer-providers-forth.status.json": {
+    "returncode": 0,
+    "seconds": 92.04694836295675,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-negative.status.json": {
+    "returncode": 0,
+    "seconds": 125.79587867297232,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-source.status.json": {
+    "returncode": 0,
+    "seconds": 97.32919349696022,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-00.status.json": {
+    "returncode": 0,
+    "seconds": 89.09775799291674,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-01.status.json": {
+    "returncode": 0,
+    "seconds": 172.3302213679999,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-02.status.json": {
+    "returncode": 0,
+    "seconds": 76.45841696998104,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-03.status.json": {
+    "returncode": 0,
+    "seconds": 105.6165236820234,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-04.status.json": {
+    "returncode": 0,
+    "seconds": 134.84111295896582,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-05.status.json": {
+    "returncode": 0,
+    "seconds": 144.2270551220281,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-06.status.json": {
+    "returncode": 0,
+    "seconds": 105.78166216495447,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-07.status.json": {
+    "returncode": 0,
+    "seconds": 162.70244231598917,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-08.status.json": {
+    "returncode": 0,
+    "seconds": 123.95799757901113,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-09.status.json": {
+    "returncode": 0,
+    "seconds": 79.92242361104582,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-10.status.json": {
+    "returncode": 0,
+    "seconds": 117.54246850300115,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-11.status.json": {
+    "returncode": 0,
+    "seconds": 81.81938494299538,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-12.status.json": {
+    "returncode": 0,
+    "seconds": 74.17172920692246,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-providers-units-13.status.json": {
+    "returncode": 0,
+    "seconds": 63.8863407690078,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-result-units-08.status.json": {
+    "returncode": 0,
+    "seconds": 1.5216454199980944,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-result-units-09.status.json": {
+    "returncode": 0,
+    "seconds": 1.7469870349159464,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-result-units-10.status.json": {
+    "returncode": 0,
+    "seconds": 1.6460614879615605,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-result-units-11.status.json": {
+    "returncode": 0,
+    "seconds": 1.4061050050659105,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-result-units-12.status.json": {
+    "returncode": 0,
+    "seconds": 1.443575363024138,
+    "stderr": ""
+  },
+  "archives-continuation/sanitizer-result-units-13.status.json": {
+    "returncode": 0,
+    "seconds": 1.4071526799816638,
+    "stderr": ""
+  },
+  "archives-continuation/verifier-corpus-coverage.status.json": {
+    "returncode": 0,
+    "seconds": 1.417580276960507,
+    "stderr": ""
+  },
+  "archives-continuation/verifier-corpus-macos-14-arm64.status.json": {
+    "returncode": 0,
+    "seconds": 1.721502764034085,
+    "stderr": ""
+  },
+  "archives-continuation/verifier-corpus-ubuntu-24.04-arm-arm64.status.json": {
+    "returncode": 0,
+    "seconds": 1.4935536119155586,
+    "stderr": ""
+  },
+  "archives-continuation/verifier-corpus-ubuntu-latest-x64.status.json": {
+    "returncode": 0,
+    "seconds": 1.5304432259872556,
+    "stderr": ""
+  }
+}
