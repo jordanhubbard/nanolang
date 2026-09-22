@@ -1,0 +1,26 @@
+{
+  "schema": "nanolang.compiler_shadow_cpu_profile.v1",
+  "source": "d39a976fdceeb520d610881da6f8a323f4dbfbe3",
+  "driver_sha256": "302ed83b6da38b095aad4a6579cbe9a0d2537746a158fef016cc4b83e063f48e",
+  "compiler_returncode": 1,
+  "profiler_returncode": 0,
+  "outer_timeout": false,
+  "completed_shadows": 435,
+  "selected_shadows": 604,
+  "pending_ordinal": 436,
+  "shadow_deadline_seconds": 60,
+  "lost_samples": 0,
+  "perf_data_sha256": "603702e90c6579d3b82b73f98b01f2e7afe56661dfd0b4118f8b0a9255a8f1a6",
+  "perf_data_bytes": 52337068,
+  "exclusive_user_cycle_percent": {
+    "__asan_stack_malloc_2": 41.15,
+    "__asan_stack_malloc_0": 30.57,
+    "__asan_stack_malloc_1": 15.87,
+    "__asan_stack_malloc_3": 2.83,
+    "asan_stack_total": 90.42
+  },
+  "input_maps_equal": true,
+  "owned_processes_remaining": 0,
+  "timing_acceptance": false,
+  "raw_profile_retained_at": "/home/jkh/nanolang-qualification/integrated-d39-cpu-profile/perf.data"
+}

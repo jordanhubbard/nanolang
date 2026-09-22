@@ -21,3 +21,25 @@ compiler streams, perf data, profiler diagnostics and terminal process cleanup.
 Sampling overhead makes this diagnostic unsuitable for timing acceptance. I
 use its sampled call stacks to choose a source change; a subsequent fresh,
 uninstrumented measurement must still pass the original release deadlines.
+
+The bounded sample completed with no lost samples, no outer timeout, no input
+drift and no surviving process. My compiler again stopped after 435 shadows at
+the original 60-second deadline. AddressSanitizer fake-stack allocation consumed
+90.42% of sampled user cycles: 41.15% in `__asan_stack_malloc_2`, 30.57% in
+`__asan_stack_malloc_0`, 15.87% in `__asan_stack_malloc_1` and 2.83% in
+`__asan_stack_malloc_3`. The visible call paths include `clone_value_at` and
+`record_result_publish` through `eval_preserve_value` and
+`eval_staged_argument`. This identifies a measured cost; it does not establish
+that removing sanitizer coverage is acceptable.
+
+I will preserve that coverage and remove needless recursive leaf calls instead.
+My aggregate snapshot copier currently calls `clone_value_at` for every field,
+including scalars and borrowed reference leaves for which it only copies the
+value and clears control-flow flags. I will perform that leaf operation inline
+and recurse only for owned strings, records and tuples. I retain the depth check
+for every child, including direct leaves, so the existing 128-level refusal does
+not move. All allocation failure cleanup remains unchanged. Focused record and
+tuple controls must verify that nested leaf values retain their payloads and
+lose return, break, continue and return-target state exactly as before. Fresh
+full-selection qualification under the original instrumentation and 60-second
+deadline decides acceptance.
