@@ -357,3 +357,34 @@ cover global builtin and declared/qualified returns, qualified ARRAY arguments,
 nested array insertion/store, and local/return/record-contained union payloads.
 Every refusal retains safe shadows and output sentinels; no invalid product is
 executed. Complete source/fixtures require review before another qualification.
+
+My complete bounded source checkpoint checks global initializer expressions
+after user signatures are registered, leaving symbol registration and native
+startup order intact. Qualified ARRAY arguments use actual resolved parameter
+annotations and the existing STRING-only comparison; existing callable/union
+comparisons remain full comparisons. The old mapped-helper fallback is not
+repaired or claimed authoritative by this change.
+
+Unbound array_push/array_set with their existing exact argument counts derive
+a nested array destination from the receiver's retained annotation. Actual
+declared/local bindings bypass this intrinsic branch. The checker may revisit
+argument expressions as existing call checking does; it never executes them
+and does not change runtime evaluation order.
+
+Standalone union expressions traverse all actual payload expressions. A
+matching declared union/variant supplies annotations only when its generic
+argument count is complete. For omitted generic constructor arguments, actual
+local/global/return/set/record contexts supply a missing concrete union view;
+explicit constructor arguments remain untouched. Recursive payload contexts
+retain the same rule. I add no new shape, duplicate or unknown-field policy,
+and do not replace existing contextual full constructor checks for calls.
+
+Eight additive positive programs exercise global builtin/declared/qualified
+results, qualified ARRAY arguments, nested store/insertion, declared/local
+mutation-name precedence and union payload execution. Eleven additive refusals
+cover reverse globals, qualified arrays both directions, nested insertion/store,
+and standalone/local/return/record-contained or generic union payloads. Original
+programs/assertions and output sentinels remain byte-identical. Two actual
+parser/checker shadows exercise standalone and contextual generic mismatches.
+Python fixture syntax and git diff whitespace checks pass without running any
+compiler or product. Full source review precedes qualification.

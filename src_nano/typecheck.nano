@@ -4038,6 +4038,71 @@ shadow record_string_array_compatible {
     assert (record_string_array_compatible integers (type_array TypeKind.TYPE_FLOAT ""))
 }
 
+# I compare a standalone union payload only with an available concrete owner.
+# Missing generic context remains unknown; I still traverse its expressions.
+fn check_union_string_array_fields(parser: Parser, literal: ASTUnionConstruct, context: string, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+    let identity: string = (resource_type_identity parser context literal.line)
+    let index: int = (resource_union_index parser identity)
+    let mut offset: int = 0
+    let mut selected: int = -1
+    let mut concrete: bool = false
+    let arguments: array<string> = (tc_generic_arguments context)
+    if (>= index 0) {
+        let definition: ASTUnion = (parser_get_union parser index)
+        set concrete (and (== definition.generic_param_count (array_length arguments)) (== (base_type_name identity) (base_type_name (resource_type_identity parser literal.union_name literal.line))))
+        let mut variant: int = 0
+        while (< variant definition.variant_count) {
+            if (== literal.variant_name (at definition.variant_names variant)) { set selected variant }
+            if (< selected 0) { set offset (+ offset (at definition.variant_field_counts variant)) }
+            set variant (+ variant 1)
+        }
+    }
+    let mut field: int = 0
+    while (< field literal.field_count) {
+        let actual: NSType = (check_expr_node parser (at literal.field_value_ids field) (at literal.field_value_types field) symbols diags file_name)
+        if (and concrete (>= selected 0)) {
+            let definition: ASTUnion = (parser_get_union parser index)
+            let mut slot: int = 0
+            while (< slot (at definition.variant_field_counts selected)) {
+                if (== (at literal.field_names field) (at definition.variant_field_names (+ offset slot))) {
+                    let annotation: string = (tc_substitute_generic (at definition.variant_field_types (+ offset slot)) definition.generic_params arguments)
+                    let expected: NSType = (type_from_string_with_parser parser annotation)
+                    if (not (record_string_array_compatible actual expected)) {
+                        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require the declared STRING-array type for this union payload." (Diagnostics.diag_location file_name literal.line literal.column)))
+                    }
+                    (check_contextual_union_string_arrays parser (at literal.field_value_ids field) (at literal.field_value_types field) expected symbols diags file_name)
+                }
+                set slot (+ slot 1)
+            }
+        }
+        set field (+ field 1)
+    }
+}
+shadow check_union_string_array_fields {
+    let parser: Parser = (resource_test_parser "union Box { Some { items: array<int> } } fn f() -> void { let value: Box = Box.Some { items: [\"x\"] } }")
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_union_string_array_fields parser (parser_get_union_construct parser 0) "Box" [] diags "union.nano")
+    assert (== (Diagnostics.diag_list_count diags) 1)
+}
+
+# I add only missing generic context, retaining explicit constructor arguments.
+fn check_contextual_union_string_arrays(parser: Parser, node_id: int, node_type: int, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+    if (and (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) (== expected.kind TypeKind.TYPE_UNION)) {
+        let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
+        let context: string = (type_to_string expected)
+        if (and (== (array_length (tc_generic_arguments literal.union_name)) 0) (> (array_length (tc_generic_arguments context)) 0)) {
+            (check_union_string_array_fields parser literal context symbols diags file_name)
+        }
+    }
+}
+shadow check_contextual_union_string_arrays {
+    let parser: Parser = (resource_test_parser "union Box<T> { Some { items: T } } fn f() -> void { let value: Box<array<int>> = Box.Some { items: [\"x\"] } }")
+    let declaration: ASTLet = (parser_get_let parser 0)
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_contextual_union_string_arrays parser declaration.value declaration.value_type (type_from_string_with_parser parser declaration.var_type) [] diags "union.nano")
+    assert (== (Diagnostics.diag_list_count diags) 1)
+}
+
 # I traverse every initializer, including nested record expressions. I retain
 # existing record shape policy; this boundary compares known STRING-array facts.
 fn check_record_string_array_fields(parser: Parser, literal: ASTStructLiteral, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> void {
@@ -4057,6 +4122,7 @@ fn check_record_string_array_fields(parser: Parser, literal: ASTStructLiteral, s
             while (< slot definition.field_count) {
                 if (== (at definition.field_names slot) (at literal.field_names field)) {
                     let expected: NSType = (type_from_string_with_parser parser (at definition.field_types slot))
+                    (check_contextual_union_string_arrays parser (at literal.field_value_ids field) (at literal.field_value_types field) expected symbols diags file_name)
                     if (not (record_string_array_compatible actual expected)) {
                         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require the declared STRING-array field type for this record initializer." (Diagnostics.diag_location file_name literal.line literal.column)))
                     }
@@ -4735,6 +4801,18 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 }
             }
         } else { (print "") }
+        if (and (< (env_lookup symbols fn_name) 0) (or (and (== fn_name "array_push") (== call_node.arg_count 2)) (and (== fn_name "array_set") (== call_node.arg_count 3)))) {
+            let receiver: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
+            let receiver_type: NSType = (check_expr_node parser receiver.node_id receiver.node_type symbols diags file_name)
+            if (and (== receiver_type.kind TypeKind.TYPE_ARRAY) (and (== receiver_type.element_type_kind TypeKind.TYPE_ARRAY) (!= receiver_type.element_type_name ""))) {
+                let stored: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start (- call_node.arg_count 1)))
+                let actual: NSType = (check_expr_node parser stored.node_id stored.node_type symbols diags file_name)
+                let expected: NSType = (type_from_string_with_parser parser receiver_type.element_type_name)
+                if (not (record_string_array_compatible actual expected)) {
+                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require the receiver's STRING-array element type for this stored value." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+                }
+            }
+        }
         if (and (== fn_name "array_push") (and (== call_node.arg_count 2) (< (env_lookup symbols fn_name) 0))) {
             let first: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
             let array_type: NSType = (check_expr_node parser first.node_id first.node_type symbols diags file_name)
@@ -4950,11 +5028,13 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 while (< j mqc_node.arg_count) {
                     if (< j (array_length sym.param_types)) {
                         let expected: NSType = (at sym.param_types j)
-                        if (or (== expected.kind TypeKind.TYPE_FUNCTION) (== expected.kind TypeKind.TYPE_UNION)) {
+                        if (or (== expected.kind TypeKind.TYPE_ARRAY) (or (== expected.kind TypeKind.TYPE_FUNCTION) (== expected.kind TypeKind.TYPE_UNION))) {
                             let argument: ASTStmtRef = (parser_get_call_arg parser (+ mqc_node.arg_start j))
                             let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
                             let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type raw expected symbols diags file_name)
-                            if (not (types_equal actual expected)) {
+                            let mut compatible: bool = (types_equal actual expected)
+                            if (== expected.kind TypeKind.TYPE_ARRAY) { set compatible (record_string_array_compatible actual expected) }
+                            if (not compatible) {
                                 let message: string = (+ "I require the declared qualified argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
                                 (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name mqc_node.line mqc_node.column)))
                             }
@@ -5041,7 +5121,11 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             element_type_name: ""
         }
     } else { (print "") }
-    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (check_union_construct parser node_id) } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
+        let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
+        (check_union_string_array_fields parser literal literal.union_name symbols diags file_name)
+        return (check_union_construct parser node_id)
+    } else { (print "") }
     if (== node_type ParseNodeType.PNODE_MATCH) { return (check_match_expr parser node_id symbols diags file_name) } else { (print "") }
     if (== node_type ParseNodeType.PNODE_IF) {
         /* If-expression: type check both branches and return their common type */
@@ -5414,6 +5498,7 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
                 }
             }
         }
+        (check_contextual_union_string_arrays parser let_node.value let_node.value_type declared_type symbols diags file_name)
         let init_type_hint: NSType = (apply_value_type_hint parser let_node.value let_node.value_type init_type_raw declared_type)
         let mut init_type: NSType = (apply_return_type_hint init_type_hint declared_type)
         if (and (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL) (and (== declared_type.kind TypeKind.TYPE_ARRAY) (== declared_type.element_type_kind TypeKind.TYPE_INT))) {
@@ -5502,6 +5587,7 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
         }
     } else {
         let expr_t_raw: NSType = (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
+        (check_contextual_union_string_arrays parser ret_node.value ret_node.value_type expected_type symbols diags file_name)
         let expr_t_hint: NSType = (apply_value_type_hint parser ret_node.value ret_node.value_type expr_t_raw expected_type)
         let expr_t: NSType = (apply_return_type_hint expr_t_hint expected_type)
         if (not (types_equal expr_t expected_type)) {
@@ -5537,6 +5623,7 @@ fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>,
                         if (== (at record.field_names field) set_node.field_name) {
                             let actual: NSType = (check_expr_node parser set_node.value set_node.value_type symbols diags file_name)
                             let expected: NSType = (type_from_string_with_parser parser (at record.field_types field))
+                            (check_contextual_union_string_arrays parser set_node.value set_node.value_type expected symbols diags file_name)
                             if (types_equal actual expected) { return true }
                             (resource_flow_error diags file_name set_node.line set_node.column "I require the declared field type for borrowed mutation")
                             return false
@@ -5556,6 +5643,7 @@ fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>,
             return false
         } else {
             let rhs_t_raw: NSType = (check_expr_node parser set_node.value set_node.value_type symbols diags file_name)
+            (check_contextual_union_string_arrays parser set_node.value set_node.value_type sym.sym_type symbols diags file_name)
             let rhs_t_hint: NSType = (apply_value_type_hint parser set_node.value set_node.value_type rhs_t_raw sym.sym_type)
             let rhs_t: NSType = (apply_return_type_hint rhs_t_hint sym.sym_type)
             if (not (types_equal rhs_t sym.sym_type)) {
@@ -6600,6 +6688,22 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
         set i (+ i 1)
     }
     
+    # I check actual global initializers after all declared callable signatures exist.
+    # Registration and runtime initialization order remain unchanged.
+    set gli 0
+    while (< gli global_let_count) {
+        let global: ASTLet = (parser_get_let parser gli)
+        if (and (not (at local_lets gli)) (>= global.value 0)) {
+            let actual: NSType = (check_expr_node parser global.value global.value_type symbols env.diagnostics file_name)
+            let expected: NSType = (type_from_string_with_parser parser global.var_type)
+            (check_contextual_union_string_arrays parser global.value global.value_type expected symbols env.diagnostics file_name)
+            if (not (record_string_array_compatible actual expected)) {
+                (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E0001" "I require the declared STRING-array type for this global initializer." (Diagnostics.diag_location file_name global.line global.column)))
+            }
+        }
+        set gli (+ gli 1)
+    }
+
     /* Phase 2: NSType check each function body */
     set i 0
     while (< i func_count) {
