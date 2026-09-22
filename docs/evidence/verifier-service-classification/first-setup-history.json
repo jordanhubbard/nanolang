@@ -1,0 +1,22 @@
+{
+  "/home/jkh/nanolang-qualification/verifier-service-53a-ordinary-reports/driver.py": {
+    "bytes": 2366,
+    "sha256": "3bc76f0ac56c5cf6bdc3ad4307baaa00f58ea6fd4d6de180328d3b214ede75c3"
+  },
+  "/home/jkh/nanolang-qualification/verifier-service-53a-ordinary-reports/attribution.json": {
+    "bytes": 159,
+    "sha256": "cf0ae863af5a9aa5af720c9eac12fe65f5dd3a7090e0f2ebbe138895ed7386eb"
+  },
+  "/home/jkh/nanolang-qualification/verifier-service-53a-ordinary-reports/effective-supervisor.py": {
+    "bytes": 8438,
+    "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+  },
+  "/home/jkh/nanolang-qualification/verifier-service-53a-ordinary-reports/test-verifier-space-before.json": {
+    "bytes": 64,
+    "sha256": "2018cdf3f5705667b4504a2406078d92f0aba1f0cb9b446ee419a2ed6d5f605e"
+  },
+  "/home/jkh/nanolang-qualification/verifier-service-53a-ordinary-reports/setup-failure.json": {
+    "bytes": 303,
+    "sha256": "d7a06f1a9ce32328d16d6f373d9bfc427f228d5fd99ab4637baf5352b300d83f"
+  }
+}

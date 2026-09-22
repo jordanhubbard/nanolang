@@ -52,7 +52,9 @@ class OwnedArrayOrigins(unittest.TestCase):
             executable = work / 'describe'
             self.command([*common, 'tests/nanoisa/test_owned_array_origins.c', *objects,
                           *shlex.split(os.environ['OWNED_ARRAY_ORIGIN_LINK_OBJECTS']),
-                          '-lm', '-lcrypto', '-o', executable])
+                          '-lm', '-lcrypto',
+                          *shlex.split(os.environ.get('OWNED_ARRAY_ORIGIN_LDFLAGS', '')),
+                          '-o', executable])
             result = self.command([executable])
             self.assertIn('owner ARRAY origin checks passed; no pending module execution', result.stdout)
             print(result.stdout, end='')
