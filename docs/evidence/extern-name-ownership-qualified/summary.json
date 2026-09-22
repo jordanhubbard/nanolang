@@ -1,0 +1,312 @@
+{
+  "linux": {
+    "report_sha256": "beed3910f69436e582fee7252839eb25ed8a4380c427b3041dd488411ad4afc0",
+    "members": 38,
+    "identity": {
+      "pin": "1a063b1191f21255f21b9e8c15bf5246aa428d3a",
+      "archive_sha": "12ce291a29ff0186fc6a9b59c73ba3d81c8c3fa5180adfd4730f700583ea7666",
+      "git_input_manifest_sha": "3d4c1e92d57b413a228812c366e0e570dbd3dbd82bfb1f9e717f46798f263e3d",
+      "git_input_path_count": 4009,
+      "archive_member_count": 4009,
+      "driver_sha": "bd5ddaf7b75e671fa5cafa66dfc96bd6d4dc8af4d20b7ce6742b3a566e32260a",
+      "host": {
+        "system": "Linux",
+        "node": "sparky",
+        "release": "6.17.0-1032-nvidia",
+        "version": "#32-Ubuntu SMP PREEMPT_DYNAMIC Wed Aug 19 17:40:46 UTC 2026",
+        "machine": "aarch64",
+        "processor": "aarch64"
+      },
+      "sdk": "",
+      "tools": {
+        "/bin/make": "abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0",
+        "/usr/bin/gcc": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8",
+        "/bin/pkg-config": "b21b58e97876992968c82d823d74034abbc6a4176f8c9d5f2e0400f343e73fc1"
+      }
+    },
+    "phases": [
+      {
+        "label": "fresh-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "bin/nanoc_c",
+          "nano_virt",
+          "nano_vm",
+          "nano_vmd",
+          "nano_cop",
+          "nvm2c",
+          "nanoisa_dump",
+          "nvm2c-runtime"
+        ],
+        "bound": 1800,
+        "timeout": false,
+        "pid": 4070585,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 15.093783397926018
+      },
+      {
+        "label": "extern-name-ownership",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "test-nanovirt-extern-names"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 4073561,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 1.5036977999843657
+      },
+      {
+        "label": "original-lifecycle-compile-ffi",
+        "argv": [
+          "/home/jkh/nanolang-qualification/extern-1a063-linux/ordinary/source/bin/nano_virt",
+          "examples/language/nl_extern_char.nano",
+          "--emit-nvm",
+          "-o",
+          "/home/jkh/nanolang-qualification/extern-1a063-linux/ordinary/tmp/ffi.nvm"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 4073600,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.2172077720751986
+      },
+      {
+        "label": "fresh-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "bin/nanoc_c",
+          "nano_virt",
+          "nano_vm",
+          "nano_vmd",
+          "nano_cop",
+          "nvm2c",
+          "nanoisa_dump",
+          "nvm2c-runtime"
+        ],
+        "bound": 1800,
+        "timeout": false,
+        "pid": 4073608,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 37.195970525965095
+      },
+      {
+        "label": "extern-name-ownership",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "test-nanovirt-extern-names"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 4078336,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 4.7344510779948905
+      },
+      {
+        "label": "original-lifecycle-compile-ffi",
+        "argv": [
+          "/home/jkh/nanolang-qualification/extern-1a063-linux/sanitizer/source/bin/nano_virt",
+          "examples/language/nl_extern_char.nano",
+          "--emit-nvm",
+          "-o",
+          "/home/jkh/nanolang-qualification/extern-1a063-linux/sanitizer/tmp/ffi.nvm"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 4078591,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.2182866269722581
+      }
+    ]
+  },
+  "puck": {
+    "report_sha256": "e02a97fda54159d302c91f8f03e5b6c43302b0d40b11de6cb2068988afedd371",
+    "members": 38,
+    "identity": {
+      "pin": "1a063b1191f21255f21b9e8c15bf5246aa428d3a",
+      "archive_sha": "12ce291a29ff0186fc6a9b59c73ba3d81c8c3fa5180adfd4730f700583ea7666",
+      "git_input_manifest_sha": "3d4c1e92d57b413a228812c366e0e570dbd3dbd82bfb1f9e717f46798f263e3d",
+      "git_input_path_count": 4009,
+      "archive_member_count": 4009,
+      "driver_sha": "bd5ddaf7b75e671fa5cafa66dfc96bd6d4dc8af4d20b7ce6742b3a566e32260a",
+      "host": {
+        "system": "Darwin",
+        "node": "puck",
+        "release": "27.0.0",
+        "version": "Darwin Kernel Version 27.0.0: Tue Aug 11 21:05:48 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T6041",
+        "machine": "arm64"
+      },
+      "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "tools": {
+        "/usr/bin/make": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+        "/usr/bin/clang": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+        "/opt/homebrew/opt/llvm/bin/clang": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3": "8e598855de9a6648bc670d5fe7a3a653f1fa967b74373ed7c4ca16fbc40c0de1",
+        "/opt/homebrew/bin/pkg-config": "39b6b8b701470ebf31a24972bc1fafc7da54a5c32215d972fdadaf21c7cfa91b"
+      }
+    },
+    "phases": [
+      {
+        "label": "fresh-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "bin/nanoc_c",
+          "nano_virt",
+          "nano_vm",
+          "nano_vmd",
+          "nano_cop",
+          "nvm2c",
+          "nanoisa_dump",
+          "nvm2c-runtime"
+        ],
+        "bound": 1800,
+        "timeout": false,
+        "pid": 19790,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 10.657730791999999
+      },
+      {
+        "label": "extern-name-ownership",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "test-nanovirt-extern-names"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 20830,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 1.6457753340000014
+      },
+      {
+        "label": "original-lifecycle-compile-ffi",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/extern-1a063-puck/ordinary/source/bin/nano_virt",
+          "examples/language/nl_extern_char.nano",
+          "--emit-nvm",
+          "-o",
+          "/Users/jkh/nanolang-qualification/extern-1a063-puck/ordinary/tmp/ffi.nvm"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 20859,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.26033925000000124
+      },
+      {
+        "label": "fresh-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "bin/nanoc_c",
+          "nano_virt",
+          "nano_vm",
+          "nano_vmd",
+          "nano_cop",
+          "nvm2c",
+          "nanoisa_dump",
+          "nvm2c-runtime"
+        ],
+        "bound": 1800,
+        "timeout": false,
+        "pid": 20863,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 19.139332500000002
+      },
+      {
+        "label": "extern-name-ownership",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "test-nanovirt-extern-names"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 21750,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 2.5600299169999943
+      },
+      {
+        "label": "original-lifecycle-compile-ffi",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/extern-1a063-puck/sanitizer/source/bin/nano_virt",
+          "examples/language/nl_extern_char.nano",
+          "--emit-nvm",
+          "-o",
+          "/Users/jkh/nanolang-qualification/extern-1a063-puck/sanitizer/tmp/ffi.nvm"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 21795,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.7211006249999983
+      }
+    ]
+  }
+}
