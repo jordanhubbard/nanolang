@@ -25,7 +25,7 @@ typedef struct {
     void *user_data;  /* caller-owned extra data (e.g., metadata) */
 } FfiModule;
 
-/* I bracket only the actual COP fork. A successful prepare excludes loader
+/* I bracket an explicitly prepared fork. A successful prepare excludes loader
  * holders/waiters without holding a pthread lock. It is bounded and may refuse
  * a busy registry. The same live token must be completed immediately in the
  * parent (also on fork failure) or adopted in the changed-PID child. The caller
@@ -33,6 +33,10 @@ typedef struct {
  * This does not establish general multithreaded no-exec provider safety. */
 typedef struct { unsigned parent_pid; } FfiLoaderFork;
 bool ffi_loader_fork_prepare(FfiLoaderFork *token);
+/* My audited compiler CLIs fork before provider entry. I additionally refuse
+ * all prior native image entry, including failed loads and shutdown history.
+ * This does not authorize arbitrary threaded embedding or external dlopen. */
+bool ffi_loader_shadow_prepare(FfiLoaderFork *token);
 bool ffi_loader_fork_parent(FfiLoaderFork *token);
 bool ffi_loader_fork_child(FfiLoaderFork *token);
 

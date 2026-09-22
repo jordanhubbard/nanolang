@@ -21,3 +21,13 @@ This is a boundary for the audited compiler CLIs, not arbitrary embedding after 
 ## My acceptance
 
 I preserve the original full typecheck input and deadlines. Before repeating it, I require direct admission controls for pristine preparation, parent and descendant adoption, busy registry, attempted/loaded provider refusal, shutdown without history reset, and fork-failure cleanup. I require an actual compiler shadow importing a provider, an actual retained callback selector route, and a constructor/thread fixture showing initialization occurs only in the final executing child. Ordinary and supported sanitizer results stay separate. I do not weaken original loader, SDK ownership or opaque COP controls.
+
+## My source checkpoint
+
+I record native entry through wrappers at every loader dlopen/dlsym site. My process-namespace fallback marks history before releasing registry admission; preparation cannot race between the registry scan and that fallback. I also test the actual registry count and retained-image list under closed admission. These checks do not alter general COP admission.
+
+My two shadow callers disable cancellation before preparing and keep the parent protected through child supervision and descriptor cleanup. They restore the previous state after no owned child remains. Child adoption precedes evaluator and provider work. My interpreter provider helper retains the original optional per-module loading behavior; failed initial loader admission or failed path allocation refuses the shadow selection.
+
+My additive C controls exercise successful pristine parent/descendant handoff, native load/failed load/process-symbol history and refusal after shutdown, plus both actual compiler caller fork-failure paths with a substituted fork returning EAGAIN. My original callback tests remain, with an added constructor that creates and joins a real thread and records its PID/parent PID. The new interpreter route must load in the direct compiler child; the retained callback route must load in its nested VM child. These constructor controls observe placement, not arbitrary constructor safety.
+
+Strict C11 GNU-source syntax checks with Wall/Wextra/Werror passed for all changed C translation units and both C controls. Python syntax and git diff whitespace checks passed. I have not executed affected product paths at this checkpoint.

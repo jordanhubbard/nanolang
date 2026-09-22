@@ -2856,6 +2856,13 @@ test-language-claims:
 	@python3 tests/test_language_claims.py
 
 .PHONY: test-cseed-import-shadows
+.PHONY: test-shadow-loader-fork-failure
+test-shadow-loader-fork-failure: $(COMPILER_OBJECTS)
+	$(CC) $(CFLAGS) -D_GNU_SOURCE -o $(OBJ_DIR)/test_shadow_loader_fork_failure \
+		tests/shadow_loader_fork_failure.c \
+		$(filter-out $(OBJ_DIR)/main.o $(OBJ_DIR)/nanovirt/shadow_runner.o,$(COMPILER_OBJECTS)) $(LDFLAGS)
+	$(OBJ_DIR)/test_shadow_loader_fork_failure
+
 test-cseed-import-shadows: $(COMPILER_C)
 	@python3 -m unittest tests.test_cseed_import_shadows
 

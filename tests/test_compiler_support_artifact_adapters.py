@@ -214,6 +214,9 @@ class CompilerSupportArtifactAdapters(unittest.TestCase):
         self.assertIn(b'PASS callback and private cleanup order', result)
         result = self.run_checked([control, library, fresh])
         self.assertEqual(result, b'I checked prepared loader admission and process ownership.\n')
+        for mode in ['shadow-loaded', 'shadow-failed', 'shadow-resolved']:
+            result = self.run_checked([control, library, fresh, mode])
+            self.assertEqual(result, b'I preserved pristine shadow admission and native-entry history.\n')
         for mode in ['fresh', 'conflict']:
             result = self.run_checked([control, library, fresh, mode])
             self.assertEqual(result, b'I preserved fresh-child SDK registration authority.\n')

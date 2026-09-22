@@ -1,4 +1,6 @@
 #include "runtime/module_build_dir.h"
+#include "runtime/ffi_loader.h"
+#include <pthread.h>
 #include "runtime/dyn_array.h"
 #include "runtime/shadow_timeout.h"
 #include "runtime/shadow_completion.h"
@@ -438,6 +440,45 @@ static int determinize_macho_uuid_and_signature(const char *path) {
 }
 #endif
 
+static bool load_interpreted_shadow_providers(Environment *env, ModuleList *modules,
+                                               CompilerOptions *opts) {
+    /* I open interpreter providers only after my final shadow fork. */
+    if (!ffi_init(opts->verbose)) return false;
+    for (int i = 0; i < modules->count; i++) {
+        const char *module_path = modules->module_paths[i];
+
+        char *module_dir = strdup(module_path);
+        if (!module_dir) return false;
+        char *last_slash = strrchr(module_dir, '/');
+        if (last_slash) {
+            *last_slash = '\0';
+        } else {
+            free(module_dir);
+            module_dir = strdup(".");
+            if (!module_dir) return false;
+        }
+
+        ModuleBuildMetadata *meta = module_load_metadata(module_dir);
+
+        char mod_name[256];
+        if (meta && meta->name) {
+            snprintf(mod_name, sizeof(mod_name), "%s", meta->name);
+        } else {
+            const char *base_name = last_slash ? last_slash + 1 : module_path;
+            snprintf(mod_name, sizeof(mod_name), "%s", base_name);
+            char *dot = strrchr(mod_name, '.');
+            if (dot) *dot = '\0';
+        }
+
+        (void)ffi_load_module(mod_name, module_path, env, opts->verbose);
+
+        if (meta) module_metadata_free(meta);
+        free(module_dir);
+    }
+
+    return true;
+}
+
 static bool check_interpreted_shadows(ASTNode *program, Environment *env,
                                       ModuleList *modules, const char *input,
                                       CompilerOptions *opts) {
@@ -473,16 +514,33 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
     }
     nl_shadow_timing("parent_before_fork", -1, -1, 0, 1, 0);
     fflush(NULL);
+    int previous_cancel;
+    FfiLoaderFork loader_token = {0};
+    if (pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &previous_cancel) != 0) {
+        close(completion[0]); close(completion[1]);
+        fprintf(stderr, "I cannot protect shadow loader preparation.\n");
+        return false;
+    }
+    if (!ffi_loader_shadow_prepare(&loader_token)) {
+        close(completion[0]); close(completion[1]);
+        (void)pthread_setcancelstate(previous_cancel, NULL);
+        fprintf(stderr, "I require an idle loader without prior native image entry for shadows.\n");
+        return false;
+    }
     /* I share the exact start with the child; fork time consumes the budget. */
     struct timespec start, now, pause = {0, 10000000};
     if (clock_gettime(CLOCK_MONOTONIC, &start) != 0) {
         close(completion[0]);
         close(completion[1]);
+        (void)ffi_loader_fork_parent(&loader_token);
+        (void)pthread_setcancelstate(previous_cancel, NULL);
         fprintf(stderr, "I cannot measure the shadow execution deadline.\n");
         return false;
     }
     pid_t child = fork();
     if (child == 0) {
+        if (!ffi_loader_fork_child(&loader_token)) _exit(1);
+        (void)pthread_setcancelstate(previous_cancel, NULL);
         close(completion[0]);
         /* I isolate compiler state, not host authority. */
         signal(SIGALRM, SIG_DFL);
@@ -493,6 +551,7 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
                                                      opts->test_imports);
         nl_shadow_timing("callback_end", -1, -1, 0, 0, callback_status);
         bool passed = callback_status != 0 ? callback_status > 0 :
+            load_interpreted_shadow_providers(env, modules, opts) &&
             run_shadow_tests_scope(program, env, modules, input,
                                    opts->test_imports, opts->verbose);
         nl_shadow_timing("selection_end", -1, -1, 0, 0, passed ? 0 : 1);
@@ -519,9 +578,11 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         _exit(passed ? 0 : 1);
     }
     int fork_error = errno;
+    (void)ffi_loader_fork_parent(&loader_token);
     close(completion[1]);
     if (child < 0) {
         close(completion[0]);
+        (void)pthread_setcancelstate(previous_cancel, NULL);
         fprintf(stderr, "I cannot start shadow execution: %s\n", strerror(fork_error));
         return false;
     }
@@ -546,6 +607,7 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
     NlShadowCompletion done = {0};
     ssize_t received = read(completion[0], &done, sizeof(done));
     close(completion[0]);
+    (void)pthread_setcancelstate(previous_cancel, NULL);
     size_t record_bytes = received < 0 ? 0 : (size_t)received;
     bool completed = nl_shadow_completion_ontime(&done, record_bytes, &start,
                                                   shadow_seconds);
@@ -1152,38 +1214,6 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             free(module_objs);
             return 1;
         }
-    }
-
-    /* Phase 4.6: Initialize FFI and load module shared libraries for shadow tests */
-    (void)ffi_init(opts->verbose);
-    for (int i = 0; i < modules->count; i++) {
-        const char *module_path = modules->module_paths[i];
-
-        char *module_dir = strdup(module_path);
-        char *last_slash = strrchr(module_dir, '/');
-        if (last_slash) {
-            *last_slash = '\0';
-        } else {
-            free(module_dir);
-            module_dir = strdup(".");
-        }
-
-        ModuleBuildMetadata *meta = module_load_metadata(module_dir);
-
-        char mod_name[256];
-        if (meta && meta->name) {
-            snprintf(mod_name, sizeof(mod_name), "%s", meta->name);
-        } else {
-            const char *base_name = last_slash ? last_slash + 1 : module_path;
-            snprintf(mod_name, sizeof(mod_name), "%s", base_name);
-            char *dot = strrchr(mod_name, '.');
-            if (dot) *dot = '\0';
-        }
-
-        (void)ffi_load_module(mod_name, module_path, env, opts->verbose);
-
-        if (meta) module_metadata_free(meta);
-        free(module_dir);
     }
 
     /* Phase 5: Shadow-Test Execution (Compile-Time Function Execution) */
