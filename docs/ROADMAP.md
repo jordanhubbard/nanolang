@@ -17228,3 +17228,11 @@ shared_%d_%d binding buffer with a worst-case31-byte formatting bound. Puck both
 configurations passed at that pin. I enlarge only that fixture buffer to32 and
 check the snprintf result against capacity; original loop indices, binding names
 and ownership assertions remain unchanged. No warning suppression or replay.
+
+I qualify task992713's contextual task identity/result-lease prerequisite at exact
+73e86c963 on Linux and Darwin, ordinary and ASan/UBSan/LSan. All four original
+owning methods pass with fresh providers and unchanged source/provider/tool maps.
+I retain the earlier f286 strict Linux fixture compilation refusal separately;
+reviewed73e changes only its checked formatting buffer. My raw reports and seals
+are in `docs/evidence/task-context-qualified`. Union and collection registries,
+full evaluator acceptance and complete installed SDK qualification remain open.
