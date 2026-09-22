@@ -78,9 +78,21 @@ int main(void) {
     env_get_var(env, "record")->struct_type_name = strdup("OwnerB");
     env_set_current_file(env, equal_file);
     env_define_var(env, "record", TYPE_STRUCT, false, create_void());
-    assert(strcmp(env_get_var(env, "record")->struct_type_name, "OwnerA") == 0);
+    assert(!env_get_var(env, "record")->struct_type_name);
+    assert(strcmp(env->symbols[outer].struct_type_name, "OwnerA") == 0);
+    assert(strcmp(env->symbols[outer + 1].struct_type_name, "OwnerB") == 0);
     pop_to(env, outer);
     assert(!env_get_var(env, "record"));
+
+    /* The same count after pop/reinsert must not preserve the old name index. */
+    env_define_var(env, "retired_name", TYPE_INT, false, create_int(1));
+    assert(env_get_var(env, "retired_name"));
+    pop_to(env, outer);
+    env_define_var(env, "replacement_name", TYPE_INT, false, create_int(2));
+    assert(!env_get_var(env, "retired_name"));
+    assert(env_get_var(env, "replacement_name") == linear(env, "replacement_name"));
+    assert(env_get_var(env, "replacement_name")->value.as.int_val == 2);
+    pop_to(env, outer);
 
     /* I repeatedly reuse freed slots and compare every name with reverse scan. */
     for (int round = 0; round < 80; ++round) {
