@@ -14520,3 +14520,11 @@ allocator failure claim.
   that terminal and require the exact provider macro without adding a dummy
   comment or weakening strict flags. Standalone and complete-output declaration
   assertions stay unchanged. MAC: task_f201f1249e0a4567ad56a15b024b1408.
+
+- [ ] I initialize a native local from its prior lexical binding before publishing
+  the new C name. My dcda Linux nested projection O0 passes, but O2 reaches a
+  checked list refusal after emitting `nl_Outer_Item_Wrapped alias = alias;`
+  inside a nested scope. I retain the generated C and first terminal without
+  replaying that path. [Contract](NANOISA_NATIVE_LET_PUBLICATION.md).
+  Both producer families and original18+9 remain required.
+  MAC: task_5f7995c38375459f858ed017626dbc18.
