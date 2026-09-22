@@ -54,3 +54,18 @@ that exact child operation after the unchanged depth check and continue to
 recurse for records and tuples. Root strings keep the public path. Allocation
 failure, initialized-prefix cleanup and independent string ownership remain
 mandatory controls before another full run.
+
+Inlining owned string children passes the focused ownership fixture but does not
+move the full boundary: I again complete 557 shadows with shadow 558 pending.
+The two largest parser shadows change by less than 0.05 seconds. I retain this
+negative result and do not attribute improvement to it.
+
+The original profile assigns 30.57% of sampled user cycles to
+`__asan_stack_malloc_0`, with visible stacks through `record_result_publish`,
+`eval_preserve_value` and `eval_staged_argument`. `record_result_publish`
+currently passes addresses of local slot, found and byte-count variables to two
+helpers. I will replace those out parameters with bounded value returns. This
+preserves hash probing, duplicate refusal, table growth, collision behavior and
+publication order while removing address-taken locals from the hot publication
+frame. Existing collision, allocation-prefix, old-table byte identity and
+recovery controls remain the acceptance boundary before the full gate repeats.
