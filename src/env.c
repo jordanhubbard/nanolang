@@ -392,6 +392,23 @@ void free_environment(Environment *env) {
     }
     env_function_index_invalidate(env);
     free(env->functions);
+
+    /* My effect rows own names and vectors; parameter type facts borrow the AST. */
+    for (int i = 0; i < env->effect_count; ++i) {
+        EffectDef *effect = &env->effects[i];
+        free(effect->name);
+        free(effect->module_name);
+        for (int j = 0; j < effect->op_count; ++j) {
+            EffectOp *operation = &effect->ops[j];
+            free(operation->name);
+            free(operation->return_type_name);
+            for (int k = 0; k < operation->param_count; ++k)
+                free(operation->params[k].name);
+            free(operation->params);
+        }
+        free(effect->ops);
+    }
+    free(env->effects);
     
     for (int i = 0; i < env->struct_count; i++) {
         free(env->structs[i].name);
