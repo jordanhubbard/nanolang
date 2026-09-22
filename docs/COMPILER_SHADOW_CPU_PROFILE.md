@@ -43,3 +43,14 @@ tuple controls must verify that nested leaf values retain their payloads and
 lose return, break, continue and return-target state exactly as before. Fresh
 full-selection qualification under the original instrumentation and 60-second
 deadline decides acceptance.
+
+The first leaf checkpoint improves the unchanged full selection from 435 to
+557 completed shadows. It still stops at the original deadline, with shadow 558
+pending. The two parser-heavy shadows fall from 13.866/14.011 seconds to
+8.465/8.734 seconds. This verifies that recursive leaf calls were material, but
+does not satisfy the gate. Owned string children still enter the same recursive
+function for a depth check, control-state clearing and `strdup`. I will inline
+that exact child operation after the unchanged depth check and continue to
+recurse for records and tuples. Root strings keep the public path. Allocation
+failure, initialized-prefix cleanup and independent string ownership remain
+mandatory controls before another full run.
