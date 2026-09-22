@@ -17412,3 +17412,20 @@ original wrappers keep their prior profiles. Additive exact/minus-one and all
 combined allocation-prefix controls are source-ready; production and both
 fixture modes pass strict syntax. Runtime qualification awaits review before
 shared typed revision2/profile and provider admission work continues.
+- [ ] I reduce repeated declaration identity/count lookup within one resource fixed-point classification, under the unchanged aggregate shadow deadline (task_96b40bc1ccd644bca2131878fa6cf372). I retain c5084b874's actual failed original invocation and all source controls; source review precedes affected execution. Contract: `docs/RESOURCE_CLASSIFICATION_LOCAL_KEYS.md`.
+
+- [x] I qualified54e's original/additive five resource bodies under the reviewed original-module selector and unchanged60-second deadline. Declaration classification measured3.419s versus prior8.564s; full preparation remains unqualified and its original terminal retained. Evidence: `docs/evidence/resource-keys-focused/`.
+
+- [ ] I preserve the private resource selector's target-specific evaluator flag omission as an attribution limitation (global sanitizer flags present, eval.o FP flags absent). The untouched original compiler is required for full corrected component acceptance; focused7174 evidence is not exact evaluator Make-policy parity.
+
+- [x] I retained corrected54e's full original typecheck terminal: unchanged60-second deadline,433 complete bodies and the same instantiated-resource frontier; full-context classification savings were smaller than focused timing. Evidence: `docs/evidence/resource-keys-full-typecheck/`. Complete component/CI acceptance remains open.
+
+- [ ] I replace full Parser snapshots along six recursive resource helper paths with an invocation-local two-list declaration view, preserving public boundaries and original logic/tests (task_96b40bc1ccd644bca2131878fa6cf372). Contract: `docs/RESOURCE_CLASSIFICATION_DECLARATION_VIEW.md`; source review and focused timing precede another complete component attempt.
+
+- [x] I qualify all eleven focused resource-view shadows at946 with the original module context and60-second alarm; bodies total13.151seconds. I retain corrected evaluator FP flags and the prior comparison limitation. Evidence: `docs/evidence/resource-view-focused/`. Full604-shadow component and separate10-second bootstrap obligations remain open.
+
+- [x] I retain full946 first terminal:435 bodies complete, pending resource_transfer_supported under original60seconds. The prior instantiated frontier completes, but604-shadow acceptance and bootstrap10 remain open. I also retain the missing-alias preflight before any compiler execution. Evidence: `docs/evidence/resource-view-full-typecheck/`.
+
+- [ ] I measure per-body record snapshot and field-copy volume through private exact-provider counters before choosing a further compiler deadline repair (task_96b40bc1ccd644bca2131878fa6cf372). Contract: `docs/RECORD_COPY_COST_DIAGNOSTIC.md`; production ownership and both original deadlines remain unchanged.
+
+- [x] I retain reviewed private946 record counters: original parse_block_recursive makes44,239 Parser clone attempts and3,406,403 field-name copies; original resource_concrete_payload_fact makes6,083/468,391. Both unchanged bodies pass; full79.506seconds includes compilation and is not full shadow/CI acceptance. Evidence: `docs/evidence/record-copy-cost/`.
