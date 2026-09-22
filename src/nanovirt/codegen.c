@@ -3623,8 +3623,15 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         if (local_type) {
             local_type->def_line = node->line;
             local_type->def_column = node->column;
-            if (node->as.let.type_name)
-                local_type->struct_type_name = strdup(node->as.let.type_name);
+            if (node->as.let.type_name) {
+                char *replacement = strdup(node->as.let.type_name);
+                if (!replacement) {
+                    cg_error(cg, node->line, "I could not retain the local nominal type name");
+                    break;
+                }
+                free(local_type->struct_type_name);
+                local_type->struct_type_name = replacement;
+            }
         }
         emit_op(cg, OP_STORE_LOCAL, (int)slot);
         local_name_begin(cg,slot,node->as.let.name,node->as.let.var_type,node->line);
