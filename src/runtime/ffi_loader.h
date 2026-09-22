@@ -25,6 +25,17 @@ typedef struct {
     void *user_data;  /* caller-owned extra data (e.g., metadata) */
 } FfiModule;
 
+/* I bracket only the actual COP fork. A successful prepare excludes loader
+ * holders/waiters without holding a pthread lock. It is bounded and may refuse
+ * a busy registry. The same live token must be completed immediately in the
+ * parent (also on fork failure) or adopted in the changed-PID child. The caller
+ * must not cancel its preparing thread or invoke loader APIs before completion.
+ * This does not establish general multithreaded no-exec provider safety. */
+typedef struct { unsigned parent_pid; } FfiLoaderFork;
+bool ffi_loader_fork_prepare(FfiLoaderFork *token);
+bool ffi_loader_fork_parent(FfiLoaderFork *token);
+bool ffi_loader_fork_child(FfiLoaderFork *token);
+
 /**
  * Initialize the FFI loader.
  * Safe to call multiple times; subsequent calls are no-ops.

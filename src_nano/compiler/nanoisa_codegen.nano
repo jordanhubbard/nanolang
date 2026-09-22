@@ -2161,6 +2161,7 @@ shadow nisa_import_add {
 }
 
 fn nisa_artifact_arity(name: string) -> int {
+    if (or (== name "nlc_native_array_abi") (== name "nlc_runtime_root")) { return 0 }
     if (or (== name "nl_fs_list_files") (or (== name "nl_fs_list_files_ci") (== name "nl_fs_join_path"))) { return 2 }
     if (or (== name "nl_fs_list_dirs") (or (== name "nl_fs_parent_dir") (or (== name "nl_fs_is_directory") (or (== name "nl_fs_file_exists") (== name "nl_fs_file_size"))))) { return 1 }
     if (== name "nl_nanoisa_assemble_save") { return 2 }
@@ -2176,6 +2177,8 @@ fn nisa_artifact_arity(name: string) -> int {
     return -1
 }
 shadow nisa_artifact_arity {
+    assert (== (nisa_artifact_arity "nlc_native_array_abi") 0)
+    assert (== (nisa_artifact_arity "nlc_runtime_root") 0)
     assert (== (nisa_artifact_arity "nl_fs_list_files") 2)
     assert (== (nisa_artifact_arity "nl_fs_list_files_ci") 2)
     assert (== (nisa_artifact_arity "nl_fs_list_dirs") 1)
@@ -2201,6 +2204,7 @@ shadow nisa_artifact_arity {
 }
 
 fn nisa_artifact_result(name: string) -> string {
+    if (== name "nlc_native_array_abi") { return "int" }
     if (or (== name "nl_fs_list_files") (or (== name "nl_fs_list_files_ci") (== name "nl_fs_list_dirs"))) { return "array<string>" }
     if (or (== name "nl_fs_is_directory") (or (== name "nl_fs_file_exists") (== name "nl_fs_file_size"))) { return "int" }
     if (== name "nl_nanoisa_assemble_save") { return "int" }
@@ -2210,6 +2214,8 @@ fn nisa_artifact_result(name: string) -> string {
     return ""
 }
 shadow nisa_artifact_result {
+    assert (== (nisa_artifact_result "nlc_native_array_abi") "int")
+    assert (== (nisa_artifact_result "nlc_runtime_root") "string")
     assert (== (nisa_artifact_result "nl_fs_list_files") "array<string>")
     assert (== (nisa_artifact_result "nl_fs_list_files_ci") "array<string>")
     assert (== (nisa_artifact_result "nl_fs_list_dirs") "array<string>")
@@ -2308,6 +2314,40 @@ shadow nisa_register_artifact {
     assert (== (array_length nisa_import_names) 1)
     (mb_reset [])
     let reset_again: int = (nisa_reset)
+    let declarations: array<string> = [
+        "extern fn nlc_native_array_abi() -> int",
+        "extern fn nlc_runtime_root() -> string",
+        "extern fn nlc_native_array_abi() -> bool",
+        "extern fn nlc_runtime_root() -> int",
+        "extern fn nlc_native_array_abi(value: string) -> int",
+        "extern fn nlc_runtime_root(value: int) -> string"
+    ]
+    let mut declaration_index: int = 0
+    while (< declaration_index (array_length declarations)) {
+        let _: int = (nisa_reset)
+        (mb_reset [1])
+        set nisa_artifact_owners [0]
+        set nisa_artifact_paths ["/retained/compiler_support.so"]
+        let declaration_tokens: List<LexerToken> = (tokenize_string (at declarations declaration_index) "support.nano" (diag_list_new))
+        let declaration_parser: Parser = (parse_program declaration_tokens (list_LexerToken_length declaration_tokens) "support.nano")
+        assert (not (parser_has_error declaration_parser))
+        assert (== (parser_get_function_count declaration_parser) 1)
+        let registered: int = (nisa_register_artifact declaration_parser (parser_get_function declaration_parser 0))
+        if (< declaration_index 2) {
+            assert (== registered 0)
+            assert nisa_ok
+            assert (str_contains nisa_import_text ".import_kind 0 artifact")
+            assert (== (array_length nisa_import_names) 1)
+        } else {
+            assert (== registered -1)
+            assert (not nisa_ok)
+            assert (== nisa_import_text "")
+            assert (== (array_length nisa_import_names) 0)
+        }
+        set declaration_index (+ declaration_index 1)
+    }
+    (mb_reset [])
+    let reset_final: int = (nisa_reset)
 }
 
 fn nisa_metadata_operation(name: string) -> string {
