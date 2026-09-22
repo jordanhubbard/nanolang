@@ -679,7 +679,7 @@ typedef struct {
     Type *field_types;
     char **field_type_names;  /* Owned strings/vector, like field_names; complete annotations below remain borrowed. */
     Type *field_element_types;  /* Owned element-tag vector for array fields. */
-    TypeInfo **field_type_info; /* Borrowed from the defining AST. */
+    TypeInfo **field_type_info; /* Environment borrows AST; metadata snapshot owns copies. */
     int field_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     bool is_resource;  /* Resource type: affine semantics (use at most once) */
