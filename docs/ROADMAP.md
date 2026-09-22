@@ -17185,3 +17185,5 @@ I qualify reviewed e3a parser correction on Linux with exact retained instrument
 - [x] I retain full946 first terminal:435 bodies complete, pending resource_transfer_supported under original60seconds. The prior instantiated frontier completes, but604-shadow acceptance and bootstrap10 remain open. I also retain the missing-alias preflight before any compiler execution. Evidence: `docs/evidence/resource-view-full-typecheck/`.
 
 - [ ] I measure per-body record snapshot and field-copy volume through private exact-provider counters before choosing a further compiler deadline repair (task_96b40bc1ccd644bca2131878fa6cf372). Contract: `docs/RECORD_COPY_COST_DIAGNOSTIC.md`; production ownership and both original deadlines remain unchanged.
+
+- [x] I retain reviewed private946 record counters: original parse_block_recursive makes44,239 Parser clone attempts and3,406,403 field-name copies; original resource_concrete_payload_fact makes6,083/468,391. Both unchanged bodies pass; full79.506seconds includes compilation and is not full shadow/CI acceptance. Evidence: `docs/evidence/record-copy-cost/`.
