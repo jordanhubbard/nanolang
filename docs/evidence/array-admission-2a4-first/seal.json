@@ -1,0 +1,1514 @@
+{
+  "pin": "2a4caa269d1ea2d08120b9b6c24c995a436ba14b",
+  "lanes": {
+    "darwin": {
+      "bundle": "darwin.tar.gz",
+      "sha256": "e7676d100b8ec046cb9f0afe086beb807ad5568143b1bf82c14b4cd52b7c756a",
+      "reports": [
+        {
+          "path": "checker-diagnostic/checker.c",
+          "sha256": "59b575841cfe97e7bfd9f2c380a167f68003d15e3e421947f148930d633553a4",
+          "bytes": 595
+        },
+        {
+          "path": "checker-diagnostic/checker.dSYM/Contents/Info.plist",
+          "sha256": "4759860d1fabbd75d561333bd2eff46b55d4250af72a0ff0a7a89e9e5e610439",
+          "bytes": 636
+        },
+        {
+          "path": "checker-diagnostic/checker.dSYM/Contents/Resources/Relocations/aarch64/checker.yml",
+          "sha256": "b8d4fc5a01803cbe7da4442d91325090e76de9e38107015971c967bf3fe62375",
+          "bytes": 166
+        },
+        {
+          "path": "checker-diagnostic/checker.log",
+          "sha256": "3a5616ac3ec9d7279f686836df160380ab9a29c40d3b7e6e3df2ead77f0c9ff0",
+          "bytes": 872
+        },
+        {
+          "path": "checker-diagnostic/compile.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "checker-diagnostic/identity.json",
+          "sha256": "efd143bb5502c86bfc23c05b9de2fa089a4776c59988d8a66654fce7dd67a187",
+          "bytes": 352
+        },
+        {
+          "path": "checker-diagnostic/providers.json",
+          "sha256": "6909f6807562c52d592a7b36ad75a2830492804c86e8dcef3bc8c737a5e05686",
+          "bytes": 64791
+        },
+        {
+          "path": "checker-diagnostic/records.json",
+          "sha256": "cdc87fb0705ef5d287e08aee21d9d940eaf10ffc413bd721ad5bee62b07c05ed",
+          "bytes": 4400
+        },
+        {
+          "path": "fragment-after-failure.json",
+          "sha256": "7ee13e90978adeb8f2ce3af19fbad6aaa94f9bc39b4fb037156f8d0af933b5c4",
+          "bytes": 114
+        },
+        {
+          "path": "fragment-before.json",
+          "sha256": "7ee13e90978adeb8f2ce3af19fbad6aaa94f9bc39b4fb037156f8d0af933b5c4",
+          "bytes": 114
+        },
+        {
+          "path": "identity.json",
+          "sha256": "5db40d7226cfc1ab89c59159d2ebbafd2149d6e1ee1a368d98db1a5fc17a803d",
+          "bytes": 998
+        },
+        {
+          "path": "ordinary/ordinary-build.json",
+          "sha256": "38844382556280e8135e9b98e08ec8c60c5d8b7d47ad026c0d57739e131eee92",
+          "bytes": 763
+        },
+        {
+          "path": "ordinary/ordinary-build.log",
+          "sha256": "7e367be1f65b79063a8a940308e8141712ef15d8309c6fb27de693b08f832067",
+          "bytes": 66821
+        },
+        {
+          "path": "ordinary/ordinary-test-typechecker.json",
+          "sha256": "3d861cc45a157cb1cdfd324fb88284a6bf99ff54c727c55a7e6e9078718567ca",
+          "bytes": 784
+        },
+        {
+          "path": "ordinary/ordinary-test-typechecker.log",
+          "sha256": "89eea912c8f2d91247988b996de154f8e7ad0c59ebe12cd99f88c63f5c51b1c3",
+          "bytes": 3114
+        },
+        {
+          "path": "ordinary/providers-before.json",
+          "sha256": "029a7550244853b695a25acead6867afab0846818c17added42ed9da79f93dae",
+          "bytes": 50021
+        },
+        {
+          "path": "ordinary/source-after-failure.json",
+          "sha256": "08d2700442762147a80147b65d3f6e7841938eb283e931c38fb99f333041ab41",
+          "bytes": 652756
+        },
+        {
+          "path": "ordinary/source-before.json",
+          "sha256": "08d2700442762147a80147b65d3f6e7841938eb283e931c38fb99f333041ab41",
+          "bytes": 652756
+        },
+        {
+          "path": "ordinary/test-typechecker-providers-after.json",
+          "sha256": "029a7550244853b695a25acead6867afab0846818c17added42ed9da79f93dae",
+          "bytes": 50021
+        },
+        {
+          "path": "ordinary/test-typechecker-removal-wrapper-after.json",
+          "sha256": "b4c3c5cb93732b3f2587a82cd768cf7b729a9bbe499fd1b554d0c16da357c172",
+          "bytes": 114
+        },
+        {
+          "path": "ordinary/test-typechecker-removal-wrapper-before.json",
+          "sha256": "b4c3c5cb93732b3f2587a82cd768cf7b729a9bbe499fd1b554d0c16da357c172",
+          "bytes": 114
+        },
+        {
+          "path": "ordinary/test-typechecker-shims/rm",
+          "sha256": "78be0306b6650d41d5dbb40fdd5cf03aef9ce50fa21da31d651c386bd4a5d8f7",
+          "bytes": 579
+        },
+        {
+          "path": "ordinary/test_typechecker-retained.json",
+          "sha256": "1a63ec9a78cf16c854eab9bcdb7f77c2de27d3ab6fb633ac0a926229b747ea26",
+          "bytes": 119
+        },
+        {
+          "path": "phases.json",
+          "sha256": "9979105e2fcb77d448a4ef57fd51c404b8f4ea449ed11ea93ff1f69e75eda5fd",
+          "bytes": 1640
+        },
+        {
+          "path": "qualification.mk",
+          "sha256": "01c27dd4d4eac7ddb2483065cd345ca437a92e5cb6e161f1a2c5b7d4dd644ad4",
+          "bytes": 438
+        },
+        {
+          "path": "scope-identity.json",
+          "sha256": "e56ecb1c7f4a9c87fbd626dd190d9340387e19ca723f01d886ab72f58f3ec8a7",
+          "bytes": 83
+        },
+        {
+          "path": "terminal.json",
+          "sha256": "9e845f16c4c83aa697fb27ced6f2a3fca38627a32d879dd58395c35cf6b6311b",
+          "bytes": 766
+        },
+        {
+          "path": "tools-after-failure.json",
+          "sha256": "0c4e465b95ff309692e0066e7bbb06db9122ca59405af95386b0f0522fe23cec",
+          "bytes": 416
+        }
+      ],
+      "phases": [
+        {
+          "label": "ordinary-build",
+          "argv": [
+            "/usr/bin/make",
+            "-f",
+            "Makefile.gnu",
+            "-f",
+            "/Users/jkh/nanolang-qualification/array-admission-2a4-puck/qualification.mk",
+            "-j2",
+            "CC=/usr/bin/clang",
+            "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+            "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+            "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "stage1"
+          ],
+          "bound": 1200,
+          "timeout": false,
+          "pid": 81256,
+          "returncode": 0,
+          "remaining_groups": [],
+          "seconds": 10.841118916000001
+        },
+        {
+          "label": "ordinary-test-typechecker",
+          "argv": [
+            "/usr/bin/make",
+            "-f",
+            "Makefile.gnu",
+            "-f",
+            "/Users/jkh/nanolang-qualification/array-admission-2a4-puck/qualification.mk",
+            "-j2",
+            "CC=/usr/bin/clang",
+            "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+            "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+            "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "test-typechecker"
+          ],
+          "bound": 1200,
+          "timeout": false,
+          "pid": 82102,
+          "returncode": 2,
+          "remaining_groups": [],
+          "seconds": 0.9275672499999992
+        }
+      ],
+      "provider_count": 326,
+      "retained_executable": "260fe809d4ba2f2102874e60b29e8ea61c132885fe5c32701ab2c28eebb1356a"
+    }
+  },
+  "objects": {
+    "9f234442c2e343935bf8b92adb758e4c4bcea39d8837aa74224d7691f647a733": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/9f234442c2e343935bf8b92adb758e4c4bcea39d8837aa74224d7691f647a733",
+      "bytes": 36696
+    },
+    "36e1da56580475b33757337197154878506b28534e4f09e95013afe98c5f9e08": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/36e1da56580475b33757337197154878506b28534e4f09e95013afe98c5f9e08",
+      "bytes": 11324248
+    },
+    "a8eb013a30328426eb709f63210b4f7d122cc36c9b2868f9e0db6079308f8838": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a8eb013a30328426eb709f63210b4f7d122cc36c9b2868f9e0db6079308f8838",
+      "bytes": 60568
+    },
+    "6f3e3b93db13a2ebd7d6e954d04b2aea6ce876b7c153a994261c7dfb65a351cd": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6f3e3b93db13a2ebd7d6e954d04b2aea6ce876b7c153a994261c7dfb65a351cd",
+      "bytes": 179912
+    },
+    "1a5f35da45ee6069a67d87d55bacb44af41fe6aa6f826a86d41084f1dd3b4a32": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/1a5f35da45ee6069a67d87d55bacb44af41fe6aa6f826a86d41084f1dd3b4a32",
+      "bytes": 289616
+    },
+    "18021caec44eb36e0350fa83dc6f74e58f5156d9af5bcd615bd6d3e2f57aedf4": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/18021caec44eb36e0350fa83dc6f74e58f5156d9af5bcd615bd6d3e2f57aedf4",
+      "bytes": 121
+    },
+    "83c6632c425a903dc3b99e83c62758d1289b83dba0f3d1e0b179ce4cbbdbc2bc": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/83c6632c425a903dc3b99e83c62758d1289b83dba0f3d1e0b179ce4cbbdbc2bc",
+      "bytes": 50776
+    },
+    "30c8b55f5b8bc70925c4d8dfc07819705d7a38624eaf5d549bb832e80493c9ad": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/30c8b55f5b8bc70925c4d8dfc07819705d7a38624eaf5d549bb832e80493c9ad",
+      "bytes": 278
+    },
+    "144bd7ba34c39552005eaee7f281a258031e71b43213ddd1cdaecb5f7d25126f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/144bd7ba34c39552005eaee7f281a258031e71b43213ddd1cdaecb5f7d25126f",
+      "bytes": 315
+    },
+    "c5584c914b195166e697369eb713beaf175f1feb1e8981532f48377970f1107d": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c5584c914b195166e697369eb713beaf175f1feb1e8981532f48377970f1107d",
+      "bytes": 1316
+    },
+    "8fec754189869a5117d53b5134948ef6d518ee3a841b336d6d97092322dd6f09": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8fec754189869a5117d53b5134948ef6d518ee3a841b336d6d97092322dd6f09",
+      "bytes": 270680
+    },
+    "d21f1405ef02c32c8355dedff560c0943198fde51221d1cf29b1ff7c7a360312": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/d21f1405ef02c32c8355dedff560c0943198fde51221d1cf29b1ff7c7a360312",
+      "bytes": 323
+    },
+    "3e8260818074342c719df90f49d5e60b690c0e657cdb7a2a6c8226340cb42236": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/3e8260818074342c719df90f49d5e60b690c0e657cdb7a2a6c8226340cb42236",
+      "bytes": 54184
+    },
+    "1c934ef03c3c6bf51ae57e48d9d848f81fa82198f278e65e611d09904c65ca1d": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/1c934ef03c3c6bf51ae57e48d9d848f81fa82198f278e65e611d09904c65ca1d",
+      "bytes": 834
+    },
+    "7c6112b774744ad8ed3cc024457d33de94c64d54f7ace1af4aab365d13f8a512": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/7c6112b774744ad8ed3cc024457d33de94c64d54f7ace1af4aab365d13f8a512",
+      "bytes": 646128
+    },
+    "6c3d425ac6257d36a2442602c92d41fbedbdfea7ed5ab808b46434d95819f9ce": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6c3d425ac6257d36a2442602c92d41fbedbdfea7ed5ab808b46434d95819f9ce",
+      "bytes": 12576
+    },
+    "b082631677f6edb88e21b9fbf18a353cf5f128d23e8cb0b05890ac6bdfd632f0": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b082631677f6edb88e21b9fbf18a353cf5f128d23e8cb0b05890ac6bdfd632f0",
+      "bytes": 28528
+    },
+    "9166e2e93461aceef068c475c624500954ca71e64a3569f508078041fbcdf9a2": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/9166e2e93461aceef068c475c624500954ca71e64a3569f508078041fbcdf9a2",
+      "bytes": 129
+    },
+    "2a15bf84b02b472850fb936460828c73019ac1e39152a6c89af3bd2e88934423": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/2a15bf84b02b472850fb936460828c73019ac1e39152a6c89af3bd2e88934423",
+      "bytes": 56064
+    },
+    "c09d3418df3da82a33b8f24f344e2473c7160fac6dc82893fe47a568051f7b72": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c09d3418df3da82a33b8f24f344e2473c7160fac6dc82893fe47a568051f7b72",
+      "bytes": 56568
+    },
+    "a43dd546a931e5ca61a1ddb755063e3c05678b19889d0178fd99656d73d36e86": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a43dd546a931e5ca61a1ddb755063e3c05678b19889d0178fd99656d73d36e86",
+      "bytes": 183
+    },
+    "8029658df7ee2cb23f1945869be6265f6b96d76b11ccb6876ce045c38fccbc12": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8029658df7ee2cb23f1945869be6265f6b96d76b11ccb6876ce045c38fccbc12",
+      "bytes": 326
+    },
+    "8a9d38786d63c2786571a1e9154db6dd6341e0f48324907c5768f5d8ab5e13ff": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8a9d38786d63c2786571a1e9154db6dd6341e0f48324907c5768f5d8ab5e13ff",
+      "bytes": 12144
+    },
+    "2070d049d36ead15343423bad6272f61add2c444d42d2f7f8404a81ed4ee13c0": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/2070d049d36ead15343423bad6272f61add2c444d42d2f7f8404a81ed4ee13c0",
+      "bytes": 27960
+    },
+    "d579a5d591f94b05a191dc69e96516d1345a0d79e1a98cb97e8c75dc80112306": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/d579a5d591f94b05a191dc69e96516d1345a0d79e1a98cb97e8c75dc80112306",
+      "bytes": 70
+    },
+    "0e9b47c3955f6290c52d0a93d5702b0ef7570c27625c0a5f2fb1cab23f5190b1": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/0e9b47c3955f6290c52d0a93d5702b0ef7570c27625c0a5f2fb1cab23f5190b1",
+      "bytes": 299
+    },
+    "13a43bd646032d02059627d09285e387eaa6c4df0d9f5ded84322872e3f219f1": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/13a43bd646032d02059627d09285e387eaa6c4df0d9f5ded84322872e3f219f1",
+      "bytes": 335
+    },
+    "0875954a81879c7deae38e50a5ae45af0be16c43619b349a9cecc349d554ac91": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/0875954a81879c7deae38e50a5ae45af0be16c43619b349a9cecc349d554ac91",
+      "bytes": 38848
+    },
+    "fa5c6f3a7cfb1caadf70c1102e030086ecc8fb3bbf3228f73abfdcc391853c46": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/fa5c6f3a7cfb1caadf70c1102e030086ecc8fb3bbf3228f73abfdcc391853c46",
+      "bytes": 11920
+    },
+    "3327800571d6e0f8c626204aa3b1725a18e5e143f6c8b70f31b9207ec30af721": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/3327800571d6e0f8c626204aa3b1725a18e5e143f6c8b70f31b9207ec30af721",
+      "bytes": 11024
+    },
+    "7ee8eef819dc027e096b894dc691a321658028f6e283b986a35dcf862e4842d6": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/7ee8eef819dc027e096b894dc691a321658028f6e283b986a35dcf862e4842d6",
+      "bytes": 322
+    },
+    "ab6ca4565fe184b03c00c1c0510775d04fb16650ea3816cb5fd001360fb9dd04": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/ab6ca4565fe184b03c00c1c0510775d04fb16650ea3816cb5fd001360fb9dd04",
+      "bytes": 326
+    },
+    "c277d15aa0241891ac3dac71ef1f900c7092cb94d202975a77f05cc489911e7b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c277d15aa0241891ac3dac71ef1f900c7092cb94d202975a77f05cc489911e7b",
+      "bytes": 80640
+    },
+    "5a2fc9eb2ea85ba9ba0397660f36cffefd146ed7d7bb29bfd10b1bf7567e98f3": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/5a2fc9eb2ea85ba9ba0397660f36cffefd146ed7d7bb29bfd10b1bf7567e98f3",
+      "bytes": 58
+    },
+    "c96f5e2805a33818f3db399434a984e7854277cebd5bcea77aa1ce3347a774e0": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c96f5e2805a33818f3db399434a984e7854277cebd5bcea77aa1ce3347a774e0",
+      "bytes": 353856
+    },
+    "7a61bc2fe28d019eb35ca66ae9cf10ba622fb1b8333fa9e44b8b2f552ee625dd": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/7a61bc2fe28d019eb35ca66ae9cf10ba622fb1b8333fa9e44b8b2f552ee625dd",
+      "bytes": 452
+    },
+    "8565f883098dc489740a1831b4aa49d69d632f6982d4e309b2f4684acf09027c": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8565f883098dc489740a1831b4aa49d69d632f6982d4e309b2f4684acf09027c",
+      "bytes": 38144
+    },
+    "368a3b82be2f0db3088b7b06a70ef255558487391915bebc7e8cc4f7860b9798": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/368a3b82be2f0db3088b7b06a70ef255558487391915bebc7e8cc4f7860b9798",
+      "bytes": 251
+    },
+    "8e208b80ff0d02a65f2d37232e8403a72a21c1906984039e7634d45884e3d9ad": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8e208b80ff0d02a65f2d37232e8403a72a21c1906984039e7634d45884e3d9ad",
+      "bytes": 41344
+    },
+    "4d09a2ac65f90081f01d4ec457ea5fb8e0a166b6e6cc71ef7fb094bdcf2917d4": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/4d09a2ac65f90081f01d4ec457ea5fb8e0a166b6e6cc71ef7fb094bdcf2917d4",
+      "bytes": 528
+    },
+    "404dd263c7172bd2e8d7fb33cb13dcd1f02852636515b8b21e24cbf1ba7f924f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/404dd263c7172bd2e8d7fb33cb13dcd1f02852636515b8b21e24cbf1ba7f924f",
+      "bytes": 301
+    },
+    "d8e35f268c8bcbfd1b968880ecc2f74bde339dda8a1e7d62d873250e5b858617": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/d8e35f268c8bcbfd1b968880ecc2f74bde339dda8a1e7d62d873250e5b858617",
+      "bytes": 576
+    },
+    "66460963a86baf1bd83fcd222459b0fe53cac5a993ef796fb913d86e0cb279ad": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/66460963a86baf1bd83fcd222459b0fe53cac5a993ef796fb913d86e0cb279ad",
+      "bytes": 371
+    },
+    "ee2de455d1550c0a98333196bc2314725f5d0378cd3fcde2d6c96add8c4e4a35": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/ee2de455d1550c0a98333196bc2314725f5d0378cd3fcde2d6c96add8c4e4a35",
+      "bytes": 28752
+    },
+    "69ea4bb110072d9a267aecd00e9e29c6d97803901bc9accbf6126a0824ccb6d5": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/69ea4bb110072d9a267aecd00e9e29c6d97803901bc9accbf6126a0824ccb6d5",
+      "bytes": 97
+    },
+    "05aaa4020d888144d4a5cc9f7a29537ad4dadcb2386032fbce067275bed9ccdd": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/05aaa4020d888144d4a5cc9f7a29537ad4dadcb2386032fbce067275bed9ccdd",
+      "bytes": 30352
+    },
+    "aeabce14af950f72e6e671605a38f87cec240611c8c40643bccdb2fb17413482": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/aeabce14af950f72e6e671605a38f87cec240611c8c40643bccdb2fb17413482",
+      "bytes": 354
+    },
+    "50f249486506fe160a8a0f56a0e50020df3f63760c2ece72e3264cae6a36971c": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/50f249486506fe160a8a0f56a0e50020df3f63760c2ece72e3264cae6a36971c",
+      "bytes": 24944
+    },
+    "5a386a4aefef44d2f74cda1a205c32f50bd8b54501400b1a8096c7f82a9cf32e": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/5a386a4aefef44d2f74cda1a205c32f50bd8b54501400b1a8096c7f82a9cf32e",
+      "bytes": 55136
+    },
+    "3a65234e679a869ca368eab91a63302b4c55b64967931f808c82f932db146b01": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/3a65234e679a869ca368eab91a63302b4c55b64967931f808c82f932db146b01",
+      "bytes": 45832
+    },
+    "49cf37489a7db0853ed5aa7c61395c5461f766474d809140f0734242ab4ddb02": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/49cf37489a7db0853ed5aa7c61395c5461f766474d809140f0734242ab4ddb02",
+      "bytes": 46
+    },
+    "6535e72fcb1dbdae5ddd2388509b2a9a7b051e89903f7c2d69f25d2b88e06419": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6535e72fcb1dbdae5ddd2388509b2a9a7b051e89903f7c2d69f25d2b88e06419",
+      "bytes": 25704
+    },
+    "30b79a1dd493640f6033f9ec4a4f95ed168ffa2f6d6e69059d3005e1e6623033": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/30b79a1dd493640f6033f9ec4a4f95ed168ffa2f6d6e69059d3005e1e6623033",
+      "bytes": 299
+    },
+    "d9449d992ae2b7cd125aa14ffdd93cb3088770816afe4759f236738937c36552": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/d9449d992ae2b7cd125aa14ffdd93cb3088770816afe4759f236738937c36552",
+      "bytes": 26864
+    },
+    "840ba7acaf4a155804a9801c4ae3bb3e5b93c26290fb9ff2d450ed01521ebda8": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/840ba7acaf4a155804a9801c4ae3bb3e5b93c26290fb9ff2d450ed01521ebda8",
+      "bytes": 327
+    },
+    "bb2c722b5a06153c6195be9c60dc017849b09483d435cc79c2badd5df2d00d77": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/bb2c722b5a06153c6195be9c60dc017849b09483d435cc79c2badd5df2d00d77",
+      "bytes": 307
+    },
+    "3025927010f05b999516fe7c6d4337edf85dfdd6957d03ee6672d10e11c022e3": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/3025927010f05b999516fe7c6d4337edf85dfdd6957d03ee6672d10e11c022e3",
+      "bytes": 363
+    },
+    "88a9f0e91000052f978373acdf0cd234183cbc7c2d11c8e1310215e91567d349": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/88a9f0e91000052f978373acdf0cd234183cbc7c2d11c8e1310215e91567d349",
+      "bytes": 58
+    },
+    "5943a40700aa43725ab6eac57e7b560c753d9e4f792f39780682edf39a715082": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/5943a40700aa43725ab6eac57e7b560c753d9e4f792f39780682edf39a715082",
+      "bytes": 311
+    },
+    "ab01ce3f76eb38ec72458683906a113cda56cf000b9b82a3ee6dede5732f7ffb": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/ab01ce3f76eb38ec72458683906a113cda56cf000b9b82a3ee6dede5732f7ffb",
+      "bytes": 314
+    },
+    "4fcd34aa7f3faeaf39dad6981a62c2d20e57d25ef6dd8a6364683addc74ad305": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/4fcd34aa7f3faeaf39dad6981a62c2d20e57d25ef6dd8a6364683addc74ad305",
+      "bytes": 63560
+    },
+    "4bbf3e7a8c1fd6fd7ab0d5a66f01bdef73bf2ae7bf5af3cb22244ca126109c6b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/4bbf3e7a8c1fd6fd7ab0d5a66f01bdef73bf2ae7bf5af3cb22244ca126109c6b",
+      "bytes": 299
+    },
+    "fd0125b96de8227719da90b25b723943788502fffc2ae49afdf4b6d272e8f49d": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/fd0125b96de8227719da90b25b723943788502fffc2ae49afdf4b6d272e8f49d",
+      "bytes": 372
+    },
+    "c61c341b24c00b288815b820d689a145cd58cc776685bd9bcbc24fd72cca2923": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c61c341b24c00b288815b820d689a145cd58cc776685bd9bcbc24fd72cca2923",
+      "bytes": 89816
+    },
+    "37f9b83536b2e70f5074df750704fef4b0afb76cfd12edda27451e24da0b5171": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/37f9b83536b2e70f5074df750704fef4b0afb76cfd12edda27451e24da0b5171",
+      "bytes": 861
+    },
+    "b0956385859361bac9610167caf81d4751353c2b03dd5fb28cc3354f67866d2b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b0956385859361bac9610167caf81d4751353c2b03dd5fb28cc3354f67866d2b",
+      "bytes": 710432
+    },
+    "bf69f42a59c3a3d32ca099939b1df29761ce2aeabc8738acc58c51954a26b37d": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/bf69f42a59c3a3d32ca099939b1df29761ce2aeabc8738acc58c51954a26b37d",
+      "bytes": 19576
+    },
+    "69a2f1677a769b62ef649cac57771ec775088f06386797393c9079d1dcf89685": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/69a2f1677a769b62ef649cac57771ec775088f06386797393c9079d1dcf89685",
+      "bytes": 56904
+    },
+    "b8f0f3dd9f58fcbd2d789047c66a50aa76c5f17d0901edafd7311ce5b9739233": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b8f0f3dd9f58fcbd2d789047c66a50aa76c5f17d0901edafd7311ce5b9739233",
+      "bytes": 857
+    },
+    "bb3e068469737beedbccfacb4e2774716bdc97afafe4c2b7d225d43bb29364e5": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/bb3e068469737beedbccfacb4e2774716bdc97afafe4c2b7d225d43bb29364e5",
+      "bytes": 452808
+    },
+    "c02bc4cd26e2e63c3afc6bfc697b393d477eaf96085cc5aaf7b9ffae0234a8ec": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c02bc4cd26e2e63c3afc6bfc697b393d477eaf96085cc5aaf7b9ffae0234a8ec",
+      "bytes": 18384
+    },
+    "27b72226d383da4eb23f75d71a5276e2261f3cf683a376ccdff70ae15d737323": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/27b72226d383da4eb23f75d71a5276e2261f3cf683a376ccdff70ae15d737323",
+      "bytes": 1787
+    },
+    "eb7a9f9a28d1295a9fea2d6e67749ee4573ad856f97c843d5a394e6adb221220": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/eb7a9f9a28d1295a9fea2d6e67749ee4573ad856f97c843d5a394e6adb221220",
+      "bytes": 480
+    },
+    "4bcd147df00810060715dfe10efb9d187b2c8ba4777fd9f27f80ea3bd6b585b5": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/4bcd147df00810060715dfe10efb9d187b2c8ba4777fd9f27f80ea3bd6b585b5",
+      "bytes": 323
+    },
+    "9e926c9e39a56355aef3734b305612fd103c66931adebebdd09e095f23bff6f2": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/9e926c9e39a56355aef3734b305612fd103c66931adebebdd09e095f23bff6f2",
+      "bytes": 536
+    },
+    "c38b50b6016ebdd81cff96430270ba9f15734037d05c62793355eee2a0aa8e86": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c38b50b6016ebdd81cff96430270ba9f15734037d05c62793355eee2a0aa8e86",
+      "bytes": 50
+    },
+    "aa70db250f85d43381c17b5605455a7e91040e2a11b1840af1450925d0c2dfd4": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/aa70db250f85d43381c17b5605455a7e91040e2a11b1840af1450925d0c2dfd4",
+      "bytes": 36808
+    },
+    "001c8867030f4b7cf9767d152baedafe6e8e9ebf3f6482929805e5cbbf248349": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/001c8867030f4b7cf9767d152baedafe6e8e9ebf3f6482929805e5cbbf248349",
+      "bytes": 55864
+    },
+    "7306531cf1e9f3b23375d2b35160439f78dabcb70995c542cff19a47f482b5e5": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/7306531cf1e9f3b23375d2b35160439f78dabcb70995c542cff19a47f482b5e5",
+      "bytes": 79
+    },
+    "e1a0c747dd9981d013b3246a653aeb8d3ad6454361066e532a8c49bc97a07c75": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/e1a0c747dd9981d013b3246a653aeb8d3ad6454361066e532a8c49bc97a07c75",
+      "bytes": 73
+    },
+    "b93b5c75d03d6bf491ca099b0087caab642795d5a896398c62eafb95be39ee7a": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b93b5c75d03d6bf491ca099b0087caab642795d5a896398c62eafb95be39ee7a",
+      "bytes": 335
+    },
+    "819ee39cbf1e3bd570ec5505c5386ea897496d8cf491c2e387221bd453adf462": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/819ee39cbf1e3bd570ec5505c5386ea897496d8cf491c2e387221bd453adf462",
+      "bytes": 31888
+    },
+    "c37fb8ac225be38a3534a620e8f767d81ffa69beeb99e84304eb7ebb5d64d0c6": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c37fb8ac225be38a3534a620e8f767d81ffa69beeb99e84304eb7ebb5d64d0c6",
+      "bytes": 323
+    },
+    "200ad363840c850d5ac01e6d2b1c9e51635065e8d05d1a98aee92d0b04648216": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/200ad363840c850d5ac01e6d2b1c9e51635065e8d05d1a98aee92d0b04648216",
+      "bytes": 253
+    },
+    "b5b6580a99ac66137d7ef09e67a97ea508e8b2495af4367c58e5ba19321cd120": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b5b6580a99ac66137d7ef09e67a97ea508e8b2495af4367c58e5ba19321cd120",
+      "bytes": 44424
+    },
+    "63f4748318fd046440c982db0f6a44e143400bfbf5a543c2617010063e9388e7": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/63f4748318fd046440c982db0f6a44e143400bfbf5a543c2617010063e9388e7",
+      "bytes": 25808
+    },
+    "90c69d43d9ed55c426f957356e427c4b2244ba9639bbc7f01c17760961c931ea": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/90c69d43d9ed55c426f957356e427c4b2244ba9639bbc7f01c17760961c931ea",
+      "bytes": 47760
+    },
+    "2101c39afec5705d387984a9f0dd524cdf3fb58139e1d1928836ac21586e7a8a": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/2101c39afec5705d387984a9f0dd524cdf3fb58139e1d1928836ac21586e7a8a",
+      "bytes": 13896
+    },
+    "8dcc3d5ca806a985f2179ca5b87f0d0be587f06c7a6403df1117bc226f582e87": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8dcc3d5ca806a985f2179ca5b87f0d0be587f06c7a6403df1117bc226f582e87",
+      "bytes": 45752
+    },
+    "6844140532e0f464f5c625bbb9ab84ea811baa7f010ec702c6a56559247abcb1": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6844140532e0f464f5c625bbb9ab84ea811baa7f010ec702c6a56559247abcb1",
+      "bytes": 13488
+    },
+    "b7f821f42bf2998a76a2cf894b9657cb7645aa6e9b199a79d91c7bb0a955ef43": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b7f821f42bf2998a76a2cf894b9657cb7645aa6e9b199a79d91c7bb0a955ef43",
+      "bytes": 297
+    },
+    "427abc9c1cdbce68a0f978be684382a1fe69cf92b604218254b39e9bc7700fcc": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/427abc9c1cdbce68a0f978be684382a1fe69cf92b604218254b39e9bc7700fcc",
+      "bytes": 327
+    },
+    "2dc24927ca29cea61a70c9d832c8e5b02af14ef2fddcd9c4755545ab679e515b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/2dc24927ca29cea61a70c9d832c8e5b02af14ef2fddcd9c4755545ab679e515b",
+      "bytes": 222632
+    },
+    "679af4339e3ec2f9041efe91a36dbce063707e616fa2f1ef0e8e86f53a5228a3": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/679af4339e3ec2f9041efe91a36dbce063707e616fa2f1ef0e8e86f53a5228a3",
+      "bytes": 22832
+    },
+    "e9f5e4ce7aa97f84e6d16669985cecdedce99c9922821a7a1aff69a47fb87ea4": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/e9f5e4ce7aa97f84e6d16669985cecdedce99c9922821a7a1aff69a47fb87ea4",
+      "bytes": 475120
+    },
+    "4cf725340b7616b2f2db307c6f27899ef133541b046ed37664bf2af2e9c5a483": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/4cf725340b7616b2f2db307c6f27899ef133541b046ed37664bf2af2e9c5a483",
+      "bytes": 44352
+    },
+    "6de9b32d98df1cdf66581244041e274048c182de92e1c54155945c84f4ec282f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6de9b32d98df1cdf66581244041e274048c182de92e1c54155945c84f4ec282f",
+      "bytes": 168216
+    },
+    "8d5dc54c5ea70d585b7dab0234691ceeab26514f2048f0b7aeb582249a65b785": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8d5dc54c5ea70d585b7dab0234691ceeab26514f2048f0b7aeb582249a65b785",
+      "bytes": 287
+    },
+    "72b5e37b5d003ff868a356cf2f33d473d1bc9e43066b46df49b2881c1ab5e73d": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/72b5e37b5d003ff868a356cf2f33d473d1bc9e43066b46df49b2881c1ab5e73d",
+      "bytes": 400
+    },
+    "b506cd6de72e9bacc6de6bdbacb8e512e4f4722e42aa22f9030bae7535ac4c46": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b506cd6de72e9bacc6de6bdbacb8e512e4f4722e42aa22f9030bae7535ac4c46",
+      "bytes": 7792
+    },
+    "6fb4cf7b8b8d8cccf29f7281282553889b333fdf01da8448dd33d7dd9613dee1": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6fb4cf7b8b8d8cccf29f7281282553889b333fdf01da8448dd33d7dd9613dee1",
+      "bytes": 107112
+    },
+    "74a5f9fded0849b72f48888d512f9c4da78aec170378303a7d549713e50d8e6b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/74a5f9fded0849b72f48888d512f9c4da78aec170378303a7d549713e50d8e6b",
+      "bytes": 191
+    },
+    "a8618a728f8d3670a74b4d85e6749cea023e948bbde34577d23a3660f881c65c": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a8618a728f8d3670a74b4d85e6749cea023e948bbde34577d23a3660f881c65c",
+      "bytes": 21056
+    },
+    "b1adaa3de4c7be25eda834386e07d565891250fbfc92822114043788ac3c2067": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b1adaa3de4c7be25eda834386e07d565891250fbfc92822114043788ac3c2067",
+      "bytes": 279
+    },
+    "791aa293af1f13a863b1ff014043908167ef11756483117dae4c92a61c529c9f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/791aa293af1f13a863b1ff014043908167ef11756483117dae4c92a61c529c9f",
+      "bytes": 42880
+    },
+    "646b4abf68a09f70cf0aba1f7350140bbc6836e728a230e252993b0bbc61ca95": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/646b4abf68a09f70cf0aba1f7350140bbc6836e728a230e252993b0bbc61ca95",
+      "bytes": 101080
+    },
+    "7b463364ff160358cfaad3f097d47b56988ca165f24161fa012bac3b743dc140": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/7b463364ff160358cfaad3f097d47b56988ca165f24161fa012bac3b743dc140",
+      "bytes": 12280
+    },
+    "a55a32e96c6436b1172ee580822880c61039ada0e420e68b9bdf803c568a2436": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a55a32e96c6436b1172ee580822880c61039ada0e420e68b9bdf803c568a2436",
+      "bytes": 1253
+    },
+    "0239a9f32e301be42d2f99af1f35d9036096d2b1d6c2fe9b72dafe43befc3e6c": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/0239a9f32e301be42d2f99af1f35d9036096d2b1d6c2fe9b72dafe43befc3e6c",
+      "bytes": 323
+    },
+    "858bca6fd55bef05809504286fe51d5be970869282f1881f967da75f665a03ce": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/858bca6fd55bef05809504286fe51d5be970869282f1881f967da75f665a03ce",
+      "bytes": 263
+    },
+    "04389c00a165ae113caf22dcde672977815b12607da7b55a22a7baa7f0dea4cc": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/04389c00a165ae113caf22dcde672977815b12607da7b55a22a7baa7f0dea4cc",
+      "bytes": 44784
+    },
+    "6e755f9406573b24a038ce13eaa0b39ac13807d6a8f11a7936c3a25b153c9b61": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6e755f9406573b24a038ce13eaa0b39ac13807d6a8f11a7936c3a25b153c9b61",
+      "bytes": 303
+    },
+    "49ae175f3a194d860c4f556f88ff83499b1bd353d08c6359ab36d31f309c0c4d": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/49ae175f3a194d860c4f556f88ff83499b1bd353d08c6359ab36d31f309c0c4d",
+      "bytes": 3508
+    },
+    "1beffd4a15a726054d74dba4fecc228da13c127eb2301e74c0ad2b59f78a588e": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/1beffd4a15a726054d74dba4fecc228da13c127eb2301e74c0ad2b59f78a588e",
+      "bytes": 76816
+    },
+    "0609e4f90ecbec98d7b52ae125e46319679a1d1b532671572b7a7b39e132e0b4": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/0609e4f90ecbec98d7b52ae125e46319679a1d1b532671572b7a7b39e132e0b4",
+      "bytes": 2232
+    },
+    "e307c76cd02b58a3671bcd34744634bf10ed9b83c2d329bb8ba1b03022d6081b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/e307c76cd02b58a3671bcd34744634bf10ed9b83c2d329bb8ba1b03022d6081b",
+      "bytes": 507672
+    },
+    "89fda1329b9ec9fb5c9563ecaaa1169de07729da5c2195f86ca339dbcb23fcf8": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/89fda1329b9ec9fb5c9563ecaaa1169de07729da5c2195f86ca339dbcb23fcf8",
+      "bytes": 62952
+    },
+    "9e5af7e47ec9ed7e2f614bedf6144c4402e49d87ee199ebaf0e45dc310428f54": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/9e5af7e47ec9ed7e2f614bedf6144c4402e49d87ee199ebaf0e45dc310428f54",
+      "bytes": 1564
+    },
+    "7b9f0831227c78e252d33ebeb5d250885a141b007d712ec45fb440250831e02f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/7b9f0831227c78e252d33ebeb5d250885a141b007d712ec45fb440250831e02f",
+      "bytes": 13304
+    },
+    "e0b0b4f265777d6ff8a2741a7bcab89673433986821295653b993d337593bdc8": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/e0b0b4f265777d6ff8a2741a7bcab89673433986821295653b993d337593bdc8",
+      "bytes": 618
+    },
+    "fb5f99ad7a41ed31b39efb4b421d8dd0088d4c4966b2d509772d1ebef90b4286": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/fb5f99ad7a41ed31b39efb4b421d8dd0088d4c4966b2d509772d1ebef90b4286",
+      "bytes": 3516
+    },
+    "82cae7929403db53afe7066e0447f9c793f7a2137e8062c7eb9553f912deefc8": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/82cae7929403db53afe7066e0447f9c793f7a2137e8062c7eb9553f912deefc8",
+      "bytes": 21400
+    },
+    "5da3da8529f45984f9072a84aaea026da633f36dd28bacf0f7ced36e53cff3de": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/5da3da8529f45984f9072a84aaea026da633f36dd28bacf0f7ced36e53cff3de",
+      "bytes": 13320
+    },
+    "b56d45a1aa6ba9d88c688bed4905b5b525df046be8a2fb920e92880e53d7a8a9": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b56d45a1aa6ba9d88c688bed4905b5b525df046be8a2fb920e92880e53d7a8a9",
+      "bytes": 13312
+    },
+    "264b0f3a73515deae45d2f0d7031e168a0f5dea4eed8156bf6d9e9ae48a00448": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/264b0f3a73515deae45d2f0d7031e168a0f5dea4eed8156bf6d9e9ae48a00448",
+      "bytes": 13992
+    },
+    "838dacf07f298a7603816b35a4f8e99043ec61179d4b790a8f948ab4e4196241": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/838dacf07f298a7603816b35a4f8e99043ec61179d4b790a8f948ab4e4196241",
+      "bytes": 37
+    },
+    "b4fa42db226171434f0f1ecfd9d0f9018e3654a00b520cbc574df2f7e84ed997": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b4fa42db226171434f0f1ecfd9d0f9018e3654a00b520cbc574df2f7e84ed997",
+      "bytes": 13144
+    },
+    "104b7ecb18eac62ee6d52e17ad56d33b78029996327059b448f5162dbce5fa3a": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/104b7ecb18eac62ee6d52e17ad56d33b78029996327059b448f5162dbce5fa3a",
+      "bytes": 13024
+    },
+    "5ad110d63f6e36f1bd44e577fe2fa6ca2209e670dcfd85e5776d11e380c06ea2": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/5ad110d63f6e36f1bd44e577fe2fa6ca2209e670dcfd85e5776d11e380c06ea2",
+      "bytes": 187
+    },
+    "9671157e926e8c9ce9895c11d7f7872e6824c7fe4879ab4f59c2b323587de8c3": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/9671157e926e8c9ce9895c11d7f7872e6824c7fe4879ab4f59c2b323587de8c3",
+      "bytes": 13096
+    },
+    "e397519facac6b8d1c8eb5a8bb53ec555b0a7b039845e632bfa58cc5cc24f950": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/e397519facac6b8d1c8eb5a8bb53ec555b0a7b039845e632bfa58cc5cc24f950",
+      "bytes": 13240
+    },
+    "3b53375de591290c10051b1eb4ce804aebb2024e5bce1a8eab6351d68ad92b88": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/3b53375de591290c10051b1eb4ce804aebb2024e5bce1a8eab6351d68ad92b88",
+      "bytes": 13088
+    },
+    "902e181c22e4c7c5ed9c11f54b6ddd7ee7e2344bbcfaba5b3462d94ed7a6108b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/902e181c22e4c7c5ed9c11f54b6ddd7ee7e2344bbcfaba5b3462d94ed7a6108b",
+      "bytes": 13272
+    },
+    "6cdc35a8f5b353a4a4ac6d59541d9abcc6a876f38b440d29bddfb8f4b28378dd": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6cdc35a8f5b353a4a4ac6d59541d9abcc6a876f38b440d29bddfb8f4b28378dd",
+      "bytes": 13440
+    },
+    "8161ff71086570ef8caa006483bf0f1529ea448b3becc55e02ccc7d2f7e80c2b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8161ff71086570ef8caa006483bf0f1529ea448b3becc55e02ccc7d2f7e80c2b",
+      "bytes": 346
+    },
+    "b4072897b81b29233c4e145a4e8d1adf16b039e3ce5580af0898b9981860076d": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b4072897b81b29233c4e145a4e8d1adf16b039e3ce5580af0898b9981860076d",
+      "bytes": 13104
+    },
+    "1b7ff795b32667b53704276987f3c7e229bbd573bf3d992def035ecf0078b365": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/1b7ff795b32667b53704276987f3c7e229bbd573bf3d992def035ecf0078b365",
+      "bytes": 350
+    },
+    "a30cf30f4e0417b5ce5fd919a122d66855b18d7dc81eeab414424a02241e31f4": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a30cf30f4e0417b5ce5fd919a122d66855b18d7dc81eeab414424a02241e31f4",
+      "bytes": 398
+    },
+    "da8b42c0ec96332f9cd2f93767d51b208fecf09f1b8318c49471e7e718dfd6bd": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/da8b42c0ec96332f9cd2f93767d51b208fecf09f1b8318c49471e7e718dfd6bd",
+      "bytes": 14144
+    },
+    "a1ed8546f43ecf285d4a72335e1abece4591216e8db961fb8eeac89e975aef70": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a1ed8546f43ecf285d4a72335e1abece4591216e8db961fb8eeac89e975aef70",
+      "bytes": 13136
+    },
+    "696cc85205686d036bb7295d435049eaa73f15af5b04985feb7d6e6d13273013": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/696cc85205686d036bb7295d435049eaa73f15af5b04985feb7d6e6d13273013",
+      "bytes": 14200
+    },
+    "dec310dbc85e5db659f0d9d616288b03249f21f0ecd38b3128fa376285c3a242": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/dec310dbc85e5db659f0d9d616288b03249f21f0ecd38b3128fa376285c3a242",
+      "bytes": 414
+    },
+    "acacf202d92d907b5e1d89655887c904c8f4175024aa04924ad2f8c8441b695e": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/acacf202d92d907b5e1d89655887c904c8f4175024aa04924ad2f8c8441b695e",
+      "bytes": 14008
+    },
+    "80889445da0ab9250477d42187a9972345e2ff774d2ad2a36de641b03ce4e3fb": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/80889445da0ab9250477d42187a9972345e2ff774d2ad2a36de641b03ce4e3fb",
+      "bytes": 137
+    },
+    "3f23a4efc9e223517a894b4d90a65194696a33aeba8af9d8264ffaa259b15b9c": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/3f23a4efc9e223517a894b4d90a65194696a33aeba8af9d8264ffaa259b15b9c",
+      "bytes": 346
+    },
+    "f3e0083aa6924f2e620ff96fa5f55e381c7d3866038a3811ea0862a9291479c2": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/f3e0083aa6924f2e620ff96fa5f55e381c7d3866038a3811ea0862a9291479c2",
+      "bytes": 13264
+    },
+    "91945fef3f2479a7947937bfd00a54137a0f83d06d53f2c47eb202fc52c33fbf": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/91945fef3f2479a7947937bfd00a54137a0f83d06d53f2c47eb202fc52c33fbf",
+      "bytes": 378
+    },
+    "f90d9d37a153704883d23b5c92a6bf812549d79fdd7c867e9d00db894fa78777": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/f90d9d37a153704883d23b5c92a6bf812549d79fdd7c867e9d00db894fa78777",
+      "bytes": 13120
+    },
+    "2cfeb60d9aa8982042f09cab45749996d4848c5e04d9769590160957f27931fe": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/2cfeb60d9aa8982042f09cab45749996d4848c5e04d9769590160957f27931fe",
+      "bytes": 374
+    },
+    "54a935b42de50e9a5a87b593ba5956fd038d50d59e1e90ff750281952c23612f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/54a935b42de50e9a5a87b593ba5956fd038d50d59e1e90ff750281952c23612f",
+      "bytes": 38960
+    },
+    "47871d5497782f6a3aa08f46f142abc6f4165e056e57bafc937f47211e5ce3d7": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/47871d5497782f6a3aa08f46f142abc6f4165e056e57bafc937f47211e5ce3d7",
+      "bytes": 13960
+    },
+    "1bb1d620e179978296fb11688b32ff191c7bf97c72ba4e685f44a3664c1173e8": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/1bb1d620e179978296fb11688b32ff191c7bf97c72ba4e685f44a3664c1173e8",
+      "bytes": 137
+    },
+    "b2cc95ffa8914ce7cd788a33c6e899c72d8d9850ac70bda3522c38c3fb9f08f9": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b2cc95ffa8914ce7cd788a33c6e899c72d8d9850ac70bda3522c38c3fb9f08f9",
+      "bytes": 13120
+    },
+    "a8deb3391fed6d0093a41751b92e381f9d4dd0f1c047943c6f5e2b394090e60d": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a8deb3391fed6d0093a41751b92e381f9d4dd0f1c047943c6f5e2b394090e60d",
+      "bytes": 8410592
+    },
+    "30688ff981713b0f0d69e43d352eca9ff41f67a0b96697d83ba68679b37a8719": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/30688ff981713b0f0d69e43d352eca9ff41f67a0b96697d83ba68679b37a8719",
+      "bytes": 386
+    },
+    "157d53d3d0ebcc78576ec8519d0528c0c03346fded8d3b1533f3706920e7a1da": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/157d53d3d0ebcc78576ec8519d0528c0c03346fded8d3b1533f3706920e7a1da",
+      "bytes": 157
+    },
+    "d1c92b6df6566268ad866c099a0f410c2bb94f917c2a337c480a6680fb30aeb8": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/d1c92b6df6566268ad866c099a0f410c2bb94f917c2a337c480a6680fb30aeb8",
+      "bytes": 358
+    },
+    "2354c61ace29ca175de9d22f7d996f19d8a8b1924869a21d45aeef386958b526": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/2354c61ace29ca175de9d22f7d996f19d8a8b1924869a21d45aeef386958b526",
+      "bytes": 11920
+    },
+    "3a5f37d80a4ebe448987e5725cf42256674383361b489dbe61ad6e790489a379": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/3a5f37d80a4ebe448987e5725cf42256674383361b489dbe61ad6e790489a379",
+      "bytes": 155
+    },
+    "f23931876aa5d86b4701b88aa61287da61112014677c5b5cdfd9879252a91d93": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/f23931876aa5d86b4701b88aa61287da61112014677c5b5cdfd9879252a91d93",
+      "bytes": 13992
+    },
+    "72f0d2eb5ef9fb2f2d38b29452a0155da63458a508c12828ca427a8d8b53bb7b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/72f0d2eb5ef9fb2f2d38b29452a0155da63458a508c12828ca427a8d8b53bb7b",
+      "bytes": 13128
+    },
+    "19f6bab402833cefd07eaa08c08b93efa170ae918d409fa1f18b1885dbfa9c32": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/19f6bab402833cefd07eaa08c08b93efa170ae918d409fa1f18b1885dbfa9c32",
+      "bytes": 378
+    },
+    "f0db4d8b07575df8d4cd54052fc570516909aa076f2dbb541e701766fd4ec6aa": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/f0db4d8b07575df8d4cd54052fc570516909aa076f2dbb541e701766fd4ec6aa",
+      "bytes": 338
+    },
+    "6905c0d9ab5086925e204823e13da9320452ca5eff1327624c7fcc75cf73b338": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6905c0d9ab5086925e204823e13da9320452ca5eff1327624c7fcc75cf73b338",
+      "bytes": 13640
+    },
+    "b5a863ee2c76f4563df83834918d42c6e3c3d99338e029eb6043afc4f41dd917": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b5a863ee2c76f4563df83834918d42c6e3c3d99338e029eb6043afc4f41dd917",
+      "bytes": 346
+    },
+    "0bf8d330eeae25af40c9972450a9ed99955ecf196654b7944954a70931037bea": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/0bf8d330eeae25af40c9972450a9ed99955ecf196654b7944954a70931037bea",
+      "bytes": 342
+    },
+    "86d40e9c9d8e0419fc353c226236f622e1a07bbb73b3f5f5c3fad5671d94a226": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/86d40e9c9d8e0419fc353c226236f622e1a07bbb73b3f5f5c3fad5671d94a226",
+      "bytes": 358
+    },
+    "730d49c3746fb5fb69aee8c3c3eec92a2b3d0642003e07ab282c4ae751ccb110": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/730d49c3746fb5fb69aee8c3c3eec92a2b3d0642003e07ab282c4ae751ccb110",
+      "bytes": 342
+    },
+    "6114e51a965f1a55ad690e26bf4ee36786bb32ca6c8870b0341bde2899905572": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6114e51a965f1a55ad690e26bf4ee36786bb32ca6c8870b0341bde2899905572",
+      "bytes": 13168
+    },
+    "85a8792fd2c6dde4b689e93d8b96a24b85914763179c752e623acd64aaa07c54": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/85a8792fd2c6dde4b689e93d8b96a24b85914763179c752e623acd64aaa07c54",
+      "bytes": 366
+    },
+    "42f991e0f4a53dd90c7fe376f89a653251703c5523cb2d6be33f9247761420b2": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/42f991e0f4a53dd90c7fe376f89a653251703c5523cb2d6be33f9247761420b2",
+      "bytes": 350
+    },
+    "755f9524faa0bf3462da77bfc5e8348fab1a8c5cfca4c190b0c3ed9031a59898": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/755f9524faa0bf3462da77bfc5e8348fab1a8c5cfca4c190b0c3ed9031a59898",
+      "bytes": 4704
+    },
+    "d15ab91647085c615daaa11454c4ed572ac98274fd29d8c2a556544a93a83622": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/d15ab91647085c615daaa11454c4ed572ac98274fd29d8c2a556544a93a83622",
+      "bytes": 350
+    },
+    "75d444a9642471134dcac8e4b6563f2be18a655aeba9f7761eb1e95ab68d98d0": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/75d444a9642471134dcac8e4b6563f2be18a655aeba9f7761eb1e95ab68d98d0",
+      "bytes": 204
+    },
+    "8911ba920782cdfd081e7170126cd443f1cfe62db9d447c26e9f23044d990a16": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8911ba920782cdfd081e7170126cd443f1cfe62db9d447c26e9f23044d990a16",
+      "bytes": 382
+    },
+    "6c615ea5134f2c5f08f77526620f550833e509f9a3edf7da08fc5eadd0d9d38d": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6c615ea5134f2c5f08f77526620f550833e509f9a3edf7da08fc5eadd0d9d38d",
+      "bytes": 173120
+    },
+    "ae6aa7eed5fae526b08d2ea97160bbef5e9f683c9203d48a41d40f4915123221": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/ae6aa7eed5fae526b08d2ea97160bbef5e9f683c9203d48a41d40f4915123221",
+      "bytes": 4488
+    },
+    "bf57b5bd70b5e356c7cdf8de22551e8a368ca7e80bd3970deeb936003cece20b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/bf57b5bd70b5e356c7cdf8de22551e8a368ca7e80bd3970deeb936003cece20b",
+      "bytes": 366
+    },
+    "738e592f43222523c91d3e9aa6cb1e18ab82152adea9cb79493c8efe8cbcf8d0": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/738e592f43222523c91d3e9aa6cb1e18ab82152adea9cb79493c8efe8cbcf8d0",
+      "bytes": 394
+    },
+    "a6f271b38044d159f483db1ad4baf220ed1973a552a73de4351705a3d4ddad8b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a6f271b38044d159f483db1ad4baf220ed1973a552a73de4351705a3d4ddad8b",
+      "bytes": 167
+    },
+    "3b0cf88d1d21b8d59553e0c19404f0a5ac27ff84c20028b07350dd8b6e189994": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/3b0cf88d1d21b8d59553e0c19404f0a5ac27ff84c20028b07350dd8b6e189994",
+      "bytes": 350
+    },
+    "7060437ccbb425cfe66a40644a164da2b73005dce3dad0b8eab785164e456dd4": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/7060437ccbb425cfe66a40644a164da2b73005dce3dad0b8eab785164e456dd4",
+      "bytes": 13768
+    },
+    "001d12c8daf9d2dee585d42f088ceebe48244238fb4fc6f8474e6aad90d2e5a5": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/001d12c8daf9d2dee585d42f088ceebe48244238fb4fc6f8474e6aad90d2e5a5",
+      "bytes": 350
+    },
+    "3661eb1daa2216b870978391647d2b6551c3451ac24f111be888f768ceebb264": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/3661eb1daa2216b870978391647d2b6551c3451ac24f111be888f768ceebb264",
+      "bytes": 13648
+    },
+    "9d6000165e11da285e293bd274e1ecc5bdf8c0e0c5bd4d0e1e3caa8b973b439c": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/9d6000165e11da285e293bd274e1ecc5bdf8c0e0c5bd4d0e1e3caa8b973b439c",
+      "bytes": 13080
+    },
+    "665bd60d8cba9c28914586fec2cd221c6ce74fc53b303a11e0861d22d2217594": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/665bd60d8cba9c28914586fec2cd221c6ce74fc53b303a11e0861d22d2217594",
+      "bytes": 374
+    },
+    "f6bb09f6488b0731986edc1f9b159976ffaed5675c3a528195dacf950ce7308f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/f6bb09f6488b0731986edc1f9b159976ffaed5675c3a528195dacf950ce7308f",
+      "bytes": 342
+    },
+    "1cf7f14a98ed56c018f64c59538df0e0885d78a98b4ab4f2d15c012dda1429df": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/1cf7f14a98ed56c018f64c59538df0e0885d78a98b4ab4f2d15c012dda1429df",
+      "bytes": 378
+    },
+    "3da2afce2cb4bb1907dff2899c1a09345bb7fa6d39fe5ea683e2dbc091a9da3e": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/3da2afce2cb4bb1907dff2899c1a09345bb7fa6d39fe5ea683e2dbc091a9da3e",
+      "bytes": 362
+    },
+    "cfa234a11a0f3c797a3e9a96dee169fc7a3e6fe759a8e213739353779e25a74a": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/cfa234a11a0f3c797a3e9a96dee169fc7a3e6fe759a8e213739353779e25a74a",
+      "bytes": 362
+    },
+    "e5307db6d59caaf00469ec168a125445c5408090cdf207d3d36201df2b4b3eca": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/e5307db6d59caaf00469ec168a125445c5408090cdf207d3d36201df2b4b3eca",
+      "bytes": 358
+    },
+    "3f9546c6272633a4fa12cf1d15f7e2c7663f3406f9cc794af79caf353b537ddc": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/3f9546c6272633a4fa12cf1d15f7e2c7663f3406f9cc794af79caf353b537ddc",
+      "bytes": 22224
+    },
+    "d4c710b47afb56ec00e38396359e9733e85bad9966fb8810fc616e2a521bf7d4": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/d4c710b47afb56ec00e38396359e9733e85bad9966fb8810fc616e2a521bf7d4",
+      "bytes": 358
+    },
+    "9d16921121cb51a5df9e9898caa44b0e32bbf66d065ae35add25db972a5ac5b8": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/9d16921121cb51a5df9e9898caa44b0e32bbf66d065ae35add25db972a5ac5b8",
+      "bytes": 169
+    },
+    "a104ca8a73a388c8e20b443d15cc9329b92d0063daab7b87350a40723897ebba": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a104ca8a73a388c8e20b443d15cc9329b92d0063daab7b87350a40723897ebba",
+      "bytes": 13304
+    },
+    "9b451ee0dc6182c799a77c82b6a5f8b97f8134ef11453a934933dbefb851b8b2": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/9b451ee0dc6182c799a77c82b6a5f8b97f8134ef11453a934933dbefb851b8b2",
+      "bytes": 358
+    },
+    "2251aeee4b9ad56c34bd2a84c842b41e40df05868ad073936c183a90157c7186": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/2251aeee4b9ad56c34bd2a84c842b41e40df05868ad073936c183a90157c7186",
+      "bytes": 13280
+    },
+    "ffa311dd058487997eafe3b9d89d3fe082f8cce7b7101f9cc6afbfd66b98e41d": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/ffa311dd058487997eafe3b9d89d3fe082f8cce7b7101f9cc6afbfd66b98e41d",
+      "bytes": 374
+    },
+    "4d34efb1a9d424ed9ef3749d3abc95d274bb1d1345920da381d67b7f409c41f5": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/4d34efb1a9d424ed9ef3749d3abc95d274bb1d1345920da381d67b7f409c41f5",
+      "bytes": 13016
+    },
+    "c6298681019f26c650a7ca204b70d441b9c429ee0a3254d7fa9379f459aa59c2": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c6298681019f26c650a7ca204b70d441b9c429ee0a3254d7fa9379f459aa59c2",
+      "bytes": 382
+    },
+    "c6449e54694dee30760c24d11707dc97c7d5a7693b50da0372cc353e3b5de91b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c6449e54694dee30760c24d11707dc97c7d5a7693b50da0372cc353e3b5de91b",
+      "bytes": 13496
+    },
+    "dfaee6434a58c78b3b9a30ce2f54933e06a6172d7c3642099be9b13b7f92063f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/dfaee6434a58c78b3b9a30ce2f54933e06a6172d7c3642099be9b13b7f92063f",
+      "bytes": 61424
+    },
+    "1fc5a673d38efd8b8caf0462aed3b5f3d3ba761d0f47d9a5af15bd2d8e805ce7": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/1fc5a673d38efd8b8caf0462aed3b5f3d3ba761d0f47d9a5af15bd2d8e805ce7",
+      "bytes": 13104
+    },
+    "07eb4b98d7cb9717c78252fbf653a003e244f86ec06ab15f13e9c7d6ac0f9f3f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/07eb4b98d7cb9717c78252fbf653a003e244f86ec06ab15f13e9c7d6ac0f9f3f",
+      "bytes": 13104
+    },
+    "19c4e723b1bea58c90551052b28d0b44d6330dffd0e46a16f09f35bc676c2729": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/19c4e723b1bea58c90551052b28d0b44d6330dffd0e46a16f09f35bc676c2729",
+      "bytes": 358
+    },
+    "421e6e819f42bfabff5ef287cc8cf83f1ea0d5ee5c408e2dff9f4279e90d54b0": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/421e6e819f42bfabff5ef287cc8cf83f1ea0d5ee5c408e2dff9f4279e90d54b0",
+      "bytes": 13880
+    },
+    "77162ac1599224138e6e62a56474d30a22d6952b82fab4dd7bdf6ae30a5c02a9": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/77162ac1599224138e6e62a56474d30a22d6952b82fab4dd7bdf6ae30a5c02a9",
+      "bytes": 13952
+    },
+    "efff69a2503827cfbd2db5f358c4674e98dc70f2bfcde9a3b9dde6df8bfd5c78": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/efff69a2503827cfbd2db5f358c4674e98dc70f2bfcde9a3b9dde6df8bfd5c78",
+      "bytes": 13344
+    },
+    "8b5f40f6abbaa5f2ba24b6a370d92a5b892c2a4729508e0c409aad6a3c2e5e3e": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8b5f40f6abbaa5f2ba24b6a370d92a5b892c2a4729508e0c409aad6a3c2e5e3e",
+      "bytes": 316
+    },
+    "0bdad1b7be18dd19297ef56d25db714e146cac2d7173e14f5fdfd40391d681dc": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/0bdad1b7be18dd19297ef56d25db714e146cac2d7173e14f5fdfd40391d681dc",
+      "bytes": 350
+    },
+    "d9e67907f4b4e2d71e5716f16c61d866e93b8b834fc677685d3574cc936543e3": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/d9e67907f4b4e2d71e5716f16c61d866e93b8b834fc677685d3574cc936543e3",
+      "bytes": 12656
+    },
+    "99c83949d7fa0feaacd354315cf9c5c52de0e7aaeea2319719391fba4694d407": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/99c83949d7fa0feaacd354315cf9c5c52de0e7aaeea2319719391fba4694d407",
+      "bytes": 414
+    },
+    "07d9114afc343453b5757dd856748f0cdb6a1102a46cc8a4b774d0681a13d4ec": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/07d9114afc343453b5757dd856748f0cdb6a1102a46cc8a4b774d0681a13d4ec",
+      "bytes": 13048
+    },
+    "4f2810e4404c33f42c7135abb76d8af1a545e860290a325181a5a9bedbddcb07": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/4f2810e4404c33f42c7135abb76d8af1a545e860290a325181a5a9bedbddcb07",
+      "bytes": 14152
+    },
+    "3cf69b6c5a636e53c275b7c816406988a42e01a31fd2f7c9742ee408fe126df6": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/3cf69b6c5a636e53c275b7c816406988a42e01a31fd2f7c9742ee408fe126df6",
+      "bytes": 358
+    },
+    "abe51a6137f27b0fd77d8c0f4e9a77d38bdb40cd99957c023edd61d6df1fa718": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/abe51a6137f27b0fd77d8c0f4e9a77d38bdb40cd99957c023edd61d6df1fa718",
+      "bytes": 172
+    },
+    "1bdd7ea2b81de7346474e085179b89b351fa9c8c198dc048f8894d43f8e52975": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/1bdd7ea2b81de7346474e085179b89b351fa9c8c198dc048f8894d43f8e52975",
+      "bytes": 16504
+    },
+    "1bc59362737c37744d64e14511c32de54c7d498d1f1cba05fb8e46513e9fd799": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/1bc59362737c37744d64e14511c32de54c7d498d1f1cba05fb8e46513e9fd799",
+      "bytes": 129
+    },
+    "bfb93be724faa16e6f09fbd74ff6d6cb4662006b888e8d4e57166637aa096e96": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/bfb93be724faa16e6f09fbd74ff6d6cb4662006b888e8d4e57166637aa096e96",
+      "bytes": 13152
+    },
+    "a9c4e0ba7bd41917b6651dfe7241b33a39c5738da83473df232abc75b7d26254": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a9c4e0ba7bd41917b6651dfe7241b33a39c5738da83473df232abc75b7d26254",
+      "bytes": 3408
+    },
+    "a54e4ef7c7c571dfbe63509e6c3da719f4dc971680ed806acce1c1693473a403": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a54e4ef7c7c571dfbe63509e6c3da719f4dc971680ed806acce1c1693473a403",
+      "bytes": 20256
+    },
+    "d8a615952903bfa6d218f5eda5e314550821bebd7e3342c477dc269c2cab9adf": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/d8a615952903bfa6d218f5eda5e314550821bebd7e3342c477dc269c2cab9adf",
+      "bytes": 1450
+    },
+    "5ce8f939cb9f47708628350f922f475fceab358ce817c1debf6cdf5f13886ed4": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/5ce8f939cb9f47708628350f922f475fceab358ce817c1debf6cdf5f13886ed4",
+      "bytes": 372
+    },
+    "cf6c9cd2000f83286fd1a0e964d8f9d35e3f976b624bf47bd0f8ffb83e9d0ce4": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/cf6c9cd2000f83286fd1a0e964d8f9d35e3f976b624bf47bd0f8ffb83e9d0ce4",
+      "bytes": 28088
+    },
+    "b30319d80695a42543a08f3b1b356759f0328cd9ff1c47c7c0f2aa2584b8fe35": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b30319d80695a42543a08f3b1b356759f0328cd9ff1c47c7c0f2aa2584b8fe35",
+      "bytes": 21128
+    },
+    "33fe9f815f73cd6cd288d87d1088021580458b6c8a108bbf88246738b8658884": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/33fe9f815f73cd6cd288d87d1088021580458b6c8a108bbf88246738b8658884",
+      "bytes": 3014
+    },
+    "1ca5ae91aecb5fcc8b3b8218ea5061d4ee6188b121cd4a38d74d266258165857": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/1ca5ae91aecb5fcc8b3b8218ea5061d4ee6188b121cd4a38d74d266258165857",
+      "bytes": 326
+    },
+    "e6e7a8883b3a77dc9b4c2f3848e8a860a885d4f5f72fc81d7b285a26272a9340": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/e6e7a8883b3a77dc9b4c2f3848e8a860a885d4f5f72fc81d7b285a26272a9340",
+      "bytes": 431
+    },
+    "93d3d618c4972a7394e3ddbdf43fd1d7a715afd24d65fba2e60d77cd6ac93e50": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/93d3d618c4972a7394e3ddbdf43fd1d7a715afd24d65fba2e60d77cd6ac93e50",
+      "bytes": 29400
+    },
+    "1188146ec0e269ef636612845d3c8f5e20fc6c03485552c710ba23ae5de8776b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/1188146ec0e269ef636612845d3c8f5e20fc6c03485552c710ba23ae5de8776b",
+      "bytes": 4356
+    },
+    "5a700b382ed6cc6323db4b31f144d095e1fba77a4c4cc6936e0013ff3181a032": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/5a700b382ed6cc6323db4b31f144d095e1fba77a4c4cc6936e0013ff3181a032",
+      "bytes": 882
+    },
+    "818d1cffc46db3afc897df67c9e19c615e39f6b3468e07a0b51f7b8fdeb621bf": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/818d1cffc46db3afc897df67c9e19c615e39f6b3468e07a0b51f7b8fdeb621bf",
+      "bytes": 20064
+    },
+    "bccd6f8f01a9c804a55384b6ad10825d3d59b69e2ffec226179ae9b1634a6656": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/bccd6f8f01a9c804a55384b6ad10825d3d59b69e2ffec226179ae9b1634a6656",
+      "bytes": 313
+    },
+    "d693a011acf5cc91f4d48756657f92cf71d4fd94c5d1ca113e3d00f8975a74b3": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/d693a011acf5cc91f4d48756657f92cf71d4fd94c5d1ca113e3d00f8975a74b3",
+      "bytes": 275
+    },
+    "6f84c0d20827d0ef4a5d5c41948937a1dae68154b0228c4d0ff3317f3c7aa923": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6f84c0d20827d0ef4a5d5c41948937a1dae68154b0228c4d0ff3317f3c7aa923",
+      "bytes": 55280
+    },
+    "674fbc5521d21c4be12ebbc8f72508c28dd22bba102ed384dd12c938d8f6af35": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/674fbc5521d21c4be12ebbc8f72508c28dd22bba102ed384dd12c938d8f6af35",
+      "bytes": 580
+    },
+    "5c289f00c9c6f32559af6f752c805ac9203474d13614d57ac90c91e3bffdc674": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/5c289f00c9c6f32559af6f752c805ac9203474d13614d57ac90c91e3bffdc674",
+      "bytes": 22952
+    },
+    "2e58afaf71f5196283d526c0c22941e8b72a3f20ecdc21beaff354c765546555": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/2e58afaf71f5196283d526c0c22941e8b72a3f20ecdc21beaff354c765546555",
+      "bytes": 43264
+    },
+    "5a2f67fef1c5c05889791a0ff1dc68961d8c3e7d5adcab1bf0ccd9565aaaba38": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/5a2f67fef1c5c05889791a0ff1dc68961d8c3e7d5adcab1bf0ccd9565aaaba38",
+      "bytes": 50352
+    },
+    "d1b840e548625df935fd67516514f1a269acb199c4bec359647e1fb51482ad05": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/d1b840e548625df935fd67516514f1a269acb199c4bec359647e1fb51482ad05",
+      "bytes": 188704
+    },
+    "2ad9710a24e2218a733b65591366341571d9dc8f0ed437898c84406ef9acf5a8": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/2ad9710a24e2218a733b65591366341571d9dc8f0ed437898c84406ef9acf5a8",
+      "bytes": 26624
+    },
+    "a6b5bc07e381cbf54605006bc36c708e24e43c265eb090db5f97072035523eaf": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a6b5bc07e381cbf54605006bc36c708e24e43c265eb090db5f97072035523eaf",
+      "bytes": 378416
+    },
+    "e0fe5373a7822a2c39a70940fe34340eff68bfeb7c16c1bb73740f59993f85cc": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/e0fe5373a7822a2c39a70940fe34340eff68bfeb7c16c1bb73740f59993f85cc",
+      "bytes": 334
+    },
+    "6e5661f85a80e274d63c3c73a13501c27b88e4785f1742e4b1fc5d6e45eacf30": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6e5661f85a80e274d63c3c73a13501c27b88e4785f1742e4b1fc5d6e45eacf30",
+      "bytes": 328
+    },
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "23a4b2e999ebedd5107d4eba439baa25628b1d65923dbe2f2691563a3c40767a": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/23a4b2e999ebedd5107d4eba439baa25628b1d65923dbe2f2691563a3c40767a",
+      "bytes": 846
+    },
+    "336552b72c368226dfa94bccb9f93e098e807e38a1dfbdacc82ed3d08a70e828": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/336552b72c368226dfa94bccb9f93e098e807e38a1dfbdacc82ed3d08a70e828",
+      "bytes": 495
+    },
+    "49b68c6c88fd3dad3186532bafd7630cf7a895ba57fc4fd9e617fd8c4246f405": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/49b68c6c88fd3dad3186532bafd7630cf7a895ba57fc4fd9e617fd8c4246f405",
+      "bytes": 568
+    },
+    "ac2648543c6839b215e06995af214aa1564fb291cfc0a408098c5c0c9b2309de": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/ac2648543c6839b215e06995af214aa1564fb291cfc0a408098c5c0c9b2309de",
+      "bytes": 507
+    },
+    "e69487a73021b6f129bb80730dc36d032562965079dab4aaedc4d8980c270300": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/e69487a73021b6f129bb80730dc36d032562965079dab4aaedc4d8980c270300",
+      "bytes": 14792
+    },
+    "8da84844dc02a59563d50f73f7be16093cab2ea230c8b8188149ea0d7720ac3b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8da84844dc02a59563d50f73f7be16093cab2ea230c8b8188149ea0d7720ac3b",
+      "bytes": 76008
+    },
+    "18ca2e1611b14d61d4ea11e40685215e22eddf44e19e1068994a29304983f0ab": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/18ca2e1611b14d61d4ea11e40685215e22eddf44e19e1068994a29304983f0ab",
+      "bytes": 26576
+    },
+    "ff783f3522c45ec7e82a1165c60c86fa6efba1a6dd60c6d6804b5e5f1359dc1f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/ff783f3522c45ec7e82a1165c60c86fa6efba1a6dd60c6d6804b5e5f1359dc1f",
+      "bytes": 17840
+    },
+    "ce88048fb4225427ec807dd0d808ecf6efd9f04317fd4d91e5bcc7b463420fd3": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/ce88048fb4225427ec807dd0d808ecf6efd9f04317fd4d91e5bcc7b463420fd3",
+      "bytes": 407
+    },
+    "b5d02c5334122950e31c89254c86c98b4c6298a7794a4bd5e2998da7832aa23f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b5d02c5334122950e31c89254c86c98b4c6298a7794a4bd5e2998da7832aa23f",
+      "bytes": 12480
+    },
+    "c0b73c3ff8d3341ed3e2757be5a7e048300712fa567e118cc50cabe3ee8d6cd9": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c0b73c3ff8d3341ed3e2757be5a7e048300712fa567e118cc50cabe3ee8d6cd9",
+      "bytes": 50536
+    },
+    "241787d2e6d4f177879b952175c059ebb26f6e3590b492b6e273bd430a334fa8": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/241787d2e6d4f177879b952175c059ebb26f6e3590b492b6e273bd430a334fa8",
+      "bytes": 211488
+    },
+    "33ef2e19696f57e1846281a86ff4c083885092785dc388de17ddc73ca60d6f1c": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/33ef2e19696f57e1846281a86ff4c083885092785dc388de17ddc73ca60d6f1c",
+      "bytes": 107376
+    },
+    "67db3d5af9171f86e54504cd185488b424665cef4604b0c37b09cc6ea84211e5": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/67db3d5af9171f86e54504cd185488b424665cef4604b0c37b09cc6ea84211e5",
+      "bytes": 23448
+    },
+    "88079173f4d1918de2d2b056418cb25acd8f5bc1f0433185f227f599e28ca6e6": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/88079173f4d1918de2d2b056418cb25acd8f5bc1f0433185f227f599e28ca6e6",
+      "bytes": 26712
+    },
+    "46fad4f1dc8cfbcb4c7bbe6d1dd354db48784b7db1014cf2a7b5b17da5b98e4d": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/46fad4f1dc8cfbcb4c7bbe6d1dd354db48784b7db1014cf2a7b5b17da5b98e4d",
+      "bytes": 20552
+    },
+    "35b687d2c771d6a1ac3c75e31b9f68304656df63cdec630d46b8290fd45074e8": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/35b687d2c771d6a1ac3c75e31b9f68304656df63cdec630d46b8290fd45074e8",
+      "bytes": 1852
+    },
+    "364d6672ed31485929f1293c2f559b7a248eac8db4a56389f9ce0a1b184bae6d": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/364d6672ed31485929f1293c2f559b7a248eac8db4a56389f9ce0a1b184bae6d",
+      "bytes": 553
+    },
+    "b32f82fd984fa84340e61d133832e470f4473c0c5ffa18d1b7144c88ffcf143a": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b32f82fd984fa84340e61d133832e470f4473c0c5ffa18d1b7144c88ffcf143a",
+      "bytes": 62552
+    },
+    "6b960d600127a7ba5d44e89c4611af67b6bfb19be029046a1c9e8c0bb751edd1": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/6b960d600127a7ba5d44e89c4611af67b6bfb19be029046a1c9e8c0bb751edd1",
+      "bytes": 39720
+    },
+    "f0d4cc4bc891244d7851c087976499fa491c2f88fa31838b8eb19361c810cdaf": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/f0d4cc4bc891244d7851c087976499fa491c2f88fa31838b8eb19361c810cdaf",
+      "bytes": 23264
+    },
+    "c100363b1086ae4ab510037b832f8d02d5d582b1591ec625e6acb35967f02ceb": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c100363b1086ae4ab510037b832f8d02d5d582b1591ec625e6acb35967f02ceb",
+      "bytes": 277
+    },
+    "64866950dea93c40075bdc83d918c916bf04238d49a557f7d5ec17cbee23ae46": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/64866950dea93c40075bdc83d918c916bf04238d49a557f7d5ec17cbee23ae46",
+      "bytes": 40000
+    },
+    "7e32a489c060aaaaa867fcf64bfbcd9bd08a3874eb0c2f36d9e3b13934010c4b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/7e32a489c060aaaaa867fcf64bfbcd9bd08a3874eb0c2f36d9e3b13934010c4b",
+      "bytes": 7568
+    },
+    "447ca82845dd61df6dbabbfce2c5c87c43f24a73d4221f0a13c383d412814d10": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/447ca82845dd61df6dbabbfce2c5c87c43f24a73d4221f0a13c383d412814d10",
+      "bytes": 10584
+    },
+    "bd471f7205dfca7f736ac04ebdb0c0185e9f2eb317c90bc3c7b6e6a7d5597f82": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/bd471f7205dfca7f736ac04ebdb0c0185e9f2eb317c90bc3c7b6e6a7d5597f82",
+      "bytes": 11376
+    },
+    "37c2c8620284c3ac39422d9c2f52c0a85b9f1da9e50c516a6d327860cddf592e": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/37c2c8620284c3ac39422d9c2f52c0a85b9f1da9e50c516a6d327860cddf592e",
+      "bytes": 26616
+    },
+    "107dd89a19a41ce882b2035066ff11d8a1ad801d9052fbc4bc81c2a353b5ec96": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/107dd89a19a41ce882b2035066ff11d8a1ad801d9052fbc4bc81c2a353b5ec96",
+      "bytes": 756
+    },
+    "a539b40c859c3bf0598e8ab096cfddea16c0900e7bc0cc18edf0887030cd55d8": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a539b40c859c3bf0598e8ab096cfddea16c0900e7bc0cc18edf0887030cd55d8",
+      "bytes": 110
+    },
+    "2b1adaf64bfb1aca7a16aa137e4a9deb55c4ac3569e0576aa38876de20631055": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/2b1adaf64bfb1aca7a16aa137e4a9deb55c4ac3569e0576aa38876de20631055",
+      "bytes": 1785
+    },
+    "8b67705da5ef466f961a0d310703752a503271963bc59aa8ca5e8da352051831": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8b67705da5ef466f961a0d310703752a503271963bc59aa8ca5e8da352051831",
+      "bytes": 146544
+    },
+    "115aafdb74399ee53705a46cedd4317c09306cc195d54bc6c78126cb30bca565": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/115aafdb74399ee53705a46cedd4317c09306cc195d54bc6c78126cb30bca565",
+      "bytes": 71896
+    },
+    "c386a595989a4c615b06ac56128c64b6784c918de482c36333c50fade679bc2a": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c386a595989a4c615b06ac56128c64b6784c918de482c36333c50fade679bc2a",
+      "bytes": 305088
+    },
+    "dae69266a52c08a036e5edc2a0a5e3c9ae70eb72de556e1841d84a6594dcd988": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/dae69266a52c08a036e5edc2a0a5e3c9ae70eb72de556e1841d84a6594dcd988",
+      "bytes": 43344
+    },
+    "4f8b2355d097318d1f448157695e2510f945ebbd82782ebff894ba78facff65e": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/4f8b2355d097318d1f448157695e2510f945ebbd82782ebff894ba78facff65e",
+      "bytes": 19120
+    },
+    "904ce8b2afce10f4d3f37e63289e47b3a7ffe96797b3c2d969ea277022a8b0a3": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/904ce8b2afce10f4d3f37e63289e47b3a7ffe96797b3c2d969ea277022a8b0a3",
+      "bytes": 7656
+    },
+    "7d1f25530fd5eeb87eff5f390dcd22bcd8fa3c50140ef5d6324879e0eb1c331b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/7d1f25530fd5eeb87eff5f390dcd22bcd8fa3c50140ef5d6324879e0eb1c331b",
+      "bytes": 18296
+    },
+    "247159b9258ba5ae72d5af980f4fac39b799aedcd3c7509bb7824299a0d2e125": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/247159b9258ba5ae72d5af980f4fac39b799aedcd3c7509bb7824299a0d2e125",
+      "bytes": 726
+    },
+    "445e3690acad5aa6be423f5f6b2dd771b625505ed4277f0a31c7cddb50c78ebf": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/445e3690acad5aa6be423f5f6b2dd771b625505ed4277f0a31c7cddb50c78ebf",
+      "bytes": 1855
+    },
+    "7a49f15c7dd72d56b340cc5296822b9c6923fc052fcaf62d0f14ee1674216256": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/7a49f15c7dd72d56b340cc5296822b9c6923fc052fcaf62d0f14ee1674216256",
+      "bytes": 2752
+    },
+    "5abf6ffbcf1a73d12297a98fb17e0ed8ccf6bc24576dcfa63617952029e46ce2": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/5abf6ffbcf1a73d12297a98fb17e0ed8ccf6bc24576dcfa63617952029e46ce2",
+      "bytes": 38624
+    },
+    "0cb55ed6f9e25b73a0fe7c944bd8b4e8fd1a859c392636fc62cca6eacadfd975": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/0cb55ed6f9e25b73a0fe7c944bd8b4e8fd1a859c392636fc62cca6eacadfd975",
+      "bytes": 129960
+    },
+    "0ba3ef6921b55b3b1cebf6735108a7e5200ccaf77355ec8059e9db19dc64c601": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/0ba3ef6921b55b3b1cebf6735108a7e5200ccaf77355ec8059e9db19dc64c601",
+      "bytes": 169
+    },
+    "9210a501eb67e52724d2cb76a91e986718b0fe6a7c65a321a3973a2062eabe41": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/9210a501eb67e52724d2cb76a91e986718b0fe6a7c65a321a3973a2062eabe41",
+      "bytes": 622
+    },
+    "bb005322841ebf26a41be951ce5849bc48f022e2cf24521efde35f64c11b6740": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/bb005322841ebf26a41be951ce5849bc48f022e2cf24521efde35f64c11b6740",
+      "bytes": 315
+    },
+    "bb112a6dc2b1fe01b28bfa1fb8b61b2f25ef92ef8b4c31b4c32391af2f88e7e4": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/bb112a6dc2b1fe01b28bfa1fb8b61b2f25ef92ef8b4c31b4c32391af2f88e7e4",
+      "bytes": 407
+    },
+    "2aa8d860f62a8b470526b9c26c7a449d339d1f15315182d1eccf2d77cf1c3e28": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/2aa8d860f62a8b470526b9c26c7a449d339d1f15315182d1eccf2d77cf1c3e28",
+      "bytes": 28352
+    },
+    "ccf08488b5167f43caa72620da89294e7d8e20d607fade860d163f55502e4e8c": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/ccf08488b5167f43caa72620da89294e7d8e20d607fade860d163f55502e4e8c",
+      "bytes": 37792
+    },
+    "dfd3d53c553c5961cf64f823849a0c60b93687c3d338b70f8f5c641adb1f99e8": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/dfd3d53c553c5961cf64f823849a0c60b93687c3d338b70f8f5c641adb1f99e8",
+      "bytes": 236
+    },
+    "aa831cb65c9f0448b891e52b667ab2fa715b58e7901370c47325002f82887536": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/aa831cb65c9f0448b891e52b667ab2fa715b58e7901370c47325002f82887536",
+      "bytes": 683
+    },
+    "8bdf5a44a94a25788e5866363e577e02d1fa10a0292a99906d36a22fdb3daa77": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8bdf5a44a94a25788e5866363e577e02d1fa10a0292a99906d36a22fdb3daa77",
+      "bytes": 1251
+    },
+    "0396d9711bef97b86b1cf34a50a089a9203d3218311716a5c1540752b8843367": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/0396d9711bef97b86b1cf34a50a089a9203d3218311716a5c1540752b8843367",
+      "bytes": 10344
+    },
+    "c2e03eb332e822f5a0fd395d61161c9dc9ffb75a50f0cbb178a5d6a401944d45": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c2e03eb332e822f5a0fd395d61161c9dc9ffb75a50f0cbb178a5d6a401944d45",
+      "bytes": 344
+    },
+    "0fb70ae653b8a01276893a881d454b715cb44a9990f40c89fde3b103c829c4e6": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/0fb70ae653b8a01276893a881d454b715cb44a9990f40c89fde3b103c829c4e6",
+      "bytes": 210
+    },
+    "a853b500a0ee3c2e3d415377d683082d75256390865dff507285b9830e2aa485": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a853b500a0ee3c2e3d415377d683082d75256390865dff507285b9830e2aa485",
+      "bytes": 179928
+    },
+    "2aefcc947d5bd3d4778b23de29eef4c8d37ac1f0ecc2a44917fd1a176b3c8fb9": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/2aefcc947d5bd3d4778b23de29eef4c8d37ac1f0ecc2a44917fd1a176b3c8fb9",
+      "bytes": 38224
+    },
+    "cbf013c3c25727602775dfa66b21224598784b465d6756fbe537f2059b76db33": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/cbf013c3c25727602775dfa66b21224598784b465d6756fbe537f2059b76db33",
+      "bytes": 1170
+    },
+    "034fcfd0db3f8491f3d2b13cd563a3070fdd9fd7cd21cd2986d99ef217192986": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/034fcfd0db3f8491f3d2b13cd563a3070fdd9fd7cd21cd2986d99ef217192986",
+      "bytes": 344
+    },
+    "b7692bdef9f417b6acd709d696095f925ca11dca1403e2851b345aa0c0ac1ce4": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b7692bdef9f417b6acd709d696095f925ca11dca1403e2851b345aa0c0ac1ce4",
+      "bytes": 346
+    },
+    "f54cc431d01ee3a2f4e9f3202a2c7f1e8639c0054d432a3bdbbeaccc8a74003c": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/f54cc431d01ee3a2f4e9f3202a2c7f1e8639c0054d432a3bdbbeaccc8a74003c",
+      "bytes": 30288
+    },
+    "72790bd89c3a269607af528402472cc0beeebd849146b7c4b2657c6924e1414e": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/72790bd89c3a269607af528402472cc0beeebd849146b7c4b2657c6924e1414e",
+      "bytes": 783
+    },
+    "df2f2c373c1cfce57d0e2aad276f6acf4f1157d4b4ec393d60120afd71f11312": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/df2f2c373c1cfce57d0e2aad276f6acf4f1157d4b4ec393d60120afd71f11312",
+      "bytes": 130
+    },
+    "00c8f631e8345adebd2b14e0e5feff91b4f48cf1922e600527c689ca01a8e298": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/00c8f631e8345adebd2b14e0e5feff91b4f48cf1922e600527c689ca01a8e298",
+      "bytes": 141
+    },
+    "143d120b561996af001867a1b94f3d1da497dff2824cd328e59e5d731dbccd21": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/143d120b561996af001867a1b94f3d1da497dff2824cd328e59e5d731dbccd21",
+      "bytes": 852
+    },
+    "ea5979ef2ff94b565d0245c9215707fbdf7a545de2a3311fc563333d1ff6b30b": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/ea5979ef2ff94b565d0245c9215707fbdf7a545de2a3311fc563333d1ff6b30b",
+      "bytes": 15976
+    },
+    "fb0d80714455b24f11713ad33eaf32ff16c8e12ee6887bf408b0836dbc3f362c": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/fb0d80714455b24f11713ad33eaf32ff16c8e12ee6887bf408b0836dbc3f362c",
+      "bytes": 264
+    },
+    "b4e4c1fb5b42ffeb82400cba33281435b9cdee5449446dac9bb3c77a020a5f6f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/b4e4c1fb5b42ffeb82400cba33281435b9cdee5449446dac9bb3c77a020a5f6f",
+      "bytes": 309
+    },
+    "a028d91fc66e2fb93ec32e5668b44c2e31ccf73163c5ea25085cc83287da92c7": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/a028d91fc66e2fb93ec32e5668b44c2e31ccf73163c5ea25085cc83287da92c7",
+      "bytes": 234
+    },
+    "ef2ee1a029251b5f7a485b740fc58a8c9c28b676fe6a025b7906a11dcc7d0bfe": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/ef2ee1a029251b5f7a485b740fc58a8c9c28b676fe6a025b7906a11dcc7d0bfe",
+      "bytes": 421
+    },
+    "24f6dd31af007e6b4c89bf6c07ed460a66aa62383d4ec9b80f842bd529f8fb0f": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/24f6dd31af007e6b4c89bf6c07ed460a66aa62383d4ec9b80f842bd529f8fb0f",
+      "bytes": 310
+    },
+    "e01bea5ed95c8a1ff9e3631faee677d044ad64d00ae120db3cf39781524c24f9": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/e01bea5ed95c8a1ff9e3631faee677d044ad64d00ae120db3cf39781524c24f9",
+      "bytes": 3666
+    },
+    "138c333f566d8d8dfd83bebd73f9bfda3c303ff882b46be502f660c6b3a54a6a": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/138c333f566d8d8dfd83bebd73f9bfda3c303ff882b46be502f660c6b3a54a6a",
+      "bytes": 1797
+    },
+    "c1d99d169ba832b18a6c4ba1bcfaf57b36de52124b716cbc781fcd1319469355": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/c1d99d169ba832b18a6c4ba1bcfaf57b36de52124b716cbc781fcd1319469355",
+      "bytes": 1160
+    },
+    "92518f2753a02adb984e7d173a3b0ce7abb6325223c075e35c26a02ec292f268": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/92518f2753a02adb984e7d173a3b0ce7abb6325223c075e35c26a02ec292f268",
+      "bytes": 67816
+    },
+    "bcc9a1689c9915887d15d5ecae8c9328afdb02a801ca61b7d62b9bc58d0e3bc2": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/bcc9a1689c9915887d15d5ecae8c9328afdb02a801ca61b7d62b9bc58d0e3bc2",
+      "bytes": 13488
+    },
+    "13e7f0eb436f2005ebc993571cf310cf2dbe81d0dfa5df221fef6abe37b182ba": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/13e7f0eb436f2005ebc993571cf310cf2dbe81d0dfa5df221fef6abe37b182ba",
+      "bytes": 1375
+    },
+    "89984cd914f51ef56bbe51a968c434aa61561ea7a30b7e68f4a12b8f1adc9cc1": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/89984cd914f51ef56bbe51a968c434aa61561ea7a30b7e68f4a12b8f1adc9cc1",
+      "bytes": 49600
+    },
+    "84bcd7527faeea03940f8a95a18980c831cd6f66714295af45df5abbd9234695": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/84bcd7527faeea03940f8a95a18980c831cd6f66714295af45df5abbd9234695",
+      "bytes": 33256
+    },
+    "e799dec3d672922b894ebfcfce0e8533f352e4f3f8b9bda4fdac86cca2875765": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/e799dec3d672922b894ebfcfce0e8533f352e4f3f8b9bda4fdac86cca2875765",
+      "bytes": 1220
+    },
+    "8049c69f85a16e86b763215ce895be6c19c61c79a3df8f13ec0738cb959e1a14": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/8049c69f85a16e86b763215ce895be6c19c61c79a3df8f13ec0738cb959e1a14",
+      "bytes": 706176
+    },
+    "260fe809d4ba2f2102874e60b29e8ea61c132885fe5c32701ab2c28eebb1356a": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/260fe809d4ba2f2102874e60b29e8ea61c132885fe5c32701ab2c28eebb1356a",
+      "bytes": 10124800
+    },
+    "96422c7533ce8a7b8afd289761b257f6738c7e5dd4bfa7c7fa3af353e53f1e7a": {
+      "path": "/home/jkh/nanolang-qualification/array-admission-2a4-cas/96422c7533ce8a7b8afd289761b257f6738c7e5dd4bfa7c7fa3af353e53f1e7a",
+      "bytes": 10047240
+    }
+  },
+  "totals": {
+    "reports": 28,
+    "objects": 327,
+    "bytes": 50820065
+  }
+}
