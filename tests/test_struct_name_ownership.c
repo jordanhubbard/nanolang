@@ -143,6 +143,59 @@ static void auxiliary_vectors(void) {
     }
 }
 
+static void metadata_snapshot_lifetimes(int snapshot_first) {
+    const char *source="struct Child { value: int } struct Outer { child: Child, values: array<int> } "
+        "fn main()->int { return 0 }";
+    int count=0; Token *tokens=tokenize(source,&count); assert(tokens);
+    ASTNode *program=parse_program(tokens,count); assert(program);
+    Environment *env=create_environment(); assert(env); env->suppress_shadow_warnings=true;
+    assert(type_check(program,env));
+    StructDef *outer=env_get_struct(env,"Outer"); assert(outer);
+    free(outer->original_name); outer->original_name=strdup("WrittenOuter");
+    outer->module_name=env_own_checker_allocation(env,strdup("Owner"));
+    ModuleMetadata *snapshot=extract_module_metadata(env,"Owner"); assert(snapshot);
+    StructDef *copy=NULL;
+    for (int i=0;i<snapshot->struct_count;++i)
+        if (!strcmp(snapshot->structs[i].name,"Outer")) copy=&snapshot->structs[i];
+    assert(copy && copy->original_name!=outer->original_name && copy->module_name!=outer->module_name);
+    assert(copy->field_names!=outer->field_names && copy->field_types!=outer->field_types);
+    assert(copy->field_type_names!=outer->field_type_names && copy->field_element_types!=outer->field_element_types);
+    assert(copy->field_type_info!=outer->field_type_info);
+    if (snapshot_first) {
+        free_module_metadata(snapshot);
+        assert(!strcmp(outer->original_name,"WrittenOuter"));
+        assert(outer->field_type_info[1]->element_type->base_type==TYPE_INT);
+        free_environment(env); free_ast(program); free_tokens(tokens,count);
+    } else {
+        free_ast(program); free_tokens(tokens,count); free_environment(env);
+        assert(!strcmp(copy->name,"Outer") && !strcmp(copy->original_name,"WrittenOuter"));
+        assert(!strcmp(copy->module_name,"Owner") && !strcmp(copy->field_names[0],"child"));
+        assert(copy->field_types[0]==TYPE_STRUCT && !strcmp(copy->field_type_names[0],"Child"));
+        assert(copy->field_element_types[1]==TYPE_INT);
+        assert(copy->field_type_info[1]->base_type==TYPE_ARRAY);
+        assert(copy->field_type_info[1]->element_type->base_type==TYPE_INT);
+        free_module_metadata(snapshot);
+    }
+}
+
+static void metadata_empty_vectors(void) {
+    for (int allocated=0;allocated<2;++allocated) {
+        Environment *env=create_environment(); assert(env);
+        StructDef record={.name=strdup("Empty")}; assert(record.name);
+        if (allocated) {
+            record.field_names=calloc(1,sizeof(char *)); record.field_types=calloc(1,sizeof(Type));
+            record.field_type_names=calloc(1,sizeof(char *)); record.field_element_types=calloc(1,sizeof(Type));
+        }
+        env_define_struct(env,record);
+        ModuleMetadata *snapshot=extract_module_metadata(env,"EmptyOwner"); assert(snapshot);
+        StructDef *copy=&snapshot->structs[0]; assert(copy->field_count==0);
+        assert(!!copy->field_names==allocated && !!copy->field_types==allocated);
+        assert(!!copy->field_type_names==allocated && !!copy->field_element_types==allocated);
+        assert(!copy->field_type_info && !copy->module_name && !copy->original_name);
+        free_environment(env); assert(!strcmp(copy->name,"Empty")); free_module_metadata(snapshot);
+    }
+}
+
 int main(void) {
     for (int kind=0; kind<4; ++kind) {
         size_t count=lookup_case(kind,0,0);
@@ -172,6 +225,7 @@ int main(void) {
         }
     }
     parsed_parameter_names(); parsed_record_lifetimes(0); parsed_record_lifetimes(1); auxiliary_vectors();
+    metadata_snapshot_lifetimes(0); metadata_snapshot_lifetimes(1); metadata_empty_vectors();
     puts("Parser/record ownership: qualified parameters, both destruction orders, zero/nonzero auxiliary vectors and borrowed annotations PASS");
     puts("Struct name ownership: four paths, exact copies, borrowed controls, all allocation positions/two modes/recovery PASS");
     return 0;
