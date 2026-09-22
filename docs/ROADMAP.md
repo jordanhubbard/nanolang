@@ -17467,3 +17467,6 @@ change the coarse checker admission in every context. I retain that unresolved
 boundary explicitly and do not execute those unsupported forms as positives.
 
 - [x] I qualify reviewed653 flat arithmetic result views with fresh providers and the full original checker/evaluator targets, all four Linux/Darwin ordinary and ASan/UBSan/LSan configurations. All eight methods and four builds pass; original610 first failure remains sealed. Evidence: `docs/evidence/array-views-653`. Canonical integration and byte/nested expression admission follow-up remain separate.
+
+- [ ] I reconcile byte/nested arithmetic admission across whole expressions, not only typed destinations. My bounded source audit `docs/ARRAY_ARITHMETIC_ADMISSION_AUDIT.md` records coarse UNKNOWN/u8 acceptance, absent evaluator/VM byte dispatch, legacy ELEM_U8 narrowing, older Nano fallback behavior and the existing flat-only canonical contract. No new source semantics or unsupported execution is authorized by the audit.
+- [ ] I make C NanoISA unary ARRAY and ARRAY remainder lowering refuse before publication or implement separately reviewed correct lowering; current typed I64_NEG/I64_REM_S selection is a static operand mismatch. I preserve original passing evaluator unary/modulo behavior and retain all full5.1 required positive matrix obligations under task398942.
