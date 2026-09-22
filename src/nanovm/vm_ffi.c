@@ -1313,7 +1313,10 @@ static bool cop_prepare_opaque_call(VmState *vm, const NvmModule *module,
                                     uint32_t index, const NanoValue *args, int count,
                                     char *error, size_t size) {
     if (!module || index >= module->import_count || count < 0 || count > NANO_MAX_FFI_ARGS ||
-        (!args && count) || count != module->imports[index].param_count) return false;
+        (!args && count) || count != module->imports[index].param_count) {
+        snprintf(error, size, "I require a valid isolated import and its declared argument count");
+        return false;
+    }
     const uint8_t *types = module->import_param_types ? module->import_param_types[index] : NULL;
     for (int i = 0; i < count; ++i) {
         if (!cop_opaque_owner_argument(&vm->cop_opaque, args[i]) ||

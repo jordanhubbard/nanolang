@@ -223,7 +223,10 @@ static bool cop_worker_call(CopOpaqueWorker *worker, const NvmModule *module,
                             uint32_t index, NanoValue *args, int count,
                             NanoValue *result, VmHeap *heap, char *error, size_t size) {
     if (!module || index >= module->import_count || count < 0 || count > NANO_MAX_FFI_ARGS ||
-        (!args && count) || module->imports[index].param_count != count) return false;
+        (!args && count) || module->imports[index].param_count != count) {
+        snprintf(error, size, "I require a valid isolated import and its declared argument count");
+        return false;
+    }
     bool captures = opaque_result(module, index);
     if (captures && (!worker || !cop_opaque_worker_reserve(worker, 1, COP_MAX_PAYLOAD))) {
         snprintf(error, size, "I could not reserve isolated opaque result metadata before native entry");
