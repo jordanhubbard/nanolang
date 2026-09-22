@@ -2959,7 +2959,7 @@ fn compile_program_mode(input_file: string, output_file: string, verbose: bool, 
                 if (not (== llm_diags_json_path "")) {
                     let msg: string = "Failed to write temporary C file"
                     let loc: CompilerSourceLocation = (Diagnostics.diag_location source_to_compile 0 0)
-                    let diag: CompilerDiagnostic = (Diagnostics.diag_transpiler_error "C0001" msg loc)
+                    let diag: CompilerDiagnostic = (Diagnostics.diag_lowering_error "C0001" msg loc)
                     (Diagnostics.diag_list_add diags diag)
                     (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
                 } else { (print "") }
