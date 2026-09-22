@@ -1,0 +1,5 @@
+# My protocol fixture array ownership
+
+I retain the07cc Linux and Darwin sanitizer terminals: original `serialize_array_roundtrip` leaks208 bytes across four allocations. The source owns two initial references: `vm_array_new` creates the input array, and `cop_deserialize_value` creates an independent output array in another heap. `val_array` wraps the input pointer without adding a reference. Neither reference is released before `vm_heap_destroy`, which collects cycles and destroys interned strings rather than reclaiming every live array.
+
+I will release each value through its own heap after every original serialization/type/length assertion, then assert each heap's live-object count is zero before destruction. I change no production source, codec bytes, bounds or existing assertions and disable no sanitizer. The full new opaque owning method already passes all four configurations; original sanitizer protocol/fuzz/FFI/lifecycle completion remains open until this corrected fixture and remaining groups pass.
