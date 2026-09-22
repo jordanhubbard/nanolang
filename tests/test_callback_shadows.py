@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -33,6 +34,15 @@ __attribute__((constructor)) static void provider_constructor(void) {
 
 
 class CallbackShadows(unittest.TestCase):
+    def check_compiler_diagnostics(self, stdout, stderr):
+        # I retain diagnostics even when the expected compiler result is refusal.
+        print(f"\nI retain compiler streams for {self._testMethodName}:", file=sys.stderr, flush=True)
+        sys.stderr.write(stdout)
+        sys.stderr.write(stderr)
+        sys.stderr.flush()
+        for marker in ("AddressSanitizer", "LeakSanitizer", "UndefinedBehaviorSanitizer", "runtime error:"):
+            self.assertNotIn(marker, stdout + stderr)
+
     def compile_fixture(self, succeeds, execution, trace_constructor=False, declared_owner=False):
         with tempfile.TemporaryDirectory(prefix="nano-callback-shadows-") as directory:
             work = Path(directory)
@@ -79,6 +89,7 @@ fn callback_check() -> int { unsafe { return (invoke increment 41) } }
                 process.kill()
                 process.communicate()
                 raise
+            self.check_compiler_diagnostics(stdout, stderr)
             result = subprocess.CompletedProcess(process.args, process.returncode, stdout, stderr)
             if trace_constructor:
                 self.assertEqual(result.returncode, 0, stdout + stderr)
@@ -130,6 +141,7 @@ fn callback_check() -> int { unsafe { return (invoke increment 41) } }
                 process.kill()
                 process.communicate()
                 raise
+            self.check_compiler_diagnostics(stdout, stderr)
             self.assertEqual(process.returncode, 0, stdout + stderr)
             entries = [list(map(int, line.split())) for line in trace.read_text().splitlines()]
             self.assertEqual(len(entries), 1, entries)
