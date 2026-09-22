@@ -176,6 +176,30 @@ fn main()->int {
 }
 ''', expected_stdout=b'x')
 
+        self.native_routes('native-record-array-replacements', """struct Item { value:int }
+struct Holder { item:Item }
+fn receiver(values:array<Item>)->array<Item> { (print "R") return values }
+shadow receiver { let values:array<Item> = [Item{value:1}] assert (== (array_length (receiver values)) 1) }
+fn index()->int { (print "I") return 0 }
+shadow index { assert (== (index) 0) }
+fn value()->int { (print "V") return 41 }
+shadow value { assert (== (value) 41) }
+fn replacement()->Item { (print "C") return Item{value:42} }
+shadow replacement { assert (== (replacement).value 42) }
+fn main()->int {
+ let values:array<Item> = [Item{value:0}]
+ (array_set (receiver values) (index) Item{value:(value)})
+ assert (== (at values 0).value 41)
+ (array_set (receiver values) (index) (replacement))
+ assert (== (at values 0).value 42)
+ let holder:Holder = Holder{item:Item{value:43}}
+ (array_set (receiver values) (index) holder.item)
+ assert (== (at values 0).value 43)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+""", expected_stdout=b'RIVRICRI')
+
     def test_native_discovery_and_copied_results(self):
         self.native_routes('native-discovery', '''struct Item { value:int, text:string }
 struct Holder { values:List<Item> }
