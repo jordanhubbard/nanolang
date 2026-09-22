@@ -564,6 +564,38 @@ static void test_empty_function_code_ranges(void) {
     PASS(test_name);
 }
 
+static void test_unordered_ranges_preserve_first_error(void) {
+    const char *test_name = "ranges: unordered maxima and original error precedence";
+    uint8_t code[6] = {OP_RET, OP_RET, OP_RET, OP_RET, OP_RET, OP_RET};
+    NvmModule *mod = make_simple_module(code, sizeof(code), 0, 0);
+    NvmFunctionEntry entry = mod->functions[0];
+    for (int i = 0; i < 3; i++) nvm_add_function(mod, &entry);
+    mod->functions[0].code_offset = 4; mod->functions[0].code_length = 2;
+    mod->functions[1].code_offset = 0; mod->functions[1].code_length = 2;
+    mod->functions[2].code_offset = 2; mod->functions[2].code_length = 2;
+    mod->functions[3].code_offset = 6; mod->functions[3].code_length = 0;
+    ASSERT(nvm_verify(mod).ok, "unordered disjoint and adjacent ranges must pass");
+
+    mod->functions[2].code_length = 3;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok && strstr(r.error_msg, "function[2] code range overlaps function[0]"),
+           "lower-address predecessor must not hide an earlier high range");
+    mod->functions[2].code_length = 2;
+    mod->functions[3].code_offset = 1; mod->functions[3].code_length = 4;
+    r = nvm_verify(mod);
+    ASSERT(!r.ok && strstr(r.error_msg, "function[3] code range overlaps function[0]"),
+           "multiple conflicts must report original table order, not address order");
+    mod->functions[3].name_idx = mod->string_count;
+    r = nvm_verify(mod);
+    ASSERT(!r.ok && strstr(r.error_msg, "function[3] name_idx"),
+           "invalid metadata must still precede that function's overlap check");
+    mod->functions[3].name_idx = entry.name_idx;
+    mod->functions[3].code_offset = 6; mod->functions[3].code_length = 0;
+    ASSERT(nvm_verify(mod).ok, "fresh verification must recover after range restoration");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_function_code_length_beyond_end(void) {
     const char *test_name = "nvm_verify: code_length beyond code_size fails";
     uint8_t code[4];
@@ -1733,6 +1765,7 @@ int main(void) {
     test_overlapping_function_code_ranges();
     test_contained_function_code_range();
     test_empty_function_code_ranges();
+    test_unordered_ranges_preserve_first_error();
     test_function_code_length_beyond_end();
     test_function_name_idx_overflow();
     test_invalid_function_result_signature();

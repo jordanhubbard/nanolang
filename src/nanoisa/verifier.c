@@ -387,6 +387,7 @@ static NvmVerifyResult verify_module_ranges_classified(const NvmModule *mod,
     }
 
     /* Function code ranges */
+    uint32_t prior_nonempty_end = 0;
     for (uint32_t i = 0; i < mod->function_count; i++) {
         const NvmFunctionEntry *fn = &mod->functions[i];
         if (fn->code_offset > mod->code_size)
@@ -418,15 +419,20 @@ static NvmVerifyResult verify_module_ranges_classified(const NvmModule *mod,
          * disjoint, but they may be adjacent or appear out of table order. */
         if (fn->code_length != 0) {
             uint32_t fn_end = fn->code_offset + fn->code_length;
-            for (uint32_t j = 0; j < i; j++) {
-                const NvmFunctionEntry *other = &mod->functions[j];
-                if (other->code_length == 0) continue;
+            /* At or beyond every prior end, all half-open pairs are disjoint.
+             * Otherwise retain table-order comparison and its first error. */
+            if (fn->code_offset < prior_nonempty_end) {
+                for (uint32_t j = 0; j < i; j++) {
+                    const NvmFunctionEntry *other = &mod->functions[j];
+                    if (other->code_length == 0) continue;
 
-                /* The earlier iteration proved this range cannot wrap. */
-                uint32_t other_end = other->code_offset + other->code_length;
-                if (fn->code_offset < other_end && other->code_offset < fn_end)
-                    return fail("function[%u] code range overlaps function[%u]", i, j);
+                    /* The earlier iteration proved this range cannot wrap. */
+                    uint32_t other_end = other->code_offset + other->code_length;
+                    if (fn->code_offset < other_end && other->code_offset < fn_end)
+                        return fail("function[%u] code range overlaps function[%u]", i, j);
+                }
             }
+            if (fn_end > prior_nonempty_end) prior_nonempty_end = fn_end;
         }
     }
 
