@@ -868,7 +868,11 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
         return false;
     }
 
-    if (desc->string_release) {
+    /* I keep a zero-argument artifact STRING result pointer-typed even when
+     * its borrowed storage has no optional release hook. Arity was checked above. */
+    bool borrowed_string_zero = imp->kind == NVM_IMPORT_ARTIFACT &&
+        imp->return_type == TAG_STRING && arg_count == 0;
+    if (desc->string_release || borrowed_string_zero) {
         const char *arguments[2] = {NULL, NULL};
         for (int i = 0; i < arg_count; ++i) {
             if (args[i].tag != TAG_STRING || !args[i].as.string) {
@@ -883,7 +887,7 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
         bool copied = false;
         bool has_text = text != NULL;
         NanoValue snapshot = marshal_result((int64_t)(intptr_t)text, TAG_STRING, heap, &copied);
-        desc->string_release(text);
+        if (desc->string_release) desc->string_release(text);
         if (!copied || !has_text) {
             snprintf(error_msg, error_msg_size, "I could not retain the provider string result");
             return false;
