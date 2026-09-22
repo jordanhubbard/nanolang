@@ -1836,6 +1836,51 @@ void test_eval_match_wildcards_follow_lexical_order(void) {
     run_ctx_free(&ctx);
 }
 
+/* I retain callable leaves after their original binding and handler retire. */
+void test_eval_callable_projection_lifetimes(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Holder { callback: fn(int) -> int }\n"
+        "struct Outer { inner: Holder }\n"
+        "effect Capture { pack : fn(int) -> int -> Outer }\n"
+        "fn increment(n: int) -> int { return (+ n 1) }\n"
+        "shadow increment { assert (== (increment 7) 8) }\n"
+        "fn replacement(n: int) -> int { return (+ n 2) }\n"
+        "shadow replacement { assert (== (replacement 7) 9) }\n"
+        "fn projected(f: fn(int) -> int) -> Holder {\n"
+        " let mut original: fn(int) -> int = f\n"
+        " let held: Holder = Holder { callback: original }\n"
+        " let mut copied: fn(int) -> int = held.callback\n"
+        " set copied held.callback\n"
+        " set original replacement\n"
+        " assert (== (copied 7) 8)\n"
+        " return held\n"
+        "}\n"
+        "shadow projected { let held: Holder = (projected increment) let f: fn(int) -> int = held.callback assert (== (f 7) 8) }\n"
+        "fn retained() -> Outer {\n"
+        " return handle { perform Capture.pack(increment) } with {\n"
+        "  pack f -> { Outer { inner: Holder { callback: f } } }\n"
+        " }\n"
+        "}\n"
+        "shadow retained { let held: Outer = (retained) let f: fn(int) -> int = held.inner.callback assert (== (f 7) 8) }\n"
+        "fn main() -> int {\n"
+        " let held: Holder = (projected increment)\n"
+        " let f: fn(int) -> int = held.callback\n"
+        " let nested: Outer = (retained)\n"
+        " let g: fn(int) -> int = nested.inner.callback\n"
+        " return (+ (f 7) (g 7))\n"
+        "}\n"
+        "shadow main { assert (== (main) 16) }\n"));
+    for (int i = 0; i < 32; ++i) {
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 16);
+        ASSERT(nl_effect_find_handler("Capture", "pack", NULL) == NULL);
+    }
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
 void test_eval_match_miss_is_terminal(void) {
     int errors[2];
     ASSERT(pipe(errors) == 0);
@@ -3005,6 +3050,7 @@ int main(void) {
     TEST(eval_declared_push_initializer_bindings);
     TEST(eval_file_write_failures);
     TEST(eval_handler_return_async_calls);
+    TEST(eval_callable_projection_lifetimes);
     TEST(eval_handler_return_higher_order);
     TEST(eval_handler_return_partial_literal_cleanup);
     TEST(eval_handler_return_recursive_activation);
