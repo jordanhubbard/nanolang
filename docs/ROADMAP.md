@@ -17088,3 +17088,15 @@ limits, atomic attachment and preserve-or-refuse behavior for every consumer in
 `docs/CANONICAL_SDK_TYPED_PROVIDER_CONTRACT.md`. Owner review and final collision/
 fixture-limit audits precede implementation; initial transport refusal is only a
 dependency of the full required SDK execution adapters.
+
+### I correct the combined array fixture's assembler spelling
+
+Both9bc fresh ordinary builds and shape controls pass; the first three byte
+methods pass. The additive co-resident fixture then refuses at assembly with
+`Expected u32 operand`, before verification or execution of that new program.
+My fixture incorrectly uses quoted PUSH_STR operands; the actual grammar and
+existing retention controls use named `.string` declarations. I preserve all
+values, mutation/tag assertions and bounds while declaring exact constants and
+referring to their symbols. Sanitizer and remaining methods did not run. I retain
+both first terminals, source/tool endpoints and process cleanup records before
+any corrected qualification.

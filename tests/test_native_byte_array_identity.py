@@ -37,7 +37,11 @@ class NativeByteArrayIdentity(unittest.TestCase):
             self.run_actual([output])
 
     def test_recursive_string_and_byte_arrays_keep_distinct_carriers(self):
-        self.native('''.types 0 0 0
+        self.native('''.string temporary "temporary"
+.string retained "retained"
+.string second "second"
+.string replaced "replaced"
+.types 0 0 0
 .entry main
 .function churn 0 1 0 void 0
 PUSH_I64 0
@@ -47,7 +51,7 @@ LOAD_LOCAL 0
 PUSH_I64 2048
 I64_LT_S
 JMP_FALSE done
-PUSH_STR "temporary"
+PUSH_STR temporary
 ARR_LITERAL 5 1
 ARR_LITERAL 7 1
 POP
@@ -64,7 +68,7 @@ done:
 RET
 .end
 .function main 0 2 0 int 1
-PUSH_STR "retained"
+PUSH_STR retained
 ARR_LITERAL 5 1
 ARR_LITERAL 7 1
 STORE_LOCAL 0
@@ -77,17 +81,17 @@ PUSH_I64 0
 ARR_GET
 PUSH_I64 0
 ARR_GET
-PUSH_STR "retained"
+PUSH_STR retained
 EQ
 ASSERT
 LOAD_LOCAL 0
-PUSH_STR "second"
+PUSH_STR second
 ARR_LITERAL 5 1
 ARR_PUSH
 POP
 LOAD_LOCAL 0
 PUSH_I64 0
-PUSH_STR "replaced"
+PUSH_STR replaced
 ARR_LITERAL 5 1
 ARR_SET
 POP
@@ -111,7 +115,7 @@ PUSH_I64 0
 ARR_GET
 PUSH_I64 0
 ARR_GET
-PUSH_STR "replaced"
+PUSH_STR replaced
 EQ
 ASSERT
 LOAD_LOCAL 0
@@ -119,7 +123,7 @@ PUSH_I64 1
 ARR_GET
 PUSH_I64 0
 ARR_GET
-PUSH_STR "second"
+PUSH_STR second
 EQ
 ASSERT
 LOAD_LOCAL 1
