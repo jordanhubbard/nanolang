@@ -1,5 +1,5 @@
 {
-  "scope": "three original Linux focused terminals; ordinary retained providers with exact identity proof; no bootstrap claim",
+  "scope": "original Linux first terminals and corrected Linux/Darwin focused PASS; verified ordinary retained providers, no bootstrap claim",
   "records": [
     {
       "original_path": "/tmp/nanolang-native-sdk-25b5a-linux-extern/compiler-owner-capacity.json",
@@ -1399,6 +1399,596 @@
       "original_mode": "0o664",
       "stored_bytes": 5537,
       "stored_sha256": "deb4a3c47471705fb582f56cfb1caff804d197dda4c5fe5eac721372da76d5c0",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/compiler-owner-capacity.json",
+      "path": "puck-5daac/compiler-owner-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "91ecbc57c97a0119c5f6cdfa9d163c73b2b490efa704d176e4805004ad1430b5",
+      "original_mode": "0o644",
+      "stored_bytes": 58,
+      "stored_sha256": "91ecbc57c97a0119c5f6cdfa9d163c73b2b490efa704d176e4805004ad1430b5",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/compiler-owner-command.json",
+      "path": "puck-5daac/compiler-owner-command.json",
+      "original_bytes": 814,
+      "original_sha256": "642f83c50808efd810a1f71f24b0615c2e072f13a3d046081a4a7a3d731d42fd",
+      "original_mode": "0o644",
+      "stored_bytes": 814,
+      "stored_sha256": "642f83c50808efd810a1f71f24b0615c2e072f13a3d046081a4a7a3d731d42fd",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/compiler-owner-descendants.json",
+      "path": "puck-5daac/compiler-owner-descendants.json",
+      "original_bytes": 54,
+      "original_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "original_mode": "0o644",
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/compiler-owner-status.json",
+      "path": "puck-5daac/compiler-owner-status.json",
+      "original_bytes": 242,
+      "original_sha256": "2fa748fab965ffba45638386a365371c558dc6baeadac6804681079ee563de6e",
+      "original_mode": "0o644",
+      "stored_bytes": 242,
+      "stored_sha256": "2fa748fab965ffba45638386a365371c558dc6baeadac6804681079ee563de6e",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/compiler-owner.stderr",
+      "path": "puck-5daac/compiler-owner.stderr",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": "0o644",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/compiler-owner.stdout",
+      "path": "puck-5daac/compiler-owner.stdout",
+      "original_bytes": 93,
+      "original_sha256": "083060ae79a9cc17bc69cb6166b1e16396c638b533de036324d8c6d49b77af24",
+      "original_mode": "0o644",
+      "stored_bytes": 93,
+      "stored_sha256": "083060ae79a9cc17bc69cb6166b1e16396c638b533de036324d8c6d49b77af24",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/compiler-version-capacity.json",
+      "path": "puck-5daac/compiler-version-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "dd4ddd07872f3d71069a6392d77a0232c71173c9eec1608229ee62e1183f15ed",
+      "original_mode": "0o644",
+      "stored_bytes": 58,
+      "stored_sha256": "dd4ddd07872f3d71069a6392d77a0232c71173c9eec1608229ee62e1183f15ed",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/compiler-version-command.json",
+      "path": "puck-5daac/compiler-version-command.json",
+      "original_bytes": 804,
+      "original_sha256": "25d5d7b4006dcf0e174dafcae6b9ba6915f2f3679df6c354aee9042884557a1f",
+      "original_mode": "0o644",
+      "stored_bytes": 804,
+      "stored_sha256": "25d5d7b4006dcf0e174dafcae6b9ba6915f2f3679df6c354aee9042884557a1f",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/compiler-version-descendants.json",
+      "path": "puck-5daac/compiler-version-descendants.json",
+      "original_bytes": 290,
+      "original_sha256": "30b0b51e8f6142e6e4472ca3ba8a1e23e9d57df183f58b4ac6356a9b99cc2d19",
+      "original_mode": "0o644",
+      "stored_bytes": 290,
+      "stored_sha256": "30b0b51e8f6142e6e4472ca3ba8a1e23e9d57df183f58b4ac6356a9b99cc2d19",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/compiler-version-status.json",
+      "path": "puck-5daac/compiler-version-status.json",
+      "original_bytes": 242,
+      "original_sha256": "b6d90d900b0cd200b8f585b820d35063a6857b6c510e8eec478f0bdf66ba00c8",
+      "original_mode": "0o644",
+      "stored_bytes": 242,
+      "stored_sha256": "b6d90d900b0cd200b8f585b820d35063a6857b6c510e8eec478f0bdf66ba00c8",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/compiler-version.stderr",
+      "path": "puck-5daac/compiler-version.stderr",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": "0o644",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/compiler-version.stdout",
+      "path": "puck-5daac/compiler-version.stdout",
+      "original_bytes": 200,
+      "original_sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+      "original_mode": "0o644",
+      "stored_bytes": 200,
+      "stored_sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/configuration.json",
+      "path": "puck-5daac/configuration.json",
+      "original_bytes": 938,
+      "original_sha256": "ea492f41740fbfc89663a5f7dbea017df8e15e30eaa154305d75baa4c4cacf94",
+      "original_mode": "0o644",
+      "stored_bytes": 938,
+      "stored_sha256": "ea492f41740fbfc89663a5f7dbea017df8e15e30eaa154305d75baa4c4cacf94",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/extern-owners-capacity.json",
+      "path": "puck-5daac/extern-owners-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "99c33d9b890e1a6516f42f9705b335d3b76b833836e804f6d0d40aaf99bf862e",
+      "original_mode": "0o644",
+      "stored_bytes": 58,
+      "stored_sha256": "99c33d9b890e1a6516f42f9705b335d3b76b833836e804f6d0d40aaf99bf862e",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/extern-owners-command.json",
+      "path": "puck-5daac/extern-owners-command.json",
+      "original_bytes": 921,
+      "original_sha256": "33a48a75a349e1ff216836a3b925df6a18ee0c172595fc97c73af72618df3f9f",
+      "original_mode": "0o644",
+      "stored_bytes": 921,
+      "stored_sha256": "33a48a75a349e1ff216836a3b925df6a18ee0c172595fc97c73af72618df3f9f",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/extern-owners-descendants.json",
+      "path": "puck-5daac/extern-owners-descendants.json",
+      "original_bytes": 30722,
+      "original_sha256": "817cda37ff309ec9dab965041fb6a65e5b9595a13a76b9f5ef5860508897db39",
+      "original_mode": "0o644",
+      "stored_bytes": 30722,
+      "stored_sha256": "817cda37ff309ec9dab965041fb6a65e5b9595a13a76b9f5ef5860508897db39",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/extern-owners-status.json",
+      "path": "puck-5daac/extern-owners-status.json",
+      "original_bytes": 234,
+      "original_sha256": "eb36d49ea7f8a58fcf4263ad983564a43031fd52308e465852545394b77ce053",
+      "original_mode": "0o644",
+      "stored_bytes": 234,
+      "stored_sha256": "eb36d49ea7f8a58fcf4263ad983564a43031fd52308e465852545394b77ce053",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/extern-owners.stderr",
+      "path": "puck-5daac/extern-owners.stderr",
+      "original_bytes": 215,
+      "original_sha256": "b121c5b9c366ebb382f6460fda24a25ba4fa2c6ab1eff6d5361b1effe5adb534",
+      "original_mode": "0o644",
+      "stored_bytes": 215,
+      "stored_sha256": "b121c5b9c366ebb382f6460fda24a25ba4fa2c6ab1eff6d5361b1effe5adb534",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/extern-owners.stdout",
+      "path": "puck-5daac/extern-owners.stdout",
+      "original_bytes": 111,
+      "original_sha256": "6475e41a42c544abb2a43b4f4f1aa714c6632f7be7ed2761ff185a469decb5ac",
+      "original_mode": "0o644",
+      "stored_bytes": 111,
+      "stored_sha256": "6475e41a42c544abb2a43b4f4f1aa714c6632f7be7ed2761ff185a469decb5ac",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/make-provider-inventory-capacity.json",
+      "path": "puck-5daac/make-provider-inventory-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "6c5f007de52654e68307f2b87f327dff027548ee9708200ca72318fdb14a95bf",
+      "original_mode": "0o644",
+      "stored_bytes": 58,
+      "stored_sha256": "6c5f007de52654e68307f2b87f327dff027548ee9708200ca72318fdb14a95bf",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/make-provider-inventory-command.json",
+      "path": "puck-5daac/make-provider-inventory-command.json",
+      "original_bytes": 918,
+      "original_sha256": "946311defadd0306120ecde0f614e7a0fbb8be520a265f03cc81139a0c22a08b",
+      "original_mode": "0o644",
+      "stored_bytes": 918,
+      "stored_sha256": "946311defadd0306120ecde0f614e7a0fbb8be520a265f03cc81139a0c22a08b",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/make-provider-inventory-descendants.json",
+      "path": "puck-5daac/make-provider-inventory-descendants.json",
+      "original_bytes": 342,
+      "original_sha256": "33e162c42b8569128e8b1de3a726d202a292ec5bf467f6c7b3caaddb981f40e2",
+      "original_mode": "0o644",
+      "stored_bytes": 342,
+      "stored_sha256": "33e162c42b8569128e8b1de3a726d202a292ec5bf467f6c7b3caaddb981f40e2",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/make-provider-inventory-status.json",
+      "path": "puck-5daac/make-provider-inventory-status.json",
+      "original_bytes": 242,
+      "original_sha256": "7ee0e7c6909456b0191c2a02a4a2f35e16bca31945d3df7cf3c89a9cca480eb1",
+      "original_mode": "0o644",
+      "stored_bytes": 242,
+      "stored_sha256": "7ee0e7c6909456b0191c2a02a4a2f35e16bca31945d3df7cf3c89a9cca480eb1",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/make-provider-inventory.stderr",
+      "path": "puck-5daac/make-provider-inventory.stderr",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": "0o644",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/make-provider-inventory.stdout",
+      "path": "puck-5daac/make-provider-inventory.stdout",
+      "original_bytes": 4221,
+      "original_sha256": "8f995f938cbc40b93ed12ce38ab93eabcbd090735b0246b8bc17eb179ae2f324",
+      "original_mode": "0o644",
+      "stored_bytes": 4221,
+      "stored_sha256": "8f995f938cbc40b93ed12ce38ab93eabcbd090735b0246b8bc17eb179ae2f324",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/build-capacity.json",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/build-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "d696479021d26ca16e3334dcbd1510e3a3275f688fd97839c6a9f81403f5b1d3",
+      "original_mode": "0o644",
+      "stored_bytes": 58,
+      "stored_sha256": "d696479021d26ca16e3334dcbd1510e3a3275f688fd97839c6a9f81403f5b1d3",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/build-command.json",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/build-command.json",
+      "original_bytes": 14535,
+      "original_sha256": "32dd95262ca039fc5b9e311f639f74d9dfa7744d7a44554c24b3f008e0d36173",
+      "original_mode": "0o644",
+      "stored_bytes": 14535,
+      "stored_sha256": "32dd95262ca039fc5b9e311f639f74d9dfa7744d7a44554c24b3f008e0d36173",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/build-status.json",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/build-status.json",
+      "original_bytes": 204,
+      "original_sha256": "0a58fc6430c0266e8a3f36046d0fc7db0b0cfa770c79e22b3261f1511fd1d99b",
+      "original_mode": "0o644",
+      "stored_bytes": 204,
+      "stored_sha256": "0a58fc6430c0266e8a3f36046d0fc7db0b0cfa770c79e22b3261f1511fd1d99b",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/build.stderr",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/build.stderr",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": "0o644",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/build.stdout",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/build.stdout",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": "0o644",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/extern-owners",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/extern-owners.gz",
+      "original_bytes": 11318624,
+      "original_sha256": "cdbe91f22ab92ddd992c707d68c3a797d979037dd1d8df41c26620c07cba24f4",
+      "original_mode": "0o755",
+      "stored_bytes": 1187172,
+      "stored_sha256": "a03afc59d425b9f4ef82731dc141d868fcfc4840513c9ae27b255eac54b845f9",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/extern-owners.dSYM/Contents/Info.plist",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/extern-owners.dSYM/Contents/Info.plist",
+      "original_bytes": 642,
+      "original_sha256": "23edbcae7b3073208dce18fcad51460d91aeace34e450d92d1a114113ab585b8",
+      "original_mode": "0o644",
+      "stored_bytes": 642,
+      "stored_sha256": "23edbcae7b3073208dce18fcad51460d91aeace34e450d92d1a114113ab585b8",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/extern-owners.dSYM/Contents/Resources/DWARF/extern-owners",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/extern-owners.dSYM/Contents/Resources/DWARF/extern-owners.gz",
+      "original_bytes": 4878532,
+      "original_sha256": "251a70393e331d53c00b9d65771577fb072c3d8a7ce5001ff8c0fc38f40212f3",
+      "original_mode": "0o644",
+      "stored_bytes": 2140253,
+      "stored_sha256": "6abc1069b7bbb690a5e80c2821c4db0469e6f7815e62df72715dc4aff4b8e664",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/extern-owners.dSYM/Contents/Resources/Relocations/aarch64/extern-owners.yml",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/extern-owners.dSYM/Contents/Resources/Relocations/aarch64/extern-owners.yml",
+      "original_bytes": 170,
+      "original_sha256": "148a447d7238b48821ff6f8cb863f4a5c803c3fdde96a282de5623f9e4187efa",
+      "original_mode": "0o644",
+      "stored_bytes": 170,
+      "stored_sha256": "148a447d7238b48821ff6f8cb863f4a5c803c3fdde96a282de5623f9e4187efa",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/ordinary-providers-after.json",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/ordinary-providers-after.json",
+      "original_bytes": 23171,
+      "original_sha256": "181d302a71097ab4aa4b70f3704cfc1336dff16994405b8f87e3b97340396409",
+      "original_mode": "0o644",
+      "stored_bytes": 23171,
+      "stored_sha256": "181d302a71097ab4aa4b70f3704cfc1336dff16994405b8f87e3b97340396409",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/ordinary-providers-before.json",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/ordinary-providers-before.json",
+      "original_bytes": 23171,
+      "original_sha256": "181d302a71097ab4aa4b70f3704cfc1336dff16994405b8f87e3b97340396409",
+      "original_mode": "0o644",
+      "stored_bytes": 23171,
+      "stored_sha256": "181d302a71097ab4aa4b70f3704cfc1336dff16994405b8f87e3b97340396409",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/run-capacity.json",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/run-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "74013dff37405f16199303a3db9a2375026a6a76a3e4023e94d78d610fa1758e",
+      "original_mode": "0o644",
+      "stored_bytes": 58,
+      "stored_sha256": "74013dff37405f16199303a3db9a2375026a6a76a3e4023e94d78d610fa1758e",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/run-command.json",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/run-command.json",
+      "original_bytes": 857,
+      "original_sha256": "cf188b35cfe5f2a8eb09a59ba9f33cc341f47e7ebd50b1b86c7219015d453a9b",
+      "original_mode": "0o644",
+      "stored_bytes": 857,
+      "stored_sha256": "cf188b35cfe5f2a8eb09a59ba9f33cc341f47e7ebd50b1b86c7219015d453a9b",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/run-status.json",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/run-status.json",
+      "original_bytes": 211,
+      "original_sha256": "ad89c746dc797693e0548fed5be031293bab9773d0167f89ea16a35305af5999",
+      "original_mode": "0o644",
+      "stored_bytes": 211,
+      "stored_sha256": "ad89c746dc797693e0548fed5be031293bab9773d0167f89ea16a35305af5999",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/run.stderr",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/run.stderr",
+      "original_bytes": 106,
+      "original_sha256": "199f08458fcbc3b47d7762c73cba384250348b3e597c374c2c269b5617eed02c",
+      "original_mode": "0o644",
+      "stored_bytes": 106,
+      "stored_sha256": "199f08458fcbc3b47d7762c73cba384250348b3e597c374c2c269b5617eed02c",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/run.stdout",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/run.stdout",
+      "original_bytes": 95,
+      "original_sha256": "2e704586780cc92ce9517820d95c26a561f1d7800badb10ce3d29289656b5ba1",
+      "original_mode": "0o644",
+      "stored_bytes": 95,
+      "stored_sha256": "2e704586780cc92ce9517820d95c26a561f1d7800badb10ce3d29289656b5ba1",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/nano-extern-owners-y_6zvg1w/scope.json",
+      "path": "puck-5daac/nano-extern-owners-y_6zvg1w/scope.json",
+      "original_bytes": 364,
+      "original_sha256": "e9eba1de26be725fcd7eebacdfec6d9b2fe096e85d2b4b8a1d8840db03d8225b",
+      "original_mode": "0o644",
+      "stored_bytes": 364,
+      "stored_sha256": "e9eba1de26be725fcd7eebacdfec6d9b2fe096e85d2b4b8a1d8840db03d8225b",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/ordinary-provider-map.json",
+      "path": "puck-5daac/ordinary-provider-map.json",
+      "original_bytes": 32474,
+      "original_sha256": "a0a0b053870c1d242a5f7cd6945ecfd451dcf6781f1f033f38d58d8e9e7f8cbb",
+      "original_mode": "0o644",
+      "stored_bytes": 32474,
+      "stored_sha256": "a0a0b053870c1d242a5f7cd6945ecfd451dcf6781f1f033f38d58d8e9e7f8cbb",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/products-after.json",
+      "path": "puck-5daac/products-after.json",
+      "original_bytes": 3,
+      "original_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "original_mode": "0o644",
+      "stored_bytes": 3,
+      "stored_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/products-before.json",
+      "path": "puck-5daac/products-before.json",
+      "original_bytes": 3,
+      "original_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "original_mode": "0o644",
+      "stored_bytes": 3,
+      "stored_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/provider-query.mk",
+      "path": "puck-5daac/provider-query.mk",
+      "original_bytes": 120,
+      "original_sha256": "1412fce166905a8395c1e5f4b83dfce85d6961687276358ab50b186c9b832011",
+      "original_mode": "0o644",
+      "stored_bytes": 120,
+      "stored_sha256": "1412fce166905a8395c1e5f4b83dfce85d6961687276358ab50b186c9b832011",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/provider-reuse-proof.json",
+      "path": "puck-5daac/provider-reuse-proof.json.gz",
+      "original_bytes": 725791,
+      "original_sha256": "441e322cc9683c4f7ceae4d7bea66fa59fcc964c639e6a3ff7dfe138769b1344",
+      "original_mode": "0o644",
+      "stored_bytes": 230607,
+      "stored_sha256": "426624487534a7511c1f2713354f8307a4b9573c38d97600c418250a974e6364",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/retained-products-after.json",
+      "path": "puck-5daac/retained-products-after.json.gz",
+      "original_bytes": 54480,
+      "original_sha256": "56472e222a97124ecc7e734bea1f0b6b4c175808a238938b9da6d74b098605c5",
+      "original_mode": "0o644",
+      "stored_bytes": 18441,
+      "stored_sha256": "f861ff873aa21835c6ca51b6f236f67e9eadfe80d66556d7ed2f8b922d657fc8",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/sdk-path-capacity.json",
+      "path": "puck-5daac/sdk-path-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "a903ae1bbdf2f5fe24b5a7abc42c5d823985be27e9119c6e4c98f39d507fed86",
+      "original_mode": "0o644",
+      "stored_bytes": 58,
+      "stored_sha256": "a903ae1bbdf2f5fe24b5a7abc42c5d823985be27e9119c6e4c98f39d507fed86",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/sdk-path-command.json",
+      "path": "puck-5daac/sdk-path-command.json",
+      "original_bytes": 810,
+      "original_sha256": "593cd8e2ea6b25137cd0c289d076180c5921d7a115b6849d8678219038a7f454",
+      "original_mode": "0o644",
+      "stored_bytes": 810,
+      "stored_sha256": "593cd8e2ea6b25137cd0c289d076180c5921d7a115b6849d8678219038a7f454",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/sdk-path-descendants.json",
+      "path": "puck-5daac/sdk-path-descendants.json",
+      "original_bytes": 54,
+      "original_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "original_mode": "0o644",
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/sdk-path-status.json",
+      "path": "puck-5daac/sdk-path-status.json",
+      "original_bytes": 242,
+      "original_sha256": "1787f6efac32b81e052d285933815e2f504776123e845b412193a20a31f13e9d",
+      "original_mode": "0o644",
+      "stored_bytes": 242,
+      "stored_sha256": "1787f6efac32b81e052d285933815e2f504776123e845b412193a20a31f13e9d",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/sdk-path.stderr",
+      "path": "puck-5daac/sdk-path.stderr",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": "0o644",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/sdk-path.stdout",
+      "path": "puck-5daac/sdk-path.stdout",
+      "original_bytes": 95,
+      "original_sha256": "5cb2cff3541ae65432805aa9d9bbfa3454381ef60694cc7b47eed0e2bf973aaf",
+      "original_mode": "0o644",
+      "stored_bytes": 95,
+      "stored_sha256": "5cb2cff3541ae65432805aa9d9bbfa3454381ef60694cc7b47eed0e2bf973aaf",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/source-after.json",
+      "path": "puck-5daac/source-after.json.gz",
+      "original_bytes": 629383,
+      "original_sha256": "47cef58ae91e919de891ced16f78acdbb26c88a524458dd1996a127c98c75223",
+      "original_mode": "0o644",
+      "stored_bytes": 211284,
+      "stored_sha256": "1387a58a7f52859f77b0990b06c0f7957cc95bbf4566f8bd96c7a993504d0f58",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/source-before.json",
+      "path": "puck-5daac/source-before.json.gz",
+      "original_bytes": 629383,
+      "original_sha256": "47cef58ae91e919de891ced16f78acdbb26c88a524458dd1996a127c98c75223",
+      "original_mode": "0o644",
+      "stored_bytes": 211284,
+      "stored_sha256": "1387a58a7f52859f77b0990b06c0f7957cc95bbf4566f8bd96c7a993504d0f58",
+      "gzip": true
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/terminal.json",
+      "path": "puck-5daac/terminal.json",
+      "original_bytes": 75,
+      "original_sha256": "bd09b721e87cbbb2a449072bda647cea72c7036621803840bb8d027c621721c6",
+      "original_mode": "0o644",
+      "stored_bytes": 75,
+      "stored_sha256": "bd09b721e87cbbb2a449072bda647cea72c7036621803840bb8d027c621721c6",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/tools-after.json",
+      "path": "puck-5daac/tools-after.json",
+      "original_bytes": 1365,
+      "original_sha256": "ee06dbc0cb4d77fd12f7f8f7d407dc69f2c74cf0897b7f83f5b5926b95f6362d",
+      "original_mode": "0o644",
+      "stored_bytes": 1365,
+      "stored_sha256": "ee06dbc0cb4d77fd12f7f8f7d407dc69f2c74cf0897b7f83f5b5926b95f6362d",
+      "gzip": false
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-5daac-puck-extern/tools-before.json",
+      "path": "puck-5daac/tools-before.json",
+      "original_bytes": 1365,
+      "original_sha256": "ee06dbc0cb4d77fd12f7f8f7d407dc69f2c74cf0897b7f83f5b5926b95f6362d",
+      "original_mode": "0o644",
+      "stored_bytes": 1365,
+      "stored_sha256": "ee06dbc0cb4d77fd12f7f8f7d407dc69f2c74cf0897b7f83f5b5926b95f6362d",
       "gzip": false
     }
   ]
