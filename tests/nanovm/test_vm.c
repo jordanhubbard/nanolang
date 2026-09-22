@@ -2767,6 +2767,33 @@ static void test_closure_call_releases_the_callable(void) {
     nvm_module_free(mod);
 }
 
+static void test_destroy_releases_trapped_callable(void) {
+    AsmResult assembled;
+    NvmModule *module = asm_assemble(
+        ".function trapped 0 0 1 void 0\nPUSH_BOOL 0\nASSERT\nRET\n.end\n"
+        ".function caller 0 0 0 void 0\nPUSH_I64 42\nTUPLE_NEW 1\n"
+        "CLOSURE_NEW 0 1\nCALL_INDIRECT 0 0\nRET\n.end\n", &assembled);
+    ASSERT(module, "I assemble a managed closure with an assertion failure");
+    NvmVerifyResult verified = nvm_verify(module);
+    ASSERT(verified.ok, "I verify the complete trap teardown program");
+    VmState vm;vm_init(&vm,module);
+    size_t baseline = vm.heap.stats.num_objects;
+    ASSERT_EQ_INT(vm_call_function(&vm,1,NULL,0),VM_ERR_ASSERT_FAILED,
+                  "I retain the actual indirect-call assertion terminal");
+    ASSERT_EQ_INT(vm.frame_count,2,"I leave both direct/core frames for explicit teardown");
+    ASSERT(vm.frames[1].owned_callable.tag == TAG_CLOSURE,
+           "The trapped frame still owns its invoked closure");
+    ASSERT_EQ_INT(vm.heap.stats.num_objects,baseline+2,
+                  "The closure and its managed tuple are live before teardown");
+    vm_destroy(&vm);
+    ASSERT_EQ_INT(vm.frame_count,0,"I detach every frame during destruction");
+    ASSERT_EQ_INT(vm.handler_count,0,"I remove handlers after their frames");
+    ASSERT_EQ_INT(vm.heap.stats.num_objects,0,"I release the callable and its captured tuple");
+    ASSERT(vm.heap.stats.allocated == vm.heap.stats.freed,
+           "I balance accounted heap bytes after trapped callable destruction");
+    nvm_module_free(module);
+}
+
 static void test_direct_function_reference(void) {
     NvmModule *mod = make_multi_fn_module();
     uint8_t callee_code[32];
@@ -5988,6 +6015,7 @@ int main(void) {
     RUN_TEST(test_heap_destroy_collects_cycles);
     RUN_TEST(test_array_remove_releases_the_element);
     RUN_TEST(test_closure_call_releases_the_callable);
+    RUN_TEST(test_destroy_releases_trapped_callable);
     RUN_TEST(test_direct_function_reference);
 
     printf("\n[I/O]\n");

@@ -1,0 +1,9 @@
+{
+  "returncode": 1,
+  "logs": {
+    ".test_output/verifier-corpus/corpus.IN2jv0/0001-good.compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".test_output/verifier-corpus/corpus.IN2jv0/0001-good.nvm": "0c15cccc128c7807937ce3cec8a4fdcb18f9107e0bd7d3c557838b85947c0d3d",
+    ".test_output/verifier-corpus/corpus.IN2jv0/0000-bad.compile.log": "039d7a9a8ff1782d59621fdd99c3c117aef2fd56c24aade79811c23e01b8febd",
+    ".test_output/verifier-corpus/corpus.IN2jv0/0001-good.verify.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

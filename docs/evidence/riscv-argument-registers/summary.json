@@ -1,0 +1,38 @@
+{
+  "source_pin": "2498f8de9f0406d00f466292ecbee761a83c1d5f",
+  "results": [
+    {
+      "returncode": 0,
+      "seconds": 0.21447919204365462,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "returncode": 0,
+      "seconds": 0.21404424495995045,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "returncode": 0,
+      "seconds": 21.668317041010596,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "returncode": 0,
+      "seconds": 1.0252691500354558,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "returncode": 0,
+      "seconds": 0.46492893889080733,
+      "timeout": false,
+      "group_gone": true
+    }
+  ],
+  "source_unchanged": true,
+  "tools_unchanged": true,
+  "scope": "Fresh isolated-main strict sanitized changed translation unit compilation plus ordinary C seed and original cross-backend gate; RISC-V structural validation is not target execution."
+}
