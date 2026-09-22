@@ -1,0 +1,11 @@
+# My qualified compiler shadow loader boundary
+
+I qualified production2039eb6b3 on fresh Linux GCC and Darwin Apple Clang ordinary providers, then fresh Linux GCC and Darwin Homebrew Clang ASan/UBSan providers with leak detection enabled. Every owning fork-failure, original exact artifact, borrowed-string, loader and six-method callback phase passed. My earlier bf56 parent LeakSanitizer terminals remain in the adjacent first-evidence directory.
+
+I then qualified fixture-only bafadf615 in four independent copied roots. Its six callback cases expose compiler stdout/stderr and reject sanitizer diagnostics even when compiler refusal is expected. All four continuations passed. Original source, selected compiler/Make/Python tools, exact preparation argv, original linked objects/libraries and copied generated artifacts were verified before reuse. All copied bytes and original cache symlink targets remained unchanged after execution. My first continuation setup attempts stopped before any test because copytree dereferenced cache directory links; those reports and the first driver remain here. The corrected driver preserves relative links, checks that targets resolve inside the copied closure, and pins generated objects alongside the original closure.
+
+I retain the actual fork-failure executable under each configuration's retained directory. Its hash appears in reports; these archives retain logs/maps, not executable bytes. Fresh roots are shadow-loader-2039-linux under /home/jkh/nanolang-qualification and shadow-loader-2039-puck under /Users/jkh/nanolang-qualification. Corrected continuation roots are shadow-loader-bafa-r2-linux and shadow-loader-bafa-r2-puck under the same host prefixes. All observed process groups ended; no timeout occurred.
+
+Darwin sanitizer retains the separately qualified explicit-child SDK shutdown-hook mode. I do not claim the original Darwin sanitized child-exit probe passed. The original callback and interpreter assertions remain unchanged, with additive constructor/thread placement, explicit owner replacement and diagnostic assertions.
+
+This qualifies the bounded compiler CLI loader boundary and parent metadata/name cleanup. It does not establish general threaded embedding or COP fork safety. The original full compiler typecheck and bootstrap are separate pending candidate gates.
