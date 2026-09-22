@@ -778,7 +778,7 @@ static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type 
         return first;
     }
     if (nominal_array_builtin(expr, env, "at", 2) || nominal_array_builtin(expr, env, "array_get", 2) ||
-        nominal_array_builtin(expr, env, "array_pop", 1)) {
+        nominal_array_builtin(expr, env, "array_pop", 1) || nominal_array_builtin(expr, env, "reduce", 3)) {
         NominalView view = {0};
         if (!nominal_value_view(expr, env, depth + 1, &view)) return none;
         NominalIdentity id = nominal_view_identity(env, &view, type);

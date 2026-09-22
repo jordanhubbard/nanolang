@@ -965,6 +965,19 @@ void test_tc_reduce_exact_identities(void) {
         "fn main()->int{let x:array<int> = (reduce [[1],[2]] [0] fold) return 0}"));
 }
 
+/* I preserve lexical callable authority before projecting builtin reduce's initializer. */
+void test_tc_reduce_record_result_identity(void) {
+    const char *prefix="struct Point { value:int } struct Other { value:int } "
+        "fn fold(a:Point,b:Point)->Point{return a} ";
+    char source[2048];
+    snprintf(source,sizeof source,"%sfn apply(xs:array<Point>,initial:Point)->Other{return (reduce xs initial fold)}",prefix);
+    ASSERT(!tc_module_passes(source));
+    snprintf(source,sizeof source,"%sfn apply(xs:array<Point>,initial:Point,reduce:fn(array<Point>,Point,fn(Point,Point)->Point)->Other)->Other{return (reduce xs initial fold)}",prefix);
+    ASSERT(tc_module_passes(source));
+    snprintf(source,sizeof source,"%sfn apply(xs:array<Point>,initial:Point,reduce:fn(array<Point>,Point,fn(Point,Point)->Point)->Other)->Point{return (reduce xs initial fold)}",prefix);
+    ASSERT(!tc_module_passes(source));
+}
+
 void test_tc_reduce_global_callback_identity(void) {
     const char *source = "fn selected(a:float,b:float)->float{return (+ a b)} "
         "fn difference(a:float,b:float)->float{return (- a b)} "
@@ -1088,6 +1101,7 @@ int main(void) {
     TEST(tc_map_result_signature);
     TEST(tc_reduce_exact_identities);
     TEST(tc_reduce_exact_refusals);
+    TEST(tc_reduce_record_result_identity);
     TEST(tc_reduce_global_callback_identity);
     TEST(tc_err_returned_function_argument_type);
     TEST(tc_err_returned_function_arity);

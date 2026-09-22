@@ -17298,3 +17298,10 @@ builtin reduce's initializer, but nominal_expression omits reduce in its adapter
 The fixture contains no IF/handler branch. I propose only the existing exact
 builtin three-argument complete-view bridge, retaining declaration/callback
 precedence and original whole-checker assertions before corrected qualification.
+
+I implement the narrow exact builtin reduce3 nominal-expression bridge through
+its existing complete initializer view. Additive record destination and lexical
+callback controls preserve authority: a callback named reduce returning Other
+cannot gain Point identity from its second argument. All original reduce identity
+and refusal cases remain unchanged. Source syntax passes; complete source review
+precedes the next unchanged whole-checker qualification.
