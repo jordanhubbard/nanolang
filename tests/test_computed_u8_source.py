@@ -255,6 +255,42 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''')
 
+    def test_source_byte_mutation_callable_authority(self):
+        original = self.artifacts
+        for scope in ('local', 'global', 'declared'):
+            self.artifacts = original / ('mutation-authority-' + scope)
+            self.artifacts.mkdir()
+            name = 'array_push' if scope == 'declared' else 'selected'
+            declaration = ('fn ' + name + '(a: array<u8>, value: int) -> array<u8> {'
+                ' assert (== value 258) return a }\n'
+                'shadow ' + name + ' { let a: array<u8> = [1] '
+                'assert (== (array_length (' + name + ' a 258)) 1) }\n')
+            binding = 'let array_push: fn(array<u8>, int) -> array<u8> = selected\n'
+            source = self.artifacts / 'source.nano'
+            source.write_text(declaration + (binding if scope == 'global' else '') +
+                'fn main() -> int {\n' + (binding if scope == 'local' else '') +
+                'let a: array<u8> = [1] let b: array<u8> = (array_push a 258) '
+                'assert (== (array_length b) 1) '
+                'let mut ints: array<int> = [258] (array_set ints 0 259) '
+                'assert (== (at ints 0) 259) return 0 }\n'
+                'shadow main { assert (== (main) 0) }\n')
+            output = self.artifacts / 'native'
+            self.run_actual([ROOT / 'bin/nanoc_c', source, '-o', output])
+            self.run_actual([output])
+        self.artifacts = original / 'extern-mutation-signature'
+        self.artifacts.mkdir()
+        source = self.artifacts / 'source.nano'
+        source.write_text('extern fn array_push(a: array<u8>, value: bool) -> array<u8>\n'
+            'fn main() -> int { let a: array<u8> = [1] unsafe { '
+            'let b: array<u8> = (array_push a (+ 255 3)) } return 0 }\n'
+            'shadow main { assert true }\n')
+        output = self.artifacts / 'previous'; output.write_bytes(b'previous output\n')
+        result = self.run_trap([ROOT / 'bin/nanoc_c', source, '-o', output])
+        self.assertGreater(result['returncode'], 0)
+        self.assertRegex(result['stdout'] + result['stderr'], '(?i)(bool|type)')
+        self.assertEqual(output.read_bytes(), b'previous output\n')
+        self.artifacts = original
+
     def test_array_pop_receiver_type_and_once_only_evaluation(self):
         self.paired('''let mut calls: int = 0
 fn receiver() -> array<int> { set calls (+ calls 1) return [17, 42] }
