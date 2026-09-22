@@ -5858,3 +5858,8 @@ test-binding-closure:
 # I rebuild every VM-layout-dependent TU with the distinct private heap layout.
 test-record-array-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	LSAN_OPTIONS= RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_vm
+
+.PHONY: test-llvm-scalar-tail-frames
+test-llvm-scalar-tail-frames: nano_vm nanoisa_dump nvm2c nvm2llvm nvm2wasm
+	python3 -m unittest -f -v tests.test_llvm_tail_frames
+test-units: test-llvm-scalar-tail-frames
