@@ -21,6 +21,15 @@ class ScalarTailFrames(unittest.TestCase):
     def bounded_native_stack(self):
         for target in ('native-O0', 'native-O2', 'llvm-native-O0', 'llvm-native-O2'):
             executable = self.artifacts / target
+            if sys.platform == 'darwin':
+                wrapper = ('hard=$(ulimit -H -s) || exit 1; limit=512; '
+                           'if [ "$hard" != unlimited ] && [ "$hard" -lt "$limit" ]; '
+                           'then limit=$hard; fi; '
+                           'ulimit -S -s "$limit" && ulimit -H -s "$limit" && '
+                           '[ "$(ulimit -S -s)" = "$limit" ] && '
+                           '[ "$(ulimit -H -s)" = "$limit" ] && exec "$1"')
+                self.run_actual(['/bin/sh', '-c', wrapper, 'tail-stack', executable])
+                continue
             wrapper = ('import os,resource,sys\n'
                        '_,hard=resource.getrlimit(resource.RLIMIT_STACK)\n'
                        'soft=524288 if hard==resource.RLIM_INFINITY else min(524288,hard)\n'
