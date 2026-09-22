@@ -5982,3 +5982,19 @@ test-record-array-llvm: managed-runtime-package $(NANOISA_OBJECTS) $(NANOVM_OBJE
 .PHONY: test-native-byte-array-identity
 test-native-byte-array-identity: nvm2c nanoisa_dump nano_vm nano_virt test-nvm2c-shapes
 	@python3 -m unittest -v tests.test_native_byte_array_identity
+
+# I inject only the new evaluator collection allocation/ownership boundary.
+$(OBJ_DIR)/env_collection_test.o: src/env.c src/env_collection_ownership.inc src/evaluator_collection_alloc.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(DEPFLAGS) -DNANO_TEST_COLLECTION_ALLOC -c $< -o $@
+
+$(OBJ_DIR)/eval_collection_test.o: CFLAGS += -ffp-contract=off -fno-fast-math
+$(OBJ_DIR)/eval_collection_test.o: src/eval.c src/evaluator_collection_alloc.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(DEPFLAGS) -Dclock_gettime=nano_test_clock_gettime -DNANO_TEST_COLLECTION_ALLOC -c $< -o $@
+
+.PHONY: test-evaluator-collection-ownership
+test-evaluator-collection-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/env_collection_test.o $(OBJ_DIR)/eval_collection_test.o
+	$(CC) $(CFLAGS) -o tests/test_evaluator_collection_ownership tests/test_evaluator_collection_ownership.c $(filter-out $(OBJ_DIR)/env.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/env_collection_test.o $(OBJ_DIR)/eval_collection_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_evaluator_collection_ownership
+	@rm -f tests/test_evaluator_collection_ownership
+
+test-units: test-evaluator-collection-ownership

@@ -2,6 +2,7 @@
 
 #include "nanolang.h"
 #include "eval_u8.h"
+#include "evaluator_collection_alloc.h"
 #include "string_literal_decode.h"
 #include "binary64_bits.h"
 #include "binary64_format.h"
@@ -61,8 +62,11 @@ static void eval_collection_allocation_failure(void) {
     exit(1);
 }
 
-static Value eval_create_owned_array(Environment *env, ValueType type, int length, int capacity) {
-    if (length < 0 || capacity < 0) eval_collection_allocation_failure();
+static Value eval_create_owned_array(Environment *env, ValueType type, int64_t length, int64_t capacity) {
+    if (length < 0 || capacity < 0 || length > INT_MAX || capacity > INT_MAX) {
+        fprintf(stderr, "I cannot represent this evaluator array extent.\n");
+        exit(1);
+    }
     if (capacity < length) capacity = length;
     size_t width;
     switch (type) {
@@ -74,12 +78,12 @@ static Value eval_create_owned_array(Environment *env, ValueType type, int lengt
         default: width = sizeof(void *); break;
     }
     if ((size_t)capacity > SIZE_MAX / width) eval_collection_allocation_failure();
-    Array *array = calloc(1, sizeof *array);
+    Array *array = NANO_COLLECTION_CALLOC(1, sizeof *array);
     if (!array) eval_collection_allocation_failure();
     array->element_type = type;
-    array->length = length;
-    array->capacity = capacity;
-    array->data = capacity ? calloc((size_t)capacity, width) : NULL;
+    array->length = (int)length;
+    array->capacity = (int)capacity;
+    array->data = capacity ? NANO_COLLECTION_CALLOC((size_t)capacity, width) : NULL;
     if (capacity && !array->data) {
         free(array);
         eval_collection_allocation_failure();
@@ -1479,11 +1483,12 @@ static Value builtin_array_set(Value *args) {
                 fprintf(stderr, "Error: Type mismatch in array_set\n");
                 return create_void();
             }
-            /* Free old string if exists */
-            if (((char**)arr->data)[index]) {
+            {
+                char *copy = eval_collection_copy_string(args[2].as.string_val);
+                if (!copy) eval_collection_allocation_failure();
                 free(((char**)arr->data)[index]);
+                ((char**)arr->data)[index] = copy;
             }
-            ((char**)arr->data)[index] = strdup(args[2].as.string_val);
             break;
         case VAL_STRUCT:
             if (args[2].type != VAL_STRUCT) {
@@ -4853,7 +4858,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                 elem_type = (hm->val_type == NL_HM_VAL_STRING) ? VAL_STRING : VAL_INT;
             }
 
-            Value out = eval_create_owned_array(env, elem_type, (int)hm->size, (int)hm->size);
+            Value out = eval_create_owned_array(env, elem_type, hm->size, hm->size);
             int out_idx = 0;
             for (int64_t i = 0; i < hm->capacity; i++) {
                 NLHashMapEntry *e = &hm->entries[i];
@@ -4861,7 +4866,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                 if (elem_type == VAL_STRING) {
                     char *s = NULL;
                     if (is_keys) s = e->key.s; else s = e->value.s;
-                    char *copy = strdup(s ? s : "");
+                    char *copy = eval_collection_copy_string(s ? s : "");
                     if (!copy) {
                         discard_partial_owned_array(env, out.as.array_val, out_idx);
                         eval_collection_allocation_failure();

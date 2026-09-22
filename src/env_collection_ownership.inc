@@ -1,3 +1,4 @@
+#include "evaluator_collection_alloc.h"
 /* Evaluator collections retain one owner until Environment destruction.
  * Only actual fresh-allocation sites call registration, once per allocation.
  * The public low-level constructors and caller-owned inputs remain separate. */
@@ -9,7 +10,7 @@ struct EnvCollectionAllocation {
 
 bool env_register_new_collection(Environment *env, void *allocation, void (*destroy)(void *)) {
     if (!env || !allocation || !destroy) return false;
-    struct EnvCollectionAllocation *entry = malloc(sizeof *entry);
+    struct EnvCollectionAllocation *entry = NANO_COLLECTION_CALLOC(1, sizeof *entry);
     if (!entry) return false;
     entry->allocation = allocation;
     entry->destroy = destroy;
