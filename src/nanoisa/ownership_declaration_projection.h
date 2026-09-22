@@ -15,6 +15,13 @@ typedef struct { NvmDeclarationStatus status; const char *message; } NvmDeclarat
 typedef struct { uint32_t layouts, types, bindings, unions, variants; } NvmDeclarationCounts;
 typedef struct { uint8_t kind, flags; uint16_t fields; uint32_t name; } NvmDeclarationLayout;
 NvmDeclarationResult nvm_prepare_ownership_declarations(const NvmModule *,NvmOwnershipDeclarationPlan **);
+/* I read retained V2 facts directly using the same private declaration grammar.
+ * Exact signature selectors and constant indices are never rebuilt. Other V2
+ * sections are outside this declaration query: success grants no admission.
+ * Existing private limits (256 layouts/65536 fields/16MiB/1M work) apply.
+ * Unsupported declaration shapes remain UNKNOWN/INVALID; revision2 is not
+ * enabled by this entry. Failure preserves *out. */
+NvmDeclarationResult nvm_prepare_ownership_declarations_v2(const NvmV2Module *,NvmOwnershipDeclarationPlan **);
 void nvm_ownership_declarations_free(NvmOwnershipDeclarationPlan *);
 bool nvm_ownership_declarations_counts(const NvmOwnershipDeclarationPlan *,NvmDeclarationCounts *);
 bool nvm_ownership_declarations_layout(const NvmOwnershipDeclarationPlan *,uint32_t,NvmDeclarationLayout *);

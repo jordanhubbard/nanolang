@@ -525,3 +525,28 @@ New output publication remains atomic. The final consumer audit must cover
 VM, nvm2c, V2 serializer/deserializer, assembly/disassembly, linker and legacy
 bridge before the feature can be admitted; this reader alone closes none of
 those gates or the original installed SDK acceptance corpus.
+
+My first direct-reader checkpoint adds nvm_prepare_ownership_declarations_v2
+without enabling ARRAY_FIELDS revision2. A borrowed OwnershipModuleFacts view
+feeds the same ownership descriptor and union readers; common declaration checks
+and final allocation/publication are shared with legacy preparation. The legacy
+adapter retains its absent-parameter TAG_VOID behavior and original auxiliary
+section refusal. The V2 adapter uses the selected signature row and STRING
+constant kind directly. Other V2 sections remain stored by the independent
+module snapshot but are outside this declaration-only query.
+
+To reuse the exact reviewed structural layout grammar, I encode only the bounded
+layout table and invoke the existing private mixed-layout decoder. This is not a
+module conversion and touches no signature/constant/auxiliary table. I preflight
+all layout/field extents, conservatively charge visits before selector traversal,
+and account for wire plus decoder copy/DAG workspace peak; I free the temporary
+wire before array and final union-plan allocations. Existing16MiB/1M private
+limits remain. Combined caller-budget projection and revision2 cross-validation
+are still required before provider attachment.
+
+Additive controls reuse the unchanged mixed/ordinary fixture bodies and append
+V2 selected/duplicate/unused signature inputs, wrong selector/tag/name-kind
+refusals, revision2 refusal, dimension limits, source independence and every new
+allocation position under persistent/one-shot failure with recovery. Strict
+syntax checks pass for production and both fixture compilation modes; runtime
+qualification awaits this source checkpoint review.

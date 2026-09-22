@@ -219,6 +219,49 @@ NvmV2Result nvm_ownership_path(const NvmModule *module,uint32_t index,
     return NVM_V2_OK;
 }
 
+/* I borrow exact module facts without rebuilding signatures or string tables. */
+typedef struct {
+    const NvmModule *legacy;
+    const NvmV2Module *v2;
+    uint32_t function_count, union_count;
+    const uint8_t *ownership_data;
+    size_t ownership_size;
+} OwnershipModuleFacts;
+typedef struct {
+    uint16_t locals, params, results;
+    uint8_t result_tag;
+    const uint8_t *parameter_tags;
+} OwnershipFunctionFacts;
+static OwnershipModuleFacts ownership_legacy_facts(const NvmModule *m) {
+    return (OwnershipModuleFacts){m,NULL,m->function_count,m->union_count,
+                                 m->ownership_data,m->ownership_size};
+}
+static bool ownership_name_valid(const OwnershipModuleFacts *m,uint32_t i) {
+    if(m->legacy)return i<m->legacy->string_count;
+    if(i>=m->v2->constants.count || !m->v2->constants.items)return false;
+    const NvmV2Constant *c=&m->v2->constants.items[i];
+    return c->tag==TAG_STRING && (!c->length || c->payload);
+}
+static bool ownership_function_facts(const OwnershipModuleFacts *m,uint32_t i,
+                                     OwnershipFunctionFacts *out) {
+    if(i>=m->function_count)return false;
+    if(m->legacy) {
+        if(!m->legacy->functions)return false;
+        const NvmFunctionEntry *f=&m->legacy->functions[i];
+        *out=(OwnershipFunctionFacts){f->local_count,f->arity,f->result_count,
+            f->result_tag,m->legacy->function_param_types?m->legacy->function_param_types[i]:NULL};
+        return true;
+    }
+    if(!m->v2->functions.items || !m->v2->signatures.items)return false;
+    const NvmV2Function *f=&m->v2->functions.items[i];
+    if(f->signature_idx>=m->v2->signatures.count)return false;
+    const NvmV2Signature *sig=&m->v2->signatures.items[f->signature_idx];
+    if((sig->param_count&&!sig->param_tags)||(sig->result_count&&!sig->result_tags))return false;
+    *out=(OwnershipFunctionFacts){f->local_count,sig->param_count,sig->result_count,
+        sig->result_count?sig->result_tags[0]:TAG_VOID,sig->param_tags};
+    return true;
+}
+
 /* I collect only checked numeric facts during one complete declaration read. */
 typedef struct {
     NvmOwnershipExtensionView view;
@@ -228,7 +271,7 @@ typedef struct {
     uint16_t *variants;
     bool ambiguous;
 } OwnershipProjection;
-static NvmV2Result union_facts_read(NvmV2Cursor *cursor,const NvmModule *module,
+static NvmV2Result union_facts_read(NvmV2Cursor *cursor,const OwnershipModuleFacts *module,
                                     const NvmV2Layouts *layouts,
                                     uint32_t wanted_union,uint16_t wanted_variant,
                                     NvmUnionVariantFact *selected, OwnershipProjection *projection) {
@@ -264,7 +307,7 @@ static NvmV2Result union_facts_read(NvmV2Cursor *cursor,const NvmModule *module,
             if ((result=nvm_v2_u32(cursor,&name))!=NVM_V2_OK ||
                 (result=nvm_v2_u16(cursor,&offset))!=NVM_V2_OK ||
                 (result=nvm_v2_u16(cursor,&fields))!=NVM_V2_OK) return result;
-            if (name>=module->string_count || offset!=next ||
+            if (!ownership_name_valid(module,name) || offset!=next ||
                 fields>shape->field_count-offset)
                 return NVM_V2_ERR_INDEX_RANGE;
             for (uint16_t prior=0;prior<v;prior++) {
@@ -308,7 +351,7 @@ static NvmV2Result union_facts_read(NvmV2Cursor *cursor,const NvmModule *module,
 }
 
 #include "ownership_array_fields.inc"
-static NvmV2Result ownership_validate_owned(const NvmModule *module,
+static NvmV2Result ownership_validate_facts(const OwnershipModuleFacts *module,
         const NvmV2Layouts *layouts,bool *requires_verifier,
         NvmOrdinaryArrayAuthority *private_plan, OwnershipProjection *projection) {
     NvmV2Result result;
@@ -327,17 +370,18 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
         (result = check_layouts(layouts, flags, &needs, private_plan!=NULL)) != NVM_V2_OK ||
         (result = nvm_v2_u32(&cursor, &count)) != NVM_V2_OK) goto done;
     if (private_plan) for (uint32_t i=0;i<layouts->count;i++) private_plan->flags[i]=flags[i];
-    if (count != module->function_count || (count && !module->functions)) {
+    if (count != module->function_count) {
         result = NVM_V2_ERR_INDEX_RANGE; goto done;
     }
     for (uint32_t i = 0; i < count; i++) {
         uint16_t locals, params;
-        const NvmFunctionEntry *function = &module->functions[i];
+        OwnershipFunctionFacts function;
+        if(!ownership_function_facts(module,i,&function)) { result=NVM_V2_ERR_INDEX_RANGE;goto done; }
         if ((result = nvm_v2_u16(&cursor, &locals)) != NVM_V2_OK ||
             (result = nvm_v2_u16(&cursor, &params)) != NVM_V2_OK) goto done;
-        if (locals != function->local_count || params != function->arity || params > locals ||
-            function->result_count > 1) { result = NVM_V2_ERR_INDEX_RANGE; goto done; }
-        int return_tag = function->result_count ? function->result_tag : TAG_VOID;
+        if (locals != function.locals || params != function.params || params > locals ||
+            function.results > 1) { result = NVM_V2_ERR_INDEX_RANGE; goto done; }
+        int return_tag = function.results ? function.result_tag : TAG_VOID;
         ambiguous=false;
         result=descriptor(&cursor,layouts,flags,version,false,return_tag,&needs,private_plan?&ambiguous:NULL);
         if (result!=NVM_V2_OK) {
@@ -346,8 +390,7 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
         }
         for (uint16_t local = 0; local < locals; local++) {
             int tag = -1;
-            if (local < params) tag = module->function_param_types &&
-                module->function_param_types[i] ? module->function_param_types[i][local] : TAG_VOID;
+            if (local < params) tag = function.parameter_tags ? function.parameter_tags[local] : TAG_VOID;
             ambiguous=false;
             result=descriptor(&cursor,layouts,flags,version,local<params,tag,&needs,private_plan?&ambiguous:NULL);
             if (result!=NVM_V2_OK) {
@@ -384,6 +427,13 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
 done:
     if (private_plan && ambiguous && !projection) private_plan->failure=NVM_OAA_UNKNOWN;
     return result;
+}
+
+static NvmV2Result ownership_validate_owned(const NvmModule *module,
+        const NvmV2Layouts *layouts,bool *requires_verifier,
+        NvmOrdinaryArrayAuthority *private_plan, OwnershipProjection *projection) {
+    OwnershipModuleFacts facts=ownership_legacy_facts(module);
+    return ownership_validate_facts(&facts,layouts,requires_verifier,private_plan,projection);
 }
 
 NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
@@ -441,7 +491,8 @@ NvmV2Result nvm_ownership_union_variant(const NvmModule *module,
     NvmV2Cursor unions;nvm_v2_cursor_init(&unions,extensions.union_variants.data,
                                           extensions.union_variants.size);
     NvmUnionVariantFact selected;
-    result=union_facts_read(&unions,module,&layouts,union_ordinal,variant,&selected,NULL);
+    OwnershipModuleFacts facts=ownership_legacy_facts(module);
+    result=union_facts_read(&unions,&facts,&layouts,union_ordinal,variant,&selected,NULL);
     if (result==NVM_V2_OK) *out=selected;
 done_query:
     nvm_v2_layouts_free(&layouts);

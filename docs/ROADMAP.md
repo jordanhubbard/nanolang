@@ -17343,3 +17343,11 @@ all consuming routes and installed canonical acceptance remain required.
   legacy revision1 admission unchanged, and qualify the common reader before
   extending its private ARRAY_FIELDS profile. Full cross-validation and every
   consuming/installed SDK gate remain required.
+
+I checkpoint the private retained-V2 shared declaration reader without feature
+activation: exact selected signatures and STRING constant names feed the same
+legacy descriptor/union/array grammar; layout-only bounded encoding reuses the
+existing structural decoder. Original fixture assertions remain, with additive
+V2 selector/name/limit/lifetime/allocation controls. Strict production and linked/
+instrumented fixture syntax checks pass. Runtime tests and revision2/provider
+cross-validation remain unrun and open pending source review.

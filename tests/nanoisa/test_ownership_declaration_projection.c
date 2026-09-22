@@ -4,6 +4,7 @@
 #undef main
 #include "../../src/nanoisa/ownership_declaration_projection.h"
 #include "../../src/nanoisa/reference_places.h"
+#include "../../src/nanoisa/ownership_layouts_private.h"
 
 typedef struct {
     NvmModule m;NvmFunctionEntry function;uint8_t param,*params[1];
@@ -225,6 +226,47 @@ static void mixed_maximum(void){
     NvmUnionVariantFact v;CHECK(nvm_ownership_declarations_variant(p,1,0,&v));CHECK(v.layout==1&&v.name_idx==1&&!v.field_count);
     nvm_ownership_declarations_free(p);
 }
+static void retained_v2(void) {
+    Mixed c;mixed_make(&c,true);
+    NvmV2Module m={0};
+    CHECK(nvm_ownership_mixed_layouts_private_decode(c.l,c.ln,&m.layouts)==NVM_V2_OK);
+    uint8_t parameter=TAG_UNION,result=TAG_INT,wrong=TAG_BOOL;
+    NvmV2Signature signatures[]={{1,1,&wrong,&wrong},{1,1,&parameter,&result},{1,1,&parameter,&result},{0,1,NULL,&wrong}};
+    NvmV2Function function={.signature_idx=2,.local_count=1};
+    NvmV2Constant constants[32];memset(constants,0,sizeof constants);
+    for(unsigned i=0;i<32;i++)constants[i].tag=TAG_STRING;
+    m.signatures=(NvmV2Signatures){signatures,4};m.functions=(NvmV2Functions){&function,1};
+    m.constants=(NvmV2Constants){constants,32};m.ownership_data=c.o;m.ownership_size=(uint32_t)c.on;
+    NvmOwnershipDeclarationPlan *p=NULL;
+    CHECK(nvm_prepare_ownership_declarations_v2(&m,&p).status==NVM_DECL_PREPARED);facts(p,true);nvm_ownership_declarations_free(p);
+#define V2_BAD(change,undo,expected) do {change;p=(void *)(uintptr_t)1;CHECK(nvm_prepare_ownership_declarations_v2(&m,&p).status==expected);CHECK(p==(void *)(uintptr_t)1);undo;} while(0)
+    V2_BAD(function.signature_idx=0,function.signature_idx=2,NVM_DECL_INVALID);
+    V2_BAD(function.signature_idx=4,function.signature_idx=2,NVM_DECL_INVALID);
+    V2_BAD(signatures[2].param_tags=NULL,signatures[2].param_tags=&parameter,NVM_DECL_INVALID);
+    V2_BAD(constants[0].tag=TAG_INT,constants[0].tag=TAG_STRING,NVM_DECL_INVALID);
+    V2_BAD(constants[10].tag=TAG_BOOL,constants[10].tag=TAG_STRING,NVM_DECL_INVALID);
+    V2_BAD(constants[20].tag=TAG_INT,constants[20].tag=TAG_STRING,NVM_DECL_INVALID);
+    V2_BAD(c.o[c.ext[1]+2]=2,c.o[c.ext[1]+2]=1,NVM_DECL_INVALID);
+    V2_BAD(m.layouts.count=257,m.layouts.count=5,NVM_DECL_LIMIT);
+    V2_BAD(m.functions.count=UINT32_MAX,m.functions.count=1,NVM_DECL_LIMIT);
+#undef V2_BAD
+#ifdef OAA_INSTRUMENT
+    size_t baseline=live;calls=0;p=NULL;
+    CHECK(nvm_prepare_ownership_declarations_v2(&m,&p).status==NVM_DECL_PREPARED);
+    size_t measured=calls;nvm_ownership_declarations_free(p);CHECK(live==baseline&&measured>=12);
+    for(unsigned mode=0;mode<2;mode++)for(size_t i=0;i<measured;i++) {
+        calls=0;fail_at=i;persistent=mode!=0;p=(void *)(uintptr_t)1;
+        CHECK(nvm_prepare_ownership_declarations_v2(&m,&p).status==NVM_DECL_MEMORY);
+        CHECK(p==(void *)(uintptr_t)1&&live==baseline);
+        fail_at=SIZE_MAX;persistent=false;p=NULL;
+        CHECK(nvm_prepare_ownership_declarations_v2(&m,&p).status==NVM_DECL_PREPARED);
+        facts(p,true);nvm_ownership_declarations_free(p);CHECK(live==baseline);
+    }
+#endif
+    p=NULL;CHECK(nvm_prepare_ownership_declarations_v2(&m,&p).status==NVM_DECL_PREPARED);
+    memset(c.o,0,c.on);memset(signatures,0,sizeof signatures);memset(constants,0,sizeof constants);
+    nvm_v2_layouts_free(&m.layouts);facts(p,true);getter_errors(p);nvm_ownership_declarations_free(p);
+}
 int main(void){
     setvbuf(stdout,NULL,_IONBF,0);CHECK(ordinary_controls_main()==0);
     puts("I begin complete mixed declaration controls");positive(false);positive(true);malformed();borrowed_suffix();union_only();union_budget(7);union_budget(8);mixed_maximum();old_profiles();
@@ -242,5 +284,6 @@ int main(void){
     calls=0;union_budget(8);CHECK(!calls&&!live);
     printf("I covered %zu mixed allocation positions in both failure modes; two query TUs instrumented\n",measured);
 #endif
+    retained_v2();
     printf("PASS %u complete mixed declaration checks; no execution authority\n",checks);return 0;
 }
