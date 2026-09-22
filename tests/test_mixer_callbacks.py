@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class MixerCallbacks(unittest.TestCase):
     def test_every_extern_has_an_explicit_policy(self):
         module = ROOT / "modules/sdl_mixer"
-        names = set(re.findall(r"^extern fn (\w+)\(",
+        names = set(re.findall(r"^(?:pub )?extern fn (\w+)\(",
                                (module / "sdl_mixer.nano").read_text(), re.MULTILINE))
         adapters = json.loads((module / "module.json").read_text())["callback_adapters"]
         self.assertEqual(names, set(adapters))

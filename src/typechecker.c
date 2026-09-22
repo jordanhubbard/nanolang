@@ -1292,6 +1292,9 @@ static bool check_opaque_value(Environment *env, Type expected_type, const char 
     OpaqueTypeDef *actual = actual_name ? env_get_opaque_type(env, actual_name) : NULL;
     if (!expected && !actual) return expected_type != TYPE_OPAQUE;
     if (expected && value->type == AST_NUMBER && value->as.number == 0) return true;
+    if (expected && value->type == AST_CALL && !value->as.call.func_expr &&
+        value->as.call.arg_count == 0 && value->as.call.name &&
+        env_function_is_named_builtin(env_get_function(env, value->as.call.name), "null_opaque")) return true;
     if (expected && actual && !strcmp(expected->identity, actual->identity)) return true;
     emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
         "I require the same opaque declaration identity at this value boundary.",
@@ -2788,7 +2791,9 @@ static bool contextual_argument_matches(ASTNode *argument, Environment *env, con
     if (!nominal_materialize(env, expected, owner, context, depth + 1, &concrete)) return false;
     apply_concrete_union_arrays(env, concrete, owner, argument, depth + 1);
     Type actual = check_expression(argument, env);
-    bool matches = types_match(actual, kind);
+    bool matches = kind == TYPE_OPAQUE
+        ? check_opaque_value(env, expected->base_type, name, argument)
+        : types_match(actual, kind);
     if (matches && kind == TYPE_ARRAY && argument->type == AST_ARRAY_LITERAL) {
         matches = expected->element_type && argument->as.array_literal.element_count >= 0;
         for (int i = 0; matches && i < argument->as.array_literal.element_count; ++i)
@@ -2804,6 +2809,8 @@ static bool contextual_argument_matches(ASTNode *argument, Environment *env, con
             matches = child && contextual_argument_matches(argument->as.tuple_literal.elements[i], env,
                 child, owner, context, depth + 1);
         }
+    } else if (matches && kind == TYPE_OPAQUE) {
+        /* check_opaque_value already compared retained declaration identities. */
     } else if (matches && (kind == TYPE_STRUCT || kind == TYPE_LIST_GENERIC || kind == TYPE_FUNCTION ||
                            kind == TYPE_UNION || kind == TYPE_ARRAY || kind == TYPE_TUPLE || expected->row_field_count > 0)) {
         matches = nominal_array_matches_context(env, expected, owner, argument, depth + 1, context);

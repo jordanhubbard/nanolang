@@ -13,7 +13,7 @@ extern fn nl_fs_list_files(_path: string, _extension: string) -> array<string>
 
 # List files in a directory (sorted) with case-insensitive extension filter.
 # If extension is "" then all files are returned.
-extern fn nl_fs_list_files_ci(_path: string, _extension: string) -> array<string>
+pub extern fn nl_fs_list_files_ci(_path: string, _extension: string) -> array<string>
 
 # List directories in a directory
 # Returns array of directory names (relative to directory)
@@ -22,14 +22,14 @@ extern fn nl_fs_list_files_ci(_path: string, _extension: string) -> array<string
 #
 # Usage:
 #   let dirs: array<string> = (nl_fs_list_dirs "/Users/user/Music")
-extern fn nl_fs_list_dirs(_path: string) -> array<string>
+pub extern fn nl_fs_list_dirs(_path: string) -> array<string>
 
 # Return parent directory path for a given path.
 extern fn nl_fs_parent_dir(_path: string) -> string
 
 # Check if a path is a directory
 # Returns: 1 if directory, 0 otherwise
-extern fn nl_fs_is_directory(_path: string) -> int
+pub extern fn nl_fs_is_directory(_path: string) -> int
 
 # Check if a file exists
 # Returns: 1 if exists, 0 otherwise
@@ -43,4 +43,4 @@ extern fn nl_fs_file_size(_path: string) -> int
 # Returns: combined path with proper separators
 # Usage:
 #   let full_path: string = (nl_fs_join_path "examples/audio" "song.mp3")
-extern fn nl_fs_join_path(_dir: string, _filename: string) -> string
+pub extern fn nl_fs_join_path(_dir: string, _filename: string) -> string

@@ -11,7 +11,7 @@
 # Make sure to import sdl before sdl_helpers: import "modules/sdl/sdl.nano"
 
 # Helper to render a filled rectangle (wraps SDL_RenderFillRect with SDL_Rect)
-extern fn nl_sdl_render_fill_rect(_renderer: SDL_Renderer, _x: int, _y: int, _w: int, _h: int) -> int
+pub extern fn nl_sdl_render_fill_rect(_renderer: SDL_Renderer, _x: int, _y: int, _w: int, _h: int) -> int
 
 # Upload ARGB8888 pixels from an array<int> to a streaming texture.
 extern fn nl_sdl_update_texture(_texture: SDL_Texture, _pixels: array<int>, _width: int, _height: int) -> int
@@ -20,7 +20,7 @@ extern fn nl_sdl_update_texture(_texture: SDL_Texture, _pixels: array<int>, _wid
 extern fn nl_sdl_render_texture(_renderer: SDL_Renderer, _texture: SDL_Texture, _x: int, _y: int, _w: int, _h: int) -> int
 
 # Helper to poll SDL events and return 1 if quit event, 0 otherwise
-extern fn nl_sdl_poll_event_quit() -> int
+pub extern fn nl_sdl_poll_event_quit() -> int
 
 # Helper to poll for mouse button clicks
 # Returns x * 10000 + y if left button clicked, -1 otherwise
@@ -46,7 +46,7 @@ extern fn nl_sdl_poll_mouse_motion() -> int
 # Helper to poll for keyboard events
 # Returns SDL scancode if key pressed, -1 otherwise
 # Common scancodes: SPACE=44, ESC=41, C=6, 1=30, 2=31, 3=32, 4=33, 5=34, 6=35
-extern fn nl_sdl_poll_keypress() -> int
+pub extern fn nl_sdl_poll_keypress() -> int
 
 # 1 if a Ctrl key is currently held (for C-x / C-n / ...).
 extern fn nl_sdl_mod_ctrl() -> int
@@ -57,7 +57,7 @@ extern fn nl_sdl_mod_meta() -> int
 # Helper to poll for mouse wheel/trackpad scroll events
 # Returns: positive (typically +1) = scroll up, negative (typically -1) = scroll down, 0 = no scroll
 # Useful for scrolling lists, zooming, etc.
-extern fn nl_sdl_poll_mouse_wheel() -> int
+pub extern fn nl_sdl_poll_mouse_wheel() -> int
 
 # Helper to check if a key is currently held down (keyboard state)
 # Returns 1 if key is held, 0 otherwise
