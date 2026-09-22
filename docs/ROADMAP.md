@@ -14477,3 +14477,5 @@ allocator failure claim.
   independently of this compiler optimization. C registry/runtime support does
   not establish Nano checker/emitter or complete backend admission.
   MAC: task_9ec92cecd44b4b91b3124e0f07617f64.
+
+- [ ] I integrate the reviewed native802 nominal/contextual foundation with SDK243747 in a new isolated branch, preserving both original lanes and all frozen evidence. My NATIVE_SDK_STRING_INTEGRATION.md and machine-readable inventory record15 textual conflicts/28 functional overlaps before code. I resolve owner/copy/free/rollback, parser/schema, derived emitters, module/installed provider closure, visibility and STRING results together; no wholesale four-file replacement or dotted-name exemption. Complete source/fixture review precedes fresh both-host compiler closure and both original acceptance families. Full File/SDK/release parents remain open.
