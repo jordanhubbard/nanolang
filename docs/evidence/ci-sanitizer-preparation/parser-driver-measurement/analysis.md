@@ -1,0 +1,9 @@
+# My unchanged parser component timing
+
+My retained instrumented Cseed compiles the unchanged parser_driver in66.314seconds. The actual shadow selection completes in45.903seconds within its original60-second bound. All336 shadows pass across11 initialized sources; source and tool maps match and all descendants are gone. My exact commands preserve instrumentation and timing environment. I do not run the generated output or retry the failed full typecheck component.
+
+My trace attributes45.342seconds to260 parser shadows. The preserved520-statement parse_block_recursive and parse_unsafe_block_recursive controls take17.424 and17.552seconds, together76.2percent of total45.894second shadow-body time. Their controls still assert complete lengths, endpoint node kinds, shaped declarations and incomplete-input refusal. Individual large-input parser controls dominate this sample. The trace does not count live Environment symbols or measure the same shadow in the complete typechecker environment, so cumulative environment-growth cost remains unproved.
+
+The command and terminal report filesystem timestamps are08:54:08.660Z and08:55:14.974Z on2026-09-22. Another lane announced evaluator setup afterward; its actual start should be compared before claiming an exclusive timing interval. I do not infer slowdown from possible overlap.
+
+Before any performance correction I propose a small diagnostic that separates source construction, tokenization and parsing for one bounded input using the same retained compiler and existing timing metadata, without executing the failed full typecheck suite. The original520-statement acceptance controls remain unchanged. A sampled native stack during the measured expensive phase can distinguish evaluator lookup/copy cost from parser algorithm cost; no such attribution is claimed yet.
