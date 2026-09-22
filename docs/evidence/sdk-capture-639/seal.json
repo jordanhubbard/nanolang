@@ -1,0 +1,514 @@
+{
+  "linux": {
+    "pin": "63953ce7b0c854370c1e4e5e285088a49a99bbde",
+    "archive_sha256": "8fc00b8bb9eb0a1334abc501d3bda56cc6572e6e5fda47891f6964579f1e02d1",
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "tools-after.json": {
+        "bytes": 303,
+        "sha256": "b05f1155395301fa94db51add29e3f30e65468084e91090f84e8b6026838a7d2"
+      },
+      "identity.json": {
+        "bytes": 791,
+        "sha256": "760505a03826a3e4c544892309bd41a6db96b616b49c45695fdc1ef001e3826f"
+      },
+      "phases.json": {
+        "bytes": 2973,
+        "sha256": "34e92e625e6ff398a43573d780880a6c3d5dd5c59af75195b19676f10a957b7a"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 450,
+        "sha256": "c4054a5adeaaf8f56b2ca6d4b69b14b107b846c15fbf3554a19bec7c24db9333"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "ordinary/products.json": {
+        "bytes": 19628,
+        "sha256": "f3cb16a5e8a46360769fce31e680be603f52baa5666ba2eb5a1431709e9caefe"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 450,
+        "sha256": "a685e896fe5ca8edb517780b927ad7425daf16a5cf5fc2c3d6809701e0514513"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 16881,
+        "sha256": "86e7ff1bd21408314811259c4900ca67fa67d6022db25576e6c0c205e2a58016"
+      },
+      "ordinary/ordinary-capture.json": {
+        "bytes": 458,
+        "sha256": "e543f0bd56b8ccf99be54692db22152b50ae2c4150ed0d73835c1f384545f9d3"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 30,
+        "sha256": "449eed8c2998494066b8ce7562c2154de43a5ffe32ea917390b24b4b2d7e623d"
+      },
+      "ordinary/ordinary-inventory.json": {
+        "bytes": 311,
+        "sha256": "2c616d34ec9c5933df34d000c941fe3844fd13f879a1827c73bac468e25564ac"
+      },
+      "ordinary/ordinary-capture.log": {
+        "bytes": 2734,
+        "sha256": "52e2e6f32e7e7d0ce022c098e0cd7cae46432485ce0d806f2483ed22d53f6c04"
+      },
+      "ordinary/source-after.json": {
+        "bytes": 431137,
+        "sha256": "6c2c2341347b5102740a6c6c062a9d4faf2896bcdaea9a3d70e8593648855b1d"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 14269,
+        "sha256": "de66f50d5c2fd4c1016c00a2e74e4527e3b65b7a35e5362c8c8c5e2d3e444f54"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 16881,
+        "sha256": "86e7ff1bd21408314811259c4900ca67fa67d6022db25576e6c0c205e2a58016"
+      },
+      "ordinary/ordinary-inventory.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 431137,
+        "sha256": "6c2c2341347b5102740a6c6c062a9d4faf2896bcdaea9a3d70e8593648855b1d"
+      },
+      "ordinary/owning-products.json": {
+        "bytes": 108,
+        "sha256": "dc36b50e7a0291fa70c899aab3d1d92353418edb748e842163be81cce0ee1ffb"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 65,
+        "sha256": "eee81e67213f9d4967dd57ac8086be92d8d1dee93dcc4f768fa5430885b8ddb6"
+      },
+      "sanitized/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "sanitized/sanitized-capture.json": {
+        "bytes": 617,
+        "sha256": "4cc97f22d50cc3a2206283442cba337072c8c9e6a09a8ac794de756823e19eb9"
+      },
+      "sanitized/products.json": {
+        "bytes": 19628,
+        "sha256": "632dd4cc202cfec5fb5f0e7e606f0bd6796e1bac07f6622864a321e660ce8180"
+      },
+      "sanitized/providers.mk": {
+        "bytes": 453,
+        "sha256": "cae26030d607185bfac4f2e15d64f5283ccc7b840b93ed7a1159289232904eaa"
+      },
+      "sanitized/providers-before.json": {
+        "bytes": 16982,
+        "sha256": "c6ddfe67ba449defca82e57eda4d1488f8454722b81b8ff6af64e0357ed5efed"
+      },
+      "sanitized/sanitized-inventory.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/sanitized-providers.log": {
+        "bytes": 22248,
+        "sha256": "ba3897925d3367ea690e0754c1ec4087ab899116f0d87613fc203a47576346b1"
+      },
+      "sanitized/ldflags.txt": {
+        "bytes": 109,
+        "sha256": "e6a3c205b36c0d7f95e3cc06754c65c2d3afacc20d38cff8a10c7ae28c57bcc4"
+      },
+      "sanitized/sanitized-inventory.json": {
+        "bytes": 311,
+        "sha256": "ca47727c25ab5b9aa14c5b80e033f69317469d15912dc30abb37e125c01d5343"
+      },
+      "sanitized/source-after.json": {
+        "bytes": 431137,
+        "sha256": "6c2c2341347b5102740a6c6c062a9d4faf2896bcdaea9a3d70e8593648855b1d"
+      },
+      "sanitized/providers-after.json": {
+        "bytes": 16982,
+        "sha256": "c6ddfe67ba449defca82e57eda4d1488f8454722b81b8ff6af64e0357ed5efed"
+      },
+      "sanitized/sanitized-capture.log": {
+        "bytes": 2892,
+        "sha256": "2719ce59258ee5a42625adaeb04b1f0022b76d232ad3b320c4f79bdf6f7228db"
+      },
+      "sanitized/source-before.json": {
+        "bytes": 431137,
+        "sha256": "6c2c2341347b5102740a6c6c062a9d4faf2896bcdaea9a3d70e8593648855b1d"
+      },
+      "sanitized/owning-products.json": {
+        "bytes": 108,
+        "sha256": "19f09d9c23d075aa4618298f60c390552c9011ec1759b7a948e616807aea121c"
+      },
+      "sanitized/sanitized-providers.json": {
+        "bytes": 609,
+        "sha256": "595b3dda45d2def1849bf74c46512fd9de8016c47b3405cfebcb48d228a6043f"
+      },
+      "sanitized/cflags.txt": {
+        "bytes": 144,
+        "sha256": "ad1a592fe7c650cfbc2cc3fc83d635d2df4f011c0e19663ac48fb4ef6ee2b9ed"
+      }
+    },
+    "phases": [
+      {
+        "label": "ordinary-inventory",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "scripts/generate_native_sdk_inventory.py",
+          "--check"
+        ],
+        "bound": 120,
+        "timeout": false,
+        "pid": 20179,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.21878616407047957
+      },
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/sdk-capture-639-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 20187,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 11.430378781980835
+      },
+      {
+        "label": "ordinary-capture",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/sdk-capture-639-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "test-sdk-checked-projection"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 21841,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 3.0026911969762295
+      },
+      {
+        "label": "sanitized-inventory",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "scripts/generate_native_sdk_inventory.py",
+          "--check"
+        ],
+        "bound": 120,
+        "timeout": false,
+        "pid": 21990,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.2170522150117904
+      },
+      {
+        "label": "sanitized-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/sdk-capture-639-linux/sanitized/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 21997,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 17.48325308400672
+      },
+      {
+        "label": "sanitized-capture",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/sdk-capture-639-linux/sanitized/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "test-sdk-checked-projection"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 24170,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 5.840974543010816
+      }
+    ]
+  },
+  "puck": {
+    "pin": "63953ce7b0c854370c1e4e5e285088a49a99bbde",
+    "archive_sha256": "1250b056b866d986a81fbfac4aa49eaa23d64654a8098a183a2cdb3b0f0be0b8",
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "tools-after.json": {
+        "bytes": 402,
+        "sha256": "f17a605e03b41e7dcddbf1175b93386adad488facb1e2f09f9259a1f93c371ed"
+      },
+      "identity.json": {
+        "bytes": 1008,
+        "sha256": "eeb30fd9a56790bcabcae7d924d99c79a6d1aa701ea1616c4a17e4b95290169a"
+      },
+      "phases.json": {
+        "bytes": 3849,
+        "sha256": "5e6bbdd33f05471c2633f4f7d7515e7a712c9137cb9bd8d1ffab3f2b40ca2152"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 666,
+        "sha256": "6829190c69ab9ec76a803c991e3954e067a182f9d4b8bc2daa0bbc7c82ca1ed2"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "ordinary/products.json": {
+        "bytes": 20102,
+        "sha256": "8ea08661b2262b3dbd7b97b82bb64e5f4f563d8b472147d6f78cb0e25c9490f6"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 450,
+        "sha256": "9f34bce3d9cd88dd9815978ec995f3e7f72adf26f9a5f2876742e48b60c9548d"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 16881,
+        "sha256": "7b10f3a926bb04a30fca1da699b9061bc3dbf8248317092a3b61646d8cba595a"
+      },
+      "ordinary/ordinary-capture.json": {
+        "bytes": 674,
+        "sha256": "94a2b06b45077ee3473dba8537679887125bf6b3a76abea2776ac553bff257e6"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 158,
+        "sha256": "062dd193fa45f768a6565b3ed334f6b9095ffae555a7e28f94b95c2ac4628c15"
+      },
+      "ordinary/ordinary-inventory.json": {
+        "bytes": 297,
+        "sha256": "cff8bfb634cc47b050b480ba141c8fd54152852566651487a5f7ad71d4020fa2"
+      },
+      "ordinary/ordinary-capture.log": {
+        "bytes": 3125,
+        "sha256": "607a8abe12a5660742d914985332d953719607ba1770db3ac8cca7508578d16c"
+      },
+      "ordinary/source-after.json": {
+        "bytes": 431137,
+        "sha256": "f9ead29664d239b5a2e11ab37a11ecadf49990457eb6a14d3ec5e82a65b1129b"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 40832,
+        "sha256": "a1037ba6edc7bc91e2e90472ae869d2546cef3c529f18fac252158141a60abcc"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 16881,
+        "sha256": "7b10f3a926bb04a30fca1da699b9061bc3dbf8248317092a3b61646d8cba595a"
+      },
+      "ordinary/ordinary-inventory.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 431137,
+        "sha256": "f9ead29664d239b5a2e11ab37a11ecadf49990457eb6a14d3ec5e82a65b1129b"
+      },
+      "ordinary/owning-products.json": {
+        "bytes": 271,
+        "sha256": "872de57da84b643845fad8104f4e7e55eec18a130f826b638afc4028df8d9810"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 324,
+        "sha256": "800a75971db3bbe43c2b4913abadcdf21c5bdea4ed817f57d04a9967bc955418"
+      },
+      "sanitized/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "sanitized/sanitized-capture.json": {
+        "bytes": 852,
+        "sha256": "17f3908c170551c14d8fabe6ed30f07cf296a6a42fcc7151d9b0f12cf8670dc3"
+      },
+      "sanitized/products.json": {
+        "bytes": 20102,
+        "sha256": "594aedd6cdbc69be20f9ca59f570a2324e40d1c46fc0dc07f7140981ccc91f9d"
+      },
+      "sanitized/providers.mk": {
+        "bytes": 453,
+        "sha256": "b95a6f848379b62297aa5b6d2330085cffbf3a7537330f3abc340d6e6c32e2ed"
+      },
+      "sanitized/providers-before.json": {
+        "bytes": 16982,
+        "sha256": "ff4b1b1dc426cd4e3577a494a4775326080f273d4e730d1bb6604e046faedf98"
+      },
+      "sanitized/sanitized-inventory.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/sanitized-providers.log": {
+        "bytes": 50629,
+        "sha256": "d66e7d0c49c4df628c0312627ee201487462a9368a42718d6f43884cbea783b7"
+      },
+      "sanitized/ldflags.txt": {
+        "bytes": 237,
+        "sha256": "53938334859604f228dd491d07d8d54c4e672fc4a061e24db5a5a82af1f8a595"
+      },
+      "sanitized/sanitized-inventory.json": {
+        "bytes": 299,
+        "sha256": "d416ea5153144bee78e02e209a4c8fab66ec982c6d9f565873acfae898d4a5e6"
+      },
+      "sanitized/source-after.json": {
+        "bytes": 431137,
+        "sha256": "f9ead29664d239b5a2e11ab37a11ecadf49990457eb6a14d3ec5e82a65b1129b"
+      },
+      "sanitized/providers-after.json": {
+        "bytes": 16982,
+        "sha256": "ff4b1b1dc426cd4e3577a494a4775326080f273d4e730d1bb6604e046faedf98"
+      },
+      "sanitized/sanitized-capture.log": {
+        "bytes": 3301,
+        "sha256": "090882c93a51be4a93020b86335e7fcaff3474ecf13a362cfe2eac84f387bdc7"
+      },
+      "sanitized/source-before.json": {
+        "bytes": 431137,
+        "sha256": "f9ead29664d239b5a2e11ab37a11ecadf49990457eb6a14d3ec5e82a65b1129b"
+      },
+      "sanitized/owning-products.json": {
+        "bytes": 271,
+        "sha256": "866ce7acdfc93b09b1475ee477cbbd913389fae8825d520e8aaf2cbd2b94aac7"
+      },
+      "sanitized/sanitized-providers.json": {
+        "bytes": 844,
+        "sha256": "21c2cb107f5971135b412d286e2129bd54f1dfa051c46ffbf9d48bbcb7d82f3b"
+      },
+      "sanitized/cflags.txt": {
+        "bytes": 403,
+        "sha256": "5d315177f3ad6169236736836c95671781ca7c02b1d1fd94019b6a4d40af539e"
+      }
+    },
+    "phases": [
+      {
+        "label": "ordinary-inventory",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "scripts/generate_native_sdk_inventory.py",
+          "--check"
+        ],
+        "bound": 120,
+        "timeout": false,
+        "pid": 37606,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.2290789160033455
+      },
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/sdk-capture-639-puck/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 37611,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 6.6319070830068085
+      },
+      {
+        "label": "ordinary-capture",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/sdk-capture-639-puck/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "test-sdk-checked-projection"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 38167,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 2.0871341249876423
+      },
+      {
+        "label": "sanitized-inventory",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "scripts/generate_native_sdk_inventory.py",
+          "--check"
+        ],
+        "bound": 120,
+        "timeout": false,
+        "pid": 38268,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.23142004199326038
+      },
+      {
+        "label": "sanitized-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/sdk-capture-639-puck/sanitized/providers.mk",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 38270,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 10.845429957989836
+      },
+      {
+        "label": "sanitized-capture",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/sdk-capture-639-puck/sanitized/providers.mk",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "test-sdk-checked-projection"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 38881,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 3.4523081249935785
+      }
+    ]
+  }
+}
