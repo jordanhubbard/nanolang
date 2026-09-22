@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I preserve my verifier qualification setup and attribution corrections under task_4605a913b21847f19101e5706851c5f2: NUL-delimited input enumeration corrects a pre-command inventory refusal, and the unused inherited30-second metadata field is explicitly corrected without changing actual1200-second execution bounds or frozen reports.
+
 - [ ] I preserve owned local nominal name when bytecode lowering rebinds type metadata (`task_2186ee27985a4a95961c6d500bf7b6c3`). PR9487f9 native-float-records LSan336B/46 and48B/8 includes env_define_var_with_type_info env.c494 copied name; independent native static audit confirms compile_stmt immediately overwrites local_type->struct_type_name with strdup(node->as.let.type_name), leaking previous owned name. Existing parser/field cleanup repairs are separate. Use allocate-before-replace cleanup preserving checked proof metadata; review before corrected compiler run. Root byte-codegen worktree overlaps.
 - [ ] I declare native translation provider for passive-flow frontend gate (`task_3f0d85c685244860a4795a31a76e7675`). PR9487f9 units12 job106592960642 test_serial_owner_calls_execute_between_blocks_in_both_producers fails FileNotFound bin/nvm2c. Owning test-passive-flow-frontends depends bootstrap/nanoisa_emit/nano_virt/nano_vm/nanoisa_dump but omits nvm2c and actual runtime archive used later. Audit complete fixture provider references and add missing owning dependencies; preserve all six tests and original deadlines.
 
