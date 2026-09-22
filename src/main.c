@@ -1,4 +1,5 @@
 #include "runtime/shadow_timeout.h"
+#include "runtime/shadow_completion.h"
 #include "nanovirt/shadow_runner.h"
 #include "nanolang.h"
 #include "colors.h"
@@ -489,6 +490,14 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         return false;
     }
     fflush(NULL);
+    /* I share the exact start with the child; fork time consumes the budget. */
+    struct timespec start, now, pause = {0, 10000000};
+    if (clock_gettime(CLOCK_MONOTONIC, &start) != 0) {
+        close(completion[0]);
+        close(completion[1]);
+        fprintf(stderr, "I cannot measure the shadow execution deadline.\n");
+        return false;
+    }
     pid_t child = fork();
     if (child == 0) {
         close(completion[0]);
@@ -512,10 +521,15 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
                 if (fclose(report) != 0 || !written) passed = false;
             }
         }
-        unsigned char done = 1;
-        if (passed && write(completion[1], &done, 1) != 1) passed = false;
+        if (fflush(NULL) != 0) passed = false;
+        NlShadowCompletion done = {0};
+        done.tag = NL_SHADOW_COMPLETION_TAG;
+        if (passed && clock_gettime(CLOCK_MONOTONIC, &done.finished) != 0)
+            passed = false;
+        if (passed && write(completion[1], &done, sizeof(done)) != (ssize_t)sizeof(done))
+            passed = false;
+        /* I perform no program, callback, flush or observer work after publication. */
         close(completion[1]);
-        fflush(NULL);
         _exit(passed ? 0 : 1);
     }
     int fork_error = errno;
@@ -525,15 +539,13 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         fprintf(stderr, "I cannot start shadow execution: %s\n", strerror(fork_error));
         return false;
     }
-    struct timespec start, now, pause = {0, 10000000};
-    bool clock_ok = clock_gettime(CLOCK_MONOTONIC, &start) == 0;
     bool timed_out = false, clock_failed = false;
     int status = 0;
     pid_t waited;
     for (;;) {
         waited = waitpid(child, &status, WNOHANG);
         if (waited == child || (waited < 0 && errno != EINTR)) break;
-        clock_failed = !clock_ok || clock_gettime(CLOCK_MONOTONIC, &now) != 0;
+        clock_failed = clock_gettime(CLOCK_MONOTONIC, &now) != 0;
         timed_out = !clock_failed && (now.tv_sec - start.tv_sec > shadow_seconds ||
             (now.tv_sec - start.tv_sec == shadow_seconds && now.tv_nsec >= start.tv_nsec));
         if (clock_failed || timed_out) {
@@ -544,17 +556,23 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         nanosleep(&pause, NULL);
     }
     int wait_error = errno;
-    unsigned char done = 0;
-    bool completed = read(completion[0], &done, 1) == 1 && done == 1;
+    NlShadowCompletion done = {0};
+    ssize_t received = read(completion[0], &done, sizeof(done));
     close(completion[0]);
+    size_t record_bytes = received < 0 ? 0 : (size_t)received;
+    bool completed = nl_shadow_completion_ontime(&done, record_bytes, &start,
+                                                  shadow_seconds);
     if (waited < 0) {
         fprintf(stderr, "I cannot supervise shadow execution: %s\n", strerror(wait_error));
         return false;
     }
-    if (clock_failed || timed_out || !completed || !WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+    if (!nl_shadow_completion_accept(&done, record_bytes, &start, shadow_seconds,
+                                     clock_failed, waited < 0, status)) {
         if (clock_failed)
             fprintf(stderr, "I cannot measure the shadow execution deadline.\n");
-        else if (timed_out || (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
+        else if (timed_out || (!completed && nl_shadow_completion_valid(
+                              &done, record_bytes, &start, shadow_seconds)) ||
+                 (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
             fprintf(stderr, "I stopped shadow execution after %d seconds.\n", shadow_seconds);
         else
             fprintf(stderr, "I will not publish output after failed shadow execution.\n");
