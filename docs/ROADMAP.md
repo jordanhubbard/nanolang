@@ -14466,3 +14466,10 @@ allocator failure claim.
   current Environment destructor does not establish complete effect storage
   cleanup. This static follow-up is outside the measured45c three-name repair.
   MAC: task_3a42bcf1be0c46ce88a085b4cb54bf2c.
+
+- [ ] I measure interpreted transp_str_index_of work within the unchanged full
+  compiler shadow graph before choosing an optimization. My46b Linux bootstrap
+  reaches the original ten-second child deadline; Puck passes. I retain the
+  prior2.204-second inclusive generate_global_constants observation without
+  assigning its cost to one helper. [Diagnostic contract](NANOISA_LIST_SEARCH_TIMING.md).
+  MAC: task_6ec8b514c61449d0863401584e86376b.
