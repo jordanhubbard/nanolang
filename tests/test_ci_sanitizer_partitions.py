@@ -25,7 +25,8 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(len(requested), len(set(requested)))
         self.assertEqual(value['workers'][0]['targets'], ['test-forth-session'])
         self.assertEqual(value['workers'][1]['targets'], ['test-nanoisa-src-nano'])
-        self.assertEqual(len(value['workers']), 17)
+        self.assertEqual(value['workers'][2]['targets'], ['test-scalar-reconstruction'])
+        self.assertEqual(len(value['workers']), 18)
         self.assertEqual(value['workers'][-1], {'id': 'negative', 'targets': []})
 
     def test_new_target_is_included_and_changes_digest(self):
@@ -38,6 +39,7 @@ class SanitizerPartitions(unittest.TestCase):
     def test_database_refuses_missing_tail_duplicates_and_syntax(self):
         good = 'test-units: ' + ' '.join(t for t in self.inventory() if t != 'test-units-tail') + '\n\t+@$(MAKE) test-units-tail'
         self.assertCountEqual(partition.parse_database(good), self.inventory())
+        self.assertCountEqual(partition.parse_database(good + '\n\t\n'), self.inventory())
         bad = ['', good + '\n' + good, good + ' test-units-tail',
                good.replace('test-units-tail', ''), good + ' | test-extra',
                good + ' $(DYNAMIC)', good + ' ; echo unsafe', good + ' test_control',
@@ -140,11 +142,11 @@ class SanitizerPartitions(unittest.TestCase):
                          'echo "REPORT=$RUNNER_TEMP/sanitizer-${{ matrix.id }}" >> "$GITHUB_ENV"\n'
                          'echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"\n')
         workers = jobs['sanitizer-workers']
-        self.assertEqual(workers['timeout-minutes'], 30)
+        self.assertEqual(workers['timeout-minutes'], "${{ matrix.id == 'scalar' && 45 || 30 }}")
         self.assertFalse(workers['strategy']['fail-fast'])
         self.assertEqual(workers['strategy']['max-parallel'], 4)
         tests = next(step for step in workers['steps'] if step.get('id') == 'tests')
-        self.assertEqual(tests['timeout-minutes'], 20)
+        self.assertEqual(tests['timeout-minutes'], "${{ matrix.id == 'scalar' && 35 || 20 }}")
         self.assertEqual(workers['env']['ASAN_OPTIONS'], 'detect_leaks=0')
         self.assertEqual(workers['env']['NANO_SHADOW_TIMEOUT_SECONDS'], '60')
         self.assertNotIn('NANOLANG_COMPILER', workers['env'])

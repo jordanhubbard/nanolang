@@ -13,7 +13,7 @@ import sys
 CFLAGS = '-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer'
 LDFLAGS = '-lm -lcrypto -fsanitize=address,undefined'
 FLAGS = ['CFLAGS=' + CFLAGS, 'LDFLAGS=' + LDFLAGS]
-DEDICATED = ('test-forth-session', 'test-nanoisa-src-nano')
+DEDICATED = ('test-forth-session', 'test-nanoisa-src-nano', 'test-scalar-reconstruction')
 PROVIDERS = ['nanoisa_emit', 'nano_virt', 'nano_vm', 'nvm2c', 'nvm2c-runtime', 'nanoisa_dump']
 
 
@@ -55,7 +55,8 @@ def parse_database(text):
         if not line:
             break
         if line.startswith('\t'):
-            recipe.append(line)
+            if line.strip():
+                recipe.append(line)
         elif not line.startswith('#'):
             raise ValueError('I cannot identify the complete ordinary unit recipe.')
     if recipe != ['\t+@$(MAKE) test-units-tail']:
@@ -79,7 +80,8 @@ def resolve(output):
 def plan(head, targets):
     validate_targets(targets)
     workers = [{'id': 'forth', 'targets': [DEDICATED[0]]},
-               {'id': 'source', 'targets': [DEDICATED[1]]}]
+               {'id': 'source', 'targets': [DEDICATED[1]]},
+               {'id': 'scalar', 'targets': [DEDICATED[2]]}]
     remainder = [target for target in targets if target not in DEDICATED]
     workers.extend({'id': f'units-{index:02}', 'targets': remainder[index::14]}
                    for index in range(14))
