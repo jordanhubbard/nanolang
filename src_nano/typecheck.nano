@@ -3337,12 +3337,14 @@ shadow check_exact_list_call {
     let enum_parser: Parser = (resource_test_parser "enum Number { One } fn f() -> void { (list_Number_new) (list_Number_push values Number.One) (list_Number_get values 0) (list_Number_length values) }")
     let enum_symbols: array<Symbol> = [(symbol_new "values" (type_list_generic "Number") false false 0 [] (type_void))]
     let enum_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
-    let enum_expected: array<TypeKind> = [TypeKind.TYPE_LIST_GENERIC, TypeKind.TYPE_VOID, TypeKind.TYPE_ENUM, TypeKind.TYPE_INT]
     set i 0
     while (< i 4) {
         let enum_call: ASTCall = (parser_get_call enum_parser i)
         let enum_name: string = (parser_get_identifier enum_parser enum_call.function).name
-        assert (== (check_exact_list_call enum_parser enum_call enum_name enum_symbols enum_diags "enum.nano").kind (at enum_expected i))
+        if (== i 0) { assert (== (check_exact_list_call enum_parser enum_call enum_name enum_symbols enum_diags "enum.nano").kind TypeKind.TYPE_LIST_GENERIC) }
+        if (== i 1) { assert (== (check_exact_list_call enum_parser enum_call enum_name enum_symbols enum_diags "enum.nano").kind TypeKind.TYPE_VOID) }
+        if (== i 2) { assert (== (check_exact_list_call enum_parser enum_call enum_name enum_symbols enum_diags "enum.nano").kind TypeKind.TYPE_ENUM) }
+        if (== i 3) { assert (== (check_exact_list_call enum_parser enum_call enum_name enum_symbols enum_diags "enum.nano").kind TypeKind.TYPE_INT) }
         set i (+ i 1)
     }
     assert (== (list_CompilerDiagnostic_length enum_diags) 0)
