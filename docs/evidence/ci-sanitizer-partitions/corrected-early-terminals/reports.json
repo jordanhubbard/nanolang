@@ -1,0 +1,31 @@
+{
+  "head": "fb913d5a6ae81a08c2f5f448cc30d147bfb36711",
+  "run": 35684809706,
+  "reports": [
+    {
+      "job": 106609359394,
+      "raw_bytes": 304658,
+      "raw_sha256": "14b13d6922fc11baa9d781fac1dc94ce3afd8fb9cfac984fe0fb958f349fe371",
+      "stored": "job-106609359394.log.gz"
+    },
+    {
+      "job": 106609359447,
+      "raw_bytes": 257622,
+      "raw_sha256": "dddf2b8052b4086aec6854d9c395bdb125cff2a0157f0c6f595cff02481a006a",
+      "stored": "job-106609359447.log.gz"
+    },
+    {
+      "job": 106609359376,
+      "raw_bytes": 208750,
+      "raw_sha256": "190e03267531ef3f1fc69d508707f12969ff53561fdb8d6a80bada95e979d867",
+      "stored": "job-106609359376.log.gz"
+    },
+    {
+      "job": 106609359461,
+      "raw_bytes": 218525,
+      "raw_sha256": "7aa5e31f492a053f5c0d72fc4fca028acb22c3b6b85ff1f40617c1c3736d69a8",
+      "stored": "job-106609359461.log.gz"
+    }
+  ],
+  "scope": "Four actual worker terminals only; full run still active."
+}
