@@ -1,0 +1,27 @@
+{
+  "production": "66a11b6dbf1cf1bef56698f0e1fcbe516276c270",
+  "observer": "066ea38d17018df4d0c4506fc35b55ed97ea0605",
+  "changed": [
+    "Makefile.gnu",
+    "src/main.c",
+    "src/eval.c",
+    "src/runtime/shadow_timing.h"
+  ],
+  "runner": {
+    "sha256": "bcb60d77b1a2ffc2ee4dfb3fa8a07850095c9ef52e135bb40519ba5776aba7e0",
+    "bytes": 7766,
+    "mode": 420
+  },
+  "script": {
+    "sha256": "1cc7e069593144257f052e01593a5a228b1fa3b69086e7489007c2ddb1b5828c",
+    "bytes": 4685,
+    "mode": 436
+  },
+  "load": [
+    4.951171875,
+    5.3408203125,
+    5.44189453125
+  ],
+  "cpu_count": 20,
+  "scope": "single observer diagnostic; only main/eval rebuilt; no supervisor correction; original child10/outer120"
+}

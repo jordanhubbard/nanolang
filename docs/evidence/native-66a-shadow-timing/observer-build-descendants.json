@@ -1,0 +1,42 @@
+{
+  "owned": {
+    "265926": {
+      "parent": 265904,
+      "group": 265926,
+      "started": "Mon Sep 21 22:36:05 2026",
+      "command": "[make] <defunct>"
+    },
+    "265945": {
+      "parent": 265926,
+      "group": 265926,
+      "started": "Mon Sep 21 22:36:05 2026",
+      "command": "/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -c src/main.c -o obj/main.o"
+    },
+    "265946": {
+      "parent": 265945,
+      "group": 265926,
+      "started": "Mon Sep 21 22:36:05 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -D _GNU_SOURCE src/main.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase main.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccMkmayP.s"
+    },
+    "265972": {
+      "parent": 265926,
+      "group": 265926,
+      "started": "Mon Sep 21 22:36:05 2026",
+      "command": "/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -c src/eval.c -o obj/eval.o"
+    },
+    "265973": {
+      "parent": 265972,
+      "group": 265926,
+      "started": "Mon Sep 21 22:36:06 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -D _GNU_SOURCE src/eval.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir obj/ -dumpbase eval.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccn33vcD.s"
+    },
+    "265993": {
+      "parent": 265972,
+      "group": 265926,
+      "started": "Mon Sep 21 22:36:07 2026",
+      "command": "as -I src --gdwarf-5 -EL -mabi=lp64 -o obj/eval.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccn33vcD.s"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

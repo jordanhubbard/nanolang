@@ -1,0 +1,930 @@
+{
+  "owned": {
+    "266005": {
+      "parent": 265904,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:08 2026",
+      "command": "/home/jkh/nanolang-qualification/record-lists-66a-observer-source/bin/nanoc_c src_nano/nanoc_v06.nano -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/stage1 --verbose --llm-shadow-json /home/jkh/nanolang-qualification/record-lists-66a-observer-report/shadows.json"
+    },
+    "266683": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:09 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTImport /tmp ASTImport > /dev/null 2>&1"
+    },
+    "266684": {
+      "parent": 266683,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:09 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh ASTImport /tmp ASTImport"
+    },
+    "266895": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:09 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTStmtRef_length /tmp ASTStmtRef_length > /dev/null 2>&1"
+    },
+    "267160": {
+      "parent": 267159,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:10 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/generated -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-oftsdD/object.o obj/nano_modules/.nano-module-oftsdD/source.c"
+    },
+    "267159": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:10 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/generated' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-oftsdD/object.o' 'obj/nano_modules/.nano-module-oftsdD/source.c' 2>&1"
+    },
+    "268083": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:11 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-HxcGox/object.o' 'obj/nano_modules/.nano-module-HxcGox/source.c' 2>&1"
+    },
+    "268084": {
+      "parent": 268083,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:11 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-HxcGox/object.o obj/nano_modules/.nano-module-HxcGox/source.c"
+    },
+    "269107": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:12 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-alc5BW/object.o' 'obj/nano_modules/.nano-module-alc5BW/source.c' 2>&1"
+    },
+    "269108": {
+      "parent": 269107,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:12 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-alc5BW/object.o obj/nano_modules/.nano-module-alc5BW/source.c"
+    },
+    "269109": {
+      "parent": 269108,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:12 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-alc5BW/source.c -quiet -dumpdir obj/nano_modules/.nano-module-alc5BW/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccKkDWfP.s"
+    },
+    "269802": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:13 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTStmtRef_length /tmp ASTStmtRef_length > /dev/null 2>&1"
+    },
+    "269803": {
+      "parent": 269802,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:13 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh ASTStmtRef_length /tmp ASTStmtRef_length"
+    },
+    "270037": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:13 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTBool_get /tmp ASTBool_get > /dev/null 2>&1"
+    },
+    "270038": {
+      "parent": 270037,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:13 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh ASTBool_get /tmp ASTBool_get"
+    },
+    "270086": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:13 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-hxOYUk/object.o' 'obj/nano_modules/.nano-module-hxOYUk/source.c' 2>&1"
+    },
+    "270087": {
+      "parent": 270086,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:13 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-hxOYUk/object.o obj/nano_modules/.nano-module-hxOYUk/source.c"
+    },
+    "270088": {
+      "parent": 270087,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:13 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-hxOYUk/source.c -quiet -dumpdir obj/nano_modules/.nano-module-hxOYUk/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccasMWaU.s"
+    },
+    "270195": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:14 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-gG0WIN/object.o' 'obj/nano_modules/.nano-module-gG0WIN/source.c' 2>&1"
+    },
+    "270196": {
+      "parent": 270195,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:14 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-gG0WIN/object.o obj/nano_modules/.nano-module-gG0WIN/source.c"
+    },
+    "270197": {
+      "parent": 270196,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:14 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-gG0WIN/source.c -quiet -dumpdir obj/nano_modules/.nano-module-gG0WIN/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc1624xU.s"
+    },
+    "271284": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:15 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-eugLRs/object.o' 'obj/nano_modules/.nano-module-eugLRs/source.c' 2>&1"
+    },
+    "271285": {
+      "parent": 271284,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:15 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-eugLRs/object.o obj/nano_modules/.nano-module-eugLRs/source.c"
+    },
+    "271287": {
+      "parent": 271285,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:15 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-eugLRs/source.c -quiet -dumpdir obj/nano_modules/.nano-module-eugLRs/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccq8KSqe.s"
+    },
+    "271449": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:16 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTModuleQualifiedCall /tmp ASTModuleQualifiedCall > /dev/null 2>&1"
+    },
+    "271450": {
+      "parent": 271449,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:16 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh ASTModuleQualifiedCall /tmp ASTModuleQualifiedCall"
+    },
+    "272117": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:16 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTString_push /tmp ASTString_push > /dev/null 2>&1"
+    },
+    "272118": {
+      "parent": 272117,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:16 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh ASTString_push /tmp ASTString_push"
+    },
+    "272237": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:16 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-pDifj6/object.o' 'obj/nano_modules/.nano-module-pDifj6/source.c' 2>&1"
+    },
+    "272238": {
+      "parent": 272237,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:16 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-pDifj6/object.o obj/nano_modules/.nano-module-pDifj6/source.c"
+    },
+    "272239": {
+      "parent": 272238,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:16 2026",
+      "command": "[cc1]"
+    },
+    "273189": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:18 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-gS55RA/object.o' 'obj/nano_modules/.nano-module-gS55RA/source.c' 2>&1"
+    },
+    "273190": {
+      "parent": 273189,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:18 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-gS55RA/object.o obj/nano_modules/.nano-module-gS55RA/source.c"
+    },
+    "273191": {
+      "parent": 273190,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:18 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-gS55RA/source.c -quiet -dumpdir obj/nano_modules/.nano-module-gS55RA/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc0EbnNH.s"
+    },
+    "273193": {
+      "parent": 273190,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:19 2026",
+      "command": "as -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -EL -mabi=lp64 -o obj/nano_modules/.nano-module-gS55RA/object.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc0EbnNH.s"
+    },
+    "273227": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:19 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh LexerToken /tmp Token > /dev/null 2>&1"
+    },
+    "273228": {
+      "parent": 273227,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:19 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh LexerToken /tmp Token"
+    },
+    "273893": {
+      "parent": 273891,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:19 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh ASTStmtRef_length /tmp ASTStmtRef_length"
+    },
+    "273891": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:19 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTStmtRef_length /tmp ASTStmtRef_length > /dev/null 2>&1"
+    },
+    "274152": {
+      "parent": 274151,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:20 2026",
+      "command": "[generate_list.s]"
+    },
+    "274151": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:20 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTBool_push /tmp ASTBool_push > /dev/null 2>&1"
+    },
+    "274215": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:20 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-8jpJc2/object.o' 'obj/nano_modules/.nano-module-8jpJc2/source.c' 2>&1"
+    },
+    "274216": {
+      "parent": 274215,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:20 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-8jpJc2/object.o obj/nano_modules/.nano-module-8jpJc2/source.c"
+    },
+    "274217": {
+      "parent": 274216,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:20 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-8jpJc2/source.c -quiet -dumpdir obj/nano_modules/.nano-module-8jpJc2/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccdSy5P2.s"
+    },
+    "275137": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:21 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-1OVvVw/object.o' 'obj/nano_modules/.nano-module-1OVvVw/source.c' 2>&1"
+    },
+    "275138": {
+      "parent": 275137,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:21 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-1OVvVw/object.o obj/nano_modules/.nano-module-1OVvVw/source.c"
+    },
+    "275139": {
+      "parent": 275138,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:21 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-1OVvVw/source.c -quiet -dumpdir obj/nano_modules/.nano-module-1OVvVw/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccZmtsxA.s"
+    },
+    "275146": {
+      "parent": 275138,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:21 2026",
+      "command": "as -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -EL -mabi=lp64 -o obj/nano_modules/.nano-module-1OVvVw/object.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccZmtsxA.s"
+    },
+    "276089": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:23 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-257V0d/object.o' 'obj/nano_modules/.nano-module-257V0d/source.c' 2>&1"
+    },
+    "276090": {
+      "parent": 276089,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:23 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-257V0d/object.o obj/nano_modules/.nano-module-257V0d/source.c"
+    },
+    "276091": {
+      "parent": 276090,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:23 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-257V0d/source.c -quiet -dumpdir obj/nano_modules/.nano-module-257V0d/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccofyViw.s"
+    },
+    "276093": {
+      "parent": 276090,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:23 2026",
+      "command": "as -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -EL -mabi=lp64 -o obj/nano_modules/.nano-module-257V0d/object.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccofyViw.s"
+    },
+    "276603": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:24 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTTupleLiteral /tmp ASTTupleLiteral > /dev/null 2>&1"
+    },
+    "276604": {
+      "parent": 276603,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:24 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh ASTTupleLiteral /tmp ASTTupleLiteral"
+    },
+    "277298": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:24 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-GfIQ6n/object.o' 'obj/nano_modules/.nano-module-GfIQ6n/source.c' 2>&1"
+    },
+    "277299": {
+      "parent": 277298,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:24 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-GfIQ6n/object.o obj/nano_modules/.nano-module-GfIQ6n/source.c"
+    },
+    "277300": {
+      "parent": 277299,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:24 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-GfIQ6n/source.c -quiet -dumpdir obj/nano_modules/.nano-module-GfIQ6n/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc25HpF5.s"
+    },
+    "278386": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:26 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-77cLPY/object.o' 'obj/nano_modules/.nano-module-77cLPY/source.c' 2>&1"
+    },
+    "278387": {
+      "parent": 278386,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:26 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-77cLPY/object.o obj/nano_modules/.nano-module-77cLPY/source.c"
+    },
+    "278388": {
+      "parent": 278387,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:26 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-77cLPY/source.c -quiet -dumpdir obj/nano_modules/.nano-module-77cLPY/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccwz0MZT.s"
+    },
+    "278479": {
+      "parent": 278387,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:27 2026",
+      "command": "as -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano -I /usr/include/SDL2 -EL -mabi=lp64 -o obj/nano_modules/.nano-module-77cLPY/object.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccwz0MZT.s"
+    },
+    "278490": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:27 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-dUz78o/object.o' 'obj/nano_modules/.nano-module-dUz78o/source.c' 2>&1"
+    },
+    "278491": {
+      "parent": 278490,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:27 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-dUz78o/object.o obj/nano_modules/.nano-module-dUz78o/source.c"
+    },
+    "278492": {
+      "parent": 278491,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:27 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-dUz78o/source.c -quiet -dumpdir obj/nano_modules/.nano-module-dUz78o/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccPXLTZt.s"
+    },
+    "278504": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:27 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-kk5BtN/object.o' 'obj/nano_modules/.nano-module-kk5BtN/source.c' 2>&1"
+    },
+    "278505": {
+      "parent": 278504,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:27 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-kk5BtN/object.o obj/nano_modules/.nano-module-kk5BtN/source.c"
+    },
+    "279533": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:28 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-AR8RMk/object.o' 'obj/nano_modules/.nano-module-AR8RMk/source.c' 2>&1"
+    },
+    "279534": {
+      "parent": 279533,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:28 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-AR8RMk/object.o obj/nano_modules/.nano-module-AR8RMk/source.c"
+    },
+    "279535": {
+      "parent": 279534,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:28 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-AR8RMk/source.c -quiet -dumpdir obj/nano_modules/.nano-module-AR8RMk/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccsIMhfb.s"
+    },
+    "279567": {
+      "parent": 279534,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:29 2026",
+      "command": "as -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano -I /usr/include/SDL2 -EL -mabi=lp64 -o obj/nano_modules/.nano-module-AR8RMk/object.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccsIMhfb.s"
+    },
+    "279829": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:30 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTBlock /tmp ASTBlock > /dev/null 2>&1"
+    },
+    "279830": {
+      "parent": 279829,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:30 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh ASTBlock /tmp ASTBlock"
+    },
+    "280274": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:30 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTNumber_push /tmp ASTNumber_push > /dev/null 2>&1"
+    },
+    "280275": {
+      "parent": 280274,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:30 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh ASTNumber_push /tmp ASTNumber_push"
+    },
+    "280529": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:30 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-i3baz5/object.o' 'obj/nano_modules/.nano-module-i3baz5/source.c' 2>&1"
+    },
+    "280530": {
+      "parent": 280529,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:30 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-i3baz5/object.o obj/nano_modules/.nano-module-i3baz5/source.c"
+    },
+    "280531": {
+      "parent": 280530,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:30 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-i3baz5/source.c -quiet -dumpdir obj/nano_modules/.nano-module-i3baz5/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccf58LiS.s"
+    },
+    "281185": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:31 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh CompilerDiagnostic_length /tmp CompilerDiagnostic_length > /dev/null 2>&1"
+    },
+    "281186": {
+      "parent": 281185,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:31 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh CompilerDiagnostic_length /tmp CompilerDiagnostic_length"
+    },
+    "281579": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:32 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-9fuW7r/object.o' 'obj/nano_modules/.nano-module-9fuW7r/source.c' 2>&1"
+    },
+    "281580": {
+      "parent": 281579,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:32 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-9fuW7r/object.o obj/nano_modules/.nano-module-9fuW7r/source.c"
+    },
+    "281581": {
+      "parent": 281580,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:32 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-9fuW7r/source.c -quiet -dumpdir obj/nano_modules/.nano-module-9fuW7r/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccy39wLK.s"
+    },
+    "281600": {
+      "parent": 281580,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:32 2026",
+      "command": "as -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -EL -mabi=lp64 -o obj/nano_modules/.nano-module-9fuW7r/object.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccy39wLK.s"
+    },
+    "281649": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:32 2026",
+      "command": "sh -c -- /bin/gcc -S -fPIC  '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__snapshot_0_1.i' -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__assembly_0_1.s'"
+    },
+    "281650": {
+      "parent": 281649,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:32 2026",
+      "command": "/bin/gcc -S -fPIC /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__snapshot_0_1.i -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__assembly_0_1.s"
+    },
+    "281651": {
+      "parent": 281650,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:32 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -fpreprocessed /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__snapshot_0_1.i -quiet -dumpdir /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/ -dumpbase __assembly_0_1.i -dumpbase-ext .i -mlittle-endian -mabi=lp64 -fPIC -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__assembly_0_1.s -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection"
+    },
+    "281664": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:33 2026",
+      "command": "sh -c -- /bin/gcc -S -fPIC  '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__snapshot_0_1.i' -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__snapshot_0_1.s'"
+    },
+    "281665": {
+      "parent": 281664,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:33 2026",
+      "command": "/bin/gcc -S -fPIC /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__snapshot_0_1.i -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__snapshot_0_1.s"
+    },
+    "281666": {
+      "parent": 281665,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:33 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -fpreprocessed /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__snapshot_0_1.i -quiet -dumpdir /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/ -dumpbase __snapshot_0_1.i -dumpbase-ext .i -mlittle-endian -mabi=lp64 -fPIC -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__snapshot_0_1.s -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection"
+    },
+    "281744": {
+      "parent": 281743,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:33 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/aarch64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/aarch64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccBs5KJn.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr --hash-style=gnu --as-needed -shared -X -EL -maarch64linux --fix-cortex-a53-843419 -z relro -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/libcompiler_support.so /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/aarch64-linux-gnu/13 -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/13/../../.. --allow-shlib-undefined /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/compiler_support.o -lssl -lcrypto /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__shared_0.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/aarch64-linux-gnu/13/crtendS.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crtn.o"
+    },
+    "281745": {
+      "parent": 281744,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:33 2026",
+      "command": "/bin/ld -plugin /usr/libexec/gcc/aarch64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/aarch64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccBs5KJn.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr --hash-style=gnu --as-needed -shared -X -EL -maarch64linux --fix-cortex-a53-843419 -z relro -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/libcompiler_support.so /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/aarch64-linux-gnu/13 -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/13/../../.. --allow-shlib-undefined /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/compiler_support.o -lssl -lcrypto /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__shared_0.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/aarch64-linux-gnu/13/crtendS.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crtn.o"
+    },
+    "281742": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:33 2026",
+      "command": "sh -c -- /bin/gcc -shared -fPIC -Wl,--allow-shlib-undefined -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/libcompiler_support.so' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/compiler_support.o'  -lssl -lcrypto -D_GNU_SOURCE '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__shared_0.o'"
+    },
+    "281743": {
+      "parent": 281742,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:33 2026",
+      "command": "/bin/gcc -shared -fPIC -Wl,--allow-shlib-undefined -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/libcompiler_support.so /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/compiler_support.o -lssl -lcrypto -D_GNU_SOURCE /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-build-IVoN9A/__shared_0.o"
+    },
+    "281771": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:33 2026",
+      "command": "sh -c -- /bin/gcc -S -fPIC  '/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.i' -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__assembly_0_1.s'"
+    },
+    "281772": {
+      "parent": 281771,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:33 2026",
+      "command": "/bin/gcc -S -fPIC /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.i -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__assembly_0_1.s"
+    },
+    "281773": {
+      "parent": 281772,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:33 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -fpreprocessed /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.i -quiet -dumpdir /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/ -dumpbase __assembly_0_1.i -dumpbase-ext .i -mlittle-endian -mabi=lp64 -fPIC -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__assembly_0_1.s -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection"
+    },
+    "281786": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:34 2026",
+      "command": "sh -c -- /bin/gcc -S -fPIC  '/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.i' -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.s'"
+    },
+    "281787": {
+      "parent": 281786,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:34 2026",
+      "command": "/bin/gcc -S -fPIC /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.i -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.s"
+    },
+    "281788": {
+      "parent": 281787,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:34 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -fpreprocessed /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.i -quiet -dumpdir /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/ -dumpbase __snapshot_0_1.i -dumpbase-ext .i -mlittle-endian -mabi=lp64 -fPIC -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.s -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection"
+    },
+    "281792": {
+      "parent": 281791,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:34 2026",
+      "command": "/bin/gcc -c -fPIC -x assembler -B/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/ /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.s -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__as_capture_0_1.o"
+    },
+    "281793": {
+      "parent": 281792,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:34 2026",
+      "command": "/bin/sh /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/as -EL -mabi=lp64 -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__as_capture_0_1.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.s"
+    },
+    "281794": {
+      "parent": 281793,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:34 2026",
+      "command": "/usr/bin/aarch64-linux-gnu-as -EL -mabi=lp64 -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__as_capture_0_1.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.s"
+    },
+    "281791": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:34 2026",
+      "command": "sh -c -- NANO_AS_CAPTURE_PHASE=capture NANO_AS_CAPTURE_PREFIX='/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__as_read_0_1' NANO_AS_CAPTURE_INPUT='/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.s' NANO_AS_CAPTURE_PRIMARY='/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.s' /bin/gcc -c -fPIC  -x assembler -B'/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/' '/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__snapshot_0_1.s' -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-OAQXFr/__as_capture_0_1.o'"
+    },
+    "281852": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:34 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/compiler_support' -I/usr/include/SDL2 -D_REENTRANT -I'src' -D_GNU_SOURCE -c -o 'obj/nano_modules/.nano-module-hdssfF/object.o' 'obj/nano_modules/.nano-module-hdssfF/source.c' 2>&1"
+    },
+    "281853": {
+      "parent": 281852,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:34 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/compiler_support -I/usr/include/SDL2 -D_REENTRANT -Isrc -D_GNU_SOURCE -c -o obj/nano_modules/.nano-module-hdssfF/object.o obj/nano_modules/.nano-module-hdssfF/source.c"
+    },
+    "281854": {
+      "parent": 281853,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:34 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/compiler_support -I /usr/include/SDL2 -I src -imultiarch aarch64-linux-gnu -D _REENTRANT -D _GNU_SOURCE obj/nano_modules/.nano-module-hdssfF/source.c -quiet -dumpdir obj/nano_modules/.nano-module-hdssfF/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccyckWVM.s"
+    },
+    "282461": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:35 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh LexerToken_length /tmp LexerToken_length > /dev/null 2>&1"
+    },
+    "282462": {
+      "parent": 282461,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:35 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh LexerToken_length /tmp LexerToken_length"
+    },
+    "282784": {
+      "parent": 282783,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:36 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-ND2v1w/object.o obj/nano_modules/.nano-module-ND2v1w/source.c"
+    },
+    "282785": {
+      "parent": 282784,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:36 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-ND2v1w/source.c -quiet -dumpdir obj/nano_modules/.nano-module-ND2v1w/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc0lWFRU.s"
+    },
+    "282783": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:36 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-ND2v1w/object.o' 'obj/nano_modules/.nano-module-ND2v1w/source.c' 2>&1"
+    },
+    "283040": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:37 2026",
+      "command": "sh -c -- /bin/gcc -S -fPIC '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_3.i' -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_3.s'"
+    },
+    "283041": {
+      "parent": 283040,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:37 2026",
+      "command": "/bin/gcc -S -fPIC /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_3.i -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_3.s"
+    },
+    "283042": {
+      "parent": 283041,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:37 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -fpreprocessed /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_3.i -quiet -dumpdir /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/ -dumpbase __snapshot_0_3.i -dumpbase-ext .i -mlittle-endian -mabi=lp64 -fPIC -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_3.s -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection"
+    },
+    "283058": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:37 2026",
+      "command": "sh -c -- NANO_AS_CAPTURE_PHASE=capture NANO_AS_CAPTURE_PREFIX='/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__as_read_0_5' NANO_AS_CAPTURE_INPUT='/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_5.s' NANO_AS_CAPTURE_PRIMARY='/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_5.s' /bin/gcc -c -fPIC -x assembler -B'/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_5.s' -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__as_capture_0_5.o'"
+    },
+    "283059": {
+      "parent": 283058,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:37 2026",
+      "command": "/bin/gcc -c -fPIC -x assembler -B/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/ /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_5.s -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__as_capture_0_5.o"
+    },
+    "283060": {
+      "parent": 283059,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:37 2026",
+      "command": "/bin/sh /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/as -EL -mabi=lp64 -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__as_capture_0_5.o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_5.s"
+    },
+    "283061": {
+      "parent": 283060,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:37 2026",
+      "command": "/usr/bin/aarch64-linux-gnu-as -EL -mabi=lp64 -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__as_capture_0_5.o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_5.s"
+    },
+    "283084": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:37 2026",
+      "command": "sh -c -- /bin/gcc -S -fPIC '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_9.i' -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_9.s'"
+    },
+    "283085": {
+      "parent": 283084,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:37 2026",
+      "command": "/bin/gcc -S -fPIC /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_9.i -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_9.s"
+    },
+    "283086": {
+      "parent": 283085,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:37 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -fpreprocessed /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_9.i -quiet -dumpdir /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/ -dumpbase __snapshot_0_9.i -dumpbase-ext .i -mlittle-endian -mabi=lp64 -fPIC -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_9.s -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection"
+    },
+    "283235": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:38 2026",
+      "command": "sh -c -- /bin/gcc -S -fPIC '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_26.i' -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_26.s'"
+    },
+    "283236": {
+      "parent": 283235,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:38 2026",
+      "command": "/bin/gcc -S -fPIC /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_26.i -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_26.s"
+    },
+    "283237": {
+      "parent": 283236,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:38 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -fpreprocessed /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_26.i -quiet -dumpdir /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/ -dumpbase __snapshot_0_26.i -dumpbase-ext .i -mlittle-endian -mabi=lp64 -fPIC -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_26.s -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection"
+    },
+    "283264": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:38 2026",
+      "command": "sh -c -- /bin/gcc -S -fPIC '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_30.i' -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_30.s'"
+    },
+    "283266": {
+      "parent": 283264,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:38 2026",
+      "command": "/bin/gcc -S -fPIC /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_30.i -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_30.s"
+    },
+    "283267": {
+      "parent": 283266,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:38 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -fpreprocessed /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_30.i -quiet -dumpdir /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/ -dumpbase __snapshot_0_30.i -dumpbase-ext .i -mlittle-endian -mabi=lp64 -fPIC -o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-build-JxTi7y/__snapshot_0_30.s -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection"
+    },
+    "283640": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:40 2026",
+      "command": "sh -c -- /bin/gcc -S -fPIC '/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/__snapshot_0_6.i' -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/__snapshot_0_6.s'"
+    },
+    "283641": {
+      "parent": 283640,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:40 2026",
+      "command": "/bin/gcc -S -fPIC /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/__snapshot_0_6.i -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/__snapshot_0_6.s"
+    },
+    "283642": {
+      "parent": 283641,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:40 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -fpreprocessed /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/__snapshot_0_6.i -quiet -dumpdir /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/ -dumpbase __snapshot_0_6.i -dumpbase-ext .i -mlittle-endian -mabi=lp64 -fPIC -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/__snapshot_0_6.s -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection"
+    },
+    "283667": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:40 2026",
+      "command": "sh -c -- /bin/gcc -S -fPIC '/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/__snapshot_0_9.i' -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/__snapshot_0_9.s'"
+    },
+    "283668": {
+      "parent": 283667,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:40 2026",
+      "command": "/bin/gcc -S -fPIC /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/__snapshot_0_9.i -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/__snapshot_0_9.s"
+    },
+    "283669": {
+      "parent": 283668,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:40 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -fpreprocessed /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/__snapshot_0_9.i -quiet -dumpdir /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/ -dumpbase __snapshot_0_9.i -dumpbase-ext .i -mlittle-endian -mabi=lp64 -fPIC -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nano-gcc-check-o8tVPG/__snapshot_0_9.s -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection"
+    },
+    "284139": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:43 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/nanoisa' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-sq30JR/object.o' 'obj/nano_modules/.nano-module-sq30JR/source.c' 2>&1"
+    },
+    "284140": {
+      "parent": 284139,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:43 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/nanoisa -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-sq30JR/object.o obj/nano_modules/.nano-module-sq30JR/source.c"
+    },
+    "284141": {
+      "parent": 284140,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:43 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/nanoisa -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-sq30JR/source.c -quiet -dumpdir obj/nano_modules/.nano-module-sq30JR/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccLyemMv.s"
+    },
+    "284854": {
+      "parent": 284853,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:44 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh ASTStmtRef_new /tmp ASTStmtRef_new"
+    },
+    "284853": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:44 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTStmtRef_new /tmp ASTStmtRef_new > /dev/null 2>&1"
+    },
+    "285065": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:44 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTString_length /tmp ASTString_length > /dev/null 2>&1"
+    },
+    "285156": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:44 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-PDkWY8/object.o' 'obj/nano_modules/.nano-module-PDkWY8/source.c' 2>&1"
+    },
+    "285157": {
+      "parent": 285156,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:44 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-PDkWY8/object.o obj/nano_modules/.nano-module-PDkWY8/source.c"
+    },
+    "285158": {
+      "parent": 285157,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:44 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-PDkWY8/source.c -quiet -dumpdir obj/nano_modules/.nano-module-PDkWY8/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccMVInlD.s"
+    },
+    "285413": {
+      "parent": 285411,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:45 2026",
+      "command": "/bin/bash ./scripts/generate_list.sh ASTIf /tmp ASTIf"
+    },
+    "285411": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:45 2026",
+      "command": "sh -c -- ./scripts/generate_list.sh ASTIf /tmp ASTIf > /dev/null 2>&1"
+    },
+    "286166": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:46 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/src -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/collections -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/json -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/io -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/math -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/peg -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/std/string -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source'/modules/sdl_helpers '-I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-E4yurn/object.o' 'obj/nano_modules/.nano-module-E4yurn/source.c' 2>&1"
+    },
+    "286167": {
+      "parent": 286166,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:46 2026",
+      "command": "/bin/gcc -std=c99 -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/usr/include/SDL2 -D_REENTRANT -c -o obj/nano_modules/.nano-module-E4yurn/object.o obj/nano_modules/.nano-module-E4yurn/source.c"
+    },
+    "286168": {
+      "parent": 286167,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:46 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/collections -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/json -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/io -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/math -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/peg -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std/string -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/sdl_helpers -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /usr/include/SDL2 -imultiarch aarch64-linux-gnu -D _REENTRANT obj/nano_modules/.nano-module-E4yurn/source.c -quiet -dumpdir obj/nano_modules/.nano-module-E4yurn/ -dumpbase object.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccQHWOQl.s"
+    },
+    "286177": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:46 2026",
+      "command": "[nanoc_c]"
+    },
+    "286635": {
+      "parent": 266005,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:56 2026",
+      "command": "sh -c -- /bin/gcc -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier     -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src' -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/generated' -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano' -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler' -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std' -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/compiler_support' -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/nanoisa' -I'src' -D_GNU_SOURCE -I'/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp' -rdynamic -o '/home/jkh/nanolang-qualification/record-lists-66a-observer-report/stage1' '/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nanoc_266005_stage1.c' 'obj/nano_modules/compiler_schema.o' 'obj/nano_modules/compiler_contracts.o' 'obj/nano_modules/compiler_ast.o' 'obj/nano_modules/ast_shared.o' 'obj/nano_modules/ir.o' 'obj/nano_modules/token_value_bytes.o' 'obj/nano_modules/diagnostics.o' 'obj/nano_modules/std_nano_fs.o' 'obj/nano_modules/lexer.o' 'obj/nano_modules/parser.o' 'obj/nano_modules/passive_graph.o' 'obj/nano_modules/module_bindings.o' 'obj/nano_modules/passive_purity.o' 'obj/nano_modules/declaration_ownership.o' 'obj/nano_modules/type_substitution.o' 'obj/nano_modules/nominal_bindings.o' 'obj/nano_modules/purity_intrinsics.o' 'obj/nano_modules/error_messages.o' 'obj/nano_modules/typecheck.o' 'obj/nano_modules/binary64_format_runtime.o' 'obj/nano_modules/binary64_arithmetic_runtime.o' 'obj/nano_modules/transpiler.o' 'obj/nano_modules/owner_selection.o' 'obj/nano_modules/nanoisa_borrows.o' 'obj/nano_modules/compiler_support_nano_compiler_support.o' 'obj/nano_modules/nanoisa_codegen.o' 'obj/nano_modules/nanoisa_nano_nanoisa.o' 'obj/nano_modules/module_loader.o' 'obj/nano_modules/module_introspection.o' /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-286debbbc2f707d1e664996eb43e808ae9b06439e38de7c612add99d881aea44/.nano-gen-b3mhoM/std.o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-gen-IVoN9A/compiler_support.o -lssl -lcrypto /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-gen-JxTi7y/nanoisa.o  '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_int.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_string.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_LexerToken.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_token.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_CompilerDiagnostic.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_CompilerSourceLocation.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTNumber.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTFloat.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTString.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTBool.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTIdentifier.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTBinaryOp.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTCall.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTModuleQualifiedCall.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTArrayLiteral.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTLet.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTSet.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTStmtRef.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTIf.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTWhile.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTFor.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTReturn.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTBlock.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTUnsafeBlock.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTPrint.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTAssert.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTFunction.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTShadow.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTStruct.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTStructLiteral.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTFieldAccess.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTEnum.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTUnion.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTUnionConstruct.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTMatch.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTImport.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTOpaqueType.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTTupleLiteral.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTTupleIndex.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/token_helpers.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/gc.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/effect_runtime.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/dyn_array.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/gc_struct.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/nl_string.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/cli.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/regex.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/utf8.c' '/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/coroutine.c'  -lm -ldl"
+    },
+    "286636": {
+      "parent": 286635,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:56 2026",
+      "command": "/bin/gcc -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/generated -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/compiler_support -I/home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/nanoisa -Isrc -D_GNU_SOURCE -I/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp -rdynamic -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/stage1 /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nanoc_266005_stage1.c obj/nano_modules/compiler_schema.o obj/nano_modules/compiler_contracts.o obj/nano_modules/compiler_ast.o obj/nano_modules/ast_shared.o obj/nano_modules/ir.o obj/nano_modules/token_value_bytes.o obj/nano_modules/diagnostics.o obj/nano_modules/std_nano_fs.o obj/nano_modules/lexer.o obj/nano_modules/parser.o obj/nano_modules/passive_graph.o obj/nano_modules/module_bindings.o obj/nano_modules/passive_purity.o obj/nano_modules/declaration_ownership.o obj/nano_modules/type_substitution.o obj/nano_modules/nominal_bindings.o obj/nano_modules/purity_intrinsics.o obj/nano_modules/error_messages.o obj/nano_modules/typecheck.o obj/nano_modules/binary64_format_runtime.o obj/nano_modules/binary64_arithmetic_runtime.o obj/nano_modules/transpiler.o obj/nano_modules/owner_selection.o obj/nano_modules/nanoisa_borrows.o obj/nano_modules/compiler_support_nano_compiler_support.o obj/nano_modules/nanoisa_codegen.o obj/nano_modules/nanoisa_nano_nanoisa.o obj/nano_modules/module_loader.o obj/nano_modules/module_introspection.o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-286debbbc2f707d1e664996eb43e808ae9b06439e38de7c612add99d881aea44/.nano-gen-b3mhoM/std.o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-gen-IVoN9A/compiler_support.o -lssl -lcrypto /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-gen-JxTi7y/nanoisa.o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_int.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_string.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_LexerToken.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_token.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_CompilerDiagnostic.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_CompilerSourceLocation.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTNumber.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTFloat.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTString.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTBool.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTIdentifier.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTBinaryOp.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTCall.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTModuleQualifiedCall.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTArrayLiteral.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTLet.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTSet.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTStmtRef.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTIf.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTWhile.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTFor.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTReturn.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTBlock.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTUnsafeBlock.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTPrint.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTAssert.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTFunction.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTShadow.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTStruct.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTStructLiteral.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTFieldAccess.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTEnum.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTUnion.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTUnionConstruct.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTMatch.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTImport.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTOpaqueType.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTTupleLiteral.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTTupleIndex.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/token_helpers.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/gc.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/effect_runtime.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/dyn_array.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/gc_struct.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/nl_string.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/cli.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/regex.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/utf8.c /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/coroutine.c -lm -ldl"
+    },
+    "286637": {
+      "parent": 286636,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:56 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/generated -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/compiler_support -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/nanoisa -I src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp -imultiarch aarch64-linux-gnu -D _GNU_SOURCE /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/nanoc_266005_stage1.c -quiet -dumpdir /home/jkh/nanolang-qualification/record-lists-66a-observer-report/stage1- -dumpbase nanoc_266005_stage1.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccksZjS2.s"
+    },
+    "286770": {
+      "parent": 286636,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:57 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/generated -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src_nano/compiler -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/std -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/compiler_support -I /home/jkh/nanolang-qualification/record-lists-66a-observer-source/modules/nanoisa -I src -I /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp -imultiarch aarch64-linux-gnu -D _GNU_SOURCE /home/jkh/nanolang-qualification/record-lists-66a-observer-source/src/runtime/list_ASTOpaqueType.c -quiet -dumpdir /home/jkh/nanolang-qualification/record-lists-66a-observer-report/stage1- -dumpbase list_ASTOpaqueType.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier -std=c99 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccksZjS2.s"
+    },
+    "286896": {
+      "parent": 286636,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:58 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/aarch64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/aarch64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccekFEVl.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux --fix-cortex-a53-843419 -pie -z now -z relro -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/stage1 /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/Scrt1.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/aarch64-linux-gnu/13 -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/13/../../.. /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccLP8TIB.o obj/nano_modules/compiler_schema.o obj/nano_modules/compiler_contracts.o obj/nano_modules/compiler_ast.o obj/nano_modules/ast_shared.o obj/nano_modules/ir.o obj/nano_modules/token_value_bytes.o obj/nano_modules/diagnostics.o obj/nano_modules/std_nano_fs.o obj/nano_modules/lexer.o obj/nano_modules/parser.o obj/nano_modules/passive_graph.o obj/nano_modules/module_bindings.o obj/nano_modules/passive_purity.o obj/nano_modules/declaration_ownership.o obj/nano_modules/type_substitution.o obj/nano_modules/nominal_bindings.o obj/nano_modules/purity_intrinsics.o obj/nano_modules/error_messages.o obj/nano_modules/typecheck.o obj/nano_modules/binary64_format_runtime.o obj/nano_modules/binary64_arithmetic_runtime.o obj/nano_modules/transpiler.o obj/nano_modules/owner_selection.o obj/nano_modules/nanoisa_borrows.o obj/nano_modules/compiler_support_nano_compiler_support.o obj/nano_modules/nanoisa_codegen.o obj/nano_modules/nanoisa_nano_nanoisa.o obj/nano_modules/module_loader.o obj/nano_modules/module_introspection.o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-286debbbc2f707d1e664996eb43e808ae9b06439e38de7c612add99d881aea44/.nano-gen-b3mhoM/std.o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-gen-IVoN9A/compiler_support.o -lssl -lcrypto /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-gen-JxTi7y/nanoisa.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccsz6PhX.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cciZ2yD3.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cceBNqOe.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc008Cpc.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc8TbYHN.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc3Fo9Op.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccENo1w5.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccMPg0Ah.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccLBqnAr.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccO8lJTF.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccdxySla.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccSzKY8C.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccMSWKw0.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccVGobkh.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc9QENSO.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cckcTTfu.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccPm7zKK.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccpF7TLJ.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc1ldDTu.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccXS7nMQ.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccnZwsre.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccAvSBWa.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc3wvV5V.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc6S4BeG.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc6H9SlB.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc8GOB9L.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc187lz1.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccWAaWGh.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccLnbC21.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccZV7rlW.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccQ4DrHx.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccSPqY5s.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc9oa4id.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cciqdNbt.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccRsr5VD.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccbcGj6c.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccUTcRqB.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccFsNMNw.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc0cr30d.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc5oEF0w.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccEr7x1q.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccEeq3uQ.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccWxIf2J.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc7rE6r4.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccpFnwdm.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cclFZLtZ.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccvZZIVA.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccNlE1N8.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccPWvhLz.o -lm -ldl -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/aarch64-linux-gnu/13/crtendS.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crtn.o"
+    },
+    "286897": {
+      "parent": 286896,
+      "group": 266005,
+      "started": "Mon Sep 21 22:36:58 2026",
+      "command": "/bin/ld -plugin /usr/libexec/gcc/aarch64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/aarch64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccekFEVl.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux --fix-cortex-a53-843419 -pie -z now -z relro -o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/stage1 /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/Scrt1.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/aarch64-linux-gnu/13 -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/13/../../.. /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccLP8TIB.o obj/nano_modules/compiler_schema.o obj/nano_modules/compiler_contracts.o obj/nano_modules/compiler_ast.o obj/nano_modules/ast_shared.o obj/nano_modules/ir.o obj/nano_modules/token_value_bytes.o obj/nano_modules/diagnostics.o obj/nano_modules/std_nano_fs.o obj/nano_modules/lexer.o obj/nano_modules/parser.o obj/nano_modules/passive_graph.o obj/nano_modules/module_bindings.o obj/nano_modules/passive_purity.o obj/nano_modules/declaration_ownership.o obj/nano_modules/type_substitution.o obj/nano_modules/nominal_bindings.o obj/nano_modules/purity_intrinsics.o obj/nano_modules/error_messages.o obj/nano_modules/typecheck.o obj/nano_modules/binary64_format_runtime.o obj/nano_modules/binary64_arithmetic_runtime.o obj/nano_modules/transpiler.o obj/nano_modules/owner_selection.o obj/nano_modules/nanoisa_borrows.o obj/nano_modules/compiler_support_nano_compiler_support.o obj/nano_modules/nanoisa_codegen.o obj/nano_modules/nanoisa_nano_nanoisa.o obj/nano_modules/module_loader.o obj/nano_modules/module_introspection.o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-286debbbc2f707d1e664996eb43e808ae9b06439e38de7c612add99d881aea44/.nano-gen-b3mhoM/std.o /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-662cc7b725fd6eadb1690de189d58fb067ebc90fed39703a388ab967239d1450/.nano-gen-IVoN9A/compiler_support.o -lssl -lcrypto /home/jkh/nanolang-qualification/record-lists-66a-observer-source/obj/module_cache/v2-ad6f2b0d5411e635a7c9bb69d3113e8df1f35e0e3e4ef411c88325101c011869/.nano-gen-JxTi7y/nanoisa.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccsz6PhX.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cciZ2yD3.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cceBNqOe.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc008Cpc.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc8TbYHN.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc3Fo9Op.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccENo1w5.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccMPg0Ah.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccLBqnAr.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccO8lJTF.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccdxySla.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccSzKY8C.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccMSWKw0.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccVGobkh.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc9QENSO.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cckcTTfu.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccPm7zKK.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccpF7TLJ.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc1ldDTu.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccXS7nMQ.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccnZwsre.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccAvSBWa.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc3wvV5V.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc6S4BeG.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc6H9SlB.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc8GOB9L.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc187lz1.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccWAaWGh.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccLnbC21.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccZV7rlW.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccQ4DrHx.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccSPqY5s.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc9oa4id.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cciqdNbt.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccRsr5VD.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccbcGj6c.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccUTcRqB.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccFsNMNw.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc0cr30d.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc5oEF0w.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccEr7x1q.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccEeq3uQ.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccWxIf2J.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cc7rE6r4.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccpFnwdm.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/cclFZLtZ.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccvZZIVA.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccNlE1N8.o /home/jkh/nanolang-qualification/record-lists-66a-observer-report/tmp/ccPWvhLz.o -lm -ldl -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/aarch64-linux-gnu/13/crtendS.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crtn.o"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

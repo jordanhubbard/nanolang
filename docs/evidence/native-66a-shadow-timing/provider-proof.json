@@ -1,0 +1,8 @@
+{
+  "unchanged_count": 746,
+  "replaced": [
+    "bin/nanoc_c",
+    "obj/eval.o",
+    "obj/main.o"
+  ]
+}

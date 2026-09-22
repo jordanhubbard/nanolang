@@ -1,0 +1,17 @@
+{
+  "obj/eval.o": {
+    "sha256": "42917e27bf64393bca6d42800c9d5aa39c006edf82400a2a120fe84e7853f601",
+    "bytes": 920232,
+    "mode": 436
+  },
+  "bin/nanoc_c": {
+    "sha256": "e79e0b1bb1042072078c0639e23592ee6b7df866d58077fb0dc48222c10284fb",
+    "bytes": 19759712,
+    "mode": 509
+  },
+  "obj/main.o": {
+    "sha256": "05409ca710a15b0559eb21ec26e8f29d84f2cbbb713256dd6c7e4070d4bc3af2",
+    "bytes": 394560,
+    "mode": 436
+  }
+}
