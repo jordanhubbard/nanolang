@@ -17465,3 +17465,5 @@ The byte/nested follow-up includes expression statements and other contexts
 without a complete destination check. Refusing a result-view request does not
 change the coarse checker admission in every context. I retain that unresolved
 boundary explicitly and do not execute those unsupported forms as positives.
+
+- [x] I qualify reviewed653 flat arithmetic result views with fresh providers and the full original checker/evaluator targets, all four Linux/Darwin ordinary and ASan/UBSan/LSan configurations. All eight methods and four builds pass; original610 first failure remains sealed. Evidence: `docs/evidence/array-views-653`. Canonical integration and byte/nested expression admission follow-up remain separate.
