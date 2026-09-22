@@ -1,0 +1,1 @@
+{"phase":"source identity before any compiler/product invocation","reason":"git archive extraction retained group-write mode; bytes matched, selected modes differed","correction":"fresh r2 export explicitly uses Git index modes before identity validation"}

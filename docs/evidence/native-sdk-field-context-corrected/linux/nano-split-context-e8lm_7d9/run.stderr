@@ -1,0 +1,6 @@
+Error at line 1, column 37: I require array<string> for this string-array result.
+Hint: Preserve the result's string element annotation.
+Error at line 1, column 35: I require STRING elements for this array<string> annotation.
+Hint: Preserve the result's string element annotation.
+Error at line 1, column 35: I require array<string> for this string-array result.
+Hint: Preserve the result's string element annotation.
