@@ -1542,12 +1542,17 @@ bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
     }
 
     size_t opaque_results = 0;
-    for (int i = 0; i < count; ++i) {
-        if (!cop_prepare_opaque_call(vm, module, calls[i].import_idx, calls[i].args,
-                                     calls[i].arg_count, error_msg, error_msg_size)) return false;
-        opaque_results += module->imports[calls[i].import_idx].return_type == TAG_OPAQUE;
+    /* I reserve the worst-case metadata before native entry, but a later bad
+     * declaration must not erase the existing completed-prefix contract. */
+    for (int i = 0; i < count; ++i)
+        if (calls[i].import_idx < module->import_count &&
+            module->imports[calls[i].import_idx].return_type == TAG_OPAQUE) ++opaque_results;
+    if (opaque_results &&
+        (!cop_opaque_owner_reserve(&vm->cop_opaque, opaque_results) ||
+         !cop_opaque_owner_reply(&vm->cop_opaque, COP_MAX_PAYLOAD))) {
+        snprintf(error_msg, error_msg_size, "I could not reserve isolated batch publication before native entry");
+        return false;
     }
-    if (opaque_results && !cop_opaque_owner_reserve(&vm->cop_opaque, opaque_results)) return false;
     CopMailbox *mbox = vm->cop_mailbox;
     bool array_arguments = false;
     for (int i = 0; i < count; ++i) {
@@ -1591,8 +1596,17 @@ bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
         int batched = 0;
         while (next < count && batched < COP_MAX_BATCH) {
             const CopBatchCall *call = &calls[next];
+            if (!cop_prepare_opaque_call(vm, module, call->import_idx, call->args,
+                                         call->arg_count, error_msg, error_msg_size)) {
+                if (!batched) return false;
+                break; /* I publish this valid prefix before reporting the next call. */
+            }
             uint32_t reply_width = cop_scalar_reply_size(module->imports[call->import_idx].return_type);
-            if (!reply_width) return false;
+            if (!reply_width) {
+                if (batched) break;
+                snprintf(error_msg, error_msg_size, "I require a supported isolated scalar batch result");
+                return false;
+            }
             if (reply_width > COP_MAILBOX_SLOT_SIZE - reply_reserved) break;
             int argc = call->arg_count;
             if (argc > 16) argc = 16;

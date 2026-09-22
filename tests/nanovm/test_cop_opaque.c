@@ -209,6 +209,12 @@ int main(int argc, char **argv) {
     assert(vm_ffi_call_cop_batch(a, module, batch, 3, results, &heap, error, sizeof error));
     for (int i = 0; i < 3; ++i) assert(val_equal(results[i], first));
     const uint32_t large_length = COP_MAILBOX_SLOT_SIZE + 8193;
+    CopBatchCall prefix[] = {{1, &first, 1}, {UINT32_MAX, NULL, 0}};
+    NanoValue partial[2];
+    error[0] = 0;
+    assert(!vm_ffi_call_cop_batch(a, module, prefix, 2, partial, &heap, error, sizeof error));
+    assert(error[0] && val_equal(partial[0], first) && partial[1].tag == TAG_VOID);
+    assert(cop_opaque_owner_argument(&a->cop_opaque, partial[0]));
     char *bytes = malloc((size_t)large_length + 1);
     assert(bytes);
     memset(bytes, 'x', large_length); bytes[large_length] = 0;
