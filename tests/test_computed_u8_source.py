@@ -206,6 +206,14 @@ shadow main { assert (== (main) 0) }
         self.paired('''let mut calls: int = 0
 fn receiver() -> array<int> { set calls (+ calls 1) return [17, 42] }
 shadow receiver { set calls 0 let values: array<int> = (receiver) assert (== calls 1) assert (== (array_length values) 2) }
+fn byte_receiver() -> array<u8> { set calls (+ calls 1) let values: array<u8> = [1, 255] return values }
+shadow byte_receiver { assert (== (array_length (byte_receiver)) 2) }
+fn float_receiver() -> array<float> { set calls (+ calls 1) return [1.5, 2.5] }
+shadow float_receiver { assert (== (array_length (float_receiver)) 2) }
+fn string_receiver() -> array<string> { set calls (+ calls 1) return ["first", "last"] }
+shadow string_receiver { assert (== (array_length (string_receiver)) 2) }
+fn bool_receiver() -> array<bool> { set calls (+ calls 1) return [false, true] }
+shadow bool_receiver { assert (== (array_length (bool_receiver)) 2) }
 fn main() -> int {
  set calls 0
  let array_push: int = 7
@@ -213,6 +221,12 @@ fn main() -> int {
  let popped: int = (array_pop (receiver))
  assert (== calls 1)
  assert (== popped 42)
+ let computed_byte: u8 = (array_pop (byte_receiver))
+ assert (== (cast_int computed_byte) 255)
+ assert (== (array_pop (float_receiver)) 2.5)
+ assert (== (array_pop (string_receiver)) "last")
+ assert (array_pop (bool_receiver))
+ assert (== calls 5)
  let mut bytes: array<u8> = [1, 255]
  let byte_value: u8 = (array_pop bytes)
  assert (== (cast_int byte_value) 255)
@@ -221,6 +235,32 @@ fn main() -> int {
 }
 shadow main { assert (== (main) 0) }
 ''', backends=False, require_cast=False)
+
+    def test_array_pop_lexical_callable_authority(self):
+        original = self.artifacts
+        for scope in ('local', 'global'):
+            self.artifacts = original / ('pop-callback-' + scope); self.artifacts.mkdir()
+            binding = 'let array_pop: fn(int) -> int = increment\n'
+            source = self.artifacts / 'source.nano'
+            source.write_text('fn increment(value: int) -> int { return (+ value 1) }\n'
+                'shadow increment { assert (== (increment 41) 42) }\n' +
+                (binding if scope == 'global' else '') + 'fn main() -> int {\n' +
+                (binding if scope == 'local' else '') +
+                'assert (== (array_pop 41) 42) return 0 }\nshadow main { assert (== (main) 0) }\n')
+            native = self.artifacts / 'native'
+            self.run_actual([ROOT / 'bin/nanoc_c', source, '-o', native])
+            self.run_actual([native])
+            module = self.artifacts / 'source.nvm'
+            self.run_actual([ROOT / 'bin/nano_virt', source, '--emit-nvm', '-o', module])
+            self.run_actual([ROOT / 'bin/nano_vm', '--verify-only', module])
+            self.run_actual([ROOT / 'bin/nano_vm', module])
+            # My independent Nano emitter still refuses indirect source calls.
+            for producer in self.producers()[1:]:
+                output = self.artifacts / 'previous.nvm'; output.write_bytes(b'previous module\n')
+                result = self.run_trap([producer, source, '--emit-nvm', '-o', output])
+                self.assertGreater(result['returncode'], 0)
+                self.assertEqual(output.read_bytes(), b'previous module\n')
+        self.artifacts = original
 
     def test_array_pop_rejects_wrong_receiver_and_arity(self):
         original = self.artifacts

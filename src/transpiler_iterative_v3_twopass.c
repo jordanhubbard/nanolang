@@ -2503,23 +2503,17 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                    suffix, call_id, call_id);
                 }
             }
-            else if (strcmp(func_name, "array_pop") == 0 && expr->as.call.arg_count == 1) {
-                /* Detect element type from array argument */
-                Type elem_type = TYPE_INT;  /* Default to int */
-                const char *struct_name = NULL;
-                
-                ASTNode *array_arg = expr->as.call.args[0];
-                if (array_arg->type == AST_IDENTIFIER) {
-                    const char *array_name = array_arg->as.identifier;
-                    Symbol *sym = env_get_var_visible_at(env, array_name, array_arg->line, array_arg->column);
-                    if (sym && sym->element_type != TYPE_UNKNOWN) {
-                        elem_type = sym->element_type;
-                        if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
-                            struct_name = sym->struct_type_name;
-                        }
-                    }
+            else if (strcmp(func_name, "array_pop") == 0 && expr->as.call.arg_count == 1 &&
+                     !env_get_var_visible_at(env, func_name, expr->line, expr->column) &&
+                     env_function_is_builtin(env_get_function(env, func_name), "array_pop")) {
+                Type elem_type = check_expression(expr, env);
+                const char *struct_name = elem_type == TYPE_STRUCT
+                    ? checked_array_record_name(expr->as.call.args[0], env) : NULL;
+                if (elem_type == TYPE_UNKNOWN || (elem_type == TYPE_STRUCT && !struct_name)) {
+                    fprintf(stderr, "I require a checked native array_pop element type.\n");
+                    exit(1);
                 }
-                
+
                 /* For structs, use dyn_array_pop_struct */
                 if (elem_type == TYPE_STRUCT && struct_name) {
                     /* Generate: ({ bool _s; nl_StructName _v; dyn_array_pop_struct(arr, &_v, sizeof(nl_StructName), &_s); _v; }) */

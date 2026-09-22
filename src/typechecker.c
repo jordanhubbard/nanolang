@@ -634,7 +634,7 @@ static bool hashmap_extract_kv(TypeInfo *hm_info, Type *out_key, Type *out_value
 }
 
 /* I borrow nominal element identity from the array declaration. */
-static const char *array_record_name(ASTNode *array, Environment *env) {
+const char *checked_array_record_name(ASTNode *array, Environment *env) {
     if (!array) return NULL;
     if (array->type == AST_ARRAY_LITERAL && array->as.array_literal.element_count > 0)
         return get_struct_type_name(array->as.array_literal.elements[0], env);
@@ -676,7 +676,7 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
             env_array_push_is_builtin(env, array->line, array->column);
         if (((builtin_push || !strcmp(name, "filter")) && array->as.call.arg_count == 2) ||
             (!strcmp(name, "array_slice") && array->as.call.arg_count == 3))
-            return array_record_name(array->as.call.args[0], env);
+            return checked_array_record_name(array->as.call.args[0], env);
         if (!strcmp(name, "array_new") && array->as.call.arg_count == 2)
             return get_struct_type_name(array->as.call.args[1], env);
         if (!strcmp(name, "map") && array->as.call.arg_count == 2 &&
@@ -702,7 +702,7 @@ static bool check_record_array_contract(Environment *env, Type type, Type elemen
     StructDef *expected = env_get_struct(env, name);
     if (!expected) return true; /* Enum and formal-generic contexts have other rules. */
     if (value->type == AST_ARRAY_LITERAL && value->as.array_literal.element_count == 0) return true;
-    const char *actual_name = array_record_name(value, env);
+    const char *actual_name = checked_array_record_name(value, env);
     StructDef *actual = actual_name ? env_get_struct(env, actual_name) : NULL;
     if (actual == expected) return true;
     emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
@@ -1001,7 +1001,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
         case AST_CALL: {
             if (!expr->as.call.func_expr && expr->as.call.name && expr->as.call.arg_count == 2 &&
                 (!strcmp(expr->as.call.name, "at") || !strcmp(expr->as.call.name, "array_get")))
-                return array_record_name(expr->as.call.args[0], env);
+                return checked_array_record_name(expr->as.call.args[0], env);
             /* Check if return_struct_type_name was set by type checker (for generic list get) */
             if (expr->as.call.return_struct_type_name) {
                 return expr->as.call.return_struct_type_name;
@@ -1905,7 +1905,7 @@ static bool check_array_access_arguments(ASTNode *call, Environment *env) {
     if (valid) {
         /* I retain element identity while the lexical environment is available.
          * Bytecode field selection runs after these local scopes are gone. */
-        const char *name = array_record_name(array, env);
+        const char *name = checked_array_record_name(array, env);
         char *retained = name ? strdup(name) : NULL;
         free(call->as.call.return_struct_type_name);
         call->as.call.return_struct_type_name = retained;
