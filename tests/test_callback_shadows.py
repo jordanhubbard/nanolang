@@ -33,7 +33,7 @@ __attribute__((constructor)) static void provider_constructor(void) {
 
 
 class CallbackShadows(unittest.TestCase):
-    def compile_fixture(self, succeeds, execution, trace_constructor=False):
+    def compile_fixture(self, succeeds, execution, trace_constructor=False, declared_owner=False):
         with tempfile.TemporaryDirectory(prefix="nano-callback-shadows-") as directory:
             work = Path(directory)
             (work / "module.json").write_text(json.dumps({
@@ -54,7 +54,7 @@ int64_t invoke_retained(NanoCallbackV1 *fn, int64_t value) {
                 native_source = CONSTRUCTOR + native_source
             (work / "fixture.c").write_text(native_source)
             expected = 42 if succeeds else 99
-            (work / "fixture.nano").write_text("""extern fn invoke(callback: fn(int) -> int, value: int) -> int
+            (work / "fixture.nano").write_text(("module ExplicitCallbacks\n" if declared_owner else "") + """extern fn invoke(callback: fn(int) -> int, value: int) -> int
 fn increment(value: int) -> int { return (+ value 1) }
 shadow increment { assert (== (increment 41) 42) }
 fn callback_check() -> int { unsafe { return (invoke increment 41) } }
@@ -136,6 +136,9 @@ fn callback_check() -> int { unsafe { return (invoke increment 41) } }
             child, parent = entries[0]
             self.assertNotEqual(child, process.pid)
             self.assertEqual(parent, process.pid, "I initialize inside the interpreted shadow child")
+
+    def test_declared_owner_replaces_retained_fallback(self):
+        self.compile_fixture(True, "owner", declared_owner=True)
 
     def test_owner_callback_dependency(self):
         self.compile_fixture(True, "owner")

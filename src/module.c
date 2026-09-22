@@ -754,13 +754,21 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     /* I register aliases in their importer's context, before checking its body. */
     char *saved_current_module = env->current_module;
     char *module_name = module_name_from_path(module_path);
+    if (!module_name) {
+        fprintf(stderr, "I cannot allocate the module identity.\n");
+        free_ast(module_ast);
+        free_tokens(tokens, token_count);
+        free(source);
+        return NULL;
+    }
+    /* Borrowers retain this identity until the Environment is destroyed. */
+    env_own_checker_allocation(env, module_name);
     env->current_module = module_name;
 
     /* Process imports first - modules may depend on symbols from imported modules */
     if (!process_imports(module_ast, env, modules_to_track, module_path)) {
         fprintf(stderr, "Error: Failed to process imports for module '%s'\n", module_path);
         env->current_module = saved_current_module;
-        free(module_name);
         free_ast(module_ast);
         free_tokens(tokens, token_count);
         free(source);
@@ -782,7 +790,6 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
             fprintf(stderr, "Error: I reject ambiguous module introspection identity: %s\n", identity);
             free(identity);
             env->current_module = saved_current_module;
-            free(module_name);
             free_ast(module_ast);
             free_tokens(tokens, token_count);
             free(source);
@@ -807,10 +814,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     env->suppress_shadow_warnings = saved_suppress_shadow_warnings;
     if (!module_typecheck_ok) {
         fprintf(stderr, "Error: Type checking failed for module '%s'\n", module_path);
-        /* NOTE: module_name may have been freed/overwritten by the module's own
-         * `module <name>` declaration handler in the typechecker, so we must not
-         * free it here.
-         */
+        /* My registered fallback and any explicit owner remain Environment-owned. */
         env->current_module = saved_current_module;  /* Restore context */
         free_ast(module_ast);
         free_tokens(tokens, token_count);
@@ -818,13 +822,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         return NULL;
     }
     
-    /* Restore original module context */
-    /* NOTE: We intentionally DON'T free module_name here because:
-     * 1. Functions registered during type_check have module_name pointers that reference it
-     * 2. Those pointers are just shallow copies from the struct assignment
-     * 3. Freeing would create dangling pointers
-     * 4. This is a short-lived compiler process, so the memory leak is acceptable
-     */
+    /* I restore the borrowed context without shortening retained owner lifetimes. */
     env->current_module = saved_current_module;
     
     /* Load constants from C headers if module has module.json */
