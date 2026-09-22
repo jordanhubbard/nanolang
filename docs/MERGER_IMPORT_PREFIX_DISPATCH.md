@@ -1,0 +1,13 @@
+# I avoid five unconditional prefix checks for every collected source line
+
+The retained `fe6450ea0` diagnostic measures the two real JSON merger shadows at 0.927793 and 0.885595 seconds. Both remain required. The newer Linux `bae599477` bootstrap has an unattributed ten-second refusal; I do not transfer the earlier active-shadow state or claim a measured cause for the newer run.
+
+My actual `parse_import_path_from_line` always calls `nlc_str_starts_with` five times, for `pub use`, `import`, `from`, `module` and `unsafe module`, before combining the results. Ordinary collection and final merging invoke it for every line. The five exact prefixes have distinct first ASCII bytes. All five helper calls are pure byte-prefix decisions; the selected path's quote scan and `parser_decode_import_path` perform the actual path extraction.
+
+I propose a bounded source-only dispatch: reject zero length exactly as today, obtain byte zero with the existing unsigned byte-index operation, and evaluate only the existing full prefix check selected by `p`, `i`, `f`, `m` or `u`. Every other first byte returns the same absent-import result. The original full literal prefix strings, quote/escape loop and actual path decoder remain unchanged. There is no whitespace trimming, Unicode normalization, new import spelling, alternate parser, visibility change, graph-edge omission, retained-source change or shadow selection change. The strict File collector continues using the actual parser.
+
+My byte-zero operation is valid for every nonempty accepted NUL-terminated string: the existing bounded byte helper observes at least that first byte, including longer inputs. Empty and null-as-empty native values return before indexing. I audit the actual evaluator/native helper contract rather than assuming character indexing. The existing prefix helper remains responsible for exact comparison and its established larger-input behavior.
+
+I retain all original import/merger shadows. Additive controls cover all five recognized forms, each near-miss first byte or literal, empty input, indented import, non-ASCII leading byte, quote escaping, missing close quote and invalid decoded NUL. The intended observable result is identical for every input; fewer helper calls and allocations are a source-level property, not yet a claimed wall-time improvement or sufficient bootstrap margin.
+
+Source and fixture review precede execution. Any later fresh bootstrap must retain the original ten-second bound, every selected shadow and full source/provider/tool inventories. Earlier first terminals and all installed/full-release requirements remain open.
