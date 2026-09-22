@@ -698,19 +698,20 @@ shadow transp_str_starts_with {
 fn transp_str_index_of(s: string, ch: string) -> int {
     let len: int = (str_length s)
     let needle_length: int = (str_length ch)
-    let mut i: int = 0
-    
-    while (<= i (- len needle_length)) {
-        let char_at: string = (str_substring s i needle_length)
-        if (== char_at ch) {
-            return i
+    if (== needle_length 0) { return 0 }
+    if (> needle_length len) { return -1 }
+    if (not (str_contains s ch)) { return -1 }
+    let mut low: int = needle_length
+    let mut high: int = len
+    while (< low high) {
+        let middle: int = (+ low (/ (- high low) 2))
+        if (str_contains (str_substring s 0 middle) ch) {
+            set high middle
         } else {
-            (print "")
+            set low (+ middle 1)
         }
-        set i (+ i 1)
     }
-    
-    return -1
+    return (- low needle_length)
 }
 
 shadow transp_str_index_of {
@@ -721,6 +722,30 @@ shadow transp_str_index_of {
     assert (== (transp_str_index_of "ababa" "aba") 0)
     assert (== (transp_str_index_of "a" "ab") -1)
     assert (== (transp_str_index_of "" "") 0)
+    assert (== (transp_str_index_of "xxneedle" "needle") 2)
+    assert (== (transp_str_index_of "needle--needle" "needle") 0)
+    assert (== (transp_str_index_of "éxé" "x") 2)
+    assert (== (transp_str_index_of "éxé" "é") 0)
+    let texts: array<string> = ["", "a", "aaaa", "ababa", "xxneedle", "needle--needle", "éxé", "0123456789-last"]
+    let needles: array<string> = ["", "a", "aa", "aba", "needle", "x", "é", "last", "missing", "0123456789-last-longer"]
+    let mut ti: int = 0
+    while (< ti (array_length texts)) {
+        let text: string = (at texts ti)
+        let mut ni: int = 0
+        while (< ni (array_length needles)) {
+            let needle: string = (at needles ni)
+            let width: int = (str_length needle)
+            let mut expected: int = -1
+            let mut position: int = 0
+            while (and (< expected 0) (<= position (- (str_length text) width))) {
+                if (== (str_substring text position width) needle) { set expected position }
+                set position (+ position 1)
+            }
+            assert (== (transp_str_index_of text needle) expected)
+            set ni (+ ni 1)
+        }
+        set ti (+ ti 1)
+    }
 }
 
 fn transp_extract_list_element_type(s: string) -> string {
