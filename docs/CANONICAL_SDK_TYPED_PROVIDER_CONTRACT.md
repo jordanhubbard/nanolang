@@ -383,3 +383,14 @@ referenced callable signature rows. Exact SDK details still distinguish same-tag
 opaque owners. Ordinary modules keep the existing interning path. The exact
 owned representation and complete conversion/free/serialization consumers need
 source review before execution; I do not copy stale indices into a rebuilt table.
+
+My next private helper, `sdk_signature_snapshot`, copies all original coarse
+signatures (including unused/duplicate rows), their complete tag arrays, and
+function/import/callback/link indices into independently owned storage. It
+publishes only after every allocation succeeds, reports exact owned bytes,
+charges both validation and copy work, and exposes indices without reinterning.
+Only callback/link indices may be NO_INDEX at this transport layer; their actual
+semantic use remains module validation. No old module pointers survive. The
+32MiB/1048576 bounds apply to this typed-profile helper and caller remaining
+budgets; ordinary conversion is unchanged. It is still unlinked, and does not
+substitute for complete generation copy or module/ABI validation.
