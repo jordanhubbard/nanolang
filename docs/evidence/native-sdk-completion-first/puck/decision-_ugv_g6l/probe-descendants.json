@@ -1,0 +1,24 @@
+{
+  "owned": {
+    "30999": {
+      "parent": 30983,
+      "group": 30999,
+      "started": "Mon Sep 21 22:30:46 2026",
+      "command": "/tmp/nanolang-native-sdk-bae59-puck-preparation/decision-_ugv_g6l/probe"
+    },
+    "31003": {
+      "parent": 30999,
+      "group": 30999,
+      "started": "Mon Sep 21 22:30:47 2026",
+      "command": "<defunct>"
+    },
+    "31012": {
+      "parent": 30999,
+      "group": 30999,
+      "started": "Mon Sep 21 22:30:48 2026",
+      "command": "<defunct>"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}
