@@ -7,11 +7,11 @@ import shlex
 import sys
 import tempfile
 import unittest
-from tests.test_file_cyclic import FileCyclic
+from tests import test_file_cyclic
 ROOT = Path(__file__).resolve().parents[1]
 
 class ModuleSdkAbi(unittest.TestCase):
-    command = FileCyclic.command
+    command = test_file_cyclic.FileCyclic.command
 
     def setUp(self):
         self.artifacts = Path(tempfile.mkdtemp(prefix='nano-sdk-abi-metadata-'))
