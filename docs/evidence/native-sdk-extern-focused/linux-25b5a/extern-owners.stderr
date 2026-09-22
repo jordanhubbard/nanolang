@@ -1,0 +1,17 @@
+test_exact_owners_signatures_and_label_failures (tests.test_extern_declaration_owners.ExternDeclarationOwners.test_exact_owners_signatures_and_label_failures) ... FAIL
+
+======================================================================
+FAIL: test_exact_owners_signatures_and_label_failures (tests.test_extern_declaration_owners.ExternDeclarationOwners.test_exact_owners_signatures_and_label_failures)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nanolang-native-sdk-25b5a-linux-source/tests/test_extern_declaration_owners.py", line 26, in test_exact_owners_signatures_and_label_failures
+    native_sdk_runner.run(work,'build',[*cc,*flags,ROOT/'tests/extern_declaration_owners.c',*providers,*links,'-o',exe],ROOT,timeout=300)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/nanolang-native-sdk-25b5a-linux-source/tests/native_sdk_runner.py", line 144, in run
+    raise AssertionError((name, state, out[-8000:], err[-8000:]))
+AssertionError: ('build', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1, 'seconds': 0.1713241059333086}, b'', b'In file included from /tmp/nanolang-native-sdk-25b5a-linux-source/tests/extern_declaration_owners.c:14:\n/tmp/nanolang-native-sdk-25b5a-linux-source/tests/../src/typechecker.c: In function \xe2\x80\x98extern_declaration_view\xe2\x80\x99:\n/tmp/nanolang-native-sdk-25b5a-linux-source/tests/../src/typechecker.c:8353:12: error: expected expression before \xe2\x80\x98{\xe2\x80\x99 token\n 8353 |     return {.name = item->as.function.name,\n      |            ^\n/tmp/nanolang-native-sdk-25b5a-linux-source/tests/../src/typechecker.c:8352:54: error: unused parameter \xe2\x80\x98env\xe2\x80\x99 [-Werror=unused-parameter]\n 8352 | static Function extern_declaration_view(Environment *env, const ASTNode *item) {\n      |                                         ~~~~~~~~~~~~~^~~\n/tmp/nanolang-native-sdk-25b5a-linux-source/tests/../src/typechecker.c:8352:74: error: unused parameter \xe2\x80\x98item\xe2\x80\x99 [-Werror=unused-parameter]\n 8352 | static Function extern_declaration_view(Environment *env, const ASTNode *item) {\n      |                                                           ~~~~~~~~~~~~~~~^~~~\n/tmp/nanolang-native-sdk-25b5a-linux-source/tests/../src/typechecker.c:8363:1: error: control reaches end of non-void function [-Werror=return-type]\n 8363 | }\n      | ^\ncc1: all warnings being treated as errors\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 0.216s
+
+FAILED (failures=1)
