@@ -192,8 +192,10 @@ class CompilerSupportArtifactAdapters(unittest.TestCase):
         recipes = []
         for source, output in [(ROOT / "tests/nanovm/test_loader_fork_admission.c", control),
                                (ROOT / "tests/native_sdk_probe.c", probe)]:
+            provider = (' -DNANO_SDK_PROBE_CAPTURE_EXIT' if output == probe else
+                        ' $(OBJ_DIR)/runtime/module_build_dir.o')
             recipes.append('\t$(CC) $(CFLAGS) -D_GNU_SOURCE -pthread ' + str(source) +
-                           ' $(OBJ_DIR)/runtime/module_build_dir.o $(LDFLAGS) -o ' + str(output))
+                           provider + ' $(LDFLAGS) -o ' + str(output))
         makefile.write_text('.PHONY: artifact-loader-controls\nartifact-loader-controls:\n' +
                             '\n'.join(recipes) + '\n')
         self.run_checked(['make', '-s', '-f', 'Makefile.gnu', '-f', makefile,
@@ -202,8 +204,12 @@ class CompilerSupportArtifactAdapters(unittest.TestCase):
                                                  '-Werror', '-fPIC', '-Isrc', *self.flags]),
                           'LDFLAGS=' + shlex.join(['-lm', *self.links]),
                           'artifact-loader-controls'])
+        child_mode = os.environ.get('NANO_SDK_PROBE_CHILD_MODE', 'callback')
+        self.assertIn(child_mode, ['callback', 'callback-explicit-child'])
         with patch.dict(os.environ, {'NANOLANG_SDK_ROOT': str(ROOT)}):
-            result = self.run_checked([probe, 'callback', '0', 'checkout'])
+            result = self.run_checked([probe, child_mode, '0', 'checkout'])
+        if child_mode == 'callback-explicit-child':
+            self.assertIn(b'PASS explicit inherited SDK exit-hook ownership', result)
         self.assertEqual(result.count(b'CALLBACK before private cleanup'), 1)
         self.assertIn(b'PASS callback and private cleanup order', result)
         result = self.run_checked([control, library, fresh])

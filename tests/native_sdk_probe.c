@@ -9,6 +9,20 @@
 #include <unistd.h>
 #include <errno.h>
 
+/* My optional lifecycle observer forwards every production registration.
+ * The ordinary callback mode still exercises actual inherited process exit. */
+#ifdef NANO_SDK_PROBE_CAPTURE_EXIT
+static void (*registered_sdk_exit)(void);
+static int observe_sdk_exit(void (*callback)(void)) {
+    int status = atexit(callback);
+    if (!status) registered_sdk_exit = callback;
+    return status;
+}
+#define atexit observe_sdk_exit
+#include "../src/runtime/module_build_dir.c"
+#undef atexit
+#endif
+
 static void report(const char *name, const char *value) {
     printf("%s ", name);
     for (const unsigned char *p = (const unsigned char *)value; *p; ++p) printf("%02x", *p);
@@ -48,7 +62,11 @@ int main(int argc, char **argv) {
     }
     assert(installed == (strcmp(argv[3], "installed") == 0));
     report("ROOT", path);
-    if (!strcmp(argv[1], "callback")) {
+    bool explicit_child = !strcmp(argv[1], "callback-explicit-child");
+#ifndef NANO_SDK_PROBE_CAPTURE_EXIT
+    assert(!explicit_child);
+#endif
+    if (!strcmp(argv[1], "callback") || explicit_child) {
         callback_owner = getpid();
         assert(atexit(after_cleanup) == 0);
         assert(!nano_native_register_loader_shutdown(NULL));
@@ -67,12 +85,24 @@ int main(int argc, char **argv) {
         pid_t child = fork(); assert(child >= 0);
         if (!child) {
             assert(!nano_native_register_loader_shutdown(callback));
+#ifdef NANO_SDK_PROBE_CAPTURE_EXIT
+            if (explicit_child) {
+                assert(registered_sdk_exit == sdk_cache_shutdown);
+                unsigned before_count = callback_count;
+                assert(access(callback_directory, F_OK) == 0);
+                registered_sdk_exit();
+                assert(callback_count == before_count);
+                assert(access(callback_directory, F_OK) == 0);
+                _exit(0);
+            }
+#endif
             exit(0);
         }
         int child_status;
         assert(waitpid(child, &child_status, 0) == child);
         assert(WIFEXITED(child_status) && WEXITSTATUS(child_status) == 0);
         assert(access(callback_directory, F_OK) == 0 && callback_count == 0);
+        if (explicit_child) puts("PASS explicit inherited SDK exit-hook ownership");
     }
     if (!strcmp(argv[1], "objects") || !strcmp(argv[1], "lists")) {
         assert(nano_native_sdk_prepare() == NANO_SDK_OK);

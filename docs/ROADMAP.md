@@ -17219,3 +17219,5 @@ I refine task71bc before implementation with the concrete COP loader lock audit:
 
 - [ ] I qualify my prepared loader-only COP transition with the original SDK callback probe and actual first-resolution isolated artifact program, preserving all deadline/sanitizer controls (task71bc).
 - [ ] I replace or otherwise prove the supported threaded daemon's no-exec COP boundary before release, including native callback-worker coexistence (MAC `task_f1cde0aa640f4c1fb33cbdf3ab3fb678`); `COP_THREADED_EXEC_WORKER.md` records the required exec-worker protocol audit and acceptance separately from loader-lock quiescence.
+
+- [ ] I qualify the explicit inherited SDK cleanup-hook probe after preserving8c93's original Darwin sanitizer libSystem-only fork/exit leak terminal; `SDK_FORK_EXIT_PROBE_LIFECYCLE.md` retains ordinary actual-exit coverage and requires parent real-atexit ordering without suppression.
