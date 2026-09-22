@@ -1268,7 +1268,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
                 ins.opcode == OP_STRUCT_LITERAL || ins.opcode == OP_STRUCT_GET ||
                 ins.opcode == OP_STRUCT_SET || ins.opcode == OP_AGG_PACK ||
                 ins.opcode == OP_AGG_GET || ins.opcode == OP_AGG_SET);
-            if (!width || (!profile_supported(ins.opcode) && !literal_op && !record_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
+            if (!width || (!profile_supported(ins.opcode) && !literal_op && !record_op && !(ins.opcode == OP_TAIL_CALL && !managed_profile))) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
             pc += width;
         }
     }
