@@ -17452,3 +17452,11 @@ crossvalidation, executable admission and installed SDK acceptance remain open.
 - [x] I preserve the full610 evaluator first terminal on both hosts: fresh stage1 passes, original unary int-array fixture fails its checker initialization at line2421, sanitizer lanes remain unrun. Source/provider/tool identities and failed executables are sealed in `docs/evidence/eval-610`.
 - [ ] I implement complete checked array arithmetic result views for the existing numeric unary, numeric binary/broadcast and STRING+ families, preserving original assertions and exact nominal operand facts (`task_398942bdc317a4a778f70f1245ddc047`; contract `docs/ARRAY_ARITHMETIC_RESULT_VIEWS.md`). Source review precedes focused and full checker/evaluator gates.
 - [ ] I reconcile coarse byte-array arithmetic admission with the absent ELEM_U8 evaluator dispatch, and the differing nested-array checker/runtime boundaries, before claiming those operations supported. I do not execute these unsupported routes during result-view qualification.
+
+I prepare the complete flat arithmetic result-view checkpoint after contract review.
+The shared helper admits only complete numeric/string leaves with the existing
+operator rules, removes enum identity for integer arithmetic and retains scalar
+byte promotion without admitting ELEM_U8 buffers. I add30 operator/direction
+checker positives, eight promotion/unary/composition positives and14 refusals;
+all original evaluator and checker assertions remain intact. Strict C99 syntax
+and whitespace checks pass. No affected source fixture has executed yet.
