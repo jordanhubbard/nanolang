@@ -1,0 +1,5 @@
+module "/tmp/nanolang-split-d1e41-puck-evidence/nano-split-primitive-oap66fib/split-provider.nano" as Provider
+fn probe() -> int { assert (== (Provider.str_split 41) 42) return 0 }
+shadow probe { assert (== (probe) 0) }
+fn main() -> int { return (probe) }
+shadow main { assert (== (main) 0) }

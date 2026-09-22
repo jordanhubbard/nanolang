@@ -1,0 +1,34 @@
+fn probe() -> int {
+    let parts: array<string> = (str_split "\né\n\nend\n" "\n")
+    assert (== (array_length parts) 5)
+    assert (== (at parts 0) "")
+    assert (== (at parts 1) "é")
+    assert (== (at parts 2) "")
+    assert (== (at parts 3) "end")
+    assert (== (at parts 4) "")
+    let inferred = (str_split "a::b::::" "::")
+    assert (== (array_length inferred) 4)
+    assert (== (at inferred 0) "a")
+    assert (== (at inferred 1) "b")
+    assert (== (at inferred 2) "")
+    assert (== (at inferred 3) "")
+    let fragment: string = (str_substring "é" 0 1)
+    let partial: array<string> = (str_split fragment ":")
+    assert (== (array_length partial) 1)
+    assert (== (at partial 0) fragment)
+    let empty: array<string> = (str_split "" "\n")
+    assert (== (array_length empty) 1)
+    assert (== (at empty 0) "")
+    let bytes: array<string> = (str_split "abc" "")
+    assert (== (array_length bytes) 3)
+    assert (== (at bytes 0) "a")
+    assert (== (at bytes 1) "b")
+    assert (== (at bytes 2) "c")
+    let crlf: array<string> = (str_split "a\r\nb" "\n")
+    assert (== (at crlf 0) "a\r")
+    assert (== (at crlf 1) "b")
+    return 0
+}
+shadow probe { assert (== (probe) 0) }
+fn main() -> int { return (probe) }
+shadow main { assert (== (main) 0) }

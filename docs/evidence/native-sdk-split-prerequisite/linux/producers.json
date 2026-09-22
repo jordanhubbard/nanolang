@@ -1,0 +1,16 @@
+{
+  "scope": "Current4e Cseed only on Linux; two retained Nano roles qualified separately on Darwin; no full paired/SDK claim",
+  "source_pin": "d1e41d0e9aef2676e669421d2723f7071b45feef",
+  "compiler_pin": "4e4a17be00a9f4d381fee63359ded922775a342d",
+  "selected_roles": [
+    "cseed"
+  ],
+  "producers": {
+    "cseed": {
+      "path": "/tmp/nanolang-native-sdk-d1e41-linux-source/bin/nanoc_c",
+      "sha256": "cdd09af0d0506d88fab8fc93ff7fa9cbc185e9b2ec3268b3e219e0374a1e43f5",
+      "bytes": 20474080,
+      "mode": 509
+    }
+  }
+}

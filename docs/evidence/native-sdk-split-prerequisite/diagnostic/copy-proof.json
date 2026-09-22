@@ -1,0 +1,16 @@
+{
+  "pin": "4e4a17be00a9f4d381fee63359ded922775a342d",
+  "original_source": "/tmp/nanolang-native-sdk-4e4a1-linux-source",
+  "original_report": "/tmp/nanolang-native-sdk-4e4a1-linux-preparation",
+  "symlinks": {
+    "bin/nanoc": "nanoc_c",
+    "obj/module_cache/v2-9a5831e171cd262e561f6bedd7004f21d9ea969e6f5edbf35df1d9b087b789df/current": ".nano-gen-tcirG9",
+    "obj/module_cache/v2-8bab8c85de1c756c1104622c2166d68b1d516183fa38af8009a34e1420a82ef4/current": ".nano-gen-RqtaV8",
+    "obj/module_cache/v2-c8ba6c1b520e73f9ad289dbe7760f89e505eb73122bdf087e5e987195a1336d8/current": ".nano-gen-Z4cGXz",
+    "obj/module_cache/v2-7ea570ed5decf09d60a7db502e8321cb32bd3f33218a7a2bce36dad9e62085a3/current": ".nano-gen-7q4sup",
+    "obj/module_cache/v2-602a2e01ee5121f9b6b294f51199dfb29f1ac6c8d3b712e06f8887517f218de3/current": ".nano-gen-5FbKhj",
+    "obj/module_cache/v2-ebcbdacabfdc0e181c5ff9e5f942b733a9518c7e94303157e5d41b6899da7aed/current": ".nano-gen-Zwf5az",
+    "obj/module_cache/v2-cf8c7489788570f06b7df9cb18fe0572b89898b921007eadb5b2f40cecdcbdb4/current": ".nano-gen-vOnqVt"
+  },
+  "scope": "one diagnostic on byte-identical copied Cseed/full native providers and source; no compiler refresh"
+}
