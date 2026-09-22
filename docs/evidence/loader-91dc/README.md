@@ -1,0 +1,5 @@
+# My corrected SDK lifecycle and loader qualification
+
+I retain fresh91dc Darwin ordinary and supported ASan/UBSan/LSan provider preparation, then only the remaining loader method. Ordinary uses the original SDK callback fork/normal-exit path. Sanitizer explicitly selects `callback-explicit-child`: it invokes the captured actual production cleanup hook, proves inherited callback/private-work refusal and retains the parent's real atexit ordering. Both pass, followed by every loader admission/descendant/fresh/conflict/reinitialization control. All source/provider/tool maps agree and all process groups are reaped.
+
+The original8c93 Darwin sanitizer fork/exit failure remains separate and is not relabeled a pass. All four actual borrowed-string ABI/COP paths already passed at8c93 and are not replayed here. Linux91dc fresh loader-only qualification remains staged behind coordinated compute reservations at this checkpoint. Full threaded exec-worker/opaque ownership and full release gates remain open.

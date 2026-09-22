@@ -1,0 +1,127 @@
+{
+  "darwin": {
+    "terminal": {
+      "status": 0,
+      "scope": "remaining prepared-loader and SDK probe controls, Darwin sanitizer explicit child lifecycle; prior original8c93 terminal retained; real-provider sanitizer compiler prerequisite remains held"
+    },
+    "phases": [
+      {
+        "label": "fresh-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "nano_vm",
+          "nvm2c",
+          "nanoisa_dump",
+          "nvm2c-runtime"
+        ],
+        "bound": 1800,
+        "timeout": false,
+        "pid": 40319,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 9.161346541
+      },
+      {
+        "label": "loader-admission-controls",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_loader_prepared_fork_contract"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 41203,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 1.653972584
+      },
+      {
+        "label": "fresh-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "nano_vm",
+          "nvm2c",
+          "nanoisa_dump",
+          "nvm2c-runtime"
+        ],
+        "bound": 1800,
+        "timeout": false,
+        "pid": 41270,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 17.032682334
+      },
+      {
+        "label": "loader-admission-controls",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_loader_prepared_fork_contract"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 42064,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 2.7776089169999985
+      }
+    ],
+    "identity": {
+      "pin": "91dc9700d",
+      "archive_sha": "f84486ab18b413f6a447f33af02bdf18a297a176e56c57a26478c06784eee168",
+      "driver_sha": "a9c2b9c82a7a689f73de5843fea0a1da8d9582c21e3c72a17ae1dcd0fde63d26",
+      "host": {
+        "system": "Darwin",
+        "node": "puck",
+        "release": "27.0.0",
+        "version": "Darwin Kernel Version 27.0.0: Tue Aug 11 21:05:48 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T6041",
+        "machine": "arm64"
+      },
+      "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "tools": {
+        "/usr/bin/make": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+        "/usr/bin/clang": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+        "/opt/homebrew/opt/llvm/bin/clang": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3": "8e598855de9a6648bc670d5fe7a3a653f1fa967b74373ed7c4ca16fbc40c0de1"
+      }
+    },
+    "tools": {
+      "tools": {
+        "/usr/bin/make": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+        "/usr/bin/clang": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+        "/opt/homebrew/opt/llvm/bin/clang": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3": "8e598855de9a6648bc670d5fe7a3a653f1fa967b74373ed7c4ca16fbc40c0de1"
+      },
+      "unchanged": true
+    },
+    "probe_modes": {
+      "ordinary": {
+        "mode": "callback"
+      },
+      "sanitizer": {
+        "mode": "callback-explicit-child"
+      }
+    }
+  },
+  "linux": "staged behind coordinated compute reservations; not run"
+}
