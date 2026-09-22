@@ -83,6 +83,66 @@ static size_t lookup_case(int kind, size_t failure, int mode) {
     return measured;
 }
 
+static void parsed_parameter_names(void) {
+    int count=0;
+    Token *tokens=tokenize("fn names(a: Child, b: Owner.Child)->int { return 0 }", &count);
+    assert(tokens);
+    ASTNode *program=parse_program(tokens,count); assert(program);
+    assert(program->as.program.count==1);
+    ASTNode *function=program->as.program.items[0]; assert(function->type==AST_FUNCTION);
+    assert(function->as.function.param_count==2);
+    assert(!strcmp(function->as.function.params[0].struct_type_name,"Child"));
+    assert(!strcmp(function->as.function.params[1].struct_type_name,"Owner.Child"));
+    free_tokens(tokens,count);
+    assert(!strcmp(function->as.function.params[1].struct_type_name,"Owner.Child"));
+    free_ast(program);
+}
+
+static void parsed_record_lifetimes(int ast_first) {
+    const char *source="struct Child { value: int } struct Outer { child: Child, values: array<int> } "
+        "fn read(value: Child)->int { return value.value } fn main()->int { return 0 }";
+    int count=0; Token *tokens=tokenize(source,&count); assert(tokens);
+    ASTNode *program=parse_program(tokens,count); assert(program);
+    Environment *env=create_environment(); assert(env); env->suppress_shadow_warnings=true;
+    typecheck_set_current_file("<struct-name-ownership>");
+    assert(type_check(program,env));
+    StructDef *outer=env_get_struct(env,"Outer"); assert(outer);
+    assert(outer->field_type_names && !strcmp(outer->field_type_names[0],"Child"));
+    assert(outer->field_element_types[1]==TYPE_INT);
+    if (ast_first) {
+        free_ast(program); free_tokens(tokens,count);
+        assert(!strcmp(outer->field_type_names[0],"Child"));
+        assert(outer->field_element_types[1]==TYPE_INT);
+        free_environment(env);
+    } else {
+        free_environment(env);
+        ASTNode *record=program->as.program.items[1];
+        assert(record->type==AST_STRUCT_DEF);
+        assert(!strcmp(record->as.struct_def.field_type_names[0],"Child"));
+        assert(record->as.struct_def.field_element_types[1]==TYPE_INT);
+        free_ast(program); free_tokens(tokens,count);
+    }
+}
+
+static void auxiliary_vectors(void) {
+    for (int fields=0; fields<2; ++fields) {
+        Environment *env=create_environment(); assert(env);
+        TypeInfo borrowed={.base_type=TYPE_BOOL}; TypeInfo *annotations[]={&borrowed};
+        StructDef record={.name=strdup("Auxiliary"),.field_count=fields,
+            .field_type_info=annotations,.field_names=calloc(1,sizeof(char *)),
+            .field_types=calloc(1,sizeof(Type)),.field_type_names=calloc(1,sizeof(char *)),
+            .field_element_types=calloc(1,sizeof(Type))};
+        assert(record.name && record.field_names && record.field_types &&
+               record.field_type_names && record.field_element_types);
+        if (fields) {
+            record.field_names[0]=strdup("value"); record.field_type_names[0]=strdup("Child");
+            assert(record.field_names[0] && record.field_type_names[0]);
+        }
+        env_define_struct(env,record); free_environment(env);
+        assert(borrowed.base_type==TYPE_BOOL && annotations[0]==&borrowed);
+    }
+}
+
 int main(void) {
     for (int kind=0; kind<4; ++kind) {
         size_t count=lookup_case(kind,0,0);
@@ -111,6 +171,8 @@ int main(void) {
             (void)lookup_case(kind,0,0);
         }
     }
+    parsed_parameter_names(); parsed_record_lifetimes(0); parsed_record_lifetimes(1); auxiliary_vectors();
+    puts("Parser/record ownership: qualified parameters, both destruction orders, zero/nonzero auxiliary vectors and borrowed annotations PASS");
     puts("Struct name ownership: four paths, exact copies, borrowed controls, all allocation positions/two modes/recovery PASS");
     return 0;
 }
