@@ -125,6 +125,26 @@ RET
                 self.compare(prefix + self.program(value + 'CALL relay\n' + check, helpers))
         self.artifacts = original
 
+    def test_incompatible_tail_result_is_refused_without_publication(self):
+        source = self.artifacts / 'incompatible.nasm'
+        source.write_text(self.program('CALL relay\nPOP\n', '''
+.function relay 0 0 0 int 1
+TAIL_CALL identity
+.end
+.function identity 0 0 0 bool 1
+PUSH_BOOL 1
+RET
+.end
+'''))
+        module = self.artifacts / 'incompatible.nvm'
+        self.run_actual([ROOT / 'bin/nanoisa', 'asm', source, '-o', module])
+        for tool in ('nvm2llvm', 'nvm2wasm'):
+            output = self.artifacts / ('previous-' + tool)
+            output.write_bytes(b'previous output\n')
+            observed = self.run_trap([ROOT / 'bin' / tool, module, '-o', output])
+            self.assertIn('incompatible result signature', observed['stderr'])
+            self.assertEqual(output.read_bytes(), b'previous output\n')
+
     def test_managed_tail_remains_refused_without_publication(self):
         source = self.artifacts / 'managed.nasm'
         source.write_text(self.program('CALL relay\nPOP\n', '''
