@@ -8100,8 +8100,10 @@ shadow generate_expression {
             let mut context: string = ""
             if (== constructor_index 1) { set context "Outer<int>" }
             let constructor_code: string = (generate_expression constructor_parser constructor_return.value constructor_return.value_type (genenv_new "constructor") context)
-            assert (str_contains constructor_code "((nl_Outer_int){ .tag = nl_Outer_int_TAG_Wrapped")
-            assert (str_contains constructor_code "((nl_Inner_int){ .tag = nl_Inner_int_TAG_Items")
+            assert (str_contains constructor_code "({ nl_Outer_int ")
+            assert (str_contains constructor_code ".tag = nl_Outer_int_TAG_Wrapped; ")
+            assert (str_contains constructor_code "({ nl_Inner_int ")
+            assert (str_contains constructor_code ".tag = nl_Inner_int_TAG_Items; ")
             assert (not (str_contains constructor_code "nl_Outer_int_){"))
             assert (not (str_contains constructor_code "nl_Inner_int_){"))
         }
