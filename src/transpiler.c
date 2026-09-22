@@ -3586,6 +3586,51 @@ static void pop_native_function_metadata(Environment *env, int first) {
     env->symbol_count = first;
 }
 
+/* I bind generic parameters from their declaration and resolved instance only. */
+static void bind_native_generic_parameter(Environment *env, const Parameter *param,
+                                          const GenericFuncInstance *inst) {
+    Type type = param->type;
+    const char *name = param->struct_type_name;
+    TypeInfo *info = param->type_info;
+    TypeInfo resolved = {0};
+    bool own_info = false;
+    if (type == TYPE_STRUCT && is_type_var(name)) {
+        for (int k = 0; k < inst->binding_count; ++k) {
+            if (strcmp(inst->var_names[k], name) != 0) continue;
+            type = inst->bound_types[k];
+            name = inst->bound_type_names[k];
+            resolved.base_type = type;
+            resolved.generic_name = (char *)name;
+            info = &resolved;
+            own_info = true;
+            break;
+        }
+    } else if (!info && type == TYPE_FUNCTION && param->fn_sig) {
+        resolved.base_type = TYPE_FUNCTION;
+        resolved.fn_sig = param->fn_sig;
+        info = &resolved;
+        own_info = true;
+    }
+    if (own_info) {
+        TypeInfo *copy = NULL;
+        if (!copy_payload_type_info_checked(info, &copy) ||
+            !env_own_checker_type_info(env, copy)) {
+            free_payload_type_info(copy);
+            fprintf(stderr, "I cannot retain a generic parameter annotation.\n");
+            exit(1);
+        }
+        info = copy;
+    }
+    char *owned_name = name ? strdup(name) : NULL;
+    if (name && !owned_name) {
+        fprintf(stderr, "I cannot retain a generic parameter name.\n");
+        exit(1);
+    }
+    env_define_var_with_type_info(env, param->name, type, param->element_type,
+                                 info, true, create_void());
+    env->symbols[env->symbol_count - 1].struct_type_name = owned_name;
+}
+
 /* Emit implementation for one generic function instance (must appear after transpile_statement macro) */
 static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
                                           const GenericFuncInstance *inst,
@@ -3617,19 +3662,7 @@ static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
     /* Add parameters with concrete types to env for body transpilation */
     int saved_sym_count = env->symbol_count;
     for (int j = 0; j < orig->as.function.param_count; j++) {
-        Type pt = orig->as.function.params[j].type;
-        const char *ps = orig->as.function.params[j].struct_type_name;
-        Type concrete_t = pt;
-        if (pt == TYPE_STRUCT && is_type_var(ps)) {
-            for (int k = 0; k < inst->binding_count; k++) {
-                if (strcmp(inst->var_names[k], ps) == 0) {
-                    concrete_t = inst->bound_types[k];
-                    break;
-                }
-            }
-        }
-        Value dummy = {0};
-        env_define_var(env, orig->as.function.params[j].name, concrete_t, true, dummy);
+        bind_native_generic_parameter(env, &orig->as.function.params[j], inst);
     }
 
     transpile_statement(sb, orig->as.function.body, 0, env, fn_registry);
@@ -3844,9 +3877,7 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                     located_param->scope_end_column = item->as.function.body->scope_end_column;
                 }
                 
-                /* A parameter owns its declared nominal metadata. The generic
-                 * environment helper may inherit a prior same-name symbol;
-                 * that symbol can belong to an unrelated function. */
+                /* A parameter owns its declared nominal metadata. */
                 free(located_param->struct_type_name);
                 located_param->struct_type_name = NULL;
                 if (item->as.function.params[j].struct_type_name) {
