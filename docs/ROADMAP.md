@@ -17462,3 +17462,10 @@ and complete installed acceptance remain required.
 - [x] I qualify reviewed22fb dynamic reference-leaf owners, public map STRING snapshot disposal and complete STRING-array PLUS views through all eight original collection/fullCchecker phases on Linux/Darwin ordinary andASan/UBSan/LSan. Evidence: `docs/evidence/collection-22fb/`. c34 firstterminal remains retained; combinedcandidate/full evaluator/bootstrap/CI acceptance remains open.
 
 - [ ] I repair task_579c1031229d46ae95073f98fa53c751: my fresh integrated610 compiler completes41 shadows, then its unprepared shadow fork cannot use the PID-bound FFI loader and aborts in path_join. I retain the actual58.155-second failure and complete fresh-provider identity at `docs/evidence/integrated-610-shadow-fork/`. I audit the compiler parent/child thread and callback boundary before adding an explicit reviewed handoff; no loader guard or original deadline is weakened. This terminal provides no timeout improvement claim.
+
+I qualify private typed profile895 in all four ordinary/sanitizer host lanes,
+including ASan/UBSan/LSan. The original/additive fixture passes2,189 linked and
+25,493 instrumented mixed checks per lane; [124 sealed reports](evidence/sdk-typed-profile/)
+retain exact provider/source/tool equality and process cleanup. Full provider
+identity/signature/lifetime crossvalidation and executable/installed acceptance
+remain open; no executable consumer selects this private profile.
