@@ -521,6 +521,9 @@ fn find_repo_root(start_dir: string) -> string {
 
 fn split_lines(s: string) -> array<string> {
     let len: int = (str_length s)
+    if (== len 0) { return [""] }
+    # I retain the legacy larger-input substring boundary.
+    if (<= len 67108864) { return (str_split s "\n") }
     let mut out: array<string> = []
     let mut start: int = 0
     let mut i: int = 0
@@ -565,6 +568,13 @@ shadow split_lines {
     assert (== (array_length crlf) 2)
     assert (== (at crlf 0) "a\r")
     assert (== (at crlf 1) "b")
+    let delimiter: array<string> = (split_lines "\n")
+    assert (== (array_length delimiter) 2)
+    assert (== (at delimiter 0) "")
+    assert (== (at delimiter 1) "")
+    let carriage: array<string> = (split_lines "a\rb")
+    assert (== (array_length carriage) 1)
+    assert (== (at carriage 0) "a\rb")
 }
 
 fn parse_import_path_from_line(line: string) -> string {
