@@ -325,7 +325,7 @@ static void eval_match_pop_metadata(Environment *env, int first) {
 /* I restore lexical bindings on every exit, retaining a yielded local string. */
 /* I release only binding-owned storage. Registry result snapshots are never
  * installed directly into an owning record binding. Borrow formals stay borrowed. */
-static void eval_scope_release(Environment *env, int first, bool functions) {
+static void eval_scope_release(Environment *env, int first) {
     for (int i = first; i < env->symbol_count; ++i) {
         Symbol *symbol = &env->symbols[i];
         bool borrowed = symbol->type == TYPE_BORROW_SHARED || symbol->type == TYPE_BORROW_MUT;
@@ -343,9 +343,11 @@ static void eval_scope_release(Environment *env, int first, bool functions) {
         else if (value.type == VAL_STRING) {
             if (gc_is_managed(value.as.string_val)) gc_release(value.as.string_val);
             else free(value.as.string_val);
-        } else if (functions && value.type == VAL_FUNCTION) {
-            free((char *)value.as.function_val.function_name);
-            free_function_signature(value.as.function_val.signature);
+        } else if (value.type == VAL_FUNCTION) {
+            if (!env_retire_value(env, value)) {
+                fprintf(stderr, "I cannot retire an owned callable binding.\n"); exit(1);
+            }
+            symbol->value = create_void();
         }
     }
     env->symbol_count = first;
@@ -405,7 +407,7 @@ static Value eval_scoped_block(ASTNode **statements, int count, Environment *env
         copy.return_target = result.return_target;
         result = copy;
     }
-    eval_scope_release(env, first, false);
+    eval_scope_release(env, first);
     return result;
 }
 static Value create_dyn_array(DynArray *arr);
@@ -4886,7 +4888,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     return_value.is_break = false;
     return_value.is_continue = false;
 
-    eval_scope_release(env, old_symbol_count, true);
+    eval_scope_release(env, old_symbol_count);
 
     /* An outer handler's return has not reached its destination yet. */
     if (!return_value.is_return)
@@ -5714,7 +5716,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     }
                 }
             }
-            eval_scope_release(henv, saved_sym, true);
+            eval_scope_release(henv, saved_sym);
 
             /* I preserve lexical returns; ordinary final values resume perform. */
             handler_result.is_break    = false;
@@ -5949,7 +5951,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     }
                     result = eval_preserve_value(env, result);
                     if (result.is_break) result = create_void();
-                    eval_scope_release(env, first, false);
+                    eval_scope_release(env, first);
                     return result;
                 }
                 if (list_type == TYPE_LIST_GENERIC) {
@@ -6589,7 +6591,7 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     return_value.is_break = false;
     return_value.is_continue = false;
 
-    eval_scope_release(env, original_symbol_count, false);
+    eval_scope_release(env, original_symbol_count);
 
     /* An outer handler's return has not reached its destination yet. */
     if (!return_value.is_return)
