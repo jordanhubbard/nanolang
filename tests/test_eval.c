@@ -710,6 +710,7 @@ void test_eval_struct_creation_and_access(void) {
     Value args[2] = {three, four};
     Value pt = call_function("make_point", args, 2, ctx.env);
     ASSERT(pt.type == VAL_STRUCT);
+    env_discard_value_snapshot(pt);
 
     run_ctx_free(&ctx);
 }
@@ -1067,6 +1068,7 @@ void test_eval_tuple_types(void) {
     Value args[2] = {three, four};
     Value pair = call_function("make_pair", args, 2, ctx.env);
     ASSERT(pair.type == VAL_TUPLE);
+    env_discard_value_snapshot(pair);
 
     run_ctx_free(&ctx);
 }

@@ -7,6 +7,17 @@
 #include <ctype.h>
 #include <limits.h>
 
+/* Discarded checker scopes own names, but borrow AST type facts and dummy values. */
+static void checker_pop_temporary_symbols(Environment *env, int first) {
+    for (int i = first; i < env->symbol_count; ++i) {
+        free(env->symbols[i].name);
+        free(env->symbols[i].struct_type_name);
+        env->symbols[i].name = NULL;
+        env->symbols[i].struct_type_name = NULL;
+    }
+    env->symbol_count = first;
+}
+
 /* Returns true if name is a single uppercase letter — a generic type variable */
 static bool is_type_variable_name(const char *name) {
     return name != NULL && name[0] != '\0' && name[1] == '\0' && isupper((unsigned char)name[0]);
@@ -5962,7 +5973,7 @@ checked_array_declared_call: ;
                 check_expression(expr->as.handle_expr.handler_bodies[i], env);
 
                 /* Pop handler-local symbols */
-                env->symbol_count = saved_count;
+                checker_pop_temporary_symbols(env, saved_count);
             }
 
             /* Type of handle expression = type of the handled body */
@@ -5991,7 +6002,7 @@ checked_array_declared_call: ;
                 }
                 if (expr->as.effect_handler.handler_bodies[i])
                     check_expression(expr->as.effect_handler.handler_bodies[i], env);
-                if (env) env->symbol_count = saved_sym;
+                if (env) checker_pop_temporary_symbols(env, saved_sym);
             }
             return TYPE_VOID;
         }
@@ -7070,7 +7081,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 if (stmt->as.effect_handler.handler_bodies[i])
                     check_statement(tc, stmt->as.effect_handler.handler_bodies[i]);
                 /* Remove the temp param binding */
-                if (tc->env) tc->env->symbol_count = saved_sym;
+                if (tc->env) checker_pop_temporary_symbols(tc->env, saved_sym);
             }
             return TYPE_VOID;
         }
