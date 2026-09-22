@@ -8350,7 +8350,7 @@ static bool functions_match(Environment *env, const Function *a, const Function 
 /* -1 refuses a conflicting ABI/declaration; 1 is the same declaration;
  * 0 retains this distinct owner through the ordinary collector below. */
 static Function extern_declaration_view(Environment *env, const ASTNode *item) {
-    return {.name = item->as.function.name,
+    return (Function){.name = item->as.function.name,
         .params = item->as.function.params, .param_count = item->as.function.param_count,
         .return_type = item->as.function.return_type,
         .return_element_type = item->as.function.return_element_type,

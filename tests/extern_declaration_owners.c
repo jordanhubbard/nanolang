@@ -79,6 +79,42 @@ static void check_publication(void) {
     assert(env->function_count == before + 1);
     env->current_module = NULL; free_environment(env); dispose(p);
 }
+static void check_alias_conflict(void) {
+    Parsed p = parsed("extern fn owner_probe(value: int) -> int");
+    Environment *env = create_environment(); assert(env); env->current_module = "foreign";
+    assert(register_owned_extern_declaration(env, declaration(&p)));
+    Function *alias = &env->functions[env->function_count - 1];
+    alias->alias_of = alias->name;
+    alias->name = env_own_checker_allocation(env, strdup("renamed_probe"));
+    assert(alias->name); env_function_index_invalidate(env);
+    env->current_module = NULL;
+    assert(extern_declaration_state(env, declaration(&p)) == 0);
+    alias->return_type = TYPE_BOOL;
+    assert(extern_declaration_state(env, declaration(&p)) == -1);
+    assert(env->function_count == 1);
+    free_environment(env); dispose(p);
+}
+static void check_nominal_owners(void) {
+    Environment *env = create_environment(); assert(env);
+    StructDef left = {.name = strdup("LeftKey"), .original_name = strdup("Same"),
+        .module_name = env_own_checker_allocation(env, strdup("left"))};
+    StructDef right = {.name = strdup("RightKey"), .original_name = strdup("Same"),
+        .module_name = env_own_checker_allocation(env, strdup("right"))};
+    assert(left.name && left.original_name && left.module_name);
+    assert(right.name && right.original_name && right.module_name);
+    env_define_struct(env, left); env_define_struct(env, right);
+    Parameter parameter = {.type = TYPE_STRUCT, .struct_type_name = "Same"};
+    Function a = {.params = &parameter, .param_count = 1, .return_type = TYPE_INT, .module_name = "left"};
+    Function b = a; b.module_name = "right";
+    assert(functions_match(env, &a, &a));
+    assert(!functions_match(env, &a, &b));
+    TypeInfo member = {.base_type = TYPE_STRUCT, .generic_name = "Same"};
+    TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = &member};
+    parameter.type = TYPE_ARRAY; parameter.struct_type_name = NULL;
+    parameter.element_type = TYPE_STRUCT; parameter.type_info = &array;
+    assert(functions_match(env, &a, &a)); assert(!functions_match(env, &a, &b));
+    env->current_module = NULL; free_environment(env);
+}
 int main(int argc, char **argv) {
     g_argc = argc; g_argv = argv;
     check_order(false); check_order(true);
@@ -87,7 +123,7 @@ int main(int argc, char **argv) {
     check_signature("extern fn p() -> array<int>", "extern fn p() -> array<string>", false);
     check_signature("extern fn p(a: fn(int) -> int) -> int", "extern fn p(a: fn(string) -> int) -> int", false);
     check_signature("extern fn p(a: (int, string)) -> int", "extern fn p(a: (int, int)) -> int", false);
-    check_publication();
+    check_publication(); check_alias_conflict(); check_nominal_owners();
     puts("I retained exact extern declaration owners, complete signatures and unpublished failed labels.");
     return 0;
 }
