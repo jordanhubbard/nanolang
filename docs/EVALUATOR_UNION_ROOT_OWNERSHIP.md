@@ -45,3 +45,48 @@ publication failures must leave the Environment unchanged and preserve recovery.
 Raw caller-owned constructor controls and exact terminal fatal diagnostic remain.
 No affected execution precedes source and fixture review. This repair alone does
 not close the other original full evaluator leak stacks or the complete SDK gate.
+
+## I preserve completed task graph owners separately from arguments
+
+The initial pending-lease argument was insufficient: coro_run drops its argument
+bundle immediately after storing DONE, while the result remains readable until
+explicit release. A shallow union, array or nested callable leaf can therefore
+outlive that argument lease. I do not activate registry destruction on that basis.
+
+I propose an additive contextual-owned spawn API, preserving legacy spawn and
+spawn_owned signatures and behavior. The new API accepts a separately acquired
+result-owner token and trusted drop hook. Failed enqueue transfers neither bundle
+nor token. The scheduler stores the owner independently of arg and never delays
+coro_drop_argument. Evaluator enqueue acquires a second Environment lease for the
+result owner; every failure releases that extra lease while preserving the
+existing caller-owned bundle failure path.
+
+For successful DONE (including early complete), result-owner lifetime lasts
+through nano_coro_release. Release keeps the existing active latch, clears stored
+hooks before calling them, drops the owned result first and releases its graph
+owner afterward. The same owner covers result_clone/result_copy while their
+active latch forbids release. A pending cancellation has no result: drop argument
+then result owner under the active latch, preserving existing cancellation
+controls which permit Environment destruction immediately afterward. An ERROR
+callback similarly drops its returned temporary while the owner is live, then
+argument and owner, because no completed result is published. Early completion
+followed by callback return retains its original completed result and owner;
+only the ignored return is dropped, under the existing rule.
+
+This token protects every Environment-borrowed leaf, independent of top-level
+tag: union, array, opaque/reference or callable leaves in records/tuples as well
+as direct values. It does not falsely deep-copy those leaves. A copied result's
+owned record/tuple/string/callable storage remains caller-owned, but borrowed
+leaves still require its Environment to remain alive; the new API must document
+this distinct contract rather than inherit spawn_owned's blanket independent
+copy wording. Immediate await already copies into the same live Environment
+before release. Cross-Environment publication requires an explicit retained
+owner, not merely a successful shallow clone, and remains a consumer audit gate.
+
+Additive controls must observe unchanged argument-drop timing, completed owner
+retention, result-drop-before-owner order, clone failure without owner loss,
+early complete/error, active-hook reentry, pending cancellation, stale release,
+full queue/failed enqueue recovery, and same-Environment immediate await. Actual
+union/callable/array-leaf results must stay readable after argument drop and must
+prevent Environment destruction until completed slot release. Existing scheduler
+and lease assertions remain intact. No runtime execution precedes source review.

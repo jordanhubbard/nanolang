@@ -17178,3 +17178,10 @@ I propose exact newly-created Environment-lifetime root ownership, preserving ra
 caller-owned constructors and borrowed union/array/callback payload leaves. Shared
 record-index/public-return authority cannot be widened by a shallow union clone.
 Full source/fixture review and original full-suite qualification remain required.
+
+I amend task992713 union cleanup with completed coroutine result ownership:
+argument leases end at DONE, so they cannot justify Environment teardown while
+results remain readable. I propose an additive separately retained result-owner
+lease through explicit result disposal, preserving argument-drop timing, legacy
+APIs and cancellation behavior. All borrowed graph leaves share this boundary;
+source review and cross-Environment consumer audit precede union retirement.
