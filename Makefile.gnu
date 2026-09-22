@@ -251,7 +251,7 @@ SCHEMA_OUTPUTS = $(SRC_NANO_DIR)/generated/compiler_schema.nano $(SRC_NANO_DIR)/
 SCHEMA_STAMP = $(BUILD_DIR)/schema.stamp
 
 HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(RUNTIME_DIR)/module_build_dir.h $(SRC_DIR)/module_builder.h $(SRC_DIR)/bcp47.h $(SRC_DIR)/locale.h $(SRC_DIR)/utf8.h $(SRC_DIR)/diag_id.h
-HEADERS += $(RUNTIME_DIR)/native_array_abi.h
+HEADERS += $(RUNTIME_DIR)/native_array_abi.h $(RUNTIME_DIR)/shadow_completion.h
 HEADERS += $(RUNTIME_DIR)/native_record_list.h $(RUNTIME_DIR)/list_capacity.h
 HEADERS += $(RUNTIME_DIR)/native_sdk.inc $(RUNTIME_DIR)/native_sdk_inventory.inc $(RUNTIME_DIR)/shadow_timing.h $(RUNTIME_DIR)/shadow_completion.h
 

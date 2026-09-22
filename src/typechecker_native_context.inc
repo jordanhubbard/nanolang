@@ -129,3 +129,43 @@ FunctionSignature *checked_callable_signature_copy(ASTNode *expr, Environment *e
     if (!ok) native_context_restore(env, mark);
     return ok ? result : NULL;
 }
+
+/* I project emission storage only from the original declaration proof. */
+bool checked_union_projection_copy(ASTNode *expr, Environment *env,
+                                   TypeInfo **annotation, char **variant) {
+    if (!expr || !env || !annotation || !variant) return false;
+    NominalView view = {0};
+    TypeInfo *copy = NULL;
+    char *selected = NULL, *canonical = NULL;
+    if (!nominal_value_view(expr, env, 0, &view) || !view.info || view.children) goto fail;
+    const TypeInfo *source = view.info;
+    const char *owner = view.owner;
+    const NominalSubstitution *context = nominal_view_context(&view);
+    if (!nominal_substitute_annotation(&source, &owner, &context) ||
+        source->base_type != TYPE_UNION ||
+        !checked_annotations_equal_context(env, source, owner, source, owner, 0, context, context)) goto fail;
+    NominalIdentity identity = env_nominal_identity(env, source->generic_name, owner, TYPE_UNION);
+    if (!identity.ordinal) goto fail;
+    UnionDef *definition = &env->unions[identity.ordinal - 1];
+    if (view.payload) {
+        if (view.variant < 0 || view.variant >= definition->variant_count ||
+            !definition->variant_names || !definition->variant_names[view.variant]) goto fail;
+        selected = strdup(definition->variant_names[view.variant]);
+        if (!selected) goto fail;
+    }
+    const char *name = env_nominal_name(env, identity);
+    if (!name || !(canonical = strdup(name)) ||
+        !nominal_view_materialize(env, &view, 0, &copy) || !copy || copy->base_type != TYPE_UNION) goto fail;
+    free(copy->generic_name);
+    copy->generic_name = canonical;
+    canonical = NULL;
+    nominal_view_discard(&view);
+    *annotation = copy;
+    *variant = selected;
+    return true;
+fail:
+    nominal_view_discard(&view);
+    free_payload_type_info(copy);
+    free(selected); free(canonical);
+    return false;
+}

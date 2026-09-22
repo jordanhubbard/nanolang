@@ -1,0 +1,11 @@
+# I assemble one complete 5.1 candidate
+
+I begin in isolated branch `integrate/nanolang-5.1-candidate`, preserving both original lanes. My first merge joins SDK `fcda5c5231445eb741df338b0e15c4a15084ce4b` and native `4855b75cc4c72f7e734d16d285e4f36cccf557c6`; their common ancestor is `8028ab1949dc40d039c46d5c3d475f21905f82bc`.
+
+I resolve two production files without dropping either contract. In `src/main.c` I retain the SDK opt-in timing include and parent-after-wait observation alongside the shared completion protocol. The resulting file is byte-identical to the SDK parent. In `src_nano/transpiler.nano` I retain the SDK exact `ASTServiceDecl` header/no-local-provider shadow after the native generic forward-declaration checks. Both declarations and the actual native generation changes remain present. The two documentation conflicts retain both histories; their passing and failing results continue to name their original source pins.
+
+My automatic merge also carries the native selected-union projection and constructor spelling, complete selected-payload annotations, local declaration staging, signed length and exact declared-extern builtin authority. The SDK owner/visibility, opaque/tuple carriers, provider/install closure and STRING field adapter remain. Clean textual merging is not semantic qualification: owners must review the combined source before execution. No production or fixture was run for this merge checkpoint; `git diff --check` passes.
+
+I leave my SDK input inventory and generated inventory unchanged at this intermediate checkpoint. After root byte/literal work, backend execution, CI and qualified metadata ownership prerequisites, and required PR522 canonical routing are integrated, I regenerate the inventory from the complete source and review its exact dependency closure. PR949's independent Darwin failure evidence remains a contribution to preserve, not a production fix.
+
+My later source integrations and full both-host C-seed/S1/S2, native/STRING/visibility, original unit04, complete CI/backend, installed source-hidden/read-only SDK, canonical fixed-point and release gates remain required. I do not turn this first merge into a narrower release candidate or relabel previous branch results as integrated acceptance.

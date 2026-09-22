@@ -15610,3 +15610,121 @@ and compilation. All new source/fixtures remain unqualified pending fresh gates.
 - [ ] I record a source-proven repeated-work boundary in ordinary import collection: `parse_import_path_from_line` evaluates all five disjoint first-byte prefixes for every line, including nonimports, in both collection and merging. My `MERGER_IMPORT_PREFIX_DISPATCH.md` proposal dispatches to the same exact prefix helper by byte zero, preserving quote decoding, graph edges, larger-input semantics, every shadow and the strict actual-parser File route. It is an unimplemented performance proposal, not a timing-cause or margin claim.
 
 - [ ] I retain the `70f8a7de8` actual direct-context assertion: integrated borrowed field assignment omitted the SDK `check_concrete_union_arrays` call while retaining the native nominal-only helper, whose scalar early return does not establish STRING compatibility/publication. My `STRING_ARRAY_FIELD_CONTEXT.md` plan restores the existing adapter using the pre-RHS annotation/declaring-owner snapshots, preserves actual checking once and public cache rollback, and retains all original lower-level assertions. Full paired and installed gates remain open; no failed product replay or broad scalar-policy change.
+- [ ] I preserve signed INT string length before native arithmetic. My802 trace
+  stops inside the unchanged eighty-case helper shadow; read-only emitted C
+  confirms size_t strlen subtraction underflows for longer needles. I repair
+  the primitive C/Nano result carrier and preserve all controls, producer
+  boundaries and original deadlines. [Contract](NANOISA_SIGNED_STRING_LENGTH.md).
+  MAC: task_716077fe2eb14ec89ead2ce9f2bb3cc2.
+
+- [ ] I correct my retained map_builtin_func_name shadow expectation after the
+  signed carrier change: both fresh ecaf builds pass parser/typecheck components
+  and refuse the stale expected strlen at transpiler line1407. I retain both
+  first terminals and require the exact nl_str_length result for str_length and
+  its existing str_len mapping before fresh corrected gates. No primitive
+  semantics, assertion predicate or deadline is weakened.
+  MAC: task_716077fe2eb14ec89ead2ce9f2bb3cc2.
+
+- [ ] I retain both4d focused-launcher missing-main refusals before shadow work.
+  The external driver selected transpiler.nano rather than Make's
+  transpiler_driver.nano. I correct orchestration to the actual Make stage2
+  target, retain identical reviewed4d production and all original assertions,
+  then require full build/bootstrap/provider closure. This is a command-selection
+  failure, not a newly demonstrated compiler defect.
+  MAC: task_716077fe2eb14ec89ead2ce9f2bb3cc2.
+
+- [ ] I emit each native record-list typedef once in a complete C translation
+  unit while preserving pre-layout availability and standalone generator output.
+  My4d Puck Stage1 strict C99 discovery gate rejects the duplicate before running
+  generated output. [Contract](NANOISA_NATIVE_LIST_FORWARD_OWNERSHIP.md).
+  MAC: task_f201f1249e0a4567ad56a15b024b1408.
+- [ ] I retain concrete generic union identity through inferred native aliases
+  and subsequent match emission. My4d Linux nested-list-projections Cseed O0
+  gate emits nl_Outer despite registered nl_Outer_Item, then host compilation
+  refuses. I audit retained owner/context facts through declaration and match
+  consumers before a correction; original18+9 and nested controls remain.
+  MAC: task_a370d7cc60c5445981c0fbc5d7b15f29.
+
+- [ ] I correct my native specialization shadow's stale typedef-text expectation
+  after separating declaration ownership. Linux189 fresh build exits2 at5324
+  after74.879s; the body now contains NL_DEFINE_RECORD_LIST(Point, nl_Point),
+  while the complete program alone owns List_Point's early typedef. I retain
+  that terminal and require the exact provider macro without adding a dummy
+  comment or weakening strict flags. Standalone and complete-output declaration
+  assertions stay unchanged. MAC: task_f201f1249e0a4567ad56a15b024b1408.
+
+- [ ] I initialize a native local from its prior lexical binding before publishing
+  the new C name. My dcda Linux nested projection O0 passes, but O2 reaches a
+  checked list refusal after emitting `nl_Outer_Item_Wrapped alias = alias;`
+  inside a nested scope. I retain the generated C and first terminal without
+  replaying that path. [Contract](NANOISA_NATIVE_LET_PUBLICATION.md).
+  Both producer families and original18+9 remain required. My source checkpoint
+  retains two-declaration staging after syntax-only probes prove Clang rejects
+  GCC's delayed-scope alternative; complete AST-name coverage and independent
+  Nano declaration/retry suffixes protect private storage. No product gate has
+  run on the correction yet.
+  MAC: task_5f7995c38375459f858ed017626dbc18.
+
+- [ ] I retain exact selected union payload facts through my Nano checker and
+  native storage. Linux7e6 passes fresh full bootstrap and focused3; its original
+  nested projection now passes Cseed O0/O2, then Stage1 refuses inferred payload
+  aliases at12/23/24/22 before emission. I retain the terminal and hold unstarted
+  Puck products. [My consumer audit boundary](NANOISA_SELFHOST_SELECTED_PAYLOAD_FACTS.md)
+  keeps complete declaration/variant/arguments, all original18/native9 controls
+  and full5.1 acceptance open. MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
+
+- [ ] I preserve callable arrows while splitting complete tuple/generic argument
+  facts for selected payloads. My source audit finds `split_tuple_type_names`
+  counts `>` in `->` as an angle close, so a following top-level comma can be
+  hidden by negative depth. I retain the existing split assertions and add
+  callback-before-sibling and nested selected-payload controls before corrected
+  execution. This is a source-discovered prerequisite, not a reproduced runtime
+  failure. MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
+
+- [ ] I carry selected payload resource facts through the actual public
+  classifiers and concrete-field traversal, not only the instantiated helper.
+  My static7c audit finds `resource_classify` and `resource_concrete_payload_fact`
+  inspect generic arguments before normalizing `Box<Handle>.Some`; its suffix
+  hides the arguments from that legacy parser. I require wrapper and nested
+  field controls, selected empty-variant distinction, and retained cycle bounds.
+  MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
+- [ ] I preserve callback arrows while discovering List elements. My static7c
+  audit finds `native_list_types_in` decrements generic depth for `->` inside
+  `List<Box<fn(int)->int>.Some>`. I retain exact complete element text and the
+  original discovery assertions. No affected product has run on this checkpoint.
+  MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
+
+- [ ] I retain complete nested List element annotations in my Nano checker.
+  Fresh ef7 Linux and Puck builds stop at the unchanged `reduce_type_known`
+  tuple/List assertion at line4949 (exit2,56.282s/55.496s; no timeout). My
+  existing extractor stops at the first `>` in `List<Box<string>.Some>`.
+  I preserve both source/tool-equal first terminals, correct the complete
+  one-argument wrapper parser with nested/callback/malformed controls, and rerun
+  only reviewed corrected sources. Bootstrap and all dependent matrices remain
+  unreached. MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
+
+### I integrate exact shadow completion proof into my native lane
+
+- [x] I retain my 66a uninstrumented ten-second refusal and independent 066ea observer success (1,086 shadows, 8.950973-second interpreter interval) separately at evidence checkpoint e2a231ffb. I have not explained the original refusal.
+- [ ] I integrate reviewed SDK bae599477 private completion proof onto 66a: shared pre-fork start, final flush before timestamp publication, complete on-time record and ordinary zero exit, unchanged child alarm and parent termination. I preserve selected payload code and all original 18 source plus 9 native methods. I copy the exact header and focused fixtures; my lane has no SDK inventory to amend. The fixture runner is an explicitly attributed dependency.
+- [ ] I source-review the adapted main/Make changes, run focused ordinary/sanitizer and actual compiler controls, then complete fresh original-bound bootstrap and the original matrices on both hosts. SDK qualification does not establish my native lane's acceptance.
+
+### I retain exact generic constructor storage names
+
+- [x] I retain the first 33e Puck native failure after fresh full bootstrap and focused ownership passes: unchanged `native-nested-list-projections` reaches Stage1 O0 host compilation with `nl_Inner_Item_` and `nl_Outer_Item_` constructor spellings, while declarations and matches use `nl_Inner_Item` and `nl_Outer_Item`. I do not execute the rejected product (task_60f95962d16d4f7aa0a52deb9fda4dc8).
+- [ ] I trace complete checked constructor annotations through canonical C spelling, repair the actual lowering boundary without suffix guessing, and retain both constructor forms and nested owner/projection controls before fresh qualification.
+- [ ] I complete my original 18 source plus 9 native methods and both-host gates. My 33e Puck bootstrap passed in 322.133 seconds; the native corpus and original 18 are not complete.
+
+### I preserve independent module metadata lifetimes
+
+- [ ] I integrate the reviewed owning snapshot correction for module descriptors before broad native qualification (`task_c65cfe23d7434c429b7f6f79d3838178`, VM lane). My current `extract_module_metadata` shallow-copies `StructDef.field_type_names` and `field_element_types`; my Environment destructor now frees those arrays. Complete descriptor and borrowed annotation lifetimes require the same audit. I preserve my separately owned 46b module-name copies and do not free borrowed complete annotations by inference.
+
+My constructor correction 6340ae7ab is source-reviewed but unexecuted. I hold affected builds and corpora until this shared lifetime prerequisite is corrected and reviewed. My 33e first terminal and bootstrap success are retained at evidence checkpoint c3fec6062.
+
+### I retain extern declaration authority before intrinsic lookup
+
+- [ ] I integrate the reviewed shared declaration-selection correction under `task_f83ba29713bf447fb70c2339fc98170d`. My strict registry identity helper from 012d1c6bd does not fix selection: the current pre-registry `array_push` candidate scan still excludes extern declarations and can return the builtin instead. The root 5d9 BOOL-formal refusal compiled unexpectedly and was not executed. I also preserve exact evaluator dispatch after corrected lookup; a bodyless extern is not a builtin. I do not claim that my earlier native identity checkpoint qualified this missing selection path.
+
+### I converge the complete 5.1 source before final qualification
+
+- [ ] I complete one isolated candidate under [my integration contract](FINAL_51_CANDIDATE_INTEGRATION.md): SDKfcda plus native4855 first, then root byte/literal changes, backend execution, CI and qualified metadata ownership prerequisites, and required PR522 canonical routing. I retain peer PR949 evidence, regenerate the final SDK inventory once the source is complete, and preserve all original lane fixtures and full release gates. The first merge is source-only; no existing branch result qualifies the combined candidate.

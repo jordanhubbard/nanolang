@@ -2641,20 +2641,6 @@ static Type check_reduce_call(ASTNode *call, Environment *env) {
     return initial_type;
 }
 
-/* I retain the union identity of the parser's dotted variant literals. */
-static const char *inline_variant_union(ASTNode *node, Environment *env) {
-    if (!node || node->type != AST_STRUCT_LITERAL || !node->as.struct_literal.struct_name)
-        return NULL;
-    const char *name = node->as.struct_literal.struct_name;
-    const char *dot = strchr(name, '.');
-    if (!dot) return NULL;
-    char *prefix = strndup(name, (size_t)(dot - name));
-    if (!prefix) return NULL;
-    UnionDef *definition = env_get_union(env, prefix);
-    free(prefix);
-    return definition ? definition->name : NULL;
-}
-
 /* I check literal leaves against the complete callback annotation. */
 static bool indirect_argument_matches(ASTNode *argument, Environment *env,
                                       const TypeInfo *expected, Type fallback,
@@ -5278,65 +5264,30 @@ checked_array_declared_call: ;
             bool has_variant_patterns_expr;
             match_arm_families(expr, &has_int_patterns_expr, &has_variant_patterns_expr);
             
-            /* Infer and store union type name for transpiler */
-            const char *union_type_name = NULL;      /* base name for variant-field lookup: Result */
-            const char *union_base_name = NULL;      /* kept for binding metadata */
-            char *union_concrete_name = NULL;        /* for transpiler: Result_int_string */
-            TypeInfo *union_type_info = NULL;        /* For generic unions: Result<int, string> */
+            /* I keep concrete storage independent of symbol vector growth. */
+            const char *union_base_name = NULL;
+            char *union_concrete_name = NULL;
+            TypeInfo *union_type_info = NULL;
             ASTNode *match_expr_node = expr->as.match_expr.expr;
-            
-            if (match_expr_node->type == AST_IDENTIFIER) {
-                Symbol *sym = env_get_var_visible_at(env, match_expr_node->as.identifier, match_expr_node->line, match_expr_node->column);
-                if (sym && sym->struct_type_name) {
-                    union_type_name = sym->struct_type_name;
+            if (match_type == TYPE_UNION) {
+                char *selected_variant = NULL;
+                if (!checked_union_projection_copy(match_expr_node, env, &union_type_info, &selected_variant) ||
+                    selected_variant || !union_type_info || !union_type_info->generic_name) {
+                    free(selected_variant); free_payload_type_info(union_type_info);
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I cannot retain the complete union scrutinee projection.",
+                        "Preserve its concrete arguments and original declaration owner.");
+                    return TYPE_UNKNOWN;
                 }
-                /* For generic unions, also extract TypeInfo */
-                if (sym && sym->type_info) {
-                    union_type_info = sym->type_info;
-                    /* Prefer the generic name as the base for variant lookup */
-                    if (union_type_info->generic_name) union_type_name = union_type_info->generic_name;
-                }
-            } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
-                union_type_name = match_expr_node->as.union_construct.union_name;
-            } else if (match_expr_node->type == AST_STRUCT_LITERAL) {
-                union_type_name = inline_variant_union(match_expr_node, env);
-            } else if (match_expr_node->type == AST_CALL) {
-                Function *func = env_get_function(env, match_expr_node->as.call.name);
-                if (func && func->return_struct_type_name) {
-                    union_type_name = func->return_struct_type_name;
-                }
-            } else if (match_expr_node->type == AST_FIELD_ACCESS) {
-                /* Handle field access expressions like resp.status */
-                const char *struct_name = get_struct_type_name(match_expr_node->as.field_access.object, env);
-                if (struct_name) {
-                    /* Look up the struct definition to find the field's type name */
-                    StructDef *sdef = env_get_struct(env, struct_name);
-                    if (sdef && sdef->field_type_names) {
-                        const char *field_name = match_expr_node->as.field_access.field_name;
-                        for (int i = 0; i < sdef->field_count; i++) {
-                            if (strcmp(sdef->field_names[i], field_name) == 0) {
-                                if (sdef->field_types[i] == TYPE_UNION && sdef->field_type_names[i]) {
-                                    union_type_name = sdef->field_type_names[i];
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (match_expr_node->type == AST_FIELD_ACCESS || match_expr_node->type == AST_CALL) {
-                TypeInfo *field_info = try_get_expr_type_info(match_expr_node, env);
-                if (field_info && field_info->generic_name && env_get_union(env, field_info->generic_name)) {
-                    union_type_info = field_info;
-                    union_type_name = field_info->generic_name;
-                }
-            }
-
-            union_base_name = union_type_name;
-            if (union_type_info && union_type_info->generic_name && union_type_info->type_param_count > 0) {
-                union_base_name = union_type_info->generic_name;
                 union_concrete_name = typeinfo_to_monomorphized_generic_name(union_type_info);
+                if (!union_concrete_name || !env_own_checker_type_info(env, union_type_info)) {
+                    free(union_concrete_name); free_payload_type_info(union_type_info);
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I cannot retain the native union scrutinee storage.",
+                        "Preserve its checked allocation boundary.");
+                    return TYPE_UNKNOWN;
+                }
+                union_base_name = union_type_info->generic_name;
             }
 
             MatchDomain match_domain = check_match_domain(
@@ -6866,62 +6817,30 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             bool has_variant_patterns_stmt;
             match_arm_families(stmt, &has_int_patterns_stmt, &has_variant_patterns_stmt);
 
-            /* Infer and store union type name for transpiler + variant binding metadata */
-            const char *union_type_name = NULL;      /* base name for variant-field lookup */
-            const char *union_base_name = NULL;      /* kept for binding metadata */
-            char *union_concrete_name = NULL;        /* for transpiler: Result_int_string */
-            TypeInfo *union_type_info = NULL;        /* For generic unions: Result<int, string> */
+            /* I keep concrete storage independent of symbol vector growth. */
+            const char *union_base_name = NULL;
+            char *union_concrete_name = NULL;
+            TypeInfo *union_type_info = NULL;
             ASTNode *match_expr_node = stmt->as.match_expr.expr;
-
-            if (match_expr_node->type == AST_IDENTIFIER) {
-                Symbol *sym = env_get_var(tc->env, match_expr_node->as.identifier);
-                if (sym && sym->struct_type_name) {
-                    union_type_name = sym->struct_type_name;
+            if (match_type == TYPE_UNION) {
+                char *selected_variant = NULL;
+                if (!checked_union_projection_copy(match_expr_node, tc->env, &union_type_info, &selected_variant) ||
+                    selected_variant || !union_type_info || !union_type_info->generic_name) {
+                    free(selected_variant); free_payload_type_info(union_type_info);
+                    emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                        "I cannot retain the complete union scrutinee projection.",
+                        "Preserve its concrete arguments and original declaration owner.");
+                    return TYPE_VOID;
                 }
-                /* For generic unions, also extract TypeInfo */
-                if (sym && sym->type_info) {
-                    union_type_info = sym->type_info;
-                    if (union_type_info->generic_name) union_type_name = union_type_info->generic_name;
-                }
-            } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
-                union_type_name = match_expr_node->as.union_construct.union_name;
-            } else if (match_expr_node->type == AST_STRUCT_LITERAL) {
-                union_type_name = inline_variant_union(match_expr_node, tc->env);
-            } else if (match_expr_node->type == AST_CALL) {
-                Function *func = env_get_function(tc->env, match_expr_node->as.call.name);
-                if (func && func->return_struct_type_name) {
-                    union_type_name = func->return_struct_type_name;
-                }
-            } else if (match_expr_node->type == AST_FIELD_ACCESS) {
-                const char *struct_name = get_struct_type_name(match_expr_node->as.field_access.object, tc->env);
-                if (struct_name) {
-                    StructDef *sdef = env_get_struct(tc->env, struct_name);
-                    if (sdef && sdef->field_type_names) {
-                        const char *field_name = match_expr_node->as.field_access.field_name;
-                        for (int i = 0; i < sdef->field_count; i++) {
-                            if (strcmp(sdef->field_names[i], field_name) == 0) {
-                                if (sdef->field_types[i] == TYPE_UNION && sdef->field_type_names[i]) {
-                                    union_type_name = sdef->field_type_names[i];
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (match_expr_node->type == AST_FIELD_ACCESS || match_expr_node->type == AST_CALL) {
-                TypeInfo *field_info = try_get_expr_type_info(match_expr_node, tc->env);
-                if (field_info && field_info->generic_name && env_get_union(tc->env, field_info->generic_name)) {
-                    union_type_info = field_info;
-                    union_type_name = field_info->generic_name;
-                }
-            }
-
-            union_base_name = union_type_name;
-            if (union_type_info && union_type_info->generic_name && union_type_info->type_param_count > 0) {
-                union_base_name = union_type_info->generic_name;
                 union_concrete_name = typeinfo_to_monomorphized_generic_name(union_type_info);
+                if (!union_concrete_name || !env_own_checker_type_info(tc->env, union_type_info)) {
+                    free(union_concrete_name); free_payload_type_info(union_type_info);
+                    emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                        "I cannot retain the native union scrutinee storage.",
+                        "Preserve its checked allocation boundary.");
+                    return TYPE_VOID;
+                }
+                union_base_name = union_type_info->generic_name;
             }
 
             MatchDomain match_domain = check_match_domain(

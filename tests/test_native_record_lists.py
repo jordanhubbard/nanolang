@@ -131,6 +131,50 @@ fn main() -> int {
         # I retain the existing trace/alias/iteration program and all assertions.
         source = (ROOT / 'tests/fixtures/evaluator_lists/mutations.nano').read_text()
         self.native_routes('native-mutations', source)
+        self.native_routes('native-initializer-publication', '''struct Item { value:int }
+fn bump(value:int)->int { (print "x") return (+ value 1) }
+shadow bump { assert (== (bump 40) 41) }
+fn inc(value:int)->int { return (+ value 1) }
+shadow inc { assert (== (inc 4) 5) }
+extern fn __nl_let_initializer_8_0()->int
+fn __nl_let_initializer_0()->int { return 19 }
+shadow __nl_let_initializer_0 { assert (== (__nl_let_initializer_0) 19) }
+fn main()->int {
+ let __nl_let_initializer_1:int = 23
+ let value:int = 40
+ let text:string = "outer"
+ let item:Item = Item{value:7}
+ let values:array<int> = [8,9]
+ let pair:(int,string) = (11,"pair")
+ let callback:fn(int)->int = inc
+ let byte:int = 257
+ if true {
+  let value:int = (bump value)
+  let __nl_let_initializer_2:int = 29
+  assert (== __nl_let_initializer_2 29)
+  let text:string = text
+  let item:Item = item
+  let values:array<int> = values
+  let pair:(int,string) = pair
+  let callback:fn(int)->int = callback
+  let byte:u8 = byte
+  assert (== value 41)
+  assert (== text "outer")
+  assert (== item.value 7)
+  assert (== (at values 1) 9)
+  assert (== pair.0 11)
+  assert (== pair.1 "pair")
+  assert (== (callback 8) 9)
+  assert (== byte 1)
+ }
+ if true { let inc:fn(int)->int = inc assert (== (inc 6) 7) }
+ assert (== value 40)
+ assert (== byte 257)
+ assert (== __nl_let_initializer_1 23)
+ assert (== (__nl_let_initializer_0) 19)
+ return 0
+}
+''', expected_stdout=b'x')
 
     def test_native_discovery_and_copied_results(self):
         self.native_routes('native-discovery', '''struct Item { value:int, text:string }
@@ -181,7 +225,45 @@ fn main()->int {
  } }
  match (build xs) { Wrapped(outer)=>{ match outer.inner { Items(payload)=>{ assert (== (list_Item_length payload.values) 1) } } } }
  match Outer<Item>.Wrapped{inner:Inner<Item>.Items{values:xs}} { Wrapped(outer)=>{ match outer.inner { Items(payload)=>{ assert (== (list_Item_get payload.values 0).value 13) } } } }
+ let projected=(match Outer<Item>.Wrapped{inner:Inner<Item>.Items{values:xs}} {
+  Wrapped(outer)=>{ let alias=outer
+   if true { let alias=alias match alias.inner {Items(payload)=>{assert (== (list_Item_length payload.values) 1)}} }
+   (match alias.inner {Items(payload)=>{(list_Item_get payload.values 0).value}})
+  }
+ })
+ assert (== projected 13)
  (list_Item_free xs)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
+        self.native_routes('native-contextual-nested-constructors', '''union Inner<T> { Items { value:T } }
+union Outer<T> { Wrapped { inner:Inner<T> } }
+fn build()->Outer<int> { return Outer.Wrapped{inner:Inner.Items{value:17}} }
+shadow build { match (build) { Wrapped(outer)=>{ match outer.inner { Items(inner)=>{assert (== inner.value 17)} } } } }
+fn main()->int {
+ let value:Outer<int> = Outer.Wrapped{inner:Inner.Items{value:23}}
+ match value { Wrapped(outer)=>{ match outer.inner { Items(inner)=>{assert (== inner.value 23)} } } }
+ match (build) { Wrapped(outer)=>{ match outer.inner { Items(inner)=>{assert (== inner.value 17)} } } }
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
+        self.native_routes('native-selected-payload-carriers', '''union Box<T> { Some { value:T }, None {} }
+fn main()->int {
+ let number:Box<int> = Box<int>.Some{value:31}
+ let text:Box<string> = Box<string>.Some{value:"text"}
+ match number { Some(payload)=>{
+  let alias=(cond (true payload) (else payload))
+  let pair=(alias,payload)
+  assert (== pair.0.value 31)
+  assert (== pair.1.value 31)
+ } None(empty)=>{ let alias=empty } }
+ match text { Some(payload)=>{ let alias=payload assert (== alias.value "text") } None(empty)=>{} }
+ let absent:Box<int> = Box<int>.None{}
+ match absent { Some(payload)=>{ assert false } None(empty)=>{ let alias=empty } }
  return 0
 }
 shadow main { assert (== (main) 0) }
@@ -224,6 +306,16 @@ fn main()->int{{
   assert (== (list_Item_get payload.supplied 0).value 29)
  }}}}}}}}
  match (p.wrap fixed) {{Wrapped(outer)=>{{match outer.inner{{Both(payload)=>{{assert (== (p.inspect payload.supplied) 17)}}}}}}}}
+ match p.Nested<Item>.Wrapped{{inner:p.Mixed<Item>.Both{{fixed:fixed,supplied:own}}}} {{Wrapped(outer)=>{{
+  let alias=outer
+  if true {{ let alias=alias
+   match alias.inner{{Both(payload)=>{{
+    let copy=payload
+    assert (== (p.inspect copy.fixed) 17)
+    assert (== (list_Item_get copy.supplied 0).value 29)
+   }}}}
+  }}
+ }}}}
  (p.release fixed) (list_Item_free own) return 0
 }}
 shadow main{{assert (== (main) 0)}}

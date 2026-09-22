@@ -896,12 +896,18 @@ static void function_index_controls(void) {
     env->current_module = "Other"; CHECK(!function_equivalent(env, "Alias.same"));
     CHECK(!function_equivalent(env, "Alias.absent"));
     env_define_function(env, (Function){.name="array_push", .module_name="Other", .is_extern=true});
-    CHECK(env_function_is_builtin(function_equivalent(env, "array_push")));
+    CHECK(function_equivalent(env, "array_push") == &env->functions[7]);
+    CHECK(!env_array_push_is_builtin(env, 1, 1));
     ASTNode body = {0};
     env_define_function(env, (Function){.name="array_push", .module_name="Other", .body=&body});
-    CHECK(function_equivalent(env, "array_push") == &env->functions[8]);
+    CHECK(function_equivalent(env, "array_push") == &env->functions[7]);
     env->functions[8].is_extern = true;
+    CHECK(function_equivalent(env, "array_push") == &env->functions[7]);
+    env->current_module = "Unrelated";
     CHECK(env_function_is_builtin(function_equivalent(env, "array_push")));
+    CHECK(env_array_push_is_builtin(env, 1, 1));
+    env->current_module = "Other";
+    CHECK(function_equivalent(env, "array_push") == &env->functions[7]);
     env_define_function(env, (Function){.name="str_length", .module_name="Other", .body=&body});
     CHECK(env_function_is_builtin(function_equivalent(env, "str_length")));
     /* I populate exact generated ordinals without invoking unrelated legacy allocators. */
@@ -937,6 +943,15 @@ static void function_index_controls(void) {
         CHECK(env->function_index && live == 3);
         env_function_index_invalidate(env); CHECK(live == 0); end();
     }
+    env->current_module = "Other";
+    for (size_t at = 0; at < count; ++at) {
+        begin(at, false);
+        CHECK(function_equivalent(env, "array_push") == &env->functions[7]);
+        CHECK(!env_array_push_is_builtin(env, 1, 1));
+        CHECK(failures && !env->function_index && live == 0);
+        end();
+    }
+    env->current_module = NULL;
     Environment *other = create_environment(); CHECK(other);
     env_define_function(other, (Function){.name="same"});
     CHECK(function_equivalent(other, "same") == &other->functions[0]);

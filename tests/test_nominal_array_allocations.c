@@ -503,6 +503,51 @@ static void union_payload_controls(void) {
         CHECK(union_payload_attempt(SIZE_MAX, false) == count);
     }
 }
+extern bool array_test_prepare_union_projection(Environment *, ASTNode *, bool);
+static size_t union_projection_attempt(size_t prefix, bool transient, bool payload) {
+    const char *source = "module Definitions\nstruct Item{value:int} union Box<T>{Value{item:T}}";
+    int token_count = 0; Token *tokens = tokenize(source, &token_count); CHECK(tokens);
+    ASTNode *program = parse_program(tokens, token_count); CHECK(program);
+    Environment *env = create_environment(); CHECK(env && type_check_module(program, env));
+    env_define_var(env, "payload", TYPE_STRUCT, false, create_void());
+    ASTNode constructor = {.type = AST_UNION_CONSTRUCT};
+    CHECK(array_test_prepare_union_projection(env, &constructor, payload));
+    for (int i = 0; i < 256; ++i) {
+        char name[32]; snprintf(name, sizeof name, "projection_growth_%d", i);
+        env_define_var(env, name, TYPE_INT, false, create_void());
+    }
+    ASTNode identifier = {.type = AST_IDENTIFIER}; identifier.as.identifier = "payload";
+    Symbol *binding = env_get_var(env, "payload"); CHECK(binding);
+    const void *proof = binding->checker_nominal_view, *registry = env->checker_nominal_expressions;
+    TypeInfo *prior = binding->type_info;
+    TypeInfo sentinel = {.base_type = TYPE_BOOL}, *output = &sentinel;
+    char sentinel_name[] = "unchanged", *variant = sentinel_name;
+    begin(prefix, transient);
+    bool ok = checked_union_projection_copy(payload ? &identifier : &constructor, env, &output, &variant);
+    size_t count = stop();
+    if (prefix == SIZE_MAX) {
+        CHECK(ok && !failed && output != &sentinel && output->base_type == TYPE_UNION);
+        CHECK(output->type_param_count == 1 && output->type_params[0]->base_type == TYPE_STRUCT);
+        CHECK(!strcmp(output->generic_name, "Box") && !strcmp(output->type_params[0]->generic_name, "Item"));
+        CHECK(payload ? variant && !strcmp(variant, "Value") : !variant);
+        free_payload_type_info(output); array_alloc_free(variant);
+    } else CHECK(!ok && failed && output == &sentinel && variant == sentinel_name);
+    CHECK(!live && binding->checker_nominal_view == proof && binding->type_info == prior);
+    CHECK(env->checker_nominal_expressions == registry && !strcmp(sentinel_name, "unchanged"));
+    free_environment(env); free_ast(program); free_tokens(tokens, token_count); CHECK(!live);
+    return count;
+}
+static void union_projection_controls(void) {
+    for (int payload = 0; payload < 2; ++payload) {
+        size_t count = union_projection_attempt(SIZE_MAX, false, payload != 0); CHECK(count > 5);
+        printf("I measure checked union projection payload %d: %zu allocation attempts.\n", payload, count);
+        for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+            union_projection_attempt(i, transient != 0, payload != 0);
+            CHECK(union_projection_attempt(SIZE_MAX, false, payload != 0) == count);
+        }
+    }
+}
+
 static void struct_auxiliary_teardown_controls(void) {
     for (int fields = 0; fields < 2; ++fields) {
         Environment *env = create_environment(); CHECK(env);
@@ -541,7 +586,7 @@ int main(void) {
     CHECK(copy_payload_type_info_checked(chain + 1, &out)); free_payload_type_info(out);
     CHECK(copy_payload_type_info_checked(NULL, &out) && out == NULL);
     CHECK(!copy_payload_type_info_checked(chain, NULL));
-    struct_auxiliary_teardown_controls(); registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); native_callable_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); native_emission_controls(); constructor_registry_controls(); union_payload_controls();
+    struct_auxiliary_teardown_controls(); registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); native_callable_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); native_emission_controls(); constructor_registry_controls(); union_payload_controls(); union_projection_controls();
     printf("I passed %zu separate checker annotation allocation assertions.\n", checks);
     return 0;
 }
