@@ -1,0 +1,27 @@
+# I preserve my complete sanitizer suite when I schedule it
+
+## Measured failure and scope
+
+I retain PR947 head81cb6eb50 and the earlier PR946 whole-step timeout. My actual947 sanitizer step begins at16:19:11, reaches the Forth session at16:21:27, then the next target at16:32:44. That target interval is11m17s, including its compile and execution; I do not attribute all of it to one function. I reach nvm2c at16:33:18, build the instrumented NanoISA emitter at16:34:59 and enter its comparison at16:36:09. Sixteen Python methods then pass before Actions enforces the unchanged20-minute step limit. The first terminal remains a failure. A timeout increase alone does not establish full-suite acceptance.
+
+I start from actual main e0c7eb76d. GNU Make's read-only query database resolves282 distinct test-units prerequisites. The target also owns a trailing compile/run/remove transpiler recipe: an inventory of prerequisites alone would silently omit it. My separate negative-test step is required too. All are retained.
+
+## Implementation contract before code
+
+I factor the existing trailing recipe mechanically into a named target and keep ordinary test-units depending on all282 existing prerequisites plus that target. Its original instrumentation detection, compile/link flags, executable assertions and cleanup remain unchanged. I retain a byte comparison of the moved recipe. I do not replace original targets with copied test commands.
+
+A small scheduler reads the resolved GNU Make query database, rejects parse errors/duplicates/unknown forms, and publishes the complete ordered inventory and exact partition manifest before any test. It recognizes only test-units' resolved normal prerequisites; order-only or unexpected non-test entries are errors requiring review. Tests compare partition union and multiplicity against that live inventory, including the trailing recipe. Additions to test-units must enter the manifest automatically or fail validation, never disappear.
+
+My initial schedule has16 disjoint workers. Forth session and NanoISA source-emitter acceptance each own a dedicated worker because the retained timings identify them as substantial phases. I distribute the remaining281 entries deterministically across14 workers in resolved order. These are scheduling partitions, not smaller acceptance profiles. I retain the exact target arguments per worker and prove every original target plus the moved tail occurs exactly once in the requested union. Make may execute shared prerequisite tests again across independent workers; I report that duplication instead of claiming unique transitive execution.
+
+Each worker checks out the same exact commit, independently builds the same sanitizer compiler/runtime and completes the same three-stage bootstrap. There is no unproved archive/provider reuse. I keep the existing CFLAGS, LDFLAGS, detect_leaks=0 policy and60-second shadow deadline. The source-emitter worker prepares its existing named compiler/emitter providers in an explicit build-preparation step with those same flags before its test step; moving preparation does not remove any shadow or product control. Other targets continue to own their actual Make prerequisites.
+
+Each test worker retains the original20-minute step limit and30-minute job limit. Independent workers run with fail-fast disabled, at most four concurrently; an actual failure remains a failure and does not cancel unrelated evidence. No worker reruns a known failed target merely to obtain green. Sixteen jobs imply an explicit480-minute worst-case job allocation, not measured duration or a passing claim. Existing inner deadlines and test bodies are unchanged. If a partition exceeds its original bound, I preserve that measured terminal and revise scheduling only with exact complete-coverage evidence. I do not increase the worker bound to hide it.
+
+The existing negative suite runs in a separately bounded sanitizer worker with the same original selected compiler and ASan policy. Its acceptance is required alongside every partition. I retain per-worker source/tool/provider identity, actual command/exit/timing, raw test logs, and first-failure diagnostics with always-run artifact publication. Outer deadline handling must leave Actions' descendant cleanup evidence intact; local qualification uses bounded process-group cleanup. A final aggregate check requires every expected worker and negative lane to succeed, with exact matching head/inventory digests. Missing, cancelled or failed workers cannot yield aggregate success.
+
+## Qualification and limits
+
+Before hosted execution I review the entire workflow/planner/Make delta, run scheduler coverage/refusal controls, validate workflow YAML and inspect actual dry-run command/flag correspondence. Then I exercise the unchanged instrumented Forth and source-emitter worker selections on fresh providers, preserve their actual terminals, and use hosted matrix results for the complete platform-specific acceptance. Local supported mixed instrumentation from PR947 proves only its link boundary and cannot stand in for this all-provider sanitizer matrix.
+
+Known byte-source/list corpus refusals and any additional assertion, sanitizer, or deadline failure remain required repairs. This scheduling work does not close those tasks or claim the release ready. PR945 generated-backend integration onto current main remains separate; its older qualified source is not relabeled current.
