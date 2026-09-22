@@ -17,6 +17,13 @@
 #define SDK_BYTE_LIMIT ((uint64_t)1024 * 1024 * 1024)
 static const char sdk_header[] = "NANOLANG_SDK_ABI=2\n";
 
+static bool sdk_requires_execute(const char *relative) {
+    const size_t count = sizeof(sdk_required_executables)/sizeof(sdk_required_executables[0]);
+    for (size_t i = 0; i < count; ++i)
+        if (!strcmp(relative, sdk_required_executables[i])) return true;
+    return false;
+}
+
 static bool sdk_regular(const char *path, struct stat *st) {
     return lstat(path, st) == 0 && S_ISREG(st->st_mode);
 }
@@ -130,7 +137,7 @@ static NanoSdkStatus sdk_installed(const char *root, const char *manifest) {
         unsigned long long size = strtoull(mode_end, NULL, 10);
         unsigned long mode = strtoul(line, NULL, 8);
         if (errno || mode > 0777 || size > SDK_BYTE_LIMIT - total ||
-            ((!strncmp(hash_end, "bin/", 4) || !strcmp(hash_end, "scripts/generate_list.sh")) && !(mode & 0111)) ||
+            (sdk_requires_execute(hash_end) && !(mode & 0111)) ||
             !sdk_path(path, sizeof(path), root, hash_end)) { ok = false; break; }
         total += size;
         struct stat st;

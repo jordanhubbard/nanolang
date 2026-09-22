@@ -1,5 +1,6 @@
 /* I derive this file from scripts/native_sdk_{inputs,objects}.json. */
 static const char *const sdk_required_inputs[] = {
+    "bin/nano_aot_runtime.o",
 #ifdef __linux__
     "bin/nano_as_capture.so",
 #endif
@@ -1308,4 +1309,20 @@ static const char *const sdk_required_inputs[] = {
     "tools/vscode-nanolang/package.json",
     "tools/vscode-nanolang/snippets/nanolang.json",
     "tools/vscode-nanolang/syntaxes/nanolang.tmLanguage.json",
+};
+
+static const char *const sdk_required_executables[] = {
+#ifdef __linux__
+    "bin/nano_as_capture.so",
+#endif
+    "bin/nano_cop",
+    "bin/nano_virt",
+    "bin/nano_vm",
+    "bin/nano_vmd",
+    "bin/nanoc",
+    "bin/nanoc_c",
+    "bin/nanoc_stage1",
+    "bin/nanoisa",
+    "bin/nvm2c",
+    "scripts/generate_list.sh",
 };

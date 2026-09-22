@@ -17043,3 +17043,15 @@ prerequisites. Codec limits, loader relocation/leases, complete ABI adapters and
 both-host original SDK acceptance remain required before full5.1 completion.
 This is a pre-implementation contract awaiting source-owner review; no execution
 or public legacy fallback follows from it.
+
+### I install the canonical AOT runtime as an explicit object role
+
+Before implementation I record the bounded prerequisite: the canonical driver
+requires `bin/nano_aot_runtime.o`, while my SDK generator/install selection omit
+it and both mode validators assume every bin input is executable. I add one
+explicit object role, keep existing executable/tool/generator roles separate,
+include the exact AOT target in clean install prerequisites and preserve the
+object's actual bytes/mode. Missing-object self-consistent manifests must refuse
+before providers; ordinary non-executable object modes must remain valid. All
+source-hidden, read-only, original refusal and output sentinels remain required.
+Scoped generator output refresh does not freeze the final source inventory.

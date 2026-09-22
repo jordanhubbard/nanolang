@@ -14,7 +14,8 @@ import stat
 import subprocess
 import sys
 import tempfile
-from generate_native_sdk_inventory import check as check_generated_inventory, inputs as sdk_inputs
+from generate_native_sdk_inventory import (check as check_generated_inventory, inputs as sdk_inputs,
+                                           OBJECT_ROLES, EXECUTABLE_INPUTS)
 
 ABI = 2
 LIMIT_FILES = 8192
@@ -215,6 +216,8 @@ def install(source, prefix, inventory):
         selected['bin/' + output] = p
     for name in PUBLIC[2:]:
         selected['bin/' + name] = owned_path(source, 'bin/' + name)
+    for name in OBJECT_ROLES:
+        selected['bin/' + name] = owned_path(source, 'bin/' + name)
     # The assembler helper is an actual Linux module-build input.
     if platform.system() == 'Linux':
         selected['bin/nano_as_capture.so'] = owned_path(source, 'bin/nano_as_capture.so')
@@ -226,7 +229,10 @@ def install(source, prefix, inventory):
     if abi_lines != [b'#define NANO_DYN_ARRAY_ABI_VERSION 2u']:
         raise ValueError('I require one matching native array ABI declaration')
     rows = [row(name, selected[name]) for name in sorted(selected)]
-    if any((r['path'].startswith('bin/') or r['path'] == 'scripts/generate_list.sh') and not r['mode'] & 0o111 for r in rows):
+    executable_inputs = set(EXECUTABLE_INPUTS)
+    if platform.system() == 'Linux':
+        executable_inputs.add('bin/nano_as_capture.so')
+    if any(r['path'] in executable_inputs and not r['mode'] & 0o111 for r in rows):
         raise ValueError('I require executable SDK compiler, VM and generator roles')
     if len(rows) > LIMIT_FILES or sum(r['size'] for r in rows) > LIMIT_BYTES:
         raise ValueError('I refuse an excessive SDK input closure')

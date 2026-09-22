@@ -6,6 +6,8 @@ from pathlib import Path
 
 ROLES = ('nano_virt', 'nano_vm', 'nano_cop', 'nano_vmd', 'nanoisa', 'nvm2c',
          'nanoc', 'nanoc_c', 'nanoc_stage1')
+OBJECT_ROLES = ('nano_aot_runtime.o',)
+EXECUTABLE_INPUTS = tuple('bin/' + name for name in ROLES) + ('scripts/generate_list.sh',)
 
 
 def inputs(root):
@@ -22,7 +24,7 @@ def inputs(root):
                 raise ValueError('I require an exact relative SDK path')
     if any(not p.startswith('obj/') or not p.endswith('.o') for p in objects):
         raise ValueError('I require SDK objects under the canonical obj directory')
-    paths = source + objects + ['bin/' + name for name in ROLES]
+    paths = source + objects + ['bin/' + name for name in ROLES + OBJECT_ROLES]
     if len(paths) != len(set(paths)):
         raise ValueError('I refuse overlapping SDK input roles')
     return sorted(paths), objects
@@ -37,6 +39,12 @@ def outputs(root):
             lines += ['#ifdef __linux__', '    "bin/nano_as_capture.so",', '#endif']
         else:
             lines.append('    ' + json.dumps(name, ensure_ascii=True) + ',')
+    lines += ['};', '', 'static const char *const sdk_required_executables[] = {']
+    for name in sorted(EXECUTABLE_INPUTS + ('bin/nano_as_capture.so',)):
+        if name == 'bin/nano_as_capture.so':
+            lines += ['#ifdef __linux__', '    "bin/nano_as_capture.so",', '#endif']
+        else:
+            lines.append('    ' + json.dumps(name) + ',')
     lines += ['};', '']
     make = '# I derive this list from scripts/native_sdk_objects.json.\n'
     make += 'NATIVE_SDK_OBJECTS = \\\n' + ' \\\n'.join('  $(OBJ_DIR)/' + p[4:] for p in objects) + '\n'

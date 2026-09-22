@@ -172,7 +172,7 @@ class NativeSdk(unittest.TestCase):
 
     def test_b_incomplete_abi_modes_and_invalid_overrides(self):
         cases=[]
-        for i,path in enumerate(['src/runtime/gc.h','obj/runtime/gc.o',
+        for i,path in enumerate(['src/runtime/gc.h','obj/runtime/gc.o','bin/nano_aot_runtime.o',
                                  *['bin/'+name for name in ('nanoc','nanoc_c','nanoc_stage1','nano_virt','nano_vm','nano_cop','nano_vmd','nanoisa','nvm2c')]]):
             cases.append(('missing-'+str(i),self.fault_generation('missing-'+str(i),lambda root,p=path:(root/p).unlink())))
         def abi(root,duplicate=False):
@@ -183,6 +183,11 @@ class NativeSdk(unittest.TestCase):
         def noexecute(root):
             p=root/'bin/nanoc';replace(p,p.read_bytes(),0o644)
         cases.append(('non-executable',self.fault_generation('non-executable',noexecute)))
+        def object_without_execute(root):
+            p=root/'bin/nano_aot_runtime.o';replace(p,p.read_bytes(),0o644)
+        object_generation=self.fault_generation('non-executable-aot-object',object_without_execute)
+        self.command('non-executable-aot-object-probe',[self.probe,'root','0','installed'],
+                     extra={'NANOLANG_SDK_ROOT':object_generation})
         cases += [('empty',''),('absent',self.work/'no-sdk')]
         type(self).validation_cases=cases
         program=self.outside/'invalid-control.nano';program.write_text('fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n')

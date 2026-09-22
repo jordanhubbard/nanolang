@@ -4115,7 +4115,7 @@ native-sdk-inventory-check:
 	python3 scripts/generate_native_sdk_inventory.py --check
 
 # Install binaries
-install: bootstrap vm nvm2c file-public-runtime $(NATIVE_SDK_OBJECTS) native-sdk-inventory-check scripts/native_sdk_inputs.json
+install: bootstrap vm nvm2c nvm2c-runtime file-public-runtime $(NATIVE_SDK_OBJECTS) native-sdk-inventory-check scripts/native_sdk_inputs.json
 	python3 scripts/native_sdk.py install --source "$(CURDIR)" --prefix "$(PREFIX)"
 	install -d "$(PREFIX)/lib"
 	install -m 644 "$(FILE_PUBLIC_LIBRARY)" "$(PREFIX)/lib/libnano_file_runtime.a"
