@@ -1,5 +1,4 @@
 {
-  "head": "fb913d5a6ae81a08c2f5f448cc30d147bfb36711",
   "run": 35684809706,
   "reports": [
     {
@@ -27,5 +26,7 @@
       "stored": "job-106609359461.log.gz"
     }
   ],
-  "scope": "Four actual worker terminals only; full run still active."
+  "scope": "Four actual worker terminals only; full run still active.",
+  "pr_head": "fb913d5a6ae81a08c2f5f448cc30d147bfb36711",
+  "tested_merge": "27a62e96c5352438cf3139e97658a01b9b9817fa"
 }
