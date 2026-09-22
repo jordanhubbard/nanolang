@@ -18,6 +18,8 @@
 #include "../src/runtime/ffi_loader.h"
 #include "../src/runtime/dyn_array.h"
 #include <errno.h>
+#include <spawn.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1836,47 +1838,60 @@ void test_eval_match_wildcards_follow_lexical_order(void) {
     run_ctx_free(&ctx);
 }
 
+static const char *eval_fixture_executable;
+extern char **environ;
+static RunCtx terminal_match_context;
+static void terminal_match_cleanup(void) {
+    run_ctx_free(&terminal_match_context);
+}
+static int terminal_match_worker(void) {
+    if (atexit(terminal_match_cleanup) != 0) return 90;
+    const char *source =
+        "union Choice { Some { number: int }, None {} }\n"
+        "fn unchecked_miss() -> int {\n"
+        "  let value: Choice = Choice.None {}\n"
+        "  let selected: int = match value { Some(payload) => payload.number }\n"
+        "  return selected\n"
+        "}\n";
+    RunCtx *ctx = &terminal_match_context;
+    ctx->tokens = tokenize(source, &ctx->token_count);
+    ctx->program = ctx->tokens ? parse_program(ctx->tokens, ctx->token_count) : NULL;
+    ctx->env = ctx->program ? create_environment() : NULL;
+    if (!ctx->tokens || !ctx->program || !ctx->env || !run_program(ctx->program, ctx->env)) return 90;
+    /* I preserve the deliberately incomplete source and original checker bypass.
+     * The production fatal exit invokes fixture cleanup through normal atexit. */
+    ASTNode *definition = NULL;
+    for (int i = 0; i < ctx->program->as.program.count; ++i) {
+        ASTNode *item = ctx->program->as.program.items[i];
+        if (item->type == AST_FUNCTION &&
+            strcmp(item->as.function.name, "unchecked_miss") == 0)
+            definition = item;
+    }
+    if (!definition || definition->as.function.param_count != 0 ||
+        definition->as.function.return_type != TYPE_INT) return 90;
+    Function function = {0};
+    function.name = definition->as.function.name;
+    function.return_type = TYPE_INT;
+    function.body = definition->as.function.body;
+    env_define_function(ctx->env, function);
+    (void)call_function("unchecked_miss", NULL, 0, ctx->env);
+    return 91;
+}
 void test_eval_match_miss_is_terminal(void) {
     int errors[2];
     ASSERT(pipe(errors) == 0);
     fflush(NULL);
-    pid_t child = fork();
-    ASSERT(child >= 0);
-    if (child == 0) {
-        close(errors[0]);
-        ASSERT(dup2(errors[1], STDERR_FILENO) >= 0);
-        close(errors[1]);
-        const char *source =
-            "union Choice { Some { number: int }, None {} }\n"
-            "fn unchecked_miss() -> int {\n"
-            "  let value: Choice = Choice.None {}\n"
-            "  let selected: int = match value { Some(payload) => payload.number }\n"
-            "  return selected\n"
-            "}\n";
-        int token_count = 0;
-        Token *tokens = tokenize(source, &token_count);
-        ASTNode *program = tokens ? parse_program(tokens, token_count) : NULL;
-        Environment *env = program ? create_environment() : NULL;
-        if (!tokens || !program || !env || !run_program(program, env)) _exit(90);
-        /* I bypass checking only for this deliberately incomplete AST. The
-         * checker normally registers functions; run_program does not. */
-        ASTNode *definition = NULL;
-        for (int i = 0; i < program->as.program.count; ++i) {
-            ASTNode *item = program->as.program.items[i];
-            if (item->type == AST_FUNCTION &&
-                strcmp(item->as.function.name, "unchecked_miss") == 0)
-                definition = item;
-        }
-        if (!definition || definition->as.function.param_count != 0 ||
-            definition->as.function.return_type != TYPE_INT) _exit(90);
-        Function function = {0};
-        function.name = definition->as.function.name;
-        function.return_type = TYPE_INT;
-        function.body = definition->as.function.body;
-        env_define_function(env, function);
-        (void)call_function("unchecked_miss", NULL, 0, env);
-        _exit(91);
-    }
+    posix_spawn_file_actions_t actions;
+    ASSERT(posix_spawn_file_actions_init(&actions) == 0);
+    ASSERT(posix_spawn_file_actions_addclose(&actions, errors[0]) == 0);
+    ASSERT(posix_spawn_file_actions_adddup2(&actions, errors[1], STDERR_FILENO) == 0);
+    if (errors[1] != STDERR_FILENO)
+        ASSERT(posix_spawn_file_actions_addclose(&actions, errors[1]) == 0);
+    char *arguments[] = {(char *)eval_fixture_executable, "--terminal-match-worker", NULL};
+    pid_t child;
+    int spawned = posix_spawn(&child, eval_fixture_executable, &actions, NULL, arguments, environ);
+    ASSERT(posix_spawn_file_actions_destroy(&actions) == 0);
+    ASSERT(spawned == 0);
 
     close(errors[1]);
     char message[512], chunk[256];
@@ -1885,13 +1900,13 @@ void test_eval_match_miss_is_terminal(void) {
     for (;;) {
         ssize_t length = read(errors[0], chunk, sizeof(chunk));
         if (length < 0 && errno == EINTR) continue;
-        if (length < 0) { read_ok = false; break; }
+        if (length < 0) { read_ok = false; (void)kill(child, SIGKILL); break; }
         if (!length) break;
         size_t available = sizeof(message) - 1 - used;
         size_t count = (size_t)length < available ? (size_t)length : available;
         memcpy(message + used, chunk, count);
         used += count;
-        if (count != (size_t)length) truncated = true;
+        if (count != (size_t)length) { truncated = true; (void)kill(child, SIGKILL); break; }
     }
     close(errors[0]);
     message[used] = '\0';
@@ -1899,14 +1914,14 @@ void test_eval_match_miss_is_terminal(void) {
     pid_t waited;
     do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);
     ASSERT(waited == child);
+    const char *expected = "I cannot continue: a checked match reached no successful arm.\n";
+    if (!read_ok || truncated || !WIFEXITED(status) || WEXITSTATUS(status) != EXIT_FAILURE || strcmp(message, expected))
+        fprintf(stderr, "I observed unchecked-match child status %d, truncated %d and stderr: %s\n", status, truncated, message);
     ASSERT(read_ok);
     ASSERT(!truncated);
-    if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_FAILURE)
-        fprintf(stderr, "I observed unchecked-match child status %d and stderr: %s\n", status, message);
     ASSERT(WIFEXITED(status));
     ASSERT(WEXITSTATUS(status) == EXIT_FAILURE);
-    ASSERT(strstr(message,
-        "I cannot continue: a checked match reached no successful arm.") != NULL);
+    ASSERT(strcmp(message, expected) == 0);
 }
 
 void test_eval_union_with_data(void) {
@@ -3001,7 +3016,11 @@ static void test_eval_file_write_failures(void) {
     remove(args[0].as.string_val);
 }
 
-int main(void) {
+int main(int argc, char **argv) {
+    eval_fixture_executable = argv[0];
+    if (argc == 2 && strcmp(argv[1], "--terminal-match-worker") == 0)
+        return terminal_match_worker();
+    ASSERT(argc == 1);
     TEST(eval_declared_push_initializer_bindings);
     TEST(eval_file_write_failures);
     TEST(eval_handler_return_async_calls);
