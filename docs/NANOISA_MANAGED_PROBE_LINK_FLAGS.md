@@ -1,0 +1,9 @@
+# I carry owning flags into my managed eligibility probes
+
+Corrected PR948 units05 reaches ArrayShapes and GraphOrigins setup, then the child links omit ASan/UBSan runtime flags required by their actual provider objects. I retain both first terminals under task_9d55320f16a34ccfa9f7bc9e8f57a2ef. No probe assertion ran in those failing classes.
+
+I audit the complete NMA_LINK_OBJECTS boundary: three owning Make recipes invoke array/graph eligibility, record eligibility and managed LLVM records. Four Python consumers build direct probes, including HeapSelector. I propagate explicit dedicated compiler, compile flags and link flags from the resolved owning Make values into every one of those links. Dedicated user overrides remain authoritative. The ordinary compiler selector accepts a shell-split command prefix; the separate Clang sanitizer selector and existing NMS_NATIVE_CLANG_FLAGS remain distinct.
+
+A shared fixture helper parses only these selectors. Each original link keeps its strict C11/O1/warning/testing flags, exact source/object inputs, libraries, sanitizer variant and executable output. Owning compile flags precede the original strict fixture flags; owning link flags follow the object inputs. I change no module, result assertion, subprocess deadline, selected configuration or allocation check. These labels continue to describe fixture variants; exact argv establishes actual instrumentation.
+
+Before execution I review all four changed links and three recipes. Fresh ordinary and instrumented owning gates must demonstrate actual flags on actual child links, all original assertions and unchanged source/tool/provider maps. The complete managed record and LLVM neighbors remain required; I do not infer them from the first array/graph pass. A pre-existing source or backend failure remains a separate retained boundary.

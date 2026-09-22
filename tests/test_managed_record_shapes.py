@@ -6,6 +6,7 @@ import struct
 import subprocess
 import tempfile
 import unittest
+from tests.managed_probe_flags import compiler_command, compile_flags, link_flags
 
 ROOT = Path(__file__).resolve().parents[1]
 NO = 0xffffffff
@@ -56,10 +57,10 @@ class RecordShapes(unittest.TestCase):
             shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS', '')) +
             ['-fsanitize=address,undefined', '-fno-sanitize-recover=all'])]:
             probe = cls.work / name
-            subprocess.run([compiler, *flags, '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror',
+            subprocess.run([*compiler_command(compiler), *compile_flags(), *flags, '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror',
                 '-DNMA_TESTING', ROOT/'src/nanoisa/managed_array_shapes.c',
                 ROOT/'tests/nanoisa/test_managed_record_shapes.c', *objects,
-                '-lm', '-lcrypto', '-o', probe], cwd=ROOT, check=True, capture_output=True, text=True)
+                '-lm', '-lcrypto', *link_flags(), '-o', probe], cwd=ROOT, check=True, capture_output=True, text=True)
             cls.probes.append(probe)
 
     @classmethod

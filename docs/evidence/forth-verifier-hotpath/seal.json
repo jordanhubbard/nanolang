@@ -1,0 +1,142 @@
+{
+  "forth-benign-787": {
+    "bundle": "forth-benign-787.tar.gz",
+    "sha256": "43e0ad98e2085b7006ae54aaddf81be8de7a018e3f70cc2ca771959509b67bb7",
+    "reports": [
+      {
+        "path": "compile-command.json",
+        "bytes": 4740,
+        "sha256": "938f85f56bf1a68feef06eac7bcc1e071c922bc2f29571703f4ef4d36b0388ab"
+      },
+      {
+        "path": "compile-terminal.json",
+        "bytes": 56,
+        "sha256": "1b1af132577d120d9a88a4c7b9d1f40aa6902daa2004307b10f57d2d147e347c"
+      },
+      {
+        "path": "compile.log",
+        "bytes": 2056,
+        "sha256": "14ab781544c1b2f701a0d3219e4db17aa76a7416922a4604c187bac74e6ef46f"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2534,
+        "sha256": "9ed1623cfc636e65696e44a6847c22fd1c6b3ccaa1f51c30c442091352d6bc35"
+      },
+      {
+        "path": "inputs-before.json",
+        "bytes": 22834,
+        "sha256": "f50791babcc2f90d055e4ce72d59bb8eb3ade248bcf3b0e2eea8e2f96b4267cd"
+      },
+      {
+        "path": "probe.c",
+        "bytes": 1065,
+        "sha256": "778c0ff6569a23631028c7fd97e577956608e0d3d8535f11631770a67ba0f2ff"
+      }
+    ],
+    "objects": {}
+  },
+  "forth-benign-787-corrected": {
+    "bundle": "forth-benign-787-corrected.tar.gz",
+    "sha256": "5c7b11ceaf5e9ca7406903b7cf2378b982613e5a5a164232bca0c820e297693c",
+    "reports": [
+      {
+        "path": "compile-command.json",
+        "bytes": 4760,
+        "sha256": "f1df063c784ac160350539559365e17cbf740f572d3116965a1e26511a1318c8"
+      },
+      {
+        "path": "compile-terminal.json",
+        "bytes": 56,
+        "sha256": "1010c4e68eec8f6aba17e6afd94945a526b5fb5baa557bfbf018240584d7dcc1"
+      },
+      {
+        "path": "compile.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2544,
+        "sha256": "dd74bfbe5ace8ccb33086927d0e93ca1917054df77edaa554b5466c391b2cb1c"
+      },
+      {
+        "path": "inputs-after.json",
+        "bytes": 22844,
+        "sha256": "00910daad566438680d9ea3d964097745d05d00bc459637a51087f576da0b3f6"
+      },
+      {
+        "path": "inputs-before.json",
+        "bytes": 22844,
+        "sha256": "00910daad566438680d9ea3d964097745d05d00bc459637a51087f576da0b3f6"
+      },
+      {
+        "path": "probe.c",
+        "bytes": 1075,
+        "sha256": "0bb6493c291ba6be38a9dcb23464b36284874cf62648fb2c63a134b5fdfebf8e"
+      },
+      {
+        "path": "product.json",
+        "bytes": 83,
+        "sha256": "e22e96e2be1591d7a9e503119881017af477a58ed6ffb8febd85b8596d362561"
+      },
+      {
+        "path": "run.log",
+        "bytes": 30,
+        "sha256": "60a0778387e5d4cd05377a71dd67ead26c4681f2d1053ad1fd4c3d000aa116ab"
+      },
+      {
+        "path": "sample-0.json",
+        "bytes": 53,
+        "sha256": "fb3945cb39e3176d2e2a837da0d8264d13657ac3e0058c8918ad02cfbbbdb1b7"
+      },
+      {
+        "path": "sample-0.log",
+        "bytes": 3452,
+        "sha256": "93ab44e4028e56a4ba5b0046017b4b480ffcfa4cdc8ae7dc95b8a24757a2c010"
+      },
+      {
+        "path": "sample-1.json",
+        "bytes": 55,
+        "sha256": "3c6b94ad3e89e2e39a6702bfa07484aabba0d90ec418a007960a5f11b5d32e0d"
+      },
+      {
+        "path": "sample-1.log",
+        "bytes": 3452,
+        "sha256": "649858f49aa06dae88ada4e26cbe793006b214ff0a2efbef526415935ca8b7d2"
+      },
+      {
+        "path": "sample-2.json",
+        "bytes": 55,
+        "sha256": "1f53d02b1acdb121f99a8b04eb4ee41851699348c2f857b2a824f7257ef09354"
+      },
+      {
+        "path": "sample-2.log",
+        "bytes": 3463,
+        "sha256": "86cd0ff4fded5083966af098579992b648d8c10ac7234a701a33fd907158de50"
+      },
+      {
+        "path": "sample-3.json",
+        "bytes": 54,
+        "sha256": "92047419bf7ac52ce2b80dac6a87202d242b71668010876ef1d21766d18b4a76"
+      },
+      {
+        "path": "sample-3.log",
+        "bytes": 3502,
+        "sha256": "b03015f33d1b158fea1efe48367d4dd3c433a1a712d52796fc8c18c9b1892435"
+      },
+      {
+        "path": "terminal.json",
+        "bytes": 138,
+        "sha256": "7ee162f451a7b577b04bf486035b8eeec38809fa8ed180cc7d90dc9a78ca0070"
+      }
+    ],
+    "objects": {
+      "4fba916995b2576410192836021b528bdf234c5fb64fc580404d6312c577ab2b": {
+        "path": "/home/jkh/nanolang-qualification/forth-benign-787-corrected/probe",
+        "bytes": 62661360,
+        "mode": 509
+      }
+    }
+  }
+}

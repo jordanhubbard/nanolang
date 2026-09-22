@@ -338,17 +338,60 @@ jobs:
           path: docs/api/
           retention-days: 30
 
-  sanitizers:
-    name: Memory Sanitizers
+  sanitizer-plan:
+    name: Sanitizer partition inventory
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 5
     permissions:
       contents: read
-
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
     steps:
+      - uses: actions/checkout@v4
+      - name: Install workflow validation dependency
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+          python3 -c 'import yaml'
+      - name: Check complete partition and aggregate refusals
+        run: python3 -m unittest -v tests.test_ci_sanitizer_partitions
+      - id: plan
+        run: python3 scripts/ci_sanitizer_partitions.py plan --output "$RUNNER_TEMP/sanitizer-plan" --github-output "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+          retention-days: 7
+
+  sanitizer-workers:
+    name: Sanitizer (${{ matrix.id }})
+    needs: sanitizer-plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.sanitizer-plan.outputs.matrix) }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: "60"
+    steps:
+      - name: Set retained report paths
+        run: |
+          echo "REPORT=$RUNNER_TEMP/sanitizer-${{ matrix.id }}" >> "$GITHUB_ENV"
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
       - name: Checkout code
         uses: actions/checkout@v4
-
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
       - name: Install Python dependencies
         shell: bash
         run: |
@@ -366,7 +409,7 @@ jobs:
         timeout-minutes: 10
         run: |
           ./scripts/ci-apt-install.sh \
-            build-essential \
+            build-essential clang llvm lld \
             pkg-config \
             libssl-dev libffi-dev \
             libsdl2-dev \
@@ -375,60 +418,103 @@ jobs:
             libsdl2-ttf-dev \
             libutf8proc-dev
 
+      - name: Select matching distribution LLVM tools
+        run: |
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          for tool in clang opt llvm-as llvm-dis lli llc llvm-nm wasm-ld; do
+            test -x "$LLVM_BIN/$tool"
+          done
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
+
+      - name: Verify exact head and complete unit inventory
+        id: verify
+        run: python3 scripts/ci_sanitizer_partitions.py verify --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT"
+      - name: Inventory original source and tools
+        id: before
+        run: python3 scripts/ci_sanitizer_partitions.py snapshot --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase before
       - name: Build with AddressSanitizer
-        # Instrumented bootstrap shadows retain a finite execution deadline.
-        env:
-          NANO_SHADOW_TIMEOUT_SECONDS: "60"
-        run: |
-          # Disable leak detection for exit-time leaks in short-lived compiler process
-          # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)
-          export ASAN_OPTIONS=detect_leaks=0
-          make sanitize
-
+        id: sanitize
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase sanitize 2>&1 | tee "$REPORT/sanitize.log"
       - name: Complete 3-stage bootstrap with sanitizers
+        id: bootstrap
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase bootstrap 2>&1 | tee "$REPORT/bootstrap.log"
+      - name: Prepare instrumented source-emitter providers
+        id: providers
+        if: matrix.id == 'source'
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase providers 2>&1 | tee "$REPORT/providers.log"
+      - name: Inventory actual providers before tests
+        id: prepared
+        run: python3 scripts/ci_sanitizer_partitions.py snapshot --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase prepared
+      - name: Run complete assigned sanitizer tests
+        id: tests
+        timeout-minutes: 20
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase tests 2>&1 | tee "$REPORT/tests.log"
+      - name: Inventory source tools and surviving products after terminal
+        id: after
+        if: always()
+        run: python3 scripts/ci_sanitizer_partitions.py snapshot --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase after
+      - name: Record exact worker outcome
+        if: always()
         env:
-          NANO_SHADOW_TIMEOUT_SECONDS: "60"
-        run: |
-          export ASAN_OPTIONS=detect_leaks=0
-          make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
-
-      - name: Run tests with sanitizers
-        env:
-          NANO_SHADOW_TIMEOUT_SECONDS: "60"
-        timeout-minutes: 70  # Measured full instrumented suite, still finitely bounded.
-        run: |
-          export ASAN_OPTIONS=detect_leaks=0
-          make test-units CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer" LDFLAGS="-lm -lcrypto -fsanitize=address,undefined"
-
-      - name: Run negative tests with sanitizers
-        env:
-          NANOLANG_COMPILER: ./bin/nanoc_c
-        run: |
-          export ASAN_OPTIONS=detect_leaks=0
-          bash tests/run_negative_tests.sh
-
-      - name: Retain verifier-corpus diagnostics
-        if: failure()
+          CI_SANITIZER_STEPS: ${{ toJSON(steps) }}
+        run: python3 scripts/ci_sanitizer_partitions.py result --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT"
+      - name: Retain raw worker reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: verifier-corpus-sanitizers
-          path: .test_output/verifier-corpus/
+          name: sanitizer-result-${{ matrix.id }}
+          path: |
+            ${{ env.REPORT }}
+            .test_output/verifier-corpus/
           include-hidden-files: true
-          if-no-files-found: ignore
+          if-no-files-found: error
+          retention-days: 7
+      - name: Retain actual surviving providers
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-providers-${{ matrix.id }}
+          path: |
+            bin/
+            obj/
+            obj-runtime/
+          include-hidden-files: true
+          if-no-files-found: warn
           retention-days: 7
 
-      - name: Show sanitizer error logs on failure
-        if: failure()
-        shell: bash
+  sanitizers:
+    name: Memory Sanitizers
+    needs: [sanitizer-plan, sanitizer-workers]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sanitizer-result-*
+          path: ${{ runner.temp }}/sanitizer-results
+      - name: Require every exact worker and negative-suite terminal
+        env:
+          PLAN_RESULT: ${{ needs.sanitizer-plan.result }}
+          WORKER_RESULT: ${{ needs.sanitizer-workers.result }}
         run: |
-          echo "=== Showing first 3 failed test logs ==="
-          for log in .test_output/*.compile.log; do
-            if [ -f "$log" ]; then
-              echo "=== $log ==="
-              cat "$log"
-              echo ""
-            fi
-          done | head -200
+          test "$PLAN_RESULT" = success
+          test "$WORKER_RESULT" = success
+          python3 scripts/ci_sanitizer_partitions.py aggregate --manifest "$RUNNER_TEMP/sanitizer-plan/plan.json" --results "$RUNNER_TEMP/sanitizer-results" --output "$RUNNER_TEMP/sanitizer-aggregate"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sanitizer-aggregate
+          path: ${{ runner.temp }}/sanitizer-aggregate
+          if-no-files-found: warn
+          retention-days: 7
 
   coverage:
     name: Code Coverage

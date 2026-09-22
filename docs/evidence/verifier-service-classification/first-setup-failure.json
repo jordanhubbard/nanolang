@@ -1,0 +1,7 @@
+{
+  "status": "FAIL",
+  "phase": "source inventory before first command",
+  "cause": "non-NUL git ls-tree quoted historical evidence path; filter did not exclude quoted name",
+  "products_executed": false,
+  "correction": "NUL ls-tree input list; verify every exact tracked file exists; fresh reports"
+}

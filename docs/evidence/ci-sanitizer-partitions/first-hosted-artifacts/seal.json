@@ -1,0 +1,10 @@
+{
+  "run": 35679409728,
+  "archives": 38,
+  "archive_bytes": 1749541015,
+  "members": 18336,
+  "selection": "Every available sanitizer-* and verifier-corpus-* artifact from retained API inventory; unrelated docs/benchmark artifacts excluded.",
+  "scope": "Complete selected ZIP/member byte retention, not successful product qualification. The first partial transfer remains separate; continuation changed only transport deadline to 600 seconds.",
+  "pr_head": "7f9dd7b3a6d20f1f3a93283732f015a33ad7f668",
+  "tested_merge": "a4a6258757f4b9a66de03930532e9abf842248f9"
+}
