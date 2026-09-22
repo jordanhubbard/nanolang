@@ -621,6 +621,9 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
         fprintf(stderr, "I cannot copy a borrowed string binding.\n"); exit(1);
     }
     value = prepared;
+    if (value.type == VAL_FUNCTION && env_record_result_borrowed(env, value))
+        value = create_function(value.as.function_val.function_name,
+            copy_function_signature(value.as.function_val.signature));
     if ((value.type == VAL_STRUCT || value.type == VAL_TUPLE) &&
         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
         Value copy;
@@ -792,7 +795,15 @@ void env_set_var(Environment *env, const char *name, Value value) {
             }
             value = copy;
         }
-        env_free_value(sym->value);
+        if (value.type == VAL_FUNCTION && env_record_result_borrowed(env, value))
+            value = create_function(value.as.function_val.function_name,
+                copy_function_signature(value.as.function_val.signature));
+        /* Escaping value graphs may still borrow the old callable descriptor. */
+        if (sym->value.type == VAL_FUNCTION) {
+            if (!env_retire_value(env, sym->value)) {
+                fprintf(stderr, "I cannot retire a replaced callable binding.\n"); exit(1);
+            }
+        } else env_free_value(sym->value);
         sym->value = value;
 
         /* GC refcount fix: If the new string value is already referenced by

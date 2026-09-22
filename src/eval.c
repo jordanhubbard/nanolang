@@ -43,6 +43,15 @@ extern char **g_argv;
  * NULL when not debugging. */
 void (*g_dap_statement_hook)(ASTNode *stmt, Environment *env) = NULL;
 
+/* Fresh internal callable results have one Environment-lifetime owner. */
+static Value eval_retain_callable(Environment *env, Value value) {
+    if (value.type == VAL_FUNCTION && !env_record_result_borrowed(env, value) &&
+        !env_retire_value(env, value)) {
+        fprintf(stderr, "I cannot retain an owned callable result.\n"); exit(1);
+    }
+    return value;
+}
+
 /* ── Coroutine spawn helpers ─────────────────────────────────────────── */
 
 /* Argument bundle for spawned coroutines */
@@ -148,7 +157,7 @@ static Value eval_task_result(Environment *env, int id, bool await) {
             fprintf(stderr, "I cannot retain a copied task result.\n"); exit(1);
         }
     }
-    return result;
+    return eval_retain_callable(env, result);
 }
 
 typedef struct {
@@ -405,7 +414,7 @@ static Value eval_scoped_block(ASTNode **statements, int count, Environment *env
             copy_function_signature(result.as.function_val.signature));
         copy.is_return = result.is_return;
         copy.return_target = result.return_target;
-        result = copy;
+        result = eval_retain_callable(env, copy);
     }
     eval_scope_release(env, first);
     return result;
@@ -3213,6 +3222,7 @@ static bool eval_record_list_call(const char *name, Value *args, int argc,
 static bool owns_declared_callback(ASTNode *expression, Environment *env, Value value) {
     if (!expression || expression->type != AST_IDENTIFIER || value.type != VAL_FUNCTION)
         return false;
+    if (env_record_result_borrowed(env, value)) return false;
     /* Runtime lookup may skip a later checker-only placeholder. I compare
      * actual live owners rather than repeating a different name lookup. */
     for (int i = 0; i < env->symbol_count; ++i) {
@@ -4873,7 +4883,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return_value = create_string(result.as.string_val);
     } else if (result.type == VAL_FUNCTION) {
         FunctionSignature *sig_copy = copy_function_signature(result.as.function_val.signature);
-        return_value = create_function(result.as.function_val.function_name, sig_copy);
+        return_value = eval_retain_callable(env,
+            create_function(result.as.function_val.function_name, sig_copy));
     } else if (result.type == VAL_STRUCT || result.type == VAL_TUPLE) {
         if (!env_value_snapshot(env, result, &return_value)) {
             fprintf(stderr, "I cannot copy a returned record.\n");
@@ -4988,7 +4999,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     func->return_type
                 );
                 free(param_types); /* The signature owns its independent copy. */
-                return create_function(expr->as.identifier, sig);
+                return eval_retain_callable(env, create_function(expr->as.identifier, sig));
             }
             
             /* Neither variable nor function */
@@ -5711,7 +5722,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                             copy_function_signature(handler_result.as.function_val.signature));
                         copy.is_return = handler_result.is_return;
                         copy.return_target = handler_result.return_target;
-                        handler_result = copy;
+                        handler_result = eval_retain_callable(henv, copy);
                         break;
                     }
                 }
