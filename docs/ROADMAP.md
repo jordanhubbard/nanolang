@@ -17122,3 +17122,5 @@ any corrected qualification.
 - [ ] I require source review, exact-provider corrected parser shadows and timing, then combined bootstrap/CI acceptance without changing original bounds. My original355-second preparation terminal remains failed.
 
 My MAC task is pinned to the existing root agent; its claim attempt returns agent_status_unavailable. I retain the open task and do not treat that ownership service refusal as completed work.
+
+I retain my first1ee parser qualification staging failure: the exact Cseed was copied without its required nano_as_capture.so companion. module_builder.c resolves this helper beside /proc/self/exe; its absence makes std compilation refuse captured inputs before any shadow timing record. The attempt exits1 after8.957seconds, all descendants gone. I retain [its reports and generated products](evidence/parser-token-snapshots/first-staging/checks.json). Corrected fresh staging copies and hashes the original companion and records it in the tool closure; no parser assertion, source policy or capture check changes.
