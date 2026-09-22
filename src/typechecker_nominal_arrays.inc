@@ -201,7 +201,8 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
         if (!nominal_view_wrap_array(&view)) goto fail;
         *out = view; return true;
     }
-    if (nominal_array_builtin(expr, env, "at", 2) || nominal_array_builtin(expr, env, "array_get", 2)) {
+    if (nominal_array_builtin(expr, env, "at", 2) || nominal_array_builtin(expr, env, "array_get", 2) ||
+        nominal_array_builtin(expr, env, "array_pop", 1)) {
         if (!nominal_value_view(expr->as.call.args[0], env, depth + 1, &view) || !nominal_view_element(env, &view, depth + 1)) goto fail;
         *out = view; return true;
     }
