@@ -216,3 +216,20 @@ bool array_test_union_payload_views(Environment *env) {
     discard_union_payload_views(output, 4);
     return ok;
 }
+
+/* I keep the same exact union proof for whole values and selected payloads. */
+bool array_test_prepare_union_projection(Environment *env, ASTNode *constructor, bool payload) {
+    TypeInfo item = {.base_type = TYPE_STRUCT, .generic_name = "Item"};
+    TypeInfo *arguments[] = {&item};
+    TypeInfo instance = {.base_type = TYPE_UNION, .generic_name = "Box",
+        .type_param_count = 1, .type_params = arguments};
+    if (!nominal_constructor_retain(env, constructor, &instance, "Definitions", NULL, 0)) return false;
+    if (!payload) return true;
+    NominalView view = {0};
+    if (!nominal_view_copy_context(env, &instance, "Definitions", NULL, 0, &view)) return false;
+    view.payload = true; view.variant = 0;
+    Symbol *binding = env_get_var(env, "payload");
+    bool ok = nominal_view_retain(env, binding, &view);
+    nominal_view_discard(&view);
+    return ok;
+}

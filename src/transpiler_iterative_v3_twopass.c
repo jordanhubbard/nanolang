@@ -3943,6 +3943,28 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 else emit_literal(list, "0");
                 emit_literal(list, ");\n");
             }
+            /* A payload is a selected concrete union, never a dotted record name. */
+            else if (stmt->as.let.var_type == TYPE_STRUCT && stmt->as.let.type_info &&
+                     stmt->as.let.type_info->base_type == TYPE_UNION) {
+                TypeInfo *projection = NULL;
+                char *variant = NULL;
+                if (!checked_union_projection_copy(stmt->as.let.value, env, &projection, &variant) || !variant) {
+                    free_payload_type_info(projection); free(variant);
+                    fprintf(stderr, "I require the checked selected union payload before native declaration.\n");
+                    exit(1);
+                }
+                char *key = typeinfo_to_generic_arg_name(projection);
+                const char *native_key = key ? native_opaque_projection(key) : NULL;
+                if (!native_key || !*native_key) {
+                    free_payload_type_info(projection); free(variant); free(key);
+                    fprintf(stderr, "I cannot retain the concrete union payload storage key.\n");
+                    exit(1);
+                }
+                emit_formatted(list, "nl_%s_%s %s = ", native_key, variant, binding_name);
+                free_payload_type_info(projection); free(variant); free(key);
+                build_expr(list, stmt->as.let.value, env);
+                emit_literal(list, ";\n");
+            }
             /* Handle tuple types - use __auto_type to infer from RHS */
             else if (stmt->as.let.var_type == TYPE_TUPLE) {
                 emit_formatted(list, "__auto_type %s = ", binding_name);

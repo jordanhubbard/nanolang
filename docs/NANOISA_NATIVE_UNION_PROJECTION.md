@@ -43,3 +43,20 @@ Original18 plus native9 remain required after source review. Nano producer parit
 and all earlier failures remain separately attributed; this design is unexecuted.
 
 MAC: task_a370d7cc60c5445981c0fbc5d7b15f29.
+
+My source checkpoint adds checked_union_projection_copy, with independent checked
+outputs and a declaration-resolved outer key. I retain the original owner/context
+view as checker authority. Both match paths register their projected annotation
+with the Environment before any arm can grow symbols; its cumulative lifetime
+matches existing checker snapshots. A failed projection publishes neither output.
+The unused dotted-name inference helper is removed. Payload native declarations
+query the initializer before registering its new binding.
+
+My additive allocation controls cover whole unions and selected payloads, every
+observed transient/persistent allocation position, independent successful recovery,
+unchanged proof/registry/output sentinels, and lookup after 256 added bindings.
+My existing native nested/imported programs retain every original assertion and
+add expression matches, direct imported constructor matches, payload aliases,
+and same-name aliases in nested lexical scopes. Both fixed and substituted list
+fields retain their respective owner-specific consumers. These changes await
+source review; no corrected compiler or fixture has run.

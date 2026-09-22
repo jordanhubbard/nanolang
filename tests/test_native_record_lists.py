@@ -181,6 +181,13 @@ fn main()->int {
  } }
  match (build xs) { Wrapped(outer)=>{ match outer.inner { Items(payload)=>{ assert (== (list_Item_length payload.values) 1) } } } }
  match Outer<Item>.Wrapped{inner:Inner<Item>.Items{values:xs}} { Wrapped(outer)=>{ match outer.inner { Items(payload)=>{ assert (== (list_Item_get payload.values 0).value 13) } } } }
+ let projected=(match Outer<Item>.Wrapped{inner:Inner<Item>.Items{values:xs}} {
+  Wrapped(outer)=>{ let alias=outer
+   if true { let alias=alias match alias.inner {Items(payload)=>{assert (== (list_Item_length payload.values) 1)}} }
+   (match alias.inner {Items(payload)=>{(list_Item_get payload.values 0).value}})
+  }
+ })
+ assert (== projected 13)
  (list_Item_free xs)
  return 0
 }
@@ -224,6 +231,16 @@ fn main()->int{{
   assert (== (list_Item_get payload.supplied 0).value 29)
  }}}}}}}}
  match (p.wrap fixed) {{Wrapped(outer)=>{{match outer.inner{{Both(payload)=>{{assert (== (p.inspect payload.supplied) 17)}}}}}}}}
+ match p.Nested<Item>.Wrapped{{inner:p.Mixed<Item>.Both{{fixed:fixed,supplied:own}}}} {{Wrapped(outer)=>{{
+  let alias=outer
+  if true {{ let alias=alias
+   match alias.inner{{Both(payload)=>{{
+    let copy=payload
+    assert (== (p.inspect copy.fixed) 17)
+    assert (== (list_Item_get copy.supplied 0).value 29)
+   }}}}
+  }}
+ }}}}
  (p.release fixed) (list_Item_free own) return 0
 }}
 shadow main{{assert (== (main) 0)}}

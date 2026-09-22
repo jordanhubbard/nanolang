@@ -1103,6 +1103,9 @@ bool type_info_needs_array_context(const TypeInfo *);
 bool env_bind_array_expression(Environment *, const ASTNode *, const TypeInfo *);
 const TypeInfo *env_array_expression_info(const Environment *, const ASTNode *);
 const TypeInfo *checked_expression_type_info(ASTNode *, Environment *);
+/* I return two owning emission copies, preserving both outputs on failure.
+ * A NULL variant denotes the complete union rather than a selected payload. */
+bool checked_union_projection_copy(ASTNode *, Environment *, TypeInfo **, char **);
 /* I return an owning signature copy; the caller releases it. */
 FunctionSignature *checked_callable_signature_copy(ASTNode *, Environment *);
 bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);
