@@ -1,0 +1,21 @@
+{
+  "name": "make",
+  "argv": [
+    "/bin/make",
+    "--version"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.0016562310047447681,
+  "log": {
+    "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+    "bytes": 303,
+    "archive": "/home/jkh/nanolang-qualification/record-lists-ef7-linux-prepare/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

@@ -1,0 +1,31 @@
+I retain native list artifacts at /home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/native-source/nano-native-record-lists-r0oyhsqs
+test_native_declared_and_callback_precedence (tests.test_native_record_lists.NativeRecordLists.test_native_declared_and_callback_precedence) ... ok
+test_native_discovery_and_copied_results (tests.test_native_record_lists.NativeRecordLists.test_native_discovery_and_copied_results) ... FAIL
+
+======================================================================
+FAIL: test_native_discovery_and_copied_results (tests.test_native_record_lists.NativeRecordLists.test_native_discovery_and_copied_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source/tests/test_native_record_lists.py", line 207, in test_native_discovery_and_copied_results
+            self.native_routes('native-nested-list-projections', '''struct Item { value:int }
+            ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Inner<T> { Items { values:List<T> } }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<29 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source/tests/test_native_record_lists.py", line 95, in native_routes
+    self.command(label + '-build', [ROOT / 'bin' / compiler, path, '-o', output, '--keep-c'],
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 timeout=300, extra=extra)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source/tests/test_generic_record_lists.py", line 127, in command
+    raise AssertionError((name, status, out[-8000:], err[-8000:]))
+AssertionError: ('0042-native-nested-list-projections-nanoc_stage1-O0-build', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'child_returncode': 1, 'elapsed': 0.016012310050427914}, b'NSType checking failed\nDiagnostics:\n  [E0001] I require compatible, resolved values for inference; only literal empties supply holes. (/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/native-source/nano-native-record-lists-r0oyhsqs/native-nested-list-projections.nano:12:3)\n  [E0001] I require valid expression facts even when their result is unused. (:0:0)\n  [E0001] I require compatible, resolved values for inference; only literal empties supply holes. (/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/native-source/nano-native-record-lists-r0oyhsqs/native-nested-list-projections.nano:23:21)\n  [E0001] I require compatible, resolved values for inference; only literal empties supply holes. (/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/native-source/nano-native-record-lists-r0oyhsqs/native-nested-list-projections.nano:24:14)\n  [E0001] I require compatible, resolved values for inference; only literal empties supply holes. (/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/native-source/nano-native-record-lists-r0oyhsqs/native-nested-list-projections.nano:22:2)\n', b'')
+
+----------------------------------------------------------------------
+Ran 2 tests in 80.240s
+
+FAILED (failures=1)

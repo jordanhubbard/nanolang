@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/bin/gcc",
+    "-print-prog-name=cc1"
+  ],
+  "bound": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 0.02348731004167348,
+  "log": {
+    "sha256": "64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f",
+    "bytes": 42,
+    "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f"
+  },
+  "inputs_equal": true
+}

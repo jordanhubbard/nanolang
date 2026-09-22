@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "head": "7e6d6bd4c7f5208ae920da21ae205685d1d58a5f",
+  "scope": "fresh Make build/bootstrap and ordinary provider preparation only; no qualification implied; named tools and phase endpoint products retained"
+}

@@ -1,0 +1,268 @@
+[
+  {
+    "argv": [
+      "/bin/gcc",
+      "-print-file-name=libasan.so"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.03380240802653134,
+    "log": {
+      "sha256": "86004312733f99d1ebc00026d51e415f7850be77559236ce81317fa437989265",
+      "bytes": 45,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/86004312733f99d1ebc00026d51e415f7850be77559236ce81317fa437989265"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/bin/gcc",
+      "-print-file-name=libubsan.so"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.03436186898034066,
+    "log": {
+      "sha256": "3dadcc080d9079d4e80bc487ccd7b25878c1e94b3352b04cc01c258fd88f26f3",
+      "bytes": 46,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/3dadcc080d9079d4e80bc487ccd7b25878c1e94b3352b04cc01c258fd88f26f3"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/bin/gcc",
+      "-print-prog-name=cc1"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.02348731004167348,
+    "log": {
+      "sha256": "64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f",
+      "bytes": 42,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/bin/gcc",
+      "-print-prog-name=collect2"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.035970973083749413,
+    "log": {
+      "sha256": "4b4b15d1de92fb69e39e13f15facb69e1a978a9b802ebfdda8231a16cebd55e1",
+      "bytes": 47,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/4b4b15d1de92fb69e39e13f15facb69e1a978a9b802ebfdda8231a16cebd55e1"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan.so"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.02865416300483048,
+    "log": {
+      "sha256": "53147373a517c86bd659d958715d0a91f29963030e2f539b5b626a0ab0d302c3",
+      "bytes": 74,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/53147373a517c86bd659d958715d0a91f29963030e2f539b5b626a0ab0d302c3"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan.a"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.03308937593828887,
+    "log": {
+      "sha256": "731b76cb47024d752310ac6ca0303ec0927c180e47b6ad81b54246f562a41425",
+      "bytes": 73,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/731b76cb47024d752310ac6ca0303ec0927c180e47b6ad81b54246f562a41425"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan-preinit.a"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.040015142993070185,
+    "log": {
+      "sha256": "7c718250b1f5f4fd163e697869ca0d21ad6a8f5d6d5d8546ac4a84a7c575b87e",
+      "bytes": 81,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/7c718250b1f5f4fd163e697869ca0d21ad6a8f5d6d5d8546ac4a84a7c575b87e"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.ubsan_standalone.a"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.02619135403074324,
+    "log": {
+      "sha256": "190c89fa892958c08f74e7e4b03ecec3e9324653fadb5cc5a72f19df46a155ec",
+      "bytes": 85,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/190c89fa892958c08f74e7e4b03ecec3e9324653fadb5cc5a72f19df46a155ec"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_native_record_lists.NativeRecordLists.test_shared_storage_and_allocation_failures",
+      "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+      "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+    ],
+    "bound": 900,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 16.05670602398459,
+    "log": {
+      "sha256": "aa769a3e41f4ad73cb26e7321b55cc64c36c913029a5f9584aad7c82fdc5716d",
+      "bytes": 848,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/aa769a3e41f4ad73cb26e7321b55cc64c36c913029a5f9584aad7c82fdc5716d"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_native_record_lists.NativeRecordLists.test_shared_storage_and_allocation_failures",
+      "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+      "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+    ],
+    "bound": 900,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 48.50837184896227,
+    "log": {
+      "sha256": "2b5416ebbd9b7fe87e6ade2db49074d51220fd1d9f8b282bb14cab3c359fab07",
+      "bytes": 850,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/2b5416ebbd9b7fe87e6ade2db49074d51220fd1d9f8b282bb14cab3c359fab07"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_native_record_lists.NativeRecordLists.test_shared_storage_and_allocation_failures",
+      "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+      "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+    ],
+    "bound": 900,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 33.092333985026926,
+    "log": {
+      "sha256": "804da7c9c5d20439323941b629ba91136b0673991db7874fe790c17ebc2c6c5f",
+      "bytes": 854,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/804da7c9c5d20439323941b629ba91136b0673991db7874fe790c17ebc2c6c5f"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_native_record_lists"
+    ],
+    "bound": 3600,
+    "status": 1,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 80.33918800402898,
+    "log": {
+      "sha256": "42b48877d41a3e33d8c88280d22b1375213aeff73141712b0615349467a61bd7",
+      "bytes": 3399,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-7e6-linux-matrix/objects/42b48877d41a3e33d8c88280d22b1375213aeff73141712b0615349467a61bd7"
+    },
+    "inputs_equal": true
+  }
+]

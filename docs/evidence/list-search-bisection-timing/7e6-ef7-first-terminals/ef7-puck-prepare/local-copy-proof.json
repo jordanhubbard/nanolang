@@ -1,0 +1,6 @@
+{
+  "immutable_objects_verified": 4090,
+  "bytes": 109037964,
+  "source": "puck.local:/Users/jkh/nanolang-qualification/record-lists-ef7-prepare",
+  "method": "rsync immutable completed report; every CAS object SHA256 verified"
+}
