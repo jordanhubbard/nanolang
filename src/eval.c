@@ -320,17 +320,6 @@ static void eval_match_release_empty_literal(Value value, bool owned, Value resu
     free(u);
 }
 
-/* I retire only owned names; values and declaration type facts are separate. */
-static void eval_match_pop_metadata(Environment *env, int first) {
-    for (int i = first; i < env->symbol_count; ++i) {
-        free(env->symbols[i].name);
-        free(env->symbols[i].struct_type_name);
-        env->symbols[i].name = NULL;
-        env->symbols[i].struct_type_name = NULL;
-    }
-    env->symbol_count = first;
-}
-
 /* I restore lexical bindings on every exit, retaining a yielded local string. */
 /* I release only binding-owned storage. Registry result snapshots are never
  * installed directly into an owning record binding. Borrow formals stay borrowed. */
@@ -5254,6 +5243,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                                              merged_names, merged_values, merged_count);
                 free(merged_names);
                 free(merged_values);
+                if (!env_retire_value(env, result)) {
+                    fprintf(stderr, "I cannot retain an owned record literal.\n"); exit(1);
+                }
                 return result;
             }
 
@@ -5294,8 +5286,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             free(canonical_name);
             free(field_names);
             free(field_values);
-            
-            
+            if (!env_retire_value(env, result)) {
+                fprintf(stderr, "I cannot retain an owned record literal.\n"); exit(1);
+            }
             return result;
         }
 
@@ -5457,10 +5450,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                             binding_value = create_struct(
                                 union_value->union_name, field_names, field_values,
                                 union_value->field_count);
+                            free(field_names);
+                            free(field_values);
                         } else {
                             binding_value = create_void();
                         }
                         env_define_var(env, binding, TYPE_STRUCT, false, binding_value);
+                        env_discard_value_snapshot(binding_value);
                     }
                 }
 
@@ -5469,24 +5465,24 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 if (guard) {
                     Value guard_value = eval_expression(guard, env);
                     if (guard_value.is_return || guard_value.is_break || guard_value.is_continue) {
-                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_scope_release(env, saved_symbol_count);
                         eval_match_release_empty_literal(match_val, owns_empty, guard_value);
                         return guard_value;
                     }
                     if (guard_value.type != VAL_BOOL) {
-                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_scope_release(env, saved_symbol_count);
                         eval_match_release_empty_literal(match_val, owns_empty, create_void());
                         return eval_match_invariant_failure(
                             "a checked match guard did not produce bool");
                     }
                     if (!guard_value.as.bool_val) {
-                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_scope_release(env, saved_symbol_count);
                         continue;
                     }
                 }
 
                 Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
-                eval_match_pop_metadata(env, saved_symbol_count);
+                eval_scope_release(env, saved_symbol_count);
                 eval_match_release_empty_literal(match_val, owns_empty, result);
                 return result;
             }

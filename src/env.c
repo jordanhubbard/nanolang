@@ -613,6 +613,20 @@ static bool env_prepare_binding_string(Environment *env, Type type, Value value,
     return true;
 }
 
+/* Callable projections can borrow a live binding or a retired result. */
+static Value env_prepare_binding_callable(Environment *env, Type type, Value value) {
+    if (value.type != VAL_FUNCTION || type == TYPE_BORROW_SHARED || type == TYPE_BORROW_MUT)
+        return value;
+    bool borrowed = env_record_result_borrowed(env, value);
+    for (int i = 0; !borrowed && i < env->symbol_count; ++i) {
+        Value owner = env->symbols[i].value;
+        borrowed = owner.type == VAL_FUNCTION &&
+            owner.as.function_val.function_name == value.as.function_val.function_name;
+    }
+    return borrowed ? create_function(value.as.function_val.function_name,
+        copy_function_signature(value.as.function_val.signature)) : value;
+}
+
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
     value = eval_checked_scalar_destination(type, value);
     /* Borrowed parameters retain their caller's identity and do not own its storage. */
@@ -621,9 +635,7 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
         fprintf(stderr, "I cannot copy a borrowed string binding.\n"); exit(1);
     }
     value = prepared;
-    if (value.type == VAL_FUNCTION && env_record_result_borrowed(env, value))
-        value = create_function(value.as.function_val.function_name,
-            copy_function_signature(value.as.function_val.signature));
+    value = env_prepare_binding_callable(env, type, value);
     if ((value.type == VAL_STRUCT || value.type == VAL_TUPLE) &&
         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
         Value copy;
@@ -795,9 +807,7 @@ void env_set_var(Environment *env, const char *name, Value value) {
             }
             value = copy;
         }
-        if (value.type == VAL_FUNCTION && env_record_result_borrowed(env, value))
-            value = create_function(value.as.function_val.function_name,
-                copy_function_signature(value.as.function_val.signature));
+        value = env_prepare_binding_callable(env, sym->type, value);
         /* Escaping value graphs may still borrow the old callable descriptor. */
         if (sym->value.type == VAL_FUNCTION) {
             if (!env_retire_value(env, sym->value)) {
