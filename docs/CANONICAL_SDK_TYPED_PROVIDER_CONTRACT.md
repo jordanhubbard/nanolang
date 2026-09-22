@@ -550,3 +550,76 @@ refusals, revision2 refusal, dimension limits, source independence and every new
 allocation position under persistent/one-shot failure with recovery. Strict
 syntax checks pass for production and both fixture compilation modes; runtime
 qualification awaits this source checkpoint review.
+
+## I close the remaining shared-profile and lifetime gaps before admission
+
+My qualified direct V2 reader remains revision1-only. The next source unit adds
+an explicitly selected private typed profile to the existing layout/descriptor/
+union/ARRAY_FIELDS readers. The legacy and public wrappers select their existing
+profile. Revision2 rows keep the shared8-byte encoding: STRUCT/TUPLE/UNION/ENUM
+referents must name the matching actual layout kind; ARRAY names a shared type;
+OPAQUE names a provider nominal declaration; FUNCTION names an exact provider
+signature detail. Scalar/string referents remain NO_INDEX. Foreign referents
+stay unresolved until the provider cross-validator checks the complete table.
+A copied declaration plan with unresolved facts cannot become a call plan.
+
+The layout reader must validate all tables, not only tables with forward edges.
+By-value STRUCT/TUPLE/UNION field edges form one bounded acyclic storage graph;
+ARRAY/FUNCTION/OPAQUE fields use NO_INDEX in the coarse layout and obtain exact
+children from shared/provider field bindings. They are declaration/reference
+edges, not inline storage cycles. Array child chains retain64 levels. Complete
+nominal identity requires one consistent declaration key for each nominal layout,
+including enums; duplicate aliases may repeat the same full key but cannot give
+one layout conflicting owners or one exact key conflicting storage.
+
+I must replace unconditional private limits with a caller-accounted preparation
+context before composing module copy, declarations and provider validation. The
+context carries remaining allocation bytes and work steps; each preparation
+works on a local copy and publishes both output and consumed budget only on
+success. Failure preserves the original budget and output. I charge temporary
+layout encoding, decoder DAG workspace, copied signatures/tables, provider raw
+bytes, graph worklists and final plans, including repeated passes. Freed scratch
+still counts toward this preparation's allocation budget, giving a conservative
+monotonic bound. Existing unbounded-by-caller APIs wrap the same implementation
+with their current16MiB or32MiB/1M limits, preserving existing fixture behavior.
+No allocator retry receives a fresh hidden budget. A completed owned generation
+must fit32MiB and1,048,576 steps across the complete preparation, not per helper.
+
+The current provider revision1 codec has no lifetime table. Existing imports
+carry only module/symbol/signature/kind, while CALLBACKS describes callback ABI
+and execution. Neither establishes argument/result aggregate ownership. I keep
+revision1 transport-only and propose an explicit provider revision2 format,
+with separately reviewed row bytes before implementation:
+
+- I retain the five original table encodings and add call-policy and policy-slot
+  tables. The revision2 header is40 bytes: revision at0, call-policy count at4,
+  original five counts at8..24, policy-slot count at28, reserved zeros at32/36.
+  Revision1's32-byte header and reserved-zero rules remain unchanged.
+- Each24-byte call-policy row contains parameter-first/count, result-first/count,
+  callback-contract profile and reserved zero (all u32). Each16-byte slot stores
+  mode, owning-parameter index or NO_INDEX, release-symbol constant or NO_INDEX,
+  and reserved flags. Import binding offset20 names its policy row in revision2;
+  function/field bindings retain zero there. No revision1 reserved word changes.
+- Call-policy rows are bounded by65,536 and total policy slots by65,536; the
+  complete provider section remains16MiB. Parameter/result counts must exactly
+  match the selected exact and coarse signatures, not merely fit within them.
+  Every string index must select a STRING constant and release metadata must
+  resolve through the same provider owner before a plan is admitted.
+
+The mode contract must distinguish call-duration borrowing, copied results,
+borrowed opaque identity and explicitly retained callbacks. A structural policy
+row is not permission to execute an arbitrary C ABI. The actual generated typed
+adapter must advertise an exact schema agreeing with complete types, provider
+ABI, slot policies and existing callback contracts. Aggregate conversion copies
+only the children permitted by that schema; nested opaque/callable leaves cannot
+acquire ownership by inheritance from a container's copied-result mode. Unknown
+modes, missing child policies, inconsistent owner/release metadata, an unsupported
+COP transfer or absent generated adapter refuse before provider effects. I will
+review the concrete recursive slot-policy/schema mapping with the existing
+callback/provider owners before implementing this wire extension.
+
+I require original revision1/legacy controls alongside revision2 type/graph/
+identity/refusal cases, combined exact-budget and budget-minus-one controls,
+allocation-prefix rollback with unchanged caller budgets, and all consuming
+reader/writer/VM/nvm2c refusal paths. Full source/installed SDK behavior remains
+required; none of these private profiles substitute for it.

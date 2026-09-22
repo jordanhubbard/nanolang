@@ -17396,3 +17396,11 @@ ASan/UBSan/LSan. Each lane passes1,987 linked and14,279 instrumented checks;
 tool equality and complete process cleanup. No first product failure occurred
 in this focused checkpoint. Revision2, combined SDK preparation accounting,
 complete provider validation and executable/installed admission remain open.
+
+- [ ] I extend only the explicitly private shared declaration profile to reviewed
+  revision2 complete types, add one monotonic combined preparation budget, and
+  represent exact provider argument/result lifetimes before any aggregate SDK
+  admission. Raw provider revision1 has no lifetime rows and remains transport
+  only; its facts cannot authorize C/COP calls. The amended provider contract
+  records concrete proposed revision2 framing and requires recursive policy/
+  generated-adapter equality review before source activation.
