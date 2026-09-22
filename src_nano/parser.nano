@@ -5418,14 +5418,14 @@ fn parse_block(p: Parser) -> Parser {
 }
 
 shadow parse_block_recursive {
-    let mut source: string = "fn probe() -> int { "
-    let assertions: string = "assert true assert true assert true assert true assert true assert true assert true assert true assert true assert true "
+    let mut source: string = "fn probe() -> int { assert true "
+    let expressions: string = "1 1 1 1 1 1 1 1 1 1 "
     let mut i: int = 0
-    while (< i 52) {
-        set source (str_concat source assertions)
+    while (< i 51) {
+        set source (str_concat source expressions)
         set i (+ i 1)
     }
-    set source (str_concat source "return 0 }")
+    set source (str_concat source "1 1 1 1 1 1 1 1 assert true return 0 }")
     let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let tokens: List<LexerToken> = (tokenize_string source "long-block.nano" diagnostics)
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "long-block.nano")
@@ -5580,14 +5580,14 @@ fn parse_unsafe_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: 
     return cursor
 }
 shadow parse_unsafe_block_recursive {
-    let mut source: string = "fn probe() -> int { unsafe { "
-    let assertions: string = "assert true assert true assert true assert true assert true assert true assert true assert true assert true assert true "
+    let mut source: string = "fn probe() -> int { unsafe { assert true "
+    let expressions: string = "1 1 1 1 1 1 1 1 1 1 "
     let mut i: int = 0
-    while (< i 52) {
-        set source (str_concat source assertions)
+    while (< i 51) {
+        set source (str_concat source expressions)
         set i (+ i 1)
     }
-    set source (str_concat source "} return 0 }")
+    set source (str_concat source "1 1 1 1 1 1 1 1 assert true } return 0 }")
     let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let tokens: List<LexerToken> = (tokenize_string source "long-unsafe-block.nano" diagnostics)
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "long-unsafe-block.nano")
