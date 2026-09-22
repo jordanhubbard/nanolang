@@ -17496,3 +17496,13 @@ with complete declared parameter annotations. UNKNOWN is now checked without
 an outer statement context, alongside a direct admitted ARRAY control. I keep
 the original statement refusals, typed-let/call/return controls and all preexisting
 assertions. Source review precedes corrected execution; production is unchanged.
+
+I retain the first9d Darwin terminal: all ordinary full checker/evaluator and
+nonexecuting codegen controls pass. The sanitized checker completes every
+assertion, then reports2138 bytes in22 leaked allocations from the new lexical
+negative at line1123. The log identifies unexpected LBRACE in the fixture's
+bare nested block; `parse_ctx_init` returns false while retaining tokens and
+`tc_passes` does not dispose them on that path. Sanitized evaluator/codegen and
+Linux remain unrun. I correct the fixture to an actual conditional lexical
+block, require successful parsing for new admission refusals, and release the
+helper's tokens on parser failure before any corrected qualification.
