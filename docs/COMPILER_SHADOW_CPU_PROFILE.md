@@ -69,3 +69,12 @@ preserves hash probing, duplicate refusal, table growth, collision behavior and
 publication order while removing address-taken locals from the hot publication
 frame. Existing collision, allocation-prefix, old-table byte identity and
 recovery controls remain the acceptance boundary before the full gate repeats.
+
+The value-return lookup checkpoint passes the unchanged gate. Fresh C-seed
+construction and sanitizer-symbol checks pass, all 604 selected shadows finish
+in 43.938 seconds of measured shadow time, and the complete compiler invocation
+returns zero in 106.079 seconds. The two parser-heavy bodies fall to
+5.167/5.045 seconds. The parent does not time out, all owned process groups are
+gone, and source, tool and provider endpoints remain unchanged. This qualifies
+the component compiler deadline repair. The complete partitioned CI preparation,
+bootstrap fixed point and release matrix remain separate gates.

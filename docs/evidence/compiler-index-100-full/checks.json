@@ -1,0 +1,21 @@
+{
+  "schema": "nanolang.compiler_index_full_gate.v1",
+  "source": "100f605fe7baaec82da87408510590cba354c43a",
+  "archive_sha256": "5e4245ef02789462d5bc9f087011f49a660e1d62978ddb0bdf4dc92defa1e0c9",
+  "driver_sha256": "7e0e8b7eb2b96ffa5eb1e7b420a0a69ddf340101181e992d3f3805555bbff690",
+  "focused_ownership": "pass",
+  "fresh_cseed_build": "pass",
+  "sanitizer_symbols": "pass",
+  "compiler_returncode": 0,
+  "outer_timeout": false,
+  "shadow_deadline_seconds": 60,
+  "completed_shadows": 604,
+  "selected_shadows": 604,
+  "shadow_seconds": 43.937681309,
+  "complete_invocation_seconds": 106.079,
+  "unfinished_shadows": 0,
+  "providers_equal": true,
+  "owned_processes_remaining": 0,
+  "component_timing_acceptance": true,
+  "full_ci_preparation_pass": false
+}
