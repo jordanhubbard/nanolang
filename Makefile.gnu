@@ -1085,6 +1085,17 @@ test-diagnostics: stage1
 	@./tests/test_diagnostics
 	@rm -f tests/test_diagnostics
 
+# I isolate snapshot fault hooks from the ordinary compiler providers.
+$(OBJ_DIR)/struct_snapshot_env.o: $(SRC_DIR)/env.c $(SRC_DIR)/nanolang.h $(wildcard $(SRC_DIR)/env*.inc) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dcalloc=struct_payload_test_calloc -c $< -o $@
+$(OBJ_DIR)/struct_snapshot_module.o: $(SRC_DIR)/module.c $(SRC_DIR)/nanolang.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dcalloc=struct_metadata_test_calloc -Dstrdup=struct_metadata_test_strdup -c $< -o $@
+.PHONY: test-struct-metadata-snapshot
+test-units: test-struct-metadata-snapshot
+test-struct-metadata-snapshot: $(OBJ_DIR)/struct_snapshot_module.o $(OBJ_DIR)/struct_snapshot_env.o $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_struct_metadata_snapshot tests/test_struct_metadata_snapshot.c $(OBJ_DIR)/struct_snapshot_module.o $(OBJ_DIR)/struct_snapshot_env.o $(filter-out $(OBJ_DIR)/module.o $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_struct_metadata_snapshot
+
 .PHONY: test-checker-metadata-ownership
 test-checker-metadata-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_checker_metadata_ownership tests/test_checker_metadata_ownership.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)

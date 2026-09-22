@@ -2064,14 +2064,50 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
 }
 
 
-/* Metadata names must survive their source Environment. This legacy snapshot
- * API has no recoverable allocation transaction; I refuse a missing owner. */
-static char *copy_metadata_owner(const char *owner) {
-    if (!owner) return NULL;
-    char *copy = strdup(owner);
+/* Metadata descriptors outlive the source Environment and AST. This legacy
+ * API publishes only on return and uses the existing fatal copy policy. */
+static void *metadata_array(size_t count, size_t width) {
+    if (width && count > SIZE_MAX / width) {
+        fprintf(stderr, "I cannot size a module metadata copy.\n");
+        exit(1);
+    }
+    void *copy = calloc(count ? count : 1, width);
+    if (!copy) {
+        fprintf(stderr, "I cannot allocate a module metadata copy.\n");
+        exit(1);
+    }
+    return copy;
+}
+static char *copy_metadata_owner(const char *name) {
+    if (!name) return NULL;
+    char *copy = strdup(name);
     if (!copy) {
         fprintf(stderr, "I cannot copy a module metadata owner.\n");
         exit(1);
+    }
+    return copy;
+}
+static StructDef copy_metadata_struct(const StructDef *source) {
+    if (source->field_count < 0) {
+        fprintf(stderr, "I cannot copy a negative module metadata field count.\n");
+        exit(1);
+    }
+    StructDef copy = *source;
+    size_t count = (size_t)source->field_count;
+    copy.name = copy_metadata_owner(source->name);
+    copy.original_name = copy_metadata_owner(source->original_name);
+    copy.module_name = copy_metadata_owner(source->module_name);
+    copy.field_names = source->field_names ? metadata_array(count, sizeof(char *)) : NULL;
+    copy.field_types = source->field_types ? metadata_array(count, sizeof(Type)) : NULL;
+    copy.field_type_names = source->field_type_names ? metadata_array(count, sizeof(char *)) : NULL;
+    copy.field_element_types = source->field_element_types ? metadata_array(count, sizeof(Type)) : NULL;
+    copy.field_type_info = source->field_type_info ? metadata_array(count, sizeof(TypeInfo *)) : NULL;
+    for (size_t i = 0; i < count; ++i) {
+        if (copy.field_names) copy.field_names[i] = copy_metadata_owner(source->field_names[i]);
+        if (copy.field_types) copy.field_types[i] = source->field_types[i];
+        if (copy.field_type_names) copy.field_type_names[i] = copy_metadata_owner(source->field_type_names[i]);
+        if (copy.field_element_types) copy.field_element_types[i] = source->field_element_types[i];
+        if (copy.field_type_info) copy.field_type_info[i] = copy_payload_type_info(source->field_type_info[i]);
     }
     return copy;
 }
@@ -2080,8 +2116,8 @@ static char *copy_metadata_owner(const char *owner) {
 ModuleMetadata *extract_module_metadata(Environment *env, const char *module_name) {
     if (!env) return NULL;
     
-    ModuleMetadata *meta = malloc(sizeof(ModuleMetadata));
-    meta->module_name = module_name ? strdup(module_name) : strdup("unknown");
+    ModuleMetadata *meta = metadata_array(1, sizeof(ModuleMetadata));
+    meta->module_name = copy_metadata_owner(module_name ? module_name : "unknown");
     
     /* Extract functions */
     meta->function_count = env->function_count;
@@ -2208,24 +2244,9 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
     /* Extract structs */
     meta->struct_count = env->struct_count;
     if (meta->struct_count > 0) {
-        meta->structs = malloc(sizeof(StructDef) * meta->struct_count);
-        for (int i = 0; i < meta->struct_count; i++) {
-            meta->structs[i] = env->structs[i];
-            meta->structs[i].module_name = copy_metadata_owner(env->structs[i].module_name);
-            if (env->structs[i].name) {
-                meta->structs[i].name = strdup(env->structs[i].name);
-            }
-            if (env->structs[i].field_count > 0) {
-                meta->structs[i].field_names = malloc(sizeof(char*) * env->structs[i].field_count);
-                meta->structs[i].field_types = malloc(sizeof(Type) * env->structs[i].field_count);
-                for (int j = 0; j < env->structs[i].field_count; j++) {
-                    if (env->structs[i].field_names[j]) {
-                        meta->structs[i].field_names[j] = strdup(env->structs[i].field_names[j]);
-                    }
-                    meta->structs[i].field_types[j] = env->structs[i].field_types[j];
-                }
-            }
-        }
+        meta->structs = metadata_array((size_t)meta->struct_count, sizeof(StructDef));
+        for (int i = 0; i < meta->struct_count; i++)
+            meta->structs[i] = copy_metadata_struct(&env->structs[i]);
     } else {
         meta->structs = NULL;
     }
@@ -2638,7 +2659,15 @@ void free_module_metadata(ModuleMetadata *meta) {
     if (meta->structs) {
         for (int i = 0; i < meta->struct_count; i++) {
             if (meta->structs[i].name) free(meta->structs[i].name);
+            free(meta->structs[i].original_name);
             free(meta->structs[i].module_name);
+            for (int j = 0; j < meta->structs[i].field_count; ++j) {
+                if (meta->structs[i].field_type_names) free(meta->structs[i].field_type_names[j]);
+                if (meta->structs[i].field_type_info) free_payload_type_info(meta->structs[i].field_type_info[j]);
+            }
+            free(meta->structs[i].field_type_names);
+            free(meta->structs[i].field_element_types);
+            free(meta->structs[i].field_type_info);
             if (meta->structs[i].field_names) {
                 for (int j = 0; j < meta->structs[i].field_count; j++) {
                     if (meta->structs[i].field_names[j]) free(meta->structs[i].field_names[j]);
