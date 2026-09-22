@@ -2229,11 +2229,10 @@ void test_eval_map_declared_scalar_results(void) {
                         if (type == 0) ASSERT(((long long *)array->data)[0] == 42);
                         if (type == 1) ASSERT(((double *)array->data)[0] == 1.5);
                         if (type == 2) ASSERT(((bool *)array->data)[0]);
-                        if (type == 3) { ASSERT(!strcmp(((char **)array->data)[0], "mapped")); free(((char **)array->data)[0]); }
+                        if (type == 3) { ASSERT(!strcmp(((char **)array->data)[0], "mapped")); }
                         ASSERT(((long long *)input.as.array_val->data)[0] == 7);
                     }
-                    free(array->data);
-                    free(array);
+                    /* My evaluator owns this returned fixed array until ctx cleanup. */
                 }
                 run_ctx_free(&ctx);
                 if (!dynamic) { free(input.as.array_val->data); free(input.as.array_val); }

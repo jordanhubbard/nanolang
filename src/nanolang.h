@@ -841,6 +841,7 @@ typedef struct {
     TupleLiteralBinding *tuple_literal_bindings;
     size_t tuple_literal_binding_count;
     struct CheckerNominalExpression *checker_nominal_expressions; /* Borrowed AST keys, Environment-owned proofs. */
+    struct EnvCollectionAllocation *collection_allocations; /* Evaluator-created collections only. */
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
     struct EnvNominalImport *nominal_imports; /* Owned direct importer-to-declaration edges. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
@@ -958,6 +959,13 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose);
 
 /* Interpreter */
 bool run_program(ASTNode *program, Environment *env);
+/* Fixed-array and interpreter HashMap identities returned here transfer no
+ * ownership. Evaluator-created collections borrow their Environment; an alias
+ * of a caller-created input keeps its caller owner. Those owners must outlive
+ * all such references. Copied record/tuple containers still borrow nested
+ * collection leaves from their Environment or caller owner; that owner must
+ * remain alive while those leaves are used. Existing string/record/tuple/
+ * callable snapshots and DynArray GC references keep their separate contracts. */
 Value call_function(const char *name, Value *args, int arg_count, Environment *env);
 /* REPL support */
 Value repl_eval_node(ASTNode *node, Environment *env);
@@ -1012,6 +1020,8 @@ NominalIdentity env_generated_list_element(Environment *env, const Function *fun
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);
+bool env_register_new_collection(Environment *env, void *allocation, void (*destroy)(void *));
+bool env_detach_collection(Environment *env, void *allocation);
 /* I transfer one independently owned annotation tree only on success. */
 bool env_own_checker_type_info(Environment *env, TypeInfo *info);
 bool env_own_checker_object(Environment *env, void *object, void (*destroy)(void *));
