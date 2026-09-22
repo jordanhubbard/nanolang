@@ -57,7 +57,7 @@ class Binary64Facts(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
             module = self.module(directory, 'DUP\nF64_ADD\n')
-            self.checked(ROOT/'bin/nanoisa', 'verify', module)
+            self.checked(ROOT/'bin/nanoisa_hl_facts', module)
             for target in ('c', 'nano'):
                 output = directory/f'arithmetic.{target}'
                 self.checked(ROOT/'bin/nvm2hl', module, '--language', target,
@@ -70,7 +70,7 @@ class Binary64Facts(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
             module = self.module(directory, 'DUP\nF64_ADD\nDUP\nPRINT\n')
-            self.checked(ROOT/'bin/nanoisa', 'verify', module)
+            self.checked(ROOT/'bin/nanoisa_hl_facts', module)
             for target in ('c', 'nano'):
                 output = directory/f'previous.{target}'
                 output.write_text('retained output\n')
