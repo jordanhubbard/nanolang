@@ -974,7 +974,7 @@ test-selfhost-array-compatibility: bootstrap3
 test-units: test-selfhost-array-compatibility test-selfhost-map-types test-selfhost-map-results test-selfhost-returned-calls test-selfhost-rejection-gate
 
 .PHONY: test-selfhost-byte-array-identity
-test-selfhost-byte-array-identity:
+test-selfhost-byte-array-identity: bootstrap3
 	@python3 -m unittest -v tests.test_selfhost_byte_array_identity
 
 test-units: test-selfhost-byte-array-identity

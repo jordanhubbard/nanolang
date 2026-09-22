@@ -1673,6 +1673,52 @@ static void test_effect_handler_verification(void) {
     PASS(test_name);
 }
 
+/* Classification expires at every public boundary, including mutations of
+ * the same original module. These are refusals; no File opcode executes. */
+static void test_service_classification_is_invocation_local(void) {
+    const char *test_name = "service classification: mutation, metadata and linked boundaries";
+    uint8_t code[64];
+    uint32_t n = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    NvmModule *plain = make_simple_module(code, n, 0, 0);
+    const NvmModule *linked[] = {mod};
+    uint16_t depth = 4321;
+    ASSERT(nvm_verify(mod).ok, "ordinary module must verify");
+    ASSERT(nvm_verify_function(mod, 0).ok, "ordinary function must verify");
+    ASSERT(nvm_verify_function_max_stack(mod, 0, &depth).ok && depth == 0,
+           "ordinary stack result must publish zero");
+    ASSERT(nvm_verify_linked(plain, linked, 1).ok, "ordinary linked module must verify");
+
+    mod->code[0] = OP_FILE_DROP_STACK;
+    depth = 4321;
+    ASSERT(!nvm_verify(mod).ok, "fresh full call must see changed File opcode");
+    ASSERT(!nvm_verify_function(mod, 0).ok, "fresh function call must see File opcode");
+    ASSERT(!nvm_verify_function_max_stack(mod, 0, &depth).ok && depth == 4321,
+           "File refusal must preserve maximum-stack output");
+    ASSERT(!nvm_verify_linked(mod, NULL, 0).ok, "linked root must see File opcode");
+    ASSERT(!nvm_verify_linked(plain, linked, 1).ok, "linked peer must see File opcode");
+    ASSERT(nvm_verify(plain).ok, "different ordinary module must remain independent");
+
+    mod->code[0] = OP_RET;
+    ASSERT(nvm_verify(mod).ok, "restored code must receive fresh classification");
+    mod->service_size = 1;
+    depth = 4321;
+    ASSERT(!nvm_verify(mod).ok && !nvm_verify_function(mod, 0).ok,
+           "metadata alone must refuse full and function entry");
+    ASSERT(!nvm_verify_function_max_stack(mod, 0, &depth).ok && depth == 4321,
+           "metadata refusal must preserve maximum-stack output");
+    ASSERT(!nvm_verify_linked(mod, NULL, 0).ok &&
+           !nvm_verify_linked(plain, linked, 1).ok, "metadata must refuse linked entries");
+    mod->service_size = 0;
+    ASSERT(nvm_verify(mod).ok && nvm_verify_function(mod, 0).ok &&
+           nvm_verify_linked(plain, linked, 1).ok, "restored metadata must recover");
+    ASSERT(nvm_verify_function_max_stack(mod, 0, &depth).ok && depth == 0,
+           "recovered stack query must publish its actual result");
+    nvm_module_free(plain);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 int main(void) {
     test_effect_handler_verification();
     printf("\n[verifier] NanoVM bytecode verifier tests...\n\n");
@@ -1768,6 +1814,7 @@ int main(void) {
     test_implicit_return_shape_is_checked();
     test_implicit_return_shape_releases_ownership_state();
     test_implicit_return_with_matching_shape_passes();
+    test_service_classification_is_invocation_local();
     test_max_stack_of_an_empty_function();
     test_max_stack_counts_the_deepest_point();
     test_max_stack_is_refused_for_an_unverifiable_function();
