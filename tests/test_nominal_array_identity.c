@@ -20,7 +20,7 @@ static void identity_record(Environment *env, const char *name, const char *owne
 }
 static void intrinsic_identity(void) {
     Environment *env = create_environment(); assert(env);
-    const char *names[] = {"at", "array_get", "array_push", "array_slice", "array_new", "map", "filter"};
+    const char *names[] = {"at", "array_get", "array_pop", "array_push", "array_slice", "array_new", "map", "filter"};
     for (size_t i = 0; i < sizeof names / sizeof *names; ++i) {
         Function *builtin = env_get_function(env, names[i]);
         assert(builtin && env_function_is_builtin(builtin));
@@ -137,6 +137,35 @@ static void declaration_identity(void) {
     assert(nominal_array_requires_context(env, &formal, "Definitions", &context, 0));
     assert(checked_annotations_equal_context(env, &formal, "Definitions", &shared, "Records", 0, &context, NULL));
     assert(!checked_annotations_equal_context(env, &formal, "Definitions", &wrong, "Records", 0, &context, NULL));
+    free_environment(env);
+}
+static void array_pop_element_identity(void) {
+    Environment *env = create_environment(); assert(env);
+    env->current_module = "Left";
+    identity_record(env, "Item", "Left");
+    identity_record(env, "Item", "Right");
+    TypeInfo item = {.base_type = TYPE_STRUCT, .generic_name = "Item"};
+    TypeInfo items = {.base_type = TYPE_ARRAY, .element_type = &item};
+    TypeInfo rows = {.base_type = TYPE_ARRAY, .element_type = &items};
+    env_define_var_with_type_info(env, "items", TYPE_ARRAY, TYPE_STRUCT, &items, false, create_void());
+    env_define_var_with_type_info(env, "rows", TYPE_ARRAY, TYPE_ARRAY, &rows, false, create_void());
+    ASTNode receiver = {.type = AST_IDENTIFIER}; receiver.as.identifier = "items";
+    ASTNode *arguments[] = {&receiver}; ASTNode pop = {.type = AST_CALL};
+    pop.as.call.name = "array_pop"; pop.as.call.args = arguments; pop.as.call.arg_count = 1;
+    NominalView result = {0};
+    assert(nominal_value_view(&pop, env, 0, &result));
+    assert(nominal_view_matches_annotation(env, &result, &item, "Left", NULL, 0));
+    assert(!nominal_view_matches_annotation(env, &result, &item, "Right", NULL, 0));
+    nominal_view_discard(&result);
+    receiver.as.identifier = "rows";
+    assert(nominal_value_view(&pop, env, 0, &result));
+    assert(nominal_view_matches_annotation(env, &result, &items, "Left", NULL, 0));
+    assert(!nominal_view_matches_annotation(env, &result, &items, "Right", NULL, 0));
+    nominal_view_discard(&result);
+    env_define_var(env, "unknown", TYPE_ARRAY, false, create_void());
+    receiver.as.identifier = "unknown";
+    assert(!nominal_value_view(&pop, env, 0, &result));
+    assert(!result.info);
     free_environment(env);
 }
 static void mixed_substitution_identity(void) {
@@ -957,7 +986,7 @@ static void emission_entry_rollback(void) {
 extern void test_nominal_constructor_allocations(void);
 int main(void) {
     test_nominal_constructor_allocations();
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); union_checker_cleanup_boundaries(); checker_module_name_ownership(); generic_byte_payload_context(); constructor_failure_rollback(); emission_entry_rollback();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); array_pop_element_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); union_checker_cleanup_boundaries(); checker_module_name_ownership(); generic_byte_payload_context(); constructor_failure_rollback(); emission_entry_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }
