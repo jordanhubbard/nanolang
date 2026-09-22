@@ -29,3 +29,8 @@ selected record. Existing strict Apple/GCC/Clang producer gates and original18+9
 remain acceptance; textual controls alone do not qualify the generated program.
 
 MAC: task_f201f1249e0a4567ad56a15b024b1408.
+
+My source checkpoint separates generate_list_for_c_type_mode from the retained
+standalone wrapper. My additive shadows inspect the actual complete program and
+require one forward declaration, as well as separate standalone/body behavior.
+This checkpoint has source review pending; I have not executed its gates.

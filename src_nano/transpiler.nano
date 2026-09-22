@@ -5302,7 +5302,7 @@ fn generate_list_specializations(parser: Parser) -> string {
                     }
                     let mut c_type: string = (type_to_c elem_type)
                     if foreign { set c_type elem_type }
-                    set parts (cg_append parts (generate_list_for_c_type elem_type c_type))
+                    set parts (cg_append parts (generate_list_for_c_type_mode elem_type c_type false))
                     set parts (cg_append parts "\n")
                 }
             }
@@ -5322,16 +5322,41 @@ shadow generate_list_specializations {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (generate_list_specializations p)
     assert (str_contains code "List_Point")
+    assert (not (str_contains code "typedef struct List_Point List_Point;"))
+    let complete: string = (gen_c_program_with_modules p "")
+    let declaration: string = "typedef struct List_Point List_Point;"
+    let first: int = (transp_str_index_of complete declaration)
+    assert (>= first 0)
+    if (>= first 0) {
+        let start: int = (+ first (str_length declaration))
+        let remaining: string = (str_substring complete start (- (str_length complete) start))
+        assert (not (str_contains remaining declaration))
+    }
 }
 
 /* Generate List<T> struct and functions for a specific type T */
-fn generate_list_for_c_type(elem_type: string, c_elem_type: string) -> string {
+fn generate_list_for_c_type_mode(elem_type: string, c_elem_type: string, forward: bool) -> string {
     let list_name: string = (+ "List_" elem_type)
     let mut parts: array<string> = []
     set parts (cg_append parts "#include \"runtime/native_record_list.h\"\n")
-    set parts (cg_append parts (+ "typedef struct " (+ list_name (+ " " (+ list_name ";\n")))))
+    if forward {
+        set parts (cg_append parts (+ "typedef struct " (+ list_name (+ " " (+ list_name ";\n")))))
+    }
     set parts (cg_append parts (+ "NL_DEFINE_RECORD_LIST(" (+ elem_type (+ ", " (+ c_elem_type ")\n")))))
     return (cg_build parts)
+}
+
+shadow generate_list_for_c_type_mode {
+    let standalone: string = (generate_list_for_c_type_mode "Point" "nl_Point" true)
+    let body: string = (generate_list_for_c_type_mode "Point" "nl_Point" false)
+    assert (str_contains standalone "typedef struct List_Point List_Point;")
+    assert (not (str_contains body "typedef struct List_Point List_Point;"))
+    assert (str_contains body "runtime/native_record_list.h")
+    assert (str_contains body "NL_DEFINE_RECORD_LIST(Point, nl_Point)")
+}
+
+fn generate_list_for_c_type(elem_type: string, c_elem_type: string) -> string {
+    return (generate_list_for_c_type_mode elem_type c_elem_type true)
 }
 
 shadow generate_list_for_c_type {
