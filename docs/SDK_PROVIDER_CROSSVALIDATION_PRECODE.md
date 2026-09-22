@@ -65,7 +65,8 @@ and36 remain zero. Original revision1 remains exactly32-byte-header transport.
 No new recursive type table is added.
 
 A24-byte call-policy row has parameter-first/count, result-first/count,
-callback-contract selector and reserved zero, all u32. The two slices select
+call execution selector and reserved zero, all u32. The execution selector
+references an existing NO_PARAMETER callback/wait contract or is NO_INDEX. The two slices select
 policy nodes directly and exactly match the selected signature's ordered
 parameters/results. An import binding's existing reserved offset20 selects
 its call-policy row in revision2 only. Function/field bindings retain zero.
@@ -80,7 +81,7 @@ A32-byte policy node contains these u32 fields in order:
 | 12 | Exact provider hook-set symbol STRING index, or NO_INDEX |
 | 16 | First child policy node |
 | 20 | Child policy count |
-| 24 | Existing CALLBACKS row selector, or NO_INDEX |
+| 24 | Callback ABI in low8 bits, execution in next8, upper16 zero; zero for noncallback |
 | 28 | Reserved zero |
 
 Node children are ordered by existing type facts: record/tuple field order,
@@ -94,7 +95,8 @@ Counts stay bounded at65,536 call policies and65,536 policy nodes, with the
 whole section16MiB. I charge all worklists, comparisons, copied rows and scratch
 against the same transactional32MiB/1,048,576-step generation budget.
 
-I assign distinct policy modes, checked against position and tag:
+I propose mode values0 through8 in the following order, checked against position
+and tag:
 
 - VALUE copies scalars by exact width and preserves enum identity.
 - BORROW_CALL gives the provider a read-only, call-duration view. The adapter
@@ -119,8 +121,27 @@ I assign distinct policy modes, checked against position and tag:
   runtime retirement. No raw code pointer crosses the boundary.
 
 I reject modes applied to the wrong tag/direction, owner indices outside actual
-arguments, incompatible hook sets, a callback selector for another import/slot,
+arguments, incompatible hook sets, an existing top-level callback contract for another import/slot,
 or mismatched callback signatures/execution policies before provider effects.
+Top-level FUNCTION policy must agree with the actual existing CALLBACKS row for
+that `(import, parameter)` and its exact selected signature. Nested FUNCTION
+leaves cannot select that table by invented parameter indices: its sorted unique
+`(import, parameter)` key has no field path. Instead each nested policy node
+carries its own ABI/execution byte pair and existing complete FUNCTION type;
+its containing import, exact policy path and generated hook-set identify the
+adapter. This is explicit additional metadata, not permission to ignore a
+conflicting top-level contract. Shared callback validators must check the same
+ABI/execution enums. RetainedV1 currently accepts only its supported signature
+shapes; callback parameters/results needing complete aggregates require a new
+generated typed callback adapter ABI and their own reviewed runtime entry. They
+must refuse under V1 until that entry is implemented and qualified. I retain this
+as required SDK work, not an accepted callback-scope reduction.
+
+Every unused call-policy row still supplies its own argument count and roots for
+context validation. Unreachable policy nodes may not carry an owning-argument
+index or callback execution claim: without a call context I cannot establish
+either. They still retain and validate their exact type, mode and children.
+
 A provider-owned aggregate hook drops its own graph once; child release hooks
 must be absent unless the generated schema explicitly declares independent
 owners. This prevents both inherited ownership and double release.
