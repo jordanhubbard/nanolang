@@ -294,6 +294,7 @@ static inline void tracked_free(void *p) {
             "nlc_native_array_abi": ("int", []),
             "nlc_runtime_root": ("string", []),
             "nlc_module_artifact": ("string", ["string"]),
+            "nl_fs_join_path": ("string", ["string", "string"]),
             "nl_nanoisa_load_print": ("string", ["string"]),
             "nl_nanoisa_load_pretty": ("string", ["string"]),
             "nl_nanoisa_last_error": ("string", []),

@@ -868,11 +868,13 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
         return false;
     }
 
-    /* I keep a zero-argument artifact STRING result pointer-typed even when
-     * its borrowed storage has no optional release hook. Arity was checked above. */
-    bool borrowed_string_zero = imp->kind == NVM_IMPORT_ARTIFACT &&
-        imp->return_type == TAG_STRING && arg_count == 0;
-    if (desc->string_release || borrowed_string_zero) {
+    /* I keep exact zero/one/two-string artifact results pointer-typed whether
+     * the provider lends storage or supplies cleanup. Arity was checked above. */
+    bool artifact_string_call = imp->kind == NVM_IMPORT_ARTIFACT &&
+        imp->return_type == TAG_STRING && arg_count <= 2;
+    for (int i = 0; artifact_string_call && i < arg_count; ++i)
+        if (!param_types || param_types[i] != TAG_STRING) artifact_string_call = false;
+    if (desc->string_release || artifact_string_call) {
         const char *arguments[2] = {NULL, NULL};
         for (int i = 0; i < arg_count; ++i) {
             if (args[i].tag != TAG_STRING || !args[i].as.string) {

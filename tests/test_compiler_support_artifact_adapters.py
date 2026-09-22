@@ -132,5 +132,50 @@ class CompilerSupportArtifactAdapters(unittest.TestCase):
         self.native(module)
 
 
+    def test_borrowed_string_arguments_and_isolated_snapshots(self):
+        library = self.artifacts / ("borrowed.dylib" if sys.platform == "darwin" else "borrowed.so")
+        self.run_checked([*self.compiler, "-std=c11", "-Wall", "-Wextra", "-Werror",
+                          *self.flags, "-dynamiclib" if sys.platform == "darwin" else "-shared",
+                          "-fPIC", ROOT / "tests/nanovm/artifact_borrowed_strings.c",
+                          *self.links, "-o", library])
+        contracts = [("nlc_runtime_root", 0), ("nlc_module_artifact", 1), ("nl_fs_join_path", 2)]
+        assembly = "".join(f'.import {json.dumps(str(library))} "{name}" string' +
+                           ' string' * arity + f'\n.import_kind {i} artifact\n'
+                           for i, (name, arity) in enumerate(contracts))
+        assembly += ('.string left "left"\n.string right "right"\n.string later "later"\n'
+                     '.string zero "zero-1"\n.string one "one-left"\n.string two "two-left:right"\n'
+                     '.entry main\n.function main 0 3 0 int 1\n')
+        for i, (_, arity) in enumerate(contracts):
+            first = ('PUSH_STR left\n' if arity else '') + ('PUSH_STR right\n' if arity == 2 else '')
+            later = 'PUSH_STR later\n' * arity
+            assembly += first + f'CALL_EXTERN {i}\nSTORE_LOCAL {i}\n'
+            assembly += later + f'CALL_EXTERN {i}\nPOP\n'
+        for i, expected in enumerate(["zero", "one", "two"]):
+            assembly += f'LOAD_LOCAL {i}\nPUSH_STR {expected}\nEQ\nASSERT\n'
+        assembly += 'PUSH_I64 0\nRET\n.end\n'
+        asm, module = self.artifacts / "borrowed.nasm", self.artifacts / "borrowed.nvm"
+        asm.write_text(assembly)
+        self.run_checked([ROOT / "bin/nanoisa", "asm", asm, "-o", module])
+        self.run_checked([ROOT / "bin/nano_vm", module])
+        self.run_checked([ROOT / "bin/nano_vm", "--isolate-ffi", module])
+        self.native(module)
+        control = self.artifacts / "borrowed-controls"
+        makefile = self.artifacts / "borrowed.mk"
+        makefile.write_text('.PHONY: artifact-borrowed-controls\nartifact-borrowed-controls:\n'
+            '\t$(CC) $(CFLAGS) -D_GNU_SOURCE ' +
+            str(ROOT / 'tests/nanovm/test_artifact_borrowed_strings.c') +
+            ' $(filter-out $(OBJ_DIR)/nanovm/vm_ffi.o,$(NANOVM_OBJECTS)) '
+            '$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) '
+            '$(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS) -o ' + str(control) + '\n')
+        self.run_checked(['make', '-s', '-f', 'Makefile.gnu', '-f', makefile,
+                          'CC=' + shlex.join(self.compiler),
+                          'CFLAGS=' + shlex.join(['-std=c11', '-g', '-O1', '-Wall', '-Wextra',
+                                                 '-Werror', '-fPIC', '-Isrc', *self.flags]),
+                          'LDFLAGS=' + shlex.join(['-lm', *self.links]),
+                          'artifact-borrowed-controls'])
+        result = self.run_checked([control, library])
+        self.assertEqual(result, b'I checked borrowed-string ABI, refusal, recovery and isolated snapshots.\n')
+
+
 if __name__ == "__main__":
     unittest.main()

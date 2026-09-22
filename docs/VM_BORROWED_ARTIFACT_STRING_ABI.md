@@ -1,5 +1,7 @@
 # My borrowed artifact STRING ABI for zero, one and two arguments
 
+I track this work as `task_bf6cba01c1be4e14a34492ae5d335eb4`.
+
 My d480 correction proves the zero-argument borrowed STRING case. Static audit finds the same return-type mismatch for `nlc_module_artifact(string)` and two-string borrowed facades: without a release hook, `vm_ffi_call` reaches `FFI_Fn1`/`FFI_Fn2`, both integer-return function-pointer types. A complete declared STRING result does not make that call type correct.
 
 My existing `test_module_artifact_adapter_snapshots_borrowed_results` executes generated native C only. `ArtifactStringRelease` has a paired borrowed one-argument case, but compiles its provider with plain `cc`; generated-native instrumentation does not establish VM/provider function-type instrumentation. I retain these tests and do not replay the unchanged wrong ABI.
@@ -9,3 +11,7 @@ I extend my existing typed snapshot block only when the import is ARTIFACT, its 
 My COP audit finds no independent cast: pipe `cop_execute_request`, mailbox dispatch and batch dispatch all call `vm_ffi_call`, then serialize the owned VmString before releasing it. The single ABI correction therefore reaches all three consumers. I require actual isolated execution and serialized snapshot checks, not a native-only inference. COP wire format, process lifecycle and timeouts remain unchanged.
 
 Before implementation I require additive mutating borrowed providers for zero, one and two arguments through in-process VM, actual isolated COP and nvm2c; each provider and runtime uses the selected ordinary/sanitizer compiler. Values retained before later calls must remain unchanged, and argument order must be observable. I retain original release-hook controls and add direct actual-dispatch refusal checks for wrong runtime scalar/string values, null results, unchanged sentinel on copy allocation refusal, and successful recovery. No full bootstrap or broader typed-provider completion follows from this bounded proof.
+
+My public COP batch API deliberately sends variable-size STRING replies through sequential single-call dispatch; I will exercise that public behavior rather than claim packed scalar-batch coverage. Large string arguments exercise the same worker through its pipe channel, while small arguments exercise mailbox serialization.
+
+My source checkpoint retains all original methods. It adds one complete borrowed 0/1/2-argument method using the actual selected provider compiler and VM/native engines, plus an included-real-dispatch C fixture whose only replacement is the result-copy allocator. The latter verifies unchanged result bytes, no call on scalar/arity refusal, borrowed null refusal, cleanup once on owned copy failure, recovery, isolated public batch snapshots and an8192-byte pipe argument/reply. The existing artifact signature matrix adds the two-argument join provider so mismatched declared parameters still refuse before generated output. Strict C syntax and Python parse checks pass; no corrected product execution has run yet.
