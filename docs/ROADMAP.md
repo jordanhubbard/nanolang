@@ -17510,3 +17510,8 @@ exact wire profiles; the new path only checks bounded raw rows, not lifetime
 truth. Complete key/type/subject/policy-context validation and fresh generation
 publication remain active implementation work, with actual same-image typed
 adapter/COP execution still required afterward.
+
+I keep private lifetime callback profiles limited to the actual shared retainedV1
+ABI and owner/worker execution enums. Proposed generated typed callback ABI2
+remains undefined and refuses even in the private codec until its own source
+contract is reviewed. The raw fixture adds the explicit ABI2 refusal.

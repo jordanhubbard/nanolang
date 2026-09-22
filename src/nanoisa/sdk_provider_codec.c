@@ -1,4 +1,5 @@
 #include "sdk_provider_codec.h"
+#include "nvm_format.h"
 #include <stdlib.h>
 #include <string.h>
 struct NvmSdkProviderTransport {
@@ -88,7 +89,8 @@ static NvmSdkResult validate(const uint8_t *p, size_t size,
                !slice(get32(q+16),get32(q+20),counts[6]))return NVM_SDK_INVALID;
             if(mode==NVM_SDK_CALLBACK_CALL || mode==NVM_SDK_CALLBACK_RETAINED) {
                 unsigned abi=profile&255u,execution=(profile>>8)&255u;
-                if((profile>>16) || !abi || abi>2 || execution>1)return NVM_SDK_INVALID;
+                if((profile>>16) || abi!=NVM_CALLBACK_ABI_RETAINED_V1 ||
+                   (execution!=NVM_FOREIGN_OWNER_THREAD && execution!=NVM_FOREIGN_WORKER_THREAD))return NVM_SDK_INVALID;
             } else if(profile)return NVM_SDK_INVALID;
         }
     }

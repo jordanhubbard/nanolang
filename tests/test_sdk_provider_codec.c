@@ -92,7 +92,7 @@ static void lifetime_controls(void) {
     LIFE_BAD(policies_at+24+4,65536,NVM_SDK_INVALID);
     LIFE_BAD(nodes_at+4,9,NVM_SDK_INVALID);LIFE_BAD(nodes_at+28,1,NVM_SDK_INVALID);
     LIFE_BAD(nodes_at+16,3,NVM_SDK_INVALID);LIFE_BAD(nodes_at+24,1,NVM_SDK_INVALID);
-    LIFE_BAD(nodes_at+64+24,0,NVM_SDK_INVALID);LIFE_BAD(nodes_at+64+24,3,NVM_SDK_INVALID);
+    LIFE_BAD(nodes_at+64+24,0,NVM_SDK_INVALID);LIFE_BAD(nodes_at+64+24,2,NVM_SDK_INVALID);LIFE_BAD(nodes_at+64+24,3,NVM_SDK_INVALID);
     LIFE_BAD(nodes_at+64+24,513,NVM_SDK_INVALID);LIFE_BAD(nodes_at+64+24,65537,NVM_SDK_INVALID);
 #undef LIFE_BAD
     free(bad);
