@@ -24,9 +24,21 @@
       "raw_bytes": 218525,
       "raw_sha256": "7aa5e31f492a053f5c0d72fc4fca028acb22c3b6b85ff1f40617c1c3736d69a8",
       "stored": "job-106609359461.log.gz"
+    },
+    {
+      "job": 106609359370,
+      "raw_bytes": 429005,
+      "raw_sha256": "349a604e1ea239d78278f437941fab60cc42062a2de83fda04984f71ec54cbc1",
+      "stored": "job-106609359370.log.gz"
+    },
+    {
+      "job": 106609359385,
+      "raw_bytes": 259417,
+      "raw_sha256": "07a5de478f7d39f51b823851f89b67b7393aed460662045a72b09b38d9c73167",
+      "stored": "job-106609359385.log.gz"
     }
   ],
-  "scope": "Four actual worker terminals only; full run still active.",
+  "scope": "Six actual worker terminals only; full run still active.",
   "pr_head": "fb913d5a6ae81a08c2f5f448cc30d147bfb36711",
   "tested_merge": "27a62e96c5352438cf3139e97658a01b9b9817fa"
 }
