@@ -176,27 +176,45 @@ int nvm_shape_unify(NvmShapeGraph *g, NvmShapeId a, NvmShapeId b) {
     return !g->error;
 }
 
-int nvm_shape_convert(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
+static int convert_with_mode(NvmShapeGraph *g, NvmShapeId source,
+                             NvmShapeId target, int record_storage) {
     if (!nvm_shape_root(g, source) || !nvm_shape_root(g, target)) return 0;
     NvmShapeConversion *next = grow(g, g->conversions, &g->conversion_capacity,
                                     g->conversion_count + 1, sizeof *next);
     if (!next) return 0;
     g->conversions = next;
-    g->conversions[g->conversion_count++] = (NvmShapeConversion){source, target};
+    g->conversions[g->conversion_count++] = (NvmShapeConversion){
+        source, target, (uint8_t)record_storage
+    };
     return 1;
+}
+
+int nvm_shape_convert(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
+    return convert_with_mode(g, source, target, 0);
+}
+
+int nvm_shape_convert_record_storage(NvmShapeGraph *g, NvmShapeId source,
+                                     NvmShapeId target) {
+    return convert_with_mode(g, source, target, 1);
 }
 
 typedef struct {
     NvmShapeId source, target;
     int exact;
     int array_element;
+    int record_field;
 } FlowPair;
 
 static int flow_kind(NvmShapeGraph *g, NvmShapeId target, NvmShapeKind kind, int *changed) {
     NvmShapeNode *node = &g->nodes[target - 1];
-    for (size_t i = 0; i < node->count; ++i)
-        if (!allows_edge(kind, node->edges[i].index))
-            return fail(g, "I found incompatible projections during storage conversion");
+    for (size_t i = 0; i < node->count; ++i) {
+        if (!allows_edge(kind, node->edges[i].index)) {
+            snprintf(g->error_detail, sizeof g->error_detail,
+                     "I cannot apply %s storage to node %u with existing edge %u",
+                     kind_name(kind), target, node->edges[i].index);
+            return fail(g, g->error_detail);
+        }
+    }
     if (node->kind != kind) { node->kind = kind; node->conversion_kind = 1; *changed = 1; }
     return 1;
 }
@@ -205,7 +223,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
     if (!queue) return 0;
-    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, 0};
+    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, 0, 0};
     while (cursor < count && !g->error) {
         FlowPair pair = queue[cursor++];
         NvmShapeId source = nvm_shape_root(g, pair.source), target = nvm_shape_root(g, pair.target);
@@ -216,7 +234,8 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             if (nvm_shape_root(g, queue[i].source) == source &&
                 nvm_shape_root(g, queue[i].target) == target &&
                 queue[i].exact == pair.exact &&
-                queue[i].array_element == pair.array_element) seen = 1;
+                queue[i].array_element == pair.array_element &&
+                queue[i].record_field == pair.record_field) seen = 1;
         if (seen) continue;
         NvmShapeKind from = g->nodes[source - 1].kind, to = g->nodes[target - 1].kind;
         if (from == NVM_SHAPE_UNKNOWN) {
@@ -249,6 +268,22 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         }
         if (!pair.exact && from == NVM_SHAPE_OPTIONAL &&
             (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL)) {
+            if (pair.record_field) {
+                NvmShapeId payload = nvm_shape_lookup(g, source, 0);
+                NvmShapeKind payload_kind = payload ? nvm_shape_kind(g, payload) : NVM_SHAPE_UNKNOWN;
+                if (!payload || payload_kind == NVM_SHAPE_UNKNOWN) {
+                    if (final)
+                        fail(g, "I require a proved optional payload for exact record storage");
+                    continue;
+                }
+                if (payload_kind != to) {
+                    snprintf(g->error_detail, sizeof g->error_detail,
+                             "I cannot store optional record payload %s as exact %s at nodes %u/%u",
+                             kind_name(payload_kind), kind_name(to), payload, target);
+                    fail(g, g->error_detail); break;
+                }
+                continue;
+            }
             if (!g->nodes[target - 1].conversion_kind) {
                 snprintf(g->error_detail, sizeof g->error_detail,
                          "I cannot widen an exactly constrained %s destination at nodes %u/%u (conversion %u/%u)",
@@ -268,7 +303,8 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             NvmShapeId payload = nvm_shape_child(g, target, 0);
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;
-            queue = next; queue[count++] = (FlowPair){source, payload, 1, 0};
+            queue = next; queue[count++] = (FlowPair){source, payload, 1, 0,
+                                                      pair.record_field};
             continue;
         }
         /* An explicitly declared union destination accepts either exact
@@ -333,7 +369,8 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
                 child_source,
                 child_target,
                 pair.exact || from == NVM_SHAPE_OPTIONAL || from == NVM_SHAPE_MAP,
-                from == NVM_SHAPE_ARRAY && edge.index == 0
+                from == NVM_SHAPE_ARRAY && edge.index == 0,
+                pair.record_field || (conversion.record_storage && from == NVM_SHAPE_RECORD)
             };
         }
     }

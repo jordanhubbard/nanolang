@@ -383,9 +383,9 @@ static NominalIdentity nominal_annotation(Environment *env, Type type, const Typ
     if (type == TYPE_LIST_GENERIC) {
         const char *element = list_annotation_spelling(info, name);
         NominalIdentity id = env_nominal_identity(env, element, owner, TYPE_STRUCT);
-        /* My intermediate record-list route does not admit enum elements. */
+        if (!id.ordinal) id = env_nominal_identity(env, element, owner, TYPE_ENUM);
         if (!id.ordinal || (name && !nominal_equal(id,
-                env_nominal_identity(env, name, owner, TYPE_STRUCT)))) return none;
+                env_nominal_identity(env, name, owner, id.kind)))) return none;
         return id;
     }
     return env_nominal_identity(env, name, owner, type);
@@ -803,11 +803,15 @@ static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type 
             env_get_var_visible_at(env, name, expr->line, expr->column)) return none;
         const char *suffix = strrchr(name, '_');
         bool constructor = type == TYPE_LIST_GENERIC && !expr->as.call.arg_count && !strcmp(suffix, "_new");
-        bool element = type == TYPE_STRUCT && (!strcmp(suffix, "_get") || !strcmp(suffix, "_remove") || !strcmp(suffix, "_pop"));
+        bool element = (type == TYPE_STRUCT || type == TYPE_ENUM) &&
+            (!strcmp(suffix, "_get") || !strcmp(suffix, "_remove") || !strcmp(suffix, "_pop"));
         if (suffix <= name + 5 || (!constructor && !element)) return none;
         char *spelling = strndup(name + 5, (size_t)(suffix - name - 5));
         if (!spelling) return none;
-        NominalIdentity id = env_nominal_identity(env, spelling, env->current_module, TYPE_STRUCT);
+        NominalIdentity id = env_nominal_identity(env, spelling, env->current_module,
+            constructor ? TYPE_STRUCT : type);
+        if (constructor && !id.ordinal)
+            id = env_nominal_identity(env, spelling, env->current_module, TYPE_ENUM);
         free(spelling);
         return id;
     }
@@ -1081,19 +1085,23 @@ static bool check_nominal_contract(Environment *env, Type type, const TypeInfo *
             env_nominal_identity(env, name, owner, TYPE_ENUM).ordinal) return true;
     }
     Type actual_type = check_expression(value, env);
-    if (actual_type == type && nominal_equal(expected, nominal_expression(value, env, type, 0))) return true;
+    if (actual_type == type && nominal_equal(expected,
+            nominal_expression(value, env, type, 0))) return true;
     emit_context_error("E001 TYPE MISMATCH", value ? value->line : 0,
         value ? value->column : 0, 1,
-        "I require the exact ordinary record declaration at this value boundary.",
-        "Preserve declaration and module identity; implicit enum lists remain unsupported.");
+        "I require the exact ordinary record or enum declaration at this value boundary.",
+        "Preserve the declaration and module identity of this list element.");
     return false;
 }
 
 static bool checked_list_instantiation(Environment *env, const char *name, int line, int column) {
-    if (!env_nominal_identity(env, name, env->current_module, TYPE_STRUCT).ordinal) {
+    NominalIdentity identity = env_nominal_identity(env, name, env->current_module, TYPE_STRUCT);
+    if (!identity.ordinal)
+        identity = env_nominal_identity(env, name, env->current_module, TYPE_ENUM);
+    if (!identity.ordinal) {
         emit_context_error("E001 TYPE MISMATCH", line, column, 1,
-            "I cannot resolve this list's exact record declaration.",
-            "Declare the record before value use; a pending extern field grants no value authority.");
+            "I cannot resolve this list's exact record or enum declaration.",
+            "Declare the element before value use; a pending extern field grants no value authority.");
         return false;
     }
     if (env_register_list_instantiation(env, name)) return true;
@@ -1131,8 +1139,9 @@ static Type check_list_operation(ASTNode *expr, Environment *env,
     bool clear = !strcmp(operation, "clear") || !strcmp(operation, "free");
     int arity = create ? 0 : insert || set ? 3 : push || get || remove ? 2 : 1;
     Type element = is_enum ? TYPE_ENUM : TYPE_STRUCT;
-    NominalIdentity expected = env_nominal_identity(env, name, env->current_module, TYPE_STRUCT);
-    bool valid = !is_enum && expected.ordinal &&
+    NominalIdentity expected = env_nominal_identity(env, name, env->current_module,
+                                                    is_enum ? TYPE_ENUM : TYPE_STRUCT);
+    bool valid = expected.ordinal &&
         (create || index || write || pop || measure || empty || clear) && expr->as.call.arg_count == arity;
     Type types[3] = {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN};
     for (int i = 0; i < expr->as.call.arg_count; ++i) {

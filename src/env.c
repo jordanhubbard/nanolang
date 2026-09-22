@@ -1695,7 +1695,10 @@ int env_get_union_variant_index(Environment *env, const char *union_name, const 
 /* Register a list instantiation for code generation */
 bool env_register_list_instantiation(Environment *env, const char *element_type) {
     NominalIdentity identity = env_nominal_identity(env, element_type, env->current_module, TYPE_STRUCT);
-    /* This incremental implicit route requires a concrete ordinary record. */
+    if (!identity.ordinal)
+        identity = env_nominal_identity(env, element_type, env->current_module, TYPE_ENUM);
+    /* This incremental implicit route requires one concrete ordinary record
+     * or enum declaration from the selected owner. */
     if (!identity.ordinal) return false;
     element_type = env_nominal_name(env, identity);
     if (strlen(element_type) > 256 - sizeof("List_")) return false;

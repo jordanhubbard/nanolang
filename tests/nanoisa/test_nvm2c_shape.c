@@ -453,7 +453,43 @@ static void test_byte_identity(void) {
     nvm_shape_destroy(&g);
 }
 
+static void test_checked_record_storage(void) {
+    const NvmShapeKind payloads[] = {
+        NVM_SHAPE_STRING, NVM_SHAPE_BOOL, NVM_SHAPE_UNKNOWN
+    };
+    for (size_t i = 0; i < sizeof payloads / sizeof payloads[0]; ++i) {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+        NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+        NvmShapeId optional = nvm_shape_child(&g, source, 0);
+        CHECK(nvm_shape_unify(&g, optional,
+                              nvm_shape_new(&g, NVM_SHAPE_OPTIONAL)));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, optional, 0),
+                              nvm_shape_new(&g, payloads[i])));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, target, 0),
+                              nvm_shape_new(&g, NVM_SHAPE_STRING)));
+        CHECK(nvm_shape_convert_record_storage(&g, source, target));
+        CHECK(nvm_shape_solve_conversions(&g) ==
+              (payloads[i] == NVM_SHAPE_STRING));
+        nvm_shape_destroy(&g);
+    }
+    NvmShapeGraph g = {0};
+    NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+    NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+    NvmShapeId optional = nvm_shape_child(&g, source, 0);
+    CHECK(nvm_shape_unify(&g, optional,
+                          nvm_shape_new(&g, NVM_SHAPE_OPTIONAL)));
+    CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, optional, 0),
+                          nvm_shape_new(&g, NVM_SHAPE_STRING)));
+    CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, target, 0),
+                          nvm_shape_new(&g, NVM_SHAPE_STRING)));
+    CHECK(nvm_shape_convert(&g, source, target));
+    CHECK(!nvm_shape_solve_conversions(&g));
+    nvm_shape_destroy(&g);
+}
+
 int main(void) {
+    test_checked_record_storage();
     test_byte_identity();
     test_finite_variant_integer_array();
     test_explicit_variant_scalar_storage();

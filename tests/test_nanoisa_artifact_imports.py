@@ -51,7 +51,7 @@ class ArtifactImports(unittest.TestCase):
         path = directory / name
         path.mkdir()
         source = path / "api.nano"
-        source.write_text('extern fn path_basename(path: string) -> string\n')
+        source.write_text('pub extern fn path_basename(path: string) -> string\n')
         (path / "module.json").write_text(json.dumps({"name": name, "c_sources": ["api.c"]}))
         (path / "api.c").write_text('const char *path_basename(const char *value) { (void)value; return "' + result + '"; }\n')
         return source
@@ -104,8 +104,8 @@ class ArtifactImports(unittest.TestCase):
             provider = directory / "provider"
             provider.mkdir()
             api = provider / "api.nano"
-            declarations = ('extern fn nl_nanoisa_assemble_text_save(source: string, path: string) -> int\n'
-                            'extern fn nl_nanoisa_last_error() -> string\n')
+            declarations = ('pub extern fn nl_nanoisa_assemble_text_save(source: string, path: string) -> int\n'
+                            'pub extern fn nl_nanoisa_last_error() -> string\n')
             api.write_text(declarations)
             (provider / "module.json").write_text(json.dumps({"name": "publisher", "c_sources": ["api.c"]}))
             (provider / "api.c").write_text(
