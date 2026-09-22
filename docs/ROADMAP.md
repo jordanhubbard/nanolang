@@ -14532,3 +14532,11 @@ allocator failure claim.
   Nano declaration/retry suffixes protect private storage. No product gate has
   run on the correction yet.
   MAC: task_5f7995c38375459f858ed017626dbc18.
+
+- [ ] I retain exact selected union payload facts through my Nano checker and
+  native storage. Linux7e6 passes fresh full bootstrap and focused3; its original
+  nested projection now passes Cseed O0/O2, then Stage1 refuses inferred payload
+  aliases at12/23/24/22 before emission. I retain the terminal and hold unstarted
+  Puck products. [My consumer audit boundary](NANOISA_SELFHOST_SELECTED_PAYLOAD_FACTS.md)
+  keeps complete declaration/variant/arguments, all original18/native9 controls
+  and full5.1 acceptance open. MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
