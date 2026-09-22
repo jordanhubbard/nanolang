@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 struct NvmSdkProviderTransport {
-    uint32_t counts[5];
-    size_t offsets[5];
+    uint32_t counts[7];
+    size_t offsets[7];
+    bool lifetime;
     size_t size;
     uint8_t data[];
 };
-static const uint32_t widths[5] = {32, 32, 24, 24, 4};
-static const uint32_t ceilings[5] = {4096, 4096, 4096, 65536, 65536};
+static const uint32_t widths[7] = {32, 32, 24, 24, 4, 24, 32};
+static const uint32_t ceilings[7] = {4096, 4096, 4096, 65536, 65536, 65536, 65536};
 static uint32_t get32(const uint8_t *p) {
     return (uint32_t)p[0] | (uint32_t)p[1]<<8 | (uint32_t)p[2]<<16 | (uint32_t)p[3]<<24;
 }
@@ -18,9 +19,9 @@ static void put32(uint8_t *p, uint32_t v) {
 static bool slice(uint32_t first, uint32_t count, uint32_t total) {
     return first<=total && count<=total-first;
 }
-static NvmSdkResult shape(const uint32_t counts[5], size_t offsets[5], size_t *size) {
-    size_t n=NVM_SDK_PROVIDER_HEADER_BYTES;
-    for (unsigned i=0;i<5;i++) {
+static NvmSdkResult shape(const uint32_t counts[7], size_t offsets[7], size_t *size,bool lifetime) {
+    size_t n=lifetime?40u:NVM_SDK_PROVIDER_HEADER_BYTES;
+    for (unsigned i=0;i<(lifetime?7u:5u);i++) {
         if (counts[i]>ceilings[i]) return NVM_SDK_LIMIT;
         if (counts[i]>(NVM_SDK_PROVIDER_MAX_BYTES-n)/widths[i]) return NVM_SDK_LIMIT;
         offsets[i]=n; n+=(size_t)counts[i]*widths[i];
@@ -30,12 +31,15 @@ static NvmSdkResult shape(const uint32_t counts[5], size_t offsets[5], size_t *s
 /* I check reserved bytes and internal table slices before allocation. External
  * indices remain uninterpreted until the shared declaration/module validator. */
 static NvmSdkResult validate(const uint8_t *p, size_t size,
-                            uint32_t counts[5], size_t offsets[5]) {
-    if (!p || size<NVM_SDK_PROVIDER_HEADER_BYTES) return NVM_SDK_INVALID;
+                            uint32_t counts[7], size_t offsets[7],bool lifetime) {
+    if (!p || size<(lifetime?40u:NVM_SDK_PROVIDER_HEADER_BYTES)) return NVM_SDK_INVALID;
     if (size>NVM_SDK_PROVIDER_MAX_BYTES) return NVM_SDK_LIMIT;
-    if (get32(p)!=NVM_SDK_PROVIDER_REVISION || get32(p+4) || get32(p+28)) return NVM_SDK_INVALID;
+    if(lifetime) {
+        if(get32(p)!=2 || get32(p+32)||get32(p+36))return NVM_SDK_INVALID;
+        counts[5]=get32(p+4);counts[6]=get32(p+28);
+    } else if (get32(p)!=NVM_SDK_PROVIDER_REVISION || get32(p+4) || get32(p+28)) return NVM_SDK_INVALID;
     for(unsigned i=0;i<5;i++) counts[i]=get32(p+8+4*i);
-    size_t expected; NvmSdkResult r=shape(counts,offsets,&expected);
+    size_t expected; NvmSdkResult r=shape(counts,offsets,&expected,lifetime);
     if(r!=NVM_SDK_OK) return r;
     if(size!=expected) return NVM_SDK_INVALID;
     for(uint32_t i=0;i<counts[0];i++) {
@@ -58,7 +62,10 @@ static NvmSdkResult validate(const uint8_t *p, size_t size,
     for(uint32_t i=0;i<counts[3];i++) {
         const uint8_t *q=p+offsets[3]+(size_t)i*24;
         uint32_t kind=get32(q),slot=get32(q+8),detail=get32(q+12),provider=get32(q+16);
-        if(kind>NVM_SDK_BIND_FIELD || get32(q+20)) return NVM_SDK_INVALID;
+        if(kind>NVM_SDK_BIND_FIELD)return NVM_SDK_INVALID;
+        if(lifetime && kind==NVM_SDK_BIND_IMPORT) {
+            if(get32(q+20)>=counts[5])return NVM_SDK_INVALID;
+        } else if(get32(q+20))return NVM_SDK_INVALID;
         if(kind==NVM_SDK_BIND_FIELD) {
             if(slot>UINT16_MAX || provider!=UINT32_MAX) return NVM_SDK_INVALID;
             /* detail refers to the shared type pool, not this codec's tables. */
@@ -67,58 +74,86 @@ static NvmSdkResult validate(const uint8_t *p, size_t size,
             if(kind==NVM_SDK_BIND_IMPORT ? provider>=counts[1] : provider!=UINT32_MAX) return NVM_SDK_INVALID;
         }
     }
+    if(lifetime) {
+        for(uint32_t i=0;i<counts[5];i++) {
+            const uint8_t *q=p+offsets[5]+(size_t)i*24;
+            if(get32(q+20) || get32(q+4)>UINT16_MAX || get32(q+12)>UINT16_MAX ||
+               !slice(get32(q),get32(q+4),counts[6]) ||
+               !slice(get32(q+8),get32(q+12),counts[6]))return NVM_SDK_INVALID;
+        }
+        for(uint32_t i=0;i<counts[6];i++) {
+            const uint8_t *q=p+offsets[6]+(size_t)i*32;
+            uint32_t mode=get32(q+4),profile=get32(q+24);
+            if(mode>NVM_SDK_CALLBACK_RETAINED || get32(q+28) ||
+               !slice(get32(q+16),get32(q+20),counts[6]))return NVM_SDK_INVALID;
+            if(mode==NVM_SDK_CALLBACK_CALL || mode==NVM_SDK_CALLBACK_RETAINED) {
+                unsigned abi=profile&255u,execution=(profile>>8)&255u;
+                if((profile>>16) || !abi || abi>2 || execution>1)return NVM_SDK_INVALID;
+            } else if(profile)return NVM_SDK_INVALID;
+        }
+    }
     return NVM_SDK_OK;
 }
 static NvmSdkResult provider_decode(const uint8_t *p,size_t size,size_t limit,
-    NvmPreparationBudget *budget,NvmSdkProviderTransport **out) {
+    NvmPreparationBudget *budget,NvmSdkProviderTransport **out,bool lifetime) {
     if(!out) return NVM_SDK_INVALID;
     NvmPreparationBudget remaining=budget?*budget:(NvmPreparationBudget){0,0};
     if(budget) {
-        if(!p||size<NVM_SDK_PROVIDER_HEADER_BYTES)return NVM_SDK_INVALID;
+        if(!p||size<(lifetime?40u:NVM_SDK_PROVIDER_HEADER_BYTES))return NVM_SDK_INVALID;
         if(size>NVM_SDK_PROVIDER_MAX_BYTES)return NVM_SDK_LIMIT;
-        uint32_t raw[5];size_t offsets[5],expected;
+        uint32_t raw[7]={0};size_t offsets[7]={0},expected;
         for(unsigned i=0;i<5;i++)raw[i]=get32(p+8+4*i);
-        NvmSdkResult checked=shape(raw,offsets,&expected);
+        if(lifetime){raw[5]=get32(p+4);raw[6]=get32(p+28);}
+        NvmSdkResult checked=shape(raw,offsets,&expected,lifetime);
         if(checked!=NVM_SDK_OK)return checked;
         if(expected!=size)return NVM_SDK_INVALID;
         uint32_t work=8;
-        for(unsigned i=0;i<5;i++)work+=raw[i]; /* Every bounded row/reference plus framing/copy. */
+        for(unsigned i=0;i<(lifetime?7u:5u);i++)work+=raw[i]; /* Every bounded row/reference plus framing/copy. */
         if(!nvm_preparation_charge(&remaining,sizeof(NvmSdkProviderTransport)+size,work))return NVM_SDK_LIMIT;
         if(limit>budget->bytes)limit=budget->bytes;
     }
-    uint32_t counts[5]; size_t offsets[5];
-    NvmSdkResult r=validate(p,size,counts,offsets); if(r!=NVM_SDK_OK)return r;
+    uint32_t counts[7]={0}; size_t offsets[7]={0};
+    NvmSdkResult r=validate(p,size,counts,offsets,lifetime); if(r!=NVM_SDK_OK)return r;
     if(limit>NVM_SDK_PROVIDER_MAX_BYTES)limit=NVM_SDK_PROVIDER_MAX_BYTES;
     if(sizeof(NvmSdkProviderTransport)>limit || size>limit-sizeof(NvmSdkProviderTransport))return NVM_SDK_LIMIT;
     NvmSdkProviderTransport *t=malloc(sizeof *t+size); if(!t)return NVM_SDK_MEMORY;
     memcpy(t->counts,counts,sizeof counts); memcpy(t->offsets,offsets,sizeof offsets);
-    t->size=size; memcpy(t->data,p,size); *out=t;if(budget)*budget=remaining; return NVM_SDK_OK;
+    t->lifetime=lifetime;t->size=size; memcpy(t->data,p,size); *out=t;if(budget)*budget=remaining; return NVM_SDK_OK;
 }
 NvmSdkResult nvm_sdk_provider_decode(const uint8_t *p,size_t size,size_t limit,
     NvmSdkProviderTransport **out) {
-    return provider_decode(p,size,limit,NULL,out);
+    return provider_decode(p,size,limit,NULL,out,false);
 }
 NvmSdkResult nvm_sdk_provider_decode_budget(const uint8_t *p,size_t size,
     NvmPreparationBudget *budget,NvmSdkProviderTransport **out) {
     if(!budget)return NVM_SDK_INVALID;
     if(!nvm_preparation_budget_valid(budget))return NVM_SDK_LIMIT;
-    return provider_decode(p,size,NVM_SDK_PROVIDER_MAX_BYTES,budget,out);
+    return provider_decode(p,size,NVM_SDK_PROVIDER_MAX_BYTES,budget,out,false);
+}
+NvmSdkResult nvm_sdk_provider_lifetime_decode_budget(const uint8_t *p,size_t size,
+    NvmPreparationBudget *budget,NvmSdkProviderTransport **out) {
+    if(!budget)return NVM_SDK_INVALID;
+    if(!nvm_preparation_budget_valid(budget))return NVM_SDK_LIMIT;
+    return provider_decode(p,size,NVM_SDK_PROVIDER_MAX_BYTES,budget,out,true);
 }
 void nvm_sdk_provider_transport_free(NvmSdkProviderTransport *p) { free(p); }
 static void words(uint8_t *p,const uint32_t *values,unsigned n) {
     for(unsigned i=0;i<n;i++)put32(p+4*i,values[i]);
 }
-NvmSdkResult nvm_sdk_provider_encode(const NvmSdkProviderRows *rows,size_t limit,
-                                    uint8_t **data,size_t *size) {
+static NvmSdkResult provider_encode(const NvmSdkProviderRows *rows,size_t limit,
+                                    uint8_t **data,size_t *size,const NvmSdkLifetimeRows *extra) {
     if(!rows||!data||!size)return NVM_SDK_INVALID;
-    uint32_t counts[5]={rows->nominal_count,rows->provider_count,rows->signature_count,rows->binding_count,rows->reference_count};
+    uint32_t counts[7]={rows->nominal_count,rows->provider_count,rows->signature_count,rows->binding_count,rows->reference_count,extra?extra->policy_count:0,extra?extra->node_count:0};
     if((counts[0]&&!rows->nominals)||(counts[1]&&!rows->providers)||
        (counts[2]&&!rows->signatures)||(counts[3]&&!rows->bindings)||(counts[4]&&!rows->references))return NVM_SDK_INVALID;
-    size_t offsets[5],bytes;NvmSdkResult r=shape(counts,offsets,&bytes);if(r!=NVM_SDK_OK)return r;
+    if(extra && ((counts[3]&&!extra->binding_policies)||(counts[5]&&!extra->policies)||
+                 (counts[6]&&!extra->nodes)))return NVM_SDK_INVALID;
+    size_t offsets[7]={0},bytes;NvmSdkResult r=shape(counts,offsets,&bytes,extra!=NULL);if(r!=NVM_SDK_OK)return r;
     if(limit>NVM_SDK_PROVIDER_MAX_BYTES)limit=NVM_SDK_PROVIDER_MAX_BYTES;
     if(bytes>limit)return NVM_SDK_LIMIT;
     uint8_t *p=calloc(1,bytes);if(!p)return NVM_SDK_MEMORY;
-    put32(p,NVM_SDK_PROVIDER_REVISION);words(p+8,counts,5);
+    put32(p,extra?2:NVM_SDK_PROVIDER_REVISION);words(p+8,counts,5);
+    if(extra){put32(p+4,counts[5]);put32(p+28,counts[6]);}
     for(uint32_t i=0;i<counts[0];i++) {
         NvmSdkNominalRow a=rows->nominals[i];uint32_t v[]={a.owner,a.name,a.kind,a.layout,a.argument_first,a.argument_count};
         words(p+offsets[0]+(size_t)i*32,v,6);
@@ -134,18 +169,36 @@ NvmSdkResult nvm_sdk_provider_encode(const NvmSdkProviderRows *rows,size_t limit
     for(uint32_t i=0;i<counts[3];i++) {
         NvmSdkBindingRow a=rows->bindings[i];uint32_t v[]={a.kind,a.subject,a.slot,a.detail,a.provider};
         words(p+offsets[3]+(size_t)i*24,v,5);
+        if(extra)put32(p+offsets[3]+(size_t)i*24+20,extra->binding_policies[i]);
     }
     words(p+offsets[4],rows->references,counts[4]);
-    uint32_t checked[5];size_t checked_offsets[5];r=validate(p,bytes,checked,checked_offsets);
+    if(extra) {
+        for(uint32_t i=0;i<counts[5];i++) {
+            NvmSdkCallPolicy a=extra->policies[i];uint32_t v[]={a.parameter_first,a.parameter_count,a.result_first,a.result_count,a.execution};
+            words(p+offsets[5]+(size_t)i*24,v,5);
+        }
+        for(uint32_t i=0;i<counts[6];i++) {
+            NvmSdkLifetimeNode a=extra->nodes[i];uint32_t v[]={a.type,a.mode,a.owner_argument,a.hook_set,a.child_first,a.child_count,a.callback_profile};
+            words(p+offsets[6]+(size_t)i*32,v,7);
+        }
+    }
+    uint32_t checked[7]={0};size_t checked_offsets[7]={0};r=validate(p,bytes,checked,checked_offsets,extra!=NULL);
     if(r!=NVM_SDK_OK){free(p);return r;}
     *data=p;*size=bytes;return NVM_SDK_OK;
+}
+NvmSdkResult nvm_sdk_provider_encode(const NvmSdkProviderRows *rows,size_t limit,uint8_t **data,size_t *size) {
+    return provider_encode(rows,limit,data,size,NULL);
+}
+NvmSdkResult nvm_sdk_provider_lifetime_encode(const NvmSdkLifetimeRows *rows,size_t limit,uint8_t **data,size_t *size) {
+    if(!rows)return NVM_SDK_INVALID;
+    return provider_encode(&rows->declarations,limit,data,size,rows);
 }
 static const uint8_t *row(const NvmSdkProviderTransport *p,unsigned table,uint32_t i) {
     return p&&i<p->counts[table]?p->data+p->offsets[table]+(size_t)i*widths[table]:NULL;
 }
 bool nvm_sdk_provider_counts(const NvmSdkProviderTransport *p,uint32_t out[5]) {
     if(!p||!out)return false;
-    memcpy(out,p->counts,sizeof p->counts);return true;
+    memcpy(out,p->counts,5*sizeof *out);return true;
 }
 bool nvm_sdk_provider_nominal(const NvmSdkProviderTransport *p,uint32_t i,NvmSdkNominalRow *out) {
     const uint8_t *q=row(p,0,i);if(!q||!out)return false;
@@ -165,4 +218,24 @@ bool nvm_sdk_provider_binding(const NvmSdkProviderTransport *p,uint32_t i,NvmSdk
 }
 bool nvm_sdk_provider_reference(const NvmSdkProviderTransport *p,uint32_t i,uint32_t *out) {
     const uint8_t *q=row(p,4,i);if(!q||!out)return false;*out=get32(q);return true;
+}
+
+bool nvm_sdk_provider_lifetime_counts(const NvmSdkProviderTransport *p,uint32_t out[2]) {
+    if(!p||!p->lifetime||!out)return false;
+    out[0]=p->counts[5];out[1]=p->counts[6];return true;
+}
+bool nvm_sdk_provider_call_policy(const NvmSdkProviderTransport *p,uint32_t i,NvmSdkCallPolicy *out) {
+    if(!p||!p->lifetime||!out)return false;
+    const uint8_t *q=row(p,5,i);if(!q)return false;
+    *out=(NvmSdkCallPolicy){get32(q),get32(q+4),get32(q+8),get32(q+12),get32(q+16)};return true;
+}
+bool nvm_sdk_provider_lifetime_node(const NvmSdkProviderTransport *p,uint32_t i,NvmSdkLifetimeNode *out) {
+    if(!p||!p->lifetime||!out)return false;
+    const uint8_t *q=row(p,6,i);if(!q)return false;
+    *out=(NvmSdkLifetimeNode){get32(q),get32(q+4),get32(q+8),get32(q+12),get32(q+16),get32(q+20),get32(q+24)};return true;
+}
+bool nvm_sdk_provider_binding_policy(const NvmSdkProviderTransport *p,uint32_t i,uint32_t *out) {
+    if(!p||!p->lifetime||!out)return false;
+    const uint8_t *q=row(p,3,i);if(!q||get32(q)!=NVM_SDK_BIND_IMPORT)return false;
+    *out=get32(q+20);return true;
 }

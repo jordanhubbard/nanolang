@@ -248,3 +248,22 @@ and all COP pipe/mailbox variants with stale/foreign/nested tokens. Then I run
 original installed source-hidden/read-only/output-failure SDK acceptance on both
 hosts and the canonical producer/backend matrix. Unknown or incomplete metadata
 must refuse consistently in every reader/writer/verifier/converter/VM/AOT path.
+
+## I checkpoint the private lifetime wire before semantic crossvalidation
+
+I implement the reviewed40-byte revision2 header, original five tables,24-byte
+call-policy rows and32-byte policy nodes through the same provider shape and
+reserved/slice validator. Existing encode/decode/budget entry points still select
+revision1. New explicit lifetime entry points select revision2; shared by-value
+accessors retain original declaration indices and expose separate policy rows.
+All count dimensions are bounded before arithmetic, allocation or traversal;
+the caller budget includes every table visit and owned transport bytes. Output
+and budget publish together. No codec entry validates provider lifetime claims.
+
+The additive raw fixture retains every original assertion, checks both revisions'
+refusal boundaries, exact counts/row bytes, a truly unused policy, all slice/
+reserved/profile limits, exact/minus-one budgets, repeated allocator refusal
+and recovery, and independent data after source destruction. Strict production
+C99 and fixture C11 syntax checks pass. Runtime remains held for source review.
+Complete type/key/subject/policy-context crossvalidation is the next required
+source unit, followed by actual adapter/image attachment and execution gates.

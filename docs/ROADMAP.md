@@ -17503,3 +17503,10 @@ capacity are explicit requirements. They do not follow from existing scalar
 COP tokens or a callback pump. Private lifetime transport will share the original
 provider codec and keep every existing revision1 entry unchanged; semantic
 crossvalidation and adapter attachment remain separate required checkpoints.
+
+I checkpoint private provider revision2 lifetime transport through the original
+codec with additive row accessors and controls. Revision1 entry points retain
+exact wire profiles; the new path only checks bounded raw rows, not lifetime
+truth. Complete key/type/subject/policy-context validation and fresh generation
+publication remain active implementation work, with actual same-image typed
+adapter/COP execution still required afterward.
