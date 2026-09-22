@@ -5321,7 +5321,7 @@ shadow generate_list_specializations {
     let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (generate_list_specializations p)
-    assert (str_contains code "List_Point")
+    assert (str_contains code "NL_DEFINE_RECORD_LIST(Point, nl_Point)")
     assert (not (str_contains code "typedef struct List_Point List_Point;"))
     let complete: string = (gen_c_program_with_modules p "")
     let declaration: string = "typedef struct List_Point List_Point;"

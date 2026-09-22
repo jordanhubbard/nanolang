@@ -14512,3 +14512,11 @@ allocator failure claim.
   refuses. I audit retained owner/context facts through declaration and match
   consumers before a correction; original18+9 and nested controls remain.
   MAC: task_a370d7cc60c5445981c0fbc5d7b15f29.
+
+- [ ] I correct my native specialization shadow's stale typedef-text expectation
+  after separating declaration ownership. Linux189 fresh build exits2 at5324
+  after74.879s; the body now contains NL_DEFINE_RECORD_LIST(Point, nl_Point),
+  while the complete program alone owns List_Point's early typedef. I retain
+  that terminal and require the exact provider macro without adding a dummy
+  comment or weakening strict flags. Standalone and complete-output declaration
+  assertions stay unchanged. MAC: task_f201f1249e0a4567ad56a15b024b1408.
