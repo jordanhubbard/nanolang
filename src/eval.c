@@ -4771,6 +4771,12 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             int coro_id = copied ? coro_bundle_enqueue(ca) : -1;
             if (coro_id >= 0) {
                 Value result = eval_task_result(env, coro_id, true);
+                /* I immediately await inside the caller's live activation.
+                 * The owned value snapshot clears flow flags; retain this
+                 * enclosing handler's return before releasing the task. */
+                Value completed = nano_coro_result(coro_id);
+                result.is_return = completed.is_return;
+                result.return_target = completed.is_return ? completed.return_target : NULL;
                 if (!nano_coro_release(coro_id)) {
                     fprintf(stderr, "I cannot release a completed inactive task.\n"); exit(1);
                 }
