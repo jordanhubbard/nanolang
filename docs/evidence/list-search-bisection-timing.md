@@ -69,3 +69,16 @@ assertion and file task_716077fe2eb14ec89ead2ce9f2bb3cc2 for the primitive carri
 Precode3ff51643a and source/fixtureecaf373f0 are pushed on my production lane;
 corrected execution requires review. Raw inspection source/C and command hashes
 remain in /home/jkh/nanolang-qualification/length-carrier-802-inspection.
+
+My reviewed ecaf repair reaches a stale mapping shadow on both hosts: the old
+assertion expects strlen rather than nl_str_length. Fresh builds exit2 after
+75.229 seconds on Linux and83.155 on Puck after parser/typecheck components pass.
+Reviewed4d1444560 changes only that exact expected mapping and adds the existing
+str_len mapping assertion; production function/runtime bodies remain unchanged.
+
+My first external4d component launcher incorrectly selects the library
+transpiler.nano instead of Make's transpiler_driver.nano. Both hosts refuse
+missing main before shadows (0.114/0.439 seconds). I preserve those orchestration
+terminals and correct selection to actual make stage2. The next trees independently
+copy verified ecaf products, label reuse explicitly, then require full Make
+build/bootstrap/providers and original18+9. No acceptance follows these failures.

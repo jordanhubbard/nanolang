@@ -1,0 +1,23 @@
+{
+  "name": "corrected-transpiler-component",
+  "argv": [
+    "/Users/jkh/nanolang-qualification/record-lists-4d-source/bin/nanoc_c",
+    "src_nano/transpiler.nano",
+    "-o",
+    "/Users/jkh/nanolang-qualification/record-lists-4d-prepare/transpiler-component"
+  ],
+  "bound_seconds": 120,
+  "status": 1,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.4394106670000002,
+  "log": {
+    "sha256": "7d43553e62f2c51130ccf95db2ac5cfe738d0084dbc392c63e2de3ef9d41c245",
+    "bytes": 187,
+    "archive": "/Users/jkh/nanolang-qualification/record-lists-4d-prepare/objects/7d43553e62f2c51130ccf95db2ac5cfe738d0084dbc392c63e2de3ef9d41c245"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}
