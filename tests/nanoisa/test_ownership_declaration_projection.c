@@ -469,6 +469,49 @@ static void description_wire_free(void *p) {
     free(p);
 #endif
 }
+static void description_query_controls(void) {
+    DescriptionCase c;description_case(&c);uint8_t *wire=NULL;size_t bytes=0;
+    CHECK(nvm_sdk_provider_lifetime_encode(&c.rows,NVM_SDK_PROVIDER_MAX_BYTES,&wire,&bytes)==NVM_SDK_OK);
+    NvmPreparationBudget b=typed_budget();NvmSdkDescription *p=NULL;
+    CHECK(nvm_sdk_description_prepare(&c.typed.m,wire,bytes,&b,&p)==NVM_SDK_OK);
+    description_wire_free(wire);memset(&c,0,sizeof c);
+    CHECK(!nvm_sdk_description_declarations(NULL)&&!nvm_sdk_description_provider(NULL));
+    NvmDeclarationCounts counts;uint32_t provider_counts[5];
+    CHECK(nvm_ownership_declarations_counts(nvm_sdk_description_declarations(p),&counts)&&counts.types==8);
+    CHECK(nvm_sdk_provider_counts(nvm_sdk_description_provider(p),provider_counts)&&provider_counts[0]==6);
+    for(uint32_t i=0;i<8;i++)for(uint32_t j=0;j<8;j++) {
+        b=typed_budget();bool equal=i!=j;
+        CHECK(nvm_sdk_description_types_equal(p,i,j,&b,&equal)==NVM_SDK_OK&&equal==(i==j));
+    }
+    b=typed_budget();NvmPreparationBudget before=b;bool equal=true;
+    CHECK(nvm_sdk_description_types_equal(p,8,0,&b,&equal)==NVM_SDK_INVALID);
+    CHECK(equal&&b.bytes==before.bytes&&b.steps==before.steps);
+    CHECK(nvm_sdk_description_types_equal(NULL,0,0,&b,&equal)==NVM_SDK_INVALID);
+    CHECK(equal&&b.bytes==before.bytes&&b.steps==before.steps);
+    CHECK(nvm_sdk_description_types_equal(p,0,1,&b,&equal)==NVM_SDK_OK&&!equal);
+    size_t charged=before.bytes-b.bytes;uint32_t work=before.steps-b.steps;
+    CHECK(charged&&work);
+    b=(NvmPreparationBudget){charged,work};equal=true;
+    CHECK(nvm_sdk_description_types_equal(p,0,1,&b,&equal)==NVM_SDK_OK&&!equal&&!b.bytes&&!b.steps);
+    for(unsigned dimension=0;dimension<2;dimension++) {
+        b=(NvmPreparationBudget){charged-(dimension==0),work-(dimension==1)};before=b;equal=true;
+        CHECK(nvm_sdk_description_types_equal(p,0,1,&b,&equal)==NVM_SDK_LIMIT);
+        CHECK(equal&&b.bytes==before.bytes&&b.steps==before.steps);
+    }
+#ifdef OAA_INSTRUMENT
+    size_t baseline=live;calls=0;b=typed_budget();equal=true;
+    CHECK(nvm_sdk_description_types_equal(p,0,1,&b,&equal)==NVM_SDK_OK&&!equal);
+    size_t measured=calls;CHECK(measured&&live==baseline);
+    for(unsigned mode=0;mode<2;mode++)for(size_t i=0;i<measured;i++) {
+        b=typed_budget();before=b;equal=true;calls=0;fail_at=i;persistent=mode!=0;
+        CHECK(nvm_sdk_description_types_equal(p,0,1,&b,&equal)==NVM_SDK_MEMORY);
+        CHECK(equal&&b.bytes==before.bytes&&b.steps==before.steps&&live==baseline);
+        fail_at=SIZE_MAX;persistent=false;b=typed_budget();
+        CHECK(nvm_sdk_description_types_equal(p,0,1,&b,&equal)==NVM_SDK_OK&&!equal&&live==baseline);
+    }
+#endif
+    nvm_sdk_description_free(p);
+}
 static void description_controls(void) {
     DescriptionCase c;description_case(&c);uint8_t *wire=NULL;size_t bytes=0;
     CHECK(nvm_sdk_provider_lifetime_encode(&c.rows,NVM_SDK_PROVIDER_MAX_BYTES,&wire,&bytes)==NVM_SDK_OK);
@@ -637,6 +680,6 @@ int main(void){
     calls=0;union_budget(8);CHECK(!calls&&!live);
     printf("I covered %zu mixed allocation positions in both failure modes; two query TUs instrumented\n",measured);
 #endif
-    retained_v2();typed_profile_controls();description_controls();description_policy_controls();description_ancestor_controls();
+    retained_v2();typed_profile_controls();description_controls();description_query_controls();description_policy_controls();description_ancestor_controls();
     printf("PASS %u complete mixed declaration checks; no execution authority\n",checks);return 0;
 }

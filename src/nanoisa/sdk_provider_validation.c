@@ -8,7 +8,7 @@ struct NvmSdkDescription {
     NvmSdkProviderTransport *provider;
 };
 typedef struct {
-    NvmSdkDescription *owned;
+    const NvmSdkDescription *owned;
     const NvmV2Module *m;
     NvmDeclarationCounts declarations;
     uint32_t counts[5],lifetimes[2];
@@ -529,4 +529,33 @@ NvmSdkResult nvm_sdk_description_prepare(const NvmV2Module *module,const uint8_t
     free(c.pairs);if(!valid){result=c.error;goto done;}
     *out=p;*budget=remaining;return NVM_SDK_OK;
 done:nvm_sdk_description_free(p);return result;
+}
+
+const NvmOwnershipDeclarationPlan *nvm_sdk_description_declarations(const NvmSdkDescription *p) {
+    return p?p->declarations:NULL;
+}
+const NvmSdkProviderTransport *nvm_sdk_description_provider(const NvmSdkDescription *p) {
+    return p?p->provider:NULL;
+}
+NvmSdkResult nvm_sdk_description_types_equal(const NvmSdkDescription *p,uint32_t left,uint32_t right,
+        NvmPreparationBudget *budget,bool *out) {
+    if(!p||!budget||!out)return NVM_SDK_INVALID;
+    if(!nvm_preparation_budget_valid(budget))return NVM_SDK_LIMIT;
+    NvmPreparationBudget remaining=*budget;
+    SdkCheck c={0};c.owned=p;c.m=nvm_sdk_description_module(p);c.budget=&remaining;c.error=NVM_SDK_INVALID;
+    if(!nvm_ownership_declarations_counts(p->declarations,&c.declarations)||
+       !nvm_sdk_provider_counts(p->provider,c.counts)||left>=c.declarations.types||right>=c.declarations.types)
+        return NVM_SDK_INVALID;
+    for(unsigned i=0;i<256;i++)c.nominal[i]=UINT32_MAX;
+    for(uint32_t i=0;i<c.counts[0];i++) {
+        NvmSdkNominalRow n;
+        if(!sdk_step(&c,1)||!nvm_sdk_provider_nominal(p->provider,i,&n))return c.error;
+        if(n.kind!=NVM_SDK_NOMINAL_OPAQUE&&c.nominal[n.layout]==UINT32_MAX)c.nominal[n.layout]=i;
+    }
+    /* Preparation already established the complete graph's reference-cycle
+     * rules. I reuse its comparator without admitting a fresh graph here. */
+    bool equal=sdk_equal(&c,left,right);
+    free(c.pairs);
+    if(c.error!=NVM_SDK_INVALID)return c.error;
+    *out=equal;*budget=remaining;return NVM_SDK_OK;
 }
