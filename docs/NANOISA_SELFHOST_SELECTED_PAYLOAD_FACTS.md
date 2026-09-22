@@ -103,3 +103,49 @@ aliases. I will retain the original native local/imported nested-match programs
 and add generated-storage assertions plus positional and unit controls. My full
 three-producer O0/O2 native suite remains required after source review. This
 contract does not authorize a narrower acceptance corpus or a timeout change.
+
+My consumer audit also finds ownership identities must consume this carrier.
+`resource_type_identity` currently recognizes `Union.Variant`, while generic
+identity parsing requires an annotation ending in `>`. The new complete suffix
+must map through exact selected declaration/variant to the existing
+`#variant:union-index:variant-index<owned-argument-identities>` carrier. I retain
+its existing bounded resource-field traversal and do not invent a second
+resource identity scheme. Selected empty variants must not inherit resources
+from other variants; selected owning fields and nested collection fields retain
+their existing restrictions. I add explicit controls for all three cases.
+
+I also retain the emitter's established positional `_0` value extraction in the
+checker binder. Its prior uniform synthetic record fact disagreed with that
+emitted scalar storage. I will distinguish the exact one-field `_0` variant from
+a named single-field payload after resolving the selected declaration. Unit
+payload helpers retain their existing empty-string API result; the actual match
+emitter materializes a requested unit binder from its concrete placeholder
+record and marks the initialized value used, so ordinary unused unit bindings
+remain valid under strict warnings. These are explicit binder adapters, not a
+change to named-field projection or a generic spelling fallback.
+
+## My source checkpoint boundary
+
+I implemented the shared balanced suffix scanner, exact checker resolver,
+complete binder/equality/known facts, field substitution and inferred annotation
+publication. My known-fact recursion visits only finite annotation arguments;
+it does not expand recursive declaration fields. Existing resource traversal
+keeps its explicit 128-edge bound. My emitter keeps source and C union names
+separate, maps selected storage consistently, and gives record/tuple/callback
+and union dependency rows the actual parent union definition that provides the
+payload typedef. Registered opaque types retain their existing lowering path.
+
+I added parsed match-to-alias publication, complete round-trip and conflicting
+argument controls, canonical declaration-key distinctions, malformed suffixes,
+callable/tuple splitting, resource classification, positional/unit behavior and
+storage/dependency shadows. A separate native route copies selected payloads
+through agreeing branches and tuples with distinct int/string instantiations
+and unit aliases. I retain every original native fixture string and all nine
+method names; the original eighteen-method fixture file is unchanged.
+
+My static checks cover delimiter balance, new-function shadows, Python parsing,
+original native method/string retention and `git diff --check`. They are not
+compiler or runtime qualification. No affected compiler, shadow, generated
+product or sanitizer has run on this source checkpoint. The preserved Linux7e6
+first refusal and all earlier terminals remain authoritative until corrected
+gates pass after source review.

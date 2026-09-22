@@ -14540,3 +14540,11 @@ allocator failure claim.
   Puck products. [My consumer audit boundary](NANOISA_SELFHOST_SELECTED_PAYLOAD_FACTS.md)
   keeps complete declaration/variant/arguments, all original18/native9 controls
   and full5.1 acceptance open. MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
+
+- [ ] I preserve callable arrows while splitting complete tuple/generic argument
+  facts for selected payloads. My source audit finds `split_tuple_type_names`
+  counts `>` in `->` as an angle close, so a following top-level comma can be
+  hidden by negative depth. I retain the existing split assertions and add
+  callback-before-sibling and nested selected-payload controls before corrected
+  execution. This is a source-discovered prerequisite, not a reproduced runtime
+  failure. MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.

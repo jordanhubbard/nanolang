@@ -21,7 +21,7 @@ from "src_nano/compiler/passive_graph.nano" import passive_order
  */
 
 import "src_nano/compiler/ir.nano"
-from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
+from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters, selected_payload_dot
 import "src_nano/compiler/module_bindings.nano"
 from "src_nano/compiler/nominal_bindings.nano" import nb_type, nb_opaque_original, nb_opaque_origin, nb_emission_prefix, nb_register, nb_import
 import "src_nano/ast_shared.nano"
@@ -942,6 +942,12 @@ shadow native_opaque_name {
  * "Result<int,string>" -> "Result_int_string"
  */
 fn monomorphize_type_name(type_str: string) -> string {
+    let dot: int = (selected_payload_dot type_str)
+    if (and (>= dot 0) (not (is_opaque_type type_str))) {
+        let union_annotation: string = (str_substring type_str 0 dot)
+        let variant: string = (str_substring type_str (+ dot 1) (- (str_length type_str) (+ dot 1)))
+        return (+ (monomorphize_type_name union_annotation) (+ "_" (mangle_name variant)))
+    }
     let opaque_key: string = (native_opaque_key type_str)
     if (!= opaque_key "") { return (native_opaque_name opaque_key) }
     let base: string = (extract_base_type_name type_str)
@@ -967,6 +973,7 @@ shadow monomorphize_type_name {
     assert (== (monomorphize_type_name "Result<int,string>") "Result_int_string")
     assert (== (monomorphize_type_name "List<Point>") "List_Point")
     assert (== (monomorphize_type_name "Option<int>") "Option_int")
+    assert (== (monomorphize_type_name "Outer<Box<int>.Some>") "Outer_Box_int_Some")
 }
 
 fn hashset_new_string() -> HashMap<string, int> {
@@ -1991,6 +1998,20 @@ shadow native_nominal_field_type {
     assert (== (native_nominal_field_type "List_string*") "List_string*")
 }
 
+# A selected payload typedef is emitted by its complete union definition.
+fn native_storage_dependency(annotation: string) -> string {
+    let dot: int = (selected_payload_dot annotation)
+    if (and (>= dot 0) (not (is_opaque_type annotation))) {
+        return (type_to_c (str_substring annotation 0 dot))
+    }
+    return (type_to_c annotation)
+}
+shadow native_storage_dependency {
+    assert (== (native_storage_dependency "Box<int>.Some") "nl_Box_int")
+    assert (== (native_storage_dependency "Item") "nl_Item")
+    assert (== (native_storage_dependency "array<Box<int>.Some>") "DynArray*")
+}
+
 struct NativeNominalDefinition {
     c_name: string,
     code: string,
@@ -2016,7 +2037,8 @@ fn collect_native_structs(parser: Parser) -> array<NativeNominalDefinition> {
                 let annotation: string = (at declaration.field_types field)
                 let mut ctype: string = (type_to_c annotation)
                 if (is_schema_struct_name annotation) { set ctype annotation }
-                set dependencies (array_push dependencies ctype)
+                let dependency: string = (cond ((is_schema_struct_name annotation) ctype) (else (native_storage_dependency annotation)))
+                set dependencies (array_push dependencies dependency)
                 set code (+ code (+ "    " (+ (native_nominal_field_type ctype) (+ " " (+ (mangle_name (at declaration.field_names field)) ";\n")))))
                 set field (+ field 1)
             }
@@ -2320,6 +2342,12 @@ fn lookup_struct_field_type(parser: Parser, struct_name: string, field_name: str
             }
         } else { (print "") }
         set si (+ si 1)
+    }
+    let dot: int = (selected_payload_dot struct_name)
+    if (>= dot 0) {
+        let concrete: string = (str_substring struct_name 0 dot)
+        let variant: string = (str_substring struct_name (+ dot 1) (- (str_length struct_name) (+ dot 1)))
+        return (lookup_union_payload_type parser (extract_base_type_name concrete) variant field_name concrete)
     }
     return ""
 }
@@ -3437,6 +3465,13 @@ fn type_to_c(nano_type: string) -> string {
                                 if (is_opaque_type nano_type) {
                                     return (opaque_c_type nano_type)
                                 } else {
+                                # I lower the checked selected suffix after its complete union storage.
+                                let selected_dot: int = (selected_payload_dot nano_type)
+                                if (>= selected_dot 0) {
+                                    let union_annotation: string = (str_substring nano_type 0 selected_dot)
+                                    let variant: string = (str_substring nano_type (+ selected_dot 1) (- (str_length nano_type) (+ selected_dot 1)))
+                                    return (+ (type_to_c union_annotation) (+ "_" (mangle_name variant)))
+                                }
                                 if (is_generic_type nano_type) {
                                     return (+ "nl_" (monomorphize_type_name nano_type))
                                 } else {
@@ -3461,6 +3496,8 @@ shadow type_to_c {
     assert (== (type_to_c "bool") "bool")
     assert (== (type_to_c "MyStruct") "nl_MyStruct")
     assert (== (type_to_c "Result<int,string>") "nl_Result_int_string")
+    assert (== (type_to_c "Outer<Item>.Wrapped") "nl_Outer_Item_Wrapped")
+    assert (== (type_to_c "Outer<Inner<Item>>.Wrapped") "nl_Outer_Inner_Item_Wrapped")
 }
 
 fn tuple_split_types(tuple_type: string) -> array<string> {
@@ -5401,7 +5438,9 @@ fn collect_native_union_instances(type_name: string, base_name: string, seen: Ha
     let mut pending: array<string> = [type_name]
     let mut i: int = 0
     while (< i (array_length pending)) {
-        let current: string = (at pending i)
+        let mut current: string = (at pending i)
+        let dot: int = (selected_payload_dot current)
+        if (and (>= dot 0) (not (is_opaque_type current))) { set current (str_substring current 0 dot) }
         let mut args: array<string> = []
         if (and (not (is_tuple_type current)) (not (is_fn_type current))) { set args (extract_type_args current) }
         if (is_tuple_type current) {
@@ -5446,11 +5485,20 @@ shadow collect_native_union_instances {
     assert (== (array_length callback) 2)
     assert (native_name_in callback "Box<int>")
     assert (native_name_in callback "Box<string>")
+    let selected: array<string> = (collect_native_union_instances "(Box<int>.Some,List<Box<string>.Some>)" "Box" (map_new) [])
+    assert (== (array_length selected) 2)
+    assert (native_name_in selected "Box<int>")
+    assert (native_name_in selected "Box<string>")
+
 }
 
 /* Find all unique instantiations of a generic union in the codebase */
 # I expand actual concrete payload annotations as well as their type arguments.
 fn native_expand_union_type(parser: Parser, annotation: string, base_name: string, seen: HashMap<string, int>, expanded: HashMap<string, int>, initial: array<string>, depth: int) -> array<string> {
+    let dot: int = (selected_payload_dot annotation)
+    if (and (>= dot 0) (not (is_opaque_type annotation))) {
+        return (native_expand_union_type parser (str_substring annotation 0 dot) base_name seen expanded initial depth)
+    }
     if (map_has expanded annotation) { return initial }
     if (> depth 128) {
         set reduce_emission_error "I cannot retain a native type expansion deeper than 128 edges."
@@ -5671,7 +5719,7 @@ fn native_union_definition(u: ASTUnion, name: string, args: array<string>) -> Na
     let mut fields: array<string> = []
     let mut i: int = 0
     while (< i (array_length u.variant_field_types)) {
-        set fields (array_push fields (substitute_union_field_type (at u.variant_field_types i) u.generic_params args))
+        set fields (array_push fields (native_storage_dependency (substitute_type_parameters (at u.variant_field_types i) u.generic_params args)))
         set i (+ i 1)
     }
     return NativeNominalDefinition { c_name: (+ "nl_" name), code: (emit_union_typedefs u name u.generic_params args), field_types: fields }
@@ -5797,6 +5845,9 @@ fn native_fn_dependencies(annotation: string) -> array<string> {
         let child: string = (at children i)
         let cname: string = (type_to_c child)
         if (is_fn_type child) { set dependencies (array_push dependencies cname) }
+        else {
+            if (and (>= (selected_payload_dot child) 0) (not (is_opaque_type child))) { set dependencies (array_push dependencies (native_storage_dependency child)) }
+        }
         set i (+ i 1)
     }
     return dependencies
@@ -5804,6 +5855,9 @@ fn native_fn_dependencies(annotation: string) -> array<string> {
 shadow native_fn_dependencies {
     (reset_fn_types)
     assert (== (array_length (native_fn_dependencies "fn(Node)->Node")) 0)
+    let selected: array<string> = (native_fn_dependencies "fn(Box<int>.Some)->void")
+    assert (== (array_length selected) 1)
+    assert (== (at selected 0) "nl_Box_int")
     assert (== (array_length (native_fn_dependencies "fn()->fn(int)->int")) 1)
     (reset_fn_types)
 }
@@ -5846,7 +5900,7 @@ fn generate_native_nominal_definitions(parser: Parser) -> string {
                 let mut dependencies: array<string> = []
                 let mut child_index: int = 0
                 while (< child_index (array_length elements)) {
-                    set dependencies (array_push dependencies (type_to_c (at elements child_index)))
+                    set dependencies (array_push dependencies (native_storage_dependency (at elements child_index)))
                     set child_index (+ child_index 1)
                 }
                 let definition: NativeNominalDefinition = NativeNominalDefinition { c_name: name, code: (gen_tuple_typedef annotation), field_types: dependencies }
@@ -8241,6 +8295,7 @@ fn generate_match_ordered(parser: Parser, m: ASTMatch, env: GenEnv, expected_typ
         set union_name "UNKNOWN"
     } else { (print "") }
 
+    let concrete_union: string = union_name
     /* Monomorphize generic union names */
     if (is_generic_type union_name) {
         set union_name (monomorphize_type_name union_name)
@@ -8284,9 +8339,15 @@ fn generate_match_ordered(parser: Parser, m: ASTMatch, env: GenEnv, expected_typ
         }
         set parts (cg_append parts ")) { ")
         if (and (not is_int_match) (!= variant "_")) {
-            set parts (cg_append parts (gen_match_variant_binding parser union_name variant binding ""))
+            let binding_code: string = (gen_match_variant_binding parser concrete_union variant binding "")
+            set parts (cg_append parts binding_code)
+            if (and (== binding_code "") (and (!= binding "") (!= binding "_"))) {
+                # My unit payload also has concrete record storage when named.
+                set parts (cg_append parts (+ (type_to_c (+ concrete_union (+ "." variant))) (+ " nl_" (+ (mangle_name binding) (+ " = _m.data." (+ variant "; "))))))
+                set parts (cg_append parts (+ "(void)nl_" (+ (mangle_name binding) "; ")))
+            }
             if (and (!= binding "_") (!= binding "")) {
-                set env_arm (genenv_put env binding (get_variant_field_type parser union_name variant) false)
+                set env_arm (genenv_put env binding (get_variant_field_type parser concrete_union variant) false)
             }
         }
         let guard_id: int = (at m.arm_guard_ids i)
@@ -8376,7 +8437,7 @@ fn get_variant_field_type(parser: Parser, union_name: string, variant: string) -
     let mut ui: int = 0
     while (< ui ucount) {
         let u: ASTUnion = (parser_get_union parser ui)
-        if (== u.name union_name) {
+        if (== u.name (extract_base_type_name union_name)) {
             let mut vi: int = 0
             let mut variant_idx: int = -1
             while (< vi u.variant_count) {
@@ -8399,7 +8460,7 @@ fn get_variant_field_type(parser: Parser, union_name: string, variant: string) -
                 /* Only extract inner type for positional/anonymous fields (_0).
                  * Named fields keep the struct binding type so callers use s.fieldname. */
                 if (== fname "_0") {
-                    return (at u.variant_field_types field_offset)
+                    return (substitute_type_parameters (at u.variant_field_types field_offset) u.generic_params (extract_type_args union_name))
                 } else { (print "") }
             } else { (print "") }
             return (str_concat (str_concat union_name ".") variant)
@@ -8485,7 +8546,8 @@ shadow get_variant_first_field_access {
  *   - If variant has >1 fields: struct declaration (old behaviour)
  * Caller provides indentation string. */
 fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string, binding: string, indent_str: string) -> string {
-    if (== binding "_") { return "" }
+    if (or (== binding "_") (== binding "")) { return "" }
+    let union_storage: string = (cond ((is_generic_type union_name) (monomorphize_type_name union_name)) (else (mangle_name union_name)))
     /* Search for the union definition */
     let ucount: int = (parser_get_union_count parser)
     let mut ui: int = 0
@@ -8493,7 +8555,7 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
     let mut found: bool = false
     while (< ui ucount) {
         let u: ASTUnion = (parser_get_union parser ui)
-        if (== u.name union_name) {
+        if (== u.name (extract_base_type_name union_name)) {
             set found_u u
             set found true
         } else { (print "") }
@@ -8505,7 +8567,7 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
         let mut parts: array<string> = []
         set parts (cg_append parts indent_str)
         set parts (cg_append parts "nl_")
-        set parts (cg_append parts union_name)
+        set parts (cg_append parts union_storage)
         set parts (cg_append parts "_")
         set parts (cg_append parts variant)
         set parts (cg_append parts " nl_")
@@ -8539,7 +8601,7 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
         let mut parts: array<string> = []
         set parts (cg_append parts indent_str)
         set parts (cg_append parts "nl_")
-        set parts (cg_append parts union_name)
+        set parts (cg_append parts union_storage)
         set parts (cg_append parts "_")
         set parts (cg_append parts variant)
         set parts (cg_append parts " nl_")
@@ -8562,7 +8624,7 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
         /* Only extract the inner value for positional/anonymous fields (_0).
          * Named fields keep the struct binding so callers can use s.fieldname. */
         if (== fname "_0") {
-            let ftype: string = (at found_u.variant_field_types field_offset)
+            let ftype: string = (substitute_type_parameters (at found_u.variant_field_types field_offset) found_u.generic_params (extract_type_args union_name))
             let c_type: string = (type_to_c ftype)
             let mut parts: array<string> = []
             set parts (cg_append parts indent_str)
@@ -8583,7 +8645,7 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
     let mut parts: array<string> = []
     set parts (cg_append parts indent_str)
     set parts (cg_append parts "nl_")
-    set parts (cg_append parts union_name)
+    set parts (cg_append parts union_storage)
     set parts (cg_append parts "_")
     set parts (cg_append parts variant)
     set parts (cg_append parts " nl_")
@@ -8609,6 +8671,14 @@ shadow gen_match_variant_binding {
     /* Unknown union — generates fallback struct binding */
     let b3: string = (gen_match_variant_binding p "NoSuch" "Var" "v" "  ")
     assert (str_contains b3 "nl_v")
+    let generic_tokens: List<LexerToken> = (tokenize_string "union Box<T> { Some { value: T }, Pos { _0: T }, None {} }" "generic.nano" (list_CompilerDiagnostic_new))
+    let generic: Parser = (parse_program generic_tokens (list_LexerToken_length generic_tokens) "generic.nano")
+    assert (str_contains (gen_match_variant_binding generic "Box<int>" "Some" "payload" "") "nl_Box_int_Some nl_payload = _m.data.Some;")
+    assert (== (get_variant_field_type generic "Box<int>" "Some") "Box<int>.Some")
+    assert (== (get_variant_field_type generic "Box<int>" "Pos") "int")
+    assert (str_contains (gen_match_variant_binding generic "Box<int>" "Pos" "payload" "") "int64_t nl_payload = _m.data.Pos._0;")
+    assert (== (gen_match_variant_binding generic "Box<int>" "None" "payload" "") "")
+
 }
 
 fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, return_type: string) -> string {

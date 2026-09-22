@@ -26,7 +26,7 @@ from "src_nano/compiler/declaration_ownership.nano" import declaration_local_let
 from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/ast_shared.nano"
 import "src_nano/compiler/ir.nano"
-from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
+from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters, selected_payload_dot
 import "src_nano/compiler/module_bindings.nano"
 import "src_nano/compiler/nominal_bindings.nano"
 import "src_nano/generated/purity_intrinsics.nano"
@@ -108,6 +108,7 @@ shadow resource_variant_key {
 fn resource_type_identity(parser: Parser, type_name: string, line: int) -> string {
     if (str_starts_with type_name "&mut ") { return (+ "&mut " (resource_type_identity parser (str_substring type_name 5 (str_length type_name)) line)) }
     if (str_starts_with type_name "&") { return (+ "&" (resource_type_identity parser (str_substring type_name 1 (str_length type_name)) line)) }
+    if (>= (tc_selected_payload_union parser type_name) 0) { return (resource_concrete_identity parser type_name line 0) }
     if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_concrete_identity parser type_name line 0) }
     let owner: int = (mb_owner line)
     let mut found: string = ""
@@ -152,6 +153,30 @@ fn resource_type_identity(parser: Parser, type_name: string, line: int) -> strin
 # I retain declaration identities for the outer union and every concrete argument.
 fn resource_concrete_identity(parser: Parser, spelling: string, line: int, depth: int) -> string {
     if (> depth 128) { return spelling }
+    let selected: int = (tc_selected_payload_union parser spelling)
+    if (>= selected 0) {
+        let dot: int = (selected_payload_dot spelling)
+        let concrete: string = (str_substring spelling 0 dot)
+        let variant: string = (str_substring spelling (+ dot 1) (- (str_length spelling) (+ dot 1)))
+        let definition: ASTUnion = (parser_get_union parser selected)
+        let mut vi: int = 0
+        while (< vi definition.variant_count) {
+            if (== (at definition.variant_names vi) variant) {
+                let mut identity: string = (resource_variant_key selected vi)
+                let arguments: array<string> = (tc_generic_arguments concrete)
+                if (== (array_length arguments) 0) { return identity }
+                set identity (+ identity "<")
+                let mut argument: int = 0
+                while (< argument (array_length arguments)) {
+                    if (> argument 0) { set identity (+ identity ",") }
+                    set identity (+ identity (resource_concrete_identity parser (at arguments argument) line (+ depth 1)))
+                    set argument (+ argument 1)
+                }
+                return (+ identity ">")
+            }
+            set vi (+ vi 1)
+        }
+    }
     let args: array<string> = (tc_generic_arguments spelling)
     if (== (array_length args) 0) { return (resource_type_identity parser spelling line) }
     let base: string = (base_type_name spelling)
@@ -847,6 +872,10 @@ shadow resource_instantiated_classify {
     assert (resource_instantiated_classify parser "(Handle,int)" 1 0 false)
     assert (not (resource_instantiated_classify parser "(int,string)" 1 0 false))
     assert (not (resource_instantiated_classify parser "(Handle,int)" 1 0 true))
+    assert (resource_instantiated_classify parser "Box<Handle>.Some" 1 0 false)
+    assert (not (resource_instantiated_classify parser "Box<Handle>.None" 1 0 false))
+    assert (resource_instantiated_classify parser "Values<Handle>.Some" 1 0 true)
+    assert (not (resource_instantiated_classify parser "Box<Handle>.Some" 1 0 true))
 }
 
 fn resource_generic_contains(parser: Parser, spelling: string, line: int, depth: int) -> bool {
@@ -2419,6 +2448,16 @@ fn types_equal(t1: NSType, t2: NSType) -> bool {
                 return (== (strip_spaces t1.element_type_name) (strip_spaces t2.element_type_name))
             }
         }
+        if (== t1.kind TypeKind.TYPE_STRUCT) {
+            let dot1: int = (selected_payload_dot t1.name)
+            let dot2: int = (selected_payload_dot t2.name)
+            if (and (>= dot1 0) (!= t1.element_type_name "")) {
+                if (!= t1.element_type_name (str_substring t1.name 0 dot1)) { return false }
+            }
+            if (and (>= dot2 0) (!= t2.element_type_name "")) {
+                if (!= t2.element_type_name (str_substring t2.name 0 dot2)) { return false }
+            }
+        }
         /* For struct/union types, also check name */
         if (or (or (== t1.kind TypeKind.TYPE_STRUCT) (== t1.kind TypeKind.TYPE_UNION)) (== t1.kind TypeKind.TYPE_TUPLE)) {
             return (== t1.name t2.name)
@@ -2651,7 +2690,9 @@ fn split_tuple_type_names(type_str: string) -> array<string> {
     while (< i (- len 1)) {
         let ch: string = (str_substring type_str i 1)
         if (== ch "<") { set depth_angle (+ depth_angle 1) }
-        if (== ch ">") { set depth_angle (- depth_angle 1) }
+        if (== ch ">") {
+            if (not (and (> i 0) (== (str_substring type_str (- i 1) 1) "-"))) { set depth_angle (- depth_angle 1) }
+        }
         if (== ch "(") { set depth_paren (+ depth_paren 1) }
         if (== ch ")") { set depth_paren (- depth_paren 1) }
 
@@ -2675,6 +2716,13 @@ shadow split_tuple_type_names {
     assert (== (array_length parts) 2)
     assert (== (at parts 0) "int")
     assert (== (at parts 1) "string")
+    let callbacks: array<string> = (split_tuple_type_names "(fn(int)->string,Box<int>.Some)")
+    assert (== (array_length callbacks) 2)
+    assert (== (at callbacks 0) "fn(int)->string")
+    assert (== (at callbacks 1) "Box<int>.Some")
+    let nested: array<string> = (tc_generic_arguments "Pair<fn(Box<int>.Some)->string,Box<string>.Some>")
+    assert (== (array_length nested) 2)
+
 }
 
 fn tuple_type_string_from_literal(parser: Parser, tl: ASTTupleLiteral, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> string {
@@ -2765,6 +2813,53 @@ shadow tc_is_opaque_name {
     assert (not (tc_is_opaque_name parser "Point"))
 }
 
+# I identify a selected payload through its actual declaration, never its suffix alone.
+fn tc_selected_payload_union(parser: Parser, spelling: string) -> int {
+    let mut i: int = 0
+    while (< i (parser_get_struct_def_count parser)) {
+        if (== (parser_get_struct_def parser i).name spelling) { return -1 }
+        set i (+ i 1)
+    }
+    let dot: int = (selected_payload_dot spelling)
+    if (< dot 0) { return -1 }
+    let concrete: string = (str_substring spelling 0 dot)
+    let base: string = (base_type_name concrete)
+    let variant: string = (str_substring spelling (+ dot 1) (- (str_length spelling) (+ dot 1)))
+    let arguments: array<string> = (tc_generic_arguments concrete)
+    let mut found: int = -1
+    set i 0
+    while (< i (parser_get_union_count parser)) {
+        let definition: ASTUnion = (parser_get_union parser i)
+        if (== definition.name base) {
+            if (>= found 0) { return -1 }
+            if (!= definition.generic_param_count (array_length arguments)) { return -1 }
+            if (and (== definition.generic_param_count 0) (!= concrete base)) { return -1 }
+            let mut count: int = 0
+            let mut vi: int = 0
+            while (< vi definition.variant_count) {
+                if (== (at definition.variant_names vi) variant) { set count (+ count 1) }
+                set vi (+ vi 1)
+            }
+            if (!= count 1) { return -1 }
+            set found i
+        }
+        set i (+ i 1)
+    }
+    return found
+}
+shadow tc_selected_payload_union {
+    let parser: Parser = (resource_test_parser "union Box<T> { Some { value: T }, None {} }")
+    assert (== (tc_selected_payload_union parser "Box<int>.Some") 0)
+    assert (== (tc_selected_payload_union parser "Box<int>.Missing") -1)
+    assert (== (tc_selected_payload_union parser "Box.Some") -1)
+    assert (== (tc_selected_payload_union parser "Box<int,string>.Some") -1)
+    assert (== (tc_selected_payload_union parser "Other<int>.Some") -1)
+    let owners: Parser = (resource_test_parser "union Left_Box<T> { Some { value: T } } union Right_Box<T> { Some { value: T } }")
+    assert (== (tc_selected_payload_union owners "Left_Box<int>.Some") 0)
+    assert (== (tc_selected_payload_union owners "Right_Box<int>.Some") 1)
+    assert (not (types_equal (type_from_string_with_parser owners "Left_Box<int>.Some") (type_from_string_with_parser owners "Right_Box<int>.Some")))
+}
+
 fn type_from_string_with_parser(parser: Parser, s: string) -> NSType {
     if (tc_str_starts_with s "array<") {
         let element: NSType = (type_from_string_with_parser parser (array_elem_type_from_array_decl s))
@@ -2772,6 +2867,12 @@ fn type_from_string_with_parser(parser: Parser, s: string) -> NSType {
     }
     let t: NSType = (type_from_string s)
     if (== t.kind TypeKind.TYPE_STRUCT) {
+        if (>= (tc_selected_payload_union parser s) 0) {
+            let dot: int = (selected_payload_dot s)
+            return NSType { kind: TypeKind.TYPE_STRUCT, name: s,
+                element_type_kind: TypeKind.TYPE_UNKNOWN,
+                element_type_name: (str_substring s 0 dot) }
+        }
         let base: string = (base_type_name s)
         if (is_union_name parser base) {
             return NSType { kind: TypeKind.TYPE_UNION, name: base,
@@ -4511,6 +4612,39 @@ shadow check_match_coverage {
     assert (== (Diagnostics.diag_list_count dead) 1)
 }
 
+# I preserve positional value extraction separately from named payload records.
+fn tc_match_binding_type(parser: Parser, annotation: string) -> NSType {
+    let selected: int = (tc_selected_payload_union parser annotation)
+    if (< selected 0) { return (type_unknown_named "match_binding") }
+    let dot: int = (selected_payload_dot annotation)
+    let concrete: string = (str_substring annotation 0 dot)
+    let variant: string = (str_substring annotation (+ dot 1) (- (str_length annotation) (+ dot 1)))
+    let definition: ASTUnion = (parser_get_union parser selected)
+    let mut offset: int = 0
+    let mut vi: int = 0
+    while (< vi definition.variant_count) {
+        let count: int = (at definition.variant_field_counts vi)
+        if (== (at definition.variant_names vi) variant) {
+            if (== count 1) {
+                if (== (at definition.variant_field_names offset) "_0") {
+                    return (type_from_string_with_parser parser (tc_substitute_generic (at definition.variant_field_types offset) definition.generic_params (tc_generic_arguments concrete)))
+                }
+            }
+            return (type_from_string_with_parser parser annotation)
+        }
+        set offset (+ offset count)
+        set vi (+ vi 1)
+    }
+    return (type_unknown_named "match_binding")
+}
+shadow tc_match_binding_type {
+    let parser: Parser = (resource_test_parser "union Box<T> { Named { value: T }, Pos { _0: T }, None {} }")
+    assert (== (type_to_string (tc_match_binding_type parser "Box<int>.Named")) "Box<int>.Named")
+    assert (== (tc_match_binding_type parser "Box<int>.Pos").kind TypeKind.TYPE_INT)
+    assert (== (type_to_string (tc_match_binding_type parser "Box<int>.None")) "Box<int>.None")
+    assert (== (tc_match_binding_type parser "Box<int>.Missing").kind TypeKind.TYPE_UNKNOWN)
+}
+
 fn check_match_value(parser: Parser, node_id: int, symbols: array<Symbol>, expected: NSType, diags: List<CompilerDiagnostic>, file_name: string) -> CheckedBlock {
     let before: int = (list_CompilerDiagnostic_length diags)
     let m: ASTMatch = (parser_get_match parser node_id)
@@ -4542,13 +4676,9 @@ fn check_match_value(parser: Parser, node_id: int, symbols: array<Symbol>, expec
             let binding_name: string = (at m.arm_bindings i)
             if (and (!= binding_name "") (!= binding_name "_")) {
                 let variant_name: string = (at m.arm_variants i)
-                let variant_label: string = (+ union_name (+ "." variant_name))
-                let binding_type: NSType = NSType {
-                    kind: TypeKind.TYPE_STRUCT,
-                    name: variant_label,
-                    element_type_kind: TypeKind.TYPE_UNKNOWN,
-                    element_type_name: scrutinee_type.element_type_name
-                }
+                let concrete: string = (type_to_string scrutinee_type)
+                let variant_label: string = (+ concrete (+ "." variant_name))
+                let binding_type: NSType = (tc_match_binding_type parser variant_label)
                 let binding_sym: Symbol = (symbol_new binding_name binding_type false false 0 (empty_param_types) (type_void))
                 set arm_symbols (env_add_symbol arm_symbols binding_sym)
             } else {
@@ -4611,29 +4741,51 @@ shadow check_match_expr {
     assert (== result.kind TypeKind.TYPE_INT)
     assert (== (Diagnostics.diag_list_count clean) 0)
     assert (== (array_length symbols) 1)
+    let generic: Parser = (resource_test_parser "union Box<T> { Some { value: T } } fn f(b: Box<int>) -> int { return match b { Some(payload) => { let alias = payload alias.value } } }")
+    assert (not (parser_has_error generic))
+    assert (== (parser_get_match_count generic) 1)
+    if (and (not (parser_has_error generic)) (== (parser_get_match_count generic) 1)) {
+        let context: array<Symbol> = [(symbol_new "b" (type_from_string_with_parser generic "Box<int>") false false 0 (empty_param_types) (type_void))]
+        let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+        let selected_result: NSType = (check_match_expr generic 0 context diagnostics "generic.nano")
+        assert (== selected_result.kind TypeKind.TYPE_INT)
+        assert (== (Diagnostics.diag_list_count diagnostics) 0)
+        let mut found_alias: bool = false
+        let mut index: int = 0
+        while (< index (parser_get_let_count generic)) {
+            let binding: ASTLet = (parser_get_let generic index)
+            if (== binding.name "alias") { set found_alias true assert (== binding.var_type "Box<int>.Some") }
+            set index (+ index 1)
+        }
+        assert found_alias
+    }
+
 }
 
 fn check_variant_field_type(parser: Parser, variant_label: string, field_name: string, concrete: string) -> NSType {
-    let mut ui: int = 0
-    while (< ui (parser_get_union_count parser)) {
-        let u: ASTUnion = (parser_get_union parser ui)
-        let mut vi: int = 0
-        let mut offset: int = 0
-        while (< vi u.variant_count) {
-            let count: int = (at u.variant_field_counts vi)
-            if (== variant_label (+ u.name (+ "." (at u.variant_names vi)))) {
-                let mut fi: int = 0
-                while (< fi count) {
-                    if (== field_name (at u.variant_field_names (+ offset fi))) {
-                        return (type_from_string_with_parser parser (tc_substitute_generic (at u.variant_field_types (+ offset fi)) u.generic_params (tc_generic_arguments concrete)))
-                    }
-                    set fi (+ fi 1)
+    let full_label: string = variant_label
+    let selected: int = (tc_selected_payload_union parser full_label)
+    if (< selected 0) { return (type_unknown_named "variant_field") }
+    let dot: int = (selected_payload_dot full_label)
+    let actual: string = (str_substring full_label 0 dot)
+    if (and (!= concrete "") (!= concrete actual)) { return (type_unknown_named "variant_field") }
+    let variant: string = (str_substring full_label (+ dot 1) (- (str_length full_label) (+ dot 1)))
+    let u: ASTUnion = (parser_get_union parser selected)
+    let mut vi: int = 0
+    let mut offset: int = 0
+    while (< vi u.variant_count) {
+        let count: int = (at u.variant_field_counts vi)
+        if (== variant (at u.variant_names vi)) {
+            let mut fi: int = 0
+            while (< fi count) {
+                if (== field_name (at u.variant_field_names (+ offset fi))) {
+                    return (type_from_string_with_parser parser (tc_substitute_generic (at u.variant_field_types (+ offset fi)) u.generic_params (tc_generic_arguments actual)))
                 }
+                set fi (+ fi 1)
             }
-            set offset (+ offset count)
-            set vi (+ vi 1)
         }
-        set ui (+ ui 1)
+        set offset (+ offset count)
+        set vi (+ vi 1)
     }
     return (type_unknown_named "variant_field")
 }
@@ -4645,6 +4797,11 @@ shadow check_variant_field_type {
     assert (== found.kind TypeKind.TYPE_STRING)
     let missing: NSType = (check_variant_field_type parser "Choice.None" "value" "Choice")
     assert (== missing.kind TypeKind.TYPE_UNKNOWN)
+    let generic: Parser = (resource_test_parser "union Box<T> { Some { value: T, values: List<T> }, None {} }")
+    assert (== (type_to_string (check_variant_field_type generic "Box<int>.Some" "value" "Box<int>")) "int")
+    assert (== (type_to_string (check_variant_field_type generic "Box<string>.Some" "values" "Box<string>")) "List<string>")
+    assert (== (check_variant_field_type generic "Box<int>.Some" "value" "Box<string>").kind TypeKind.TYPE_UNKNOWN)
+
 }
 
 fn tc_bound_name(name: string, line: int, symbols: array<Symbol>) -> string {
@@ -4697,6 +4854,18 @@ fn reduce_type_known(parser: Parser, value: NSType) -> bool {
     }
     if (or (== value.kind TypeKind.TYPE_STRUCT) (== value.kind TypeKind.TYPE_UNION)) {
         let spelling: string = (type_to_string value)
+        if (and (== value.kind TypeKind.TYPE_STRUCT) (>= (tc_selected_payload_union parser spelling) 0)) {
+            let dot: int = (selected_payload_dot spelling)
+            let concrete: string = (str_substring spelling 0 dot)
+            if (and (!= value.element_type_name "") (!= value.element_type_name concrete)) { return false }
+            let arguments: array<string> = (tc_generic_arguments concrete)
+            let mut argument: int = 0
+            while (< argument (array_length arguments)) {
+                if (not (reduce_type_known parser (type_from_string_with_parser parser (at arguments argument)))) { return false }
+                set argument (+ argument 1)
+            }
+            return true
+        }
         let base: string = (base_type_name spelling)
         let arguments: array<string> = (tc_generic_arguments spelling)
         let mut declared: bool = (tc_is_opaque_name parser base)
@@ -4729,6 +4898,18 @@ shadow reduce_type_known {
     assert (not (reduce_type_known parser (type_from_string_with_parser parser "Box<T>")))
     assert (not (reduce_type_known parser (type_from_string_with_parser parser "fn(unknown,int)->int")))
     assert (not (reduce_type_known parser (type_from_string_with_parser parser "fn(int,int)->unknown")))
+    let selected: NSType = (type_from_string_with_parser parser "Box<int>.Some")
+    assert (reduce_type_known parser selected)
+    assert (== (type_to_string selected) "Box<int>.Some")
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "Box<unknown>.Some")))
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "Box<T>.Some")))
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "Box<int>.Missing")))
+    let contradictory: NSType = NSType { kind: selected.kind, name: selected.name, element_type_kind: selected.element_type_kind, element_type_name: "Box<string>" }
+    assert (not (reduce_type_known parser contradictory))
+    assert (not (types_equal selected contradictory))
+    assert (not (types_equal selected (type_from_string_with_parser parser "Box<string>.Some")))
+    assert (reduce_type_known parser (type_from_string_with_parser parser "(Box<int>.Some,List<Box<string>.Some>)"))
+    assert (reduce_type_known parser (type_from_string_with_parser parser "fn(Box<int>.Some)->Box<string>.Some"))
 }
 
 fn reduce_types_exact(parser: Parser, actual: NSType, expected: NSType) -> bool {
@@ -5789,7 +5970,13 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
     }
     if let_node.is_destructure {
         let selected: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
-        if (or (!= selected.kind TypeKind.TYPE_STRUCT) (!= selected.name let_node.var_type)) {
+        let mut pattern_name: string = selected.name
+        if (>= (tc_selected_payload_union parser selected.name) 0) {
+            let dot: int = (selected_payload_dot selected.name)
+            let concrete: string = (str_substring selected.name 0 dot)
+            set pattern_name (+ (base_type_name concrete) (str_substring selected.name dot (- (str_length selected.name) dot)))
+        }
+        if (or (!= selected.kind TypeKind.TYPE_STRUCT) (!= pattern_name let_node.var_type)) {
             (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0036" "I require the pattern to name the selected record or variant." (Diagnostics.diag_location file_name let_node.line let_node.column)))
             return symbols
         }

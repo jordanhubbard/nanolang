@@ -238,6 +238,24 @@ fn main()->int {
 shadow main { assert (== (main) 0) }
 ''')
 
+        self.native_routes('native-selected-payload-carriers', '''union Box<T> { Some { value:T }, None {} }
+fn main()->int {
+ let number:Box<int> = Box<int>.Some{value:31}
+ let text:Box<string> = Box<string>.Some{value:"text"}
+ match number { Some(payload)=>{
+  let alias=(cond (true payload) (else payload))
+  let pair=(alias,payload)
+  assert (== pair.0.value 31)
+  assert (== pair.1.value 31)
+ } None(empty)=>{ let alias=empty } }
+ match text { Some(payload)=>{ let alias=payload assert (== alias.value "text") } None(empty)=>{} }
+ let absent:Box<int> = Box<int>.None{}
+ match absent { Some(payload)=>{ assert false } None(empty)=>{ let alias=empty } }
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
     def test_native_imported_owners_and_long_names(self):
         directory = self.work / 'owners'; directory.mkdir()
         for module, value in (('Left', 11), ('Right', 22)):
