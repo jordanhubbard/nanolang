@@ -1,0 +1,18 @@
+{
+  "label": "fresh-bootstrap",
+  "argv": [
+    "/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/usr/bin/gcc",
+    "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "bootstrap"
+  ],
+  "bound": 1800,
+  "timeout": false,
+  "pid": 1891132,
+  "returncode": 2,
+  "remaining_groups": [],
+  "seconds": 63.82390714704525
+}

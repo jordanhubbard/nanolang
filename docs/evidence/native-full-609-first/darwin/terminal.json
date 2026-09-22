@@ -1,0 +1,4 @@
+{
+  "status": 1,
+  "error": "AssertionError({'label': 'fresh-bootstrap', 'argv': ['/usr/bin/make', '-f', 'Makefile.gnu', '-j2', 'CC=/usr/bin/clang', 'PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3', 'bootstrap'], 'bound': 1800, 'timeout': False, 'pid': 62083, 'returncode': 2, 'remaining_groups': [], 'seconds': 327.049474958})"
+}

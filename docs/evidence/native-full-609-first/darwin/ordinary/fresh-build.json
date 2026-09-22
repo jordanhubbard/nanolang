@@ -1,0 +1,18 @@
+{
+  "label": "fresh-build",
+  "argv": [
+    "/usr/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/usr/bin/clang",
+    "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "build"
+  ],
+  "bound": 1800,
+  "timeout": false,
+  "pid": 36510,
+  "returncode": 0,
+  "remaining_groups": [],
+  "seconds": 84.207063709
+}
