@@ -17488,3 +17488,11 @@ my initial implicit-return hypothesis is not supported. Operator statements
 are already prohibited, so the fixture must consume flat results in typed
 bindings. Direct parsed-operand expression checks must distinguish the new
 storage guard from that outer statement refusal. No unsupported evaluation ran.
+
+I correct only the new admission controls after the actual E034 diagnostic:
+the positive consumes results in typed bindings, and30 binary plus unary/empty
+negative cases query their actual parsed operator through `check_expression`
+with complete declared parameter annotations. UNKNOWN is now checked without
+an outer statement context, alongside a direct admitted ARRAY control. I keep
+the original statement refusals, typed-let/call/return controls and all preexisting
+assertions. Source review precedes corrected execution; production is unchanged.

@@ -1069,6 +1069,30 @@ static void test_array_arithmetic_result_views(void) {
     }
 }
 
+/* I ask the expression checker directly so E034 cannot satisfy a refusal. */
+static Type tc_first_operator_type(const char *source) {
+    ParseCtx ctx;
+    ASSERT(parse_ctx_init(&ctx, source));
+    ASTNode *function = ctx.program->as.program.items[0];
+    ASSERT(function->type == AST_FUNCTION);
+    Environment *env = create_environment();
+    for (int i = 0; i < function->as.function.param_count; ++i) {
+        Parameter *parameter = &function->as.function.params[i];
+        ASSERT(parameter->type == TYPE_ARRAY && parameter->type_info && parameter->type_info->element_type);
+        env_define_var_with_type_info(env, parameter->name, parameter->type,
+            parameter->type_info->element_type->base_type, parameter->type_info, false, create_void());
+    }
+    ASTNode *expression = function->as.function.body->as.block.statements[0];
+    ASSERT(expression->type == AST_PREFIX_OP);
+    typecheck_set_current_file("<arithmetic-expression>");
+    suppress_stderr();
+    Type result = check_expression(expression, env);
+    restore_stderr();
+    free_environment(env);
+    parse_ctx_free(&ctx);
+    return result;
+}
+
 /* I reject unsupported storage even when no typed destination consumes it. */
 static void test_array_arithmetic_admission(void) {
     const char *types[] = {"u8", "array<int>"};
@@ -1079,6 +1103,7 @@ static void test_array_arithmetic_admission(void) {
         snprintf(source, sizeof source,
             "fn probe(xs:array<%s>)->void{(%s %s)} fn main()->int{return 0}",
             types[type], ops[op], route == 0 ? "xs xs" : route == 1 ? "xs 1" : "1 xs");
+        ASSERT_EQ(tc_first_operator_type(source), TYPE_UNKNOWN);
         ASSERT(!tc_passes(source));
     }
     ASSERT(!tc_passes("fn probe(xs:array<u8>)->void{(- xs)} fn main()->int{return 0}"));
@@ -1089,7 +1114,11 @@ static void test_array_arithmetic_admission(void) {
     ASSERT(!tc_passes("fn probe(cb:fn()->array<u8>)->void{(+ (cb) 1)} fn main()->int{return 0}"));
     ASSERT(!tc_passes("fn accept(xs:array<u8>)->void{} fn probe(xs:array<u8>)->void{(accept (+ xs xs))} fn main()->int{return 0}"));
     ASSERT(!tc_passes("fn probe(xs:array<array<int>>)->void{let unused=(+ xs xs)} fn main()->int{return 0}"));
-    ASSERT(tc_passes("fn probe(xs:array<int>)->void{(- xs) (% xs 2) (+ xs 1)} fn main()->int{return 0}"));
+    ASSERT(tc_passes("fn probe(xs:array<int>)->int{let a:array<int> = (- xs) let b:array<int> = (% xs 2) let c:array<int> = (+ xs 1) return 0} fn main()->int{return 0}"));
+    ASSERT_EQ(tc_first_operator_type("fn probe(xs:array<int>)->int{(+ xs 1) return 0}"), TYPE_ARRAY);
+    ASSERT_EQ(tc_first_operator_type("fn probe(xs:array<u8>)->int{(- xs) return 0}"), TYPE_UNKNOWN);
+    ASSERT_EQ(tc_first_operator_type("fn probe(xs:array<array<int>>)->int{(- xs) return 0}"), TYPE_UNKNOWN);
+    ASSERT_EQ(tc_first_operator_type("fn probe()->int{(+ [] []) return 0}"), TYPE_UNKNOWN);
     ASSERT(tc_passes("fn probe(rows:array<array<int>>)->array<int>{return (+ (at rows 0) 1)} fn main()->int{return 0}"));
     ASSERT(!tc_passes("fn probe(xs:array<int>, bytes:array<u8>)->void{{let xs:array<u8> = bytes (+ xs 1)}} fn main()->int{return 0}"));
 }
