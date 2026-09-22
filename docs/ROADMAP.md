@@ -14477,3 +14477,10 @@ allocator failure claim.
   independently of this compiler optimization. C registry/runtime support does
   not establish Nano checker/emitter or complete backend admission.
   MAC: task_9ec92cecd44b4b91b3124e0f07617f64.
+
+- [ ] I preserve signed INT string length before native arithmetic. My802 trace
+  stops inside the unchanged eighty-case helper shadow; read-only emitted C
+  confirms size_t strlen subtraction underflows for longer needles. I repair
+  the primitive C/Nano result carrier and preserve all controls, producer
+  boundaries and original deadlines. [Contract](NANOISA_SIGNED_STRING_LENGTH.md).
+  MAC: task_716077fe2eb14ec89ead2ce9f2bb3cc2.
