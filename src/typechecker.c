@@ -2050,7 +2050,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Handle unary minus: (- x) */
                 if (op == TOKEN_MINUS && arg_count == 1) {
                     Type arg_type = check_expression(expr->as.prefix_op.args[0], env);
-                    if (arg_type == TYPE_INT) return TYPE_INT;
+                    if (arg_type == TYPE_INT || arg_type == TYPE_U8) return TYPE_INT;
                     if (arg_type == TYPE_FLOAT) return TYPE_FLOAT;
                     if (arg_type == TYPE_ARRAY) {
                         Type elem = infer_array_element_type(expr->as.prefix_op.args[0], env);
@@ -2063,8 +2063,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         return TYPE_UNKNOWN;
                     }
                     emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                        "Unary minus requires a numeric type (int or float)",
-                        "Check that the operand is an int or float variable");
+                        "I require int, u8 or float for scalar negation",
+                        "I promote a byte operand to int before negation");
                     return TYPE_UNKNOWN;
                 }
                 

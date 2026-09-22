@@ -2483,6 +2483,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             compile_expr(cg, args[0]);
             switch (op) {
                 case TOKEN_MINUS:
+                    if (arg_type == TYPE_U8) emit_op(cg, OP_CAST_INT);
                     emit_op(cg, arg_type == TYPE_FLOAT ? OP_F64_NEG : OP_I64_NEG);
                     break;
                 case TOKEN_NOT: emit_op(cg, OP_BOOL_NOT); break;

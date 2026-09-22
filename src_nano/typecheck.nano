@@ -3811,6 +3811,19 @@ shadow array_arithmetic_matches {
     assert (not (array_arithmetic_matches (type_unknown_named "") TypeKind.TYPE_INT))
 }
 
+# I promote checked scalar bytes to the integer arithmetic domain.
+fn scalar_integer_operand(value: NSType) -> bool {
+    return (or (== value.kind TypeKind.TYPE_INT) (and (== value.kind TypeKind.TYPE_STRUCT) (== value.name "u8")))
+}
+shadow scalar_integer_operand {
+    assert (scalar_integer_operand (type_int))
+    assert (scalar_integer_operand (type_from_string "u8"))
+    assert (not (scalar_integer_operand (type_bool)))
+    assert (not (scalar_integer_operand (type_float)))
+    assert (not (scalar_integer_operand (type_from_string "array<u8>")))
+    assert (not (scalar_integer_operand (type_from_string "User")))
+}
+
 fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType {
     if (array_arithmetic_selected op left_type right_type) {
         let mut array_type: NSType = left_type
@@ -3844,7 +3857,7 @@ fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType 
     /* Arithmetic ops: +, -, *, /, % */
     if (or (or (or (or (== op "+") (== op "-")) (== op "*")) (== op "/")) (== op "%")) {
         /* Both operands must be int or float */
-        if (and (== left_type.kind TypeKind.TYPE_INT) (== right_type.kind TypeKind.TYPE_INT)) {
+        if (and (scalar_integer_operand left_type) (scalar_integer_operand right_type)) {
             return (type_int)
         } else {
             if (or (== left_type.kind TypeKind.TYPE_FLOAT) (== right_type.kind TypeKind.TYPE_FLOAT)) {
@@ -3883,6 +3896,9 @@ fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType 
 }
 
 shadow check_binary_op {
+    assert (== (check_binary_op "+" (type_from_string "u8") (type_int)).kind TypeKind.TYPE_INT)
+    assert (== (check_binary_op "-" (type_int) (type_from_string "u8")).kind TypeKind.TYPE_INT)
+    assert (== (check_binary_op "*" (type_from_string "u8") (type_from_string "u8")).kind TypeKind.TYPE_INT)
     let int_t: NSType = (type_int)
     let bool_t: NSType = (type_bool)
     
