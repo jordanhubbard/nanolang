@@ -1,4 +1,7 @@
 /* I exercise raw transport ownership, not module or execution admission. */
+#ifdef NDEBUG
+#error "I require assertions in my raw SDK codec controls."
+#endif
 #include <assert.h>
 #include <stdlib.h>
 #include <stdint.h>

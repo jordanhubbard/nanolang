@@ -359,3 +359,27 @@ implemented or qualified. I keep the feature unavailable while closing each
 boundary and review the complete change before product execution.
 
 My standalone raw-codec fixture includes same-name distinct-owner rows, an enum declaration, complete by-value round-trip, input mutation/release after decode, every truncated length, reserved-byte and count/slice refusals, exact allocation-byte boundary, both allocating API failures with unchanged outputs and independent recovery, and empty payload transport. It includes the real codec with allocation hooks; no module/provider execution occurs. Strict syntax-only compilation passes; execution awaits independent fixture review.
+
+## I prepare a new immutable module generation
+
+My actual NvmModule has no complete active-VM lease counter. An empty call cache
+cannot establish exclusive ownership. I therefore replace the proposed in-place
+attachment with construction of a separate fully owned immutable generation.
+The original module, runtime call cache and active borrowers remain untouched.
+All new module bytes, tables and descriptor plans are staged and validated before
+publication; failure leaves the caller output and old generation unchanged.
+There are no interior pointer aliases into the old generation. Publication may
+replace only an exclusively owned unpublished pointer, never a live module.
+An identical existing contract may return an explicit unchanged result without
+transferring an aliased owner; conflicting identity refuses. Combined bounds
+charge actual clone and plan bytes. Existing accepted maxima must be audited
+before imposing any smaller clone profile.
+
+The legacy bridge rebuilds coarse signatures from function/import/callback tags
+and discards the original table indices. Typed generations must retain the
+canonical SIGNATURES section and each subject's selected signature index,
+validate all subject shapes against those rows, and preserve unused but
+referenced callable signature rows. Exact SDK details still distinguish same-tag
+opaque owners. Ordinary modules keep the existing interning path. The exact
+owned representation and complete conversion/free/serialization consumers need
+source review before execution; I do not copy stale indices into a rebuilt table.
