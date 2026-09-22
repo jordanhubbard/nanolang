@@ -189,6 +189,12 @@ paths before claiming complete COP SDK acceptance.
 Scalar opaque leaves reuse exact owner/worker token checks. Nested opaque leaves
 use those same checks at every policy node, including same-owner aliases and
 stale/foreign/unissued token refusal. No pointer bytes cross pipe/mailbox frames.
+Before foreign entry I reserve bounded nested opaque capture and cleanup
+capacity. Every actual provider pointer acquired by the call remains captured
+even if later graph decoding or publication fails; a failed output is not
+permission to lose its retirement action. Existing scalar slot-hole refusal
+controls remain required.
+
 Logical pin/drop hooks run in the owning worker; token table disposal alone
 never calls an inferred provider destructor. Worker shutdown must drain/reject
 outstanding calls and settle logical lifetime actions before image teardown.
@@ -205,8 +211,12 @@ worker callback request/reply messages. The existing callback ABI owns execution
 and retirement on the original VM thread; the worker sees a generated typed
 trampoline, never a VM pointer. Parent wait logic pumps permitted callback
 requests with call/generation IDs so a synchronous callback cannot deadlock the
-blocked call. Retained callbacks need explicit revoke/drain/release acknowledg-
-ments. Unsupported execution modes, worker restarts and late requests refuse
+blocked call. Callback requests also require explicit issued registry membership plus exact
+generation, call, policy path and complete type agreement; IDs or a high-water
+mark do not establish authority. Pumping alone does not solve a callback that
+synchronously re-enters FFI on the same busy worker: I must implement a bounded
+nested-call protocol or refuse that re-entry before its provider effects.
+Retained callbacks need explicit revoke/drain/release acknowledgments. Unsupported execution modes, worker restarts and late requests refuse
 before dereferencing retired owners. This protocol extension needs native
 owner review and actual pipe/mailbox round trips; it is not already supplied
 by `vm_callback_create`, which currently refuses isolated FFI.

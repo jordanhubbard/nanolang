@@ -17496,3 +17496,10 @@ change the coarse checker admission in every context. I retain that unresolved
 boundary explicitly and do not execute those unsupported forms as positives.
 
 - [x] I qualify reviewed653 flat arithmetic result views with fresh providers and the full original checker/evaluator targets, all four Linux/Darwin ordinary and ASan/UBSan/LSan configurations. All eight methods and four builds pass; original610 first failure remains sealed. Evidence: `docs/evidence/array-views-653`. Canonical integration and byte/nested expression admission follow-up remain separate.
+
+I record the native transport review before provider wire edits: issued callback
+membership, same-worker re-entry handling and pre-entry nested opaque retirement
+capacity are explicit requirements. They do not follow from existing scalar
+COP tokens or a callback pump. Private lifetime transport will share the original
+provider codec and keep every existing revision1 entry unchanged; semantic
+crossvalidation and adapter attachment remain separate required checkpoints.
