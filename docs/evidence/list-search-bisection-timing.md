@@ -44,3 +44,12 @@ its process group is gone, and source/tool maps agree. I retain this preparation
 terminal separately. The corrected external driver uses my owning bootstrap
 gate's1800-second outer allowance; the native child stays bounded at10 seconds.
 I do not infer which shadow is slow from the empty trace.
+
+My one controlled uninstrumented Linux802 continuation passes Stage1 creation
+and its smoke test, then reaches the Stage2 native ten-second shadow deadline.
+It exits2 after308.991 seconds; its1800-second outer allowance does not expire.
+The source/tool maps remain equal and the process group is gone. I retain
+per-interval load and CPU snapshots, independently copied original providers,
+and the earlier interpreter timeout. This pass through the interpreter phase
+does not establish the old failure's cause. Both hosts now retain Stage2 native
+deadline failures, and no dependent full18+8 matrix has launched.

@@ -14496,3 +14496,9 @@ allocator failure claim.
   correct its external allowance to the owning bootstrap1800 seconds before
   native attribution. My child shadow deadline remains10 seconds and no first
   shadow was reached in the retained diagnostic. MAC: task_6ec8b514c61449d0863401584e86376b.
+
+- [ ] I resolve the Stage2 native ten-second shadow deadline now reached on both
+  hosts at802. My controlled Linux continuation passes Stage1 then exits2 after
+  308.991 seconds at native shadows; prior interpreter timeout stays retained.
+  I require measured native attribution before choosing another correction.
+  MAC: task_6ec8b514c61449d0863401584e86376b.
