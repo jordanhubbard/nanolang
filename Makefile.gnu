@@ -5988,7 +5988,7 @@ $(OBJ_DIR)/env_collection_test.o: src/env.c src/env_collection_ownership.inc src
 	$(CC) $(CFLAGS) $(DEPFLAGS) -DNANO_TEST_COLLECTION_ALLOC -c $< -o $@
 
 $(OBJ_DIR)/eval_collection_test.o: CFLAGS += -ffp-contract=off -fno-fast-math
-$(OBJ_DIR)/eval_collection_test.o: src/eval.c src/evaluator_collection_alloc.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+$(OBJ_DIR)/eval_collection_test.o: tests/test_evaluator_lifetime_eval.c src/eval.c src/evaluator_collection_alloc.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -Dclock_gettime=nano_test_clock_gettime -DNANO_TEST_COLLECTION_ALLOC -c $< -o $@
 
 .PHONY: test-evaluator-collection-ownership

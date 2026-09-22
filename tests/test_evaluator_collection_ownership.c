@@ -172,6 +172,42 @@ static void public_string_alias(void) {
     free(array.as.array_val->data); free(array.as.array_val);
 }
 
+extern int lifetime_enqueue_named(Environment *, const char *);
+extern Value lifetime_task_result(Environment *, int, bool);
+static void completed_collection_tasks(void) {
+    const char *source =
+        "fn numbers()->array<int> { return [41, 42] }\n"
+        "fn mapping()->HashMap<string,int> { let result:HashMap<string,int> = (map_new) (map_put result \"key\" 73) return result }\n"
+        "fn main()->int { return 0 }\n";
+    nano_scheduler_init();
+    for (int map = 0; map < 2; ++map) {
+        RunCtx ctx; assert(run_ctx_init(&ctx, source));
+        assert(env_acquire_evaluation_lease(ctx.env)); /* My explicit caller lease. */
+        int task = lifetime_enqueue_named(ctx.env, map ? "mapping" : "numbers");
+        assert(task >= 0);
+        Value result = lifetime_task_result(ctx.env, task, true);
+        assert(nano_coro_is_done(task));
+        /* DONE dropped the argument bundle; the result owner must still remain. */
+        env_release_evaluation_lease(ctx.env);
+        assert(!env_can_destroy(ctx.env));
+        assert(ctx.env->collection_allocations != NULL);
+        if (map) {
+            assert(result.type == VAL_INT && result.as.int_val);
+            NLHashMapCore *storage = (NLHashMapCore *)result.as.int_val;
+            Value key = text_value("key"); bool found = false;
+            int64_t slot = eval_hm_find_slot(storage, &key, &found);
+            assert(found && slot >= 0 && storage->entries[slot].value.i == 73);
+        } else {
+            assert(result.type == VAL_ARRAY && result.as.array_val->length == 2);
+            assert(((long long *)result.as.array_val->data)[1] == 42);
+        }
+        assert(nano_coro_release(task));
+        assert(env_can_destroy(ctx.env));
+        /* Only now may actual Environment collection destruction happen. */
+        run_ctx_free(&ctx);
+    }
+}
+
 int main(int argc, char **argv) {
     fixture_executable = argv[0];
     assert(atexit(cleanup_case) == 0);
@@ -195,6 +231,7 @@ int main(int argc, char **argv) {
     }
     child_case(3, 0, 0, true); child_case(4, 0, 0, true);
     public_string_alias();
+    completed_collection_tasks();
     /* I retain the actual source callback/partial-literal assertions unchanged. */
     test_eval_handler_return_partial_literal_cleanup();
     test_eval_handler_return_higher_order();
