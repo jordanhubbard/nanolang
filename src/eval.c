@@ -549,11 +549,26 @@ static int64_t eval_int_rem(int64_t a, int64_t b) {
     return a % b;
 }
 
-static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op);
-static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenType op);
-static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType op);
+/* I own only new evaluator copies; the dynamic array continues to borrow leaves. */
+static const char *eval_dynamic_string_snapshot(Environment *env, const char *text,
+                                                char *temporary) {
+    Value borrowed = create_void(), owned;
+    borrowed.type = VAL_STRING;
+    borrowed.as.string_val = (char *)text;
+    bool ok = env_value_snapshot(env, borrowed, &owned);
+    free(temporary); /* Only my fresh concatenation buffer is passed here. */
+    if (!ok) {
+        fprintf(stderr, "I cannot retain a dynamic array string.\n");
+        exit(1);
+    }
+    return owned.as.string_val;
+}
 
-static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op) {
+static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op, Environment *env);
+static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenType op, Environment *env);
+static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType op, Environment *env);
+
+static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op, Environment *env) {
     if (!a || !b) return NULL;
     int64_t len = dyn_array_length(a);
     if (len != dyn_array_length(b)) return NULL;
@@ -618,13 +633,13 @@ static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op) {
             memcpy(buf, x, lx);
             memcpy(buf + lx, y, ly);
             buf[lx + ly] = '\0';
-            dyn_array_push_string(out, buf);
+            dyn_array_push_string(out, eval_dynamic_string_snapshot(env, buf, buf));
         }
     } else if (t == ELEM_ARRAY) {
         for (int64_t i = 0; i < len; i++) {
             DynArray *x = dyn_array_get_array(a, i);
             DynArray *y = dyn_array_get_array(b, i);
-            DynArray *r = eval_dyn_array_binop(x, y, op);
+            DynArray *r = eval_dyn_array_binop(x, y, op, env);
             if (!r) return NULL;
             dyn_array_push_array(out, r);
         }
@@ -634,7 +649,7 @@ static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op) {
     return out;
 }
 
-static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenType op) {
+static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenType op, Environment *env) {
     if (!a) return NULL;
     int64_t len = dyn_array_length(a);
     ElementType t = dyn_array_get_elem_type(a);
@@ -644,7 +659,7 @@ static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenTyp
     if (t == ELEM_ARRAY) {
         for (int64_t i = 0; i < len; i++) {
             DynArray *inner = dyn_array_get_array(a, i);
-            DynArray *r = eval_dyn_array_scalar_right(inner, scalar, op);
+            DynArray *r = eval_dyn_array_scalar_right(inner, scalar, op, env);
             if (!r) return NULL;
             dyn_array_push_array(out, r);
         }
@@ -702,7 +717,7 @@ static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenTyp
             memcpy(buf, x, lx);
             memcpy(buf + lx, s, ls);
             buf[lx + ls] = '\0';
-            dyn_array_push_string(out, buf);
+            dyn_array_push_string(out, eval_dynamic_string_snapshot(env, buf, buf));
         }
     } else {
         return NULL;
@@ -710,7 +725,7 @@ static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenTyp
     return out;
 }
 
-static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType op) {
+static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType op, Environment *env) {
     if (!a) return NULL;
     int64_t len = dyn_array_length(a);
     ElementType t = dyn_array_get_elem_type(a);
@@ -720,7 +735,7 @@ static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType
     if (t == ELEM_ARRAY) {
         for (int64_t i = 0; i < len; i++) {
             DynArray *inner = dyn_array_get_array(a, i);
-            DynArray *r = eval_dyn_array_scalar_left(scalar, inner, op);
+            DynArray *r = eval_dyn_array_scalar_left(scalar, inner, op, env);
             if (!r) return NULL;
             dyn_array_push_array(out, r);
         }
@@ -778,7 +793,7 @@ static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType
             memcpy(buf, s, ls);
             memcpy(buf + ls, y, ly);
             buf[ls + ly] = '\0';
-            dyn_array_push_string(out, buf);
+            dyn_array_push_string(out, eval_dynamic_string_snapshot(env, buf, buf));
         }
     } else {
         return NULL;
@@ -1402,7 +1417,7 @@ static Value builtin_array_new(Value *args, Environment *env) {
 
 static ElementType value_type_to_elem_type(ValueType vtype);
 
-static Value builtin_array_set(Value *args) {
+static Value builtin_array_set(Value *args, Environment *env) {
     /* array_set(array, index, value) -> void */
     if (args[1].type != VAL_INT) {
         fprintf(stderr, "Error: array_set() requires an integer index\n");
@@ -1434,15 +1449,14 @@ static Value builtin_array_set(Value *args) {
             case VAL_FLOAT: dyn_array_set_float(arr, index, args[2].as.float_val); break;
             case VAL_BOOL: dyn_array_set_bool(arr, index, args[2].as.bool_val); break;
             case VAL_STRING: {
-                char *copy = strdup(args[2].as.string_val);
-                if (!copy) { fprintf(stderr, "I cannot allocate an array string.\n"); exit(1); }
+                const char *copy = eval_dynamic_string_snapshot(env, args[2].as.string_val, NULL);
                 dyn_array_set_string(arr, index, copy);
                 break;
             }
             case VAL_DYN_ARRAY: dyn_array_set_array(arr, index, args[2].as.dyn_array_val); break;
             case VAL_STRUCT: {
                 StructValue *sv = args[2].as.struct_val;
-                Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                Value copy = eval_snapshot_array_record(env, sv);
                 StructValue *stored = copy.as.struct_val;
                 dyn_array_set_struct(arr, index, &stored, sizeof(stored));
                 break;
@@ -1604,7 +1618,7 @@ static Value builtin_array_slice(Value *args, Environment *env) {
                 case ELEM_U8: dyn_array_push_u8(out, dyn_array_get_u8(arr, i)); break;
                 case ELEM_FLOAT: dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;
                 case ELEM_BOOL: dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;
-                case ELEM_STRING: dyn_array_push_string_copy(out, dyn_array_get_string(arr, i)); break;
+                case ELEM_STRING: dyn_array_push_string(out, eval_dynamic_string_snapshot(env, dyn_array_get_string(arr, i), NULL)); break;
                 case ELEM_ARRAY: dyn_array_push_array(out, dyn_array_get_array(arr, i)); break;
                 case ELEM_STRUCT: {
                     void *raw = dyn_array_get_struct(arr, i);
@@ -1613,7 +1627,7 @@ static Value builtin_array_slice(Value *args, Environment *env) {
                         return create_void();
                     }
                     StructValue *sv = *(StructValue**)raw;
-                    Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                    Value copy = eval_snapshot_array_record(env, sv);
                     StructValue *sv_copy = copy.as.struct_val;
                     dyn_array_push_struct(out, &sv_copy, sizeof(StructValue*));
                     break;
@@ -1689,7 +1703,7 @@ static void static_array_remove(Array *arr, int index) {
     memset((char*)arr->data + (size_t)arr->length * width, 0, width);
 }
 
-static Value builtin_array_push(Value *args) {
+static Value builtin_array_push(Value *args, Environment *env) {
     /* array_push(array, value) -> array
      * For empty array literal [], infers type from first push
      * For dynamic arrays, appends element
@@ -1725,7 +1739,7 @@ static Value builtin_array_push(Value *args) {
         memset((char*)arr->data + (size_t)arr->length * width, 0, width);
         Value set_args[] = {args[0], create_int(arr->length), args[1]};
         arr->length++;
-        builtin_array_set(set_args);
+        builtin_array_set(set_args, env);
         return args[0];
     }
 
@@ -1762,16 +1776,13 @@ static Value builtin_array_push(Value *args) {
             dyn_array_push_bool(arr, args[1].as.bool_val);
             break;
         case VAL_STRING:
-            dyn_array_push_string_copy(arr, args[1].as.string_val);
+            dyn_array_push_string(arr, eval_dynamic_string_snapshot(env, args[1].as.string_val, NULL));
             break;
         case VAL_DYN_ARRAY:
             dyn_array_push_array(arr, args[1].as.dyn_array_val);
             break;
         case VAL_STRUCT: {
-            Value copy = create_struct(args[1].as.struct_val->struct_name,
-                args[1].as.struct_val->field_names,
-                args[1].as.struct_val->field_values,
-                args[1].as.struct_val->field_count);
+            Value copy = eval_snapshot_array_record(env, args[1].as.struct_val);
             StructValue *sv_copy = copy.as.struct_val;
             dyn_array_push_struct(arr, &sv_copy, sizeof(StructValue*));
             break;
@@ -2417,7 +2428,7 @@ static Value builtin_map(Value *args, Environment *env) {
                         fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
-                    dyn_array_push_string_copy(output_arr, transformed.as.string_val);
+                    dyn_array_push_string(output_arr, eval_dynamic_string_snapshot(env, transformed.as.string_val, NULL));
                     break;
                 case ELEM_ARRAY:
                     if (transformed.type != VAL_DYN_ARRAY) {
@@ -2597,7 +2608,7 @@ static Value builtin_filter(Value *args, Environment *env) {
                     dyn_array_push_bool(output_arr, elem.as.bool_val);
                     break;
                 case ELEM_STRING:
-                    dyn_array_push_string_copy(output_arr, elem.as.string_val);
+                    dyn_array_push_string(output_arr, eval_dynamic_string_snapshot(env, elem.as.string_val, NULL));
                     break;
                 case ELEM_ARRAY:
                     dyn_array_push_array(output_arr, elem.as.dyn_array_val);
@@ -2855,7 +2866,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         fprintf(stderr, "Error: Array element type mismatch in operator\n");
                         return create_void();
                     }
-                    DynArray *out = eval_dyn_array_binop(a, b, op);
+                    DynArray *out = eval_dyn_array_binop(a, b, op, env);
                     if (!out) {
                         fprintf(stderr, "Error: Array mismatch in operator\n");
                         return create_void();
@@ -2866,7 +2877,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 /* Broadcast scalar over array */
                 if (left.type == VAL_DYN_ARRAY) {
                     DynArray *a = left.as.dyn_array_val;
-                    DynArray *out = eval_dyn_array_scalar_right(a, right, op);
+                    DynArray *out = eval_dyn_array_scalar_right(a, right, op, env);
                     if (!out) {
                         fprintf(stderr, "Error: Type mismatch in array-scalar operator\n");
                         return create_void();
@@ -2874,7 +2885,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                     return create_dyn_array(out);
                 } else if (right.type == VAL_DYN_ARRAY) {
                     DynArray *a = right.as.dyn_array_val;
-                    DynArray *out = eval_dyn_array_scalar_left(left, a, op);
+                    DynArray *out = eval_dyn_array_scalar_left(left, a, op, env);
                     if (!out) {
                         fprintf(stderr, "Error: Type mismatch in scalar-array operator\n");
                         return create_void();
@@ -4088,7 +4099,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         if (node->as.call.checked_u8_array_mutation && !bound_name &&
             node->as.call.arg_count == 3)
             args[2] = eval_checked_scalar_destination(TYPE_U8, args[2]);
-        return builtin_array_set(args);
+        return builtin_array_set(args, env);
     }
     if (strcmp(name, "array_slice") == 0) return builtin_array_slice(args, env);
     
@@ -4126,7 +4137,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         if (node->as.call.checked_u8_array_mutation && !bound_name &&
             node->as.call.arg_count == 2)
             args[1] = eval_checked_scalar_destination(TYPE_U8, args[1]);
-        return builtin_array_push(args);
+        return builtin_array_push(args, env);
     }
     if (strcmp(name, "array_pop") == 0) return builtin_array_pop(args, env);
     if (strcmp(name, "array_remove_at") == 0) return builtin_array_remove_at(args);

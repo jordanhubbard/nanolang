@@ -17339,3 +17339,5 @@ Complete provider attachment, shared declaration projection, cross-validation,
 all consuming routes and installed canonical acceptance remain required.
 
 - [ ] I implement reviewed dynamic reference-leaf ownership under task_992713bde1494772b0cb0b58bc9ee3c3: fresh evaluator string/record children belong to the Environment arena, caller/GC owners remain unchanged. Contract: `docs/EVALUATOR_DYNAMIC_ARRAY_CHILD_OWNERSHIP.md`; source and fixture review precede execution.
+
+- [x] I prepare dynamic-child source checkpoint: fresh string/record copies are published through the existing Environment snapshot owner; all three arithmetic helper chains carry the actual Environment. I retain caller inputs, GC buffers and split-string ownership. Additive collection cases cover set/push/slice aliases, map/filter, three concatenation routes and a completed dynamic task; only replacement-string frees change in the original loop fixture. Strict C99 syntax and whitespace checks pass; no affected runtime qualification has run.

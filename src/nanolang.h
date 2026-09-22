@@ -966,7 +966,11 @@ bool run_program(ASTNode *program, Environment *env);
  * all such references. Copied record/tuple containers still borrow nested
  * collection leaves from their Environment or caller owner; that owner must
  * remain alive while those leaves are used. Existing string/record/tuple/
- * callable snapshots and DynArray GC references keep their separate contracts. */
+ * callable snapshots and DynArray GC references keep their separate contracts.
+ * A dynamic array's GC buffer does not own its reference leaves. Fresh string
+ * and record leaves created by my evaluator borrow their Environment; callers
+ * must keep it alive while reading them. Caller-provided leaves keep their
+ * caller owner, even when the evaluator mutates another slot in that array. */
 Value call_function(const char *name, Value *args, int arg_count, Environment *env);
 /* REPL support */
 Value repl_eval_node(ASTNode *node, Environment *env);
