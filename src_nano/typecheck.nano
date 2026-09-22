@@ -105,17 +105,28 @@ shadow resource_variant_key {
 }
 
 # I qualify ownership facts by declaration, independently of source spelling.
+# I pass only these declaration handles through recursive classification.
+struct ResourceDeclarations {
+    structs: List<ASTStruct>,
+    unions: List<ASTUnion>
+}
+
 fn resource_type_identity(parser: Parser, type_name: string, line: int) -> string {
-    if (str_starts_with type_name "&mut ") { return (+ "&mut " (resource_type_identity parser (str_substring type_name 5 (str_length type_name)) line)) }
-    if (str_starts_with type_name "&") { return (+ "&" (resource_type_identity parser (str_substring type_name 1 (str_length type_name)) line)) }
-    if (>= (tc_selected_payload_union parser type_name) 0) { return (resource_concrete_identity parser type_name line 0) }
-    if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_concrete_identity parser type_name line 0) }
+    let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
+    return (resource_type_identity_in_declarations declarations type_name line)
+}
+
+fn resource_type_identity_in_declarations(declarations: ResourceDeclarations, type_name: string, line: int) -> string {
+    if (str_starts_with type_name "&mut ") { return (+ "&mut " (resource_type_identity_in_declarations declarations (str_substring type_name 5 (str_length type_name)) line)) }
+    if (str_starts_with type_name "&") { return (+ "&" (resource_type_identity_in_declarations declarations (str_substring type_name 1 (str_length type_name)) line)) }
+    if (>= (tc_selected_payload_union_in_declarations declarations type_name) 0) { return (resource_concrete_identity_in_declarations declarations type_name line 0) }
+    if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_concrete_identity_in_declarations declarations type_name line 0) }
     let owner: int = (mb_owner line)
     let mut found: string = ""
     let mut matches: int = 0
     let mut i: int = 0
-    while (< i (parser_get_struct_def_count parser)) {
-        let def: ASTStruct = (parser_get_struct_def parser i)
+    while (< i (list_ASTStruct_length declarations.structs)) {
+        let def: ASTStruct = (list_ASTStruct_get declarations.structs i)
         let key: string = (+ "#record:" (int_to_string i))
         if (== type_name key) { return key }
         if (== def.name type_name) {
@@ -125,8 +136,8 @@ fn resource_type_identity(parser: Parser, type_name: string, line: int) -> strin
         set i (+ i 1)
     }
     set i 0
-    while (< i (parser_get_union_count parser)) {
-        let def: ASTUnion = (parser_get_union parser i)
+    while (< i (list_ASTUnion_length declarations.unions)) {
+        let def: ASTUnion = (list_ASTUnion_get declarations.unions i)
         let key: string = (+ "#union:" (int_to_string i))
         if (== type_name key) { return key }
         let mut variant: int = 0
@@ -152,13 +163,18 @@ fn resource_type_identity(parser: Parser, type_name: string, line: int) -> strin
 }
 # I retain declaration identities for the outer union and every concrete argument.
 fn resource_concrete_identity(parser: Parser, spelling: string, line: int, depth: int) -> string {
+    let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
+    return (resource_concrete_identity_in_declarations declarations spelling line depth)
+}
+
+fn resource_concrete_identity_in_declarations(declarations: ResourceDeclarations, spelling: string, line: int, depth: int) -> string {
     if (> depth 128) { return spelling }
-    let selected: int = (tc_selected_payload_union parser spelling)
+    let selected: int = (tc_selected_payload_union_in_declarations declarations spelling)
     if (>= selected 0) {
         let dot: int = (selected_payload_dot spelling)
         let concrete: string = (str_substring spelling 0 dot)
         let variant: string = (str_substring spelling (+ dot 1) (- (str_length spelling) (+ dot 1)))
-        let definition: ASTUnion = (parser_get_union parser selected)
+        let definition: ASTUnion = (list_ASTUnion_get declarations.unions selected)
         let mut vi: int = 0
         while (< vi definition.variant_count) {
             if (== (at definition.variant_names vi) variant) {
@@ -169,7 +185,7 @@ fn resource_concrete_identity(parser: Parser, spelling: string, line: int, depth
                 let mut argument: int = 0
                 while (< argument (array_length arguments)) {
                     if (> argument 0) { set identity (+ identity ",") }
-                    set identity (+ identity (resource_concrete_identity parser (at arguments argument) line (+ depth 1)))
+                    set identity (+ identity (resource_concrete_identity_in_declarations declarations (at arguments argument) line (+ depth 1)))
                     set argument (+ argument 1)
                 }
                 return (+ identity ">")
@@ -178,14 +194,14 @@ fn resource_concrete_identity(parser: Parser, spelling: string, line: int, depth
         }
     }
     let args: array<string> = (tc_generic_arguments spelling)
-    if (== (array_length args) 0) { return (resource_type_identity parser spelling line) }
+    if (== (array_length args) 0) { return (resource_type_identity_in_declarations declarations spelling line) }
     let base: string = (base_type_name spelling)
     if (tc_str_starts_with base "fn(") { return spelling }
-    let mut result: string = (+ (resource_type_identity parser base line) "<")
+    let mut result: string = (+ (resource_type_identity_in_declarations declarations base line) "<")
     let mut i: int = 0
     while (< i (array_length args)) {
         if (> i 0) { set result (+ result ",") }
-        set result (+ result (resource_concrete_identity parser (at args i) line (+ depth 1)))
+        set result (+ result (resource_concrete_identity_in_declarations declarations (at args i) line (+ depth 1)))
         set i (+ i 1)
     }
     return (+ result ">")
@@ -229,6 +245,11 @@ shadow resource_fixed_payload_bearing {
 # I expand concrete payloads against current fixed-point facts, preserving
 # formal names until their declaring union supplies concrete arguments.
 fn resource_concrete_payload_fact(parser: Parser, spelling: string, line: int, formals: array<string>, bearing: array<string>, collections: array<string>, collections_only: bool, active: array<string>, depth: int) -> bool {
+    let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
+    return (resource_concrete_payload_fact_in_declarations declarations spelling line formals bearing collections collections_only active depth)
+}
+
+fn resource_concrete_payload_fact_in_declarations(declarations: ResourceDeclarations, spelling: string, line: int, formals: array<string>, bearing: array<string>, collections: array<string>, collections_only: bool, active: array<string>, depth: int) -> bool {
     # Reserved scalar types cannot contain a nominal resource payload.
     if (or (== spelling "int") (or (== spelling "float") (or (== spelling "bool") (or (== spelling "string") (== spelling "void"))))) { return false }
     if (> depth 128) { return true }
@@ -239,22 +260,22 @@ fn resource_concrete_payload_fact(parser: Parser, spelling: string, line: int, f
     if collection {
         let mut i: int = 0
         while (< i (array_length args)) {
-            if (resource_concrete_payload_fact parser (at args i) line formals bearing collections false active (+ depth 1)) { return true }
+            if (resource_concrete_payload_fact_in_declarations declarations (at args i) line formals bearing collections false active (+ depth 1)) { return true }
             set i (+ i 1)
         }
         return false
     }
-    let identity: string = (resource_type_identity parser spelling line)
+    let identity: string = (resource_type_identity_in_declarations declarations spelling line)
     let base: string = (base_type_name identity)
-    if (>= (tc_selected_payload_union parser spelling) 0) { set args (tc_generic_arguments identity) }
+    if (>= (tc_selected_payload_union_in_declarations declarations spelling) 0) { set args (tc_generic_arguments identity) }
     if (or (> (array_length args) 0) (tc_str_starts_with base "#variant:")) {
         let mut key: string = (+ identity ":owned")
         if collections_only { set key (+ identity ":collections") }
         if (resource_name_in active key) { return false }
         let next: array<string> = (array_push active key)
         let mut i: int = 0
-        while (< i (parser_get_union_count parser)) {
-            let def: ASTUnion = (parser_get_union parser i)
+        while (< i (list_ASTUnion_length declarations.unions)) {
+            let def: ASTUnion = (list_ASTUnion_get declarations.unions i)
             let mut offset: int = 0
             let mut variant: int = 0
             while (< variant def.variant_count) {
@@ -264,7 +285,7 @@ fn resource_concrete_payload_fact(parser: Parser, spelling: string, line: int, f
                     let mut field: int = 0
                     while (< field count) {
                         let concrete: string = (tc_substitute_generic (at def.variant_field_types (+ offset field)) def.generic_params args)
-                        if (resource_concrete_payload_fact parser concrete def.line formals bearing collections collections_only next (+ depth 1)) { return true }
+                        if (resource_concrete_payload_fact_in_declarations declarations concrete def.line formals bearing collections collections_only next (+ depth 1)) { return true }
                         set field (+ field 1)
                     }
                     return false
@@ -272,12 +293,12 @@ fn resource_concrete_payload_fact(parser: Parser, spelling: string, line: int, f
                 set offset (+ offset count)
                 set variant (+ variant 1)
             }
-            if (== base (resource_type_identity parser def.name def.line)) {
+            if (== base (resource_type_identity_in_declarations declarations def.name def.line)) {
                 if (!= def.generic_param_count (array_length args)) { return true }
                 let mut field: int = 0
                 while (< field (array_length def.variant_field_types)) {
                     let concrete: string = (tc_substitute_generic (at def.variant_field_types field) def.generic_params args)
-                    if (resource_concrete_payload_fact parser concrete def.line formals bearing collections collections_only next (+ depth 1)) { return true }
+                    if (resource_concrete_payload_fact_in_declarations declarations concrete def.line formals bearing collections collections_only next (+ depth 1)) { return true }
                     set field (+ field 1)
                 }
                 return false
@@ -317,19 +338,24 @@ shadow resource_concrete_payload_fact {
 }
 
 fn resource_classify(parser: Parser, type_name: string, collections_only: bool) -> bool {
+    let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
+    return (resource_classify_in_declarations declarations type_name collections_only)
+}
+
+fn resource_classify_in_declarations(declarations: ResourceDeclarations, type_name: string, collections_only: bool) -> bool {
     if (tc_str_starts_with type_name "fn(") { return false }
-    if (>= (tc_selected_payload_union parser type_name) 0) { return (resource_instantiated_classify parser type_name 0 0 collections_only) }
+    if (>= (tc_selected_payload_union_in_declarations declarations type_name) 0) { return (resource_instantiated_classify_in_declarations declarations type_name 0 0 collections_only) }
     # Reserved scalar types cannot contain a nominal resource payload.
     if (or (== type_name "int") (or (== type_name "float") (or (== type_name "bool") (or (== type_name "string") (== type_name "void"))))) { return false }
-    if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_instantiated_classify parser type_name 0 0 collections_only) }
-    let struct_count: int = (parser_get_struct_def_count parser)
-    let union_count: int = (parser_get_union_count parser)
+    if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_instantiated_classify_in_declarations declarations type_name 0 0 collections_only) }
+    let struct_count: int = (list_ASTStruct_length declarations.structs)
+    let union_count: int = (list_ASTUnion_length declarations.unions)
     let mut collections: array<string> = []
     let mut bearing: array<string> = []
     let mut i: int = 0
     while (< i struct_count) {
-        let def: ASTStruct = (parser_get_struct_def parser i)
-        if def.is_resource { set bearing (array_push bearing (resource_type_identity parser def.name def.line)) }
+        let def: ASTStruct = (list_ASTStruct_get declarations.structs i)
+        if def.is_resource { set bearing (array_push bearing (resource_type_identity_in_declarations declarations def.name def.line)) }
         set i (+ i 1)
     }
     if (== (array_length bearing) 0) { return false }
@@ -337,15 +363,15 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
     let mut struct_keys: array<string> = []
     set i 0
     while (< i struct_count) {
-        let def: ASTStruct = (parser_get_struct_def parser i)
-        set struct_keys (array_push struct_keys (resource_type_identity parser def.name def.line))
+        let def: ASTStruct = (list_ASTStruct_get declarations.structs i)
+        set struct_keys (array_push struct_keys (resource_type_identity_in_declarations declarations def.name def.line))
         set i (+ i 1)
     }
     let mut union_keys: array<string> = []
     set i 0
     while (< i union_count) {
-        let def: ASTUnion = (parser_get_union parser i)
-        set union_keys (array_push union_keys (resource_type_identity parser def.name def.line))
+        let def: ASTUnion = (list_ASTUnion_get declarations.unions i)
+        set union_keys (array_push union_keys (resource_type_identity_in_declarations declarations def.name def.line))
         set i (+ i 1)
     }
     # A cycle alone creates no obligation. I propagate only from resource roots.
@@ -354,7 +380,7 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
         set changed false
         set i 0
         while (< i struct_count) {
-            let def: ASTStruct = (parser_get_struct_def parser i)
+            let def: ASTStruct = (list_ASTStruct_get declarations.structs i)
             let key: string = (at struct_keys i)
             if (or (not (resource_name_in bearing key)) (not (resource_name_in collections key))) {
                 let mut field: int = 0
@@ -362,8 +388,8 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
                 let mut unsupported: bool = false
                 while (< field (array_length def.field_types)) {
                     let spelling: string = (at def.field_types field)
-                    if (resource_concrete_payload_fact parser spelling def.line [] bearing collections false [] 0) { set owns true }
-                    if (resource_concrete_payload_fact parser spelling def.line [] bearing collections true [] 0) { set unsupported true }
+                    if (resource_concrete_payload_fact_in_declarations declarations spelling def.line [] bearing collections false [] 0) { set owns true }
+                    if (resource_concrete_payload_fact_in_declarations declarations spelling def.line [] bearing collections true [] 0) { set unsupported true }
                     set field (+ field 1)
                 }
                 if (and owns (not (resource_name_in bearing key))) { set bearing (array_push bearing key) set changed true }
@@ -373,7 +399,7 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
         }
         set i 0
         while (< i union_count) {
-            let def: ASTUnion = (parser_get_union parser i)
+            let def: ASTUnion = (list_ASTUnion_get declarations.unions i)
             let key: string = (at union_keys i)
             if (or (not (resource_name_in bearing key)) (not (resource_name_in collections key))) {
                 let mut field: int = 0
@@ -381,8 +407,8 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
                 let mut unsupported: bool = false
                 while (< field (array_length def.variant_field_types)) {
                     let spelling: string = (at def.variant_field_types field)
-                    if (resource_concrete_payload_fact parser spelling def.line def.generic_params bearing collections false [] 0) { set owns true }
-                    if (resource_concrete_payload_fact parser spelling def.line def.generic_params bearing collections true [] 0) { set unsupported true }
+                    if (resource_concrete_payload_fact_in_declarations declarations spelling def.line def.generic_params bearing collections false [] 0) { set owns true }
+                    if (resource_concrete_payload_fact_in_declarations declarations spelling def.line def.generic_params bearing collections true [] 0) { set unsupported true }
                     set field (+ field 1)
                 }
                 if (and owns (not (resource_name_in bearing key))) { set bearing (array_push bearing key) set changed true }
@@ -391,10 +417,10 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
             set i (+ i 1)
         }
     }
-    let queried: string = (resource_type_identity parser type_name 0)
+    let queried: string = (resource_type_identity_in_declarations declarations type_name 0)
     let mut ui: int = 0
     while (< ui union_count) {
-        let def: ASTUnion = (parser_get_union parser ui)
+        let def: ASTUnion = (list_ASTUnion_get declarations.unions ui)
         let mut offset: int = 0
         let mut variant: int = 0
         while (< variant def.variant_count) {
@@ -405,9 +431,9 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
                 let mut field: int = 0
                 while (< field count) {
                     let spelling: string = (at def.variant_field_types (+ offset field))
-                    let field_owned: bool = (resource_concrete_payload_fact parser spelling def.line def.generic_params bearing collections false [] 0)
+                    let field_owned: bool = (resource_concrete_payload_fact_in_declarations declarations spelling def.line def.generic_params bearing collections false [] 0)
                     if field_owned { set owned true }
-                    if (resource_concrete_payload_fact parser spelling def.line def.generic_params bearing collections true [] 0) { set unsupported true }
+                    if (resource_concrete_payload_fact_in_declarations declarations spelling def.line def.generic_params bearing collections true [] 0) { set unsupported true }
                     set field (+ field 1)
                 }
                 if collections_only { return unsupported }
@@ -418,8 +444,8 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
         }
         set ui (+ ui 1)
     }
-    if collections_only { return (resource_name_in collections (resource_type_identity parser type_name 0)) }
-    return (resource_name_in bearing (resource_type_identity parser type_name 0))
+    if collections_only { return (resource_name_in collections (resource_type_identity_in_declarations declarations type_name 0)) }
+    return (resource_name_in bearing (resource_type_identity_in_declarations declarations type_name 0))
 }
 
 shadow resource_classify {
@@ -853,6 +879,11 @@ shadow tc_substitute_generic {
 }
 
 fn resource_instantiated_classify(parser: Parser, spelling: string, line: int, depth: int, collections_only: bool) -> bool {
+    let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
+    return (resource_instantiated_classify_in_declarations declarations spelling line depth collections_only)
+}
+
+fn resource_instantiated_classify_in_declarations(declarations: ResourceDeclarations, spelling: string, line: int, depth: int, collections_only: bool) -> bool {
     if (tc_str_starts_with spelling "fn(") { return false }
     # I fail closed at my finite substitution boundary.
     if (> depth 128) { return true }
@@ -860,19 +891,19 @@ fn resource_instantiated_classify(parser: Parser, spelling: string, line: int, d
         let fields: array<string> = (split_tuple_type_names spelling)
         let mut field: int = 0
         while (< field (array_length fields)) {
-            if (resource_instantiated_classify parser (at fields field) line (+ depth 1) collections_only) { return true }
+            if (resource_instantiated_classify_in_declarations declarations (at fields field) line (+ depth 1) collections_only) { return true }
             set field (+ field 1)
         }
         return false
     }
-    let identity: string = (resource_type_identity parser spelling line)
+    let identity: string = (resource_type_identity_in_declarations declarations spelling line)
     let base: string = (base_type_name identity)
-    if (resource_classify parser base collections_only) { return true }
+    if (resource_classify_in_declarations declarations base collections_only) { return true }
     let args: array<string> = (tc_generic_arguments identity)
     if (== (array_length args) 0) { return false }
     let mut i: int = 0
-    while (< i (parser_get_union_count parser)) {
-        let def: ASTUnion = (parser_get_union parser i)
+    while (< i (list_ASTUnion_length declarations.unions)) {
+        let def: ASTUnion = (list_ASTUnion_get declarations.unions i)
         let mut offset: int = 0
         let mut variant: int = 0
         while (< variant def.variant_count) {
@@ -882,7 +913,7 @@ fn resource_instantiated_classify(parser: Parser, spelling: string, line: int, d
                 let mut field: int = 0
                 while (< field count) {
                     let concrete: string = (tc_substitute_generic (at def.variant_field_types (+ offset field)) def.generic_params args)
-                    if (resource_instantiated_classify parser concrete def.line (+ depth 1) collections_only) { return true }
+                    if (resource_instantiated_classify_in_declarations declarations concrete def.line (+ depth 1) collections_only) { return true }
                     set field (+ field 1)
                 }
                 return false
@@ -890,12 +921,12 @@ fn resource_instantiated_classify(parser: Parser, spelling: string, line: int, d
             set offset (+ offset count)
             set variant (+ variant 1)
         }
-        if (== (resource_type_identity parser def.name def.line) base) {
+        if (== (resource_type_identity_in_declarations declarations def.name def.line) base) {
             if (!= def.generic_param_count (array_length args)) { return true }
             let mut field: int = 0
             while (< field (array_length def.variant_field_types)) {
                 let concrete: string = (tc_substitute_generic (at def.variant_field_types field) def.generic_params args)
-                if (resource_instantiated_classify parser concrete def.line (+ depth 1) collections_only) { return true }
+                if (resource_instantiated_classify_in_declarations declarations concrete def.line (+ depth 1) collections_only) { return true }
                 set field (+ field 1)
             }
             return false
@@ -906,7 +937,7 @@ fn resource_instantiated_classify(parser: Parser, spelling: string, line: int, d
     let collection: bool = (or (== base "array") (or (== base "List") (== base "HashMap")))
     set i 0
     while (< i (array_length args)) {
-        if (resource_instantiated_classify parser (at args i) line (+ depth 1) (and collections_only (not collection))) { return true }
+        if (resource_instantiated_classify_in_declarations declarations (at args i) line (+ depth 1) (and collections_only (not collection))) { return true }
         set i (+ i 1)
     }
     return false
@@ -2885,11 +2916,16 @@ shadow tc_is_opaque_name {
 
 # I identify a selected payload through its actual declaration, never its suffix alone.
 fn tc_selected_payload_union(parser: Parser, spelling: string) -> int {
+    let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
+    return (tc_selected_payload_union_in_declarations declarations spelling)
+}
+
+fn tc_selected_payload_union_in_declarations(declarations: ResourceDeclarations, spelling: string) -> int {
     let dot: int = (selected_payload_dot spelling)
     if (< dot 0) { return -1 }
     let mut i: int = 0
-    while (< i (parser_get_struct_def_count parser)) {
-        if (== (parser_get_struct_def parser i).name spelling) { return -1 }
+    while (< i (list_ASTStruct_length declarations.structs)) {
+        if (== (list_ASTStruct_get declarations.structs i).name spelling) { return -1 }
         set i (+ i 1)
     }
     let concrete: string = (str_substring spelling 0 dot)
@@ -2898,8 +2934,8 @@ fn tc_selected_payload_union(parser: Parser, spelling: string) -> int {
     let arguments: array<string> = (tc_generic_arguments concrete)
     let mut found: int = -1
     set i 0
-    while (< i (parser_get_union_count parser)) {
-        let definition: ASTUnion = (parser_get_union parser i)
+    while (< i (list_ASTUnion_length declarations.unions)) {
+        let definition: ASTUnion = (list_ASTUnion_get declarations.unions i)
         if (== definition.name base) {
             if (>= found 0) { return -1 }
             if (!= definition.generic_param_count (array_length arguments)) { return -1 }
@@ -7909,4 +7945,40 @@ fn typecheck() -> int {
 
 shadow typecheck {
     assert (== (typecheck) 0)
+}
+
+shadow resource_type_identity_in_declarations {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} }")
+    let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
+    assert (== (resource_type_identity_in_declarations declarations "Handle" 1) "#record:0")
+}
+
+shadow resource_concrete_identity_in_declarations {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} }")
+    let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
+    assert (== (resource_concrete_identity_in_declarations declarations "Box<Handle>" 1 0) "#union:0<#record:0>")
+}
+
+shadow resource_concrete_payload_fact_in_declarations {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} }")
+    let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
+    assert (resource_concrete_payload_fact_in_declarations declarations "Box<Handle>" 1 [] ["#record:0"] [] false [] 0)
+}
+
+shadow resource_classify_in_declarations {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} }")
+    let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
+    assert (resource_classify_in_declarations declarations "Handle" false)
+}
+
+shadow resource_instantiated_classify_in_declarations {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} }")
+    let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
+    assert (resource_instantiated_classify_in_declarations declarations "Box<Handle>" 1 0 false)
+}
+
+shadow tc_selected_payload_union_in_declarations {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} }")
+    let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
+    assert (== (tc_selected_payload_union_in_declarations declarations "Box<int>.Some") 0)
 }
