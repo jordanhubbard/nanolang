@@ -133,7 +133,7 @@ class GenericRecordLists(unittest.TestCase):
         self.command('task-context', [self.programs, 'task-context'])
         for mode in ('task-foreign-ready', 'task-foreign-done', 'task-raw'):
             out, err = self.command(mode, [self.programs, mode], expected=(1,))
-            self.assertEqual(err, 'I cannot access a task owned by another Environment.\n')
+            self.assertEqual(err, b'I cannot access a task owned by another Environment.\n')
         self.command('coroutine-error-allocations', [self.coroutine_errors])
         out, _ = self.command('checked-lifetimes', [self.owned])
         self.assertIn(b'checked ownership assertions', out)
