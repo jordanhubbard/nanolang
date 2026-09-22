@@ -315,3 +315,45 @@ exercise both mismatch directions, matching STRING, empty STRING/INT and
 unchanged numeric helper behavior without emitting or executing invalid code.
 The original full paired reverse control remains unchanged. No execution has
 yet qualified this correction.
+
+## My complete destination audit after c487
+
+I retain c487's paired exit 1 at 131.164 seconds, without timeout or cleanup
+errors and with all process groups/descendants absent. C seed passes the full
+original and additive corpus. Retained 1ee9 Nano refresh1 accepts the original
+global STRING-array mismatch; I do not execute its output. Both evidence hosts
+retain /tmp/nanolang-split-c487-puck-evidence. This is composed focused evidence,
+not a fresh bootstrap or installed SDK qualification.
+
+I inspect these actual Nano checker paths before another narrow repair:
+
+| Destination | Actual boundary | Remaining scope |
+| --- | --- | --- |
+| Global binding | Phase 0.5 registers annotations and resource facts only | Initializer expression/result comparison is absent. |
+| Local binding | check_let_statement checks expression, hints and types_equal | Known STRING mismatches are compared; empty literals retain context. Existing map-specific spelling check is a separate authority limitation. |
+| Variable assignment | check_set_statement compares expression and symbol type | Known STRING mismatches are compared. |
+| Record field assignment | check_set_statement resolves declared field and types_equal | Public array borrowing remains refused; direct adapter coverage is not public admission. |
+| Return | check_return_statement checks expression/hints/types_equal | Known STRING mismatches are compared. |
+| Direct and indirect arguments | Actual signatures, check_constructor_argument and types_equal | STRING-array parameter comparison exists, including expression callees. |
+| Qualified arguments | Actual resolved signature loop compares only FUNCTION/UNION parameters | ARRAY parameters bypass compatibility despite initializer traversal. Mapped-helper fallback remains a separate existing policy. |
+| Record initializer | New actual-field traversal and STRING comparison | General field shape, duplicate and unknown-field completeness remains separate. |
+| Array insertion/store | Intrinsic array_push retains receiver result; array_set reaches builtin result | Neither validates a stored STRING-array value against a nested array receiver element. |
+| Union payload | Contextual argument helper checks concrete payload fields | Standalone union expression returns identity, so local/global/return construction can bypass payload traversal. |
+
+I propose one bounded correction set for the inventoried STRING-array routes.
+After actual user signatures are registered, I traverse actual global
+initializers and compare known STRING-array facts with declared annotations;
+I do not move native startup order or invent runtime forward initialization.
+Qualified ARRAY parameters use their actual resolved signature and existing
+STRING comparison. Unbound intrinsic insertion/store derives its destination
+from the actual receiver element, preserving declared/local callee precedence.
+Union construction traverses actual payload expressions and uses the existing
+concrete annotation substitution when available, without imposing a new
+generic shape policy. I retain unknown/unresolved contextual facts and
+unrelated numeric behavior as existing limits, not proven compatibility.
+
+Original full controls remain unchanged. Additive positive/negative controls
+cover global builtin and declared/qualified returns, qualified ARRAY arguments,
+nested array insertion/store, and local/return/record-contained union payloads.
+Every refusal retains safe shadows and output sentinels; no invalid product is
+executed. Complete source/fixtures require review before another qualification.
