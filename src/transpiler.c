@@ -204,6 +204,7 @@ static bool is_schema_list_type(const char *name) {
         "ASTModuleQualifiedCall",
         "ASTNumber",
         "ASTOpaqueType",
+        "ASTServiceDecl",
         "ASTPrint",
         "ASTReturn",
         "ASTSet",

@@ -5261,7 +5261,7 @@ shadow scan_block_for_lists {
 }
 
 fn native_schema_list(name: string) -> bool {
-    let providers: array<string> = ["ASTArrayLiteral", "ASTAssert", "ASTBinaryOp", "ASTBlock", "ASTBool", "ASTCall", "ASTEnum", "ASTFieldAccess", "ASTFloat", "ASTFor", "ASTFunction", "ASTIdentifier", "ASTIf", "ASTImport", "ASTLet", "ASTMatch", "ASTModuleQualifiedCall", "ASTNumber", "ASTOpaqueType", "ASTPrint", "ASTReturn", "ASTSet", "ASTShadow", "ASTStmtRef", "ASTString", "ASTStruct", "ASTStructLiteral", "ASTTupleIndex", "ASTTupleLiteral", "ASTUnion", "ASTUnionConstruct", "ASTUnsafeBlock", "ASTWhile", "CompilerDiagnostic", "CompilerSourceLocation", "LexerToken"]
+    let providers: array<string> = ["ASTArrayLiteral", "ASTAssert", "ASTBinaryOp", "ASTBlock", "ASTBool", "ASTCall", "ASTEnum", "ASTFieldAccess", "ASTFloat", "ASTFor", "ASTFunction", "ASTIdentifier", "ASTIf", "ASTImport", "ASTLet", "ASTMatch", "ASTModuleQualifiedCall", "ASTNumber", "ASTOpaqueType", "ASTServiceDecl", "ASTPrint", "ASTReturn", "ASTSet", "ASTShadow", "ASTStmtRef", "ASTString", "ASTStruct", "ASTStructLiteral", "ASTTupleIndex", "ASTTupleLiteral", "ASTUnion", "ASTUnionConstruct", "ASTUnsafeBlock", "ASTWhile", "CompilerDiagnostic", "CompilerSourceLocation", "LexerToken"]
     let mut i: int = 0
     while (< i (array_length providers)) {
         if (== name (at providers i)) { return true }
@@ -5272,6 +5272,7 @@ fn native_schema_list(name: string) -> bool {
 shadow native_schema_list {
     assert (native_schema_list "LexerToken")
     assert (native_schema_list "ASTCall")
+    assert (native_schema_list "ASTServiceDecl")
     assert (not (native_schema_list "ASTUserRecord"))
     assert (not (native_schema_list "CompilerUserRecord"))
 }
@@ -5366,6 +5367,14 @@ shadow generate_list_specializations {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (generate_list_specializations p)
     assert (str_contains code "List_Point")
+    (native_list_reset)
+    let service_source: string = (+ "extern struct ASTServiceDecl { node_type:int,line:int,column:int,interface_id:string,interface_bytes:int,document_path:string,path_bytes:int,catalog_version:int,origin_index:int } " (+ "f" "n service_lists() -> int { let rows: List<ASTServiceDecl> = [] return 0 }"))
+    let service_tokens: List<LexerToken> = (tokenize_string service_source "schema-provider.nano" (list_CompilerDiagnostic_new))
+    let service_parser: Parser = (parse_program service_tokens (list_LexerToken_length service_tokens) "schema-provider.nano")
+    assert (not (parser_has_error service_parser))
+    let service_code: string = (generate_list_specializations service_parser)
+    assert (str_contains service_code "runtime/list_ASTServiceDecl.h")
+    assert (not (str_contains service_code "NL_DEFINE_RECORD_LIST(ASTServiceDecl"))
 }
 
 /* Generate List<T> struct and functions for a specific type T */
