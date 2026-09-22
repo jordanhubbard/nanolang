@@ -26,6 +26,13 @@ NvmDeclarationResult nvm_prepare_ownership_declarations_v2(const NvmV2Module *,N
 /* I stage a shared caller budget; failure changes neither it nor the output. */
 NvmDeclarationResult nvm_prepare_ownership_declarations_v2_budget(const NvmV2Module *,
     NvmPreparationBudget *,NvmOwnershipDeclarationPlan **);
+/* I explicitly select the private typed grammar, including ARRAY_FIELDS rev2.
+ * Foreign referents are bounded numeric facts, not resolved declarations. Every
+ * plan remains non-admitting; this query performs no provider/ABI/lifetime check.
+ * The shared budget and output publish together only on success. */
+NvmDeclarationResult nvm_prepare_ownership_declarations_typed_v2(const NvmV2Module *,
+    NvmPreparationBudget *,NvmOwnershipDeclarationPlan **);
+bool nvm_ownership_declarations_foreign_unresolved(const NvmOwnershipDeclarationPlan *);
 void nvm_ownership_declarations_free(NvmOwnershipDeclarationPlan *);
 bool nvm_ownership_declarations_counts(const NvmOwnershipDeclarationPlan *,NvmDeclarationCounts *);
 bool nvm_ownership_declarations_layout(const NvmOwnershipDeclarationPlan *,uint32_t,NvmDeclarationLayout *);

@@ -71,7 +71,7 @@ NvmDeclarationResult nvm_prepare_ownership_declarations(
  * copy. This is not a module/legacy conversion: selectors and constants stay
  * in the caller's retained V2 tables, and no auxiliary section is discarded. */
 static NvmDeclarationResult declarations_v2_prepare(
-        const NvmV2Module *m,NvmPreparationBudget *budget,NvmOwnershipDeclarationPlan **out) {
+        const NvmV2Module *m,NvmPreparationBudget *budget,NvmOwnershipDeclarationPlan **out,bool typed) {
     if(!m || !out || (m->layouts.count&&!m->layouts.items) ||
        (m->functions.count&&!m->functions.items) ||
        (m->constants.count&&!m->constants.items) ||
@@ -124,16 +124,17 @@ static NvmDeclarationResult declarations_v2_prepare(
     if(result!=NVM_V2_OK){free(wire);return declaration_result(NVM_DECL_INVALID);}
     NvmOrdinaryArrayAuthority *ordinary=calloc(1,sizeof *ordinary);
     if(!ordinary){free(wire);return declaration_result(NVM_DECL_MEMORY);}
-    ordinary->failure=NVM_OAA_INVALID;ordinary->steps=work;ordinary->budget=budget?&remaining:NULL;
+    ordinary->typed=typed;ordinary->failure=NVM_OAA_INVALID;ordinary->steps=work;ordinary->budget=budget?&remaining:NULL;
     bool allocation_failed=false;
-    result=nvm_ownership_mixed_layouts_private_decode_detailed(wire,encoded,
-        &ordinary->layouts,&allocation_failed);
+    result=typed?
+        nvm_ownership_typed_layouts_private_decode_detailed(wire,encoded,&ordinary->layouts,&allocation_failed):
+        nvm_ownership_mixed_layouts_private_decode_detailed(wire,encoded,&ordinary->layouts,&allocation_failed);
     free(wire);
     if(result!=NVM_V2_OK) {
         nvm_ordinary_array_authority_free(ordinary);
         return declaration_result(allocation_failed?NVM_DECL_MEMORY:NVM_DECL_INVALID);
     }
-    OwnershipProjection projection={0};
+    OwnershipProjection projection={0};projection.typed=typed;
     NvmOrdinaryArrayStatus status=oaa_check_declarations(&facts,ordinary,&projection);
     if(status!=NVM_OAA_DESCRIBED) {
         nvm_ordinary_array_authority_free(ordinary);
@@ -146,13 +147,22 @@ static NvmDeclarationResult declarations_v2_prepare(
 }
 NvmDeclarationResult nvm_prepare_ownership_declarations_v2(const NvmV2Module *m,
         NvmOwnershipDeclarationPlan **out) {
-    return declarations_v2_prepare(m,NULL,out);
+    return declarations_v2_prepare(m,NULL,out,false);
 }
 NvmDeclarationResult nvm_prepare_ownership_declarations_v2_budget(const NvmV2Module *m,
         NvmPreparationBudget *budget,NvmOwnershipDeclarationPlan **out) {
     if(!budget)return declaration_result(NVM_DECL_INVALID);
     if(!nvm_preparation_budget_valid(budget))return declaration_result(NVM_DECL_LIMIT);
-    return declarations_v2_prepare(m,budget,out);
+    return declarations_v2_prepare(m,budget,out,false);
+}
+NvmDeclarationResult nvm_prepare_ownership_declarations_typed_v2(const NvmV2Module *m,
+        NvmPreparationBudget *budget,NvmOwnershipDeclarationPlan **out) {
+    if(!budget)return declaration_result(NVM_DECL_INVALID);
+    if(!nvm_preparation_budget_valid(budget))return declaration_result(NVM_DECL_LIMIT);
+    return declarations_v2_prepare(m,budget,out,true);
+}
+bool nvm_ownership_declarations_foreign_unresolved(const NvmOwnershipDeclarationPlan *p) {
+    return p && p->ordinary->foreign_unresolved;
 }
 bool nvm_ownership_declarations_counts(const NvmOwnershipDeclarationPlan *p,NvmDeclarationCounts *out) {
     if(!p||!out)return false;

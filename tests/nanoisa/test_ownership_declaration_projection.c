@@ -322,6 +322,120 @@ static void retained_v2(void) {
     memset(c.o,0,c.on);memset(signatures,0,sizeof signatures);memset(constants,0,sizeof constants);
     nvm_v2_layouts_free(&m.layouts);facts(p,true);getter_errors(p);nvm_ownership_declarations_free(p);
 }
+typedef struct {
+    NvmV2Module m;NvmV2Layout layouts[5];NvmV2LayoutField fields[5][4];
+    NvmV2Signature signatures[3];NvmV2Function function;NvmV2Constant names[32];
+    uint8_t parameter,result,wrong,wire[2048];size_t n,extension,types,bindings,result_at;
+} Typed;
+static void typed_make(Typed *c) {
+    memset(c,0,sizeof *c);
+    const uint8_t kinds[]={NVM_V2_LAYOUT_STRUCT,NVM_V2_LAYOUT_TUPLE,NVM_V2_LAYOUT_UNION,NVM_V2_LAYOUT_ENUM,NVM_V2_LAYOUT_STRUCT};
+    const uint16_t counts[]={4,2,2,0,1};
+    for(unsigned i=0;i<5;i++)c->layouts[i]=(NvmV2Layout){kinds[i],counts[i],i,c->fields[i]};
+    c->fields[0][0]=(NvmV2LayoutField){TAG_TUPLE,1,10};
+    c->fields[0][1]=(NvmV2LayoutField){TAG_ARRAY,UINT32_MAX,11};
+    c->fields[0][2]=(NvmV2LayoutField){TAG_FUNCTION,UINT32_MAX,12};
+    c->fields[0][3]=(NvmV2LayoutField){TAG_OPAQUE,UINT32_MAX,13};
+    c->fields[1][0]=(NvmV2LayoutField){TAG_UNION,2,14};
+    c->fields[1][1]=(NvmV2LayoutField){TAG_ENUM,3,15};
+    c->fields[2][0]=(NvmV2LayoutField){TAG_STRUCT,4,16};
+    c->fields[2][1]=(NvmV2LayoutField){TAG_STRING,UINT32_MAX,17};
+    c->fields[4][0]=(NvmV2LayoutField){TAG_INT,UINT32_MAX,18};
+    c->parameter=TAG_ENUM;c->result=TAG_TUPLE;c->wrong=TAG_BOOL;
+    c->signatures[0]=(NvmV2Signature){1,1,&c->wrong,&c->wrong};
+    c->signatures[1]=(NvmV2Signature){1,1,&c->parameter,&c->result};
+    c->signatures[2]=c->signatures[1];c->function.signature_idx=2;c->function.local_count=1;
+    for(unsigned i=0;i<32;i++)c->names[i].tag=TAG_STRING;
+    c->m.layouts=(NvmV2Layouts){c->layouts,5};c->m.signatures=(NvmV2Signatures){c->signatures,3};
+    c->m.functions=(NvmV2Functions){&c->function,1};c->m.constants=(NvmV2Constants){c->names,32};
+    u32(c->wire,&c->n,3);u32(c->wire,&c->n,5);
+    for(unsigned i=0;i<5;i++)u8(c->wire,&c->n,i==2?0:NVM_LAYOUT_COMPLETE);
+    while(c->n%4)u8(c->wire,&c->n,0);
+    u32(c->wire,&c->n,1);u16(c->wire,&c->n,1);u16(c->wire,&c->n,1);
+    c->result_at=c->n;
+    u8(c->wire,&c->n,TAG_TUPLE);u8(c->wire,&c->n,0);u16(c->wire,&c->n,0);u32(c->wire,&c->n,1);
+    u8(c->wire,&c->n,TAG_ENUM);u8(c->wire,&c->n,0);u16(c->wire,&c->n,0);u32(c->wire,&c->n,3);
+    u32(c->wire,&c->n,4);u32(c->wire,&c->n,0);u32(c->wire,&c->n,2);
+    u16(c->wire,&c->n,1);u16(c->wire,&c->n,1);u32(c->wire,&c->n,28);
+    u32(c->wire,&c->n,1);u32(c->wire,&c->n,2);u16(c->wire,&c->n,2);u16(c->wire,&c->n,0);
+    for(unsigned v=0;v<2;v++){u32(c->wire,&c->n,20+v);u16(c->wire,&c->n,(uint16_t)v);u16(c->wire,&c->n,1);}
+    c->extension=c->n;u16(c->wire,&c->n,2);u16(c->wire,&c->n,2);u32(c->wire,&c->n,84);
+    u32(c->wire,&c->n,8);c->types=c->n;
+    const uint8_t tags[]={TAG_INT,TAG_STRUCT,TAG_TUPLE,TAG_UNION,TAG_ENUM,TAG_OPAQUE,TAG_FUNCTION,TAG_ARRAY};
+    const uint32_t refs[]={UINT32_MAX,4,1,2,3,65535,65534,2};
+    for(unsigned i=0;i<8;i++){u8(c->wire,&c->n,tags[i]);u8(c->wire,&c->n,0);u16(c->wire,&c->n,0);u32(c->wire,&c->n,refs[i]);}
+    u32(c->wire,&c->n,1);c->bindings=c->n;
+    u32(c->wire,&c->n,0);u16(c->wire,&c->n,1);u16(c->wire,&c->n,0);u32(c->wire,&c->n,7);
+    c->m.ownership_data=c->wire;c->m.ownership_size=(uint32_t)c->n;
+}
+static NvmPreparationBudget typed_budget(void){return (NvmPreparationBudget){NVM_PREPARATION_MAX_BYTES,NVM_PREPARATION_MAX_STEPS};}
+static void typed_facts(NvmOwnershipDeclarationPlan *p) {
+    NvmDeclarationCounts counts;CHECK(nvm_ownership_declarations_counts(p,&counts));
+    CHECK(counts.layouts==5&&counts.types==8&&counts.bindings==1&&counts.unions==1&&counts.variants==2);
+    CHECK(nvm_ownership_declarations_foreign_unresolved(p));
+    NvmOrdinaryArrayType t;CHECK(nvm_ownership_declarations_type(p,5,&t));CHECK(t.tag==TAG_OPAQUE&&t.referent==65535);
+    CHECK(nvm_ownership_declarations_type(p,6,&t));CHECK(t.tag==TAG_FUNCTION&&t.referent==65534);
+    CHECK(nvm_ownership_declarations_type(p,4,&t));CHECK(t.tag==TAG_ENUM&&t.referent==3);
+    NvmUnionVariantFact v;CHECK(nvm_ownership_declarations_variant(p,0,0,&v));CHECK(v.layout==2&&v.field_count==1&&v.field_offset==0);
+    NvmV2LayoutField f;CHECK(nvm_ownership_declarations_field(p,1,0,&f));CHECK(f.type_tag==TAG_UNION&&f.nested_idx==2);
+}
+static void typed_profile_controls(void) {
+    Typed c;typed_make(&c);NvmOwnershipDeclarationPlan *p=NULL;NvmPreparationBudget b=typed_budget();
+    CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==NVM_DECL_PREPARED);typed_facts(p);nvm_ownership_declarations_free(p);
+    p=(void *)(uintptr_t)1;CHECK(nvm_prepare_ownership_declarations_v2(&c.m,&p).status==NVM_DECL_INVALID);CHECK(p==(void *)(uintptr_t)1);
+#define TYPED_BAD(change) do {typed_make(&c);change;b=typed_budget();NvmPreparationBudget before=b;p=(void *)(uintptr_t)1;CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==NVM_DECL_INVALID);CHECK(p==(void *)(uintptr_t)1&&!memcmp(&b,&before,sizeof b));} while(0)
+    TYPED_BAD(c.fields[0][0].nested_idx=3);
+    TYPED_BAD((c.fields[4][0]=(NvmV2LayoutField){TAG_STRUCT,0,18}));
+    TYPED_BAD(c.fields[0][2].nested_idx=4);
+    TYPED_BAD(c.fields[0][3].nested_idx=4);
+    TYPED_BAD(c.fields[1][1].nested_idx=UINT32_MAX);
+    TYPED_BAD(c.wire[c.extension+2]=3);
+    TYPED_BAD(c.wire[c.extension+2]=1);
+    TYPED_BAD(c.wire[c.types+1]=1);
+    TYPED_BAD(patch(c.wire,c.types+4,0));
+    TYPED_BAD(patch(c.wire,c.types+8+4,3));
+    TYPED_BAD(patch(c.wire,c.types+5*8+4,65536));
+    TYPED_BAD(patch(c.wire,c.types+6*8+4,UINT32_MAX));
+    TYPED_BAD(patch(c.wire,c.types+7*8+4,7));
+    TYPED_BAD(patch(c.wire,c.bindings+8,8));
+    TYPED_BAD(c.names[20].tag=TAG_INT);
+    TYPED_BAD(c.function.signature_idx=0);
+    TYPED_BAD(patch(c.wire,c.result_at+4,UINT32_MAX));
+#undef TYPED_BAD
+    for(unsigned depth=64;depth<=65;depth++) {
+        typed_make(&c);c.n=c.types-4;u32(c.wire,&c.n,depth);
+        for(unsigned i=0;i<depth;i++) {
+            u8(c.wire,&c.n,i+1==depth?TAG_STRING:TAG_ARRAY);u8(c.wire,&c.n,0);u16(c.wire,&c.n,0);
+            u32(c.wire,&c.n,i+1==depth?UINT32_MAX:i+1);
+        }
+        u32(c.wire,&c.n,1);u32(c.wire,&c.n,0);u16(c.wire,&c.n,1);u16(c.wire,&c.n,0);u32(c.wire,&c.n,0);
+        patch(c.wire,c.extension+4,20+depth*8);c.m.ownership_size=(uint32_t)c.n;
+        b=typed_budget();NvmPreparationBudget before=b;p=(void *)(uintptr_t)1;
+        CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==(depth==64?NVM_DECL_PREPARED:NVM_DECL_LIMIT));
+        if(depth==64)nvm_ownership_declarations_free(p);
+        else CHECK(p==(void *)(uintptr_t)1&&!memcmp(&b,&before,sizeof b));
+    }
+    /* I validate prior-only tables too; no forward edge triggers this check. */
+    NvmV2LayoutField leaf={TAG_INT,0,0};NvmV2Layout prior[2]={{NVM_V2_LAYOUT_STRUCT,0,0,NULL},{NVM_V2_LAYOUT_STRUCT,1,1,&leaf}};
+    NvmV2Layouts ls={prior,2},out={(void *)(uintptr_t)1,7};uint8_t wire[64];
+    size_t bytes=nvm_v2_layouts_encoded_size(&ls);CHECK(nvm_v2_layouts_encode(&ls,wire,bytes)==NVM_V2_OK);
+    CHECK(nvm_ownership_typed_layouts_private_decode_detailed(wire,bytes,&out,NULL)!=NVM_V2_OK);CHECK(out.items==(void *)(uintptr_t)1&&out.count==7);
+#ifdef OAA_INSTRUMENT
+    typed_make(&c);size_t baseline=live;calls=0;b=typed_budget();p=NULL;
+    CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==NVM_DECL_PREPARED);
+    size_t measured=calls;nvm_ownership_declarations_free(p);CHECK(live==baseline);
+    for(unsigned mode=0;mode<2;mode++)for(size_t i=0;i<measured;i++) {
+        b=typed_budget();NvmPreparationBudget before=b;calls=0;fail_at=i;persistent=mode!=0;p=(void *)(uintptr_t)1;
+        CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==NVM_DECL_MEMORY);
+        CHECK(p==(void *)(uintptr_t)1&&live==baseline&&!memcmp(&b,&before,sizeof b));
+        fail_at=SIZE_MAX;persistent=false;b=typed_budget();p=NULL;
+        CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==NVM_DECL_PREPARED);typed_facts(p);nvm_ownership_declarations_free(p);CHECK(live==baseline);
+    }
+#endif
+    typed_make(&c);b=typed_budget();p=NULL;CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==NVM_DECL_PREPARED);
+    memset(&c,0,sizeof c);typed_facts(p);nvm_ownership_declarations_free(p);
+}
+
 int main(void){
     setvbuf(stdout,NULL,_IONBF,0);CHECK(ordinary_controls_main()==0);
     puts("I begin complete mixed declaration controls");positive(false);positive(true);malformed();borrowed_suffix();union_only();union_budget(7);union_budget(8);mixed_maximum();old_profiles();
@@ -339,6 +453,6 @@ int main(void){
     calls=0;union_budget(8);CHECK(!calls&&!live);
     printf("I covered %zu mixed allocation positions in both failure modes; two query TUs instrumented\n",measured);
 #endif
-    retained_v2();
+    retained_v2();typed_profile_controls();
     printf("PASS %u complete mixed declaration checks; no execution authority\n",checks);return 0;
 }

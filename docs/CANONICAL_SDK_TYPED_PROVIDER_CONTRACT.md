@@ -650,3 +650,48 @@ step-minus-one refusal, zero-budget unchanged output, and every combined
 allocation prefix under persistent/one-shot failure followed by fresh recovery.
 This source checkpoint does not implement revision2 rows, lifetime wire, provider
 cross-validation or consumer admission. Those remain the next required units.
+
+## I checkpoint the private typed declaration profile
+
+I add `nvm_prepare_ownership_declarations_typed_v2(module, budget, out)` as an
+explicit private transport query. Existing legacy, retained-V2, and budgeted-V2
+wrappers select their original profile. I use the same bounded layout decoder,
+ownership descriptor reader, extension framing, union partition reader, and
+ARRAY_FIELDS reader. Only the new entry accepts ARRAY_FIELDS revision2; its
+count/type/binding encoding stays byte-for-byte the existing8/12-byte format.
+Union partition revision remains1 and retains its original ordinal, offset,
+unique-name, exact coverage and name-kind checks.
+
+The typed layout path validates every table, even without a forward edge, with
+the existing iterative graph walk. STRUCT/TUPLE/UNION/ENUM tags name matching
+layout kinds. Scalar/string and ARRAY/FUNCTION/OPAQUE fields have NO_INDEX in
+coarse storage. Every ARRAY field, including tuple or union fields, needs one
+ordered shared element binding. Reference/declaration children do not become
+inline storage edges. Resource modes remain unsupported by this new transport
+profile. Array chains retain the existing64-node depth bound and cycle refusal.
+
+Typed ARRAY_FIELDS rows admit exact layout referents and bounded foreign indices
+below65,536. FUNCTION/OPAQUE rows and coarse fields/descriptors set the copied
+`foreign_unresolved` fact. I have not resolved those indices against provider
+nominal/signature tables; that fact is not a runtime capability or proof that
+all other provider obligations are complete. Even when false, the plan remains
+non-admitting. Exact declaration keys/owners/generic arguments, function/opaque
+field bindings, full callback signatures, imported bindings, generated ABI and
+lifetime policies still require the separate provider cross-validator.
+
+Shared caller accounting covers the full typed graph workspace and repeated
+union passes using the existing preflight. Success publishes budget and copied
+plan together; failure preserves both. Original linked/instrumented controls
+remain, with additive mixed record/tuple/union/enum rows, unused foreign rows,
+exact signature selector, wrong-kind/cycle/reserved/depth controls, legacy
+revision2 refusal, independent output lifetime and all allocation-prefix modes.
+Strict production and both fixture-mode syntax checks pass. I have not executed
+this new profile before source review.
+
+The production consumer inventory still selects legacy/public wrappers:
+`verifier.c`, `affine_bytecode.c`, `affine_state.c`, `managed_array_shapes.c`,
+`record_array_structure.inc`, `nvm_v2_convert.c`, `nvm2c.c`, and `nvm2c_owned.h`.
+The new API is called only by the private fixture. No module loader, VM, FFI,
+COP, AOT emitter, conversion, feature bit or installed provider route selects it.
+Whole-consumer acceptance/refusal qualification remains required before any
+future execution activation; this checkpoint changes no such authority.

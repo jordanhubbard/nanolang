@@ -68,12 +68,16 @@ static NvmOrdinaryArrayStatus oaa_check_declarations(const OwnershipModuleFacts 
         const NvmV2Layout *row=&p->layouts.items[i];
         if(row->name_idx!=NVM_V2_NO_INDEX && !ownership_name_valid(facts,row->name_idx)){return NVM_OAA_INVALID;}
         records+=row->kind==NVM_V2_LAYOUT_STRUCT;enums+=row->kind==NVM_V2_LAYOUT_ENUM;unions+=row->kind==NVM_V2_LAYOUT_UNION;
-        if(row->kind!=NVM_V2_LAYOUT_STRUCT && (!projection || row->kind!=NVM_V2_LAYOUT_UNION))p->unknown=true;
+        if(!p->typed && row->kind!=NVM_V2_LAYOUT_STRUCT && (!projection || row->kind!=NVM_V2_LAYOUT_UNION))p->unknown=true;
         for(uint16_t f=0;f<row->field_count;f++) {
             const NvmV2LayoutField *field=&row->fields[f];uint32_t ref=field->nested_idx;
             if(field->name_idx!=NVM_V2_NO_INDEX && !ownership_name_valid(facts,field->name_idx)){return NVM_OAA_INVALID;}
             /* The prior-only legacy decoder permits tag/referent combinations
              * that this exact ordinary query must check independently. */
+            if(p->typed) {
+                if(field->type_tag==TAG_FUNCTION || field->type_tag==TAG_OPAQUE)p->foreign_unresolved=true;
+                continue; /* Every typed field was checked by the shared DAG reader. */
+            }
             if(field->type_tag==TAG_STRUCT) {
                 if(ref>=p->layouts.count || p->layouts.items[ref].kind!=NVM_V2_LAYOUT_STRUCT){return NVM_OAA_INVALID;}
             } else if(field->type_tag==TAG_ENUM && ref!=NVM_V2_NO_INDEX) {

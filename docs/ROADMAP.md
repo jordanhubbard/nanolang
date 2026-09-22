@@ -17448,3 +17448,11 @@ crossvalidation, executable admission and installed SDK acceptance remain open.
 - [ ] I dispose the independent public STRING callback snapshot after copying it into fixed or dynamic map output, on success and copy failure. Independent1c819 source review identified this pre-existing extra owner before execution; native foreign STRING calls also return an independent create_string copy. Borrowed filter inputs and handler escape results remain untouched (task_992713bde1494772b0cb0b58bc9ee3c3).
 
 - [ ] I repair missing complete STRING-array addition result views exposed by the first c34 fixture checker refusal (task_992713bde1494772b0cb0b58bc9ee3c3). Original source stays unchanged; contract `docs/STRING_ARRAY_ARITHMETIC_RESULT_VIEW.md` preserves actual operand provenance and no destination inference. Checker-only diagnostic is retained separately, not owning acceptance.
+
+I implement the approved26f private typed profile through the existing shared
+layout/descriptor/framing/union/array readers. Original wrappers retain their
+profiles; revision2 accepts bounded complete numeric declaration facts only.
+Foreign referents remain explicitly unresolved, and all executable consumers
+keep legacy/public paths. Additive mixed-graph/depth/selector/rollback controls
+are source-only pending review; provider identity/lifetime/ABI crossvalidation
+and complete installed acceptance remain required.
