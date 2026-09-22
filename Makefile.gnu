@@ -1082,6 +1082,14 @@ test-vm-effect-ownership: nano_virt
 
 test-units: test-vm-effect-ownership
 
+.PHONY: test-nanovirt-extern-names
+test-nanovirt-extern-names: $(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(NANOVIRT_OBJECTS)) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_extern_names tests/nanovirt/test_extern_names.c \
+		$(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(NANOVIRT_OBJECTS)) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_extern_names
+
+test-units: test-nanovirt-extern-names
+
 .PHONY: test-nanovirt
 test-nanovirt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running NanoVirt codegen tests..."
