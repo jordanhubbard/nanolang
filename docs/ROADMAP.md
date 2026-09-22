@@ -17175,3 +17175,5 @@ I qualify reviewed e3a parser correction on Linux with exact retained instrument
 - [x] I qualified54e's original/additive five resource bodies under the reviewed original-module selector and unchanged60-second deadline. Declaration classification measured3.419s versus prior8.564s; full preparation remains unqualified and its original terminal retained. Evidence: `docs/evidence/resource-keys-focused/`.
 
 - [ ] I preserve the private resource selector's target-specific evaluator flag omission as an attribution limitation (global sanitizer flags present, eval.o FP flags absent). The untouched original compiler is required for full corrected component acceptance; focused7174 evidence is not exact evaluator Make-policy parity.
+
+- [x] I retained corrected54e's full original typecheck terminal: unchanged60-second deadline,433 complete bodies and the same instantiated-resource frontier; full-context classification savings were smaller than focused timing. Evidence: `docs/evidence/resource-keys-full-typecheck/`. Complete component/CI acceptance remains open.
