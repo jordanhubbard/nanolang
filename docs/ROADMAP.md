@@ -17200,3 +17200,5 @@ snapshotted declared-type/runtime-tag proof; other graphs retain it until explic
 release. This preserves original scalar teardown while protecting borrowed leaves.
 
 I register my canonical compiler-support adapter prerequisite as MAC task `task_56d27a98d3f24641a2f07f636278eab0`. My source/fixture checkpoint extends only the owner-bound artifact catalogs for the real zero-argument ABI/root helpers, preserving typed refusals and borrowed-string snapshots. Fresh focused qualification and full canonical bootstrap remain pending; the retained 609 Darwin missing-symbol and Linux shadow-deadline terminals remain separate.
+
+I record a fixture contract mismatch under task56d27 before correction: b209 Darwin materializes two immutable compiler_support generations for distinct declaration owners, while my new actual-provider fixture incorrectly requires one pathname. Exact symbol/owner rows remain; the corrected fixture will oracle-check and hash every selected provider independently before unchanged VM/native calls. No failed product output executed and no owner merging is permitted.
