@@ -1,0 +1,15 @@
+test_byte_integer_join_keeps_explicit_conversion (tests.test_native_byte_array_identity.NativeByteArrayIdentity.test_byte_integer_join_keeps_explicit_conversion) ... I retain byte-array artifacts at /home/jkh/nanolang-qualification/byte-array-879-linux/ordinary/tmp/nano-native-byte-array-456lwecx
+ok
+test_byte_literal_policy_before_explicit_member_casts (tests.test_native_byte_array_identity.NativeByteArrayIdentity.test_byte_literal_policy_before_explicit_member_casts) ... I retain byte-array artifacts at /home/jkh/nanolang-qualification/byte-array-879-linux/ordinary/tmp/nano-native-byte-array-impkwlnd
+ok
+test_constructor_mutation_calls_joins_records_and_globals (tests.test_native_byte_array_identity.NativeByteArrayIdentity.test_constructor_mutation_calls_joins_records_and_globals) ... I retain byte-array artifacts at /home/jkh/nanolang-qualification/byte-array-879-linux/ordinary/tmp/nano-native-byte-array-bw_s10ph
+ok
+test_repeated_source_lowering_retains_byte_constructor_tag (tests.test_native_byte_array_identity.NativeByteArrayIdentity.test_repeated_source_lowering_retains_byte_constructor_tag) ... I retain byte-array artifacts at /home/jkh/nanolang-qualification/byte-array-879-linux/ordinary/tmp/nano-native-byte-array-bjkfh4nk
+ok
+test_wrong_tag_and_mixed_array_refusals_preserve_output (tests.test_native_byte_array_identity.NativeByteArrayIdentity.test_wrong_tag_and_mixed_array_refusals_preserve_output) ... I retain byte-array artifacts at /home/jkh/nanolang-qualification/byte-array-879-linux/ordinary/tmp/nano-native-byte-array-fw6nxhys
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.243s
+
+OK
