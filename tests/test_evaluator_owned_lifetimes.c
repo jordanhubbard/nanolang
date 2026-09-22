@@ -735,7 +735,9 @@ static void nominal_import_controls(void) {
     NominalIdentity kinds[] = {first, env_nominal_identity(env, "Color", "First", TYPE_ENUM),
                               env_nominal_identity(env, "Choice", "First", TYPE_UNION)};
     for (int a = 0; a < 3; ++a) for (int b = 0; b < 3; ++b) if (a != b) {
-        char binding[24]; snprintf(binding, sizeof binding, "shared_%d_%d", a, b);
+        char binding[32];
+        int written = snprintf(binding, sizeof binding, "shared_%d_%d", a, b);
+        CHECK(written >= 0 && (size_t)written < sizeof binding);
         CHECK(env_register_nominal_import(env, "Kinds", binding, kinds[a]));
         struct EnvNominalImport *saved_row = env->nominal_imports;
         CHECK(!env_register_nominal_import(env, "Kinds", binding, kinds[b]));

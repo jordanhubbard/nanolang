@@ -17221,3 +17221,10 @@ Fixture source review precedes corrected qualification.
 
 
 - [x] I qualify my five evaluator cleanup groups at89e41b8fa on Linux and Darwin, ordinary and ASan/UBSan/LSan, with unchanged source/tools and reaped children (`docs/evidence/evaluator-cleanup-focused-89e/seal.json`). My full evaluator suite, collection cleanup and handled-record identity task9dfb0776 remain open.
+
+I retain f286's Linux sanitized fixture compile terminal separately: all ordinary
+owning controls passed, but GCC -O1/-Werror rejected the existing24-byte
+shared_%d_%d binding buffer with a worst-case31-byte formatting bound. Puck both
+configurations passed at that pin. I enlarge only that fixture buffer to32 and
+check the snprintf result against capacity; original loop indices, binding names
+and ownership assertions remain unchanged. No warning suppression or replay.
