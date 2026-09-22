@@ -1,5 +1,13 @@
 # My Roadmap
 
+- [ ] I resolve the current PR522 integration and hosted failures (`task_c2d5f6840c96fccfc49b173c5248dc2c`) from `9d36ed18c`, preserving run `35577220556` before correction.
+  - [ ] I integrate current main, resolve conflicts without discarding either branch's accepted behavior, and verify the canonical product bootstrap.
+  - [ ] I replace the two obsolete nested-float result refusal inputs with a genuinely unsupported boundary, retain previous-output assertions, and test the newly admitted case.
+  - [ ] I select supported Darwin sanitizer tooling for native map-key acceptance without removing leak checks where they are supported.
+  - [ ] I qualify main's signed Forth arithmetic repairs and correct the remaining zero-byte null-copy finding under strict UBSan.
+  - [ ] I provide a finite sanitizer execution schedule that retains the complete test inventory, instrumentation and assertions, then require actual hosted completion.
+  - [ ] I publish the corrected candidate, reconcile its PR description with exact-head evidence, and require all release checks before declaring it resolved.
+
 - [ ] I link my owned binding-state fixture to the exact ISA tag-name provider
   before I qualify capture storage. At PR937 head `f2bac81a8`, the fresh strict
   Darwin target compiles `src/nanovm/value.c`, which calls `isa_tag_name`, but
