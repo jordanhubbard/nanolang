@@ -394,3 +394,5 @@ semantic use remains module validation. No old module pointers survive. The
 32MiB/1048576 bounds apply to this typed-profile helper and caller remaining
 budgets; ordinary conversion is unchanged. It is still unlinked, and does not
 substitute for complete generation copy or module/ABI validation.
+
+My signature snapshot controls retain duplicate and unused rows with exact subject indices, then overwrite/free all borrowed inputs before querying the owned result. Both one-shot and persistent failures cover all seven measured allocating sites, each followed by independent recovery; exact byte-budget and invalid-selector/tag/count refusals preserve outputs without allocation. Empty snapshots remain valid transport. These controls remain source-only pending review; no full module or ABI authority follows.
