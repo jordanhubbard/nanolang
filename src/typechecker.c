@@ -6389,6 +6389,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     const char *expected_name = record->field_type_names ? record->field_type_names[i] : NULL;
                     const char *expected_owner = record->module_name;
                     Type actual = check_expression(stmt->as.set.value, tc->env);
+                    check_concrete_union_arrays(tc->env, expected_info, expected_owner,
+                                                stmt->as.set.value, 0);
                     if (!check_nominal_contract(tc->env, expected_type, expected_info,
                             expected_name, expected_owner, stmt->as.set.value)) tc->has_error = true;
                     if (!types_match(actual, expected_type)) {
