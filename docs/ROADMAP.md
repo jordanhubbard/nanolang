@@ -17388,3 +17388,11 @@ I refine task71bc before implementation with the concrete COP loader lock audit:
 - [ ] I replace COP raw opaque pointer transport with reviewed worker-generation/slot authority before exec-worker acceptance (task_f1cde0aa640f4c1fb33cbdf3ab3fb678). I preserve same-worker identity and local pointer behavior, refuse stale/foreign/nonzero-parent pointers before FFI, and audit callback/boxed-value/array-refusal consumers; current eight-byte codec roundtrips do not establish ownership.
 
 I qualify the remaining loader-only91dc method in all four fresh Linux/Darwin ordinary and sanitizer configurations. Darwin sanitizer explicitly invokes the captured production child cleanup hook; both ordinary modes and Linux sanitizer retain the original normal-exit path. I preserve the original Darwin8c93 normal-exit sanitizer terminal separately. Complete maps and raw logs are sealed in `evidence/loader-91dc`; threaded exec/opaque authority and full release acceptance remain open.
+
+I qualify private retained-V2 declarations at frozen8bf with the whole original
+legacy/mixed fixture and additive V2 controls on Linux/Darwin ordinary and
+ASan/UBSan/LSan. Each lane passes1,987 linked and14,279 instrumented checks;
+[124 sealed reports](evidence/sdk-v2-declarations/) retain exact source/provider/
+tool equality and complete process cleanup. No first product failure occurred
+in this focused checkpoint. Revision2, combined SDK preparation accounting,
+complete provider validation and executable/installed admission remain open.
