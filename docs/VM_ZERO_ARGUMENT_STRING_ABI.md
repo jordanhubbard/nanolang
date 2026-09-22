@@ -1,0 +1,7 @@
+# My zero-argument artifact string call
+
+My corrected cda Darwin ordinary controls pass. Its sanitizer gate reaches the mutable borrowed-root VM call and reports `vm_ffi.c:1026`: I call `const char *nlc_runtime_root(void)` through `int64_t (*)(void)`. My descriptor resolves the declared STRING result, but the existing typed string branch is selected only when an optional provider release hook exists. The borrowed provider has no such hook and falls into the generic integer-return cast.
+
+Before implementation, I extend that existing typed string branch to exact `NVM_IMPORT_ARTIFACT`, zero declared/actual arguments, STRING result calls even without a release hook. The existing arity guard precedes selection. I call through `const char *(*)(void)`, copy the returned bytes into the VM heap before any later provider call, and invoke release only when a hook actually exists. Null/allocation refusal and existing release-bearing string signatures remain unchanged. I do not admit mismatched arguments, infer signatures from symbol spelling, suppress function-type sanitizers, or alter the public schema.
+
+My two helper contracts require this exact zero-argument path. Broader borrowed string signatures and the full typed-provider matrix remain separate release obligations; this bounded adapter is not a claim that the old generic dispatcher is universally type-correct. The unchanged mutable provider and real compiler_support controls must pass VM/native ordinary and supported sanitizers on both hosts before canonical bootstrap proceeds.
