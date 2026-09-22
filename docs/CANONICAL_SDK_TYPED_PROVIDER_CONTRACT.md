@@ -301,7 +301,10 @@ allocation. Row widths and fields are:
 | Binding |24| kind0, actual subject4, slot8, exact detail12, provider16, zero20 |
 | Reference |4| existing shared ARRAY_FIELDS type index0 |
 
-Nominal kinds0/1/2 mean record/union/opaque. Only opaque carries NO_LAYOUT.
+Nominal kinds0/1/2/3 mean record/union/opaque/enum. Only opaque carries NO_LAYOUT.
+Enums retain existing TAG_ENUM and LAYOUT_ENUM identity; plain INT cannot replace
+them. The shared revision must bind enum rows to their existing enum layout and
+its exact owner/name nominal declaration.
 Binding kinds0/1/2 mean import/function/layout-field. Import/function slots are
 NO_INDEX and details select exact signature rows. Imports require a provider
 row; functions require NO_PROVIDER. Layout-field slots are u16-range field
@@ -354,3 +357,5 @@ explicitly refuse this complete feature at each owning boundary:
 This inventory is a source-work queue, not a claim that these adapters are
 implemented or qualified. I keep the feature unavailable while closing each
 boundary and review the complete change before product execution.
+
+My standalone raw-codec fixture includes same-name distinct-owner rows, an enum declaration, complete by-value round-trip, input mutation/release after decode, every truncated length, reserved-byte and count/slice refusals, exact allocation-byte boundary, both allocating API failures with unchanged outputs and independent recovery, and empty payload transport. It includes the real codec with allocation hooks; no module/provider execution occurs. Strict syntax-only compilation passes; execution awaits independent fixture review.

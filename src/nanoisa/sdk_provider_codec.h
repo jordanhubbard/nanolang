@@ -13,7 +13,7 @@
 #define NVM_SDK_PROVIDER_NO_INDEX UINT32_MAX
 /* Indices refer to my existing module strings/layouts/signatures and shared
  * ARRAY_FIELDS type pool. I do not introduce a second recursive type system. */
-enum { NVM_SDK_NOMINAL_RECORD, NVM_SDK_NOMINAL_UNION, NVM_SDK_NOMINAL_OPAQUE };
+enum { NVM_SDK_NOMINAL_RECORD, NVM_SDK_NOMINAL_UNION, NVM_SDK_NOMINAL_OPAQUE, NVM_SDK_NOMINAL_ENUM };
 enum { NVM_SDK_BIND_IMPORT, NVM_SDK_BIND_FUNCTION, NVM_SDK_BIND_FIELD };
 typedef struct {
     uint32_t owner, name, kind, layout, argument_first, argument_count;

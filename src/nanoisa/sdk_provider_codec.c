@@ -41,7 +41,7 @@ static NvmSdkResult validate(const uint8_t *p, size_t size,
     for(uint32_t i=0;i<counts[0];i++) {
         const uint8_t *q=p+offsets[0]+(size_t)i*32;
         uint32_t kind=get32(q+8),layout=get32(q+12);
-        if(kind>NVM_SDK_NOMINAL_OPAQUE || get32(q+24) || get32(q+28) ||
+        if(kind>NVM_SDK_NOMINAL_ENUM || get32(q+24) || get32(q+28) ||
            !slice(get32(q+16),get32(q+20),counts[4])) return NVM_SDK_INVALID;
         if((kind==NVM_SDK_NOMINAL_OPAQUE)!=(layout==UINT32_MAX)) return NVM_SDK_INVALID;
     }
