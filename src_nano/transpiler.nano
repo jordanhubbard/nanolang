@@ -8059,20 +8059,71 @@ shadow is_guarded_primitive {
     assert (== (is_guarded_primitive "MyStruct") false)
 }
 
+# I avoid actual source storage and foreign function names before publishing a local.
+fn let_initializer_name_used(parser: Parser, env: GenEnv, candidate: string) -> bool {
+    let mut i: int = 0
+    while (< i (array_length env.names)) {
+        if (== candidate (genenv_c_name env (at env.names i))) { return true }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_let_count parser)) {
+        let binding: ASTLet = (parser_get_let parser i)
+        if (== candidate (genenv_c_name env binding.name)) { return true }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_function_count parser)) {
+        let function: ASTFunction = (parser_get_function parser i)
+        if (or (== candidate function.name) (== candidate (+ "nl_" (mangle_name function.name)))) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow let_initializer_name_used {
+    let toks: List<LexerToken> = (tokenize_string "extern fn __nl_let_initializer_0_0() -> int fn main() -> int { let x: int = 1 return x }" "names.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program toks (list_LexerToken_length toks) "names.nano")
+    let env: GenEnv = (genenv_new "main")
+    assert (let_initializer_name_used parser env "__nl_let_initializer_0_0")
+    assert (let_initializer_name_used parser env "nl_x")
+    assert (not (let_initializer_name_used parser env "__nl_let_initializer_1_0"))
+}
+
+fn let_initializer_name(parser: Parser, env: GenEnv) -> string {
+    let prefix: string = (+ "__nl_let_initializer_" (+ (int_to_string (array_length env.names)) "_"))
+    let mut serial: int = 0
+    let mut candidate: string = (+ prefix (int_to_string serial))
+    while (let_initializer_name_used parser env candidate) {
+        assert (< serial 9223372036854775807)
+        set serial (+ serial 1)
+        set candidate (+ prefix (int_to_string serial))
+    }
+    return candidate
+}
+
+shadow let_initializer_name {
+    let toks: List<LexerToken> = (tokenize_string "extern fn __nl_let_initializer_0_0() -> int" "names.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program toks (list_LexerToken_length toks) "names.nano")
+    assert (== (let_initializer_name parser (genenv_new "main")) "__nl_let_initializer_0_1")
+    assert (== (let_initializer_name parser (genenv_put (genenv_new "main") "x" "int" false)) "__nl_let_initializer_1_0")
+}
+
 fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv) -> string {
     # A checked empty pattern over a name has no fields or runtime work.
     if (and let_stmt.is_destructure (and (== (array_length let_stmt.destructure_names) 0) (== let_stmt.value_type ParseNodeType.PNODE_IDENTIFIER))) {
         return (+ (gen_indent indent) "(void)0;\n")
     }
     let mut parts: array<string> = []
-    set parts (cg_append parts (gen_indent indent))
-
     # I capture a checked payload once, retaining its concrete native layout.
     let c_type: string = (cond (let_stmt.is_destructure "__auto_type") (else (type_to_c let_stmt.var_type)))
+    let c_name: string = (cond ((== let_stmt.name "_") (+ "__nl_underscore_" (int_to_string (array_length env.names)))) (else (genenv_c_name env let_stmt.name)))
+    let staged: bool = (and (>= let_stmt.value 0) (and (!= let_stmt.name "_") (and (!= let_stmt.var_type "void") (or (!= (genenv_get env let_stmt.name) "") (!= (lookup_func_return_type_in_parser parser let_stmt.name) "")))))
+    let storage: string = (cond (staged (let_initializer_name parser env)) (else c_name))
+    set parts (cg_append parts (gen_indent indent))
     set parts (cg_append parts c_type)
     set parts (cg_append parts " ")
-    let c_name: string = (cond ((== let_stmt.name "_") (+ "__nl_underscore_" (int_to_string (array_length env.names)))) (else (genenv_c_name env let_stmt.name)))
-    set parts (cg_append parts c_name)
+    set parts (cg_append parts storage)
     set parts (cg_append parts " = ")
     if (< let_stmt.value 0) {
         set parts (cg_append parts "0")
@@ -8081,6 +8132,10 @@ fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv)
         set parts (cg_append parts expr_code)
     }
     set parts (cg_append parts ";\n")
+    if staged {
+        set parts (cg_append parts (gen_indent indent))
+        set parts (cg_append parts (+ "__auto_type " (+ c_name (+ " = " (+ storage ";\n")))))
+    }
     return (cg_build parts)
 }
 
@@ -8092,6 +8147,14 @@ shadow generate_let_stmt {
     let env: GenEnv = (genenv_new "test")
     let code: string = (generate_let_stmt p l 0 env)
     assert (== code "int64_t nl_x = 1;\n")
+    let old: GenEnv = (genenv_put env "x" "int" false)
+    let staged: string = (generate_let_stmt p l 0 old)
+    assert (== staged "int64_t __nl_let_initializer_1_0 = 1;\n__auto_type nl_x = __nl_let_initializer_1_0;\n")
+    let alias_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let x: int = 7 if true { let x: int = x assert (== x 7) } return x }" "alias.nano" (list_CompilerDiagnostic_new))
+    let alias_parser: Parser = (parse_program alias_tokens (list_LexerToken_length alias_tokens) "alias.nano")
+    assert (== (parser_get_let_count alias_parser) 2)
+    let alias_code: string = (generate_let_stmt alias_parser (parser_get_let alias_parser 1) 0 old)
+    assert (== alias_code "int64_t __nl_let_initializer_1_0 = nl_x;\n__auto_type nl_x = __nl_let_initializer_1_0;\n")
     let pattern_tokens: List<LexerToken> = (tokenize_string "fn unpack(payload: Box.Some) -> int { let Box.Some { value } = payload return value }" "pattern.nano" (list_CompilerDiagnostic_new))
     let pattern: Parser = (parse_program pattern_tokens (list_LexerToken_length pattern_tokens) "pattern.nano")
     let captured: string = (generate_let_stmt pattern (parser_get_let pattern 1) 0 env)

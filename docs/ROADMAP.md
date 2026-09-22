@@ -14526,5 +14526,9 @@ allocator failure claim.
   checked list refusal after emitting `nl_Outer_Item_Wrapped alias = alias;`
   inside a nested scope. I retain the generated C and first terminal without
   replaying that path. [Contract](NANOISA_NATIVE_LET_PUBLICATION.md).
-  Both producer families and original18+9 remain required.
+  Both producer families and original18+9 remain required. My source checkpoint
+  retains two-declaration staging after syntax-only probes prove Clang rejects
+  GCC's delayed-scope alternative; complete AST-name coverage and independent
+  Nano declaration/retry suffixes protect private storage. No product gate has
+  run on the correction yet.
   MAC: task_5f7995c38375459f858ed017626dbc18.

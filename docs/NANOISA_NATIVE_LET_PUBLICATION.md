@@ -51,3 +51,51 @@ staged output ordering and unchanged ordinary nonshadowing output. Source review
 precedes all corrected execution; full bootstrap and ownership gates remain.
 
 MAC: task_5f7995c38375459f858ed017626dbc18.
+
+My source checkpoint keeps two declarations. I investigated confining the
+converted storage to a statement expression inside the final `__auto_type`
+initializer, but that depends on incompatible scope behavior. [GCC documents
+delayed scope](https://gcc.gnu.org/onlinedocs/gcc-9.5.0/gcc/Typeof.html);
+[Clang documents its C++11 auto behavior](https://clang.llvm.org/docs/LanguageExtensions.html#auto-type)
+and [its upstream fixture rejects self-initialization](https://github.com/llvm/llvm-project/blob/main/clang/test/Sema/auto-type.c).
+My authorized syntax-only probe accepts with GCC13 and rejects with Linux
+Clang23, Apple Clang and Homebrew Clang. No executable was produced or run.
+I retain source, commands, compiler hashes, versions and diagnostics under
+`/home/jkh/nanolang-qualification/native-let-auto-scope-probe`; the `puck/`
+copy is also retained at the matching persistent Puck home path. The first
+Linux Clang command refused its implicit GCC installation selection before
+checking source. The corrected command uses the same explicit GCC13 selector
+as my established gates; I preserve both terminals separately.
+
+My C private-name check includes every registered variable, original/aliased
+function and nominal type name, plus all 47 AST node kinds in the complete
+emitting subtree. The borrowed subtree root is set for expression, statement
+and generated effect-handler worklists. An iterative checked work stack visits
+all executable children and local/parameter/match/destructuring/parallel/effect
+binding names, including future bindings and those removed from checker scope.
+It avoids a recursive depth limit. Anonymous declarations are emitted through
+their own function roots; their borrowed expression link is not an owning child.
+The serial cannot wrap, formatting is checked, and the private prefix differs
+from my other generated temporary families. Worklist teardown owns the selected
+name. Allocation failure retains my existing fatal emitter policy, not a new
+recoverable graph-allocation promise.
+
+My Nano names combine the prior GenEnv declaration count and a separate checked
+collision retry counter. A retry cannot consume the next declaration's key.
+GenEnv appends on publication. I inspect current and future parsed binding C
+names and both original and mangled callable names; source locals carry `nl_`,
+while actual foreign function spellings remain relevant to the private prefix.
+I preserve both unchanged ordinary emission and staged self-reference shadows,
+with a foreign-name retry followed by the next declaration's distinct name.
+
+Neither producer mutates the source AST name. I redirect only the existing
+emission target and restore the final local before symbol, scope or effect-root
+registration; failure therefore has no AST name to restore. The existing
+storage branches still select destination conversions, pointers and concrete
+record/union/tuple/function representations. My new source route remains in
+the original nine-method native suite and runs all three producers at O0/O2:
+scalar/string/record/array/tuple/callback aliases, callable declaration capture,
+computed byte narrowing, once-only output and present/future private-name
+collisions. Existing local/imported payload controls remain byte-for-byte.
+The original eighteen-method source suite is unchanged. No corrected product
+execution has occurred at this checkpoint.

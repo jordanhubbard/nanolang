@@ -14,6 +14,7 @@
 #include "utf8.h"
 #include "checked_loop_binding.h"
 #include <stdarg.h>
+#include <limits.h>
 #include <string.h>
 
 /* Forward declarations for types defined in transpiler.c (only when not included from transpiler.c) */
@@ -177,6 +178,7 @@ typedef struct {
     FunctionTypeRegistry *fn_registry;
     UnderscoreAlias *underscore_aliases;
     const char *underscore_name;
+    ASTNode *source_root; /* Borrowed complete subtree for private-name collision checks. */
 } WorkList;
 
 static WorkList *worklist_create(int initial_capacity) {
@@ -190,6 +192,7 @@ static WorkList *worklist_create(int initial_capacity) {
     list->fn_registry = NULL;
     list->underscore_aliases = NULL;
     list->underscore_name = NULL;
+    list->source_root = NULL;
     list->items = malloc(sizeof(WorkItem) * initial_capacity);
     if (!list->items) {
         fprintf(stderr, "Error: Out of memory allocating WorkList items\n");
@@ -237,6 +240,179 @@ static const char *new_underscore_name(WorkList *list, Environment *env) {
     alias->next = list->underscore_aliases;
     list->underscore_aliases = alias;
     return alias->name;
+}
+
+/* I inspect the complete emitting subtree, including bindings no longer in env. */
+static bool native_subtree_uses_name(ASTNode *root, const char *name) {
+    ASTNode **pending = NULL;
+    size_t count = 0, capacity = 0;
+    bool used = false;
+#define PUSH_NODE(value) do { \
+    ASTNode *child = (value); \
+    if (child) { \
+        if (count == capacity) { \
+            if (capacity > SIZE_MAX / 2 / sizeof *pending) goto allocation_failure; \
+            size_t next = capacity ? capacity * 2 : 32; \
+            ASTNode **grown = realloc(pending, next * sizeof *pending); \
+            if (!grown) goto allocation_failure; \
+            pending = grown; capacity = next; \
+        } \
+        pending[count++] = child; \
+    } \
+} while (0)
+#define PUSH_NODES(values, length) do { \
+    for (int child_i = 0; child_i < (length); ++child_i) PUSH_NODE((values)[child_i]); \
+} while (0)
+#define CHECK_NAME(value) do { \
+    const char *candidate = (value); \
+    if (candidate && !strcmp(candidate, name)) { used = true; goto complete; } \
+} while (0)
+    PUSH_NODE(root);
+    while (count) {
+        ASTNode *node = pending[--count];
+        switch (node->type) {
+        case AST_IDENTIFIER: CHECK_NAME(node->as.identifier); break;
+        case AST_PREFIX_OP: PUSH_NODES(node->as.prefix_op.args, node->as.prefix_op.arg_count); break;
+        case AST_CALL:
+            CHECK_NAME(node->as.call.name); CHECK_NAME(node->as.call.concrete_func_name);
+            PUSH_NODE(node->as.call.func_expr); PUSH_NODES(node->as.call.args, node->as.call.arg_count); break;
+        case AST_MODULE_QUALIFIED_CALL:
+            CHECK_NAME(node->as.module_qualified_call.function_name);
+            PUSH_NODES(node->as.module_qualified_call.args, node->as.module_qualified_call.arg_count); break;
+        case AST_ARRAY_LITERAL: PUSH_NODES(node->as.array_literal.elements, node->as.array_literal.element_count); break;
+        case AST_LET:
+            CHECK_NAME(node->as.let.name); PUSH_NODE(node->as.let.value);
+            for (int i = 0; i < node->as.let.destructure_count; ++i) CHECK_NAME(node->as.let.destructure_names[i]);
+            break;
+        case AST_SET: CHECK_NAME(node->as.set.name); PUSH_NODE(node->as.set.value); break;
+        case AST_IF:
+            PUSH_NODE(node->as.if_stmt.condition); PUSH_NODE(node->as.if_stmt.then_branch); PUSH_NODE(node->as.if_stmt.else_branch); break;
+        case AST_COND:
+            PUSH_NODES(node->as.cond_expr.conditions, node->as.cond_expr.clause_count);
+            PUSH_NODES(node->as.cond_expr.values, node->as.cond_expr.clause_count); PUSH_NODE(node->as.cond_expr.else_value); break;
+        case AST_WHILE: PUSH_NODE(node->as.while_stmt.condition); PUSH_NODE(node->as.while_stmt.body); break;
+        case AST_FOR:
+            CHECK_NAME(node->as.for_stmt.var_name); PUSH_NODE(node->as.for_stmt.range_expr); PUSH_NODE(node->as.for_stmt.body); break;
+        case AST_RETURN: PUSH_NODE(node->as.return_stmt.value); break;
+        case AST_BLOCK: PUSH_NODES(node->as.block.statements, node->as.block.count); break;
+        case AST_FUNCTION:
+            CHECK_NAME(node->as.function.name);
+            for (int i = 0; i < node->as.function.param_count; ++i) CHECK_NAME(node->as.function.params[i].name);
+            PUSH_NODE(node->as.function.body); break;
+        case AST_SHADOW: CHECK_NAME(node->as.shadow.function_name); PUSH_NODE(node->as.shadow.body); break;
+        case AST_PROGRAM: PUSH_NODES(node->as.program.items, node->as.program.count); break;
+        case AST_PRINT: PUSH_NODE(node->as.print.expr); break;
+        case AST_ASSERT: PUSH_NODE(node->as.assert.condition); break;
+        case AST_STRUCT_LITERAL:
+            PUSH_NODES(node->as.struct_literal.field_values, node->as.struct_literal.field_count);
+            PUSH_NODE(node->as.struct_literal.spread_source); break;
+        case AST_FIELD_ACCESS: PUSH_NODE(node->as.field_access.object); break;
+        case AST_UNION_CONSTRUCT: PUSH_NODES(node->as.union_construct.field_values, node->as.union_construct.field_count); break;
+        case AST_MATCH:
+            PUSH_NODE(node->as.match_expr.expr);
+            for (int i = 0; i < node->as.match_expr.arm_count; ++i) {
+                if (node->as.match_expr.pattern_bindings) CHECK_NAME(node->as.match_expr.pattern_bindings[i]);
+                if (node->as.match_expr.guard_exprs) PUSH_NODE(node->as.match_expr.guard_exprs[i]);
+                PUSH_NODE(node->as.match_expr.arm_bodies[i]);
+            }
+            break;
+        case AST_TUPLE_LITERAL: PUSH_NODES(node->as.tuple_literal.elements, node->as.tuple_literal.element_count); break;
+        case AST_TUPLE_INDEX: PUSH_NODE(node->as.tuple_index.tuple); break;
+        case AST_UNSAFE_BLOCK: PUSH_NODES(node->as.unsafe_block.statements, node->as.unsafe_block.count); break;
+        case AST_TRY_OP: PUSH_NODE(node->as.try_op.operand); break;
+        case AST_PAR_BLOCK: PUSH_NODES(node->as.par_block.bindings, node->as.par_block.count); break;
+        case AST_PAR_LET:
+            for (int i = 0; i < node->as.par_let.count; ++i) CHECK_NAME(node->as.par_let.names[i]);
+            PUSH_NODES(node->as.par_let.values, node->as.par_let.count); PUSH_NODE(node->as.par_let.body); break;
+        case AST_HANDLE_EXPR:
+            PUSH_NODE(node->as.handle_expr.body);
+            for (int i = 0; i < node->as.handle_expr.handler_count; ++i) {
+                for (int j = 0; j < node->as.handle_expr.handler_param_counts[i]; ++j)
+                    CHECK_NAME(node->as.handle_expr.handler_param_names[i][j]);
+                PUSH_NODE(node->as.handle_expr.handler_bodies[i]);
+            }
+            break;
+        case AST_EFFECT_HANDLER:
+            PUSH_NODE(node->as.effect_handler.body);
+            for (int i = 0; i < node->as.effect_handler.handler_count; ++i) {
+                if (node->as.effect_handler.handler_param_names) CHECK_NAME(node->as.effect_handler.handler_param_names[i]);
+                PUSH_NODE(node->as.effect_handler.handler_bodies[i]);
+            }
+            break;
+        case AST_EFFECT_OP: PUSH_NODES(node->as.effect_op.args, node->as.effect_op.arg_count); break;
+        case AST_ASYNC_FN: PUSH_NODE(node->as.async_fn.function); break;
+        case AST_AWAIT: PUSH_NODE(node->as.await_expr.expr); break;
+        case AST_NUMBER: case AST_FLOAT: case AST_STRING: case AST_BOOL:
+        case AST_BREAK: case AST_CONTINUE: case AST_STRUCT_DEF: case AST_ENUM_DEF:
+        case AST_UNION_DEF: case AST_IMPORT: case AST_MODULE_DECL: case AST_OPAQUE_TYPE:
+        case AST_QUALIFIED_NAME: case AST_EFFECT_DECL:
+            break;
+        }
+    }
+complete:
+    free(pending);
+    return used;
+allocation_failure:
+    free(pending);
+    fprintf(stderr, "I cannot allocate my native binding-name inventory.\n");
+    exit(1);
+#undef PUSH_NODE
+#undef PUSH_NODES
+#undef CHECK_NAME
+}
+
+/* I keep converted storage private until the source binding becomes visible. */
+static const char *new_let_initializer_name(WorkList *list, Environment *env) {
+    static uint64_t serial;
+    UnderscoreAlias *alias = malloc(sizeof *alias);
+    if (!alias) { fprintf(stderr, "I cannot allocate a native initializer name.\n"); exit(1); }
+    for (;;) {
+        if (serial == UINT64_MAX) {
+            free(alias);
+            fprintf(stderr, "I cannot allocate another native initializer name.\n");
+            exit(1);
+        }
+        int written = snprintf(alias->name, sizeof alias->name,
+                               "__nl_let_initializer_%llu", (unsigned long long)serial++);
+        if (written < 0 || (size_t)written >= sizeof alias->name) {
+            free(alias);
+            fprintf(stderr, "I cannot represent a native initializer name.\n");
+            exit(1);
+        }
+        bool used = env_get_var(env, alias->name) != NULL;
+        for (int i = 0; !used && i < env->function_count; ++i) {
+            Function *function = &env->functions[i];
+            used = (function->name && !strcmp(function->name, alias->name)) ||
+                   (function->alias_of && !strcmp(function->alias_of, alias->name));
+        }
+        for (int i = 0; !used && i < env->struct_count; ++i)
+            used = env->structs[i].name && !strcmp(env->structs[i].name, alias->name);
+        for (int i = 0; !used && i < env->enum_count; ++i)
+            used = env->enums[i].name && !strcmp(env->enums[i].name, alias->name);
+        for (int i = 0; !used && i < env->union_count; ++i)
+            used = env->unions[i].name && !strcmp(env->unions[i].name, alias->name);
+        for (int i = 0; !used && i < env->opaque_type_count; ++i)
+            used = env->opaque_types[i].name && !strcmp(env->opaque_types[i].name, alias->name);
+        if (!used && !native_subtree_uses_name(list->source_root, alias->name)) break;
+    }
+    alias->next = list->underscore_aliases;
+    list->underscore_aliases = alias;
+    return alias->name;
+}
+
+static bool let_shadows_native_binding(ASTNode *stmt, Environment *env) {
+    if (!stmt->as.let.value || !strcmp(stmt->as.let.name, "_") ||
+        stmt->as.let.var_type == TYPE_VOID ||
+        (stmt->as.let.is_destructure && !stmt->as.let.destructure_count &&
+         stmt->as.let.value->type == AST_IDENTIFIER)) return false;
+    if (env_get_function(env, stmt->as.let.name)) return true;
+    /* The checker retains the current declaration too. Query its predecessor. */
+    if (stmt->line <= 0 || stmt->column <= 0) return true;
+    int line = stmt->line, column = stmt->column;
+    if (column > 1) --column;
+    else if (line > 1) { --line; column = INT_MAX; }
+    else return true;
+    return env_get_var_visible_at(env, stmt->as.let.name, line, column) != NULL;
 }
 
 static void worklist_grow(WorkList *list) {
@@ -3923,6 +4099,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
         case AST_LET: {
             const char *binding_name = !strcmp(stmt->as.let.name, "_")
                 ? new_underscore_name(list, env) : stmt->as.let.name;
+            const char *published_name = binding_name;
+            bool stage_initializer = let_shadows_native_binding(stmt, env);
+            if (stage_initializer) binding_name = new_let_initializer_name(list, env);
             emit_indent_item(list, indent);
             
             /* A checked empty pattern over a name has no fields or runtime work. */
@@ -4173,6 +4352,12 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_literal(list, ";\n");
             }
             
+            if (stage_initializer) {
+                emit_indent_item(list, indent);
+                emit_formatted(list, "__auto_type %s = %s;\n", published_name, binding_name);
+                binding_name = published_name;
+            }
+            /* I never mutate the AST name, including on failed emission. */
             /* The initializer above sees the previous lexical binding. */
             if (!strcmp(stmt->as.let.name, "_")) list->underscore_name = binding_name;
 
@@ -4667,6 +4852,7 @@ void transpile_expression_iterative(StringBuilder *sb, ASTNode *expr, Environmen
     
     /* Pass 1: Build work items */
     WorkList *list = worklist_create(1000);
+    list->source_root = expr;
     build_expr(list, expr, env);
     
     /* Pass 2: Process and output */
@@ -4682,6 +4868,7 @@ void transpile_statement_iterative(StringBuilder *sb, ASTNode *stmt, int indent,
 
     /* Pass 1: Build work items with scope tracking */
     WorkList *list = worklist_create(5000);
+    list->source_root = stmt;
     list->fn_registry = fn_registry;
     ScopeStack *scopes = scope_stack_create();
 
@@ -4737,6 +4924,7 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
             sb_appendf(helper_source, "%s %s = *(%s *)_args[%d];\n", effect_c_type(op->params[p].type, op->params[p].struct_type_name, env), expr->as.handle_expr.handler_param_names[h][p], effect_c_type(op->params[p].type, op->params[p].struct_type_name, env), p);
         if (op->return_type != TYPE_VOID) sb_appendf(helper_source, "%s _out = {0};\n", effect_c_type(op->return_type, op->return_type_name, env));
         WorkList *handler = worklist_create(100);
+        handler->source_root = handler_body;
         handler->fn_registry = list->fn_registry;
         in_effect_handler = true; effect_lexical_return = lexical; effect_lexical_name = g_current_function->as.function.return_struct_type_name; effect_environment = env;
         effect_captures = captures; effect_capture_count = count;
