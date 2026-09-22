@@ -5487,8 +5487,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (match_val.type == VAL_UNION && !match_val.as.union_val)
                 return eval_match_invariant_failure("a union match received no value");
 
-            bool owns_empty = !env_union_result_borrowed(env, match_val) && eval_match_owns_empty_literal(
-                expr->as.match_expr.expr, match_val);
+            bool owns_empty = eval_match_owns_empty_literal(expr->as.match_expr.expr, match_val) &&
+                !env_union_result_borrowed(env, match_val);
 
             /* Every pattern, including a wildcard, participates in source order. */
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {

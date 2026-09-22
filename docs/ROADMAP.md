@@ -17251,3 +17251,8 @@ union leaves. I document retained-callable behavior on later constructor failure
 Parsed constructor/result_map, explicit dotted AST adapter and registered-union
 completed-task controls supplement the original allocation/alias checks. Source
 and fixture syntax pass; runtime remains held for complete source review.
+
+I preserve the reviewed union match semantics while checking the pure empty-literal
+predicate before registry membership. Ordinary identifier and payload matches
+therefore do not scan retained union roots. The same original owning method and
+additive union consumers require fresh ordinary/sanitizer gates on both hosts.
