@@ -1767,6 +1767,11 @@ static bool is_pure_arithmetic_lambda(ASTNode *fn_body) {
     return is_pure_arithmetic_expr(stmt->as.return_stmt.value);
 }
 
+/* I match NanoVM integer negation without evaluating signed overflow. */
+static int64_t eval_negate_int(int64_t value) {
+    return value == INT64_MIN ? INT64_MIN : -value;
+}
+
 /* Evaluate a pure arithmetic expression for int64_t.
  * param_val is the value to substitute for any identifier matching param_name.
  */
@@ -1781,7 +1786,7 @@ static int64_t eval_pure_expr_int(ASTNode *expr, int64_t param_val, const char *
         case AST_PREFIX_OP: {
             if (expr->as.prefix_op.arg_count == 1) {
                 int64_t a = eval_pure_expr_int(expr->as.prefix_op.args[0], param_val, param_name);
-                return (expr->as.prefix_op.op == TOKEN_MINUS) ? -a : a;
+                return (expr->as.prefix_op.op == TOKEN_MINUS) ? eval_negate_int(a) : a;
             }
             if (expr->as.prefix_op.arg_count == 2) {
                 int64_t a = eval_pure_expr_int(expr->as.prefix_op.args[0], param_val, param_name);
@@ -1816,7 +1821,7 @@ static int64_t eval_pure_expr_int2(ASTNode *expr,
         case AST_PREFIX_OP: {
             if (expr->as.prefix_op.arg_count == 1) {
                 int64_t a = eval_pure_expr_int2(expr->as.prefix_op.args[0], p0_val, p0_name, p1_val, p1_name);
-                return (expr->as.prefix_op.op == TOKEN_MINUS) ? -a : a;
+                return (expr->as.prefix_op.op == TOKEN_MINUS) ? eval_negate_int(a) : a;
             }
             if (expr->as.prefix_op.arg_count == 2) {
                 int64_t a = eval_pure_expr_int2(expr->as.prefix_op.args[0], p0_val, p0_name, p1_val, p1_name);
@@ -2489,7 +2494,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             Value arg = eval_expression(node->as.prefix_op.args[0], env);
             if (arg.is_return) return arg;
             if (arg.type == VAL_INT) {
-                return create_int(-arg.as.int_val);
+                return create_int(eval_negate_int(arg.as.int_val));
             } else if (arg.type == VAL_FLOAT) {
                 return create_float(-arg.as.float_val);
             } else if (arg.type == VAL_DYN_ARRAY) {
@@ -2499,7 +2504,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 int64_t len = dyn_array_length(a);
                 if (t == ELEM_INT) {
                     DynArray *out = dyn_array_new(ELEM_INT);
-                    for (int64_t i = 0; i < len; i++) dyn_array_push_int(out, -dyn_array_get_int(a, i));
+                    for (int64_t i = 0; i < len; i++) dyn_array_push_int(out, eval_negate_int(dyn_array_get_int(a, i)));
                     return create_dyn_array(out);
                 } else if (t == ELEM_FLOAT) {
                     DynArray *out = dyn_array_new(ELEM_FLOAT);
@@ -2513,7 +2518,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 if (!a) return create_void();
                 if (a->element_type == VAL_INT) {
                     Value out = create_array(VAL_INT, a->length, a->length);
-                    for (int i = 0; i < a->length; i++) ((long long*)out.as.array_val->data)[i] = -((long long*)a->data)[i];
+                    for (int i = 0; i < a->length; i++) ((long long*)out.as.array_val->data)[i] = eval_negate_int(((long long*)a->data)[i]);
                     return out;
                 } else if (a->element_type == VAL_FLOAT) {
                     Value out = create_array(VAL_FLOAT, a->length, a->length);
