@@ -267,6 +267,22 @@ static Value eval_scoped_block(ASTNode **statements, int count, Environment *env
 }
 static Value create_dyn_array(DynArray *arr);
 
+/* I reconstruct the modular signed value without an out-of-range cast. */
+static int64_t eval_int_bits(uint64_t bits) {
+    return bits <= INT64_MAX ? (int64_t)bits : -INT64_C(1) - (int64_t)(UINT64_MAX - bits);
+}
+static int64_t eval_int_add(int64_t a, int64_t b) { return eval_int_bits((uint64_t)a + (uint64_t)b); }
+static int64_t eval_int_sub(int64_t a, int64_t b) { return eval_int_bits((uint64_t)a - (uint64_t)b); }
+static int64_t eval_int_mul(int64_t a, int64_t b) { return eval_int_bits((uint64_t)a * (uint64_t)b); }
+static int64_t eval_int_div(int64_t a, int64_t b) {
+    if (!b) return 0;
+    return a == INT64_MIN && b == -1 ? INT64_MIN : a / b;
+}
+static int64_t eval_int_rem(int64_t a, int64_t b) {
+    if (!b || (a == INT64_MIN && b == -1)) return 0;
+    return a % b;
+}
+
 static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op);
 static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenType op);
 static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType op);
@@ -288,19 +304,19 @@ static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op) {
         int64_t *__restrict__ po = (int64_t*)out->data;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_add(pa[i], pb[i]);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_sub(pa[i], pb[i]);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_mul(pa[i], pb[i]);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = pb[i] != 0 ? pa[i] / pb[i] : 0;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_div(pa[i], pb[i]);
                 break;
             case TOKEN_PERCENT:
-                for (int64_t i = 0; i < len; i++) po[i] = pb[i] != 0 ? pa[i] % pb[i] : 0;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_rem(pa[i], pb[i]);
                 break;
             default: break;
         }
@@ -372,21 +388,19 @@ static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenTyp
         int64_t s = scalar.as.int_val;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + s;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_add(pa[i], s);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - s;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_sub(pa[i], s);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * s;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_mul(pa[i], s);
                 break;
             case TOKEN_SLASH:
-                if (s != 0)
-                    for (int64_t i = 0; i < len; i++) po[i] = pa[i] / s;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_div(pa[i], s);
                 break;
             case TOKEN_PERCENT:
-                if (s != 0)
-                    for (int64_t i = 0; i < len; i++) po[i] = pa[i] % s;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_rem(pa[i], s);
                 break;
             default: break;
         }
@@ -450,19 +464,19 @@ static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType
         int64_t s = scalar.as.int_val;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = s + pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_add(s, pa[i]);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = s - pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_sub(s, pa[i]);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = s * pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_mul(s, pa[i]);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] != 0 ? s / pa[i] : 0;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_div(s, pa[i]);
                 break;
             case TOKEN_PERCENT:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] != 0 ? s % pa[i] : 0;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_rem(s, pa[i]);
                 break;
             default: break;
         }
@@ -1792,11 +1806,11 @@ static int64_t eval_pure_expr_int(ASTNode *expr, int64_t param_val, const char *
                 int64_t a = eval_pure_expr_int(expr->as.prefix_op.args[0], param_val, param_name);
                 int64_t b = eval_pure_expr_int(expr->as.prefix_op.args[1], param_val, param_name);
                 switch (expr->as.prefix_op.op) {
-                    case TOKEN_PLUS:    return a + b;
-                    case TOKEN_MINUS:   return a - b;
-                    case TOKEN_STAR:    return a * b;
-                    case TOKEN_SLASH:   return b != 0 ? a / b : 0;
-                    case TOKEN_PERCENT: return b != 0 ? a % b : 0;
+                    case TOKEN_PLUS:    return eval_int_add(a, b);
+                    case TOKEN_MINUS:   return eval_int_sub(a, b);
+                    case TOKEN_STAR:    return eval_int_mul(a, b);
+                    case TOKEN_SLASH:   return eval_int_div(a, b);
+                    case TOKEN_PERCENT: return eval_int_rem(a, b);
                     default: return 0;
                 }
             }
@@ -1827,11 +1841,11 @@ static int64_t eval_pure_expr_int2(ASTNode *expr,
                 int64_t a = eval_pure_expr_int2(expr->as.prefix_op.args[0], p0_val, p0_name, p1_val, p1_name);
                 int64_t b = eval_pure_expr_int2(expr->as.prefix_op.args[1], p0_val, p0_name, p1_val, p1_name);
                 switch (expr->as.prefix_op.op) {
-                    case TOKEN_PLUS:    return a + b;
-                    case TOKEN_MINUS:   return a - b;
-                    case TOKEN_STAR:    return a * b;
-                    case TOKEN_SLASH:   return b != 0 ? a / b : 0;
-                    case TOKEN_PERCENT: return b != 0 ? a % b : 0;
+                    case TOKEN_PLUS:    return eval_int_add(a, b);
+                    case TOKEN_MINUS:   return eval_int_sub(a, b);
+                    case TOKEN_STAR:    return eval_int_mul(a, b);
+                    case TOKEN_SLASH:   return eval_int_div(a, b);
+                    case TOKEN_PERCENT: return eval_int_rem(a, b);
                     default: return 0;
                 }
             }
@@ -2605,11 +2619,11 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                             long long y = ((long long*)b->data)[i];
                             long long r = 0;
                             switch (op) {
-                                case TOKEN_PLUS: r = x + y; break;
-                                case TOKEN_MINUS: r = x - y; break;
-                                case TOKEN_STAR: r = x * y; break;
-                                case TOKEN_SLASH: r = x / y; break;
-                                case TOKEN_PERCENT: r = x % y; break;
+                                case TOKEN_PLUS: r = eval_int_add(x, y); break;
+                                case TOKEN_MINUS: r = eval_int_sub(x, y); break;
+                                case TOKEN_STAR: r = eval_int_mul(x, y); break;
+                                case TOKEN_SLASH: r = eval_int_div(x, y); break;
+                                case TOKEN_PERCENT: r = eval_int_rem(x, y); break;
                                 default: break;
                             }
                             ((long long*)out.as.array_val->data)[i] = r;
@@ -2665,11 +2679,11 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         long long s = right.as.int_val;
                         long long r = 0;
                         switch (op) {
-                            case TOKEN_PLUS: r = x + s; break;
-                            case TOKEN_MINUS: r = x - s; break;
-                            case TOKEN_STAR: r = x * s; break;
-                            case TOKEN_SLASH: r = x / s; break;
-                            case TOKEN_PERCENT: r = x % s; break;
+                            case TOKEN_PLUS: r = eval_int_add(x, s); break;
+                            case TOKEN_MINUS: r = eval_int_sub(x, s); break;
+                            case TOKEN_STAR: r = eval_int_mul(x, s); break;
+                            case TOKEN_SLASH: r = eval_int_div(x, s); break;
+                            case TOKEN_PERCENT: r = eval_int_rem(x, s); break;
                             default: break;
                         }
                         ((long long*)out.as.array_val->data)[i] = r;
@@ -2728,11 +2742,11 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         long long y = ((long long*)a->data)[i];
                         long long r = 0;
                         switch (op) {
-                            case TOKEN_PLUS: r = s + y; break;
-                            case TOKEN_MINUS: r = s - y; break;
-                            case TOKEN_STAR: r = s * y; break;
-                            case TOKEN_SLASH: r = s / y; break;
-                            case TOKEN_PERCENT: r = s % y; break;
+                            case TOKEN_PLUS: r = eval_int_add(s, y); break;
+                            case TOKEN_MINUS: r = eval_int_sub(s, y); break;
+                            case TOKEN_STAR: r = eval_int_mul(s, y); break;
+                            case TOKEN_SLASH: r = eval_int_div(s, y); break;
+                            case TOKEN_PERCENT: r = eval_int_rem(s, y); break;
                             default: break;
                         }
                         ((long long*)out.as.array_val->data)[i] = r;
@@ -2783,26 +2797,11 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
         if (left.type == VAL_INT && right.type == VAL_INT) {
             long long result;
             switch (op) {
-                case TOKEN_PLUS: result = left.as.int_val + right.as.int_val; break;
-                case TOKEN_MINUS: result = left.as.int_val - right.as.int_val; break;
-                case TOKEN_STAR: result = left.as.int_val * right.as.int_val; break;
-                case TOKEN_SLASH:
-                    /* Total division, matching the NanoISA VM and the Coq
-                     * semantics: by zero = 0; INT64_MIN / -1 is signed-overflow
-                     * UB, so wrap to INT64_MIN rather than crashing. (The
-                     * interpreter previously errored on x/0 — a third behavior
-                     * that diverged from both the VM and the spec.) */
-                    if (right.as.int_val == 0) result = 0;
-                    else if (left.as.int_val == INT64_MIN && right.as.int_val == -1)
-                        result = INT64_MIN;
-                    else result = left.as.int_val / right.as.int_val;
-                    break;
-                case TOKEN_PERCENT:
-                    if (right.as.int_val == 0) result = 0;
-                    else if (left.as.int_val == INT64_MIN && right.as.int_val == -1)
-                        result = 0;
-                    else result = left.as.int_val % right.as.int_val;
-                    break;
+                case TOKEN_PLUS: result = eval_int_add(left.as.int_val, right.as.int_val); break;
+                case TOKEN_MINUS: result = eval_int_sub(left.as.int_val, right.as.int_val); break;
+                case TOKEN_STAR: result = eval_int_mul(left.as.int_val, right.as.int_val); break;
+                case TOKEN_SLASH: result = eval_int_div(left.as.int_val, right.as.int_val); break;
+                case TOKEN_PERCENT: result = eval_int_rem(left.as.int_val, right.as.int_val); break;
                 default: result = 0;
             }
             return create_int(result);

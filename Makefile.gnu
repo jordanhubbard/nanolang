@@ -1156,6 +1156,14 @@ test-aggregate-binary64-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/te
 	@rm -f tests/test_aggregate_binary64_eval
 
 # I exercise actual dynamic-array optimized scalar callbacks.
+.PHONY: test-integer-binary-eval
+test-integer-binary-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
+	$(CC) $(CFLAGS) -o tests/test_integer_binary_eval tests/test_integer_binary_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_integer_binary_eval
+	@rm -f tests/test_integer_binary_eval
+
+test-units: test-integer-binary-eval
+
 .PHONY: test-integer-negation-eval
 test-integer-negation-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
 	$(CC) $(CFLAGS) -o tests/test_integer_negation_eval tests/test_integer_negation_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
