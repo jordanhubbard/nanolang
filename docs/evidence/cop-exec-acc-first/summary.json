@@ -1,0 +1,65 @@
+{
+  "source": "acc1355dc",
+  "driver_sha256": "1df9ba84af189e4b28119a7c4a08a93df019d4f7e6aae63df499ebe655e1a7f5",
+  "archive_sha256": "bea0a21ad1827dba2d6706553e8a32cd494a8b579e8d9cfdc24d6e4cf98fec87",
+  "hosts": {
+    "linux": {
+      "report_sha256": "c58ae0ff4d9de91c84c38158e87e31c3186a302413543dcc176d19437bd1d228",
+      "source_equal": true,
+      "tools_equal": true,
+      "groups_absent": true,
+      "phases": [
+        {
+          "label": "fresh-providers",
+          "returncode": 0,
+          "seconds": 15.273128186003305,
+          "timeout": false
+        },
+        {
+          "label": "exec-owning",
+          "returncode": 0,
+          "seconds": 1.0783979069674388,
+          "timeout": false
+        },
+        {
+          "label": "original-opaque",
+          "returncode": 0,
+          "seconds": 0.8674855519784614,
+          "timeout": false
+        },
+        {
+          "label": "original-protocol",
+          "returncode": 0,
+          "seconds": 0.867297534015961,
+          "timeout": false
+        },
+        {
+          "label": "original-fuzz",
+          "returncode": 0,
+          "seconds": 0.43321920197922736,
+          "timeout": false
+        },
+        {
+          "label": "original-ffi",
+          "returncode": 2,
+          "seconds": 0.6462314689997584,
+          "timeout": false
+        }
+      ]
+    },
+    "puck": {
+      "report_sha256": "7fc08f2d0a993e0d214ab8f538c5c1cb759f33e7998af0321209b29763235fe1",
+      "source_equal": true,
+      "tools_equal": true,
+      "groups_absent": true,
+      "phases": [
+        {
+          "label": "fresh-providers",
+          "returncode": 2,
+          "seconds": 5.2674382499972126,
+          "timeout": false
+        }
+      ]
+    }
+  }
+}

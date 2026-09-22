@@ -1,0 +1,1 @@
+{"status": "archive preparation failed before product execution", "cause": "git ls-tree without -z quoted evidence path before exclusion; exact NUL-delimited paths required"}

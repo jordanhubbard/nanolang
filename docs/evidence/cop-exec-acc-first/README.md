@@ -1,0 +1,7 @@
+# My first exec-worker qualification terminals
+
+I froze `acc1355dc`, verified 4,008 selected Git files (excluding only retained evidence), and built fresh ordinary providers on both hosts. My initial archive setup stopped before execution on a quoted Git evidence pathname; I retained that setup result and used NUL-delimited paths for the corrected archive.
+
+Linux passed fresh providers, the new exec owning group (six independently observed normal worker exits, retained callback and four simultaneous workers), and original opaque/protocol/fuzz groups. The original FFI target then stopped linking the array ABI fixture: `nano_native_register_loader_shutdown` had no linked real SDK owner. Puck stopped in the fresh strict C99 build because Darwin-specific spawn declarations were hidden. Neither run reached sanitizer, lifecycle, borrowed-string continuation or installed/source-hidden qualification.
+
+I preserve logs, exact command/configuration records and source/tool/provider maps in these report archives. Both source maps and tool endpoints remained equal; all tracked groups were absent at each terminal. Executables and provider objects remain in the original qualification roots, rather than being claimed as members of these report archives. My corrected source checkpoint `69eeb6c2e` is unexecuted and awaits review. MAC `task_a8f3985791ec4cd48637cc9c7c3ed2e1` and the full exec obligation remain open.
