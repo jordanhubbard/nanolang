@@ -1091,7 +1091,7 @@ static void test_array_arithmetic_admission(void) {
     ASSERT(!tc_passes("fn probe(xs:array<array<int>>)->void{let unused=(+ xs xs)} fn main()->int{return 0}"));
     ASSERT(tc_passes("fn probe(xs:array<int>)->void{(- xs) (% xs 2) (+ xs 1)} fn main()->int{return 0}"));
     ASSERT(tc_passes("fn probe(rows:array<array<int>>)->array<int>{return (+ (at rows 0) 1)} fn main()->int{return 0}"));
-    ASSERT(!tc_passes("fn probe(xs:array<int>, bytes:array<u8>)->void{{let xs:array<u8>=bytes (+ xs 1)}} fn main()->int{return 0}"));
+    ASSERT(!tc_passes("fn probe(xs:array<int>, bytes:array<u8>)->void{{let xs:array<u8> = bytes (+ xs 1)}} fn main()->int{return 0}"));
 }
 
 int main(void) {
