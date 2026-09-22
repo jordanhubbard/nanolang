@@ -18,7 +18,6 @@
 #include "runtime/dyn_array.h"
 #include "runtime/ffi_loader.h"
 #include "runtime/path_normalize.h"
-#include "ffi_dispatch_generated.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -96,47 +95,40 @@ bool vm_ffi_load_module(const char *module_name) {
  * NanoValue ↔ C Marshaling
  * ======================================================================== */
 
-/* Marshal NanoValue args to C void* array for polymorphic dispatch */
+/* I validate every runtime value before entering a declared foreign function. */
 static bool marshal_args(NanoValue *args, int arg_count,
                         const NvmImportEntry *imp, const uint8_t *param_types,
                         void **arg_ptrs, VmFfiArrayFrame *arrays, char *error, size_t size) {
+    if (arg_count && !param_types) {
+        snprintf(error, size, "I require declared foreign parameter types");
+        return false;
+    }
     for (int i = 0; i < arg_count; i++) {
-        uint8_t expected_tag = (i < imp->param_count && param_types)
-                               ? param_types[i] : args[i].tag;
-
-        switch (expected_tag) {
-            case TAG_INT:
-                arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
-                break;
-            case TAG_FLOAT:
-                /* Reached only for signatures the generated mixed dispatcher
-                 * does not cover (e.g. a float alongside a string/array arg,
-                 * or arity above FFI_DISPATCH_MAX_ARITY). Correctly-classified
-                 * float/int mixes are handled earlier by ffi_call_mixed(); this
-                 * fallback keeps the bit pattern for such rare aggregate mixes. */
-                arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
-                break;
-            case TAG_BOOL:
-                arg_ptrs[i] = (void *)(intptr_t)(args[i].as.boolean ? 1 : 0);
-                break;
-            case TAG_STRING:
-                if (args[i].tag == TAG_STRING && args[i].as.string) {
-                    arg_ptrs[i] = (void *)vmstring_cstr(args[i].as.string);
-                } else {
-                    arg_ptrs[i] = (void *)"";
-                }
-                break;
-            case TAG_OPAQUE:
-                /* Opaque values stored as raw pointer in i64 */
-                arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
-                break;
+        uint8_t expected = param_types[i];
+        uint8_t actual = args[i].tag;
+        bool compatible = expected == actual;
+        if (expected == TAG_FLOAT) compatible = actual == TAG_FLOAT || actual == TAG_INT;
+        if (expected == TAG_ENUM) compatible = actual == TAG_ENUM || actual == TAG_INT;
+        switch (expected) {
+            case TAG_INT: case TAG_ENUM: case TAG_FLOAT: case TAG_BOOL: case TAG_U8:
+            case TAG_OPAQUE: case TAG_ARRAY: break;
+            case TAG_STRING: compatible = compatible && args[i].as.string != NULL; break;
+            default: compatible = false; break;
+        }
+        if (!compatible || i >= imp->param_count) {
+            snprintf(error, size, "I require the declared foreign value tag at argument %d", i + 1);
+            return false;
+        }
+    }
+    for (int i = 0; i < arg_count; i++) {
+        switch (param_types[i]) {
+            case TAG_BOOL: arg_ptrs[i] = (void *)(intptr_t)(args[i].as.boolean ? 1 : 0); break;
+            case TAG_STRING: arg_ptrs[i] = (void *)vmstring_cstr(args[i].as.string); break;
+            case TAG_OPAQUE: arg_ptrs[i] = args[i].as.obj; break;
             case TAG_ARRAY:
                 if (!vm_ffi_array_argument(arrays, args[i], &arg_ptrs[i], error, size)) return false;
                 break;
-            default:
-                /* Pass as raw int64 (best effort) */
-                arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
-                break;
+            default: arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64; break;
         }
     }
     return true;
@@ -148,6 +140,7 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
     *success = true;
     switch (return_tag) {
         case TAG_INT:
+        case TAG_ENUM: /* My existing VM foreign enum result is an integer value. */
             return val_int(raw_result);
         case TAG_U8:
             return val_u8((uint8_t)raw_result);
@@ -194,150 +187,6 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
         default:
             return val_int(raw_result);
     }
-}
-
-/* ========================================================================
- * FFI Call Dispatch
- * ======================================================================== */
-
-typedef int64_t (*FFI_Fn0)(void);
-typedef int64_t (*FFI_Fn1)(void *);
-typedef int64_t (*FFI_Fn2)(void *, void *);
-typedef int64_t (*FFI_Fn3)(void *, void *, void *);
-typedef int64_t (*FFI_Fn4)(void *, void *, void *, void *);
-typedef int64_t (*FFI_Fn5)(void *, void *, void *, void *, void *);
-typedef int64_t (*FFI_Fn6)(void *, void *, void *, void *, void *, void *);
-typedef int64_t (*FFI_Fn7)(void *, void *, void *, void *, void *, void *, void *);
-typedef int64_t (*FFI_Fn8)(void *, void *, void *, void *, void *, void *, void *, void *);
-typedef int64_t (*FFI_Fn9)(void *, void *, void *, void *, void *, void *, void *, void *, void *);
-typedef int64_t (*FFI_Fn10)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-
-/* Float-specific dispatch: on arm64, doubles use FP registers, not GP.
- * Using void-ptr and int64_t types puts args in wrong registers for C math fns. */
-typedef double (*FFI_DFn0)(void);
-typedef double (*FFI_DFn1)(double);
-typedef double (*FFI_DFn2)(double, double);
-typedef double (*FFI_DFn3)(double, double, double);
-typedef double (*FFI_DFn4)(double, double, double, double);
-typedef double (*FFI_DFn5)(double, double, double, double, double);
-typedef double (*FFI_DFn6)(double, double, double, double, double, double);
-typedef double (*FFI_DFn7)(double, double, double, double, double, double, double);
-typedef double (*FFI_DFn8)(double, double, double, double, double, double, double, double);
-typedef double (*FFI_DFn9)(double, double, double, double, double, double, double, double, double);
-typedef double (*FFI_DFn10)(double, double, double, double, double, double, double, double, double, double);
-
-/* Check if all params and return are float */
-static bool is_all_float_signature(const NvmImportEntry *imp,
-                                   const uint8_t *param_types, int arg_count) {
-    if (imp->return_type != TAG_FLOAT) return false;
-    for (int i = 0; i < arg_count; i++) {
-        uint8_t tag = (i < imp->param_count && param_types) ? param_types[i] : TAG_FLOAT;
-        if (tag != TAG_FLOAT) return false;
-    }
-    return true;
-}
-
-/* ABI class of a single argument tag. Floating-point values travel in the
- * FP/SIMD register bank; everything else (int, bool, char*, pointers, array
- * handles) travels in general-purpose registers. Classifying correctly is the
- * whole point of the generated mixed-signature dispatcher. */
-static bool ffi_tag_is_float(uint8_t tag) {
-    return tag == TAG_FLOAT;
-}
-
-/* True when a signature mixes GP and FP argument classes (or has an FP
- * argument alongside a GP return, etc.). Homogeneous all-GP and all-FP
- * signatures are handled by the existing fast paths; this predicate selects
- * the generated typed-stub dispatcher for everything in between that the
- * generic void*-cast path would marshal incorrectly. */
-static bool ffi_uses_generated_dispatch(const NvmImportEntry *imp,
-                                        const uint8_t *param_types,
-                                        int arg_count) {
-    if (arg_count > FFI_DISPATCH_MAX_ARITY) return false;
-    /* Only int64/pointer-class and double-class scalars can be routed through
-     * the generated stubs; aggregate/string marshaling stays on the classic
-     * path so its VmString/VmArray conversions still run. */
-    bool has_float = ffi_tag_is_float(imp->return_type);
-    for (int i = 0; i < arg_count; i++) {
-        uint8_t tag = (i < imp->param_count && param_types) ? param_types[i]
-                                                            : TAG_INT;
-        switch (tag) {
-            case TAG_INT:
-            case TAG_BOOL:
-            case TAG_OPAQUE:
-                break;
-            case TAG_FLOAT:
-                has_float = true;
-                break;
-            default:
-                /* string/array/struct/etc. — needs classic marshaling */
-                return false;
-        }
-    }
-    if (imp->return_type != TAG_INT && imp->return_type != TAG_BOOL &&
-        imp->return_type != TAG_FLOAT && imp->return_type != TAG_VOID &&
-        imp->return_type != TAG_OPAQUE) {
-        return false;
-    }
-    /* Use the generated dispatcher whenever any float is involved. Pure
-     * int/bool/opaque signatures also dispatch correctly here, but we let the
-     * legacy void* path own them to minimise behavioural change. */
-    return has_float;
-}
-
-/* Fill one classified argument slot from a NanoValue given its declared tag. */
-static void ffi_fill_slot(FfiArgSlot *slot, const NanoValue *v, uint8_t tag) {
-    if (ffi_tag_is_float(tag)) {
-        slot->is_float = 1;
-        slot->i = 0;
-        slot->f = (v->tag == TAG_FLOAT) ? v->as.f64
-                : (v->tag == TAG_INT)   ? (double)v->as.i64
-                : 0.0;
-    } else {
-        slot->is_float = 0;
-        slot->f = 0.0;
-        switch (tag) {
-            case TAG_BOOL:
-                slot->i = (long)(v->as.boolean ? 1 : 0);
-                break;
-            default: /* TAG_INT, TAG_OPAQUE */
-                slot->i = (long)(intptr_t)v->as.i64;
-                break;
-        }
-    }
-}
-
-/* Dispatch a mixed int/float signature through the generated typed stubs so
- * each argument lands in the correct ABI register class. Returns true on a
- * completed call (result populated); false only if the (arity,pattern) is
- * outside the generated table. */
-static bool ffi_call_mixed(void *func_ptr, NanoValue *args, int arg_count,
-                           const NvmImportEntry *imp, const uint8_t *param_types,
-                           NanoValue *result, VmHeap *heap,
-                           const VmFfiOpaqueCapture *capture, bool *entered) {
-    *entered = false;
-    FfiArgSlot slots[FFI_DISPATCH_MAX_ARITY];
-    for (int i = 0; i < arg_count; i++) {
-        uint8_t tag = (i < imp->param_count && param_types) ? param_types[i]
-                                                            : args[i].tag;
-        ffi_fill_slot(&slots[i], &args[i], tag);
-    }
-
-    if (ffi_tag_is_float(imp->return_type)) {
-        double dr = 0.0;
-        if (!ffi_dispatch_fp(func_ptr, slots, arg_count, &dr)) return false;
-        *entered = true;
-        *result = val_float(dr);
-        return true;
-    }
-
-    int64_t r = 0;
-    if (!ffi_dispatch_gp(func_ptr, slots, arg_count, &r)) return false;
-    *entered = true;
-    bool converted;
-    NanoValue value = marshal_result(r, imp->return_type, heap, &converted, capture);
-    if (converted) *result = value;
-    return converted;
 }
 
 /* ========================================================================
@@ -929,18 +778,8 @@ static bool vm_ffi_call_impl(const NvmModule *module, uint32_t import_idx,
         }
     }
 
-    /* I use typed ABI dispatch for wider signatures, including mixed
-     * integer/pointer and floating-point register classes. */
-    bool typed_abi = imp->return_type == TAG_FLOAT || imp->return_type == TAG_ARRAY ||
-                     imp->return_type == TAG_OPAQUE;
-    for (int i = 0; param_types && i < arg_count && i < desc->param_count; i++)
-        if (param_types[i] == TAG_FLOAT || param_types[i] == TAG_ARRAY ||
-            param_types[i] == TAG_OPAQUE) typed_abi = true;
-    if (arg_count > 10 || typed_abi) {
-        if (arg_count != desc->param_count) {
-            snprintf(error_msg, error_msg_size, "I require the declared foreign argument count");
-            return false;
-        }
+    /* I invoke every admitted signature through its declared C ABI. */
+    {
         ffi_type *types[NANO_MAX_FFI_ARGS];
         void *values[NANO_MAX_FFI_ARGS];
         union { int64_t integer; double floating; void *pointer; uint8_t byte; }
@@ -959,7 +798,7 @@ static bool vm_ffi_call_impl(const NvmModule *module, uint32_t import_idx,
             } else if (tag == TAG_BOOL || tag == TAG_U8) {
                 types[i] = &ffi_type_uint8;
                 storage[i].byte = (uint8_t)(uintptr_t)arg_ptrs[i];
-            } else if (tag == TAG_STRING || tag == TAG_BSTRING || tag == TAG_ARRAY || tag == TAG_OPAQUE) {
+            } else if (tag == TAG_STRING || tag == TAG_ARRAY || tag == TAG_OPAQUE) {
                 types[i] = &ffi_type_pointer;
                 storage[i].pointer = arg_ptrs[i];
             } else {
@@ -973,7 +812,7 @@ static bool vm_ffi_call_impl(const NvmModule *module, uint32_t import_idx,
             case TAG_FLOAT: return_type = &ffi_type_double; break;
             case TAG_INT: case TAG_ENUM: return_type = &ffi_type_sint64; break;
             case TAG_BOOL: case TAG_U8: return_type = &ffi_type_uint8; break;
-            case TAG_STRING: case TAG_BSTRING: case TAG_ARRAY: case TAG_OPAQUE:
+            case TAG_STRING: case TAG_ARRAY: case TAG_OPAQUE:
                 return_type = &ffi_type_pointer; break;
             default:
                 snprintf(error_msg, error_msg_size, "I cannot marshal typed foreign result tag %u", imp->return_type);
@@ -989,97 +828,10 @@ static bool vm_ffi_call_impl(const NvmModule *module, uint32_t import_idx,
         if (imp->return_type == TAG_FLOAT) memcpy(&raw, &returned.floating, sizeof raw);
         else if (imp->return_type == TAG_BOOL || imp->return_type == TAG_U8) raw = returned.byte;
         else if (imp->return_type == TAG_ARRAY || imp->return_type == TAG_STRING ||
-                 imp->return_type == TAG_BSTRING || imp->return_type == TAG_OPAQUE)
+                 imp->return_type == TAG_OPAQUE)
             raw = (int64_t)(intptr_t)returned.pointer;
         return finish_foreign_arrays(&arrays, raw, imp->return_type, result, error_msg, error_msg_size, capture);
     }
-
-    /* Fast path: all-float signatures use properly typed dispatch so
-     * doubles go through FP registers (critical on arm64). The classification
-     * is precomputed in the descriptor for the declared arity; fall back to a
-     * runtime check when the call arity differs from the declaration. */
-    bool all_float = (arg_count == (int)desc->param_count)
-                     ? desc->all_float
-                     : is_all_float_signature(imp, param_types, arg_count);
-    if (all_float) {
-        double dargs[NANO_MAX_FFI_ARGS];
-        for (int i = 0; i < arg_count; i++) {
-            dargs[i] = (args[i].tag == TAG_FLOAT) ? args[i].as.f64
-                      : (args[i].tag == TAG_INT)   ? (double)args[i].as.i64
-                      : 0.0;
-        }
-        double dresult = 0.0;
-        switch (arg_count) {
-            case 0: dresult = ((FFI_DFn0)func_ptr)(); break;
-            case 1: dresult = ((FFI_DFn1)func_ptr)(dargs[0]); break;
-            case 2: dresult = ((FFI_DFn2)func_ptr)(dargs[0], dargs[1]); break;
-            case 3: dresult = ((FFI_DFn3)func_ptr)(dargs[0], dargs[1], dargs[2]); break;
-            case 4: dresult = ((FFI_DFn4)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3]); break;
-            case 5: dresult = ((FFI_DFn5)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4]); break;
-            case 6: dresult = ((FFI_DFn6)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5]); break;
-            case 7: dresult = ((FFI_DFn7)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6]); break;
-            case 8: dresult = ((FFI_DFn8)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6], dargs[7]); break;
-            case 9: dresult = ((FFI_DFn9)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6], dargs[7], dargs[8]); break;
-            case 10: dresult = ((FFI_DFn10)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6], dargs[7], dargs[8], dargs[9]); break;
-            default:
-                snprintf(error_msg, error_msg_size,
-                         "FFI: unsupported float arg count %d (max %d)",
-                         arg_count, NANO_MAX_FFI_ARGS);
-                return false;
-        }
-        *result = val_float(dresult);
-        return true;
-    }
-
-    /* Mixed integer/floating signatures: route through the generated typed
-     * stubs so int/pointer args use GP registers and float args use FP
-     * registers per the platform ABI. The generic void*-cast path below would
-     * otherwise place doubles in the wrong register class. */
-    if (ffi_uses_generated_dispatch(imp, param_types, arg_count)) {
-        bool entered;
-        if (ffi_call_mixed(func_ptr, args, arg_count, imp, param_types,
-                           result, heap, capture, &entered)) {
-            return true;
-        }
-        if (entered) {
-            snprintf(error_msg, error_msg_size, "I could not retain the foreign result after native entry");
-            return false;
-        }
-        /* Fall through to the generic path if the pattern was unsupported. */
-    }
-
-    if (!marshal_args(args, arg_count, imp, param_types, arg_ptrs, &arrays, error_msg, error_msg_size))
-        goto ffi_array_failure;
-
-    /* Call the function */
-    int64_t raw_result = 0;
-    switch (arg_count) {
-        case 0: raw_result = ((FFI_Fn0)func_ptr)(); break;
-        case 1: raw_result = ((FFI_Fn1)func_ptr)(arg_ptrs[0]); break;
-        case 2: raw_result = ((FFI_Fn2)func_ptr)(arg_ptrs[0], arg_ptrs[1]); break;
-        case 3: raw_result = ((FFI_Fn3)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2]); break;
-        case 4: raw_result = ((FFI_Fn4)func_ptr)(arg_ptrs[0], arg_ptrs[1],
-                                                  arg_ptrs[2], arg_ptrs[3]); break;
-        case 5: raw_result = ((FFI_Fn5)func_ptr)(arg_ptrs[0], arg_ptrs[1],
-                                                  arg_ptrs[2], arg_ptrs[3], arg_ptrs[4]); break;
-        case 6: raw_result = ((FFI_Fn6)func_ptr)(arg_ptrs[0], arg_ptrs[1],
-                                                  arg_ptrs[2], arg_ptrs[3], arg_ptrs[4], arg_ptrs[5]); break;
-        case 7: raw_result = ((FFI_Fn7)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                  arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6]); break;
-        case 8: raw_result = ((FFI_Fn8)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                  arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6], arg_ptrs[7]); break;
-        case 9: raw_result = ((FFI_Fn9)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                  arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6], arg_ptrs[7], arg_ptrs[8]); break;
-        case 10: raw_result = ((FFI_Fn10)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                   arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6], arg_ptrs[7], arg_ptrs[8], arg_ptrs[9]); break;
-        default:
-            snprintf(error_msg, error_msg_size,
-                     "FFI: unsupported arg count %d (max %d)",
-                     arg_count, NANO_MAX_FFI_ARGS);
-            return false;
-    }
-
-    return finish_foreign_arrays(&arrays, raw_result, imp->return_type, result, error_msg, error_msg_size, capture);
 
 ffi_array_failure:
     vm_ffi_arrays_dispose(&arrays);

@@ -1082,6 +1082,14 @@ test-vm-effect-ownership: nano_virt
 
 test-units: test-vm-effect-ownership
 
+.PHONY: test-vm-scalar-abi
+test-vm-scalar-abi: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -fPIC $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) tests/nanovm/scalar_abi_provider.c -o $(OBJ_DIR)/scalar_abi_provider.so $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_scalar_abi tests/nanovm/test_scalar_abi.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_scalar_abi "$(abspath $(OBJ_DIR)/scalar_abi_provider.so)"
+
+test-units: test-vm-scalar-abi
+
 .PHONY: test-nanovirt-extern-names
 test-nanovirt-extern-names: $(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(NANOVIRT_OBJECTS)) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_extern_names tests/nanovirt/test_extern_names.c \
