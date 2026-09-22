@@ -1,0 +1,1 @@
+/home/jkh/nanolang-qualification/byte-array-879-linux/sanitized/source/bin/nanoisa asm /home/jkh/nanolang-qualification/byte-array-879-linux/sanitized/original-mutation/input.nasm -o /home/jkh/nanolang-qualification/byte-array-879-linux/sanitized/original-mutation/input.nvm

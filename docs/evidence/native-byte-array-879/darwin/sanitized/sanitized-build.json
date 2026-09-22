@@ -1,0 +1,23 @@
+{
+  "label": "sanitized-build",
+  "argv": [
+    "/usr/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/opt/homebrew/opt/llvm/bin/clang",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+    "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+    "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "nvm2c",
+    "nanoisa_dump",
+    "nano_vm",
+    "nano_virt"
+  ],
+  "bound": 1200,
+  "timeout": false,
+  "pid": 11772,
+  "returncode": 0,
+  "remaining_groups": [],
+  "seconds": 17.045934542
+}

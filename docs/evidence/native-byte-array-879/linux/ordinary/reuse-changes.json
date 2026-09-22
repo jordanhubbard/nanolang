@@ -1,0 +1,5 @@
+[
+  "docs/NVM2C_BYTE_ARRAY_IDENTITY.md",
+  "docs/ROADMAP.md",
+  "tests/test_native_byte_array_identity.py"
+]

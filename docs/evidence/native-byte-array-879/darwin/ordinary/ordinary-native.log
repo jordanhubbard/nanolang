@@ -1,0 +1,15 @@
+test_byte_integer_join_keeps_explicit_conversion (tests.test_native_byte_array_identity.NativeByteArrayIdentity) ... I retain byte-array artifacts at /Users/jkh/nanolang-qualification/byte-array-879-puck/ordinary/tmp/nano-native-byte-array-n_mwkd43
+ok
+test_byte_literal_policy_before_explicit_member_casts (tests.test_native_byte_array_identity.NativeByteArrayIdentity) ... I retain byte-array artifacts at /Users/jkh/nanolang-qualification/byte-array-879-puck/ordinary/tmp/nano-native-byte-array-q1883p0u
+ok
+test_constructor_mutation_calls_joins_records_and_globals (tests.test_native_byte_array_identity.NativeByteArrayIdentity) ... I retain byte-array artifacts at /Users/jkh/nanolang-qualification/byte-array-879-puck/ordinary/tmp/nano-native-byte-array-ipap4h9k
+ok
+test_repeated_source_lowering_retains_byte_constructor_tag (tests.test_native_byte_array_identity.NativeByteArrayIdentity) ... I retain byte-array artifacts at /Users/jkh/nanolang-qualification/byte-array-879-puck/ordinary/tmp/nano-native-byte-array-95ihsm7d
+ok
+test_wrong_tag_and_mixed_array_refusals_preserve_output (tests.test_native_byte_array_identity.NativeByteArrayIdentity) ... I retain byte-array artifacts at /Users/jkh/nanolang-qualification/byte-array-879-puck/ordinary/tmp/nano-native-byte-array-wz31va_8
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 3.197s
+
+OK

@@ -1434,6 +1434,22 @@ static Type resolved_array_element(Type element, const char *name, Environment *
 /* I validate the inferred literal kind before annotation propagation changes it. */
 static bool check_array_literal_annotation(TypeChecker *tc, ASTNode *literal, Type expected, const char *name) {
     expected = resolved_array_element(expected, name, tc->env);
+    if (expected == TYPE_U8) {
+        for (int i = 0; i < literal->as.array_literal.element_count; ++i) {
+            ASTNode *member = literal->as.array_literal.elements[i];
+            Type actual = check_expression(member, tc->env);
+            if ((actual != TYPE_INT && actual != TYPE_U8 && actual != TYPE_ENUM) ||
+                !byte_literal_fits(TYPE_U8, member)) {
+                emit_context_error("E001 TYPE MISMATCH", literal->line, literal->column, 1,
+                    "I require checked byte-array members and literals from 0 through 255.",
+                    "Use a byte or computed integer; keep direct literals in range.");
+                tc->has_error = true;
+                return false;
+            }
+        }
+        literal->as.array_literal.element_type = TYPE_U8;
+        return true;
+    }
     if (literal->as.array_literal.element_count > 0 &&
             !types_match(literal->as.array_literal.element_type, expected)) {
         char message[256];
@@ -4389,10 +4405,13 @@ checked_array_declared_call: ;
                         check_concrete_union_arrays(env, func->params[i].type_info, env_function_signature_owner(env, func), arg, 0);
                         Type arg_type = check_expression(arg, env);
                         if (arg->type == AST_ARRAY_LITERAL &&
-                            arg->as.array_literal.element_count == 0 &&
+                            (arg->as.array_literal.element_count == 0 || func->params[i].element_type == TYPE_U8) &&
                             func->params[i].type == TYPE_ARRAY &&
                             func->params[i].element_type != TYPE_UNKNOWN) {
-                            arg->as.array_literal.element_type = resolved_array_element(func->params[i].element_type, func->params[i].struct_type_name, env);
+                            TypeChecker context = {0}; context.env = env;
+                            if (!check_array_literal_annotation(&context, arg,
+                                    func->params[i].element_type, func->params[i].struct_type_name))
+                                return TYPE_UNKNOWN;
                         }
                         
                         /* Check for opaque type parameters. I accept only the
@@ -4745,6 +4764,13 @@ checked_array_declared_call: ;
         }
 
         case AST_ARRAY_LITERAL: {
+            /* A checked contextual byte literal keeps its element proof on
+             * repeated lowering queries; I validate every member again. */
+            if (expr->as.array_literal.element_type == TYPE_U8) {
+                TypeChecker context = {0}; context.env = env;
+                return check_array_literal_annotation(&context, expr, TYPE_U8, NULL)
+                    ? TYPE_ARRAY : TYPE_UNKNOWN;
+            }
             /* Type check array literal */
             int element_count = expr->as.array_literal.element_count;
             
@@ -5014,12 +5040,13 @@ checked_array_declared_call: ;
                 if (sdef->field_types[field_index] == TYPE_ARRAY &&
                     sdef->field_element_types &&
                     field_value->type == AST_ARRAY_LITERAL &&
-                    field_value->as.array_literal.element_count == 0) {
-                    /* An empty field has no element from which to infer its
-                     * runtime representation. Preserve its declaration. */
-                    field_value->as.array_literal.element_type = resolved_array_element(
-                        sdef->field_element_types[field_index],
-                        sdef->field_type_names ? sdef->field_type_names[field_index] : NULL, env);
+                    (field_value->as.array_literal.element_count == 0 ||
+                     sdef->field_element_types[field_index] == TYPE_U8)) {
+                    TypeChecker context = {0}; context.env = env;
+                    if (!check_array_literal_annotation(&context, field_value,
+                            sdef->field_element_types[field_index],
+                            sdef->field_type_names ? sdef->field_type_names[field_index] : NULL))
+                        return TYPE_UNKNOWN;
                 }
                 if (sdef->field_types[field_index] == TYPE_ARRAY &&
                     (!sdef->field_type_info || !record_field_array_matches(env,
@@ -6636,6 +6663,11 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         tc->env->current_module, stmt->as.return_stmt.value)) tc->has_error = true;
                 if (!check_opaque_value(tc->env, tc->current_function_return_type,
                         tc->current_function_return_struct_name, stmt->as.return_stmt.value)) tc->has_error = true;
+
+                if (tc->current_function_return_type == TYPE_ARRAY &&
+                    tc->current_function_return_element_type == TYPE_U8 &&
+                    stmt->as.return_stmt.value->type == AST_ARRAY_LITERAL)
+                    check_array_literal_annotation(tc, stmt->as.return_stmt.value, TYPE_U8, NULL);
                 if (!check_record_array_contract(tc->env, tc->current_function_return_type,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name,
                         tc->env->current_module, stmt->as.return_stmt.value)) tc->has_error = true;

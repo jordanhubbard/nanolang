@@ -1,0 +1,1 @@
+/usr/bin/gcc -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -std=c11 -O0 -Wall -Wextra -Werror /home/jkh/nanolang-qualification/byte-array-879-linux/sanitized/original-mutation/program.c -o /home/jkh/nanolang-qualification/byte-array-879-linux/sanitized/original-mutation/O0

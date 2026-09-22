@@ -1,0 +1,1 @@
+/home/jkh/nanolang-qualification/byte-array-879-linux/ordinary/source/bin/nano_virt /home/jkh/nanolang-qualification/byte-array-879-linux/ordinary/original-mutation/source.nano --emit-nvm -o /home/jkh/nanolang-qualification/byte-array-879-linux/ordinary/original-mutation/source.nvm

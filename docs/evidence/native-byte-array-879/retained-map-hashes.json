@@ -1,0 +1,34 @@
+{
+  "linux/ordinary": {
+    "ordinary/products.json": "b7ce7bff235aee96a856fe01e22595eaa2bd76c190261625031fd48f740b6b59",
+    "ordinary/copied-providers.json": "4d310787151fe10c30f0490ebb3cbdd1b6e562c300221a27ffc91663153c83fe",
+    "ordinary/reuse-changes.json": "8fff398284ad314c74cbe9608f7f98c339daabc0b6f9de4acac6ea2b9c660871",
+    "ordinary/source-after.json": "e0b6bf8e32e2de894ad2b2940791c01b5ca6f5c400b819d6f3ce656186faa853",
+    "ordinary/source-before.json": "e0b6bf8e32e2de894ad2b2940791c01b5ca6f5c400b819d6f3ce656186faa853",
+    "ordinary/ordinary-native.json": "dbcd1c47fa65283d7016323e2d8e7791a1e0d9c807828110fb174ee10d5ec216"
+  },
+  "linux/sanitized": {
+    "sanitized/products.json": "5999229cf3e943c466eab44e0f0cfdd315b3f03f87701302887c235c0ecc603d",
+    "sanitized/sanitized-native.json": "28987e2dcee7e2e18feeeb8bf24db12b7a57225c2b437d216d05fecb219e056a",
+    "sanitized/source-after.json": "e0b6bf8e32e2de894ad2b2940791c01b5ca6f5c400b819d6f3ce656186faa853",
+    "sanitized/sanitized-shapes.json": "37e751fd9096d793af90203fe31d021c2c73b82e6a70898712c17edb1935f153",
+    "sanitized/sanitized-build.json": "31c082821bd7927eaad928c97b72d26618660fa24843823878b568c6d2a45704",
+    "sanitized/source-before.json": "e0b6bf8e32e2de894ad2b2940791c01b5ca6f5c400b819d6f3ce656186faa853"
+  },
+  "darwin/ordinary": {
+    "ordinary/products.json": "015e432e97339c0bcf803d96190d6986df24f4a7287f1bde638f987e17327297",
+    "ordinary/copied-providers.json": "021d7b82a2c1f323693bd26f225739a0ee2e89ffdf6cde4931c1ee7f73e4bb3a",
+    "ordinary/reuse-changes.json": "07d98b7e3327d290d523a57ed865d4e5f5de6951274e38a80238eea10dd0e239",
+    "ordinary/source-after.json": "e0b6bf8e32e2de894ad2b2940791c01b5ca6f5c400b819d6f3ce656186faa853",
+    "ordinary/source-before.json": "e0b6bf8e32e2de894ad2b2940791c01b5ca6f5c400b819d6f3ce656186faa853",
+    "ordinary/ordinary-native.json": "423af9de3183ee3cf3d307372db75537c209d9c6bcc6793d8830b6f396bb86ae"
+  },
+  "darwin/sanitized": {
+    "sanitized/products.json": "40b4edcab0498ba3a252f7b9647998450f4b3490550ce9bde8ff2b179ec0fd25",
+    "sanitized/sanitized-native.json": "54b46620a156f090a5646b8d91dcdf830eb5e2bb4b67627a9f0c92bd5ffa4e1c",
+    "sanitized/source-after.json": "e0b6bf8e32e2de894ad2b2940791c01b5ca6f5c400b819d6f3ce656186faa853",
+    "sanitized/sanitized-shapes.json": "4446df192058f38c16b88f55eaec5b1ba3309ada81109bce594d43620c949795",
+    "sanitized/sanitized-build.json": "f526fbb385dfafcb4e75fd9559a34ef11797d2703f9be8f29432bb61fd378e8c",
+    "sanitized/source-before.json": "e0b6bf8e32e2de894ad2b2940791c01b5ca6f5c400b819d6f3ce656186faa853"
+  }
+}

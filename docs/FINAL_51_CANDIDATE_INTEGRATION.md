@@ -53,3 +53,22 @@ I retain the candidate's complete nominal/list checker and checked array-record 
 The canonical SDK gap is not a link-command-only change: `nisa_type_ok` and `nisa_tuple_type_ok` constrain admitted array/tuple shapes; `nisa_register_extern` accepts metadata, artifact functions or the bounded host ABI and rejects arbitrary opaque SDK extern signatures. I must preserve exact owner/kind and provider ABI in a checked external/service descriptor through verification and VM/nvm2c execution, then provide installed discovery and the original acceptance matrix. Existing service descriptors must be audited before designing an adapter; no arbitrary native-symbol bypass is authorized here.
 
 Strict syntax-only compilation of `src/main.c`, `src/typechecker.c` and `src/nanovirt/codegen.c` passes with C99, GNU feature definitions and `-Wall -Wextra -Werror`. The four conflict-resolved Python sources parse. These are source checks only; mandatory Nano shadows, final inventory regeneration and all combined product/installed gates remain open.
+
+## I combine the qualified byte-array carrier with canonical recursion
+
+I merge native `051b87183` (production220, fixture879) after the installed AOT
+role prerequisite. I retain the candidate's owner-aware callable/tuple/opaque
+return checks and add the byte-literal destination check without replacing those
+contexts. Codegen keeps earlier enum narrowing and lexical upvalue precedence;
+its new byte-array snapshot/conversion is additive.
+
+The private nvm2c kind numbers already use13 for recursive arrays and14 for
+functions, so U8 arrays use the distinct private value15. This is an emission-
+local carrier code, not a serialized ISA tag. Global classification retains the
+candidate's resolved `stored_kind` and byte-array shape equality; global loads
+retain both recursive-array facts and the U8 guard. Exact scalar-byte facts enter
+the existing shape carrier, with ordinary array/function cases unchanged. Both
+Make targets and all prior fixtures remain. Strict syntax-only checking of the
+checker, bytecode emitter, nvm2c and shape implementation passes with warnings as
+errors. Native051 evidence remains attributed to its own source; no combined
+product executes at this merge checkpoint.

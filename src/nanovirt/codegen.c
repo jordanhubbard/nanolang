@@ -2566,13 +2566,15 @@ static void compile_expr(CG *cg, ASTNode *node) {
 
     case AST_ARRAY_LITERAL: {
         int count = node->as.array_literal.element_count;
-        /* Push all elements left-to-right */
+        /* I preserve the checked destination while recursive queries run. */
+        Type element_type = node->as.array_literal.element_type;
         for (int i = 0; i < count; i++) {
-            compile_expr(cg, node->as.array_literal.elements[i]);
+            compile_expected_tag(cg, node->as.array_literal.elements[i],
+                                 element_type == TYPE_U8 ? TAG_U8 : TAG_COUNT);
         }
         /* Determine element type tag */
         uint8_t elem_tag = TAG_INT; /* default */
-        switch (node->as.array_literal.element_type) {
+        switch (element_type) {
             case TYPE_ARRAY:  elem_tag = TAG_ARRAY;  break;
             case TYPE_FLOAT:  elem_tag = TAG_FLOAT;  break;
             case TYPE_BOOL:   elem_tag = TAG_BOOL;   break;
@@ -3771,7 +3773,8 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     switch (node->type) {
     case AST_LET: {
         if (node->as.let.value->type == AST_ARRAY_LITERAL &&
-            node->as.let.value->as.array_literal.element_count == 0 &&
+            (node->as.let.value->as.array_literal.element_count == 0 ||
+             node->as.let.element_type == TYPE_U8) &&
             node->as.let.element_type != TYPE_UNKNOWN) {
             node->as.let.value->as.array_literal.element_type = node->as.let.element_type;
         }
@@ -4052,7 +4055,8 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_RETURN: {
         ASTNode *value = node->as.return_stmt.value;
         if (value && value->type == AST_ARRAY_LITERAL &&
-            value->as.array_literal.element_count == 0 &&
+            (value->as.array_literal.element_count == 0 ||
+             cg->current_return_element_type == TYPE_U8) &&
             cg->module->functions[cg->current_fn_idx].result_tag == TAG_ARRAY &&
             cg->current_return_element_type != TYPE_UNKNOWN) {
             value->as.array_literal.element_type = cg->current_return_element_type;

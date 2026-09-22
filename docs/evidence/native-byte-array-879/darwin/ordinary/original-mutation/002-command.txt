@@ -1,0 +1,1 @@
+/Users/jkh/nanolang-qualification/byte-array-879-puck/ordinary/source/bin/nanoisa dump /Users/jkh/nanolang-qualification/byte-array-879-puck/ordinary/original-mutation/source.nvm

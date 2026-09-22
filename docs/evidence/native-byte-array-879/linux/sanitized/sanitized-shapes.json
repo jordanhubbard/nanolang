@@ -1,0 +1,20 @@
+{
+  "label": "sanitized-shapes",
+  "argv": [
+    "/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/usr/bin/gcc",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+    "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+    "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "test-nvm2c-shapes"
+  ],
+  "bound": 240,
+  "timeout": false,
+  "pid": 1039779,
+  "returncode": 0,
+  "remaining_groups": [],
+  "seconds": 1.0818429490318522
+}
