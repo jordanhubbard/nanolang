@@ -156,6 +156,10 @@ static void array_pop_element_identity(void) {
     assert(nominal_value_view(&pop, env, 0, &result));
     assert(nominal_view_matches_annotation(env, &result, &item, "Left", NULL, 0));
     assert(!nominal_view_matches_annotation(env, &result, &item, "Right", NULL, 0));
+    assert(nominal_equal(nominal_expression(&pop, env, TYPE_STRUCT, 0),
+                         env_nominal_identity(env, "Item", "Left", TYPE_STRUCT)));
+    assert(!nominal_equal(nominal_expression(&pop, env, TYPE_STRUCT, 0),
+                          env_nominal_identity(env, "Item", "Right", TYPE_STRUCT)));
     nominal_view_discard(&result);
     receiver.as.identifier = "rows";
     assert(nominal_value_view(&pop, env, 0, &result));
@@ -166,6 +170,7 @@ static void array_pop_element_identity(void) {
     receiver.as.identifier = "unknown";
     assert(!nominal_value_view(&pop, env, 0, &result));
     assert(!result.info);
+    assert(!nominal_expression(&pop, env, TYPE_STRUCT, 0).ordinal);
     free_environment(env);
 }
 static void mixed_substitution_identity(void) {
