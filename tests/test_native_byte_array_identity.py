@@ -4,15 +4,14 @@ import os
 import shlex
 import tempfile
 import unittest
-from tests.test_file_cyclic import FileCyclic
-from tests.test_cast_u8_backends import CastU8Backends
+from tests import test_file_cyclic, test_cast_u8_backends
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class NativeByteArrayIdentity(unittest.TestCase):
-    command = FileCyclic.command
-    run_trap = CastU8Backends.run_trap
+    command = test_file_cyclic.FileCyclic.command
+    run_trap = test_cast_u8_backends.CastU8Backends.run_trap
 
     def setUp(self):
         self.artifacts = Path(tempfile.mkdtemp(prefix='nano-native-byte-array-'))

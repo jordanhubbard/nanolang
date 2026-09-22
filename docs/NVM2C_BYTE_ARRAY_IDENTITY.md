@@ -115,3 +115,7 @@ claim a checked existing-array conversion policy. This requires a complete
 scalar-array destination adapter coordinated with the candidate's retained
 contextual facts before full source acceptance, in addition to review and
 qualification of this backend checkpoint.
+
+## Focused discovery correction
+
+My first reviewed220 ordinary builds and shape controls pass on Linux and Darwin. Python unittest discovers imported TestCase classes exposed as globals, so my module first enters the broader CastU8Backends suite. Linux stops at an absent nvm2llvm product and Darwin at an absent llvm-as selection. None of my five byte-array methods ran. I retain these terminals, import the helper modules instead, and reference their existing class methods without exposing those classes to discovery. I change no assertion or production source.
