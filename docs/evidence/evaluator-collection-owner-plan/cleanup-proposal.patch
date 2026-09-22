@@ -1,14 +1,16 @@
 --- a/src/nanolang.h
 +++ b/src/nanolang.h
-@@ -956,6 +956,11 @@
+@@ -956,6 +956,13 @@
  
  /* Interpreter */
  bool run_program(ASTNode *program, Environment *env);
 +/* Fixed-array and interpreter HashMap identities returned here transfer no
 + * ownership. Evaluator-created collections borrow their Environment; an alias
 + * of a caller-created input keeps its caller owner. Those owners must outlive
-+ * all such references. Existing string/record/tuple/callable snapshots and
-+ * DynArray GC references keep their separate ownership contracts. */
++ * all such references. Copied record/tuple containers still borrow nested
++ * collection leaves from their Environment or caller owner; that owner must
++ * remain alive while those leaves are used. Existing string/record/tuple/
++ * callable snapshots and DynArray GC references keep their separate contracts. */
  Value call_function(const char *name, Value *args, int arg_count, Environment *env);
  /* REPL support */
  Value repl_eval_node(ASTNode *node, Environment *env);
