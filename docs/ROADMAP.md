@@ -17506,3 +17506,7 @@ bare nested block; `parse_ctx_init` returns false while retaining tokens and
 Linux remain unrun. I correct the fixture to an actual conditional lexical
 block, require successful parsing for new admission refusals, and release the
 helper's tokens on parser failure before any corrected qualification.
+
+### My corrected arithmetic admission C qualification (2026-09-22)
+
+I retain the first 9d611 sanitizer parser-token leak separately in `docs/evidence/array-admission-9d6-first`. On corrected fixture source 0eb14852e, my full original checker and evaluator plus explicitly selected nonexecuting codegen refusal controls passed all four host/instrumentation configurations (twelve test phases). `docs/evidence/array-admission-0eb` seals the actual reports, twelve fixture executables and fresh provider identities. My Nano source remains unqualified and unintegrated pending deliberate fresh bootstrap; byte/nested positive matrix support, the original compiler shadow deadline and full release acceptance remain open.
