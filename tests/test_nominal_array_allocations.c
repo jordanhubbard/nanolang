@@ -602,6 +602,23 @@ static size_t scalar_destination_attempt(size_t prefix, bool transient, bool inv
     free_environment(env); CHECK(!live);
     return count;
 }
+extern bool array_test_match_binding_name(Symbol *);
+static void match_binding_name_controls(void) {
+    for (int transient = 0; transient < 2; ++transient) {
+        Symbol binding = {0}; binding.struct_type_name = strdup("Old.Payload");
+        CHECK(binding.struct_type_name); char *prior = binding.struct_type_name;
+        begin(0, transient != 0);
+        CHECK(!array_test_match_binding_name(&binding));
+        CHECK(stop() == 1 && failed == 1 && live == 0);
+        CHECK(binding.struct_type_name == prior && !strcmp(prior, "Old.Payload"));
+        uintptr_t prior_address = (uintptr_t)prior;
+        begin(SIZE_MAX, false);
+        CHECK(array_test_match_binding_name(&binding));
+        CHECK(stop() == 1 && failed == 0 && live == 1);
+        CHECK((uintptr_t)binding.struct_type_name != prior_address && !strcmp(binding.struct_type_name, "New.Payload"));
+        array_alloc_free(binding.struct_type_name); CHECK(live == 0);
+    }
+}
 static void scalar_destination_controls(void) {
     size_t count = scalar_destination_attempt(SIZE_MAX, false, false); CHECK(count > 20);
     scalar_destination_attempt(SIZE_MAX, false, true);
@@ -624,7 +641,7 @@ int main(void) {
     CHECK(copy_payload_type_info_checked(chain + 1, &out)); free_payload_type_info(out);
     CHECK(copy_payload_type_info_checked(NULL, &out) && out == NULL);
     CHECK(!copy_payload_type_info_checked(chain, NULL));
-    scalar_destination_controls(); struct_auxiliary_teardown_controls(); registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); native_callable_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); native_emission_controls(); constructor_registry_controls(); union_payload_controls(); union_projection_controls();
+    match_binding_name_controls(); scalar_destination_controls(); struct_auxiliary_teardown_controls(); registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); native_callable_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); native_emission_controls(); constructor_registry_controls(); union_payload_controls(); union_projection_controls();
     printf("I passed %zu separate checker annotation allocation assertions.\n", checks);
     return 0;
 }

@@ -1101,6 +1101,7 @@ static void scalar_array_destinations(void) {
         "union Pick{Some{value:int}} fn main()->int{let a:array<u8> = (match Pick.Some{value:258}{Some(p)=>{let x:int = p.value [x,(byte_value 2)]}}) return 0}",
         "fn main()->int{let a:array<u8> = [(cond ((at [true] 0) 1) (else 2))] return 0}",
         "enum Tag{One} fn main()->int{let a:array<Tag> = [Tag.One] return 0}",
+        "union StatementPick{Some{value:int}} fn main()->int{match StatementPick.Some{value:1}{Some(p)=>{let x:int = p.value}} match StatementPick.Some{value:2}{Some(p)=>{let y:int = p.value}} return 0}",
         "fn main()->int{let a:array<u8> = [1] let b:array<u8> = a return 0}",
         "fn make(n:int)->array<u8>{return [n]} fn main()->int{let array_new:fn(int)->array<u8> = make let a:array<u8> = (array_new 1) return 0}"
     };

@@ -259,3 +259,8 @@ bool array_test_scalar_destination(Environment *env, ASTNode *outer) {
         !env_array_expression_info(env, outer) || g_typecheck_error_count)) abort();
     return ok;
 }
+
+/* I expose the actual replacement, including its hooked allocation/free pair. */
+bool array_test_match_binding_name(Symbol *binding) {
+    return replace_match_binding_name(binding, "New", "Payload");
+}

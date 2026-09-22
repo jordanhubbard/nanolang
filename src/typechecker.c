@@ -843,6 +843,22 @@ static bool nominal_callable_result(Environment *env, const NominalView *callee,
         callee->owner, nominal_view_context(callee), depth + 1, out);
 }
 
+/* I replace an owned binding label only after its complete copy succeeds. */
+static bool replace_match_binding_name(Symbol *binding, const char *base, const char *variant) {
+    if (!binding || !base || !variant) return false;
+    size_t base_length = strlen(base), variant_length = strlen(variant);
+    if (base_length > SIZE_MAX - 2 || variant_length > SIZE_MAX - base_length - 2) return false;
+    size_t length = base_length + variant_length + 2;
+    char *name = malloc(length);
+    if (!name) return false;
+    memcpy(name, base, base_length);
+    name[base_length] = '.';
+    memcpy(name + base_length + 1, variant, variant_length + 1);
+    free(binding->struct_type_name);
+    binding->struct_type_name = name;
+    return true;
+}
+
 /* I retain both the scrutinee arguments and the exact selected variant. */
 static bool retain_union_binding_context(Environment *env, Symbol *binding,
                                           ASTNode *scrutinee, const char *variant) {
@@ -5604,9 +5620,12 @@ checked_array_declared_call: ;
                     if (union_base_name && env->symbol_count > 0) {
                         Symbol *binding_sym = &env->symbols[env->symbol_count - 1];
                         /* Format: "UnionName.VariantName" */
-                        char *type_name = malloc(strlen(union_base_name) + strlen(variant_name_i) + 2);
-                        sprintf(type_name, "%s.%s", union_base_name, variant_name_i);
-                        binding_sym->struct_type_name = type_name;
+                        if (!replace_match_binding_name(binding_sym, union_base_name, variant_name_i)) {
+                            emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                                "I cannot retain the complete match binding name.",
+                                "Preserve the prior owned binding when allocation fails.");
+                            return TYPE_UNKNOWN;
+                        }
 
                         /* Ensure bindings participate in visibility disambiguation */
                         binding_sym->def_line = expr->line;
@@ -7169,9 +7188,12 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
                     if (union_base_name && tc->env->symbol_count > 0) {
                         Symbol *binding_sym = &tc->env->symbols[tc->env->symbol_count - 1];
-                        char *type_name = malloc(strlen(union_base_name) + strlen(variant_name_s) + 2);
-                        sprintf(type_name, "%s.%s", union_base_name, variant_name_s);
-                        binding_sym->struct_type_name = type_name;
+                        if (!replace_match_binding_name(binding_sym, union_base_name, variant_name_s)) {
+                            emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                                "I cannot retain the complete match binding name.",
+                                "Preserve the prior owned binding when allocation fails.");
+                            return TYPE_UNKNOWN;
+                        }
 
                         /* Ensure bindings participate in visibility disambiguation */
                         binding_sym->def_line = stmt->line;
