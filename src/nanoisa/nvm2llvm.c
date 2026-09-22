@@ -369,7 +369,8 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
     if (tail_frames) {
         fprintf(out, " %%outgoing = alloca [%u x %%V]\n", argument_count);
         for (uint16_t i = 0; i < f->arity; ++i)
-            if (m->function_param_types && m->function_param_types[index])
+            if (m->function_param_types && m->function_param_types[index] &&
+                m->function_param_types[index][i] != TAG_VOID)
                 fprintf(out, " call i64 @integer(%%V %%arg%u, i8 %u)\n", i, m->function_param_types[index][i]);
     }
     if (managed && (mutable_arrays || records))
