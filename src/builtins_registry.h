@@ -9,17 +9,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-
-/* Forward-declare Type from nanolang.h to avoid circular include */
-#ifndef NANOLANG_H
-typedef enum {
-    TYPE_INT = 0, TYPE_U8, TYPE_FLOAT, TYPE_BOOL, TYPE_STRING, TYPE_BSTRING,
-    TYPE_VOID, TYPE_ARRAY, TYPE_STRUCT, TYPE_ENUM, TYPE_UNION,
-    TYPE_GENERIC, TYPE_LIST_INT, TYPE_LIST_STRING, TYPE_LIST_TOKEN,
-    TYPE_LIST_GENERIC, TYPE_HASHMAP, TYPE_FUNCTION, TYPE_TUPLE, TYPE_OPAQUE,
-    TYPE_UNKNOWN
-} Type;
-#endif
+#include "nanolang.h"
 
 /* Builtin flags */
 #define BUILTIN_PURE       0x01  /* No side effects */

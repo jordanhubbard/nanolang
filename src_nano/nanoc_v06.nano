@@ -8,8 +8,8 @@
  * 1. Lexer:       tokenize_file_result() -> Result<TokenList, Diagnostic>
  * 2. Parser:      parse_program() -> Parser
  * 3. Typechecker: typecheck_parser() -> int
- * 4. Transpiler:  transpile_parser() -> string (C code)
- * 5. C Compiler:  system("cc ...") -> int
+ * 4. NanoISA:     verified program and selected shadow modules
+ * 5. Products:    bytecode, or nvm2c followed by the host C11 compiler
  * 
  * This is TRUE SELF-HOSTING - no dependency on nanoc_c!
  */
@@ -20,12 +20,13 @@ import "src_nano/compiler/file_source_resolution.nano"
 module "modules/file_companion/file_companion.nano" as SourceCompanion
 module "modules/compiler_support/compiler_support.nano" as NativeSdk
 import "src_nano/typecheck.nano"
+import "src_nano/compiler/module_facts.nano"
 import "src_nano/transpiler.nano"
+import "src_nano/compiler/module_introspection.nano"
 import "src_nano/compiler/nanoisa_codegen.nano"
 module "modules/nanoisa/nanoisa.nano" as Nanoisa
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 import "src_nano/compiler/module_loader.nano"
-import "src_nano/compiler/module_introspection.nano"
 import "src_nano/compiler/module_bindings.nano"
 import "src_nano/compiler/nominal_bindings.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
@@ -80,7 +81,7 @@ shadow default_options {
 }
 
 # I derive a sibling source filename only when no output was specified.
-fn c_source_output_path(input: string) -> string {
+fn source_output_path(input: string, suffix: string) -> string {
     let length: int = (str_length input)
     let mut component_start: int = 0
     let mut extension: int = length
@@ -91,9 +92,17 @@ fn c_source_output_path(input: string) -> string {
         if (and (== ch ".") (> i component_start)) { set extension i }
         set i (+ i 1)
     }
-    return (+ (str_substring input 0 extension) ".c")
+    return (+ (str_substring input 0 extension) suffix)
 }
 
+shadow source_output_path {
+    assert (== (source_output_path "dir.name/file.nano" ".nvm") "dir.name/file.nvm")
+    assert (== (source_output_path ".hidden" ".nvm") ".hidden.nvm")
+    assert (== (source_output_path "plain" ".nvm") "plain.nvm")
+}
+fn c_source_output_path(input: string) -> string {
+    return (source_output_path input ".c")
+}
 shadow c_source_output_path {
     assert (== (c_source_output_path "dir.name/file.nano") "dir.name/file.c")
     assert (== (c_source_output_path ".hidden") ".hidden.c")
@@ -111,6 +120,7 @@ fn parse_options(args: array<string>) -> CompileOptions {
     let mut diags: string = ""
     let mut help: bool = false
     let mut emit_c: bool = false
+    let mut target: string = ""
     let mut emit_nvm: bool = false
     let mut test_imports: bool = true
     let mut allow_temporary_files: bool = false
@@ -159,6 +169,7 @@ fn parse_options(args: array<string>) -> CompileOptions {
                     set error (+ "I do not support this target in my self-hosted driver: " value)
                     break
                 }
+                set target value
                 set emit_c (== value "c")
             }
         } else if (and (not positional_only) (nlc_str_starts_with arg "-")) {
@@ -171,8 +182,9 @@ fn parse_options(args: array<string>) -> CompileOptions {
         }
         set i (+ i 1)
     }
-    if (and emit_c emit_nvm) { set error "I cannot combine --emit-nvm with --target c" }
-    if (and emit_nvm (not output_set)) { set error "I require -o for --emit-nvm" }
+    if (and emit_nvm (!= target "")) { set error "I cannot combine --emit-nvm with an explicit target" }
+    if (and (!= input "") (and (not output_set) (== target ""))) { set emit_nvm true }
+    if (and emit_nvm (not output_set)) { set output (source_output_path input ".nvm") }
     if (and emit_c (not output_set)) { set output (c_source_output_path input) }
     return CompileOptions {
         input_file: input, output_file: output, verbose: verbose,
@@ -192,7 +204,13 @@ shadow parse_options {
     let module_output: CompileOptions = (parse_options ["file.nano", "--emit-nvm", "-o", "file.nvm"])
     assert module_output.emit_nvm
     assert (== module_output.error "")
-    assert (!= (parse_options ["file.nano", "--emit-nvm"]).error "")
+    assert (== (parse_options ["file.nano", "--emit-nvm"]).output_file "file.nvm")
+    assert (== (parse_options ["file.nano"]).output_file "file.nvm")
+    assert (parse_options ["file.nano"]).emit_nvm
+    assert (not (parse_options ["file.nano", "-o", "program"]).emit_nvm)
+    assert (== (parse_options ["file.nano", "--target", "native"]).output_file "a.out")
+    assert (not (parse_options ["file.nano", "--target", "native"]).emit_nvm)
+    assert (!= (parse_options ["file.nano", "--emit-nvm", "--target", "native"]).error "")
     assert (!= (parse_options ["file.nano", "--emit-nvm", "--target", "c", "-o", "file.nvm"]).error "")
     let bad: CompileOptions = (parse_options ["file.nano", "--unknown"])
     assert (!= bad.error "")
@@ -1963,6 +1981,28 @@ shadow collect_module_build_flags {
     assert (== (array_length refused.objects) 0)
 }
 
+fn nlc_join_source(parts: array<string>) -> string {
+    if (== (array_length parts) 0) { return "" }
+    let mut current: array<string> = parts
+    while (> (array_length current) 1) {
+        let mut next: array<string> = []
+        let mut index: int = 0
+        while (< index (array_length current)) {
+            if (< (+ index 1) (array_length current)) {
+                set next (array_push next (+ (at current index) (at current (+ index 1))))
+            } else { set next (array_push next (at current index)) }
+            set index (+ index 2)
+        }
+        set current next
+    }
+    return (at current 0)
+}
+shadow nlc_join_source {
+    assert (== (nlc_join_source []) "")
+    assert (== (nlc_join_source ["a"]) "a")
+    assert (== (nlc_join_source ["a", "b", "c", "d", "e"]) "abcde")
+}
+
 fn merge_with_imports_mode(input_file: string, strict_source: bool) -> MergeResult {
     let start: string = (canonical input_file)
     if (== start "") { return MergeResult { source: "", files: [], original_sources: [], original_parsers: [], file_starts: [], source_files: [], source_lines: [], repo_root: "", root_line: 0 } }
@@ -2075,9 +2115,13 @@ shadow merge_with_imports {
     assert (== (at result.file_starts 0) 1)
 }
 
+/* =============================================================================
+ * COMPILATION PIPELINE
+ * ============================================================================= */
+
 struct IntrospectionOutput { ok: bool, code: string }
 
-fn collect_introspection(files: array<string>, repo_root: string) -> IntrospectionOutput {
+fn collect_native_introspection(files: array<string>, repo_root: string) -> IntrospectionOutput {
     let mut unsafe_paths: array<string> = []
     let mut i: int = 0
     while (< i (array_length files)) {
@@ -2131,16 +2175,75 @@ fn collect_introspection(files: array<string>, repo_root: string) -> Introspecti
     return IntrospectionOutput { ok: true, code: (cg_build parts) }
 }
 
-shadow collect_introspection {
+shadow collect_native_introspection {
     let empty: array<string> = []
-    let result: IntrospectionOutput = (collect_introspection empty "")
+    let result: IntrospectionOutput = (collect_native_introspection empty "")
     assert result.ok
     assert (== result.code "")
 }
 
-/* =============================================================================
- * COMPILATION PIPELINE
- * ============================================================================= */
+struct ModuleFactsOutput { ok: bool, facts: array<ModuleIntrospection> }
+
+fn collect_introspection(files: array<string>, repo_root: string) -> ModuleFactsOutput {
+    let mut unsafe_paths: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length files)) {
+        let path: string = (at files i)
+        let info: ModuleIntrospection = (mi_scan (file_read path) path "entry")
+        let mut j: int = 0
+        while (< j (array_length info.unsafe_imports)) {
+            let target: string = (resolve_import_path path (at info.unsafe_imports j) repo_root)
+            set unsafe_paths (mi_unique unsafe_paths (canonical target))
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    let mut names: array<string> = []
+    let mut facts: array<ModuleIntrospection> = []
+    set i 0
+    # The final DFS entry is the program itself, not an imported module.
+    while (< i (- (array_length files) 1)) {
+        let path: string = (at files i)
+        let base: string = (compiler_fs.basename path)
+        let dot: int = (nlc_str_last_index_of base ".")
+        let mut fallback: string = base
+        if (> dot 0) { set fallback (str_substring base 0 dot) }
+        let raw: ModuleIntrospection = (mi_scan (file_read path) path fallback)
+        let mut j: int = 0
+        while (< j (array_length names)) {
+            if (== (at names j) raw.name) {
+                (println (+ "I reject ambiguous module introspection identity: " raw.name))
+                return ModuleFactsOutput { ok: false, facts: [] }
+            }
+            set j (+ j 1)
+        }
+        if (not raw.ok) {
+            (println (+ "I cannot derive valid module introspection for: " path))
+            return ModuleFactsOutput { ok: false, facts: [] }
+        }
+        let mut is_unsafe: bool = raw.is_unsafe
+        set j 0
+        while (< j (array_length unsafe_paths)) {
+            if (== (at unsafe_paths j) (compiler_fs.normalize path)) { set is_unsafe true }
+            set j (+ j 1)
+        }
+        let info: ModuleIntrospection = ModuleIntrospection {
+            name: raw.name, path: raw.path, functions: raw.functions, structs: raw.structs,
+            unsafe_imports: raw.unsafe_imports, is_unsafe: is_unsafe, has_ffi: raw.has_ffi, ok: raw.ok
+        }
+        set names (array_push names info.name)
+        set facts (array_push facts info)
+        set i (+ i 1)
+    }
+    return ModuleFactsOutput { ok: true, facts: facts }
+}
+
+shadow collect_introspection {
+    let empty: array<string> = []
+    let result: ModuleFactsOutput = (collect_introspection empty "")
+    assert result.ok
+    assert (== (array_length result.facts) 0)
+}
 
 fn llm_escape_json(s: string) -> string {
     let mut out: string = ""
@@ -2351,9 +2454,23 @@ fn native_provider_cleanup(flags: ModuleBuildFlags) -> bool {
 }
 shadow native_provider_cleanup { assert (native_provider_cleanup (native_build_empty)) }
 
+fn native_operand_path(path: string) -> string {
+    if (nlc_str_starts_with path "/") { return path }
+    return (+ "./" path)
+}
+shadow native_operand_path {
+    assert (== (native_operand_path "-output") "./-output")
+    assert (== (native_operand_path "a b/output") "./a b/output")
+    assert (== (native_operand_path "/tmp/output") "/tmp/output")
+}
+
 fn native_cleanup(directory: string, keep_c: bool) -> void {
     if (== directory "") { return }
-    unsafe { (file_delete (+ directory "/shadows")) }
+    unsafe {
+        (file_delete (+ directory "/shadows"))
+        (file_delete (+ directory "/program.nvm"))
+        (file_delete (+ directory "/program"))
+    }
     if keep_c { (println (+ "I kept generated C in " (+ directory "/program.c"))) }
     else {
         unsafe {
@@ -2444,7 +2561,7 @@ shadow outputs_preserve_sources {
     }
 }
 
-fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool) -> int {
+fn compile_program_mode(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool, source_native: bool) -> int {
     if (== input_file "") { return 1 }
     if verbose {
         (println "")
@@ -2685,49 +2802,102 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 } else { (print "") }
             } else { (print "") }
 
-            # I check bytecode shadows and publish before entering C emission.
-            if emit_nvm {
-                let assembly: string = (nanoisa_emit_program_nasm parser)
-                if (== assembly "") {
-                    (println (+ "I cannot lower this checked program: " (nanoisa_last_lowering_error)))
+            if (not source_native) {
+            let introspection: ModuleFactsOutput = (collect_introspection merged_files merge_result.repo_root)
+            if (not introspection.ok) { return 1 }
+            # I lower one checked program and retained module facts for every route.
+            let assembly: string = (nanoisa_emit_program_with_facts parser introspection.facts)
+            if (== assembly "") {
+                (println (+ "I cannot lower this checked program: " (nanoisa_last_lowering_error)))
+                return 1
+            }
+            if (and has_shadows (not emit_c)) {
+                let shadow_assembly: string = (nanoisa_emit_shadows_with_facts parser first_shadow introspection.facts)
+                if (== shadow_assembly "") {
+                    (println (+ "I cannot lower the selected shadows: " (nanoisa_last_lowering_error)))
                     return 1
                 }
-                if has_shadows {
-                    let shadow_assembly: string = (nanoisa_emit_shadows_nasm parser first_shadow)
-                    if (== shadow_assembly "") {
-                        (println (+ "I cannot lower the selected shadows: " (nanoisa_last_lowering_error)))
-                        return 1
-                    }
-                    let directory: string = (mktemp_dir "nano_bytecode_shadows_")
-                    if (== directory "") {
-                        (println "I could not create bytecode shadow storage")
-                        return 1
-                    }
-                    let shadow_file: string = (+ directory "/shadows.nvm")
-                    let staged: int = (Nanoisa.assemble_text_save shadow_assembly shadow_file)
-                    if (!= staged 0) {
-                        (println (+ "I could not verify the shadow module: " (Nanoisa.last_error)))
-                        (bytecode_shadow_cleanup directory)
-                        return 1
-                    }
-                    let mut vm: string = (getenv "NANO_VM")
-                    if (== vm "") { set vm (nl_path_join repo_root "bin/nano_vm") }
-                    let command: string = (+ (native_shell_quote vm) (+ " --check-shadows " (native_shell_quote shadow_file)))
-                    let checked: int = (nl_exec_shell command)
+                let directory: string = (mktemp_dir "nano_bytecode_shadows_")
+                if (== directory "") { (println "I could not create bytecode shadow storage") return 1 }
+                let shadow_file: string = (+ directory "/shadows.nvm")
+                if (!= (Nanoisa.assemble_text_save shadow_assembly shadow_file) 0) {
+                    (println (+ "I could not verify the shadow module: " (Nanoisa.last_error)))
                     (bytecode_shadow_cleanup directory)
-                    if (!= checked 0) {
-                        (println "I will not publish bytecode after failed shadows")
-                        return 1
-                    }
+                    return 1
                 }
+                let mut vm: string = (getenv "NANO_VM")
+                if (== vm "") { set vm (nl_path_join repo_root "bin/nano_vm") }
+                let checked: int = (nl_exec_shell (+ (native_shell_quote vm) (+ " --check-shadows " (native_shell_quote shadow_file))))
+                (bytecode_shadow_cleanup directory)
+                if (!= checked 0) { (println "I will not publish output after failed shadows") return 1 }
+            }
+            if emit_nvm {
                 if (!= (Nanoisa.assemble_text_save assembly output_file) 0) {
                     (println (+ "I could not publish the NanoISA module: " (Nanoisa.last_error)))
                     return 1
                 }
-                if (!= llm_diags_json_path "") {
-                    (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
+            } else {
+                # I stage beside the destination so final publication is a rename.
+                let pattern: string = (native_operand_path (nl_path_join (nl_path_dirname output_file) ".nano-product.XXXXXX"))
+                let native_dir: string = (nlc_str_trim (nl_exec_capture (+ "mktemp -d " (native_shell_quote pattern))))
+                if (== native_dir "") { (println "I could not create native product staging") return 1 }
+                let module_file: string = (+ native_dir "/program.nvm")
+                let c_file: string = (+ native_dir "/program.c")
+                let executable: string = (+ native_dir "/program")
+                if (!= (Nanoisa.assemble_text_save assembly module_file) 0) {
+                    (println (+ "I could not verify the product module: " (Nanoisa.last_error)))
+                    (native_cleanup native_dir false)
+                    return 1
                 }
-                return 0
+                let mut translator: string = (getenv "NANO_NVM2C")
+                if (== translator "") { set translator (nl_path_join repo_root "bin/nvm2c") }
+                let translate: string = (+ (native_shell_quote translator) (+ " " (+ (native_shell_quote module_file) (+ " -o " (native_shell_quote c_file)))))
+                if (!= (nl_exec_shell translate) 0) {
+                    (println "I could not translate the verified NanoISA product to C")
+                    (native_cleanup native_dir keep_c)
+                    return 1
+                }
+                if show_intermediate_code { (print (file_read c_file)) }
+                let mut staged_product: string = c_file
+                if (not emit_c) {
+                    let mut runtime: string = (getenv "NANO_AOT_RUNTIME")
+                    if (== runtime "") { set runtime (nl_path_join repo_root "bin/nano_aot_runtime.o") }
+                    if (not (file_exists runtime)) {
+                        (println (+ "I require the native artifact runtime: " runtime))
+                        (native_cleanup native_dir keep_c)
+                        return 1
+                    }
+                    let platform: string = (nlc_str_trim (nl_exec_capture "uname -s"))
+                    if (== platform "") { (native_cleanup native_dir keep_c) return 1 }
+                    let mut command: string = (+ (resolve_cc_binary) " -std=c11 ")
+                    let cflags: string = (native_product_cflags (getenv "NANO_CFLAGS"))
+                    if (!= cflags "") { set command (+ command (+ cflags " ")) }
+                    set command (+ command (+ (native_shell_quote c_file) (+ " " (native_shell_quote runtime))))
+                    set command (+ command (+ " -lm" (native_array_abi_link_flags platform)))
+                    let ldflags: string = (getenv "NANO_LDFLAGS")
+                    if (!= ldflags "") { set command (+ command (+ " " ldflags)) }
+                    set command (+ command (+ " -o " (native_shell_quote executable)))
+                    if verbose { (println command) }
+                    if (!= (nl_exec_shell command) 0) {
+                        (println "I could not compile the native NanoISA product")
+                        (native_cleanup native_dir keep_c)
+                        return 1
+                    }
+                    set staged_product executable
+                }
+                let publish: string = (+ "mv -f " (+ (native_shell_quote (native_operand_path staged_product)) (+ " " (native_shell_quote (native_operand_path output_file)))))
+                if (!= (nl_exec_shell publish) 0) {
+                    (println "I could not publish the staged product")
+                    (native_cleanup native_dir keep_c)
+                    return 1
+                }
+                (native_cleanup native_dir (and keep_c (not emit_c)))
+                if (and emit_c has_shadows) { (println "I emitted C source without executing shadows; native and bytecode compilation run them.") }
+            }
+            if (!= llm_diags_json_path "") {
+                (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
+            }
+            return 0
             }
             /* Step 4: Transpiler - Generate C code */
             if verbose {
@@ -2736,7 +2906,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
 
-            let introspection: IntrospectionOutput = (collect_introspection merged_files merge_repo_root)
+            let introspection: IntrospectionOutput = (collect_native_introspection merged_files merge_repo_root)
             if (not introspection.ok) { return 1 }
             let emitted: string = (transpile_parser parser)
             if (== emitted "") { (println (transpile_last_error)) return 1 }
@@ -2971,6 +3141,23 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     }
 }
 
+shadow compile_program_mode {
+    assert (== (compile_program_mode "" "" false false false "" false false true false false) 1)
+}
+
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool) -> int {
+    return (compile_program_mode input_file output_file verbose keep_c show_intermediate_code llm_diags_json_path emit_c emit_nvm test_imports allow_temporary_files false)
+}
+
+# I retain source-native qualification internally; my public products remain canonical.
+fn compile_program_source_native(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool) -> int {
+    if emit_nvm { return 1 }
+    return (compile_program_mode input_file output_file verbose keep_c show_intermediate_code llm_diags_json_path emit_c emit_nvm test_imports allow_temporary_files true)
+}
+shadow compile_program_source_native {
+    assert (== (compile_program_source_native "" "" false false false "" false false true false) 1)
+}
+
 /* =============================================================================
  * MAIN ENTRY POINT
  * ============================================================================= */
@@ -2987,12 +3174,13 @@ fn show_usage() -> int {
     (println "")
     (println "Usage: nanoc <input.nano> [-o output] [options]")
     (println "")
+    (println "Without an output or target, I publish a sibling .nvm file.")
     (println "Options:")
-    (println "  -o <file>        Output executable (default: a.out)")
+    (println "  -o <file>        I publish a native executable unless --emit-nvm or --target c is selected")
     (println "  -v, --verbose    Verbose compilation output")
     (println "  -k, --keep-c     Keep generated C file")
-    (println "  --target <t>    native (default) or c (source output, no native compilation)")
-    (println "  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o")
+    (println "  --target <t>    native (default) or c (NanoISA C11 source, no native compilation)")
+    (println "  --emit-nvm     I publish verified NanoISA (default output: sibling .nvm)")
     (println "  --allow-temporary-files  I prepare source facts only; service execution remains held")
     (println "  --test-imports  I run dependency shadows before root shadows (default)")
     (println "  --root-shadows-only  I run only root-file shadows")
@@ -3002,7 +3190,7 @@ fn show_usage() -> int {
     (println "  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)")
     (println "")
     (println "This compiler is 100% written in NanoLang!")
-    (println "Pipeline: Lex → Parse → Typecheck → Transpile → Compile")
+    (println "Pipeline: Lex → Parse → Typecheck → NanoISA → Product")
     (println "")
     return 0
 }

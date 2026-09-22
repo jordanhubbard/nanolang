@@ -40,6 +40,7 @@ static bool mp_declaration(NvmV2Cursor *c,const NvmMixedSamplesProof *proof,
 static bool mp_value_signature(NvmMixedDeclaration d,bool result) {
     if(d.mode)return false;
     if(d.category==NVM_MIXED_VALUE_OWNER)return d.tag==TAG_STRUCT;
+    if(d.category==NVM_MIXED_VALUE_ORDINARY)return d.tag==TAG_STRUCT;
     return d.category==NVM_MIXED_VALUE_SCALAR && (d.tag==TAG_INT || d.tag==TAG_BOOL ||
            d.tag==TAG_U8 || (result && d.tag==TAG_VOID));
 }
@@ -63,7 +64,8 @@ static bool mp_signatures(const NvmModule *module,NvmMixedSamplesPlan *p) {
            fn->result_count!=(sig->result.tag==TAG_VOID?0:1))return false;
         sig->max_stack=p->proof->max_stack[f];
         if((uint32_t)sig->local_count+sig->max_stack>UINT16_MAX)return false;
-        if(sig->result.category==NVM_MIXED_VALUE_OWNER)
+        if(sig->result.category==NVM_MIXED_VALUE_OWNER ||
+           sig->result.category==NVM_MIXED_VALUE_ORDINARY)
             sig->result_fields=v->layouts.items[sig->result.global_layout].field_count;
         for(uint16_t n=0;n<sig->local_count;n++) {
             if(!mp_declaration(&c,p->proof,&p->locals[f][n]))return false;
@@ -86,15 +88,14 @@ NvmMixedShapeResult nvm_mixed_samples_prepare(const NvmModule *module,NvmMixedSa
     NvmMixedSamplesProof *proof=NULL;
     NvmMixedShapeResult r=nvm_analyze_mixed_samples(module,&proof);
     if(r.status!=NVM_MIXED_SHAPE_PROVED)return r;
-    bool owner=false,array=false;
+    bool owner=false;
     for(uint32_t n=0;n<proof->shape->view->layouts.count;n++)
         owner|=proof->shape->view->classes[n]==NVM_MIXED_RESOURCE;
-    for(uint32_t n=0;n<proof->shape->origin_count;n++)array|=proof->shape->origins[n].tag==TAG_ARRAY;
     /* This checked candidate is distinct from ordinary and qualified STRING
      * profiles. It grants no backend permission, including when it succeeds. */
-    if(!owner || !array || !proof->managed_count) {
+    if(!owner || !proof->managed_count) {
         nvm_mixed_samples_proof_free(proof);
-        return mp_result(NVM_MIXED_SHAPE_UNRESOLVED,"I require an owner and proved ordinary FLOAT-array record graph.");
+        return mp_result(NVM_MIXED_SHAPE_UNRESOLVED,"I require an owner and proved ordinary record graph.");
     }
     /* I delegate only ownership to my fresh complete composition, not retained
      * structure, function ranges, names, metadata or other shared checks. */
@@ -159,7 +160,10 @@ bool nvm_mixed_samples_candidate_classified(
        (version!=NVM_OWNERSHIP_VERSION && version!=NVM_OWNERSHIP_PATH_VERSION) ||
        nvm_v2_u32(&c,&count)!=NVM_V2_OK || count>NVM_RECORD_PLAN_MAX_LAYOUTS ||
        nvm_v2_take(&c,count,&flags)!=NVM_V2_OK)return false;
-    bool resource=false;for(uint32_t n=0;n<count;n++)resource|=(flags[n]&NVM_LAYOUT_RESOURCE)!=0;
+    bool resource=false,ordinary=false;for(uint32_t n=0;n<count;n++) {
+        resource|=(flags[n]&NVM_LAYOUT_RESOURCE)!=0;
+        ordinary|=(flags[n]&NVM_LAYOUT_COMPLETE)!=0 && (flags[n]&NVM_LAYOUT_RESOURCE)==0;
+    }
     if(!resource)return false;
     nvm_v2_cursor_init(&c,module->layout_data,module->layout_size);
     if(nvm_v2_u32(&c,&layout_count)!=NVM_V2_OK || layout_count!=count)return false;
@@ -172,10 +176,10 @@ bool nvm_mixed_samples_candidate_classified(
         total+=fields;
         for(uint16_t f=0;f<fields;f++) {
             if(nvm_v2_take(&c,12,&bytes)!=NVM_V2_OK)return false;
-            if(bytes[0]==TAG_ARRAY)return true;
+            if(bytes[0]==TAG_ARRAY)ordinary=true;
         }
     }
-    return false;
+    return ordinary;
 }
 NvmMixedShapeResult nvm_mixed_samples_admit(const NvmModule *module,NvmMixedSamplesPlan **out) {
     if(!out)return mp_result(NVM_MIXED_SHAPE_INVALID,"I require an output for mixed admission.");

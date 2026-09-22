@@ -23,6 +23,7 @@ class NominalRecordArrays(unittest.TestCase):
           'fn values() -> array<First> { return [Second { a: 2 }] } shadow values { assert true } fn main() -> int { return 0 }',
           'fn take(values: array<First>) -> int { return 0 } shadow take { assert true } fn main() -> int { return (take [Second { a: 2 }]) }',
           'fn main() -> int { let wrong: array<Second> = [Second { a: 2 }] let values: array<First> = wrong return 0 }',
+          'fn main() -> int { let values: array<First> = (array_push [] Second { a: 2 }) return 0 }',
         ]
         with tempfile.TemporaryDirectory() as tmp:
           root=Path(tmp);source=root/'bad.nano';output=root/'prior'
@@ -43,7 +44,10 @@ shadow values { assert (== (take (values)) 1) }
 fn main() -> int {
  let filled: array<First> = (array_new 2 First { a: 8 })
  let sliced: array<First> = (array_slice filled 0 1)
+ let pushed: array<First> = (array_push (array_push [] First { a: 9 }) First { a: 10 })
  assert (== (array_length sliced) 1)
+ assert (== (array_length pushed) 2)
+ assert (== (at pushed 1).a 10)
  let empty: array<First> = []
  let holder: Holder = Holder { values: initial }
  assert (== (take holder.values) 1)

@@ -969,7 +969,6 @@ static void test_tagged_record_array(void) {
     }
     const char *rejected[] = {
         ".entry 0\n.function main 0 0 0 int 1\nARR_NEW 8\nPUSH_I64 1\nARR_PUSH\nARR_LEN\nRET\n.end\n",
-        ".entry 0\n.function main 0 0 0 int 1\nARR_NEW 7\nARR_LEN\nRET\n.end\n",
         ".string text \"text\"\n.entry 0\n.function main 0 0 0 int 1\n"
         "ARR_NEW 8\nPUSH_STR text\nAGG_PACK 0 0 0 1\nARR_PUSH\n"
         "PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_PUSH\nARR_LEN\nRET\n.end\n",
@@ -979,7 +978,7 @@ static void test_tagged_record_array(void) {
         if (!module) continue;
         char error[256];
         char *source = nvm2c_emit(module, error, sizeof error);
-        CHECK(source == NULL, "I refuse scalar, nested-array and mixed-field record construction");
+        CHECK(source == NULL, "I refuse scalar and mixed-field record construction");
         free(source); nvm_module_free(module);
     }
 }
@@ -3269,7 +3268,7 @@ static void test_nested_record_values(void) {
 
 static void test_unsupported_classifier_instructions(void) {
     const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES,
-        OP_STR_TO_UPPER, OP_CALL_INDIRECT, OP_ROLL};
+        OP_STR_TO_UPPER, OP_ROLL};
     for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {
         NvmModule *m = assemble_ok(".entry main\n.function main 0 0 0 int 1\n"
             "NOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\n"
@@ -3287,6 +3286,43 @@ static void test_unsupported_classifier_instructions(void) {
               "I reject unsupported stack effects at their own instruction");
         free(c);
         nvm_module_free(m);
+    }
+
+    NvmModule *malformed = assemble_ok(
+        ".entry main\n.function main 0 0 0 int 1\n"
+        "NOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\n"
+        "PUSH_I64 0\nRET\n.end\n", "malformed indirect call");
+    if (malformed) {
+        DecodedInstruction indirect = {0};
+        indirect.opcode = OP_CALL_INDIRECT;
+        indirect.operands[0].u16 = 1;
+        indirect.operands[1].u16 = 1;
+        CHECK(isa_encode(&indirect, malformed->code + malformed->functions[0].code_offset, 16) != 0,
+              "I encode a malformed indirect call using ISA metadata");
+        char error[256] = {0};
+        char *c = nvm2c_emit(malformed, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "CALL_INDIRECT has an unsupported stack shape"),
+              "I reject an indirect call without its exact arguments and callable");
+        free(c);
+        nvm_module_free(malformed);
+    }
+
+    const char *exact =
+        ".entry main\n"
+        ".function identity 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n"
+        ".parameters identity int\n"
+        ".function main 0 0 0 int 1\nPUSH_I64 42\nFUNCREF identity\n"
+        "CALL_INDIRECT 1 1\nRET\n.end\n";
+    NvmModule *exact_module = assemble_ok(exact, "exact scalar indirect call");
+    if (exact_module) {
+        char *c = emit_or_fail(exact_module, "I emit an exact scalar indirect call");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 42,
+                  "I execute an exact scalar indirect call");
+            free(c);
+        }
+        nvm_module_free(exact_module);
     }
 }
 
@@ -6251,7 +6287,7 @@ static void test_array_result_kinds_cross_calls(void) {
         "  ARR_NEW 8\n"
         "  RET\n"
         ".end\n"
-        ".function main 0 3 0 int 1\n"
+        ".function main 0 4 0 int 1\n"
         "  CALL ints\n"
         "  STORE_LOCAL 0\n"
         "  LOAD_LOCAL 0\n"
@@ -6603,7 +6639,76 @@ static void test_mixed_array_push_helpers(void) {
     }
 }
 
+static void test_nested_scalar_arrays(void) {
+    const char *source =
+        ".string leaf \"leaf\"\n"
+        ".entry main\n"
+        ".function rows 0 0 0 array 1\n"
+        "PUSH_I64 7\nPUSH_I64 8\nARR_LITERAL 1 2\n"
+        "PUSH_I64 9\nARR_LITERAL 1 1\n"
+        "ARR_LITERAL 7 2\nRET\n.end\n"
+        ".function first 1 1 0 array 1\n"
+        "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nRET\n.end\n"
+        ".function stress 0 2 0 int 1\n"
+        "ARR_NEW 7\nSTORE_LOCAL 0\nPUSH_I64 0\nSTORE_LOCAL 1\n"
+        "loop:\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nARR_LITERAL 1 1\nARR_PUSH\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 1\nPUSH_I64 1\nI64_ADD\nDUP\nSTORE_LOCAL 1\n"
+        "PUSH_I64 1200\nI64_LT_S\nJMP_TRUE loop\n"
+        "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nPUSH_I64 0\nARR_GET\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1199\nARR_GET\nPUSH_I64 0\nARR_GET\nPUSH_I64 1199\nI64_EQ\nASSERT\n"
+        "PUSH_I64 0\nRET\n.end\n"
+        ".function main 0 4 0 int 1\n"
+        "CALL stress\nPOP\n"
+        "CALL rows\nCALL first\nPUSH_I64 1\nARR_GET\n"
+        "PUSH_I64 8\nI64_EQ\nASSERT\n"
+        "CALL rows\nAGG_PACK 0 0 0 1\nSTORE_LOCAL 3\n"
+        "LOAD_LOCAL 3\nAGG_GET 0\nPUSH_I64 1\nARR_GET\n"
+        "PUSH_I64 0\nARR_GET\nPUSH_I64 9\nI64_EQ\nASSERT\n"
+        "CALL rows\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nSTORE_LOCAL 1\n"
+        "LOAD_LOCAL 1\nPUSH_I64 1\nARR_GET\nPUSH_I64 8\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\nPUSH_I64 0\nARR_GET\n"
+        "PUSH_I64 9\nI64_EQ\nASSERT\n"
+        "PUSH_I64 17\nPUSH_I64 18\nARR_LITERAL 1 2\n"
+        "LOAD_LOCAL 0\nSWAP\nARR_PUSH\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nPUSH_I64 2\nARR_GET\nSTORE_LOCAL 2\n"
+        "LOAD_LOCAL 2\nPUSH_I64 0\nPUSH_I64 19\nARR_SET\nPOP\n"
+        "LOAD_LOCAL 0\nPUSH_I64 2\nARR_GET\nPUSH_I64 0\nARR_GET\n"
+        "PUSH_I64 19\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nARR_LITERAL 7 1\nPUSH_I64 0\nARR_GET\n"
+        "PUSH_I64 2\nARR_GET\nPUSH_I64 1\nARR_GET\n"
+        "PUSH_I64 18\nI64_EQ\nASSERT\n"
+        "PUSH_STR leaf\nARR_LITERAL 5 1\nARR_LITERAL 7 1\n"
+        "PUSH_I64 0\nARR_GET\nPUSH_I64 0\nARR_GET\nPUSH_STR leaf\nEQ\nASSERT\n"
+        "PUSH_BOOL 1\nARR_LITERAL 4 1\nARR_LITERAL 7 1\n"
+        "PUSH_I64 0\nARR_GET\nPUSH_I64 0\nARR_GET\nASSERT\n"
+        "PUSH_F64 1.5\nARR_LITERAL 3 1\nARR_LITERAL 7 1\n"
+        "PUSH_I64 0\nARR_GET\nPUSH_I64 0\nARR_GET\nPUSH_F64 1.5\nF64_EQ\nASSERT\n"
+        "ARR_NEW 7\nARR_LEN\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+        "PUSH_I64 0\nRET\n.end\n";
+    NvmModule *module = assemble_ok(source, "nested scalar arrays");
+    CHECK(module != NULL, "nested scalar-array fixture assembles");
+    if (!module) return;
+    char error[512] = {0};
+    char *c = nvm2c_emit(module, error, sizeof error);
+    CHECK(c != NULL, "nested scalar arrays translate to native C");
+    if (!c) {
+        fprintf(stderr, "    nested scalar arrays: %s\n", error);
+    } else {
+        CHECK(strstr(c, "naarr_lit") != NULL,
+              "nested scalar arrays retain an explicit recursive carrier");
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0,
+              "nested scalar arrays compile and run with strict warnings");
+        CHECK(status == 0,
+              "nested scalar arrays preserve calls, aliases, writes and recursive reads");
+        free(c);
+    }
+    nvm_module_free(module);
+}
+
 int main(int argc, char **argv) {
+    test_nested_scalar_arrays();
     test_mixed_array_push_helpers();
     test_record_temporary_storage_is_function_sized();
     test_uncalled_record_parameter_needs_no_invented_shape();

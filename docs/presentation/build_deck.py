@@ -100,7 +100,7 @@ def build() -> Path:
     s = slide(INK)
     s.shapes.add_picture(str(mascot), Inches(8.0), Inches(0.0), width=Inches(5.33), height=Inches(7.5))
     box(s, 0, 0, 9.1, H, INK)
-    text(s, "NANOLANG 5.0", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
+    text(s, "NANOLANG 5.1", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
     text(s, "I say what I mean.\nI compile myself.\nI show my evidence.", 0.7, 1.55, 7.0, 2.5, 34, FOG, True)
     # Someone meeting this deck cold needs to know what I am before being told
     # what I prove. The previous subtitle assumed both.
@@ -121,12 +121,13 @@ def build() -> Path:
               "My project policy requires useful shadows. My compiler normally warns about missing tests, with documented exemptions.",
               "A shadow tests its assertions; it does not prove every input. Compiler acceptance is not proof of correctness."])
 
-    # 3 — two paths
-    s = slide(INK); title(s, "One source language, two execution paths.", "The C path is my native baseline. NanoISA and NanoVM make the intermediate explicit.", 3)
-    for i, (head, body_, color) in enumerate([(".nano", "source + shadow tests", ORANGE), ("nanoc", "generated C", BLUE), ("nano_virt", "NVM bytecode", GREEN), ("nano_vm", "verified execution", FOG)]):
+    # 3 — one product, several consumers
+    s = slide(INK); title(s, "One verified product, several consumers.", "Both frontends lower to NanoISA; execution and AOT begin from the same module.", 3)
+    for i, (head, body_, color) in enumerate([(".nano", "source + shadows", ORANGE), ("nanoc", "verified .nvm", GREEN), ("nano_vm", "direct execution", FOG), ("nvm2c", "C11 → native", BLUE)]):
         x = .75 + i * 3.05; box(s, x, 2.6, 2.45, 1.35, PANEL, True); text(s, head, x+.15, 2.82, 2.15, .25, 15, color, True, mono=True); text(s, body_, x+.15, 3.2, 2.15, .45, 12, FOG)
     text(s, "compile → verify → execute", 4.15, 5.2, 5, .35, 21, ORANGE, True, mono=True, align=PP_ALIGN.CENTER)
-    notes(s, ["Authority: docs/NANOISA.md and src/nanovirt/main.c."])
+    notes(s, ["Authority: docs/NANOISA_ONLY.md, src/nanovirt/main.c and src_nano/compiler/nanoisa_codegen.nano.",
+              "LLVM and Wasm are additional consumers of the same verified module; this slide keeps the main product path readable."])
 
     # 4 — readable bytecode
     s = slide(); title(s, "NanoISA is readable bytecode, not a hidden intermediate.", "I keep the serialized module inspectable and use decoded forms only inside execution.", 4)
@@ -272,20 +273,20 @@ def build() -> Path:
               "I do not claim a kernel, AES, PKI, or that the journal is wired into every trap."])
 
     # 15 — boundary
-    s = slide(INK); title(s, "My 5.0 contract, and the work still ahead.", "My language/runtime scope has explicit architecture limits.", 15)
-    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "5.0 RELEASE SCOPE", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
-    text(s, "enclosing-function return\ndependency shadows\nretained native callbacks\nmodule identity + caches\nexpanded native lowering\nlaboratory frontends", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
-    box(s, 6.9, 2.0, 5.65, 3.9, INK, True); text(s, "NOT DONE", 7.2, 2.35, 4.9, .3, 15, ORANGE, True)
-    text(s, "NanoISA-only bootstrap\nmatching compiler .nvm\nfull backend parity\ncomplete ownership\nisolated callback ABI\nproduction isolation", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
-    notes(s, ["Authority: docs/RELEASE_5.0.md, docs/CALLBACK_ABI.md, docs/ROADMAP.md.",
-              "Retained adapters preserve callback lifetimes and owner-thread execution. Isolated imports cannot use this bridge.",
-              "My 2026-09-16 checkpoints cover native and VM effects. Exact-commit clean-tree tests, platform CI and release acceptance are mandatory release gates."])
+    s = slide(INK); title(s, "My 5.1 One IR contract, with boundaries intact.", "I completed the product transition without turning private experiments into public authority.", 15)
+    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "5.1 RELEASE SCOPE", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
+    text(s, "verified .nvm default\nraw compiler fixed point\nC11 / LLVM / Wasm\nconcrete union identity\naffine ownership facts\nlifetime-safe callbacks", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
+    box(s, 6.9, 2.0, 5.65, 3.9, INK, True); text(s, "EXPLICIT LIMITS", 7.2, 2.35, 4.9, .3, 15, ORANGE, True)
+    text(s, "private mixed graphs\nconservative refusals\nno isolated callbacks\nformal core boundary\nno kernel claim\nno universal backend claim", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
+    notes(s, ["Authority: docs/RELEASE_5.1.md, docs/NANOISA_ONLY.md, docs/CALLBACK_ABI.md and docs/ROADMAP.md.",
+              "The fixed point compares raw Stage 1 and Stage 2 compiler modules; it does not prove compiler correctness.",
+              "Private non-admitting mixed record-array work remains outside the public product contract."])
 
     # 16 — closing
     s = slide(INK); s.shapes.add_picture(str(mascot), Inches(8.7), Inches(.8), width=Inches(3.8), height=Inches(5.7))
     text(s, "Start with the code.\nThen run the gates.", .75, 1.7, 7.4, 1.4, 34, FOG, True)
     text(s, "read · change · shadow-test · verify · measure", .8, 4.0, 7.5, .4, 18, ORANGE, True, mono=True)
-    text(s, "docs/RELEASE_5.0.md · docs/CALLBACK_ABI.md", .8, 5.25, 7.6, .4, 12, BLUE, mono=True)
+    text(s, "docs/RELEASE_5.1.md · docs/NANOISA_ONLY.md", .8, 5.25, 7.6, .4, 12, BLUE, mono=True)
     notes(s, ["Authority: CONTRIBUTING.md, docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_4.5.md."])
     footer(s, 16)
 

@@ -1,0 +1,114 @@
+source_sha=ece241ba56c34ae6e47639cd7d618f43f20ba25d
+tree_sha=8cde5134e5ed593d2d0c403fb7d54ca94778a707
+script_sha256=3093399e2a9f7bed1cd72b992a0f71c50ac66da17e4973e20e64bf0d75c31c43
+proof_image=rocq/rocq-prover@sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2
+started_utc=2026-09-18T08:58:02Z
+desktop-linux
+client=29.7.2 server=29.7.2 server_os=linux server_arch=arm64
+Unable to find image 'rocq/rocq-prover@sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2' locally
+docker.io/rocq/rocq-prover@sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2: Pulling from rocq/rocq-prover
+1872e3e8b10b: Pulling fs layer
+67508554b445: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+a8ac7f6c67ab: Pulling fs layer
+19b129657909: Pulling fs layer
+a189f527d0a7: Pulling fs layer
+be6c93ef04a5: Pulling fs layer
+19b129657909: Download complete
+a189f527d0a7: Download complete
+4f4fb700ef54: Download complete
+67508554b445: Download complete
+be6c93ef04a5: Download complete
+a8ac7f6c67ab: Download complete
+a8ac7f6c67ab: Pull complete
+19b129657909: Pull complete
+a189f527d0a7: Pull complete
+4f4fb700ef54: Pull complete
+67508554b445: Pull complete
+be6c93ef04a5: Pull complete
+1872e3e8b10b: Download complete
+1872e3e8b10b: Pull complete
+Digest: sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2
+Status: Downloaded newer image for rocq/rocq-prover@sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2
+The Rocq Prover, version 9.0.1
+compiled with OCaml 4.14.2
+rocq compile -Q . NanoCore Syntax.v
+rocq compile -Q . NanoCore Semantics.v
+rocq compile -Q . NanoCore Typing.v
+rocq compile -Q . NanoCore Soundness.v
+rocq compile -Q . NanoCore Progress.v
+rocq compile -Q . NanoCore Determinism.v
+rocq compile -Q . NanoCore Equivalence.v
+File "./Equivalence.v", line 32, characters 0-1187:
+Warning: Not a fully mutually defined fixpoint
+(close depends on val_to_expr but not conversely).
+Well-foundedness check may fail unexpectedly.
+ [non-full-mutual,fixpoints,default]
+File "./Equivalence.v", line 2998, characters 16-26:
+Warning: Notation map_length is deprecated since 8.20.
+Use length_map instead.
+[deprecated-syntactic-definition-since-8.20,deprecated-since-8.20,deprecated-syntactic-definition,deprecated,default]
+File "./Equivalence.v", line 2998, characters 16-26:
+Warning: Notation map_length is deprecated since 8.20.
+Use length_map instead.
+[deprecated-syntactic-definition-since-8.20,deprecated-since-8.20,deprecated-syntactic-definition,deprecated,default]
+File "./Equivalence.v", line 2998, characters 16-26:
+Warning: Notation map_length is deprecated since 8.20.
+Use length_map instead.
+[deprecated-syntactic-definition-since-8.20,deprecated-since-8.20,deprecated-syntactic-definition,deprecated,default]
+rocq compile -Q . NanoCore EvalFn.v
+File "./EvalFn.v", line 904, characters 0-39:
+Warning: To avoid stack overflow, large numbers in nat are interpreted as
+applications of Init.Nat.of_num_uint. [abstract-large-number,numbers,default]
+rocq compile -Q . NanoCore EvalFnTests.v
+rocq compile -Q . NanoCore Exhaustiveness.v
+rocq compile -Q . NanoCore Contracts.v
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+bash check_assumptions.sh Assumptions.v Assumptions.log
+rocqchk -silent -Q . NanoCore NanoCore.Syntax NanoCore.Semantics NanoCore.Typing NanoCore.Soundness NanoCore.Progress NanoCore.Determinism NanoCore.Equivalence NanoCore.EvalFn NanoCore.EvalFnTests NanoCore.Exhaustiveness NanoCore.Contracts NanoCore.Assumptions
+real 224.41
+user 0.04
+sys 0.05
+__EXIT_STATUS=0

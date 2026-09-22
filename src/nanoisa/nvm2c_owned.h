@@ -27,22 +27,24 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
     if (!vm_decode_function(mod,function,&code,decode_error) ||
         nvm_v2_layouts_decode(mod->layout_data,mod->layout_size,&layouts)!=NVM_V2_OK ||
         (!shared && !(state=nvm_affine_state_create(mod,function,fn->local_count)))) goto fail;
-    NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t parameter_count=0;
+    NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint8_t parameter_categories[NVM_AFFINE_MAX_PARAMETERS]={0};uint16_t parameter_count=0;
     bool value_graph=shared || nvm_affine_value_call_graph(mod);
     bool consuming=function && value_graph;
-    NvmAffineType result_type;uint16_t result_fields=0;
+    NvmAffineType result_type;uint8_t result_category=0;uint16_t result_fields=0;
     if(owner_arrays) {
         NvmOwnerSignature signature;
         if(!nvm_owned_array_plan_signature(owner_arrays,function,&signature))goto fail;
         result_type=(NvmAffineType){signature.result.tag,signature.result.global_layout};
+        result_category=signature.result.owner?NVM_MIXED_VALUE_OWNER:NVM_MIXED_VALUE_SCALAR;
         result_fields=signature.result_fields;parameter_count=signature.parameter_count;
-        for(uint16_t n=0;n<parameter_count;n++)parameters[n]=(NvmAffineType){signature.parameters[n].tag,signature.parameters[n].global_layout};
+        for(uint16_t n=0;n<parameter_count;n++){parameters[n]=(NvmAffineType){signature.parameters[n].tag,signature.parameters[n].global_layout};parameter_categories[n]=signature.parameters[n].owner?NVM_MIXED_VALUE_OWNER:NVM_MIXED_VALUE_SCALAR;}
     } else if(mixed) {
         NvmMixedSignature signature;
         if(!nvm_mixed_samples_signature(mixed,function,&signature))goto fail;
         result_type=(NvmAffineType){signature.result.tag,signature.result.global_layout};
+        result_category=signature.result.category;
         result_fields=signature.result_fields;parameter_count=signature.parameter_count;
-        for(uint16_t n=0;n<parameter_count;n++)parameters[n]=(NvmAffineType){signature.parameters[n].tag,signature.parameters[n].global_layout};
+        for(uint16_t n=0;n<parameter_count;n++){parameters[n]=(NvmAffineType){signature.parameters[n].tag,signature.parameters[n].global_layout};parameter_categories[n]=signature.parameters[n].category;}
     } else {
         if (!nvm_affine_value_result(state,&result_type,&result_fields)) goto fail;
         if (consuming && (!nvm_affine_value_parameters(state,parameters,NVM_AFFINE_MAX_PARAMETERS,&parameter_count) ||
@@ -183,9 +185,12 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             nvm2c_puts(&b," if(!managed || !managed->active){status=3;goto cleanup;}\n");
             for(uint16_t p=0;p<parameter_count;p++) {
                 nvm2c_printf(&b," if(argument[%u].tag!=%u",p,parameters[p].tag);
-                if(parameters[p].tag==TAG_STRUCT)nvm2c_printf(&b," || argument[%u].category!=1 || !argument[%u].record || argument[%u].record->layout!=%u",p,p,p,parameters[p].layout);
+                if(parameters[p].tag==TAG_STRUCT && parameter_categories[p]==NVM_MIXED_VALUE_OWNER)nvm2c_printf(&b," || argument[%u].category!=1 || !argument[%u].record || argument[%u].record->layout!=%u",p,p,p,parameters[p].layout);
+                else if(parameters[p].tag==TAG_STRUCT)nvm2c_printf(&b," || argument[%u].category!=2 || argument[%u].managed!=managed",p,p);
                 else nvm2c_printf(&b," || argument[%u].category",p);
                 nvm2c_puts(&b,"){status=3;goto cleanup;}\n");
+                if(parameters[p].tag==TAG_STRUCT && parameter_categories[p]==NVM_MIXED_VALUE_ORDINARY)
+                    nvm2c_printf(&b," {uint32_t ordinal=0,layout=0;if(nms_record_identity(managed,argument[%u].handle,&ordinal,&layout)!=NMS_OK || layout!=%u){status=3;goto cleanup;}}\n",p,parameters[p].layout);
             }
         }
     }
@@ -420,9 +425,11 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             if(op==OP_PRINTLN) nvm2c_puts(&b," (void)fputc('\\n',stdout);");
             nvm2c_printf(&b," nown_release(t[%d]); t[%d]=(nown_value){0};\n",n-1,n-1);break;
         case OP_RET:
-            if(shared && result_type.tag!=TAG_VOID)nvm2c_printf(&b," if(t[0].tag!=%u || t[0].category!=%u){status=3;goto cleanup;}\n",result_type.tag,result_type.tag==TAG_STRUCT?1u:0u);
-            if(result_type.tag==TAG_STRUCT)
+            if(shared && result_type.tag!=TAG_VOID)nvm2c_printf(&b," if(t[0].tag!=%u || t[0].category!=%u){status=3;goto cleanup;}\n",result_type.tag,result_type.tag==TAG_STRUCT?(result_category==NVM_MIXED_VALUE_ORDINARY?2u:1u):0u);
+            if(result_type.tag==TAG_STRUCT && result_category==NVM_MIXED_VALUE_OWNER)
                 nvm2c_printf(&b," if(!t[0].record || t[0].record->layout!=%u || t[0].record->count!=%u){status=3;goto cleanup;}\n",result_type.layout,result_fields);
+            if(result_type.tag==TAG_STRUCT && result_category==NVM_MIXED_VALUE_ORDINARY)
+                nvm2c_printf(&b," {uint32_t ordinal=0,layout=0;if(t[0].managed!=managed || nms_record_identity(managed,t[0].handle,&ordinal,&layout)!=NMS_OK || layout!=%u){status=3;goto cleanup;}}\n",result_type.layout);
             if(result_type.tag==TAG_UNION) {
                 nvm2c_printf(&b," if(!t[0].record || t[0].record->layout!=%u || !(",result_type.layout);
                 bool first=true;

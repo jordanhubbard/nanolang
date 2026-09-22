@@ -3654,6 +3654,28 @@ checked_array_declared_call: ;
             }
             /* Check if function exists */
             Function *func = env_get_function(env, expr->as.call.name);
+            bool builtin_array_pop = !strcmp(expr->as.call.name, "array_pop") &&
+                (!func || (func->return_type == TYPE_UNKNOWN && !func->body &&
+                           !func->is_extern &&
+                           (!func->module_name || !func->module_name[0]) &&
+                           (!func->alias_of || !func->alias_of[0])));
+            if (builtin_array_pop) {
+                if (expr->as.call.arg_count != 1) {
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
+                        "array_pop requires exactly one array.",
+                        "Pass the array whose last element I should remove.");
+                    return TYPE_UNKNOWN;
+                }
+                ASTNode *array_arg = expr->as.call.args[0];
+                if (check_expression(array_arg, env) != TYPE_ARRAY) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "array_pop requires an array.",
+                        "Pass an array with a known element type.");
+                    return TYPE_UNKNOWN;
+                }
+                Type element = infer_array_element_type(array_arg, env);
+                if (element != TYPE_UNKNOWN) return element;
+            }
             
             if (env_function_is_named_builtin(func, "array_pop")) {
                 if (expr->as.call.arg_count != 1) {

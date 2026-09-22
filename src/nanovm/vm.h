@@ -157,7 +157,8 @@ typedef struct VmState {
      * every reachable instruction, so re-checking them at dispatch time
      * is redundant. Cleared conservatively whenever a module changes or a
      * new, unverified module is linked. */
-    bool verified;    VmModuleConstants module_constants;
+    bool verified;
+    VmModuleConstants module_constants;
 
     /* Operand stack */
     NanoValue *stack;
@@ -290,6 +291,11 @@ typedef struct {
 
 /* Initialize VM state for a module */
 void vm_init(VmState *vm, const NvmModule *module);
+/* I accept this faster initialization only immediately after
+ * nvm_verify_linked(module, NULL, 0) succeeds for this exact, still-immutable
+ * standalone root module. Linking or
+ * rebuilding recomputes the complete proof before execution continues. */
+void vm_init_after_verify(VmState *vm, const NvmModule *module);
 
 /* Destroy VM state (free stack, heap, etc.) */
 void vm_destroy(VmState *vm);

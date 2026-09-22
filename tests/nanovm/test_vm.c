@@ -5721,6 +5721,28 @@ static void test_unverifiable_stays_checked(void) {
     nvm_module_free(mod);
 }
 
+/* The CLI carries this exact completed proof into initialization instead of
+ * repeating whole-module verification inside the execution deadline. */
+static void test_verified_initialization_carries_exact_proof(void) {
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)11);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_verifiable_int_module(code, off, 0);
+    ASSERT(nvm_verify_linked(mod, NULL, 0).ok,
+           "standalone root proof succeeds before initialization");
+
+    VmState vm;
+    vm_init_after_verify(&vm, mod);
+    ASSERT(vm.verified, "completed root proof is retained");
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK,
+                  "proof-carrying initialization executes normally");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 11,
+                  "proof-carrying initialization preserves the result");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 /* Invalidating a module drops the proof; rebuilding a well-formed module
  * re-establishes it. */
 static void test_verified_flag_tracks_module_lifecycle(void) {
@@ -6228,6 +6250,7 @@ int main(void) {
 
     printf("\n[Verified Fast Path]\n");
     RUN_TEST(test_verified_fastpath_enabled);
+    RUN_TEST(test_verified_initialization_carries_exact_proof);
     RUN_TEST(test_unverifiable_stays_checked);
     RUN_TEST(test_owned_transfers_require_runtime);
     RUN_TEST(test_ownership_contracts_refuse_checked_fallback);

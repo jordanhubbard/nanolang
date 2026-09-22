@@ -332,7 +332,7 @@ fn phase_to_string(phase: int) -> string {
     if (== phase CompilerPhase.PHASE_LEXER) { return "lexer" }
     else { if (== phase CompilerPhase.PHASE_PARSER) { return "parser" }
     else { if (== phase CompilerPhase.PHASE_TYPECHECK) { return "typecheck" }
-    else { if (== phase CompilerPhase.PHASE_TRANSPILER) { return "transpiler" }
+    else { if (== phase CompilerPhase.PHASE_LOWERING) { return "lowering" }
     else { if (== phase CompilerPhase.PHASE_RUNTIME) { return "runtime" }
     else { return "unknown" } } } } }
 }
@@ -5478,7 +5478,7 @@ fn transpile_phase_run(parser: Parser, output_path: string) -> TranspilePhaseOut
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let c_source: string = (transpile_parser parser)
     if (== (str_length c_source) 0) {
-        let diag: CompilerDiagnostic = (diag_simple CompilerPhase.PHASE_TRANSPILER DiagnosticSeverity.DIAG_ERROR "C0001" "Generated C source was empty")
+        let diag: CompilerDiagnostic = (diag_simple CompilerPhase.PHASE_LOWERING DiagnosticSeverity.DIAG_ERROR "C0001" "Generated C source was empty")
         (list_CompilerDiagnostic_push diagnostics diag)
         return TranspilePhaseOutput {
             c_source: c_source,

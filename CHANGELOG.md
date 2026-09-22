@@ -4,20 +4,57 @@ I record notable changes here using [Keep a Changelog](https://keepachangelog.co
 
 ## [Unreleased]
 
-Release target: `v5.1.0`. I preserve `v5.0.0` as published history and require
-the full unfinished 5.0 roadmap before I publish this release.
+NanoLang v5.1.0 is my One IR release. I preserve `v5.0.0` as published
+history. Verified NanoISA is the portable compiler product, and native C11,
+LLVM IR and WebAssembly are consumers of that module.
 
-### Changed
+### Release highlights
+- I publish sibling `.nvm` modules by default and provide explicit verified
+  NanoISA-to-C11, LLVM and WebAssembly translator routes.
+- I carry module facts, declared host signatures, local names, source
+  locations, passive eligibility and affine ownership metadata through the
+  serialized product.
+- I support concrete generic unions, tuples, maps, scalar and nested arrays,
+  optional values, strings, floats and bytes across the canonical compiler
+  subset, VM and native AOT.
+- I qualify a lifetime-safe retained callback ABI with typed signatures,
+  owner-thread execution, cancellation and deterministic cleanup.
+- I add checked public File service execution through explicit host grants on
+  the qualified VM and native routes.
+
+- I remove the NanoLang-to-C pretty-printer from my product compiler dependency
+  closure. The C implementation remains my bootstrap seed and reference
+  frontend rather than a second product IR.
+- I compare raw Stage 1 and Stage 2 self-hosted compiler modules at fixed point
+  and separately qualify a standalone native compiler built through `nvm2c`.
+- I use lexical first-success match ordering. `return` inside match and effect
+  handler arms exits the enclosing function; the final expression supplies the
+  arm result.
+- I run dependency shadows before root shadows by default on the product path
+  and retain explicit root-only selection.
 - I add sanitizer regressions for caller frames, globals, nested and mutable
   aggregates, scalar safepoints, loop backedges and tail-call teardown.
-- I retain the native map reclamation repair as one part of 5.1.0. It does not
-  define the release scope; the full One IR contract remains mandatory.
 
-### Fixed
 - I keep caller-owned native maps and reachable strings alive across generated
   calls, extern calls, loop backedges and tail calls.
 - I trace globals and nested aggregates during native map reclamation without
   interpreting float or integer-array storage as pointers.
+- I preserve concrete nominal identity across imports, generic instances,
+  callbacks, match payloads and record/array projections.
+- I retain exact binary64 payloads, portable signed nonfinite formatting and
+  computed integer-to-byte conversion through reconstruction and tail returns.
+- I preserve prior output on checked lowering, verification, shadow, service
+  and reconstruction failures.
+
+### Boundaries
+- My private mixed record-array VM experiment does not grant public source or
+  service admission and is not part of this release.
+- My NanoCore proofs cover their stated model, not my full compiler, foreign
+  code or every runtime representation.
+- In-process callbacks are lifetime-safe within their contract; callback-
+  bearing isolated imports remain unsupported.
+- I retain conservative refusal for ownership, service and target profiles
+  whose complete lifetime or host-authority contract is not established.
 
 ## [5.0.0] - 2026-09-16
 

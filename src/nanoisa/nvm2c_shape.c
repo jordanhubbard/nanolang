@@ -186,7 +186,11 @@ int nvm_shape_convert(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
     return 1;
 }
 
-typedef struct { NvmShapeId source, target; int exact; } FlowPair;
+typedef struct {
+    NvmShapeId source, target;
+    int exact;
+    int array_element;
+} FlowPair;
 
 static int flow_kind(NvmShapeGraph *g, NvmShapeId target, NvmShapeKind kind, int *changed) {
     NvmShapeNode *node = &g->nodes[target - 1];
@@ -201,7 +205,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
     if (!queue) return 0;
-    queue[count++] = (FlowPair){conversion.source, conversion.target, 0};
+    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, 0};
     while (cursor < count && !g->error) {
         FlowPair pair = queue[cursor++];
         NvmShapeId source = nvm_shape_root(g, pair.source), target = nvm_shape_root(g, pair.target);
@@ -210,7 +214,9 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         int seen = 0;
         for (size_t i = 0; i + 1 < cursor; ++i)
             if (nvm_shape_root(g, queue[i].source) == source &&
-                nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact) seen = 1;
+                nvm_shape_root(g, queue[i].target) == target &&
+                queue[i].exact == pair.exact &&
+                queue[i].array_element == pair.array_element) seen = 1;
         if (seen) continue;
         NvmShapeKind from = g->nodes[source - 1].kind, to = g->nodes[target - 1].kind;
         if (from == NVM_SHAPE_UNKNOWN) {
@@ -222,6 +228,24 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         if (to == NVM_SHAPE_UNKNOWN) {
             if (!flow_kind(g, target, from, changed)) break;
             to = from;
+        }
+        if (pair.array_element && from == NVM_SHAPE_OPTIONAL &&
+            (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT ||
+             to == NVM_SHAPE_BOOL || to == NVM_SHAPE_FLOAT)) {
+            NvmShapeId payload = nvm_shape_lookup(g, source, 0);
+            NvmShapeKind payload_kind = payload ? nvm_shape_kind(g, payload) : NVM_SHAPE_UNKNOWN;
+            if (!payload || payload_kind == NVM_SHAPE_UNKNOWN) {
+                if (final)
+                    fail(g, "I require a proved payload when optional container storage flows to an exact scalar");
+                continue;
+            }
+            if (payload_kind != to) {
+                snprintf(g->error_detail, sizeof g->error_detail,
+                         "I cannot convert optional container payload %s to exact %s at nodes %u/%u",
+                         kind_name(payload_kind), kind_name(to), payload, target);
+                fail(g, g->error_detail); break;
+            }
+            continue;
         }
         if (!pair.exact && from == NVM_SHAPE_OPTIONAL &&
             (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL)) {
@@ -244,7 +268,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             NvmShapeId payload = nvm_shape_child(g, target, 0);
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;
-            queue = next; queue[count++] = (FlowPair){source, payload, 1};
+            queue = next; queue[count++] = (FlowPair){source, payload, 1, 0};
             continue;
         }
         /* An explicitly declared union destination accepts either exact
@@ -303,8 +327,12 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next) break;
             queue = next;
-            queue[count++] = (FlowPair){child_source, child_target,
-                pair.exact || from == NVM_SHAPE_OPTIONAL || from == NVM_SHAPE_MAP};
+            queue[count++] = (FlowPair){
+                child_source,
+                child_target,
+                pair.exact || from == NVM_SHAPE_OPTIONAL || from == NVM_SHAPE_MAP,
+                from == NVM_SHAPE_ARRAY && edge.index == 0
+            };
         }
     }
     free(queue);

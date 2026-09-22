@@ -3,6 +3,7 @@ import json
 import os
 import shlex
 from pathlib import Path
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -10,6 +11,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPILER = Path(os.environ.get("NANOC", ROOT / "bin/nanoc_c")).resolve()
+ARTIFACT_LINK_FLAGS = shlex.split(os.environ.get("NANO_ARTIFACT_LDFLAGS", ""))
 
 
 class ArtifactImports(unittest.TestCase):
@@ -41,7 +43,8 @@ class ArtifactImports(unittest.TestCase):
         # I link against the same selected runtime instrumentation as my build.
         compiler = shlex.split(os.environ.get("NANO_NATIVE_TEST_CC") or
                                os.environ.get("CC") or "cc")
-        link_flags = shlex.split(os.environ.get("LDFLAGS", ""))
+        link_flags = (ARTIFACT_LINK_FLAGS if "NANO_ARTIFACT_LDFLAGS" in os.environ
+                      else shlex.split(os.environ.get("LDFLAGS", "")))
         return self.command(*compiler, *args, *link_flags)
 
     def module(self, directory, name, result):

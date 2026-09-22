@@ -20,7 +20,7 @@ My canonical documentation map is located at **[docs/README.md](README.md)**.
 
 ### Virtual Machine
 - [NanoISA Architecture](NANOISA.md) - I document my complete VM backend here, including my ISA, bytecode format, co-process FFI, and daemon.
-- [5.0 One IR](NANOISA_ONLY.md) - NanoISA-only compilation contract. Not 4.x. I do not delete `transpiler.nano` until this contract has compiled me.
+- [5.1 One IR](NANOISA_ONLY.md) - My NanoISA-only compilation contract and completed product architecture.
 - [NanoISA frontend contract](NANOISA_FRONTEND.md) - 4.6 shared module gate. NanoLang stays native. Scheme is a bounded laboratory frontend. I do not claim the laboratory languages are product compilers.
 - [Nano Scheme](SCHEME.md) - 4.6 lexical Scheme subset compiled to verified NanoISA. Not a Scheme report.
 - [Nano ML](ML.md) - 4.6 ML-family subset compiled to verified NanoISA. Not Standard ML or OCaml.
@@ -40,7 +40,9 @@ My canonical documentation map is located at **[docs/README.md](README.md)**.
 ### Modules / FFI
 - [Module System](MODULE_SYSTEM.md)
 - [NSI.md](NSI.md) - v0 contracts, generated stubs, POSIX fabric (`NSI_FABRIC.md`), and 4.5 policy/replay (`NSI_EFFECTS.md`). I do not claim a kernel.
-- [NanoLang 4.5](RELEASE_4.5.md) - Current public cut covering 4.1–4.5. Last public GitHub Release was `v4.0.0`.
+- [NanoLang 5.1](RELEASE_5.1.md) - Current public One IR release: verified `.nvm`, self-hosted fixed point and translator boundaries.
+- [NanoLang 5.0](RELEASE_5.0.md) - Historical language/runtime cut before the One IR product transition.
+- [NanoLang 4.5](RELEASE_4.5.md) - Historical cut covering 4.1–4.5.
 - [NanoLang 4.4](RELEASE_4.4.md) - 4.4 product on `main` before Phase 19; not a public tag.
 - [LinkedIn post for 4.5](LINKEDIN_4.5.md) - Draft covering changes since `v4.0.0`.
 - [Extern FFI](EXTERN_FFI.md)

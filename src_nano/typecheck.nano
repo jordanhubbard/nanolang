@@ -3642,7 +3642,7 @@ fn check_builtin_function(fn_name: string) -> NSType {
     
     /* Diagnostics module functions (workaround for module qualification) */
     if (== fn_name "diag_typecheck_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
-    if (== fn_name "diag_transpiler_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
+    if (== fn_name "diag_lowering_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
     if (== fn_name "diag_location") { return (type_from_string "CompilerSourceLocation") } else { (print "") }
     if (== fn_name "diag_list_new") { return (type_from_string "List<CompilerDiagnostic>") } else { (print "") }
     if (== fn_name "list_CompilerDiagnostic_new") { return (type_from_string "List<CompilerDiagnostic>") } else { (print "") }

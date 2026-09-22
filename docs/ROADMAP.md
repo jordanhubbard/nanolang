@@ -142,6 +142,138 @@ I retain my complete corrected Forth2d0d evidence in `docs/evidence/forth-signed
 
 - [ ] I preserve written expression order in native union literals (`task_9a1ba277fe3e45d5913d03305ece1e06`, extending `task_865923a37b6d470c83326aed625b8897`). Both native producers require once-only sequenced temporary staging and observable order tests while preserving payload ownership. C designated initializers alone do not establish my source order.
 
+- [ ] I link my owned binding-state fixture to the exact ISA tag-name provider
+  before I qualify capture storage. At PR937 head `f2bac81a8`, the fresh strict
+  Darwin target compiles `src/nanovm/value.c`, which calls `isa_tag_name`, but
+  omits its `src/nanoisa/isa.c` definition and stops before fixture execution.
+  I retain the terminal, add only the missing provider closure, and require the
+  strict standalone and sanitizer controls without widening capture admission.
+  My MAC submission used idempotency key
+  `nanolang-f2bac-binding-state-isa-link`; the hub tunnel was unavailable before
+  reboot, so its durable task identifier remains to be reconciled.
+
+- [ ] I keep reconstructed scalar source within my documented 1,024-local
+  compiler ceiling (`task_96db0f763603ff315aba1fe3119a425a`). After the
+  hosted shadow-budget repair, run `35541114629` reaches the unchanged
+  unsigned-division and carry/borrow endpoint corpus on x64, ARM64 and
+  coverage; Stage 1 refuses eight generated functions as `too many locals`.
+  I preserve the ceiling, every endpoint, evaluation order, call/local and
+  multi-result snapshots, and prior-output refusals. I remove only redundant
+  pure single-result temporaries in the shared reconstructor. The first clean
+  60-method correction gate (`b52f39d37`) passes unsigned division but retains
+  six carry/borrow ceiling refusals, loses three inspected call-argument
+  snapshots, and lets one contextual byte literal cross NanoLang as `int`
+  (log SHA-256
+  `6188ce954db1b310f3cc4c75d4d48ddb796b924410bd0346d56666c5b6dc82e3`).
+  I therefore retain explicit call-argument and byte-literal snapshots while
+  leaving exact, already-evaluated boolean expressions inline. I then require
+  C/Nano/C-seed/Stage 1/Stage 2 parity and replacement full gates. The
+  corrected focused gate passes all 60 methods in 255.557 seconds (log
+  SHA-256
+  `4a4f338e0ed9ac6d88badf01487a5623a04cde32d28f2b1eb0d0be412cdfdb78`);
+  the complete replacement hosted matrix remains required.
+
+- [ ] I keep my full hosted sanitizer suite inside an explicit measured outer
+  bound (`task_4477289a83667be58ce3ae1b6bf11124`). Exact replacement run
+  `35541114629` reaches the unchanged `Run tests with sanitizers` step, then
+  GitHub terminates it at the configured 20-minute step deadline without an
+  assertion or sanitizer diagnostic. I preserve that terminal, keep
+  ASan/UBSan, leak policy and every test unchanged, and extend only the finite
+  hosted step and job bounds. I require the complete replacement sanitizer
+  job before release.
+
+- [ ] I give my hosted full-release bootstrap shadows their existing finite CI
+  budget (`task_188a0717e52f57e5ce3d3ee5ab7d5085`). Replacement run
+  `35539999974` passes every earlier check, then Linux x64, Linux ARM64 and
+  coverage rebuild my full compiler during `make test` and stop mandatory
+  compiler shadows at my shipped 10-second default. I keep that product
+  default and every shadow unchanged, but select the same explicit 60-second
+  CI budget already used by my sanitizer and strict-example jobs. I retain
+  the three first terminals (x64 `820d84bf4cc23023bc0dca31a11bb75255a67cbec13c40f6a9de6bf82b991cb7`,
+  ARM64 `78681274bf6a16a3d6b68faf0f13f03be7191ac4f44c9f8fa000d1ccf6cb5c50`,
+  coverage `aa7bf2c48cad035a7d2dbc782e80fa35fed949ab59eb896b9432b3c374825e06`)
+  and require replacement x64, ARM64 and coverage gates before release.
+
+- [ ] I keep my retained document-pair acceptance aligned with the generated
+  `v5.1.0` presentation (`task_2a49f076bf61e42c6fd33816fca5f3b8`).
+  The clean Darwin, Linux ARM64 and hosted coverage gates pass every earlier
+  compiler check, then the document-pair test still requires `NANOLANG 5.0`
+  and recognizes code paragraphs through three stale literal prefixes. I
+  preserve those terminals, identify every generated code paragraph from its
+  actual monospace formatting, require the current 5.1 cover and release
+  boundaries, and rerun the focused and complete release gates without
+  regenerating or weakening the retained artifacts.
+
+- [ ] I run my reference-evaluator transport checks with a leak-capable native compiler on Darwin (`task_730fbd4144e8ffce038bbd6c19025658`). My clean final `make test` reaches all eight unchanged child-reaping, descriptor, allocation and signal controls, but Apple ASan aborts each process before semantics because it does not support `detect_leaks=1`. I keep leak detection mandatory by preferring an explicit `NANO_NATIVE_TEST_CC`, then installed Homebrew LLVM on Darwin, and use compiler-specific fallback only when that runtime is unavailable. All eight focused controls pass with Homebrew LLVM and leak detection enabled (`13b54e0660597dd8500b6f2d40e880a6b5538e98228189881f050da75b42fe21`); I still require a new clean full release gate.
+
+- [ ] I preserve the selected AOT runtime instrumentation when my artifact-import fixtures link generated native programs (`task_4f48a537b3c73acd785299347fa64a58`). The first integrated coverage job builds `bin/nano_aot_runtime.o` with gcov instrumentation, then all three consumers in `tests/test_nanoisa_artifact_imports.py` omit the active coverage link flags and stop on unresolved `__gcov_init`, `__gcov_exit` and `__gcov_merge_add`. I carry only my Make-selected fixture link flags into those native links and retain their standalone defaults and every VM/native assertion. The complete ordinary 90-method gate passes (`9dfb51fd7dc2da503c9b5c8d6222da2997b93aeadf3692d068e383068495226f`), and the three formerly failing fixtures pass with an instrumented runtime (`be864f8ddc8ef9d7011a4db84f0983aff99468763e33a17263e4852a6526f51a`); I still require the complete hosted coverage gate.
+
+- [x] I diagnose and repair the integrated Stage 2 crash compiling my standalone NanoISA emitter (`task_9cdfb1a3b17944308613026d2907735f`). At product head `268bda1f1`, fresh bootstrap passes both stages and installed independence, then the first focused affine scalar-union source method runs `bin/nanoc_stage2 src_nano/nanoisa_emit.nano` and terminates on signal 11 after 44.715 seconds without a compiler diagnostic. I preserve that terminal (`56221b8517a19322337d4a1d93d77c8801d8e8708b251a7636d59027c70922f`) and its macOS crash report (`0471d4139d1fab707084e133e8eb4f92b2e0ddf3d72b673959241e2f37ce0707`), which identifies main-thread stack exhaustion in `___chkstk_darwin` entering `parse_primary`. Static comparison with my qualified Darwin stack policy shows that product-path conflict resolution kept `native_product_cflags` and its shadows but bypassed it when compiling the staged NanoISA C product. I restore that exact policy call and preserve explicit `NANO_CFLAGS`. A fresh two-stage bootstrap passes (`98a30ecf8a2353a4d91c9aeef5d0d590e77cd2df2d1df0bfb2929c6afdfd689d`), and the unchanged affected source-union method passes its standalone emitter, VM, native, Stage 1 and Stage 2 routes in 294.865 seconds (`b45311084d7ed31d5bf6f2faf4c5f7820580f5add875ebd50f3d974653190b09`).
+
+- [x] I remove the superseded whole-module `ordinary_execution` bypass while integrating PR522 with my invocation-scoped service-classification cache (`task_d21d833821606377425e4f60437adaa4`). My first fresh merged bootstrap stops at strict compilation because the old recomputation path still calls the pre-cache classifier signature. I preserve that terminal, keep immutable File-opcode caching local to one synchronous invocation, and continue to recheck mutable service bindings and ownership metadata on every admission. The corrected integrated bootstrap passes both compiler stages, both hello executions, installed-compiler publication and the no-C-seed independence check; its full log is `/private/tmp/nanolang-pr522-release-bootstrap-boolfix.log`, SHA-256 `0c913a7341f6791a8a1cfc2f3e96388cde1076cdfe80c0a8512c5c8e074627ad`.
+
+- [x] I prove finite payload provenance at the newly reached PR522 Stage 2 boxed joins (`task_5de848fe680becddcc20bc672fa4e46b`). Fresh merged bootstrap passes Stage 1 and its hello, then the verified NanoISA product translator first refuses function 442 after offset 2251, slot 0, tags `0x8010`. Explicit Boolean control flow clears that exact refusal; the next translation reaches function 533 after offset 866 with the same tags in `nb_match_statement`'s accumulated return fact. I preserve both terminals and publish the exact Boolean facts without boxed short-circuit joins. The corrected compiler module emits and translates completely (`c818e107a5732e8397d68a2e17cf776c91bd42d5b158cc011e6e43c1c4a1b056` for the `.nvm`; `d5c8761738f6f7fd318fdbcedba6ff659c5a24265309abcd6dd791c44f8f41f9` for translated C), and the full integrated bootstrap passes without a broad tagged-aggregate fallback.
+
+- [x] I carry the repaired affine-resource example shadow compilation (`task_c4351c720aee424ea9b90187e51a08f2`) into my current held product integration. I retain the frozen `e9a5f55f` first failure in [the historical gate](evidence/product-acceptance-e9a5f55f.md). PR761 qualifies the unchanged example and every original shadow through C-seed, both stages, VM and native routes; the later installed-product `cd72` gate compiles all 244 eligible examples. PR869 head `7ba90cbd` contains that canonical repair through its `6f227bc2` parent. This bounded closure does not qualify the integrated product or authorize publication.
+
+- [x] I merge canonical main `6f227bc2` into the held NanoISA-only product on review branch `integrate/nanoisa-product-current` at `7ba90cbd` (draft PR869), without moving PR522 or publishing a tag. I preserve the NanoISA-only driver closure, module facts, selected ownership routing, declared `array_push`, parser diagnostics and lowering error continuation. The source-closure check passes. A deliberately borrowed older `nanoc_stage1` rejects product-only introspection intrinsics and is recorded only as a provenance mismatch; fresh integrated bootstrap and acceptance remain required.
+
+- [x] I restore fresh PR869 Stage 2 mandatory-shadow completion within the unchanged default 10-second execution deadline (`task_cee706deacfe91694621113ac378d9f3`). At exact `67e3e211` on isolated ARM64 Linux, the original Stage 2 run refuses publication after 243.54 seconds because whole-module verification alone takes 11.83 seconds inside the supervisor. I move exact standalone linked verification before the forked execution budget and retain that proof only for the same immutable module. I classify verified ordinary graphs once while preserving fresh owned/resource admission. The frozen corrected run passes the formerly timed-out mandatory shadows and reaches checked NanoISA-to-C translation without raising the deadline, dropping shadows or replaying the failed artifact. The original exit 2, 6,488,704 KiB peak RSS and log SHA-256 `d9a6f76e9bb6b1b8267810d25f8374039316df0109dd5ceb1c719c7568c0ceee` remain historical evidence; final correction evidence is still to be committed with the code.
+
+- [x] I restore the newly reached PR869 Stage 2 NanoISA-to-C join compatibility boundary (MAC creation pending because the supported `default` profile returned `credential_rejected`; idempotency key `pr869-stage2-nvm2c-join-20260919`). I preserve the original join refusal, the 42-failure over-broad shape draft, the missing-AOT-runtime native setup terminal and the missing-assembler clean-gate terminal. Exact Boolean/global/array provenance and immediate optional array-element payloads now cross only their proved physical representations; direct optional narrowing and unrelated unions remain refused. Fresh translation, canonical native compilation and hello execution pass. A clean 4:41.02 bootstrap passes Stage 1, Stage 2, installed/no-C-seed smokes and mandatory shadows under the default deadline; 1,412 shape assertions and all 11 scalar-join methods pass. The NanoVM target reaches 271,506 passes and only its independently baselined stack-slice fixture mismatch. [Bounded evidence](evidence/pr869-stage2-translator-boundaries.md). Full product, fixed-point, platform and release gates remain open.
+
+- [ ] I qualify the freshly integrated PR522 product after guarded PR869 merge `d6d62d1682ce9d0fa7733447220e9b6fe9e42375`. I require a new isolated Linux bootstrap, explicit installed-Stage2 tool selection, the unchanged complete `make -j8 test-quick` gate, and fresh VM/native fixed-point evidence at one frozen source pin before any Darwin or release claim. I preserve the historical e9/cd72/950f terminals as earlier pins rather than relabeling them. I stop at the first new terminal, retain full logs and source/tool identities, and do not weaken shadows, deadlines, examples, ownership profiles, sanitizer coverage, or publication guards.
+
+- [ ] I repair the exact release-gate regressions exposed after integrating PR522 (`task_c2d5f6840c96fccfc49b173c5248dc2c`). Full Linux CI stops at stale `VmState.ordinary_execution` test assertions after that unsafe persistent cache was replaced by invocation-scoped admission; the published user-guide copies one repository-relative binary64 contract link that does not exist in the site; and strict examples give `sdl_boids` the default 10-second per-shadow budget instead of my established finite 60-second CI budget. I preserve the dedicated invocation-cache tests, documentation target validation and every example shadow while qualifying focused gates and the complete release matrix. The corrected NanoVM suite passes 274,598 checks (`f4dc80f6aca99d1a70af8076432a502c48b4953ff3d220d3547edf40d8a7a02e`), all six user-guide editions validate (`12b6402bfa687956e2127eb9c9144219dc3087b43da65c101d732125dc868142`), and the unchanged `sdl_boids` source and shadows compile in 7.27 seconds under the finite policy (`49ef2869c52ec1e2ab7086ad3d34b8f0ee69a01f0697e1e06028d5ccdf1ea62d`). The complete hosted matrix remains required before closure.
+
+- [x] I qualify PR522 VM and native fixed points on Linux with one exact
+  compiler-source pin and deterministic host closure
+  (`task_f2db429cf8718cef4012e40c3ea0dbae`). My first Darwin VM attempt at
+  `a544e17a` emits and verifies the seed, then stops because `compiler_support`
+  was rebuilt into a different generation. I preserve that terminal and do
+  not normalize paths or weaken comparison. At `ebe3afddc`, the VM route
+  produces equal 491,788-byte generations with SHA-256 `7b8f96e51a146364448a37cce43dd414734d31aad53eb57359c6768a107f1575`;
+  the standalone native route produces equal 491,800-byte generations with
+  SHA-256 `c3a425bb90edc4101a1e7c1ec92f2acee1a781a30407d608cfc381ea3a13c2b4`.
+  Both routes verify both generations, preserve their exact host closure and
+  post-run integrity, and compile, verify and execute unchanged hello. I make
+  no cross-route byte-equality claim. [Evidence](evidence/v5.1-final-fixedpoints.md).
+
+- [x] I preserve bound module identity when an owned graph also contains ordinary scalar records (`task_b99be298b54f42728493b820cfbf9e58`). My fresh `ae3fc859` product gate passes bootstrap, installed components, 17 core programs, all 244 eligible VM examples and 158 standard-library examples, then both self-hosted stages refuse the accepted module-identity cases at the source-borrow profile entrance. Under my [mixed affine product contract](NANOISA_AFFINE_PRODUCT_MIXED_GRAPHS.md), I admit only already-bound merged direct dependencies and finite ordinary scalar records with exact nominal identities. I retain whole-source checking, every dependency shadow, import-order independence, long paths, prior output and all foreign/unbound/ambiguous refusals. My [bounded qualification](evidence/pr522-affine-bound-modules.md) passes fresh bootstrap, the complete three-compiler module-identity suite and the 13-case mixed runtime lifecycle at exact `1e35f611`; canonical merge and the scalar-union sibling remain separate.
+
+- [x] I retain my exact unshadowed-direct-call refusal while adding bound module calls (`task_b99be298b54f42728493b820cfbf9e58`). Fresh bootstrap at `496f4d71` stops in the unchanged owner-array mutation shadow because my draft inserted `bound` between `unshadowed` and `direct` in the diagnostic; both negative cases still refuse and no artifact is published. I keep the original diagnostic phrase, the local-name shadowing refusal and every assertion, then qualify the corrected compiler from a fresh checkout.
+
+- [x] I carry exact ordinary-record parameters and results through my non-admitting mixed shape proof (`task_b99be298b54f42728493b820cfbf9e58`). Fresh `b1c742d5` bootstrap passes both stages and installed/no-C-seed smokes; the first focused module gate then stops Stage 1 before publication with `I require existing scalar or scalar-leaf owner signatures.` I admit only exact proved ordinary layouts with retained constructor-origin facts, preserve scalar-leaf owners and require every call and return identity before executable mixed admission.
+
+- [x] I emit exact typed integer opcodes for every mixed managed value graph (`task_b99be298b54f42728493b820cfbf9e58`). Fresh `77559fe4` bootstrap passes, then the same focused Stage 1 case reaches function 1 offset 18 and refuses the legacy `ADD` because my mixed proof has no closed dynamic arithmetic transfer. I use the existing checked `I64_*` instructions already required by owner-array graphs, retain ordinary legacy emission outside mixed profiles and do not widen the proof to infer operand types at runtime.
+
+- [x] I retain exact nested owner tokens inside mixed resource records (`task_b99be298b54f42728493b820cfbf9e58`). Fresh `aaf2cb2b` bootstrap and the long module-identity route pass; the unchanged nested route then stops Stage 1 at function 3 offset 0 because the base proof accepts only scalar-leaf owner signatures. Its retained focused log has SHA-256 `a507bad1d37116992c7e447dc096cbdff1bbac83e8d77bbecb316148d16610a3`. I admit only prior-index, complete RESOURCE children; packing consumes the exact nested token, unpacking produces it once, and the existing recursive record runtime carries it without copying. Ordinary children inside owner records, cycles, unresolved layouts and mismatched nested identities remain refusals. The first `4e575ba7` low-level fixture attempt changed every synthetic module to include the refused ordinary-child owner layout, so common verification stopped before the focused control; the corrected builder retains five valid layouts normally and adds the sixth refused layout only for its negative query. The next fresh query proves the nested positive through both shape layers and classifies that sixth negative as invalid declaration metadata before executable-profile resolution.
+
+- [x] I retain the exact rewritten nominal layout of a bound ordinary-record call result (`task_b99be298b54f42728493b820cfbf9e58`). Fresh `6c62d17c` bootstrap and the first five module-identity routes pass, including nested owner transport; the unchanged qualified-public-record case then stops Stage 1 because my ordinary binding path accepts only aliases and inline constructors before it reaches the already-bound direct call. I admit only a mode-zero value call whose emitted result tag is `struct` and whose recorded rewritten layout exactly equals the declared ordinary binding. Same-spelled records in other modules, unbound calls, owner results and scalar results remain refusals.
+
+- [x] I validate an ordinary managed result at the mixed-runtime return boundary (`task_b99be298b54f42728493b820cfbf9e58`). Fresh `582ca52e` bootstrap passes and the qualified record case advances through exact call lowering, then Stage1 shadow execution traps with `I require an exact declared owned result`. Static inspection shows my mixed signature already classifies the result as `NVM_MIXED_VALUE_ORDINARY`, but preparation retains a field count only for owners and NanoVM accepts only the owner category. I retain the exact layout and field count for both managed categories, still distinguish ordinary from owner facts, and require the same nominal/shape check through every public VM entry. Scalars, mismatched layouts and unresolved categories remain refusals. My first runtime fixture after the row-offset correction selected a pending FLOAT-array record and therefore met the existing signature refusal before execution; the corrected boundary fixture uses the already-admitted scalar ordinary record required by the product failure and leaves pending ARRAY-result admission separate. At `f727fb5d` all 13 C lifecycle cases and 2,157 checks pass, including the new result through four public APIs and direct core, before the Python wrapper stops on its historical exact count of 12. I update only that expected complete-case count and preserve all native generation, sanitizer, allocation-failure and output assertions.
+
+- [x] I derive synthetic mixed-runtime function rows from the encoded layout-table extent (`task_b99be298b54f42728493b820cfbf9e58`). The first fresh `b6af7b9f` runtime gate stops at unchanged case 6 before the new result case: after nested-owner coverage increased the synthetic layout flags, `runtime_row` still jumps to byte 16 and its local-descriptor patch overwrites retained ownership header bytes. I compute the aligned function-table start from the immutable encoded layout count, retain every existing case and require the complete lifecycle gate before using the new ordinary-result evidence.
+
+- [ ] I preserve scalar generic unions and first-success matches alongside exact owner transfers (`task_a18a9f752536469faafc4d3ebec01dfd`). The same frozen gate refuses the accepted generic-formal and owner-consuming match cases before lowering because the source-borrow profile rejects every union. Under my [mixed affine product contract](NANOISA_AFFINE_PRODUCT_MIXED_GRAPHS.md), I require exact concrete scalar union instances, once-only scrutinees, lexical payload bindings, source-order guards and owner-state agreement across all successful arms. Resource-bearing or unresolved union payloads remain refused; `return` still exits the enclosing function and no ordinary aggregate path may copy an owner.
+
+- [ ] I qualify the frozen `e9a5f55f` combined product through PR712 after merged ownership, managed-array and optional-map-key repairs (parent `task_d76ae44a12fd4d27a2b4aa84c30d7bc6`). I retain the failed63c Linux gate and its separately passing fixed points, focused methods and fresh-tree Darwin gate. The next Linux/Darwin gates must explicitly install the canonical compiler before component compilation; prior results do not qualify this integration. [Active gate record](evidence/product-acceptance-e9a5f55f.md).
+
+- [x] I retain the completed acceptance attempt at frozen `63c26ecd`, including its source-borrow setup timeout (`task_ef9261a163f64e0397a93d377d623ed7`, product parent d76ae44). Bootstrap/tools and 65 executed methods pass; the corrected 26-method borrowed-source gate passes in 1281.199 seconds with unchanged tools. The isolated full Linux quick gate fails at the separately tracked transpiler native-publication boundary. Fresh VM and native full generations each pass raw equality and immutable closure/integrity checks. Exact-candidate Darwin quick gate passes in 950.79 seconds; Linux remains blocked. [Exact evidence](evidence/product-acceptance-63c26ecd.md).
+
+- [x] I complete the earlier-source corrected Darwin comparison at c9c747858ee4: full PTY quick gate passes985.04seconds with compiler/runtime source identical to ece241ba and only the deterministic Forth harness changed. I independently verified source equality and the sealed log hash. Current63c candidate platform acceptance remains separate. [Peer report](evidence/product-acceptance-ece241ba-darwin-corrected.txt).
+
+- [x] I refresh my bounded Sail-to-Rocq model gate (`task_f3524c87530e4b49aa71b5bf50e287e5`). The Darwin peer completes the existing proof-only container command at f38b6409 in 529.47 seconds with all nine named closed-assumption reports and independent checking. I independently verify the report/log hashes and confirm model, proof, script and checker inputs are unchanged at63c26ecd. [Sealed report](evidence/sail-rocq-f38b6409-evidence.txt) and [log](evidence/sail-rocq-f38b6409.log). No decoder/VM corpus runs, and full ISA/production refinement remains open.
+
+- [x] I refresh the exact candidate proof gate on an execution-capable host (`task_414caa6f28504b3ba47fdf7891d329f3`). At frozen product `ece241ba`, I preserve the Linux ARM64 image-execution failure. My Darwin peer completes the same pinned gate in 224.41 seconds: fresh Rocq 9.0.1 compilation, 43 closed-assumption reports, assumption audit and independent checker pass. [Evidence](evidence/product-formal-ece241ba.md). This validates my model, not production correspondence.
+
+- [ ] I repeat full Darwin product acceptance after the Forth harness repair (parent `task_d76ae44a12fd4d27a2b4aa84c30d7bc6`). I preserve the `ece241ba` 600-second alarm in [the historical evidence](evidence/product-acceptance-ece241ba.md). Stopped task `task_1b914e18e8c830e9db6fcb2be90e73b1` is superseded by the qualified harness repair `task_560e50b04c0a7a5a33537b0bc5292ed1`, merged in PR694; exact-head terminal/nonterminal, 34 session and production REPL checks pass. Full combined product acceptance still requires a new pin.
+
+- [ ] I integrate the qualified current defensive metadata-lowering boundary (`task_a600db3ae64f4f63b8b85d77856c593a`, historical draft PR584). Static review at `473b6767` confirmed that I allocated name-selection state after an index emission failure, and public shadow emission lacked the unused introspection declaration check used by program emission. I share metadata declaration validation before both plain and affine public lowering routes, add the failed-index guard, qualify current-source state/declaration controls and existing accepted module-facts tests, and retain historical incident artifacts without replay or causal attribution. Current production `bbf89123` passes fresh bootstrap, 13 adjacent methods and eight explicit Stage2 module-facts methods; [evidence](evidence/metadata-current-boundaries.md). Canonical integration with PR522 remains open.
+
+- [ ] I repeat full canonical product acceptance after generic integration (parent `task_d76ae44a12fd4d27a2b4aa84c30d7bc6`). My earlier gate at `e7bccd99` passed 17 core examples and 244 eligible VM examples, then recorded 18 checked generic-instance refusals. The scoped repair `task_6550ccf97eb44f4d8c08f02cd4189cd7` is now merged through PR666 with fresh bootstrap and all 16 paired methods, including unchanged affine decisions. I still require the integrated product and platform gates; [historical pin](evidence/product-acceptance-84e04f5d.md).
+- [ ] I preserve source-relative links in copied user-guide references (`task_6d8539dc326d486f82952f7a67cfd6c2`). My first PR937 documentation job fails on the binary64 contract linked from STDLIB.md. I retain that terminal and resolve copied links from their original repository location while refusing missing local targets. All15 renderer tests and all six13-page editions pass locally; protected integration remains pending. [Evidence](evidence/userguide-source-links/checks.json).
+
 - [x] I retain the executing instruction location in every VM call frame (`task_b7779ee196994432a18178145d93ac42`). I bound fallback debug lookup to that function and preserve the field phase under instruction fusion. Direct, indirect, tail, branch, missing-map and fused-field diagnostics require both dispatch modes on Linux and Darwin; my [contract](VM_SOURCE_LOCATIONS.md) records qualification separately from full 5.1 acceptance.
 
 - [ ] I finish exact concrete scalar-union instances in my affine product (`task_a18a9f752536469faafc4d3ebec01dfd`). My [recovery review](AFFINE_UNION_RECOVERY_REVIEW.md) rejects the recovered one-instance registry, common-position payload approximation and unfinished value-match lowering. My [replacement contract](AFFINE_SCALAR_UNION_INSTANCE_CONTRACT.md) gives each concrete instance a distinct retained layout, records exact per-variant membership/arity/payload slices in versioned ownership metadata, and requires verifier, VM and native agreement before source admission. I build on canonical PR889 guards and do not replace its parser, checker or ordinary emitter. Fresh integrated Linux and Darwin qualification remains required; PR522 and release publication stay held.
@@ -436,6 +568,44 @@ their individual acceptance evidence closes them.
 
 ## Active Execution Queue
 
+- [ ] I name the 5.1 candidate exactly as `v5.1.0` in every release-facing
+  document checked by my version gate
+  (`task_06257da62b4eaf589b0843f3fd5f6a4a`). The clean Darwin and hosted
+  coverage runs pass all earlier release gates, then both report that
+  `README.md` and `docs/presentation/README.md` say `5.1` without the
+  canonical tag spelling. I preserve both terminals, update only those two
+  release labels, and rerun the focused and clean release gates.
+
+- [ ] I link native NanoISA products with the instrumentation already present
+  in my retained AOT runtime during coverage and sanitizer builds
+  (`task_d4add428dabc6da0d82a3b55a8fed8a7`). The hosted 5.1 coverage gate
+  reaches the Stage 1 hello product and then rejects `nano_aot_runtime.o`
+  because its `__gcov_*` references are not accompanied by the coverage link
+  flags. I will propagate only selected instrumentation link flags through the
+  existing `NANO_LDFLAGS` product boundary, preserve explicit caller
+  overrides, and add an isolated Make contract control before rerunning the
+  failed hosted job.
+
+- [x] I keep the exact-binary64 reconstruction gate aligned with the source
+  operations I actually admit (`task_c2d5f6840c96fccfc49b173c5248dc2c`).
+  The clean `ebe3afddc` Darwin release run passes every earlier phase and then
+  stops because the historical facts fixture still expects `F64_ADD` source
+  reconstruction to fail. My later typed arithmetic contract intentionally
+  admits that opcode. I preserve the full first-terminal log and retain atomic
+  previous-output refusal coverage with a genuinely unsupported generic float
+  operation; I do not remove the check or turn an accepted operation back into
+  a refusal. Both exact-bit and atomic-refusal methods pass in 0.420 seconds;
+  the corrected log is `/private/tmp/nanolang-pr522-binary64-corrected.log`
+  (SHA-256 `f653dd6269dc91bd1c8e06ec35852ef32ee97ea7fbdf33a062ae91089c64c6cd`).
+
+- [x] I keep the module-introspection acceptance program bound to the shared module-facts declarations it calls (`task_3f0ced012cde4f6eb73f6fdd1279d482`). At product `84e04f5d`, bootstrap, 39 focused methods and all 17 core examples pass; the later C-seed introspection gate reports missing emitted scanner declarations. I distinguish direct import ownership from backend closure, preserve every scanner assertion, and qualify the corrected fixture before resuming full acceptance.
+
+- [x] I record the product compiler VM fixed point at `ae63b248`: initial and two VM generations match raw bytes and host closure, and the second generation compiles verified hello. [Pinned evidence](evidence/product-vm-fixedpoint-ae63b248.md). This bounded check does not close product task d76ae, export-shadow task dd74, or the full release.
+
+- [x] I repair canonical product export-shadow acceptance (`task_dd74b033c3984805bc27ce5017096c3c`). After the record-array scalar representation repair in PR625, fresh integrated product `aab9d30d` passes both bootstrap stages, hello, installed execution without the C seed and all 28 product methods in 13.533 seconds. Earlier failed artifacts and source-specific logs remain preserved without replay. [Current repair evidence](evidence/native-record-array-scalar-tags.md) and [product history](evidence/nanoisa-only-product-draft.md) retain the boundaries; broader product integration and release gates remain open.
+
+- [x] I verify product bootstrap after PR #551 adds exact record-array global transport (transport task `task_1e569db4d8f1486abdd7d5ed3ca00bc1` is complete; full product acceptance remains open). At earlier product pin `599d7558`, Stage 1 and hello passed, but Stage 2 translation explicitly refused an aggregate global store. I preserve that bootstrap log and keep the product draft open until the integrated compiler passes its gates. My fresh `1fae65ef` bootstrap passes both stages, hello and installed execution without the C seed; the distinct export-shadow acceptance task dd74 still blocks the product PR.
+
 - [ ] I finish the two unreached puck adjacency phases after classifying generated cache outputs (`task_4eaa6395ba014821b123f5332817aed0`). The corrected six-method `eafcd1e52` corpus passes, then the inventory guard stops on four newly generated std module artifacts, with no changed or removed prior provider. Retained timestamps place generation inside parser877's C-seed compile; the earlier raw-driver attribution was incorrect. I retain the original terminal/maps and run only shared-policy/totality and both owner-refusal methods on the unchanged successful tools, with cache outputs inventoried separately.
 
 - [ ] I correct the ordered native match emitter's missing line boundary before generated block directives (`task_4eaa6395ba014821b123f5332817aed0`). Both `e75a719bf` focused runs finish4PASS/2FAIL: the named-order Stage1 compile rejects mid-line `#line`, and the separate raw backstop driver lacks `std/env` imports. I retain all six-method results, correct the newline without changing guards/control flow, add a directive-boundary shadow, and add only the missing fixture imports before fresh qualification.
@@ -468,7 +638,7 @@ their individual acceptance evidence closes them.
 - [x] I reinitialize consumed mutable resource locals from exact live whole-owner identifiers in both borrowed-source producers (`task_227b7b89a64d4e768705a9bd2c56430e`). My [assignment contract](NANOISA_SOURCE_OWNER_REASSIGNMENT.md) preserves explicit consumption, exact nominal moves and reaching-path joins; live overwrite, constructors and partial assignment remain refused. Fresh bootstrap, exact paired metadata/shadows, VM/sanitized native positives and all corrected refusal controls pass; I preserve the initial fixture-diagnostic mismatch in [measured evidence](evidence/source-owner-reassignment.md). PR660 is merged and the bounded MAC task is completed.
 - [x] I lower exact generic union instances for canonical affine acceptance (`task_6550ccf97eb44f4d8c08f02cd4189cd7`). My [instance contract](NANOISA_GENERIC_UNION_INSTANCES.md) retains bound nominal identities, lexical formal substitution, concrete payload metadata and selected shadows. The unchanged module/generic ownership suites and VM/native publication remain required; resource-bearing and unknown shapes stay refused. PR666 is canonical and the bounded MAC task is completed; fresh bootstrap and all sixteen own-tool paired methods pass, including the unchanged affine suites.
 - [x] I preserve explicit generic constructor types before contextual inference (`task_cede96d8189b42cea8f5692810031bb4`): normalize known selfhost constructors to the declared union representation, and reject existing C constructor argument trees that differ from expected context before replacing them. My first explicit-syntax gate retained false selfhost same-spelling refusals and C zero-payload mismatch acceptance; I require corrected paired decisions without changing absent-argument inference or nominal identity. I completed this checker prerequisite with PR671; paired explicit-instance refusals preserve prior outputs.
-- [x] I retain explicit generic constructor arguments in selfhost expression parsing (`task_952ac994c2684adc8944cb2373670456`). I reuse recursive type parsing for uppercase `Type<args>.Variant {}` while retaining complete concrete spelling and original locations, leaving lowercase comparisons unchanged. I require parser shadows, fresh bootstrap, paired local/call/return/selected-shadow acceptance and exact zero-payload mismatch refusals preserving old output. My bounded contract is `docs/NANOISA_EXPLICIT_GENERIC_CONSTRUCTORS.md`; parser acceptance does not expand payload, ownership or wire authority. I completed this bounded syntax slice with PR671, reviewed head `10070b6e`, after fresh bootstrap and paired acceptance.
+- [x] I retain explicit generic constructor arguments in selfhost expression parsing (`task_952ac994c2684adc8944cb2373670456`). I reuse recursive type parsing for uppercase `Type<args>.Variant {}` while retaining complete concrete spelling and original locations, leaving lowercase comparisons unchanged. I require parser shadows, fresh bootstrap, paired local/call/return/selected-shadow acceptance and exact zero-payload mismatch refusals preserving old output. My bounded contract is `docs/NANOISA_EXPLICIT_GENERIC_CONSTRUCTORS.md`; parser acceptance does not expand payload, ownership or wire authority. I completed this bounded syntax slice with PR671, reviewed head `10070b6e`, after fresh bootstrap and paired acceptance. Fresh integrated bootstrap, fifteen paired methods and four adjacent methods (including all 25 unchanged affine decisions) pass.
 
 - [x] I reconcile three stale scalar roadmap rows with canonical merged evidence (`task_944edde6410b459b8d195a08eb1dd072`). I verify PR560 typed F64 and PR569 VM/native implicit-return ancestry and MAC completion, preserve their bounded scope, and retain broader language and release holds.
 
@@ -744,7 +914,7 @@ their individual acceptance evidence closes them.
   - [x] I implement checked float storage/transport and typed operations without substituting generic opcodes or admitting implicit integer conversion.
   - [x] I verify all typed operations, signed-zero/global/function transport, malformed operand tags and the paired real scalar fixture in VM/native, with focused sanitizer and adjacent native gates: four methods including33bad-tag cases,2390native checks and1092shape checks pass. My [scalar evidence](evidence/native-typed-floats.md) distinguishes generic NaN ordering, typed IEEE comparisons and the remaining conversion boundary.
 
-- [ ] I retain nominal record identity through nested empty-array append results. My C-seed checker currently refuses `array_push (array_push [] Item {...}) Item {...}` before VM lowering; I retain the fixture separately from supported scalar append inference (MAC `task_439297c5a6934857a90cbec93bb7958d`).
+- [x] I retain nominal record identity through nested empty-array append results. When builtin `array_push` starts from an untyped empty literal, I take the exact declaration identity from its pushed record and carry it through later appends; I still refuse a different nominal record before publishing output. C-seed and NanoVirt execute the direct and nested cases, and the adjacent nominal/union suites preserve their mismatch checks (MAC `task_439297c5a6934857a90cbec93bb7958d`).
 
 - [x] I infer the supported element type of an unbound empty-array append from its value, preserve nested append types and source evaluation order, and reject mismatched established receivers. I require bytecode parity and VM/native execution before advancing my complete compiler-shadow closure (MAC `task_d5ed194093434b5cbfc2e3ec6bc2d37a`).
 - [x] I release my owned Environment import-tracker array and container during teardown (MAC `task_73162d300ee44cb4a16d723bd49beeec`). The symbol-index LSan fixture exposes a pre-existing 208-byte leak; I retain the failure and keep entry-payload ownership separate.
@@ -1163,6 +1333,186 @@ their individual acceptance evidence closes them.
       remaining active rows still require the same evidence check. MAC
       `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
 
+- [x] **Lower recursive scalar arrays through my canonical NanoISA product.**
+      Exact-head release CI at `8854649eb` reaches my installed compiler and
+      then refuses `array<array<int>>` in the unchanged incremental-cube and
+      nested-value acceptance cases. I extend my checked NanoISA emitter and
+      native translator together for recursive arrays whose leaves already
+      have supported scalar storage. I preserve declared element shapes,
+      left-to-right evaluation, safe child lifetimes, exact mismatch
+      diagnostics, VM/native parity, and the original tests. I do not switch
+      this release gate back to my C seed. The first x64 and coverage logs are
+      retained with SHA-256
+      `b41e0142b612bdc8605d6b46377f67a506fccf6065fe8002df51038122138ec8`
+      and
+      `5647aaab69dce489e2760ce2933aca0f2d8c7fada8059a0c002ae965ea269d93`.
+      My corrected Linux gate passes a fresh two-stage bootstrap, all six
+      unchanged compatibility methods, 1,412 shape checks, 2,426 native
+      translator checks, every dependency shadow, 86 source comparisons and
+      90 adjacent emitter methods. [Evidence](evidence/canonical-recursive-scalar-arrays.md).
+      MAC `task_b877d68139a6d26162c8ad4beb9bc0b6`.
+
+- [ ] **Give my measured hosted sanitizer suite a sufficient finite budget.**
+      Exact-head release run `35543910486` reaches the instrumented unit suite
+      without a sanitizer finding, then GitHub stops that step at its existing
+      45-minute bound while a dependency bootstrap is still active. I preserve
+      ASan/UBSan flags, leak policy, assertions and test selection; I change
+      only the finite job and step bounds, then require a terminal hosted
+      rerun. The retained log has SHA-256
+      `7e61f5d3307124170c9813def3aa3ee447e4f4bffeca3ec722621b7b239ba908`.
+      MAC `task_1fc7982675604c63aaceb97f47e79677`.
+
+- [ ] **Give my coverage test wrapper its measured finite budget.** Hosted
+      release run `35549919489` completes the coverage-instrumented scalar
+      reconstruction suite, then my existing 1,800-second `make test` alarm
+      stops a coverage-instrumented Stage 2 rebuild. I preserve coverage
+      flags, compiler route, tests and assertions; I change only the coverage
+      job and test-wrapper bounds and require a terminal hosted rerun. The
+      retained job log has SHA-256
+      `a1bfe52a6a08a2770d16cb6959d0617715c5978387ae29317324afe02e7ef749`.
+      MAC `task_4fc9f8408dc8642d77894784e38f6737`.
+
+- [ ] **Preserve exact returned callbacks in my canonical functional arrays.**
+      Hosted release run `35551946391` outlives the former coverage alarm,
+      rebuilds Stage 2, then the unchanged inferred-result map acceptance case
+      stops because `(choose)` is not a declared callback identifier. I admit
+      only a zero-argument selector whose checked body returns one exact
+      declared scalar callback. I evaluate the source first, the selector once
+      second, and that callback once per element. Branching or otherwise
+      dynamic callback values remain refused until I have their indirect-call
+      contract. I require self-hosted emission, native translation, execution,
+      bootstrap and replacement hosted release evidence without skipping or
+      weakening the original test. The retained coverage log has SHA-256
+      `52ac99538831146c5bd91af503d8be3037b19bf3b5bf499ff3b224e84240d98d`.
+      MAC `task_34bf8b5232b74ed080cbd21039e6aeb6`.
+      - [x] My first fresh Linux bootstrap builds and smokes Stage 1, then
+        Stage 2 correctly refuses the new emitter shadow's undeclared
+        `str_index_of` helper. I preserve that terminal and replace only this
+        shadow oracle with supported exact call/`POP` sequence checks; the
+        Python integration test retains its stronger selector-before-callback
+        ordering assertion. The replacement bootstrap and focused gates pass;
+        [evidence](evidence/canonical-returned-functional-callbacks.md).
+      - [x] The corrected fresh bootstrap passes all three stages and installs
+        the self-hosted compiler, then the original map acceptance reaches
+        `shadow choose` and exposes the same exact returned callback through a
+        direct computed call. My expression classifier mistakes that call's
+        float result for the selector's function result and refuses its
+        equality as mismatched float operands. I preserve this terminal,
+        statically resolve only the same single-return selector contract,
+        evaluate the selector once before its arguments, and retain broader
+        computed calls as checked refusals. Fresh bootstrap, the original
+        regression, all nine functional-array methods, 2,426 translator
+        checks, 1,412 shape checks, 86 Cut A checks and 90 adjacent emitter
+        methods pass; [evidence](evidence/canonical-returned-functional-callbacks.md).
+      - [x] Integrated release run `35558456623` reaches the unchanged
+        self-hosted map-result matrix, then all 16 scalar combinations refuse
+        an exact function-reference local as an unsupported local type. Its
+        evaluation-order case also refuses a zero-argument selector whose
+        deterministic `println` precedes its single exact callback return. I
+        retain those terminals. I represent only immutable locals initialized
+        from one exact declared callback, preserve their nominal signature and
+        static target, and use them only through the existing functional-array
+        callback contract. I admit only straight-line, result-free prefix calls
+        before an exact selector return; branching, early returns and dynamic
+        targets remain refused. The replacement gate must cover all 16 scalar
+        combinations, source/selector/callback order, direct selectors,
+        immutable callback locals and dynamic refusals before I rerun hosted
+        release acceptance. Fresh Stage 2 execution now passes that complete
+        map-result matrix and all nine functional-array methods; the adjacent
+        86 Cut A comparisons and 90 emitter methods pass too. I retain exact
+        logs and hashes in my
+        [callback evidence](evidence/canonical-returned-functional-callbacks.md).
+        - [x] The corrected self-hosted emitter passes evaluation order and
+          publishes all 16 callback-local modules, then `nvm2c` refuses each
+          `FUNCREF` store because its local-kind inference leaves the slot at
+          the integer default. I preserve that terminal and teach the existing
+          representation analysis that an exact function value remains a
+          function through local store/load. I do not add `CALL_INDIRECT` or
+          infer a target from an unproved integer. Fresh translation passes
+          all 2,426 structured-C checks and 1,412 shape checks, and exact
+          callback locals are excluded from heap-root registration because
+          they remain nonheap integer-width references.
+      - [x] Replacement hosted run `35562442766` passes bootstrap and reaches
+        the pre-existing returned-call suite after the map-result repair. Its
+        nested higher-order case refuses a declared function identifier as an
+        untyped computed-call argument, while its `choose(bool)` fixture cannot
+        use the zero-argument selector proof and returns status 1. I retain the
+        x64 log with SHA-256
+        `a24436ce1bffb79bea456f6cc300f1fb1676bbcba7ec0ae1ba395d8c32754579`.
+        I will type an exact declared function identifier from its declaration
+        and statically refine only a one-Boolean-parameter selector whose sole
+        statement is an `if` over that parameter and whose two arms each
+        return an exact signature-matching declared function. I still execute
+        the selector once and discard its proved `FUNCREF` before the direct
+        call. Arbitrary conditions, nonliteral selector arguments, effects,
+        incomplete branches and general indirect calls remain refused.
+        - [x] Fresh corrected bootstrap passes and the branch-selector plus
+          evaluation-order methods pass, but the nested higher-order case now
+          reaches expression emission and refuses the declared `identity`
+          argument as an undefined binding. I retain the three-method log with
+          SHA-256
+          `09fef7855aeecf634f6b4858014d54858ea68ee48a6ae36d65b6977aa341f054`.
+          I emit `FUNCREF` for an exact declared function identifier only after
+          local and global lookup fail, using the same declaration index that
+          supplied its function type; unresolved names remain errors.
+          - [x] The raw nested fixture then exposes the next explicit boundary:
+            the source emitter refuses `fn(int)->int` parameters before it can
+            lower `return (f n)`. I retain that terminal. I will admit exact
+            scalar function parameters, emit declared function arguments as
+            `FUNCREF`, and lower calls through those parameters with the
+            existing `CALL_INDIRECT` arity/result operands. Native translation
+            must dispatch only among module functions whose exact scalar
+            parameter/result shapes match the proved stack; every other
+            runtime target traps. Closures, aggregates, imports, unknown result
+            joins and native callback ABI pointers remain outside this repair.
+            - [x] The raw module then verifies and runs in NanoVM, while native
+              translation initially cannot select an exact scalar target:
+              scalar `.parameters` facts are currently emitted only as a
+              suffix of optional ordinary-record publication, so a
+              record-free higher-order program loses its declared parameter
+              tags. I will publish the already accumulated scalar parameter
+              directives independently of optional record/layout facts, keep
+              each exact declared function parameter including `function`,
+              and require native indirect dispatch to match those facts before
+              it emits any target case.
+              - [x] The first clean Stage 2 bootstrap reaches assembly and is
+                refused with `I need exact-arity tags for .parameters` because
+                the compiler contains accepted source parameter types that do
+                not have a NanoISA tag. I will publish an independent
+                `.parameters` row only when every parameter has one exact tag;
+                I will never emit an empty or partial row, and the scalar plus
+                `function` rows used by this repair remain mandatory.
+                - [x] The corrected functional-array adjacency passes ten of
+                  eleven methods; its preserved-output refusal control expects
+                  the public diagnostic to retain the word `indirect`, while
+                  my more precise stored-callback wording dropped it. I will
+                  keep both facts in the diagnostic and rerun that refusal
+                  control without weakening its assertion.
+                - [x] The broad native gate passes 2,425 checks and reaches its
+                  legacy opcode inventory, which still lists every
+                  `CALL_INDIRECT` as unsupported. I will replace that stale
+                  classification with an exact scalar positive execution and
+                  a malformed-stack refusal, while retaining every other
+                  unsupported-opcode assertion.
+                - [x] The source-emitter gate passes its 86-check pinned subset
+                  and 89 of 90 integration methods, then reaches one stale
+                  executable-closure fixture that classifies an exact scalar
+                  function parameter call as an unlowered root. I will move
+                  only that exact program into VM/native positive execution;
+                  stored globals, shadowed nonfunctions, unavailable hosts and
+                  other unsupported roots remain refused.
+                  The exact final source passes a clean 344.96-second bootstrap
+                  (`070f041cacd35d267548152df55648cb2b05118e2234b5b2a8cb1840b3b06162`),
+                  all three original returned-call methods
+                  (`fda96248c2ceac92f70e4b7ddae69e90b10fa3c7e28647e9edf77b899e8c4e13`),
+                  both map-result methods and all nine functional-array methods
+                  (`11044b74200082b48692ec9dcef32d31a562c2680ad3dafb57b1551b073fd7e8`),
+                  2,428 native translator checks
+                  (`4b7161319e266f0c671756ebf36c7cd089cb1093f3f7693b7207b2f18ccd6900`),
+                  and the 86-check pinned source subset plus all 90 integration
+                  methods
+                  (`a89498b4d7b7c9083da8956f41bd558f26c09de85f4584b70bdf52227e41966d`).
+
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
       accepted integer-zero spelling for an opaque null when foreign call
       arguments are evaluated once into ordered temporaries. I reject nonzero
@@ -1402,6 +1752,7 @@ their individual acceptance evidence closes them.
 - [x] **Integer context for fresh enum array literals** (`task_b7c4f9a51c894ad5aeb8f1adf5447219`): I apply existing enum/int scalar compatibility to fresh explicitly declared array<int> literals, checking every element and retaining container invariance for existing array<Enum> values. Positive compiler literals/bootstrap and mixed-element/alias refusals establish this narrow context. Completed in PR #558 with fresh bootstrap, four canonical methods and 86 + 87 checks; [measured evidence](evidence/nanoisa-local-inference.md).
 - [x] **Defensive lowering error state** (`task_43128761d0b94470bcc13e700768454f`, companion to `task_dd74b033c3984805bc27ce5017096c3c`): I validate local types before initializer emission, avoid binding publication on failure, and stop later statements while retaining scope cleanup and the first diagnostic. Ordinary state/refusal shadows and fresh paired/bootstrap/canonical gates establish this bounded behavior; they do not attribute the preserved historical incident. Completed in PR #558 with fresh bootstrap, four canonical methods and 86 + 87 checks; [measured evidence](evidence/nanoisa-local-inference.md).
 - [x] **Fail-fast NanoISA worklists** (`task_a919486cc4b749b8b47cae9bee986abf`): I stop module declarations, global initializers and function queues after the first lowering failure; I emit no successful function header/passive metadata afterward. I retain required frame cleanup and first diagnostics, and verify a fresh successful compile resets state. Ordinary refusal/state shadows, paired emitter checks and fresh bootstrap establish this independently of the retained `dd74` incident; no historical binary replay or cause claim. Completed in PR #570: fresh bootstrap, 86 comparison checks, 87 paired methods and focused restack checks passed; [evidence](evidence/nanoisa-worklist-failure.md).
+- [ ] **Public pure module facts** (`task_0c5b59e1670049729c5216eadc444213`): I preserve pub across parser-supported pure fn and pure extern fn modifiers when collecting module exports. Scanner shadows retain private/exported identities, ordering, FFI facts and body isolation; ordinary canonical VM/native checks verify counts and indexed names. This product-stacked repair remains pending actual main integration and makes no dd74 attribution. Stacked PR #573 passes fresh bootstrap and three ordinary canonical methods in each stage; [evidence](evidence/module-facts-pure-modifier.md).
 - [x] I re-establish exact checked loop metadata after iterable evaluation in C-native and NanoVirt emission (MAC `task_0618c7bab69d4db589235597d35eb327`). The shared helper preserves source identity, end-scope, nominal ownership and resource classification. Nested underscore and ordinary named controls pass interpreter, VM and three native compiler stages; 89 NanoVirt checks pass. Inline/computed element inference remains separate. See `docs/evidence/native-underscore-bindings.md`.
 - [x] I discard explicit underscore union payloads without hiding outer ordinary names (MAC `task_fc39603161314568929719b36d25f14b`). Fresh bootstrap, nine paired binding methods and three resource-boundary methods pass. Named payloads, ordinary `let _`, failed-shadow publication and mandatory resource consumption retain their contracts. See `docs/evidence/underscore-payload-discard.md`.
 - [ ] I reconcile the legacy C-seed `--target c` AST exporter’s raw underscore names with the NanoISA-only cutover (MAC `task_55d61923e89447029bf447a58cf69024`). Default native binding repairs do not cover `c_backend.c`; explicit C in the product architecture routes through `nvm2c`. I audit supported release reachability before changing this retiring exporter.
@@ -9699,6 +10050,14 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [x] I lower abs and functional array builtins with checked callback/result semantics (`task_c83543611db54102b1f75f7a94f9e93d`). My full product gate at 2c2f6f52 records this refusal in [earlier acceptance](evidence/product-acceptance-2c2f6f52.md). I complete this bounded prerequisite through PR650; all 17 core examples pass at [84e04f5d](evidence/product-acceptance-84e04f5d.md), while the full gate remains blocked by exact generic unions.
+- [x] I lower tuple construction, projection and transport with exact tuple types (`task_6d2da9bf149349839fd544a5475d6efd`). My full product gate at 2c2f6f52 records this refusal in [earlier acceptance](evidence/product-acceptance-2c2f6f52.md). I complete this bounded prerequisite through PR654; all 17 core examples pass at [84e04f5d](evidence/product-acceptance-84e04f5d.md), while the full gate remains blocked by exact generic unions.
+- [x] I lower the core Shape and Option union examples with declared payload identity (`task_9a12d05fafaf4f92bea5919683f9ba32`). My full product gate at 2c2f6f52 records this refusal in [earlier acceptance](evidence/product-acceptance-2c2f6f52.md). I complete this bounded prerequisite through PR642; fresh combined product acceptance remains open.
+- [x] I retain float arrays through canonical source, transformations and native storage (`task_2578ab8cd0e2406786ba38bde307f4a4`). My full product gate at 2c2f6f52 records this refusal in [earlier acceptance](evidence/product-acceptance-2c2f6f52.md). I complete this bounded prerequisite through PR643 and PR650; all 17 core examples pass at [84e04f5d](evidence/product-acceptance-84e04f5d.md), while the full gate remains blocked by exact generic unions.
+- [x] I link the declared filesystem symbols and array results used by core examples (`task_2e5ed27f56c44ca7b2f16385a6a15747`). My full product gate at 2c2f6f52 records this refusal in [earlier acceptance](evidence/product-acceptance-2c2f6f52.md). I complete this bounded prerequisite through PR641; fresh combined product acceptance remains open.
+- [x] I preserve string-edge expression result types without guessing unknown types (`task_602f10d8e2b348eab8b7e230e12986fa`). My full product gate at 2c2f6f52 records this refusal in [earlier acceptance](evidence/product-acceptance-2c2f6f52.md). I complete this bounded prerequisite through PR646; fresh combined product acceptance remains open.
+- [x] I correct the already-built bootstrap dependency fixture for product tool prerequisites without weakening invalidation checks (`task_fedcf8e93847494ab2e0887c089b960f`); the Darwin peer owns the preserved report and repair. I complete this bounded prerequisite through PR636; fresh combined product acceptance remains open.
+- [x] I record the VM compiler fixed point at 2c2f6f52: initial and both VM generations match 379844 raw bytes and immutable declared host closure, with verified hello. [Pinned acceptance](evidence/product-acceptance-2c2f6f52.md). Native generations and full product/release gates remain separate.
 - [x] I preserve exporter buffer allocation and formatting failures through checked sizing, retained allocation ownership and the existing NULL-result boundary (`task_e926ca38a5d64f299e9532ed984a2860`), while correcting the recorded strict GCC13 format diagnostic (`task_927d53891d204f2fb4e1974eb8c3edc2`). I use ordinary output comparisons and deterministic allocator-failure controls, without crash reproduction. Independent review also requires my quoted-string direct append to honor the checked growth result before writing.
 - [x] I invoke my NanoCore reference evaluator through direct arguments and
       pipe transport, preserving literal expression bytes and compiler paths
@@ -9709,6 +10068,12 @@ Compiler product:
       evaluator correspondence.
 - [x] I propagate both conditional clause and else-arm type errors through my C frontend diagnostic counter before publication (`task_ab4437a5560f475db4fdf49931a03bf3`). My paired negative field test reports a mismatch but NanoVirt exits zero; I preserve that failure and keep the existing type comparison unchanged. [Bounded acceptance](evidence/conditional-field-types.md).
 - [x] I retain the exact common type of conditional expression arms and their single-expression blocks during self-hosted NanoISA lowering (`task_e0a68123b4aa467fa8ed6b24161ced69`). My full product gate at e563d0e3 stops on record field `underscore_name` in retained transpiler shadows. I require equal known arm types and keep mismatched/unknown branches refused; I test both arms, nesting, records and declared-field rejection before resuming the full gate. [Bounded acceptance](evidence/conditional-field-types.md).
+- [ ] I route my default native product and `--target c` through verified NanoISA and `nvm2c`, preserving shadow selection, staging, previous output on failure, and declared artifact linkage (`task_d76ae44a12fd4d27a2b4aa84c30d7bc6`).
+  - I rename the generated compiler phase and diagnostic helper from transpiler to lowering, keeping numeric enum positions and making seed, canonical and retained legacy compiler consumers agree. I validate schema regeneration and diagnostic behavior before integration.
+  - I make an unqualified source invocation publish a sibling `.nvm`; explicit `-o binary` keeps native translation, `--target native` defaults to `a.out`, and `--target c` keeps sibling C output. I test explicit bytecode selection and conflicting target options before publishing this default-policy change.
+  - I found a transitive legacy transpiler import in my module loader for a suffix helper. I remove that dependency before claiming a NanoISA-only source closure; it does not explain the retained native startup abort.
+- [ ] I remove `transpiler.nano` and the AST-to-C path from the product driver's dependency closure, update phase/help descriptions, and keep the C seed as a bootstrap tool for that same source.
+- [ ] I validate the resulting driver with native/C/bytecode products, artifact modules, mandatory shadows, a full compiler bytecode fixed point and standalone native compiler acceptance; I record each tested boundary before closing this architecture slice.
 - [x] I restore trial-deleted child counts for newly deferred VM cycle roots
       (`task_72433f501ddd4736a45e6244c44ae4fa`). Roots queued during collection
       can be reached by the old candidate graph while remaining buffered for
@@ -11487,6 +11852,10 @@ gates pass.
 My unchecked NanoISA-only architecture milestones remain in
 `docs/NANOISA_ONLY.md`; a release tag does not establish their acceptance.
 Next Review: the exact release candidate and its published artifacts.
+
+- [ ] I preserve all eight module introspection operations and exact merged module identities through canonical NanoISA lowering before completing the product cutover (`task_faa47ec22a2545348aa9c9d705580321`). I first separate source facts from legacy C helper emission, then pass explicit facts into both program and shadow lowering with indexed-result and identity parity tests.
+
+- [ ] I resolve the ordinary native compiler startup abort after the NanoISA-only driver creates Stage 2; I retain the executable and failed hello smoke log, and do not infer a cause from signal status (`task_57eb1d541d084ec4930b8764c591bad3`).
 
 - [x] I exclude VM-wrapper executable structure without rejecting ordinary string constants naming `nano_vm` or `nvm_blob`. I skip C literal/comment regions in my internal architecture assertion; six ordinary data cases compile and run without VM linkage, and all 2,414 native translator checks pass (`task_b4a32a35810544f4a0234ab5828b46b4`).
 
@@ -13734,6 +14103,16 @@ runtime/source admission and does not close full f36/15f/488 parents.
   `tests/test_u8_basic.nano`: my corrected canonical full Make run passes the
   original90 methods, then rejects `let c: u8 = (+ b 1)` while compiling shadows.
   MAC `task_c6b2a040c1434fc784a9d46c02a4981e` retains the first verifier terminal.
+- [ ] I preserve the declared U8 element type through `array_pop` before applying
+  the checked U8 destination conversion. My first integrated conversion reaches
+  line23 of the unchanged fixture, then falls back to INT despite the receiver's
+  `array<u8>` symbol metadata; I will use the existing exact array-element query,
+  retain argument checking, and qualify both the original pop and non-U8 controls.
+- [ ] I remove the duplicate builtin-registry `Type` enumeration that drifted
+  when `TYPE_OPEN_RECORD` was added. Its private `TYPE_UNKNOWN` value is now read
+  as `TYPE_OPEN_RECORD` by the checker, hiding the contextual `array_pop` result;
+  the registry will use the canonical type declaration and a checked builtin
+  placeholder will still yield to a real source declaration.
 - [ ] I restore the required `list_LexerToken_insert` binding for
   `tests/token_value_bytes.nano` without deleting insert/set/remove or exact-byte
   assertions. MAC `task_7b805000dfda4da386b55d4691e8c647` retains the independent
@@ -16005,6 +16384,13 @@ My constructor correction 6340ae7ab is source-reviewed but unexecuted. I hold af
 ### I converge the complete 5.1 source before final qualification
 
 - [ ] I complete one isolated candidate under [my integration contract](FINAL_51_CANDIDATE_INTEGRATION.md): SDKfcda plus native4855 first, then root byte/literal changes, backend execution, CI and qualified metadata ownership prerequisites, and required PR522 canonical routing. I retain peer PR949 evidence, regenerate the final SDK inventory once the source is complete, and preserve all original lane fixtures and full release gates. The first merge is source-only; no existing branch result qualifies the combined candidate.
+
+The same task_fd77704bbf3747e980cceb5888bf2ab7 also covers identifier reads: static AST_IDENTIFIER lookup tries globals and function names before captured lexical bindings. I correct reads and writes together before qualification.
+
+- [ ] I correct static byte-source fixture blockers under task_c6b2a040c1434fc784a9d46c02a4981e before discovery: imported TestCase exposes five unintended methods; captured assignment must change its observable byte; the unchanged original byte program narrows only in its separately executed shadow and must not require a CAST_U8 in production main. I retain seven intended methods, original shadow policy and unchanged original source bytes.
+
+- [ ] I preserve the computed-U8 result conversion before Nano tail-call selection under task_c6b2a040c1434fc784a9d46c02a4981e. Static complete-return audit found the Nano direct/inline return shortcuts bypass nisa_emit_expected_expr. A computed INT-returning call in a U8-returning function must emit the call once, CAST_U8 and RET; only an exact U8 result may retain its existing tail route.
+
 I integrate my mixed VM qualification candidate with actual main6b5713fd9,
 including merged PR935 executing-location diagnostics and the invocation-local
 service code cache. I preserve query production/fixtures byte-for-byte. Before
@@ -16624,3 +17010,11 @@ I retain d555 Puck focused ordinary PASS3.375seconds and the first Homebrew sani
 
 - [ ] I complete task_79357f1f2e614035bdc2d89559f0d355: replace allocation-failure fixture fork-without-exec workers with validated same-executable posix_spawn workers after the retained6cf Darwin libSystem atfork leak report. I preserve full default selection, fault positions/modes, exact diagnostics, recovery and leak detection; review precedes corrected execution.
 - [ ] I preserve byte-array identity in native reconstruction (`task_046cd53fee0443aca7d87a26bfe4a9fd`). Fresh `facc` passes component build, callable authority, full bootstrap and all three canonical producers. The mutation method then passes C-seed and actual C-bytecode NanoVM, but its generated C O0 program stops at `nvalue_require_int`. The actual retained producer emits ARR_LITERAL with TAG_INT after repeated checking loses its declared U8 context; static backend audit separately finds TAG_U8 literal arrays collapsed into integer-word storage. I require the actual producer tag plus distinct byte-array facts and matching tagged reads/writes through calls and joins, not weaker integer checks. Original paired assertions and full release holds remain.
+
+### I preserve installed SDK support in the canonical product pipeline
+
+My final candidate exposes a required integration boundary: PR522 already routes default NanoISA, explicit native and `--target c` through verified modules and nvm2c. I keep that public behavior and preserve the source-native helper only for explicit internal qualification. I still owe canonical opaque/tuple/callback and exact provider/ABI support with installed-only, hidden-source, read-only and full original SDK controls. Source-native regression success is not canonical acceptance. This remains part of my existing full 5.1 File/SDK task, with actual routing/provider audit, checked adapters, source review and both-host qualification required before release.
+
+### I rebuild ownership probes when included implementation changes
+
+My integrated ownership probe Make rules omit actual textual implementation dependencies: the hooked Environment object reads `env*.inc`, and the hooked typechecker reads `typechecker*.inc`, `typechecker_purity.c` and `typechecker_passive.c`. I add these prerequisites before reusable builds so changed ownership logic cannot reuse stale fault-instrumented objects. This is an incremental-build correction; the previously sealed fresh-source results keep their original scope.

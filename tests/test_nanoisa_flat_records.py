@@ -39,7 +39,6 @@ class FlatRecordEmitter(unittest.TestCase):
         cases = {
             'empty array': 'let value = []',
             'empty map': 'let value = (map_new)',
-            'unsupported array': 'let value = [[1.5]]',
             'unknown initializer': 'let value = missing',
             'explicit mismatch': 'let value: int = 1.5',
         }
@@ -193,6 +192,18 @@ class FlatRecordEmitter(unittest.TestCase):
             self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
             self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
             self.assertEqual(self.run_checked(binary).stdout, "effect\n")
+            # Recursive scalar-array globals are roots with their exact child shape.
+            source.write_text('let values: array<array<float>> = [[1.5]] '
+                              'fn main() -> int { assert (== (at (at values 0) 0) 1.5) return 0 }\n')
+            nested = self.run_checked(tool, source, "program").stdout
+            self.assertIn("ARR_LITERAL 7 1", nested)
+            self.assertIn("STORE_GLOBAL 0", nested)
+            assembly.write_text(nested)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+            self.run_checked(ROOT / "bin/nano_vm", module)
+            self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+            self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+            self.run_checked(binary)
             # Same-spelling globals belong to their source modules.
             source.write_text('let count: int = 37\nfn dep_a_relay() -> int { return count }\n\n'
                               'let count: int = 12\nfn dep_b_relay() -> int { return count }\n\n'
@@ -211,16 +222,23 @@ class FlatRecordEmitter(unittest.TestCase):
                                          text=True, timeout=120)
             self.assertEqual(wrong_owner.returncode, 1)
             self.assertEqual(wrong_owner.stdout, "")
+            source.write_text('fn target() -> int { return 1 } '
+                              'fn consume(f: fn() -> int) -> int { return (f) } '
+                              'fn main() -> int { assert (== (consume target) 1) return 0 }\n')
+            assembly.write_text(self.run_checked(tool, source, "program").stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+            self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+            self.run_checked(ROOT / "bin/nano_vm", module)
+            self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+            self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+            self.run_checked(binary)
             refused = [
                 'let count: int = 1 fn main() -> int { set count 2 return count }',
                 'let count: int = 1 fn __init__() -> void {} fn main() -> int { return count }',
-                'let values: array<array<float>> = [[1.5]] fn main() -> int { return 0 }',
                 'extern fn unavailable_array_host(path: string) -> array<string> '
                 'fn main() -> array<string> { return (unavailable_array_host "live") }',
                 'fn target() -> int { return 1 } let stored: fn() -> int = target '
                 'fn main() -> int { return 0 }',
-                'fn target() -> int { return 1 } fn consume(f: fn() -> int) -> int { return (f) } '
-                'fn main() -> int { return (consume target) }',
                 'fn target() -> int { return 1 } fn main() -> int { let target: int = 0 return (target) }',
             ]
             for program in refused:
@@ -497,7 +515,7 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
-            for expression in ('[(int_to_string 7), 8]', '[8, (int_to_string 7)]', '[[1]]', '[1, 1.5]'):
+            for expression in ('[(int_to_string 7), 8]', '[8, (int_to_string 7)]', '[1, 1.5]'):
                 with self.subTest(expression=expression):
                     invalid = work / "invalid.nano"
                     output = work / "invalid.nasm"
@@ -615,8 +633,6 @@ class FlatRecordEmitter(unittest.TestCase):
             'fn main() -> int { (array_new 2 1 3) return 0 }',
             'fn main() -> int { (array_new "two" 1) return 0 }',
             'fn main() -> int { (array_new true 1) return 0 }',
-            'fn main() -> int { (array_new 2 [1.5]) return 0 }',
-            'fn main() -> int { (array_new 2 [1]) return 0 }',
         ]
         with tempfile.TemporaryDirectory(prefix="nano-filled-refusal-") as tmp:
             source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
@@ -1049,8 +1065,6 @@ class FlatRecordEmitter(unittest.TestCase):
 
     def test_unsupported_array_results_and_elements_are_refused(self):
         programs = [
-            'fn bad() -> array<array<float>> { return [[1.5]] }',
-            'fn bad() -> array<array<int>> { return [[1]] }',
             'fn bad() -> array<string> { return [1] }',
             'fn bad() -> array<int> { return ["wrong"] }',
             'fn bad() -> int { let wrong: array<string> = [1] return 0 }',

@@ -483,7 +483,8 @@ static bool vm_module_constants_build(VmState *vm, const NvmModule *module,
     return true;
 }
 
-void vm_init(VmState *vm, const NvmModule *module) {
+static void vm_init_common(VmState *vm, const NvmModule *module,
+                           bool verification_complete) {
     memset(vm, 0, sizeof(*vm));
     vm->owner_thread = pthread_self();
     vm->module = module;
@@ -530,8 +531,21 @@ void vm_init(VmState *vm, const NvmModule *module) {
         vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
     }
     /* Record whether the root module is verified so the hot path can pick
-     * the unchecked private handlers where the proof permits it. */
-    vm_recompute_verified(vm);
+     * the unchecked private handlers where the proof permits it. The CLI may
+     * carry the exact proof it just completed into this immutable instance. */
+    if (verification_complete) {
+        vm->verified = true;
+    } else {
+        vm_recompute_verified(vm);
+    }
+}
+
+void vm_init(VmState *vm, const NvmModule *module) {
+    vm_init_common(vm, module, false);
+}
+
+void vm_init_after_verify(VmState *vm, const NvmModule *module) {
+    vm_init_common(vm, module, true);
 }
 
 /* I detach binding ownership before clearing physical locals. The stack may
@@ -3291,7 +3305,7 @@ vm_return_values: ;
             }
             if (owned_execution) {
                 if (returning->result_tag==TAG_STRUCT) {
-                    /* I validate while the pending owner is still a stack root.
+                    /* I validate while the pending managed result is still a stack root.
                      * Scalar/void count and tag checks need no extra facts. */
                     NvmAffineType type;uint16_t fields=0;
                     bool valid=false;
@@ -3301,7 +3315,8 @@ vm_return_values: ;
                         const NvmMixedSignature *signature=&proof->signatures[frame->fn_idx];
                         type=(NvmAffineType){signature->result.tag,signature->result.global_layout};
                         fields=signature->result_fields;
-                        valid=signature->result.category==NVM_MIXED_VALUE_OWNER;
+                        valid=signature->result.category==NVM_MIXED_VALUE_OWNER ||
+                            signature->result.category==NVM_MIXED_VALUE_ORDINARY;
                     } else {
                         NvmAffineState *contract=nvm_affine_state_create(vm->module,frame->fn_idx,returning->local_count);
                         if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned return facts");

@@ -170,7 +170,7 @@ static const char *phase_name(int phase) {
         case CompilerPhase_PHASE_LEXER: return "lexer";
         case CompilerPhase_PHASE_PARSER: return "parser";
         case CompilerPhase_PHASE_TYPECHECK: return "typecheck";
-        case CompilerPhase_PHASE_TRANSPILER: return "transpiler";
+        case CompilerPhase_PHASE_LOWERING: return "lowering";
         case CompilerPhase_PHASE_RUNTIME: return "runtime";
         default: return "unknown";
     }
@@ -1237,7 +1237,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char *c_code = transpile_to_c(program, env, input_file);
     if (!c_code) {
         human_diag(NL_DIAG_TRANS_FAILED);
-        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_TRANS_FAILED);
+        diags_push_id(diags, CompilerPhase_PHASE_LOWERING, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_TRANS_FAILED);
         env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
@@ -1300,7 +1300,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (!c_file) {
         fprintf(stderr, "%s: %s\n", nl_catalog_text(NL_DIAG_C_TEMP),
                 nl_utf8_cstr_or_marker(temp_c_file));
-        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_C_TEMP);
+        diags_push_id(diags, CompilerPhase_PHASE_LOWERING, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_C_TEMP);
         free(c_code);
         env_require_destroyable(env);
         free_ast(program);
@@ -1781,7 +1781,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         human_diag(NL_DIAG_CC_CMD);
         fprintf(stderr, "I could not represent all compiler arguments (%d command bytes, limit %zu).\n", cmd_len, (size_t)NATIVE_FINAL_COMMAND_BYTES);
         fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
-        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_CMD);
+        diags_push_id(diags, CompilerPhase_PHASE_LOWERING, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_CMD);
         if (!opts->keep_c) nano_native_remove_private_tree(generated_directory);
         free(c_code);
         env_require_destroyable(env);
@@ -1813,7 +1813,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         if (opts->verbose) printf("✓ Compilation successful: %s\n", output_file);
     } else {
         human_diag(NL_DIAG_CC_FAILED);
-        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_FAILED);
+        diags_push_id(diags, CompilerPhase_PHASE_LOWERING, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_FAILED);
         /* Cleanup */
         if (!opts->keep_c) nano_native_remove_private_tree(generated_directory);
         free(c_code);

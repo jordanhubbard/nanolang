@@ -120,6 +120,14 @@ endif
 SANITIZE_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
 COVERAGE_FLAGS = -fprofile-arcs -ftest-coverage
 
+# My retained AOT runtime is built with the selected instrumentation, while a
+# self-hosted compiler invokes the final native link outside Make. I carry only
+# link-required instrumentation through the existing product environment; I do
+# not leak unrelated build paths or replace an explicit caller selection.
+NANO_PRODUCT_INSTRUMENT_LINK_FLAGS = $(sort $(filter -fsanitize=% -fprofile-arcs -ftest-coverage --coverage,$(CFLAGS) $(LDFLAGS)))
+NANO_LDFLAGS ?= $(NANO_PRODUCT_INSTRUMENT_LINK_FLAGS)
+export NANO_LDFLAGS
+
 SRC_DIR = src
 SRC_NANO_DIR = src_nano
 OBJ_DIR = obj
@@ -905,7 +913,7 @@ test-wrapper-gen: nano_virt $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJE
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/nanovirt/test_wrapper_gen
 	@rm -f tests/nanovirt/test_wrapper_gen
-	@python3 -m unittest tests.test_wrapper_publication
+	@python3 -m unittest tests.test_wrapper_publication tests.test_product_instrument_link_flags
 
 # ── NanoVM Daemon (vmd) objects ───────────────────────────────────────────────
 VMD_SOURCES = $(NANOVM_DIR)/vmd_protocol.c $(NANOVM_DIR)/vmd_client.c $(NANOVM_DIR)/vmd_server.c
@@ -1039,7 +1047,7 @@ $(OBJ_DIR)/nanovirt/%.o: $(NANOVIRT_DIR)/%.c $(NANOVIRT_DIR)/codegen.h $(NANOVIR
 
 # I retain the same optional OpenSSL library directory as my compiler link,
 # including when callers override CFLAGS or LDFLAGS.
-WRAPPER_INSTRUMENT_FLAGS = $(sort $(filter -fsanitize=% -fprofile-arcs -ftest-coverage --coverage,$(CFLAGS) $(LDFLAGS)))
+WRAPPER_INSTRUMENT_FLAGS = $(NANO_PRODUCT_INSTRUMENT_LINK_FLAGS)
 $(OBJ_DIR)/nanovirt/wrapper_gen.o: $(NANOVIRT_DIR)/wrapper_gen.c $(NANOVIRT_DIR)/wrapper_gen.h $(SRC_DIR)/shell_path.h Makefile.gnu | $(OBJ_DIR)/nanovirt
 	$(CC) $(CFLAGS) $(if $(OPENSSL_PREFIX),-DNANO_WRAPPER_CRYPTO_DIR='"$(OPENSSL_PREFIX)/lib"') -DNANO_WRAPPER_INSTRUMENT_FLAGS='"$(WRAPPER_INSTRUMENT_FLAGS)"' -c $< -o $@
 
@@ -1112,9 +1120,9 @@ test-units: test-struct-metadata-snapshot
 test-struct-metadata-snapshot: tests/struct_ownership_worker.h $(OBJ_DIR)/struct_snapshot_module.o $(OBJ_DIR)/struct_snapshot_env.o $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_struct_metadata_snapshot tests/test_struct_metadata_snapshot.c $(OBJ_DIR)/struct_snapshot_module.o $(OBJ_DIR)/struct_snapshot_env.o $(filter-out $(OBJ_DIR)/module.o $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	$(OBJ_DIR)/test_struct_metadata_snapshot
-$(OBJ_DIR)/struct_name_typechecker.o: $(SRC_DIR)/typechecker.c $(SRC_DIR)/nanolang.h | $(OBJ_DIR)
+$(OBJ_DIR)/struct_name_typechecker.o: $(SRC_DIR)/typechecker.c $(SRC_DIR)/nanolang.h $(wildcard $(SRC_DIR)/typechecker*.inc) $(SRC_DIR)/typechecker_purity.c $(SRC_DIR)/typechecker_passive.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -Dmalloc=struct_name_test_malloc -Dstrdup=struct_name_test_strdup -c $< -o $@
-$(OBJ_DIR)/struct_name_env.o: $(SRC_DIR)/env.c $(SRC_DIR)/nanolang.h | $(OBJ_DIR)
+$(OBJ_DIR)/struct_name_env.o: $(SRC_DIR)/env.c $(SRC_DIR)/nanolang.h $(wildcard $(SRC_DIR)/env*.inc) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -Dmalloc=struct_name_test_malloc -Dcalloc=struct_payload_test_calloc -c $< -o $@
 $(OBJ_DIR)/struct_name_module.o: $(SRC_DIR)/module.c $(SRC_DIR)/nanolang.h | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -Dcalloc=struct_metadata_test_calloc -Dstrdup=struct_metadata_test_strdup -c $< -o $@
@@ -3732,7 +3740,7 @@ bootstrap1:
 	@$(MAKE) $(SENTINEL_BOOTSTRAP1)
 
 
-$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu
+$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu | nano_vm nvm2c nvm2c-runtime
 	@echo ""
 	@echo "=========================================="
 	@echo "Bootstrap Stage 1: Self-Hosted Compiler"
@@ -4754,11 +4762,22 @@ test-canonical-vm-shadows: bootstrap nano_vm
 	python3 -m unittest tests.test_canonical_vm_shadows
 test-units: test-canonical-vm-shadows
 
+.PHONY: test-nanoisa-only-product
+test-nanoisa-only-product: bootstrap nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanoisa_only_product
+
 .PHONY: test-bootstrap-native-guard
 test-bootstrap-native-guard:
 	python3 -m unittest -v tests.test_bootstrap_native_guard
 test-units: test-bootstrap-native-guard
 
+.PHONY: test-canonical-module-facts
+test-canonical-module-facts: bootstrap nano_vm nvm2c nvm2c-runtime
+	NANOC=$(CURDIR)/bin/nanoc_stage2 python3 -m unittest -v tests.test_canonical_module_facts
+
+.PHONY: test-default-nanoisa-product
+test-default-nanoisa-product: bootstrap nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_default_nanoisa_product
 .PHONY: test-reference-places
 test-units: test-reference-places
 test-reference-places:

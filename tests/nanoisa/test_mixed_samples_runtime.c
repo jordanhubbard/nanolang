@@ -8,11 +8,26 @@
 int g_argc=0;char **g_argv=NULL;
 static const char *consume=".function close 1 1 0 int 1\nOWN_UNPACK_LOCAL 0\nRET\n.end\n.parameters 1 struct\n";
 static uint8_t *runtime_row(NvmModule *m,unsigned function) {
-    uint8_t *row=m->ownership_data+16;
+    CHECK(m && m->ownership_data && m->ownership_size>=12);
+    uint32_t layouts=(uint32_t)m->ownership_data[4] |
+        ((uint32_t)m->ownership_data[5]<<8) |
+        ((uint32_t)m->ownership_data[6]<<16) |
+        ((uint32_t)m->ownership_data[7]<<24);
+    uint64_t start=((uint64_t)8+layouts+3)&~UINT64_C(3);
+    CHECK(start+4<=m->ownership_size);
+    uint8_t *row=m->ownership_data+start+4;
     for(unsigned f=0;f<function;f++)row+=4+8*(m->functions[f].local_count+1);
     return row;
 }
 static NvmModule *runtime_fixture(unsigned index) {
+    if(index==12) {
+        const char *helpers=
+            ".function ordinary 0 0 0 struct 1\nPUSH_I64 5\nAGG_PACK 0 2 0 1\nRET\n.end\n"
+            ".function close 1 1 0 int 1\nOWN_UNPACK_LOCAL 0\nRET\n.end\n.parameters 2 struct\n";
+        NvmModule *m=build("CALL 1\nAGG_GET 0\nPUSH_I64 5\nEQ\nASSERT\nPUSH_I64 7\nOWN_PACK 0\nCALL 2\nPUSH_I64 7\nEQ\nASSERT\nPUSH_I64 0\nRET\n",NULL,0,helpers,true);
+        word(runtime_row(m,1)+8,2);
+        return m;
+    }
     const char *operations[]={
         "LOAD_LOCAL 1\nPUSH_F64 2.5\nARR_PUSH\nSTORE_LOCAL 2\n"
         "LOAD_LOCAL 2\nPUSH_I64 0\nPUSH_F64 9.5\nARR_SET\nPOP\n"
@@ -172,7 +187,7 @@ static void runtime_core(NvmModule *m,unsigned index,VmResult wanted) {
 
 int main(int argc,char **argv) {
     CHECK(argc==2);
-    for(unsigned index=0;index<12;index++) {
+    for(unsigned index=0;index<13;index++) {
         NvmModule *m=runtime_fixture(index);NvmVerifyResult verified=nvm_verify(m);
         if(!verified.ok)fprintf(stderr,"case%u: %s\n",index,verified.error_msg);
         CHECK(verified.ok);

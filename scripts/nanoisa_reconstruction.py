@@ -34,6 +34,14 @@ SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_U8', 'PUSH_BOOL', 'PUSH_F64', 'F64_FROM_BITS'
           'DUP', 'POP', 'SWAP', 'ROT3', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
           'CAST_INT', 'CAST_U8', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE) | set(FLOAT_ARITHMETIC) | set(CARRY)
 
+# Loads and calls observe mutable state, byte literals require an explicit
+# source type, and the polymorphic eager logical operators retain their
+# independently tested evaluation boundary. Exact boolean operators and other
+# single-result scalar operations are pure expression nodes; naming each one
+# can turn a bounded input function into more than NanoVirt's supported 1,024
+# source locals.
+SNAPSHOT_SINGLE = {'PUSH_U8', 'LOAD_LOCAL', 'CALL', 'AND', 'OR', 'NOT'}
+
 
 @dataclass(frozen=True)
 class Expr:
@@ -249,12 +257,23 @@ class Analyze:
             require(not pure, 'require side-effect-free loop conditions without calls')
             require(0 <= arg < len(self.module['functions']), 'require an existing direct callee')
             callee = self.module['functions'][arg]
-            args = [self.pop(stack, t) for t in reversed(callee['params'])]
+            args = []
+            for position, tag in reversed(tuple(enumerate(callee['params']))):
+                value = self.pop(stack, tag)
+                if value.kind != 'temporary':
+                    # Bytecode offsets occupy the u32 range. Synthetic call
+                    # argument snapshots use the disjoint numeric range above
+                    # it, retaining the established nlr_t<digits> source form.
+                    snapshot = (1 << 32) + ins['pc'] * 32 + position
+                    temporary = Expr(value.tag, 'temporary', snapshot)
+                    statements.append(('let', temporary, value))
+                    value = temporary
+                args.append(value)
             expr = Expr(callee['result'], 'call', arg, tuple(reversed(args)))
             self.calls.add(arg)
         else:
             raise Refusal('I require a simple scalar instruction here')
-        if pure:
+        if pure or op not in SNAPSHOT_SINGLE:
             stack.append(expr)
         else:
             temporary = Expr(expr.tag, 'temporary', ins['pc'])

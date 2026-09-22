@@ -1,0 +1,47 @@
+Darwin proof-container evidence
+
+MAC task: task_22881330e35c9058a03cfaf11951f306
+Source branch: origin/feat/nanoisa-only-product
+Source commit: ece241ba56c34ae6e47639cd7d618f43f20ba25d
+Git tree: 8cde5134e5ed593d2d0c403fb7d54ca94778a707
+Formal/script Git-object manifest SHA-256:
+c2d35c12129420aa019228d8da77468ddccc6dd447335aed8c7559b8c389f388
+
+Worktree: /tmp/nanolang-product-ece241ba-darwin.bgX6Zd
+Worktree status after gate: detached exact source, no tracked or untracked changes
+Command: bash scripts/check_proofs_container.sh
+Script SHA-256: 3093399e2a9f7bed1cd72b992a0f71c50ac66da17e4973e20e64bf0d75c31c43
+Started: 2026-09-18T08:58:02Z
+Elapsed: 224.41 seconds
+Exit status: 0
+
+Container runtime:
+Docker context: desktop-linux
+Docker client/server: 29.7.2 / 29.7.2
+Docker server: linux/arm64
+Preflight linux/amd64 container result: x86_64, exit 0
+Colima: stopped and unchanged
+No binfmt, emulator, Docker, or Colima configuration was changed.
+
+Pinned proof image:
+rocq/rocq-prover@sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2
+Image ID: sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2
+Image platform: linux/amd64
+Rocq: 9.0.1, compiled with OCaml 4.14.2
+
+Result:
+All proof modules compiled from a fresh container-local copy of the read-only
+formal/ bind mount. check_assumptions.sh completed. rocqchk -silent accepted
+NanoCore.Syntax, Semantics, Typing, Soundness, Progress, Determinism,
+Equivalence, EvalFn, EvalFnTests, Exhaustiveness, Contracts, and Assumptions.
+Equivalence.v emitted non-fatal non-full-mutual and deprecated map_length
+warnings; EvalFn.v emitted a non-fatal large-nat representation warning.
+
+Full log:
+/tmp/nanolang-product-ece241ba-darwin-22881330-proof-container.log
+SHA-256: f78c798815337a28e19764774d8067463316b956506c6ec2b86c8ce17a848347
+Size: 4891 bytes, 114 lines
+
+This establishes formal-model validation at the exact pin. It does not claim
+production correspondence. Publication remained held. No tag, publication,
+source edit, historical failed-artifact execution, or release claim occurred.

@@ -949,7 +949,7 @@ static void compile_list_mutation(CG *cg, ASTNode *node, const char *operation) 
     int argc = insert ? 3 : pop ? 1 : 2;
     Type result = check_expression(node, cg->env);
     if (node->as.call.arg_count != argc ||
-        (insert ? result != TYPE_VOID : result != TYPE_STRUCT)) {
+        (insert ? result != TYPE_VOID : result != TYPE_STRUCT && result != TYPE_ENUM)) {
         cg_error(cg, node->line, "I require a checked ordinary list mutation");
         return;
     }
@@ -2048,19 +2048,6 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         /* Find the operation suffix */
         const char *suffix = strrchr(name, '_');
         if (suffix && suffix > name + 5) {
-            if (!env_get_function(cg->env, name)) {
-                char *element_name = strndup(name + 5, (size_t)(suffix - name - 5));
-                if (!element_name) {
-                    cg_error(cg, node->line, "I cannot retain list declaration metadata");
-                    return true;
-                }
-                bool enum_element = env_get_enum(cg->env, element_name) != NULL;
-                free(element_name);
-                if (enum_element) {
-                    cg_error(cg, node->line, "I do not yet lower implicit enum-list operations");
-                    return true;
-                }
-            }
             if (!strcmp(suffix, "_insert") || !strcmp(suffix, "_remove") ||
                 !strcmp(suffix, "_pop")) {
                 /* Real declarations, including externs, retain call precedence. */
