@@ -5805,21 +5805,11 @@ checked_array_declared_call: ;
                 NominalIdentity result_identity = op && op->return_type == TYPE_STRUCT
                     ? env_nominal_identity(env, op->return_type_name, matched_effect->module_name, TYPE_STRUCT)
                     : (NominalIdentity){TYPE_UNKNOWN, 0};
-                bool handler_valid = true;
-                if (result_identity.ordinal) {
-                    /* My general if-expression inference does not check its arms.
-                     * I check all handler statements in the lexical function context. */
-                    TypeChecker handler_checker = active_statement_checker
-                        ? *active_statement_checker : (TypeChecker){0};
-                    handler_checker.env = env;
-                    handler_checker.has_error = false;
-                    check_statement(&handler_checker, handler_body);
-                    handler_valid = !handler_checker.has_error &&
-                        handler_record_result_matches(handler_body, env, result_identity, 0);
-                } else {
-                    check_expression(handler_body, env);
-                }
-                if (!handler_valid) {
+                /* A normal final expression supplies the operation value.
+                 * Expression blocks still check lexical returns in function context. */
+                check_expression(handler_body, env);
+                if (result_identity.ordinal &&
+                    !handler_record_result_matches(handler_body, env, result_identity, 0)) {
                     emit_context_error("E001 TYPE MISMATCH", handler_body->line, handler_body->column, 1,
                         "I require the operation's exact ordinary record in each normal handler result.",
                         "Keep lexical function returns separate from operation results.");
