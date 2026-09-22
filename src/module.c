@@ -2317,6 +2317,7 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         for (int i = 0; i < meta->function_count; i++) {
             /* Copy function - note: we copy pointers, not deep copy */
             meta->functions[i] = env->functions[i];
+            meta->functions[i].checker_builtin_placeholder = false;
             /* I retain owned annotation copies; executable AST and environment
              * pointers remain outside compiled module metadata. */
             meta->functions[i].body = NULL;

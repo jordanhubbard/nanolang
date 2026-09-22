@@ -7599,6 +7599,7 @@ static void register_builtin_functions(Environment *env) {
         return;
     }
     env->builtins_registered = true;
+    int first_placeholder = env->function_count;
 
     Function func = (Function){0};
     /* Important: zero-init so visibility/module_name pointers don't contain garbage. */
@@ -8502,6 +8503,11 @@ static void register_builtin_functions(Environment *env) {
     func.shadow_test = NULL;
     func.is_extern = false;
     env_define_function(env, func);
+    /* I mark only the exact rows this synchronous checker registration created.
+     * Ordinary publication strips this bit from every copied descriptor. */
+    for (int i = first_placeholder; i < env->function_count; ++i)
+        env->functions[i].checker_builtin_placeholder = true;
+
 }
 
 /* Check if two functions have matching signatures */
@@ -8577,6 +8583,7 @@ static int extern_declaration_state(Environment *env, const ASTNode *item) {
     bool same_declaration = false;
     for (int i = 0; i < env->function_count; ++i) {
         const Function *prior = &env->functions[i];
+        if (prior->checker_builtin_placeholder) continue;
         const char *symbol = prior->alias_of ? prior->alias_of : prior->name;
         if (!symbol || strcmp(symbol, current.name)) continue;
         if (!prior->is_extern || !functions_match(env, &current, prior)) return -1;
@@ -9145,8 +9152,7 @@ register_function_pass1:;
                     continue;
                 }
                 if (state > 0) continue;
-                if (is_builtin_function(func_name) ||
-                    !register_owned_extern_declaration(env, item)) {
+                if (!register_owned_extern_declaration(env, item)) {
                     fprintf(stderr, "I cannot register this owned extern declaration: %s\n", func_name);
                     tc.has_error = true;
                 }

@@ -652,6 +652,7 @@ typedef struct {
     ASTNode *body;
     ASTNode *shadow_test;
     bool is_extern;  /* Mark external C functions */
+    bool checker_builtin_placeholder; /* Only checker-owned registration rows; never callable identity. */
     bool is_gpu;     /* @gpu annotation: function targets GPU / PTX */
     bool is_async;   /* Mark async functions (declared with `async fn`) */
     bool is_pure;    /* pure fn: no mutation, no I/O, only pure callees */

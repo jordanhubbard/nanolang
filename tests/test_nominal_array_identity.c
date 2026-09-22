@@ -86,17 +86,74 @@ static void parsed_extern_policy(void) {
             bool checked = module ? type_check_module(program, env) : type_check(program, env);
             assert(checked == !module);
             Function *selected = env_get_function(env, names[i]);
-            assert(env_function_is_builtin(selected));
+            bool declared_push = !module && !strcmp(names[i], "array_push");
+            assert(env_function_is_builtin(selected) == !declared_push);
             bool foreign_registered = false;
             for (int j = 0; j < env->function_count; ++j)
                 if (!strcmp(env->functions[j].name, names[i]) && env->functions[j].is_extern) {
                     foreign_registered = true;
                     assert(!env_function_is_builtin(&env->functions[j]));
+                    assert(!env->functions[j].checker_builtin_placeholder);
+                    if (declared_push) assert(selected == &env->functions[j]);
                 }
             assert(foreign_registered == !module);
             free_environment(env); free_ast(program); free_tokens(tokens, count);
         }
     }
+}
+static void extern_placeholder_origin(void) {
+    const char *source = "extern fn at(values:array<int>, index:int)->int";
+    int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+    ASTNode *program = parse_program(tokens, count); assert(program && program->as.program.count == 1);
+    ASTNode *declaration = program->as.program.items[0]; assert(declaration->type == AST_FUNCTION);
+    Environment *env = create_environment(); assert(env);
+    register_builtin_functions(env);
+    int placeholder = -1;
+    for (int i = 0; i < env->function_count; ++i) {
+        assert(env->functions[i].checker_builtin_placeholder);
+        if (!strcmp(env->functions[i].name, "at")) placeholder = i;
+    }
+    assert(placeholder >= 0 && extern_declaration_state(env, declaration) == 0);
+    ModuleMetadata *metadata = extract_module_metadata(env, "Placeholders"); assert(metadata);
+    for (int i = 0; i < metadata->function_count; ++i)
+        assert(!metadata->functions[i].checker_builtin_placeholder);
+    free_module_metadata(metadata);
+
+    /* Copying even a real marked row through ordinary publication strips origin.
+     * Its bodyless spelling cannot make it exempt from actual ABI collisions. */
+    Function copied = env->functions[placeholder];
+    env_define_function(env, copied);
+    assert(!env->functions[env->function_count - 1].checker_builtin_placeholder);
+    assert(extern_declaration_state(env, declaration) == -1);
+    free_environment(env);
+
+    env = create_environment(); assert(env); register_builtin_functions(env);
+    env->current_module = "First";
+    assert(register_owned_extern_declaration(env, declaration));
+    assert(extern_declaration_state(env, declaration) == 1);
+    declaration->as.function.is_pub = true;
+    assert(extern_declaration_state(env, declaration) == -1);
+    declaration->as.function.is_pub = false;
+    env->current_module = "Second";
+    assert(extern_declaration_state(env, declaration) == 0);
+    assert(register_owned_extern_declaration(env, declaration));
+    assert(extern_declaration_state(env, declaration) == 1);
+    /* A second actual ABI declaration still compares complete array leaves. */
+    const char *wrong_source = "extern fn at(values:array<string>, index:int)->int";
+    int wrong_count = 0; Token *wrong_tokens = tokenize(wrong_source, &wrong_count); assert(wrong_tokens);
+    ASTNode *wrong = parse_program(wrong_tokens, wrong_count); assert(wrong && wrong->as.program.count == 1);
+    assert(extern_declaration_state(env, wrong->as.program.items[0]) == -1);
+    free_environment(env); free_ast(wrong); free_tokens(wrong_tokens, wrong_count);
+    free_ast(program); free_tokens(tokens, count);
+
+    const char *callbacks = "extern fn callback(f:fn(array<int>)->int)->int "
+        "extern fn callback(f:fn(array<string>)->int)->int";
+    tokens = tokenize(callbacks, &count); assert(tokens);
+    program = parse_program(tokens, count); assert(program && program->as.program.count == 2);
+    env = create_environment(); assert(env); register_builtin_functions(env);
+    assert(register_owned_extern_declaration(env, program->as.program.items[0]));
+    assert(extern_declaration_state(env, program->as.program.items[1]) == -1);
+    free_environment(env); free_ast(program); free_tokens(tokens, count);
 }
 static void declaration_identity(void) {
     Environment *env = create_environment(); assert(env);
@@ -1093,7 +1150,7 @@ static void scalar_array_destinations(void) {
 extern void test_nominal_constructor_allocations(void);
 int main(void) {
     test_nominal_constructor_allocations(); scalar_array_destinations(); scalar_array_borrowed_destination();
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); union_checker_cleanup_boundaries(); checker_module_name_ownership(); generic_byte_payload_context(); constructor_failure_rollback(); emission_entry_rollback();
+    intrinsic_identity(); parsed_extern_policy(); extern_placeholder_origin(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); union_checker_cleanup_boundaries(); checker_module_name_ownership(); generic_byte_payload_context(); constructor_failure_rollback(); emission_entry_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }
