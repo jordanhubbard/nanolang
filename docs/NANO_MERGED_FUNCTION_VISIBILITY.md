@@ -388,3 +388,14 @@ programs/assertions and output sentinels remain byte-identical. Two actual
 parser/checker shadows exercise standalone and contextual generic mismatches.
 Python fixture syntax and git diff whitespace checks pass without running any
 compiler or product. Full source review precedes qualification.
+
+The 0108 new declared-store positive incorrectly assumed that C permits a
+source declaration named array_set. My existing
+NANOISA_OWNED_FLOAT_ARRAY_MUTATION_SOURCE.md explicitly reserves that name and
+labels its Nano synthetic-symbol controls as checker resolution only. I retain
+the first declaration refusal and failed source, replace only that invalid new
+positive with supported declared array_push, and add an actual local array_set
+callback with the same three argument types and result42. Existing original
+fixtures, all negative sentinels and compiler policies stay unchanged. Both
+0108 Nano refreshes remain retained with exact provenance; correction affects
+fixtures/docs only and requires no new compiler bootstrap.
