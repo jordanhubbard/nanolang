@@ -86,9 +86,41 @@ static bool nominal_array_builtin(ASTNode *expr, Environment *env, const char *n
     Function *function = env_get_function(env, name);
     return env_function_is_builtin(function);
 }
+/* I preserve actual STRING-array operand facts for the already checked + result. */
+static bool nominal_string_array_sum(ASTNode *expr, Environment *env, unsigned depth,
+                                     NominalView *out) {
+    if (depth > 128 || expr->type != AST_PREFIX_OP ||
+        expr->as.prefix_op.op != TOKEN_PLUS || expr->as.prefix_op.arg_count != 2 ||
+        check_expression(expr, env) != TYPE_ARRAY) return false;
+    NominalView operands[2] = {{0}}, children[2] = {{0}};
+    bool arrays[2] = {false, false}, ok = false;
+    for (int i = 0; i < 2; ++i) {
+        if (!nominal_value_view(expr->as.prefix_op.args[i], env, depth + 1, &operands[i])) goto done;
+        arrays[i] = operands[i].info->base_type == TYPE_ARRAY;
+        const NominalView *leaf = &operands[i];
+        if (arrays[i]) {
+            if (!nominal_view_child(env, &operands[i], 0, depth + 1, &children[i])) goto done;
+            leaf = &children[i];
+        }
+        if (leaf->info->base_type != TYPE_STRING) goto done;
+    }
+    if (!arrays[0] && !arrays[1]) goto done;
+    if (arrays[0] && arrays[1] && !nominal_view_equal(env, &operands[0], &operands[1], depth + 1)) goto done;
+    int selected = arrays[0] ? 0 : 1;
+    *out = operands[selected];
+    memset(&operands[selected], 0, sizeof operands[selected]);
+    ok = true;
+done:
+    for (int i = 0; i < 2; ++i) {
+        nominal_view_discard(&children[i]); nominal_view_discard(&operands[i]);
+    }
+    return ok;
+}
+
 static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, NominalView *out) {
     if (!expr || depth > 128 || !out) return false;
     NominalView view = {0};
+    if (expr->type == AST_PREFIX_OP && nominal_string_array_sum(expr, env, depth + 1, out)) return true;
     if (expr->type == AST_UNION_CONSTRUCT || expr->type == AST_STRUCT_LITERAL ||
         expr->type == AST_ARRAY_LITERAL || expr->type == AST_TUPLE_LITERAL) {
         const NominalView *retained = nominal_constructor_view(env, expr);

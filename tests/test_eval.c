@@ -2592,9 +2592,7 @@ void test_eval_string_loop_bindings(void) {
                 for (int i = 0; i < length; ++i) free(((char **)input.as.array_val->data)[i]);
                 free(input.as.array_val->data); free(input.as.array_val);
             } else if (kind == 1) {
-                /* The low-level DynArray stores borrowed string pointers. */
-                if (mode == 4) for (int i = 0; i < length; ++i)
-                    free((char *)dyn_array_get_string(input.as.dyn_array_val, i));
+                /* My evaluator owns replacement copies; original inputs stay caller-owned. */
                 for (int i = 0; i < length; ++i) free(dynamic_inputs[i]);
                 gc_release(input.as.dyn_array_val);
             } else list_string_free(list);

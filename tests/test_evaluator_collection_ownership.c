@@ -272,6 +272,121 @@ static void record_projection_owners(void) {
     }
 }
 
+static Value dynamic_value(DynArray *array) {
+    Value result = create_void(); result.type = VAL_DYN_ARRAY;
+    result.as.dyn_array_val = array; return result;
+}
+
+static void string_array_result_refusals(void) {
+    const char *sources[] = {
+        "fn wrong(xs:array<int>,ys:array<int>)->array<string>{return (+ xs ys)} fn main()->int{return 0}",
+        "fn wrong(xs:array<string>,s:bool)->array<string>{return (+ xs s)} fn main()->int{return 0}",
+        "fn wrong(xs:array<string>,ys:array<string>)->array<string>{return (- xs ys)} fn main()->int{return 0}",
+        "struct Named { text:string } fn wrong(xs:array<Named>,ys:array<Named>)->array<string>{return (+ xs ys)} fn main()->int{return 0}"
+    };
+    for (size_t i = 0; i < sizeof sources / sizeof *sources; ++i) {
+        RunCtx ctx;
+        assert(!run_ctx_init(&ctx, sources[i])); /* Checker refusal, never evaluated. */
+        run_ctx_free(&ctx);
+    }
+}
+
+static void dynamic_child_owners(void) {
+    const char *source =
+        "struct DynamicChild { label:string }\n"
+        "fn identity(x:string)->string{return x}\n"
+        "fn keep(x:string)->bool{return (!= x \"\")}\n"
+        "fn mapped(xs:array<string>)->array<string>{return (map xs identity)}\n"
+        "fn filtered(xs:array<string>)->array<string>{return (filter xs keep)}\n"
+        "fn pair(xs:array<string>,ys:array<string>)->array<string>{return (+ xs ys)}\n"
+        "fn right(xs:array<string>,s:string)->array<string>{return (+ xs s)}\n"
+        "fn left(s:string,xs:array<string>)->array<string>{return (+ s xs)}\n"
+        "let mut task_input:array<string> = []\n"
+        "fn task_slice()->array<string>{return (array_slice task_input 0 1)}\n"
+        "fn main()->int{return 0}\n";
+    for (int record = 0; record < 2; ++record) {
+        RunCtx ctx; assert(run_ctx_init(&ctx, source)); collection_env = ctx.env;
+        char *original = strdup("seed"); assert(original);
+        Value leaf = text_value(original), original_record = create_void();
+        if (record) {
+            char *names[] = {"label"}; Value values[] = {leaf};
+            original_record = create_struct("DynamicChild", names, values, 1);
+            leaf = original_record;
+        }
+        DynArray *input = dyn_array_new(record ? ELEM_STRUCT : ELEM_STRING); assert(input);
+        if (record) { StructValue *v = leaf.as.struct_val; dyn_array_push_struct(input, &v, sizeof v); }
+        else dyn_array_push_string(input, original);
+        Value input_value = dynamic_value(input);
+        Value set[] = {input_value, create_int(0), leaf};
+        invoke("array_set", set, 3, NULL);
+        Value stored = record ? (Value){.type=VAL_STRUCT, .as.struct_val=*(StructValue **)dyn_array_get_struct(input,0)} :
+            text_value(dyn_array_get_string(input,0));
+        assert(env_record_result_borrowed(ctx.env, stored));
+        if (record) assert(stored.as.struct_val != original_record.as.struct_val);
+        else assert(stored.as.string_val != original);
+        /* Replacing a slot with that same leaf must copy before publishing. */
+        set[2] = stored; invoke("array_set", set, 3, NULL);
+        Value push[] = {input_value, stored}; invoke("array_push", push, 2, NULL);
+        Value range[] = {input_value, create_int(0), create_int(2)};
+        Value sliced = invoke("array_slice", range, 3, NULL);
+        assert(sliced.type == VAL_DYN_ARRAY && dyn_array_length(sliced.as.dyn_array_val)==2);
+        original[0] = 'X';
+        if (record) original_record.as.struct_val->field_values[0].as.string_val[0] = 'Y';
+        for (int i=0;i<2;++i) {
+            const char *text;
+            if (record) {
+                StructValue *a=*(StructValue **)dyn_array_get_struct(input,i);
+                StructValue *b=*(StructValue **)dyn_array_get_struct(sliced.as.dyn_array_val,i);
+                assert(a!=b && b!=original_record.as.struct_val);
+                text=b->field_values[0].as.string_val;
+            } else {
+                const char *a=dyn_array_get_string(input,i), *b=dyn_array_get_string(sliced.as.dyn_array_val,i);
+                assert(a!=b && b!=original); text=b;
+            }
+            assert(!strcmp(text,"seed"));
+        }
+        gc_release(input); gc_release(sliced.as.dyn_array_val);
+        /* The cumulative leaf owner outlives both GC array buffers. */
+        assert(record ? !strcmp(stored.as.struct_val->field_values[0].as.string_val,"seed") : !strcmp(stored.as.string_val,"seed"));
+        collection_env=NULL; run_ctx_free(&ctx);
+        assert(original[0]=='X'); free(original);
+        if (record) { assert(original_record.as.struct_val->field_values[0].as.string_val[0]=='Y'); env_discard_value_snapshot(original_record); }
+    }
+    RunCtx ctx; assert(run_ctx_init(&ctx, source));
+    char *original=strdup("word"); assert(original);
+    DynArray *input=dyn_array_new(ELEM_STRING); assert(input); dyn_array_push_string(input,original);
+    Value argument=dynamic_value(input), outputs[5];
+    outputs[0]=call_function("mapped",&argument,1,ctx.env);
+    outputs[1]=call_function("filtered",&argument,1,ctx.env);
+    Value pair[]={argument,argument}; outputs[2]=call_function("pair",pair,2,ctx.env);
+    pair[0]=argument;pair[1]=text_value("!");outputs[3]=call_function("right",pair,2,ctx.env);
+    pair[0]=text_value("!");pair[1]=argument;outputs[4]=call_function("left",pair,2,ctx.env);
+    const char *expected[]={"word","word","wordword","word!","!word"};
+    original[0]='X';
+    for (int i=0;i<5;++i) {
+        assert(outputs[i].type==VAL_DYN_ARRAY && dyn_array_length(outputs[i].as.dyn_array_val)==1);
+        const char *text=dyn_array_get_string(outputs[i].as.dyn_array_val,0);
+        assert(text!=original && !strcmp(text,expected[i]));
+        assert(env_record_result_borrowed(ctx.env,text_value(text)));
+        gc_release(outputs[i].as.dyn_array_val);
+    }
+    /* A completed dynamic result retains the Environment that owns its leaf. */
+    env_get_var(ctx.env,"task_input")->value=argument;
+    assert(env_acquire_evaluation_lease(ctx.env));
+    nano_scheduler_init();
+    int task=lifetime_enqueue_named(ctx.env,"task_slice");assert(task>=0);
+    Value task_result=lifetime_task_result(ctx.env,task,true);assert(nano_coro_is_done(task));
+    env_release_evaluation_lease(ctx.env);assert(!env_can_destroy(ctx.env));
+    assert(task_result.type==VAL_DYN_ARRAY);
+    const char *task_text=dyn_array_get_string(task_result.as.dyn_array_val,0);
+    assert(!strcmp(task_text,"Xord") && task_text!=original);
+    assert(env_record_result_borrowed(ctx.env,text_value(task_text)));
+    assert(nano_coro_release(task));assert(env_can_destroy(ctx.env));
+    gc_release(task_result.as.dyn_array_val);gc_release(input);
+    run_ctx_free(&ctx);assert(original[0]=='X');free(original);
+    puts("I retain dynamic string and record children across mutation, callbacks, arithmetic and completed tasks.");
+}
+
 int main(int argc, char **argv) {
     fixture_executable = argv[0];
     assert(atexit(cleanup_case) == 0);
@@ -296,6 +411,8 @@ int main(int argc, char **argv) {
     child_case(3, 0, 0, true); child_case(4, 0, 0, true);
     public_string_alias();
     record_projection_owners();
+    string_array_result_refusals();
+    dynamic_child_owners();
     completed_collection_tasks();
     /* I retain the actual source callback/partial-literal assertions unchanged. */
     test_eval_handler_return_partial_literal_cleanup();
