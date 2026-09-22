@@ -17460,3 +17460,8 @@ byte promotion without admitting ELEM_U8 buffers. I add30 operator/direction
 checker positives, eight promotion/unary/composition positives and14 refusals;
 all original evaluator and checker assertions remain intact. Strict C99 syntax
 and whitespace checks pass. No affected source fixture has executed yet.
+
+The byte/nested follow-up includes expression statements and other contexts
+without a complete destination check. Refusing a result-view request does not
+change the coarse checker admission in every context. I retain that unresolved
+boundary explicitly and do not execute those unsupported forms as positives.
