@@ -17433,3 +17433,10 @@ shared typed revision2/profile and provider admission work continues.
 - [ ] I reduce per-field record snapshot metadata allocations with independent per-record name storage, preserving mutation independence and transactional disposal (task_96b40bc1ccd644bca2131878fa6cf372). Contract: `docs/EVALUATOR_RECORD_NAME_STORAGE.md`; source review and original lifetime gates precede deadline qualification.
 
 - [x] I qualify51d independent record-name storage with fresh complete providers and the original lifetime/collection methods on Linux and macOS, ordinary and ASan/UBSan/LSan. All eight methods pass; source/provider/tool maps remain identical and groups are gone. Evidence: `docs/evidence/record-name-storage/`. Compiler deadline and full release gates remain open.
+
+I qualify the shared preparation budget at frozen1ac in all four ordinary/sanitizer
+host lanes. The original declaration fixture plus combined transaction and every
+allocation-prefix controls pass2,119 linked and23,521 instrumented checks per lane.
+[124 sealed reports](evidence/sdk-combined-budget/) retain exact source/provider/
+tool identities and process cleanup. Private typed revision2, provider lifetime
+crossvalidation, executable admission and installed SDK acceptance remain open.
