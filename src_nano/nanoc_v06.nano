@@ -579,15 +579,18 @@ shadow split_lines {
 
 fn parse_import_path_from_line(line: string) -> string {
     /* Handle: import "path", from "path" import ..., module "path" */
-    let has_pub_use: bool = (nlc_str_starts_with line "pub use \"")
-    let has_import: bool = (nlc_str_starts_with line "import \"")
-    let has_from: bool = (nlc_str_starts_with line "from \"")
-    let has_module: bool = (nlc_str_starts_with line "module \"")
-    let has_unsafe_module: bool = (nlc_str_starts_with line "unsafe module \"")
+    let line_length: int = (str_length line)
+    if (== line_length 0) { return "" }
+    let leading: int = (char_at line 0)
+    let mut recognized: bool = false
+    if (== leading 112) { set recognized (nlc_str_starts_with line "pub use \"") }
+    else if (== leading 105) { set recognized (nlc_str_starts_with line "import \"") }
+    else if (== leading 102) { set recognized (nlc_str_starts_with line "from \"") }
+    else if (== leading 109) { set recognized (nlc_str_starts_with line "module \"") }
+    else if (== leading 117) { set recognized (nlc_str_starts_with line "unsafe module \"") }
 
-    if (or has_pub_use (or (or has_import has_from) (or has_module has_unsafe_module))) {
+    if recognized {
         let first_q: int = (nlc_str_index_of line "\"")
-        let line_length: int = (str_length line)
         let mut last_q: int = (+ first_q 1)
         while (< last_q line_length) {
             let source_char: int = (char_at line last_q)
@@ -607,6 +610,23 @@ fn parse_import_path_from_line(line: string) -> string {
 }
 
 shadow parse_import_path_from_line {
+    assert (== (parse_import_path_from_line "unsafe module \"unsafe.nano\"") "unsafe.nano")
+    assert (== (parse_import_path_from_line "") "")
+    assert (== (parse_import_path_from_line "p") "")
+    assert (== (parse_import_path_from_line "i") "")
+    assert (== (parse_import_path_from_line "f") "")
+    assert (== (parse_import_path_from_line "m") "")
+    assert (== (parse_import_path_from_line "u") "")
+    assert (== (parse_import_path_from_line "public use \"x\"") "")
+    assert (== (parse_import_path_from_line "imports \"x\"") "")
+    assert (== (parse_import_path_from_line "fromage \"x\"") "")
+    assert (== (parse_import_path_from_line "modules \"x\"") "")
+    assert (== (parse_import_path_from_line "unsafe import \"x\"") "")
+    assert (== (parse_import_path_from_line "xmodule \"x\"") "")
+    assert (== (parse_import_path_from_line " module \"x\"") "")
+    assert (== (parse_import_path_from_line "\timport \"x\"") "")
+    assert (== (parse_import_path_from_line "éimport \"x\"") "")
+    assert (== (parse_import_path_from_line "# import \"x\"") "")
     assert (== (parse_import_path_from_line "pub use \"dep.nano\" as dep") "dep.nano")
     assert (== (parse_import_path_from_line "import \"std/io\"") "std/io")
     assert (== (parse_import_path_from_line "from \"modules/math\" import add") "modules/math")
