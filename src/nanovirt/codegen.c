@@ -1312,7 +1312,9 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     }
     if (strcmp(name, "array_push") == 0 && argc == 2) {
         compile_expr(cg, args[0]); /* array */
-        compile_expr(cg, args[1]); /* value */
+        if (node->as.call.checked_u8_array_mutation)
+            compile_expected_tag(cg, args[1], TAG_U8);
+        else compile_expr(cg, args[1]); /* value */
         emit_op(cg, OP_ARR_PUSH);
         return true;
     }
@@ -1326,7 +1328,9 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     if (strcmp(name, "array_set") == 0 && argc == 3) {
         compile_expr(cg, args[0]); /* array */
         compile_expr(cg, args[1]); /* index */
-        compile_expr(cg, args[2]); /* value */
+        if (node->as.call.checked_u8_array_mutation)
+            compile_expected_tag(cg, args[2], TAG_U8);
+        else compile_expr(cg, args[2]); /* value */
         emit_op(cg, OP_ARR_SET);
         emit_op(cg, OP_POP); /* array_set is declared void */
         return true;
