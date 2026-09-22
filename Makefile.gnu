@@ -1098,6 +1098,15 @@ test-diagnostics: stage1
 	@./tests/test_diagnostics
 	@rm -f tests/test_diagnostics
 
+$(OBJ_DIR)/struct_name_typechecker.o: $(SRC_DIR)/typechecker.c $(SRC_DIR)/nanolang.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dmalloc=struct_name_test_malloc -Dstrdup=struct_name_test_strdup -c $< -o $@
+$(OBJ_DIR)/struct_name_env.o: $(SRC_DIR)/env.c $(SRC_DIR)/nanolang.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dmalloc=struct_name_test_malloc -c $< -o $@
+.PHONY: test-struct-name-ownership
+test-struct-name-ownership: $(OBJ_DIR)/struct_name_typechecker.o $(OBJ_DIR)/struct_name_env.o $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_struct_name_ownership tests/test_struct_name_ownership.c $(OBJ_DIR)/struct_name_typechecker.o $(OBJ_DIR)/struct_name_env.o $(filter-out $(OBJ_DIR)/typechecker.o $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_struct_name_ownership
+
 .PHONY: test-checker-metadata-ownership
 test-checker-metadata-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_checker_metadata_ownership tests/test_checker_metadata_ownership.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
