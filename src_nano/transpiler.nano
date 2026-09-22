@@ -1297,8 +1297,8 @@ fn map_builtin_func_name(func_name: string) -> string {
     if (== func_name "atan2") { return "nl_atan2" } else { (print "") }
     
     /* String builtins */
-    if (== func_name "str_length") { return "strlen" } else { (print "") }
-    if (== func_name "str_len") { return "strlen" } else { (print "") }
+    if (== func_name "str_length") { return "nl_str_length" } else { (print "") }
+    if (== func_name "str_len") { return "nl_str_length" } else { (print "") }
     if (== func_name "str_slice") { return "nl_str_slice" } else { (print "") }
     if (== func_name "str_concat") { return "nl_str_concat" } else { (print "") }
     if (== func_name "str_substring") { return "nl_str_substring" } else { (print "") }
@@ -4253,6 +4253,8 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    return out;\n")
     set sb (cg_append sb "}\n\n")
     
+    set sb (cg_append sb "int64_t nl_str_length(const char* s) { return s ? (int64_t)strlen(s) : 0; }\n\n")
+
     set sb (cg_append sb "char* nl_str_substring(const char* s, int64_t start, int64_t len) {\n")
     set sb (cg_append sb "    if (!s) return \"\";\n")
     set sb (cg_append sb "    int64_t n = (int64_t)strlen(s);\n")
@@ -4645,6 +4647,9 @@ fn gen_c_runtime() -> string {
 
 shadow gen_c_runtime {
     let runtime: string = (gen_c_runtime)
+    assert (str_contains runtime "int64_t nl_str_length(const char* s) { return s ? (int64_t)strlen(s) : 0; }")
+    assert (== (map_builtin_func_name "str_length") "nl_str_length")
+    assert (== (map_builtin_func_name "str_len") "nl_str_length")
     assert (str_contains runtime "#define NANO_RT_OPTIONAL_SUPPORT __attribute__((unused))\n")
     assert (str_contains runtime "#else\n#define NANO_RT_OPTIONAL_SUPPORT\n#endif\n")
     assert (transp_str_ends_with runtime "#undef NANO_RT_OPTIONAL_SUPPORT\n")

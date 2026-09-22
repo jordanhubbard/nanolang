@@ -38,3 +38,6 @@ across all three native producers at O0/O2 through the retained supervisor.
 Full original bootstrap and source/native matrices remain required after review.
 
 MAC: task_716077fe2eb14ec89ead2ce9f2bb3cc2.
+
+My source inspection uses the actual map_builtin_func_name mapping in the Nano
+emitter; its existing declaration-selection callers remain unchanged.
