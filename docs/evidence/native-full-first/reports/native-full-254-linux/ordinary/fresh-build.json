@@ -1,0 +1,18 @@
+{
+  "label": "fresh-build",
+  "argv": [
+    "/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/usr/bin/gcc",
+    "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "build"
+  ],
+  "bound": 1800,
+  "timeout": false,
+  "pid": 1681916,
+  "returncode": 0,
+  "remaining_groups": [],
+  "seconds": 86.07193801295944
+}

@@ -1,0 +1,4 @@
+{
+  "status": 1,
+  "error": "AssertionError({'label': 'fresh-build', 'argv': ['/usr/bin/make', '-f', 'Makefile.gnu', '-j2', 'CC=/usr/bin/clang', 'PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3', 'build'], 'bound': 1800, 'timeout': False, 'pid': 90602, 'returncode': 2, 'remaining_groups': [], 'seconds': 84.70662524999999})"
+}

@@ -1,0 +1,4 @@
+{
+  "status": 1,
+  "error": "AssertionError({'label': 'fresh-bootstrap', 'argv': ['/bin/make', '-f', 'Makefile.gnu', '-j2', 'CC=/usr/bin/gcc', 'PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14', 'bootstrap'], 'bound': 1800, 'timeout': False, 'pid': 1714746, 'returncode': 2, 'remaining_groups': [], 'seconds': 2.5839240869972855})"
+}
