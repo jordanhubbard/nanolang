@@ -17337,3 +17337,5 @@ frozen6d92 across all four host/configuration lanes; all16 build/run phases pass
 My [private snapshot evidence](evidence/sdk-module-snapshot/) seals44 reports.
 Complete provider attachment, shared declaration projection, cross-validation,
 all consuming routes and installed canonical acceptance remain required.
+
+- [ ] I implement reviewed dynamic reference-leaf ownership under task_992713bde1494772b0cb0b58bc9ee3c3: fresh evaluator string/record children belong to the Environment arena, caller/GC owners remain unchanged. Contract: `docs/EVALUATOR_DYNAMIC_ARRAY_CHILD_OWNERSHIP.md`; source and fixture review precede execution.
