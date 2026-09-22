@@ -14484,3 +14484,11 @@ allocator failure claim.
   the primitive C/Nano result carrier and preserve all controls, producer
   boundaries and original deadlines. [Contract](NANOISA_SIGNED_STRING_LENGTH.md).
   MAC: task_716077fe2eb14ec89ead2ce9f2bb3cc2.
+
+- [ ] I correct my retained map_builtin_func_name shadow expectation after the
+  signed carrier change: both fresh ecaf builds pass parser/typecheck components
+  and refuse the stale expected strlen at transpiler line1407. I retain both
+  first terminals and require the exact nl_str_length result for str_length and
+  its existing str_len mapping before fresh corrected gates. No primitive
+  semantics, assertion predicate or deadline is weakened.
+  MAC: task_716077fe2eb14ec89ead2ce9f2bb3cc2.
