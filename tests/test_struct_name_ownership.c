@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <signal.h>
+#include <spawn.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
@@ -40,6 +41,39 @@ char *struct_metadata_test_strdup(const char *name) {
 }
 void *struct_payload_test_calloc(size_t count,size_t width) {
     return metadata_refuse(2) ? NULL : calloc(count,width);
+}
+
+extern char **environ;
+static const char *fixture_executable;
+static pid_t spawn_fault_case(int errors[2],int lookup,int kind,size_t position,int mode) {
+    char kind_text[16],position_text[32],mode_text[16];
+    snprintf(kind_text,sizeof(kind_text),"%d",kind);
+    snprintf(position_text,sizeof(position_text),"%zu",position);
+    snprintf(mode_text,sizeof(mode_text),"%d",mode);
+    char *lookup_args[]={(char *)fixture_executable,"_lookup_fault",kind_text,position_text,mode_text,NULL};
+    char *snapshot_args[]={(char *)fixture_executable,"_snapshot_fault",position_text,mode_text,NULL};
+    posix_spawn_file_actions_t actions;
+    assert(posix_spawn_file_actions_init(&actions)==0);
+    assert(posix_spawn_file_actions_adddup2(&actions,errors[1],STDERR_FILENO)==0);
+    assert(posix_spawn_file_actions_addclose(&actions,errors[0])==0);
+    if (errors[1]!=STDERR_FILENO) assert(posix_spawn_file_actions_addclose(&actions,errors[1])==0);
+    pid_t child;
+    int result=posix_spawn(&child,fixture_executable,&actions,NULL,
+        lookup ? lookup_args : snapshot_args,environ);
+    assert(posix_spawn_file_actions_destroy(&actions)==0);
+    if (result) fprintf(stderr,"I could not spawn my ownership fault worker: %s\n",strerror(result));
+    assert(result==0); return child;
+}
+static int fixture_number(const char *text,unsigned maximum,unsigned *value) {
+    if (!text || !*text) return 0;
+    unsigned result=0;
+    for (const char *p=text;*p;++p) {
+        if (*p<'0' || *p>'9') return 0;
+        unsigned digit=(unsigned)(*p-'0');
+        if (digit>maximum || result>(maximum-digit)/10) return 0;
+        result=result*10+digit;
+    }
+    *value=result; return 1;
 }
 
 static void read_child_diagnostic(int fd,pid_t child,const char *expected) {
@@ -360,11 +394,8 @@ static void metadata_fault_positions(void) {
     const char *messages[]={"I cannot allocate a module metadata copy.\n",
         "I cannot copy a module metadata owner.\n","I cannot allocate payload type metadata\n"};
     for (int mode=0;mode<2;++mode) for (size_t pos=1;pos<=count;++pos) {
-        int errors[2]; assert(pipe(errors)==0); pid_t child=fork(); assert(child>=0);
-        if (!child) {
-            close(errors[0]); assert(dup2(errors[1],STDERR_FILENO)>=0); close(errors[1]);
-            (void)metadata_fault_case(pos,mode); _Exit(89);
-        }
+        int errors[2]; assert(pipe(errors)==0);
+        pid_t child=spawn_fault_case(errors,0,0,pos,mode);
         close(errors[1]); read_child_diagnostic(errors[0],child,messages[kinds[pos-1]]);
         int status=0;
         assert(waitpid(child,&status,0)==child && WIFEXITED(status) && WEXITSTATUS(status)==1);
@@ -374,6 +405,17 @@ static void metadata_fault_positions(void) {
 }
 
 int main(int argc,char **argv) {
+    fixture_executable=argv[0];
+    unsigned kind=0,position=0,mode=0;
+    if (argc==5 && !strcmp(argv[1],"_lookup_fault") &&
+        fixture_number(argv[2],3,&kind) && fixture_number(argv[3],kind==3 ? 2 : 3,&position) &&
+        position && fixture_number(argv[4],1,&mode)) {
+        (void)lookup_case((int)kind,position,(int)mode); return 0;
+    }
+    if (argc==4 && !strcmp(argv[1],"_snapshot_fault") &&
+        fixture_number(argv[2],255,&position) && position && fixture_number(argv[3],1,&mode)) {
+        (void)metadata_fault_case(position,(int)mode); return 89;
+    }
     if (argc>2 || (argc==2 && strcmp(argv[1],"snapshot"))) {
         fprintf(stderr,"I accept only the optional snapshot fixture selector.\n"); return 2;
     }
@@ -384,11 +426,7 @@ int main(int argc,char **argv) {
         assert(count == (kind == 3 ? 2u : 3u));
         for (int mode=0; mode<2; ++mode) for (size_t pos=1; pos<=count; ++pos) {
             int errors[2]; assert(pipe(errors)==0);
-            pid_t child=fork(); assert(child>=0);
-            if (!child) {
-                close(errors[0]); assert(dup2(errors[1],STDERR_FILENO)>=0); close(errors[1]);
-                (void)lookup_case(kind,pos,mode); exit(0);
-            }
+            pid_t child=spawn_fault_case(errors,1,kind,pos,mode);
             close(errors[1]);
             read_child_diagnostic(errors[0],child,pos == count ?
                 "I could not allocate checker ownership metadata\n" : "");
