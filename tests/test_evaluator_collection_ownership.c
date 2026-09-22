@@ -208,6 +208,70 @@ static void completed_collection_tasks(void) {
     }
 }
 
+/* I distinguish borrowed internal projections from public owned results. */
+static void record_projection_owners(void) {
+    const char *source =
+        "struct ProjectionItem { label:string }\n"
+        "fn read_item(xs:array<ProjectionItem>)->ProjectionItem{return (at xs 0)}\n"
+        "shadow read_item { let x:ProjectionItem = (read_item [ProjectionItem { label:\"kept\" }]) assert (== x.label \"kept\") }\n"
+        "fn get_item(xs:array<ProjectionItem>)->ProjectionItem{return (array_get xs 0)}\n"
+        "shadow get_item { let x:ProjectionItem = (get_item [ProjectionItem { label:\"kept\" }]) assert (== x.label \"kept\") }\n"
+        "fn pop_item(xs:array<ProjectionItem>)->ProjectionItem{return (array_pop xs)}\n"
+        "shadow pop_item { let x:ProjectionItem = (pop_item [ProjectionItem { label:\"kept\" }]) assert (== x.label \"kept\") }\n"
+        "fn main()->int{return 0}\n";
+    const char *builtins[] = {"at", "array_get", "array_pop"};
+    const char *functions[] = {"read_item", "get_item", "pop_item"};
+    for (int dynamic = 0; dynamic < 2; ++dynamic)
+    for (int operation = 0; operation < 3; ++operation)
+    for (int public_call = 0; public_call < 2; ++public_call) {
+        RunCtx ctx; assert(run_ctx_init(&ctx, source));
+        char *fields[] = {"label"}; Value values[] = {text_value("kept")};
+        Value original = create_struct("ProjectionItem", fields, values, 1);
+        Value input = create_void();
+        if (dynamic) {
+            input.type = VAL_DYN_ARRAY;
+            input.as.dyn_array_val = dyn_array_new(ELEM_STRUCT);
+            input.as.dyn_array_val = dyn_array_push_struct(input.as.dyn_array_val,
+                &original.as.struct_val, sizeof original.as.struct_val);
+        } else {
+            input = create_array(VAL_STRUCT, 1, 1);
+            ((StructValue **)input.as.array_val->data)[0] = original.as.struct_val;
+        }
+        Value args[] = {input, create_int(0)};
+        Value result;
+        if (public_call) result = call_function(functions[operation], args, 1, ctx.env);
+        else {
+            collection_env = ctx.env;
+            result = invoke(builtins[operation], args, operation == 2 ? 1 : 2, NULL);
+            collection_env = NULL;
+        }
+        assert(result.type == VAL_STRUCT);
+        if (dynamic || operation != 2)
+            assert(result.as.struct_val != original.as.struct_val);
+        assert(env_record_result_borrowed(ctx.env, result) == !public_call);
+        assert(!strcmp(result.as.struct_val->field_values[0].as.string_val, "kept"));
+        if (dynamic || operation != 2) {
+            env_discard_value_snapshot(original.as.struct_val->field_values[0]);
+            original.as.struct_val->field_values[0] = text_value(strdup("changed"));
+            assert(!strcmp(result.as.struct_val->field_values[0].as.string_val, "kept"));
+            env_discard_value_snapshot(original);
+        } /* Fixed pop already destroyed its source slot after copying. */
+        if (dynamic) {
+            assert(dyn_array_length(input.as.dyn_array_val) == (operation == 2 ? 0 : 1));
+            gc_release(input.as.dyn_array_val); /* Its record pointer is borrowed. */
+        } else {
+            assert(input.as.array_val->length == (operation == 2 ? 0 : 1));
+            free(input.as.array_val->data); free(input.as.array_val);
+        }
+        assert(!strcmp(result.as.struct_val->field_values[0].as.string_val, "kept"));
+        run_ctx_free(&ctx);
+        if (public_call) {
+            assert(!strcmp(result.as.struct_val->field_values[0].as.string_val, "kept"));
+            env_discard_value_snapshot(result);
+        }
+    }
+}
+
 int main(int argc, char **argv) {
     fixture_executable = argv[0];
     assert(atexit(cleanup_case) == 0);
@@ -231,6 +295,7 @@ int main(int argc, char **argv) {
     }
     child_case(3, 0, 0, true); child_case(4, 0, 0, true);
     public_string_alias();
+    record_projection_owners();
     completed_collection_tasks();
     /* I retain the actual source callback/partial-literal assertions unchanged. */
     test_eval_handler_return_partial_literal_cleanup();

@@ -1243,7 +1243,19 @@ static Value builtin_println(Value *args) {
  * Array Built-in Functions (With Bounds Checking!)
  * ========================================================================== */
 
-static Value builtin_at(Value *args) {
+/* I copy a projected record into my existing result owner before publishing it. */
+static Value eval_snapshot_array_record(Environment *env, StructValue *record) {
+    Value borrowed = create_void(), result;
+    borrowed.type = VAL_STRUCT;
+    borrowed.as.struct_val = record;
+    if (!env_value_snapshot(env, borrowed, &result)) {
+        fprintf(stderr, "I cannot retain an array record projection.\n");
+        exit(1);
+    }
+    return result;
+}
+
+static Value builtin_at(Value *args, Environment *env) {
     /* at(array, index) -> element */
     if (args[1].type != VAL_INT) {
         fprintf(stderr, "Error: at() requires an integer index\n");
@@ -1277,7 +1289,7 @@ static Value builtin_at(Value *args) {
                 return create_string(((char**)arr->data)[index]);
             case VAL_STRUCT: {
                 StructValue *sv = ((StructValue**)arr->data)[index];
-                return create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                return eval_snapshot_array_record(env, sv);
             }
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
@@ -1316,7 +1328,7 @@ static Value builtin_at(Value *args) {
                 void *raw = dyn_array_get_struct(arr, index);
                 if (!raw) return create_void();
                 StructValue *sv = *(StructValue**)raw;
-                return create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                return eval_snapshot_array_record(env, sv);
             }
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
@@ -1773,7 +1785,7 @@ static Value builtin_array_push(Value *args) {
     return args[0];
 }
 
-static Value builtin_array_pop(Value *args) {
+static Value builtin_array_pop(Value *args, Environment *env) {
     /* array_pop(array) -> value */
     if (args[0].type == VAL_ARRAY) {
         Array *arr = args[0].as.array_val;
@@ -1782,7 +1794,7 @@ static Value builtin_array_pop(Value *args) {
             return create_void();
         }
         Value read_args[] = {args[0], create_int(arr->length - 1)};
-        Value result = builtin_at(read_args);
+        Value result = builtin_at(read_args, env);
         static_array_remove(arr, arr->length - 1);
         return result;
     }
@@ -1826,7 +1838,7 @@ static Value builtin_array_pop(Value *args) {
             StructValue *sv = NULL;
             dyn_array_pop_struct(arr, &sv, sizeof(StructValue*), &success);
             if (!success || !sv) return create_void();
-            return create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+            return eval_snapshot_array_record(env, sv);
         }
         default:
             fprintf(stderr, "Error: Unsupported array element type\n");
@@ -4069,7 +4081,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
     
     /* Array operations */
-    if (strcmp(name, "at") == 0 || strcmp(name, "array_get") == 0) return builtin_at(args);
+    if (strcmp(name, "at") == 0 || strcmp(name, "array_get") == 0) return builtin_at(args, env);
     if (strcmp(name, "array_length") == 0) return builtin_array_length(args);
     if (strcmp(name, "array_new") == 0) return builtin_array_new(args, env);
     if (strcmp(name, "array_set") == 0) {
@@ -4116,7 +4128,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             args[1] = eval_checked_scalar_destination(TYPE_U8, args[1]);
         return builtin_array_push(args);
     }
-    if (strcmp(name, "array_pop") == 0) return builtin_array_pop(args);
+    if (strcmp(name, "array_pop") == 0) return builtin_array_pop(args, env);
     if (strcmp(name, "array_remove_at") == 0) return builtin_array_remove_at(args);
     if (strcmp(name, "array_sort") == 0) return builtin_array_sort(args);
     if (strcmp(name, "array_reverse") == 0) return builtin_array_reverse(args);
