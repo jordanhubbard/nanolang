@@ -17305,3 +17305,8 @@ callback controls preserve authority: a callback named reduce returning Other
 cannot gain Point identity from its second argument. All original reduce identity
 and refusal cases remain unchanged. Source syntax passes; complete source review
 precedes the next unchanged whole-checker qualification.
+- [ ] I implement Environment ownership for evaluator-created fixed arrays/maps under task_992713bde1494772b0cb0b58bc9ee3c3, after qualified73e contextual leases. I preserve caller input ownership, define zero-safe immediate registration/detach rollback and copy map projection strings; complete source/fault controls require review before teardown executes. Contract: `docs/EVALUATOR_COLLECTION_RESULT_CONTRACT.md`.
+
+- [ ] I close the statically identified fixed-record array_set owned-slot overwrite (73e eval.c:1445): clone replacement first, then discard the previous independently owned slot before assignment. The collection registry alone would release only the final slot; I do not execute the old leaking mutation path.
+
+- [ ] I reject oversized evaluator array lengths/map projections before narrowing to int and allocation, and replace owned string slots copy-first so aliased source leaves remain live during the copy. These existing static hazards were found during531 source review; I add oversize refusal and real alias controls before execution.

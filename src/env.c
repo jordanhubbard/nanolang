@@ -249,6 +249,8 @@ bool env_own_checker_object(Environment *env, void *object, void (*destroy)(void
     return true;
 }
 
+#include "env_collection_ownership.inc"
+
 /* Create environment */
 Environment *create_environment(void) {
     /* calloc, not malloc: every field below is set explicitly, but zeroing
@@ -386,6 +388,7 @@ void free_environment(Environment *env) {
     free(env->symbols);
     env_union_storage_free(env);
     env_record_storage_free(env);
+    env_collection_storage_free(env);
     env_provider_edges_free(env);
     if (env->import_tracker) {
         free(env->import_tracker->imports);

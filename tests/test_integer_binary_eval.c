@@ -23,6 +23,10 @@ static void fixture_release(Value value) {
     if (value.type==VAL_DYN_ARRAY) gc_release(value.as.dyn_array_val);
     else { free(value.as.array_val->data); free(value.as.array_val); }
 }
+static void fixture_release_result(Value value) {
+    /* Fixed results borrow ctx; dynamic results keep their existing GC contract. */
+    if (value.type==VAL_DYN_ARRAY) gc_release(value.as.dyn_array_val);
+}
 int main(void) {
     const struct { int64_t a,b,result[5]; } cases[]={
         {INT64_MIN,-1,{INT64_MAX,INT64_MIN+1,INT64_MIN,INT64_MIN,0}},
@@ -62,14 +66,14 @@ int main(void) {
             for (int dynamic=0;dynamic<2;++dynamic) {
                 Value a=fixture_array(cases[row].a,dynamic), b=fixture_array(cases[row].b,dynamic);
                 Value pair[]={a,b}; result=call_function("arrays",pair,2,ctx.env);
-                ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release(result); ++observations;
+                ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release_result(result); ++observations;
                 pair[0]=a; pair[1]=args[1]; result=call_function("right",pair,2,ctx.env);
-                ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release(result); ++observations;
+                ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release_result(result); ++observations;
                 pair[0]=args[0]; pair[1]=b; result=call_function("left",pair,2,ctx.env);
-                ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release(result); ++observations;
+                ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release_result(result); ++observations;
                 if (dynamic) {
                     result=call_function("mapped",&a,1,ctx.env);
-                    ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release(result); ++observations;
+                    ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release_result(result); ++observations;
                     result=call_function("reduced",pair,2,ctx.env);
                     ASSERT(result.type==VAL_INT); ASSERT_EQ(result.as.int_val,cases[row].result[op]); ++observations;
                 }

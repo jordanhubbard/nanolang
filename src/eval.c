@@ -2,6 +2,7 @@
 
 #include "nanolang.h"
 #include "eval_u8.h"
+#include "evaluator_collection_alloc.h"
 #include "string_literal_decode.h"
 #include "binary64_bits.h"
 #include "binary64_format.h"
@@ -42,6 +43,64 @@ extern char **g_argv;
 /* DAP hook — set by dap_server.c to intercept each statement for breakpoints/stepping.
  * NULL when not debugging. */
 void (*g_dap_statement_hook)(ASTNode *stmt, Environment *env) = NULL;
+
+/* Every pointer slot is zero-safe before its Environment owner is linked. */
+static void eval_destroy_fixed_array(void *allocation) {
+    Array *array = allocation;
+    if (!array) return;
+    for (int i = 0; i < array->length; ++i) {
+        if (array->element_type == VAL_STRING) free(((char **)array->data)[i]);
+        else if (array->element_type == VAL_STRUCT)
+            env_discard_record(((StructValue **)array->data)[i]);
+    }
+    free(array->data);
+    free(array);
+}
+
+static void eval_collection_allocation_failure(void) {
+    fprintf(stderr, "I cannot allocate evaluator collection ownership.\n");
+    exit(1);
+}
+
+static Value eval_create_owned_array(Environment *env, ValueType type, int64_t length, int64_t capacity) {
+    if (length < 0 || capacity < 0 || length > INT_MAX || capacity > INT_MAX) {
+        fprintf(stderr, "I cannot represent this evaluator array extent.\n");
+        exit(1);
+    }
+    if (capacity < length) capacity = length;
+    size_t width;
+    switch (type) {
+        case VAL_INT: width = sizeof(long long); break;
+        case VAL_FLOAT: width = sizeof(double); break;
+        case VAL_BOOL: width = sizeof(bool); break;
+        case VAL_STRING: width = sizeof(char *); break;
+        case VAL_ARRAY: width = sizeof(Value); break;
+        default: width = sizeof(void *); break;
+    }
+    if ((size_t)capacity > SIZE_MAX / width) eval_collection_allocation_failure();
+    Array *array = NANO_COLLECTION_CALLOC(1, sizeof *array);
+    if (!array) eval_collection_allocation_failure();
+    array->element_type = type;
+    array->length = (int)length;
+    array->capacity = (int)capacity;
+    array->data = capacity ? NANO_COLLECTION_CALLOC((size_t)capacity, width) : NULL;
+    if (capacity && !array->data) {
+        free(array);
+        eval_collection_allocation_failure();
+    }
+    if (!env_register_new_collection(env, array, eval_destroy_fixed_array)) {
+        eval_destroy_fixed_array(array);
+        eval_collection_allocation_failure();
+    }
+    Value result = create_void();
+    result.type = VAL_ARRAY;
+    result.as.array_val = array;
+    return result;
+}
+
+static void eval_destroy_owned_map(void *allocation) {
+    eval_hm_free(allocation);
+}
 
 /* Fresh internal callable results have one Environment-lifetime owner. */
 static Value eval_retain_callable(Environment *env, Value value) {
@@ -1278,7 +1337,7 @@ static Value builtin_array_length(Value *args) {
     return create_void();
 }
 
-static Value builtin_array_new(Value *args) {
+static Value builtin_array_new(Value *args, Environment *env) {
     /* array_new(size, default_value) -> array */
     if (args[0].type != VAL_INT) {
         fprintf(stderr, "Error: array_new() requires an integer size\n");
@@ -1292,7 +1351,7 @@ static Value builtin_array_new(Value *args) {
     }
     
     ValueType elem_type = args[1].type;
-    Value arr = create_array(elem_type, size, size);
+    Value arr = eval_create_owned_array(env, elem_type, size, size);
     
     /* Initialize all elements with default value */
     for (long long i = 0; i < size; i++) {
@@ -1424,11 +1483,12 @@ static Value builtin_array_set(Value *args) {
                 fprintf(stderr, "Error: Type mismatch in array_set\n");
                 return create_void();
             }
-            /* Free old string if exists */
-            if (((char**)arr->data)[index]) {
+            {
+                char *copy = eval_collection_copy_string(args[2].as.string_val);
+                if (!copy) eval_collection_allocation_failure();
                 free(((char**)arr->data)[index]);
+                ((char**)arr->data)[index] = copy;
             }
-            ((char**)arr->data)[index] = strdup(args[2].as.string_val);
             break;
         case VAL_STRUCT:
             if (args[2].type != VAL_STRUCT) {
@@ -1440,6 +1500,7 @@ static Value builtin_array_set(Value *args) {
                     args[2].as.struct_val->field_names,
                     args[2].as.struct_val->field_values,
                     args[2].as.struct_val->field_count);
+                env_discard_record(((StructValue**)arr->data)[index]);
                 ((StructValue**)arr->data)[index] = copy.as.struct_val;
             }
             break;
@@ -1451,7 +1512,7 @@ static Value builtin_array_set(Value *args) {
     return create_void();
 }
 
-static Value builtin_array_slice(Value *args) {
+static Value builtin_array_slice(Value *args, Environment *env) {
     /* array_slice(array, start, length) -> array */
     if (args[1].type != VAL_INT || args[2].type != VAL_INT) {
         fprintf(stderr, "Error: array_slice() requires integer start and length\n");
@@ -1472,7 +1533,7 @@ static Value builtin_array_slice(Value *args) {
         if (end > len) end = len;
         int64_t out_len = end - start;
 
-        Value out = create_array(arr->element_type, out_len, out_len);
+        Value out = eval_create_owned_array(env, arr->element_type, out_len, out_len);
         switch (arr->element_type) {
             case VAL_ARRAY:
                 for (int64_t i = 0; i < out_len; i++)
@@ -2123,7 +2184,7 @@ static double eval_pure_expr_float(ASTNode *expr, double param_val, const char *
     }
 }
 
-static void discard_partial_owned_array(Array *array, int initialized);
+static void discard_partial_owned_array(Environment *env, Array *array, int initialized);
 
 static Value builtin_map(Value *args, Environment *env) {
     /* map(array, transform_fn) -> array
@@ -2153,7 +2214,7 @@ static Value builtin_map(Value *args, Environment *env) {
         int64_t len = input_arr->length;
         
         /* I retain declared scalar output types even when no callback runs. */
-        Value result = create_array(result_type == VAL_VOID ? input_arr->element_type : result_type, len, len);
+        Value result = eval_create_owned_array(env, result_type == VAL_VOID ? input_arr->element_type : result_type, len, len);
         Array *output_arr = result.as.array_val;
         
         /* Apply transform to each element */
@@ -2188,7 +2249,7 @@ static Value builtin_map(Value *args, Environment *env) {
             call_args[0] = elem;
             Value transformed = call_function(transform_fn_name, call_args, 1, env);
             if (transformed.is_return) {
-                discard_partial_owned_array(output_arr, (int)i);
+                discard_partial_owned_array(env, output_arr, (int)i);
                 return transformed;
             }
             
@@ -2426,7 +2487,7 @@ static Value builtin_filter(Value *args, Environment *env) {
             if (keep[i]) out_len++;
         }
 
-        Value result = create_array(input_arr->element_type, out_len, out_len);
+        Value result = eval_create_owned_array(env, input_arr->element_type, out_len, out_len);
         Array *output_arr = result.as.array_val;
 
         int64_t out_i = 0;
@@ -2734,11 +2795,11 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 Array *a = arg.as.array_val;
                 if (!a) return create_void();
                 if (a->element_type == VAL_INT) {
-                    Value out = create_array(VAL_INT, a->length, a->length);
+                    Value out = eval_create_owned_array(env, VAL_INT, a->length, a->length);
                     for (int i = 0; i < a->length; i++) ((long long*)out.as.array_val->data)[i] = eval_negate_int(((long long*)a->data)[i]);
                     return out;
                 } else if (a->element_type == VAL_FLOAT) {
-                    Value out = create_array(VAL_FLOAT, a->length, a->length);
+                    Value out = eval_create_owned_array(env, VAL_FLOAT, a->length, a->length);
                     for (int i = 0; i < a->length; i++) ((double*)out.as.array_val->data)[i] = -((double*)a->data)[i];
                     return out;
                 }
@@ -2814,7 +2875,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                     fprintf(stderr, "Error: Array mismatch in operator\n");
                     return create_void();
                 }
-                Value out = create_array(a->element_type, a->length, a->length);
+                Value out = eval_create_owned_array(env, a->element_type, a->length, a->length);
                 for (int i = 0; i < a->length; i++) {
                     switch (a->element_type) {
                         case VAL_INT: {
@@ -2876,7 +2937,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 if (!a) return create_void();
 
                 if (a->element_type == VAL_INT && right.type == VAL_INT) {
-                    Value out = create_array(VAL_INT, a->length, a->length);
+                    Value out = eval_create_owned_array(env, VAL_INT, a->length, a->length);
                     for (int i = 0; i < a->length; i++) {
                         long long x = ((long long*)a->data)[i];
                         long long s = right.as.int_val;
@@ -2895,7 +2956,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 }
 
                 if (a->element_type == VAL_FLOAT && right.type == VAL_FLOAT) {
-                    Value out = create_array(VAL_FLOAT, a->length, a->length);
+                    Value out = eval_create_owned_array(env, VAL_FLOAT, a->length, a->length);
                     for (int i = 0; i < a->length; i++) {
                         double x = ((double*)a->data)[i];
                         double s = right.as.float_val;
@@ -2917,7 +2978,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         fprintf(stderr, "Error: string arrays only support +\n");
                         return create_void();
                     }
-                    Value out = create_array(VAL_STRING, a->length, a->length);
+                    Value out = eval_create_owned_array(env, VAL_STRING, a->length, a->length);
                     for (int i = 0; i < a->length; i++) {
                         const char *x = ((char**)a->data)[i];
                         const char *s = right.as.string_val;
@@ -2939,7 +3000,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 if (!a) return create_void();
 
                 if (a->element_type == VAL_INT && left.type == VAL_INT) {
-                    Value out = create_array(VAL_INT, a->length, a->length);
+                    Value out = eval_create_owned_array(env, VAL_INT, a->length, a->length);
                     for (int i = 0; i < a->length; i++) {
                         long long s = left.as.int_val;
                         long long y = ((long long*)a->data)[i];
@@ -2958,7 +3019,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 }
 
                 if (a->element_type == VAL_FLOAT && left.type == VAL_FLOAT) {
-                    Value out = create_array(VAL_FLOAT, a->length, a->length);
+                    Value out = eval_create_owned_array(env, VAL_FLOAT, a->length, a->length);
                     for (int i = 0; i < a->length; i++) {
                         double s = left.as.float_val;
                         double y = ((double*)a->data)[i];
@@ -2980,7 +3041,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         fprintf(stderr, "Error: string arrays only support +\n");
                         return create_void();
                     }
-                    Value out = create_array(VAL_STRING, a->length, a->length);
+                    Value out = eval_create_owned_array(env, VAL_STRING, a->length, a->length);
                     for (int i = 0; i < a->length; i++) {
                         const char *s = left.as.string_val;
                         const char *y = ((char**)a->data)[i];
@@ -4006,14 +4067,14 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     /* Array operations */
     if (strcmp(name, "at") == 0 || strcmp(name, "array_get") == 0) return builtin_at(args);
     if (strcmp(name, "array_length") == 0) return builtin_array_length(args);
-    if (strcmp(name, "array_new") == 0) return builtin_array_new(args);
+    if (strcmp(name, "array_new") == 0) return builtin_array_new(args, env);
     if (strcmp(name, "array_set") == 0) {
         if (node->as.call.checked_u8_array_mutation && !bound_name &&
             node->as.call.arg_count == 3)
             args[2] = eval_checked_scalar_destination(TYPE_U8, args[2]);
         return builtin_array_set(args);
     }
-    if (strcmp(name, "array_slice") == 0) return builtin_array_slice(args);
+    if (strcmp(name, "array_slice") == 0) return builtin_array_slice(args, env);
     
     /* Higher-order array functions */
     if (callback_kind) {
@@ -4609,6 +4670,10 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             }
 
             NLHashMapCore *hm = eval_hm_alloc(kt, vt, 16);
+            if (hm && !env_register_new_collection(env, hm, eval_destroy_owned_map)) {
+                eval_hm_free(hm);
+                eval_collection_allocation_failure();
+            }
             return create_int((long long)hm);
         }
 
@@ -4765,6 +4830,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
             if (!hm) return create_void();
             if (strcmp(name, "map_free") == 0) {
+                (void)env_detach_collection(env, hm);
                 eval_hm_free(hm);
             } else {
                 eval_hm_clear(hm);
@@ -4782,7 +4848,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                 return create_void();
             }
             NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
-            if (!hm) return create_array(VAL_INT, 0, 0);
+            if (!hm) return eval_create_owned_array(env, VAL_INT, 0, 0);
 
             bool is_keys = (strcmp(name, "map_keys") == 0);
             ValueType elem_type;
@@ -4792,7 +4858,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                 elem_type = (hm->val_type == NL_HM_VAL_STRING) ? VAL_STRING : VAL_INT;
             }
 
-            Value out = create_array(elem_type, (int)hm->size, (int)hm->size);
+            Value out = eval_create_owned_array(env, elem_type, hm->size, hm->size);
             int out_idx = 0;
             for (int64_t i = 0; i < hm->capacity; i++) {
                 NLHashMapEntry *e = &hm->entries[i];
@@ -4800,7 +4866,12 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                 if (elem_type == VAL_STRING) {
                     char *s = NULL;
                     if (is_keys) s = e->key.s; else s = e->value.s;
-                    ((char**)out.as.array_val->data)[out_idx++] = s;
+                    char *copy = eval_collection_copy_string(s ? s : "");
+                    if (!copy) {
+                        discard_partial_owned_array(env, out.as.array_val, out_idx);
+                        eval_collection_allocation_failure();
+                    }
+                    ((char**)out.as.array_val->data)[out_idx++] = copy;
                 } else {
                     int64_t v = 0;
                     if (is_keys) v = e->key.i; else v = e->value.i;
@@ -4962,7 +5033,8 @@ static void discard_literal_record(StructValue *record) {
     env_discard_record(record);
 }
 
-static void discard_partial_owned_array(Array *array, int initialized) {
+static void discard_partial_owned_array(Environment *env, Array *array, int initialized) {
+    (void)env_detach_collection(env, array);
     for (int i = 0; i < initialized; i++) {
         if (array->element_type == VAL_STRING) free(((char **)array->data)[i]);
         else if (array->element_type == VAL_STRUCT)
@@ -5108,7 +5180,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     case TYPE_STRUCT: element = VAL_STRUCT; break;
                     default: break;
                 }
-                return create_array(element, 0, 0);
+                return eval_create_owned_array(env, element, 0, 0);
             }
             
             /* Evaluate first element to determine type */
@@ -5118,13 +5190,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (elem_type == VAL_DYN_ARRAY) elem_type = VAL_ARRAY;
             
             /* Create array */
-            Value arr = create_array(elem_type, count, count);
+            Value arr = eval_create_owned_array(env, elem_type, count, count);
             
             /* Set elements */
             for (int i = 0; i < count; i++) {
                 Value elem = i == 0 ? first : eval_expression(expr->as.array_literal.elements[i], env);
                 if (elem.is_return) {
-                    discard_partial_owned_array(arr.as.array_val, i);
+                    discard_partial_owned_array(env, arr.as.array_val, i);
                     return elem;
                 }
                 /* I convert each checked byte destination after its single evaluation. */

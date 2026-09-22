@@ -163,7 +163,7 @@ int main(void) {
         ASSERT(result.type==VAL_ARRAY);
         ASSERT_EQ(((long long *)result.as.array_val->data)[0],expected[i]);
         ASSERT_EQ(((long long *)fixed.as.array_val->data)[0],input[i]);
-        free(result.as.array_val->data); free(result.as.array_val);
+        /* My returned fixed array borrows ctx; fixed remains caller-owned. */
         free(fixed.as.array_val->data); free(fixed.as.array_val);
         DynArray *dynamic=dyn_array_new(ELEM_INT);
         dynamic=dyn_array_push_int(dynamic,input[i]);
