@@ -133,6 +133,12 @@ class SanitizerPartitions(unittest.TestCase):
     def test_workflow_requires_aggregate_and_preserves_limits(self):
         import yaml
         jobs = yaml.safe_load((ROOT / '.github/workflows/ci.yml').read_text())['jobs']
+        worker = jobs['sanitizer-workers']
+        self.assertNotIn('REPORT', worker['env'])
+        self.assertNotIn('PLAN', worker['env'])
+        self.assertEqual(worker['steps'][0]['run'],
+                         'echo "REPORT=$RUNNER_TEMP/sanitizer-${{ matrix.id }}" >> "$GITHUB_ENV"\n'
+                         'echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"\n')
         workers = jobs['sanitizer-workers']
         self.assertEqual(workers['timeout-minutes'], 30)
         self.assertFalse(workers['strategy']['fail-fast'])

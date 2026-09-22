@@ -378,9 +378,11 @@ jobs:
     env:
       ASAN_OPTIONS: detect_leaks=0
       NANO_SHADOW_TIMEOUT_SECONDS: "60"
-      REPORT: ${{ runner.temp }}/sanitizer-${{ matrix.id }}
-      PLAN: ${{ runner.temp }}/sanitizer-plan/plan.json
     steps:
+      - name: Set retained report paths
+        run: |
+          echo "REPORT=$RUNNER_TEMP/sanitizer-${{ matrix.id }}" >> "$GITHUB_ENV"
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
       - name: Checkout code
         uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
