@@ -188,6 +188,14 @@ shadow probe { assert (== (probe) 0) }
         positives['visibility-public-extern']=(f'module {json.dumps(str(public_extern))} as External\nfn probe() -> int {{ assert (>= (External.get_argc) 0) return 0 }}\nshadow probe {{ assert (== (probe) 0) }}\n'+main,['probe','main'])
         private_extern=self.work/'private-extern.nano'
         private_extern.write_text('module private_extern\nextern fn get_argc() -> int\n')
+        private_files=self.work/'private-file-externs.nano'
+        private_files.write_text('module private_file_externs\nextern fn file_exists(path: string) -> bool\n')
+        foreign_import=f'module {json.dumps(str(private_files))} as PrivateFiles\n'
+        local_declaration='extern fn file_exists(path: string) -> bool\n'
+        local_probe=('fn probe() -> int { assert (file_exists '+json.dumps(str(private_files))+') return 0 }\n'
+                     'shadow probe { assert (== (probe) 0) }\n'+main)
+        positives['extern-owned-before-import']=(local_declaration+foreign_import+local_probe,['probe','main'])
+        positives['extern-owned-after-import']=(foreign_import+local_declaration+local_probe,['probe','main'])
         private_split=self.work/'private-split-visibility.nano'
         private_split.write_text('module private_split_visibility\nfn str_split(value: int) -> int { return value }\nshadow str_split { assert true }\n')
         positives['visibility-namespace-keeps-builtin']=(f'module {json.dumps(str(private_split))} as PrivateOwner\n'
@@ -197,6 +205,8 @@ shadow probe { assert (== (probe) 0) }
             'fn probe() -> int { let values: array<string> = (str_split "a,b" ",") assert (== (array_length values) 2) assert (== (at values 0) "a") assert (== (at values 1) "b") return 0 }\n'
             'shadow probe { assert (== (probe) 0) }\n'+main,['str_split','probe','main'])
         visibility_refusals={
+            'private-file-extern-qualified':foreign_import+local_declaration+'fn main() -> int { let present: bool = (PrivateFiles.file_exists "unused") return 0 }\nshadow main { assert true }\n',
+            'private-file-extern-without-local':foreign_import+'fn main() -> int { let present: bool = (file_exists "unused") return 0 }\nshadow main { assert true }\n',
             'qualified':f'module {owner_literal} as Visible\nfn main() -> int {{ return (Visible.hidden_value) }}\nshadow main {{ assert true }}\n',
             'selective':f'from {owner_literal} import hidden_value as chosen\nfn main() -> int {{ return (chosen) }}\nshadow main {{ assert true }}\n',
             'selective-ignored-result':f'from {owner_literal} import hidden_value as chosen\nfn main() -> int {{ (chosen) return 0 }}\nshadow main {{ assert true }}\n',

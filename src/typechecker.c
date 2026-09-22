@@ -8295,14 +8295,106 @@ static void register_builtin_functions(Environment *env) {
 }
 
 /* Check if two functions have matching signatures */
-static bool functions_match(Function *f1, Function *f2) {
-    if (f1->param_count != f2->param_count) return false;
-    if (f1->return_type != f2->return_type) return false;
-    
-    for (int i = 0; i < f1->param_count; i++) {
-        if (f1->params[i].type != f2->params[i].type) return false;
+/* I compare complete extern ABI facts without borrowing declaration authority
+ * from another module or allocating temporary annotation trees. */
+typedef struct {
+    Type type, element;
+    const char *name;
+    const TypeInfo *info;
+    FunctionSignature *signature;
+} ExternAnnotation;
+
+static bool extern_annotation_matches(Environment *env, ExternAnnotation a, const char *ao,
+                                      ExternAnnotation b, const char *bo) {
+    TypeInfo ae = {.base_type = a.element}, be = {.base_type = b.element};
+    TypeInfo av = a.info ? *a.info : (TypeInfo){.base_type = a.type};
+    TypeInfo bv = b.info ? *b.info : (TypeInfo){.base_type = b.type};
+    if (!av.generic_name) av.generic_name = (char *)a.name;
+    if (!bv.generic_name) bv.generic_name = (char *)b.name;
+    if (a.type == TYPE_ARRAY && !av.element_type) av.element_type = &ae;
+    if (b.type == TYPE_ARRAY && !bv.element_type) bv.element_type = &be;
+    if (a.type == TYPE_FUNCTION && !av.fn_sig) av.fn_sig = a.signature;
+    if (b.type == TYPE_FUNCTION && !bv.fn_sig) bv.fn_sig = b.signature;
+    FunctionSignature as = {.return_type = a.type, .return_struct_name = (char *)a.name,
+                            .return_type_info = &av, .return_fn_sig = a.signature};
+    FunctionSignature bs = {.return_type = b.type, .return_struct_name = (char *)b.name,
+                            .return_type_info = &bv, .return_fn_sig = b.signature};
+    if (!checked_signature_equal(env, &as, ao, &bs, bo, 0)) return false;
+    /* An explicit legacy element tag cannot disagree with the complete tree. */
+    if (a.type == TYPE_ARRAY && a.element != TYPE_UNKNOWN &&
+        (!av.element_type || !checked_signature_annotation(env, a.element, NULL, av.element_type, ao))) return false;
+    if (b.type == TYPE_ARRAY && b.element != TYPE_UNKNOWN &&
+        (!bv.element_type || !checked_signature_annotation(env, b.element, NULL, bv.element_type, bo))) return false;
+    return true;
+}
+
+static bool functions_match(Environment *env, const Function *a, const Function *b) {
+    if (!a || !b || a->param_count < 0 || a->param_count != b->param_count ||
+        (a->param_count && (!a->params || !b->params))) return false;
+    const char *ao = env_function_signature_owner(env, a);
+    const char *bo = env_function_signature_owner(env, b);
+    ExternAnnotation ar = {a->return_type, a->return_element_type, a->return_struct_type_name,
+                           a->return_type_info, a->return_fn_sig};
+    ExternAnnotation br = {b->return_type, b->return_element_type, b->return_struct_type_name,
+                           b->return_type_info, b->return_fn_sig};
+    if (!extern_annotation_matches(env, ar, ao, br, bo)) return false;
+    for (int i = 0; i < a->param_count; ++i) {
+        const Parameter *ap = &a->params[i], *bp = &b->params[i];
+        ExternAnnotation av = {ap->type, ap->element_type, ap->struct_type_name, ap->type_info, ap->fn_sig};
+        ExternAnnotation bv = {bp->type, bp->element_type, bp->struct_type_name, bp->type_info, bp->fn_sig};
+        if (!extern_annotation_matches(env, av, ao, bv, bo)) return false;
     }
-    
+    return true;
+}
+
+/* -1 refuses a conflicting ABI/declaration; 1 is the same declaration;
+ * 0 retains this distinct owner through the ordinary collector below. */
+static Function extern_declaration_view(Environment *env, const ASTNode *item) {
+    return {.name = item->as.function.name,
+        .params = item->as.function.params, .param_count = item->as.function.param_count,
+        .return_type = item->as.function.return_type,
+        .return_element_type = item->as.function.return_element_type,
+        .return_struct_type_name = item->as.function.return_struct_type_name,
+        .return_type_info = item->as.function.return_type_info,
+        .return_fn_sig = item->as.function.return_fn_sig, .is_extern = true,
+        .module_name = env->current_module, .is_pub = item->as.function.is_pub,
+        .source_file = env_current_file(env), .is_pure = item->as.function.is_pure,
+        .is_gpu = item->as.function.is_gpu};
+}
+
+static int extern_declaration_state(Environment *env, const ASTNode *item) {
+    Function current = extern_declaration_view(env, item);
+    bool same_declaration = false;
+    for (int i = 0; i < env->function_count; ++i) {
+        const Function *prior = &env->functions[i];
+        const char *symbol = prior->alias_of ? prior->alias_of : prior->name;
+        if (!symbol || strcmp(symbol, current.name)) continue;
+        if (!prior->is_extern || !functions_match(env, &current, prior)) return -1;
+        bool same_owner = (!prior->module_name && !current.module_name) ||
+            (prior->module_name && current.module_name && !strcmp(prior->module_name, current.module_name));
+        if (same_owner && prior->name && !strcmp(prior->name, current.name)) {
+            if (prior->is_pub != current.is_pub) return -1;
+            same_declaration = true;
+        }
+    }
+    return same_declaration ? 1 : 0;
+}
+
+/* My parameter/annotation pointers keep the existing AST/cache lease lifetime.
+ * Only declaration labels are newly owned; neither allocation failure publishes
+ * a partial row. Existing environment table growth keeps its fatal policy. */
+static bool register_owned_extern_declaration(Environment *env, const ASTNode *item) {
+    Function declaration = extern_declaration_view(env, item);
+    char *name = strdup(declaration.name);
+    char *owner = declaration.module_name ? strdup(declaration.module_name) : NULL;
+    if (!name || (declaration.module_name && !owner)) {
+        free(name); free(owner);
+        return false;
+    }
+    declaration.name = env_own_checker_allocation(env, name);
+    declaration.module_name = owner ? env_own_checker_allocation(env, owner) : NULL;
+    env_define_function(env, declaration);
+    register_native_function_context(env, &declaration);
     return true;
 }
 
@@ -8829,21 +8921,22 @@ register_function_pass1:;
                 (!env->current_module || strcmp(existing->module_name, env->current_module) != 0)) {
                 existing = NULL;
             }
-            if (existing) {
-                /* If both are extern and signatures match, it's fine (idempotent) */
-                if (item->as.function.is_extern && existing->is_extern) {
-                    /* Create a temporary function object for matching */
-                    Function current = (Function){0};
-                    current.param_count = item->as.function.param_count;
-                    current.params = item->as.function.params;
-                    current.return_type = item->as.function.return_type;
-                    /* Note: return_struct_type_name match not fully implemented here */
-                    
-                    if (functions_match(&current, existing)) {
-                        continue; /* Skip registration, already there and matches */
-                    }
+            if (item->as.function.is_extern) {
+                int state = extern_declaration_state(env, item);
+                if (state < 0) {
+                    fprintf(stderr, "I require matching complete extern signatures and consistent declaration visibility: %s\n", func_name);
+                    tc.has_error = true;
+                    continue;
                 }
-
+                if (state > 0) continue;
+                if (is_builtin_function(func_name) ||
+                    !register_owned_extern_declaration(env, item)) {
+                    fprintf(stderr, "I cannot register this owned extern declaration: %s\n", func_name);
+                    tc.has_error = true;
+                }
+                continue;
+            }
+            if (existing) {
                 /* Extern functions cannot be redefined or shadowed */
                 if (existing->is_extern) {
                     fprintf(stderr, "Error at line %d, column %d: Extern function '%s' cannot be redefined\n",
@@ -9693,19 +9786,22 @@ register_function_pass2:;
                 !existing->body && !existing->module_name && is_builtin_function(func_name)) {
                 existing = NULL;
             }
-            if (existing) {
-                /* If both are extern and signatures match, it's fine (idempotent) */
-                if (item->as.function.is_extern && existing->is_extern) {
-                    Function current;
-                    current.param_count = item->as.function.param_count;
-                    current.params = item->as.function.params;
-                    current.return_type = item->as.function.return_type;
-                    
-                    if (functions_match(&current, existing)) {
-                        continue; /* Skip registration, already there and matches */
-                    }
+            if (item->as.function.is_extern) {
+                int state = extern_declaration_state(env, item);
+                if (state < 0) {
+                    fprintf(stderr, "I require matching complete extern signatures and consistent declaration visibility: %s\n", func_name);
+                    tc.has_error = true;
+                    continue;
                 }
-
+                if (state > 0) continue;
+                if (is_builtin_function(func_name) ||
+                    !register_owned_extern_declaration(env, item)) {
+                    fprintf(stderr, "I cannot register this owned extern declaration: %s\n", func_name);
+                    tc.has_error = true;
+                }
+                continue;
+            }
+            if (existing) {
                 /* Extern functions cannot be redefined or shadowed */
                 if (existing->is_extern) {
                     fprintf(stderr, "Error at line %d, column %d: Extern function '%s' cannot be redefined\n",
