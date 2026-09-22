@@ -14491,3 +14491,8 @@ allocator failure claim.
   and bounded external timestamps before correction. Full18+8 remains open.
   [Evidence](evidence/list-search-bisection-timing.md).
   MAC: task_6ec8b514c61449d0863401584e86376b.
+
+- [ ] I retain the preparation-only native trace120-second outer terminal and
+  correct its external allowance to the owning bootstrap1800 seconds before
+  native attribution. My child shadow deadline remains10 seconds and no first
+  shadow was reached in the retained diagnostic. MAC: task_6ec8b514c61449d0863401584e86376b.

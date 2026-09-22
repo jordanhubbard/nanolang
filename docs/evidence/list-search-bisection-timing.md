@@ -31,3 +31,16 @@ My next diagnosis uses the existing NANO_SHADOW_TRACE native entry with external
 receipt timestamps. A last marker identifies a begun shadow; adjacent receipt
 times include pipe/scheduler overhead and do not prove exclusive shadow cost.
 I keep the original full graph,10-second child and120-second outer bounds.
+
+My unchanged numeric shadow(source21,item434) contains ten selected helper calls
+in each diagnostic: their measured wall interval falls from1.995489498 seconds
+to0.003487239 seconds; enclosing shadow wall falls from2.054069092 seconds to
+0.065852870 seconds. This matched-call slice complements, without replacing,
+the unequal full-run totals.
+
+My first Puck trace diagnostic stops at its120-second outer bound before any
+stdout or shadow marker (status124,120.017 seconds). The leader is reaped,
+its process group is gone, and source/tool maps agree. I retain this preparation
+terminal separately. The corrected external driver uses my owning bootstrap
+gate's1800-second outer allowance; the native child stays bounded at10 seconds.
+I do not infer which shadow is slow from the empty trace.
