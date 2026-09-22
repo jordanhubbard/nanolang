@@ -115,6 +115,9 @@ typedef struct {
     size_t shared_c_sources_count;
     ModuleCallbackAdapter *callback_adapters;
     size_t callback_adapters_count;
+    /* Owned canonical C-storage schema; absent preserves legacy metadata.
+     * It grants no generated adapter or foreign execution authority. */
+    char *typed_abi;
 } ModuleBuildMetadata;
 
 // Build information for tracking

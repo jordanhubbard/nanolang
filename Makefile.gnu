@@ -6012,3 +6012,12 @@ test-evaluator-collection-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_
 	@rm -f tests/test_evaluator_collection_ownership
 
 test-units: test-evaluator-collection-ownership
+
+# I rebuild all owning module-builder consumers when the private parser changes.
+$(OBJ_DIR)/module_builder.o $(OBJ_DIR)/test_module_generation_probe: $(SRC_DIR)/module_sdk_abi.inc
+
+.PHONY: test-module-sdk-abi
+test-module-sdk-abi: $(OBJ_DIR)/test_module_generation_probe $(OBJ_DIR)/cJSON.o
+	@SDK_ABI_CC='$(CC)' SDK_ABI_CFLAGS='$(CFLAGS)' SDK_ABI_LDFLAGS='$(LDFLAGS)' SDK_ABI_CJSON='$(abspath $(OBJ_DIR)/cJSON.o)' SDK_ABI_PROBE='$(abspath $(OBJ_DIR)/test_module_generation_probe)' $(PYTHON_WITH_YAML) -m unittest tests.test_module_sdk_abi
+
+test-units: test-module-sdk-abi

@@ -34,6 +34,7 @@
 
 // JSON parsing (simple, minimal implementation for module.json)
 #include "cJSON.h"
+#include "module_sdk_abi.inc"
 
 bool module_builder_verbose = false;
 static bool module_builder_can_prompt_sudo = false;
@@ -447,6 +448,10 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         hash_context_field(&hash, adapter->function_name);
         hash_context_field(&hash, adapter->adapter_symbol);
         hash_context_field(&hash, adapter->worker_thread ? "worker" : "owner");
+    }
+    if (meta->typed_abi) {
+        hash_context_field(&hash, "typed-provider-c-abi-v1");
+        hash_context_field(&hash, meta->typed_abi);
     }
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
@@ -1912,6 +1917,13 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
         return NULL;
     }
 
+    if (!module_parse_typed_abi(json, meta)) {
+        fprintf(stderr, "I require a bounded, unique typed C ABI schema: %s\n", path);
+        module_metadata_free(meta);
+        cJSON_Delete(json);
+        return NULL;
+    }
+
     // Parse fields
     cJSON *name = cJSON_GetObjectItem(json, "name");
     if (name && cJSON_IsString(name)) {
@@ -2233,6 +2245,7 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
         free(meta->callback_adapters[i].adapter_symbol);
     }
     free(meta->callback_adapters);
+    free(meta->typed_abi);
 
     free(meta);
 }

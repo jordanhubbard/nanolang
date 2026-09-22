@@ -769,6 +769,7 @@ static const char *const sdk_required_inputs[] = {
     "src/module_builder.h",
     "src/module_link_response.h",
     "src/module_metadata.c",
+    "src/module_sdk_abi.inc",
     "src/module_symbol.h",
     "src/nano_main.c",
     "src/nanocore_export.c",
