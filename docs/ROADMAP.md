@@ -17146,3 +17146,9 @@ I retained f160 ordinary identity/allocation passes on both hosts and sanitizer 
 - [ ] I qualify full evaluator terminal-child ownership under LSan (`task_992713bde1494772b0cb0b58bc9ee3c3`). Exact495e passes the unchanged full ordinary suite on both hosts; sanitizer stops in eval_match_miss_is_terminal with20887bytes/614 allocations, including effect/AST/callable lifetimes. I preserve both terminals and do not claim completion past that group. Root owns complete static lifetime diagnosis and reviewed cleanup; no suppression or unchanged replay.
 
 I refine task992713's fixture boundary before edits in `EVALUATOR_TERMINAL_WORKER.md`: spawn a fresh image before any ordinary test, retain original incomplete source and production fatal exit, register fixture-owned inputs for ordinary atexit cleanup, and require bounded exact diagnostic plus actual exit1. The parent full suite retains LSan and all original tests; root repairs its real effect/AST/callable leaks separately. No _Exit bypass or suppression is admitted.
+
+I record the terminal worker's missing zero-payload union retirement before its
+fixture correction: env_free_value omits VAL_UNION, so Choice.None's object and
+two owned labels need exact fixture-owned release before RunCtx teardown. The
+zero-argument public call allocates no separate frame; unmatched arm creates no
+payload. I retain task992713 and the independent general union ownership scope.

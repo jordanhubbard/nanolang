@@ -1842,6 +1842,28 @@ static const char *eval_fixture_executable;
 extern char **environ;
 static RunCtx terminal_match_context;
 static void terminal_match_cleanup(void) {
+    /* I own exactly the fixture's zero-payload constructor. The general
+     * Environment destructor does not own arbitrary aliased union values. */
+    Environment *env = terminal_match_context.env;
+    bool retired = false;
+    for (int i = 0; env && i < env->symbol_count; ++i) {
+        Symbol *symbol = &env->symbols[i];
+        if (symbol->value.type != VAL_UNION) continue;
+        UnionValue *value = symbol->value.as.union_val;
+        if (retired || !symbol->name || strcmp(symbol->name, "value") ||
+            !value || !value->union_name || strcmp(value->union_name, "Choice") ||
+            !value->variant_name || strcmp(value->variant_name, "None") ||
+            value->variant_index != 1 || value->field_count != 0 ||
+            value->field_names || value->field_values) {
+            fprintf(stderr, "I cannot retire an unexpected terminal fixture union.\n");
+            abort();
+        }
+        symbol->value = create_void();
+        free(value->union_name);
+        free(value->variant_name);
+        free(value);
+        retired = true;
+    }
     run_ctx_free(&terminal_match_context);
 }
 static int terminal_match_worker(void) {

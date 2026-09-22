@@ -20,3 +20,15 @@ I retain all other tests and test order. Fresh process isolation does not repair
 or hide parent leaks: full ordinary and ASan/UBSan/LSan test-eval remains required
 after root's independent production ownership repair. Source review precedes
 execution of this corrected fixture.
+
+I audit the fatal call before extending cleanup: `create_union` allocates one
+UnionValue plus owned union/variant names for Choice.None, with both payload
+vectors NULL. The identifier match borrows that symbol; no arm is selected and
+no payload binding is allocated. `call_function_at` has zero parameters and
+uses the existing Environment; its frame and block bookkeeping are automatic
+locals. The public return snapshot runs only after the fatal call returns.
+The ordinary Environment destructor does not retire VAL_UNION. I therefore
+retire only this fixture's exact zero-payload Choice.None binding before normal
+RunCtx teardown, replace its symbol value with void, and reject any unexpected
+union shape or second union binding. I do not introduce a general alias-sensitive
+union destructor or claim that separate product ownership boundary is repaired.
