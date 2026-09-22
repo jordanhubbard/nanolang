@@ -17115,3 +17115,10 @@ any corrected qualification.
 ### I preserve lexical returns across immediate async result copies
 
 - [ ] Under `task_3753dce667e14c66ba37f42baf987e48`, I retain the full evaluator's d25 first ordinary failure on Linux and Darwin: `eval_handler_return_async_calls` returns3099 instead of7. My owned scheduler snapshot deliberately clears control metadata, so an immediately awaited async call loses the still-live enclosing handler return. Before implementation I select a narrow direct-call adapter: copy the owned result as before, then restore only its top-level return flag and destination from the completed scheduler result before releasing that task. Explicit spawn/await snapshots retain their existing value-only contract. I require source review and the unchanged complete evaluator gate on both hosts, ordinary and supported ASan/UBSan/LSan, before closing this item.
+
+### My measured parser snapshot reduction
+
+- [ ] I implement task_f78ce9cfafe14a89b785a67d04afe6e0 under [my precode contract](PARSER_TOKEN_SNAPSHOTS.md): reuse only invocation-local token reads and remove redundant pure Parser argument snapshots, preserving EOF/errors/ownership and both original520-statement controls.
+- [ ] I require source review, exact-provider corrected parser shadows and timing, then combined bootstrap/CI acceptance without changing original bounds. My original355-second preparation terminal remains failed.
+
+My MAC task is pinned to the existing root agent; its claim attempt returns agent_status_unavailable. I retain the open task and do not treat that ownership service refusal as completed work.
