@@ -61,7 +61,7 @@ def main():
         env['DYLD_LIBRARY_PATH']='/opt/homebrew/opt/openssl@3/lib'
         configs=[dict(name='apple-ordinary',cc=cc,sanitizers=False),dict(name='homebrew-ordinary',cc=other,sanitizers=False),
                  dict(name='homebrew-sanitizers',cc=other,sanitizers=True)]
-        flags=['-I/opt/homebrew/opt/openssl@3/include'];links=['-L/opt/homebrew/opt/openssl@3/lib','-lcrypto']
+        flags=['-isysroot',env['SDKROOT'],'-I/opt/homebrew/opt/openssl@3/include'];links=['-L/opt/homebrew/opt/openssl@3/lib','-lcrypto']
     env.update(CC=shlex.join(cc),NANO_SDK_CC=shlex.join(cc),NANO_SDK_CFLAGS=shlex.join(flags),
         NANO_SDK_LDFLAGS=shlex.join(links),NANO_SDK_REPORT_DIR=str(report),NANO_SDK_EXPECT_CLEAN='1',
         NANO_SDK_PROBE_CONFIGS=json.dumps(configs),NANO_SDK_MIN_FREE_BYTES=str(2*1024**3))
