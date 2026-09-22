@@ -399,3 +399,21 @@ callback with the same three argument types and result42. Existing original
 fixtures, all negative sentinels and compiler policies stay unchanged. Both
 0108 Nano refreshes remain retained with exact provenance; correction affects
 fixtures/docs only and requires no new compiler bootstrap.
+
+The 0e6 fixture correction reaches the valid union-payload positive and exposes
+the existing constructor identity prerequisite: C treats Words.Some as a
+qualified type and refuses before emission. I preserve that source and terminal
+in /tmp/nanolang-split-0e6-puck-evidence on both hosts. I do not infer an
+allocation failure from the secondary preparation diagnostic or execute any
+failed output.
+
+The native lane identifies its reviewed chain: 323e5682f literal-only owning
+union classification, 744bea17e complete imported brace-constructor parsing,
+then contextual payload preparation through ac71b1b0f and exact enum identity
+at 85a428b5f. Current source foundation is 8028ab194. The constructor classifier
+uses NominalIdentity/env_nominal_identity, which my SDK tree does not contain.
+It cannot be copied as a suffix rewrite or an isolated helper without its
+owner/signature lifetime foundation. I require an explicit shared-source
+integration checkpoint preserving both lanes' reviewed invariants before
+resuming full paired qualification. No alternate resolver or fixture spelling
+workaround is proposed.
