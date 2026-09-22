@@ -1,0 +1,71 @@
+{
+  "source": "69eeb6c2e",
+  "hosts": {
+    "linux": {
+      "report_sha256": "6d3a8ce54570220927b5556fbba9f42b9ba3ae1270a18a083f971ceaeb747bb8",
+      "source_equal": true,
+      "tools_equal": true,
+      "linked_originals_equal": true,
+      "groups_absent": true,
+      "phases": [
+        {
+          "label": "fresh-providers",
+          "returncode": 0,
+          "seconds": 15.293630009051412,
+          "timeout": false
+        },
+        {
+          "label": "exec-owning",
+          "returncode": 0,
+          "seconds": 1.086873781052418,
+          "timeout": false
+        },
+        {
+          "label": "original-opaque",
+          "returncode": 0,
+          "seconds": 0.8549627849133685,
+          "timeout": false
+        },
+        {
+          "label": "original-protocol",
+          "returncode": 0,
+          "seconds": 0.8546791729750112,
+          "timeout": false
+        },
+        {
+          "label": "original-fuzz",
+          "returncode": 0,
+          "seconds": 0.43578529194928706,
+          "timeout": false
+        },
+        {
+          "label": "original-ffi",
+          "returncode": 2,
+          "seconds": 0.646843580994755,
+          "timeout": false
+        }
+      ]
+    },
+    "puck": {
+      "report_sha256": "d80fb929913e06c64021dc8227e1dfe93eca43f859b0925bc201a0c15d68bbec",
+      "source_equal": true,
+      "tools_equal": true,
+      "linked_originals_equal": true,
+      "groups_absent": true,
+      "phases": [
+        {
+          "label": "fresh-providers",
+          "returncode": 0,
+          "seconds": 10.833933874993818,
+          "timeout": false
+        },
+        {
+          "label": "exec-owning",
+          "returncode": 2,
+          "seconds": 1.4096847910113866,
+          "timeout": false
+        }
+      ]
+    }
+  }
+}

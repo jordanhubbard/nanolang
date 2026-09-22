@@ -1,0 +1,5 @@
+# My first corrected exec fixture terminals
+
+I froze `69eeb6c2e`. Fresh providers passed on both hosts. Linux passed the exec owning group and original opaque/protocol/fuzz groups, then stopped at the original array ABI probe: its obsolete `nano_module_artifact_dir` stub collided with the newly linked real SDK implementation. Puck stopped in the additive exec fixture when its minimum descriptor 256 could not be allocated. I observed a soft descriptor limit of 256 in the host SSH environment during subsequent read-only diagnosis.
+
+No sanitizer, lifecycle, borrowed-string continuation or installed control ran. Source/tool maps and every original linked provider hash remained equal, and all tracked process groups were absent at the actual terminals. These archives retain logs/maps, not the provider binaries retained in the qualification roots. Fixture-only correction `91cd9dcfe` is source-reviewed separately before any independently hash-verified ordinary reuse or fresh sanitizer continuation. Production is unchanged. MAC `task_a8f3985791ec4cd48637cc9c7c3ed2e1` remains open.
