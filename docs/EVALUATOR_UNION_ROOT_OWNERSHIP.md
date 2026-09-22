@@ -194,3 +194,34 @@ negative-count output sentinel and raw constructor ownership. Strict source and
 fixture syntax passes. Runtime qualification remains held for complete source
 and consumer-fixture review; these direct controls do not claim all parsed
 constructor/result_map or complete evaluator acceptance.
+
+## I consume mapped public callback snapshots
+
+Source review found that result_map's public call_function result is independent
+copied storage for STRING/STRUCT/TUPLE, so cloning it into a retained union does
+not consume the original. I discard that snapshot after attempted construction
+on success and failure. For a top-level FUNCTION, I first transfer the owned
+callable descriptor into the existing Environment retirement arena. Failure to
+retire destroys that untransferred descriptor/signature and refuses. A later
+union allocation failure leaves the callable owned by the arena until teardown;
+it publishes no union. This intentional arena retention differs from the checked
+constructor's unchanged-registry failure contract, and never adopts an arbitrary
+borrowed array/union leaf.
+
+The actual public call route handles ordinary user strings with create_string;
+its extern route copies the native pointer in ffi_call_extern_checked before any
+provider release. Reflection shortcut string results also use create_string.
+Record-list arena results cross the existing public independent-copy boundary.
+I do not infer ownership merely from a builtin's spelling.
+
+Additive parsed controls check a returned union after local aliases disappear,
+then actual result_map with string, record, tuple and callable user callbacks.
+The retained callable remains invocable. An explicit AST adapter control reaches
+the legacy dotted-literal constructor against the same checked declaration; I do
+not mislabel that constructed AST as a second parsed representation. Existing
+parsed shadows still run. A completed contextual task now returns an actually
+registered union: its argument is dropped, the result remains readable and the
+Environment cannot be destroyed until task release. Original stack-borrowed graph
+controls remain unchanged. Every checked constructor allocation prefix and the
+existing retirement allocation controls remain; I do not claim fatal result_map
+allocation subprocess coverage from those independent controls.

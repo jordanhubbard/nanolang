@@ -1059,6 +1059,20 @@ static void contextual_task_controls(void) {
         CHECK(nano_coro_release(context_id) && env_can_destroy(context_env));
     }
     env_discard_value_snapshot(context_graph);
+    char *union_names[] = {"number"}; Value union_values[] = {integer(51)};
+    CHECK(env_create_union(context_env,"TaskResult",0,"Held",union_names,union_values,1,&context_graph));
+    context_mode=0; context_args=context_runs=context_results=0;
+    context_id=lifetime_context_spawn(context_env,TYPE_UNION,context_callback,
+        context_env,context_arg_drop,context_result_drop,context_clone);
+    CHECK(context_id>=0 && nano_scheduler_step() && nano_coro_is_done(context_id));
+    CHECK(context_args==1 && !env_can_destroy(context_env));
+    Value union_copy=create_void(); CHECK(nano_coro_result_copy(context_id,&union_copy));
+    CHECK(env_union_result_borrowed(context_env,union_copy));
+    CHECK(union_copy.as.union_val==context_graph.as.union_val);
+    CHECK(union_copy.as.union_val->field_values[0].as.int_val==51);
+    env_discard_value_snapshot(union_copy); /* Union remains borrowed. */
+    CHECK(nano_coro_release(context_id) && env_can_destroy(context_env));
+    CHECK(context_graph.as.union_val->field_values[0].as.int_val==51);
     free_environment(context_env); context_env = NULL;
 }
 static void union_root_attempt(size_t at, bool once, size_t *count) {

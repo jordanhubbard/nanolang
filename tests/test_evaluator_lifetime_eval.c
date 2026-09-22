@@ -68,3 +68,7 @@ int lifetime_context_spawn(Environment *env, Type declared, CoroFn fn, void *arg
     if (id < 0) eval_task_owner_drop(owner);
     return id;
 }
+
+Value lifetime_eval_constructor(Environment *env, ASTNode *node) {
+    return eval_expression(node, env);
+}

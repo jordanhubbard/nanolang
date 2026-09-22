@@ -17243,3 +17243,11 @@ roots; aliases and raw external constructors are never adopted. I preserve
 borrowed graph leaves and existing task teardown guards. Allocation-prefix and
 alias controls are source-only pending review; full parsed/result_map consumers
 and full evaluator closure remain required, with no sanitizer replay yet.
+
+I correct task992713's source-reviewed result_map consumer: public mapped
+STRING/STRUCT/TUPLE snapshots are discarded after copying; top-level callable
+snapshots transfer to the existing retirement arena before becoming borrowed
+union leaves. I document retained-callable behavior on later constructor failure.
+Parsed constructor/result_map, explicit dotted AST adapter and registered-union
+completed-task controls supplement the original allocation/alias checks. Source
+and fixture syntax pass; runtime remains held for complete source review.

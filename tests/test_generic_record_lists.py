@@ -131,6 +131,7 @@ class GenericRecordLists(unittest.TestCase):
 
     def test_checked_storage_scheduler_and_allocation_prefixes(self):
         self.command('task-context', [self.programs, 'task-context'])
+        self.command('union-consumers', [self.programs, 'union-consumers'])
         for mode in ('task-foreign-ready', 'task-foreign-done', 'task-raw'):
             out, err = self.command(mode, [self.programs, mode], expected=(1,))
             self.assertEqual(err, b'I cannot access a task owned by another Environment.\n')

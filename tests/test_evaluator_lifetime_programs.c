@@ -242,9 +242,73 @@ static void task_context_control(const char *mode) {
     task_control_cleanup();
     puts("I retained task identity, scalar teardown and completed result leases.");
 }
+extern Value lifetime_eval_constructor(Environment *, ASTNode *);
+extern Value builtin_result_map(Value *, Environment *);
+static void union_consumers(void) {
+    const char *source =
+        "struct Item { value: int }\n"
+        "union Box { Ok { value: int }, Empty {} }\n"
+        "fn make() -> Box { let a: Box = Box.Ok { value: 7 } let b: Box = a return b }\n"
+        "shadow make { assert true }\n"
+        "fn words(n: int) -> string { return \"mapped\" }\n"
+        "shadow words { assert (== (words 7) \"mapped\") }\n"
+        "fn item(n: int) -> Item { return Item { value: n } }\n"
+        "shadow item { let p: Item = (item 7) assert (== p.value 7) }\n"
+        "fn pair(n: int) -> (int, string) { return (n, \"tuple\") }\n"
+        "shadow pair { assert true }\n"
+        "fn plus(n: int) -> int { return (+ n 1) }\n"
+        "shadow plus { assert (== (plus 7) 8) }\n"
+        "fn callable(n: int) -> fn(int) -> int { return plus }\n"
+        "shadow callable { assert true }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main { assert (== (main) 0) }\n";
+    int count; Token *tokens=tokenize(source,&count); CHECK(tokens);
+    ASTNode *ast=parse_program(tokens,count); CHECK(ast);
+    Environment *env=create_environment(); CHECK(env);
+    typecheck_set_current_file("<union-consumers>");
+    CHECK(type_check(ast,env) && run_program(ast,env));
+    Value box=call_function("make",NULL,0,env);
+    CHECK(env_union_result_borrowed(env,box));
+    CHECK(box.as.union_val->field_values[0].as.int_val==7);
+    /* I exercise the legacy dotted-literal evaluator adapter explicitly against
+     * the same checked declaration. This is an AST adapter control, not a second
+     * claim about which representation the current parser emits. */
+    ASTNode number={0}; number.type=AST_NUMBER; number.as.number=19;
+    ASTNode *values[]={&number}; char *names[]={"value"};
+    ASTNode literal={0}; literal.type=AST_STRUCT_LITERAL;
+    literal.as.struct_literal.struct_name="Box.Ok";
+    literal.as.struct_literal.field_count=1;
+    literal.as.struct_literal.field_names=names;
+    literal.as.struct_literal.field_values=values;
+    Value legacy=lifetime_eval_constructor(env,&literal);
+    CHECK(env_union_result_borrowed(env,legacy));
+    CHECK(legacy.as.union_val->field_values[0].as.int_val==19);
+    const char *callbacks[]={"words","item","pair","callable"};
+    for(int i=0;i<4;++i) {
+        Value fn=create_void(); fn.type=VAL_FUNCTION;
+        fn.as.function_val.function_name=(char *)callbacks[i];
+        Value args[]={box,fn}; Value result=builtin_result_map(args,env);
+        CHECK(env_union_result_borrowed(env,result));
+        Value mapped=result.as.union_val->field_values[0];
+        if(i==0) CHECK(mapped.type==VAL_STRING && !strcmp(mapped.as.string_val,"mapped"));
+        if(i==1) CHECK(mapped.type==VAL_STRUCT && mapped.as.struct_val->field_values[0].as.int_val==7);
+        if(i==2) CHECK(mapped.type==VAL_TUPLE && mapped.as.tuple_val->elements[0].as.int_val==7 &&
+            !strcmp(mapped.as.tuple_val->elements[1].as.string_val,"tuple"));
+        if(i==3) {
+            CHECK(mapped.type==VAL_FUNCTION && env_record_result_borrowed(env,mapped));
+            Value input=create_int(7); Value answer=call_function(mapped.as.function_val.function_name,&input,1,env);
+            CHECK(answer.type==VAL_INT && answer.as.int_val==8);
+        }
+    }
+    CHECK(run_shadow_tests(ast,env,false));
+    CHECK(env_can_destroy(env)); free_environment(env); free_ast(ast); free_tokens(tokens,count);
+    clear_module_cache();
+    puts("I retained parsed union, dotted adapter and mapped snapshot ownership.");
+}
 int main(int argc, char **argv) {
     CHECK(argc >= 2); nano_scheduler_init();
-    if (!strncmp(argv[1], "task-", 5)) { CHECK(argc == 2); task_context_control(argv[1]); }
+    if (!strcmp(argv[1], "union-consumers")) { CHECK(argc == 2); union_consumers(); }
+    else if (!strncmp(argv[1], "task-", 5)) { CHECK(argc == 2); task_context_control(argv[1]); }
     else if (!strcmp(argv[1], "program") || !strcmp(argv[1], "escape") || !strcmp(argv[1], "reject")) {
         CHECK(argc == 3); program(argv[2], !strcmp(argv[1], "escape"), !strcmp(argv[1], "reject"));
     } else if (!strncmp(argv[1], "declarations-", 13)) {
