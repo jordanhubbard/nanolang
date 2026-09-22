@@ -234,6 +234,10 @@ let paired:(Left.Handle,fn(Left.Handle)->bool)=((Left.zero),Left.valid)
 let callback:fn(Again.Handle)->bool=paired.1
 assert (callback paired.0)
 """,imports+same+'union Box<T> { Value { value:T } }\n')
+    positive['direct-union-opaque']=program("""
+let box:HandleBox=HandleBox.Value { value:(Left.zero) }
+match box { Value(payload)=>{ assert (Again.valid payload.value) } }
+""",imports+same+'union HandleBox { Value { value:Left.Handle } }\n')
     positive['source-prefix-collision']=program("""
 let opaque_value:Left.Handle=(Left.zero)
 let value:(Left.Handle,int)=(opaque_value,37)
@@ -279,6 +283,8 @@ unsafe {
             'fn wrong()->Right.Handle { return (Left.zero) }\nshadow wrong { assert (Right.valid (wrong)) }\n'),
         'cross-owner-array':program('let values:array<Right.Handle> =[(Left.zero)]',imports),
         'cross-owner-tuple':program('let value:(Right.Handle,int)=((Left.zero),37)',imports),
+        'cross-owner-union':program('let value:HandleBox=HandleBox.Value { value:(Right.zero) }',
+            imports+'union HandleBox { Value { value:Left.Handle } }\n'),
         'duplicate-local':program('', 'opaque type Handle\nopaque type Handle\n'),
         'record-kind':program('let value:Handle=(Left.zero)',imports+'struct Handle { value:int }\n'),
         'callback-result':program('let value:fn(int)->bool=plus',CALLBACKS),

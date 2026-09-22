@@ -45,12 +45,14 @@ bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
         if (!name || !name[0]) continue;
         const char *resolved = resolve_module_path(name, input);
         char *canonical = realpath(resolved ? resolved : name, NULL);
+        char *direct = realpath(name, NULL);
         free((void *)resolved);
         for (int j = 0; j < modules->count; j++) {
             if (!bindings[j].artifact) continue;
             char *candidate = realpath(modules->module_paths[j], NULL);
             bool match = strcmp(name, modules->module_paths[j]) == 0 ||
-                         (canonical && candidate && strcmp(canonical, candidate) == 0);
+                         (canonical && candidate && strcmp(canonical, candidate) == 0) ||
+                         (direct && candidate && strcmp(direct, candidate) == 0);
             free(candidate);
             if (!match) continue;
             ModuleBuildMetadata *metadata = bindings[j].metadata;
@@ -64,7 +66,7 @@ bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
                     ASTNode *item = ast->as.program.items[d];
                     if (item->type == AST_FUNCTION && item->as.function.is_extern &&
                         !strcmp(item->as.function.name, symbol)) {
-                        if (declaration) { free(canonical); return false; }
+                        if (declaration) { free(canonical); free(direct); return false; }
                         declaration = item;
                     }
                 }
@@ -72,16 +74,18 @@ bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
                                                     adapter->adapter_symbol, adapter->worker_thread)) {
                     fprintf(stderr, "I cannot bind the retained callback declaration for %s\n", symbol);
                     free(canonical);
+                    free(direct);
                     return false;
                 }
             }
             uint32_t idx = nvm_add_string(module, bindings[j].artifact, (uint32_t)strlen(bindings[j].artifact));
-            if (idx == UINT32_MAX) { free(canonical); return false; }
+            if (idx == UINT32_MAX) { free(canonical); free(direct); return false; }
             imp->module_name_idx = idx;
             imp->kind = NVM_IMPORT_ARTIFACT;
             break;
         }
         free(canonical);
+        free(direct);
     }
     uint32_t contract = 0;
     for (uint32_t i = 0; i < module->import_count; i++) {
