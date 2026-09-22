@@ -17179,3 +17179,5 @@ I qualify reviewed e3a parser correction on Linux with exact retained instrument
 - [x] I retained corrected54e's full original typecheck terminal: unchanged60-second deadline,433 complete bodies and the same instantiated-resource frontier; full-context classification savings were smaller than focused timing. Evidence: `docs/evidence/resource-keys-full-typecheck/`. Complete component/CI acceptance remains open.
 
 - [ ] I replace full Parser snapshots along six recursive resource helper paths with an invocation-local two-list declaration view, preserving public boundaries and original logic/tests (task_96b40bc1ccd644bca2131878fa6cf372). Contract: `docs/RESOURCE_CLASSIFICATION_DECLARATION_VIEW.md`; source review and focused timing precede another complete component attempt.
+
+- [x] I qualify all eleven focused resource-view shadows at946 with the original module context and60-second alarm; bodies total13.151seconds. I retain corrected evaluator FP flags and the prior comparison limitation. Evidence: `docs/evidence/resource-view-focused/`. Full604-shadow component and separate10-second bootstrap obligations remain open.
