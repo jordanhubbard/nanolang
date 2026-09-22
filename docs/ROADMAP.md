@@ -14439,3 +14439,11 @@ allocator failure claim.
   instead of ENUM in module parameter setup. I retain this first refusal and
   use owner-aware views only; ordinary records and unknown owners stay refused.
   MAC: task_7e994b0b89aa40629002347160d82ef6.
+
+- [ ] I repair the parser/checker ownership leaks reached by my 85a union
+  controls (task_ebfdc333d6a8495b8c903ab8142c88b6). Both ordinary hosts pass;
+  both sanitizer hosts retain 1,786 leaked bytes in 136 allocations. I audit
+  replaced auxiliary names, enum storage, copied checker placeholders and
+  failed-block child destruction before corrected execution. I retain every
+  original assertion and require the complete focused and source/native gates.
+  [Ownership correction contract](NANOISA_UNION_CHECKER_CLEANUP.md).
