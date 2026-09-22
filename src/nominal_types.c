@@ -369,7 +369,10 @@ bool bind_nominal_records(ASTNode *program, Environment *env) {
             bool resembles_formal = source_name[0] >= 'A' && source_name[0] <= 'Z' &&
                 source_name[1] == '\0' && !item->as.struct_def.is_extern;
             StructDef *existing = env_get_struct(env, source_name);
-            if (!existing && !resembles_formal) continue;
+            /* I do not let a namespace-qualified annotation become an ownerless
+             * short name merely because this imported record is unique. */
+            bool owned_record = owner && !item->as.struct_def.is_extern;
+            if (!existing && !resembles_formal && !owned_record) continue;
             bool same_owner = existing && ((!owner && !existing->module_name) ||
                 (owner && existing->module_name && strcmp(owner, existing->module_name) == 0));
             if (same_owner) continue;

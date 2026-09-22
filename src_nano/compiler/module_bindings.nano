@@ -90,6 +90,20 @@ shadow mb_reset {
     (mb_reset [])
 }
 
+# My merged root is the final source; earlier owners are actual dependencies.
+pub fn mb_imported_owner(owner: int) -> bool {
+    return (and (mb_active) (and (>= owner 0) (< owner (- (array_length mb_file_starts) 1))))
+}
+shadow mb_imported_owner {
+    (mb_reset [1, 8, 12])
+    assert (mb_imported_owner 0)
+    assert (mb_imported_owner 1)
+    assert (not (mb_imported_owner 2))
+    assert (not (mb_imported_owner (- 0 1)))
+    (mb_reset [])
+    assert (not (mb_imported_owner 0))
+}
+
 pub fn mb_owner(line: int) -> int {
     if (not (mb_active)) { return (- 0 1) }
     let mut owner: int = (- 0 1)

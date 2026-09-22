@@ -216,6 +216,23 @@ shadow probe { assert (== (probe) 0) }
             'private-extern':f'module {json.dumps(str(private_extern))} as External\nfn main() -> int {{ return (External.get_argc) }}\nshadow main {{ assert true }}\n',
             'private-extern-unqualified':f'import {json.dumps(str(private_extern))}\nfn main() -> int {{ return (get_argc) }}\nshadow main {{ assert true }}\n',
             'private-builtin-value':f'from {json.dumps(str(private_split))} import str_split\nfn main() -> int {{ let callback: fn(int)->int = str_split return (callback 41) }}\nshadow main {{ assert true }}\n'}
+        # I retain actual source spellings while each producer owns its type keys.
+        record_owner=self.work/'record-owner.nano'
+        record_owner.write_text('module record_owner\npub struct SourceInput { source: array<string> }\npub fn source() -> SourceInput { return SourceInput { source: ["kept"] } }\nshadow source { let value: SourceInput = (source) assert (== (at value.source 0) "kept") }\npub fn keep(value: SourceInput) -> SourceInput { return value }\nshadow keep { let value: SourceInput = (keep (source)) assert (== (at value.source 0) "kept") }\n')
+        record_import=f'module {json.dumps(str(record_owner))} as SourceCompanion\n'
+        positives['record-qualified-result']=(record_import+'struct Collection { values: array<SourceCompanion.SourceInput> }\nfn probe() -> int { let copied: SourceCompanion.SourceInput = (SourceCompanion.source) let callback: fn(SourceCompanion.SourceInput)->SourceCompanion.SourceInput = SourceCompanion.keep let retained: SourceCompanion.SourceInput = (callback copied) let collection: Collection = Collection { values: [retained] } let first: SourceCompanion.SourceInput = (at collection.values 0) assert (== (at first.source 0) "kept") return 0 }\nshadow probe { assert (== (probe) 0) }\n'+main,['source','keep','probe','main'])
+        positives['record-same-origin-alias']=(record_import+f'module {json.dumps(str(record_owner))} as Again\n'+'fn probe() -> int { let original: SourceCompanion.SourceInput = (SourceCompanion.source) let alias: Again.SourceInput = original assert (== (at alias.source 0) "kept") return 0 }\nshadow probe { assert (== (probe) 0) }\n'+main,['source','keep','probe','main'])
+        positives['record-selective-source-name']=(f'from {json.dumps(str(record_owner))} import SourceInput, source, keep\n'+'fn probe() -> int { let original: SourceInput = (keep (source)) assert (== (at original.source 0) "kept") return 0 }\nshadow probe { assert (== (probe) 0) }\n'+main,['source','keep','probe','main'])
+        origin_paths=[]
+        for side,value in (('left',41),('right',42)):
+            folder=self.work/('record-'+side);folder.mkdir()
+            path=folder/'same.nano';origin_paths.append(path)
+            path.write_text(f'module record_{side}\npub struct Item {{ value: int }}\npub fn make_{side}() -> Item {{ return Item {{ value: {value} }} }}\nshadow make_{side} {{ let item: Item = (make_{side}) assert (== item.value {value}) }}\n')
+        origin_imports=f'module {json.dumps(str(origin_paths[0]))} as Left\nmodule {json.dumps(str(origin_paths[1]))} as Right\n'
+        positives['record-distinct-physical-owners']=(origin_imports+'fn probe() -> int { let left: Left.Item = (Left.make_left) let right: Right.Item = (Right.make_right) assert (== left.value 41) assert (== right.value 42) return 0 }\nshadow probe { assert (== (probe) 0) }\n'+main,['make_left','make_right','probe','main'])
+        positives['record-list-original-spelling']=(f'from {json.dumps(str(origin_paths[0]))} import Item, make_left\n'+'fn probe() -> int { let rows: List<Item> = (list_Item_new) (list_Item_push rows (make_left)) let copied: Item = (list_Item_get rows 0) assert (== copied.value 41) (list_Item_free rows) return 0 }\nshadow probe { assert (== (probe) 0) }\n'+main,['make_left','probe','main'])
+        boundary_refusals['record-distinct-owner-value']=origin_imports+'fn main() -> int { let wrong: Left.Item = (Right.make_right) return 0 }\nshadow main { assert true }\n'
+        boundary_refusals['record-distinct-owner-array']=origin_imports+'fn main() -> int { let wrong: array<Left.Item> = [(Right.make_right)] return 0 }\nshadow main { assert true }\n'
         for role,row in self.producers.items():
             for label,(source,names) in positives.items():
                 name=role+'-'+label;path=self.work/(name+'.nano');path.write_text(source)
