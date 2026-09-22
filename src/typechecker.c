@@ -2557,22 +2557,23 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
 
             /* I retain an exact checked byte destination for source evaluation. */
-            bool byte_push = !strcmp(expr->as.call.name, "array_push") &&
-                env_array_push_is_builtin(env, expr->line, expr->column);
-            bool byte_set = !strcmp(expr->as.call.name, "array_set") && func &&
-                !func->body && !func->is_extern &&
+            bool byte_push = env_function_is_builtin(func, "array_push") &&
+                !env_get_var_visible_at(env, "array_push", expr->line, expr->column);
+            bool byte_set = env_function_is_builtin(func, "array_set") &&
                 !env_get_var_visible_at(env, "array_set", expr->line, expr->column);
             int mutation_arity = byte_push ? 2 : 3;
             if ((byte_push || byte_set) && expr->as.call.arg_count == mutation_arity &&
                 check_expression(expr->as.call.args[0], env) == TYPE_ARRAY &&
                 infer_array_element_type(expr->as.call.args[0], env) == TYPE_U8) {
-                ASTNode *value = expr->as.call.args[mutation_arity - 1];
-                Type actual = check_expression(value, env);
-                bool valid = scalar_value_matches(actual, TYPE_U8, value);
+                bool valid = true;
                 if (byte_set) {
                     Type index = check_expression(expr->as.call.args[1], env);
-                    valid = valid && (index == TYPE_INT || index == TYPE_U8);
+                    valid = index == TYPE_INT || index == TYPE_U8;
                 }
+                ASTNode *value = expr->as.call.args[mutation_arity - 1];
+                Type actual = check_expression(value, env);
+                valid = valid && (actual == TYPE_INT || actual == TYPE_U8 || actual == TYPE_ENUM) &&
+                    scalar_value_matches(actual, TYPE_U8, value);
                 if (!valid) {
                     emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
                         "I require a checked byte value and an integer index for byte array mutation.",
