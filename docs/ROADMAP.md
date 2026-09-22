@@ -17209,3 +17209,10 @@ row3 with no selector, preserve it after source invalidation, and check function
 subject1 selects row0 plus unchanged output for an invalid subject. The const
 rows accessor is a contractual read-only view; nested C pointers are not deep
 const, and no immutable SDK admission follows from this transport helper.
+
+I retain task-context1ff's first Linux ordinary terminal: fresh providers passed,
+but the first new parsed control was refused for its missing required main before
+any task callback ran. Puck was staged only; sanitizer was unreached. I add a
+normal main returning0 and its shadow to that fixture, preserving separate actual
+scalar task invocation, counters, DONE/teardown checks and all refusal assertions.
+Fixture source review precedes corrected qualification.

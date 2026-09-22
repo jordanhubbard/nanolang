@@ -201,7 +201,9 @@ static void task_context_control(const char *mode) {
         "fn scalar() -> int { set calls (+ calls 1) return 7 }\n"
         "shadow scalar { assert (== (scalar) 7) }\n"
         "fn words() -> string { return \"kept\" }\n"
-        "shadow words { assert (== (words) \"kept\") }\n";
+        "shadow words { assert (== (words) \"kept\") }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main { assert (== (main) 0) }\n";
     task_tokens = tokenize(source, &task_token_count); CHECK(task_tokens);
     task_ast = parse_program(task_tokens, task_token_count); CHECK(task_ast);
     task_env = create_environment(); task_foreign = create_environment(); CHECK(task_env && task_foreign);
