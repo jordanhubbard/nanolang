@@ -17228,3 +17228,5 @@ shared_%d_%d binding buffer with a worst-case31-byte formatting bound. Puck both
 configurations passed at that pin. I enlarge only that fixture buffer to32 and
 check the snprintf result against capacity; original loop indices, binding names
 and ownership assertions remain unchanged. No warning suppression or replay.
+
+- [ ] I implement Environment ownership for evaluator-created fixed arrays/maps under task_992713bde1494772b0cb0b58bc9ee3c3, after qualified73e contextual leases. I preserve caller input ownership, define zero-safe immediate registration/detach rollback and copy map projection strings; complete source/fault controls require review before teardown executes. Contract: `docs/EVALUATOR_COLLECTION_RESULT_CONTRACT.md`.
