@@ -1,0 +1,4 @@
+{
+  "status": 1,
+  "error": "AssertionError({'label': 'sanitized-identity', 'argv': ['/home/jkh/nanolang-qualification/scalar-array-f160-linux/sanitized/identity'], 'bound': 180, 'timeout': False, 'pid': 1455476, 'returncode': 1, 'remaining_groups': [], 'seconds': 0.42445787601172924})"
+}

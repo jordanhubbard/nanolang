@@ -1,0 +1,12 @@
+{
+  "label": "sanitized-allocations",
+  "argv": [
+    "/home/jkh/nanolang-qualification/scalar-array-319-linux/sanitized/allocations"
+  ],
+  "bound": 180,
+  "timeout": false,
+  "pid": 1519216,
+  "returncode": 0,
+  "remaining_groups": [],
+  "seconds": 29.960216560051776
+}

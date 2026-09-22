@@ -86,17 +86,74 @@ static void parsed_extern_policy(void) {
             bool checked = module ? type_check_module(program, env) : type_check(program, env);
             assert(checked == !module);
             Function *selected = env_get_function(env, names[i]);
-            assert(env_function_is_builtin(selected));
+            bool declared_push = !module && !strcmp(names[i], "array_push");
+            assert(env_function_is_builtin(selected) == !declared_push);
             bool foreign_registered = false;
             for (int j = 0; j < env->function_count; ++j)
                 if (!strcmp(env->functions[j].name, names[i]) && env->functions[j].is_extern) {
                     foreign_registered = true;
                     assert(!env_function_is_builtin(&env->functions[j]));
+                    assert(!env->functions[j].checker_builtin_placeholder);
+                    if (declared_push) assert(selected == &env->functions[j]);
                 }
             assert(foreign_registered == !module);
             free_environment(env); free_ast(program); free_tokens(tokens, count);
         }
     }
+}
+static void extern_placeholder_origin(void) {
+    const char *source = "extern fn at(values:array<int>, index:int)->int";
+    int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+    ASTNode *program = parse_program(tokens, count); assert(program && program->as.program.count == 1);
+    ASTNode *declaration = program->as.program.items[0]; assert(declaration->type == AST_FUNCTION);
+    Environment *env = create_environment(); assert(env);
+    register_builtin_functions(env);
+    int placeholder = -1;
+    for (int i = 0; i < env->function_count; ++i) {
+        assert(env->functions[i].checker_builtin_placeholder);
+        if (!strcmp(env->functions[i].name, "at")) placeholder = i;
+    }
+    assert(placeholder >= 0 && extern_declaration_state(env, declaration) == 0);
+    ModuleMetadata *metadata = extract_module_metadata(env, "Placeholders"); assert(metadata);
+    for (int i = 0; i < metadata->function_count; ++i)
+        assert(!metadata->functions[i].checker_builtin_placeholder);
+    free_module_metadata(metadata);
+
+    /* Copying even a real marked row through ordinary publication strips origin.
+     * Its bodyless spelling cannot make it exempt from actual ABI collisions. */
+    Function copied = env->functions[placeholder];
+    env_define_function(env, copied);
+    assert(!env->functions[env->function_count - 1].checker_builtin_placeholder);
+    assert(extern_declaration_state(env, declaration) == -1);
+    free_environment(env);
+
+    env = create_environment(); assert(env); register_builtin_functions(env);
+    env->current_module = "First";
+    assert(register_owned_extern_declaration(env, declaration));
+    assert(extern_declaration_state(env, declaration) == 1);
+    declaration->as.function.is_pub = true;
+    assert(extern_declaration_state(env, declaration) == -1);
+    declaration->as.function.is_pub = false;
+    env->current_module = "Second";
+    assert(extern_declaration_state(env, declaration) == 0);
+    assert(register_owned_extern_declaration(env, declaration));
+    assert(extern_declaration_state(env, declaration) == 1);
+    /* A second actual ABI declaration still compares complete array leaves. */
+    const char *wrong_source = "extern fn at(values:array<string>, index:int)->int";
+    int wrong_count = 0; Token *wrong_tokens = tokenize(wrong_source, &wrong_count); assert(wrong_tokens);
+    ASTNode *wrong = parse_program(wrong_tokens, wrong_count); assert(wrong && wrong->as.program.count == 1);
+    assert(extern_declaration_state(env, wrong->as.program.items[0]) == -1);
+    free_environment(env); free_ast(wrong); free_tokens(wrong_tokens, wrong_count);
+    free_ast(program); free_tokens(tokens, count);
+
+    const char *callbacks = "extern fn callback(f:fn(array<int>)->int)->int "
+        "extern fn callback(f:fn(array<string>)->int)->int";
+    tokens = tokenize(callbacks, &count); assert(tokens);
+    program = parse_program(tokens, count); assert(program && program->as.program.count == 2);
+    env = create_environment(); assert(env); register_builtin_functions(env);
+    assert(register_owned_extern_declaration(env, program->as.program.items[0]));
+    assert(extern_declaration_state(env, program->as.program.items[1]) == -1);
+    free_environment(env); free_ast(program); free_tokens(tokens, count);
 }
 static void declaration_identity(void) {
     Environment *env = create_environment(); assert(env);
@@ -511,6 +568,27 @@ static void retained_callable_consumers(void) {
     assert(check_indirect_call(&packed_call, env, NULL) == TYPE_STRUCT);
     free_function_signature(packed_call.as.call.checked_signature); free(packed_call.as.call.return_struct_type_name);
     const NominalView *packed_proof = env_get_var(env, "packed")->checker_nominal_view;
+    /* My new destination entry retains both record owners and the callable's
+     * formal/fixed contexts through an actual array-of-tuple literal. */
+    NominalView array_destination = {0};
+    assert(nominal_view_clone(env, packed_proof, 0, &array_destination));
+    assert(nominal_view_wrap_array(&array_destination));
+    ASTNode checked_tuple = {.type = AST_TUPLE_LITERAL};
+    checked_tuple.as.tuple_literal.elements = tuple_items; checked_tuple.as.tuple_literal.element_count = 3;
+    ASTNode *checked_items[] = {&checked_tuple}; ASTNode checked_array = {.type = AST_ARRAY_LITERAL};
+    checked_array.as.array_literal.elements = checked_items; checked_array.as.array_literal.element_count = 1;
+    assert(check_destination_expression(env, &array_destination, &checked_array, 0) == TYPE_ARRAY);
+    const NominalView *array_proof = nominal_constructor_view(env, &checked_array); assert(array_proof);
+    assert(nominal_view_equal(env, array_proof, &array_destination, 0));
+    ASTNode *wrong_items[] = {&second, &first, &alias}; ASTNode wrong_tuple = {.type = AST_TUPLE_LITERAL};
+    wrong_tuple.as.tuple_literal.elements = wrong_items; wrong_tuple.as.tuple_literal.element_count = 3;
+    ASTNode *wrong_arrays[] = {&wrong_tuple}; ASTNode wrong_array = {.type = AST_ARRAY_LITERAL};
+    wrong_array.as.array_literal.elements = wrong_arrays; wrong_array.as.array_literal.element_count = 1;
+    assert(check_destination_expression(env, &array_destination, &wrong_array, 0) == TYPE_UNKNOWN);
+    assert(!nominal_constructor_view(env, &wrong_array) && !env_array_expression_info(env, &wrong_array));
+    assert(nominal_constructor_view(env, &checked_array) == array_proof);
+    free(checked_tuple.as.tuple_literal.element_types); free(wrong_tuple.as.tuple_literal.element_types);
+    nominal_view_discard(&array_destination);
     assert(nominal_view_matches_value(env, packed_proof, &tuple, 0));
     ASTNode *swapped_items[] = {&second, &first, &alias}; ASTNode swapped_tuple = tuple;
     swapped_tuple.as.tuple_literal.elements = swapped_items;
@@ -988,10 +1066,126 @@ static void emission_entry_rollback(void) {
         free_environment(env); free_ast(program); free_tokens(tokens, count);
     }
 }
+#define SCALAR_BYTE_HELPER "fn byte_value(n:int)->u8{return n} shadow byte_value{assert (== (byte_value 258) 2)} "
+static void scalar_array_source(const char *source, bool expected) {
+    size_t source_length = strlen(source);
+    assert(source_length <= SIZE_MAX - sizeof(SCALAR_BYTE_HELPER));
+    size_t length = sizeof(SCALAR_BYTE_HELPER) + source_length;
+    char *complete = malloc(length); assert(complete);
+    int written = snprintf(complete, length, "%s%s", SCALAR_BYTE_HELPER, source);
+    assert(written >= 0 && (size_t)written < length);
+    int count = 0; Token *tokens = tokenize(complete, &count); assert(tokens);
+    ASTNode *program = parse_program(tokens, count); assert(program);
+    Environment *env = create_environment(); assert(env);
+    bool ok = type_check_module(program, env);
+    assert(ok == expected);
+    assert(active_array_destination == NULL);
+    free_environment(env); free_ast(program); free_tokens(tokens, count); free(complete);
+}
+static void scalar_array_borrowed_destination(void) {
+    for (int invalid = 0; invalid < 2; ++invalid) {
+        const char *source = SCALAR_BYTE_HELPER "resource struct Words { items:array<u8> } fn main()->int{return 0} shadow main{assert true}";
+        int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
+        ASTNode *program = parse_program(tokens, count); assert(program);
+        Environment *env = create_environment(); assert(env && type_check(program, env));
+        env_define_var(env, "view", TYPE_BORROW_MUT, false, create_void());
+        Symbol *borrowed = env_get_var(env, "view"); assert(borrowed);
+        borrowed->struct_type_name = strdup("Words"); assert(borrowed->struct_type_name);
+        TypeInfo integer = {.base_type = TYPE_INT};
+        TypeInfo integers = {.base_type = TYPE_ARRAY, .element_type = &integer};
+        env_define_var_with_type_info(env, "integers", TYPE_ARRAY, TYPE_INT, &integers, false, create_void());
+        const char *body = invalid ? "fn probe()->void{set view.items integers}"
+            : "fn probe()->void{set view.items [1,(byte_value 2)]}";
+        int body_count = 0; Token *body_tokens = tokenize(body, &body_count); assert(body_tokens);
+        ASTNode *body_program = parse_program(body_tokens, body_count); assert(body_program && body_program->as.program.count == 1);
+        ASTNode *block = body_program->as.program.items[0]->as.function.body;
+        assert(block && block->type == AST_BLOCK && block->as.block.count == 1);
+        ASTNode *assignment = block->as.block.statements[0]; assert(assignment->type == AST_SET);
+        TypeChecker checker = {.env = env, .current_function_return_type = TYPE_VOID};
+        NativeContextMark before = native_context_mark(env);
+        CheckerNominalExpression *proof = env->checker_nominal_expressions;
+        g_typecheck_error_count = 0;
+        check_statement(&checker, assignment);
+        assert((g_typecheck_error_count > 0 || checker.has_error) == (invalid != 0));
+        if (invalid) {
+            assert(env->checker_nominal_expressions == proof);
+            assert(env->array_expression_binding_count == before.arrays && env->tuple_literal_binding_count == before.tuples);
+        } else {
+            const TypeInfo *actual = env_array_expression_info(env, assignment->as.set.value);
+            assert(actual && actual->element_type->base_type == TYPE_U8);
+        }
+        assert(active_array_destination == NULL);
+        free_environment(env); free_ast(body_program); free_tokens(body_tokens, body_count);
+        free_ast(program); free_tokens(tokens, count);
+    }
+}
+
+static void scalar_array_destinations(void) {
+    const char *positive[] = {
+        "fn main()->int{let a:array<u8> = [1,(byte_value 2),(+ 255 3)] return 0}",
+        "let global:array<u8> = [1,(+ 255 3)] fn main()->int{return 0}",
+        "fn main()->int{let mut a:array<u8> = [] set a [1,(byte_value 2)] return 0}",
+        "fn bytes()->array<u8>{return [1,(byte_value 2)]} fn main()->int{return 0}",
+        "fn take(a:array<u8>)->int{return 0} fn main()->int{return (take [1,(byte_value 2)])}",
+        "fn take(a:array<u8>)->int{return 0} fn main()->int{let f:fn(array<u8>)->int = take return (f [1,(byte_value 2)])}",
+        "struct Holder{items:array<u8>} fn main()->int{let h:Holder = Holder{items:[1,(byte_value 2)]} return 0}",
+        "union Box<T>{Some{items:T}} fn main()->int{let h:Box<array<u8>> = Box.Some{items:[1,(byte_value 2)]} return 0}",
+        "fn main()->int{let a:array<array<u8>> = [[],[1,(byte_value 2)]] return 0}",
+        "fn main()->int{let a:array<u8> = (cond (true [1,(byte_value 2)]) (else [])) return 0}",
+        "union Pick{Some{value:int}} fn main()->int{let a:array<u8> = (match Pick.Some{value:258}{Some(p)=>{let x:int = p.value [x,(byte_value 2)]}}) return 0}",
+        "fn main()->int{let a:array<u8> = [(cond ((at [true] 0) 1) (else 2))] return 0}",
+        "enum Tag{One} fn main()->int{let a:array<Tag> = [Tag.One] return 0}",
+        "union StatementPick{Some{value:int}} fn main()->int{match StatementPick.Some{value:1}{Some(p)=>{let x:int = p.value}} match StatementPick.Some{value:2}{Some(p)=>{let y:int = p.value}} return 0}",
+        "fn main()->int{let a:array<u8> = [1] let b:array<u8> = a return 0}",
+        "fn make(n:int)->array<u8>{return [n]} fn main()->int{let array_new:fn(int)->array<u8> = make let a:array<u8> = (array_new 1) return 0}"
+    };
+    for (size_t i = 0; i < sizeof positive / sizeof *positive; ++i) scalar_array_source(positive[i], true);
+    const char *negative[] = {
+        "fn main()->int{let integers:array<int> = [1] let bytes:array<u8> = integers return 0}",
+        "let integers:array<int> = [1] let bytes:array<u8> = integers fn main()->int{return 0}",
+        "fn main()->int{let integers:array<int> = [1] let mut bytes:array<u8> = [] set bytes integers return 0}",
+        "fn bytes()->array<u8>{let integers:array<int> = [1] return integers} fn main()->int{return 0}",
+        "fn take(a:array<u8>)->int{return 0} fn main()->int{let integers:array<int> = [1] return (take integers)}",
+        "fn take(a:array<u8>)->int{return 0} fn main()->int{let f:fn(array<u8>)->int = take let integers:array<int> = [1] return (f integers)}",
+        "struct Holder{items:array<u8>} fn main()->int{let integers:array<int> = [1] let h:Holder = Holder{items:integers} return 0}",
+        "union Box<T>{Some{items:T}} fn main()->int{let integers:array<int> = [1] let h:Box<array<u8>> = Box.Some{items:integers} return 0}",
+        "fn main()->int{let integers:array<int> = [1] let a:array<array<u8>> = [integers] return 0}",
+        "fn main()->int{let integers:array<int> = [1] let a:array<u8> = (cond (true integers) (else [])) return 0}",
+        "union Pick{Some{value:int}} fn main()->int{let a:array<u8> = (match Pick.Some{value:258}{Some(p)=>{let x:array<int> = [p.value] x}}) return 0}",
+        "fn main()->int{let a:array<u8> = [1,true] return 0}",
+        "fn main()->int{let a:array<u8> = [1,256] return 0}",
+        "fn main()->int{let a:array<u8> = [1,-1] return 0}",
+        "fn main()->int{let a:array<u8> = [(at [true] 0)] return 0}",
+        "enum Left{One} enum Right{One} fn main()->int{let a:array<Left> = [Right.One] return 0}",
+        "fn main()->int{let a:array<u8> = (array_new 2 1) return 0}",
+        "fn make(n:int)->array<int>{return [n]} fn main()->int{let array_new:fn(int)->array<int> = make let a:array<u8> = (array_new 1) return 0}",
+        "fn id(n:int)->int{return n} fn main()->int{let a:array<u8> = (map [1] id) return 0}"
+    };
+    for (size_t i = 0; i < sizeof negative / sizeof *negative; ++i) scalar_array_source(negative[i], false);
+
+    Environment *env = create_environment(); assert(env);
+    ASTNode number = {.type = AST_NUMBER}; number.as.number = 1;
+    ASTNode *members[] = {&number}; ASTNode literal = {.type = AST_ARRAY_LITERAL};
+    literal.as.array_literal.elements = members; literal.as.array_literal.element_count = 1;
+    literal.as.array_literal.element_type = TYPE_UNKNOWN;
+    TypeInfo byte = {.base_type = TYPE_U8}, integer = {.base_type = TYPE_INT};
+    TypeInfo bytes = {.base_type = TYPE_ARRAY, .element_type = &byte};
+    TypeInfo integers = {.base_type = TYPE_ARRAY, .element_type = &integer};
+    g_typecheck_error_count = 0;
+    assert(check_array_destination_annotation(env, &bytes, NULL, NULL, &literal, 0));
+    const NominalView *proof = nominal_constructor_view(env, &literal); assert(proof);
+    const TypeInfo *storage = env_array_expression_info(env, &literal); assert(storage);
+    assert(check_expression(&literal, env) == TYPE_ARRAY && literal.as.array_literal.element_type == TYPE_U8);
+    assert(!check_array_destination_annotation(env, &integers, NULL, NULL, &literal, 0));
+    assert(nominal_constructor_view(env, &literal) == proof && env_array_expression_info(env, &literal) == storage);
+    assert(literal.as.array_literal.element_type == TYPE_U8 && active_array_destination == NULL);
+    free_environment(env);
+}
+
 extern void test_nominal_constructor_allocations(void);
 int main(void) {
-    test_nominal_constructor_allocations();
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); array_pop_element_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); union_checker_cleanup_boundaries(); checker_module_name_ownership(); generic_byte_payload_context(); constructor_failure_rollback(); emission_entry_rollback();
+    test_nominal_constructor_allocations(); scalar_array_destinations(); scalar_array_borrowed_destination();
+    intrinsic_identity(); parsed_extern_policy(); extern_placeholder_origin(); declaration_identity(); array_pop_element_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); union_checker_cleanup_boundaries(); checker_module_name_ownership(); generic_byte_payload_context(); constructor_failure_rollback(); emission_entry_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }

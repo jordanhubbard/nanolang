@@ -1,0 +1,1 @@
+-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib

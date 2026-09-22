@@ -834,6 +834,8 @@ const char *env_function_signature_owner(Environment *env, const Function *funct
 
 /* Define function */
 void env_define_function(Environment *env, Function func) {
+    /* A copied/source descriptor cannot import checker-placeholder authority. */
+    func.checker_builtin_placeholder = false;
     env_function_index_invalidate(env);
     if (env->function_count >= env->function_capacity) {
         env->function_capacity *= 2;

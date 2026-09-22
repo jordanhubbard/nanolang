@@ -573,6 +573,61 @@ static void struct_auxiliary_teardown_controls(void) {
     }
 }
 
+extern bool array_test_scalar_destination_seed(Environment *, ASTNode *);
+extern bool array_test_scalar_destination(Environment *, ASTNode *);
+static size_t scalar_destination_attempt(size_t prefix, bool transient, bool invalid) {
+    Environment *env = create_environment(); CHECK(env);
+    ASTNode prior = {.type = AST_ARRAY_LITERAL};
+    prior.as.array_literal.element_type = TYPE_UNKNOWN;
+    CHECK(array_test_scalar_destination_seed(env, &prior));
+    const TypeInfo *saved = env_array_expression_info(env, &prior); CHECK(saved);
+    ASTNode one = {.type = AST_NUMBER}, two = {.type = invalid ? AST_BOOL : AST_NUMBER};
+    one.as.number = 1; if (invalid) two.as.bool_val = true; else two.as.number = 2;
+    ASTNode *left_members[] = {&one}, *right_members[] = {&two};
+    ASTNode left = {.type = AST_ARRAY_LITERAL}, right = {.type = AST_ARRAY_LITERAL};
+    left.as.array_literal.elements = left_members; left.as.array_literal.element_count = 1;
+    right.as.array_literal.elements = right_members; right.as.array_literal.element_count = 1;
+    left.as.array_literal.element_type = right.as.array_literal.element_type = TYPE_UNKNOWN;
+    ASTNode *members[] = {&left, &right};
+    ASTNode outer = {.type = AST_ARRAY_LITERAL};
+    outer.as.array_literal.elements = members; outer.as.array_literal.element_count = 2;
+    outer.as.array_literal.element_type = TYPE_UNKNOWN;
+    begin(prefix, transient); bool ok = array_test_scalar_destination(env, &outer); size_t count = stop();
+    CHECK(env_array_expression_info(env, &prior) == saved && saved->element_type->base_type == TYPE_INT);
+    if (prefix == SIZE_MAX) CHECK(ok == !invalid && !failed);
+    else CHECK(failed && !ok);
+    if (!ok) CHECK(outer.as.array_literal.element_type == TYPE_UNKNOWN);
+    else CHECK(outer.as.array_literal.element_type == TYPE_ARRAY &&
+        left.as.array_literal.element_type == TYPE_U8 && right.as.array_literal.element_type == TYPE_U8);
+    free_environment(env); CHECK(!live);
+    return count;
+}
+extern bool array_test_match_binding_name(Symbol *);
+static void match_binding_name_controls(void) {
+    for (int transient = 0; transient < 2; ++transient) {
+        Symbol binding = {0}; binding.struct_type_name = strdup("Old.Payload");
+        CHECK(binding.struct_type_name); char *prior = binding.struct_type_name;
+        begin(0, transient != 0);
+        CHECK(!array_test_match_binding_name(&binding));
+        CHECK(stop() == 1 && failed == 1 && live == 0);
+        CHECK(binding.struct_type_name == prior && !strcmp(prior, "Old.Payload"));
+        uintptr_t prior_address = (uintptr_t)prior;
+        begin(SIZE_MAX, false);
+        CHECK(array_test_match_binding_name(&binding));
+        CHECK(stop() == 1 && failed == 0 && live == 1);
+        CHECK((uintptr_t)binding.struct_type_name != prior_address && !strcmp(binding.struct_type_name, "New.Payload"));
+        array_alloc_free(binding.struct_type_name); CHECK(live == 0);
+    }
+}
+static void scalar_destination_controls(void) {
+    size_t count = scalar_destination_attempt(SIZE_MAX, false, false); CHECK(count > 20);
+    scalar_destination_attempt(SIZE_MAX, false, true);
+    printf("I measure checked scalar-array destination ownership: %zu allocation attempts.\n", count);
+    for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+        scalar_destination_attempt(i, transient != 0, false);
+        CHECK(scalar_destination_attempt(SIZE_MAX, false, false) == count);
+    }
+}
 int main(void) {
     size_t count = copy_attempt(SIZE_MAX, false); CHECK(count > 20);
     printf("I measure the complete TypeInfo copy: %zu allocation attempts.\n", count);
@@ -586,7 +641,7 @@ int main(void) {
     CHECK(copy_payload_type_info_checked(chain + 1, &out)); free_payload_type_info(out);
     CHECK(copy_payload_type_info_checked(NULL, &out) && out == NULL);
     CHECK(!copy_payload_type_info_checked(chain, NULL));
-    struct_auxiliary_teardown_controls(); registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); native_callable_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); native_emission_controls(); constructor_registry_controls(); union_payload_controls(); union_projection_controls();
+    match_binding_name_controls(); scalar_destination_controls(); struct_auxiliary_teardown_controls(); registration_controls(); view_controls(); owned_context_controls(); callable_context_controls(); native_callable_controls(); tuple_context_controls(); tuple_tags_controls(); tuple_emission_binding_controls(); native_emission_controls(); constructor_registry_controls(); union_payload_controls(); union_projection_controls();
     printf("I passed %zu separate checker annotation allocation assertions.\n", checks);
     return 0;
 }

@@ -89,7 +89,8 @@ static bool nominal_array_builtin(ASTNode *expr, Environment *env, const char *n
 static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, NominalView *out) {
     if (!expr || depth > 128 || !out) return false;
     NominalView view = {0};
-    if (expr->type == AST_UNION_CONSTRUCT || expr->type == AST_STRUCT_LITERAL) {
+    if (expr->type == AST_UNION_CONSTRUCT || expr->type == AST_STRUCT_LITERAL ||
+        expr->type == AST_ARRAY_LITERAL || expr->type == AST_TUPLE_LITERAL) {
         const NominalView *retained = nominal_constructor_view(env, expr);
         if (retained) return nominal_view_clone(env, retained, depth + 1, out);
     }

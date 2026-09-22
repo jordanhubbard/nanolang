@@ -314,6 +314,7 @@ static void cmd_reload(const char *path, Environment *env) {
                 strcmp(env->functions[li].name, new_fn->name) == 0) {
                 env_function_index_invalidate(env);
                 env->functions[li] = *new_fn;
+                env->functions[li].checker_builtin_placeholder = false;
                 patched++;
                 found = true;
                 break;

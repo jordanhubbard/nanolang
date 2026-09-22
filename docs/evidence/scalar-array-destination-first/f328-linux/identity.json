@@ -1,0 +1,19 @@
+{
+  "pin": "f328d46c544a29a8ae946da123d34088494649af",
+  "archive_sha": "953ccf888aa5d5b8699e3e73ea4183017a7da941d3ad0b716c8f8a8a6c1d2695",
+  "driver_sha": "5625e6d76f5caed5e0086efd2375df52aa22e3a5eadbd23f8d2f63b2316a9de8",
+  "host": {
+    "system": "Linux",
+    "node": "sparky",
+    "release": "6.17.0-1032-nvidia",
+    "version": "#32-Ubuntu SMP PREEMPT_DYNAMIC Wed Aug 19 17:40:46 UTC 2026",
+    "machine": "aarch64",
+    "processor": "aarch64"
+  },
+  "sdk": "",
+  "tools": {
+    "/bin/make": "abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0",
+    "/usr/bin/gcc": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8"
+  }
+}

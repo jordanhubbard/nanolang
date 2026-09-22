@@ -323,6 +323,25 @@ typedef struct CheckerNominalView {
     bool payload;
     int variant;
 } NominalView;
+typedef struct ArrayDestinationFrame {
+    Environment *env;
+    ASTNode *expression;
+    NominalView expected;
+    unsigned depth;
+    Type pending_array_element;
+    Type *pending_tuple_types;
+    bool literal_checked;
+    struct ArrayDestinationFrame *previous;
+} ArrayDestinationFrame;
+/* Like active_statement_checker, this frame is synchronous checker state. */
+static ArrayDestinationFrame *active_array_destination;
+static Type check_destination_expression(Environment *, const NominalView *, ASTNode *, unsigned);
+static Type check_destination_literal(Environment *, ArrayDestinationFrame *);
+static Type check_destination_tail(Environment *, ASTNode *, ASTNode *);
+struct NominalSubstitution;
+static bool check_array_destination_annotation(Environment *, const TypeInfo *, const char *,
+                                               const struct NominalSubstitution *, ASTNode *, unsigned);
+static const NominalView *nominal_constructor_view(Environment *, const ASTNode *);
 static void nominal_view_discard(NominalView *view);
 static bool nominal_value_view(ASTNode *, Environment *, unsigned, NominalView *);
 static bool nominal_array_builtin(ASTNode *, Environment *, const char *, int);
@@ -825,6 +844,22 @@ static bool nominal_callable_result(Environment *env, const NominalView *callee,
         callee->owner, nominal_view_context(callee), depth + 1, out);
 }
 
+/* I replace an owned binding label only after its complete copy succeeds. */
+static bool replace_match_binding_name(Symbol *binding, const char *base, const char *variant) {
+    if (!binding || !base || !variant) return false;
+    size_t base_length = strlen(base), variant_length = strlen(variant);
+    if (base_length > SIZE_MAX - 2 || variant_length > SIZE_MAX - base_length - 2) return false;
+    size_t length = base_length + variant_length + 2;
+    char *name = malloc(length);
+    if (!name) return false;
+    memcpy(name, base, base_length);
+    name[base_length] = '.';
+    memcpy(name + base_length + 1, variant, variant_length + 1);
+    free(binding->struct_type_name);
+    binding->struct_type_name = name;
+    return true;
+}
+
 /* I retain both the scrutinee arguments and the exact selected variant. */
 static bool retain_union_binding_context(Environment *env, Symbol *binding,
                                           ASTNode *scrutinee, const char *variant) {
@@ -850,7 +885,10 @@ static bool retain_union_binding_context(Environment *env, Symbol *binding,
 
 /* I compare a retained template with its context, never its flattened spelling. */
 static bool check_retained_nominal_value(Environment *env, const NominalView *expected, ASTNode *value) {
-    bool matches = nominal_view_matches_value(env, expected, value, 0);
+    bool container = expected && expected->info &&
+        (expected->info->base_type == TYPE_ARRAY || expected->info->base_type == TYPE_TUPLE);
+    bool matches = (!container || check_destination_expression(env, expected, value, 0) != TYPE_UNKNOWN) &&
+        nominal_view_matches_value(env, expected, value, 0);
     if (!matches) emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
         "I require the retained nominal declaration and every substituted argument owner.",
         "Preserve the selected payload variant and complete nested annotation.");
@@ -899,6 +937,10 @@ static bool nominal_array_matches_context(Environment *env, const TypeInfo *expe
                                    const NominalSubstitution *context) {
     if (!nominal_substitute_annotation(&expected, &owner, &context) ||
         !expected || !value || depth > 128) return false;
+    if (value->type == AST_ARRAY_LITERAL || value->type == AST_TUPLE_LITERAL) {
+        const NominalView *retained = nominal_constructor_view(env, value);
+        if (retained) return nominal_view_matches_annotation(env, retained, expected, owner, context, depth + 1);
+    }
     if (value->type == AST_BLOCK && value->as.block.count)
         return nominal_array_matches_context(env, expected, owner,
             value->as.block.statements[value->as.block.count - 1], depth + 1, context);
@@ -1616,6 +1658,8 @@ static bool nominal_union_array_origins(Environment *env, const TypeInfo *expect
     const char *owner, const NominalSubstitution *context, ASTNode *value, unsigned depth) {
     if (!expected || !value) return true;
     if (depth > 128 || !nominal_substitute_annotation(&expected, &owner, &context)) return false;
+    if (expected->base_type == TYPE_ARRAY || expected->base_type == TYPE_TUPLE)
+        return check_array_destination_annotation(env, expected, owner, context, value, depth + 1);
     if (context && (expected->base_type == TYPE_FUNCTION || expected->base_type == TYPE_TUPLE)) {
         /* I establish lexical branch/payload bindings before consuming their
          * original contextual annotations. No runtime expression is evaluated. */
@@ -2351,13 +2395,24 @@ Type check_expression(ASTNode *expr, Environment *env) {
     }
 
     NativeContextMark native_before = native_context_mark(env);
+    CheckerNominalExpression *proof_before = env ? env->checker_nominal_expressions : NULL;
     int errors_before = g_typecheck_error_count;
     bool metadata_failed_before = env && env->opaque_resolution_failed;
     int first_symbol = env ? env->symbol_count : 0;
-    Type result = check_expression_impl(expr, env);
+    ArrayDestinationFrame *destination = active_array_destination;
+    bool literal_context = destination && destination->env == env && destination->expression == expr &&
+        (expr->type == AST_ARRAY_LITERAL || expr->type == AST_TUPLE_LITERAL);
+    const NominalView *retained_literal = !literal_context && env &&
+        (expr->type == AST_ARRAY_LITERAL || expr->type == AST_TUPLE_LITERAL)
+        ? nominal_constructor_view(env, expr) : NULL;
+    Type result = literal_context ? check_destination_literal(env, destination)
+        : retained_literal ? check_destination_expression(env, retained_literal, expr, 0)
+        : check_expression_impl(expr, env);
     if (result == TYPE_UNKNOWN || errors_before != g_typecheck_error_count ||
-        (env && env->opaque_resolution_failed && !metadata_failed_before))
+        (env && env->opaque_resolution_failed && !metadata_failed_before)) {
         native_context_restore(env, native_before);
+        if (env) env->checker_nominal_expressions = proof_before;
+    }
     bound_scope_symbols(env, first_symbol, expr);
     g_check_expr_depth--;
     return result;
@@ -2747,6 +2802,149 @@ static bool contextual_argument_matches(ASTNode *argument, Environment *env, con
     free_payload_type_info(concrete);
     return matches;
 }
+/* I resolve a borrowed leaf from an independently owned destination view. */
+static bool destination_kind(Environment *env, const NominalView *view, Type *kind) {
+    const TypeInfo *info = view ? view->info : NULL;
+    const char *owner = view ? view->owner : NULL;
+    const NominalSubstitution *context = view ? nominal_view_context(view) : NULL;
+    const char *name = NULL;
+    return nominal_substitute_annotation(&info, &owner, &context) && info &&
+        checked_annotation_kind(env, info, owner, kind, &name) && *kind != TYPE_UNKNOWN;
+}
+static void destination_error(ASTNode *value) {
+    emit_context_error("E001 TYPE MISMATCH", value ? value->line : 0, value ? value->column : 0, 1,
+        "I require this array value to preserve its complete destination representation.",
+        "Use matching existing arrays, or checked literal members in the declared destination.");
+}
+static Type check_destination_expression(Environment *env, const NominalView *expected,
+                                          ASTNode *value, unsigned depth) {
+    if (!env || !expected || !value || depth > 128) return TYPE_UNKNOWN;
+    ArrayDestinationFrame frame = {.env = env, .expression = value, .depth = depth,
+                                   .previous = active_array_destination};
+    if (!nominal_view_clone(env, expected, depth + 1, &frame.expected)) {
+        destination_error(value); return TYPE_UNKNOWN;
+    }
+    NativeContextMark native_before = native_context_mark(env);
+    CheckerNominalExpression *proof_before = env->checker_nominal_expressions;
+    int errors_before = g_typecheck_error_count;
+    bool failed_before = env->opaque_resolution_failed;
+    Type kind = TYPE_UNKNOWN, actual = TYPE_UNKNOWN;
+    bool ok = destination_kind(env, &frame.expected, &kind);
+    if (ok && (kind == TYPE_ARRAY || kind == TYPE_TUPLE)) {
+        active_array_destination = &frame;
+        actual = check_expression(value, env);
+        active_array_destination = frame.previous;
+        /* A terminating branch is checked in its actual return context. */
+        if (ast_always_returns(value)) ok = actual != TYPE_UNKNOWN;
+        else {
+            NominalView observed = {0};
+            ok = actual == kind && nominal_value_view(value, env, depth + 1, &observed) &&
+                 nominal_view_equal(env, &frame.expected, &observed, depth + 1);
+            nominal_view_discard(&observed);
+            if (ok) ok = native_bind_checked_view(env, &frame.expected, value, depth + 1);
+        }
+    } else if (ok && (kind == TYPE_INT || kind == TYPE_U8 || kind == TYPE_FLOAT ||
+                       kind == TYPE_BOOL || kind == TYPE_STRING || kind == TYPE_ENUM)) {
+        actual = check_expression(value, env);
+        ok = actual != TYPE_UNKNOWN && scalar_value_matches(actual, kind, value);
+        if (kind == TYPE_U8)
+            ok = (actual == TYPE_INT || actual == TYPE_U8 || actual == TYPE_ENUM) && byte_literal_fits(kind, value);
+        if (ok && kind == TYPE_ENUM && actual == TYPE_ENUM) {
+            NominalView observed = {0};
+            ok = nominal_value_view(value, env, depth + 1, &observed) &&
+                 nominal_view_equal(env, &frame.expected, &observed, depth + 1);
+            nominal_view_discard(&observed);
+        }
+    } else if (ok) {
+        /* Nominal constructors retain their existing owner-aware preparation. */
+        ok = contextual_argument_matches(value, env, frame.expected.info, frame.expected.owner,
+                                           nominal_view_context(&frame.expected), depth + 1);
+        actual = ok ? check_expression(value, env) : TYPE_UNKNOWN;
+    }
+    active_array_destination = frame.previous;
+    ok = ok && actual != TYPE_UNKNOWN && errors_before == g_typecheck_error_count &&
+        !(env->opaque_resolution_failed && !failed_before);
+    if (!ok) {
+        native_context_restore(env, native_before);
+        env->checker_nominal_expressions = proof_before;
+        if (errors_before == g_typecheck_error_count) destination_error(value);
+        actual = TYPE_UNKNOWN;
+    }
+    if (ok && frame.literal_checked) {
+        if (value->type == AST_ARRAY_LITERAL)
+            value->as.array_literal.element_type = frame.pending_array_element;
+        else {
+            free(value->as.tuple_literal.element_types);
+            value->as.tuple_literal.element_types = frame.pending_tuple_types;
+            frame.pending_tuple_types = NULL;
+        }
+    }
+    free(frame.pending_tuple_types);
+    nominal_view_discard(&frame.expected);
+    return actual;
+}
+static Type check_destination_literal(Environment *env, ArrayDestinationFrame *frame) {
+    ASTNode *value = frame->expression;
+    Type kind = TYPE_UNKNOWN;
+    if (!destination_kind(env, &frame->expected, &kind)) return TYPE_UNKNOWN;
+    bool array = value->type == AST_ARRAY_LITERAL && kind == TYPE_ARRAY;
+    bool tuple = value->type == AST_TUPLE_LITERAL && kind == TYPE_TUPLE;
+    if (!array && !tuple) { destination_error(value); return TYPE_UNKNOWN; }
+    int count = array ? value->as.array_literal.element_count : value->as.tuple_literal.element_count;
+    ASTNode **members = array ? value->as.array_literal.elements : value->as.tuple_literal.elements;
+    if (count < 0 || (count && !members) ||
+        (tuple && count != frame->expected.info->tuple_element_count)) return TYPE_UNKNOWN;
+    const NominalView *prior = nominal_constructor_view(env, value);
+    if (prior && !nominal_view_equal(env, prior, &frame->expected, frame->depth + 1)) {
+        destination_error(value); return TYPE_UNKNOWN;
+    }
+    if (tuple && (size_t)count > SIZE_MAX / sizeof(Type)) return TYPE_UNKNOWN;
+    Type *types = tuple && count ? calloc((size_t)count, sizeof *types) : NULL;
+    if (tuple && count && !types) return TYPE_UNKNOWN;
+    bool ok = true;
+    Type array_element = TYPE_UNKNOWN;
+    if (array) {
+        NominalView child = {0};
+        ok = nominal_view_child(env, &frame->expected, 0, frame->depth + 1, &child) &&
+             destination_kind(env, &child, &array_element);
+        nominal_view_discard(&child);
+    }
+    for (int i = 0; i < count; ++i) {
+        NominalView child = {0}; Type child_kind = TYPE_UNKNOWN;
+        bool member_ok = nominal_view_child(env, &frame->expected, array ? 0 : (size_t)i,
+                                            frame->depth + 1, &child) &&
+            destination_kind(env, &child, &child_kind) &&
+            check_destination_expression(env, &child, members[i], frame->depth + 1) != TYPE_UNKNOWN;
+        if (types) types[i] = child_kind;
+        nominal_view_discard(&child);
+        if (!member_ok) ok = false;
+    }
+    if (ok) ok = nominal_literal_retain(env, value, &frame->expected, frame->depth + 1) &&
+                 native_bind_checked_view(env, &frame->expected, value, frame->depth + 1);
+    if (ok) {
+        frame->literal_checked = true;
+        frame->pending_array_element = array_element;
+        free(frame->pending_tuple_types);
+        frame->pending_tuple_types = types; types = NULL;
+    }
+    free(types);
+    return ok ? kind : TYPE_UNKNOWN;
+}
+static Type check_destination_tail(Environment *env, ASTNode *parent, ASTNode *tail) {
+    ArrayDestinationFrame *frame = active_array_destination;
+    if (frame && frame->env == env && frame->expression == parent && !ast_always_returns(tail))
+        return check_destination_expression(env, &frame->expected, tail, frame->depth + 1);
+    return check_expression(tail, env);
+}
+static bool check_array_destination_annotation(Environment *env, const TypeInfo *info, const char *owner,
+    const NominalSubstitution *context, ASTNode *value, unsigned depth) {
+    NominalView expected = {0};
+    bool ok = nominal_view_copy_context(env, info, owner, context, depth + 1, &expected) &&
+              check_destination_expression(env, &expected, value, depth + 1) != TYPE_UNKNOWN;
+    nominal_view_discard(&expected);
+    return ok;
+}
+
 /* I finish all declaration borrowing before recursively checking payloads. */
 static void discard_union_payload_views(NominalView *views, int count) {
     for (int i = 0; views && i < count; ++i) nominal_view_discard(&views[i]);
@@ -4860,12 +5058,18 @@ checked_array_declared_call: ;
                 }
             }
             
+            /* Contextual container arms keep terminating control flow separate. */
+            bool destination_arms = active_array_destination && active_array_destination->env == env &&
+                active_array_destination->expression == expr;
             /* Type check all values and ensure they have the same type */
             Type result_type = TYPE_UNKNOWN;
             if (expr->as.cond_expr.clause_count > 0) {
-                result_type = check_expression(expr->as.cond_expr.values[0], env);
+                result_type = check_destination_tail(env, expr, expr->as.cond_expr.values[0]);
+                if (destination_arms && ast_always_returns(expr->as.cond_expr.values[0])) result_type = TYPE_UNKNOWN;
                 for (int i = 1; i < expr->as.cond_expr.clause_count; i++) {
-                    Type val_type = check_expression(expr->as.cond_expr.values[i], env);
+                    Type val_type = check_destination_tail(env, expr, expr->as.cond_expr.values[i]);
+                    if (destination_arms && ast_always_returns(expr->as.cond_expr.values[i])) continue;
+                    if (destination_arms && result_type == TYPE_UNKNOWN) result_type = val_type;
                     if (val_type != result_type && result_type != TYPE_UNKNOWN && val_type != TYPE_UNKNOWN) {
                         emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
                             "I require all cond clause values to have the same type.",
@@ -4875,7 +5079,9 @@ checked_array_declared_call: ;
             }
             
             /* Type check else value (must match clause values) */
-            Type else_type = check_expression(expr->as.cond_expr.else_value, env);
+            Type else_type = check_destination_tail(env, expr, expr->as.cond_expr.else_value);
+            if (destination_arms && ast_always_returns(expr->as.cond_expr.else_value))
+                return result_type == TYPE_UNKNOWN ? TYPE_VOID : result_type;
             if (else_type != result_type && result_type != TYPE_UNKNOWN && else_type != TYPE_UNKNOWN) {
                 emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
                     "I require the cond else value to match the clause value type.",
@@ -5415,9 +5621,12 @@ checked_array_declared_call: ;
                     if (union_base_name && env->symbol_count > 0) {
                         Symbol *binding_sym = &env->symbols[env->symbol_count - 1];
                         /* Format: "UnionName.VariantName" */
-                        char *type_name = malloc(strlen(union_base_name) + strlen(variant_name_i) + 2);
-                        sprintf(type_name, "%s.%s", union_base_name, variant_name_i);
-                        binding_sym->struct_type_name = type_name;
+                        if (!replace_match_binding_name(binding_sym, union_base_name, variant_name_i)) {
+                            emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                                "I cannot retain the complete match binding name.",
+                                "Preserve the prior owned binding when allocation fails.");
+                            return TYPE_UNKNOWN;
+                        }
 
                         /* Ensure bindings participate in visibility disambiguation */
                         binding_sym->def_line = expr->line;
@@ -5433,7 +5642,7 @@ checked_array_declared_call: ;
                     check_match_guard(expr->as.match_expr.guard_exprs[i], env);
 
                 /* Type check arm body (which is now an expression) */
-                Type arm_type = check_expression(expr->as.match_expr.arm_bodies[i], env);
+                Type arm_type = check_destination_tail(env, expr, expr->as.match_expr.arm_bodies[i]);
                 
                 /* I retain emission metadata within its lexical arm only. */
                 bound_scope_symbols(env, arm_first_symbol, expr->as.match_expr.arm_bodies[i]);
@@ -5451,6 +5660,9 @@ checked_array_declared_call: ;
 
             check_match_totality(expr, env, union_base_name, match_domain);
 
+            if (return_type == TYPE_UNKNOWN && active_array_destination &&
+                active_array_destination->env == env && active_array_destination->expression == expr &&
+                ast_always_returns(expr)) return_type = TYPE_VOID;
             expr->as.match_expr.result_type = return_type;
             expr->as.match_expr.result_type_checked = true;
             return return_type;
@@ -5470,7 +5682,7 @@ checked_array_declared_call: ;
             for (int i = 0; i < expr->as.block.count; i++) {
                 ASTNode *stmt = expr->as.block.statements[i];
                 if (i == expr->as.block.count - 1 && ast_is_value_expression(stmt->type)) {
-                    block_type = check_expression(stmt, env);
+                    block_type = check_destination_tail(env, expr, stmt);
                 } else {
                     check_statement(&temp_tc, stmt);
                 }
@@ -6172,6 +6384,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Now check the expression - the specialized functions are registered */
             if (!retained_binding_view)
                 check_concrete_union_arrays(tc->env, stmt->as.let.type_info, binding_owner, stmt->as.let.value, 0);
+            if (retained_binding_view && retained_binding_view->info &&
+                (retained_binding_view->info->base_type == TYPE_ARRAY || retained_binding_view->info->base_type == TYPE_TUPLE))
+                check_destination_expression(tc->env, retained_binding_view, stmt->as.let.value, 0);
             Type value_type = check_expression(stmt->as.let.value, tc->env);
             if (!check_opaque_value(tc->env, declared_type, stmt->as.let.type_name, stmt->as.let.value))
                 tc->has_error = true;
@@ -6424,9 +6639,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     const TypeInfo *expected_info = record->field_type_info ? record->field_type_info[i] : NULL;
                     const char *expected_name = record->field_type_names ? record->field_type_names[i] : NULL;
                     const char *expected_owner = record->module_name;
-                    Type actual = check_expression(stmt->as.set.value, tc->env);
                     check_concrete_union_arrays(tc->env, expected_info, expected_owner,
                                                 stmt->as.set.value, 0);
+                    Type actual = check_expression(stmt->as.set.value, tc->env);
                     if (!check_nominal_contract(tc->env, expected_type, expected_info,
                             expected_name, expected_owner, stmt->as.set.value)) tc->has_error = true;
                     if (!scalar_value_matches(actual, expected_type, stmt->as.set.value)) {
@@ -6448,6 +6663,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
             if (!destination.checker_nominal_view)
                 check_concrete_union_arrays(tc->env, destination.type_info, destination.nominal_owner, stmt->as.set.value, 0);
+            if (destination.checker_nominal_view && destination.checker_nominal_view->info &&
+                (destination.checker_nominal_view->info->base_type == TYPE_ARRAY ||
+                 destination.checker_nominal_view->info->base_type == TYPE_TUPLE))
+                check_destination_expression(tc->env, destination.checker_nominal_view, stmt->as.set.value, 0);
             Type value_type = check_expression(stmt->as.set.value, tc->env);
             if (!destination.checker_nominal_view && destination.type == TYPE_FUNCTION &&
                 !check_callable_contract(tc->env, destination.type_info ? destination.type_info->fn_sig : NULL,
@@ -6970,9 +7189,12 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
                     if (union_base_name && tc->env->symbol_count > 0) {
                         Symbol *binding_sym = &tc->env->symbols[tc->env->symbol_count - 1];
-                        char *type_name = malloc(strlen(union_base_name) + strlen(variant_name_s) + 2);
-                        sprintf(type_name, "%s.%s", union_base_name, variant_name_s);
-                        binding_sym->struct_type_name = type_name;
+                        if (!replace_match_binding_name(binding_sym, union_base_name, variant_name_s)) {
+                            emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                                "I cannot retain the complete match binding name.",
+                                "Preserve the prior owned binding when allocation fails.");
+                            return TYPE_UNKNOWN;
+                        }
 
                         /* Ensure bindings participate in visibility disambiguation */
                         binding_sym->def_line = stmt->line;
@@ -7400,6 +7622,7 @@ static void register_builtin_functions(Environment *env) {
         return;
     }
     env->builtins_registered = true;
+    int first_placeholder = env->function_count;
 
     Function func = (Function){0};
     /* Important: zero-init so visibility/module_name pointers don't contain garbage. */
@@ -8303,6 +8526,11 @@ static void register_builtin_functions(Environment *env) {
     func.shadow_test = NULL;
     func.is_extern = false;
     env_define_function(env, func);
+    /* I mark only the exact rows this synchronous checker registration created.
+     * Ordinary publication strips this bit from every copied descriptor. */
+    for (int i = first_placeholder; i < env->function_count; ++i)
+        env->functions[i].checker_builtin_placeholder = true;
+
 }
 
 /* Check if two functions have matching signatures */
@@ -8378,6 +8606,7 @@ static int extern_declaration_state(Environment *env, const ASTNode *item) {
     bool same_declaration = false;
     for (int i = 0; i < env->function_count; ++i) {
         const Function *prior = &env->functions[i];
+        if (prior->checker_builtin_placeholder) continue;
         const char *symbol = prior->alias_of ? prior->alias_of : prior->name;
         if (!symbol || strcmp(symbol, current.name)) continue;
         if (!prior->is_extern || !functions_match(env, &current, prior)) return -1;
@@ -8946,8 +9175,7 @@ register_function_pass1:;
                     continue;
                 }
                 if (state > 0) continue;
-                if (is_builtin_function(func_name) ||
-                    !register_owned_extern_declaration(env, item)) {
+                if (!register_owned_extern_declaration(env, item)) {
                     fprintf(stderr, "I cannot register this owned extern declaration: %s\n", func_name);
                     tc.has_error = true;
                 }
