@@ -432,16 +432,19 @@ jobs:
       - name: Inventory original source and tools
         id: before
         run: python3 scripts/ci_sanitizer_partitions.py snapshot --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase before
-      - name: Build with AddressSanitizer
+      - name: Build and validate instrumented C-reference and component stages
         id: sanitize
         run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase sanitize 2>&1 | tee "$REPORT/sanitize.log"
-      - name: Complete 3-stage bootstrap with sanitizers
+      - name: Prepare the assigned native compiler prerequisites
         id: bootstrap
         run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase bootstrap 2>&1 | tee "$REPORT/bootstrap.log"
       - name: Prepare instrumented source-emitter providers
         id: providers
         if: matrix.id == 'source'
         run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase providers 2>&1 | tee "$REPORT/providers.log"
+      - name: Verify actual compiler sanitizer instrumentation
+        id: instrumentation
+        run: python3 scripts/ci_sanitizer_partitions.py instrumentation --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT"
       - name: Inventory actual providers before tests
         id: prepared
         run: python3 scripts/ci_sanitizer_partitions.py snapshot --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase prepared
