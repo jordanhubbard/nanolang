@@ -674,7 +674,13 @@ static bool foreign_function_has_array(const Function *fn) {
     return false;
 }
 
-static void emit_foreign_reference(WorkList *list, const char *name, const Function *fn) {
+static void emit_foreign_reference(WorkList *list, const char *name, const Function *fn, bool local_provider) {
+    if (foreign_function_has_array(fn) && local_provider) {
+        emit_formatted(list,
+            "(nano_require_local_array_abi((void*)%s, %s__nano_local_array_abi, \"%s__nano_array_abi\", NANO_DYN_ARRAY_ABI_VERSION, \"%s\"), %s)",
+            name, name, name, name, name);
+        return;
+    }
     if (foreign_function_has_array(fn)) {
         emit_formatted(list,
             "(nano_require_native_array_abi((void*)%s, \"%s__nano_array_abi\", NANO_DYN_ARRAY_ABI_VERSION, \"%s\"), %s)",
@@ -708,7 +714,8 @@ static bool native_scalar_list_builtin(const char *name, Environment *env) {
         !function->params && !function->shadow_test && !function->module_name && !function->alias_of;
 }
 
-static const char *map_function_name(const char *name, Environment *env) {
+static const char *map_function_name(const char *name, Environment *env, bool *local_provider) {
+    if (local_provider) *local_provider = false;
     const char *helper_name = module_helper_c_name(name);
     if (helper_name != name) return helper_name;
     /* Handle qualified names: module::func or nested::module::func */
@@ -768,6 +775,10 @@ static const char *map_function_name(const char *name, Environment *env) {
     /* Check unified builtin registry */
     const char *c_name = builtin_c_name(name);
     if (c_name) {
+        /* Only this actual builtin-mapping branch selects my emitted provider. */
+        static const char *const local_names[] = {"nl_os_walkdir","nl_os_file_read_bytes","nl_str_split","nl_str_join","nl_bytes_from_string","nl_string_from_bytes","nl_array_slice","nl_array_sort","nl_array_reverse","nl_array_contains","nl_array_index_of","nl_os_process_run"};
+        if (local_provider) for (size_t i = 0; i < sizeof local_names / sizeof local_names[0]; ++i)
+            if (!strcmp(c_name, local_names[i])) { *local_provider = true; break; }
         return c_name;
     }
     
@@ -1485,11 +1496,13 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             /* Check if it's a function identifier */
             Function *func_def = env_get_function(env, expr->as.identifier);
             if (func_def && !func_def->is_extern && func_def->body != NULL) {
-                emit_literal(list, map_function_name(expr->as.identifier, env));
+                emit_literal(list, map_function_name(expr->as.identifier, env, NULL));
             } else if (func_def && func_def->is_extern) {
-                emit_foreign_reference(list, map_function_name(expr->as.identifier, env), func_def);
+                bool local_provider = false;
+                const char *mapped = map_function_name(expr->as.identifier, env, &local_provider);
+                emit_foreign_reference(list, mapped, func_def, local_provider);
             } else {
-                emit_foreign_reference(list, expr->as.identifier, func_def);
+                emit_foreign_reference(list, expr->as.identifier, func_def, false);
             }
             break;
         }
@@ -2779,6 +2792,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 native_array_declared_call: ;
                 /* Regular function call */
                 const char *mapped_name = func_name;
+                bool local_provider = false;
                 /* Use monomorphized name for generic function calls */
                 if (expr->as.call.concrete_func_name) {
                     static _Thread_local char generic_buf[512];
@@ -2789,7 +2803,7 @@ native_array_declared_call: ;
                     snprintf(buf, sizeof(buf), "nl_list_%s", func_name + 5);
                     mapped_name = buf;
                 } else {
-                    mapped_name = map_function_name(mapped_name, env);
+                    mapped_name = map_function_name(mapped_name, env, &local_provider);
                 }
 
                 /* ARC: Check if function returns opaque type requiring manual free
@@ -2870,7 +2884,7 @@ native_array_declared_call: ;
                 }
 
                 if (capture_callee) emit_formatted(list, "__nl_callee_%u", call_id);
-                else emit_foreign_reference(list, call_name, func_info);
+                else emit_foreign_reference(list, call_name, func_info, local_provider);
                 free(call_name);
                 emit_literal(list, "(");
 
@@ -2930,7 +2944,8 @@ native_array_declared_call: ;
             sprintf(qualified_name, "%s.%s", module_alias, function_name);
             
             /* Map to C function name */
-            char *c_name = strdup(map_function_name(qualified_name, env));
+            bool local_provider = false;
+            char *c_name = strdup(map_function_name(qualified_name, env, &local_provider));
             if (!c_name) {
                 fprintf(stderr, "I could not retain the qualified native call name.\n");
                 exit(1);
@@ -2939,7 +2954,7 @@ native_array_declared_call: ;
             unsigned call_id = build_ordered_call_args(list, expr->as.module_qualified_call.args,
                                                        expr->as.module_qualified_call.arg_count, env, NULL);
             Function *qualified_function = env_get_function(env, qualified_name);
-            emit_foreign_reference(list, c_name, qualified_function);
+            emit_foreign_reference(list, c_name, qualified_function, local_provider);
             emit_literal(list, "(");
             
             /* Emit arguments */

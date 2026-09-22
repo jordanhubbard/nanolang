@@ -16,6 +16,17 @@
 #define NANO_EXPORT_ARRAY_ABI(function) \
     __attribute__((visibility("default"))) const uint32_t function##__nano_array_abi = NANO_DYN_ARRAY_ABI_VERSION
 
+/* I bind each generated static provider to its own carrier declaration. */
+typedef struct {
+    void *function;
+    uint32_t version;
+} NanoLocalArrayAbi;
+#define NANO_DECLARE_LOCAL_ARRAY_ABI(function) \
+    static const NanoLocalArrayAbi function##__nano_local_array_storage = \
+        {(void *)(function), NANO_DYN_ARRAY_ABI_VERSION}; \
+    static const NanoLocalArrayAbi *const function##__nano_local_array_abi __attribute__((unused)) = \
+        &function##__nano_local_array_storage
+
 /* Element type enum (matches nanolang Value types) */
 typedef enum {
     ELEM_INT = 1,

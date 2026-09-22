@@ -3992,9 +3992,13 @@ static void generate_process_operations(StringBuilder *sb) {
 
     sb_append(sb, "#include \"runtime/process_capture.h\"\n");
     sb_append(sb, "#ifndef NANOLANG_STD_PROCESS_H\n");
+    sb_append(sb, "static DynArray* nl_os_process_run(const char* command);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_os_process_run);\n");
     sb_append(sb, "static DynArray* nl_os_process_run(const char* command) {\n");
     sb_append(sb, "    return nl_process_run_capture(command);\n");
     sb_append(sb, "}\n");
+    sb_append(sb, "#else\n");
+    sb_append(sb, "static const NanoLocalArrayAbi *const nl_os_process_run__nano_local_array_abi = NULL;\n");
     sb_append(sb, "#endif /* NANOLANG_STD_PROCESS_H */\n\n");
 }
 
