@@ -17104,3 +17104,7 @@ values, mutation/tag assertions and bounds while declaring exact constants and
 referring to their symbols. Sanitizer and remaining methods did not run. I retain
 both first terminals, source/tool endpoints and process cleanup records before
 any corrected qualification.
+
+### I preserve lexical returns across immediate async result copies
+
+- [ ] Under `task_3753dce667e14c66ba37f42baf987e48`, I retain the full evaluator's d25 first ordinary failure on Linux and Darwin: `eval_handler_return_async_calls` returns3099 instead of7. My owned scheduler snapshot deliberately clears control metadata, so an immediately awaited async call loses the still-live enclosing handler return. Before implementation I select a narrow direct-call adapter: copy the owned result as before, then restore only its top-level return flag and destination from the completed scheduler result before releasing that task. Explicit spawn/await snapshots retain their existing value-only contract. I require source review and the unchanged complete evaluator gate on both hosts, ordinary and supported ASan/UBSan/LSan, before closing this item.
