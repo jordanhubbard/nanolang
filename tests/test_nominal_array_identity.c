@@ -806,6 +806,35 @@ static void union_scalar_policy(void) {
         free_environment(env); free_ast(program); free_tokens(tokens, count);
     }
 }
+/* I retain independent parser names and copied checker placeholders across
+ * same-named parameters; sanitizers also check both complete teardown paths. */
+static void union_checker_cleanup_boundaries(void) {
+    const char *source =
+        "enum Tag{One,Two} "
+        "fn first(value:Tag)->int{return 0} shadow first{assert true} "
+        "fn second(value:Tag)->int{return 0} shadow second{assert true}";
+    int count = 0;
+    Token *tokens = tokenize(source, &count); assert(tokens);
+    ASTNode *program = parse_program(tokens, count); assert(program);
+    Environment *env = create_environment(); assert(env);
+    assert(type_check_module(program, env));
+    EnumDef *tag = env_get_enum(env, "Tag");
+    assert(tag && tag->variant_count == 2);
+    assert(tag->variant_values[0] == 0 && tag->variant_values[1] == 1);
+    int parameters = 0;
+    for (int i = 0; i < env->symbol_count; ++i) {
+        Symbol *symbol = &env->symbols[i];
+        if (strcmp(symbol->name, "value")) continue;
+        assert(symbol->struct_type_name && !strcmp(symbol->struct_type_name, "Tag"));
+        assert(symbol->value.type == VAL_STRUCT && symbol->value.as.struct_val);
+        assert(!strcmp(symbol->value.as.struct_val->struct_name, "Tag"));
+        ++parameters;
+    }
+    assert(parameters == 2);
+    free_environment(env);
+    free_ast(program);
+    free_tokens(tokens, count);
+}
 static void generic_byte_payload_context(void) {
     const char *values[] = {"(+ value 256)", "255", "256", "true"};
     for (size_t i = 0; i < sizeof values / sizeof *values; ++i) {
@@ -892,7 +921,7 @@ static void emission_entry_rollback(void) {
 extern void test_nominal_constructor_allocations(void);
 int main(void) {
     test_nominal_constructor_allocations();
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); generic_byte_payload_context(); constructor_failure_rollback(); emission_entry_rollback();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); union_checker_cleanup_boundaries(); generic_byte_payload_context(); constructor_failure_rollback(); emission_entry_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }

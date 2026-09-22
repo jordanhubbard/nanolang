@@ -30,3 +30,10 @@ No known failing revision is replayed. New source is reviewed before execution.
 My task is task_ebfdc333d6a8495b8c903ab8142c88b6. First reports remain under
 `tuple-85a-linux-focused` and persistent Puck `tuple-85a-focused`; I copy the
 remote reports and immutable artifacts locally before any further work.
+
+My paired audit finds the root enum collector already allocates once and is
+unchanged. Both root and module parameter metadata writers can replace an
+inherited owned name, so both release that prior string. Only the module
+collector constructs a record placeholder; the root collector uses VOID and
+needs no graph discard. I add two same-named enum parameters to check retained
+metadata and copied placeholder storage through real module registration.

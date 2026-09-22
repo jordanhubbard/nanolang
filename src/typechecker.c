@@ -5963,6 +5963,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     isym->def_line = stmt->line;
                     isym->def_column = stmt->column;
                     if (stmt->as.let.type_name) {
+                        free(isym->struct_type_name);
                         isym->struct_type_name = strdup(stmt->as.let.type_name);
                     }
                 }
@@ -9171,10 +9172,12 @@ register_function_pass1:;
                     if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_LIST_GENERIC ||
                          param_type == TYPE_ENUM || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
                         item->as.function.params[j].struct_type_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
                     }
                     /* For generic unions with TypeInfo, use the generic_name as struct_type_name */
                     else if (param_type == TYPE_UNION && param_type_info && param_type_info->generic_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(param_type_info->generic_name);
                     }
                 }
@@ -9540,8 +9543,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 }
             }
             
-            /* Duplicate variant values */
-            edef.variant_values = malloc(sizeof(int) * edef.variant_count);
+            /* Fill the already checked, owned variant-value allocation. */
             if (item->as.enum_def.variant_values) {
                 for (int j = 0; j < edef.variant_count; j++) {
                     edef.variant_values[j] = item->as.enum_def.variant_values[j];
@@ -9953,6 +9955,9 @@ register_function_pass2:;
                     env_define_var(env, item->as.function.params[j].name, param_type, false, val);
                 }
                 
+                /* Binding publication copies records; I still own this placeholder. */
+                if (val.type == VAL_STRUCT) env_discard_value_snapshot(val);
+
                 /* If parameter is a struct or union, store the type name */
                 Symbol *param_sym = env_get_var(env, item->as.function.params[j].name);
                 if (param_sym) {
@@ -9962,10 +9967,12 @@ register_function_pass2:;
                     if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_LIST_GENERIC ||
                          param_type == TYPE_ENUM || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
                         item->as.function.params[j].struct_type_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
                     }
                     /* For generic unions with TypeInfo, use the generic_name as struct_type_name */
                     else if (param_type == TYPE_UNION && param_type_info && param_type_info->generic_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(param_type_info->generic_name);
                     }
                 }

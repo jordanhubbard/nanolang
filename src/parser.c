@@ -1021,6 +1021,7 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
             
             /* If it's a struct type, save the struct name */
             if (param_list[count].type == TYPE_STRUCT && struct_name) {
+                free(param_list[count].struct_type_name);
                 param_list[count].struct_type_name = struct_name;
             } else if (struct_name) {
                 free(struct_name);
@@ -3060,6 +3061,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
     
     Token *scope_end = current_token(p);
     if (!expect(p, TOKEN_RBRACE, "Expected '}'")) {
+        for (int i = 0; i < count; ++i) free_ast(statements[i]);
         free(statements);
         p->recursion_depth--;
         return NULL;
