@@ -14477,3 +14477,9 @@ allocator failure claim.
   independently of this compiler optimization. C registry/runtime support does
   not establish Nano checker/emitter or complete backend admission.
   MAC: task_9ec92cecd44b4b91b3124e0f07617f64.
+
+- [ ] I retain the802 Linux original-bound bootstrap timeout after the reviewed
+  prefix-search optimization, then reapply the exact4369 observer to measure
+  completed helper work and remaining graph intervals. The prior measurement
+  does not establish new production improvement or deadline closure.
+  MAC: task_6ec8b514c61449d0863401584e86376b.
