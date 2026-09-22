@@ -14588,3 +14588,7 @@ allocator failure claim.
 - [ ] I integrate the reviewed owning snapshot correction for module descriptors before broad native qualification (`task_c65cfe23d7434c429b7f6f79d3838178`, VM lane). My current `extract_module_metadata` shallow-copies `StructDef.field_type_names` and `field_element_types`; my Environment destructor now frees those arrays. Complete descriptor and borrowed annotation lifetimes require the same audit. I preserve my separately owned 46b module-name copies and do not free borrowed complete annotations by inference.
 
 My constructor correction 6340ae7ab is source-reviewed but unexecuted. I hold affected builds and corpora until this shared lifetime prerequisite is corrected and reviewed. My 33e first terminal and bootstrap success are retained at evidence checkpoint c3fec6062.
+
+### I retain extern declaration authority before intrinsic lookup
+
+- [ ] I integrate the reviewed shared declaration-selection correction under `task_f83ba29713bf447fb70c2339fc98170d`. My strict registry identity helper from 012d1c6bd does not fix selection: the current pre-registry `array_push` candidate scan still excludes extern declarations and can return the builtin instead. The root 5d9 BOOL-formal refusal compiled unexpectedly and was not executed. I also preserve exact evaluator dispatch after corrected lookup; a bodyless extern is not a builtin. I do not claim that my earlier native identity checkpoint qualified this missing selection path.
