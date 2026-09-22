@@ -3032,9 +3032,15 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
 static bool owns_declared_callback(ASTNode *expression, Environment *env, Value value) {
     if (!expression || expression->type != AST_IDENTIFIER || value.type != VAL_FUNCTION)
         return false;
-    Symbol *source = env_get_var(env, expression->as.identifier);
-    return !source || source->value.type != VAL_FUNCTION ||
-        source->value.as.function_val.function_name != value.as.function_val.function_name;
+    /* Runtime lookup may skip a later checker-only placeholder. I compare
+     * actual live owners rather than repeating a different name lookup. */
+    for (int i = 0; i < env->symbol_count; ++i) {
+        Value owner = env->symbols[i].value;
+        if (owner.type == VAL_FUNCTION &&
+            owner.as.function_val.function_name == value.as.function_val.function_name)
+            return false;
+    }
+    return true;
 }
 
 static void discard_declared_callback(Value value) {
@@ -3748,8 +3754,29 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     
     /* Higher-order array functions */
     if (callback_kind) {
+        char *callback_name = NULL;
+        if (args[callback_index].type == VAL_FUNCTION) {
+            const char *name_to_copy = args[callback_index].as.function_val.function_name;
+#ifdef NANO_TEST_CALLBACK_SNAPSHOT
+            extern char *nano_test_callback_name(const char *name);
+            callback_name = name_to_copy ? nano_test_callback_name(name_to_copy) : NULL;
+#else
+            callback_name = name_to_copy ? strdup(name_to_copy) : NULL;
+#endif
+            if (!callback_name) {
+                discard_declared_callback(owned_callback);
+                fprintf(stderr, "I could not retain the array callback name.\n");
+                return create_void();
+            }
+            /* A callback can replace its own owning Symbol. These three
+             * builtins use only the name; their local descriptor borrows this
+             * snapshot until every callback and early return is finished. */
+            args[callback_index].as.function_val.function_name = callback_name;
+            args[callback_index].as.function_val.signature = NULL;
+        }
         Value result = callback_kind == 1 ? builtin_map(args, env) :
             callback_kind == 2 ? builtin_filter(args, env) : builtin_reduce(args, env);
+        free(callback_name);
         discard_declared_callback(owned_callback);
         return result;
     }

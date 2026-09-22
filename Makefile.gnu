@@ -1164,9 +1164,12 @@ test-integer-binary-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_i
 
 test-units: test-integer-binary-eval
 
+$(OBJ_DIR)/eval_callback_test.o: src/eval.c src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(DEPFLAGS) -Dclock_gettime=nano_test_clock_gettime -DNANO_TEST_CALLBACK_SNAPSHOT -c $< -o $@
+
 .PHONY: test-integer-negation-eval
-test-integer-negation-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
-	$(CC) $(CFLAGS) -o tests/test_integer_negation_eval tests/test_integer_negation_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+test-integer-negation-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_callback_test.o
+	$(CC) $(CFLAGS) -o tests/test_integer_negation_eval tests/test_integer_negation_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_callback_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_integer_negation_eval
 	@rm -f tests/test_integer_negation_eval
 
