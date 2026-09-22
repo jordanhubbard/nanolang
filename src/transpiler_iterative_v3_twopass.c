@@ -2509,7 +2509,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 Type elem_type = check_expression(expr, env);
                 const char *struct_name = elem_type == TYPE_STRUCT
                     ? checked_array_record_name(expr->as.call.args[0], env) : NULL;
-                if (elem_type == TYPE_UNKNOWN || (elem_type == TYPE_STRUCT && !struct_name)) {
+                bool supported = elem_type == TYPE_INT || elem_type == TYPE_U8 ||
+                    elem_type == TYPE_FLOAT || elem_type == TYPE_BOOL ||
+                    elem_type == TYPE_STRING || elem_type == TYPE_ARRAY ||
+                    elem_type == TYPE_ENUM || (elem_type == TYPE_STRUCT && struct_name);
+                if (!supported) {
                     fprintf(stderr, "I require a checked native array_pop element type.\n");
                     exit(1);
                 }
