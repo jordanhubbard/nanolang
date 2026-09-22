@@ -7,6 +7,7 @@
 #ifndef NANOVM_VM_H
 #define NANOVM_VM_H
 
+#include "cop_opaque.h"
 #include "value.h"
 #include "heap.h"
 #include "binding_state.h"
@@ -223,6 +224,7 @@ typedef struct VmState {
     /* Original pipe fds (used for INIT/SHUTDOWN and large-payload fallback) */
     int cop_in_fd;            /* Pipe to co-process stdin (-1 if none) */
     int cop_out_fd;           /* Pipe from co-process stdout (-1 if none) */
+    CopOpaqueOwner cop_opaque;
     int cop_pid;              /* Co-process PID (-1 if none) */
 
     /* Shared-memory mailbox (fast path for small FFI calls, e.g. pixels) */

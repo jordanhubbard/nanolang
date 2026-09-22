@@ -45,6 +45,7 @@
   "obj/nanoisa/service_file_nominal_plan.o",
   "obj/nanoisa/verifier.o",
   "obj/nanoisa/verifier_types.o",
+  "obj/nanovm/cop_opaque.o",
   "obj/nanovm/cop_protocol.o",
   "obj/nanovm/heap.o",
   "obj/nanovm/heap_cycles.o",

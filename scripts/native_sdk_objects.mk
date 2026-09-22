@@ -46,6 +46,7 @@ NATIVE_SDK_OBJECTS = \
   $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o \
   $(OBJ_DIR)/nanoisa/verifier.o \
   $(OBJ_DIR)/nanoisa/verifier_types.o \
+  $(OBJ_DIR)/nanovm/cop_opaque.o \
   $(OBJ_DIR)/nanovm/cop_protocol.o \
   $(OBJ_DIR)/nanovm/heap.o \
   $(OBJ_DIR)/nanovm/heap_cycles.o \

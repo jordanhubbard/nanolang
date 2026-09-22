@@ -113,7 +113,7 @@ void val_print(NanoValue v, FILE *out) {
             fprintf(out, "closure(%u)", v.as.closure ? v.as.closure->fn_idx : 0);
             break;
         case TAG_OPAQUE:
-            fprintf(out, "opaque(%u)", v.as.proxy_id);
+            fprintf(out, "opaque(%u:%llu)", v.opaque_owner, (unsigned long long)(uint64_t)v.as.i64);
             break;
         default:
             fprintf(out, "unknown(%u)", v.tag);
@@ -134,9 +134,9 @@ bool val_equal(NanoValue a, NanoValue b) {
     /* I accept the language's zero spelling for an opaque null, not arbitrary
      * integer-to-pointer equality. No pointer representation cast is needed. */
     if (a.tag == TAG_OPAQUE && b.tag == TAG_INT)
-        return a.as.obj == NULL && b.as.i64 == 0;
+        return !a.opaque_owner && a.as.obj == NULL && b.as.i64 == 0;
     if (a.tag == TAG_INT && b.tag == TAG_OPAQUE)
-        return a.as.i64 == 0 && b.as.obj == NULL;
+        return a.as.i64 == 0 && !b.opaque_owner && b.as.obj == NULL;
     /* Allow enum ↔ int comparison (enum values are integers) */
     if (a.tag == TAG_ENUM && b.tag == TAG_INT)
         return (int64_t)a.as.enum_val == b.as.i64;
@@ -149,6 +149,8 @@ bool val_equal(NanoValue a, NanoValue b) {
         return a.as.f64 == (double)b.as.i64;
     if (a.tag != b.tag) return false;
     switch (a.tag) {
+        case TAG_OPAQUE:
+            return a.opaque_owner == b.opaque_owner && a.as.i64 == b.as.i64;
         case TAG_VOID:   return true;
         case TAG_INT:    return a.as.i64 == b.as.i64;
         case TAG_U8:     return a.as.u8 == b.as.u8;
@@ -189,6 +191,11 @@ int val_compare(NanoValue a, NanoValue b) {
     if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
         double db = (double)b.as.i64;
         return a.as.f64 < db ? -1 : a.as.f64 > db ? 1 : 0;
+    }
+    if (a.tag == TAG_OPAQUE && b.tag == TAG_OPAQUE) {
+        if (a.opaque_owner != b.opaque_owner) return a.opaque_owner < b.opaque_owner ? -1 : 1;
+        uint64_t left = (uint64_t)a.as.i64, right = (uint64_t)b.as.i64;
+        return left < right ? -1 : left > right ? 1 : 0;
     }
     if (a.tag != b.tag) return (int)a.tag - (int)b.tag;
     switch (a.tag) {

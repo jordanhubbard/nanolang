@@ -678,7 +678,9 @@ TEST(artifact_and_logical_array_abi) {
                 if (!repeat) ASSERT(strstr(err, "native array ABI") != NULL);
                 ASSERT_EQ(mod->call_descriptors[i].state, NVM_CALL_FAILED);
             }
+            vm_release(&heap, result);
         }
+        ASSERT_EQ(heap.stats.num_objects, 0);
         vm_heap_destroy(&heap);
         nvm_module_free(mod);
         vm_ffi_shutdown();

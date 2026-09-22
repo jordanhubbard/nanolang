@@ -4633,16 +4633,16 @@ vm_return_values: ;
          * ============================================================ */
 
         VM_CASE(OP_OPAQUE_NULL) {
-            NanoValue v = {0};
-            v.tag = TAG_OPAQUE;
-            v.as.proxy_id = 0;
-            stack_push(vm, v);
+            stack_push(vm, val_opaque(NULL));
             VM_NEXT();
         }
 
         VM_CASE(OP_OPAQUE_VALID) {
             NanoValue v = stack_pop(vm);
-            stack_push(vm, val_bool(v.tag == TAG_OPAQUE && v.as.proxy_id != 0));
+            bool valid = v.tag == TAG_OPAQUE && v.as.i64 != 0;
+            if (valid && v.opaque_owner)
+                valid = vm->cop_pid > 0 && cop_opaque_owner_argument(&vm->cop_opaque, v);
+            stack_push(vm, val_bool(valid));
             VM_NEXT();
         }
 
