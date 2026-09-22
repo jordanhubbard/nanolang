@@ -14561,3 +14561,12 @@ allocator failure claim.
   `List<Box<fn(int)->int>.Some>`. I retain exact complete element text and the
   original discovery assertions. No affected product has run on this checkpoint.
   MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
+
+- [ ] I retain complete nested List element annotations in my Nano checker.
+  Fresh ef7 Linux and Puck builds stop at the unchanged `reduce_type_known`
+  tuple/List assertion at line4949 (exit2,56.282s/55.496s; no timeout). My
+  existing extractor stops at the first `>` in `List<Box<string>.Some>`.
+  I preserve both source/tool-equal first terminals, correct the complete
+  one-argument wrapper parser with nested/callback/malformed controls, and rerun
+  only reviewed corrected sources. Bootstrap and all dependent matrices remain
+  unreached. MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.

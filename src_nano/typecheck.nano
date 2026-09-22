@@ -2987,19 +2987,40 @@ shadow tc_str_index_of {
 
 /* Extract element type from List<T> string */
 fn extract_list_element_type(s: string) -> string {
-    /* "List<Point>" -> "Point" */
-    let start: int = (+ (tc_str_index_of s "<") 1)
-    let end: int = (tc_str_index_of s ">")
-    if (and (> start 0) (> end start)) {
-        return (str_substring s start (- end start))
-    } else {
-        return ""
+    let length: int = (str_length s)
+    if (not (and (tc_str_starts_with s "List<") (and (> length 6) (tc_str_ends_with s ">")))) { return "" }
+    # I validate nested delimiters before removing the one outer wrapper.
+    if (!= (selected_payload_dot (+ s ".Element")) length) { return "" }
+    let mut depth: int = 1
+    let mut i: int = 5
+    while (< i length) {
+        let ch: string = (str_substring s i 1)
+        if (== ch "<") { set depth (+ depth 1) }
+        if (and (== ch ">") (!= (str_substring s (- i 1) 1) "-")) {
+            set depth (- depth 1)
+            if (and (== depth 0) (!= i (- length 1))) { return "" }
+        }
+        set i (+ i 1)
     }
+    let arguments: array<string> = (tc_generic_arguments s)
+    if (!= (array_length arguments) 1) { return "" }
+    return (at arguments 0)
 }
 
 shadow extract_list_element_type {
     assert (== (extract_list_element_type "List<Point>") "Point")
     assert (== (extract_list_element_type "List<int>") "int")
+    assert (== (extract_list_element_type "List<Box<string>.Some>") "Box<string>.Some")
+    assert (== (extract_list_element_type "List<Box<fn(int)->int>.Some>") "Box<fn(int)->int>.Some")
+    assert (== (extract_list_element_type "List<(int,Box<string>.Some)>") "(int,Box<string>.Some)")
+    assert (== (extract_list_element_type "List<List<Point>>") "List<Point>")
+    assert (== (extract_list_element_type "List<int,string>") "")
+    assert (== (extract_list_element_type "List<>") "")
+    assert (== (extract_list_element_type "List<Box<int>") "")
+    assert (== (extract_list_element_type "List<int><string>") "")
+    assert (== (extract_list_element_type "List<(int>)>") "")
+    assert (== (extract_list_element_type "Other<int>") "")
+
 }
 
 /* Check if string starts with prefix */

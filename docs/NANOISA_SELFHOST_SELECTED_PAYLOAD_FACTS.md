@@ -183,3 +183,29 @@ signature. Fixed declaration names and substituted actual names remain separate
 annotation tokens; neither callback nor list selection obtains authority from a
 C storage name. Existing list intrinsic declaration selection remains unchanged.
 These are static findings and new unexecuted controls, not runtime acceptance.
+
+## My ef7 first terminals and nested List prerequisite
+
+Both fresh preparations stop before bootstrap: Linux build exit2 after56.282s
+and Puck build exit2 after55.496s. Neither times out; both retain equal source
+and tool maps and reap their process groups. The first assertion is the original
+new complete tuple/List fact at `reduce_type_known` line4949. My legacy
+`extract_list_element_type` takes the first closing angle, truncating
+`List<Box<string>.Some>` to an incomplete element. The tuple assertion remains
+unchanged, as do all original18/native9 inputs.
+
+My correction requires the exact `List<...>` wrapper, validates balanced nested
+delimiters through the shared scanner, rejects an outer close before the final
+byte, and requires exactly one complete argument. Callable arrows do not close
+angle depth. I add nested selected, callback, tuple and list arguments plus
+wrong-wrapper, wrong-arity and malformed-delimiter controls. This helper is used
+by the actual `type_from_string` List route; it does not introduce nominal
+identity from spelling or accept an unresolved leaf.
+
+The persistent report roots are `record-lists-ef7-linux-prepare` locally and
+`record-lists-ef7-prepare` on Puck. The complete Puck report was copied locally to
+`record-lists-ef7-puck-prepare-copy`; the copied first log hash is verified.
+Linux first log: `979aac2e9ea00669335e9dcba95c0c838fdfc65f66d4fb6cee333d4660003626`.
+Puck first log: `f1bfe7214bbfc590648d570115c3eba0203332e90f7ec721897e6476e11a57d6`.
+No dependent full bootstrap, focused matrix, native9 or original18 gate started.
+The correction has only static delimiter and diff checks pending source review.
