@@ -368,7 +368,7 @@ jobs:
     name: Sanitizer (${{ matrix.id }})
     needs: sanitizer-plan
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 30
     permissions:
       contents: read
     strategy:

@@ -17028,4 +17028,4 @@ I qualified source4f7317344 default-all ownership controls on both hosts, ordina
 
 ### I retain the combined sanitizer worker bound
 
-Source review finds the canonical merge resolution retained the prior partition worker outer bound of 30 minutes where the combined merge result supplied 90. I explicitly preserve 90 minutes for the final partitioned worker contract, retaining every exact worker/negative-suite check. This changes neither the inner compiler/shadow limits nor assertions, and no worker has run on the candidate. The older monolithic aggregate timeout remains inapplicable.
+Root review initially attributed a 90-minute worker bound to CI82 from the artificial remerge baseline. Exact parent reads establish CI82 and candidate dc71 both use 30 minutes; root withdrew the requested increase after that correction. I restore the authoritative 30-minute bound in the immediate successor, retaining every exact worker/negative-suite check. Neither temporary source checkpoint ran a worker. I require actual workload evidence before any future bound change; the older monolithic aggregate timeout remains inapplicable.
