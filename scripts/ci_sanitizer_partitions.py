@@ -13,6 +13,7 @@ import sys
 CFLAGS = '-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer'
 LDFLAGS = '-lm -lcrypto -fsanitize=address,undefined'
 FLAGS = ['CFLAGS=' + CFLAGS, 'LDFLAGS=' + LDFLAGS]
+NATIVE_CFLAGS = '-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer'
 DEDICATED = ('test-forth-session', 'test-nanoisa-src-nano')
 PROVIDERS = ['nanoisa_emit', 'nano_virt', 'nano_vm', 'nvm2c', 'nvm2c-runtime', 'nanoisa_dump']
 
@@ -63,6 +64,49 @@ def parse_database(text):
     return validate_targets([*targets, 'test-units-tail'])
 
 
+def native_bootstrap_consumers(text, targets):
+    """I derive compiler roles from resolved dependencies, including order-only edges."""
+    graph = {}
+    ambiguous = set()
+    for line in text.splitlines():
+        match = re.match(r'^([^\s:=#]+):[ \t]*(.*)$', line)
+        if not match:
+            continue
+        target, body = match.groups()
+        # Make prints target-specific variable assignments beside the real rule.
+        if re.match(r'(?:(?:override|private|export)\s+)*[A-Za-z_][A-Za-z0-9_]*\s*[:+?]?=', body):
+            continue
+        dependencies = body.split()
+        if any(not re.fullmatch(r'[A-Za-z0-9_./%+@-]+|\|', item) for item in dependencies):
+            ambiguous.add(target)
+            continue
+        dependencies = [item for item in dependencies if item != '|']
+        if target in graph and graph[target] != dependencies:
+            ambiguous.add(target)
+        graph[target] = dependencies
+    markers = {'bootstrap', 'bootstrap1', 'bootstrap2', 'bootstrap3',
+               '.bootstrap1.built', '.bootstrap2.built', '.bootstrap3.built'}
+    selected = []
+    for target in targets:
+        if target not in graph:
+            raise ValueError('I require the resolved rule for ' + target)
+        pending = [target]
+        seen = set()
+        needed = False
+        while pending:
+            current = pending.pop()
+            if current in seen:
+                continue
+            seen.add(current)
+            if current in ambiguous:
+                raise ValueError('I cannot resolve compiler prerequisites for ' + current)
+            needed = needed or current in markers
+            pending.extend(graph.get(current, ()))
+        if needed:
+            selected.append(target)
+    return selected
+
+
 def resolve(output):
     command = ['make', '-qp', 'test-units', *FLAGS]
     result = subprocess.run(command, capture_output=True, timeout=60)
@@ -73,11 +117,16 @@ def resolve(output):
     save(output / 'make-database.json', {'argv': command, 'returncode': result.returncode})
     if result.returncode not in (0, 1):
         raise ValueError('I could not resolve the actual Make unit inventory.')
-    return parse_database(result.stdout.decode())
+    text = result.stdout.decode()
+    targets = parse_database(text)
+    return {'targets': targets, 'native_bootstrap_targets': native_bootstrap_consumers(text, targets)}
 
 
-def plan(head, targets):
+def plan(head, targets, native_bootstrap_targets=()):
     validate_targets(targets)
+    native_bootstrap_targets = list(native_bootstrap_targets)
+    if native_bootstrap_targets != [target for target in targets if target in native_bootstrap_targets]:
+        raise ValueError('I require an ordered unique subset of bootstrap consumers.')
     workers = [{'id': 'forth', 'targets': [DEDICATED[0]]},
                {'id': 'source', 'targets': [DEDICATED[1]]}]
     remainder = [target for target in targets if target not in DEDICATED]
@@ -86,15 +135,18 @@ def plan(head, targets):
     if any(not worker['targets'] for worker in workers):
         raise ValueError('I refuse empty unit partitions.')
     workers.append({'id': 'negative', 'targets': []})
-    body = {'schema': 1, 'head': head, 'targets': targets, 'workers': workers,
-            'cflags': CFLAGS, 'ldflags': LDFLAGS}
+    for worker in workers:
+        worker['native_bootstrap'] = any(target in native_bootstrap_targets for target in worker['targets'])
+    body = {'schema': 2, 'head': head, 'targets': targets, 'workers': workers,
+            'native_bootstrap_targets': native_bootstrap_targets,
+            'cflags': CFLAGS, 'ldflags': LDFLAGS, 'native_cflags': NATIVE_CFLAGS}
     return {**body, 'inventory_sha256': digest(body)}
 
 
 def checked_plan(path):
     value = json.loads(Path(path).read_text())
     # Regeneration validates assignment, order, flags, identity and the digest.
-    if value != plan(value['head'], value['targets']):
+    if value != plan(value['head'], value['targets'], value['native_bootstrap_targets']):
         raise ValueError('I refuse a modified partition manifest.')
     return value
 
@@ -111,7 +163,7 @@ def worker_from(manifest, name):
 
 
 def verify_local(manifest, output):
-    if current_head() != manifest['head'] or resolve(output) != manifest['targets']:
+    if current_head() != manifest['head'] or resolve(output) != {key: manifest[key] for key in ('targets', 'native_bootstrap_targets')}:
         raise ValueError('I refuse a different source head or resolved target inventory.')
 
 
@@ -163,7 +215,7 @@ def command_for(worker, phase):
     if phase == 'sanitize':
         return ['make', 'sanitize']
     if phase == 'bootstrap':
-        return ['make', 'build', 'CFLAGS=' + CFLAGS]
+        return ['make', 'bootstrap3' if worker['native_bootstrap'] else 'build', *FLAGS]
     if phase == 'providers':
         if worker['id'] != 'source':
             raise ValueError('I prepare extra source-emitter providers only for their worker.')
@@ -173,6 +225,54 @@ def command_for(worker, phase):
             return ['bash', 'tests/run_negative_tests.sh']
         return ['make', *worker['targets'], *FLAGS]
     raise ValueError('I refuse an unknown phase.')
+
+
+def sanitizer_symbols(text):
+    return {'asan': bool(re.search(r'\b__asan_(?:init|report_[A-Za-z0-9_]+)\b', text)),
+            'ubsan': bool(re.search(r'\b__ubsan_handle_[A-Za-z0-9_]+\b', text))}
+
+
+def instrumented_products(worker, output):
+    nm = shutil.which('nm')
+    if not nm:
+        raise ValueError('I require nm to verify my actual compiler products.')
+    paths = ['bin/nanoc_c']
+    if worker['native_bootstrap']:
+        paths += ['bin/nanoc_stage1', 'bin/nanoc_stage2']
+    report = {'worker': worker['id'], 'native_cflags': NATIVE_CFLAGS,
+              'nm': {'path': nm, 'sha256': file_hash(nm)}, 'products': {}, 'success': False}
+    for name in paths:
+        path = Path(name)
+        if not path.is_file():
+            save(Path(output) / 'instrumentation.json', report)
+            raise ValueError('I require the actual compiler product: ' + name)
+        before = file_hash(path)
+        completed = subprocess.run([nm, str(path)], capture_output=True, timeout=60)
+        prefix = Path(output) / (path.name + '-instrumentation')
+        prefix.with_suffix('.stdout').write_bytes(completed.stdout)
+        prefix.with_suffix('.stderr').write_bytes(completed.stderr)
+        families = sanitizer_symbols(completed.stdout.decode(errors='replace'))
+        report['products'][name] = {'sha256': before, 'returncode': completed.returncode, **families}
+        save(Path(output) / 'instrumentation.json', report)
+        if completed.returncode or not all(families.values()) or before != file_hash(path):
+            raise ValueError('I require unchanged ASan and UBSan compiler instrumentation: ' + name)
+    report['success'] = True
+    save(Path(output) / 'instrumentation.json', report)
+    return report
+
+
+def instrumentation_stable(worker, output, prepared, after):
+    path = Path(output) / 'instrumentation.json'
+    if not path.is_file() or not prepared or not after:
+        return False
+    report = json.loads(path.read_text())
+    required = ['bin/nanoc_c'] + (['bin/nanoc_stage1', 'bin/nanoc_stage2'] if worker['native_bootstrap'] else [])
+    if (not report.get('success') or report.get('worker') != worker['id'] or
+            report.get('native_cflags') != NATIVE_CFLAGS or set(report.get('products', {})) != set(required)):
+        return False
+    return all(product.get('returncode') == 0 and product.get('asan') and product.get('ubsan') and
+               prepared['products'].get(name) == after['products'].get(name) == product.get('sha256')
+               for name, product in report['products'].items())
 
 
 def aggregate(manifest, root):
@@ -190,7 +290,9 @@ def aggregate(manifest, root):
         worker = worker_from(manifest, name)
         if (result.get('head') != manifest['head'] or
                 result.get('inventory_sha256') != manifest['inventory_sha256'] or
-                result.get('targets') != worker['targets'] or not result.get('success')):
+                result.get('targets') != worker['targets'] or
+                result.get('native_bootstrap') != worker['native_bootstrap'] or
+                not result.get('instrumentation_verified') or not result.get('success')):
             raise ValueError('I refuse failed, incomplete or mismatched worker evidence: ' + name)
     return {'success': True, 'head': manifest['head'],
             'inventory_sha256': manifest['inventory_sha256'], 'workers': sorted(actual)}
@@ -198,7 +300,7 @@ def aggregate(manifest, root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('plan', 'verify', 'command', 'snapshot', 'result', 'aggregate'))
+    parser.add_argument('action', choices=('plan', 'verify', 'command', 'snapshot', 'result', 'aggregate', 'instrumentation'))
     parser.add_argument('--manifest')
     parser.add_argument('--output', required=True)
     parser.add_argument('--worker')
@@ -209,7 +311,7 @@ def main():
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
     if args.action == 'plan':
-        value = plan(current_head(), resolve(output))
+        value = plan(current_head(), **resolve(output))
         save(output / 'plan.json', value)
         if args.github_output:
             with open(args.github_output, 'a') as stream:
@@ -224,7 +326,13 @@ def main():
     worker = worker_from(manifest, args.worker)
     if args.action == 'verify':
         verify_local(manifest, output)
+    elif args.action == 'instrumentation':
+        instrumented_products(worker, output)
     elif args.action == 'command':
+        if os.environ.get('NANO_CFLAGS', NATIVE_CFLAGS) != NATIVE_CFLAGS:
+            raise ValueError('I refuse different generated-native instrumentation flags.')
+        os.environ['NANO_CFLAGS'] = NATIVE_CFLAGS
+        os.environ['NANO_VERBOSE_BUILD'] = '1'
         command = command_for(worker, args.phase)
         if args.phase == 'tests' and worker['id'] == 'negative':
             os.environ['NANOLANG_COMPILER'] = './bin/nanoc_c'
@@ -232,7 +340,9 @@ def main():
         save(output / (args.phase + '-command.json'), {'argv': command, 'head': manifest['head'],
              'worker': worker, 'ASAN_OPTIONS': os.environ.get('ASAN_OPTIONS'),
              'NANO_SHADOW_TIMEOUT_SECONDS': os.environ.get('NANO_SHADOW_TIMEOUT_SECONDS'),
-             'NANOLANG_COMPILER': os.environ.get('NANOLANG_COMPILER')})
+             'NANOLANG_COMPILER': os.environ.get('NANOLANG_COMPILER'),
+             'NANO_CFLAGS': os.environ.get('NANO_CFLAGS'),
+             'NANO_VERBOSE_BUILD': os.environ.get('NANO_VERBOSE_BUILD')})
         # The owning Actions step retains its original deadline and group cleanup.
         os.execvp(command[0], command)
     elif args.action == 'snapshot':
@@ -243,17 +353,20 @@ def main():
                 raise ValueError('I refuse source or tool drift before test execution.')
     elif args.action == 'result':
         steps = json.loads(os.environ['CI_SANITIZER_STEPS'])
-        required = ['verify', 'before', 'sanitize', 'bootstrap', 'prepared', 'tests', 'after']
+        required = ['verify', 'before', 'sanitize', 'bootstrap', 'instrumentation', 'prepared', 'tests', 'after']
         if worker['id'] == 'source':
             required.append('providers')
         before = json.loads((output / 'before.json').read_text()) if (output / 'before.json').exists() else None
         after = json.loads((output / 'after.json').read_text()) if (output / 'after.json').exists() else None
         stable = bool(before and after and before['head'] == after['head'] == manifest['head'] and
                       before['sources'] == after['sources'] and before['tools'] == after['tools'])
-        success = stable and all(steps.get(name, {}).get('outcome') == 'success' for name in required)
+        prepared = json.loads((output / 'prepared.json').read_text()) if (output / 'prepared.json').exists() else None
+        instrumented = instrumentation_stable(worker, output, prepared, after)
+        success = stable and instrumented and all(steps.get(name, {}).get('outcome') == 'success' for name in required)
         save(output / 'result.json', {'worker': worker['id'], 'targets': worker['targets'],
              'head': current_head(), 'inventory_sha256': manifest['inventory_sha256'],
-             'source_tools_unchanged': stable, 'steps': steps, 'success': success})
+             'source_tools_unchanged': stable, 'native_bootstrap': worker['native_bootstrap'],
+             'instrumentation_verified': instrumented, 'steps': steps, 'success': success})
         if not success:
             raise ValueError('I retain a failed or incomplete sanitizer worker.')
 

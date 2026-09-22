@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('partition', ROOT / 'scripts/ci_sanitizer_partitions.py')
@@ -26,7 +27,7 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(value['workers'][0]['targets'], ['test-forth-session'])
         self.assertEqual(value['workers'][1]['targets'], ['test-nanoisa-src-nano'])
         self.assertEqual(len(value['workers']), 17)
-        self.assertEqual(value['workers'][-1], {'id': 'negative', 'targets': []})
+        self.assertEqual(value['workers'][-1], {'id': 'negative', 'targets': [], 'native_bootstrap': False})
 
     def test_new_target_is_included_and_changes_digest(self):
         original = self.inventory()
@@ -67,7 +68,7 @@ class SanitizerPartitions(unittest.TestCase):
         value = partition.plan('head', self.inventory())
         self.assertEqual(partition.command_for(value['workers'][0], 'sanitize'), ['make', 'sanitize'])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap'),
-                         ['make', 'build', 'CFLAGS=' + partition.CFLAGS])
+                         ['make', 'build', *partition.FLAGS])
         for worker in value['workers'][:-1]:
             self.assertEqual(partition.command_for(worker, 'tests'), ['make', *worker['targets'], *partition.FLAGS])
         self.assertEqual(partition.command_for(value['workers'][-1], 'tests'), ['bash', 'tests/run_negative_tests.sh'])
@@ -81,12 +82,14 @@ class SanitizerPartitions(unittest.TestCase):
             for worker in value['workers']:
                 path = Path(tmp) / worker['id'] / 'result.json'
                 partition.save(path, {'worker': worker['id'], 'targets': worker['targets'],
-                    'head': value['head'], 'inventory_sha256': value['inventory_sha256'], 'success': True})
+                    'head': value['head'], 'inventory_sha256': value['inventory_sha256'],
+                    'native_bootstrap': worker['native_bootstrap'], 'instrumentation_verified': True, 'success': True})
                 paths.append(path)
             self.assertTrue(partition.aggregate(value, tmp)['success'])
             original = paths[-1].read_text()
             for field, replacement in [('success', False), ('head', 'different'),
-                                       ('inventory_sha256', 'different'), ('targets', ['test-extra'])]:
+                                       ('inventory_sha256', 'different'), ('targets', ['test-extra']),
+                                       ('instrumentation_verified', False), ('native_bootstrap', True)]:
                 data = json.loads(original); data[field] = replacement; partition.save(paths[-1], data)
                 with self.subTest(field=field), self.assertRaises(ValueError):
                     partition.aggregate(value, tmp)
@@ -104,11 +107,78 @@ class SanitizerPartitions(unittest.TestCase):
                                 cwd=ROOT, capture_output=True, text=True, timeout=60)
         self.assertIn(result.returncode, (0, 1), result.stderr)
         targets = partition.parse_database(result.stdout)
-        planned = partition.plan('head', targets)
+        native = partition.native_bootstrap_consumers(result.stdout, targets)
+        self.assertIn('test-scalar-reconstruction', native)
+        self.assertIn('test-selfhost-byte-array-identity', native)
+        self.assertNotIn('test-forth-session', native)
+        planned = partition.plan('head', targets, native)
         self.assertCountEqual([target for worker in planned['workers'] for target in worker['targets']], targets)
         self.assertIn('test-units-tail', targets)
         self.assertIn('test-verify-all-programs', targets)
         self.assertIn('test-nanovm', targets)
+
+    def test_bootstrap_graph_follows_shared_and_order_only_edges_and_cycles(self):
+        text = ('test-a: first | shared\nfirst: second\nsecond: first shared\n'
+                'shared: .bootstrap2.built\n.bootstrap2.built: seed\n'
+                'test-b: ordinary\nordinary: file.c\ntest-c: shared\n')
+        self.assertEqual(partition.native_bootstrap_consumers(text, ['test-a', 'test-b', 'test-c']),
+                         ['test-a', 'test-c'])
+        for bad in ('test-a: $(UNRESOLVED)\n', 'test-a: first\ntest-a: second\n',
+                    'test-a: first ; command\n', ''):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                partition.native_bootstrap_consumers(bad, ['test-a'])
+        self.assertEqual(partition.native_bootstrap_consumers(
+            'test-a: CFLAGS += -g\ntest-a: bootstrap3\n', ['test-a']), ['test-a'])
+
+    def test_bootstrap_roles_and_flags_are_manifest_obligations(self):
+        targets = self.inventory()
+        native = ['test-control-0']
+        value = partition.plan('head', targets, native)
+        workers = [w for w in value['workers'] if w['native_bootstrap']]
+        self.assertEqual(len(workers), 1)
+        self.assertEqual(partition.command_for(workers[0], 'bootstrap'), ['make', 'bootstrap3', *partition.FLAGS])
+        self.assertEqual(value['native_cflags'], partition.NATIVE_CFLAGS)
+        for bad in (['absent'], [native[0], native[0]]):
+            with self.assertRaises(ValueError):
+                partition.plan('head', targets, bad)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'plan.json'
+            value['workers'][0]['native_bootstrap'] = True
+            partition.save(path, value)
+            with self.assertRaises(ValueError):
+                partition.checked_plan(path)
+
+    def test_symbol_families_require_both_actual_sanitizers(self):
+        self.assertEqual(partition.sanitizer_symbols(' U __asan_init\n U __ubsan_handle_add_overflow\n'),
+                         {'asan': True, 'ubsan': True})
+        self.assertEqual(partition.sanitizer_symbols(' T ordinary_main\n'), {'asan': False, 'ubsan': False})
+        self.assertEqual(partition.sanitizer_symbols(' U __asan_report_load8\n'), {'asan': True, 'ubsan': False})
+
+    def test_instrumentation_refuses_missing_products_tool_failure_and_plain_stage(self):
+        worker = {'id': 'unit', 'native_bootstrap': True}
+        good = b' U __asan_init\n U __ubsan_handle_add_overflow\n'
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp)
+            with mock.patch.object(partition.Path, 'is_file', return_value=False):
+                with self.assertRaises(ValueError):
+                    partition.instrumented_products(worker, output)
+            for status, symbols in ((1, good), (0, b' T main\n'), (0, b' U __asan_init\n')):
+                completed = subprocess.CompletedProcess(['nm'], status, symbols, b'')
+                with mock.patch.object(partition.Path, 'is_file', return_value=True), \
+                     mock.patch.object(partition, 'file_hash', return_value='digest'), \
+                     mock.patch.object(partition.subprocess, 'run', return_value=completed):
+                    with self.assertRaises(ValueError):
+                        partition.instrumented_products(worker, output)
+            completed = subprocess.CompletedProcess(['nm'], 0, good, b'')
+            with mock.patch.object(partition.Path, 'is_file', return_value=True), \
+                 mock.patch.object(partition, 'file_hash', return_value='digest'), \
+                 mock.patch.object(partition.subprocess, 'run', return_value=completed):
+                result = partition.instrumented_products(worker, output)
+            self.assertEqual(set(result['products']), {'bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage2'})
+            prepared = {'products': {p: 'digest' for p in result['products']}}
+            self.assertTrue(partition.instrumentation_stable(worker, output, prepared, prepared))
+            changed = {'products': dict(prepared['products'], **{'bin/nanoc_stage2': 'other'})}
+            self.assertFalse(partition.instrumentation_stable(worker, output, prepared, changed))
 
     def test_parallel_make_tail_waits_for_every_prerequisite(self):
         makefile = (ROOT / 'Makefile.gnu').read_text()
@@ -148,6 +218,9 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(workers['env']['ASAN_OPTIONS'], 'detect_leaks=0')
         self.assertEqual(workers['env']['NANO_SHADOW_TIMEOUT_SECONDS'], '60')
         self.assertNotIn('NANOLANG_COMPILER', workers['env'])
+        instrumentation = next(step for step in workers['steps'] if step.get('id') == 'instrumentation')
+        self.assertIn(' instrumentation --manifest ', instrumentation['run'])
+        self.assertLess(workers['steps'].index(instrumentation), workers['steps'].index(tests))
         self.assertEqual(jobs['sanitizers']['needs'], ['sanitizer-plan', 'sanitizer-workers'])
         self.assertEqual(jobs['sanitizers']['if'], 'always()')
         aggregate = next(step for step in jobs['sanitizers']['steps'] if 'run' in step)
