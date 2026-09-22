@@ -667,7 +667,7 @@ typedef struct {
     Type *field_types;
     char **field_type_names;  /* For TYPE_STRUCT/TYPE_UNION fields: actual type name (e.g., "Vec3") */
     Type *field_element_types;  /* For TYPE_ARRAY fields: element type (e.g., TYPE_STRING for array<string>) */
-    TypeInfo **field_type_info; /* Borrowed from the defining AST. */
+    TypeInfo **field_type_info; /* Environment borrows AST; metadata snapshot owns copies. */
     int field_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     bool is_resource;  /* Resource type: affine semantics (use at most once) */

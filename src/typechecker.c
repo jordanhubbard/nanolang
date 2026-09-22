@@ -7353,11 +7353,8 @@ bool type_check(ASTNode *program, Environment *env) {
         
         /* Handle module declaration */
         if (item->type == AST_MODULE_DECL) {
-            /* Set current module context */
-            if (env->current_module) {
-                free(env->current_module);
-            }
-            env->current_module = strdup(item->as.module_decl.name);
+            /* Prior contexts may be borrowed; I own only this fresh copy. */
+            env->current_module = env_own_checker_allocation(env, strdup(item->as.module_decl.name));
             /* TODO: Check if module is declared as unsafe */
             continue;
         }
@@ -7433,7 +7430,7 @@ bool type_check(ASTNode *program, Environment *env) {
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
             sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
 sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
-            sdef.module_name = env->current_module ? strdup(env->current_module) : NULL;  /* Set module context */
+            sdef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;  /* Set module context */
             
             env_define_struct(env, sdef);
 
@@ -7654,7 +7651,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             /* Set module visibility */
             edef.is_pub = item->as.enum_def.is_pub;
-            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
             edef.is_extern = item->as.enum_def.is_extern;
             
             env_define_enum(env, edef);
@@ -8204,11 +8201,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
         
         /* Handle module declaration */
         if (item->type == AST_MODULE_DECL) {
-            /* Set current module context */
-            if (env->current_module) {
-                free(env->current_module);
-            }
-            env->current_module = strdup(item->as.module_decl.name);
+            /* Prior contexts may be borrowed; I own only this fresh copy. */
+            env->current_module = env_own_checker_allocation(env, strdup(item->as.module_decl.name));
             continue;
         }
         
@@ -8283,7 +8277,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
             sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
 sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
-            sdef.module_name = env->current_module ? strdup(env->current_module) : NULL;  /* Set module context */
+            sdef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;  /* Set module context */
             
             env_define_struct(env, sdef);
 
@@ -8492,7 +8486,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             /* Set module visibility */
             edef.is_pub = item->as.enum_def.is_pub;
-            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
             edef.is_extern = item->as.enum_def.is_extern;
             
             env_define_enum(env, edef);
