@@ -1,6 +1,7 @@
 #ifndef NANOISA_OWNERSHIP_DECLARATION_PROJECTION_H
 #define NANOISA_OWNERSHIP_DECLARATION_PROJECTION_H
 #include "ordinary_array_authority.h"
+#include "preparation_budget.h"
 #include "nvm_v2_sections.h"
 #include "ownership_contracts.h"
 /* I expose copied complete declarations, never executable authority.
@@ -22,6 +23,9 @@ NvmDeclarationResult nvm_prepare_ownership_declarations(const NvmModule *,NvmOwn
  * Unsupported declaration shapes remain UNKNOWN/INVALID; revision2 is not
  * enabled by this entry. Failure preserves *out. */
 NvmDeclarationResult nvm_prepare_ownership_declarations_v2(const NvmV2Module *,NvmOwnershipDeclarationPlan **);
+/* I stage a shared caller budget; failure changes neither it nor the output. */
+NvmDeclarationResult nvm_prepare_ownership_declarations_v2_budget(const NvmV2Module *,
+    NvmPreparationBudget *,NvmOwnershipDeclarationPlan **);
 void nvm_ownership_declarations_free(NvmOwnershipDeclarationPlan *);
 bool nvm_ownership_declarations_counts(const NvmOwnershipDeclarationPlan *,NvmDeclarationCounts *);
 bool nvm_ownership_declarations_layout(const NvmOwnershipDeclarationPlan *,uint32_t,NvmDeclarationLayout *);

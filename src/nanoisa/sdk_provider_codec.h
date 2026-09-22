@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "preparation_budget.h"
 #define NVM_SDK_PROVIDER_REVISION 1u
 #define NVM_SDK_PROVIDER_HEADER_BYTES 32u
 #define NVM_SDK_PROVIDER_MAX_ROWS 4096u
@@ -43,6 +44,9 @@ typedef struct NvmSdkProviderTransport NvmSdkProviderTransport;
  * own a live plan. limit includes plan and payload, bounded by MAX_BYTES. */
 NvmSdkResult nvm_sdk_provider_decode(const uint8_t *, size_t, size_t,
                                     NvmSdkProviderTransport **out);
+/* I charge the same generation budget, publishing it only with success. */
+NvmSdkResult nvm_sdk_provider_decode_budget(const uint8_t *,size_t,
+    NvmPreparationBudget *,NvmSdkProviderTransport **);
 void nvm_sdk_provider_transport_free(NvmSdkProviderTransport *);
 /* I copy borrowed row arrays into malloc-owned bytes. Failure preserves both
  * outputs. Outputs must not alias inputs or each other. Raw success validates

@@ -2,6 +2,7 @@
 #include "retained_layouts.h"
 #include "reference_places.h"
 #include "isa.h"
+#include "preparation_budget.h"
 #include <stdlib.h>
 
 static bool scalar(uint8_t tag) {

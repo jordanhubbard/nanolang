@@ -17404,3 +17404,11 @@ complete provider validation and executable/installed admission remain open.
   only; its facts cannot authorize C/COP calls. The amended provider contract
   records concrete proposed revision2 framing and requires recursive policy/
   generated-adapter equality review before source activation.
+
+I checkpoint one shared transactional preparation budget across private module,
+signature, raw provider and direct-V2 declaration owners. Cumulative scratch,
+copy passes and array-reader work are charged without refreshing the allowance;
+original wrappers keep their prior profiles. Additive exact/minus-one and all
+combined allocation-prefix controls are source-ready; production and both
+fixture modes pass strict syntax. Runtime qualification awaits review before
+shared typed revision2/profile and provider admission work continues.

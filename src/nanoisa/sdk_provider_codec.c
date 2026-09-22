@@ -69,16 +69,40 @@ static NvmSdkResult validate(const uint8_t *p, size_t size,
     }
     return NVM_SDK_OK;
 }
-NvmSdkResult nvm_sdk_provider_decode(const uint8_t *p,size_t size,size_t limit,
-                                    NvmSdkProviderTransport **out) {
+static NvmSdkResult provider_decode(const uint8_t *p,size_t size,size_t limit,
+    NvmPreparationBudget *budget,NvmSdkProviderTransport **out) {
     if(!out) return NVM_SDK_INVALID;
+    NvmPreparationBudget remaining=budget?*budget:(NvmPreparationBudget){0,0};
+    if(budget) {
+        if(!p||size<NVM_SDK_PROVIDER_HEADER_BYTES)return NVM_SDK_INVALID;
+        if(size>NVM_SDK_PROVIDER_MAX_BYTES)return NVM_SDK_LIMIT;
+        uint32_t raw[5];size_t offsets[5],expected;
+        for(unsigned i=0;i<5;i++)raw[i]=get32(p+8+4*i);
+        NvmSdkResult checked=shape(raw,offsets,&expected);
+        if(checked!=NVM_SDK_OK)return checked;
+        if(expected!=size)return NVM_SDK_INVALID;
+        uint32_t work=8;
+        for(unsigned i=0;i<5;i++)work+=raw[i]; /* Every bounded row/reference plus framing/copy. */
+        if(!nvm_preparation_charge(&remaining,sizeof(NvmSdkProviderTransport)+size,work))return NVM_SDK_LIMIT;
+        if(limit>budget->bytes)limit=budget->bytes;
+    }
     uint32_t counts[5]; size_t offsets[5];
     NvmSdkResult r=validate(p,size,counts,offsets); if(r!=NVM_SDK_OK)return r;
     if(limit>NVM_SDK_PROVIDER_MAX_BYTES)limit=NVM_SDK_PROVIDER_MAX_BYTES;
     if(sizeof(NvmSdkProviderTransport)>limit || size>limit-sizeof(NvmSdkProviderTransport))return NVM_SDK_LIMIT;
     NvmSdkProviderTransport *t=malloc(sizeof *t+size); if(!t)return NVM_SDK_MEMORY;
     memcpy(t->counts,counts,sizeof counts); memcpy(t->offsets,offsets,sizeof offsets);
-    t->size=size; memcpy(t->data,p,size); *out=t; return NVM_SDK_OK;
+    t->size=size; memcpy(t->data,p,size); *out=t;if(budget)*budget=remaining; return NVM_SDK_OK;
+}
+NvmSdkResult nvm_sdk_provider_decode(const uint8_t *p,size_t size,size_t limit,
+    NvmSdkProviderTransport **out) {
+    return provider_decode(p,size,limit,NULL,out);
+}
+NvmSdkResult nvm_sdk_provider_decode_budget(const uint8_t *p,size_t size,
+    NvmPreparationBudget *budget,NvmSdkProviderTransport **out) {
+    if(!budget)return NVM_SDK_INVALID;
+    if(!nvm_preparation_budget_valid(budget))return NVM_SDK_LIMIT;
+    return provider_decode(p,size,NVM_SDK_PROVIDER_MAX_BYTES,budget,out);
 }
 void nvm_sdk_provider_transport_free(NvmSdkProviderTransport *p) { free(p); }
 static void words(uint8_t *p,const uint32_t *values,unsigned n) {

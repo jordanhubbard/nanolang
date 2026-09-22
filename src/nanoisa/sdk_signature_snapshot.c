@@ -74,12 +74,19 @@ NvmSdkResult nvm_sdk_signature_snapshot_measure(const NvmV2Module *m,
     if(result!=NVM_SDK_OK)return result;
     *bytes=plan.bytes;*work=plan.work;return NVM_SDK_OK;
 }
-NvmSdkResult nvm_sdk_signature_snapshot_prepare(const NvmV2Module *m,
-    size_t limit,NvmSdkSignatureSnapshot **out) {
+static NvmSdkResult signature_prepare(const NvmV2Module *m,
+    size_t limit,NvmPreparationBudget *budget,NvmSdkSignatureSnapshot **out) {
     if(!out)return NVM_SDK_INVALID;
+    NvmPreparationBudget remaining=budget?*budget:(NvmPreparationBudget){0,0};
+    uint32_t work_limit=NVM_SDK_GENERATION_MAX_WORK;
+    if(budget) {
+        if(limit>remaining.bytes)limit=remaining.bytes;
+        if(work_limit>remaining.steps)work_limit=remaining.steps;
+    }
     SignatureSnapshotPlan plan;
-    NvmSdkResult checked=signature_snapshot_plan(m,limit,NVM_SDK_GENERATION_MAX_WORK,&plan);
+    NvmSdkResult checked=signature_snapshot_plan(m,limit,work_limit,&plan);
     if(checked!=NVM_SDK_OK)return checked;
+    if(budget&&!nvm_preparation_charge(&remaining,plan.bytes,plan.work))return NVM_SDK_LIMIT;
     size_t bytes=plan.bytes,tags=plan.tags;
     uint32_t *counts=plan.counts;
     NvmSdkSignatureSnapshot *p=calloc(1,sizeof *p);if(!p)return NVM_SDK_MEMORY;
@@ -101,9 +108,19 @@ NvmSdkResult nvm_sdk_signature_snapshot_prepare(const NvmV2Module *m,
         if(s->param_count){memcpy(p->tags+at,s->param_tags,s->param_count);d->param_tags=p->tags+at;at+=s->param_count;}
         if(s->result_count){memcpy(p->tags+at,s->result_tags,s->result_count);d->result_tags=p->tags+at;at+=s->result_count;}
     }
-    *out=p;return NVM_SDK_OK;
+    *out=p;if(budget)*budget=remaining;return NVM_SDK_OK;
 memory:
     nvm_sdk_signature_snapshot_free(p);return NVM_SDK_MEMORY;
+}
+NvmSdkResult nvm_sdk_signature_snapshot_prepare(const NvmV2Module *m,
+    size_t limit,NvmSdkSignatureSnapshot **out) {
+    return signature_prepare(m,limit,NULL,out);
+}
+NvmSdkResult nvm_sdk_signature_snapshot_prepare_budget(const NvmV2Module *m,
+    NvmPreparationBudget *budget,NvmSdkSignatureSnapshot **out) {
+    if(!budget)return NVM_SDK_INVALID;
+    if(!nvm_preparation_budget_valid(budget))return NVM_SDK_LIMIT;
+    return signature_prepare(m,NVM_SDK_GENERATION_MAX_BYTES,budget,out);
 }
 const NvmV2Signatures *nvm_sdk_signature_snapshot_rows(const NvmSdkSignatureSnapshot *p) {
     return p?&p->signatures:NULL;

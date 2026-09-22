@@ -623,3 +623,30 @@ identity/refusal cases, combined exact-budget and budget-minus-one controls,
 allocation-prefix rollback with unchanged caller budgets, and all consuming
 reader/writer/VM/nvm2c refusal paths. Full source/installed SDK behavior remains
 required; none of these private profiles substitute for it.
+
+## I checkpoint the shared preparation budget before typed-profile widening
+
+My preparation context contains remaining bytes and steps, capped at32MiB and
+1,048,576. New budgeted signature, module, raw-provider and direct-V2 declaration
+entry points stage a local copy and publish it only with their successful owner.
+Existing entry points retain their original limits and acceptance profiles.
+Module preparation charges signature measurement plus validation/copy passes;
+it does not charge a hidden independent allowance. Raw-provider preparation
+bounds all counts before reserving validation/copy work. It remains transport.
+
+Declaration preparation charges its layout wire, ordinary owner, all copied
+layout/field storage and a conservative full DAG workspace reservation before
+allocation; it subsequently charges shared type/binding arrays and final union
+plan storage against that same local context. Freed layout scratch remains
+charged. Existing coarse whole-graph preflight and each later shared array-reader
+step consume the same work allowance. No prepared plan retains a pointer to the
+caller's budget or a stack-local context. A caller composing several owners must
+stage its own context until the whole generation succeeds; the additive fixture
+demonstrates that transaction and releases all earlier owners on later failure.
+
+Original private fixtures remain, with additive combined module/declaration/raw
+transport success at the measured exact cumulative budget, byte-minus-one and
+step-minus-one refusal, zero-budget unchanged output, and every combined
+allocation prefix under persistent/one-shot failure followed by fresh recovery.
+This source checkpoint does not implement revision2 rows, lifetime wire, provider
+cross-validation or consumer admission. Those remain the next required units.

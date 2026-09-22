@@ -226,6 +226,60 @@ static void mixed_maximum(void){
     NvmUnionVariantFact v;CHECK(nvm_ownership_declarations_variant(p,1,0,&v));CHECK(v.layout==1&&v.name_idx==1&&!v.field_count);
     nvm_ownership_declarations_free(p);
 }
+/* I compose all preparation owners under one transaction and one allowance. */
+#ifdef OAA_INSTRUMENT
+static void *sdk_test_malloc(size_t bytes) { return oaa_test_calloc(bytes,1); }
+#define malloc sdk_test_malloc
+#define calloc oaa_test_calloc
+#define free oaa_test_free
+#endif
+#include "../../src/nanoisa/sdk_signature_snapshot.c"
+#include "../../src/nanoisa/sdk_module_snapshot.c"
+#include "../../src/nanoisa/sdk_provider_codec.c"
+#ifdef OAA_INSTRUMENT
+#undef malloc
+#undef calloc
+#undef free
+#endif
+static bool budget_chain(const NvmV2Module *source,NvmPreparationBudget *budget) {
+    NvmPreparationBudget remaining=*budget;
+    NvmSdkModuleSnapshot *module=NULL;NvmOwnershipDeclarationPlan *declarations=NULL;
+    NvmSdkProviderTransport *provider=NULL;
+    uint8_t wire[32]={NVM_SDK_PROVIDER_REVISION};
+    bool ok=nvm_sdk_module_snapshot_prepare_budget(source,&remaining,&module)==NVM_SDK_OK;
+    if(ok)ok=nvm_prepare_ownership_declarations_v2_budget(nvm_sdk_module_snapshot_view(module),&remaining,&declarations).status==NVM_DECL_PREPARED;
+    if(ok)ok=nvm_sdk_provider_decode_budget(wire,sizeof wire,&remaining,&provider)==NVM_SDK_OK;
+    if(ok){facts(declarations,true);*budget=remaining;}
+    nvm_sdk_provider_transport_free(provider);nvm_ownership_declarations_free(declarations);
+    nvm_sdk_module_snapshot_free(module);return ok;
+}
+static void combined_budget_controls(const NvmV2Module *m) {
+    NvmPreparationBudget full={NVM_PREPARATION_MAX_BYTES,NVM_PREPARATION_MAX_STEPS},left=full;
+    CHECK(budget_chain(m,&left));
+    NvmPreparationBudget exact={full.bytes-left.bytes,full.steps-left.steps},trial=exact;
+    CHECK(exact.bytes&&exact.steps);CHECK(budget_chain(m,&trial));CHECK(!trial.bytes&&!trial.steps);
+    trial=exact;--trial.bytes;NvmPreparationBudget before=trial;
+    CHECK(!budget_chain(m,&trial));CHECK(trial.bytes==before.bytes&&trial.steps==before.steps);
+    trial=exact;--trial.steps;before=trial;
+    CHECK(!budget_chain(m,&trial));CHECK(trial.bytes==before.bytes&&trial.steps==before.steps);
+    NvmSdkModuleSnapshot *sentinel=(void *)(uintptr_t)1;trial=(NvmPreparationBudget){0,0};before=trial;
+    CHECK(nvm_sdk_module_snapshot_prepare_budget(m,&trial,&sentinel)==NVM_SDK_LIMIT);
+    CHECK(sentinel==(void *)(uintptr_t)1&&trial.bytes==before.bytes&&trial.steps==before.steps);
+    NvmOwnershipDeclarationPlan *decl=(void *)(uintptr_t)1;
+    CHECK(nvm_prepare_ownership_declarations_v2_budget(m,&trial,&decl).status==NVM_DECL_LIMIT);
+    CHECK(decl==(void *)(uintptr_t)1&&!trial.bytes&&!trial.steps);
+#ifdef OAA_INSTRUMENT
+    size_t baseline=live;calls=0;trial=full;CHECK(budget_chain(m,&trial));size_t measured=calls;
+    CHECK(live==baseline&&measured>20);
+    for(unsigned mode=0;mode<2;mode++)for(size_t i=0;i<measured;i++) {
+        calls=0;fail_at=i;persistent=mode!=0;trial=full;
+        CHECK(!budget_chain(m,&trial));CHECK(live==baseline);
+        CHECK(trial.bytes==full.bytes&&trial.steps==full.steps);
+        fail_at=SIZE_MAX;persistent=false;trial=full;
+        CHECK(budget_chain(m,&trial));CHECK(live==baseline);
+    }
+#endif
+}
 static void retained_v2(void) {
     Mixed c;mixed_make(&c,true);
     NvmV2Module m={0};
@@ -263,6 +317,7 @@ static void retained_v2(void) {
         facts(p,true);nvm_ownership_declarations_free(p);CHECK(live==baseline);
     }
 #endif
+    combined_budget_controls(&m);
     p=NULL;CHECK(nvm_prepare_ownership_declarations_v2(&m,&p).status==NVM_DECL_PREPARED);
     memset(c.o,0,c.on);memset(signatures,0,sizeof signatures);memset(constants,0,sizeof constants);
     nvm_v2_layouts_free(&m.layouts);facts(p,true);getter_errors(p);nvm_ownership_declarations_free(p);

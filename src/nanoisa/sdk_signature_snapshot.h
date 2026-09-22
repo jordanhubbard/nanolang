@@ -2,6 +2,7 @@
 #ifndef NANOISA_SDK_SIGNATURE_SNAPSHOT_H
 #define NANOISA_SDK_SIGNATURE_SNAPSHOT_H
 #include "sdk_provider_codec.h"
+#include "preparation_budget.h"
 #include "nvm_v2_sections.h"
 #define NVM_SDK_GENERATION_MAX_BYTES ((size_t)32u * 1024u * 1024u)
 #define NVM_SDK_GENERATION_MAX_WORK 1048576u
@@ -17,6 +18,9 @@ NvmSdkResult nvm_sdk_signature_snapshot_prepare(const NvmV2Module *source,
  * extra validation pass as work/2. Source immutability remains required. */
 NvmSdkResult nvm_sdk_signature_snapshot_measure(const NvmV2Module *, size_t, uint32_t work_limit,
     size_t *bytes, uint32_t *work);
+/* Budget and output publish together; failure preserves both. */
+NvmSdkResult nvm_sdk_signature_snapshot_prepare_budget(const NvmV2Module *,
+    NvmPreparationBudget *,NvmSdkSignatureSnapshot **);
 void nvm_sdk_signature_snapshot_free(NvmSdkSignatureSnapshot *);
 /* I expose contractually read-only owned rows, live until snapshot_free.
  * Nested pointer fields use existing mutable C types: callers must not mutate

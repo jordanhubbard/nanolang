@@ -33,6 +33,9 @@ static NvmDeclarationResult declaration_publish(const OwnershipModuleFacts *fact
        rows>OAA_BYTES-used-sizeof(NvmOwnershipDeclarationPlan)) {
         nvm_ordinary_array_authority_free(ordinary);return declaration_result(NVM_DECL_LIMIT);
     }
+    if(ordinary->budget&&!nvm_preparation_charge(ordinary->budget,sizeof(NvmOwnershipDeclarationPlan)+rows,0)) {
+        nvm_ordinary_array_authority_free(ordinary);return declaration_result(NVM_DECL_LIMIT);
+    }
     NvmOwnershipDeclarationPlan *p=calloc(1,sizeof *p);
     if(!p){nvm_ordinary_array_authority_free(ordinary);return declaration_result(NVM_DECL_MEMORY);}
     p->ordinary=ordinary;p->unions=facts->union_count;p->count=projection->count;
@@ -47,6 +50,7 @@ static NvmDeclarationResult declaration_publish(const OwnershipModuleFacts *fact
             nvm_ownership_declarations_free(p);return declaration_result(NVM_DECL_INVALID);
         }
     }
+    ordinary->budget=NULL;
     *out=p;return declaration_result(NVM_DECL_PREPARED);
 }
 NvmDeclarationResult nvm_prepare_ownership_declarations(
@@ -66,8 +70,8 @@ NvmDeclarationResult nvm_prepare_ownership_declarations(
 /* I reuse the exact private layout decoder through a bounded layout-only wire
  * copy. This is not a module/legacy conversion: selectors and constants stay
  * in the caller's retained V2 tables, and no auxiliary section is discarded. */
-NvmDeclarationResult nvm_prepare_ownership_declarations_v2(
-        const NvmV2Module *m,NvmOwnershipDeclarationPlan **out) {
+static NvmDeclarationResult declarations_v2_prepare(
+        const NvmV2Module *m,NvmPreparationBudget *budget,NvmOwnershipDeclarationPlan **out) {
     if(!m || !out || (m->layouts.count&&!m->layouts.items) ||
        (m->functions.count&&!m->functions.items) ||
        (m->constants.count&&!m->constants.items) ||
@@ -76,6 +80,8 @@ NvmDeclarationResult nvm_prepare_ownership_declarations_v2(
     if(!m->ownership_size)return declaration_result(NVM_DECL_UNKNOWN);
     if(m->ownership_size>OAA_BYTES || m->layouts.count>NVM_OWNERSHIP_LAYOUTS_PRIVATE_MAX_LAYOUTS)
         return declaration_result(NVM_DECL_LIMIT);
+    NvmPreparationBudget remaining=budget?*budget:(NvmPreparationBudget){0,0};
+    uint32_t work_limit=budget&&remaining.steps<OAA_STEPS?remaining.steps:OAA_STEPS;
     OwnershipModuleFacts facts={NULL,m,m->functions.count,0,m->ownership_data,m->ownership_size};
     uint32_t fields=0;
     for(uint32_t i=0;i<m->layouts.count;i++) {
@@ -90,17 +96,18 @@ NvmDeclarationResult nvm_prepare_ownership_declarations_v2(
      * I charge encode/decode/cycle/name/descriptor visits conservatively. */
     uint32_t work=fields*8u+m->layouts.count*8u+
         2u*NVM_OWNERSHIP_MAX_PATHS*(NVM_OWNERSHIP_MAX_PATH_DEPTH+4u);
+    if(work>work_limit)return declaration_result(NVM_DECL_LIMIT);
     uint32_t descriptor_cost=fields*3u+m->layouts.count+33u;
-    if(m->functions.count>(OAA_STEPS-work)/descriptor_cost)return declaration_result(NVM_DECL_LIMIT);
+    if(m->functions.count>(work_limit-work)/descriptor_cost)return declaration_result(NVM_DECL_LIMIT);
     for(uint32_t i=0;i<m->functions.count;i++) {
         OwnershipFunctionFacts f;
         if(!ownership_function_facts(&facts,i,&f) || f.params>f.locals || f.results>1)
             return declaration_result(NVM_DECL_INVALID);
         uint32_t descriptors=(uint32_t)f.locals+1u;
-        if(descriptors>(OAA_STEPS-work)/descriptor_cost)return declaration_result(NVM_DECL_LIMIT);
+        if(descriptors>(work_limit-work)/descriptor_cost)return declaration_result(NVM_DECL_LIMIT);
         work+=descriptors*descriptor_cost;
     }
-    if(facts.union_count>(OAA_STEPS-work)/131072u)return declaration_result(NVM_DECL_LIMIT);
+    if(facts.union_count>(work_limit-work)/131072u)return declaration_result(NVM_DECL_LIMIT);
     work+=facts.union_count*131072u;
     size_t encoded=4u+(size_t)m->layouts.count*8u+(size_t)fields*12u;
     /* The shared decoder's forward-DAG workspace is one byte plus two u32s
@@ -110,13 +117,14 @@ NvmDeclarationResult nvm_prepare_ownership_declarations_v2(
         (size_t)m->layouts.count*(sizeof(NvmV2Layout)+1u+2u*sizeof(uint32_t))+
         (size_t)fields*sizeof(NvmV2LayoutField);
     if(peak>OAA_BYTES)return declaration_result(NVM_DECL_LIMIT);
+    if(budget&&!nvm_preparation_charge(&remaining,peak,work))return declaration_result(NVM_DECL_LIMIT);
     uint8_t *wire=calloc(1,encoded);
     if(!wire)return declaration_result(NVM_DECL_MEMORY);
     NvmV2Result result=nvm_v2_layouts_encode(&m->layouts,wire,encoded);
     if(result!=NVM_V2_OK){free(wire);return declaration_result(NVM_DECL_INVALID);}
     NvmOrdinaryArrayAuthority *ordinary=calloc(1,sizeof *ordinary);
     if(!ordinary){free(wire);return declaration_result(NVM_DECL_MEMORY);}
-    ordinary->failure=NVM_OAA_INVALID;ordinary->steps=work;
+    ordinary->failure=NVM_OAA_INVALID;ordinary->steps=work;ordinary->budget=budget?&remaining:NULL;
     bool allocation_failed=false;
     result=nvm_ownership_mixed_layouts_private_decode_detailed(wire,encoded,
         &ordinary->layouts,&allocation_failed);
@@ -132,7 +140,19 @@ NvmDeclarationResult nvm_prepare_ownership_declarations_v2(
         return declaration_result(status==NVM_OAA_UNKNOWN?NVM_DECL_UNKNOWN:
             status==NVM_OAA_LIMIT?NVM_DECL_LIMIT:status==NVM_OAA_MEMORY?NVM_DECL_MEMORY:NVM_DECL_INVALID);
     }
-    return declaration_publish(&facts,ordinary,&projection,out);
+    NvmDeclarationResult prepared=declaration_publish(&facts,ordinary,&projection,out);
+    if(prepared.status==NVM_DECL_PREPARED && budget)*budget=remaining;
+    return prepared;
+}
+NvmDeclarationResult nvm_prepare_ownership_declarations_v2(const NvmV2Module *m,
+        NvmOwnershipDeclarationPlan **out) {
+    return declarations_v2_prepare(m,NULL,out);
+}
+NvmDeclarationResult nvm_prepare_ownership_declarations_v2_budget(const NvmV2Module *m,
+        NvmPreparationBudget *budget,NvmOwnershipDeclarationPlan **out) {
+    if(!budget)return declaration_result(NVM_DECL_INVALID);
+    if(!nvm_preparation_budget_valid(budget))return declaration_result(NVM_DECL_LIMIT);
+    return declarations_v2_prepare(m,budget,out);
 }
 bool nvm_ownership_declarations_counts(const NvmOwnershipDeclarationPlan *p,NvmDeclarationCounts *out) {
     if(!p||!out)return false;

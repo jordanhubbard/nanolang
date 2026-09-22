@@ -5823,7 +5823,7 @@ test-affine-private-variants: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	AFFINE_VARIANTS_OBJECTS='$(filter-out $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)' \
 	AFFINE_VARIANTS_LDFLAGS='$(LDFLAGS)' python3 -m unittest -v tests.test_affine_private_variants
 # I rebuild the shared declaration owner for complete mixed copied facts.
-$(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ownership_declaration_projection.h $(NANOISA_DIR)/ownership_declaration_projection.inc
+$(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ownership_declaration_projection.h $(NANOISA_DIR)/ownership_declaration_projection.inc $(NANOISA_DIR)/preparation_budget.h
 
 .PHONY: test-ownership-declaration-projection
 # I qualify copied mixed declarations, not executable admission.

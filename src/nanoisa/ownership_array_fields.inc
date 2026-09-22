@@ -13,9 +13,11 @@ struct NvmOrdinaryArrayAuthority {
     uint32_t type_count, binding_count, steps;
     NvmOrdinaryArrayStatus failure;
     bool unknown;
+    NvmPreparationBudget *budget; /* Preparation-local; cleared before publication. */
 };
 static bool oaa_charge(NvmOrdinaryArrayAuthority *p,uint32_t n) {
     if(n>OAA_STEPS-p->steps){p->failure=NVM_OAA_LIMIT;return false;}
+    if(p->budget&&!nvm_preparation_charge(p->budget,0,n)){p->failure=NVM_OAA_LIMIT;return false;}
     p->steps+=n;return true;
 }
 static NvmV2Result oaa_array_fields(NvmOwnershipExtensionView view,
@@ -37,6 +39,7 @@ static NvmV2Result oaa_array_fields(NvmOwnershipExtensionView view,
     /* Fixed ceilings make these products representable on wasm32 and native. */
     size_t extra=(size_t)types*sizeof *p->types+(size_t)bindings*sizeof *p->bindings;
     if(bytes>OAA_BYTES || extra>OAA_BYTES-bytes){p->failure=NVM_OAA_LIMIT;return NVM_V2_ERR_INDEX_RANGE;}
+    if(p->budget&&!nvm_preparation_charge(p->budget,extra,0)){p->failure=NVM_OAA_LIMIT;return NVM_V2_ERR_INDEX_RANGE;}
     p->type_count=types;p->binding_count=bindings;
     if(types)p->types=calloc(types,sizeof *p->types);
     if(bindings)p->bindings=calloc(bindings,sizeof *p->bindings);

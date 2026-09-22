@@ -8,6 +8,10 @@ typedef struct NvmSdkModuleSnapshot NvmSdkModuleSnapshot;
  * snapshot; *out must not already own storage. limit covers every allocation. */
 NvmSdkResult nvm_sdk_module_snapshot_prepare(const NvmV2Module *, size_t limit,
                                            NvmSdkModuleSnapshot **out);
+/* I consume the same caller budget as signatures/declarations/provider plans.
+ * A failed preparation preserves both budget and output. */
+NvmSdkResult nvm_sdk_module_snapshot_prepare_budget(const NvmV2Module *,
+    NvmPreparationBudget *,NvmSdkModuleSnapshot **);
 void nvm_sdk_module_snapshot_free(NvmSdkModuleSnapshot *);
 /* Contractually read-only, including nested pointers. Never pass this view to
  * nvm_v2_module_free or mutate its tables. No old module/cache lifetime changes. */
