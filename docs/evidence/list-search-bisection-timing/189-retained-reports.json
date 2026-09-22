@@ -1,0 +1,451 @@
+{
+  "linux": [
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/build-products-after.json",
+      "sha256": "2f93935539dd8b0111e06adf8ee9f2999abb684ce975e177ca840112a2aa6250",
+      "bytes": 129994
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/build-products-before.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/build-sources-after.json",
+      "sha256": "3f76c8c783d9ddabb86a34f523c367af93da1bf0aa027999ca0c4628e4c6ae6d",
+      "bytes": 1360967
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/build-sources-before.json",
+      "sha256": "3f76c8c783d9ddabb86a34f523c367af93da1bf0aa027999ca0c4628e4c6ae6d",
+      "bytes": 1360967
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/build-status.json",
+      "sha256": "e9a5212c82c2ccb40431bb1b0a28033e797e296958fa83b9fa93b0b3f45bac10",
+      "bytes": 739
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/build-tools-after.json",
+      "sha256": "d5bc435b7520d40bde19d4350a58803b496636186c7c5850580cc30180d34db9",
+      "bytes": 3263
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/build-tools-before.json",
+      "sha256": "d5bc435b7520d40bde19d4350a58803b496636186c7c5850580cc30180d34db9",
+      "bytes": 3263
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/capacity-preflight.json",
+      "sha256": "1544fedcc6d6cb5933a925cd6f6c848954580ea9a20e551d3f27d83fd00e210b",
+      "bytes": 64
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/compiler-products-after.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/compiler-products-before.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/compiler-sources-after.json",
+      "sha256": "3f76c8c783d9ddabb86a34f523c367af93da1bf0aa027999ca0c4628e4c6ae6d",
+      "bytes": 1360967
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/compiler-sources-before.json",
+      "sha256": "3f76c8c783d9ddabb86a34f523c367af93da1bf0aa027999ca0c4628e4c6ae6d",
+      "bytes": 1360967
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/compiler-status.json",
+      "sha256": "ff2a7109d3754303f85f2b98cbbecf1cfd26b1564c861c207c23505ad6aea0fd",
+      "bytes": 549
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/compiler-tools-after.json",
+      "sha256": "d5bc435b7520d40bde19d4350a58803b496636186c7c5850580cc30180d34db9",
+      "bytes": 3263
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/compiler-tools-before.json",
+      "sha256": "d5bc435b7520d40bde19d4350a58803b496636186c7c5850580cc30180d34db9",
+      "bytes": 3263
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/environment.json",
+      "sha256": "c622660cad15a5e0542ed8de5a05c7a3afac4af63dd8b8b37326fd04bb7e1dda",
+      "bytes": 1202
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/llvm-products-after.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/llvm-products-before.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/llvm-sources-after.json",
+      "sha256": "3f76c8c783d9ddabb86a34f523c367af93da1bf0aa027999ca0c4628e4c6ae6d",
+      "bytes": 1360967
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/llvm-sources-before.json",
+      "sha256": "3f76c8c783d9ddabb86a34f523c367af93da1bf0aa027999ca0c4628e4c6ae6d",
+      "bytes": 1360967
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/llvm-status.json",
+      "sha256": "eb7d6084b20d74761aa5603c11a00cbd1a6587239643510ca62c9ab5f3db3e1e",
+      "bytes": 556
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/llvm-tools-after.json",
+      "sha256": "d5bc435b7520d40bde19d4350a58803b496636186c7c5850580cc30180d34db9",
+      "bytes": 3263
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/llvm-tools-before.json",
+      "sha256": "d5bc435b7520d40bde19d4350a58803b496636186c7c5850580cc30180d34db9",
+      "bytes": 3263
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/make-products-after.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/make-products-before.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/make-sources-after.json",
+      "sha256": "3f76c8c783d9ddabb86a34f523c367af93da1bf0aa027999ca0c4628e4c6ae6d",
+      "bytes": 1360967
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/make-sources-before.json",
+      "sha256": "3f76c8c783d9ddabb86a34f523c367af93da1bf0aa027999ca0c4628e4c6ae6d",
+      "bytes": 1360967
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/make-status.json",
+      "sha256": "2b0f773b9efe6cc44ceadcb8e0363368e22b9d3101145b7f4127bab2faddac0d",
+      "bytes": 547
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/make-tools-after.json",
+      "sha256": "d5bc435b7520d40bde19d4350a58803b496636186c7c5850580cc30180d34db9",
+      "bytes": 3263
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/make-tools-before.json",
+      "sha256": "d5bc435b7520d40bde19d4350a58803b496636186c7c5850580cc30180d34db9",
+      "bytes": 3263
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/manifest.json",
+      "sha256": "60f820cc64cbeb92ba917ca5c521f0b97a8aff8fc9110d32b27766a010e9ef52",
+      "bytes": 3709
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/native-compiler-products-after.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/native-compiler-products-before.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/native-compiler-sources-after.json",
+      "sha256": "3f76c8c783d9ddabb86a34f523c367af93da1bf0aa027999ca0c4628e4c6ae6d",
+      "bytes": 1360967
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/native-compiler-sources-before.json",
+      "sha256": "3f76c8c783d9ddabb86a34f523c367af93da1bf0aa027999ca0c4628e4c6ae6d",
+      "bytes": 1360967
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/native-compiler-status.json",
+      "sha256": "ac362b57c5f8182ce8beabb5bee14cd60e23c7d85f73b6c0eba89fb2bc0859ab",
+      "bytes": 557
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/native-compiler-tools-after.json",
+      "sha256": "d5bc435b7520d40bde19d4350a58803b496636186c7c5850580cc30180d34db9",
+      "bytes": 3263
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/native-compiler-tools-before.json",
+      "sha256": "d5bc435b7520d40bde19d4350a58803b496636186c7c5850580cc30180d34db9",
+      "bytes": 3263
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/prepare-fragment.json",
+      "sha256": "638764a100bbe817c1af6fc00d75567d2d57ad9efcf9d162dc9de6a22d1f021d",
+      "bytes": 252
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/runner.json",
+      "sha256": "c6274cceff28a951230609df5687e53e667b1323b3f50d3f2bb8c6f9691c4d3e",
+      "bytes": 254
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/source-initial.json",
+      "sha256": "3f76c8c783d9ddabb86a34f523c367af93da1bf0aa027999ca0c4628e4c6ae6d",
+      "bytes": 1360967
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/sparse-policy.json",
+      "sha256": "82fddd3a6377a0c86dbdc19ef25bec676d09280435c5c894b635b4d197343f97",
+      "bytes": 81
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/tools-initial.json",
+      "sha256": "d5bc435b7520d40bde19d4350a58803b496636186c7c5850580cc30180d34db9",
+      "bytes": 3263
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-linux-prepare/tracked-paths.json",
+      "sha256": "92a0e933964464517e9b067ffe8c93a7b537d219949569846a30917daa5a2a48",
+      "bytes": 3394425
+    }
+  ],
+  "puck": [
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/build-products-after.json",
+      "sha256": "3529d1724d8f918a5068b99bf30257fbc01bc0a76f4e4cc7ce82597fb3ec182d",
+      "bytes": 122341
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/build-products-before.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/build-sources-after.json",
+      "sha256": "5a327fe33bc79a454c02e3ed666db26471f5dc1de04e528eff347c513887a494",
+      "bytes": 1323577
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/build-sources-before.json",
+      "sha256": "5a327fe33bc79a454c02e3ed666db26471f5dc1de04e528eff347c513887a494",
+      "bytes": 1323577
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/build-status.json",
+      "sha256": "d7a87a8929ca37891f9083d1673abb5e314e9204a07ca1223bb63da0783c7aff",
+      "bytes": 817
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/build-tools-after.json",
+      "sha256": "7b5af699a5ebcf64927f4b6b6912869383c5357f882c6a74e57c72b3512ed56f",
+      "bytes": 5544
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/build-tools-before.json",
+      "sha256": "7b5af699a5ebcf64927f4b6b6912869383c5357f882c6a74e57c72b3512ed56f",
+      "bytes": 5544
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/capacity-preflight.json",
+      "sha256": "b157688b1fb4fde55091a260d1b5388eab126450873ba3ae134e514bb33fe070",
+      "bytes": 64
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/compiler-products-after.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/compiler-products-before.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/compiler-sources-after.json",
+      "sha256": "5a327fe33bc79a454c02e3ed666db26471f5dc1de04e528eff347c513887a494",
+      "bytes": 1323577
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/compiler-sources-before.json",
+      "sha256": "5a327fe33bc79a454c02e3ed666db26471f5dc1de04e528eff347c513887a494",
+      "bytes": 1323577
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/compiler-status.json",
+      "sha256": "f327b98444a94abb4f8dd5cf2733db30ece37c40da29ecbf2d0e6632ebd84862",
+      "bytes": 550
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/compiler-tools-after.json",
+      "sha256": "7b5af699a5ebcf64927f4b6b6912869383c5357f882c6a74e57c72b3512ed56f",
+      "bytes": 5544
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/compiler-tools-before.json",
+      "sha256": "7b5af699a5ebcf64927f4b6b6912869383c5357f882c6a74e57c72b3512ed56f",
+      "bytes": 5544
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/environment.json",
+      "sha256": "8c230a496df81008e0538df493a1191185dce2da6de6539dd0f8641a8e94a359",
+      "bytes": 1191
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/llvm-products-after.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/llvm-products-before.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/llvm-sources-after.json",
+      "sha256": "5a327fe33bc79a454c02e3ed666db26471f5dc1de04e528eff347c513887a494",
+      "bytes": 1323577
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/llvm-sources-before.json",
+      "sha256": "5a327fe33bc79a454c02e3ed666db26471f5dc1de04e528eff347c513887a494",
+      "bytes": 1323577
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/llvm-status.json",
+      "sha256": "1309ccc07bf85582cca6f61b6fff1dd24b0887481df400b7a8719b984ff4e2a0",
+      "bytes": 563
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/llvm-tools-after.json",
+      "sha256": "7b5af699a5ebcf64927f4b6b6912869383c5357f882c6a74e57c72b3512ed56f",
+      "bytes": 5544
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/llvm-tools-before.json",
+      "sha256": "7b5af699a5ebcf64927f4b6b6912869383c5357f882c6a74e57c72b3512ed56f",
+      "bytes": 5544
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/make-products-after.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/make-products-before.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/make-sources-after.json",
+      "sha256": "5a327fe33bc79a454c02e3ed666db26471f5dc1de04e528eff347c513887a494",
+      "bytes": 1323577
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/make-sources-before.json",
+      "sha256": "5a327fe33bc79a454c02e3ed666db26471f5dc1de04e528eff347c513887a494",
+      "bytes": 1323577
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/make-status.json",
+      "sha256": "369ede8209d1a5f1b797cfaf7d3f53867d810c9247446e5efabcba2f094831a3",
+      "bytes": 545
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/make-tools-after.json",
+      "sha256": "7b5af699a5ebcf64927f4b6b6912869383c5357f882c6a74e57c72b3512ed56f",
+      "bytes": 5544
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/make-tools-before.json",
+      "sha256": "7b5af699a5ebcf64927f4b6b6912869383c5357f882c6a74e57c72b3512ed56f",
+      "bytes": 5544
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/manifest.json",
+      "sha256": "c744d265ae471cc374fa7aeced8b8972730fef1583e4ac0a07ef6c63839d3039",
+      "bytes": 3787
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/native-compiler-products-after.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/native-compiler-products-before.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/native-compiler-sources-after.json",
+      "sha256": "5a327fe33bc79a454c02e3ed666db26471f5dc1de04e528eff347c513887a494",
+      "bytes": 1323577
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/native-compiler-sources-before.json",
+      "sha256": "5a327fe33bc79a454c02e3ed666db26471f5dc1de04e528eff347c513887a494",
+      "bytes": 1323577
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/native-compiler-status.json",
+      "sha256": "de6dcd4c4c0680d22c464ded523418e6932141edc5c84473cc646004d81eee32",
+      "bytes": 574
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/native-compiler-tools-after.json",
+      "sha256": "7b5af699a5ebcf64927f4b6b6912869383c5357f882c6a74e57c72b3512ed56f",
+      "bytes": 5544
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/native-compiler-tools-before.json",
+      "sha256": "7b5af699a5ebcf64927f4b6b6912869383c5357f882c6a74e57c72b3512ed56f",
+      "bytes": 5544
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/prepare-fragment.json",
+      "sha256": "a101b33a41a70dc2b29963fe1ee56e971a5bdbaa3e6a7a51b3e3513bc1a437d9",
+      "bytes": 247
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/runner.json",
+      "sha256": "60f4c8f4483ebb693ffbb733f7bcbbabf2de3fe433545933e260cb042294e92a",
+      "bytes": 249
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/sdk-selection.json",
+      "sha256": "3c9367771142334cf7a074a0559c56a28aa1a6c0e97ed92fe69efc8f3559c5dd",
+      "bytes": 284
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/source-initial.json",
+      "sha256": "5a327fe33bc79a454c02e3ed666db26471f5dc1de04e528eff347c513887a494",
+      "bytes": 1323577
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/sparse-policy.json",
+      "sha256": "82fddd3a6377a0c86dbdc19ef25bec676d09280435c5c894b635b4d197343f97",
+      "bytes": 81
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/tools-initial.json",
+      "sha256": "7b5af699a5ebcf64927f4b6b6912869383c5357f882c6a74e57c72b3512ed56f",
+      "bytes": 5544
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-189-puck-prepare-copy/tracked-paths.json",
+      "sha256": "92a0e933964464517e9b067ffe8c93a7b537d219949569846a30917daa5a2a48",
+      "bytes": 3394425
+    }
+  ]
+}

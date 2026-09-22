@@ -104,3 +104,15 @@ separate forward-declaration and union-projection tasks on my production lane.
 [My4d terminal records and retained report identities](list-search-bisection-timing/4d-acceptance/retained-reports.json)
 include locally copied Puck logs/statuses. This supplement is not a complete CAS
 archive seal and does not close the full source/native/Make or release gates.
+
+
+My fresh189 build reaches the stale specialization shadow on both hosts:
+Linux exits2 after74.879s and Puck after81.716s at line5324. The specialization
+fragment no longer owns its typedef, so its old List_Point text predicate cannot
+observe the provider macro. Reviewed dcda44b79 changes only that expectation to
+NL_DEFINE_RECORD_LIST(Point, nl_Point), retaining the separate standalone/body
+and complete-program exactly-one controls. No production function changes.
+I preserve both original build logs/statuses and report identities. The corrected
+run uses independent verified189 products, with exact one-line shadow source
+comparison and fresh actual Make component/bootstrap/provider gates; reused Cseed
+products are not represented as a new Cseed rebuild. Full acceptance is pending.
