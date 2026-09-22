@@ -1,0 +1,70 @@
+{
+  "ci-failed.log": {
+    "bytes": 6917812,
+    "sha256": "1e0940f930f03443b64646e05ef32adff62ea778c3e9eb3bcd23385ce4024b88"
+  },
+  "pr948-failed.log": {
+    "bytes": 7907195,
+    "sha256": "82456ba80c361eb857483415700fd1669d4ef0c7348212be3ce14538e392cc34"
+  },
+  "canonical-bootstrap.log": {
+    "bytes": 13470,
+    "sha256": "130a574233e74e5badfcffb1329b84909d63afe63133b0f2d8caef0f920cc9d1"
+  },
+  "focused-corrected.log": {
+    "bytes": 15075,
+    "sha256": "39e49b235a4f10513fef3264cb5a1db2de2969c6f4234c7403d41962918c4d53"
+  },
+  "partition-tests-final.log": {
+    "bytes": 1590,
+    "sha256": "020db0851e9b5c21a328d82fae3a67cc699d5c0924e59d2f7f5029e5b1841211"
+  },
+  "strict-sanitizer-gates.log": {
+    "bytes": 94265,
+    "sha256": "a4db1b2c35492853aa3be97eb78de101eeda377111067ee35719a9d621b82eee"
+  },
+  "strict-empty-copy.log": {
+    "bytes": 3155,
+    "sha256": "bb1bff3372e2179d0c01233ce543790dc225427c2dbc406fae773e3bd44caa4a"
+  },
+  "float-records-leaks.log": {
+    "bytes": 11418,
+    "sha256": "315d12b925b2942033b39aa0a3c6281030a262eb9bd79c2034ecf145456f3a4f"
+  },
+  "float-records-final.log": {
+    "bytes": 725,
+    "sha256": "b3be034bedcd86e787f46facb6db8fd8ed53a2a9f152472281bdb72753723d8f"
+  },
+  "metadata-ownership-controls.log": {
+    "bytes": 149064,
+    "sha256": "f46fcb45aae7c2087bcda2df9190dfdabbb4174e43cd6b09655e95158f972f14"
+  },
+  "metadata-ownership-controls-corrected.log": {
+    "bytes": 152071,
+    "sha256": "0bbfd2db61734d44fee74e343d88f2597a192a8d8b6392038edb069886daed73"
+  },
+  "typed-ffi-release-path.log": {
+    "bytes": 29349,
+    "sha256": "42069b41e1237ee91d4fd523be87f0d75bf4c8ddd0e2f46cc169c696ed1c847c"
+  },
+  "units00-failure.log": {
+    "bytes": 198052,
+    "sha256": "f9e3db565a7ba4eb4a1453fe0621e298cf1e45f0d2331008360abb89ab4bc167"
+  },
+  "binary64-corrected.log": {
+    "bytes": 3605,
+    "sha256": "e195112eab1f236c9815426937ffbe21988197fd76105b61eb8b82109c792347"
+  },
+  "metadata-ownership-final.log": {
+    "bytes": 50957,
+    "sha256": "aa82012caf840a63c1e9b7e23a24ad46967f90e1715f52402c49a804cac5b72a"
+  },
+  "borrowed-owner-control.log": {
+    "bytes": 7636,
+    "sha256": "543500621c0439fa453d815ea72f3cdb7b05789a96bfb4f4e671d9601984f7f6"
+  },
+  "partition-final-pin.log": {
+    "bytes": 1590,
+    "sha256": "1d873d10c1d843bed3e74783e2849dae7ffba41341b8a4c24dbfce4cbd56301c"
+  }
+}
