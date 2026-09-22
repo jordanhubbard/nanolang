@@ -91,3 +91,16 @@ contents plus exact U8 element tags afterward. It retains all original byte
 controls. Strict C/Python syntax checks pass; no old or corrected product is
 executed before source review. This does not claim admission of nested U8 array
 children beyond the existing recursive carrier contract.
+
+## I preserve staged arguments with synchronous callback snapshots
+
+I merge qualified evaluator62a77f512 after the corrected byte fixture. The
+conflict keeps both complete helpers: native nominal record-list dispatch and
+synchronous callback descriptor ownership detection/destruction. Argument
+execution stays in the candidate's `eval_staged_argument` boundary; I apply the
+new callback ownership capture and return cleanup to that same once-evaluated
+value. The callback name snapshot, live Symbol-owner scan, result cleanup and
+all root total integer operations remain from62a. Strict evaluator syntax passes;
+no merged product executes until review. The unchanged full `test-eval` target
+must run on the complete candidate metadata/parser closure, not the narrower
+isolated evaluator base. Earlier focused62a results retain their own source scope.

@@ -410,6 +410,22 @@ static Value eval_scoped_block(ASTNode **statements, int count, Environment *env
 }
 static Value create_dyn_array(DynArray *arr);
 
+/* I reconstruct the modular signed value without an out-of-range cast. */
+static int64_t eval_int_bits(uint64_t bits) {
+    return bits <= INT64_MAX ? (int64_t)bits : -INT64_C(1) - (int64_t)(UINT64_MAX - bits);
+}
+static int64_t eval_int_add(int64_t a, int64_t b) { return eval_int_bits((uint64_t)a + (uint64_t)b); }
+static int64_t eval_int_sub(int64_t a, int64_t b) { return eval_int_bits((uint64_t)a - (uint64_t)b); }
+static int64_t eval_int_mul(int64_t a, int64_t b) { return eval_int_bits((uint64_t)a * (uint64_t)b); }
+static int64_t eval_int_div(int64_t a, int64_t b) {
+    if (!b) return 0;
+    return a == INT64_MIN && b == -1 ? INT64_MIN : a / b;
+}
+static int64_t eval_int_rem(int64_t a, int64_t b) {
+    if (!b || (a == INT64_MIN && b == -1)) return 0;
+    return a % b;
+}
+
 static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op);
 static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenType op);
 static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType op);
@@ -431,19 +447,19 @@ static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op) {
         int64_t *__restrict__ po = (int64_t*)out->data;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_add(pa[i], pb[i]);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_sub(pa[i], pb[i]);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_mul(pa[i], pb[i]);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = pb[i] != 0 ? pa[i] / pb[i] : 0;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_div(pa[i], pb[i]);
                 break;
             case TOKEN_PERCENT:
-                for (int64_t i = 0; i < len; i++) po[i] = pb[i] != 0 ? pa[i] % pb[i] : 0;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_rem(pa[i], pb[i]);
                 break;
             default: break;
         }
@@ -515,21 +531,19 @@ static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenTyp
         int64_t s = scalar.as.int_val;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + s;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_add(pa[i], s);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - s;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_sub(pa[i], s);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * s;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_mul(pa[i], s);
                 break;
             case TOKEN_SLASH:
-                if (s != 0)
-                    for (int64_t i = 0; i < len; i++) po[i] = pa[i] / s;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_div(pa[i], s);
                 break;
             case TOKEN_PERCENT:
-                if (s != 0)
-                    for (int64_t i = 0; i < len; i++) po[i] = pa[i] % s;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_rem(pa[i], s);
                 break;
             default: break;
         }
@@ -593,19 +607,19 @@ static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType
         int64_t s = scalar.as.int_val;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = s + pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_add(s, pa[i]);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = s - pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_sub(s, pa[i]);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = s * pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_mul(s, pa[i]);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] != 0 ? s / pa[i] : 0;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_div(s, pa[i]);
                 break;
             case TOKEN_PERCENT:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] != 0 ? s % pa[i] : 0;
+                for (int64_t i = 0; i < len; i++) po[i] = eval_int_rem(s, pa[i]);
                 break;
             default: break;
         }
@@ -1910,6 +1924,11 @@ static bool is_pure_arithmetic_lambda(ASTNode *fn_body) {
     return is_pure_arithmetic_expr(stmt->as.return_stmt.value);
 }
 
+/* I match NanoVM integer negation without evaluating signed overflow. */
+static int64_t eval_negate_int(int64_t value) {
+    return value == INT64_MIN ? INT64_MIN : -value;
+}
+
 /* Evaluate a pure arithmetic expression for int64_t.
  * param_val is the value to substitute for any identifier matching param_name.
  */
@@ -1924,17 +1943,17 @@ static int64_t eval_pure_expr_int(ASTNode *expr, int64_t param_val, const char *
         case AST_PREFIX_OP: {
             if (expr->as.prefix_op.arg_count == 1) {
                 int64_t a = eval_pure_expr_int(expr->as.prefix_op.args[0], param_val, param_name);
-                return (expr->as.prefix_op.op == TOKEN_MINUS) ? -a : a;
+                return (expr->as.prefix_op.op == TOKEN_MINUS) ? eval_negate_int(a) : a;
             }
             if (expr->as.prefix_op.arg_count == 2) {
                 int64_t a = eval_pure_expr_int(expr->as.prefix_op.args[0], param_val, param_name);
                 int64_t b = eval_pure_expr_int(expr->as.prefix_op.args[1], param_val, param_name);
                 switch (expr->as.prefix_op.op) {
-                    case TOKEN_PLUS:    return a + b;
-                    case TOKEN_MINUS:   return a - b;
-                    case TOKEN_STAR:    return a * b;
-                    case TOKEN_SLASH:   return b != 0 ? a / b : 0;
-                    case TOKEN_PERCENT: return b != 0 ? a % b : 0;
+                    case TOKEN_PLUS:    return eval_int_add(a, b);
+                    case TOKEN_MINUS:   return eval_int_sub(a, b);
+                    case TOKEN_STAR:    return eval_int_mul(a, b);
+                    case TOKEN_SLASH:   return eval_int_div(a, b);
+                    case TOKEN_PERCENT: return eval_int_rem(a, b);
                     default: return 0;
                 }
             }
@@ -1959,17 +1978,17 @@ static int64_t eval_pure_expr_int2(ASTNode *expr,
         case AST_PREFIX_OP: {
             if (expr->as.prefix_op.arg_count == 1) {
                 int64_t a = eval_pure_expr_int2(expr->as.prefix_op.args[0], p0_val, p0_name, p1_val, p1_name);
-                return (expr->as.prefix_op.op == TOKEN_MINUS) ? -a : a;
+                return (expr->as.prefix_op.op == TOKEN_MINUS) ? eval_negate_int(a) : a;
             }
             if (expr->as.prefix_op.arg_count == 2) {
                 int64_t a = eval_pure_expr_int2(expr->as.prefix_op.args[0], p0_val, p0_name, p1_val, p1_name);
                 int64_t b = eval_pure_expr_int2(expr->as.prefix_op.args[1], p0_val, p0_name, p1_val, p1_name);
                 switch (expr->as.prefix_op.op) {
-                    case TOKEN_PLUS:    return a + b;
-                    case TOKEN_MINUS:   return a - b;
-                    case TOKEN_STAR:    return a * b;
-                    case TOKEN_SLASH:   return b != 0 ? a / b : 0;
-                    case TOKEN_PERCENT: return b != 0 ? a % b : 0;
+                    case TOKEN_PLUS:    return eval_int_add(a, b);
+                    case TOKEN_MINUS:   return eval_int_sub(a, b);
+                    case TOKEN_STAR:    return eval_int_mul(a, b);
+                    case TOKEN_SLASH:   return eval_int_div(a, b);
+                    case TOKEN_PERCENT: return eval_int_rem(a, b);
                     default: return 0;
                 }
             }
@@ -2632,7 +2651,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             Value arg = eval_expression(node->as.prefix_op.args[0], env);
             if (arg.is_return) return arg;
             if (arg.type == VAL_INT) {
-                return create_int(-arg.as.int_val);
+                return create_int(eval_negate_int(arg.as.int_val));
             } else if (arg.type == VAL_FLOAT) {
                 return create_float(-arg.as.float_val);
             } else if (arg.type == VAL_DYN_ARRAY) {
@@ -2642,7 +2661,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 int64_t len = dyn_array_length(a);
                 if (t == ELEM_INT) {
                     DynArray *out = dyn_array_new(ELEM_INT);
-                    for (int64_t i = 0; i < len; i++) dyn_array_push_int(out, -dyn_array_get_int(a, i));
+                    for (int64_t i = 0; i < len; i++) dyn_array_push_int(out, eval_negate_int(dyn_array_get_int(a, i)));
                     return create_dyn_array(out);
                 } else if (t == ELEM_FLOAT) {
                     DynArray *out = dyn_array_new(ELEM_FLOAT);
@@ -2656,7 +2675,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 if (!a) return create_void();
                 if (a->element_type == VAL_INT) {
                     Value out = create_array(VAL_INT, a->length, a->length);
-                    for (int i = 0; i < a->length; i++) ((long long*)out.as.array_val->data)[i] = -((long long*)a->data)[i];
+                    for (int i = 0; i < a->length; i++) ((long long*)out.as.array_val->data)[i] = eval_negate_int(((long long*)a->data)[i]);
                     return out;
                 } else if (a->element_type == VAL_FLOAT) {
                     Value out = create_array(VAL_FLOAT, a->length, a->length);
@@ -2743,11 +2762,11 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                             long long y = ((long long*)b->data)[i];
                             long long r = 0;
                             switch (op) {
-                                case TOKEN_PLUS: r = x + y; break;
-                                case TOKEN_MINUS: r = x - y; break;
-                                case TOKEN_STAR: r = x * y; break;
-                                case TOKEN_SLASH: r = x / y; break;
-                                case TOKEN_PERCENT: r = x % y; break;
+                                case TOKEN_PLUS: r = eval_int_add(x, y); break;
+                                case TOKEN_MINUS: r = eval_int_sub(x, y); break;
+                                case TOKEN_STAR: r = eval_int_mul(x, y); break;
+                                case TOKEN_SLASH: r = eval_int_div(x, y); break;
+                                case TOKEN_PERCENT: r = eval_int_rem(x, y); break;
                                 default: break;
                             }
                             ((long long*)out.as.array_val->data)[i] = r;
@@ -2803,11 +2822,11 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         long long s = right.as.int_val;
                         long long r = 0;
                         switch (op) {
-                            case TOKEN_PLUS: r = x + s; break;
-                            case TOKEN_MINUS: r = x - s; break;
-                            case TOKEN_STAR: r = x * s; break;
-                            case TOKEN_SLASH: r = x / s; break;
-                            case TOKEN_PERCENT: r = x % s; break;
+                            case TOKEN_PLUS: r = eval_int_add(x, s); break;
+                            case TOKEN_MINUS: r = eval_int_sub(x, s); break;
+                            case TOKEN_STAR: r = eval_int_mul(x, s); break;
+                            case TOKEN_SLASH: r = eval_int_div(x, s); break;
+                            case TOKEN_PERCENT: r = eval_int_rem(x, s); break;
                             default: break;
                         }
                         ((long long*)out.as.array_val->data)[i] = r;
@@ -2866,11 +2885,11 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         long long y = ((long long*)a->data)[i];
                         long long r = 0;
                         switch (op) {
-                            case TOKEN_PLUS: r = s + y; break;
-                            case TOKEN_MINUS: r = s - y; break;
-                            case TOKEN_STAR: r = s * y; break;
-                            case TOKEN_SLASH: r = s / y; break;
-                            case TOKEN_PERCENT: r = s % y; break;
+                            case TOKEN_PLUS: r = eval_int_add(s, y); break;
+                            case TOKEN_MINUS: r = eval_int_sub(s, y); break;
+                            case TOKEN_STAR: r = eval_int_mul(s, y); break;
+                            case TOKEN_SLASH: r = eval_int_div(s, y); break;
+                            case TOKEN_PERCENT: r = eval_int_rem(s, y); break;
                             default: break;
                         }
                         ((long long*)out.as.array_val->data)[i] = r;
@@ -2921,26 +2940,11 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
         if (left.type == VAL_INT && right.type == VAL_INT) {
             long long result;
             switch (op) {
-                case TOKEN_PLUS: result = left.as.int_val + right.as.int_val; break;
-                case TOKEN_MINUS: result = left.as.int_val - right.as.int_val; break;
-                case TOKEN_STAR: result = left.as.int_val * right.as.int_val; break;
-                case TOKEN_SLASH:
-                    /* Total division, matching the NanoISA VM and the Coq
-                     * semantics: by zero = 0; INT64_MIN / -1 is signed-overflow
-                     * UB, so wrap to INT64_MIN rather than crashing. (The
-                     * interpreter previously errored on x/0 — a third behavior
-                     * that diverged from both the VM and the spec.) */
-                    if (right.as.int_val == 0) result = 0;
-                    else if (left.as.int_val == INT64_MIN && right.as.int_val == -1)
-                        result = INT64_MIN;
-                    else result = left.as.int_val / right.as.int_val;
-                    break;
-                case TOKEN_PERCENT:
-                    if (right.as.int_val == 0) result = 0;
-                    else if (left.as.int_val == INT64_MIN && right.as.int_val == -1)
-                        result = 0;
-                    else result = left.as.int_val % right.as.int_val;
-                    break;
+                case TOKEN_PLUS: result = eval_int_add(left.as.int_val, right.as.int_val); break;
+                case TOKEN_MINUS: result = eval_int_sub(left.as.int_val, right.as.int_val); break;
+                case TOKEN_STAR: result = eval_int_mul(left.as.int_val, right.as.int_val); break;
+                case TOKEN_SLASH: result = eval_int_div(left.as.int_val, right.as.int_val); break;
+                case TOKEN_PERCENT: result = eval_int_rem(left.as.int_val, right.as.int_val); break;
                 default: result = 0;
             }
             return create_int(result);
@@ -3201,6 +3205,29 @@ static bool eval_record_list_call(const char *name, Value *args, int argc,
     return true;
 }
 
+/* Synchronous array callbacks borrow their descriptor while running. Only a
+ * declaration identifier creates a fresh descriptor here; a variable read
+ * borrows the Symbol's descriptor. Other expression ownership stays unchanged. */
+static bool owns_declared_callback(ASTNode *expression, Environment *env, Value value) {
+    if (!expression || expression->type != AST_IDENTIFIER || value.type != VAL_FUNCTION)
+        return false;
+    /* Runtime lookup may skip a later checker-only placeholder. I compare
+     * actual live owners rather than repeating a different name lookup. */
+    for (int i = 0; i < env->symbol_count; ++i) {
+        Value owner = env->symbols[i].value;
+        if (owner.type == VAL_FUNCTION &&
+            owner.as.function_val.function_name == value.as.function_val.function_name)
+            return false;
+    }
+    return true;
+}
+
+static void discard_declared_callback(Value value) {
+    if (value.type != VAL_FUNCTION) return;
+    free(value.as.function_val.function_name);
+    free_function_signature(value.as.function_val.signature);
+}
+
 static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name);
 
 /* I retain the invoking source node while native builtins call back into me. */
@@ -3402,11 +3429,25 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
     }
 
-    /* Evaluate arguments */
+    /* These existing synchronous consumers never publish their callback descriptor. */
+    int callback_kind = 0;
+    if (strcmp(name, "map") == 0 || strcmp(name, "array_map") == 0) callback_kind = 1;
+    else if (strcmp(name, "filter") == 0 || strcmp(name, "array_filter") == 0) callback_kind = 2;
+    else if (strcmp(name, "reduce") == 0 || strcmp(name, "array_fold") == 0) callback_kind = 3;
+    int callback_index = callback_kind == 3 ? 2 : 1;
+    Value owned_callback = create_void();
+
+    /* Evaluate arguments in the original order. */
     Value args[16];  /* Max args for function calls */
     for (int i = 0; i < node->as.call.arg_count; i++) {
         args[i] = eval_staged_argument(node->as.call.args[i], env, name, i);
-        if (args[i].is_return) return args[i];
+        if (callback_kind && i == callback_index &&
+            owns_declared_callback(node->as.call.args[i], env, args[i]))
+            owned_callback = args[i];
+        if (args[i].is_return) {
+            discard_declared_callback(owned_callback);
+            return args[i];
+        }
     }
 
     /* File operations */
@@ -3914,9 +3955,33 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     if (strcmp(name, "array_slice") == 0) return builtin_array_slice(args);
     
     /* Higher-order array functions */
-    if (strcmp(name, "map") == 0 || strcmp(name, "array_map") == 0) return builtin_map(args, env);
-    if (strcmp(name, "filter") == 0 || strcmp(name, "array_filter") == 0) return builtin_filter(args, env);
-    if (strcmp(name, "reduce") == 0 || strcmp(name, "array_fold") == 0) return builtin_reduce(args, env);
+    if (callback_kind) {
+        char *callback_name = NULL;
+        if (args[callback_index].type == VAL_FUNCTION) {
+            const char *name_to_copy = args[callback_index].as.function_val.function_name;
+#ifdef NANO_TEST_CALLBACK_SNAPSHOT
+            extern char *nano_test_callback_name(const char *name);
+            callback_name = name_to_copy ? nano_test_callback_name(name_to_copy) : NULL;
+#else
+            callback_name = name_to_copy ? strdup(name_to_copy) : NULL;
+#endif
+            if (!callback_name) {
+                discard_declared_callback(owned_callback);
+                fprintf(stderr, "I could not retain the array callback name.\n");
+                return create_void();
+            }
+            /* A callback can replace its own owning Symbol. These three
+             * builtins use only the name; their local descriptor borrows this
+             * snapshot until every callback and early return is finished. */
+            args[callback_index].as.function_val.function_name = callback_name;
+            args[callback_index].as.function_val.signature = NULL;
+        }
+        Value result = callback_kind == 1 ? builtin_map(args, env) :
+            callback_kind == 2 ? builtin_filter(args, env) : builtin_reduce(args, env);
+        free(callback_name);
+        discard_declared_callback(owned_callback);
+        return result;
+    }
     
     /* Dynamic array operations (GC-managed) */
     if (strcmp(name, "array_push") == 0 && is_builtin_array_push) {
@@ -4914,6 +4979,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     actual_param_count,
                     func->return_type
                 );
+                free(param_types); /* The signature owns its independent copy. */
                 return create_function(expr->as.identifier, sig);
             }
             
