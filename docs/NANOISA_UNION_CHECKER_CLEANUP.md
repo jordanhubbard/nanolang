@@ -37,3 +37,11 @@ inherited owned name, so both release that prior string. Only the module
 collector constructs a record placeholder; the root collector uses VOID and
 needs no graph discard. I add two same-named enum parameters to check retained
 metadata and copied placeholder storage through real module registration.
+
+My corrected09e ordinary run passes; its sanitizer reports one remaining
+120-byte spread AST allocation. The actual anonymous-literal parser is the
+only production writer: parse_expression creates its separate owned child,
+then publication transfers that child into spread_source. I destroy it with
+its literal, or before returning from failed closing-brace parsing. There is
+no borrowed registration or separate owner to retain. I add real parsed spread
+controls and retain the original synthetic refusal/unchanged-node assertion.

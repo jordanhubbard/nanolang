@@ -14447,3 +14447,9 @@ allocator failure claim.
   failed-block child destruction before corrected execution. I retain every
   original assertion and require the complete focused and source/native gates.
   [Ownership correction contract](NANOISA_UNION_CHECKER_CLEANUP.md).
+
+- [ ] I release the owned spread-source AST on literal destruction and failed
+  anonymous-literal closing brace. Corrected09e retains one 120-byte leak after
+  all earlier reported sites are absent. I preserve this terminal and require
+  actual parsed spread success/failure cleanup before corrected sanitizer gates.
+  MAC: task_ebfdc333d6a8495b8c903ab8142c88b6.
