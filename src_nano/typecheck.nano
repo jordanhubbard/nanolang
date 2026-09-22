@@ -437,7 +437,7 @@ shadow resource_classify {
     (mb_reset [1, 2])
     assert (not (resource_classify parser "#record:0" false))
     assert (resource_classify parser "#record:1" false)
-    (mb_reset [1, 1])
+    (mb_reset [1])
     assert (resource_classify parser "#record:0" false)
     assert (not (resource_classify parser "#record:1" false))
     (mb_reset [])
