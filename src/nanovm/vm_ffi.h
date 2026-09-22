@@ -42,6 +42,17 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                  NanoValue *result, VmHeap *heap,
                  char *error_msg, size_t error_msg_size);
 
+/* My isolated caller reserves capture metadata before native entry. Capture
+ * records an actual opaque result before later array publication can fail. */
+typedef struct {
+    bool (*record)(void *context, void *pointer, uint64_t *slot);
+    void *context;
+} VmFfiOpaqueCapture;
+bool vm_ffi_call_captured(const NvmModule *module, uint32_t import_idx,
+                          NanoValue *args, int arg_count, NanoValue *result,
+                          VmHeap *heap, const VmFfiOpaqueCapture *capture,
+                          char *error_msg, size_t error_msg_size);
+
 /* ========================================================================
  * Co-Process FFI Isolation
  *

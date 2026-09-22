@@ -215,10 +215,44 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
 #define COP_MAX_DESER_DEPTH 64
 static __thread int cop_deser_depth = 0;
 
-bool cop_execute_request(const uint8_t *request, uint32_t size,
+static bool opaque_result(const NvmModule *module, uint32_t index) {
+    return module && index < module->import_count && module->imports[index].return_type == TAG_OPAQUE;
+}
+
+static bool cop_worker_call(CopOpaqueWorker *worker, const NvmModule *module,
+                            uint32_t index, NanoValue *args, int count,
+                            NanoValue *result, VmHeap *heap, char *error, size_t size) {
+    if (!module || index >= module->import_count || count < 0 || count > NANO_MAX_FFI_ARGS ||
+        (!args && count) || module->imports[index].param_count != count) return false;
+    bool captures = opaque_result(module, index);
+    if (captures && (!worker || !cop_opaque_worker_reserve(worker, 1, COP_MAX_PAYLOAD))) {
+        snprintf(error, size, "I could not reserve isolated opaque result metadata before native entry");
+        return false;
+    }
+    NanoValue local[NANO_MAX_FFI_ARGS];
+    const uint8_t *types = module->import_param_types ? module->import_param_types[index] : NULL;
+    for (int i = 0; i < count; ++i) {
+        local[i] = args[i];
+        if (types && types[i] == TAG_OPAQUE) {
+            if (!worker || !cop_opaque_worker_argument(worker, args[i], &local[i])) {
+                snprintf(error, size, "I require an issued opaque slot from this worker");
+                return false;
+            }
+        } else if (args[i].tag == TAG_OPAQUE) {
+            snprintf(error, size, "I require an exact opaque parameter declaration");
+            return false;
+        }
+    }
+    VmFfiOpaqueCapture capture = {cop_opaque_worker_capture, worker};
+    return captures ? vm_ffi_call_captured(module, index, local, count, result, heap,
+                                           &capture, error, size)
+                    : vm_ffi_call(module, index, local, count, result, heap, error, size);
+}
+
+bool cop_execute_request_owned(const uint8_t *request, uint32_t size,
                           const NvmModule *module, VmHeap *heap,
                           uint8_t **reply, uint32_t *reply_size,
-                          char *error, size_t error_size) {
+                          char *error, size_t error_size, CopOpaqueWorker *worker) {
     *reply = NULL;
     *reply_size = 0;
     if (size < 6 || size > COP_MAX_PAYLOAD || !module) {
@@ -232,12 +266,23 @@ bool cop_execute_request(const uint8_t *request, uint32_t size,
         snprintf(error, error_size, "I rejected a malformed pipe call envelope");
         return false;
     }
-    bool ok = vm_ffi_call(module, cop_get_u32(request), values, argc,
-                          &values[argc], heap, error, error_size);
+    uint32_t index = cop_get_u32(request);
+    bool captures = opaque_result(module, index);
+    /* My reply allocation also precedes an opaque-producing native call. */
+    uint8_t *reserved = captures ? malloc(COP_MAX_PAYLOAD) : NULL;
+    if (captures && !reserved) {
+        for (uint16_t i = 0; i < argc; ++i) vm_release(heap, values[i]);
+        snprintf(error, error_size, "I could not reserve the isolated opaque reply before native entry");
+        return false;
+    }
+    bool ok = cop_worker_call(worker, module, index, values, argc,
+                              &values[argc], heap, error, error_size);
     if (ok) {
         ok = false;
-        for (uint32_t capacity = 4096; capacity <= COP_MAX_PAYLOAD; capacity *= 2) {
-            uint8_t *bytes = malloc(capacity);
+        for (uint32_t capacity = captures ? COP_MAX_PAYLOAD : 4096;
+             capacity <= COP_MAX_PAYLOAD; capacity *= 2) {
+            uint8_t *bytes = captures ? reserved : malloc(capacity);
+            if (captures) reserved = NULL;
             if (!bytes) break;
             uint32_t n = cop_encode_call_values(values, (uint8_t)(argc + 1), bytes, capacity);
             if (n) {
@@ -247,8 +292,17 @@ bool cop_execute_request(const uint8_t *request, uint32_t size,
         }
         if (!ok) snprintf(error, error_size, "I could not encode a bounded pipe reply");
     }
+    free(reserved);
     for (uint16_t i = 0; i <= argc; ++i) vm_release(heap, values[i]);
     return ok;
+}
+
+bool cop_execute_request(const uint8_t *request, uint32_t size,
+                          const NvmModule *module, VmHeap *heap,
+                          uint8_t **reply, uint32_t *reply_size,
+                          char *error, size_t error_size) {
+    return cop_execute_request_owned(request, size, module, heap, reply, reply_size,
+                                     error, error_size, NULL);
 }
 
 static bool call_scalar_tag(uint8_t tag) {
@@ -337,14 +391,21 @@ fail:
     return false;
 }
 
-bool cop_apply_call_reply(const uint8_t *buf, uint32_t size, NanoValue *args,
-                          uint8_t argc, NanoValue *result, VmHeap *heap) {
+bool cop_apply_call_reply_owned(const uint8_t *buf, uint32_t size, NanoValue *args,
+                          uint8_t argc, NanoValue *result, VmHeap *heap,
+                          CopOpaqueOwner *owner, uint8_t result_tag) {
     if (argc > NANO_MAX_FFI_ARGS || (!args && argc) || !result) return false;
     NanoValue decoded[NANO_MAX_FFI_ARGS + 1];
     if (!cop_decode_call_values(buf, size, decoded, argc + 1, heap)) return false;
     bool ok = false;
+    NanoValue opaque = val_void();
+    if (owner && ((decoded[argc].tag == TAG_OPAQUE) != (result_tag == TAG_OPAQUE))) goto done;
+    if (decoded[argc].tag == TAG_OPAQUE &&
+        !cop_opaque_owner_preview(owner, decoded[argc], &opaque)) goto done;
     for (uint8_t i = 0; i < argc; ++i) {
         if (args[i].tag != decoded[i].tag || !call_value_valid(args[i])) goto done;
+        if (args[i].tag == TAG_OPAQUE &&
+            (!cop_opaque_owner_argument(owner, args[i]) || args[i].as.i64 != decoded[i].as.i64)) goto done;
         if (args[i].tag != TAG_ARRAY) continue;
         if (args[i].as.array->elem_type != decoded[i].as.array->elem_type) goto done;
         for (uint8_t j = 0; j < i; ++j) {
@@ -354,7 +415,7 @@ bool cop_apply_call_reply(const uint8_t *buf, uint32_t size, NanoValue *args,
         }
     }
     /* No fallible work remains after validation. Each identity is swapped once. */
-    NanoValue returned = decoded[argc];
+    NanoValue returned = decoded[argc].tag == TAG_OPAQUE ? opaque : decoded[argc];
     for (uint8_t i = 0; i < argc; ++i) {
         if (args[i].tag != TAG_ARRAY) continue;
         if (returned.tag == TAG_ARRAY && returned.as.array == decoded[i].as.array) {
@@ -362,6 +423,7 @@ bool cop_apply_call_reply(const uint8_t *buf, uint32_t size, NanoValue *args,
             break;
         }
     }
+    if (returned.tag == TAG_OPAQUE && !cop_opaque_owner_publish(owner, returned)) goto done;
     vm_retain(heap, returned);
     for (uint8_t i = 0; i < argc; ++i) {
         if (args[i].tag != TAG_ARRAY) continue;
@@ -375,6 +437,11 @@ bool cop_apply_call_reply(const uint8_t *buf, uint32_t size, NanoValue *args,
 done:
     for (uint8_t i = 0; i <= argc; ++i) vm_release(heap, decoded[i]);
     return ok;
+}
+
+bool cop_apply_call_reply(const uint8_t *buf, uint32_t size, NanoValue *args,
+                          uint8_t argc, NanoValue *result, VmHeap *heap) {
+    return cop_apply_call_reply_owned(buf, size, args, argc, result, heap, NULL, TAG_VOID);
 }
 
 uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
@@ -421,8 +488,9 @@ static bool deadline_io(int fd, uint8_t *bytes, size_t size, bool writing,
     return true;
 }
 
-bool cop_exchange(int send_fd, int recv_fd, const uint8_t *request, uint32_t size,
-                   int timeout_ms, CopMsgType *type, uint8_t **reply, uint32_t *reply_size) {
+bool cop_exchange_reserved(int send_fd, int recv_fd, const uint8_t *request, uint32_t size,
+                   int timeout_ms, CopMsgType *type, uint8_t **reply, uint32_t *reply_size,
+                   uint8_t *storage, uint32_t capacity) {
     *reply = NULL; *reply_size = 0;
     bool receive_only = send_fd == -1;
     if (receive_only) send_fd = recv_fd;
@@ -450,12 +518,13 @@ bool cop_exchange(int send_fd, int recv_fd, const uint8_t *request, uint32_t siz
     if (header[0] != COP_PROTO_VERSION || cop_get_u16(header + 2) ||
         length > COP_MAX_PAYLOAD ||
         (header[1] != COP_MSG_FFI_RESULT && header[1] != COP_MSG_FFI_ERROR)) goto done;
-    body = malloc(length ? length : 1);
+    if (storage && length > capacity) goto done;
+    body = storage ? storage : malloc(length ? length : 1);
     if (!body || !deadline_io(recv_fd, body, length, false, deadline, &broken_pipe)) goto done;
     *type = (CopMsgType)header[1];
     *reply = body; *reply_size = length; body = NULL; ok = true;
 done:
-    free(body);
+    if (body != storage) free(body);
     fcntl(send_fd, F_SETFL, send_flags);
     fcntl(recv_fd, F_SETFL, recv_flags);
     /* Consume only the SIGPIPE raised by this exchange, not one already
@@ -467,6 +536,12 @@ done:
     }
     pthread_sigmask(SIG_SETMASK, &previous, NULL);
     return ok;
+}
+
+bool cop_exchange(int send_fd, int recv_fd, const uint8_t *request, uint32_t size,
+                  int timeout_ms, CopMsgType *type, uint8_t **reply, uint32_t *reply_size) {
+    return cop_exchange_reserved(send_fd, recv_fd, request, size, timeout_ms,
+                                 type, reply, reply_size, NULL, 0);
 }
 
 static bool write_all(int fd, const void *buf, size_t len) {
@@ -543,18 +618,43 @@ bool cop_send_simple(int fd, CopMsgType type) {
  * boundary for each element": one signal/ack pair covers the whole batch.
  * ======================================================================== */
 
+static bool cop_batch_reserve(CopMailbox *mailbox, uint32_t count,
+                              const NvmModule *module, CopOpaqueWorker *worker) {
+    uint32_t size = cop_get_u16(mailbox->req_data_size), pos = 0, reply = 0;
+    size_t opaque_count = 0;
+    if (size > COP_MAILBOX_SLOT_SIZE) return false;
+    for (uint32_t i = 0; i < count; ++i) {
+        if (size - pos < 8) return false;
+        uint32_t index = cop_get_u32(mailbox->req_data + pos);
+        uint16_t argc = cop_get_u16(mailbox->req_data + pos + 4);
+        uint16_t bytes = cop_get_u16(mailbox->req_data + pos + 6);
+        pos += 8;
+        if (!module || index >= module->import_count || argc > NANO_MAX_FFI_ARGS ||
+            argc != module->imports[index].param_count || bytes > size - pos) return false;
+        pos += bytes;
+        uint8_t tag = module->imports[index].return_type;
+        uint32_t width = cop_scalar_reply_size(tag);
+        if (!width || width > COP_MAILBOX_SLOT_SIZE - reply) return false;
+        reply += width;
+        opaque_count += tag == TAG_OPAQUE;
+    }
+    return pos == size && (!opaque_count ||
+        cop_opaque_worker_reserve(worker, opaque_count, COP_MAX_PAYLOAD));
+}
+
 static void cop_child_run_batch(CopMailbox *mailbox, uint32_t batch_count,
-                                const NvmModule *module, VmHeap *heap) {
+                                const NvmModule *module, VmHeap *heap,
+                                CopOpaqueWorker *worker) {
     uint16_t req_data_size = cop_get_u16(mailbox->req_data_size);
     uint32_t rpos = 0;   /* read cursor over packed sub-requests */
     uint32_t wpos = 0;   /* write cursor over packed results     */
     uint32_t done = 0;
 
-    if (batch_count > COP_MAX_BATCH) {
+    if (batch_count > COP_MAX_BATCH || !cop_batch_reserve(mailbox, batch_count, module, worker)) {
         mailbox->resp_is_error = 1;
         cop_put_u32(mailbox->resp_data_size, 0);
         cop_put_u32(mailbox->resp_batch_count, 0);
-        strncpy(mailbox->resp_error, "COP: batch count exceeds COP_MAX_BATCH",
+        strncpy(mailbox->resp_error, "I could not reserve a valid bounded isolated batch",
                 sizeof(mailbox->resp_error) - 1);
         mailbox->resp_error[sizeof(mailbox->resp_error) - 1] = '\0';
         return;
@@ -598,8 +698,9 @@ static void cop_child_run_batch(CopMailbox *mailbox, uint32_t batch_count,
 
         NanoValue result;
         char errmsg[256] = {0};
-        bool ok = vm_ffi_call(module, import_idx, args, actual_argc,
-                              &result, heap, errmsg, sizeof(errmsg));
+        bool ok = actual_argc == argc && apos == aend &&
+            cop_worker_call(worker, module, import_idx, args, actual_argc,
+                            &result, heap, errmsg, sizeof(errmsg));
 
         for (int i = 0; i < actual_argc; i++) vm_release(heap, args[i]);
 
@@ -648,6 +749,7 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
     (void)mailbox_size;
 
     VmHeap heap;
+    CopOpaqueWorker worker = {0};
     vm_heap_init(&heap);
 
     /* Initialize FFI — module is already deserialized in the parent's address space */
@@ -703,8 +805,8 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                 uint8_t *reply;
                 uint32_t reply_size;
                 char error[256] = {0};
-                bool ok = cop_execute_request(request, header.payload_len, module, &heap,
-                                               &reply, &reply_size, error, sizeof error);
+                bool ok = cop_execute_request_owned(request, header.payload_len, module, &heap,
+                                               &reply, &reply_size, error, sizeof error, &worker);
                 free(request);
                 bool sent = ok ? cop_send(data_out_fd, COP_MSG_FFI_RESULT, reply, reply_size)
                                : cop_send(data_out_fd, COP_MSG_FFI_ERROR, error, strlen(error));
@@ -725,7 +827,7 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                  * the response slot.  On the first failing call we stop and
                  * report the error (with the completed count so the parent
                  * knows how far the batch got). */
-                cop_child_run_batch(mailbox, batch_count, module, &heap);
+                cop_child_run_batch(mailbox, batch_count, module, &heap, &worker);
                 if (write(sig_out_fd, &sig, 1) != 1) break;
                 continue;
             }
@@ -738,12 +840,17 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
             char errmsg[256] = {0};
             bool decoded = argc <= NANO_MAX_FFI_ARGS && data_size <= COP_MAILBOX_SLOT_SIZE &&
                 cop_decode_call_values(mailbox->req_data, data_size, args, (uint8_t)argc, &heap);
-            bool ok = decoded && vm_ffi_call(module, import_idx, args, argc, &args[argc], &heap,
-                                             errmsg, sizeof(errmsg));
+            bool captures = opaque_result(module, import_idx);
+            bool ok = decoded && cop_worker_call(&worker, module, import_idx, args, argc,
+                                                 &args[argc], &heap, errmsg, sizeof(errmsg));
             uint32_t rlen = ok ? cop_encode_call_values(args, (uint8_t)(argc + 1),
                 mailbox->resp_data, COP_MAILBOX_SLOT_SIZE) : 0;
             uint8_t *spill = NULL;
-            if (ok && !rlen) {
+            if (ok && !rlen && captures) {
+                spill = worker.reply;
+                rlen = cop_encode_call_values(args, (uint8_t)(argc + 1), spill,
+                                              (uint32_t)worker.reply_capacity);
+            } else if (ok && !rlen) {
                 for (uint32_t capacity = COP_MAILBOX_SLOT_SIZE * 2;
                      capacity <= COP_MAX_PAYLOAD; capacity *= 2) {
                     spill = malloc(capacity);
@@ -756,6 +863,7 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
             if (!decoded) snprintf(errmsg, sizeof errmsg, "I rejected a malformed isolated call envelope");
             else if (ok && !rlen) snprintf(errmsg, sizeof errmsg, "I cannot fit the isolated reply in the mailbox");
             if (!ok || !rlen) {
+                if (captures) spill = NULL;
                 mailbox->resp_is_error  = 1;
                 cop_put_u32(mailbox->resp_data_size, 0);
                 cop_put_u32(mailbox->resp_batch_count, 0);
@@ -768,16 +876,17 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
             }
             if (decoded) for (int i = 0; i <= argc; i++) vm_release(&heap, args[i]);
 
-            if (write(sig_out_fd, &sig, 1) != 1) { free(spill); break; }
+            if (write(sig_out_fd, &sig, 1) != 1) { if (spill != worker.reply) free(spill); break; }
             if (spill) {
                 bool sent = cop_send(data_out_fd, COP_MSG_FFI_RESULT, spill, rlen);
-                free(spill);
+                if (spill != worker.reply) free(spill);
                 if (!sent) break;
             }
         }
     }
 
 done:
+    cop_opaque_worker_clear(&worker);
     vm_ffi_shutdown();
     vm_heap_destroy(&heap);
     _exit(0);

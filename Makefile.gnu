@@ -687,7 +687,7 @@ test-nanoisa-dump: nanoisa_dump
 # ================================================
 
 NANOVM_DIR = $(SRC_DIR)/nanovm
-NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/heap_cycles.c $(NANOVM_DIR)/vm.c $(NANOVM_DIR)/vm_callback.c $(NANOVM_DIR)/vm_ffi.c $(NANOVM_DIR)/vm_builtins.c $(NANOVM_DIR)/cop_protocol.c
+NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/heap_cycles.c $(NANOVM_DIR)/vm.c $(NANOVM_DIR)/vm_callback.c $(NANOVM_DIR)/vm_ffi.c $(NANOVM_DIR)/vm_builtins.c $(NANOVM_DIR)/cop_protocol.c $(NANOVM_DIR)/cop_opaque.c
 NANOVM_SOURCES += $(NANOVM_DIR)/vm_ffi_arrays.c $(NANOVM_DIR)/binding_state.c
 NANOVM_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(NANOVM_SOURCES)) $(OBJ_DIR)/runtime/callback_runtime.o
 
@@ -700,11 +700,18 @@ $(VM_DISPATCH_OBJECT): $(NANOVM_DIR)/vm_dispatch.c $(NANOVM_DIR)/vm_dispatch.h \
 		$(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOISA_DIR)/nvm_format.h $(NANOISA_DIR)/service_bindings_module.h $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h $(NANOVM_DIR)/ffi_dispatch_generated.h | $(OBJ_DIR)/nanovm
+$(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOISA_DIR)/nvm_format.h $(NANOISA_DIR)/service_bindings_module.h $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h $(NANOVM_DIR)/ffi_dispatch_generated.h $(NANOVM_DIR)/cop_opaque.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/nanovm:
 	mkdir -p $(OBJ_DIR)/nanovm
+
+# My isolated opaque regression uses actual artifact calls and exact production helpers.
+.PHONY: test-cop-opaque
+test-cop-opaque: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -fPIC $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) tests/nanovm/opaque_provider.c -o $(OBJ_DIR)/opaque_provider.so $(LDFLAGS)
+	$(CC) $(CFLAGS) -D_GNU_SOURCE tests/nanovm/test_cop_opaque.c $(filter-out $(OBJ_DIR)/nanovm/cop_opaque.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS) -o $(OBJ_DIR)/test_cop_opaque
+	$(OBJ_DIR)/test_cop_opaque "$(abspath $(OBJ_DIR)/opaque_provider.so)"
 
 .PHONY: test-nanovm
 SAIL_VM_ORACLE ?= $(OBJ_DIR)/nanovm/sail_vm_oracle
