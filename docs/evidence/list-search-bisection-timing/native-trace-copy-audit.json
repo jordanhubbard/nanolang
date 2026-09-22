@@ -1,0 +1,8 @@
+{
+  "scope": "local copied first120s diagnostic only, no shadow reached",
+  "unique_objects": 4261,
+  "bytes": 153419163,
+  "all_object_hashes_verified": true,
+  "source_tool_pairs_equal": true,
+  "retained_root": "/home/jkh/nanolang-qualification/native-trace-802-puck-copy"
+}
