@@ -17065,3 +17065,14 @@ My reviewed220 focused preparation passes fresh ordinary compiler builds and sha
 My byte-array focused production220/fixture879 controls now pass ordinary and ASan/UBSan with leak detection on both hosts, including fresh sanitizer providers and shapes. The unchanged original facc mutation input passes actual C-bytecode VM and generated C O0/O2 in all four configurations; emitted constructor tag2 and member CAST_U8 are retained. I preserve the earlier preparation/discovery terminals in [qualification evidence](evidence/native-byte-array-879/README.md). The full original17 four-producer/backend matrix remains open.
 
 - [ ] I establish exact existing scalar-array destinations and literal-only context under `task_b6987cc2a0da313d0675e1932954b3e1`, following my [complete destination contract](SCALAR_ARRAY_DESTINATION_CONTEXT.md). I use candidate-owned nominal views and exact checked equality, retain valid computed byte literals and genuine empty holes, and cover every destination without a spelling fallback. This is separate from native byte carrier qualification.
+
+### I keep byte and recursive array runtime discriminators distinct
+
+Source review of merge80e8 finds a static integration defect: I assigned the
+private U8-array classifier15 to preserve recursive-array13, but six imported
+runtime template lines still used13 for byte arrays. They could misroute nested
+array roots or mutation. No affected candidate product ran. I change only the
+new byte-word root/field and len/get/set/push discriminator occurrences to15,
+retain recursive-array13 and public TAG_MAP13, audit every literal occurrence,
+and add a combined nested-string-array/byte-array retention and mutation control
+before execution review. Existing individual byte and recursive-array gates stay.

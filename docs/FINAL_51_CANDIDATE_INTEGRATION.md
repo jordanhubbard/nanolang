@@ -72,3 +72,22 @@ Make targets and all prior fixtures remain. Strict syntax-only checking of the
 checker, bytecode emitter, nvm2c and shape implementation passes with warnings as
 errors. Native051 evidence remains attributed to its own source; no combined
 product executes at this merge checkpoint.
+
+The first80e8 review found that changing the classifier constant was insufficient:
+six newly imported emitted-runtime lines still used byte discriminator13. I
+correct only those byte-word roots/record fields and tagged len/get/set/push
+cases to15. I audit every literal13/15 occurrence in `nvm2c.c` and
+`nvm2c_map_roots.inc`: remaining13 denotes AARR in recursive constructors,
+child validation and naarr dispatch/root traversal; TAG_MAP in boxed map
+construction, truth/equality and map access/rooting; or ASCII carriage return.
+The record root's word-array predicate now includes15 and retains its array
+storage member; the separate recursive-array root traverses children under13.
+All classifier-driven formatted guards and `array_shape_kinds` use UARR15
+(symbolic shift15 still fits the existing uint16_t mask). No wire tag changes.
+
+The additive actual VM/nvm2c O0/O2 fixture keeps a nested string array and a byte
+array live across allocation churn, mutates/appends each, and checks nested
+contents plus exact U8 element tags afterward. It retains all original byte
+controls. Strict C/Python syntax checks pass; no old or corrected product is
+executed before source review. This does not claim admission of nested U8 array
+children beyond the existing recursive carrier contract.

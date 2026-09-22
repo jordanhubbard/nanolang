@@ -6146,7 +6146,7 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         "    return (narr_t)a.text;\n}\n"
         "static inline int64_t nvalue_array_len(nmap_value a) {\n"
         "    if (a.kind != 7 || !a.text) NVM2C_ABORT();\n"
-        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 13) return (int64_t)((narr_t)a.text)->len;\n"
+        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 15) return (int64_t)((narr_t)a.text)->len;\n"
         "    if (a.integer == 5) return (int64_t)((nsarr_t)a.text)->len;\n"
         "    if (a.integer == 6) return (int64_t)((nrarr_t)a.text)->len;\n"
         );
@@ -6162,7 +6162,7 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
     if (b->has_nested_arrays) nvm2c_puts(b,
         "    if (a.integer == 13) return naarr_get((naarr_t)a.text, at);\n");
     nvm2c_printf(b,
-        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 13) return (nmap_value){a.integer == 13 ? 2 : a.integer == 12 ? 3 : a.integer == 10 ? 4 : 1, %s, NULL};\n"
+        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 15) return (nmap_value){a.integer == 15 ? 2 : a.integer == 12 ? 3 : a.integer == 10 ? 4 : 1, %s, NULL};\n"
         "    return (nmap_value){5, 0, (char *)%s};\n}\n",
         int_get ? "narr_get((narr_t)a.text, at)" : "((narr_t)a.text)->data[at]",
         string_get ? "nsarr_get((nsarr_t)a.text, at)" : "((nsarr_t)a.text)->data[at]");
@@ -6172,7 +6172,7 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         "    if (index < 0 || (uint64_t)index >= (uint64_t)nvalue_array_len(a)) NVM2C_ABORT();\n"
         "    size_t at = (size_t)index;\n"
         "    if (a.integer == 3) ((narr_t)a.text)->data[at] = nvalue_require_int(value);\n"
-        "    else if (a.integer == 13) ((narr_t)a.text)->data[at] = nvalue_require_u8(value);\n"
+        "    else if (a.integer == 15) ((narr_t)a.text)->data[at] = nvalue_require_u8(value);\n"
         "    else if (a.integer == 10) ((narr_t)a.text)->data[at] = nvalue_require_bool(value);\n"
         "    else if (a.integer == 12) ((narr_t)a.text)->data[at] = nvalue_from_float(nvalue_require_float(value)).integer;\n"
         );
@@ -6185,7 +6185,7 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         "    (void)nvalue_array_len(a); (void)value;\n");
     if (int_push) nvm2c_puts(b,
         "    if (a.integer == 3) { narr_push((narr_t)a.text, nvalue_require_int(value)); return a; }\n"
-        "    if (a.integer == 13) { narr_push((narr_t)a.text, nvalue_require_u8(value)); return a; }\n"
+        "    if (a.integer == 15) { narr_push((narr_t)a.text, nvalue_require_u8(value)); return a; }\n"
         "    if (a.integer == 10) { narr_push((narr_t)a.text, nvalue_require_bool(value)); return a; }\n"
         "    if (a.integer == 12) { narr_push((narr_t)a.text, nvalue_from_float(nvalue_require_float(value)).integer); return a; }\n");
     if (string_push) nvm2c_puts(b,

@@ -36,6 +36,122 @@ class NativeByteArrayIdentity(unittest.TestCase):
             self.run_actual([*cc, *flags, '-std=c11', '-' + opt, '-Wall', '-Wextra', '-Werror', source, '-o', output])
             self.run_actual([output])
 
+    def test_recursive_string_and_byte_arrays_keep_distinct_carriers(self):
+        self.native('''.types 0 0 0
+.entry main
+.function churn 0 1 0 void 0
+PUSH_I64 0
+STORE_LOCAL 0
+again:
+LOAD_LOCAL 0
+PUSH_I64 2048
+I64_LT_S
+JMP_FALSE done
+PUSH_STR "temporary"
+ARR_LITERAL 5 1
+ARR_LITERAL 7 1
+POP
+ARR_NEW 2
+PUSH_U8 3
+ARR_PUSH
+POP
+LOAD_LOCAL 0
+PUSH_I64 1
+I64_ADD
+STORE_LOCAL 0
+JMP again
+done:
+RET
+.end
+.function main 0 2 0 int 1
+PUSH_STR "retained"
+ARR_LITERAL 5 1
+ARR_LITERAL 7 1
+STORE_LOCAL 0
+PUSH_U8 255
+ARR_LITERAL 2 1
+STORE_LOCAL 1
+CALL churn
+LOAD_LOCAL 0
+PUSH_I64 0
+ARR_GET
+PUSH_I64 0
+ARR_GET
+PUSH_STR "retained"
+EQ
+ASSERT
+LOAD_LOCAL 0
+PUSH_STR "second"
+ARR_LITERAL 5 1
+ARR_PUSH
+POP
+LOAD_LOCAL 0
+PUSH_I64 0
+PUSH_STR "replaced"
+ARR_LITERAL 5 1
+ARR_SET
+POP
+LOAD_LOCAL 1
+PUSH_I64 0
+PUSH_U8 7
+ARR_SET
+POP
+LOAD_LOCAL 1
+PUSH_U8 8
+ARR_PUSH
+POP
+CALL churn
+LOAD_LOCAL 0
+ARR_LEN
+PUSH_I64 2
+I64_EQ
+ASSERT
+LOAD_LOCAL 0
+PUSH_I64 0
+ARR_GET
+PUSH_I64 0
+ARR_GET
+PUSH_STR "replaced"
+EQ
+ASSERT
+LOAD_LOCAL 0
+PUSH_I64 1
+ARR_GET
+PUSH_I64 0
+ARR_GET
+PUSH_STR "second"
+EQ
+ASSERT
+LOAD_LOCAL 1
+ARR_LEN
+PUSH_I64 2
+I64_EQ
+ASSERT
+LOAD_LOCAL 1
+PUSH_I64 0
+ARR_GET
+DUP
+TYPE_CHECK 2
+ASSERT
+CAST_INT
+PUSH_I64 7
+I64_EQ
+ASSERT
+LOAD_LOCAL 1
+PUSH_I64 1
+ARR_GET
+DUP
+TYPE_CHECK 2
+ASSERT
+CAST_INT
+PUSH_I64 8
+I64_EQ
+ASSERT
+PUSH_I64 0
+RET
+.end
+''')
+
     def test_constructor_mutation_calls_joins_records_and_globals(self):
         self.native('''.types 1 0 0
 .entry main
