@@ -1,0 +1,5 @@
+SDL_Init
+SDL_CreateWindow
+2026-09-21 22:03:32.476 sdl-process-control[81922:894264] +[NSXPCSharedListener endpointForReply:withListenerName:replyErrorCode:]: an error occurred while attempting to obtain endpoint for listener 'ClientCallsAuxiliary': Connection invalid
+SDL_CreateRenderer
+complete
