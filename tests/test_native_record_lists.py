@@ -238,6 +238,19 @@ fn main()->int {
 shadow main { assert (== (main) 0) }
 ''')
 
+        self.native_routes('native-contextual-nested-constructors', '''union Inner<T> { Items { value:T } }
+union Outer<T> { Wrapped { inner:Inner<T> } }
+fn build()->Outer<int> { return Outer.Wrapped{inner:Inner.Items{value:17}} }
+shadow build { match (build) { Wrapped(outer)=>{ match outer.inner { Items(inner)=>{assert (== inner.value 17)} } } } }
+fn main()->int {
+ let value:Outer<int> = Outer.Wrapped{inner:Inner.Items{value:23}}
+ match value { Wrapped(outer)=>{ match outer.inner { Items(inner)=>{assert (== inner.value 23)} } } }
+ match (build) { Wrapped(outer)=>{ match outer.inner { Items(inner)=>{assert (== inner.value 17)} } } }
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
         self.native_routes('native-selected-payload-carriers', '''union Box<T> { Some { value:T }, None {} }
 fn main()->int {
  let number:Box<int> = Box<int>.Some{value:31}

@@ -2364,10 +2364,11 @@ shadow lookup_struct_field_type {
 
 # I retain the concrete field annotation when a literal is nested in a union.
 fn lookup_union_payload_type(parser: Parser, union_name: string, variant: string, field_name: string, concrete: string) -> string {
+    let declaration_name: string = (extract_base_type_name union_name)
     let mut ui: int = 0
     while (< ui (parser_get_union_count parser)) {
         let definition: ASTUnion = (parser_get_union parser ui)
-        if (== definition.name union_name) {
+        if (== definition.name declaration_name) {
             let mut offset: int = 0
             let mut vi: int = 0
             while (< vi definition.variant_count) {
@@ -2394,6 +2395,8 @@ shadow lookup_union_payload_type {
     let tokens: List<LexerToken> = (tokenize_string source "payload.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "payload.nano")
     assert (== (lookup_union_payload_type parser "Box" "Some" "values" "Box<Plain>") "array<Plain>")
+    assert (== (lookup_union_payload_type parser "Box<Plain>" "Some" "values" "Box<Plain>") "array<Plain>")
+    assert (== (lookup_union_payload_type parser "Box<array<int>>" "Some" "values" "Box<array<int>>") "array<array<int>>")
     assert (== (lookup_union_payload_type parser "Box" "Some" "values" "Box<array<int>>") "array<array<int>>")
     assert (== (lookup_union_payload_type parser "Box" "None" "values" "Box<int>") "")
 }
@@ -7855,23 +7858,15 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                     /* Union construction -> compound literal */
                                     let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
 
-                                    /* Derive monomorphized union name from expected_type for generics */
+                                    # I lower the checked complete annotation, not raw generic punctuation.
                                     let mut actual_union_name: string = uc.union_name
-                                    if (and (!= expected_type "") (is_generic_type expected_type)) {
-                                        set actual_union_name (monomorphize_type_name expected_type)
-                                    } else { (print "") }
-
-                                    let mut union_parts: array<string> = []
-                                    set union_parts (cg_append union_parts "nl_")
-                                    set union_parts (cg_append union_parts (mangle_name actual_union_name))
-                                    let union_c: string = (cg_build union_parts)
-
-                                    let mut tag_parts: array<string> = []
-                                    set tag_parts (cg_append tag_parts "nl_")
-                                    set tag_parts (cg_append tag_parts (mangle_name actual_union_name))
-                                    set tag_parts (cg_append tag_parts "_TAG_")
-                                    set tag_parts (cg_append tag_parts uc.variant_name)
-                                    let tag_name: string = (cg_build tag_parts)
+                                    if (and (not (is_generic_type actual_union_name)) (is_generic_type expected_type)) {
+                                        if (== (extract_base_type_name actual_union_name) (extract_base_type_name expected_type)) {
+                                            set actual_union_name expected_type
+                                        }
+                                    }
+                                    let union_c: string = (type_to_c actual_union_name)
+                                    let tag_name: string = (+ union_c (+ "_TAG_" uc.variant_name))
 
                                     let mut union_construct_parts: array<string> = []
                                     set union_construct_parts (cg_append union_construct_parts "((")
@@ -7895,7 +7890,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                             let fname: string = (at uc.field_names i)
                                             let vid: int = (at uc.field_value_ids i)
                                             let vty: int = (at uc.field_value_types i)
-                                            let field_expected: string = (lookup_union_payload_type parser uc.union_name uc.variant_name fname expected_type)
+                                            let field_expected: string = (lookup_union_payload_type parser actual_union_name uc.variant_name fname actual_union_name)
                                             let vcode: string = (generate_expression parser vid vty env field_expected)
 
                                             set union_construct_parts (cg_append union_construct_parts ".")
@@ -8018,6 +8013,28 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 }
 
 shadow generate_expression {
+    let constructor_sources: array<string> = [
+        "union Inner<T> { Items { value:T } } union Outer<T> { Wrapped { inner:Inner<T> } } fn make()->Outer<int> { return Outer<int>.Wrapped{inner:Inner<int>.Items{value:7}} }",
+        "union Inner<T> { Items { value:T } } union Outer<T> { Wrapped { inner:Inner<T> } } fn make()->Outer<int> { return Outer.Wrapped{inner:Inner.Items{value:7}} }"
+    ]
+    let mut constructor_index: int = 0
+    while (< constructor_index (array_length constructor_sources)) {
+        let constructor_tokens: List<LexerToken> = (tokenize_string (at constructor_sources constructor_index) "constructor.nano" (list_CompilerDiagnostic_new))
+        let constructor_parser: Parser = (parse_program constructor_tokens (list_LexerToken_length constructor_tokens) "constructor.nano")
+        assert (not (parser_has_error constructor_parser))
+        assert (== constructor_parser.returns_count 1)
+        if (and (not (parser_has_error constructor_parser)) (== constructor_parser.returns_count 1)) {
+            let constructor_return: ASTReturn = (parser_get_return constructor_parser 0)
+            let mut context: string = ""
+            if (== constructor_index 1) { set context "Outer<int>" }
+            let constructor_code: string = (generate_expression constructor_parser constructor_return.value constructor_return.value_type (genenv_new "constructor") context)
+            assert (str_contains constructor_code "((nl_Outer_int){ .tag = nl_Outer_int_TAG_Wrapped")
+            assert (str_contains constructor_code "((nl_Inner_int){ .tag = nl_Inner_int_TAG_Items")
+            assert (not (str_contains constructor_code "nl_Outer_int_){"))
+            assert (not (str_contains constructor_code "nl_Inner_int_){"))
+        }
+        set constructor_index (+ constructor_index 1)
+    }
     let filter_types: array<string> = ["int", "float", "bool", "string"]
     let filter_values: array<string> = ["1", "1.5", "true", "\"text\""]
     let filter_helpers: array<string> = ["nl_filter(", "nl_filter_float(", "nl_filter_bool(", "nl_filter_str("]
