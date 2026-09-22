@@ -14460,3 +14460,9 @@ allocator failure claim.
   I audit snapshot escape and duplicate only owner strings into independent
   module metadata before changing teardown. [Contract](NANOISA_CHECKER_MODULE_NAME_OWNERSHIP.md).
   MAC: task_3a42bcf1be0c46ce88a085b4cb54bf2c and task_ebfdc333d6a8495b8c903ab8142c88b6.
+
+- [ ] I audit the separate EffectDef/effect-registry teardown after the module
+  owner-name writer inventory: its collector also duplicates names, while the
+  current Environment destructor does not establish complete effect storage
+  cleanup. This static follow-up is outside the measured45c three-name repair.
+  MAC: task_3a42bcf1be0c46ce88a085b4cb54bf2c.

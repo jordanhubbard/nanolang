@@ -18,8 +18,9 @@ nanovirt records, evaluator enum registration, module loader context save/
 restore, and temporary checker/evaluator function owners. Only the two module
 declaration collector branches free current_module; other writers borrow an
 AST, function, module-cache, or caller name and restore it. Both struct and
-enum collectors allocate their own names. UnionDef and EffectDef retain their
-separate existing owning contracts and are not changed.
+enum collectors allocate their own names. UnionDef retains its existing owned-name destructor. EffectDef uses a
+separate registration path outside these measured names; I do not change it
+or claim its Environment cleanup is complete.
 
 I will register only newly allocated checker current_module, StructDef and
 EnumDef owner strings with the existing Environment checker allocation list.
@@ -49,3 +50,13 @@ precedes corrected execution.
 The production declaration-name boundary belongs to
 task_3a42bcf1be0c46ce88a085b4cb54bf2c; observed cleanup continuation also updates
 task_ebfdc333d6a8495b8c903ab8142c88b6.
+
+My constructor audit finds extract_module_metadata is the only heap snapshot
+constructor used by free_module_metadata, including all existing C fixtures.
+The C deserializer is an explicit false/NULL stub. Generated static metadata
+is a separate representation and never enters this heap destructor. I add
+independent owner copies at the two snapshot rows, with explicit fatal refusal
+if that new strdup fails: the legacy snapshot API has no transactional partial
+rollback. This is not recoverable allocation-prefix coverage. A test retains
+two module owners across borrowed context replacement, destroys Environment
+and ASTs, then reads and frees the independent snapshot names.

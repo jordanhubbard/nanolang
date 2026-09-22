@@ -835,6 +835,37 @@ static void union_checker_cleanup_boundaries(void) {
     free_ast(program);
     free_tokens(tokens, count);
 }
+static void checker_module_name_ownership(void) {
+    const char *sources[] = {
+        "module First struct A{value:int} enum E{One}",
+        "module Second struct B{value:int} enum F{One}"
+    };
+    Environment *env = create_environment(); assert(env);
+    env->current_module = "BorrowedPrior";
+    ASTNode *programs[2]; Token *tokens[2]; int counts[2];
+    char *first_context = NULL;
+    for (int i = 0; i < 2; ++i) {
+        tokens[i] = tokenize(sources[i], &counts[i]); assert(tokens[i]);
+        programs[i] = parse_program(tokens[i], counts[i]); assert(programs[i]);
+        assert(type_check_module(programs[i], env));
+        if (!i) first_context = env->current_module;
+    }
+    assert(!strcmp(first_context, "First") && !strcmp(env->current_module, "Second"));
+    assert(env->struct_count == 2 && env->enum_count == 2);
+    ModuleMetadata *meta = extract_module_metadata(env, "Snapshot"); assert(meta);
+    assert(meta->struct_count == 2 && meta->enum_count == 2);
+    for (int i = 0; i < 2; ++i) {
+        assert(meta->structs[i].module_name != env->structs[i].module_name);
+        assert(meta->enums[i].module_name != env->enums[i].module_name);
+    }
+    free_environment(env);
+    for (int i = 0; i < 2; ++i) { free_ast(programs[i]); free_tokens(tokens[i], counts[i]); }
+    for (int i = 0; i < 2; ++i) {
+        assert(!strcmp(meta->structs[i].module_name, i ? "Second" : "First"));
+        assert(!strcmp(meta->enums[i].module_name, i ? "Second" : "First"));
+    }
+    free_module_metadata(meta);
+}
 static void generic_byte_payload_context(void) {
     const char *values[] = {"(+ value 256)", "255", "256", "true"};
     for (size_t i = 0; i < sizeof values / sizeof *values; ++i) {
@@ -921,7 +952,7 @@ static void emission_entry_rollback(void) {
 extern void test_nominal_constructor_allocations(void);
 int main(void) {
     test_nominal_constructor_allocations();
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); union_checker_cleanup_boundaries(); generic_byte_payload_context(); constructor_failure_rollback(); emission_entry_rollback();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity(); nested_payload_views(); retained_callable_consumers(); complete_tuple_annotations(); constructor_annotation_parsing(); dotted_constructor_checking(); constructor_payload_destinations(); union_scalar_policy(); union_checker_cleanup_boundaries(); checker_module_name_ownership(); generic_byte_payload_context(); constructor_failure_rollback(); emission_entry_rollback();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }

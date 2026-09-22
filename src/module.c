@@ -2064,6 +2064,18 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
 }
 
 
+/* Metadata names must survive their source Environment. This legacy snapshot
+ * API has no recoverable allocation transaction; I refuse a missing owner. */
+static char *copy_metadata_owner(const char *owner) {
+    if (!owner) return NULL;
+    char *copy = strdup(owner);
+    if (!copy) {
+        fprintf(stderr, "I cannot copy a module metadata owner.\n");
+        exit(1);
+    }
+    return copy;
+}
+
 /* Extract module metadata from environment */
 ModuleMetadata *extract_module_metadata(Environment *env, const char *module_name) {
     if (!env) return NULL;
@@ -2199,6 +2211,7 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         meta->structs = malloc(sizeof(StructDef) * meta->struct_count);
         for (int i = 0; i < meta->struct_count; i++) {
             meta->structs[i] = env->structs[i];
+            meta->structs[i].module_name = copy_metadata_owner(env->structs[i].module_name);
             if (env->structs[i].name) {
                 meta->structs[i].name = strdup(env->structs[i].name);
             }
@@ -2223,6 +2236,7 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         meta->enums = malloc(sizeof(EnumDef) * meta->enum_count);
         for (int i = 0; i < meta->enum_count; i++) {
             meta->enums[i] = env->enums[i];
+            meta->enums[i].module_name = copy_metadata_owner(env->enums[i].module_name);
             if (env->enums[i].name) {
                 meta->enums[i].name = strdup(env->enums[i].name);
             }
@@ -2624,6 +2638,7 @@ void free_module_metadata(ModuleMetadata *meta) {
     if (meta->structs) {
         for (int i = 0; i < meta->struct_count; i++) {
             if (meta->structs[i].name) free(meta->structs[i].name);
+            free(meta->structs[i].module_name);
             if (meta->structs[i].field_names) {
                 for (int j = 0; j < meta->structs[i].field_count; j++) {
                     if (meta->structs[i].field_names[j]) free(meta->structs[i].field_names[j]);
@@ -2639,6 +2654,7 @@ void free_module_metadata(ModuleMetadata *meta) {
     if (meta->enums) {
         for (int i = 0; i < meta->enum_count; i++) {
             if (meta->enums[i].name) free(meta->enums[i].name);
+            free(meta->enums[i].module_name);
             if (meta->enums[i].variant_names) {
                 for (int j = 0; j < meta->enums[i].variant_count; j++) {
                     if (meta->enums[i].variant_names[j]) free(meta->enums[i].variant_names[j]);
