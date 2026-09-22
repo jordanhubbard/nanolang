@@ -320,6 +320,17 @@ static void eval_match_release_empty_literal(Value value, bool owned, Value resu
     free(u);
 }
 
+/* Loop iteration values retain their existing borrowed/scalar representation. */
+static void eval_pop_loop_metadata(Environment *env, int first) {
+    for (int i = first; i < env->symbol_count; ++i) {
+        free(env->symbols[i].name);
+        free(env->symbols[i].struct_type_name);
+        env->symbols[i].name = NULL;
+        env->symbols[i].struct_type_name = NULL;
+    }
+    env->symbol_count = first;
+}
+
 /* I restore lexical bindings on every exit, retaining a yielded local string. */
 /* I release only binding-owned storage. Registry result snapshots are never
  * installed directly into an owning record binding. Borrow formals stay borrowed. */
@@ -5519,7 +5530,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             /* Empty tuple */
             if (element_count == 0) {
-                return create_tuple(NULL, 0);
+                Value empty = create_tuple(NULL, 0);
+                if (!env_retire_value(env, empty)) {
+                    fprintf(stderr, "I cannot retain an owned tuple literal.\n"); exit(1);
+                }
+                return empty;
             }
             
             /* Evaluate each element */
@@ -5536,7 +5551,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Create tuple value */
             Value result = create_tuple(elements, element_count);
             free(elements);  /* create_tuple makes a copy */
-            
+            if (!env_retire_value(env, result)) {
+                fprintf(stderr, "I cannot retain an owned tuple literal.\n"); exit(1);
+            }
             return result;
         }
 
@@ -5912,13 +5929,13 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     env->symbols[loop_var_index].value = create_int(i);
                     result = eval_statement(stmt->as.for_stmt.body, env);
                     if (result.is_return) {
-                        env->symbol_count = loop_var_index;
+                        eval_pop_loop_metadata(env, loop_var_index);
                         return result;
                     }
                     if (result.is_break) { result = create_void(); break; }
                     if (result.is_continue) { result = create_void(); continue; }
                 }
-                env->symbol_count = loop_var_index;
+                eval_pop_loop_metadata(env, loop_var_index);
                 return result;
 
             } else {
@@ -5973,7 +5990,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 if (iter_val.type == VAL_ARRAY) {
                     /* Static array iteration */
                     Array *arr = iter_val.as.array_val;
-                    if (!arr) { env->symbol_count = loop_var_index; return create_void(); }
+                    if (!arr) { eval_pop_loop_metadata(env, loop_var_index); return create_void(); }
                     for (int idx = 0; idx < arr->length; idx++) {
                         Value elem = create_void();
                         switch (arr->element_type) {
@@ -5985,14 +6002,14 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                         }
                         env->symbols[loop_var_index].value = elem;
                         result = eval_statement(stmt->as.for_stmt.body, env);
-                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_return) { eval_pop_loop_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
                         if (result.is_continue) { result = create_void(); continue; }
                     }
                 } else if (iter_val.type == VAL_DYN_ARRAY) {
                     /* Dynamic array iteration */
                     DynArray *arr = iter_val.as.dyn_array_val;
-                    if (!arr) { env->symbol_count = loop_var_index; return create_void(); }
+                    if (!arr) { eval_pop_loop_metadata(env, loop_var_index); return create_void(); }
                     int64_t len = dyn_array_length(arr);
                     ElementType et = dyn_array_get_elem_type(arr);
                     for (int64_t idx = 0; idx < len; idx++) {
@@ -6006,27 +6023,27 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                         }
                         env->symbols[loop_var_index].value = elem;
                         result = eval_statement(stmt->as.for_stmt.body, env);
-                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_return) { eval_pop_loop_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
                         if (result.is_continue) { result = create_void(); continue; }
                     }
                 } else if (list_type == TYPE_LIST_INT) {
                     List_int *lst = (List_int*)(intptr_t)iter_val.as.int_val;
-                    if (!lst) { env->symbol_count = loop_var_index; return create_void(); }
+                    if (!lst) { eval_pop_loop_metadata(env, loop_var_index); return create_void(); }
                     for (int idx = 0; idx < lst->length; idx++) {
                         env->symbols[loop_var_index].value = create_int(lst->data[idx]);
                         result = eval_statement(stmt->as.for_stmt.body, env);
-                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_return) { eval_pop_loop_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
                         if (result.is_continue) { result = create_void(); continue; }
                     }
                 } else if (list_type == TYPE_LIST_STRING) {
                     List_string *lst = (List_string*)(intptr_t)iter_val.as.int_val;
-                    if (!lst) { env->symbol_count = loop_var_index; return create_void(); }
+                    if (!lst) { eval_pop_loop_metadata(env, loop_var_index); return create_void(); }
                     for (int idx = 0; idx < lst->length; idx++) {
                         env->symbols[loop_var_index].value = create_string(lst->data[idx]);
                         result = eval_statement(stmt->as.for_stmt.body, env);
-                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_return) { eval_pop_loop_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
                         if (result.is_continue) { result = create_void(); continue; }
                     }
@@ -6034,7 +6051,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     fprintf(stderr, "Error: for-in requires a list, array, or range expression\n");
                 }
 
-                env->symbol_count = loop_var_index;
+                eval_pop_loop_metadata(env, loop_var_index);
                 return result;
             }
         }
@@ -6141,6 +6158,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 return create_void();
             }
             
+            if (env_get_enum(env, stmt->as.enum_def.name)) return create_void();
             EnumDef edef;
             edef.name = strdup(stmt->as.enum_def.name);
             edef.variant_count = stmt->as.enum_def.variant_count;
