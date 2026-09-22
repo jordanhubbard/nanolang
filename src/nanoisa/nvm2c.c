@@ -3178,8 +3178,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     char name[64];
     uint16_t i;
     fn_c_name(mod, idx, name, sizeof name);
-    nvm2c_printf(b, "static %s %s%s(", b->scalar_tail_frames ? "uint32_t" : rt,
-                 name, b->scalar_tail_frames ? "_body" : "");
+    if (b->scalar_tail_frames) nvm2c_printf(b, "static uint32_t ntail_body_%u(", idx);
+    else nvm2c_printf(b, "static %s %s(", rt, name);
     if (fn->arity == 0) {
         if (!b->scalar_tail_frames) nvm2c_puts(b, "void");
     } else {
@@ -5029,8 +5029,7 @@ static void emit_scalar_tail_dispatch(Nvm2cBuf *b, const NvmModule *mod, const u
                   "        switch (target) {\n");
     for (uint32_t i = 0; i < mod->function_count; ++i) {
         if (!b->emitted_functions[i]) continue;
-        char name[64]; fn_c_name(mod, i, name, sizeof name);
-        nvm2c_printf(b, "        case %u: target = %s_body(", i, name);
+        nvm2c_printf(b, "        case %u: target = ntail_body_%u(", i, i);
         for (uint16_t p = 0; p < mod->functions[i].arity; ++p)
             nvm2c_printf(b, "arguments[%u].%s, ", p,
                          scalar_tail_member(c_local_type(fn_local_kind(b, kinds, i, p))));
