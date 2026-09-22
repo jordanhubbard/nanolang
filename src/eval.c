@@ -3027,6 +3027,23 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
     return create_void();
 }
 
+/* Synchronous array callbacks borrow their descriptor while running. Only a
+ * declaration identifier creates a fresh descriptor here; a variable read
+ * borrows the Symbol's descriptor. Other expression ownership stays unchanged. */
+static bool owns_declared_callback(ASTNode *expression, Environment *env, Value value) {
+    if (!expression || expression->type != AST_IDENTIFIER || value.type != VAL_FUNCTION)
+        return false;
+    Symbol *source = env_get_var(env, expression->as.identifier);
+    return !source || source->value.type != VAL_FUNCTION ||
+        source->value.as.function_val.function_name != value.as.function_val.function_name;
+}
+
+static void discard_declared_callback(Value value) {
+    if (value.type != VAL_FUNCTION) return;
+    free(value.as.function_val.function_name);
+    free_function_signature(value.as.function_val.signature);
+}
+
 static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name);
 
 /* I retain the invoking source node while native builtins call back into me. */
@@ -3224,11 +3241,25 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
     }
 
-    /* Evaluate arguments */
+    /* These existing synchronous consumers never publish their callback descriptor. */
+    int callback_kind = 0;
+    if (strcmp(name, "map") == 0 || strcmp(name, "array_map") == 0) callback_kind = 1;
+    else if (strcmp(name, "filter") == 0 || strcmp(name, "array_filter") == 0) callback_kind = 2;
+    else if (strcmp(name, "reduce") == 0 || strcmp(name, "array_fold") == 0) callback_kind = 3;
+    int callback_index = callback_kind == 3 ? 2 : 1;
+    Value owned_callback = create_void();
+
+    /* Evaluate arguments in the original order. */
     Value args[16];  /* Max args for function calls */
     for (int i = 0; i < node->as.call.arg_count; i++) {
         args[i] = eval_expression(node->as.call.args[i], env);
-        if (args[i].is_return) return args[i];
+        if (callback_kind && i == callback_index &&
+            owns_declared_callback(node->as.call.args[i], env, args[i]))
+            owned_callback = args[i];
+        if (args[i].is_return) {
+            discard_declared_callback(owned_callback);
+            return args[i];
+        }
     }
 
     /* File operations */
@@ -3717,9 +3748,12 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     if (strcmp(name, "array_slice") == 0) return builtin_array_slice(args);
     
     /* Higher-order array functions */
-    if (strcmp(name, "map") == 0 || strcmp(name, "array_map") == 0) return builtin_map(args, env);
-    if (strcmp(name, "filter") == 0 || strcmp(name, "array_filter") == 0) return builtin_filter(args, env);
-    if (strcmp(name, "reduce") == 0 || strcmp(name, "array_fold") == 0) return builtin_reduce(args, env);
+    if (callback_kind) {
+        Value result = callback_kind == 1 ? builtin_map(args, env) :
+            callback_kind == 2 ? builtin_filter(args, env) : builtin_reduce(args, env);
+        discard_declared_callback(owned_callback);
+        return result;
+    }
     
     /* Dynamic array operations (GC-managed) */
     if (strcmp(name, "array_push") == 0 && is_builtin_array_push) {
@@ -4992,6 +5026,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     actual_param_count,
                     func->return_type
                 );
+                free(param_types); /* The signature owns its independent copy. */
                 return create_function(expr->as.identifier, sig);
             }
             
