@@ -114,8 +114,8 @@ typedef struct {
 } GlobalVar;
 
 typedef struct {
-    char *name;              /* C function name (e.g., "nl_regex_compile" or "path_normalize") */
-    char *module_name;       /* Module name (e.g., "regex" or "") */
+    const char *name;        /* Module-owned C function name (e.g., "nl_regex_compile" or "path_normalize") */
+    const char *module_name; /* Module-owned name (e.g., "regex" or "") */
     uint32_t import_idx;     /* Index into NVM import table */
     uint16_t param_count;
     uint8_t return_tag;      /* NanoValueTag for return type */
@@ -720,8 +720,8 @@ static void register_extern(CG *cg, const char *name, const char *module_name,
 
     /* Add to codegen extern table */
     ExternFn *ef = &cg->externs[cg->extern_count];
-    ef->name = strdup(name);
-    ef->module_name = strdup(module_name);
+    ef->name = nvm_get_string(cg->module, fn_str);
+    ef->module_name = nvm_get_string(cg->module, mod_str);
     ef->import_idx = imp_idx;
     ef->param_count = param_count;
     ef->return_tag = return_tag;
