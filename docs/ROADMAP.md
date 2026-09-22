@@ -17198,3 +17198,5 @@ unchanged. A retained identity token prevents address-reuse authorization. DONE
 scalar results may release their extra Environment lease only under matching
 snapshotted declared-type/runtime-tag proof; other graphs retain it until explicit
 release. This preserves original scalar teardown while protecting borrowed leaves.
+
+I register my canonical compiler-support adapter prerequisite as MAC task `task_56d27a98d3f24641a2f07f636278eab0`. My source/fixture checkpoint extends only the owner-bound artifact catalogs for the real zero-argument ABI/root helpers, preserving typed refusals and borrowed-string snapshots. Fresh focused qualification and full canonical bootstrap remain pending; the retained 609 Darwin missing-symbol and Linux shadow-deadline terminals remain separate.

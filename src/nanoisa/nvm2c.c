@@ -465,6 +465,8 @@ static const Nvm2cHost host_adapters[] = {
  * I do not admit general interior-pointer/borrowed-input result contracts. The
  * name/signature check trusts the artifact to implement this lifetime contract. */
 static const Nvm2cHost artifact_adapters[] = {
+    {"nlc_native_array_abi", "nhost_artifact", 0, TAG_VOID, TAG_INT},
+    {"nlc_runtime_root", "nhost_snapshot", 0, TAG_VOID, TAG_STRING},
     /* I snapshot the facade's transient borrowed strings before its next call. */
     {"nlc_module_artifact", "nhost_snapshot", 1, TAG_STRING, TAG_STRING},
     {"nl_nanoisa_load_print", "nhost_snapshot", 1, TAG_STRING, TAG_STRING},
