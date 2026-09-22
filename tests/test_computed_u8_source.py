@@ -202,6 +202,36 @@ shadow main { assert (== (main) 0) }
         self.paired(before.decode(), backends=False, require_cast=False)
         self.assertEqual(source.read_bytes(), before)
 
+    def test_byte_integer_operators_and_operand_order(self):
+        self.paired('''let mut order: int = 0
+fn first() -> u8 { set order (+ (* order 10) 1) return 200 }
+shadow first { set order 0 assert (== (cast_int (first)) 200) assert (== order 1) }
+fn second() -> byte { set order (+ (* order 10) 2) return 100 }
+shadow second { set order 0 assert (== (cast_int (second)) 100) assert (== order 2) }
+fn main() -> int {
+ set order 0
+ let total: u8 = (+ (first) (second))
+ assert (== (cast_int total) 44)
+ assert (== order 12)
+ let a: u8 = 200
+ let b: byte = 100
+ assert (== (+ a b) 300)
+ assert (== (- a b) 100)
+ assert (== (* a b) 20000)
+ assert (== (/ a b) 2)
+ assert (== (% a b) 0)
+ assert (== (- a) -200)
+ assert (> a b)
+ assert (>= a b)
+ assert (< b a)
+ assert (<= b a)
+ assert (== a 200)
+ assert (!= a b)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
     def test_array_pop_receiver_type_and_once_only_evaluation(self):
         self.paired('''let mut calls: int = 0
 fn receiver() -> array<int> { set calls (+ calls 1) return [17, 42] }
