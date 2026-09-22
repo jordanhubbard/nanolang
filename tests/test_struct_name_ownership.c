@@ -3,6 +3,7 @@
 #include "../src/nanolang.h"
 #include <assert.h>
 #include <errno.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
@@ -39,6 +40,29 @@ char *struct_metadata_test_strdup(const char *name) {
 }
 void *struct_payload_test_calloc(size_t count,size_t width) {
     return metadata_refuse(2) ? NULL : calloc(count,width);
+}
+
+static void read_child_diagnostic(int fd,pid_t child,const char *expected) {
+    enum { LIMIT=65536 }; char message[LIMIT+1]; size_t used=0;
+    for (;;) {
+        char chunk[1024]; ssize_t got=read(fd,chunk,sizeof(chunk));
+        if (got<0 && errno==EINTR) continue;
+        assert(got>=0); if (!got) break;
+        if ((size_t)got>LIMIT-used) {
+            fprintf(stderr,"I retained the first64KiB of an oversized child diagnostic:\n");
+            fwrite(message,1,used,stderr); fwrite(chunk,1,LIMIT-used,stderr); fflush(stderr);
+            close(fd); (void)kill(child,SIGKILL); int status;
+            while (waitpid(child,&status,0)<0 && errno==EINTR) {}
+            assert(!"child diagnostic exceeded the retained bound");
+        }
+        memcpy(message+used,chunk,(size_t)got); used+=(size_t)got;
+    }
+    message[used]='\0'; close(fd);
+    if (strcmp(message,expected)) {
+        fprintf(stderr,"I retained an unexpected child diagnostic (%zu bytes):\n",used);
+        fwrite(message,1,used,stderr); fflush(stderr);
+    }
+    assert(!strcmp(message,expected));
 }
 
 static size_t lookup_case(int kind, size_t failure, int mode) {
@@ -340,22 +364,20 @@ static void metadata_fault_positions(void) {
             close(errors[0]); assert(dup2(errors[1],STDERR_FILENO)>=0); close(errors[1]);
             (void)metadata_fault_case(pos,mode); _Exit(89);
         }
-        close(errors[1]); char message[4096]; size_t used=0;
-        for (;;) {
-            assert(used<sizeof(message)-1);
-            ssize_t got=read(errors[0],message+used,sizeof(message)-1-used);
-            if (got<0 && errno==EINTR) continue;
-            assert(got>=0); if (!got) break; used+=(size_t)got;
-        }
-        message[used]='\0'; close(errors[0]); int status=0;
+        close(errors[1]); read_child_diagnostic(errors[0],child,messages[kinds[pos-1]]);
+        int status=0;
         assert(waitpid(child,&status,0)==child && WIFEXITED(status) && WEXITSTATUS(status)==1);
-        assert(!strcmp(message,messages[kinds[pos-1]]));
         assert(metadata_fault_case(0,0)==count);
     }
     printf("Struct snapshot allocation positions: %zu, two failure modes and fresh recovery PASS\n",count);
 }
 
-int main(void) {
+int main(int argc,char **argv) {
+    if (argc>2 || (argc==2 && strcmp(argv[1],"snapshot"))) {
+        fprintf(stderr,"I accept only the optional snapshot fixture selector.\n"); return 2;
+    }
+    int snapshot_only=argc==2;
+    if (!snapshot_only) {
     for (int kind=0; kind<4; ++kind) {
         size_t count=lookup_case(kind,0,0);
         assert(count == (kind == 3 ? 2u : 3u));
@@ -367,25 +389,18 @@ int main(void) {
                 (void)lookup_case(kind,pos,mode); exit(0);
             }
             close(errors[1]);
-            char message[4096]; size_t used=0;
-            for (;;) {
-                assert(used<sizeof(message)-1);
-                ssize_t got=read(errors[0],message+used,sizeof(message)-1-used);
-                if (got<0 && errno==EINTR) continue;
-                assert(got>=0); if (!got) break; used+=(size_t)got;
-            }
-            message[used]='\0'; close(errors[0]);
+            read_child_diagnostic(errors[0],child,pos == count ?
+                "I could not allocate checker ownership metadata\n" : "");
             int status=0; assert(waitpid(child,&status,0)==child && WIFEXITED(status));
-            /* An unrelated sanitizer failure must not satisfy expected exit one. */
-            assert(!strcmp(message,pos == count ?
-                "I could not allocate checker ownership metadata\n" : ""));
             assert(WEXITSTATUS(status) == (pos == count ? 1 : 0));
             (void)lookup_case(kind,0,0);
         }
     }
     parsed_parameter_names(); parsed_record_lifetimes(0); parsed_record_lifetimes(1); auxiliary_vectors();
+    puts("Struct name ownership: four paths, exact copies, borrowed controls, all allocation positions/two modes/recovery PASS");
+    }
     metadata_snapshot_lifetimes(0); metadata_snapshot_lifetimes(1); metadata_empty_vectors(); metadata_callback_annotation(); metadata_fault_positions(); checker_module_name_ownership();
     puts("Parser/record ownership: qualified parameters, both destruction orders, zero/nonzero auxiliary vectors and borrowed annotations PASS");
-    puts("Struct name ownership: four paths, exact copies, borrowed controls, all allocation positions/two modes/recovery PASS");
+    puts("Struct metadata snapshot ownership: lifetime, complete annotations, module owners and all allocation positions PASS");
     return 0;
 }

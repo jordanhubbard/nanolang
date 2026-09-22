@@ -1108,7 +1108,7 @@ $(OBJ_DIR)/struct_name_module.o: $(SRC_DIR)/module.c $(SRC_DIR)/nanolang.h | $(O
 test-units: test-struct-name-ownership
 test-struct-name-ownership: $(OBJ_DIR)/struct_name_module.o $(OBJ_DIR)/struct_name_typechecker.o $(OBJ_DIR)/struct_name_env.o $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_struct_name_ownership tests/test_struct_name_ownership.c $(OBJ_DIR)/struct_name_module.o $(OBJ_DIR)/struct_name_typechecker.o $(OBJ_DIR)/struct_name_env.o $(filter-out $(OBJ_DIR)/module.o $(OBJ_DIR)/typechecker.o $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	$(OBJ_DIR)/test_struct_name_ownership
+	$(OBJ_DIR)/test_struct_name_ownership $(STRUCT_NAME_OWNERSHIP_GROUP)
 
 .PHONY: test-checker-metadata-ownership
 test-checker-metadata-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
