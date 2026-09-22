@@ -17029,3 +17029,17 @@ I qualified source4f7317344 default-all ownership controls on both hosts, ordina
 ### I retain the combined sanitizer worker bound
 
 Root review initially attributed a 90-minute worker bound to CI82 from the artificial remerge baseline. Exact parent reads establish CI82 and candidate dc71 both use 30 minutes; root withdrew the requested increase after that correction. I restore the authoritative 30-minute bound in the immediate successor, retaining every exact worker/negative-suite check. Neither temporary source checkpoint ran a worker. I require actual workload evidence before any future bound change; the older monolithic aggregate timeout remains inapplicable.
+
+### I define canonical SDK typed provider transport before implementation
+
+I record `docs/CANONICAL_SDK_TYPED_PROVIDER_CONTRACT.md` against candidate35c523.
+Existing v2 imports have coarse tags, retained layouts and callback policy, but
+cannot by themselves authorize exact opaque/nested SDK signatures. I propose a
+separate versioned typed provider contract with complete nominal/structural keys,
+explicit ABI/lifetime policy and a shared verifier-owned execution plan consumed
+by VM and nvm2c. File metadata remains a distinct held catalog. Installed AOT
+runtime object closure and role-specific mode validation are actual missing
+prerequisites. Codec limits, loader relocation/leases, complete ABI adapters and
+both-host original SDK acceptance remain required before full5.1 completion.
+This is a pre-implementation contract awaiting source-owner review; no execution
+or public legacy fallback follows from it.
