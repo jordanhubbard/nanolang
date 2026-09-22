@@ -84,11 +84,13 @@ static void *concurrent(void *opaque) {
     ++waiting; pthread_cond_broadcast(&condition);
     while (!release_threads) pthread_cond_wait(&condition, &lock);
     pthread_mutex_unlock(&lock);
-    VmState vm; init_vm(&vm);
+    VmState *vm = malloc(sizeof *vm);
+    assert(vm);
+    init_vm(vm);
     VmHeap heap; vm_heap_init(&heap);
-    assert(call(&vm, module, &heap, 0, val_int(1)).as.i64 == 1);
-    assert(call(&vm, module, &heap, 0, val_int(1)).as.i64 == 2);
-    stopped(&vm); vm_heap_destroy(&heap);
+    assert(call(vm, module, &heap, 0, val_int(1)).as.i64 == 1);
+    assert(call(vm, module, &heap, 0, val_int(1)).as.i64 == 2);
+    stopped(vm); vm_heap_destroy(&heap); free(vm);
     return NULL;
 }
 typedef struct { const NvmModule *module; pthread_t owner; int executed, dropped; } CallbackPayload;
