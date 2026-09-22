@@ -226,14 +226,16 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_ASTFieldAccess.c $(RUNTIME_DIR)/list_ASTEnum.c \
 	$(RUNTIME_DIR)/list_ASTUnion.c $(RUNTIME_DIR)/list_ASTUnionConstruct.c \
 	$(RUNTIME_DIR)/list_ASTMatch.c $(RUNTIME_DIR)/list_ASTImport.c \
-	$(RUNTIME_DIR)/list_ASTOpaqueType.c $(RUNTIME_DIR)/list_ASTTupleLiteral.c \
+	$(RUNTIME_DIR)/list_ASTOpaqueType.c $(RUNTIME_DIR)/list_ASTServiceDecl.c $(RUNTIME_DIR)/list_ASTTupleLiteral.c \
 	$(RUNTIME_DIR)/list_ASTTupleIndex.c \
 	$(RUNTIME_DIR)/token_helpers.c $(RUNTIME_DIR)/gc.c $(RUNTIME_DIR)/effect_runtime.c $(RUNTIME_DIR)/dyn_array.c \
 	$(RUNTIME_DIR)/gc_struct.c $(RUNTIME_DIR)/nl_string.c $(RUNTIME_DIR)/ffi_loader.c \
 	$(RUNTIME_DIR)/module_build_dir.c \
 	$(RUNTIME_DIR)/cli.c $(RUNTIME_DIR)/regex.c
 RUNTIME_OBJECTS = $(patsubst $(RUNTIME_DIR)/%.c,$(OBJ_DIR)/runtime/%.o,$(RUNTIME_SOURCES))
-COMPILER_OBJECTS = $(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS))
+FILE_SOURCE_COMPILER_SOURCES = $(SRC_DIR)/file_source_resolution.c $(SRC_DIR)/file_source_input.c $(SRC_DIR)/file_companion_snapshot.c $(SRC_DIR)/nsi_file_binding.c $(SRC_DIR)/nsi_file_plan.c $(SRC_DIR)/nsi.c $(SRC_DIR)/nanoisa/file_source_plan.c $(SRC_DIR)/nanoisa/file_source_catalog.c
+FILE_SOURCE_COMPILER_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(FILE_SOURCE_COMPILER_SOURCES))
+COMPILER_OBJECTS = $(sort $(FILE_SOURCE_COMPILER_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS))
 INTERPRETER = $(BIN_DIR)/nano
 INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nano_main.o $(OBJ_DIR)/proptest.o
 
@@ -251,6 +253,7 @@ SCHEMA_STAMP = $(BUILD_DIR)/schema.stamp
 HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(RUNTIME_DIR)/module_build_dir.h $(SRC_DIR)/module_builder.h $(SRC_DIR)/bcp47.h $(SRC_DIR)/locale.h $(SRC_DIR)/utf8.h $(SRC_DIR)/diag_id.h
 HEADERS += $(RUNTIME_DIR)/native_array_abi.h
 HEADERS += $(RUNTIME_DIR)/native_record_list.h $(RUNTIME_DIR)/list_capacity.h
+HEADERS += $(RUNTIME_DIR)/native_sdk.inc $(RUNTIME_DIR)/native_sdk_inventory.inc $(RUNTIME_DIR)/shadow_timing.h
 
 .PHONY: schema schema-check
 schema: $(SCHEMA_STAMP)
@@ -475,7 +478,7 @@ $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/n
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
 
 $(OBJ_DIR)/eval.o: src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h
-$(OBJ_DIR)/c_backend.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o: src/string_literal_decode.h
+$(OBJ_DIR)/parser.o $(OBJ_DIR)/c_backend.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o: src/string_literal_decode.h
 $(OBJ_DIR)/c_backend.o: src/binary64_format.h src/c_backend_values.inc
 $(OBJ_DIR)/nanovm/vm.o: $(NANOISA_DIR)/binary64_parse.h
 $(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_arithmetic_source.h $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h $(NANOISA_DIR)/managed_native_source.h
@@ -1062,6 +1065,20 @@ test-nanovirt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/nanovirt/test_codegen
 	@rm -f tests/nanovirt/test_codegen
+
+$(OBJ_DIR)/nanovirt/codegen_contract_allocation.o: $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/codegen.h | $(OBJ_DIR)/nanovirt
+	$(CC) $(CFLAGS) -DNANOVIRT_TEST_CONTRACT_REALLOC -c $< -o $@
+
+.PHONY: test-borrow-contract-allocation
+test-borrow-contract-allocation: $(OBJ_DIR)/nanovirt/codegen_contract_allocation.o $(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(NANOVIRT_OBJECTS)) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_borrow_contract_allocation \
+		tests/nanovirt/test_borrow_contract_allocation.c $(OBJ_DIR)/nanovirt/codegen_contract_allocation.o \
+		$(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(NANOVIRT_OBJECTS)) $(NANOVM_OBJECTS) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_borrow_contract_allocation
+	rm -f $(OBJ_DIR)/test_borrow_contract_allocation
+
+test-units: test-borrow-contract-allocation
 
 nano_virt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o | bin
 	$(CC) $(CFLAGS) -o bin/$@ $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
@@ -4057,34 +4074,27 @@ coverage-check: coverage.info
 		echo "⚠️  bc not found — skipping numeric threshold check"; \
 	fi
 
+# I build every installed compiler role and wrapper object from one inventory.
+include scripts/native_sdk_objects.mk
+.PHONY: native-sdk-inventory-check
+native-sdk-inventory-check:
+	python3 scripts/generate_native_sdk_inventory.py --check
+
 # Install binaries
-install: $(COMPILER) vm nvm2c file-public-runtime
-	install -d $(PREFIX)/bin
-	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
-	install -m 755 bin/nano_virt $(PREFIX)/bin/nano_virt
-	install -m 755 bin/nano_vm $(PREFIX)/bin/nano_vm
-	install -m 755 bin/nano_cop $(PREFIX)/bin/nano_cop
-	install -m 755 bin/nano_vmd $(PREFIX)/bin/nano_vmd
-	install -m 755 bin/nanoisa $(PREFIX)/bin/nanoisa
-	install -m 755 bin/nvm2c $(PREFIX)/bin/nvm2c
+install: bootstrap vm nvm2c file-public-runtime $(NATIVE_SDK_OBJECTS) native-sdk-inventory-check scripts/native_sdk_inputs.json
+	python3 scripts/native_sdk.py install --source "$(CURDIR)" --prefix "$(PREFIX)"
 	install -d "$(PREFIX)/lib"
 	install -m 644 "$(FILE_PUBLIC_LIBRARY)" "$(PREFIX)/lib/libnano_file_runtime.a"
 	@set -e; for header in $(FILE_PUBLIC_HEADERS); do \
 		install -d "$(PREFIX)/include/nanolang/file/$$(dirname "$$header")"; \
 		install -m 644 "$(SRC_DIR)/$$header" "$(PREFIX)/include/nanolang/file/$$header"; \
 	done
-ifeq ($(UNAME_S),Linux)
-	install -m 755 bin/nano_as_capture.so $(PREFIX)/bin/nano_as_capture.so
-endif
 	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa, nvm2c; explicit File runtime package)"
 
 uninstall:
-	rm -f "$(PREFIX)/lib/libnano_file_runtime.a" "$(PREFIX)/bin/nvm2c"
+	python3 scripts/native_sdk.py uninstall --prefix "$(PREFIX)"
+	rm -f "$(PREFIX)/lib/libnano_file_runtime.a"
 	@for header in $(FILE_PUBLIC_HEADERS); do rm -f "$(PREFIX)/include/nanolang/file/$$header"; done
-ifeq ($(UNAME_S),Linux)
-	rm -f $(PREFIX)/bin/nano_as_capture.so
-endif
-	rm -f $(PREFIX)/bin/nanoc $(PREFIX)/bin/nano_virt $(PREFIX)/bin/nano_vm $(PREFIX)/bin/nano_cop $(PREFIX)/bin/nano_vmd $(PREFIX)/bin/nanoisa
 	@echo "Uninstalled from $(PREFIX)/bin"
 
 # Valgrind checks
@@ -4817,7 +4827,7 @@ test-affine-scalar-union-runtime: test-affine-bytecode nano_vm nvm2c
 
 .PHONY: test-affine-scalar-union-source
 test-units: test-affine-scalar-union-source
-test-affine-scalar-union-source: nanoisa_emit nano_vm nvm2c nanoisa_dump
+test-affine-scalar-union-source: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_affine_scalar_union_source
 
 .PHONY: test-legacy-float-conversion
@@ -4859,6 +4869,10 @@ test-managed-record-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_shapes
 
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_array_shapes.h $(NANOISA_DIR)/managed_record_shapes.h $(NANOISA_DIR)/managed_record_plan.h $(NANOISA_DIR)/ownership_contracts.h
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_execution.h $(NANOISA_DIR)/managed_record_array_execution.inc
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_origins.h $(NANOISA_DIR)/record_array_origins.inc $(NANOISA_DIR)/record_array_structure_private.h
+$(OBJ_DIR)/nanoisa/verifier.o: $(NANOISA_DIR)/record_array_structure_private.h $(NANOISA_DIR)/record_array_structure.inc
+$(OBJ_DIR)/nanoisa/verifier_types.o: $(NANOISA_DIR)/record_array_structure_private.h
 
 .PHONY: test-verifier-profiles
 test-units: test-verifier-profiles
@@ -5762,3 +5776,51 @@ NANO_NATIVE_LIST_LDFLAGS ?=
 .PHONY: test-native-record-lists
 test-native-record-lists:
 	NANO_LIST_CC="$(CC)" NANO_LIST_CFLAGS="$(CFLAGS)" NANO_LIST_LDFLAGS="$(LDFLAGS)" NANO_NATIVE_LIST_CC="$(NANO_NATIVE_LIST_CC)" NANO_NATIVE_LIST_CFLAGS="$(NANO_NATIVE_LIST_CFLAGS)" NANO_NATIVE_LIST_LDFLAGS="$(NANO_NATIVE_LIST_LDFLAGS)" python3 -m unittest -f -v tests.test_native_record_lists
+.PHONY: test-record-array-origins
+# I inspect private mixed origins; this target never executes a module.
+test-record-array-origins: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_origins
+
+# I exercise raw byte conversion under both VM dispatch implementations.
+.PHONY: test-cast-u8
+test-cast-u8: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	CAST_U8_CC="$(CC)" CAST_U8_CFLAGS="$(CFLAGS)" \
+	CAST_U8_OBJECTS="$(filter-out $(OBJ_DIR)/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" \
+	CAST_U8_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_cast_u8
+
+# I qualify private counted adapters without selecting mixed program execution.
+.PHONY: test-mixed-counted-runtime
+test-mixed-counted-runtime: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	MC_COUNTED_CC="$(CC)" MC_COUNTED_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_mixed_counted_runtime
+
+.PHONY: test-record-array-execution
+# I prepare copied execution facts without opening a runtime route.
+test-record-array-execution: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_execution
+
+# I require fresh schema ABI products before actual paired service parser gates.
+.PHONY: test-file-service-parser test-file-service-parser-sanitizers
+test-file-service-parser: bootstrap3 nano_virt
+	NANO_SERVICE_PARSER_CC="$(CC)" NANO_SERVICE_PARSER_CFLAGS="$(CFLAGS)" NANO_SERVICE_PARSER_LDFLAGS="$(LDFLAGS)" NANO_SERVICE_PARSER_OBJECTS="$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/env.o $(OBJ_DIR)/lexer.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/transpiler.o,$(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS)))" python3 -m unittest -f -v tests.test_file_service_parser
+test-file-service-parser-sanitizers: nano_virt
+	NANO_SERVICE_PARSER_CC="$(CC)" NANO_SERVICE_PARSER_CFLAGS="$(CFLAGS)" NANO_SERVICE_PARSER_LDFLAGS="$(LDFLAGS)" NANO_SERVICE_PARSER_OBJECTS="$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/env.o $(OBJ_DIR)/lexer.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/transpiler.o,$(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS)))" NANO_SERVICE_PARSER_SANITIZERS=1 python3 -m unittest -f -v tests.test_file_service_parser.FileServiceParser.test_c_ownership_and_refusal
+
+# I prepare compiler companion data without adding a default execution route.
+FILE_COMPANION_DIR = $(OBJ_DIR)/file-companion-plan
+FILE_COMPANION_NAMES = file_companion_bridge file_source_input file_companion_snapshot nsi_file_binding nsi_file_plan nsi cJSON utf8
+FILE_COMPANION_OBJECTS = $(addprefix $(FILE_COMPANION_DIR)/,$(addsuffix .o,$(FILE_COMPANION_NAMES))) $(FILE_COMPANION_DIR)/file_source_catalog.o
+FILE_COMPANION_HEADERS = $(addprefix $(SRC_DIR)/,file_companion_snapshot.h file_companion_bridge.h file_source_input.h file_source_resolution.h nanoisa/file_source_plan.h nsi_file_binding.h nsi_file_plan.h nsi_file_catalog.h nsi_cap.h nsi_internal.h nsi.h cJSON.h utf8.h)
+.PHONY: file-companion-plan
+file-companion-plan: $(FILE_COMPANION_OBJECTS)
+$(FILE_COMPANION_DIR):
+	mkdir -p $@
+$(FILE_COMPANION_DIR)/%.o: $(SRC_DIR)/%.c $(FILE_COMPANION_HEADERS) | $(FILE_COMPANION_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(SRC_DIR) -c $< -o $@
+$(FILE_COMPANION_DIR)/file_source_catalog.o: $(SRC_DIR)/nanoisa/file_source_catalog.c $(FILE_COMPANION_HEADERS) | $(FILE_COMPANION_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(SRC_DIR) -c $< -o $@
+
+# My opt-in compiler preparation uses these headers before any service execution.
+$(OBJ_DIR)/main.o $(OBJ_DIR)/file_source_resolution.o: $(SRC_DIR)/file_source_resolution.h $(SRC_DIR)/file_source_input.h $(SRC_DIR)/file_companion_snapshot.h $(SRC_DIR)/nanoisa/file_source_plan.h
+$(OBJ_DIR)/file_source_input.o: $(SRC_DIR)/file_source_input.h $(SRC_DIR)/file_companion_snapshot.h $(SRC_DIR)/utf8.h
+$(OBJ_DIR)/file_companion_snapshot.o: $(FILE_COMPANION_HEADERS)
+$(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi_file_plan.o $(OBJ_DIR)/nsi.o: $(FILE_COMPANION_HEADERS)

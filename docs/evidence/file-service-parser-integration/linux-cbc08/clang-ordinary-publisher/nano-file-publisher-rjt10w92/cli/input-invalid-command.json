@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/input-invalid",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/refused-invalid"
+  ]
+}

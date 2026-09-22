@@ -1,0 +1,38 @@
+{
+  "scope": "I compare source names only; this does not qualify selected shadow execution.",
+  "rows": [
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "sha256": "fe6d90eebbd7009ccddc516b641b34a4975291f6af0bb104a9ea1b85e7998024",
+      "missing_native_shadows": [
+        "native_source_already_linked"
+      ],
+      "missing_sdk_shadows": [],
+      "duplicate_function_names": []
+    },
+    {
+      "path": "src_nano/transpiler.nano",
+      "sha256": "d2e8559df4b9ad591778701c95b6e922e190ca27a4fe05079022d2b7dd38f7b1",
+      "missing_native_shadows": [],
+      "missing_sdk_shadows": [],
+      "duplicate_function_names": []
+    },
+    {
+      "path": "src_nano/typecheck.nano",
+      "sha256": "95a3160ca426270fe401ba006ee9ac3320edeb5bb8645ee64a2b58ad4e79e888",
+      "missing_native_shadows": [],
+      "missing_sdk_shadows": [],
+      "duplicate_function_names": []
+    },
+    {
+      "path": "src_nano/parser.nano",
+      "sha256": "cf66d121c0143bbc6978052983d2276167df6b59b52458e7c9315afb1c59c708",
+      "missing_native_shadows": [],
+      "missing_sdk_shadows": [],
+      "duplicate_function_names": []
+    }
+  ],
+  "explicit_replacements": {
+    "src_nano/nanoc_v06.nano:native_source_already_linked": "I retain all three canonical identity properties in native_provider_add against its actual registry; I do not restore the superseded cJSON-only suppression."
+  }
+}

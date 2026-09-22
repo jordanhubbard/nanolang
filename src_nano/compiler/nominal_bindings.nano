@@ -449,8 +449,14 @@ pub fn nb_rewrite(parser: Parser) -> void {
     let mut unions_index: int = 0
     while (< unions_index parser.unions_count) {
         let item: ASTUnion = (list_ASTUnion_get parser.unions unions_index)
-        (list_ASTUnion_set parser.unions unions_index (ASTUnion { node_type: item.node_type, line: item.line, column: item.column, name: item.name, variant_count: item.variant_count, variant_names: item.variant_names, variant_field_counts: item.variant_field_counts, variant_field_names: item.variant_field_names, variant_field_types: (nb_scoped_types item.variant_field_types item.line item.generic_params), generic_params: item.generic_params, generic_param_count: item.generic_param_count }))
+        (list_ASTUnion_set parser.unions unions_index (ASTUnion { node_type: item.node_type, line: item.line, column: item.column, name: (nb_type item.name item.line), variant_count: item.variant_count, variant_names: item.variant_names, variant_field_counts: item.variant_field_counts, variant_field_names: item.variant_field_names, variant_field_types: (nb_scoped_types item.variant_field_types item.line item.generic_params), generic_params: item.generic_params, generic_param_count: item.generic_param_count }))
         set unions_index (+ unions_index 1)
+    }
+    let mut union_constructs_index: int = 0
+    while (< union_constructs_index parser.union_constructs_count) {
+        let item: ASTUnionConstruct = (list_ASTUnionConstruct_get parser.union_constructs union_constructs_index)
+        (list_ASTUnionConstruct_set parser.union_constructs union_constructs_index (ASTUnionConstruct { node_type: item.node_type, line: item.line, column: item.column, union_name: (nb_type item.union_name item.line), variant_name: item.variant_name, field_names: item.field_names, field_value_ids: item.field_value_ids, field_value_types: item.field_value_types, field_count: item.field_count }))
+        set union_constructs_index (+ union_constructs_index 1)
     }
 }
 shadow nb_rewrite {

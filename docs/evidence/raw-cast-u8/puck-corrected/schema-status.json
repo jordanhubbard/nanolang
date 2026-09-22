@@ -1,0 +1,24 @@
+{
+  "name": "schema",
+  "argv": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_nanoisa_schema"
+  ],
+  "bound_seconds": 120,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 2.591328833019361,
+  "log": {
+    "sha256": "dad3ae2f86fc920141269d2233599cb00fa4a9b8e4986c292fd99f401ab64342",
+    "bytes": 3560,
+    "archive": "/private/tmp/nanolang-cast-u8-puck-corrected/objects/dad3ae2f86fc920141269d2233599cb00fa4a9b8e4986c292fd99f401ab64342"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

@@ -1,0 +1,165 @@
+[
+  {
+    "phase": "host",
+    "argv": [
+      "uname",
+      "-a"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0018112820107489824
+  },
+  {
+    "phase": "ordinary-version",
+    "argv": [
+      "/usr/bin/gcc",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0014218869619071484
+  },
+  {
+    "phase": "other-version",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.01549025101121515
+  },
+  {
+    "phase": "make-version",
+    "argv": [
+      "/bin/make",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0014206060441210866
+  },
+  {
+    "phase": "pkg-config-version",
+    "argv": [
+      "/bin/pkg-config",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0013735659886151552
+  },
+  {
+    "phase": "ffi-flags",
+    "argv": [
+      "/bin/pkg-config",
+      "--cflags",
+      "--libs",
+      "libffi"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0013702859869226813
+  },
+  {
+    "phase": "other-asan",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan.a"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0157158529618755
+  },
+  {
+    "phase": "gcc-asan",
+    "argv": [
+      "/usr/bin/gcc",
+      "-print-file-name=libasan.so"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0015182549832388759
+  },
+  {
+    "phase": "gcc-ubsan",
+    "argv": [
+      "/usr/bin/gcc",
+      "-print-file-name=libubsan.so"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0014476629439741373
+  },
+  {
+    "phase": "gcc-cc1",
+    "argv": [
+      "/usr/bin/gcc",
+      "-print-prog-name=cc1"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0013681260170415044
+  },
+  {
+    "phase": "clang-ubsan",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.ubsan_standalone.a"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.01547042594756931
+  },
+  {
+    "phase": "bootstrap",
+    "argv": [
+      "/bin/make",
+      "-j2",
+      "CC=/usr/bin/gcc",
+      "bootstrap"
+    ],
+    "timeout": false,
+    "returncode": 2,
+    "cleanup_errors": [],
+    "child_returncode": 2,
+    "group_absent": true,
+    "seconds": 278.99957355996594
+  }
+]

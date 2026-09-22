@@ -229,7 +229,8 @@ typedef enum {
     AST_EFFECT_HANDLER,    /* Extended handle expression (row-poly compat)    */
     AST_EFFECT_OP,         /* perform Foo.op arg                              */
     AST_ASYNC_FN,          /* async fn declaration: async fn name(...) -> T { body } */
-    AST_AWAIT              /* await expression: await expr */
+    AST_AWAIT,             /* await expression: await expr */
+    AST_SERVICE_DECL       /* Counted, unresolved File service declaration */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -483,6 +484,13 @@ struct ASTNode {
         struct {
             char *name;            /* Type name (e.g., "GLFWwindow", "SDL_Window") */
         } opaque_type;
+        struct {
+            char *interface_id;
+            char *document_path;
+            int64_t interface_bytes, path_bytes;
+            int64_t catalog_version;
+            int64_t origin_index; /* -1 until the module resolver binds origin */
+        } service_decl;
         /* Tuple literal: (1, "hello", true) */
         struct {
             ASTNode **elements;    /* Array of element expressions */
@@ -925,6 +933,7 @@ typedef struct {
 } Stage1Parser;
 
 ASTNode *parse_program(Token *tokens, int token_count);
+bool ast_has_service_declaration(const ASTNode *program);
 bool ast_is_value_expression(ASTNodeType type);
 bool ast_always_returns(const ASTNode *node);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */

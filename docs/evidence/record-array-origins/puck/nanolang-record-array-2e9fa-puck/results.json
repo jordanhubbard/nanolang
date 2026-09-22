@@ -1,0 +1,92 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 8.707,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.123,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.069,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 3.292,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary",
+    "seconds": 3.278,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 6.872,
+    "status": 0
+  },
+  {
+    "phase": "ownership_contracts-build",
+    "seconds": 0.175,
+    "status": 0
+  },
+  {
+    "phase": "ownership_contracts-run",
+    "seconds": 0.239,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-build",
+    "seconds": 0.278,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-run",
+    "seconds": 0.234,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_convert-build",
+    "seconds": 0.177,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_convert-run",
+    "seconds": 0.306,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_endtoend-build",
+    "seconds": 0.127,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_endtoend-run",
+    "seconds": 0.246,
+    "status": 0
+  },
+  {
+    "phase": "old-array",
+    "seconds": 1.268,
+    "status": 0
+  },
+  {
+    "phase": "affine-union",
+    "seconds": 2.165,
+    "status": 0
+  },
+  {
+    "phase": "ownership-public",
+    "seconds": 1.343,
+    "status": 0
+  },
+  {
+    "phase": "complete-declarations",
+    "seconds": 1.498,
+    "status": 0
+  }
+]

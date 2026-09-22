@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ConnectTimeout=10",
+    "puck.local",
+    "test ! -e /tmp/nanolang-file-service-parser-8baca && mkdir /tmp/nanolang-file-service-parser-8baca && tar -xf - -C /tmp/nanolang-file-service-parser-8baca"
+  ],
+  "bytes": 3465144320,
+  "sha256": "52900dcad28b3dedbb93c52fd7b9ee569dcaa0532a41e30468a3dea00af5863d",
+  "returncode": 0,
+  "seconds": 32.05691311892588
+}

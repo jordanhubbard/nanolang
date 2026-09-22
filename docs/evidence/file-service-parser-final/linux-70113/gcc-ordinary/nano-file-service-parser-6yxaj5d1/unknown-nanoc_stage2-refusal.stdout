@@ -1,0 +1,5 @@
+NSType checking failed
+Diagnostics:
+  [E0001] I require a pattern from the exact match domain (/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary/nano-file-service-parser-6yxaj5d1/ordinary-unknown.nano:1:66)
+  [E0001] I require an exact zero-field variant for an empty match binding (/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary/nano-file-service-parser-6yxaj5d1/ordinary-unknown.nano:1:66)
+  [E035] I require unconditional coverage of every match value (/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary/nano-file-service-parser-6yxaj5d1/ordinary-unknown.nano:1:66)

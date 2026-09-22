@@ -553,11 +553,11 @@ shadow gen_indent {
  * Instead of: set result (+ result "text")  // O(n²) - copies entire string each time
  * Use: set parts (cg_append parts "text")    // Preserve the returned array
  */
-fn cg_append(parts: array<string>, text: string) -> array<string> {
+pub fn cg_append(parts: array<string>, text: string) -> array<string> {
     return (array_push parts text)
 }
 
-fn cg_build(parts: array<string>) -> string {
+pub fn cg_build(parts: array<string>) -> string {
     let count: int = (array_length parts)
     if (== count 0) {
         return ""
@@ -1045,7 +1045,7 @@ shadow last_double_colon_index {
     assert (== (last_double_colon_index "test") -1)
 }
 
-fn last_dot_index(s: string) -> int {
+pub fn last_dot_index(s: string) -> int {
     let len: int = (str_length s)
     let mut i: int = 0
     let mut last: int = -1
@@ -1297,11 +1297,12 @@ fn map_builtin_func_name(func_name: string) -> string {
     if (== func_name "atan2") { return "nl_atan2" } else { (print "") }
     
     /* String builtins */
-    if (== func_name "str_length") { return "strlen" } else { (print "") }
-    if (== func_name "str_len") { return "strlen" } else { (print "") }
+    if (== func_name "str_length") { return "nl_str_length" } else { (print "") }
+    if (== func_name "str_len") { return "nl_str_length" } else { (print "") }
     if (== func_name "str_slice") { return "nl_str_slice" } else { (print "") }
     if (== func_name "str_concat") { return "nl_str_concat" } else { (print "") }
     if (== func_name "str_substring") { return "nl_str_substring" } else { (print "") }
+    if (== func_name "str_split") { return "nl_str_split" }
     if (== func_name "str_starts_with") { return "nl_str_starts_with" } else { (print "") }
     if (== func_name "str_contains") { return "nl_str_contains" } else { (print "") }
     if (== func_name "str_equals") { return "nl_str_equals" } else { (print "") }
@@ -1398,6 +1399,7 @@ fn map_builtin_func_name(func_name: string) -> string {
 }
 
 shadow map_builtin_func_name {
+    assert (== (map_builtin_func_name "str_split") "nl_str_split")
     assert (== (map_builtin_func_name "float_from_bits") "nl_float_from_bits")
     assert (== (map_builtin_func_name "float_to_bits") "nl_float_to_bits")
     assert (== (map_builtin_func_name "cast_int") "nl_cast_int")
@@ -1616,6 +1618,7 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
         let declared: string = (lookup_func_return_type_in_parser parser (mb_resolve if_id.name if_id.line env.names))
         if (!= declared "") { return declared }
         if (and (native_array_operation if_id.name) (not (native_array_builtin parser if_id env))) { return "" }
+        if (and (== if_id.name "str_split") (== ic.arg_count 2)) { return "array<string>" }
         if (and (or (== if_id.name "at") (== if_id.name "array_get")) (== ic.arg_count 2)) {
             let source: ASTStmtRef = (parser_get_call_arg parser ic.arg_start)
             return (full_array_element_type (infer_expr_type parser source.node_id source.node_type env))
@@ -2429,7 +2432,7 @@ shadow transpile_last_error {
 
 # I use actual lexical and declaration ownership before array intrinsic spelling.
 fn native_array_operation(name: string) -> bool {
-    let names: array<string> = ["array_new", "array_push", "array_set", "array_get", "at", "array_pop", "map", "array_map", "filter", "array_filter", "reduce", "array_fold", "array_slice", "array_remove_at"]
+    let names: array<string> = ["array_new", "array_push", "array_set", "array_get", "at", "array_pop", "map", "array_map", "filter", "array_filter", "reduce", "array_fold", "array_slice", "array_remove_at", "str_split"]
     let mut i: int = 0
     while (< i (array_length names)) {
         if (== name (at names i)) { return true }
@@ -2440,6 +2443,7 @@ fn native_array_operation(name: string) -> bool {
 shadow native_array_operation {
     assert (native_array_operation "array_new")
     assert (native_array_operation "map")
+    assert (native_array_operation "str_split")
     assert (not (native_array_operation "module.map"))
 }
 fn native_array_builtin(parser: Parser, identifier: ASTIdentifier, env: GenEnv) -> bool {
@@ -4039,6 +4043,7 @@ fn gen_c_includes() -> string {
     set parts (cg_append parts "#include \"runtime/list_ASTMatch.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTImport.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTOpaqueType.h\"\n")
+    set parts (cg_append parts "#include \"runtime/list_ASTServiceDecl.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTTupleLiteral.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTModuleQualifiedCall.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTTupleIndex.h\"\n")
@@ -4253,6 +4258,8 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    return out;\n")
     set sb (cg_append sb "}\n\n")
     
+    set sb (cg_append sb "int64_t nl_str_length(const char* s) { return s ? (int64_t)strlen(s) : 0; }\n\n")
+
     set sb (cg_append sb "char* nl_str_substring(const char* s, int64_t start, int64_t len) {\n")
     set sb (cg_append sb "    if (!s) return \"\";\n")
     set sb (cg_append sb "    int64_t n = (int64_t)strlen(s);\n")
@@ -4314,6 +4321,44 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    return out;\n")
     set sb (cg_append sb "}\n\n")
     
+    # I publish complete GC-owned string-array segments or terminate.
+    set sb (cg_append sb "static DynArray* nl_str_split(const char* str, const char* delim) {\n")
+    set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_STRING);\n")
+    set sb (cg_append sb "    if (!result) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n")
+    set sb (cg_append sb "    if (!str) return result;\n")
+    set sb (cg_append sb "    size_t delim_len = strlen(delim);\n")
+    set sb (cg_append sb "    if (delim_len == 0) {\n")
+    set sb (cg_append sb "        size_t str_len = strnlen(str, 64*1024*1024);\n")
+    set sb (cg_append sb "        for (size_t i = 0; i < str_len; i++) {\n")
+    set sb (cg_append sb "            char* ch = gc_alloc_string(1);\n")
+    set sb (cg_append sb "            if (!ch) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n")
+    set sb (cg_append sb "            ch[0] = str[i]; ch[1] = '\\0';\n")
+    set sb (cg_append sb "            dyn_array_push_string(result, ch);\n")
+    set sb (cg_append sb "        }\n")
+    set sb (cg_append sb "        return result;\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    const char* start = str;\n")
+    set sb (cg_append sb "    const char* found;\n")
+    set sb (cg_append sb "    while ((found = strstr(start, delim)) != NULL) {\n")
+    set sb (cg_append sb "        size_t seg_len = (size_t)(found - start);\n")
+    set sb (cg_append sb "        char* seg = gc_alloc_string(seg_len);\n")
+    set sb (cg_append sb "        if (!seg) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n")
+    set sb (cg_append sb "        memcpy(seg, start, seg_len);\n")
+    set sb (cg_append sb "        seg[seg_len] = '\\0';\n")
+    set sb (cg_append sb "        dyn_array_push_string(result, seg);\n")
+    set sb (cg_append sb "        start = found + delim_len;\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    size_t rest_len = strlen(start);\n")
+    set sb (cg_append sb "    char* seg = gc_alloc_string(rest_len);\n")
+    set sb (cg_append sb "    if (!seg) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n")
+    set sb (cg_append sb "    {\n")
+    set sb (cg_append sb "        memcpy(seg, start, rest_len);\n")
+    set sb (cg_append sb "        seg[rest_len] = '\\0';\n")
+    set sb (cg_append sb "        dyn_array_push_string(result, seg);\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    return result;\n")
+    set sb (cg_append sb "}\n\n")
+
     /* Character operations */
     set sb (cg_append sb "/* Character operations */\n")
     set sb (cg_append sb "int64_t nl_char_at(const char* s, int64_t i) {\n")
@@ -4645,6 +4690,9 @@ fn gen_c_runtime() -> string {
 
 shadow gen_c_runtime {
     let runtime: string = (gen_c_runtime)
+    assert (str_contains runtime "int64_t nl_str_length(const char* s) { return s ? (int64_t)strlen(s) : 0; }")
+    assert (== (map_builtin_func_name "str_length") "nl_str_length")
+    assert (== (map_builtin_func_name "str_len") "nl_str_length")
     assert (str_contains runtime "#define NANO_RT_OPTIONAL_SUPPORT __attribute__((unused))\n")
     assert (str_contains runtime "#else\n#define NANO_RT_OPTIONAL_SUPPORT\n#endif\n")
     assert (transp_str_ends_with runtime "#undef NANO_RT_OPTIONAL_SUPPORT\n")
@@ -4746,6 +4794,7 @@ shadow parser_has_guarded_globals {
 
 /* Generate complete C program with module forward declarations */
 fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
+    if (> parser.services_count 0) { set reduce_emission_error "I have not resolved File service declarations for this consumer." return "" }
     let mut sb: array<string> = []
     # I collect initializer calls before emitting specialization declarations.
     let globals: string = (generate_global_constants parser)
@@ -8406,6 +8455,10 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
         set ui (+ ui 1)
     }
 
+    if (and (== binding "") (not found)) {
+        if (== reduce_emission_error "") { set reduce_emission_error "I require an exact zero-field variant for an empty match binding." }
+        return ""
+    }
     if (not found) {
         /* Fallback: old struct behaviour */
         let mut parts: array<string> = []
@@ -8440,6 +8493,10 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
         set vi (+ vi 1)
     }
 
+    if (and (== binding "") (== variant_idx -1)) {
+        if (== reduce_emission_error "") { set reduce_emission_error "I require an exact zero-field variant for an empty match binding." }
+        return ""
+    }
     if (== variant_idx -1) {
         /* Variant not found — fallback */
         let mut parts: array<string> = []
@@ -8457,6 +8514,10 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
     } else { (print "") }
 
     let fcount: int = (at found_u.variant_field_counts variant_idx)
+    if (and (== binding "") (!= fcount 0)) {
+        if (== reduce_emission_error "") { set reduce_emission_error "I require an exact zero-field variant for an empty match binding." }
+        return ""
+    }
 
     if (== fcount 0) {
         /* Unit variant — no binding */
@@ -9690,6 +9751,7 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     set native_array_derived_required false
     set reduce_emission_error ""
     (native_list_reset)
+    if (> parser.services_count 0) { set reduce_emission_error "I have not resolved File service declarations for this consumer." return "" }
     (build_module_alias_map parser)
     (reset_fn_types)
 

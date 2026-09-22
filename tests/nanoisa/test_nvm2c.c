@@ -287,20 +287,25 @@ static void test_artifact_array_import_is_not_a_builtin(void) {
 static void test_owned_artifact_execution(void) {
     char directory[] = "/tmp/nvm2c-walk-XXXXXX";
     CHECK(mkdtemp(directory) != NULL, "I create a private artifact fixture");
-    char path[256], library[256], command[1024];
+    char path[256], library[256], command[1024], entered[256];
     snprintf(path, sizeof path, "%s/library.c", directory);
     snprintf(library, sizeof library, "%s/library.so", directory);
+    snprintf(entered, sizeof entered, "%s/entered", directory);
+    CHECK(setenv("NVM_ARRAY_ENTRY_MARKER", entered, 1) == 0, "I observe actual foreign entry");
     FILE *file = fopen(path, "w");
     CHECK(file != NULL, "I write an owned artifact fixture");
     if (!file) { rmdir(directory); return; }
     fputs("#include <stdint.h>\n#include <stdbool.h>\n#include <string.h>\n"
-          "#include <stdlib.h>\n"
-          "typedef struct { int64_t length, capacity; int type; uint8_t width; void *data; } A;\n"
-          "#ifndef ABI_VERSION\n#define ABI_VERSION 1\n#endif\n"
+          "#include <stdlib.h>\n#include <stdio.h>\n"
+          "#ifndef ABI_VERSION\n#define ABI_VERSION 2\n#endif\n"
+          "#if ABI_VERSION == 1\ntypedef uint8_t width_t;\n#else\ntypedef size_t width_t;\n#endif\n"
+          "typedef struct { int64_t length, capacity; int type; width_t width; void *data; } A;\n"
           "const uint32_t fs_walkdir__nano_array_abi = ABI_VERSION;\n"
           "static char value[] = \"retained\"; static char *items[] = {value};\n"
           "static A array = {1, 1, 3, sizeof(char *), items};\n"
           "A *fs_walkdir(const char *root) {\n"
+          " const char *p = getenv(\"NVM_ARRAY_ENTRY_MARKER\");\n"
+          " if (p) { FILE *f = fopen(p, \"w\"); if (!f) abort(); fputs(\"entered\", f); fclose(f); }\n"
           " if (!strcmp(root, \"bad-layout\")) array.width = 1;\n"
           " return &array; }\n"
           "#ifndef OMIT_RELEASE\n"
@@ -309,10 +314,11 @@ static void test_owned_artifact_execution(void) {
     CHECK(fclose(file) == 0, "I finish the artifact fixture");
     snprintf(command, sizeof command, "cc -shared -fPIC -o %s %s", library, path);
     CHECK(system(command) == 0, "I build the artifact fixture");
-    for (int variant = 0; variant < 5; ++variant) {
+    for (int variant = 0; variant < 6; ++variant) {
+        unlink(entered);
         if (variant >= 3) {
             snprintf(command, sizeof command, "cc -shared -fPIC %s -o %s %s",
-                     variant == 3 ? "-DABI_VERSION=99" : "-DOMIT_RELEASE", library, path);
+                     variant == 3 ? "-DABI_VERSION=99" : variant == 4 ? "-DOMIT_RELEASE" : "-DABI_VERSION=1", library, path);
             CHECK(system(command) == 0, "I build an incompatible artifact fixture");
         }
         NvmModule *module = assemble_ok(
@@ -339,11 +345,14 @@ static void test_owned_artifact_execution(void) {
             CHECK(compile_and_run(source, &status) == 0, "I compile the artifact caller");
             CHECK(variant == 0 ? status == 0 : status != 0,
                   "I preserve copies after release and refuse invalid artifacts");
+            CHECK((access(entered, F_OK) == 0) == (variant < 2),
+                  "I refuse missing, mismatched and stale-ABI artifacts before foreign entry");
         } else fprintf(stderr, "%s\n", error);
         free(source);
         nvm_module_free(module);
     }
-    unlink(path); unlink(library); rmdir(directory);
+    unsetenv("NVM_ARRAY_ENTRY_MARKER");
+    unlink(entered); unlink(path); unlink(library); rmdir(directory);
 }
 
 static void test_real_walk_artifact(void) {

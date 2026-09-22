@@ -1,0 +1,58 @@
+{
+  "nsi_version": 0,
+  "interface": {
+    "id": "nsi:nanolang/filesystem",
+    "name": "filesystem"
+  },
+  "methods": [
+    {
+      "id": "nsi:nanolang/filesystem#open",
+      "name": "open",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/filesystem#open.path",
+          "name": "path",
+          "type": "nsi:core/string",
+          "direction": "in",
+          "ownership": "borrow",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/filesystem#open.handle",
+          "name": "handle",
+          "type": "nsi:nanolang/filesystem#File",
+          "direction": "return",
+          "ownership": "transfer",
+          "lifetime": "resource",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "id": "nsi:nanolang/filesystem#File",
+      "name": "File",
+      "kind": "resource"
+    }
+  ],
+  "errors": [
+    {
+      "id": "nsi:nanolang/filesystem#io",
+      "name": "io",
+      "version": "1"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap:nanolang/filesystem.open",
+      "name": "open"
+    }
+  ]
+}

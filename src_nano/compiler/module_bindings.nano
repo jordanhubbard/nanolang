@@ -7,6 +7,57 @@ let mut mb_names: array<string> = []
 let mut mb_targets: array<string> = []
 let mut mb_definition_owners: array<int> = []
 let mut mb_source_paths: array<string> = []
+let mut mb_function_names: array<string> = []
+let mut mb_function_owners: array<int> = []
+let mut mb_function_builtins: array<bool> = []
+let mut mb_private_prefix: string = ""
+
+pub fn mb_set_function_visibility(names: array<string>, owners: array<int>, builtins: array<bool>, prefix: string) -> bool {
+    if (or (!= (array_length names) (array_length owners)) (== prefix "")) { return false }
+    if (!= (array_length names) (array_length builtins)) { return false }
+    set mb_function_names names
+    set mb_function_owners owners
+    set mb_function_builtins builtins
+    set mb_private_prefix (+ prefix "private_")
+    return true
+}
+shadow mb_set_function_visibility {
+    (mb_reset [1, 8])
+    assert (mb_set_function_visibility ["answer"] [0] [false] "reserved_")
+    assert (not (mb_set_function_visibility ["other"] [] [false] "different_"))
+    assert (== (mb_lookup 1 "answer") "reserved_private_answer")
+    (mb_add_target 1 "answer" "exported_answer" 0)
+    assert (== (mb_lookup 1 "answer") "exported_answer")
+    assert (mb_set_function_visibility ["intrinsic"] [0] [true] "reserved_")
+    assert (== (mb_lookup 1 "intrinsic") "intrinsic")
+    (mb_add_target 1 "Explicit.intrinsic" (mb_private_target "intrinsic") 0)
+    assert (mb_private_name (mb_lookup 1 "Explicit.intrinsic"))
+    (mb_add_target 1 "intrinsic" (mb_private_target "intrinsic") 0)
+    assert (mb_private_name (mb_lookup 1 "intrinsic"))
+    (mb_reset [])
+}
+
+pub fn mb_private_target(name: string) -> string {
+    return (+ mb_private_prefix name)
+}
+shadow mb_private_target {
+    (mb_reset [1])
+    assert (mb_set_function_visibility [] [] [] "reserved_")
+    assert (== (mb_private_target "answer") "reserved_private_answer")
+    (mb_reset [])
+}
+
+pub fn mb_private_name(name: string) -> bool {
+    return (and (!= mb_private_prefix "") (str_starts_with name mb_private_prefix))
+}
+shadow mb_private_name {
+    (mb_reset [1])
+    assert (mb_set_function_visibility [] [] [] "reserved_")
+    assert (mb_private_name (mb_private_target "answer"))
+    assert (not (mb_private_name "answer"))
+    (mb_reset [])
+    assert (not (mb_private_name "answer"))
+}
 
 pub fn mb_active() -> bool {
     return mb_enabled
@@ -26,6 +77,10 @@ pub fn mb_reset(starts: array<int>) -> void {
     set mb_targets []
     set mb_definition_owners []
     set mb_source_paths []
+    set mb_function_names []
+    set mb_function_owners []
+    set mb_function_builtins []
+    set mb_private_prefix ""
     set mb_enabled (> (array_length starts) 0)
 }
 shadow mb_reset {
@@ -94,6 +149,16 @@ pub fn mb_lookup(owner: int, name: string) -> string {
     while (< i (array_length mb_names)) {
         if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) {
             return (at mb_targets i)
+        }
+        set i (+ i 1)
+    }
+    # I preserve an existing builtin only when no explicit binding selected it.
+    # Other missing names cannot acquire an unrelated foreign declaration.
+    set i 0
+    while (< i (array_length mb_function_names)) {
+        if (and (== name (at mb_function_names i)) (!= owner (at mb_function_owners i))) {
+            if (at mb_function_builtins i) { return name }
+            return (mb_private_target name)
         }
         set i (+ i 1)
     }

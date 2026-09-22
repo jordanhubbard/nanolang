@@ -1,6 +1,8 @@
 #include "nanolang.h"
 #include "colors.h"
 #include "diag_id.h"
+#include "string_literal_decode.h"
+#include "utf8.h"
 #include <stdarg.h>
 #include <stdint.h>
 #include <limits.h>
@@ -4609,15 +4611,21 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
                 break;
             }
 
-            /* Parse binding variable */
-            if (!match(p, TOKEN_IDENTIFIER)) {
+            /* I retain () as an empty binding, distinct from (_) discard. */
+            if (!match(p, TOKEN_IDENTIFIER) && !match(p, TOKEN_RPAREN)) {
                 parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected binding variable in match pattern\n",
                         current_token(p)->line, current_token(p)->column);
                 free(pattern_variants[count]);
                 break;
             }
-            pattern_bindings[count] = strdup(current_token(p)->value);
-            advance(p);
+            pattern_bindings[count] = strdup(match(p, TOKEN_RPAREN) ? "" : current_token(p)->value);
+            if (!pattern_bindings[count]) {
+                parser_error(p, current_token(p)->line, current_token(p)->column,
+                             "I cannot retain this match binding.\n");
+                free(pattern_variants[count]);
+                break;
+            }
+            if (!match(p, TOKEN_RPAREN)) advance(p);
 
             /* Expect closing paren */
             if (!expect(p, TOKEN_RPAREN, "Expected ')' after binding variable")) {
@@ -4727,12 +4735,24 @@ static ASTNode *clone_ast_node(const ASTNode *node) {
         return NULL;
     }
 
-    ASTNode *cloned = create_node(node->type, node->line, node->column);
+    ASTNode *cloned = calloc(1, sizeof(*cloned));
     if (!cloned) {
         return NULL;
     }
 
+    cloned->type = node->type;
+    cloned->line = node->line;
+    cloned->column = node->column;
     switch (node->type) {
+        case AST_SERVICE_DECL:
+            cloned->as.service_decl = node->as.service_decl;
+            cloned->as.service_decl.interface_id = strdup(node->as.service_decl.interface_id);
+            cloned->as.service_decl.document_path = strdup(node->as.service_decl.document_path);
+            if (!cloned->as.service_decl.interface_id || !cloned->as.service_decl.document_path) {
+                free_ast(cloned);
+                return NULL;
+            }
+            break;
         case AST_NUMBER:
             cloned->as.number = node->as.number;
             break;
@@ -5492,6 +5512,72 @@ static ASTNode *parse_shadow(Stage1Parser *p) {
 }
 
 /* Parse top-level program */
+/* I inspect valid parser roots: service declarations occur only at program
+ * scope. Module declarations hold names, not child ASTs; imported programs are
+ * separately checked by process_imports. I do not validate arbitrary forged ASTs. */
+bool ast_has_service_declaration(const ASTNode *program) {
+    if (!program) return false;
+    if (program->type == AST_SERVICE_DECL) return true;
+    if (program->type != AST_PROGRAM) return false;
+    for (int i = 0; i < program->as.program.count; ++i)
+        if (ast_has_service_declaration(program->as.program.items[i])) return true;
+    return false;
+}
+
+static ASTNode *parse_service_declaration(Stage1Parser *p) {
+    Token *start = current_token(p);
+    Token *parts[5];
+    for (int i = 0; i < 5; ++i) parts[i] = peek_token(p, i + 1);
+    if (!parts[4] || !parts[0] || !parts[1] || !parts[2] || !parts[3] ||
+        parts[0]->token_type != TOKEN_STRING ||
+        parts[1]->token_type != TOKEN_IDENTIFIER || strcmp(parts[1]->value, "catalog") ||
+        parts[2]->token_type != TOKEN_NUMBER || strcmp(parts[2]->value, "1") ||
+        parts[3]->token_type != TOKEN_FROM || parts[4]->token_type != TOKEN_STRING) {
+        parser_error(p, start->line, start->column, "I require service STRING catalog 1 from STRING.\n");
+        return NULL;
+    }
+    Token *after = peek_token(p, 6);
+    for (int i = 0; i < 5; ++i) {
+        if (parts[i]->line != start->line) {
+            parser_error(p, start->line, start->column, "I require one service declaration line.\n");
+            return NULL;
+        }
+    }
+    if (after && after->token_type != TOKEN_EOF && after->line == parts[4]->line) {
+        parser_error(p, after->line, after->column, "I require the end of this service declaration line.\n");
+        return NULL;
+    }
+    Token *texts[2] = { parts[0], parts[4] };
+    char *decoded[2] = { NULL, NULL };
+    for (int i = 0; i < 2; ++i) {
+        if (texts[i]->value_bytes <= 0 || texts[i]->value_bytes > 1048576 ||
+            nl_string_literal_value_bytes(texts[i]->value) != (size_t)texts[i]->value_bytes)
+            goto invalid;
+        decoded[i] = nl_decode_string_literal(texts[i]->value);
+        if (!decoded[i]) goto invalid;
+        if (strlen(decoded[i]) != (size_t)texts[i]->value_bytes ||
+            !nl_utf8_validate(decoded[i], (size_t)texts[i]->value_bytes, NULL)) goto invalid;
+    }
+    if (strcmp(decoded[0], "nsi:nanolang/filesystem") || decoded[1][0] == '/') goto invalid;
+    ASTNode *node = calloc(1, sizeof(*node));
+    if (!node) goto invalid;
+    node->type = AST_SERVICE_DECL;
+    node->line = start->line;
+    node->column = start->column;
+    node->as.service_decl.interface_id = decoded[0];
+    node->as.service_decl.document_path = decoded[1];
+    node->as.service_decl.interface_bytes = texts[0]->value_bytes;
+    node->as.service_decl.path_bytes = texts[1]->value_bytes;
+    node->as.service_decl.catalog_version = 1;
+    node->as.service_decl.origin_index = -1;
+    p->pos += 6;
+    return node;
+invalid:
+    free(decoded[0]); free(decoded[1]);
+    parser_error(p, start->line, start->column, "I cannot retain this complete counted service declaration.\n");
+    return NULL;
+}
+
 ASTNode *parse_program(Token *tokens, int token_count) {
     if (!tokens || token_count <= 0) {
         fprintf(stderr, "Error: Invalid token array\n");
@@ -5516,6 +5602,11 @@ ASTNode *parse_program(Token *tokens, int token_count) {
     int capacity = 16;
     int count = 0;
     ASTNode **items = malloc(sizeof(ASTNode*) * capacity);
+    if (!items || !parser.lambda_functions) {
+        free(items);
+        free(parser.lambda_functions);
+        return NULL;
+    }
 
     int consecutive_failures = 0;
     int last_pos = -1;
@@ -5542,13 +5633,24 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         }
         
         if (count >= capacity) {
+            if (capacity > INT_MAX / 2 || (size_t)capacity > SIZE_MAX / (2 * sizeof(*items))) {
+                parser_error(&parser, 0, 0, "I cannot grow this program declaration table.\n");
+                break;
+            }
+            ASTNode **grown = realloc(items, sizeof(*items) * (size_t)capacity * 2);
+            if (!grown) {
+                parser_error(&parser, 0, 0, "I cannot allocate this program declaration table.\n");
+                break;
+            }
             capacity *= 2;
-            items = realloc(items, sizeof(ASTNode*) * capacity);
+            items = grown;
         }
 
         ASTNode *parsed = NULL;
         /* Check for unsafe prefix before module */
-        if (match(&parser, TOKEN_UNSAFE)) {
+        if (tok->token_type == TOKEN_IDENTIFIER && !strcmp(tok->value, "service")) {
+            parsed = parse_service_declaration(&parser);
+        } else if (match(&parser, TOKEN_UNSAFE)) {
             /* Could be 'unsafe module' import or 'unsafe module name { ... }' declaration */
             Token *next = peek_token(&parser, 1);
             if (next && next->token_type == TOKEN_MODULE) {
@@ -5827,14 +5929,33 @@ ASTNode *parse_program(Token *tokens, int token_count) {
     /* Hoist lambda functions collected during expression parsing to program scope */
     for (int li = 0; li < parser.lambda_count; li++) {
         if (count >= capacity) {
+            ASTNode **grown = NULL;
+            if (capacity <= INT_MAX / 2 && (size_t)capacity <= SIZE_MAX / (2 * sizeof(*items)))
+                grown = realloc(items, sizeof(*items) * (size_t)capacity * 2);
+            if (!grown) {
+                parser_error(&parser, 0, 0, "I cannot grow this hoisted declaration table.\n");
+                /* Earlier lambda roots have moved to items; the remaining ones have not. */
+                for (int i = 0; i < count; ++i) free_ast(items[i]);
+                for (int i = li; i < parser.lambda_count; ++i) free_ast(parser.lambda_functions[i]);
+                free(items);
+                free(parser.lambda_functions);
+                return NULL;
+            }
             capacity *= 2;
-            items = realloc(items, sizeof(ASTNode*) * capacity);
+            items = grown;
         }
         items[count++] = parser.lambda_functions[li];
     }
     free(parser.lambda_functions);
 
-    ASTNode *program = create_node(AST_PROGRAM, 1, 1);
+    ASTNode *program = calloc(1, sizeof(*program));
+    if (!program) {
+        for (int i = 0; i < count; ++i) free_ast(items[i]);
+        free(items);
+        return NULL;
+    }
+    program->type = AST_PROGRAM;
+    program->line = program->column = 1;
     program->as.program.items = items;
     program->as.program.count = count;
     return program;
@@ -6016,6 +6137,10 @@ void free_ast(ASTNode *node) {
                 free(node->as.qualified_name.name_parts[i]);
             }
             free(node->as.qualified_name.name_parts);
+            break;
+        case AST_SERVICE_DECL:
+            free(node->as.service_decl.interface_id);
+            free(node->as.service_decl.document_path);
             break;
         case AST_OPAQUE_TYPE:
             free(node->as.opaque_type.name);

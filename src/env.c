@@ -921,9 +921,9 @@ static Function *env_get_function_with_index(Environment *env, const char *name,
         return NULL;
     }
 
-    /* I permit this non-reserved declaration only in its own module. */
-    bool local_push = strcmp(name, "array_push") == 0;
-    if (local_push) {
+    /* I permit these non-reserved declarations only in its own module. */
+    bool local_array_declaration = strcmp(name, "array_push") == 0 || strcmp(name, "str_split") == 0;
+    if (local_array_declaration) {
         index = indexed ? function_index_sync(env) : NULL;
         for (int i = function_candidate_first(env, index, name); i >= 0;
              i = function_candidate_next(env, index, i)) {
@@ -1013,7 +1013,7 @@ Function *env_get_function(Environment *env, const char *name) {
 /* I select array intrinsics only after actual lexical/declaration resolution. */
 bool env_native_array_operation(const char *name) {
     static const char *const names[] = {"array_new", "array_push", "array_set", "array_get", "at",
-        "array_pop", "map", "filter", "reduce", "array_slice", "array_remove_at"};
+        "array_pop", "map", "filter", "reduce", "array_slice", "array_remove_at", "str_split"};
     if (!name) return false;
     for (size_t i = 0; i < sizeof names / sizeof *names; ++i)
         if (!strcmp(name, names[i])) return true;

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ConnectTimeout=10",
+    "puck.local",
+    "mkdir /tmp/nanolang-file-service-parser-5a0e && tar -xf - -C /tmp/nanolang-file-service-parser-5a0e"
+  ],
+  "source": "/tmp/nanolang-file-service-parser-5a0e.tar",
+  "bytes": 3465195520,
+  "sha256": "1b5b55f425ce9964cfbd9bf557109cba24c251a1dda4b9c7e0c1198797c6fba3",
+  "returncode": 0,
+  "seconds": 33.23498302209191
+}

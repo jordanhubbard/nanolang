@@ -406,6 +406,8 @@ static SubsetResult check_subset(ASTNode *node, Environment *env) {
             return outside_ast("module declaration (not in NanoCore)");
         case AST_ENUM_DEF:
             return outside_ast("enum definition (not in NanoCore)");
+        case AST_SERVICE_DECL:
+            return outside_ast("unresolved File service declaration");
         case AST_OPAQUE_TYPE:
             return outside_ast("opaque type (not in NanoCore)");
         case AST_TUPLE_LITERAL:

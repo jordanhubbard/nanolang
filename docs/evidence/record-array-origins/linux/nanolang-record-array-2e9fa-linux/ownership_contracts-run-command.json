@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/tmp/nanolang-record-array-2e9fa-linux/controls/ownership_contracts"
+  ],
+  "selectors": {
+    "CC": "/bin/gcc-13",
+    "LSAN_OPTIONS": "",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}

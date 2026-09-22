@@ -199,14 +199,11 @@ static bool is_symbol_imported(const char *symbol_name, const char *module_path,
 static bool is_function_accessible(Function *func, Environment *env, int line, int column) {
     if (!func) return false;
     
-    /* If no module context, everything is accessible (legacy/global scope) */
-    if (!env->current_module) return true;
-    
     /* If function has no module, it's global (legacy) - accessible */
     if (!func->module_name) return true;
     
     /* If same module, always accessible */
-    if (func->module_name && strcmp(func->module_name, env->current_module) == 0) {
+    if (env->current_module && strcmp(func->module_name, env->current_module) == 0) {
         return true;
     }
     
@@ -223,7 +220,8 @@ static bool is_function_accessible(Function *func, Environment *env, int line, i
     }
 
     /* Check if symbol was explicitly imported via selective import */
-    if (!is_symbol_imported(func->name, func->module_name, env)) {
+    const char *imported_name = func->alias_of ? func->alias_of : func->name;
+    if (!is_symbol_imported(imported_name, func->module_name, env)) {
         char message[512];
         snprintf(message, sizeof(message),
                  "I cannot call function '%s' from module '%s' without importing it.",
@@ -1144,6 +1142,8 @@ static void check_concrete_union_arrays(Environment *, const TypeInfo *, const c
 
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
+    const TypeInfo *retained_array = env_array_expression_info(env, expr);
+    if (retained_array) return (TypeInfo *)retained_array;
     if (expr->type == AST_UNION_CONSTRUCT) return expr->as.union_construct.type_info;
     if (expr->type == AST_TUPLE_INDEX) {
         TypeInfo *tuple = try_get_expr_type_info(expr->as.tuple_index.tuple, env);
@@ -1183,6 +1183,17 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
                     return record->field_type_info[i];
         }
     }
+    if (expr->type == AST_MODULE_QUALIFIED_CALL) {
+        const char *owner = expr->as.module_qualified_call.module_alias;
+        const char *name = expr->as.module_qualified_call.function_name;
+        size_t a = strlen(owner), b = strlen(name);
+        if (b > SIZE_MAX - 2 || a > SIZE_MAX - b - 2) { env->opaque_resolution_failed = true; return NULL; }
+        char *qualified = malloc(a + b + 2);
+        if (!qualified) { env->opaque_resolution_failed = true; return NULL; }
+        memcpy(qualified, owner, a); qualified[a] = '.'; memcpy(qualified + a + 1, name, b + 1);
+        Function *function = env_get_function(env, qualified); free(qualified);
+        return function ? function->return_type_info : NULL;
+    }
     if (expr->type == AST_CALL) {
         if (expr->as.call.checked_signature)
             return expr->as.call.checked_signature->return_type_info;
@@ -1196,6 +1207,10 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
                 symbol->type_info->base_type == TYPE_FUNCTION && symbol->type_info->fn_sig)
                 return symbol->type_info->fn_sig->return_type_info;
         }
+    }
+    if (nominal_array_builtin(expr, env, "str_split", 2)) {
+        if (!checked_expression_type_info(expr, env)) return NULL;
+        return (TypeInfo *)env_array_expression_info(env, expr);
     }
     if (expr->type == AST_CALL && expr->as.call.name) {
         if (nominal_array_builtin(expr, env, "at", 2) || nominal_array_builtin(expr, env, "array_get", 2)) {
@@ -1559,6 +1574,8 @@ static bool opaque_annotation_present(Environment *env, const TypeInfo *info, un
     return false;
 }
 
+static Type infer_array_element_type(ASTNode *array_expr, Environment *env);
+
 /* I resolve payload annotations and retain owned constructor context. */
 /* I validate original templates before the legacy constructor-context visitor
  * materializes copied annotations. Context links point only into this call stack. */
@@ -1720,7 +1737,9 @@ static void apply_concrete_union_arrays(Environment *env, const TypeInfo *expect
             for (int i = 0; i < expected->tuple_element_count; ++i) {
                 TypeInfo element = {.base_type = expected->tuple_types[i],
                     .generic_name = expected->tuple_type_names ? expected->tuple_type_names[i] : NULL};
-                check_concrete_union_arrays(env, &element, expected_owner, value->as.tuple_literal.elements[i], depth + 1);
+                const TypeInfo *child = type_info_tuple_element(expected, i, &element);
+                if (!child) { env->opaque_resolution_failed = true; return; }
+                check_concrete_union_arrays(env, child, expected_owner, value->as.tuple_literal.elements[i], depth + 1);
             }
             return;
         }
@@ -1780,6 +1799,24 @@ static void apply_concrete_union_arrays(Environment *env, const TypeInfo *expect
             if (child) apply_concrete_union_arrays(env, child, expected_owner, value->as.tuple_literal.elements[i], depth + 1);
         }
         return;
+    }
+    if (expected->base_type == TYPE_ARRAY && expected->element_type) {
+        const TypeInfo *element = expected->element_type;
+        const TypeInfo *result = try_get_expr_type_info(value, env);
+        /* I preserve complete element facts before inferring a missing view. */
+        Type actual_element = result && result->base_type == TYPE_ARRAY && result->element_type
+            ? result->element_type->base_type : infer_array_element_type(value, env);
+        if (actual_element != TYPE_UNKNOWN && element->base_type != TYPE_UNKNOWN &&
+            (actual_element == TYPE_STRING || element->base_type == TYPE_STRING)) {
+            if (actual_element != element->base_type) {
+                emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                    actual_element == TYPE_STRING
+                        ? "I require array<string> for this string-array result."
+                        : "I require STRING elements for this array<string> annotation.",
+                    "Preserve the result's string element annotation.");
+            }
+            return;
+        }
     }
     if (expected->base_type == TYPE_ARRAY && expected->element_type) {
         if (value->type == AST_ARRAY_LITERAL)
@@ -2176,6 +2213,7 @@ Type filter_predicate_element_type(ASTNode *callback, Environment *env) {
 
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
+    if (nominal_array_builtin(array_expr, env, "str_split", 2)) return TYPE_STRING;
     if (nominal_array_builtin(array_expr, env, "array_new", 2))
         return check_expression(array_expr->as.call.args[1], env);
     if (nominal_array_builtin(array_expr, env, "array_push", 2))
@@ -2347,10 +2385,25 @@ static MatchDomain check_match_domain(ASTNode *matched, Environment *env,
     } else if (match_type == TYPE_INT) {
         return MATCH_DOMAIN_INT;
     } else if (match_type == TYPE_UNION) {
-        if (union_base_name && env_get_union(env, union_base_name))
-            return MATCH_DOMAIN_UNION;
-        message = "I require an exact known union identity before I check match coverage.";
-        hint = "Give the scrutinee a declared union type that I can resolve here.";
+        UnionDef *definition = union_base_name ? env_get_union(env, union_base_name) : NULL;
+        if (definition) {
+            bool empty_valid = true;
+            for (int arm = 0; arm < matched->as.match_expr.arm_count; ++arm) {
+                const char *binding = matched->as.match_expr.pattern_bindings[arm];
+                if (!binding || *binding) continue;
+                bool zero = false;
+                for (int variant = 0; variant < definition->variant_count; ++variant)
+                    if (!strcmp(matched->as.match_expr.pattern_variants[arm], definition->variant_names[variant]))
+                        zero = definition->variant_field_counts[variant] == 0;
+                if (!zero) { empty_valid = false; break; }
+            }
+            if (empty_valid) return MATCH_DOMAIN_UNION;
+            message = "I require an exact zero-field variant for an empty match binding.";
+            hint = "Bind this payload by name, or explicitly discard it with underscore where permitted.";
+        } else {
+            message = "I require an exact known union identity before I check match coverage.";
+            hint = "Give the scrutinee a declared union type that I can resolve here.";
+        }
     } else {
         message = "I require a match to inspect an int or a known union.";
         hint = "Give the scrutinee an exact supported type before matching it.";
@@ -2949,7 +3002,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Not a variable - check if it's a function name */
                 Function *func = env_get_function(env, expr->as.identifier);
                 if (func) {
-                    /* Function name used as value (for passing/returning) */
+                    /* I preserve the same owner check when a function becomes a value. */
+                    if (!is_function_accessible(func, env, expr->line, expr->column))
+                        return TYPE_UNKNOWN;
                     return TYPE_FUNCTION;
                 }
                 char message[256];
@@ -3393,14 +3448,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return from ? TYPE_FLOAT : TYPE_INT;
             }
 
-            /* I resolve this permitted builtin shadow through its lexical signature. */
-            if (strcmp(expr->as.call.name, "array_push") == 0) {
-                Symbol *binding = env_get_var_visible_at(env, "array_push", expr->line, expr->column);
+            /* I resolve these call spellings through lexical/declaration authority first. */
+            if (env_native_array_operation(expr->as.call.name)) {
+                Symbol *binding = env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column);
                 if (binding) {
                     binding->is_used = true;
                     if (binding->type != TYPE_FUNCTION) {
                         emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                            "I require a function value for a bound array_push call.",
+                            "I require a function value for this bound array call.",
                             "Call the declared function or a function-typed binding.");
                         return TYPE_UNKNOWN;
                     }
@@ -3409,8 +3464,27 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
 
+            if (env_native_array_operation(expr->as.call.name) &&
+                !env_native_array_is_builtin(env, expr->as.call.name, expr->line, expr->column)) goto checked_array_declared_call;
+
             /* Regular function call */
             
+            if (strcmp(expr->as.call.name, "str_split") == 0) {
+                if (expr->as.call.arg_count != 2) {
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
+                        "I require two strings for str_split.", "Pass a string and a delimiter.");
+                    return TYPE_UNKNOWN;
+                }
+                Type source = check_expression(expr->as.call.args[0], env);
+                Type delimiter = check_expression(expr->as.call.args[1], env);
+                if (source != TYPE_STRING || delimiter != TYPE_STRING) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require two strings for str_split.", "Pass a string and a delimiter.");
+                    return TYPE_UNKNOWN;
+                }
+                return TYPE_ARRAY;
+            }
+
             /* Special handling for map builtin - check before environment lookup */
             if (nominal_array_builtin(expr, env, "map", expr->as.call.arg_count)) {
                 if (expr->as.call.arg_count != 2) {
@@ -3562,6 +3636,15 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNION;
             }
             
+checked_array_declared_call: ;
+            /* I resolve a visible callable value before checking foreign function access. */
+            Symbol *lexical_callback = env_get_var_visible_at(env, expr->as.call.name,
+                                                             expr->line, expr->column);
+            if (lexical_callback && lexical_callback->type == TYPE_FUNCTION) {
+                lexical_callback->is_used = true;
+                return check_indirect_call(expr, env,
+                    lexical_callback->type_info ? lexical_callback->type_info->fn_sig : NULL);
+            }
             /* Check if function exists */
             Function *func = env_get_function(env, expr->as.call.name);
             
@@ -3645,6 +3728,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         ASTNode *array_arg = expr->as.call.args[0];
                         check_expression(array_arg, env);
                         
+                        const TypeInfo *complete = try_get_expr_type_info(array_arg, env);
+                        if (complete && complete->base_type == TYPE_ARRAY && complete->element_type)
+                            return complete->element_type->base_type;
+
                         /* Try to infer element type from array */
                         if (array_arg->type == AST_IDENTIFIER) {
                             Symbol *sym = env_get_var_visible_at(env, array_arg->as.identifier, array_arg->line, array_arg->column);
@@ -5281,7 +5368,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 const char *variant_name_i = expr->as.match_expr.pattern_variants[i];
 
                 /* Wildcard arm: _ => { body }  — no binding to add; also skip or-patterns */
-                if (strcmp(expr->as.match_expr.pattern_bindings[i], "_") != 0 &&
+                if (expr->as.match_expr.pattern_bindings[i][0] &&
+                    strcmp(expr->as.match_expr.pattern_bindings[i], "_") != 0 &&
                     strcmp(variant_name_i, "_") != 0 &&
                     strncmp(variant_name_i, "INT:", 4) != 0 &&
                     strncmp(variant_name_i, "OR:", 3) != 0) {
@@ -6859,7 +6947,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 const char *variant_name_s = stmt->as.match_expr.pattern_variants[i];
 
                 /* Only add binding for non-wildcard, non-int-pattern, non-or-pattern arms */
-                if (strcmp(stmt->as.match_expr.pattern_bindings[i], "_") != 0 &&
+                if (stmt->as.match_expr.pattern_bindings[i][0] &&
+                    strcmp(stmt->as.match_expr.pattern_bindings[i], "_") != 0 &&
                     strcmp(variant_name_s, "_") != 0 &&
                     strncmp(variant_name_s, "INT:", 4) != 0 &&
                     strncmp(variant_name_s, "OR:", 3) != 0) {
@@ -8221,6 +8310,10 @@ static bool functions_match(Function *f1, Function *f2) {
  * I retain inferred metadata just as the ordinary function checker does;
  * the bytecode emitter still needs it when choosing operand/array kinds. */
 bool type_check_root_shadows(ASTNode *program, Environment *env) {
+    if (ast_has_service_declaration(program)) {
+        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+        return false;
+    }
     if (!program || program->type != AST_PROGRAM || !env) return false;
     CheckerNominalExpression *before = env->checker_nominal_expressions;
     NativeContextMark native_before = native_context_mark(env);
@@ -8324,6 +8417,10 @@ static bool register_effect_declaration(ASTNode *item, Environment *env) {
 }
 
 static bool type_check_program_impl(ASTNode *program, Environment *env) {
+    if (ast_has_service_declaration(program)) {
+        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+        return false;
+    }
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
         return false;
@@ -9255,6 +9352,10 @@ register_function_pass1:;
 
 /* Type check a module (without requiring main function) */
 static bool type_check_module_impl(ASTNode *program, Environment *env) {
+    if (ast_has_service_declaration(program)) {
+        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+        return false;
+    }
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
         return false;
@@ -9564,11 +9665,32 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
 register_function_pass2:;
             const char *func_name = item->as.function.name;
             
+            /* I preserve this non-reserved source declaration across module lookup. */
+            const bool source_split = !item->as.function.is_extern &&
+                item->as.function.body && strcmp(func_name, "str_split") == 0;
             /* Check for duplicate function definitions */
             Function *existing = env_get_function(env, func_name);
+            if (source_split) {
+                /* I must not let builtin lookup hide an owned extern collision. */
+                for (int i = 0; i < env->function_count; i++) {
+                    Function *candidate = &env->functions[i];
+                    if (candidate->name && strcmp(candidate->name, func_name) == 0 &&
+                        (candidate->is_extern || candidate->body) &&
+                        ((!env->current_module && !candidate->module_name) ||
+                         (env->current_module && candidate->module_name &&
+                          strcmp(env->current_module, candidate->module_name) == 0))) {
+                        existing = candidate;
+                        break;
+                    }
+                }
+            }
             /* I distinguish an imported name from a duplicate in this module. */
             if (existing && !existing->is_extern && !item->as.function.is_extern && existing->module_name &&
                 (!env->current_module || strcmp(existing->module_name, env->current_module) != 0)) {
+                existing = NULL;
+            }
+            if (source_split && existing && !existing->is_extern &&
+                !existing->body && !existing->module_name && is_builtin_function(func_name)) {
                 existing = NULL;
             }
             if (existing) {
@@ -9604,7 +9726,7 @@ register_function_pass2:;
             /* We check this in the first pass, but also here for module type checking */
             
             /* Check if function name shadows a built-in */
-            if (is_builtin_function(func_name)) {
+            if (is_builtin_function(func_name) && !source_split) {
                 fprintf(stderr, "Error at line %d, column %d: Function '%s' shadows a built-in function\n",
                         item->line, item->column, func_name);
                 tc.has_error = true;

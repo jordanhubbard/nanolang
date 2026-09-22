@@ -1,3 +1,6 @@
+# I retain explicit static owners while my shared library keeps private dependencies.
+module "modules/nsi_file_catalog_provider/nsi_file_catalog_provider.nano" as NanoisaFileCatalogProvider
+
 module nanoisa
 
 from "modules/std/fs.nano" import write, delete

@@ -797,9 +797,9 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
                 }
                 const char *binding = node->as.match_expr.pattern_bindings[arm];
                 if (payload_type && own_value_resource(&branch, node, payload_type, input_info) &&
-                    (!binding || !strcmp(binding, "_")))
+                    (!binding || !*binding || !strcmp(binding, "_")))
                     own_error(flow, node, "I require a binding for the selected resource payload", payload_type);
-                own_add(&branch, node, binding, payload_type, input_info);
+                if (binding && *binding) own_add(&branch, node, binding, payload_type, input_info);
                 if (owned_match && !supported) branch.restricted++;
                 ASTNode *guard = node->as.match_expr.guard_exprs ? node->as.match_expr.guard_exprs[arm] : NULL;
                 unsigned branch_result = own_node(&branch, guard, false);
@@ -853,6 +853,9 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
         case AST_QUALIFIED_NAME: case AST_STRUCT_DEF: case AST_UNION_DEF:
         case AST_ENUM_DEF: case AST_IMPORT: case AST_MODULE_DECL:
         case AST_OPAQUE_TYPE: case AST_EFFECT_DECL:
+            return OWN_NEXT;
+        case AST_SERVICE_DECL:
+            own_error(flow, node, "I have not resolved this File service declaration", NULL);
             return OWN_NEXT;
         case AST_FUNCTION:
             own_nested_function(flow, node);

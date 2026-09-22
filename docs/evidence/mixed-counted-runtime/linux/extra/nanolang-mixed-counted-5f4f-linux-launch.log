@@ -1,0 +1,19 @@
+{"pin": "5f4f0010af06c741517cb606faa73cdf0f3dad7f", "source_files": 3692, "root": "/tmp/nanolang-mixed-counted-qualified-5f4f", "sdk": null}
+{"phase": "setup", "status": 0, "seconds": 21.372}
+{"phase": "configuration", "status": 0, "seconds": 0.066}
+{"phase": "discovery", "status": 0, "seconds": 0.114}
+{"phase": "ordinary", "status": 0, "seconds": 3.071}
+{"phase": "clang-ordinary", "status": 0, "seconds": 2.469}
+{"phase": "sanitizer", "status": 0, "seconds": 20.362}
+{"phase": "clang-sanitizer", "status": 0, "seconds": 4.272}
+{"phase": "wasm-package", "status": 0, "seconds": 5.881}
+{"phase": "neighbor-managed_records", "status": 0, "seconds": 3.723}
+{"phase": "neighbor-managed_record_adapters", "status": 1, "seconds": 1.469}
+Traceback (most recent call last):
+  File "/tmp/nanolang-mixed-counted-5f4f-launch.py", line 19, in <module>
+    subprocess.run([sys.executable,'/tmp/nanolang-mixed-counted-driver.py',str(root),'/tmp/nanolang-mixed-counted-5f4f-'+host],check=True,env=env)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14', '/tmp/nanolang-mixed-counted-driver.py', '/tmp/nanolang-mixed-counted-qualified-5f4f', '/tmp/nanolang-mixed-counted-5f4f-linux']' returned non-zero exit status 1.

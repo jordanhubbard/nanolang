@@ -1,0 +1,12 @@
+{
+  "/tmp/nanolang-file-service-parser-8baca-linux/gcc-ordinary/nano-file-service-parser-tzl6fibp/lexer.o": "ef62d151ed9aef064d36c5cd3f2ddafe2ea7a3803d9a7fd189d0619fe7e32f6a",
+  "/tmp/nanolang-file-service-parser-8baca-linux/gcc-ordinary/nano-file-service-parser-tzl6fibp/utf8.o": "c42f9e644ac1141e9d98e476979767f350bce2d0e82053bb5119fd923622d6b0",
+  "/tmp/nanolang-file-service-parser-8baca-linux/gcc-ordinary/nano-file-service-parser-tzl6fibp/publisher-bin/nsi-file-binding": "229dbd249c257a5ab162de58e47df2249f621c6b08729e26fe8e2e2f6b88d96c",
+  "/tmp/nanolang-file-service-parser-8baca-linux/gcc-ordinary/nano-file-service-parser-tzl6fibp/publisher-obj/file-binding-publisher/cJSON.o": "8d844d961637a45c5fde25a8c919c68bff1d6a852860ec9329516ba896f27c15",
+  "/tmp/nanolang-file-service-parser-8baca-linux/gcc-ordinary/nano-file-service-parser-tzl6fibp/publisher-obj/file-binding-publisher/nsi.o": "854fd6a2d96266772e9a5078d3ccdb55f11a0c3f74b75c21b14850210307f321",
+  "/tmp/nanolang-file-service-parser-8baca-linux/gcc-ordinary/nano-file-service-parser-tzl6fibp/publisher-obj/file-binding-publisher/nsi_file_binding.o": "fc0f312eefcb1526301f03243dfbb6caac2f7151afa09863cf3b3a0eb90fcf40",
+  "/tmp/nanolang-file-service-parser-8baca-linux/gcc-ordinary/nano-file-service-parser-tzl6fibp/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "2e9ab29974eec5a4da528e4929c128ce8e1a28c7c4159961fb760d3a8a269771",
+  "/tmp/nanolang-file-service-parser-8baca-linux/gcc-ordinary/nano-file-service-parser-tzl6fibp/publisher-obj/file-binding-publisher/nsi_file_plan.o": "5adfd3266eaee9704a5d25b690349a68a391f60aa425dad8616ab56a66f1d240",
+  "/tmp/nanolang-file-service-parser-8baca-linux/gcc-ordinary/nano-file-service-parser-tzl6fibp/publisher-obj/file-binding-publisher/nsi_file_publish.o": "5fed6cc6377f5a88fe838c405cb011b4a48ece98a8028d86b7dfb7e902e11364",
+  "/tmp/nanolang-file-service-parser-8baca-linux/gcc-ordinary/nano-file-service-parser-tzl6fibp/publisher-obj/file-binding-publisher/utf8.o": "fa4ad16b4187859b08c319537ff73d42d031e9ce28124c00f3a96afa1a29ad8a"
+}

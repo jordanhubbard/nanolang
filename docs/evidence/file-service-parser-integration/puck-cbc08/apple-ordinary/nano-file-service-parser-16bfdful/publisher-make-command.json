@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/usr/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/usr/bin/clang",
+    "CFLAGS=-std=c99 -D_GNU_SOURCE -D_DARWIN_C_SOURCE -Wall -Wextra -Werror -g -O1 -I /private/tmp/nanolang-file-service-parser-cbc08/src",
+    "LDFLAGS=-lm -lcrypto -L/opt/homebrew/Cellar/libffi/3.8.0/lib -lffi -L/opt/homebrew/opt/openssl@3/lib",
+    "OBJ_DIR=/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary/nano-file-service-parser-16bfdful/publisher-obj",
+    "BIN_DIR=/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary/nano-file-service-parser-16bfdful/publisher-bin",
+    "nsi-file-binding"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-cbc08",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

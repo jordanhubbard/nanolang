@@ -1,0 +1,12 @@
+{
+  "/tmp/nanolang-file-service-parser-18334-linux/gcc-ordinary/nano-file-service-parser-xoy25qdj/lexer.o": "edf0cfb61215e1e75c057f5430dede048dd7bfc81ba8fe3d69e858bd6a074fc1",
+  "/tmp/nanolang-file-service-parser-18334-linux/gcc-ordinary/nano-file-service-parser-xoy25qdj/utf8.o": "381dff7f8fa324bb7fb612717571ee107484618d8cbe3d6dcf0190f1cb121e74",
+  "/tmp/nanolang-file-service-parser-18334-linux/gcc-ordinary/nano-file-service-parser-xoy25qdj/publisher-bin/nsi-file-binding": "260d74641c891d8c0f83361501207dd884b04ca38cf9a75755ec50a1ac5a468e",
+  "/tmp/nanolang-file-service-parser-18334-linux/gcc-ordinary/nano-file-service-parser-xoy25qdj/publisher-obj/file-binding-publisher/cJSON.o": "659f8a7dba6f8ceda65cd50537ba9afa78a943423501a8a2fe9eaba73754e242",
+  "/tmp/nanolang-file-service-parser-18334-linux/gcc-ordinary/nano-file-service-parser-xoy25qdj/publisher-obj/file-binding-publisher/nsi.o": "98e70d7fded101588e6f0f1857e2928a8e8a48e12173e5ac21fe7c20dcfaeab7",
+  "/tmp/nanolang-file-service-parser-18334-linux/gcc-ordinary/nano-file-service-parser-xoy25qdj/publisher-obj/file-binding-publisher/nsi_file_binding.o": "0e5e6cb0dc9565984cd2c8b388bfbb65d25cb120a02d83584ebb87e1008a9e8c",
+  "/tmp/nanolang-file-service-parser-18334-linux/gcc-ordinary/nano-file-service-parser-xoy25qdj/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "8f6e49bf0f2cf0894131afffa847a73d057837cef73a8e19a9fdae536622b14b",
+  "/tmp/nanolang-file-service-parser-18334-linux/gcc-ordinary/nano-file-service-parser-xoy25qdj/publisher-obj/file-binding-publisher/nsi_file_plan.o": "6a18ff0fdef683581dbaebeb6cb739923446eac3519f7d66ee934ca556911019",
+  "/tmp/nanolang-file-service-parser-18334-linux/gcc-ordinary/nano-file-service-parser-xoy25qdj/publisher-obj/file-binding-publisher/nsi_file_publish.o": "aafafd7b63feae2cbbba11244f1d8d4f05bc91c83b9bed91fd4650c1da0eb572",
+  "/tmp/nanolang-file-service-parser-18334-linux/gcc-ordinary/nano-file-service-parser-xoy25qdj/publisher-obj/file-binding-publisher/utf8.o": "e4a1e25e1b8091634950bc065bc893ea4ba88c7ba6d2bdb3a7a2433223cbea86"
+}

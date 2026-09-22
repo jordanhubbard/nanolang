@@ -13,6 +13,7 @@
 
 /* Lexer entrypoints (used by shadow tests) */
 import "src_nano/compiler/lexer.nano"
+import "src_nano/compiler/token_value_bytes.nano"
 import "src_nano/ast_shared.nano"
 import "src_nano/generated/compiler_ast.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
@@ -51,6 +52,7 @@ fn parser_init_ast_lists() -> Parser {
     let union_constructs: List<ASTUnionConstruct> = (list_ASTUnionConstruct_new)
     let matches: List<ASTMatch> = (list_ASTMatch_new)
     let imports: List<ASTImport> = (list_ASTImport_new)
+    let services: List<ASTServiceDecl> = (list_ASTServiceDecl_new)
     let opaque_types: List<ASTOpaqueType> = (list_ASTOpaqueType_new)
     let tuple_literals: List<ASTTupleLiteral> = (list_ASTTupleLiteral_new)
     let tuple_indices: List<ASTTupleIndex> = (list_ASTTupleIndex_new)
@@ -96,6 +98,7 @@ fn parser_init_ast_lists() -> Parser {
         union_constructs: union_constructs,
         matches: matches,
         imports: imports,
+        services: services,
         opaque_types: opaque_types,
         tuple_literals: tuple_literals,
         tuple_indices: tuple_indices,
@@ -128,6 +131,7 @@ fn parser_init_ast_lists() -> Parser {
         union_constructs_count: 0,
         matches_count: 0,
         imports_count: 0,
+        services_count: 0,
         opaque_types_count: 0,
         tuple_literals_count: 0,
         tuple_indices_count: 0,
@@ -191,6 +195,7 @@ pub fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string)
         union_constructs: init_parser.union_constructs,
         matches: init_parser.matches,
         imports: init_parser.imports,
+        services: init_parser.services,
         opaque_types: init_parser.opaque_types,
         tuple_literals: init_parser.tuple_literals,
         tuple_indices: init_parser.tuple_indices,
@@ -223,6 +228,7 @@ pub fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string)
         union_constructs_count: 0,
         matches_count: 0,
         imports_count: 0,
+        services_count: 0,
         opaque_types_count: 0,
         tuple_literals_count: 0,
         tuple_indices_count: 0,
@@ -309,6 +315,7 @@ fn parser_with_position(p: Parser, new_position: int) -> Parser {
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -341,6 +348,7 @@ fn parser_with_position(p: Parser, new_position: int) -> Parser {
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -467,8 +475,8 @@ shadow parser_peek {
 /* Helper: Copy parser with error flag set */
 fn parser_with_error(p: Parser, error: bool) -> Parser {
     return Parser {
-        tokens: p.tokens, file_name: p.file_name, 
-        
+        tokens: p.tokens, file_name: p.file_name,
+
         position: p.position,
         token_count: p.token_count,
         has_error: error,
@@ -504,6 +512,7 @@ fn parser_with_error(p: Parser, error: bool) -> Parser {
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -536,6 +545,7 @@ fn parser_with_error(p: Parser, error: bool) -> Parser {
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -1204,6 +1214,7 @@ fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Pars
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1236,6 +1247,7 @@ fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Pars
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -1299,6 +1311,7 @@ fn parser_store_string(p: Parser, value: string, line: int, column: int) -> Pars
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1331,6 +1344,7 @@ fn parser_store_string(p: Parser, value: string, line: int, column: int) -> Pars
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -1393,6 +1407,7 @@ fn parser_store_bool(p: Parser, value: bool, line: int, column: int) -> Parser {
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1425,6 +1440,7 @@ fn parser_store_bool(p: Parser, value: bool, line: int, column: int) -> Parser {
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -1487,6 +1503,7 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1519,6 +1536,7 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -1587,6 +1605,7 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1619,6 +1638,7 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -1704,6 +1724,7 @@ fn parser_store_call(p: Parser, function_id: int, function_type: int, arg_start:
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1736,6 +1757,7 @@ fn parser_store_call(p: Parser, function_id: int, function_type: int, arg_start:
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -1799,6 +1821,7 @@ fn parser_store_module_qualified_call(p: Parser, module_name: string, function_n
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1831,6 +1854,7 @@ fn parser_store_module_qualified_call(p: Parser, module_name: string, function_n
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -1911,6 +1935,7 @@ fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1943,6 +1968,7 @@ fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -2002,6 +2028,7 @@ fn parser_store_array_element(p: Parser, node_id: int, node_type: int) -> Parser
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -2034,6 +2061,7 @@ fn parser_store_array_element(p: Parser, node_id: int, node_type: int) -> Parser
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -2525,11 +2553,15 @@ fn parse_match(p: Parser) -> Parser {
                                 if (parser_has_error p1b) { return p1b } else {
                                     if (parser_is_at_end p1b) { return (parser_with_error p1b true) } else {
                                         let tbind: LexerToken = (parser_current p1b)
-                                        if (!= tbind.token_type (token_identifier)) {
+                                        if (and (!= tbind.token_type (token_identifier)) (!= tbind.token_type (token_rparen))) {
                                             return (parser_with_error p1b true)
                                         } else {
-                                            let binding_name: string = tbind.value
-                                            let p1c: Parser = (parser_advance p1b)
+                                            let mut binding_name: string = ""
+                                            let mut p1c: Parser = p1b
+                                            if (== tbind.token_type (token_identifier)) {
+                                                set binding_name tbind.value
+                                                set p1c (parser_advance p1b)
+                                            }
                                             let p1d: Parser = (parser_expect p1c (token_rparen))
                                             if (parser_has_error p1d) { return p1d } else {
                                                 let pguard: Parser = (parse_match_guard p1d)
@@ -2605,7 +2637,13 @@ fn parse_match(p: Parser) -> Parser {
 }
 
 shadow parse_match {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "match item { None() => 1 Some(value) => 2 }" "match.nano" (Diagnostics.diag_list_new))
+    let p: Parser = (parse_match (parser_new tokens (list_LexerToken_length tokens) "match.nano"))
+    assert (not (parser_has_error p))
+    let matched: ASTMatch = (parser_get_match p p.last_expr_node_id)
+    assert (== matched.arm_count 2)
+    assert (== (at matched.arm_bindings 0) "")
+    assert (== (at matched.arm_bindings 1) "value")
 }
 
 /* Parse primary expression: number, identifier, string, bool, or parenthesized */
@@ -3562,6 +3600,7 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -3594,6 +3633,7 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -3660,6 +3700,7 @@ fn parser_store_set(p: Parser, target: string, field_name: string, value_id: int
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -3692,6 +3733,7 @@ fn parser_store_set(p: Parser, target: string, field_name: string, value_id: int
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -3789,6 +3831,7 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -3821,6 +3864,7 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -3886,6 +3930,7 @@ fn parser_store_while(p: Parser, condition_id: int, condition_type: int, body_id
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -3918,6 +3963,7 @@ fn parser_store_while(p: Parser, condition_id: int, condition_type: int, body_id
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -3982,6 +4028,7 @@ fn parser_store_for(p: Parser, var_name: string, iterable_id: int, iterable_type
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4014,6 +4061,7 @@ fn parser_store_for(p: Parser, var_name: string, iterable_id: int, iterable_type
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -4099,6 +4147,7 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4131,6 +4180,7 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -4196,7 +4246,7 @@ shadow parser_is_value_expression {
     assert (not (parser_is_value_expression ParseNodeType.PNODE_IF))
 }
 
-fn parser_decode_import_path(raw: string) -> string {
+pub fn parser_decode_import_path(raw: string) -> string {
     let mut out: string = ""
     let mut i: int = 0
     while (< i (str_length raw)) {
@@ -4285,6 +4335,7 @@ fn parser_store_import(p: Parser, module_path: string, module_name: string, is_u
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4317,6 +4368,7 @@ fn parser_store_import(p: Parser, module_path: string, module_name: string, is_u
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: (+ p.imports_count 1),
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -4327,6 +4379,96 @@ fn parser_store_import(p: Parser, module_path: string, module_name: string, is_u
 }
 
 /* Helper: Store opaque type node */
+fn parser_store_service(p: Parser, interface_id: string, interface_bytes: int, document_path: string, path_bytes: int, line: int, column: int) -> Parser {
+    let node: ASTServiceDecl = ASTServiceDecl {
+        node_type: ParseNodeType.PNODE_SERVICE_DECL, line: line, column: column,
+        interface_id: interface_id, interface_bytes: interface_bytes,
+        document_path: document_path, path_bytes: path_bytes,
+        catalog_version: 1, origin_index: -1
+    }
+    let node_id: int = p.services_count
+    (list_ASTServiceDecl_push p.services node)
+    return Parser {
+        tokens: p.tokens, file_name: p.file_name,
+
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        diagnostics: p.diagnostics,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
+        call_args: p.call_args,
+        array_elements: p.array_elements,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        unsafe_blocks: p.unsafe_blocks,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        services: p.services,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        unsafe_blocks_count: p.unsafe_blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        services_count: (+ p.services_count 1),
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: node_id,
+        last_expr_node_type: ParseNodeType.PNODE_SERVICE_DECL
+    }
+}
+
 fn parser_store_opaque_type(p: Parser, type_name: string, line: int, column: int) -> Parser {
     let node: ASTOpaqueType = ASTOpaqueType {
         node_type: ParseNodeType.PNODE_OPAQUE_TYPE,
@@ -4375,6 +4517,7 @@ fn parser_store_opaque_type(p: Parser, type_name: string, line: int, column: int
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4407,6 +4550,7 @@ fn parser_store_opaque_type(p: Parser, type_name: string, line: int, column: int
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: (+ p.opaque_types_count 1),
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -4466,6 +4610,7 @@ fn parser_store_shadow(p: Parser, target_name: string, body_id: int, line: int, 
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4498,6 +4643,7 @@ fn parser_store_shadow(p: Parser, target_name: string, body_id: int, line: int, 
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -4558,6 +4704,7 @@ fn parser_store_field_access(p: Parser, object_id: int, object_type: int, field_
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4590,6 +4737,7 @@ fn parser_store_field_access(p: Parser, object_id: int, object_type: int, field_
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -4648,6 +4796,7 @@ fn parser_store_float(p: Parser, value: string, line: int, column: int) -> Parse
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4680,6 +4829,7 @@ fn parser_store_float(p: Parser, value: string, line: int, column: int) -> Parse
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -4745,6 +4895,7 @@ fn parser_store_return(p: Parser, value_id: int, value_type: int, line: int, col
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4777,6 +4928,7 @@ fn parser_store_return(p: Parser, value_id: int, value_type: int, line: int, col
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -4839,6 +4991,7 @@ fn parser_store_assert(p: Parser, condition_id: int, condition_type: int, line: 
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4871,6 +5024,7 @@ fn parser_store_assert(p: Parser, condition_id: int, condition_type: int, line: 
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -4937,6 +5091,7 @@ fn parser_store_block(p: Parser, stmts: List<ASTStmtRef>, line: int, column: int
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4969,6 +5124,7 @@ fn parser_store_block(p: Parser, stmts: List<ASTStmtRef>, line: int, column: int
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -5280,6 +5436,7 @@ fn parser_store_unsafe_block(p: Parser, stmts: List<ASTStmtRef>, line: int, colu
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -5312,6 +5469,7 @@ fn parser_store_unsafe_block(p: Parser, stmts: List<ASTStmtRef>, line: int, colu
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -5962,6 +6120,7 @@ fn parser_with_node(p: Parser, kind: int, node_id: int) -> Parser {
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -5994,6 +6153,7 @@ fn parser_with_node(p: Parser, kind: int, node_id: int) -> Parser {
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -6218,6 +6378,7 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6250,6 +6411,7 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -6319,6 +6481,7 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: a
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6351,6 +6514,7 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: a
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -6423,6 +6587,7 @@ fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, col
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6455,6 +6620,7 @@ fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, col
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -6531,6 +6697,7 @@ fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, co
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6563,6 +6730,7 @@ fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, co
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -6629,6 +6797,7 @@ fn parser_store_union_construct(p: Parser, union_name: string, variant_name: str
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6661,6 +6830,7 @@ fn parser_store_union_construct(p: Parser, union_name: string, variant_name: str
         union_constructs_count: (+ p.union_constructs_count 1),
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -6723,6 +6893,7 @@ fn parser_store_struct_literal(p: Parser, type_name: string, field_names: array<
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6755,6 +6926,7 @@ fn parser_store_struct_literal(p: Parser, type_name: string, field_names: array<
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -6821,6 +6993,7 @@ fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_var
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6853,6 +7026,7 @@ fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_var
         union_constructs_count: p.union_constructs_count,
         matches_count: (+ p.matches_count 1),
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
@@ -6913,6 +7087,7 @@ fn parser_store_tuple_literal(p: Parser, element_ids: array<int>, element_types:
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6945,6 +7120,7 @@ fn parser_store_tuple_literal(p: Parser, element_ids: array<int>, element_types:
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: (+ p.tuple_literals_count 1),
         tuple_indices_count: p.tuple_indices_count,
@@ -7005,6 +7181,7 @@ fn parser_store_tuple_index(p: Parser, tuple_id: int, tuple_type: int, index: in
         union_constructs: p.union_constructs,
         matches: p.matches,
         imports: p.imports,
+        services: p.services,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -7037,6 +7214,7 @@ fn parser_store_tuple_index(p: Parser, tuple_id: int, tuple_type: int, index: in
         union_constructs_count: p.union_constructs_count,
         matches_count: p.matches_count,
         imports_count: p.imports_count,
+        services_count: p.services_count,
         opaque_types_count: p.opaque_types_count,
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: (+ p.tuple_indices_count 1),
@@ -7913,6 +8091,29 @@ fn parse_import(p: Parser) -> Parser {
     }
 }
 
+# I reuse my import parser and mark only the single resulting real import.
+fn parse_pub_use(p: Parser) -> Parser {
+    let parsed: Parser = (parse_import p)
+    if parsed.has_error { return parsed }
+    if (!= parsed.imports_count (+ p.imports_count 1)) { return (parser_with_error parsed true) }
+    let mut imported: ASTImport = (list_ASTImport_get parsed.imports p.imports_count)
+    set imported (ASTImport { node_type: imported.node_type, line: imported.line, column: imported.column, module_path: imported.module_path, module_name: imported.module_name, is_unsafe: imported.is_unsafe, is_selective: imported.is_selective, is_wildcard: imported.is_wildcard, is_pub_use: true, import_symbols: imported.import_symbols, import_aliases: imported.import_aliases, import_symbol_count: imported.import_symbol_count })
+    (list_ASTImport_set parsed.imports p.imports_count imported)
+    return parsed
+}
+shadow parse_pub_use {
+    let tokens: List<LexerToken> = (tokenize_string "pub use \"dep.nano\" as dep" "export.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "export.nano")
+    assert (not parsed.has_error)
+    assert (== parsed.imports_count 1)
+    let imported: ASTImport = (list_ASTImport_get parsed.imports 0)
+    assert imported.is_pub_use
+    assert (== imported.module_path "dep.nano")
+    assert (== imported.module_name "dep")
+    let invalid: List<LexerToken> = (tokenize_string "use \"dep.nano\"" "invalid.nano" (list_CompilerDiagnostic_new))
+    assert (parse_program invalid (list_LexerToken_length invalid) "invalid.nano").has_error
+}
+
 /* Parse module import: module "path" [as alias] */
 /* Parse unsafe module import: unsafe module "path" [as alias] */
 fn parse_module_import(p: Parser, is_unsafe: bool) -> Parser {
@@ -8114,20 +8315,112 @@ shadow parse_shadow {
     assert (== 1 1)
 }
 
-fn parse_definition(p: Parser) -> Parser {
+# I validate RFC3629 bytes independently, after exact decoded extent checks.
+fn parser_service_utf8(text: string) -> bool {
+    let size: int = (str_length text)
+    let mut i: int = 0
+    while (< i size) {
+        let lead_code: int = (char_at text i)
+        if (<= lead_code 127) { set i (+ i 1) }
+        else {
+            let mut need: int = 0
+            let mut low: int = 128
+            let mut high: int = 191
+            if (and (>= lead_code 194) (<= lead_code 223)) { set need 2 }
+            else if (== lead_code 224) { set need 3 set low 160 }
+            else if (and (>= lead_code 225) (<= lead_code 236)) { set need 3 }
+            else if (== lead_code 237) { set need 3 set high 159 }
+            else if (or (== lead_code 238) (== lead_code 239)) { set need 3 }
+            else if (== lead_code 240) { set need 4 set low 144 }
+            else if (and (>= lead_code 241) (<= lead_code 243)) { set need 4 }
+            else if (== lead_code 244) { set need 4 set high 143 }
+            else { return false }
+            if (> need (- size i)) { return false }
+            let first: int = (char_at text (+ i 1))
+            if (or (< first low) (> first high)) { return false }
+            let mut k: int = 2
+            while (< k need) {
+                let continuation: int = (char_at text (+ i k))
+                if (or (< continuation 128) (> continuation 191)) { return false }
+                set k (+ k 1)
+            }
+            set i (+ i need)
+        }
+    }
+    return true
+}
+
+fn parse_service_declaration(p: Parser) -> Parser {
+    let start: LexerToken = (parser_current p)
+    if (>= (+ p.position 5) p.token_count) { return (parser_with_error p true) }
+    let interface_token: LexerToken = (list_LexerToken_get p.tokens (+ p.position 1))
+    let catalog_token: LexerToken = (list_LexerToken_get p.tokens (+ p.position 2))
+    let version_token: LexerToken = (list_LexerToken_get p.tokens (+ p.position 3))
+    let from_token: LexerToken = (list_LexerToken_get p.tokens (+ p.position 4))
+    let path_token: LexerToken = (list_LexerToken_get p.tokens (+ p.position 5))
+    if (or (!= interface_token.token_type (token_string)) (!= path_token.token_type (token_string))) { return (parser_with_error p true) }
+    if (or (!= catalog_token.token_type (token_identifier)) (!= catalog_token.value "catalog")) { return (parser_with_error p true) }
+    if (or (!= version_token.token_type LexerTokenType.TOKEN_NUMBER) (!= version_token.value "1")) { return (parser_with_error p true) }
+    if (!= from_token.token_type LexerTokenType.TOKEN_FROM) { return (parser_with_error p true) }
+    let mut index: int = 1
+    while (<= index 5) {
+        let part: LexerToken = (list_LexerToken_get p.tokens (+ p.position index))
+        if (!= part.line start.line) { return (parser_with_error p true) }
+        set index (+ index 1)
+    }
+    if (< (+ p.position 6) p.token_count) {
+        let after: LexerToken = (list_LexerToken_get p.tokens (+ p.position 6))
+        if (and (!= after.token_type LexerTokenType.TOKEN_EOF) (== after.line path_token.line)) { return (parser_with_error p true) }
+    }
+    if (or (<= interface_token.value_bytes 0) (> interface_token.value_bytes 1048576)) { return (parser_with_error p true) }
+    if (or (<= path_token.value_bytes 0) (> path_token.value_bytes 1048576)) { return (parser_with_error p true) }
+    if (!= (token_literal_value_bytes interface_token.value) interface_token.value_bytes) { return (parser_with_error p true) }
+    if (!= (token_literal_value_bytes path_token.value) path_token.value_bytes) { return (parser_with_error p true) }
+    # I reuse the existing escape decoder, which refuses an escaped NUL.
+    let interface_id: string = (parser_decode_import_path interface_token.value)
+    let document_path: string = (parser_decode_import_path path_token.value)
+    let interface_size: int = (str_length interface_id)
+    let path_size: int = (str_length document_path)
+    if (or (!= interface_size interface_token.value_bytes) (!= path_size path_token.value_bytes)) { return (parser_with_error p true) }
+    if (or (not (parser_service_utf8 interface_id)) (not (parser_service_utf8 document_path))) { return (parser_with_error p true) }
+    if (!= interface_id "nsi:nanolang/filesystem") { return (parser_with_error p true) }
+    if (str_starts_with document_path "/") { return (parser_with_error p true) }
+    let next: Parser = (parser_with_position p (+ p.position 6))
+    return (parser_store_service next interface_id interface_size document_path path_size start.line start.column)
+}
+
+# I identify top-level functions in my actual declaration dispatch.
+pub struct DefinitionParseResult { parser: Parser, function_index: int }
+fn definition_parse_result(p: Parser, function: bool) -> DefinitionParseResult {
+    let mut index: int = -1
+    if (and function (not (parser_has_error p))) { set index p.last_expr_node_id }
+    return DefinitionParseResult { parser: p, function_index: index }
+}
+shadow definition_parse_result {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "empty.nano")
+    assert (== (definition_parse_result p false).function_index -1)
+    assert (== (definition_parse_result (parser_with_error p true) true).function_index -1)
+}
+fn parse_definition_result(p: Parser) -> DefinitionParseResult {
     if (parser_is_at_end p) {
-        return (parser_with_error p true)
+        return (definition_parse_result (parser_with_error p true) false)
     } else {
         let mut tok: LexerToken = (parser_current p)
         let mut p_work: Parser = p
         
+        if (and (== tok.token_type (token_identifier)) (== tok.value "service")) {
+            return (definition_parse_result (parse_service_declaration p) false)
+        }
         /* Handle optional 'pub' modifier */
         if (== tok.token_type (token_pub)) {
             set p_work (parser_advance p_work)
             if (parser_is_at_end p_work) {
-                return (parser_with_error p_work true)
+                return (definition_parse_result (parser_with_error p_work true) false)
             } else {
                 set tok (parser_current p_work)
+                if (== tok.token_type LexerTokenType.TOKEN_USE) {
+                    return (definition_parse_result (parse_pub_use p_work) false)
+                }
             }
         } else {
             (print "")
@@ -8136,7 +8429,7 @@ fn parse_definition(p: Parser) -> Parser {
         /* Module imports: module "path" ... */
         if (== tok.token_type LexerTokenType.TOKEN_MODULE) {
             if (== (parser_peek p_work 1) (token_string)) {
-                return (parse_module_import p_work false)
+                return (definition_parse_result (parse_module_import p_work false) false)
             } else { (print "") }
         } else { (print "") }
 
@@ -8144,7 +8437,7 @@ fn parse_definition(p: Parser) -> Parser {
         if (== tok.token_type (token_unsafe)) {
             if (and (== (parser_peek p_work 1) LexerTokenType.TOKEN_MODULE) (== (parser_peek p_work 2) (token_string))) {
                 let p1: Parser = (parser_advance p_work)
-                return (parse_module_import p1 true)
+                return (definition_parse_result (parse_module_import p1 true) false)
             } else { (print "") }
         } else { (print "") }
 
@@ -8152,15 +8445,15 @@ fn parse_definition(p: Parser) -> Parser {
         if (== tok.token_type LexerTokenType.TOKEN_MODULE) {
             let p1: Parser = (parser_advance p_work)  /* consume 'module' */
             if (parser_is_at_end p1) {
-                return (parser_with_error p1 true)
+                return (definition_parse_result (parser_with_error p1 true) false)
             } else {
                 let tok_name: LexerToken = (parser_current p1)
                 if (== tok_name.token_type (token_identifier)) {
                     let p2: Parser = (parser_advance p1)  /* consume module name */
                     /* Module declarations are stored but not used yet */
-                    return p2
+                    return (definition_parse_result p2 false)
                 } else {
-                    return (parser_with_error p1 true)
+                    return (definition_parse_result (parser_with_error p1 true) false)
                 }
             }
         } else {
@@ -8172,17 +8465,17 @@ fn parse_definition(p: Parser) -> Parser {
             /* extern can be followed by fn or struct */
             let p_after_extern: Parser = (parser_advance p_work)
             if (parser_is_at_end p_after_extern) {
-                return (parser_with_error p_after_extern true)
+                return (definition_parse_result (parser_with_error p_after_extern true) false)
             } else {
                 let next_tok: LexerToken = (parser_current p_after_extern)
                 if (== next_tok.token_type (token_fn)) {
-                    return (parse_extern_function_definition p_work)
+                    return (definition_parse_result (parse_extern_function_definition p_work) true)
                 } else {
                     if (== next_tok.token_type (token_struct)) {
                         /* I retain foreign declaration identity in the AST. */
-                        return (parse_struct_definition p_after_extern true)
+                        return (definition_parse_result (parse_struct_definition p_after_extern true) false)
                     } else {
-                        return (parser_with_error p_after_extern true)
+                        return (definition_parse_result (parser_with_error p_after_extern true) false)
                     }
                 }
             }
@@ -8191,48 +8484,48 @@ fn parse_definition(p: Parser) -> Parser {
                 /* pure fn / pure extern fn - retain the annotation for effect checking */
                 let p_after_pure: Parser = (parser_advance p_work)
                 if (parser_is_at_end p_after_pure) {
-                    return (parser_with_error p_after_pure true)
+                    return (definition_parse_result (parser_with_error p_after_pure true) false)
                 } else {
                     let next_tok: LexerToken = (parser_current p_after_pure)
                     if (== next_tok.token_type (token_fn)) {
-                        return (parser_mark_pure (parse_function_definition p_after_pure))
+                        return (definition_parse_result (parser_mark_pure (parse_function_definition p_after_pure)) true)
                     } else {
                         if (== next_tok.token_type (token_extern)) {
-                            return (parser_mark_pure (parse_extern_function_definition p_after_pure))
+                            return (definition_parse_result (parser_mark_pure (parse_extern_function_definition p_after_pure)) true)
                         } else {
-                            return (parser_with_error p_after_pure true)
+                            return (definition_parse_result (parser_with_error p_after_pure true) false)
                         }
                     }
                 }
             } else {
             if (== tok.token_type (token_fn)) {
-                return (parse_function_definition p_work)
+                return (definition_parse_result (parse_function_definition p_work) true)
             } else {
                 if (or (== tok.token_type (token_struct)) (== tok.token_type LexerTokenType.TOKEN_RESOURCE)) {
-                return (parse_struct_definition p_work false)
+                return (definition_parse_result (parse_struct_definition p_work false) false)
             } else {
                 if (== tok.token_type (token_enum)) {
-                    return (parse_enum_definition p_work)
+                    return (definition_parse_result (parse_enum_definition p_work) false)
                 } else {
                     if (== tok.token_type (token_union)) {
-                        return (parse_union_definition p_work)
+                        return (definition_parse_result (parse_union_definition p_work) false)
                     } else {
                         if (== tok.token_type (token_import)) {
-                        return (parse_import p_work)
+                        return (definition_parse_result (parse_import p_work) false)
                     } else {
                         if (== tok.token_type LexerTokenType.TOKEN_FROM) {
-                            return (parse_from_import p_work)
+                            return (definition_parse_result (parse_from_import p_work) false)
                         } else {
                             if (== tok.token_type (token_opaque)) {
-                                return (parse_opaque_type p_work)
+                                return (definition_parse_result (parse_opaque_type p_work) false)
                             } else {
                                 if (== tok.token_type (token_shadow)) {
-                                    return (parse_shadow p_work)
+                                    return (definition_parse_result (parse_shadow p_work) false)
                                 } else {
                                     if (== tok.token_type (token_let)) {
-                                        return (parse_let_statement p_work)
+                                        return (definition_parse_result (parse_let_statement p_work) false)
                                     } else {
-                                        return (parser_with_error p_work true)
+                                        return (definition_parse_result (parser_with_error p_work true) false)
                                     }
                                 }
                             }
@@ -8245,6 +8538,15 @@ fn parse_definition(p: Parser) -> Parser {
             }
         }
     }
+}
+shadow parse_definition_result {
+    let tokens: List<LexerToken> = (tokenize_string "pub fn visible() -> int { return 3 }" "visible.nano" (list_CompilerDiagnostic_new))
+    let result: DefinitionParseResult = (parse_definition_result (parser_new tokens (list_LexerToken_length tokens) "visible.nano"))
+    assert (== result.function_index 0)
+    assert (== (parser_get_function result.parser result.function_index).name "visible")
+}
+fn parse_definition(p: Parser) -> Parser {
+    return (parse_definition_result p).parser
 }
 
 shadow parse_definition {
@@ -8268,21 +8570,111 @@ shadow parse_definition {
  * Returns:
  *   Parser state containing all parsed definitions
  */
-pub fn parse_program(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
+# I retain optional top-level facts from my real parser loop, never a second grammar.
+pub struct ParsedDefinition {
+    first_token: int, after_token: int, is_public: bool,
+    before: array<int>, after: array<int>, result_kind: int, result_index: int, function_index: int
+}
+pub struct ParsedDeclarations { parser: Parser, definitions: array<ParsedDefinition>, truncated: bool }
+
+fn parser_declaration_extents(p: Parser) -> array<int> {
+    return [p.functions_count, p.structs_count, p.enums_count, p.unions_count,
+        p.opaque_types_count, p.lets_count, p.services_count, p.imports_count, p.shadows_count]
+}
+shadow parser_declaration_extents {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "empty.nano")
+    let extents: array<int> = (parser_declaration_extents p)
+    assert (== (array_length extents) 9)
+    assert (== (at extents 0) 0)
+    assert (== (at extents 8) 0)
+}
+
+fn parse_program_impl(tokens: List<LexerToken>, token_count: int, file_name: string, capture: bool, capture_limit: int) -> ParsedDeclarations {
     let mut p: Parser = (parser_new tokens token_count file_name)
-    
-    /* Parse all definitions until end of tokens or error */
+    let mut definitions: array<ParsedDefinition> = []
+    let mut truncated: bool = false
     while (and (not (parser_is_at_end p)) (not (parser_has_error p))) {
         let before_pos: int = p.position
-        set p (parse_definition p)
-
-        /* Safety: ensure progress to avoid infinite loops */
+        let mut before: array<int> = []
+        let mut is_public: bool = false
+        if (and capture (not truncated)) {
+            if (>= (array_length definitions) capture_limit) {
+                set truncated true
+                set definitions []
+            }
+            set before (parser_declaration_extents p)
+            set is_public (== (parser_current p).token_type (token_pub))
+        }
+        let parsed_definition: DefinitionParseResult = (parse_definition_result p)
+        set p parsed_definition.parser
         if (and (== p.position before_pos) (not (parser_has_error p))) {
             set p (parser_with_error (parser_advance p) true)
         }
+        if (and capture (and (not truncated) (not (parser_has_error p)))) {
+            set definitions (array_push definitions (ParsedDefinition {
+                first_token: before_pos, after_token: p.position, is_public: is_public,
+                before: before, after: (parser_declaration_extents p),
+                result_kind: p.last_expr_node_type, result_index: p.last_expr_node_id,
+                function_index: parsed_definition.function_index
+            }))
+        }
     }
-    
-    return p
+    # I publish no complete declaration inventory after a partial parse failure.
+    if (parser_has_error p) { set definitions [] }
+    return ParsedDeclarations { parser: p, definitions: definitions, truncated: truncated }
+}
+shadow parse_program_impl {
+    let empty: ParsedDeclarations = (parse_program_impl (list_LexerToken_new) 0 "empty.nano" false 0)
+    assert (== (array_length empty.definitions) 0)
+    assert (not (parser_has_error empty.parser))
+}
+
+pub fn parse_program_declarations(tokens: List<LexerToken>, token_count: int, file_name: string) -> ParsedDeclarations {
+    return (parse_program_impl tokens token_count file_name true 4096)
+}
+shadow parse_program_declarations {
+    let source: string = "pub fn visible() -> int { let local: int = 2 return local }\nlet global: int = 3\n"
+    let tokens: List<LexerToken> = (tokenize_string source "capture.nano" (list_CompilerDiagnostic_new))
+    let parsed: ParsedDeclarations = (parse_program_declarations tokens (list_LexerToken_length tokens) "capture.nano")
+    assert (not (parser_has_error parsed.parser))
+    assert (== (array_length parsed.definitions) 2)
+    let first: ParsedDefinition = (at parsed.definitions 0)
+    let second: ParsedDefinition = (at parsed.definitions 1)
+    assert first.is_public
+    assert (not second.is_public)
+    assert (== (at first.before 0) 0)
+    assert (== (at first.after 0) 1)
+    assert (> (at first.after 5) (at first.before 5))
+    assert (== second.first_token first.after_token)
+    assert (== (- (at second.after 5) (at second.before 5)) 1)
+}
+
+pub fn parse_program_complete_declarations(tokens: List<LexerToken>, token_count: int, file_name: string) -> ParsedDeclarations {
+    return (parse_program_impl tokens token_count file_name true token_count)
+}
+shadow parse_program_complete_declarations {
+    let source: string = "pub fn outer() -> int { let callback: fn(int)->int = fn(value: int) -> int { return value } return (callback 3) }\nshadow outer { assert true }\nextern fn hidden() -> int\npub extern fn visible() -> int\n"
+    let tokens: List<LexerToken> = (tokenize_string source "complete.nano" (list_CompilerDiagnostic_new))
+    let parsed: ParsedDeclarations = (parse_program_complete_declarations tokens (list_LexerToken_length tokens) "complete.nano")
+    assert (not (parser_has_error parsed.parser))
+    assert (not parsed.truncated)
+    assert (== (array_length parsed.definitions) 4)
+    let outer: ParsedDefinition = (at parsed.definitions 0)
+    assert outer.is_public
+    assert (> outer.function_index (at outer.before 0))
+    assert (== (parser_get_function parsed.parser outer.function_index).name "outer")
+    assert (== (at parsed.definitions 1).function_index -1)
+    assert (not (at parsed.definitions 2).is_public)
+    assert (at parsed.definitions 3).is_public
+    let broken: List<LexerToken> = (tokenize_string "pub fn broken(" "broken.nano" (list_CompilerDiagnostic_new))
+    let refused: ParsedDeclarations = (parse_program_complete_declarations broken (list_LexerToken_length broken) "broken.nano")
+    assert (parser_has_error refused.parser)
+    assert (== (array_length refused.definitions) 0)
+}
+
+pub fn parse_program(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
+    let result: ParsedDeclarations = (parse_program_impl tokens token_count file_name false 0)
+    return result.parser
 }
 
 shadow parse_program {
@@ -8766,6 +9158,15 @@ pub fn parser_get_tuple_index_count(p: Parser) -> int {
 /* Get a tuple index by index */
 pub fn parser_get_tuple_index(p: Parser, idx: int) -> ASTTupleIndex {
     return (list_ASTTupleIndex_get p.tuple_indices idx)
+}
+
+/* I expose retained syntax; origin remains unresolved until the module resolver. */
+pub fn parser_get_service_count(p: Parser) -> int {
+    return p.services_count
+}
+
+pub fn parser_get_service(p: Parser, idx: int) -> ASTServiceDecl {
+    return (list_ASTServiceDecl_get p.services idx)
 }
 
 /* Get number of imports */
@@ -9480,4 +9881,62 @@ shadow parse_phase_run {
     let named_guard_out: ParsePhaseOutput = (parse_phase_run named_guard_lex "named-guard.nano")
     assert (not named_guard_out.had_error)
     assert (== (list_CompilerDiagnostic_length named_guard_out.diagnostics) 0)
+}
+
+shadow parser_service_utf8 {
+    assert (parser_service_utf8 "")
+    assert (parser_service_utf8 "é")
+    assert (parser_service_utf8 "😀")
+    let surrogate: string = (+ (string_from_char 237) (+ (string_from_char 160) (string_from_char 128)))
+    let overlong: string = (+ (string_from_char 192) (string_from_char 128))
+    let truncated: string = (+ (string_from_char 226) (string_from_char 130))
+    let excessive: string = (+ (string_from_char 244) (+ (string_from_char 144) (+ (string_from_char 128) (string_from_char 128))))
+    assert (not (parser_service_utf8 surrogate))
+    assert (not (parser_service_utf8 overlong))
+    assert (not (parser_service_utf8 truncated))
+    assert (not (parser_service_utf8 excessive))
+    assert (not (parser_service_utf8 (string_from_char 128)))
+}
+
+shadow parser_store_service {
+    let initial: Parser = (parser_init_ast_lists)
+    let stored: Parser = (parser_store_service initial "nsi:nanolang/filesystem" 23 "interface.nsi.json" 18 7 9)
+    let positioned: Parser = (parser_with_position stored 0)
+    let copied: Parser = (parser_with_error positioned false)
+    assert (== copied.services_count 1)
+    let node: ASTServiceDecl = (list_ASTServiceDecl_get copied.services 0)
+    assert (== node.interface_bytes 23)
+    assert (== node.path_bytes 18)
+    assert (== node.origin_index -1)
+    assert (== node.line 7)
+    assert (== node.column 9)
+}
+
+shadow parse_service_declaration {
+    let source: string = "service \"nsi:nanolang/filesystem\" catalog 1 from \"interface.nsi.json\" # retained\nfn later() -> int { return 1 }\nshadow later { assert true }\n"
+    let tokens: List<LexerToken> = (tokenize_string source "binding.nano" (Diagnostics.diag_list_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "binding.nano")
+    assert (not (parser_has_error parsed))
+    assert (== parsed.services_count 1)
+    assert (== parsed.functions_count 1)
+    assert (== parsed.shadows_count 1)
+    let node: ASTServiceDecl = (list_ASTServiceDecl_get parsed.services 0)
+    assert (== node.document_path "interface.nsi.json")
+    assert (== node.catalog_version 1)
+}
+
+shadow parser_get_service_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_service_count p) 0)
+    let q: Parser = (parser_store_service p "nsi:nanolang/filesystem" 23 "x" 1 1 1)
+    assert (== (parser_get_service_count q) 1)
+}
+
+shadow parser_get_service {
+    let p: Parser = (parser_store_service (parser_init_ast_lists) "nsi:nanolang/filesystem" 23 "x" 1 2 3)
+    let node: ASTServiceDecl = (parser_get_service p 0)
+    assert (== node.interface_id "nsi:nanolang/filesystem")
+    assert (== node.document_path "x")
+    assert (== node.line 2)
+    assert (== node.column 3)
 }

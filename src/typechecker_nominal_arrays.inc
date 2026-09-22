@@ -281,6 +281,11 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
         if (!ok) goto fail;
         *out = view; return true;
     }
+    if (nominal_array_builtin(expr, env, "str_split", 2)) {
+        TypeInfo element = {.base_type = TYPE_STRING};
+        TypeInfo result = {.base_type = TYPE_ARRAY, .element_type = &element};
+        return nominal_view_copy_context(env, &result, NULL, NULL, depth + 1, out);
+    }
     if (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL) {
         Function *function = nominal_direct_function(expr, env);
         if (function) {

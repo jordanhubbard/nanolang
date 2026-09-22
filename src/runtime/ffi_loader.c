@@ -53,6 +53,10 @@ static RetainedImage *retained_images;
 
 bool ffi_loader_init(bool verbose) {
     pthread_rwlock_wrlock(&ffi_lock);
+    if (!nano_native_register_loader_shutdown(ffi_loader_shutdown)) {
+        pthread_rwlock_unlock(&ffi_lock);
+        return false;
+    }
 
     if (initialized) {
         pthread_rwlock_unlock(&ffi_lock);
@@ -134,6 +138,10 @@ FfiModule *ffi_loader_find(const char *module_name) {
 
 bool ffi_loader_open(const char *module_name, const char *lib_path) {
     pthread_rwlock_wrlock(&ffi_lock);
+    if (!nano_native_register_loader_shutdown(ffi_loader_shutdown)) {
+        pthread_rwlock_unlock(&ffi_lock);
+        return false;
+    }
 
     if (!initialized) {
         /* Init under write lock */

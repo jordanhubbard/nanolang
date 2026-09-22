@@ -1,0 +1,42 @@
+{
+  "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/linked-nsi_file_binding.o": {
+    "sha256": "4e5380395c62ff788958fff9cb9d529989c8da908966832fb7098cd22eb26c50",
+    "bytes": 44272
+  },
+  "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/linked-nsi_file_plan.o": {
+    "sha256": "ff15a343001712fbb9f52c5bb9986514fff8dd96d4aaf4cbd31f3e664c688bc8",
+    "bytes": 26720
+  },
+  "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/linked-nsi.o": {
+    "sha256": "7c7ae3ce15b9b64272fd53bbe14b9777db27a71ec95f60b8b9d3bd7ac88de89d",
+    "bytes": 62336
+  },
+  "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/linked-cJSON.o": {
+    "sha256": "2b2119f93bdd1dcafb024c91fd73ab21dfdb0f0e7f539d8f7055083653edb24f",
+    "bytes": 80824
+  },
+  "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/linked-utf8.o": {
+    "sha256": "36be85728c8ac0ed42bec5b6e863d18f0bb5e5a4c683e254d7e3dfea7c711de8",
+    "bytes": 10768
+  },
+  "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/instrumented-nsi_file_binding.o": {
+    "sha256": "1524df3b339d9b63bdbee3b7f88b2c8b316c551461fda13f30ebc6d291ae58ac",
+    "bytes": 44272
+  },
+  "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/instrumented-nsi_file_plan.o": {
+    "sha256": "394b9c85381f03f660e46c1a037b4c4e42a4be151660de9530693872d290a45c",
+    "bytes": 26680
+  },
+  "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/instrumented-nsi.o": {
+    "sha256": "60ff354328e7923685d866d1c70601cbbcc52db12d5737e2cc0d4595136d94c8",
+    "bytes": 62504
+  },
+  "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/instrumented-cJSON.o": {
+    "sha256": "85b55639641fde58fca3c1e672e7ca32d3ef4197692debdc23c0d14b8be49fe9",
+    "bytes": 80816
+  },
+  "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/instrumented-utf8.o": {
+    "sha256": "36be85728c8ac0ed42bec5b6e863d18f0bb5e5a4c683e254d7e3dfea7c711de8",
+    "bytes": 10768
+  }
+}

@@ -9,7 +9,13 @@
     "-Imodules/forth_see"
   ],
   "c_sources": [
-    "forth_see.c",
+    "forth_see.c"
+  ],
+  "ldflags": [],
+  "system_packages": [],
+  "dependencies": [],
+  "shared_c_sources": [
+    "../../src/nsi_file_plan.c",
     "../nanoisa/nanoisa.c",
     "../../src/nanoisa/isa.c",
     "../../src/nanoisa/passive.c",
@@ -20,7 +26,6 @@
     "../../src/nanoisa/service_bindings_module.c",
     "../../src/nanoisa/service_file_nominal.c",
     "../../src/nanoisa/service_file_nominal_plan.c",
-    "../../src/nsi_file_plan.c",
     "../../src/nanoisa/ownership_contracts.c",
     "../../src/nanoisa/retained_layouts.c",
     "../../src/nanoisa/reference_places.c",
@@ -45,8 +50,5 @@
     "../../src/nanovm/value.c",
     "../../src/nanovm/heap.c",
     "../../src/nanovm/heap_cycles.c"
-  ],
-  "ldflags": [],
-  "system_packages": [],
-  "dependencies": []
+  ]
 }

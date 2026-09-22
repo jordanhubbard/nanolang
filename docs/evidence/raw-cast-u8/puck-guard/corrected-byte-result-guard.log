@@ -1,0 +1,6 @@
+test_declared_byte_result_checks_actual_return_tag (corrected_scalar_u8.ScalarU8.test_declared_byte_result_checks_actual_return_tag) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.921s
+
+OK

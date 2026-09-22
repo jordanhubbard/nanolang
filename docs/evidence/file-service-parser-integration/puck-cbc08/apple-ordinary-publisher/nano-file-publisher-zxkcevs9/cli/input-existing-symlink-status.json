@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/make-bin/nsi-file-binding",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/cli/input-existing-symlink",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/cli/refused-existing-symlink"
+  ],
+  "pid": 56044,
+  "returncode": 1,
+  "timeout": false
+}

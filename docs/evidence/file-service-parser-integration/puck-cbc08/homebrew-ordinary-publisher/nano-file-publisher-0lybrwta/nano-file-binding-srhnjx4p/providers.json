@@ -1,0 +1,42 @@
+{
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/nano-file-binding-srhnjx4p/linked-nsi_file_binding.o": {
+    "sha256": "56fb5cc6cb1aaf90a60de66b1bbb7a6b7b9ef7b1717e2d3a45c3f47e04a01972",
+    "bytes": 44424
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/nano-file-binding-srhnjx4p/linked-nsi_file_plan.o": {
+    "sha256": "d90f43bcbbee01c27a797af5868ebc40affa30012065cda276da3060d048f8c3",
+    "bytes": 25632
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/nano-file-binding-srhnjx4p/linked-nsi.o": {
+    "sha256": "5b60300656ae5fd56bdb198fa05357c72cc5062472ed4122a32b9ccfd61d6f41",
+    "bytes": 61160
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/nano-file-binding-srhnjx4p/linked-cJSON.o": {
+    "sha256": "277cdb1b99a2e066ae7af59dcf93acb014b3866f4b23cfa5bd91e72c16c648c7",
+    "bytes": 81376
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/nano-file-binding-srhnjx4p/linked-utf8.o": {
+    "sha256": "5f4005bcb1ac755b2493aa9d963e0ef6ac7af7b970b3d0c42689ae592c3c1de7",
+    "bytes": 10376
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/nano-file-binding-srhnjx4p/instrumented-nsi_file_binding.o": {
+    "sha256": "c05bb05a49e47613d02ea116ddacec957e28fb8ecfaf620e0889b14651ce28d8",
+    "bytes": 44448
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/nano-file-binding-srhnjx4p/instrumented-nsi_file_plan.o": {
+    "sha256": "00a7d757d5854dd206145dbc68f1c4745eb35712e504602a516c5fe202e61e18",
+    "bytes": 25632
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/nano-file-binding-srhnjx4p/instrumented-nsi.o": {
+    "sha256": "4102801d125209178452c09a72151e58e5c7efb520654976615d29245d5ca922",
+    "bytes": 61272
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/nano-file-binding-srhnjx4p/instrumented-cJSON.o": {
+    "sha256": "3c980e78ee0135885232b765858e686d657ebbf46e563e4a4d4754ccf4f277b2",
+    "bytes": 81360
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/nano-file-binding-srhnjx4p/instrumented-utf8.o": {
+    "sha256": "5f4005bcb1ac755b2493aa9d963e0ef6ac7af7b970b3d0c42689ae592c3c1de7",
+    "bytes": 10376
+  }
+}

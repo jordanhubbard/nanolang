@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/make-bin/nsi-file-binding",
+    "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/cli/input-symlink",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/cli/refused-symlink"
+  ],
+  "pid": 83969,
+  "returncode": 1,
+  "timeout": false
+}

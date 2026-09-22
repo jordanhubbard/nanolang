@@ -1,7 +1,7 @@
 # I retain source-level module facts before the compiler flattens imports.
 import "src_nano/compiler/lexer.nano"
 
-struct ModuleIntrospection {
+pub struct ModuleIntrospection {
     name: string,
     path: string,
     functions: array<string>,
@@ -30,7 +30,7 @@ shadow mi_identifier {
     assert (not (mi_identifier "probe-name"))
 }
 
-fn mi_unique(names: array<string>, name: string) -> array<string> {
+pub fn mi_unique(names: array<string>, name: string) -> array<string> {
     let mut i: int = 0
     while (< i (array_length names)) {
         if (== (at names i) name) { return names }
@@ -44,7 +44,7 @@ shadow mi_unique {
     assert (== (array_length (mi_unique names "b")) 2)
 }
 
-fn mi_scan(source: string, path: string, fallback_name: string) -> ModuleIntrospection {
+pub fn mi_scan(source: string, path: string, fallback_name: string) -> ModuleIntrospection {
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let tokens: List<LexerToken> = (tokenize_string source path diags)
     let mut name: string = fallback_name
@@ -160,7 +160,7 @@ shadow mi_inventory {
     assert (str_contains (mi_inventory "function" "probe" values) "return 1;")
 }
 
-fn mi_emit(info: ModuleIntrospection) -> string {
+pub fn mi_emit(info: ModuleIntrospection) -> string {
     if (not info.ok) { return "" }
     let mut code: string = (+ (mi_inventory "function" info.name info.functions) (mi_inventory "struct" info.name info.structs))
     set code (+ code (+ (+ "bool ___module_is_unsafe_" info.name) "(void) { return "))

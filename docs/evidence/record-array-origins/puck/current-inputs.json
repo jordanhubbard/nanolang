@@ -1,0 +1,42 @@
+{
+  "55045/source": {
+    "entries": 3684,
+    "map": "/tmp/nanolang-record-array-55045-puck/ordinary-source-after.json",
+    "sha256": "2db49b84daefe8de4ea80fd1a121b92eb63d1349b8a48a3fbd5a71eff205cb0d"
+  },
+  "55045/tools": {
+    "entries": 15,
+    "map": "/tmp/nanolang-record-array-55045-puck/ordinary-tools-after.json",
+    "sha256": "72322121d44adabe9caf27f62bfa29fd3d995561cdd1aa89b86711f58b4788a9"
+  },
+  "55045/providers-and-last-fixture-artifacts": {
+    "entries": 211,
+    "map": "/tmp/nanolang-record-array-55045-puck/ordinary-artifacts.json",
+    "sha256": "b267318e8fd7ed0cea0308c99028d48847fee0de4e4b7bdc4a0b168a8c2edb11"
+  },
+  "55045/source-archive": {
+    "sha256": "59b811039fc0b796703991fc4eca6b7e310f23a9754a392b3a4e3360dca8ea8c",
+    "bytes": 15103885,
+    "artifact": "/tmp/nanolang-record-array-puck-seal/objects/59b811039fc0b796703991fc4eca6b7e310f23a9754a392b3a4e3360dca8ea8c"
+  },
+  "2e9fa/source": {
+    "entries": 3684,
+    "map": "/tmp/nanolang-record-array-2e9fa-puck/complete-declarations-source-after.json",
+    "sha256": "8510652397f42986ea6cdecf90202f499d605d6a06d3462a959e1ceb113e4dc0"
+  },
+  "2e9fa/tools": {
+    "entries": 15,
+    "map": "/tmp/nanolang-record-array-2e9fa-puck/complete-declarations-tools-after.json",
+    "sha256": "72322121d44adabe9caf27f62bfa29fd3d995561cdd1aa89b86711f58b4788a9"
+  },
+  "2e9fa/providers-and-last-fixture-artifacts": {
+    "entries": 207,
+    "map": "/tmp/nanolang-record-array-2e9fa-puck/complete-declarations-artifacts.json",
+    "sha256": "7e5329f13b0189a0dc2f9ea1c969ef75524bc6be33971c88eddfde6a647156ff"
+  },
+  "2e9fa/source-archive": {
+    "sha256": "bcddfb5391d933c6973d280bae24b221e4fe9ab4b59aa2a07eda5a952d854c75",
+    "bytes": 15104275,
+    "artifact": "/tmp/nanolang-record-array-puck-seal/objects/bcddfb5391d933c6973d280bae24b221e4fe9ab4b59aa2a07eda5a952d854c75"
+  }
+}

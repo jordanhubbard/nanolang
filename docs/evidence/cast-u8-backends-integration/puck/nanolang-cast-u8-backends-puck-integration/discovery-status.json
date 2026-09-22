@@ -1,0 +1,22 @@
+{
+  "name": "discovery",
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-c",
+    "import unittest;from tests import test_cast_u8_backends;s=unittest.defaultTestLoader.loadTestsFromModule(test_cast_u8_backends);assert s.countTestCases()==5;print('I discover exactly five generated CAST_U8 methods.')"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.0486108750000005,
+  "log": {
+    "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+    "bytes": 51,
+    "archive": "/private/tmp/nanolang-cast-u8-backends-puck-integration/objects/da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

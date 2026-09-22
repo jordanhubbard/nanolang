@@ -33,6 +33,7 @@
  * TYPE_UNKNOWN, because a v1 module records no type for those.
  */
 
+#include "record_array_structure_private.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -153,6 +154,7 @@ static bool type_rule_for(uint8_t opcode, TypeRule *out) {
 
     /* Casts state their own result. */
     case OP_CAST_INT:    RULE0(TAG_INT);
+    case OP_CAST_U8:     RULE1(TAG_INT, TAG_U8);
     case OP_CAST_FLOAT:  RULE0(TAG_FLOAT);
     case OP_CAST_BOOL:   RULE0(TAG_BOOL);
     case OP_CAST_STRING: RULE0(TAG_STRING);
@@ -179,10 +181,10 @@ static uint8_t join(uint8_t a, uint8_t b) {
     return a == b ? a : TYPE_UNKNOWN;
 }
 
-NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
+static NvmVerifyResult verify_types_checked(const NvmModule *mod, uint32_t fn_idx,
                                           const VmDecodedFunction *decoded,
                                           uint16_t max_depth,
-                                          char *error, size_t error_size) {
+                                          char *error, size_t error_size, NvmRecordArrayBudget *budget) {
     NvmVerifyResult ok;
     ok.ok = true;
     ok.error_msg[0] = '\0';
@@ -207,6 +209,10 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
      * end corrupted the heap. macOS absorbed it; glibc aborted while
      * compiling an example, which is where this surfaced. */
     const uint32_t capacity = n + 1;
+    uint64_t reserved=(uint64_t)capacity*(slots+sizeof(uint16_t)+2*sizeof(bool)+sizeof(uint32_t));
+    if(!nvm_ra_bytes(budget,reserved) || !nvm_ra_steps(budget,(uint64_t)capacity*(slots+4u))) {
+        ok.ok=false;snprintf(ok.error_msg,sizeof ok.error_msg,"I reached my private type-check budget.");return ok;
+    }
     uint8_t *state = malloc((size_t)capacity * slots);
     uint16_t *depth = malloc((size_t)capacity * sizeof(*depth));
     bool *seen = calloc((size_t)capacity, sizeof(*seen));
@@ -214,7 +220,11 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
     uint32_t *work = malloc((size_t)capacity * sizeof(*work));
     if (!state || !depth || !seen || !queued || !work) {
         free(state); free(depth); free(seen); free(queued); free(work);
-        return ok;   /* height verification already passed; this is extra */
+        if(budget) {
+            budget->bytes-=reserved;budget->memory=true;ok.ok=false;
+            snprintf(ok.error_msg,sizeof ok.error_msg,"I could not allocate private type-check state.");
+        }
+        return ok;   /* Old callers retain the optional type-pass behavior. */
     }
     memset(state, TYPE_UNKNOWN, (size_t)capacity * slots);
     memset(depth, 0, (size_t)capacity * sizeof(*depth));
@@ -228,6 +238,9 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
     NvmVerifyResult result = ok;
 
     while (live > 0) {
+        if(!nvm_ra_steps(budget,(uint64_t)slots*4u+32u)) {
+            result.ok=false;snprintf(result.error_msg,sizeof result.error_msg,"I reached my private type-check work bound.");goto done;
+        }
         uint32_t index = work[head];
         head = (head + 1) % capacity;
         live--;
@@ -253,13 +266,15 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
                 if (from_top >= d) break;          /* height walk owns arity */
                 uint8_t have = in[d - 1 - from_top];
                 uint8_t want = rule.args[k];
-                if (have != TYPE_UNKNOWN && want != TYPE_UNKNOWN && have != want) {
+                bool byte_identity = instr->opcode == OP_CAST_U8 && have == TAG_U8;
+                if (have != TYPE_UNKNOWN && want != TYPE_UNKNOWN && have != want && !byte_identity) {
                     result.ok = false;
                     snprintf(result.error_msg, sizeof(result.error_msg),
                              "function[%u] %s at offset %u expects %s but the "
                              "operand is %s",
                              fn_idx, info->name, di->byte_offset,
-                             isa_tag_name(want), isa_tag_name(have));
+                             instr->opcode == OP_CAST_U8 ? "int or u8" : isa_tag_name(want),
+                             isa_tag_name(have));
                     goto done;
                 }
             }
@@ -350,8 +365,18 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
     }
 
 done:
+    if(budget)budget->bytes-=reserved;
     free(state); free(depth); free(seen); free(queued); free(work);
     if (!result.ok && error && error_size > 0)
         snprintf(error, error_size, "%s", result.error_msg);
     return result;
+}
+
+NvmVerifyResult nvm_verify_function_types(const NvmModule *mod,uint32_t fn,
+        const VmDecodedFunction *decoded,uint16_t depth,char *error,size_t size) {
+    return verify_types_checked(mod,fn,decoded,depth,error,size,NULL);
+}
+NvmVerifyResult nvm_verify_function_types_record_array(const NvmModule *mod,uint32_t fn,
+        const VmDecodedFunction *decoded,uint16_t depth,NvmRecordArrayBudget *budget) {
+    return verify_types_checked(mod,fn,decoded,depth,NULL,0,budget);
 }

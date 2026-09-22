@@ -13,6 +13,7 @@
 #include "runtime/list_token.h"
 #include "runtime/gc.h"
 #include "runtime/dyn_array.h"
+#include "runtime/shadow_timing.h"
 #include "tracing.h"
 #include "interpreter_ffi.h"
 #include "eval/eval_hashmap.h"
@@ -284,6 +285,40 @@ static Value eval_match_invariant_failure(const char *reason) {
     fflush(stderr);
     exit(EXIT_FAILURE);
     return create_void();
+}
+
+/* I own only a directly constructed empty union, never an alias or payload. */
+static bool eval_match_owns_empty_literal(const ASTNode *scrutinee, Value value) {
+    if (!scrutinee || value.type != VAL_UNION || !value.as.union_val)
+        return false;
+    bool literal =
+        (scrutinee->type == AST_STRUCT_LITERAL &&
+         scrutinee->as.struct_literal.field_count == 0) ||
+        (scrutinee->type == AST_UNION_CONSTRUCT &&
+         scrutinee->as.union_construct.field_count == 0);
+    UnionValue *u = value.as.union_val;
+    return literal && u->field_count == 0 &&
+           !u->field_names && !u->field_values;
+}
+
+static void eval_match_release_empty_literal(Value value, bool owned, Value result) {
+    if (!owned || (result.type == VAL_UNION &&
+                   result.as.union_val == value.as.union_val)) return;
+    UnionValue *u = value.as.union_val;
+    free(u->union_name);
+    free(u->variant_name);
+    free(u);
+}
+
+/* I retire only owned names; values and declaration type facts are separate. */
+static void eval_match_pop_metadata(Environment *env, int first) {
+    for (int i = first; i < env->symbol_count; ++i) {
+        free(env->symbols[i].name);
+        free(env->symbols[i].struct_type_name);
+        env->symbols[i].name = NULL;
+        env->symbols[i].struct_type_name = NULL;
+    }
+    env->symbol_count = first;
 }
 
 /* I restore lexical bindings on every exit, retaining a yielded local string. */
@@ -3649,7 +3684,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         free(buf);
         return v;
     }
-    if (strcmp(name, "str_split") == 0) {
+    if (strcmp(name, "str_split") == 0 &&
+        env_native_array_is_builtin(env, name, node->line, node->column)) {
         if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
             fprintf(stderr, "Error: str_split requires two string arguments\n");
             return create_void();
@@ -3657,12 +3693,21 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         const char *str = args[0].as.string_val;
         const char *delim = args[1].as.string_val;
         DynArray *result = dyn_array_new(ELEM_STRING);
-        if (!result) return create_void();
+        if (!result) {
+            fprintf(stderr, "I cannot allocate a complete split-string result.\n");
+            abort();
+        }
         size_t delim_len = strlen(delim);
         if (delim_len == 0) {
             size_t str_len = strlen(str);
             for (size_t i = 0; i < str_len; i++) {
-                char ch[2] = { str[i], '\0' };
+                char *ch = gc_alloc_string(1);
+                if (!ch) {
+                    fprintf(stderr, "I cannot allocate a complete split-string result.\n");
+                    abort();
+                }
+                ch[0] = str[i];
+                ch[1] = '\0';
                 dyn_array_push_string(result, ch);
             }
         } else {
@@ -3670,15 +3715,24 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             const char *found;
             while ((found = strstr(start, delim)) != NULL) {
                 size_t seg_len = (size_t)(found - start);
-                char *seg = malloc(seg_len + 1);
-                if (!seg) break;
+                char *seg = gc_alloc_string(seg_len);
+                if (!seg) {
+                    fprintf(stderr, "I cannot allocate a complete split-string result.\n");
+                    abort();
+                }
                 memcpy(seg, start, seg_len);
                 seg[seg_len] = '\0';
                 dyn_array_push_string(result, seg);
-                free(seg);
                 start = found + delim_len;
             }
-            dyn_array_push_string(result, start);
+            size_t rest_len = strlen(start);
+            char *tail = gc_alloc_string(rest_len);
+            if (!tail) {
+                fprintf(stderr, "I cannot allocate a complete split-string result.\n");
+                abort();
+            }
+            memcpy(tail, start, rest_len + 1);
+            dyn_array_push_string(result, tail);
         }
         return create_dyn_array(result);
     }
@@ -5261,6 +5315,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (match_val.type == VAL_UNION && !match_val.as.union_val)
                 return eval_match_invariant_failure("a union match received no value");
 
+            bool owns_empty = eval_match_owns_empty_literal(
+                expr->as.match_expr.expr, match_val);
+
             /* Every pattern, including a wildcard, participates in source order. */
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
@@ -5270,8 +5327,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 if (match_val.type == VAL_UNION && strcmp(pattern_variant, "_") != 0) {
                     UnionValue *union_value = match_val.as.union_val;
                     const char *binding = expr->as.match_expr.pattern_bindings[i];
-                    /* I discard underscore payloads without hiding an outer name. */
-                    if (binding && strcmp(binding, "_") != 0) {
+                    if (binding && !*binding && union_value->field_count != 0)
+                        return eval_match_invariant_failure("I require a zero-field variant for an empty match binding");
+                    /* I create no local for () or underscore discard. */
+                    if (binding && *binding && strcmp(binding, "_") != 0) {
                         Value binding_value;
                         if (union_value->field_count > 0) {
                             char **field_names = malloc(sizeof(char *) * (size_t)union_value->field_count);
@@ -5301,25 +5360,29 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 if (guard) {
                     Value guard_value = eval_expression(guard, env);
                     if (guard_value.is_return || guard_value.is_break || guard_value.is_continue) {
-                        env->symbol_count = saved_symbol_count;
+                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_match_release_empty_literal(match_val, owns_empty, guard_value);
                         return guard_value;
                     }
                     if (guard_value.type != VAL_BOOL) {
-                        env->symbol_count = saved_symbol_count;
+                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_match_release_empty_literal(match_val, owns_empty, create_void());
                         return eval_match_invariant_failure(
                             "a checked match guard did not produce bool");
                     }
                     if (!guard_value.as.bool_val) {
-                        env->symbol_count = saved_symbol_count;
+                        eval_match_pop_metadata(env, saved_symbol_count);
                         continue;
                     }
                 }
 
                 Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
-                env->symbol_count = saved_symbol_count;
+                eval_match_pop_metadata(env, saved_symbol_count);
+                eval_match_release_empty_literal(match_val, owns_empty, result);
                 return result;
             }
 
+            eval_match_release_empty_literal(match_val, owns_empty, create_void());
             return eval_match_invariant_failure(
                 "a checked match reached no successful arm");
         }
@@ -6080,6 +6143,8 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             return create_void();
         }
         
+        case AST_SERVICE_DECL:
+            return eval_match_invariant_failure("I have not resolved File service declarations for this consumer");
         case AST_FUNCTION:
         case AST_SHADOW:
             /* Function and shadow definitions are handled at program level */
@@ -6124,6 +6189,7 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose) {
 
 bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modules,
                             const char *input_file, bool include_imports, bool verbose) {
+    if (ast_has_service_declaration(program)) { fprintf(stderr, "I have not resolved File service declarations for this consumer.\n"); return false; }
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program for shadow tests\n");
         return false;
@@ -6146,6 +6212,7 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
     const char *root_file = env_current_file(env);
     int imported_count = include_imports && modules ? modules->count : 0;
 
+    nl_shadow_timing("interpreter_start", -1, -1, 0, 0, 0);
     for (int source = 0; source <= imported_count; source++) {
         bool imported = source < imported_count;
         const char *file = imported ? modules->module_paths[source] : input_file;
@@ -6160,6 +6227,7 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
         env->current_module = imported ? owner : root_owner;
         env_set_current_file(env, file);
 
+        nl_shadow_timing("module_init_start", source, -1, test_count, 0, 0);
         /* First pass: Evaluate top-level constants */
         for (int i = 0; i < program->as.program.count; i++) {
             ASTNode *item = program->as.program.items[i];
@@ -6187,6 +6255,7 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
             }
         }
 
+        nl_shadow_timing("module_init_end", source, -1, test_count, 0, 0);
         /* Fourth pass: Run each shadow test */
         for (int i = 0; i < program->as.program.count; i++) {
             ASTNode *item = program->as.program.items[i];
@@ -6217,7 +6286,9 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
                     }
                 }
 
+                nl_shadow_timing("shadow_start", source, i, test_count, 0, 0);
                 eval_statement(item->as.shadow.body, env);
+                nl_shadow_timing("shadow_end", source, i, test_count, 0, g_shadow_current_fail_count);
 
                 if (!verbose && saved_stdout_fd >= 0) {
                     fflush(stdout);
@@ -6279,6 +6350,7 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
     free(failures);
     g_in_shadow_tests = false;
 
+    nl_shadow_timing("interpreter_end", -1, -1, test_count, 0, all_passed ? 0 : 1);
     return all_passed;
 }
 

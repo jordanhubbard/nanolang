@@ -108,6 +108,25 @@ os.execvp(argv[0], argv)
                 if expected_stdout is not None:
                     self.assertEqual(out, expected_stdout)
 
+    def test_signed_string_length_results(self):
+        self.native_routes('signed-string-length', '''fn below(text:string, width:int) -> int {
+ return (- (str_length text) width)
+}
+shadow below { assert (== (below "a" 3) -2) }
+fn once() -> string { (print "x") return "ab" }
+shadow once { assert (== (str_length (once)) 2) }
+fn main() -> int {
+ assert (== (str_length "") 0)
+ assert (== (str_length "éx") 3)
+ assert (< (- (str_length "a") 3) 0)
+ assert (not (< (str_length "a") -1))
+ assert (== (/ (- (str_length "a") 4) 2) -1)
+ assert (== (below "a" 3) -2)
+ assert (== (- (str_length (once)) 3) -1)
+ return 0
+}
+''', expected_stdout=b'x')
+
     def test_native_operations_order_and_growth(self):
         # I retain the existing trace/alias/iteration program and all assertions.
         source = (ROOT / 'tests/fixtures/evaluator_lists/mutations.nano').read_text()

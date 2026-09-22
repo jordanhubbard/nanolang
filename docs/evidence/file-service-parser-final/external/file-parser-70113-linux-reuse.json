@@ -1,0 +1,25 @@
+{
+  "origin": "cbc08b5b4499cc9d8a1c86d6d302c4c618bd5fe1",
+  "source": "/home/jkh/Src/nanolang-file-service-parser-cbc08",
+  "destination": "/home/jkh/Src/nanolang-file-service-parser-70113",
+  "unchanged_producer_source_count": 815,
+  "copied_compilers": {
+    "bin/nanoc_c": {
+      "sha256": "debca2ccd985ec3a587d5b1500224044ef1c495a0d7894fde7829aa432ac4878",
+      "bytes": 19187928
+    },
+    "bin/nanoc_stage1": {
+      "sha256": "87b924a8b7a02fed2d2f132c6d6ccf728c4b64a8e3bb00642f1f195d989c3b8e",
+      "bytes": 17757088
+    },
+    "bin/nanoc_stage2": {
+      "sha256": "7c67ecef3b5e28b12d740fb753a8963feab26ea341f68b7a10222882923ea68a",
+      "bytes": 11566256
+    },
+    "bin/nanoc": {
+      "sha256": "7c67ecef3b5e28b12d740fb753a8963feab26ea341f68b7a10222882923ea68a",
+      "bytes": 11566256
+    }
+  },
+  "scope": "Only four exact CBC compiler/alias binaries copied after current product/input proof. All ordinary providers rebuild from current sources; no bootstrap or sanitizer claim."
+}

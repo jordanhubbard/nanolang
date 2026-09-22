@@ -1,0 +1,24 @@
+{
+  "name": "byte-neighbors",
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_scalar_u8"
+  ],
+  "bound_seconds": 900,
+  "status": 1,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.04571504204068333,
+  "log": {
+    "sha256": "435842b597d028dbb766dbfa757b0fbde14aa5346427181fe30d6d42654a67f4",
+    "bytes": 5279,
+    "archive": "/private/tmp/nanolang-cast-u8-puck-corrected/objects/435842b597d028dbb766dbfa757b0fbde14aa5346427181fe30d6d42654a67f4"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

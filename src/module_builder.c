@@ -2066,18 +2066,28 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
         if (dir_exists(meta->include_dirs[i])) continue;
 
         char parent[1024];
-        strncpy(parent, module_dir, sizeof(parent) - 1);
-        parent[sizeof(parent) - 1] = '\0';
+        size_t parent_length = strlen(module_dir);
+        if (parent_length >= sizeof(parent)) {
+            cJSON_Delete(json); module_metadata_free(meta); return NULL;
+        }
+        memcpy(parent, module_dir, parent_length + 1);
         bool resolved = false;
         for (int depth = 0; depth < 8 && !resolved; depth++) {
             char *slash = strrchr(parent, '/');
             if (!slash) break;
             *slash = '\0';
             char candidate[2048];
-            snprintf(candidate, sizeof(candidate), "%s/%s", parent, meta->include_dirs[i]);
+            int length = snprintf(candidate, sizeof(candidate), "%s/%s", parent, meta->include_dirs[i]);
+            if (length < 0 || (size_t)length >= sizeof(candidate)) {
+                cJSON_Delete(json); module_metadata_free(meta); return NULL;
+            }
             if (dir_exists(candidate)) {
+                char *replacement = strdup(candidate);
+                if (!replacement) {
+                    cJSON_Delete(json); module_metadata_free(meta); return NULL;
+                }
                 free(meta->include_dirs[i]);
-                meta->include_dirs[i] = strdup(candidate);
+                meta->include_dirs[i] = replacement;
                 resolved = true;
             }
         }
@@ -2099,24 +2109,61 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
         if (dir_exists(inc_path)) continue;
 
         char parent[1024];
-        strncpy(parent, module_dir, sizeof(parent) - 1);
-        parent[sizeof(parent) - 1] = '\0';
+        size_t parent_length = strlen(module_dir);
+        if (parent_length >= sizeof(parent)) {
+            cJSON_Delete(json); module_metadata_free(meta); return NULL;
+        }
+        memcpy(parent, module_dir, parent_length + 1);
         for (int depth = 0; depth < 8; depth++) {
             char *slash = strrchr(parent, '/');
             if (!slash) break;
             *slash = '\0';
             char candidate[2048];
-            snprintf(candidate, sizeof(candidate), "%s/%s", parent, inc_path);
+            int joined = snprintf(candidate, sizeof(candidate), "%s/%s", parent, inc_path);
+            if (joined < 0 || (size_t)joined >= sizeof(candidate)) {
+                cJSON_Delete(json); module_metadata_free(meta); return NULL;
+            }
             if (dir_exists(candidate)) {
-                char resolved_flag[2060];
-                snprintf(resolved_flag, sizeof(resolved_flag), "-I%s", candidate);
+                char *quoted = module_quote_path(candidate);
+                size_t length = quoted ? strlen(quoted) : 0;
+                char *resolved_flag = quoted && length <= SIZE_MAX - 3 ? malloc(length + 3) : NULL;
+                if (!resolved_flag) {
+                    free(quoted); cJSON_Delete(json); module_metadata_free(meta); return NULL;
+                }
+                memcpy(resolved_flag, "-I", 2);
+                memcpy(resolved_flag + 2, quoted, length + 1);
+                free(quoted);
                 free(meta->cflags[i]);
-                meta->cflags[i] = strdup(resolved_flag);
+                meta->cflags[i] = resolved_flag;
                 break;
             }
         }
     }
 
+    /* I append the actual driver's verified installed runtime header root.
+     * Source/unprepared metadata tools retain their existing include behavior. */
+    char sdk_include[4096];
+    if (!nano_native_prepared_include(sdk_include, sizeof(sdk_include))) {
+        cJSON_Delete(json); module_metadata_free(meta); return NULL;
+    }
+    if (sdk_include[0]) {
+        bool duplicate = false;
+        for (size_t i = 0; i < meta->include_dirs_count; ++i)
+            if (!strcmp(meta->include_dirs[i], sdk_include)) duplicate = true;
+        if (!duplicate) {
+            if (meta->include_dirs_count >= SIZE_MAX / sizeof(char *) - 1) {
+                cJSON_Delete(json); module_metadata_free(meta); return NULL;
+            }
+            char *copy = strdup(sdk_include);
+            char **grown = copy ? realloc(meta->include_dirs,
+                (meta->include_dirs_count + 1) * sizeof(char *)) : NULL;
+            if (!grown) {
+                free(copy); cJSON_Delete(json); module_metadata_free(meta); return NULL;
+            }
+            meta->include_dirs = grown;
+            meta->include_dirs[meta->include_dirs_count++] = copy;
+        }
+    }
     cJSON_Delete(json);
     return meta;
 }
@@ -5562,7 +5609,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 }
             }
 
-            char combine_cmd[8192] = {0};
+            char combine_cmd[NL_MODULE_LINK_COMMAND_CAPACITY] = {0};
 #ifdef __APPLE__
             /* I am producing one relocatable object, not a runnable image.
              * Apple Clang otherwise adds -lSystem and compiler-rt to `cc -r`;
@@ -5588,7 +5635,8 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             free(src_objects);
 
             if (combine_result != 0) {
-                fprintf(stderr, "Error: Failed to combine objects for module %s\n", meta->name);
+                fprintf(stderr, command_ok ? "I could not combine objects for module %s\n" :
+                        "I could not construct the complete object link for module %s\n", meta->name);
                 free(build_dir);
                 return NULL;
             }
@@ -5618,9 +5666,16 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         }
 
         if (shared_dir_ok) {
-            char lib_cmd[4096] = {0};
+            /* I use the same bounded command extent as my link-query grammar.
+             * Every private provider contributes its complete object path. */
+            char lib_cmd[NL_MODULE_LINK_COMMAND_CAPACITY] = {0};
             command_ok &= module_shared_link_command(meta, flags, object_file, shared_lib,
                                                       build_dir, lib_cmd, sizeof(lib_cmd));
+            if (!command_ok) {
+                fprintf(stderr, "I could not construct the complete shared link for %s\n", meta->name);
+                free(build_dir);
+                return NULL;
+            }
 
             /* Note: ldflags/system libs/frameworks are included above via shared_ldflags */
 
@@ -5661,7 +5716,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             /* I preserve an ordinary link when dependency capture is not
              * supported. I admit my retained compiler argument transports,
              * but not indirect user response inputs hidden from this format. */
-            char recorded_command[8192] = {0}, link_record[2048] = {0};
+            char recorded_command[NL_MODULE_LINK_COMMAND_CAPACITY] = {0}, link_record[2048] = {0};
             bool capture = command_ok && link_observation && module_link_response_safe(meta, flags, lib_cmd) &&
                 module_build_append(link_record, sizeof(link_record), "%s/.link-dependencies", build_dir) &&
                 module_build_append(recorded_command, sizeof(recorded_command), "%s -Xlinker -dependency_info", lib_cmd) &&

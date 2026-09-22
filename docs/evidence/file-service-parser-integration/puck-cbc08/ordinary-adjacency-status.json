@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/usr/bin/make",
+    "-j2",
+    "CC=/usr/bin/clang",
+    "test-parser",
+    "test-module-metadata",
+    "test-wrapper-gen"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 282.8450325001031
+}

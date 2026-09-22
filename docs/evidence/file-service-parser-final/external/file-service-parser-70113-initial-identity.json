@@ -1,0 +1,9 @@
+{
+  "source_pin": "7011339acc4fbffeea12e72fdba1ff4d7fdd8892",
+  "sources": 54637,
+  "linux_map": "/tmp/nanolang-file-service-parser-70113-linux/providers-source-before.json",
+  "puck_map": "/tmp/file-parser-70113-puck-source-before.json",
+  "equal": true,
+  "map_sha256": "eaade5dc660b6b01721e2d6763f6fe56b1f55ab99a87263c77c5ea783f5a3dfe",
+  "initial_products": "Four exact retained CBC compiler binaries per host; no providers or module caches copied. Per-host identities are in reuse proofs; cross-host executable byte equality is not claimed."
+}

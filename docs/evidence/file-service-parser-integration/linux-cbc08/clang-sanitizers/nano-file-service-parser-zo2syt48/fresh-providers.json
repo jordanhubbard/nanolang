@@ -1,0 +1,15 @@
+{
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/lexer.o": "8145ca239aaa9afe39e0814ba69adc859011762af8bf85aaf3f020237f01e6ab",
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/utf8.o": "2dba4327752ae9e21f774669ce6731e7c4936e1cceee400cc1ffa41ab5392c5f",
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/env.o": "6f3c8554b20682a944f02d703696836d4324368d02f24e723776fe313dd3e58b",
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/eval.o": "f3852361bac0cdbfe441e4b940ba17d3bd2b7b34c79ed74cf73697dd3772e0b3",
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/transpiler.o": "8343082bf6cb74db92e6df52bb49e2dbbe8532857231713f42ed2bd0ab4c1010",
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/publisher-bin/nsi-file-binding": "cf3e2036674d58ab8af84aaf5bb1e423f996afbff8a53e327d1bd7244faabafc",
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/publisher-obj/file-binding-publisher/cJSON.o": "5ba4745dd2140141c499285866be48bfa60b951a82a7dbfc2d7dc53367a4f901",
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/publisher-obj/file-binding-publisher/nsi.o": "9384e70efb1fabc905242c299f73d7d564f2b62fbf500815436f21c8fe400660",
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/publisher-obj/file-binding-publisher/nsi_file_binding.o": "af8c6dafb9013834d2e6d7f3aaf49bf7b4822c61d4086aedb693b97aade30e57",
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "72bf1733833732e5833c9b317d180b273370bde65ff5e0075dfc08db06f9e56d",
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/publisher-obj/file-binding-publisher/nsi_file_plan.o": "5002fba779be9969b1d6bab536ca4cae568007629ef6b915dbfd22ec3f49adec",
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/publisher-obj/file-binding-publisher/nsi_file_publish.o": "ea830254970923262dc71860a3cb552284c8fc8743f6ee7dbdf02894602582a0",
+  "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers/nano-file-service-parser-zo2syt48/publisher-obj/file-binding-publisher/utf8.o": "bd68559d73a810ebafdd7ad28c875232f6f751b540ab32c1b879352dbe901160"
+}

@@ -187,7 +187,7 @@ static void fold_walk(ASTNode *node) {
         case AST_CONTINUE:
         case AST_IMPORT:
         case AST_MODULE_DECL:
-        case AST_OPAQUE_TYPE:
+        case AST_SERVICE_DECL: case AST_OPAQUE_TYPE:
         case AST_ENUM_DEF:
         case AST_QUALIFIED_NAME:
             return;

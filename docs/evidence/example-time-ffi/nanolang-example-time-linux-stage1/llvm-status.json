@@ -1,0 +1,21 @@
+{
+  "name": "llvm",
+  "argv": [
+    "/usr/local/bin/clang",
+    "--version"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.015810309094376862,
+  "log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440,
+    "archive": "/tmp/nanolang-example-time-linux-stage1/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

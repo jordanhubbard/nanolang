@@ -1,0 +1,16 @@
+/tmp/nanolang-comparison-original/comparison.nano: In function ‘nl_agrees’:
+/tmp/nanolang-comparison-original/comparison.nano:2:14: error: suggest parentheses around comparison in operand of ‘==’ [-Werror=parentheses]
+    2 |     return (== (== i j) (== j i))
+      |            ~~^~~~
+/tmp/nanolang-comparison-original/comparison.nano:2:19: error: suggest parentheses around comparison in operand of ‘==’ [-Werror=parentheses]
+    2 |     return (== (== i j) (== j i))
+      |            ~~~~~~~^~~~
+/tmp/nanolang-comparison-original/comparison.nano: In function ‘nl_main’:
+/tmp/nanolang-comparison-original/comparison.nano:11:21: error: suggest parentheses around comparison in operand of ‘==’ [-Werror=parentheses]
+   11 |             assert (== (< i j) (> j i))
+      |                   ~~^~~
+/tmp/nanolang-comparison-original/comparison.nano:12:29: error: suggest parentheses around comparison in operand of ‘==’ [-Werror=parentheses]
+   12 |             assert (== (> (+ i 1) j) (< j (+ i 1)))
+      |                   ~~~~~~~~~~^~~
+cc1: all warnings being treated as errors
+C compilation failed

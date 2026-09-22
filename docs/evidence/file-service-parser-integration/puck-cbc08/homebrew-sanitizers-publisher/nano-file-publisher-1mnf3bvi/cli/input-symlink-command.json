@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers-publisher/nano-file-publisher-1mnf3bvi/make-bin/nsi-file-binding",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers-publisher/nano-file-publisher-1mnf3bvi/cli/input-symlink",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers-publisher/nano-file-publisher-1mnf3bvi/cli/refused-symlink"
+  ]
+}

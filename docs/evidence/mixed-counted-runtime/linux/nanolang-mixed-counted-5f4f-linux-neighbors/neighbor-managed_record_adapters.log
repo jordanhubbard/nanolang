@@ -1,0 +1,7 @@
+I retain neighbor artifacts at /tmp/nanolang-mixed-counted-5f4f-linux-neighbors/managed_record_adapters-products
+test_private_adapters_native_and_wasm (tests.test_managed_record_adapters.RecordAdapters.test_private_adapters_native_and_wasm) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.905s
+
+OK

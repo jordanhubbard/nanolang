@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-print-file-name=libubsan.so"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-77ad",
+  "environment": {
+    "CC": "/usr/bin/gcc",
+    "SDKROOT": null,
+    "PATH": "/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/usr/local/cuda/bin:/opt/bin/:/home/jkh/.codex/tmp/arg0/codex-arg0q1IvSc:/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/home/jkh/.local/share/pnpm:/home/jkh/gocode/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/cuda/bin:/snap/bin:/home/jkh/.cargo/bin:/home/jkh/.ghcup/bin:/home/jkh/.local/bin:/home/jkh/.local/bin:/sbin:/usr/sbin:/bin:/usr/bin:/home/jkh/Bin:.",
+    "PKG_CONFIG_PATH": null,
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": "",
+    "NANO_SERVICE_PARSER_CC": null,
+    "NANO_SERVICE_PARSER_CFLAGS": null,
+    "NANO_SERVICE_PARSER_SANITIZERS": null,
+    "NANO_SERVICE_PARSER_OBJECTS": null,
+    "NANO_SERVICE_PARSER_LDFLAGS": null
+  }
+}

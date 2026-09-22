@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/bin/xcrun",
+    "--show-sdk-version"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.011733458028174937
+}

@@ -1,0 +1,15 @@
+{
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/lexer.o": "b39359472961ee9dbb7ac2fb6a75cea5fbdf1c714c595c6118a64c0d5b0b436f",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/utf8.o": "82556a4ceea96dc303fc9b16f0ec3ba830ebf8b07e53c3c47708bfe7147c1004",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/env.o": "5becf6a9513084b9a2313df55a3e7b8ffc8a36e892b25b9482920f9fb03370b9",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/eval.o": "8376c6d358c0ee0a5bfb23382100403ff45d41d9b737dbdfc618ed12c563f399",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/transpiler.o": "cbe73cc5c8d6200c5dee783e519f7f36a2d5a0b9e7b32d2a438cf2fe8add1701",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/publisher-bin/nsi-file-binding": "e0b924a279a11ae644a4005c6aca1d66a4104309a42621a5889560c6b7c2182b",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/publisher-obj/file-binding-publisher/cJSON.o": "30722ecc183f7df626138fa2aedd93f7da8a6525a30f3d4a4e4ed0292ea79f4b",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/publisher-obj/file-binding-publisher/nsi.o": "3bf42983ac9613e0fb9d28ed6ff87c74d5f43d521ba6ac2f674658a76f512c16",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/publisher-obj/file-binding-publisher/nsi_file_binding.o": "8792598fd78d77e85e4db7d8b959b455b15e7c3698700907eb39f14d0fb2387d",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "95565c48d273900055da84662bf9cdf48cf6aca15e87d10b691bf68b5afe9f3e",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/publisher-obj/file-binding-publisher/nsi_file_plan.o": "0624ff3e58c6742892664d54924a9344a66e94216149c7604981957cadefac4f",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/publisher-obj/file-binding-publisher/nsi_file_publish.o": "032c2bd5eb3253022d86fb03fcd7fb086c92d3c2c3550261b50e139eb7cb47a2",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers/nano-file-service-parser-4e71nlpf/publisher-obj/file-binding-publisher/utf8.o": "3649e76fd23837bd9bdeab217ce63cd289d3f5001e87f15696f9f93265f30a26"
+}

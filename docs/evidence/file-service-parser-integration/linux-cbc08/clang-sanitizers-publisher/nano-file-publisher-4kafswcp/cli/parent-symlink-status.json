@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/make-bin/nsi-file-binding",
+    "tests/fixtures/nsi_file_plan.json",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/cli/parent-link/refused"
+  ],
+  "pid": 2997569,
+  "returncode": 1,
+  "timeout": false
+}

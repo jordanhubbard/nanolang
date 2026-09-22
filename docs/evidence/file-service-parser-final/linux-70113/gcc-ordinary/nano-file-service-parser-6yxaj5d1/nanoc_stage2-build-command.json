@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/home/jkh/Src/nanolang-file-service-parser-70113/bin/nanoc_stage2",
+    "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary/nano-file-service-parser-6yxaj5d1/file_service_parser.nano",
+    "-o",
+    "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary/nano-file-service-parser-6yxaj5d1/parser-nanoc_stage2",
+    "--keep-c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-70113",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

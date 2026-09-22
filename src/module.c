@@ -1,4 +1,5 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkdtemp */
+#include "runtime/module_build_dir.h"
 #include "nanolang.h"
 #include "module_builder.h"
 #include "shell_path.h"
@@ -11,6 +12,7 @@
 #include <errno.h>
 #include <libgen.h>
 #include <stdio.h>
+#include <stdint.h>
 
 /* mkdtemp declaration (if not available via headers) */
 #ifndef _DARWIN_C_SOURCE
@@ -19,7 +21,14 @@ char *mkdtemp(char *template);
 
 /* Weak default so binaries that don't define get_project_root() still link */
 __attribute__((weak)) const char *get_project_root(void) {
-    return ".";
+    static char root[4096];
+    static bool initialized;
+    if (!initialized) {
+        bool installed;
+        initialized = true;
+        if (nano_native_sdk_root(root, sizeof(root), &installed) != NANO_SDK_OK) root[0] = 0;
+    }
+    return root[0] ? root : ".";
 }
 
 /* Module cache to prevent duplicate imports and preserve ASTs */
@@ -326,9 +335,27 @@ char *unpack_module_package(const char *package_path, char *temp_dir_out, size_t
 const char *resolve_module_path(const char *module_path, const char *current_file) {
     if (!module_path) return NULL;
     
-    /* If module_path is absolute or starts with ./, use as-is */
-    if (module_path[0] == '/' || (module_path[0] == '.' && module_path[1] == '/')) {
-        return strdup(module_path);
+    /* I preserve absolute paths and all ordinary search modes below. */
+    if (module_path[0] == '/') return strdup(module_path);
+    if (strncmp(module_path, "./", 2) == 0 || strncmp(module_path, "../", 3) == 0) {
+        if (!current_file || !*current_file) return strdup(module_path);
+        /* Both actual producers anchor at the physical declaring source. I
+         * refuse failed canonicalization rather than choosing a CWD decoy.
+         * A normal basename-only importer resolves to its CWD directory. */
+        char *origin = realpath(current_file, NULL);
+        if (!origin) return NULL;
+        const char *slash = strrchr(origin, '/');
+        if (!slash) { free(origin); return NULL; }
+        size_t parent = (size_t)(slash - origin) + 1;
+        size_t relative = strlen(module_path);
+        if (relative > SIZE_MAX - parent - 1) { free(origin); return NULL; }
+        char *joined = malloc(parent + relative + 1);
+        if (joined) {
+            memcpy(joined, origin, parent);
+            memcpy(joined + parent, module_path, relative + 1);
+        }
+        free(origin);
+        return joined;
     }
     
     /* Check if this is a project-relative path (common prefixes like std/, stdlib/, examples/, src/) */
@@ -555,6 +582,19 @@ const char *resolve_module_path(const char *module_path, const char *current_fil
         return package_path;
     }
     
+    /* I add installed standard inputs only after the existing local/package
+     * search. Explicit relative paths returned through their original branch. */
+    {
+        const char *root = get_project_root();
+        const char *prefixes[] = {"stdlib/", "modules/", ""};
+        for (size_t i = 0; i < sizeof(prefixes)/sizeof(prefixes[0]); ++i) {
+            char candidate[4096];
+            int n = snprintf(candidate, sizeof(candidate), "%s/%s%s", root, prefixes[i], module_path);
+            if (n < 0 || (size_t)n >= sizeof(candidate)) continue;
+            FILE *file = fopen(candidate, "rb");
+            if (file) { fclose(file); return strdup(candidate); }
+        }
+    }
     /* Fallback: return module_path as-is (will fail if not found) */
     return strdup(module_path);
 }
@@ -595,13 +635,48 @@ static Function *find_module_function(Environment *env, const char *module_name,
     }
     for (int i = 0; i < env->function_count; i++) {
         if (safe_strcmp(env->functions[i].name, func_name) == 0) {
-            if (!module_name || !env->functions[i].module_name ||
-                strcmp(env->functions[i].module_name, module_name) == 0) {
+            const char *owner = env->functions[i].module_name;
+            if ((!module_name && !owner) ||
+                (module_name && owner && strcmp(owner, module_name) == 0)) {
                 return &env->functions[i];
             }
         }
     }
     return NULL;
+}
+
+/* I stage owned alias spellings before publishing either field. */
+static bool copy_module_function_alias(const Function *source, const char *alias,
+                                       Function *out) {
+    if (!source || !source->name || !alias || !out) return false;
+    const char *original = source->alias_of ? source->alias_of : source->name;
+    char *name_copy = strdup(alias);
+    if (!name_copy) return false;
+    char *original_copy = strdup(original);
+    if (!original_copy) {
+        free(name_copy);
+        return false;
+    }
+    *out = *source;
+    out->name = name_copy;
+    out->alias_of = original_copy;
+    return true;
+}
+
+/* I validate all selected functions before publishing aliases for this import.
+ * Non-function selections retain their separate existing type resolver. */
+static bool selected_module_functions_public(Environment *env, const char *owner,
+                                              ASTNode *item) {
+    for (int i = 0; i < item->as.import_stmt.import_symbol_count; ++i) {
+        const char *name = item->as.import_stmt.import_symbols[i];
+        Function *function = find_module_function(env, owner, name);
+        if (function && !function->is_pub) {
+            fprintf(stderr, "I cannot import private function '%s' from module '%s' at %d:%d.\n",
+                    name, owner ? owner : "", item->line, item->column);
+            return false;
+        }
+    }
+    return true;
 }
 
 /* Load and parse a module file */
@@ -962,6 +1037,10 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
 /* I apply an explicit module declaration before registering its import aliases. */
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
     if (!program || program->type != AST_PROGRAM || !env) return false;
+    if (ast_has_service_declaration(program)) {
+        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+        return false;
+    }
     char *saved_owner = env->current_module;
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -1165,6 +1244,17 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                     module_name_for_alias = module_name_from_path(module_path);
                 }
                 
+                if (!module_name_for_alias ||
+                    !selected_module_functions_public(env, module_name_for_alias, item)) {
+                    if (!module_name_for_alias)
+                        fprintf(stderr, "I could not allocate the selected import owner.\n");
+                    free(module_name_for_alias);
+                    free(module_path);
+                    for (int k = 0; k < unpacked_count; k++) free(unpacked_dirs[k]);
+                    free(unpacked_dirs);
+                    return false;
+                }
+
                 for (int j = 0; j < item->as.import_stmt.import_symbol_count; j++) {
                     const char *symbol = item->as.import_stmt.import_symbols[j];
                     const char *alias = item->as.import_stmt.import_aliases
@@ -1200,10 +1290,15 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                         return false;
                     }
                     
-                    Function alias_func = *func;
-                    alias_func.name = strdup(alias);
-                    const char *orig_name = func->alias_of ? func->alias_of : func->name;
-                    alias_func.alias_of = orig_name ? strdup(orig_name) : NULL;
+                    Function alias_func;
+                    if (!copy_module_function_alias(func, alias, &alias_func)) {
+                        fprintf(stderr, "I could not allocate complete function alias '%s'.\n", alias);
+                        free(module_name_for_alias);
+                        free(module_path);
+                        for (int k = 0; k < unpacked_count; k++) free(unpacked_dirs[k]);
+                        free(unpacked_dirs);
+                        return false;
+                    }
                     env_define_function(env, alias_func);
                 }
                 
@@ -1274,6 +1369,98 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
     free(unpacked_dirs);
     
     return true;
+}
+
+/* I copy include arguments while the isolated parser's actual cache is live.
+ * This bounds only my closure workspace, not inherited metadata/parser storage. */
+#define MODULE_INCLUDE_MAX_PATHS 1024u
+#define MODULE_INCLUDE_PATH_BYTES 4096u
+
+typedef struct {
+    char *paths[MODULE_INCLUDE_MAX_PATHS];
+    size_t count;
+    size_t bytes;
+    char flags[NL_MODULE_LINK_COMMAND_CAPACITY];
+} ModuleIncludeClosure;
+
+static bool module_include_directory(ModuleIncludeClosure *closure, const char *path) {
+    if (!path || !path[0] || strlen(path) >= MODULE_INCLUDE_PATH_BYTES) return false;
+    char canonical[MODULE_INCLUDE_PATH_BYTES];
+    struct stat info;
+    if (!realpath(path, canonical) || stat(canonical, &info) != 0 || !S_ISDIR(info.st_mode))
+        return false;
+    for (size_t i = 0; i < closure->count; ++i)
+        if (strcmp(closure->paths[i], canonical) == 0) return true;
+    size_t bytes = strlen(canonical) + 1;
+    if (closure->count == MODULE_INCLUDE_MAX_PATHS ||
+        bytes > NL_MODULE_LINK_COMMAND_CAPACITY - closure->bytes) return false;
+    char *copy = strdup(canonical);
+    if (!copy) return false;
+    if (!module_append_include(closure->flags, sizeof(closure->flags), canonical)) {
+        free(copy);
+        return false;
+    }
+    closure->paths[closure->count++] = copy;
+    closure->bytes += bytes;
+    return true;
+}
+
+static void module_include_closure_free(ModuleIncludeClosure *closure) {
+    if (!closure) return;
+    for (size_t i = 0; i < closure->count; ++i) free(closure->paths[i]);
+    free(closure);
+}
+
+static ModuleIncludeClosure *module_include_closure(void) {
+    if (!module_cache || module_cache->count <= 0 ||
+        (size_t)module_cache->count > MODULE_INCLUDE_MAX_PATHS) return NULL;
+    ModuleIncludeClosure *closure = calloc(1, sizeof(*closure));
+    if (!closure) return NULL;
+    size_t requests = 0;
+    for (int i = 0; i < module_cache->count; ++i) {
+        const char *path = module_cache->loaded_paths[i];
+        char directory[MODULE_INCLUDE_PATH_BYTES];
+        if (!path || strlen(path) >= sizeof(directory)) goto failure;
+        memcpy(directory, path, strlen(path) + 1);
+        char *slash = strrchr(directory, '/');
+        if (!slash) goto failure;
+        if (slash == directory) slash[1] = '\0';
+        else *slash = '\0';
+        if (++requests > MODULE_INCLUDE_MAX_PATHS ||
+            !module_include_directory(closure, directory)) goto failure;
+        /* I preserve the existing metadata decoder's 1024-byte path bound. */
+        char manifest[1024];
+        int length = snprintf(manifest, sizeof(manifest), "%s/module.json", directory);
+        if (length < 0 || (size_t)length >= sizeof(manifest)) goto failure;
+        struct stat info;
+        if (lstat(manifest, &info) != 0) {
+            if (errno == ENOENT) continue;
+            goto failure;
+        }
+        /* I permit an ordinary symlink to a regular manifest, not a FIFO or a
+         * dangling link misclassified as an absent manifest. */
+        if (stat(manifest, &info) != 0 || !S_ISREG(info.st_mode)) goto failure;
+        ModuleBuildMetadata *metadata = module_load_metadata(directory);
+        if (!metadata) goto failure;
+        bool valid = metadata->include_dirs_count <= MODULE_INCLUDE_MAX_PATHS - requests &&
+                     (!metadata->include_dirs_count || metadata->include_dirs);
+        if (valid) {
+            requests += metadata->include_dirs_count;
+            for (size_t j = 0; j < metadata->include_dirs_count; ++j) {
+                if (!module_include_directory(closure, metadata->include_dirs[j])) {
+                    valid = false;
+                    break;
+                }
+            }
+        }
+        module_metadata_free(metadata);
+        if (!valid) goto failure;
+    }
+    return closure;
+failure:
+    fprintf(stderr, "I could not prepare the complete module dependency include closure.\n");
+    module_include_closure_free(closure);
+    return NULL;
 }
 
 /* Compile a single module to an object file */
@@ -1498,17 +1685,16 @@ bool compile_module_to_object(const char *module_path,
                     if (strcmp(type_name, "LexerToken") == 0) c_type = "Token";
                     else if (strcmp(type_name, "NSType") == 0) c_type = "NSType";
 
-                    char gen_cmd[512];
-                    snprintf(gen_cmd, sizeof(gen_cmd),
-                             "./scripts/generate_list.sh %s /tmp %s > /dev/null 2>&1",
-                             type_name, c_type);
-                    if (verbose) {
-                        printf("[Modules] Generating List<%s> runtime...\n", type_name);
+                    if (!nano_native_generate_list(get_project_root(), build_dir, type_name, c_type)) {
+                        fprintf(stderr, "I could not generate the required List<%s> runtime\n", type_name);
+                        nano_native_remove_private_tree(build_dir);
+                        free(c_code);
+                        env_require_destroyable(module_env);
+                        clear_module_cache();
+                        module_cache = saved_cache;
+                        free_environment(module_env);
+                        return false;
                     }
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-                    system(gen_cmd);
-#pragma GCC diagnostic pop
                 }
             }
         }
@@ -1531,9 +1717,10 @@ bool compile_module_to_object(const char *module_path,
     if (!cc) cc = getenv("CC");
     if (!cc) cc = "cc";
 
-    char compile_cmd[4096];
+    char compile_cmd[NL_MODULE_LINK_COMMAND_CAPACITY];
     char inherited_flags[2048] = "";
-    bool arguments_valid = true;
+    ModuleIncludeClosure *include_closure = module_include_closure();
+    bool arguments_valid = include_closure != NULL;
     const char *root = get_project_root();
 
     for (size_t i = 0; i < extra_compile_flags_count; i++) {
@@ -1550,43 +1737,22 @@ bool compile_module_to_object(const char *module_path,
         }
     }
 
-    /* Extract the module's own directory for -I path (so it can find its own headers) */
-    char module_dir[512] = "";
-    {
-        /* Use realpath to resolve relative paths (e.g. ../modules/examples/runner.nano
-         * invoked from a subdirectory) to an absolute directory. Fallback to the
-         * root-relative heuristic if realpath fails (e.g. file not yet on disk). */
-        char abs_module_path[4096];
-        const char *resolved = realpath(module_path, abs_module_path);
-        const char *path_to_use = resolved ? abs_module_path : module_path;
-        char *mp_copy = strdup(path_to_use);
-        if (!mp_copy) arguments_valid = false;
-        char *last_slash = mp_copy ? strrchr(mp_copy, '/') : NULL;
-        if (last_slash) {
-            *last_slash = '\0';
-            int written = mp_copy[0] == '/' ?
-                snprintf(module_dir, sizeof(module_dir), "-I%s", mp_copy) :
-                snprintf(module_dir, sizeof(module_dir), "-I%s/%s", root, mp_copy);
-            if (written < 0 || (size_t)written >= sizeof(module_dir)) arguments_valid = false;
-        }
-        free(mp_copy);
-    }
-
     char *quoted_root = module_quote_path(root);
-    char *quoted_module = module_dir[0] ? module_quote_path(module_dir) : strdup("");
     char *quoted_object = module_quote_path(temp_obj_file);
     char *quoted_source = module_quote_path(temp_c_file);
-    arguments_valid = arguments_valid && quoted_root && quoted_module && quoted_object && quoted_source;
+    char *quoted_generated = module_quote_path(build_dir);
+    arguments_valid = arguments_valid && quoted_root && quoted_object && quoted_source && quoted_generated;
     compile_cmd[0] = '\0';
     int command_length = arguments_valid ? snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s %s %s -c -o %s %s",
+            "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s %s %s -I%s -c -o %s %s",
             cc, quoted_root, quoted_root, quoted_root, quoted_root, quoted_root,
             quoted_root, quoted_root, quoted_root, quoted_root,
-            quoted_module, sdl_flags, inherited_flags, quoted_object, quoted_source) : -1;
+            include_closure->flags, sdl_flags, inherited_flags, quoted_generated, quoted_object, quoted_source) : -1;
     free(quoted_root);
-    free(quoted_module);
+    module_include_closure_free(include_closure);
     free(quoted_object);
     free(quoted_source);
+    free(quoted_generated);
     
     if (verbose) {
         printf("Compiling module: %s\n", compile_cmd);
@@ -1632,6 +1798,7 @@ bool compile_module_to_object(const char *module_path,
             fprintf(stderr, "Compilation errors:\n%s\n", error_output);
         }
         /* Keep C file for debugging */
+        nano_native_retain_private_work();
         fprintf(stderr, "C file kept at: %s\n", temp_c_file);
         free(c_code);
         env_require_destroyable(module_env);
@@ -1644,9 +1811,9 @@ bool compile_module_to_object(const char *module_path,
     
     /* Clean up temporary C file */
     if (!verbose) {
-        remove(temp_c_file);
-        rmdir(build_dir);
+        nano_native_remove_private_tree(build_dir);
     } else {
+        nano_native_retain_private_work();
         printf("✓ Compiled module to object file: %s\n", output_obj);
         printf("  C source kept at: %s\n", temp_c_file);
     }
@@ -1740,6 +1907,11 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
         printf("[Modules] Processing %d module(s)...\n", modules->count);
     }
     
+    char generated_objects[4096];
+    if (nano_native_module_objects_dir(generated_objects, sizeof(generated_objects)) != NANO_SDK_OK) {
+        fprintf(stderr, "I could not create a private generated-module directory\n");
+        return false;
+    }
     /* Create module builder */
     const char *module_path_env = getenv("NANO_MODULE_PATH");
     ModuleBuilder *builder = module_builder_new(module_path_env);
@@ -1821,10 +1993,6 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                  * earlier ones and we end up linking only the last compiled Nano object, causing
                  * undefined references on strict linkers (Linux CI).
                  */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-                system("mkdir -p obj/nano_modules 2>/dev/null");
-#pragma GCC diagnostic pop
 
                 const char *last_slash = strrchr(module_path, '/');
                 const char *base_name = last_slash ? last_slash + 1 : module_path;
@@ -1836,10 +2004,12 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                     *dot = '\0';
                 }
 
-                char nano_obj[512];
-                snprintf(nano_obj, sizeof(nano_obj), "obj/nano_modules/%s_nano_%s.o", meta->name, base_without_ext);
+                char nano_obj[8192];
+                int object_length = snprintf(nano_obj, sizeof(nano_obj), "%s/%d_%s_nano_%s.o",
+                                             generated_objects, i, meta->name, base_without_ext);
                 
-                if (!compile_module_to_object(module_path, nano_obj, env, verbose, info->compile_flags, info->compile_flags_count)) {
+                if (object_length < 0 || (size_t)object_length >= sizeof(nano_obj) ||
+                    !compile_module_to_object(module_path, nano_obj, env, verbose, info->compile_flags, info->compile_flags_count)) {
                     fprintf(stderr, "Error: Failed to compile nanolang parts of module '%s'\n", meta->name);
                     module_metadata_free(meta);
                     free(module_dir);
@@ -1880,7 +2050,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
             }
             
             /* Generate object file name from module path */
-            char obj_file[512];
+            char obj_file[8192];
             const char *last_slash = strrchr(module_path, '/');
             const char *base_name = last_slash ? last_slash + 1 : module_path;
             
@@ -1899,16 +2069,13 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
              * If we also emit modules to obj/<name>.o (e.g. lexer.nano -> obj/lexer.o),
              * we can clobber C objects and break linking.
              */
-            snprintf(obj_file, sizeof(obj_file), "obj/nano_modules/%s.o", base_without_ext);
+            int object_length = snprintf(obj_file, sizeof(obj_file), "%s/%d_%s.o",
+                                         generated_objects, i, base_without_ext);
 
-            /* Ensure obj directory exists */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-            system("mkdir -p obj/nano_modules 2>/dev/null");
-#pragma GCC diagnostic pop
 
             /* Compile module to object file */
-            if (!compile_module_to_object(module_path, obj_file, env, verbose, NULL, 0)) {
+            if (object_length < 0 || (size_t)object_length >= sizeof(obj_file) ||
+                !compile_module_to_object(module_path, obj_file, env, verbose, NULL, 0)) {
                 fprintf(stderr, "Error: Failed to compile module '%s'\n", module_path);
                 free(module_dir);
                 module_builder_free(builder);
@@ -1943,6 +2110,30 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
         for (size_t i = 0; i < link_flags_count; i++) {
             // Skip NULL or empty flags
             if (!link_flags[i] || link_flags[i][0] == '\0') {
+                free(link_flags[i]);
+                continue;
+            }
+
+            /* I quote only an actual published provider object here. Other
+             * returned flags remain trusted command fragments in their order. */
+            bool provider_object = false;
+            for (int j = 0; j < build_info_count; ++j) {
+                if (build_infos[j]->object_file &&
+                    strcmp(link_flags[i], build_infos[j]->object_file) == 0) {
+                    provider_object = true;
+                    break;
+                }
+            }
+            if (provider_object) {
+                if (!module_append_unique_object(module_objs_buffer, link_flags[i])) {
+                    fprintf(stderr, "I could not represent all published provider object paths.\n");
+                    for (size_t k = i; k < link_flags_count; ++k) free(link_flags[k]);
+                    free(link_flags);
+                    module_builder_free(builder);
+                    for (int j = 0; j < build_info_count; ++j) module_build_info_free(build_infos[j]);
+                    free(build_infos);
+                    return false;
+                }
                 free(link_flags[i]);
                 continue;
             }

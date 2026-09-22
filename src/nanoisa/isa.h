@@ -192,6 +192,7 @@ typedef enum {
     OP_CAST_BOOL   = 0x8A,   /* pop value -> push as bool */
     OP_CAST_STRING = 0x8B,   /* pop value -> push as string */
     OP_TYPE_CHECK  = 0x8C,   /* operand: u8 expected tag; pop value -> push bool */
+    OP_CAST_U8     = 0x8F,   /* INT modulo 256 or U8 identity -> exact U8 */
 
     /* Closures (0x90-0x97) */
     OP_CLOSURE_NEW  = 0x90,  /* operands: u32 fn_idx, u16 capture_count */

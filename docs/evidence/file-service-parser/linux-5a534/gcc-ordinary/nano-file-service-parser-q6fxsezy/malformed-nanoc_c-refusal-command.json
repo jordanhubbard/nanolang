@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-c",
+    "import subprocess,sys,json,pathlib; p=subprocess.run(sys.argv[2:],timeout=120); pathlib.Path(sys.argv[1]).write_text(json.dumps({'returncode':p.returncode})); sys.exit(0 if p.returncode>0 else 1)",
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/malformed-nanoc_c-refusal.json",
+    "/home/jkh/Src/nanolang-file-service-parser-5a534/bin/nanoc_c",
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/ordinary-malformed.nano",
+    "-o",
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/ordinary-malformed-nanoc_c",
+    "--keep-c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-5a534",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

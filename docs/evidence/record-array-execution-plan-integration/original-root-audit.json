@@ -1,0 +1,581 @@
+{
+  "git_head": "aca252d7b803e0c3595c41cf2adf96776e236e1e",
+  "reports": 577,
+  "objects": 1240,
+  "bytes": 433262533,
+  "pairs": 114,
+  "source_deltas": [],
+  "references": 19073,
+  "terminals": {
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-16767-linux/configuration-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-16767-linux/discovery-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-16767-linux/ordinary-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 1,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-16767-linux/setup-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-429da-linux/configuration-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-429da-linux/discovery-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-429da-linux/ordinary-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 1,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-429da-linux/setup-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/affine-union-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/clang-ordinary-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/clang-sanitizer-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/complete-declarations-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/configuration-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/discovery-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/nvm_v2_convert-build-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/nvm_v2_convert-run-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/nvm_v2_endtoend-build-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/nvm_v2_endtoend-run-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/nvm_v2_layouts-build-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/nvm_v2_layouts-run-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/old-array-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/ordinary-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/ordinary_record_authority-build-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/ordinary_record_authority-run-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/ownership-public-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/ownership_contracts-build-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/ownership_contracts-run-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/ownership_layouts_private-build-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/ownership_layouts_private-run-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/sanitizer-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/linux/nanolang-record-execution-c032c-linux/setup-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-429da-puck/configuration-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-429da-puck/discovery-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-429da-puck/ordinary-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 1,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-429da-puck/setup-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/affine-union-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/clang-ordinary-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/complete-declarations-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/configuration-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/discovery-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/nvm_v2_convert-build-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/nvm_v2_convert-run-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/nvm_v2_endtoend-build-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/nvm_v2_endtoend-run-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/nvm_v2_layouts-build-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/nvm_v2_layouts-run-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/old-array-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/ordinary-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/ordinary_record_authority-build-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/ordinary_record_authority-run-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/ownership-public-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/ownership_contracts-build-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/ownership_contracts-run-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/ownership_layouts_private-build-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/ownership_layouts_private-run-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/sanitizer-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "docs/evidence/record-array-execution-plan/puck/nanolang-record-execution-c032c-puck/setup-terminal.json": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    }
+  }
+}

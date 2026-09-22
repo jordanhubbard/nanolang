@@ -1,3 +1,6 @@
+# I retain explicit static owners while my shared library keeps private dependencies.
+module "modules/cjson_provider/cjson_provider.nano" as JsonImplementationProvider
+
 /* =============================================================================
  * std::json - JSON parsing/manipulation (cJSON-backed)
  * ============================================================================= */

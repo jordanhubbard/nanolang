@@ -1,0 +1,26 @@
+{
+  "name": "build",
+  "argv": [
+    "make",
+    "-j2",
+    "stage1",
+    "CC=/bin/gcc",
+    "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+    "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.31468918500468135,
+  "log": {
+    "sha256": "170b33ffa69d332054ec90dcb723cf2f40dd84d2c6c71c8ad55ebaf5fa0e11eb",
+    "bytes": 406,
+    "archive": "/tmp/nanolang-example-time-linux-stage1/objects/170b33ffa69d332054ec90dcb723cf2f40dd84d2c6c71c8ad55ebaf5fa0e11eb"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

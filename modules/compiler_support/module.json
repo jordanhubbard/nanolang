@@ -5,8 +5,7 @@
   "c_sources": [
     "compiler_support.c",
     "../../src/module_builder.c",
-    "../../src/runtime/module_build_dir.c",
-    "../../src/cJSON.c"
+    "../../src/runtime/module_build_dir.c"
   ],
   "include_dirs": [
     "src"
@@ -15,7 +14,8 @@
     "openssl"
   ],
   "shared_c_sources": [
-    "../../src/utf8.c"
+    "../../src/utf8.c",
+    "../../src/cJSON.c"
   ],
   "cflags": [
     "-D_GNU_SOURCE"

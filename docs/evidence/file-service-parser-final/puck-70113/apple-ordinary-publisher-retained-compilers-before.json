@@ -1,0 +1,18 @@
+{
+  "bin/nanoc_c": {
+    "sha256": "531de3cb6ab5966e964f8b5566040397622eef77de27b327d63b968240cb738e",
+    "bytes": 11040328
+  },
+  "bin/nanoc_stage1": {
+    "sha256": "1929defbffbe39be593217bddeec2fb0bdab610a4acb7b816503cd2521e8591c",
+    "bytes": 12364368
+  },
+  "bin/nanoc_stage2": {
+    "sha256": "f9a38d3b2549f1821f0b31c80932fdbbf440d85843cb60f04b9c5a7fe7e73e1a",
+    "bytes": 10610816
+  },
+  "bin/nanoc": {
+    "sha256": "f9a38d3b2549f1821f0b31c80932fdbbf440d85843cb60f04b9c5a7fe7e73e1a",
+    "bytes": 10610816
+  }
+}

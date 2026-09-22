@@ -59,7 +59,11 @@ transpiler.nano and typecheck.nano.
    lexical callbacks and body-bearing source str_split precedence survive.
    C symmetric STRING-array contexts and Nano global/qualified/store/union
    comparisons retain actual annotation authority and explicit unknown limits.
-6. I combine installed SDK discovery, native provider ownership, callback/cache
+6. I preserve the scheduler active-callback latch, owned result clone/drop,
+   Environment leases and exact module-cache generation leases. Teardown
+   preflights precede AST/cache destruction; borrowed results clone before
+   escaping their owner. Legacy fatal allocation sites remain distinct from
+   checked graph fault domains. I combine installed SDK discovery, native provider ownership, callback/cache
    disposal, metadata quoting/include closure and native module-name lifetimes.
    I audit every successful and failed ownership transfer. Both ordinary and
    installed source-hidden paths must use the same complete provider inventory.
@@ -91,3 +95,28 @@ Actual unchanged closures may retain their old qualification with explicit
 provenance, but no broad gate is presumed redundant before the final source
 review. Full source File execution, backend/shape requirements and release
 publication remain open until their complete acceptance is demonstrated.
+
+## My resolved source ownership audit
+
+I preserve native coarse argument matching followed by the complete contextual
+comparison. I do not add the older SDK flattened callable equality before that
+proof. I remove automatically reintroduced eager array/map metadata publication:
+actual builtin `str_split` now obtains a copied STRING-array NominalView and uses
+the native checked publication/rollback path. I retain only one copy of each
+nongeneric-union discovery loop and each tuple helper/cleanup owner.
+
+I add the seven native foundation source/header files missing from the committed
+installed input list and regenerate the C required-input table. The object list
+is unchanged: these files belong to existing translation units. I import the
+root-reviewed signed string-length primitive correction and its ninth native
+fixture from ecaf373f0; I preserve all original eighteen-plus-eight controls.
+I have not executed these integrated products.
+
+I move the three old `native_source_already_linked` shadow properties to the
+actual `native_provider_add` shadow: identical canonical cJSON input has one
+row, a different directory with the same basename has two, and an empty source
+refuses without a row. The old helper is superseded by the reviewed whole
+runtime inventory and registry; I do not restore a special cJSON suppression.
+The static shadow report records this explicit replacement, not an execution
+or a silently omitted property. The new list-generation refusal also runs the
+native Environment teardown preflight before cache destruction.

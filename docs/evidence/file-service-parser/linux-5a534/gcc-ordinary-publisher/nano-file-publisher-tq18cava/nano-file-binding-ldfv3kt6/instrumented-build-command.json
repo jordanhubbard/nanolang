@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-file-service-parser-5a534/src",
+    "-I",
+    "/home/jkh/Src/nanolang-file-service-parser-5a534/tests",
+    "-I",
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/nano-file-binding-ldfv3kt6",
+    "-DBINDING_INSTRUMENT",
+    "tests/test_nsi_file_binding.c",
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/nano-file-binding-ldfv3kt6/instrumented-nsi_file_binding.o",
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/nano-file-binding-ldfv3kt6/instrumented-nsi_file_plan.o",
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/nano-file-binding-ldfv3kt6/instrumented-nsi.o",
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/nano-file-binding-ldfv3kt6/instrumented-cJSON.o",
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/nano-file-binding-ldfv3kt6/instrumented-utf8.o",
+    "-lm",
+    "-o",
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/nano-file-binding-ldfv3kt6/binding-instrumented"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-5a534",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

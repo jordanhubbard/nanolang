@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary-publisher/nano-file-publisher-oevydiua/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary-publisher/nano-file-publisher-oevydiua/cli/input-symlink",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary-publisher/nano-file-publisher-oevydiua/cli/refused-symlink"
+  ],
+  "pid": 3168853,
+  "returncode": 1,
+  "timeout": false
+}

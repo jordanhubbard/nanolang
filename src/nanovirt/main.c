@@ -9,6 +9,7 @@
  * With --run:     executes the .nvm via the embedded VM
  */
 
+#include "runtime/module_build_dir.h"
 #include "nanolang.h"
 #include "module_builder.h"
 #include "nanovirt/codegen.h"
@@ -80,6 +81,10 @@ static bool has_nvm_extension(const char *path) {
 #include "shadow_runner.h"
 
 int main(int argc, char **argv) {
+    if (nano_native_sdk_prepare() != NANO_SDK_OK) {
+        fprintf(stderr, "I require a complete compatible native SDK or source root\n");
+        return 1;
+    }
     g_argc = argc;
     g_argv = argv;
     const char *input = NULL;

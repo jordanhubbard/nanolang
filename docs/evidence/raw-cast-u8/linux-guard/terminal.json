@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "head": "565a48d3faa2d68eb49a81809846cbc5ad61ec3d",
+  "fixture_pin": "8caba839c",
+  "scope": "Corrected single byte result guard against preserved ordinary providers."
+}

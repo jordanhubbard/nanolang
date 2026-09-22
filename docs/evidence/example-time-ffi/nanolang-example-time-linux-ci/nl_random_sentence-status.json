@@ -1,0 +1,24 @@
+{
+  "name": "nl_random_sentence",
+  "argv": [
+    "/home/jkh/Src/nanolang-example-time-qualification-corrected/bin/nanoc_c",
+    "examples/language/nl_random_sentence.nano",
+    "-o",
+    "/tmp/nanolang-example-time-linux-ci/nl_random_sentence",
+    "--keep-c"
+  ],
+  "bound_seconds": 120,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 2.5211908699711785,
+  "log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

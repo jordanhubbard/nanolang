@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/input-oversize",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/refused-oversize"
+  ],
+  "pid": 2685512,
+  "returncode": 1,
+  "timeout": false
+}

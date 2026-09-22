@@ -125,3 +125,23 @@ range failures remain unchanged. I will retain output sentinels in not-yet-
 implemented translator/reconstruction profiles. No catalog or opcode source
 has changed at this audit checkpoint; the complete list prerequisite remains
 my first implementation lane.
+
+## My first raw VM checkpoint
+
+I first implement only the legacy catalog/enum, generated encoding metadata, shared type transfer and both VM dispatch forms. CAST_U8 consumes INT or U8 and returns exact U8 with defined unsigned modulo256 conversion. A definite wrong tag fails verification; an unknown advisory type is still checked at runtime and its consumed value is released before the existing type-error unwind. No allocation is introduced. Native C, LLVM/Wasm, reconstruction and source producers remain explicit later checkpoints and must refuse this opcode until implemented. I do not change any public profile whitelist or service/owned/mixed authority here.
+
+I require independent source review before fixtures and execution. Fixtures must check encoding/mnemonic roundtrip, stack effect, exact result tags/bytes and INT extrema under both dispatch forms, runtime wrong-tag cleanup through a verifier-unknown local, and unchanged output sentinels for unsupported translators. Catalog consistency and existing scalar-byte neighbors remain required. This raw checkpoint cannot close the unchanged source corpus failure or task_c6b2a040c1434fc784a9d46c02a4981e.
+
+## My first raw fixture checkpoint
+
+I check the one-byte encoding, canonical assembly round trip, INT boundary
+values and all256 U8 identities through verified modules. Both default and
+switch VM dispatches must return an exact U8 tag and payload. Known FLOAT/BOOL
+operands must refuse verification. An unknown formal receives a real owned
+string: the runtime must refuse conversion, preserve its caller's owner and
+recover for a subsequent valid call. I do not execute unverified modules.
+
+My fixture rebuilds the VM translation unit with selected compiler flags;
+linked providers retain their separately inventoried build flags. This is a
+raw conversion checkpoint. Source destinations, translators and reconstruction
+remain required. No build or fixture execution has run at this checkpoint.

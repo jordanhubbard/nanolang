@@ -1,0 +1,211 @@
+{
+  "head": "565a48d3faa2d68eb49a81809846cbc5ad61ec3d",
+  "host": "puck",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "scope": "raw CAST_U8 VM, schema and existing byte backend neighbors; source conversion remains unimplemented",
+  "phases": [
+    {
+      "name": "corrected-byte-result-guard",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/private/tmp/nanolang-cast-u8-puck-guard/run-corrected-guard.py",
+        "/private/tmp/nanolang-cast-u8-565a4",
+        "/tmp/nanolang-scalar-u8-8caba.py"
+      ],
+      "bound_seconds": 120,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 1.0169904590584338,
+      "log": {
+        "sha256": "8aae3f3ef03dd33a53686ba2d61c92d2db694fe02b6af8068846cd10e2b0e0e1",
+        "bytes": 237,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-guard/objects/8aae3f3ef03dd33a53686ba2d61c92d2db694fe02b6af8068846cd10e2b0e0e1"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "reconstruction-tool",
+      "argv": [
+        "make",
+        "nvm2hl",
+        "CC=/usr/bin/clang"
+      ],
+      "bound_seconds": 300,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.26850229199044406,
+      "log": {
+        "sha256": "71feaa296a1f2db9321f0f2e2629dbeb6ffefe986d10f9422a2d9cfa356cd614",
+        "bytes": 1469,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-guard/objects/71feaa296a1f2db9321f0f2e2629dbeb6ffefe986d10f9422a2d9cfa356cd614"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "assemble-refusal",
+      "argv": [
+        "/private/tmp/nanolang-cast-u8-565a4/bin/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-cast-u8-puck-guard/convert.nasm",
+        "-o",
+        "/private/tmp/nanolang-cast-u8-puck-guard/convert.nvm"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.006477000075392425,
+      "log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-guard/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-refusal",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/private/tmp/nanolang-cast-u8-puck-guard/check-refusal.py",
+        "/private/tmp/nanolang-cast-u8-puck-guard/native.out",
+        "/private/tmp/nanolang-cast-u8-565a4/bin/nvm2c",
+        "/private/tmp/nanolang-cast-u8-puck-guard/convert.nvm",
+        "-o",
+        "/private/tmp/nanolang-cast-u8-puck-guard/native.out"
+      ],
+      "bound_seconds": 60,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.046912499936297536,
+      "log": {
+        "sha256": "47ecd13e952cebbd9702dedb934cc2eb65f7ba8de0b10897671d4f66ad0ab29f",
+        "bytes": 205,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-guard/objects/47ecd13e952cebbd9702dedb934cc2eb65f7ba8de0b10897671d4f66ad0ab29f"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm-refusal",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/private/tmp/nanolang-cast-u8-puck-guard/check-refusal.py",
+        "/private/tmp/nanolang-cast-u8-puck-guard/llvm.out",
+        "/private/tmp/nanolang-cast-u8-565a4/bin/nvm2llvm",
+        "/private/tmp/nanolang-cast-u8-puck-guard/convert.nvm",
+        "-o",
+        "/private/tmp/nanolang-cast-u8-puck-guard/llvm.out"
+      ],
+      "bound_seconds": 60,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.048535749898292124,
+      "log": {
+        "sha256": "7a10a05081317ad73b4d710e63f43c9a44cf097914fb9f43e2835d27fd8decfc",
+        "bytes": 160,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-guard/objects/7a10a05081317ad73b4d710e63f43c9a44cf097914fb9f43e2835d27fd8decfc"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "wasm-refusal",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/private/tmp/nanolang-cast-u8-puck-guard/check-refusal.py",
+        "/private/tmp/nanolang-cast-u8-puck-guard/wasm.out",
+        "/private/tmp/nanolang-cast-u8-565a4/bin/nvm2wasm",
+        "/private/tmp/nanolang-cast-u8-puck-guard/convert.nvm",
+        "-o",
+        "/private/tmp/nanolang-cast-u8-puck-guard/wasm.out"
+      ],
+      "bound_seconds": 60,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.09085362497717142,
+      "log": {
+        "sha256": "95ff413d48ea8378dd142369e8b11a5f8b51556bb4017736f24f95964d26f720",
+        "bytes": 231,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-guard/objects/95ff413d48ea8378dd142369e8b11a5f8b51556bb4017736f24f95964d26f720"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "reconstructed-c-refusal",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/private/tmp/nanolang-cast-u8-puck-guard/check-refusal.py",
+        "/private/tmp/nanolang-cast-u8-puck-guard/reconstructed-c.out",
+        "/private/tmp/nanolang-cast-u8-565a4/bin/nvm2hl",
+        "--language",
+        "c",
+        "/private/tmp/nanolang-cast-u8-puck-guard/convert.nvm",
+        "-o",
+        "/private/tmp/nanolang-cast-u8-puck-guard/reconstructed-c.out"
+      ],
+      "bound_seconds": 60,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.4365955420071259,
+      "log": {
+        "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+        "bytes": 127,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-guard/objects/9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "reconstructed-nano-refusal",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/private/tmp/nanolang-cast-u8-puck-guard/check-refusal.py",
+        "/private/tmp/nanolang-cast-u8-puck-guard/reconstructed-nano.out",
+        "/private/tmp/nanolang-cast-u8-565a4/bin/nvm2hl",
+        "--language",
+        "nano",
+        "/private/tmp/nanolang-cast-u8-puck-guard/convert.nvm",
+        "-o",
+        "/private/tmp/nanolang-cast-u8-puck-guard/reconstructed-nano.out"
+      ],
+      "bound_seconds": 60,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.08738995797466487,
+      "log": {
+        "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+        "bytes": 127,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-guard/objects/9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

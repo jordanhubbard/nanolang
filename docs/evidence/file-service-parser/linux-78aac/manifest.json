@@ -1,0 +1,183 @@
+[
+  {
+    "phase": "host",
+    "argv": [
+      "uname",
+      "-a"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0017723070923238993
+  },
+  {
+    "phase": "ordinary-version",
+    "argv": [
+      "/usr/bin/gcc",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0014423190150409937
+  },
+  {
+    "phase": "other-version",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.015483478084206581
+  },
+  {
+    "phase": "make-version",
+    "argv": [
+      "/bin/make",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0013492469443008304
+  },
+  {
+    "phase": "pkg-config-version",
+    "argv": [
+      "/bin/pkg-config",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0014091680059209466
+  },
+  {
+    "phase": "ffi-flags",
+    "argv": [
+      "/bin/pkg-config",
+      "--cflags",
+      "--libs",
+      "libffi"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.001339151058346033
+  },
+  {
+    "phase": "other-asan",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan.a"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.01547206996474415
+  },
+  {
+    "phase": "gcc-asan",
+    "argv": [
+      "/usr/bin/gcc",
+      "-print-file-name=libasan.so"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.001360926078632474
+  },
+  {
+    "phase": "gcc-ubsan",
+    "argv": [
+      "/usr/bin/gcc",
+      "-print-file-name=libubsan.so"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.001600705087184906
+  },
+  {
+    "phase": "gcc-cc1",
+    "argv": [
+      "/usr/bin/gcc",
+      "-print-prog-name=cc1"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.00137956696562469
+  },
+  {
+    "phase": "clang-ubsan",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.ubsan_standalone.a"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0156639440683648
+  },
+  {
+    "phase": "provider-list",
+    "argv": [
+      "/bin/make",
+      "-f",
+      "/tmp/nanolang-file-service-parser-78aac-linux/providers.mk",
+      "CC=/usr/bin/gcc",
+      "parser-provider-list"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.11403562303166837
+  },
+  {
+    "phase": "gcc-ordinary",
+    "argv": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_file_service_parser"
+    ],
+    "timeout": false,
+    "returncode": 1,
+    "cleanup_errors": [],
+    "child_returncode": 1,
+    "group_absent": true,
+    "seconds": 65.01272563100792
+  }
+]

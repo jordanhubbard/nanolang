@@ -155,6 +155,7 @@ legacy_opcodes:
   - {name: TYPE_CHECK, code: 0x8c, operands: [U8], pops: 1, pushes: 1}
   - {name: F64_FROM_BITS, code: 0x8d, operands: [], pops: 1, pushes: 1}
   - {name: F64_TO_BITS, code: 0x8e, operands: [], pops: 1, pushes: 1}
+  - {name: CAST_U8, code: 0x8f, operands: [], pops: 1, pushes: 1}
   - {name: CLOSURE_NEW, code: 0x90, operands: [U32, U16]}
   - {name: PRINT, code: 0xa0, operands: [], pops: 1, pushes: 0}
   - {name: ASSERT, code: 0xa1, operands: [], pops: 1, pushes: 0}

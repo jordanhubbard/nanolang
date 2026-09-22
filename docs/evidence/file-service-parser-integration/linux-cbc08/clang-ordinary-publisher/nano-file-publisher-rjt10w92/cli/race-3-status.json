@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/make-bin/nsi-file-binding",
+    "tests/fixtures/nsi_file_plan.json",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/raced"
+  ],
+  "pid": 2995866,
+  "returncode": 1,
+  "timeout": false
+}
