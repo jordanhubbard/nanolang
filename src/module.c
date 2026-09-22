@@ -2038,8 +2038,8 @@ static StructDef copy_metadata_struct(const StructDef *source) {
 ModuleMetadata *extract_module_metadata(Environment *env, const char *module_name) {
     if (!env) return NULL;
     
-    ModuleMetadata *meta = malloc(sizeof(ModuleMetadata));
-    meta->module_name = module_name ? strdup(module_name) : strdup("unknown");
+    ModuleMetadata *meta = metadata_array(1, sizeof(ModuleMetadata));
+    meta->module_name = copy_metadata_owner(module_name ? module_name : "unknown");
     
     /* Extract functions */
     meta->function_count = env->function_count;

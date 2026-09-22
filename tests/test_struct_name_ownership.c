@@ -20,6 +20,27 @@ static int refuse(void) {
 void *struct_name_test_malloc(size_t size) { return refuse() ? NULL : malloc(size); }
 char *struct_name_test_strdup(const char *text) { return refuse() ? NULL : strdup(text); }
 
+/* I arm these independent counters only around the real snapshot extractor. */
+static int metadata_armed, metadata_persistent;
+static size_t metadata_calls, metadata_fail;
+static unsigned metadata_kinds[256];
+static int metadata_refuse(unsigned kind) {
+    if (!metadata_armed) return 0;
+    assert(metadata_calls<sizeof(metadata_kinds)/sizeof(metadata_kinds[0]));
+    metadata_kinds[metadata_calls++]=kind;
+    return metadata_fail && (metadata_calls==metadata_fail ||
+        (metadata_persistent && metadata_calls>=metadata_fail));
+}
+void *struct_metadata_test_calloc(size_t count,size_t width) {
+    return metadata_refuse(0) ? NULL : calloc(count,width);
+}
+char *struct_metadata_test_strdup(const char *name) {
+    return metadata_refuse(1) ? NULL : strdup(name);
+}
+void *struct_payload_test_calloc(size_t count,size_t width) {
+    return metadata_refuse(2) ? NULL : calloc(count,width);
+}
+
 static size_t lookup_case(int kind, size_t failure, int mode) {
     Environment *env = create_environment();
     assert(env && !env->struct_count && !env->union_count && !env->symbol_count);
@@ -228,6 +249,71 @@ static void metadata_empty_vectors(void) {
     }
 }
 
+static const StructDef *fatal_source;
+static StructDef fatal_before;
+static ModuleMetadata *fatal_published;
+static void verify_fatal_snapshot(void) {
+    assert(fatal_source && !memcmp(fatal_source,&fatal_before,sizeof(fatal_before)));
+    assert(!fatal_published);
+    assert(!strcmp(fatal_source->original_name,"WrittenHolder"));
+    assert(!strcmp(fatal_source->field_type_info[0]->fn_sig->return_struct_name,"ExactOwner.Child"));
+}
+static size_t metadata_fault_case(size_t position,int mode) {
+    TypeInfo child={.base_type=TYPE_STRUCT,.generic_name="ExactOwner.Child"};
+    TypeInfo array={.base_type=TYPE_ARRAY,.element_type=&child};
+    TypeInfo *parameters[]={&array}; Type parameter_types[]={TYPE_ARRAY};
+    FunctionSignature signature={.param_count=1,.param_types=parameter_types,
+        .param_type_info=parameters,.return_type=TYPE_STRUCT,
+        .return_struct_name="ExactOwner.Child",.return_type_info=&child};
+    TypeInfo callback={.base_type=TYPE_FUNCTION,.fn_sig=&signature};
+    TypeInfo *annotations[]={&callback}; char *names[]={"callback"};
+    char *type_names[]={"ExactOwner.Child"}; Type types[]={TYPE_FUNCTION},elements[]={TYPE_UNKNOWN};
+    Environment *env=create_environment(); assert(env && !env->function_count && !env->struct_count);
+    env->structs[0]=(StructDef){.name="Holder",.original_name="WrittenHolder",.module_name="ExactOwner",
+        .field_count=1,.field_names=names,.field_types=types,.field_type_names=type_names,
+        .field_element_types=elements,.field_type_info=annotations};
+    env->struct_count=1;
+    StructDef before; memcpy(&before,&env->structs[0],sizeof(before));
+    if (position) {
+        fatal_source=&env->structs[0]; memcpy(&fatal_before,fatal_source,sizeof(fatal_before));
+        fatal_published=NULL; assert(atexit(verify_fatal_snapshot)==0);
+    }
+    metadata_calls=0; metadata_fail=position; metadata_persistent=mode; metadata_armed=1;
+    ModuleMetadata *snapshot=extract_module_metadata(env,"ExactOwner");
+    metadata_armed=0;
+    if (position) { fatal_published=snapshot; _Exit(88); }
+    size_t measured=metadata_calls;
+    assert(snapshot && !memcmp(&before,&env->structs[0],sizeof(before)));
+    assert(!strcmp(snapshot->structs[0].field_type_info[0]->fn_sig->return_struct_name,"ExactOwner.Child"));
+    free_module_metadata(snapshot); env->struct_count=0; free_environment(env);
+    return measured;
+}
+static void metadata_fault_positions(void) {
+    size_t count=metadata_fault_case(0,0); assert(count>15 && count<256);
+    unsigned kinds[256]; memcpy(kinds,metadata_kinds,sizeof(kinds));
+    const char *messages[]={"I cannot allocate a module metadata copy.\n",
+        "I cannot copy a module metadata owner.\n","I cannot allocate payload type metadata\n"};
+    for (int mode=0;mode<2;++mode) for (size_t pos=1;pos<=count;++pos) {
+        int errors[2]; assert(pipe(errors)==0); pid_t child=fork(); assert(child>=0);
+        if (!child) {
+            close(errors[0]); assert(dup2(errors[1],STDERR_FILENO)>=0); close(errors[1]);
+            (void)metadata_fault_case(pos,mode); _Exit(89);
+        }
+        close(errors[1]); char message[4096]; size_t used=0;
+        for (;;) {
+            assert(used<sizeof(message)-1);
+            ssize_t got=read(errors[0],message+used,sizeof(message)-1-used);
+            if (got<0 && errno==EINTR) continue;
+            assert(got>=0); if (!got) break; used+=(size_t)got;
+        }
+        message[used]='\0'; close(errors[0]); int status=0;
+        assert(waitpid(child,&status,0)==child && WIFEXITED(status) && WEXITSTATUS(status)==1);
+        assert(!strcmp(message,messages[kinds[pos-1]]));
+        assert(metadata_fault_case(0,0)==count);
+    }
+    printf("Struct snapshot allocation positions: %zu, two failure modes and fresh recovery PASS\n",count);
+}
+
 int main(void) {
     for (int kind=0; kind<4; ++kind) {
         size_t count=lookup_case(kind,0,0);
@@ -257,7 +343,7 @@ int main(void) {
         }
     }
     parsed_parameter_names(); parsed_record_lifetimes(0); parsed_record_lifetimes(1); auxiliary_vectors();
-    metadata_snapshot_lifetimes(0); metadata_snapshot_lifetimes(1); metadata_empty_vectors(); metadata_callback_annotation();
+    metadata_snapshot_lifetimes(0); metadata_snapshot_lifetimes(1); metadata_empty_vectors(); metadata_callback_annotation(); metadata_fault_positions();
     puts("Parser/record ownership: qualified parameters, both destruction orders, zero/nonzero auxiliary vectors and borrowed annotations PASS");
     puts("Struct name ownership: four paths, exact copies, borrowed controls, all allocation positions/two modes/recovery PASS");
     return 0;
