@@ -1023,7 +1023,54 @@ void test_tc_reduce_exact_refusals(void) {
     }
 }
 
+/* I check the complete flat arithmetic family without executing refused routes. */
+static void test_array_arithmetic_result_views(void) {
+    const char *types[] = {"int", "float", "string"};
+    const char *ops[] = {"+", "-", "*", "/", "%"};
+    char source[1024];
+    for (int type = 0; type < 3; ++type) {
+        int count = type == 0 ? 5 : type == 1 ? 4 : 1;
+        for (int op = 0; op < count; ++op) for (int route = 0; route < 3; ++route) {
+            snprintf(source, sizeof source,
+                "fn result(a:array<%s>, b:%s%s%s)->array<%s> { return (%s %s) } "
+                "fn main()->int{return 0}", types[type], route == 0 ? "array<" : "",
+                types[type], route == 0 ? ">" : "", types[type], ops[op],
+                route == 2 ? "b a" : "a b");
+            ASSERT(tc_passes(source));
+        }
+    }
+    ASSERT(tc_passes("fn result(a:array<int>)->array<int>{return (- a)} fn main()->int{return 0}"));
+    ASSERT(tc_passes("fn result(a:array<float>)->array<float>{return (- a)} fn main()->int{return 0}"));
+    ASSERT(tc_passes("fn result(a:array<int>, b:u8)->array<int>{return (+ a b)} fn main()->int{return 0}"));
+    ASSERT(tc_passes("fn result(a:array<int>, b:u8)->array<int>{return (- b a)} fn main()->int{return 0}"));
+    ASSERT(tc_passes("enum Choice { One, Two } fn result(a:array<Choice>)->array<int>{return (- a)} fn main()->int{return 0}"));
+    ASSERT(tc_passes("enum Choice { One, Two } fn result(a:array<Choice>, b:array<int>)->array<int>{return (+ a b)} fn main()->int{return 0}"));
+    ASSERT(tc_passes("enum Choice { One, Two } fn result(a:array<int>, b:Choice)->array<int>{return (+ a b)} fn main()->int{return 0}"));
+    ASSERT(tc_passes("fn result(a:array<int>)->array<int>{return (+ (- a) (* a 2))} fn main()->int{return 0}"));
+    const char *refusals[] = {
+        "fn result(a:array<int>)->array<float>{return (- a)}",
+        "enum Choice { One, Two } fn result(a:array<Choice>)->array<Choice>{return (- a)}",
+        "fn result(a:array<int>, b:float)->array<int>{return (+ a b)}",
+        "fn result(a:array<float>, b:array<int>)->array<float>{return (+ a b)}",
+        "fn result(a:array<float>)->array<float>{return (% a 2.0)}",
+        "fn result(a:array<string>)->array<string>{return (- a)}",
+        "fn result(a:array<string>)->array<string>{return (- a a)}",
+        "fn result(a:array<bool>)->array<bool>{return (+ a a)}",
+        "struct Item { value:int } fn result(a:array<Item>)->array<Item>{return (+ a a)}",
+        "fn result(a:array<u8>)->array<int>{return (+ a a)}",
+        "fn result(a:array<array<int>>)->array<array<int>>{return (+ a a)}",
+        "fn result(a:array<array<int>>)->array<array<int>>{return (- a)}",
+        "fn result(a:array<int>)->array<int>{return (+ a)}",
+        "fn result(a:array<int>)->array<int>{return (+ a a a)}"
+    };
+    for (size_t i = 0; i < sizeof refusals / sizeof refusals[0]; ++i) {
+        snprintf(source, sizeof source, "%s fn main()->int{return 0}", refusals[i]);
+        ASSERT(!tc_passes(source));
+    }
+}
+
 int main(void) {
+    TEST(array_arithmetic_result_views);
     TEST(tc_handler_parameter_metadata);
     TEST(tc_perform_signatures);
     TEST(tc_handler_effect_inference);

@@ -86,15 +86,21 @@ static bool nominal_array_builtin(ASTNode *expr, Environment *env, const char *n
     Function *function = env_get_function(env, name);
     return env_function_is_builtin(function);
 }
-/* I preserve actual STRING-array operand facts for the already checked + result. */
-static bool nominal_string_array_sum(ASTNode *expr, Environment *env, unsigned depth,
+/* I derive arithmetic results from complete operand facts, never a destination. */
+static bool nominal_array_arithmetic(ASTNode *expr, Environment *env, unsigned depth,
                                      NominalView *out) {
-    if (depth > 128 || expr->type != AST_PREFIX_OP ||
-        expr->as.prefix_op.op != TOKEN_PLUS || expr->as.prefix_op.arg_count != 2 ||
+    if (depth > 128 || expr->type != AST_PREFIX_OP) return false;
+    TokenType op = expr->as.prefix_op.op;
+    int count = expr->as.prefix_op.arg_count;
+    bool unary = op == TOKEN_MINUS && count == 1;
+    if ((!unary && count != 2) ||
+        (op != TOKEN_PLUS && op != TOKEN_MINUS && op != TOKEN_STAR &&
+         op != TOKEN_SLASH && op != TOKEN_PERCENT) ||
         check_expression(expr, env) != TYPE_ARRAY) return false;
     NominalView operands[2] = {{0}}, children[2] = {{0}};
+    Type leaves[2] = {TYPE_UNKNOWN, TYPE_UNKNOWN};
     bool arrays[2] = {false, false}, ok = false;
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < count; ++i) {
         if (!nominal_value_view(expr->as.prefix_op.args[i], env, depth + 1, &operands[i])) goto done;
         arrays[i] = operands[i].info->base_type == TYPE_ARRAY;
         const NominalView *leaf = &operands[i];
@@ -102,14 +108,26 @@ static bool nominal_string_array_sum(ASTNode *expr, Environment *env, unsigned d
             if (!nominal_view_child(env, &operands[i], 0, depth + 1, &children[i])) goto done;
             leaf = &children[i];
         }
-        if (leaf->info->base_type != TYPE_STRING) goto done;
+        leaves[i] = leaf->info->base_type;
+        /* ELEM_U8 arithmetic has no evaluator dispatch. Scalar bytes use VAL_INT. */
+        if (arrays[i] && leaves[i] == TYPE_U8) goto done;
+        if (leaves[i] == TYPE_ENUM || (!arrays[i] && leaves[i] == TYPE_U8))
+            leaves[i] = TYPE_INT;
+        if (leaves[i] != TYPE_INT && leaves[i] != TYPE_FLOAT && leaves[i] != TYPE_STRING)
+            goto done;
     }
     if (!arrays[0] && !arrays[1]) goto done;
-    if (arrays[0] && arrays[1] && !nominal_view_equal(env, &operands[0], &operands[1], depth + 1)) goto done;
-    int selected = arrays[0] ? 0 : 1;
-    *out = operands[selected];
-    memset(&operands[selected], 0, sizeof operands[selected]);
-    ok = true;
+    if (unary) {
+        if (!arrays[0] || leaves[0] == TYPE_STRING) goto done;
+    } else {
+        if (leaves[0] != leaves[1]) goto done;
+        if (leaves[0] == TYPE_STRING && op != TOKEN_PLUS) goto done;
+        if (leaves[0] == TYPE_FLOAT && op == TOKEN_PERCENT) goto done;
+    }
+    /* Arithmetic removes enum identity and produces an independently owned view. */
+    TypeInfo element = {.base_type = leaves[0]};
+    TypeInfo result = {.base_type = TYPE_ARRAY, .element_type = &element};
+    ok = nominal_view_copy_context(env, &result, NULL, NULL, depth + 1, out);
 done:
     for (int i = 0; i < 2; ++i) {
         nominal_view_discard(&children[i]); nominal_view_discard(&operands[i]);
@@ -120,7 +138,7 @@ done:
 static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, NominalView *out) {
     if (!expr || depth > 128 || !out) return false;
     NominalView view = {0};
-    if (expr->type == AST_PREFIX_OP && nominal_string_array_sum(expr, env, depth + 1, out)) return true;
+    if (expr->type == AST_PREFIX_OP && nominal_array_arithmetic(expr, env, depth + 1, out)) return true;
     if (expr->type == AST_UNION_CONSTRUCT || expr->type == AST_STRUCT_LITERAL ||
         expr->type == AST_ARRAY_LITERAL || expr->type == AST_TUPLE_LITERAL) {
         const NominalView *retained = nominal_constructor_view(env, expr);
