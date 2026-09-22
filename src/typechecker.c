@@ -2339,6 +2339,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_CALL: {
+            expr->as.call.checked_u8_array_mutation = false;
             if (expr->as.call.borrow_mode) {
                 emit_context_error("E0036", expr->line, expr->column, 1,
                     "I allow a borrow only as a declared direct-call argument", "Keep the borrow call-scoped.");
@@ -2553,6 +2554,33 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Check visibility */
             if (func && !is_function_accessible(func, env, expr->line, expr->column)) {
                 return TYPE_UNKNOWN;
+            }
+
+            /* I retain an exact checked byte destination for source evaluation. */
+            bool byte_push = !strcmp(expr->as.call.name, "array_push") &&
+                env_array_push_is_builtin(env, expr->line, expr->column);
+            bool byte_set = !strcmp(expr->as.call.name, "array_set") && func &&
+                !func->body && !func->is_extern &&
+                !env_get_var_visible_at(env, "array_set", expr->line, expr->column);
+            int mutation_arity = byte_push ? 2 : 3;
+            if ((byte_push || byte_set) && expr->as.call.arg_count == mutation_arity &&
+                check_expression(expr->as.call.args[0], env) == TYPE_ARRAY &&
+                infer_array_element_type(expr->as.call.args[0], env) == TYPE_U8) {
+                ASTNode *value = expr->as.call.args[mutation_arity - 1];
+                Type actual = check_expression(value, env);
+                bool valid = scalar_value_matches(actual, TYPE_U8, value);
+                if (byte_set) {
+                    Type index = check_expression(expr->as.call.args[1], env);
+                    valid = valid && (index == TYPE_INT || index == TYPE_U8);
+                }
+                if (!valid) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require a checked byte value and an integer index for byte array mutation.",
+                        "Use a byte literal in 0..255 or a computed integer value.");
+                    return TYPE_UNKNOWN;
+                }
+                expr->as.call.checked_u8_array_mutation = true;
+                return byte_push ? TYPE_ARRAY : TYPE_VOID;
             }
 
             if (strcmp(expr->as.call.name, "array_push") == 0 &&

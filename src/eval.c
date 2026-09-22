@@ -1129,6 +1129,10 @@ static Value builtin_array_set(Value *args) {
                     index, (long long)dyn_array_length(arr));
             exit(1);
         }
+        if (dyn_array_get_elem_type(arr) == ELEM_U8 && args[2].type == VAL_INT) {
+            dyn_array_set_u8(arr, index, (uint8_t)args[2].as.int_val);
+            return create_void();
+        }
         if (value_type_to_elem_type(args[2].type) != dyn_array_get_elem_type(arr)) {
             fprintf(stderr, "I cannot assign a different element type to this array.\n");
             exit(1);
@@ -1443,6 +1447,10 @@ static Value builtin_array_push(Value *args) {
     ElementType expected_type = dyn_array_get_elem_type(arr);
     ValueType value_type = args[1].type;
     
+    if (expected_type == ELEM_U8 && value_type == VAL_INT) {
+        dyn_array_push_u8(arr, (uint8_t)args[1].as.int_val);
+        return args[0];
+    }
     if (value_type_to_elem_type(value_type) != expected_type) {
         fprintf(stderr, "Error: Type mismatch in array_push\n");
         return create_void();
@@ -3694,7 +3702,12 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     if (strcmp(name, "at") == 0 || strcmp(name, "array_get") == 0) return builtin_at(args);
     if (strcmp(name, "array_length") == 0) return builtin_array_length(args);
     if (strcmp(name, "array_new") == 0) return builtin_array_new(args);
-    if (strcmp(name, "array_set") == 0) return builtin_array_set(args);
+    if (strcmp(name, "array_set") == 0) {
+        if (node->as.call.checked_u8_array_mutation && !bound_name &&
+            node->as.call.arg_count == 3)
+            args[2] = eval_checked_scalar_destination(TYPE_U8, args[2]);
+        return builtin_array_set(args);
+    }
     if (strcmp(name, "array_slice") == 0) return builtin_array_slice(args);
     
     /* Higher-order array functions */
@@ -3703,8 +3716,12 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     if (strcmp(name, "reduce") == 0 || strcmp(name, "array_fold") == 0) return builtin_reduce(args, env);
     
     /* Dynamic array operations (GC-managed) */
-    if (strcmp(name, "array_push") == 0 && (!named_func || !named_func->body))
+    if (strcmp(name, "array_push") == 0 && (!named_func || !named_func->body)) {
+        if (node->as.call.checked_u8_array_mutation && !bound_name &&
+            node->as.call.arg_count == 2)
+            args[1] = eval_checked_scalar_destination(TYPE_U8, args[1]);
         return builtin_array_push(args);
+    }
     if (strcmp(name, "array_pop") == 0) return builtin_array_pop(args);
     if (strcmp(name, "array_remove_at") == 0) return builtin_array_remove_at(args);
     if (strcmp(name, "array_sort") == 0) return builtin_array_sort(args);
