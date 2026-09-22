@@ -5522,7 +5522,8 @@ checked_array_declared_call: ;
             
             for (int i = 0; i < expr->as.block.count; i++) {
                 ASTNode *stmt = expr->as.block.statements[i];
-                if (i == expr->as.block.count - 1 && ast_is_value_expression(stmt->type)) {
+                if (i == expr->as.block.count - 1 &&
+                    (ast_is_value_expression(stmt->type) || stmt->type == AST_IF)) {
                     block_type = check_expression(stmt, env);
                 } else {
                     check_statement(&temp_tc, stmt);
