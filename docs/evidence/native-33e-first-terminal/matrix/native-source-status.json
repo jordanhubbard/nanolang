@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "-f",
+    "tests.test_native_record_lists"
+  ],
+  "bound": 3600,
+  "status": 1,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/Users/jkh/nanolang-qualification/record-lists-33e-source",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 54.111729125000004,
+  "log": {
+    "sha256": "2d7050e2b2059725f4e550aa6cbcaf210bded791fdb9a5410d5d6fb889b97a74",
+    "bytes": 3871,
+    "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-matrix/objects/2d7050e2b2059725f4e550aa6cbcaf210bded791fdb9a5410d5d6fb889b97a74"
+  },
+  "inputs_equal": true
+}

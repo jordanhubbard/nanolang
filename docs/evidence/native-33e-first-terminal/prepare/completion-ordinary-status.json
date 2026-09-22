@@ -1,0 +1,24 @@
+{
+  "name": "completion-ordinary",
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_shadow_completion.ShadowCompletion.test_exact_decision_boundaries"
+  ],
+  "bound_seconds": 180,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 2.6616539580000023,
+  "log": {
+    "sha256": "4a45b6a92e85fb82491b0ac81091c97d5488b894bd94270da261ef6eacf57f73",
+    "bytes": 183,
+    "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/objects/4a45b6a92e85fb82491b0ac81091c97d5488b894bd94270da261ef6eacf57f73"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

@@ -1,0 +1,15 @@
+/Users/jkh/nanolang-qualification/record-lists-33e-matrix/native-source/nano-native-record-lists-fmt1z9v5/native-nested-list-projections.nano:5:92: error: use of undeclared identifier 'nl_Inner_Item_'
+    5 |     return ((nl_Outer_Item){ .tag = nl_Outer_Item_TAG_Wrapped, .data.Wrapped = {.inner = ((nl_Inner_Item_){ .tag = nl_Inner_Item__TAG_Items, .data.Items = {.values = nl_values} })} });
+      |                                                                                            ^
+/Users/jkh/nanolang-qualification/record-lists-33e-matrix/native-source/nano-native-record-lists-fmt1z9v5/temporary/nano_native_1790056673_0/program.c:783:35: error: unused parameter 'nl_values' [-Werror,-Wunused-parameter]
+  783 | nl_Outer_Item nl_build(List_Item* nl_values) {
+      |                                   ^
+/Users/jkh/nanolang-qualification/record-lists-33e-matrix/native-source/nano-native-record-lists-fmt1z9v5/native-nested-list-projections.nano:22:22: error: use of undeclared identifier 'nl_Outer_Item_'
+   22 | nl_Outer_Item _m = ((nl_Outer_Item_){ .tag = nl_Outer_Item__TAG_Wrapped, .data.Wrapped = {.inner = ((nl_Inner_Item_){ .tag = nl_Inner_Item__TAG_Items, .data.Items = {.values = nl_xs} })} }); int _matched = 0; if (!_matched && (_m.tag == nl_Outer_Item_TAG_Wrapped)) { nl_Outer_Item_Wrapped nl_outer = _m.data.Wrapped;
+      |                      ^
+/Users/jkh/nanolang-qualification/record-lists-33e-matrix/native-source/nano-native-record-lists-fmt1z9v5/native-nested-list-projections.nano:22:52: error: use of undeclared identifier 'nl_Outer_Item_'
+   22 |     int64_t nl_projected = ({ nl_Outer_Item _m = ((nl_Outer_Item_){ .tag = nl_Outer_Item__TAG_Wrapped, .data.Wrapped = {.inner = ((nl_Inner_Item_){ .tag = nl_Inner_Item__TAG_Items, .data.Items = {.values = nl_xs} })} }); int64_t _out = {0}; int _matched = 0; if (!_matched && (_m.tag == nl_Outer_Item_TAG_Wrapped)) { nl_Outer_Item_Wrapped nl_outer = _m.data.Wrapped;
+      |                                                    ^
+4 errors generated.
+I could not compile native shadows
+I kept generated C in /Users/jkh/nanolang-qualification/record-lists-33e-matrix/native-source/nano-native-record-lists-fmt1z9v5/temporary/nano_native_1790056673_0/program.c

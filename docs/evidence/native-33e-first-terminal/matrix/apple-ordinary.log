@@ -1,0 +1,10 @@
+I retain native list artifacts at /Users/jkh/nanolang-qualification/record-lists-33e-matrix/apple-ordinary/nano-native-record-lists-y_th7u98
+test_shared_storage_and_allocation_failures (tests.test_native_record_lists.NativeRecordLists) ... ok
+I retain record-list artifacts at /Users/jkh/nanolang-qualification/record-lists-33e-matrix/apple-ordinary/nano-record-lists-9wwml_y7
+test_checked_storage_scheduler_and_allocation_prefixes (tests.test_generic_record_lists.GenericRecordLists) ... ok
+test_array_intrinsic_and_declaration_identity (tests.test_generic_record_lists.GenericRecordLists) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 8.772s
+
+OK

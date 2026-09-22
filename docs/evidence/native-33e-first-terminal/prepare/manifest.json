@@ -1,0 +1,244 @@
+{
+  "head": "33ea3ae5f67d8e38f059bc4c458f4ed6c55e52bd",
+  "host": "puck",
+  "platform": "macOS-27.0-arm64-arm-64bit",
+  "scope": "fresh Make build/bootstrap and ordinary provider preparation only; no qualification implied; named tools and phase endpoint products retained",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/usr/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.02520387500000032,
+      "log": {
+        "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+        "bytes": 200,
+        "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/objects/d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.1512613749999998,
+      "log": {
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+        "bytes": 222,
+        "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.048593125000000015,
+      "log": {
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+        "bytes": 222,
+        "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/usr/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.013007791999999796,
+      "log": {
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+        "bytes": 263,
+        "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "build",
+      "argv": [
+        "make",
+        "-j2",
+        "build",
+        "CC=/usr/bin/clang",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 89.11643487500001,
+      "log": {
+        "sha256": "028090446325b867f60534983b55de6276f183dbbdd845db59d03d9493a1c84a",
+        "bytes": 53935,
+        "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/objects/028090446325b867f60534983b55de6276f183dbbdd845db59d03d9493a1c84a"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "completion-ordinary",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_shadow_completion.ShadowCompletion.test_exact_decision_boundaries"
+      ],
+      "bound_seconds": 180,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 2.6616539580000023,
+      "log": {
+        "sha256": "4a45b6a92e85fb82491b0ac81091c97d5488b894bd94270da261ef6eacf57f73",
+        "bytes": 183,
+        "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/objects/4a45b6a92e85fb82491b0ac81091c97d5488b894bd94270da261ef6eacf57f73"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "completion-clang-sanitizer",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_shadow_completion.ShadowCompletion.test_exact_decision_boundaries"
+      ],
+      "bound_seconds": 180,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 3.1631476250000077,
+      "log": {
+        "sha256": "ea4ff782981966e1e1bac8649c951a3cdf1bddbb0122f948663e932dc733a9ca",
+        "bytes": 183,
+        "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/objects/ea4ff782981966e1e1bac8649c951a3cdf1bddbb0122f948663e932dc733a9ca"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "completion-actual",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_shadow_completion.ShadowCompletion.test_actual_compiler_success_failure_and_live_deadline"
+      ],
+      "bound_seconds": 180,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 3.07729645900001,
+      "log": {
+        "sha256": "fc614a87ed7bf16cecb7d208b0a7da683e324c0bd4954c80359e072b7e6a8b3c",
+        "bytes": 207,
+        "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/objects/fc614a87ed7bf16cecb7d208b0a7da683e324c0bd4954c80359e072b7e6a8b3c"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "bootstrap",
+      "argv": [
+        "make",
+        "-j2",
+        "bootstrap",
+        "CC=/usr/bin/clang",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 322.13274070800003,
+      "log": {
+        "sha256": "7622765565f34d23d88fc6e9a9b1ad3f3ae548580656b72ff4c6cd839e0cfc7e",
+        "bytes": 76717,
+        "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/objects/7622765565f34d23d88fc6e9a9b1ad3f3ae548580656b72ff4c6cd839e0cfc7e"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "provider-prepare",
+      "argv": [
+        "make",
+        "-f",
+        "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/prepare.mk",
+        "-j2",
+        "list-prepare",
+        "CC=/usr/bin/clang",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.8618446659999677,
+      "log": {
+        "sha256": "b6d1ceb6ab57140b4289b7bd05afbb90f2e814573bee7df1b31b03cb32248e95",
+        "bytes": 12819,
+        "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/objects/b6d1ceb6ab57140b4289b7bd05afbb90f2e814573bee7df1b31b03cb32248e95"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

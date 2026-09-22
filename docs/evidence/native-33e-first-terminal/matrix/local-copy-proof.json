@@ -1,0 +1,6 @@
+{
+  "objects": 4310,
+  "object_bytes": 191432327,
+  "all_cas_names_match": true,
+  "scope": "complete rsync report copy; local CAS byte verification, products/source endpoints retained in phase maps; no remote reboot-only evidence"
+}

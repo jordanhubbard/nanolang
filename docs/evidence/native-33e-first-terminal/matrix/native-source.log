@@ -1,0 +1,20 @@
+I retain native list artifacts at /Users/jkh/nanolang-qualification/record-lists-33e-matrix/native-source/nano-native-record-lists-fmt1z9v5
+test_native_declared_and_callback_precedence (tests.test_native_record_lists.NativeRecordLists) ... ok
+test_native_discovery_and_copied_results (tests.test_native_record_lists.NativeRecordLists) ... FAIL
+
+======================================================================
+FAIL: test_native_discovery_and_copied_results (tests.test_native_record_lists.NativeRecordLists)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/nanolang-qualification/record-lists-33e-source/tests/test_native_record_lists.py", line 207, in test_native_discovery_and_copied_results
+    self.native_routes('native-nested-list-projections', '''struct Item { value:int }
+  File "/Users/jkh/nanolang-qualification/record-lists-33e-source/tests/test_native_record_lists.py", line 95, in native_routes
+    self.command(label + '-build', [ROOT / 'bin' / compiler, path, '-o', output, '--keep-c'],
+  File "/Users/jkh/nanolang-qualification/record-lists-33e-source/tests/test_generic_record_lists.py", line 127, in command
+    raise AssertionError((name, status, out[-8000:], err[-8000:]))
+AssertionError: ('0042-native-nested-list-projections-nanoc_stage1-O0-build', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'child_returncode': 1, 'elapsed': 1.0728235839999982}, b"/Users/jkh/nanolang-qualification/record-lists-33e-matrix/native-source/nano-native-record-lists-fmt1z9v5/native-nested-list-projections.nano:5:92: error: use of undeclared identifier 'nl_Inner_Item_'\n    5 |     return ((nl_Outer_Item){ .tag = nl_Outer_Item_TAG_Wrapped, .data.Wrapped = {.inner = ((nl_Inner_Item_){ .tag = nl_Inner_Item__TAG_Items, .data.Items = {.values = nl_values} })} });\n      |                                                                                            ^\n/Users/jkh/nanolang-qualification/record-lists-33e-matrix/native-source/nano-native-record-lists-fmt1z9v5/temporary/nano_native_1790056673_0/program.c:783:35: error: unused parameter 'nl_values' [-Werror,-Wunused-parameter]\n  783 | nl_Outer_Item nl_build(List_Item* nl_values) {\n      |                                   ^\n/Users/jkh/nanolang-qualification/record-lists-33e-matrix/native-source/nano-native-record-lists-fmt1z9v5/native-nested-list-projections.nano:22:22: error: use of undeclared identifier 'nl_Outer_Item_'\n   22 | nl_Outer_Item _m = ((nl_Outer_Item_){ .tag = nl_Outer_Item__TAG_Wrapped, .data.Wrapped = {.inner = ((nl_Inner_Item_){ .tag = nl_Inner_Item__TAG_Items, .data.Items = {.values = nl_xs} })} }); int _matched = 0; if (!_matched && (_m.tag == nl_Outer_Item_TAG_Wrapped)) { nl_Outer_Item_Wrapped nl_outer = _m.data.Wrapped;\n      |                      ^\n/Users/jkh/nanolang-qualification/record-lists-33e-matrix/native-source/nano-native-record-lists-fmt1z9v5/native-nested-list-projections.nano:22:52: error: use of undeclared identifier 'nl_Outer_Item_'\n   22 |     int64_t nl_projected = ({ nl_Outer_Item _m = ((nl_Outer_Item_){ .tag = nl_Outer_Item__TAG_Wrapped, .data.Wrapped = {.inner = ((nl_Inner_Item_){ .tag = nl_Inner_Item__TAG_Items, .data.Items = {.values = nl_xs} })} }); int64_t _out = {0}; int _matched = 0; if (!_matched && (_m.tag == nl_Outer_Item_TAG_Wrapped)) { nl_Outer_Item_Wrapped nl_outer = _m.data.Wrapped;\n      |                                                    ^\n4 errors generated.\nI could not compile native shadows\nI kept generated C in /Users/jkh/nanolang-qualification/record-lists-33e-matrix/native-source/nano-native-record-lists-fmt1z9v5/temporary/nano_native_1790056673_0/program.c\n", b'')
+
+----------------------------------------------------------------------
+Ran 2 tests in 54.015s
+
+FAILED (failures=1)

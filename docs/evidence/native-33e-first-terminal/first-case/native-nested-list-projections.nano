@@ -1,0 +1,32 @@
+struct Item { value:int }
+union Inner<T> { Items { values:List<T> } }
+union Outer<T> { Wrapped { inner:Inner<T> } }
+struct Holder { value:Outer<Item> }
+fn build(values:List<Item>)->Outer<Item> { return Outer<Item>.Wrapped { inner:Inner<Item>.Items { values:values } } }
+shadow build { let xs=(list_Item_new) (list_Item_push xs Item{value:13}) match (build xs) { Wrapped(outer)=>{ match outer.inner { Items(inner)=>{ assert (== (list_Item_get inner.values 0).value 13) } } } } (list_Item_free xs) }
+fn main()->int {
+ let xs=(list_Item_new)
+ (list_Item_push xs Item{value:13})
+ let holder:Holder=Holder{value:(build xs)}
+ match holder.value { Wrapped(outer)=>{
+  let alias=outer
+  let inner=alias.inner
+  match inner { Items(payload)=>{
+   let saved=payload.values
+   assert (== (list_Item_length saved) 1)
+   assert (== (list_Item_get saved 0).value 13)
+  } }
+ } }
+ match (build xs) { Wrapped(outer)=>{ match outer.inner { Items(payload)=>{ assert (== (list_Item_length payload.values) 1) } } } }
+ match Outer<Item>.Wrapped{inner:Inner<Item>.Items{values:xs}} { Wrapped(outer)=>{ match outer.inner { Items(payload)=>{ assert (== (list_Item_get payload.values 0).value 13) } } } }
+ let projected=(match Outer<Item>.Wrapped{inner:Inner<Item>.Items{values:xs}} {
+  Wrapped(outer)=>{ let alias=outer
+   if true { let alias=alias match alias.inner {Items(payload)=>{assert (== (list_Item_length payload.values) 1)}} }
+   (match alias.inner {Items(payload)=>{(list_Item_get payload.values 0).value}})
+  }
+ })
+ assert (== projected 13)
+ (list_Item_free xs)
+ return 0
+}
+shadow main { assert (== (main) 0) }

@@ -1,0 +1,24 @@
+{
+  "name": "completion-clang-sanitizer",
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_shadow_completion.ShadowCompletion.test_exact_decision_boundaries"
+  ],
+  "bound_seconds": 180,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 3.1631476250000077,
+  "log": {
+    "sha256": "ea4ff782981966e1e1bac8649c951a3cdf1bddbb0122f948663e932dc733a9ca",
+    "bytes": 183,
+    "archive": "/Users/jkh/nanolang-qualification/record-lists-33e-prepare/objects/ea4ff782981966e1e1bac8649c951a3cdf1bddbb0122f948663e932dc733a9ca"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}
