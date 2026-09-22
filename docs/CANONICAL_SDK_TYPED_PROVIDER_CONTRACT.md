@@ -277,3 +277,80 @@ unchanged-output allocation failure, cache/lease-safe publication and exact
 round-trip preservation. Actual provider entry markers, stale ABI and source-
 hidden installed executions remain later reviewed acceptance. No arbitrary
 module-generation or foreign-call execution follows from transport tests.
+
+## I fix the first raw codec row bytes
+
+My private `sdk_provider_codec` implementation is a transport prerequisite. It
+is not linked into product consumers and does not yet activate bit11 or section
+0x10. Current product readers therefore continue refusing those unknown claims.
+I require the shared projection revision, module cross-validation, atomic attach
+and complete consumer guards before admitting any new module. Full ABI/provider
+execution still follows that reviewed transport checkpoint.
+
+All integers below are little-endian u32. Tables occur in this exact order;
+there are no padding bytes or trailing data. My32-byte header contains revision1
+at0, reserved-zero flags at4, nominal/provider/detail/binding/reference counts at
+8/12/16/20/24, and reserved zero at28. Count products are bounded before loops or
+allocation. Row widths and fields are:
+
+| Table | Bytes | Fields by byte offset |
+| --- | --- | --- |
+| Nominal |32| owner-string0, original-name-string4, kind8, layout12, generic-reference first16/count20, zeros24/28 |
+| Provider |32| module-string0, ABI-string4, target-string8, artifact-digest-string12, generation-digest-string16, library-string20, zeros24/28 |
+| Exact signature |24| coarse-signature0, parameter-reference first4/count8, result-reference first12/count16, zero20 |
+| Binding |24| kind0, actual subject4, slot8, exact detail12, provider16, zero20 |
+| Reference |4| existing shared ARRAY_FIELDS type index0 |
+
+Nominal kinds0/1/2 mean record/union/opaque. Only opaque carries NO_LAYOUT.
+Binding kinds0/1/2 mean import/function/layout-field. Import/function slots are
+NO_INDEX and details select exact signature rows. Imports require a provider
+row; functions require NO_PROVIDER. Layout-field slots are u16-range field
+ordinals, details select shared type rows and provider is NO_PROVIDER. I check
+these internal slices and reserved bytes in the raw codec. Actual string
+validity, digest syntax, target ABI, layout kind/field/coarse-signature agreement,
+complete owner identity, duplicate claims and referenced shared types remain
+module-plan validation obligations; raw success must never stand in for them.
+
+Decode copies the complete immutable payload into one owned plan after shape
+validation; accessors return values. Encode accepts readable borrowed row arrays,
+allocates one staged zeroed payload, writes canonical reserved bytes and validates
+its result before publishing. Both preserve outputs on INVALID/LIMIT/MEMORY.
+The decoder's supplied limit includes its plan header plus payload; encoder's
+limit covers its single payload. No recursive graph work occurs in this slice.
+Neither API touches module strings, call-descriptor caches or generation leases.
+The earlier graph/combined-plan limits still apply to the forthcoming module plan.
+
+## I inventory consumer integration before admission
+
+I traced actual `nvm_serialize`/`nvm_deserialize`, v2 conversion and
+`nanoisa_load_file`/save callers. The next integration checkpoint must preserve or
+explicitly refuse this complete feature at each owning boundary:
+
+- `nvm_format.c`: module allocation/free, legacy bridge selection, descriptor
+  cache lifetime and serialization; `nvm_v2_module.c` and `nvm_v2_convert.c`:
+  section planning, required-feature agreement, complete owned copy/free and
+  signature/layout remapping. `modules/nanoisa/nanoisa.c` owns public loading,
+  saving and assembly bridge publication.
+- `ownership_array_fields.inc`, `ownership_contracts.c`,
+  `ownership_declaration_projection`: explicit new revision grammar, shared
+  type rows, complete graph checks and owned projection. Existing revision1
+  acceptance is unchanged. Verifier and `verifier_types.c` must refuse a new
+  required SDK claim before treating coarse tags as sufficient proof.
+- Assembly/disassembly and introspection: `disassembler.c`,
+  `modules/nanoisa/dump_main.c`, `modules/forth_see/forth_see.c`,
+  `hl_facts_main.c`, and generated Nano metadata/assembly consumers. No textual
+  round-trip may silently erase descriptors.
+- Executing/provider consumers: `nanovm/main.c`, `vm.c`, every `vm_ffi.c`
+  resolution/dispatch entry, `cop_main.c`, `vmd_server.c`,
+  `nanovirt/main.c`/`wrapper_gen.c`, `nvm2c.c`/`nvm2c_main.c`,
+  `nvm2llvm.c`/`nvm2llvm_main.c`, and canonical nvm2hl/Wasm routing. Direct
+  in-memory modules require the same early refusal as binary input.
+- File hosted/cyclic/indirect adapters and portable/managed/ordinary ownership
+  plans must not treat SDK declarations as File authority or ordinary supported
+  layouts. Packaging/linking paths must retain the feature or refuse before
+  writing output. Installed AOT/provider execution stays blocked until exact
+  ABI adapters and source-hidden acceptance qualify.
+
+This inventory is a source-work queue, not a claim that these adapters are
+implemented or qualified. I keep the feature unavailable while closing each
+boundary and review the complete change before product execution.
