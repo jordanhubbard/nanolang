@@ -1042,7 +1042,7 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
     }
 }
 
-/* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
+/* I borrow nominal names from the AST or environment; callers do not own them. */
 const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     if (expr && expr->type == AST_IDENTIFIER) {
         Symbol *symbol = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
@@ -1131,10 +1131,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                         /* Check if this type name exists as a struct */
                         StructDef *sdef = env_get_struct(env, type_name);
                         if (sdef) {
-                            /* Return a copy that will be used by the caller */
-                            char *result = strdup(type_name);
-                            free(type_name);
-                            return result;
+                            return env_own_checker_allocation(env, type_name);
                         }
                         free(type_name);
                     }
@@ -1188,7 +1185,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                                                     if ((concrete->base_type == TYPE_STRUCT || concrete->base_type == TYPE_UNION) &&
                                                         concrete->generic_name) {
                                                         free(union_name);
-                                                        return strdup(concrete->generic_name);
+                                                        return concrete->generic_name;
                                                     }
                                                 }
                                             }
@@ -1201,7 +1198,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                             /* Non-generic union (or unresolved generic): return declared struct/union name when available */
                             if ((field_type == TYPE_STRUCT || field_type == TYPE_UNION) && field_type_name) {
                                 free(union_name);
-                                return strdup(field_type_name);
+                                return field_type_name;
                             }
                         }
                     }
@@ -1224,7 +1221,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                     if ((sdef->field_types[i] == TYPE_STRUCT || sdef->field_types[i] == TYPE_UNION) &&
                         sdef->field_type_names && sdef->field_type_names[i]) {
                         /* Return the struct type name for this field */
-                        return strdup(sdef->field_type_names[i]);
+                        return sdef->field_type_names[i];
                     }
                     /* Field is not a struct, or type name not available */
                     return NULL;
