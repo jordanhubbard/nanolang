@@ -208,10 +208,11 @@ int main(int argc, char **argv) {
     NanoValue results[3];
     assert(vm_ffi_call_cop_batch(a, module, batch, 3, results, &heap, error, sizeof error));
     for (int i = 0; i < 3; ++i) assert(val_equal(results[i], first));
-    char *bytes = malloc(COP_MAILBOX_SLOT_SIZE + 100);
+    const uint32_t large_length = COP_MAILBOX_SLOT_SIZE + 8193;
+    char *bytes = malloc((size_t)large_length + 1);
     assert(bytes);
-    memset(bytes, 'x', COP_MAILBOX_SLOT_SIZE + 99); bytes[COP_MAILBOX_SLOT_SIZE + 99] = 0;
-    NanoValue large = val_string(vm_string_new(&heap, bytes, COP_MAILBOX_SLOT_SIZE + 99));
+    memset(bytes, 'x', large_length); bytes[large_length] = 0;
+    NanoValue large = val_string(vm_string_new(&heap, bytes, large_length));
     free(bytes);
     assert(large.as.string);
     NanoValue pipe_token = call(a, module, &heap, 3, &large, 1);
