@@ -166,7 +166,7 @@ shadow keyword_group2 {
 
 pure fn keyword_group3(s: string) -> int {
     if (== s "int") { return LexerTokenType.TOKEN_TYPE_INT } else {
-        if (== s "u8") { return LexerTokenType.TOKEN_TYPE_U8 } else {
+        if (or (== s "u8") (== s "byte")) { return LexerTokenType.TOKEN_TYPE_U8 } else {
             if (== s "float") { return LexerTokenType.TOKEN_TYPE_FLOAT } else {
                 if (== s "bool") { return LexerTokenType.TOKEN_TYPE_BOOL } else {
                     if (== s "string") { return LexerTokenType.TOKEN_TYPE_STRING } else {
@@ -185,6 +185,8 @@ pure fn keyword_group3(s: string) -> int {
 shadow keyword_group3 {
     assert (== (keyword_group3 "int") 50)      /* TOKEN_TYPE_INT */
     assert (== (keyword_group3 "u8") 51)       /* TOKEN_TYPE_U8 */
+    assert (== (keyword_group3 "byte") LexerTokenType.TOKEN_TYPE_U8)
+    assert (== (keyword_group3 "bytes") -1)
     assert (== (keyword_group3 "float") 52)    /* TOKEN_TYPE_FLOAT */
     assert (== (keyword_group3 "bool") 53)     /* TOKEN_TYPE_BOOL */
     assert (== (keyword_group3 "string") 54)   /* TOKEN_TYPE_STRING */
