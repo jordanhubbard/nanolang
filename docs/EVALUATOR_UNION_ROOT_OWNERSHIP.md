@@ -170,3 +170,27 @@ scope-retirement API; its existing bool parameter remains for old callers.
 Strict C99 syntax with warnings as errors passes for scheduler and fixture TUs;
 production env/eval syntax and Python syntax pass. No runtime gate has run. Full
 source/control review precedes the separately planned union ownership activation.
+
+## I stage checked union construction after the task prerequisite passes
+
+My corrected73e contextual task controls pass on both hosts in ordinary and
+ASan/UBSan/LSan configurations. I now implement a separate linked root registry
+with an embedded UnionValue. I validate signed counts before allocation, clone
+only the existing snapshot graph, and publish the root/output only after every
+name and payload copy succeeds. Each failed prefix leaves the registry and
+output unchanged; the unpublished root releases only its copied storage.
+
+All three evaluator construction sites use this checked boundary. Raw create_union
+remains unchanged and external. Registered empty match literals and the terminal
+worker defer destruction to the Environment; the original raw cleanup controls
+remain. Teardown runs after the existing task-lease preflight and before retained
+record/callable storage. Borrowed union/array/callable leaves are not dereferenced
+or freed by the union destructor, so alias order does not impose graph ordering.
+
+My additive direct controls cover nested copied record/tuple/string storage,
+shared child unions, borrowed array/callback leaves, two symbol aliases, every
+allocation prefix in persistent and one-shot failure modes, normal recovery,
+negative-count output sentinel and raw constructor ownership. Strict source and
+fixture syntax passes. Runtime qualification remains held for complete source
+and consumer-fixture review; these direct controls do not claim all parsed
+constructor/result_map or complete evaluator acceptance.

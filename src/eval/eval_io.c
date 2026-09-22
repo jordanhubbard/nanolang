@@ -477,7 +477,11 @@ Value builtin_result_map(Value *args, Environment *env) {
 
     char *field_names[1] = { "value" };
     Value field_values[1] = { mapped };
-    return create_union(uv->union_name, 0, "Ok", field_names, field_values, 1);
+    Value result = create_void();
+    if (!env_create_union(env, uv->union_name, 0, "Ok", field_names, field_values, 1, &result)) {
+        fprintf(stderr, "I cannot retain a union result.\n"); exit(1);
+    }
+    return result;
 }
 
 Value builtin_result_and_then(Value *args, Environment *env) {

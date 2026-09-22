@@ -1851,6 +1851,7 @@ static void terminal_match_cleanup(void) {
     for (int i = 0; env && i < env->symbol_count; ++i) {
         Symbol *symbol = &env->symbols[i];
         if (symbol->value.type != VAL_UNION) continue;
+        if (env_union_result_borrowed(env, symbol->value)) continue;
         UnionValue *value = symbol->value.as.union_val;
         if (retired || !symbol->name || strcmp(symbol->name, "value") ||
             !value || !value->union_name || strcmp(value->union_name, "Choice") ||

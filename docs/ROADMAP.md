@@ -17236,3 +17236,10 @@ I retain the earlier f286 strict Linux fixture compilation refusal separately;
 reviewed73e changes only its checked formatting buffer. My raw reports and seals
 are in `docs/evidence/task-context-qualified`. Union and collection registries,
 full evaluator acceptance and complete installed SDK qualification remain open.
+
+I stage task992713's checked evaluator union registry after the contextual task
+prerequisite qualifies. Three actual constructors publish only complete owned
+roots; aliases and raw external constructors are never adopted. I preserve
+borrowed graph leaves and existing task teardown guards. Allocation-prefix and
+alias controls are source-only pending review; full parsed/result_map consumers
+and full evaluator closure remain required, with no sanitizer replay yet.

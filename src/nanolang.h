@@ -835,6 +835,7 @@ typedef struct {
     struct EnvProviderEdge *evaluation_providers;
     size_t evaluation_leases; /* Pending calls and borrowed completed results prevent teardown. */
     EnvTaskIdentity *task_identity; /* Separate identity survives scalar task completion. */
+    struct EnvUnionRoot *union_roots; /* Evaluator constructors only; aliases borrow. */
     struct EnvRecordList *record_lists; /* Evaluator-owned handles, including tombstones. */
     struct EnvRecordResult *record_results; /* Cumulative borrowed result snapshots. */
     struct EnvRecordIndex *record_result_index; /* Exact typed-root membership; arena owns entries. */
@@ -1003,6 +1004,13 @@ bool env_clone_record(Value source, Value *out);
 void env_discard_record(StructValue *record);
 bool env_record_snapshot(Environment *env, Value source, Value *out);
 bool env_record_result_borrowed(Environment *env, Value value);
+/* Public union results borrow their Environment, including copied composite leaves.
+ * Failed construction leaves both output and registry unchanged. Raw create_union
+ * remains caller-owned and is never adopted by assignment or lookup. */
+bool env_union_result_borrowed(Environment *env, Value value);
+bool env_create_union(Environment *env, const char *name, int variant,
+                      const char *variant_name, char **names, Value *values,
+                      int count, Value *out);
 bool env_retire_record(Environment *env, Value owned);
 bool env_record_list_identity(Environment *env, Value handle, NominalIdentity *out);
 bool env_record_list_apply(Environment *env, NominalIdentity element,

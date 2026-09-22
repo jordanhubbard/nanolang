@@ -4,6 +4,7 @@
 #include "runtime/gc.h"
 #include <string.h>
 #include "env_record_lists.inc"
+#include "env_union_storage.inc"
 #include "env_provider_leases.inc"
 
 struct EnvNominalImport {
@@ -383,6 +384,7 @@ void free_environment(Environment *env) {
             env_free_value(env->symbols[i].value);
     }
     free(env->symbols);
+    env_union_storage_free(env);
     env_record_storage_free(env);
     env_provider_edges_free(env);
     if (env->import_tracker) {

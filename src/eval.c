@@ -5238,8 +5238,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                                 }
                             }
 
-                            Value result = create_union(union_name_buf, variant_idx, variant_name,
-                                                      expr->as.struct_literal.field_names, field_values, field_count);
+                            Value result = create_void();
+                            bool built = env_create_union(env, union_name_buf, variant_idx, variant_name,
+                                expr->as.struct_literal.field_names, field_values, field_count, &result);
+                            if (!built) {
+                                free(field_values);
+                                fprintf(stderr, "I cannot retain a union result.\n"); exit(1);
+                            }
 
                             if (field_values) free(field_values);
                             return result;
@@ -5455,8 +5460,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 }
             }
             
-            Value result = create_union(union_name, variant_idx, variant_name, 
-                                       field_names, field_values, field_count);
+            Value result = create_void();
+            bool built = env_create_union(env, union_name, variant_idx, variant_name,
+                                          field_names, field_values, field_count, &result);
+            if (!built) {
+                free(field_names); free(field_values);
+                fprintf(stderr, "I cannot retain a union result.\n"); exit(1);
+            }
             
             /* Free temporary arrays (create_union makes copies) */
             if (field_count > 0) {
@@ -5477,7 +5487,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (match_val.type == VAL_UNION && !match_val.as.union_val)
                 return eval_match_invariant_failure("a union match received no value");
 
-            bool owns_empty = eval_match_owns_empty_literal(
+            bool owns_empty = !env_union_result_borrowed(env, match_val) && eval_match_owns_empty_literal(
                 expr->as.match_expr.expr, match_val);
 
             /* Every pattern, including a wildcard, participates in source order. */

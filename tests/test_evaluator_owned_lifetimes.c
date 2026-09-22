@@ -1061,6 +1061,61 @@ static void contextual_task_controls(void) {
     env_discard_value_snapshot(context_graph);
     free_environment(context_env); context_env = NULL;
 }
+static void union_root_attempt(size_t at, bool once, size_t *count) {
+    Environment *env = create_environment(); CHECK(env);
+    Value child = create_void();
+    CHECK(env_create_union(env, "Choice", 0, "Empty", NULL, NULL, 0, &child));
+    struct EnvUnionRoot *before = env->union_roots;
+    char payload[] = "retained";
+    char *record_names[] = {"text"}; Value record_values[] = {text_value(payload)};
+    StructValue record = {.struct_name="Item", .field_count=1,
+        .field_names=record_names, .field_values=record_values};
+    Value tuple_values[] = {record_value(&record), child};
+    TupleValue tuple = {.element_count=2, .elements=tuple_values};
+    Array borrowed = {.element_type=VAL_INT};
+    Value array = create_void(); array.type=VAL_ARRAY; array.as.array_val=&borrowed;
+    Value callable = create_void(); callable.type=VAL_FUNCTION;
+    callable.as.function_val.function_name="borrowed";
+    char *names[] = {"text", "record", "tuple", "child", "alias", "array", "callback"};
+    Value values[] = {text_value(payload),record_value(&record),tuple_value(&tuple),child,child,array,callable};
+    Value out=integer(991), sentinel=out;
+    begin(at,once);
+    bool ok=env_create_union(env,"Parent",1,"Held",names,values,7,&out);
+    *count=attempts; end();
+    if (at!=SIZE_MAX) {
+        CHECK(!ok && failures>0 && !memcmp(&out,&sentinel,sizeof out));
+        CHECK(env->union_roots==before && live==0);
+        CHECK(env_create_union(env,"Parent",1,"Held",names,values,7,&out));
+    } else CHECK(ok && failures==0);
+    CHECK(env_union_result_borrowed(env,out) && env_union_result_borrowed(env,child));
+    CHECK(!env_record_result_borrowed(env,out));
+    Value *fields=out.as.union_val->field_values;
+    payload[0]='X';
+    CHECK(!strcmp(fields[0].as.string_val,"retained"));
+    CHECK(!strcmp(fields[1].as.struct_val->field_values[0].as.string_val,"retained"));
+    CHECK(!strcmp(fields[2].as.tuple_val->elements[0].as.struct_val->field_values[0].as.string_val,"retained"));
+    CHECK(fields[3].as.union_val==child.as.union_val && fields[4].as.union_val==child.as.union_val);
+    CHECK(fields[5].as.array_val==&borrowed && fields[6].as.function_val.function_name==callable.as.function_val.function_name);
+    env_define_var(env,"first",TYPE_UNION,false,out);
+    env_define_var(env,"second",TYPE_UNION,false,out);
+    free_environment(env); CHECK(live==0);
+}
+static void union_root_controls(void) {
+    size_t count; union_root_attempt(SIZE_MAX,false,&count); CHECK(count>10);
+    for(int once=0;once<2;++once) for(size_t i=0;i<count;++i) {
+        size_t ignored; union_root_attempt(i,once!=0,&ignored);
+        union_root_attempt(SIZE_MAX,false,&ignored);
+    }
+    Environment *env=create_environment(); CHECK(env);
+    Value raw=create_union("Raw",0,"Empty",NULL,NULL,0);
+    CHECK(!env_union_result_borrowed(env,raw));
+    Value sentinel=integer(77), out=sentinel;
+    CHECK(!env_create_union(env,"Bad",0,"Bad",NULL,NULL,-1,&out));
+    CHECK(!memcmp(&out,&sentinel,sizeof out) && !env->union_roots);
+    free_environment(env);
+    CHECK(!strcmp(raw.as.union_val->union_name,"Raw"));
+    free(raw.as.union_val->union_name); free(raw.as.union_val->variant_name); free(raw.as.union_val);
+}
 int main(int argc, char **argv) {
     if (argc == 4 && !strcmp(argv[1], "cache-init")) {
         cache_init_control(!strcmp(argv[2], "all") ? SIZE_MAX : (size_t)strtoul(argv[2], NULL, 10), atoi(argv[3]) != 0);
@@ -1070,7 +1125,7 @@ int main(int argc, char **argv) {
         cache_registration_control(argv[2]); return 0;
     }
     CHECK(argc == 1);
-    function_index_controls(); nominal_import_controls(); string_binding_ownership_controls(); evaluator_symbol_pop_controls(); graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); contextual_task_controls(); task_allocation_controls(); borrowed_staging_controls();
+    union_root_controls(); function_index_controls(); nominal_import_controls(); string_binding_ownership_controls(); evaluator_symbol_pop_controls(); graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); contextual_task_controls(); task_allocation_controls(); borrowed_staging_controls();
     CHECK(live == 0 && !observing);
     printf("I passed %zu checked ownership assertions.\n", checks);
     return 0;
