@@ -14500,3 +14500,15 @@ allocator failure claim.
   then require full build/bootstrap/provider closure. This is a command-selection
   failure, not a newly demonstrated compiler defect.
   MAC: task_716077fe2eb14ec89ead2ce9f2bb3cc2.
+
+- [ ] I emit each native record-list typedef once in a complete C translation
+  unit while preserving pre-layout availability and standalone generator output.
+  My4d Puck Stage1 strict C99 discovery gate rejects the duplicate before running
+  generated output. [Contract](NANOISA_NATIVE_LIST_FORWARD_OWNERSHIP.md).
+  MAC: task_f201f1249e0a4567ad56a15b024b1408.
+- [ ] I retain concrete generic union identity through inferred native aliases
+  and subsequent match emission. My4d Linux nested-list-projections Cseed O0
+  gate emits nl_Outer despite registered nl_Outer_Item, then host compilation
+  refuses. I audit retained owner/context facts through declaration and match
+  consumers before a correction; original18+9 and nested controls remain.
+  MAC: task_a370d7cc60c5445981c0fbc5d7b15f29.
