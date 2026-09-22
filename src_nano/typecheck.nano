@@ -234,7 +234,7 @@ fn resource_concrete_payload_fact(parser: Parser, spelling: string, line: int, f
     if (> depth 128) { return true }
     if (resource_name_in formals spelling) { return false }
     let raw_base: string = (base_type_name spelling)
-    let args: array<string> = (tc_generic_arguments spelling)
+    let mut args: array<string> = (tc_generic_arguments spelling)
     let collection: bool = (or (== raw_base "array") (or (== raw_base "List") (== raw_base "HashMap")))
     if collection {
         let mut i: int = 0
@@ -246,7 +246,8 @@ fn resource_concrete_payload_fact(parser: Parser, spelling: string, line: int, f
     }
     let identity: string = (resource_type_identity parser spelling line)
     let base: string = (base_type_name identity)
-    if (> (array_length args) 0) {
+    if (>= (tc_selected_payload_union parser spelling) 0) { set args (tc_generic_arguments identity) }
+    if (or (> (array_length args) 0) (tc_str_starts_with base "#variant:")) {
         let mut key: string = (+ identity ":owned")
         if collections_only { set key (+ identity ":collections") }
         if (resource_name_in active key) { return false }
@@ -254,6 +255,23 @@ fn resource_concrete_payload_fact(parser: Parser, spelling: string, line: int, f
         let mut i: int = 0
         while (< i (parser_get_union_count parser)) {
             let def: ASTUnion = (parser_get_union parser i)
+            let mut offset: int = 0
+            let mut variant: int = 0
+            while (< variant def.variant_count) {
+                let count: int = (at def.variant_field_counts variant)
+                if (== base (resource_variant_key i variant)) {
+                    if (!= def.generic_param_count (array_length args)) { return true }
+                    let mut field: int = 0
+                    while (< field count) {
+                        let concrete: string = (tc_substitute_generic (at def.variant_field_types (+ offset field)) def.generic_params args)
+                        if (resource_concrete_payload_fact parser concrete def.line formals bearing collections collections_only next (+ depth 1)) { return true }
+                        set field (+ field 1)
+                    }
+                    return false
+                }
+                set offset (+ offset count)
+                set variant (+ variant 1)
+            }
             if (== base (resource_type_identity parser def.name def.line)) {
                 if (!= def.generic_param_count (array_length args)) { return true }
                 let mut field: int = 0
@@ -294,10 +312,13 @@ shadow resource_concrete_payload_fact {
     assert (not (resource_classify cycle "Cycle" false))
     let recursive: Parser = (resource_test_parser "resource struct Handle { fd: int } union Chain<T> { More { children: array<Chain<T>> }, Value { value: T }, None {} } struct Recursive { chain: Chain<Handle> }")
     assert (resource_classify recursive "Recursive" true)
+    assert (not (resource_concrete_payload_fact parser "Cycle<int>.Next" 1 [] roots [] false [] 0))
+
 }
 
 fn resource_classify(parser: Parser, type_name: string, collections_only: bool) -> bool {
     if (tc_str_starts_with type_name "fn(") { return false }
+    if (>= (tc_selected_payload_union parser type_name) 0) { return (resource_instantiated_classify parser type_name 0 0 collections_only) }
     # Reserved scalar types cannot contain a nominal resource payload.
     if (or (== type_name "int") (or (== type_name "float") (or (== type_name "bool") (or (== type_name "string") (== type_name "void"))))) { return false }
     if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_instantiated_classify parser type_name 0 0 collections_only) }
@@ -876,6 +897,23 @@ shadow resource_instantiated_classify {
     assert (not (resource_instantiated_classify parser "Box<Handle>.None" 1 0 false))
     assert (resource_instantiated_classify parser "Values<Handle>.Some" 1 0 true)
     assert (not (resource_instantiated_classify parser "Box<Handle>.Some" 1 0 true))
+    assert (resource_type_is_declared parser "Box<Handle>.Some")
+    assert (not (resource_type_is_declared parser "Box<Handle>.None"))
+    assert (resource_has_collection_payload parser "Values<Handle>.Some")
+    assert (not (resource_has_collection_payload parser "Box<Handle>.Some"))
+    let roots: array<string> = [(resource_type_identity parser "Handle" 1)]
+    assert (resource_concrete_payload_fact parser "Box<Handle>.Some" 1 [] roots [] false [] 0)
+    assert (not (resource_concrete_payload_fact parser "Box<Handle>.None" 1 [] roots [] false [] 0))
+    assert (resource_concrete_payload_fact parser "array<Box<Handle>.Some>" 1 [] roots [] true [] 0)
+    assert (resource_concrete_payload_fact parser "Values<Handle>.Some" 1 [] roots [] true [] 0)
+    assert (resource_instantiated_classify parser "Box<Handle>.Some" 1 129 false)
+
+    let fixed: Parser = (resource_test_parser "resource struct Handle { fd: int } union Fixed { Some { value: Handle }, None {} }")
+    let fixed_roots: array<string> = [(resource_type_identity fixed "Handle" 1)]
+    assert (resource_concrete_payload_fact fixed "Fixed.Some" 1 [] fixed_roots [] false [] 0)
+    assert (not (resource_concrete_payload_fact fixed "Fixed.None" 1 [] fixed_roots [] false [] 0))
+    assert (resource_concrete_payload_fact fixed "array<Fixed.Some>" 1 [] fixed_roots [] true [] 0)
+
 }
 
 fn resource_generic_contains(parser: Parser, spelling: string, line: int, depth: int) -> bool {
@@ -4910,6 +4948,9 @@ shadow reduce_type_known {
     assert (not (types_equal selected (type_from_string_with_parser parser "Box<string>.Some")))
     assert (reduce_type_known parser (type_from_string_with_parser parser "(Box<int>.Some,List<Box<string>.Some>)"))
     assert (reduce_type_known parser (type_from_string_with_parser parser "fn(Box<int>.Some)->Box<string>.Some"))
+    let recursive: Parser = (resource_test_parser "union Loop<T> { Next { next: Loop<T> }, None {} }")
+    assert (reduce_type_known recursive (type_from_string_with_parser recursive "Loop<int>.Next"))
+
 }
 
 fn reduce_types_exact(parser: Parser, actual: NSType, expected: NSType) -> bool {

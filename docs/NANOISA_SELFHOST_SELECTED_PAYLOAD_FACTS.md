@@ -149,3 +149,37 @@ compiler or runtime qualification. No affected compiler, shadow, generated
 product or sanitizer has run on this source checkpoint. The preserved Linux7e6
 first refusal and all earlier terminals remain authoritative until corrected
 gates pass after source review.
+
+## My independent consumer audit after 7c763d45f
+
+I held qualification after finding two omitted entry paths. My public
+`resource_classify` now dispatches an exact selected fact to instantiated
+classification before the legacy generic-string test. My concrete-field
+classifier obtains selected arguments from the resolved resource identity and
+visits only the exact selected variant, including nongeneric variant keys.
+Nested arrays retain ownership checks; empty variants do not inherit sibling
+fields. I added public wrapper, collection, nested-field and nongeneric controls.
+My list discovery scanner now excludes `->` from angle-depth changes and checks
+exact callback-containing selected element text before and after a sibling.
+
+My termination audit distinguishes these mechanisms:
+
+- selected annotation peeling removes a nonempty suffix; it cannot recurse on
+  the same string;
+- known facts recurse into strictly smaller annotation components, not fields
+  of potentially cyclic declarations;
+- native declaration expansion records each complete annotation before its
+  children, deduplicates recurring instances, and rejects expansion deeper than
+  128 edges;
+- resource fixed-point sets grow only over the finite declaration/key set;
+  concrete-field traversal retains active complete identities and its 128-edge
+  fail-closed bound, and instantiated traversal retains the same depth bound.
+
+I added actual self-recursive selected-discovery and resource-field controls,
+plus explicit limit/refusal controls that restore the prior diagnostic global.
+Callback field inference reaches `lookup_struct_field_type`, then exact union
+field substitution before `native_array_callback_type` consumes the complete
+signature. Fixed declaration names and substituted actual names remain separate
+annotation tokens; neither callback nor list selection obtains authority from a
+C storage name. Existing list intrinsic declaration selection remains unchanged.
+These are static findings and new unexecuted controls, not runtime acceptance.

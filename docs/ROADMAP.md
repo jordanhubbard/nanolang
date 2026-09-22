@@ -14548,3 +14548,16 @@ allocator failure claim.
   callback-before-sibling and nested selected-payload controls before corrected
   execution. This is a source-discovered prerequisite, not a reproduced runtime
   failure. MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
+
+- [ ] I carry selected payload resource facts through the actual public
+  classifiers and concrete-field traversal, not only the instantiated helper.
+  My static7c audit finds `resource_classify` and `resource_concrete_payload_fact`
+  inspect generic arguments before normalizing `Box<Handle>.Some`; its suffix
+  hides the arguments from that legacy parser. I require wrapper and nested
+  field controls, selected empty-variant distinction, and retained cycle bounds.
+  MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
+- [ ] I preserve callback arrows while discovering List elements. My static7c
+  audit finds `native_list_types_in` decrements generic depth for `->` inside
+  `List<Box<fn(int)->int>.Some>`. I retain exact complete element text and the
+  original discovery assertions. No affected product has run on this checkpoint.
+  MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.

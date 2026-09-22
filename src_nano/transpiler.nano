@@ -5101,7 +5101,9 @@ fn native_list_types_in(annotation: string, result: array<string>, seen: HashMap
                 while (and (< end (str_length annotation)) (> depth 0)) {
                     let c: string = (str_substring annotation end 1)
                     if (== c "<") { set depth (+ depth 1) }
-                    if (== c ">") { set depth (- depth 1) }
+                    if (== c ">") {
+                        if (not (and (> end 0) (== (str_substring annotation (- end 1) 1) "-"))) { set depth (- depth 1) }
+                    }
                     if (> depth 0) { set end (+ end 1) }
                 }
                 if (== depth 0) {
@@ -5124,6 +5126,14 @@ shadow native_list_types_in {
     assert (== (at types 0) "Item")
     assert (== (at types 1) "Other")
     assert (== (array_length (native_list_types_in "NotList<Missing>" [] (hashset_new_string))) 0)
+    let callbacks: array<string> = (native_list_types_in "List<Box<fn(int)->int>.Some>" [] (hashset_new_string))
+    assert (== (array_length callbacks) 1)
+    assert (== (at callbacks 0) "Box<fn(int)->int>.Some")
+    let nested: array<string> = (native_list_types_in "fn(List<Box<fn(int)->int>.Some>)->List<Item>" [] (hashset_new_string))
+    assert (== (array_length nested) 2)
+    assert (== (at nested 0) "Box<fn(int)->int>.Some")
+    assert (== (at nested 1) "Item")
+
 }
 
 fn detect_list_types(parser: Parser) -> array<string> {
@@ -5549,6 +5559,19 @@ shadow native_expand_union_type {
     let rows: array<string> = (native_expand_union_type parser "Outer<int>" "Box" (map_new) (map_new) [] 0)
     assert (== (array_length rows) 1)
     assert (== (at rows 0) "Box<int>")
+    let recursive_tokens: List<LexerToken> = (tokenize_string "union Loop<T> { Next { next: Loop<T> }, None {} }" "cycle.nano" (list_CompilerDiagnostic_new))
+    let recursive: Parser = (parse_program recursive_tokens (list_LexerToken_length recursive_tokens) "cycle.nano")
+    assert (not (parser_has_error recursive))
+    let cyclic: array<string> = (native_expand_union_type recursive "Loop<int>.Next" "Loop" (map_new) (map_new) [] 0)
+    assert (== (array_length cyclic) 1)
+    assert (== (at cyclic 0) "Loop<int>")
+    let previous_error: string = reduce_emission_error
+    set reduce_emission_error ""
+    let refused: array<string> = (native_expand_union_type recursive "Loop<int>.Next" "Loop" (map_new) (map_new) [] 129)
+    assert (== (array_length refused) 0)
+    assert (!= reduce_emission_error "")
+    set reduce_emission_error previous_error
+
 }
 
 fn find_union_instantiations(parser: Parser, base_name: string) -> array<string> {
