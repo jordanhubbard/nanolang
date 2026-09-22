@@ -14483,3 +14483,11 @@ allocator failure claim.
   completed helper work and remaining graph intervals. The prior measurement
   does not establish new production improvement or deadline closure.
   MAC: task_6ec8b514c61449d0863401584e86376b.
+
+- [ ] I retain both802 ordinary bootstrap timeouts and the separately passing536
+  diagnostic. My helper measurement falls to5.745ms across162 completed calls,
+  but unequal prior call counts and observer overhead limit comparison. I
+  diagnose the new Puck Stage2 native deadline through existing shadow tracing
+  and bounded external timestamps before correction. Full18+8 remains open.
+  [Evidence](evidence/list-search-bisection-timing.md).
+  MAC: task_6ec8b514c61449d0863401584e86376b.
