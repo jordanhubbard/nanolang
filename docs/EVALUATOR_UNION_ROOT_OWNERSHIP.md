@@ -90,3 +90,54 @@ full queue/failed enqueue recovery, and same-Environment immediate await. Actual
 union/callable/array-leaf results must stay readable after argument drop and must
 prevent Environment destruction until completed slot release. Existing scheduler
 and lease assertions remain intact. No runtime execution precedes source review.
+
+## I authorize evaluator result access by a retained Environment identity
+
+I explicitly close the previous implicit cross-Environment gap: evaluator
+coro_result and await must verify task ownership before asking the scheduler to
+clone or run the target. Evaluating the handle expression once is necessary;
+only after that expression returns a handle do I check its owner. Foreign or raw
+C tasks refuse with a precise evaluator diagnostic. Raw C scheduler result,
+await, spawn and owned-spawn APIs retain their current behavior. Direct async
+calls create and await their task in the same Environment and pass this check.
+No cross-Environment graph transfer is claimed.
+
+A raw Environment pointer is insufficient for identity after scalar completion:
+its address can be reused. I propose a separately allocated reference-counted
+identity token, retained by its Environment and each contextual task. Tokens are
+never reused while a task retains them. The task compares its token with the
+current Environment token; it need not dereference a destroyed Environment.
+Environment destruction releases its token reference, not task references.
+Failed preparation leaves no published task/token or leaked lease. Reference
+count overflow is checked before transfer.
+
+I audited the original scalar lifecycle: test_eval_coroutine_spawn_and_run frees
+its Environment after scheduler_run without releasing the scalar DONE handle.
+Existing generic owned-scheduler controls also require argument leases to end
+at completion; those controls keep using the unchanged old API. I will preserve
+both behaviors. Contextual tasks retain their identity token until release, but
+may relinquish the separate result lease at completion only with a narrow proof:
+actual returned value is scalar and the snapshotted declared result type is the
+matching INT/U8/ENUM, BOOL, FLOAT or VOID category. TYPE_OPAQUE or absent/unknown
+annotations never gain this proof merely because their runtime tag is VAL_INT.
+All other results conservatively retain the lease through disposal, including
+arrays, unions, callables and composite values. No recursive graph walk is needed
+for early lease release. This may retain leaf-free records longer; their explicit
+release contract is documented instead of asserting they are scalar.
+
+A trusted contextual settlement hook runs after callback completion and temporary
+return disposal, before argument drop. It can relinquish only the extra result
+lease; identity remains. Cancellation and ERROR similarly relinquish the lease
+without releasing the identity needed for later handle rejection. Final owner
+drop releases a live result lease if any, then the token reference, without
+accessing a former Environment after an early scalar lease release. DONE graph
+results drop their result while the lease remains live, then release the owner.
+The active latch protects every hook and publication order.
+
+Additional controls retain original scalar teardown and old-API tests, then
+check same-Environment access, foreign READY refusal without running callback,
+foreign DONE refusal without cloning, raw-task refusal only through evaluator,
+identity survival after scalar owner destruction/address reuse, and explicit
+release of graph results. Copy failures preserve output and retained ownership.
+These are the final proposed contracts for review; implementation and execution
+remain held until review, and full original leak closure remains separate.

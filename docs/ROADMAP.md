@@ -17185,3 +17185,10 @@ results remain readable. I propose an additive separately retained result-owner
 lease through explicit result disposal, preserving argument-drop timing, legacy
 APIs and cancellation behavior. All borrowed graph leaves share this boundary;
 source review and cross-Environment consumer audit precede union retirement.
+
+I refine task992713's final task boundary before code: evaluator handles are
+Environment-scoped, checked before target evaluation/clone; raw C APIs remain
+unchanged. A retained identity token prevents address-reuse authorization. DONE
+scalar results may release their extra Environment lease only under matching
+snapshotted declared-type/runtime-tag proof; other graphs retain it until explicit
+release. This preserves original scalar teardown while protecting borrowed leaves.
