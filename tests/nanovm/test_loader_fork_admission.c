@@ -34,6 +34,7 @@ static void busy_refusal(bool writer) {
     assert(read(worker.ready[0], &byte, 1) == 1);
     FfiLoaderFork token = {0};
     assert(!ffi_loader_fork_prepare(&token));
+    assert(!ffi_loader_shadow_prepare(&token));
     assert(write(worker.release[1], &byte, 1) == 1);
     assert(!pthread_join(thread, NULL));
     for (int i = 0; i < 2; ++i) {
@@ -54,6 +55,7 @@ static void waiting_writer_refusal(void) {
     while (__atomic_load_n(&ffi_admission, __ATOMIC_ACQUIRE) != 2u) sched_yield();
     FfiLoaderFork token;
     assert(!ffi_loader_fork_prepare(&token));
+    assert(!ffi_loader_shadow_prepare(&token));
     ffi_registry_unlock();
     char byte;
     assert(read(worker.ready[0], &byte, 1) == 1);
@@ -149,9 +151,51 @@ static void fresh_registration(const char *library, bool conflict) {
     assert(ffi_loader_fork_parent(&token));
     child_status(child);
 }
+static void shadow_pristine_child(bool descendant) {
+    FfiLoaderFork token = {0};
+    assert(ffi_loader_shadow_prepare(&token));
+    pid_t child = fork();
+    if (!child) {
+        assert(ffi_loader_fork_child(&token));
+        assert(ffi_loader_init(false));
+        if (descendant) shadow_pristine_child(false);
+        ffi_loader_shutdown();
+        _exit(0);
+    }
+    assert(ffi_loader_fork_parent(&token));
+    child_status(child);
+}
+static void shadow_history(const char *library, const char *mode) {
+    FfiLoaderFork token = {0};
+    assert(ffi_loader_shadow_prepare(&token));
+    assert(ffi_loader_fork_parent(&token));
+    assert(ffi_loader_init(false));
+    shadow_pristine_child(true);
+    if (!strcmp(mode, "shadow-loaded")) assert(ffi_loader_open(library, library));
+    else if (!strcmp(mode, "shadow-failed"))
+        assert(!ffi_loader_open("missing", "/no/such/nanolang-shadow-library"));
+    else {
+        assert(!strcmp(mode, "shadow-resolved"));
+        assert(ffi_loader_resolve("malloc"));
+    }
+    assert(!ffi_loader_shadow_prepare(&token));
+    /* A refusal reopens admission and leaves ordinary loader use available. */
+    assert(ffi_loader_is_initialized());
+    assert(ffi_loader_fork_prepare(&token));
+    assert(ffi_loader_fork_parent(&token));
+    ffi_loader_shutdown();
+    assert(!ffi_loader_shadow_prepare(&token));
+    assert(ffi_loader_init(false));
+    ffi_loader_shutdown();
+    puts("I preserved pristine shadow admission and native-entry history.");
+}
 int main(int argc, char **argv) {
     assert(argc == 3 || argc == 4);
     alarm(15);
+    if (argc == 4 && !strncmp(argv[3], "shadow-", 7)) {
+        shadow_history(argv[1], argv[3]);
+        return 0;
+    }
     if (argc == 4) {
         assert(!strcmp(argv[3], "fresh") || !strcmp(argv[3], "conflict"));
         fresh_registration(argv[1], !strcmp(argv[3], "conflict"));

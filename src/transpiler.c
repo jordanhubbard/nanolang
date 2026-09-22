@@ -515,8 +515,8 @@ static void collect_headers_from_module(const char *module_path) {
         for (size_t i = 0; i < meta->headers_count; i++) {
             add_module_header(meta->headers[i], meta->header_priority);
         }
-        module_metadata_free(meta);
     }
+    module_metadata_free(meta);
     
     free(path_copy);
 }

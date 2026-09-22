@@ -1,0 +1,144 @@
+{
+  "source": "bf56ca5f8",
+  "driver_sha256": "5ca10188ece76da32ee2a96aedd44221576234435f96f0267083fa2dd1fe77b1",
+  "source_archive_sha256": "56e8a57561d756a2dae5d79cf221a32b6c98e7c182b56306dc378d8fc8331741",
+  "scope": "Both ordinary full focused suites pass. Both sanitizer gates pass owning fork/loader/ABI groups, then first callback compiler parent reports 664 bytes in 15 allocations. Remaining sanitizer callback methods unreached. No full typecheck replay.",
+  "hosts": {
+    "linux": {
+      "archive_sha256": "ef313026ab4980d7193f3f921de3c750ca7b88859ee91b0e884eebc369606058",
+      "phases": [
+        {
+          "label": "fresh-providers",
+          "returncode": 0,
+          "seconds": 14.616964193060994
+        },
+        {
+          "label": "fork-failure-controls",
+          "returncode": 0,
+          "seconds": 0.6539690090576187
+        },
+        {
+          "label": "exact-contracts",
+          "returncode": 0,
+          "seconds": 1.0872686940710992
+        },
+        {
+          "label": "borrowed-string-controls",
+          "returncode": 0,
+          "seconds": 1.2965453180950135
+        },
+        {
+          "label": "loader-admission-controls",
+          "returncode": 0,
+          "seconds": 0.6421716820914298
+        },
+        {
+          "label": "callback-and-interpreter-shadows",
+          "returncode": 0,
+          "seconds": 7.546506590908393
+        },
+        {
+          "label": "fresh-providers",
+          "returncode": 0,
+          "seconds": 35.84783957200125
+        },
+        {
+          "label": "fork-failure-controls",
+          "returncode": 0,
+          "seconds": 1.2884992950130254
+        },
+        {
+          "label": "exact-contracts",
+          "returncode": 0,
+          "seconds": 2.794044318026863
+        },
+        {
+          "label": "borrowed-string-controls",
+          "returncode": 0,
+          "seconds": 3.000102806952782
+        },
+        {
+          "label": "loader-admission-controls",
+          "returncode": 0,
+          "seconds": 1.072032829048112
+        },
+        {
+          "label": "callback-and-interpreter-shadows",
+          "returncode": 1,
+          "seconds": 3.2046541169984266
+        }
+      ],
+      "tools_unchanged": true,
+      "linked_providers_unchanged": true,
+      "groups_absent": true
+    },
+    "puck": {
+      "archive_sha256": "20e99eb2132eb7fb2d76f962a0366960d1f3ff5007ea6abd3fe352bd019c55c1",
+      "phases": [
+        {
+          "label": "fresh-providers",
+          "returncode": 0,
+          "seconds": 10.084591457999998
+        },
+        {
+          "label": "fork-failure-controls",
+          "returncode": 0,
+          "seconds": 0.9153961250000009
+        },
+        {
+          "label": "exact-contracts",
+          "returncode": 0,
+          "seconds": 1.6544777919999998
+        },
+        {
+          "label": "borrowed-string-controls",
+          "returncode": 0,
+          "seconds": 2.388290542
+        },
+        {
+          "label": "loader-admission-controls",
+          "returncode": 0,
+          "seconds": 1.4341635829999984
+        },
+        {
+          "label": "callback-and-interpreter-shadows",
+          "returncode": 0,
+          "seconds": 7.225738291999999
+        },
+        {
+          "label": "fresh-providers",
+          "returncode": 0,
+          "seconds": 18.84466075
+        },
+        {
+          "label": "fork-failure-controls",
+          "returncode": 0,
+          "seconds": 1.3976351250000008
+        },
+        {
+          "label": "exact-contracts",
+          "returncode": 0,
+          "seconds": 23.715985791999998
+        },
+        {
+          "label": "borrowed-string-controls",
+          "returncode": 0,
+          "seconds": 5.368045291000001
+        },
+        {
+          "label": "loader-admission-controls",
+          "returncode": 0,
+          "seconds": 3.4721552920000107
+        },
+        {
+          "label": "callback-and-interpreter-shadows",
+          "returncode": 1,
+          "seconds": 6.242979957999992
+        }
+      ],
+      "tools_unchanged": true,
+      "linked_providers_unchanged": true,
+      "groups_absent": true
+    }
+  }
+}

@@ -55,6 +55,18 @@ static unsigned ffi_process;
 static FfiLoaderFork *ffi_prepared;
 static bool ffi_child_local;
 static bool ffi_registered;
+/* I never forget native image entry: even a failed load may run a constructor. */
+static unsigned ffi_native_entered;
+
+static void *ffi_native_open(const char *path, int flags) {
+    __atomic_store_n(&ffi_native_entered, 1u, __ATOMIC_RELEASE);
+    return dlopen(path, flags);
+}
+
+static void *ffi_native_symbol(void *image, const char *name) {
+    __atomic_store_n(&ffi_native_entered, 1u, __ATOMIC_RELEASE);
+    return dlsym(image, name);
+}
 
 static bool ffi_same_process(void) {
     unsigned current = (unsigned)getpid();
@@ -142,6 +154,16 @@ typedef struct RetainedImage {
  * shutdown/reinitialization. A callback's final release can occur while native
  * code is still returning through that image, so it is not an unload boundary. */
 static RetainedImage *retained_images;
+
+bool ffi_loader_shadow_prepare(FfiLoaderFork *token) {
+    if (!ffi_loader_fork_prepare(token)) return false;
+    /* Admission excludes readers and writers while I inspect this history. */
+    if (module_count || retained_images || __atomic_load_n(&ffi_native_entered, __ATOMIC_ACQUIRE)) {
+        (void)ffi_loader_fork_parent(token);
+        return false;
+    }
+    return true;
+}
 
 /* ── Lifecycle ───────────────────────────────────────────────────── */
 
@@ -275,7 +297,7 @@ bool ffi_loader_open(const char *module_name, const char *lib_path) {
     }
 
     /* Use RTLD_GLOBAL so module-to-module symbol deps can resolve */
-    void *handle = dlopen(lib_path, RTLD_LAZY | RTLD_GLOBAL);
+    void *handle = ffi_native_open(lib_path, RTLD_LAZY | RTLD_GLOBAL);
     if (!handle) {
         if (verbose_mode) {
             fprintf(stderr, "[ffi_loader] Failed to load %s: %s\n",
@@ -331,7 +353,7 @@ void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name
     if (!ffi_registry_lock(false)) return NULL;
     for (int i = 0; i < module_count; i++) {
         if (strcmp(modules[i].name, module_name) == 0) {
-            ptr = dlsym(modules[i].handle, symbol_name);
+            ptr = ffi_native_symbol(modules[i].handle, symbol_name);
             break;
         }
     }
@@ -359,7 +381,7 @@ bool ffi_loader_string_release(const char *module_name, const char *symbol_name,
     if (!ffi_registry_lock(false)) { free(name); return false; }
     for (int i = 0; i < module_count; ++i) {
         if (strcmp(modules[i].name, module_name)) continue;
-        void *cleanup = dlsym(modules[i].handle, name);
+        void *cleanup = ffi_native_symbol(modules[i].handle, name);
         if (!cleanup) { valid = true; break; }
         Dl_info origin, companion;
         if (dladdr(function, &origin) && dladdr(cleanup, &companion) &&
@@ -394,12 +416,12 @@ bool ffi_loader_check_array_abi(const char *module_name, const char *symbol_name
     const uint32_t *declaration = NULL;
     if (!module_name) {
         found = true;
-        declaration = dlsym(RTLD_DEFAULT, name);
+        declaration = ffi_native_symbol(RTLD_DEFAULT, name);
     }
     for (int i = 0; module_name && i < module_count; ++i) {
         if (strcmp(modules[i].name, module_name)) continue;
         found = true;
-        declaration = dlsym(modules[i].handle, name);
+        declaration = ffi_native_symbol(modules[i].handle, name);
         break;
     }
     if (found) {
@@ -430,14 +452,14 @@ void *ffi_loader_resolve_retained(const char *symbol_name, const char *module_na
     for (int i = 0; i < module_count; i++) {
         FfiModule *module = &modules[i];
         if (strcmp(module->name, module_name)) continue;
-        ptr = dlsym(module->handle, symbol_name);
+        ptr = ffi_native_symbol(module->handle, symbol_name);
         if (!ptr) break;
         RetainedImage *image = retained_images;
         while (image && image->handle != module->handle) image = image->next;
         if (!image) {
             image = malloc(sizeof(*image));
             if (!image) { ptr = NULL; break; }
-            image->handle = dlopen(module->path, RTLD_LAZY | RTLD_GLOBAL);
+            image->handle = ffi_native_open(module->path, RTLD_LAZY | RTLD_GLOBAL);
             if (image->handle != module->handle) {
                 if (image->handle) dlclose(image->handle);
                 free(image);
@@ -460,7 +482,7 @@ void *ffi_loader_resolve_in(const char *symbol_name, FfiModule **out_module) {
 
     /* Search loaded modules */
     for (int i = 0; i < module_count; i++) {
-        void *ptr = dlsym(modules[i].handle, symbol_name);
+        void *ptr = ffi_native_symbol(modules[i].handle, symbol_name);
         if (ptr) {
             if (out_module) *out_module = &modules[i];
             ffi_registry_unlock();
@@ -468,12 +490,15 @@ void *ffi_loader_resolve_in(const char *symbol_name, FfiModule **out_module) {
         }
     }
 
+    /* I mark native entry before releasing admission, so a concurrent shadow
+     * preparation cannot slip between this registry scan and native fallback. */
+    __atomic_store_n(&ffi_native_entered, 1u, __ATOMIC_RELEASE);
     ffi_registry_unlock();
 
     /* Fallback: main executable + already-loaded libraries (no lock needed) */
-    void *self = dlopen(NULL, RTLD_LAZY);
+    void *self = ffi_native_open(NULL, RTLD_LAZY);
     if (self) {
-        void *ptr = dlsym(self, symbol_name);
+        void *ptr = ffi_native_symbol(self, symbol_name);
         dlclose(self);
         if (ptr) return ptr;
     }

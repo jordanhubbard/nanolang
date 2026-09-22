@@ -1,4 +1,6 @@
 #include "runtime/shadow_timeout.h"
+#include "runtime/ffi_loader.h"
+#include <pthread.h>
 #include "nanolang.h"
 #include "module_builder.h"
 #include "nanovirt/codegen.h"
@@ -208,8 +210,25 @@ bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
         return false;
     }
     fflush(NULL);
+    int previous_cancel;
+    FfiLoaderFork loader_token = {0};
+    if (pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &previous_cancel) != 0) {
+        close(completion[0]); close(completion[1]);
+        nvm_module_free(tests.module);
+        fprintf(stderr, "I cannot protect shadow loader preparation.\n");
+        return false;
+    }
+    if (!ffi_loader_shadow_prepare(&loader_token)) {
+        close(completion[0]); close(completion[1]);
+        nvm_module_free(tests.module);
+        (void)pthread_setcancelstate(previous_cancel, NULL);
+        fprintf(stderr, "I require an idle loader without prior native image entry for shadows.\n");
+        return false;
+    }
     pid_t child = fork();
     if (child == 0) {
+        if (!ffi_loader_fork_child(&loader_token)) _exit(1);
+        (void)pthread_setcancelstate(previous_cancel, NULL);
         close(completion[0]);
         /* I bound test execution, not its authority: this is not a sandbox. */
         signal(SIGALRM, SIG_DFL);
@@ -233,6 +252,7 @@ bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
         _exit(completed ? 0 : 1);
     }
     int fork_error = errno;
+    (void)ffi_loader_fork_parent(&loader_token);
     close(completion[1]);
     int status = 0;
     pid_t waited = -1;
@@ -260,6 +280,7 @@ bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
     bool completed = read(completion[0], &done, 1) == 1 && done == 1;
     close(completion[0]);
     nvm_module_free(tests.module);
+    (void)pthread_setcancelstate(previous_cancel, NULL);
     if (child < 0 || waited < 0) {
         fprintf(stderr, "I could not supervise shadow execution: %s\n", strerror(supervision_error));
         return false;
