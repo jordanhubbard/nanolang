@@ -17283,3 +17283,18 @@ Make-expanded flags already captured in cflags.txt/ldflags.txt. Crypto/FFI symbo
 therefore remained undefined; no test or sanitizer executed. I correct only the
 driver to consume those authoritative flags, then require fresh preparation and
 the unchanged whole fixture. The candidate source and assertions are unchanged.
+
+I checkpoint complete private SDK module snapshots: explicit allocation-free
+combined preflight, shared signature planning, complete copied tables/layouts and
+all code/auxiliary bytes, no serializer/legacy bridge or old-cache teardown.
+Additive transport/fault fixtures and unchanged signature fixtures pass strict
+syntax only. I require full source/control review before four-lane qualification;
+provider attachment, crossvalidation and complete installed SDK remain open.
+
+I retain corrected da88 C checker ordinary failure on both hosts at unchanged
+`tc_reduce_exact_identities` Point acceptance. Checker-only visible diagnostics
+identify the exact record boundary: complete nominal_value_view already retains
+builtin reduce's initializer, but nominal_expression omits reduce in its adapter.
+The fixture contains no IF/handler branch. I propose only the existing exact
+builtin three-argument complete-view bridge, retaining declaration/callback
+precedence and original whole-checker assertions before corrected qualification.

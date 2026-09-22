@@ -12,6 +12,11 @@ typedef struct NvmSdkSignatureSnapshot NvmSdkSignatureSnapshot;
  * This is structural transport, not complete module or execution validation. */
 NvmSdkResult nvm_sdk_signature_snapshot_prepare(const NvmV2Module *source,
     size_t byte_limit, NvmSdkSignatureSnapshot **out);
+/* No allocation. Failure preserves outputs; work counts validation plus future
+ * copying (two passes). A caller that measures and later prepares charges the
+ * extra validation pass as work/2. Source immutability remains required. */
+NvmSdkResult nvm_sdk_signature_snapshot_measure(const NvmV2Module *, size_t, uint32_t work_limit,
+    size_t *bytes, uint32_t *work);
 void nvm_sdk_signature_snapshot_free(NvmSdkSignatureSnapshot *);
 /* I expose contractually read-only owned rows, live until snapshot_free.
  * Nested pointer fields use existing mutable C types: callers must not mutate

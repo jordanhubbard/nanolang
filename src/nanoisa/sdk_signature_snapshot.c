@@ -13,8 +13,8 @@ static bool add_bytes(size_t *used,size_t count,size_t width,size_t limit) {
     if(*used>limit || (width && count>(limit-*used)/width))return false;
     *used+=count*width;return true;
 }
-static bool charge(uint32_t *work,uint32_t amount) {
-    if(amount>NVM_SDK_GENERATION_MAX_WORK-*work)return false;
+static bool charge(uint32_t *work,uint32_t amount,uint32_t limit) {
+    if(*work>limit || amount>limit-*work)return false;
     *work+=amount;return true;
 }
 static uint32_t selected(const NvmV2Module *m,unsigned kind,uint32_t i) {
@@ -31,18 +31,22 @@ void nvm_sdk_signature_snapshot_free(NvmSdkSignatureSnapshot *p) {
     for(unsigned k=0;k<4;k++)free(p->indices[k]);
     free(p);
 }
-NvmSdkResult nvm_sdk_signature_snapshot_prepare(const NvmV2Module *m,
-    size_t limit,NvmSdkSignatureSnapshot **out) {
-    if(!m||!out||(m->signatures.count&&!m->signatures.items)||
+typedef struct {
+    uint32_t counts[4], work;
+    size_t bytes, tags;
+} SignatureSnapshotPlan;
+static NvmSdkResult signature_snapshot_plan(const NvmV2Module *m,
+    size_t limit, uint32_t work_limit, SignatureSnapshotPlan *plan) {
+    if(!m||!plan||(m->signatures.count&&!m->signatures.items)||
        (m->functions.count&&!m->functions.items)||(m->imports.count&&!m->imports.items)||
        (m->callbacks.count&&!m->callbacks.items)||(m->links.count&&!m->links.items))return NVM_SDK_INVALID;
     if(limit>NVM_SDK_GENERATION_MAX_BYTES)limit=NVM_SDK_GENERATION_MAX_BYTES;
     uint32_t counts[]={m->functions.count,m->imports.count,m->callbacks.count,m->links.count};
     uint32_t work=0;size_t bytes=sizeof(NvmSdkSignatureSnapshot),tags=0;
     if(!add_bytes(&bytes,m->signatures.count,sizeof(NvmV2Signature),limit)||
-       !charge(&work,m->signatures.count)||!charge(&work,m->signatures.count))return NVM_SDK_LIMIT;
+       !charge(&work,m->signatures.count,work_limit)||!charge(&work,m->signatures.count,work_limit))return NVM_SDK_LIMIT;
     for(unsigned k=0;k<4;k++) {
-        if(!add_bytes(&bytes,counts[k],sizeof(uint32_t),limit)||!charge(&work,counts[k])||!charge(&work,counts[k]))return NVM_SDK_LIMIT;
+        if(!add_bytes(&bytes,counts[k],sizeof(uint32_t),limit)||!charge(&work,counts[k],work_limit)||!charge(&work,counts[k],work_limit))return NVM_SDK_LIMIT;
         for(uint32_t i=0;i<counts[k];i++) {
             uint32_t index=selected(m,k,i);
             if(index>=m->signatures.count && !(k>=NVM_SDK_SIGNATURE_CALLBACK&&index==NVM_V2_NO_INDEX))return NVM_SDK_INVALID;
@@ -51,14 +55,35 @@ NvmSdkResult nvm_sdk_signature_snapshot_prepare(const NvmV2Module *m,
     for(uint32_t i=0;i<m->signatures.count;i++) {
         const NvmV2Signature *s=&m->signatures.items[i];
         uint32_t n=(uint32_t)s->param_count+s->result_count;
-        if(!charge(&work,n)||!charge(&work,n)||!add_bytes(&bytes,n,1,limit))return NVM_SDK_LIMIT;
+        if(!charge(&work,n,work_limit)||!charge(&work,n,work_limit)||!add_bytes(&bytes,n,1,limit))return NVM_SDK_LIMIT;
         if((s->param_count&&!s->param_tags)||(s->result_count&&!s->result_tags))return NVM_SDK_INVALID;
         for(uint16_t j=0;j<s->param_count;j++)if(s->param_tags[j]>=TAG_COUNT)return NVM_SDK_INVALID;
         for(uint16_t j=0;j<s->result_count;j++)if(s->result_tags[j]>=TAG_COUNT)return NVM_SDK_INVALID;
         tags+=n;
     }
+    memcpy(plan->counts,counts,sizeof counts);
+    plan->bytes=bytes;plan->tags=tags;plan->work=work;
+    return NVM_SDK_OK;
+}
+NvmSdkResult nvm_sdk_signature_snapshot_measure(const NvmV2Module *m,
+    size_t limit,uint32_t work_limit,size_t *bytes,uint32_t *work) {
+    if(!bytes||!work)return NVM_SDK_INVALID;
+    if(work_limit>NVM_SDK_GENERATION_MAX_WORK)work_limit=NVM_SDK_GENERATION_MAX_WORK;
+    SignatureSnapshotPlan plan;
+    NvmSdkResult result=signature_snapshot_plan(m,limit,work_limit,&plan);
+    if(result!=NVM_SDK_OK)return result;
+    *bytes=plan.bytes;*work=plan.work;return NVM_SDK_OK;
+}
+NvmSdkResult nvm_sdk_signature_snapshot_prepare(const NvmV2Module *m,
+    size_t limit,NvmSdkSignatureSnapshot **out) {
+    if(!out)return NVM_SDK_INVALID;
+    SignatureSnapshotPlan plan;
+    NvmSdkResult checked=signature_snapshot_plan(m,limit,NVM_SDK_GENERATION_MAX_WORK,&plan);
+    if(checked!=NVM_SDK_OK)return checked;
+    size_t bytes=plan.bytes,tags=plan.tags;
+    uint32_t *counts=plan.counts;
     NvmSdkSignatureSnapshot *p=calloc(1,sizeof *p);if(!p)return NVM_SDK_MEMORY;
-    p->bytes=bytes;p->signatures.count=m->signatures.count;memcpy(p->counts,counts,sizeof counts);
+    p->bytes=bytes;p->signatures.count=m->signatures.count;memcpy(p->counts,counts,sizeof p->counts);
     if(m->signatures.count) {
         p->signatures.items=calloc(m->signatures.count,sizeof *p->signatures.items);
         if(!p->signatures.items)goto memory;

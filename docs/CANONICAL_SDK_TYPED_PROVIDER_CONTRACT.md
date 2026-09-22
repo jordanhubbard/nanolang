@@ -453,3 +453,29 @@ auxiliary bytes, empty-but-present DEBUG, selector sentinels, source mutation
 independence, old-generation continued readability, negative structural inputs,
 exact budgets and every allocation prefix with recovery. This private primitive
 still grants no descriptor, VM, nvm2c or installed SDK admission.
+
+## I checkpoint the complete private snapshot implementation
+
+I reuse signature validation through one allocation-free measure function and
+one shared internal plan. Its work result charges validation plus copying; the
+module reserves three passes (external measurement, preparation validation,
+copying) before entering that signature scan. The signature measure accepts the
+remaining work bound explicitly, so preflight cannot consume a second hidden
+million-step budget after other tables have already consumed it. The existing
+standalone signature preparation retains its original allocation sites and
+budget. Failure leaves measure outputs unchanged too.
+
+The module snapshot owns separate flat tables, layout-field allocations, the
+signature snapshot, and one complete payload pool. One nonempty payload copy is
+a work operation; actual copied bytes are charged to the byte bound. Row and
+field visits are charged before traversal. Every allocation including both plan
+objects is counted; no caller module pointer or cache enters destruction.
+
+The private fixture carries every table and all five code/auxiliary byte ranges,
+physical zero bytes, duplicate and unused signatures, callback sentinel selectors,
+and empty-present DEBUG. It checks exact byte budget, malformed dimensions,
+work refusal, every discovered allocation prefix in persistent/one-shot modes,
+and recovery. A second generation stays readable after source mutation and first
+generation destruction. This is deliberately transport data; the fixture does
+not assert cross-section semantic validity or admission. Original signature
+controls remain unchanged and must rerun with the shared planning refactor.
