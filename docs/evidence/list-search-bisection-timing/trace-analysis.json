@@ -1,0 +1,3738 @@
+{
+  "scope": "External receipt intervals include pipe/scheduler overhead. A later shadow marker establishes prior call returned; final marker alone establishes only entry. No exclusive CPU attribution.",
+  "shadow_entries": 601,
+  "last_entry": {
+    "monotonic_ns": 236204444958,
+    "line": "I am testing shadow __nano_module___21_transp_str_index_of"
+  },
+  "terminal_markers": [
+    {
+      "monotonic_ns": 246356541916,
+      "line": "I stopped shadow execution after 10 seconds"
+    }
+  ],
+  "largest_completed_receipt_intervals": [
+    {
+      "ordinal": 207,
+      "label": "I am testing shadow __nano_module___9_parse_unsafe_block_recursive",
+      "next_label": "I am testing shadow __nano_module___9_parse_unsafe_block",
+      "receipt_interval_seconds": 0.001799375
+    },
+    {
+      "ordinal": 54,
+      "label": "I am testing shadow __nano_module___7_copy_dir",
+      "next_label": "I am testing shadow __nano_module___8_is_identifier_start",
+      "receipt_interval_seconds": 0.001302416
+    },
+    {
+      "ordinal": 204,
+      "label": "I am testing shadow __nano_module___9_parse_block_recursive",
+      "next_label": "I am testing shadow __nano_module___9_parse_block",
+      "receipt_interval_seconds": 0.000943334
+    },
+    {
+      "ordinal": 398,
+      "label": "I am testing shadow __nano_module___18_resource_type_is_declared",
+      "next_label": "I am testing shadow __nano_module___18_resource_find",
+      "receipt_interval_seconds": 0.000895417
+    },
+    {
+      "ordinal": 418,
+      "label": "I am testing shadow __nano_module___18_resource_transfer_supported",
+      "next_label": "I am testing shadow __nano_module___18_resource_callback_unsupported",
+      "receipt_interval_seconds": 0.000821375
+    },
+    {
+      "ordinal": 395,
+      "label": "I am testing shadow __nano_module___18_resource_concrete_payload_fact",
+      "next_label": "I am testing shadow __nano_module___18_resource_classify",
+      "receipt_interval_seconds": 0.000814291
+    },
+    {
+      "ordinal": 46,
+      "label": "I am testing shadow __nano_module___7_glob",
+      "next_label": "I am testing shadow __nano_module___7_read",
+      "receipt_interval_seconds": 0.000794042
+    },
+    {
+      "ordinal": 47,
+      "label": "I am testing shadow __nano_module___7_read",
+      "next_label": "I am testing shadow __nano_module___7_write",
+      "receipt_interval_seconds": 0.00078525
+    },
+    {
+      "ordinal": 52,
+      "label": "I am testing shadow __nano_module___7_mkdir_p",
+      "next_label": "I am testing shadow __nano_module___7_copy_file",
+      "receipt_interval_seconds": 0.000746125
+    },
+    {
+      "ordinal": 50,
+      "label": "I am testing shadow __nano_module___7_exists",
+      "next_label": "I am testing shadow __nano_module___7_delete",
+      "receipt_interval_seconds": 0.000737125
+    },
+    {
+      "ordinal": 53,
+      "label": "I am testing shadow __nano_module___7_copy_file",
+      "next_label": "I am testing shadow __nano_module___7_copy_dir",
+      "receipt_interval_seconds": 0.000716417
+    },
+    {
+      "ordinal": 532,
+      "label": "I am testing shadow __nano_module___18_check_expr_node",
+      "next_label": "I am testing shadow __nano_module___18_typecheck_return_expr",
+      "receipt_interval_seconds": 0.000650167
+    },
+    {
+      "ordinal": 49,
+      "label": "I am testing shadow __nano_module___7_append",
+      "next_label": "I am testing shadow __nano_module___7_exists",
+      "receipt_interval_seconds": 0.000633125
+    },
+    {
+      "ordinal": 48,
+      "label": "I am testing shadow __nano_module___7_write",
+      "next_label": "I am testing shadow __nano_module___7_append",
+      "receipt_interval_seconds": 0.00060475
+    },
+    {
+      "ordinal": 51,
+      "label": "I am testing shadow __nano_module___7_delete",
+      "next_label": "I am testing shadow __nano_module___7_mkdir_p",
+      "receipt_interval_seconds": 0.000566958
+    },
+    {
+      "ordinal": 416,
+      "label": "I am testing shadow __nano_module___18_resource_instantiated_classify",
+      "next_label": "I am testing shadow __nano_module___18_resource_generic_contains",
+      "receipt_interval_seconds": 0.000452834
+    },
+    {
+      "ordinal": 419,
+      "label": "I am testing shadow __nano_module___18_resource_callback_unsupported",
+      "next_label": "I am testing shadow __nano_module___18_resource_check_annotation",
+      "receipt_interval_seconds": 0.000410375
+    },
+    {
+      "ordinal": 474,
+      "label": "I am testing shadow __nano_module___18_checked_list_element",
+      "next_label": "I am testing shadow __nano_module___18_check_exact_list_call",
+      "receipt_interval_seconds": 0.000339167
+    },
+    {
+      "ordinal": 37,
+      "label": "I am testing shadow __nano_module___7_canonical",
+      "next_label": "I am testing shadow __nano_module___7_normalize",
+      "receipt_interval_seconds": 0.000321041
+    },
+    {
+      "ordinal": 514,
+      "label": "I am testing shadow __nano_module___18_check_match_expr",
+      "next_label": "I am testing shadow __nano_module___18_check_variant_field_type",
+      "receipt_interval_seconds": 0.000305667
+    }
+  ],
+  "intervals": [
+    {
+      "ordinal": 1,
+      "label": "I am testing shadow __nano_module___5_token_literal_value_bytes",
+      "next_label": "I am testing shadow __nano_module___6_diag_location",
+      "receipt_interval_seconds": 0.000191709
+    },
+    {
+      "ordinal": 2,
+      "label": "I am testing shadow __nano_module___6_diag_location",
+      "next_label": "I am testing shadow __nano_module___6_diag_location_empty",
+      "receipt_interval_seconds": 0.000136041
+    },
+    {
+      "ordinal": 3,
+      "label": "I am testing shadow __nano_module___6_diag_location_empty",
+      "next_label": "I am testing shadow __nano_module___6_diag_error",
+      "receipt_interval_seconds": 6.3125e-05
+    },
+    {
+      "ordinal": 4,
+      "label": "I am testing shadow __nano_module___6_diag_error",
+      "next_label": "I am testing shadow __nano_module___6_diag_warning",
+      "receipt_interval_seconds": 2.3209e-05
+    },
+    {
+      "ordinal": 5,
+      "label": "I am testing shadow __nano_module___6_diag_warning",
+      "next_label": "I am testing shadow __nano_module___6_diag_parser_error",
+      "receipt_interval_seconds": 2.6666e-05
+    },
+    {
+      "ordinal": 6,
+      "label": "I am testing shadow __nano_module___6_diag_parser_error",
+      "next_label": "I am testing shadow __nano_module___6_diag_list_new",
+      "receipt_interval_seconds": 2.225e-05
+    },
+    {
+      "ordinal": 7,
+      "label": "I am testing shadow __nano_module___6_diag_list_new",
+      "next_label": "I am testing shadow __nano_module___6_diag_list_add",
+      "receipt_interval_seconds": 2.2125e-05
+    },
+    {
+      "ordinal": 8,
+      "label": "I am testing shadow __nano_module___6_diag_list_add",
+      "next_label": "I am testing shadow __nano_module___6_diag_list_has_errors",
+      "receipt_interval_seconds": 2.1792e-05
+    },
+    {
+      "ordinal": 9,
+      "label": "I am testing shadow __nano_module___6_diag_list_has_errors",
+      "next_label": "I am testing shadow __nano_module___6_diag_make_type_error",
+      "receipt_interval_seconds": 2.225e-05
+    },
+    {
+      "ordinal": 10,
+      "label": "I am testing shadow __nano_module___6_diag_make_type_error",
+      "next_label": "I am testing shadow __nano_module___6_diag_make_undefined_error",
+      "receipt_interval_seconds": 2.0792e-05
+    },
+    {
+      "ordinal": 11,
+      "label": "I am testing shadow __nano_module___6_diag_make_undefined_error",
+      "next_label": "I am testing shadow __nano_module___6_diag_new",
+      "receipt_interval_seconds": 2.1e-05
+    },
+    {
+      "ordinal": 12,
+      "label": "I am testing shadow __nano_module___6_diag_new",
+      "next_label": "I am testing shadow __nano_module___6_diag_simple",
+      "receipt_interval_seconds": 2.6875e-05
+    },
+    {
+      "ordinal": 13,
+      "label": "I am testing shadow __nano_module___6_diag_simple",
+      "next_label": "I am testing shadow __nano_module___6_diag_error_simple",
+      "receipt_interval_seconds": 2.1125e-05
+    },
+    {
+      "ordinal": 14,
+      "label": "I am testing shadow __nano_module___6_diag_error_simple",
+      "next_label": "I am testing shadow __nano_module___6_diag_warning_simple",
+      "receipt_interval_seconds": 2.0291e-05
+    },
+    {
+      "ordinal": 15,
+      "label": "I am testing shadow __nano_module___6_diag_warning_simple",
+      "next_label": "I am testing shadow __nano_module___6_diag_info",
+      "receipt_interval_seconds": 0.000111334
+    },
+    {
+      "ordinal": 16,
+      "label": "I am testing shadow __nano_module___6_diag_info",
+      "next_label": "I am testing shadow __nano_module___6_diag_info_simple",
+      "receipt_interval_seconds": 6.9e-05
+    },
+    {
+      "ordinal": 17,
+      "label": "I am testing shadow __nano_module___6_diag_info_simple",
+      "next_label": "I am testing shadow __nano_module___6_diag_lexer_error",
+      "receipt_interval_seconds": 5.0041e-05
+    },
+    {
+      "ordinal": 18,
+      "label": "I am testing shadow __nano_module___6_diag_lexer_error",
+      "next_label": "I am testing shadow __nano_module___6_diag_typecheck_error",
+      "receipt_interval_seconds": 3.8167e-05
+    },
+    {
+      "ordinal": 19,
+      "label": "I am testing shadow __nano_module___6_diag_typecheck_error",
+      "next_label": "I am testing shadow __nano_module___6_diag_transpiler_error",
+      "receipt_interval_seconds": 2.5125e-05
+    },
+    {
+      "ordinal": 20,
+      "label": "I am testing shadow __nano_module___6_diag_transpiler_error",
+      "next_label": "I am testing shadow __nano_module___6_diag_list_count",
+      "receipt_interval_seconds": 2.2417e-05
+    },
+    {
+      "ordinal": 21,
+      "label": "I am testing shadow __nano_module___6_diag_list_count",
+      "next_label": "I am testing shadow __nano_module___6_diag_list_get",
+      "receipt_interval_seconds": 2.2833e-05
+    },
+    {
+      "ordinal": 22,
+      "label": "I am testing shadow __nano_module___6_diag_list_get",
+      "next_label": "I am testing shadow __nano_module___6_diag_id_io_open",
+      "receipt_interval_seconds": 2.1708e-05
+    },
+    {
+      "ordinal": 23,
+      "label": "I am testing shadow __nano_module___6_diag_id_io_open",
+      "next_label": "I am testing shadow __nano_module___6_diag_id_lex_failed",
+      "receipt_interval_seconds": 2.1167e-05
+    },
+    {
+      "ordinal": 24,
+      "label": "I am testing shadow __nano_module___6_diag_id_lex_failed",
+      "next_label": "I am testing shadow __nano_module___6_diag_id_parse_failed",
+      "receipt_interval_seconds": 2.0708e-05
+    },
+    {
+      "ordinal": 25,
+      "label": "I am testing shadow __nano_module___6_diag_id_parse_failed",
+      "next_label": "I am testing shadow __nano_module___6_diag_id_import_failed",
+      "receipt_interval_seconds": 2.0834e-05
+    },
+    {
+      "ordinal": 26,
+      "label": "I am testing shadow __nano_module___6_diag_id_import_failed",
+      "next_label": "I am testing shadow __nano_module___6_diag_id_type_failed",
+      "receipt_interval_seconds": 2.125e-05
+    },
+    {
+      "ordinal": 27,
+      "label": "I am testing shadow __nano_module___6_diag_id_type_failed",
+      "next_label": "I am testing shadow __nano_module___6_diag_id_mod_compile",
+      "receipt_interval_seconds": 2.1166e-05
+    },
+    {
+      "ordinal": 28,
+      "label": "I am testing shadow __nano_module___6_diag_id_mod_compile",
+      "next_label": "I am testing shadow __nano_module___6_diag_id_shadow_failed",
+      "receipt_interval_seconds": 2.1084e-05
+    },
+    {
+      "ordinal": 29,
+      "label": "I am testing shadow __nano_module___6_diag_id_shadow_failed",
+      "next_label": "I am testing shadow __nano_module___6_diag_id_trans_failed",
+      "receipt_interval_seconds": 2.0541e-05
+    },
+    {
+      "ordinal": 30,
+      "label": "I am testing shadow __nano_module___6_diag_id_trans_failed",
+      "next_label": "I am testing shadow __nano_module___6_diag_id_c_temp",
+      "receipt_interval_seconds": 1.9209e-05
+    },
+    {
+      "ordinal": 31,
+      "label": "I am testing shadow __nano_module___6_diag_id_c_temp",
+      "next_label": "I am testing shadow __nano_module___6_diag_id_cc_cmd",
+      "receipt_interval_seconds": 2.375e-05
+    },
+    {
+      "ordinal": 32,
+      "label": "I am testing shadow __nano_module___6_diag_id_cc_cmd",
+      "next_label": "I am testing shadow __nano_module___6_diag_id_cc_failed",
+      "receipt_interval_seconds": 2.0291e-05
+    },
+    {
+      "ordinal": 33,
+      "label": "I am testing shadow __nano_module___6_diag_id_cc_failed",
+      "next_label": "I am testing shadow __nano_module___6_diag_id_src_utf8",
+      "receipt_interval_seconds": 2.8584e-05
+    },
+    {
+      "ordinal": 34,
+      "label": "I am testing shadow __nano_module___6_diag_id_src_utf8",
+      "next_label": "I am testing shadow __nano_module___6_diag_en",
+      "receipt_interval_seconds": 2.0666e-05
+    },
+    {
+      "ordinal": 35,
+      "label": "I am testing shadow __nano_module___6_diag_en",
+      "next_label": "I am testing shadow __nano_module___7_walkdir",
+      "receipt_interval_seconds": 2.0792e-05
+    },
+    {
+      "ordinal": 36,
+      "label": "I am testing shadow __nano_module___7_walkdir",
+      "next_label": "I am testing shadow __nano_module___7_canonical",
+      "receipt_interval_seconds": 2.2667e-05
+    },
+    {
+      "ordinal": 37,
+      "label": "I am testing shadow __nano_module___7_canonical",
+      "next_label": "I am testing shadow __nano_module___7_normalize",
+      "receipt_interval_seconds": 0.000321041
+    },
+    {
+      "ordinal": 38,
+      "label": "I am testing shadow __nano_module___7_normalize",
+      "next_label": "I am testing shadow __nano_module___7_join",
+      "receipt_interval_seconds": 4.7167e-05
+    },
+    {
+      "ordinal": 39,
+      "label": "I am testing shadow __nano_module___7_join",
+      "next_label": "I am testing shadow __nano_module___7_basename",
+      "receipt_interval_seconds": 2.5042e-05
+    },
+    {
+      "ordinal": 40,
+      "label": "I am testing shadow __nano_module___7_basename",
+      "next_label": "I am testing shadow __nano_module___7_dirname",
+      "receipt_interval_seconds": 2.2458e-05
+    },
+    {
+      "ordinal": 41,
+      "label": "I am testing shadow __nano_module___7_dirname",
+      "next_label": "I am testing shadow __nano_module___7_relpath",
+      "receipt_interval_seconds": 2.2917e-05
+    },
+    {
+      "ordinal": 42,
+      "label": "I am testing shadow __nano_module___7_relpath",
+      "next_label": "I am testing shadow __nano_module___7_cwd",
+      "receipt_interval_seconds": 0.000130375
+    },
+    {
+      "ordinal": 43,
+      "label": "I am testing shadow __nano_module___7_cwd",
+      "next_label": "I am testing shadow __nano_module___7_glob_match_impl",
+      "receipt_interval_seconds": 4.6833e-05
+    },
+    {
+      "ordinal": 44,
+      "label": "I am testing shadow __nano_module___7_glob_match_impl",
+      "next_label": "I am testing shadow __nano_module___7_glob_match",
+      "receipt_interval_seconds": 2.1583e-05
+    },
+    {
+      "ordinal": 45,
+      "label": "I am testing shadow __nano_module___7_glob_match",
+      "next_label": "I am testing shadow __nano_module___7_glob",
+      "receipt_interval_seconds": 1.9667e-05
+    },
+    {
+      "ordinal": 46,
+      "label": "I am testing shadow __nano_module___7_glob",
+      "next_label": "I am testing shadow __nano_module___7_read",
+      "receipt_interval_seconds": 0.000794042
+    },
+    {
+      "ordinal": 47,
+      "label": "I am testing shadow __nano_module___7_read",
+      "next_label": "I am testing shadow __nano_module___7_write",
+      "receipt_interval_seconds": 0.00078525
+    },
+    {
+      "ordinal": 48,
+      "label": "I am testing shadow __nano_module___7_write",
+      "next_label": "I am testing shadow __nano_module___7_append",
+      "receipt_interval_seconds": 0.00060475
+    },
+    {
+      "ordinal": 49,
+      "label": "I am testing shadow __nano_module___7_append",
+      "next_label": "I am testing shadow __nano_module___7_exists",
+      "receipt_interval_seconds": 0.000633125
+    },
+    {
+      "ordinal": 50,
+      "label": "I am testing shadow __nano_module___7_exists",
+      "next_label": "I am testing shadow __nano_module___7_delete",
+      "receipt_interval_seconds": 0.000737125
+    },
+    {
+      "ordinal": 51,
+      "label": "I am testing shadow __nano_module___7_delete",
+      "next_label": "I am testing shadow __nano_module___7_mkdir_p",
+      "receipt_interval_seconds": 0.000566958
+    },
+    {
+      "ordinal": 52,
+      "label": "I am testing shadow __nano_module___7_mkdir_p",
+      "next_label": "I am testing shadow __nano_module___7_copy_file",
+      "receipt_interval_seconds": 0.000746125
+    },
+    {
+      "ordinal": 53,
+      "label": "I am testing shadow __nano_module___7_copy_file",
+      "next_label": "I am testing shadow __nano_module___7_copy_dir",
+      "receipt_interval_seconds": 0.000716417
+    },
+    {
+      "ordinal": 54,
+      "label": "I am testing shadow __nano_module___7_copy_dir",
+      "next_label": "I am testing shadow __nano_module___8_is_identifier_start",
+      "receipt_interval_seconds": 0.001302416
+    },
+    {
+      "ordinal": 55,
+      "label": "I am testing shadow __nano_module___8_is_identifier_start",
+      "next_label": "I am testing shadow __nano_module___8_is_identifier_char",
+      "receipt_interval_seconds": 6.15e-05
+    },
+    {
+      "ordinal": 56,
+      "label": "I am testing shadow __nano_module___8_is_identifier_char",
+      "next_label": "I am testing shadow __nano_module___8_is_whitespace_char",
+      "receipt_interval_seconds": 2.5209e-05
+    },
+    {
+      "ordinal": 57,
+      "label": "I am testing shadow __nano_module___8_is_whitespace_char",
+      "next_label": "I am testing shadow __nano_module___8_is_digit_char",
+      "receipt_interval_seconds": 2.2333e-05
+    },
+    {
+      "ordinal": 58,
+      "label": "I am testing shadow __nano_module___8_is_digit_char",
+      "next_label": "I am testing shadow __nano_module___8_keyword_group1",
+      "receipt_interval_seconds": 2.525e-05
+    },
+    {
+      "ordinal": 59,
+      "label": "I am testing shadow __nano_module___8_keyword_group1",
+      "next_label": "I am testing shadow __nano_module___8_keyword_group2",
+      "receipt_interval_seconds": 2.1708e-05
+    },
+    {
+      "ordinal": 60,
+      "label": "I am testing shadow __nano_module___8_keyword_group2",
+      "next_label": "I am testing shadow __nano_module___8_keyword_group3",
+      "receipt_interval_seconds": 1.9375e-05
+    },
+    {
+      "ordinal": 61,
+      "label": "I am testing shadow __nano_module___8_keyword_group3",
+      "next_label": "I am testing shadow __nano_module___8_keyword_group4",
+      "receipt_interval_seconds": 1.9834e-05
+    },
+    {
+      "ordinal": 62,
+      "label": "I am testing shadow __nano_module___8_keyword_group4",
+      "next_label": "I am testing shadow __nano_module___8_keyword_group5",
+      "receipt_interval_seconds": 1.875e-05
+    },
+    {
+      "ordinal": 63,
+      "label": "I am testing shadow __nano_module___8_keyword_group5",
+      "next_label": "I am testing shadow __nano_module___8_keyword_or_identifier",
+      "receipt_interval_seconds": 2.775e-05
+    },
+    {
+      "ordinal": 64,
+      "label": "I am testing shadow __nano_module___8_keyword_or_identifier",
+      "next_label": "I am testing shadow __nano_module___8_push_tok",
+      "receipt_interval_seconds": 3.1583e-05
+    },
+    {
+      "ordinal": 65,
+      "label": "I am testing shadow __nano_module___8_push_tok",
+      "next_label": "I am testing shadow __nano_module___8_process_string",
+      "receipt_interval_seconds": 1.9333e-05
+    },
+    {
+      "ordinal": 66,
+      "label": "I am testing shadow __nano_module___8_process_string",
+      "next_label": "I am testing shadow __nano_module___8_process_number",
+      "receipt_interval_seconds": 2.55e-05
+    },
+    {
+      "ordinal": 67,
+      "label": "I am testing shadow __nano_module___8_process_number",
+      "next_label": "I am testing shadow __nano_module___8_process_grammar_body",
+      "receipt_interval_seconds": 1.8875e-05
+    },
+    {
+      "ordinal": 68,
+      "label": "I am testing shadow __nano_module___8_process_grammar_body",
+      "next_label": "I am testing shadow __nano_module___8_process_identifier",
+      "receipt_interval_seconds": 2.4459e-05
+    },
+    {
+      "ordinal": 69,
+      "label": "I am testing shadow __nano_module___8_process_identifier",
+      "next_label": "I am testing shadow __nano_module___8_process_identifier",
+      "receipt_interval_seconds": 1.8375e-05
+    },
+    {
+      "ordinal": 70,
+      "label": "I am testing shadow __nano_module___8_process_identifier",
+      "next_label": "I am testing shadow __nano_module___8_process_char_literal",
+      "receipt_interval_seconds": 1.85e-05
+    },
+    {
+      "ordinal": 71,
+      "label": "I am testing shadow __nano_module___8_process_char_literal",
+      "next_label": "I am testing shadow __nano_module___8_emit_fstring_part_tokens",
+      "receipt_interval_seconds": 1.7583e-05
+    },
+    {
+      "ordinal": 72,
+      "label": "I am testing shadow __nano_module___8_emit_fstring_part_tokens",
+      "next_label": "I am testing shadow __nano_module___8_process_fstring",
+      "receipt_interval_seconds": 1.9542e-05
+    },
+    {
+      "ordinal": 73,
+      "label": "I am testing shadow __nano_module___8_process_fstring",
+      "next_label": "I am testing shadow __nano_module___8_tokenize_file",
+      "receipt_interval_seconds": 1.9041e-05
+    },
+    {
+      "ordinal": 74,
+      "label": "I am testing shadow __nano_module___8_tokenize_file",
+      "next_label": "I am testing shadow __nano_module___8_tokenize_string",
+      "receipt_interval_seconds": 2.6875e-05
+    },
+    {
+      "ordinal": 75,
+      "label": "I am testing shadow __nano_module___8_tokenize_string",
+      "next_label": "I am testing shadow __nano_module___9_parser_init_ast_lists",
+      "receipt_interval_seconds": 2.0625e-05
+    },
+    {
+      "ordinal": 76,
+      "label": "I am testing shadow __nano_module___9_parser_init_ast_lists",
+      "next_label": "I am testing shadow __nano_module___9_parser_new",
+      "receipt_interval_seconds": 1.9417e-05
+    },
+    {
+      "ordinal": 77,
+      "label": "I am testing shadow __nano_module___9_parser_new",
+      "next_label": "I am testing shadow __nano_module___9_parser_allocate_id",
+      "receipt_interval_seconds": 2.3708e-05
+    },
+    {
+      "ordinal": 78,
+      "label": "I am testing shadow __nano_module___9_parser_allocate_id",
+      "next_label": "I am testing shadow __nano_module___9_parser_is_at_end",
+      "receipt_interval_seconds": 1.875e-05
+    },
+    {
+      "ordinal": 79,
+      "label": "I am testing shadow __nano_module___9_parser_is_at_end",
+      "next_label": "I am testing shadow __nano_module___9_parser_with_position",
+      "receipt_interval_seconds": 1.7375e-05
+    },
+    {
+      "ordinal": 80,
+      "label": "I am testing shadow __nano_module___9_parser_with_position",
+      "next_label": "I am testing shadow __nano_module___9_parser_advance",
+      "receipt_interval_seconds": 1.7917e-05
+    },
+    {
+      "ordinal": 81,
+      "label": "I am testing shadow __nano_module___9_parser_advance",
+      "next_label": "I am testing shadow __nano_module___9_parser_position",
+      "receipt_interval_seconds": 2.5417e-05
+    },
+    {
+      "ordinal": 82,
+      "label": "I am testing shadow __nano_module___9_parser_position",
+      "next_label": "I am testing shadow __nano_module___9_parser_current",
+      "receipt_interval_seconds": 1.8916e-05
+    },
+    {
+      "ordinal": 83,
+      "label": "I am testing shadow __nano_module___9_parser_current",
+      "next_label": "I am testing shadow __nano_module___9_parser_match",
+      "receipt_interval_seconds": 6.3084e-05
+    },
+    {
+      "ordinal": 84,
+      "label": "I am testing shadow __nano_module___9_parser_match",
+      "next_label": "I am testing shadow __nano_module___9_parser_expect",
+      "receipt_interval_seconds": 2.4833e-05
+    },
+    {
+      "ordinal": 85,
+      "label": "I am testing shadow __nano_module___9_parser_expect",
+      "next_label": "I am testing shadow __nano_module___9_parser_peek",
+      "receipt_interval_seconds": 2.1333e-05
+    },
+    {
+      "ordinal": 86,
+      "label": "I am testing shadow __nano_module___9_parser_peek",
+      "next_label": "I am testing shadow __nano_module___9_parser_with_error",
+      "receipt_interval_seconds": 2.0875e-05
+    },
+    {
+      "ordinal": 87,
+      "label": "I am testing shadow __nano_module___9_parser_with_error",
+      "next_label": "I am testing shadow __nano_module___9_parser_has_error",
+      "receipt_interval_seconds": 3.4625e-05
+    },
+    {
+      "ordinal": 88,
+      "label": "I am testing shadow __nano_module___9_parser_has_error",
+      "next_label": "I am testing shadow __nano_module___9_token_number",
+      "receipt_interval_seconds": 1.9584e-05
+    },
+    {
+      "ordinal": 89,
+      "label": "I am testing shadow __nano_module___9_token_number",
+      "next_label": "I am testing shadow __nano_module___9_token_identifier",
+      "receipt_interval_seconds": 1.8708e-05
+    },
+    {
+      "ordinal": 90,
+      "label": "I am testing shadow __nano_module___9_token_identifier",
+      "next_label": "I am testing shadow __nano_module___9_token_string",
+      "receipt_interval_seconds": 1.9e-05
+    },
+    {
+      "ordinal": 91,
+      "label": "I am testing shadow __nano_module___9_token_string",
+      "next_label": "I am testing shadow __nano_module___9_token_true",
+      "receipt_interval_seconds": 1.8667e-05
+    },
+    {
+      "ordinal": 92,
+      "label": "I am testing shadow __nano_module___9_token_true",
+      "next_label": "I am testing shadow __nano_module___9_token_false",
+      "receipt_interval_seconds": 1.8291e-05
+    },
+    {
+      "ordinal": 93,
+      "label": "I am testing shadow __nano_module___9_token_false",
+      "next_label": "I am testing shadow __nano_module___9_token_lparen",
+      "receipt_interval_seconds": 1.9625e-05
+    },
+    {
+      "ordinal": 94,
+      "label": "I am testing shadow __nano_module___9_token_lparen",
+      "next_label": "I am testing shadow __nano_module___9_token_rparen",
+      "receipt_interval_seconds": 1.8375e-05
+    },
+    {
+      "ordinal": 95,
+      "label": "I am testing shadow __nano_module___9_token_rparen",
+      "next_label": "I am testing shadow __nano_module___9_token_plus",
+      "receipt_interval_seconds": 1.8917e-05
+    },
+    {
+      "ordinal": 96,
+      "label": "I am testing shadow __nano_module___9_token_plus",
+      "next_label": "I am testing shadow __nano_module___9_token_minus",
+      "receipt_interval_seconds": 1.8625e-05
+    },
+    {
+      "ordinal": 97,
+      "label": "I am testing shadow __nano_module___9_token_minus",
+      "next_label": "I am testing shadow __nano_module___9_token_star",
+      "receipt_interval_seconds": 1.8292e-05
+    },
+    {
+      "ordinal": 98,
+      "label": "I am testing shadow __nano_module___9_token_star",
+      "next_label": "I am testing shadow __nano_module___9_token_slash",
+      "receipt_interval_seconds": 1.8708e-05
+    },
+    {
+      "ordinal": 99,
+      "label": "I am testing shadow __nano_module___9_token_slash",
+      "next_label": "I am testing shadow __nano_module___9_token_eq",
+      "receipt_interval_seconds": 1.8458e-05
+    },
+    {
+      "ordinal": 100,
+      "label": "I am testing shadow __nano_module___9_token_eq",
+      "next_label": "I am testing shadow __nano_module___9_token_ne",
+      "receipt_interval_seconds": 1.8959e-05
+    },
+    {
+      "ordinal": 101,
+      "label": "I am testing shadow __nano_module___9_token_ne",
+      "next_label": "I am testing shadow __nano_module___9_token_lt",
+      "receipt_interval_seconds": 1.8958e-05
+    },
+    {
+      "ordinal": 102,
+      "label": "I am testing shadow __nano_module___9_token_lt",
+      "next_label": "I am testing shadow __nano_module___9_token_le",
+      "receipt_interval_seconds": 1.8542e-05
+    },
+    {
+      "ordinal": 103,
+      "label": "I am testing shadow __nano_module___9_token_le",
+      "next_label": "I am testing shadow __nano_module___9_token_gt",
+      "receipt_interval_seconds": 1.7916e-05
+    },
+    {
+      "ordinal": 104,
+      "label": "I am testing shadow __nano_module___9_token_gt",
+      "next_label": "I am testing shadow __nano_module___9_token_ge",
+      "receipt_interval_seconds": 1.8167e-05
+    },
+    {
+      "ordinal": 105,
+      "label": "I am testing shadow __nano_module___9_token_ge",
+      "next_label": "I am testing shadow __nano_module___9_token_and",
+      "receipt_interval_seconds": 1.8333e-05
+    },
+    {
+      "ordinal": 106,
+      "label": "I am testing shadow __nano_module___9_token_and",
+      "next_label": "I am testing shadow __nano_module___9_token_or",
+      "receipt_interval_seconds": 1.7792e-05
+    },
+    {
+      "ordinal": 107,
+      "label": "I am testing shadow __nano_module___9_token_or",
+      "next_label": "I am testing shadow __nano_module___9_token_comma",
+      "receipt_interval_seconds": 1.7292e-05
+    },
+    {
+      "ordinal": 108,
+      "label": "I am testing shadow __nano_module___9_token_comma",
+      "next_label": "I am testing shadow __nano_module___9_token_lbrace",
+      "receipt_interval_seconds": 1.9041e-05
+    },
+    {
+      "ordinal": 109,
+      "label": "I am testing shadow __nano_module___9_token_lbrace",
+      "next_label": "I am testing shadow __nano_module___9_token_rbrace",
+      "receipt_interval_seconds": 1.8834e-05
+    },
+    {
+      "ordinal": 110,
+      "label": "I am testing shadow __nano_module___9_token_rbrace",
+      "next_label": "I am testing shadow __nano_module___9_token_let",
+      "receipt_interval_seconds": 2.2666e-05
+    },
+    {
+      "ordinal": 111,
+      "label": "I am testing shadow __nano_module___9_token_let",
+      "next_label": "I am testing shadow __nano_module___9_token_if",
+      "receipt_interval_seconds": 2.7792e-05
+    },
+    {
+      "ordinal": 112,
+      "label": "I am testing shadow __nano_module___9_token_if",
+      "next_label": "I am testing shadow __nano_module___9_token_else",
+      "receipt_interval_seconds": 2.2083e-05
+    },
+    {
+      "ordinal": 113,
+      "label": "I am testing shadow __nano_module___9_token_else",
+      "next_label": "I am testing shadow __nano_module___9_token_while",
+      "receipt_interval_seconds": 2.1334e-05
+    },
+    {
+      "ordinal": 114,
+      "label": "I am testing shadow __nano_module___9_token_while",
+      "next_label": "I am testing shadow __nano_module___9_token_return",
+      "receipt_interval_seconds": 3.5791e-05
+    },
+    {
+      "ordinal": 115,
+      "label": "I am testing shadow __nano_module___9_token_return",
+      "next_label": "I am testing shadow __nano_module___9_token_colon",
+      "receipt_interval_seconds": 1.8834e-05
+    },
+    {
+      "ordinal": 116,
+      "label": "I am testing shadow __nano_module___9_token_colon",
+      "next_label": "I am testing shadow __nano_module___9_token_mut",
+      "receipt_interval_seconds": 1.8833e-05
+    },
+    {
+      "ordinal": 117,
+      "label": "I am testing shadow __nano_module___9_token_mut",
+      "next_label": "I am testing shadow __nano_module___9_token_assign",
+      "receipt_interval_seconds": 1.8833e-05
+    },
+    {
+      "ordinal": 118,
+      "label": "I am testing shadow __nano_module___9_token_assign",
+      "next_label": "I am testing shadow __nano_module___9_token_arrow",
+      "receipt_interval_seconds": 1.8542e-05
+    },
+    {
+      "ordinal": 119,
+      "label": "I am testing shadow __nano_module___9_token_arrow",
+      "next_label": "I am testing shadow __nano_module___9_token_fn",
+      "receipt_interval_seconds": 1.8625e-05
+    },
+    {
+      "ordinal": 120,
+      "label": "I am testing shadow __nano_module___9_token_fn",
+      "next_label": "I am testing shadow __nano_module___9_token_extern",
+      "receipt_interval_seconds": 1.8417e-05
+    },
+    {
+      "ordinal": 121,
+      "label": "I am testing shadow __nano_module___9_token_extern",
+      "next_label": "I am testing shadow __nano_module___9_token_set",
+      "receipt_interval_seconds": 1.8708e-05
+    },
+    {
+      "ordinal": 122,
+      "label": "I am testing shadow __nano_module___9_token_set",
+      "next_label": "I am testing shadow __nano_module___9_token_struct",
+      "receipt_interval_seconds": 1.7833e-05
+    },
+    {
+      "ordinal": 123,
+      "label": "I am testing shadow __nano_module___9_token_struct",
+      "next_label": "I am testing shadow __nano_module___9_token_enum",
+      "receipt_interval_seconds": 1.775e-05
+    },
+    {
+      "ordinal": 124,
+      "label": "I am testing shadow __nano_module___9_token_enum",
+      "next_label": "I am testing shadow __nano_module___9_token_union",
+      "receipt_interval_seconds": 1.8584e-05
+    },
+    {
+      "ordinal": 125,
+      "label": "I am testing shadow __nano_module___9_token_union",
+      "next_label": "I am testing shadow __nano_module___9_token_for",
+      "receipt_interval_seconds": 1.8333e-05
+    },
+    {
+      "ordinal": 126,
+      "label": "I am testing shadow __nano_module___9_token_for",
+      "next_label": "I am testing shadow __nano_module___9_token_in",
+      "receipt_interval_seconds": 1.8375e-05
+    },
+    {
+      "ordinal": 127,
+      "label": "I am testing shadow __nano_module___9_token_in",
+      "next_label": "I am testing shadow __nano_module___9_token_assert",
+      "receipt_interval_seconds": 1.8417e-05
+    },
+    {
+      "ordinal": 128,
+      "label": "I am testing shadow __nano_module___9_token_assert",
+      "next_label": "I am testing shadow __nano_module___9_token_requires",
+      "receipt_interval_seconds": 3.2458e-05
+    },
+    {
+      "ordinal": 129,
+      "label": "I am testing shadow __nano_module___9_token_requires",
+      "next_label": "I am testing shadow __nano_module___9_token_ensures",
+      "receipt_interval_seconds": 2.5542e-05
+    },
+    {
+      "ordinal": 130,
+      "label": "I am testing shadow __nano_module___9_token_ensures",
+      "next_label": "I am testing shadow __nano_module___9_token_unsafe",
+      "receipt_interval_seconds": 1.9e-05
+    },
+    {
+      "ordinal": 131,
+      "label": "I am testing shadow __nano_module___9_token_unsafe",
+      "next_label": "I am testing shadow __nano_module___9_token_shadow",
+      "receipt_interval_seconds": 2.8e-05
+    },
+    {
+      "ordinal": 132,
+      "label": "I am testing shadow __nano_module___9_token_shadow",
+      "next_label": "I am testing shadow __nano_module___9_token_match",
+      "receipt_interval_seconds": 1.9541e-05
+    },
+    {
+      "ordinal": 133,
+      "label": "I am testing shadow __nano_module___9_token_match",
+      "next_label": "I am testing shadow __nano_module___9_token_import",
+      "receipt_interval_seconds": 1.7959e-05
+    },
+    {
+      "ordinal": 134,
+      "label": "I am testing shadow __nano_module___9_token_import",
+      "next_label": "I am testing shadow __nano_module___9_token_as",
+      "receipt_interval_seconds": 1.85e-05
+    },
+    {
+      "ordinal": 135,
+      "label": "I am testing shadow __nano_module___9_token_as",
+      "next_label": "I am testing shadow __nano_module___9_token_pub",
+      "receipt_interval_seconds": 1.8541e-05
+    },
+    {
+      "ordinal": 136,
+      "label": "I am testing shadow __nano_module___9_token_pub",
+      "next_label": "I am testing shadow __nano_module___9_token_pure",
+      "receipt_interval_seconds": 1.8667e-05
+    },
+    {
+      "ordinal": 137,
+      "label": "I am testing shadow __nano_module___9_token_pure",
+      "next_label": "I am testing shadow __nano_module___9_token_opaque",
+      "receipt_interval_seconds": 1.8417e-05
+    },
+    {
+      "ordinal": 138,
+      "label": "I am testing shadow __nano_module___9_token_opaque",
+      "next_label": "I am testing shadow __nano_module___9_token_lbracket",
+      "receipt_interval_seconds": 1.7958e-05
+    },
+    {
+      "ordinal": 139,
+      "label": "I am testing shadow __nano_module___9_token_lbracket",
+      "next_label": "I am testing shadow __nano_module___9_token_rbracket",
+      "receipt_interval_seconds": 1.8792e-05
+    },
+    {
+      "ordinal": 140,
+      "label": "I am testing shadow __nano_module___9_token_rbracket",
+      "next_label": "I am testing shadow __nano_module___9_token_dot",
+      "receipt_interval_seconds": 1.725e-05
+    },
+    {
+      "ordinal": 141,
+      "label": "I am testing shadow __nano_module___9_token_dot",
+      "next_label": "I am testing shadow __nano_module___9_token_double_colon",
+      "receipt_interval_seconds": 1.7125e-05
+    },
+    {
+      "ordinal": 142,
+      "label": "I am testing shadow __nano_module___9_token_double_colon",
+      "next_label": "I am testing shadow __nano_module___9_token_percent",
+      "receipt_interval_seconds": 1.8375e-05
+    },
+    {
+      "ordinal": 143,
+      "label": "I am testing shadow __nano_module___9_token_percent",
+      "next_label": "I am testing shadow __nano_module___9_token_not",
+      "receipt_interval_seconds": 2.2708e-05
+    },
+    {
+      "ordinal": 144,
+      "label": "I am testing shadow __nano_module___9_token_not",
+      "next_label": "I am testing shadow __nano_module___9_token_pipe",
+      "receipt_interval_seconds": 1.8583e-05
+    },
+    {
+      "ordinal": 145,
+      "label": "I am testing shadow __nano_module___9_token_pipe",
+      "next_label": "I am testing shadow __nano_module___9_token_grammar",
+      "receipt_interval_seconds": 1.8042e-05
+    },
+    {
+      "ordinal": 146,
+      "label": "I am testing shadow __nano_module___9_token_grammar",
+      "next_label": "I am testing shadow __nano_module___9_token_larrow",
+      "receipt_interval_seconds": 1.7667e-05
+    },
+    {
+      "ordinal": 147,
+      "label": "I am testing shadow __nano_module___9_token_larrow",
+      "next_label": "I am testing shadow __nano_module___9_token_question",
+      "receipt_interval_seconds": 1.8083e-05
+    },
+    {
+      "ordinal": 148,
+      "label": "I am testing shadow __nano_module___9_token_question",
+      "next_label": "I am testing shadow __nano_module___9_token_array",
+      "receipt_interval_seconds": 1.6708e-05
+    },
+    {
+      "ordinal": 149,
+      "label": "I am testing shadow __nano_module___9_token_array",
+      "next_label": "I am testing shadow __nano_module___9_token_type_int",
+      "receipt_interval_seconds": 1.7709e-05
+    },
+    {
+      "ordinal": 150,
+      "label": "I am testing shadow __nano_module___9_token_type_int",
+      "next_label": "I am testing shadow __nano_module___9_token_type_u8",
+      "receipt_interval_seconds": 1.9208e-05
+    },
+    {
+      "ordinal": 151,
+      "label": "I am testing shadow __nano_module___9_token_type_u8",
+      "next_label": "I am testing shadow __nano_module___9_token_type_float",
+      "receipt_interval_seconds": 1.9333e-05
+    },
+    {
+      "ordinal": 152,
+      "label": "I am testing shadow __nano_module___9_token_type_float",
+      "next_label": "I am testing shadow __nano_module___9_token_type_bool",
+      "receipt_interval_seconds": 1.8709e-05
+    },
+    {
+      "ordinal": 153,
+      "label": "I am testing shadow __nano_module___9_token_type_bool",
+      "next_label": "I am testing shadow __nano_module___9_token_type_string",
+      "receipt_interval_seconds": 1.7958e-05
+    },
+    {
+      "ordinal": 154,
+      "label": "I am testing shadow __nano_module___9_token_type_string",
+      "next_label": "I am testing shadow __nano_module___9_token_type_bstring",
+      "receipt_interval_seconds": 1.8792e-05
+    },
+    {
+      "ordinal": 155,
+      "label": "I am testing shadow __nano_module___9_token_type_bstring",
+      "next_label": "I am testing shadow __nano_module___9_token_type_void",
+      "receipt_interval_seconds": 1.8708e-05
+    },
+    {
+      "ordinal": 156,
+      "label": "I am testing shadow __nano_module___9_token_type_void",
+      "next_label": "I am testing shadow __nano_module___9_parse_qualified_name",
+      "receipt_interval_seconds": 1.7417e-05
+    },
+    {
+      "ordinal": 157,
+      "label": "I am testing shadow __nano_module___9_parse_qualified_name",
+      "next_label": "I am testing shadow __nano_module___9_parse_call_name",
+      "receipt_interval_seconds": 1.9416e-05
+    },
+    {
+      "ordinal": 158,
+      "label": "I am testing shadow __nano_module___9_parse_call_name",
+      "next_label": "I am testing shadow __nano_module___9_is_type_start_token_type",
+      "receipt_interval_seconds": 1.875e-05
+    },
+    {
+      "ordinal": 159,
+      "label": "I am testing shadow __nano_module___9_is_type_start_token_type",
+      "next_label": "I am testing shadow __nano_module___9_parse_type_string",
+      "receipt_interval_seconds": 1.875e-05
+    },
+    {
+      "ordinal": 160,
+      "label": "I am testing shadow __nano_module___9_parse_type_string",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_number",
+      "receipt_interval_seconds": 1.8459e-05
+    },
+    {
+      "ordinal": 161,
+      "label": "I am testing shadow __nano_module___9_parser_store_number",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_string",
+      "receipt_interval_seconds": 1.925e-05
+    },
+    {
+      "ordinal": 162,
+      "label": "I am testing shadow __nano_module___9_parser_store_string",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_bool",
+      "receipt_interval_seconds": 1.8625e-05
+    },
+    {
+      "ordinal": 163,
+      "label": "I am testing shadow __nano_module___9_parser_store_bool",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_identifier",
+      "receipt_interval_seconds": 2.6041e-05
+    },
+    {
+      "ordinal": 164,
+      "label": "I am testing shadow __nano_module___9_parser_store_identifier",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_binary_op",
+      "receipt_interval_seconds": 1.8459e-05
+    },
+    {
+      "ordinal": 165,
+      "label": "I am testing shadow __nano_module___9_parser_store_binary_op",
+      "next_label": "I am testing shadow __nano_module___9_parser_mark_unary",
+      "receipt_interval_seconds": 1.8708e-05
+    },
+    {
+      "ordinal": 166,
+      "label": "I am testing shadow __nano_module___9_parser_mark_unary",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_call",
+      "receipt_interval_seconds": 2.4167e-05
+    },
+    {
+      "ordinal": 167,
+      "label": "I am testing shadow __nano_module___9_parser_store_call",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_module_qualified_call",
+      "receipt_interval_seconds": 1.7416e-05
+    },
+    {
+      "ordinal": 168,
+      "label": "I am testing shadow __nano_module___9_parser_store_module_qualified_call",
+      "next_label": "I am testing shadow __nano_module___9_name_contains_dot",
+      "receipt_interval_seconds": 1.8542e-05
+    },
+    {
+      "ordinal": 169,
+      "label": "I am testing shadow __nano_module___9_name_contains_dot",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_call_arg",
+      "receipt_interval_seconds": 1.825e-05
+    },
+    {
+      "ordinal": 170,
+      "label": "I am testing shadow __nano_module___9_parser_store_call_arg",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_array_element",
+      "receipt_interval_seconds": 2.3e-05
+    },
+    {
+      "ordinal": 171,
+      "label": "I am testing shadow __nano_module___9_parser_store_array_element",
+      "next_label": "I am testing shadow __nano_module___9_parse_named_literal",
+      "receipt_interval_seconds": 1.8e-05
+    },
+    {
+      "ordinal": 172,
+      "label": "I am testing shadow __nano_module___9_parse_named_literal",
+      "next_label": "I am testing shadow __nano_module___9_parse_union_construct",
+      "receipt_interval_seconds": 1.8292e-05
+    },
+    {
+      "ordinal": 173,
+      "label": "I am testing shadow __nano_module___9_parse_union_construct",
+      "next_label": "I am testing shadow __nano_module___9_parse_struct_literal",
+      "receipt_interval_seconds": 1.8e-05
+    },
+    {
+      "ordinal": 174,
+      "label": "I am testing shadow __nano_module___9_parse_struct_literal",
+      "next_label": "I am testing shadow __nano_module___9_parse_cond_expression",
+      "receipt_interval_seconds": 2.9083e-05
+    },
+    {
+      "ordinal": 175,
+      "label": "I am testing shadow __nano_module___9_parse_cond_expression",
+      "next_label": "I am testing shadow __nano_module___9_parse_cond_clauses",
+      "receipt_interval_seconds": 1.85e-05
+    },
+    {
+      "ordinal": 176,
+      "label": "I am testing shadow __nano_module___9_parse_cond_clauses",
+      "next_label": "I am testing shadow __nano_module___9_parse_match_guard",
+      "receipt_interval_seconds": 1.8917e-05
+    },
+    {
+      "ordinal": 177,
+      "label": "I am testing shadow __nano_module___9_parse_match_guard",
+      "next_label": "I am testing shadow __nano_module___9_parser_match_arm_unconditional",
+      "receipt_interval_seconds": 1.7958e-05
+    },
+    {
+      "ordinal": 178,
+      "label": "I am testing shadow __nano_module___9_parser_match_arm_unconditional",
+      "next_label": "I am testing shadow __nano_module___9_parser_expect_match_arrow",
+      "receipt_interval_seconds": 1.9667e-05
+    },
+    {
+      "ordinal": 179,
+      "label": "I am testing shadow __nano_module___9_parser_expect_match_arrow",
+      "next_label": "I am testing shadow __nano_module___9_parse_match",
+      "receipt_interval_seconds": 1.8541e-05
+    },
+    {
+      "ordinal": 180,
+      "label": "I am testing shadow __nano_module___9_parse_match",
+      "next_label": "I am testing shadow __nano_module___9_parse_primary",
+      "receipt_interval_seconds": 1.8209e-05
+    },
+    {
+      "ordinal": 181,
+      "label": "I am testing shadow __nano_module___9_parse_primary",
+      "next_label": "I am testing shadow __nano_module___9_parse_parenthesized_head",
+      "receipt_interval_seconds": 1.8208e-05
+    },
+    {
+      "ordinal": 182,
+      "label": "I am testing shadow __nano_module___9_parse_parenthesized_head",
+      "next_label": "I am testing shadow __nano_module___9_parenthesized_call_start",
+      "receipt_interval_seconds": 1.6875e-05
+    },
+    {
+      "ordinal": 183,
+      "label": "I am testing shadow __nano_module___9_parenthesized_call_start",
+      "next_label": "I am testing shadow __nano_module___9_is_binary_op",
+      "receipt_interval_seconds": 2.375e-05
+    },
+    {
+      "ordinal": 184,
+      "label": "I am testing shadow __nano_module___9_is_binary_op",
+      "next_label": "I am testing shadow __nano_module___9_parse_expression_recursive",
+      "receipt_interval_seconds": 1.9583e-05
+    },
+    {
+      "ordinal": 185,
+      "label": "I am testing shadow __nano_module___9_parse_expression_recursive",
+      "next_label": "I am testing shadow __nano_module___9_parse_expression",
+      "receipt_interval_seconds": 1.8709e-05
+    },
+    {
+      "ordinal": 186,
+      "label": "I am testing shadow __nano_module___9_parse_expression",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_let",
+      "receipt_interval_seconds": 1.8666e-05
+    },
+    {
+      "ordinal": 187,
+      "label": "I am testing shadow __nano_module___9_parser_store_let",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_set",
+      "receipt_interval_seconds": 1.7667e-05
+    },
+    {
+      "ordinal": 188,
+      "label": "I am testing shadow __nano_module___9_parser_store_set",
+      "next_label": "I am testing shadow __nano_module___9_parser_mark_if_expression",
+      "receipt_interval_seconds": 1.7875e-05
+    },
+    {
+      "ordinal": 189,
+      "label": "I am testing shadow __nano_module___9_parser_mark_if_expression",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_if",
+      "receipt_interval_seconds": 2.525e-05
+    },
+    {
+      "ordinal": 190,
+      "label": "I am testing shadow __nano_module___9_parser_store_if",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_while",
+      "receipt_interval_seconds": 1.8333e-05
+    },
+    {
+      "ordinal": 191,
+      "label": "I am testing shadow __nano_module___9_parser_store_while",
+      "next_label": "I am testing shadow __nano_module___9_parser_finish_array_literal",
+      "receipt_interval_seconds": 1.8042e-05
+    },
+    {
+      "ordinal": 192,
+      "label": "I am testing shadow __nano_module___9_parser_finish_array_literal",
+      "next_label": "I am testing shadow __nano_module___9_parser_always_returns",
+      "receipt_interval_seconds": 1.9083e-05
+    },
+    {
+      "ordinal": 193,
+      "label": "I am testing shadow __nano_module___9_parser_always_returns",
+      "next_label": "I am testing shadow __nano_module___9_parser_is_value_expression",
+      "receipt_interval_seconds": 1.9042e-05
+    },
+    {
+      "ordinal": 194,
+      "label": "I am testing shadow __nano_module___9_parser_is_value_expression",
+      "next_label": "I am testing shadow __nano_module___9_parser_decode_import_path",
+      "receipt_interval_seconds": 1.9583e-05
+    },
+    {
+      "ordinal": 195,
+      "label": "I am testing shadow __nano_module___9_parser_decode_import_path",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_return",
+      "receipt_interval_seconds": 1.9e-05
+    },
+    {
+      "ordinal": 196,
+      "label": "I am testing shadow __nano_module___9_parser_store_return",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_assert",
+      "receipt_interval_seconds": 1.85e-05
+    },
+    {
+      "ordinal": 197,
+      "label": "I am testing shadow __nano_module___9_parser_store_assert",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_block",
+      "receipt_interval_seconds": 1.8584e-05
+    },
+    {
+      "ordinal": 198,
+      "label": "I am testing shadow __nano_module___9_parser_store_block",
+      "next_label": "I am testing shadow __nano_module___9_parser_wrap_if_in_block",
+      "receipt_interval_seconds": 1.7375e-05
+    },
+    {
+      "ordinal": 199,
+      "label": "I am testing shadow __nano_module___9_parser_wrap_if_in_block",
+      "next_label": "I am testing shadow __nano_module___9_expr_kind_to_pnode",
+      "receipt_interval_seconds": 1.8291e-05
+    },
+    {
+      "ordinal": 200,
+      "label": "I am testing shadow __nano_module___9_expr_kind_to_pnode",
+      "next_label": "I am testing shadow __nano_module___9_parser_starts_owned_pattern",
+      "receipt_interval_seconds": 1.8084e-05
+    },
+    {
+      "ordinal": 201,
+      "label": "I am testing shadow __nano_module___9_parser_starts_owned_pattern",
+      "next_label": "I am testing shadow __nano_module___9_parser_mark_owned",
+      "receipt_interval_seconds": 2.5125e-05
+    },
+    {
+      "ordinal": 202,
+      "label": "I am testing shadow __nano_module___9_parser_mark_owned",
+      "next_label": "I am testing shadow __nano_module___9_parse_owned_pattern",
+      "receipt_interval_seconds": 1.925e-05
+    },
+    {
+      "ordinal": 203,
+      "label": "I am testing shadow __nano_module___9_parse_owned_pattern",
+      "next_label": "I am testing shadow __nano_module___9_parse_block_recursive",
+      "receipt_interval_seconds": 2.0041e-05
+    },
+    {
+      "ordinal": 204,
+      "label": "I am testing shadow __nano_module___9_parse_block_recursive",
+      "next_label": "I am testing shadow __nano_module___9_parse_block",
+      "receipt_interval_seconds": 0.000943334
+    },
+    {
+      "ordinal": 205,
+      "label": "I am testing shadow __nano_module___9_parse_block",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_unsafe_block",
+      "receipt_interval_seconds": 7.1e-05
+    },
+    {
+      "ordinal": 206,
+      "label": "I am testing shadow __nano_module___9_parser_store_unsafe_block",
+      "next_label": "I am testing shadow __nano_module___9_parse_unsafe_block_recursive",
+      "receipt_interval_seconds": 2.1791e-05
+    },
+    {
+      "ordinal": 207,
+      "label": "I am testing shadow __nano_module___9_parse_unsafe_block_recursive",
+      "next_label": "I am testing shadow __nano_module___9_parse_unsafe_block",
+      "receipt_interval_seconds": 0.001799375
+    },
+    {
+      "ordinal": 208,
+      "label": "I am testing shadow __nano_module___9_parse_unsafe_block",
+      "next_label": "I am testing shadow __nano_module___9_parse_let_body",
+      "receipt_interval_seconds": 5.7084e-05
+    },
+    {
+      "ordinal": 209,
+      "label": "I am testing shadow __nano_module___9_parse_let_body",
+      "next_label": "I am testing shadow __nano_module___9_parse_tuple_destructure",
+      "receipt_interval_seconds": 4.4416e-05
+    },
+    {
+      "ordinal": 210,
+      "label": "I am testing shadow __nano_module___9_parse_tuple_destructure",
+      "next_label": "I am testing shadow __nano_module___9_parse_let_statement",
+      "receipt_interval_seconds": 1.9959e-05
+    },
+    {
+      "ordinal": 211,
+      "label": "I am testing shadow __nano_module___9_parse_let_statement",
+      "next_label": "I am testing shadow __nano_module___9_parse_block_expression",
+      "receipt_interval_seconds": 2.1e-05
+    },
+    {
+      "ordinal": 212,
+      "label": "I am testing shadow __nano_module___9_parse_block_expression",
+      "next_label": "I am testing shadow __nano_module___9_parse_if_expression",
+      "receipt_interval_seconds": 1.825e-05
+    },
+    {
+      "ordinal": 213,
+      "label": "I am testing shadow __nano_module___9_parse_if_expression",
+      "next_label": "I am testing shadow __nano_module___9_parse_if_statement",
+      "receipt_interval_seconds": 0.000190833
+    },
+    {
+      "ordinal": 214,
+      "label": "I am testing shadow __nano_module___9_parse_if_statement",
+      "next_label": "I am testing shadow __nano_module___9_parse_while_statement",
+      "receipt_interval_seconds": 3.7208e-05
+    },
+    {
+      "ordinal": 215,
+      "label": "I am testing shadow __nano_module___9_parse_while_statement",
+      "next_label": "I am testing shadow __nano_module___9_parse_return_statement",
+      "receipt_interval_seconds": 1.9e-05
+    },
+    {
+      "ordinal": 216,
+      "label": "I am testing shadow __nano_module___9_parse_return_statement",
+      "next_label": "I am testing shadow __nano_module___9_parse_assert_statement",
+      "receipt_interval_seconds": 1.9084e-05
+    },
+    {
+      "ordinal": 217,
+      "label": "I am testing shadow __nano_module___9_parse_assert_statement",
+      "next_label": "I am testing shadow __nano_module___9_parse_for_statement",
+      "receipt_interval_seconds": 1.8583e-05
+    },
+    {
+      "ordinal": 218,
+      "label": "I am testing shadow __nano_module___9_parse_for_statement",
+      "next_label": "I am testing shadow __nano_module___9_parser_with_node",
+      "receipt_interval_seconds": 5.5083e-05
+    },
+    {
+      "ordinal": 219,
+      "label": "I am testing shadow __nano_module___9_parser_with_node",
+      "next_label": "I am testing shadow __nano_module___9_parser_with_statement",
+      "receipt_interval_seconds": 2.7875e-05
+    },
+    {
+      "ordinal": 220,
+      "label": "I am testing shadow __nano_module___9_parser_with_statement",
+      "next_label": "I am testing shadow __nano_module___9_parser_mark_passive",
+      "receipt_interval_seconds": 2.1834e-05
+    },
+    {
+      "ordinal": 221,
+      "label": "I am testing shadow __nano_module___9_parser_mark_passive",
+      "next_label": "I am testing shadow __nano_module___9_parser_mark_par",
+      "receipt_interval_seconds": 2.0083e-05
+    },
+    {
+      "ordinal": 222,
+      "label": "I am testing shadow __nano_module___9_parser_mark_par",
+      "next_label": "I am testing shadow __nano_module___9_parse_statement",
+      "receipt_interval_seconds": 2.1167e-05
+    },
+    {
+      "ordinal": 223,
+      "label": "I am testing shadow __nano_module___9_parse_statement",
+      "next_label": "I am testing shadow __nano_module___9_parser_mark_pure",
+      "receipt_interval_seconds": 2.0916e-05
+    },
+    {
+      "ordinal": 224,
+      "label": "I am testing shadow __nano_module___9_parser_mark_pure",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_function",
+      "receipt_interval_seconds": 1.9917e-05
+    },
+    {
+      "ordinal": 225,
+      "label": "I am testing shadow __nano_module___9_parser_store_function",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_struct",
+      "receipt_interval_seconds": 1.9208e-05
+    },
+    {
+      "ordinal": 226,
+      "label": "I am testing shadow __nano_module___9_parser_store_struct",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_enum",
+      "receipt_interval_seconds": 1.8709e-05
+    },
+    {
+      "ordinal": 227,
+      "label": "I am testing shadow __nano_module___9_parser_store_enum",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_union",
+      "receipt_interval_seconds": 2.1125e-05
+    },
+    {
+      "ordinal": 228,
+      "label": "I am testing shadow __nano_module___9_parser_store_union",
+      "next_label": "I am testing shadow __nano_module___9_parse_parameter_type",
+      "receipt_interval_seconds": 1.8375e-05
+    },
+    {
+      "ordinal": 229,
+      "label": "I am testing shadow __nano_module___9_parse_parameter_type",
+      "next_label": "I am testing shadow __nano_module___9_parse_function_params",
+      "receipt_interval_seconds": 1.8208e-05
+    },
+    {
+      "ordinal": 230,
+      "label": "I am testing shadow __nano_module___9_parse_function_params",
+      "next_label": "I am testing shadow __nano_module___9_parse_extern_function_definition",
+      "receipt_interval_seconds": 1.7792e-05
+    },
+    {
+      "ordinal": 231,
+      "label": "I am testing shadow __nano_module___9_parse_extern_function_definition",
+      "next_label": "I am testing shadow __nano_module___9_parse_function_definition",
+      "receipt_interval_seconds": 1.85e-05
+    },
+    {
+      "ordinal": 232,
+      "label": "I am testing shadow __nano_module___9_parse_function_definition",
+      "next_label": "I am testing shadow __nano_module___9_parse_struct_fields",
+      "receipt_interval_seconds": 1.9333e-05
+    },
+    {
+      "ordinal": 233,
+      "label": "I am testing shadow __nano_module___9_parse_struct_fields",
+      "next_label": "I am testing shadow __nano_module___9_parse_struct_definition",
+      "receipt_interval_seconds": 1.9125e-05
+    },
+    {
+      "ordinal": 234,
+      "label": "I am testing shadow __nano_module___9_parse_struct_definition",
+      "next_label": "I am testing shadow __nano_module___9_parse_enum_variants",
+      "receipt_interval_seconds": 1.85e-05
+    },
+    {
+      "ordinal": 235,
+      "label": "I am testing shadow __nano_module___9_parse_enum_variants",
+      "next_label": "I am testing shadow __nano_module___9_parse_enum_definition",
+      "receipt_interval_seconds": 2.0417e-05
+    },
+    {
+      "ordinal": 236,
+      "label": "I am testing shadow __nano_module___9_parse_enum_definition",
+      "next_label": "I am testing shadow __nano_module___9_parse_union_variants",
+      "receipt_interval_seconds": 1.8583e-05
+    },
+    {
+      "ordinal": 237,
+      "label": "I am testing shadow __nano_module___9_parse_union_variants",
+      "next_label": "I am testing shadow __nano_module___9_parse_union_definition",
+      "receipt_interval_seconds": 1.85e-05
+    },
+    {
+      "ordinal": 238,
+      "label": "I am testing shadow __nano_module___9_parse_union_definition",
+      "next_label": "I am testing shadow __nano_module___9_parse_module_import",
+      "receipt_interval_seconds": 1.7625e-05
+    },
+    {
+      "ordinal": 239,
+      "label": "I am testing shadow __nano_module___9_parse_module_import",
+      "next_label": "I am testing shadow __nano_module___9_parse_import",
+      "receipt_interval_seconds": 1.7625e-05
+    },
+    {
+      "ordinal": 240,
+      "label": "I am testing shadow __nano_module___9_parse_import",
+      "next_label": "I am testing shadow __nano_module___9_parse_from_import",
+      "receipt_interval_seconds": 1.7833e-05
+    },
+    {
+      "ordinal": 241,
+      "label": "I am testing shadow __nano_module___9_parse_from_import",
+      "next_label": "I am testing shadow __nano_module___9_parse_opaque_type",
+      "receipt_interval_seconds": 1.9084e-05
+    },
+    {
+      "ordinal": 242,
+      "label": "I am testing shadow __nano_module___9_parse_opaque_type",
+      "next_label": "I am testing shadow __nano_module___9_parse_shadow",
+      "receipt_interval_seconds": 1.9291e-05
+    },
+    {
+      "ordinal": 243,
+      "label": "I am testing shadow __nano_module___9_parse_shadow",
+      "next_label": "I am testing shadow __nano_module___9_parse_definition",
+      "receipt_interval_seconds": 1.8959e-05
+    },
+    {
+      "ordinal": 244,
+      "label": "I am testing shadow __nano_module___9_parse_definition",
+      "next_label": "I am testing shadow __nano_module___9_parse_program",
+      "receipt_interval_seconds": 1.85e-05
+    },
+    {
+      "ordinal": 245,
+      "label": "I am testing shadow __nano_module___9_parse_program",
+      "next_label": "I am testing shadow __nano_module___9_create_number_node",
+      "receipt_interval_seconds": 1.9e-05
+    },
+    {
+      "ordinal": 246,
+      "label": "I am testing shadow __nano_module___9_create_number_node",
+      "next_label": "I am testing shadow __nano_module___9_create_identifier_node",
+      "receipt_interval_seconds": 1.8125e-05
+    },
+    {
+      "ordinal": 247,
+      "label": "I am testing shadow __nano_module___9_create_identifier_node",
+      "next_label": "I am testing shadow __nano_module___9_test_parser_structure",
+      "receipt_interval_seconds": 1.8333e-05
+    },
+    {
+      "ordinal": 248,
+      "label": "I am testing shadow __nano_module___9_test_parser_structure",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_function_count",
+      "receipt_interval_seconds": 1.9958e-05
+    },
+    {
+      "ordinal": 249,
+      "label": "I am testing shadow __nano_module___9_parser_get_function_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_set_let_var_type",
+      "receipt_interval_seconds": 1.9625e-05
+    },
+    {
+      "ordinal": 250,
+      "label": "I am testing shadow __nano_module___9_parser_set_let_var_type",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_for",
+      "receipt_interval_seconds": 2e-05
+    },
+    {
+      "ordinal": 251,
+      "label": "I am testing shadow __nano_module___9_parser_get_for",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_struct_def_count",
+      "receipt_interval_seconds": 1.9209e-05
+    },
+    {
+      "ordinal": 252,
+      "label": "I am testing shadow __nano_module___9_parser_get_struct_def_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_struct_def",
+      "receipt_interval_seconds": 1.9375e-05
+    },
+    {
+      "ordinal": 253,
+      "label": "I am testing shadow __nano_module___9_parser_get_struct_def",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_enum_count",
+      "receipt_interval_seconds": 1.9166e-05
+    },
+    {
+      "ordinal": 254,
+      "label": "I am testing shadow __nano_module___9_parser_get_enum_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_enum",
+      "receipt_interval_seconds": 1.875e-05
+    },
+    {
+      "ordinal": 255,
+      "label": "I am testing shadow __nano_module___9_parser_get_enum",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_union_count",
+      "receipt_interval_seconds": 3.2959e-05
+    },
+    {
+      "ordinal": 256,
+      "label": "I am testing shadow __nano_module___9_parser_get_union_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_union",
+      "receipt_interval_seconds": 2.35e-05
+    },
+    {
+      "ordinal": 257,
+      "label": "I am testing shadow __nano_module___9_parser_get_union",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_array_literal",
+      "receipt_interval_seconds": 2.1458e-05
+    },
+    {
+      "ordinal": 258,
+      "label": "I am testing shadow __nano_module___9_parser_store_array_literal",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_field_access",
+      "receipt_interval_seconds": 2.025e-05
+    },
+    {
+      "ordinal": 259,
+      "label": "I am testing shadow __nano_module___9_parser_store_field_access",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_float",
+      "receipt_interval_seconds": 3.025e-05
+    },
+    {
+      "ordinal": 260,
+      "label": "I am testing shadow __nano_module___9_parser_store_float",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_for",
+      "receipt_interval_seconds": 1.9917e-05
+    },
+    {
+      "ordinal": 261,
+      "label": "I am testing shadow __nano_module___9_parser_store_for",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_import",
+      "receipt_interval_seconds": 1.9666e-05
+    },
+    {
+      "ordinal": 262,
+      "label": "I am testing shadow __nano_module___9_parser_store_import",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_match",
+      "receipt_interval_seconds": 2.0959e-05
+    },
+    {
+      "ordinal": 263,
+      "label": "I am testing shadow __nano_module___9_parser_store_match",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_opaque_type",
+      "receipt_interval_seconds": 1.8666e-05
+    },
+    {
+      "ordinal": 264,
+      "label": "I am testing shadow __nano_module___9_parser_store_opaque_type",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_shadow",
+      "receipt_interval_seconds": 2.0459e-05
+    },
+    {
+      "ordinal": 265,
+      "label": "I am testing shadow __nano_module___9_parser_store_shadow",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_struct_literal",
+      "receipt_interval_seconds": 1.8375e-05
+    },
+    {
+      "ordinal": 266,
+      "label": "I am testing shadow __nano_module___9_parser_store_struct_literal",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_tuple_index",
+      "receipt_interval_seconds": 1.9666e-05
+    },
+    {
+      "ordinal": 267,
+      "label": "I am testing shadow __nano_module___9_parser_store_tuple_index",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_tuple_literal",
+      "receipt_interval_seconds": 1.9875e-05
+    },
+    {
+      "ordinal": 268,
+      "label": "I am testing shadow __nano_module___9_parser_store_tuple_literal",
+      "next_label": "I am testing shadow __nano_module___9_parser_store_union_construct",
+      "receipt_interval_seconds": 2.1417e-05
+    },
+    {
+      "ordinal": 269,
+      "label": "I am testing shadow __nano_module___9_parser_store_union_construct",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_function",
+      "receipt_interval_seconds": 2.0583e-05
+    },
+    {
+      "ordinal": 270,
+      "label": "I am testing shadow __nano_module___9_parser_get_function",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_let_count",
+      "receipt_interval_seconds": 2.0375e-05
+    },
+    {
+      "ordinal": 271,
+      "label": "I am testing shadow __nano_module___9_parser_get_let_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_let",
+      "receipt_interval_seconds": 2.0125e-05
+    },
+    {
+      "ordinal": 272,
+      "label": "I am testing shadow __nano_module___9_parser_get_let",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_identifier_count",
+      "receipt_interval_seconds": 1.9834e-05
+    },
+    {
+      "ordinal": 273,
+      "label": "I am testing shadow __nano_module___9_parser_get_identifier_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_identifier",
+      "receipt_interval_seconds": 2.1541e-05
+    },
+    {
+      "ordinal": 274,
+      "label": "I am testing shadow __nano_module___9_parser_get_identifier",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_number_count",
+      "receipt_interval_seconds": 2.1417e-05
+    },
+    {
+      "ordinal": 275,
+      "label": "I am testing shadow __nano_module___9_parser_get_number_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_number",
+      "receipt_interval_seconds": 2.0958e-05
+    },
+    {
+      "ordinal": 276,
+      "label": "I am testing shadow __nano_module___9_parser_get_number",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_float_count",
+      "receipt_interval_seconds": 2.0084e-05
+    },
+    {
+      "ordinal": 277,
+      "label": "I am testing shadow __nano_module___9_parser_get_float_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_float",
+      "receipt_interval_seconds": 1.9875e-05
+    },
+    {
+      "ordinal": 278,
+      "label": "I am testing shadow __nano_module___9_parser_get_float",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_binary_op_count",
+      "receipt_interval_seconds": 2.075e-05
+    },
+    {
+      "ordinal": 279,
+      "label": "I am testing shadow __nano_module___9_parser_get_binary_op_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_binary_op",
+      "receipt_interval_seconds": 2.7208e-05
+    },
+    {
+      "ordinal": 280,
+      "label": "I am testing shadow __nano_module___9_parser_get_binary_op",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_return_count",
+      "receipt_interval_seconds": 1.9917e-05
+    },
+    {
+      "ordinal": 281,
+      "label": "I am testing shadow __nano_module___9_parser_get_return_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_return",
+      "receipt_interval_seconds": 2.0583e-05
+    },
+    {
+      "ordinal": 282,
+      "label": "I am testing shadow __nano_module___9_parser_get_return",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_block_count",
+      "receipt_interval_seconds": 2.0042e-05
+    },
+    {
+      "ordinal": 283,
+      "label": "I am testing shadow __nano_module___9_parser_get_block_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_block",
+      "receipt_interval_seconds": 2.0208e-05
+    },
+    {
+      "ordinal": 284,
+      "label": "I am testing shadow __nano_module___9_parser_get_block",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_if_count",
+      "receipt_interval_seconds": 1.875e-05
+    },
+    {
+      "ordinal": 285,
+      "label": "I am testing shadow __nano_module___9_parser_get_if_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_if",
+      "receipt_interval_seconds": 2.0833e-05
+    },
+    {
+      "ordinal": 286,
+      "label": "I am testing shadow __nano_module___9_parser_get_if",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_while_count",
+      "receipt_interval_seconds": 2.0584e-05
+    },
+    {
+      "ordinal": 287,
+      "label": "I am testing shadow __nano_module___9_parser_get_while_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_while",
+      "receipt_interval_seconds": 1.9083e-05
+    },
+    {
+      "ordinal": 288,
+      "label": "I am testing shadow __nano_module___9_parser_get_while",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_unsafe_block",
+      "receipt_interval_seconds": 2.0792e-05
+    },
+    {
+      "ordinal": 289,
+      "label": "I am testing shadow __nano_module___9_parser_get_unsafe_block",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_call_count",
+      "receipt_interval_seconds": 2.1291e-05
+    },
+    {
+      "ordinal": 290,
+      "label": "I am testing shadow __nano_module___9_parser_get_call_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_call",
+      "receipt_interval_seconds": 1.9917e-05
+    },
+    {
+      "ordinal": 291,
+      "label": "I am testing shadow __nano_module___9_parser_get_call",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_module_qualified_call_count",
+      "receipt_interval_seconds": 2.025e-05
+    },
+    {
+      "ordinal": 292,
+      "label": "I am testing shadow __nano_module___9_parser_get_module_qualified_call_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_module_qualified_call",
+      "receipt_interval_seconds": 2.1208e-05
+    },
+    {
+      "ordinal": 293,
+      "label": "I am testing shadow __nano_module___9_parser_get_module_qualified_call",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_call_arg_count",
+      "receipt_interval_seconds": 2.1e-05
+    },
+    {
+      "ordinal": 294,
+      "label": "I am testing shadow __nano_module___9_parser_get_call_arg_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_call_arg",
+      "receipt_interval_seconds": 2.0334e-05
+    },
+    {
+      "ordinal": 295,
+      "label": "I am testing shadow __nano_module___9_parser_get_call_arg",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_set_count",
+      "receipt_interval_seconds": 2.8375e-05
+    },
+    {
+      "ordinal": 296,
+      "label": "I am testing shadow __nano_module___9_parser_get_set_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_set",
+      "receipt_interval_seconds": 1.9333e-05
+    },
+    {
+      "ordinal": 297,
+      "label": "I am testing shadow __nano_module___9_parser_get_set",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_string_count",
+      "receipt_interval_seconds": 1.775e-05
+    },
+    {
+      "ordinal": 298,
+      "label": "I am testing shadow __nano_module___9_parser_get_string_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_string",
+      "receipt_interval_seconds": 1.8625e-05
+    },
+    {
+      "ordinal": 299,
+      "label": "I am testing shadow __nano_module___9_parser_get_string",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_bool_count",
+      "receipt_interval_seconds": 2.1333e-05
+    },
+    {
+      "ordinal": 300,
+      "label": "I am testing shadow __nano_module___9_parser_get_bool_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_bool",
+      "receipt_interval_seconds": 2.1125e-05
+    },
+    {
+      "ordinal": 301,
+      "label": "I am testing shadow __nano_module___9_parser_get_bool",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_assert_count",
+      "receipt_interval_seconds": 1.9209e-05
+    },
+    {
+      "ordinal": 302,
+      "label": "I am testing shadow __nano_module___9_parser_get_assert_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_assert",
+      "receipt_interval_seconds": 1.8333e-05
+    },
+    {
+      "ordinal": 303,
+      "label": "I am testing shadow __nano_module___9_parser_get_assert",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_field_access_count",
+      "receipt_interval_seconds": 1.8917e-05
+    },
+    {
+      "ordinal": 304,
+      "label": "I am testing shadow __nano_module___9_parser_get_field_access_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_field_access",
+      "receipt_interval_seconds": 1.8041e-05
+    },
+    {
+      "ordinal": 305,
+      "label": "I am testing shadow __nano_module___9_parser_get_field_access",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_array_literal_count",
+      "receipt_interval_seconds": 5.0542e-05
+    },
+    {
+      "ordinal": 306,
+      "label": "I am testing shadow __nano_module___9_parser_get_array_literal_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_array_literal",
+      "receipt_interval_seconds": 2.9083e-05
+    },
+    {
+      "ordinal": 307,
+      "label": "I am testing shadow __nano_module___9_parser_get_array_literal",
+      "next_label": "I am testing shadow __nano_module___9_parser_set_array_literal_element_type",
+      "receipt_interval_seconds": 2.15e-05
+    },
+    {
+      "ordinal": 308,
+      "label": "I am testing shadow __nano_module___9_parser_set_array_literal_element_type",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_array_element_count",
+      "receipt_interval_seconds": 2.725e-05
+    },
+    {
+      "ordinal": 309,
+      "label": "I am testing shadow __nano_module___9_parser_get_array_element_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_array_element",
+      "receipt_interval_seconds": 2e-05
+    },
+    {
+      "ordinal": 310,
+      "label": "I am testing shadow __nano_module___9_parser_get_array_element",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_struct_literal_count",
+      "receipt_interval_seconds": 2.0792e-05
+    },
+    {
+      "ordinal": 311,
+      "label": "I am testing shadow __nano_module___9_parser_get_struct_literal_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_struct_literal",
+      "receipt_interval_seconds": 2.025e-05
+    },
+    {
+      "ordinal": 312,
+      "label": "I am testing shadow __nano_module___9_parser_get_struct_literal",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_union_construct_count",
+      "receipt_interval_seconds": 2.6792e-05
+    },
+    {
+      "ordinal": 313,
+      "label": "I am testing shadow __nano_module___9_parser_get_union_construct_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_union_construct",
+      "receipt_interval_seconds": 1.9541e-05
+    },
+    {
+      "ordinal": 314,
+      "label": "I am testing shadow __nano_module___9_parser_get_union_construct",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_match_count",
+      "receipt_interval_seconds": 2.3084e-05
+    },
+    {
+      "ordinal": 315,
+      "label": "I am testing shadow __nano_module___9_parser_get_match_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_match",
+      "receipt_interval_seconds": 2.05e-05
+    },
+    {
+      "ordinal": 316,
+      "label": "I am testing shadow __nano_module___9_parser_get_match",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_tuple_literal_count",
+      "receipt_interval_seconds": 1.95e-05
+    },
+    {
+      "ordinal": 317,
+      "label": "I am testing shadow __nano_module___9_parser_get_tuple_literal_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_tuple_literal",
+      "receipt_interval_seconds": 1.9875e-05
+    },
+    {
+      "ordinal": 318,
+      "label": "I am testing shadow __nano_module___9_parser_get_tuple_literal",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_tuple_index_count",
+      "receipt_interval_seconds": 2.0041e-05
+    },
+    {
+      "ordinal": 319,
+      "label": "I am testing shadow __nano_module___9_parser_get_tuple_index_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_tuple_index",
+      "receipt_interval_seconds": 2.0209e-05
+    },
+    {
+      "ordinal": 320,
+      "label": "I am testing shadow __nano_module___9_parser_get_tuple_index",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_import_count",
+      "receipt_interval_seconds": 1.7333e-05
+    },
+    {
+      "ordinal": 321,
+      "label": "I am testing shadow __nano_module___9_parser_get_import_count",
+      "next_label": "I am testing shadow __nano_module___9_parser_get_import",
+      "receipt_interval_seconds": 1.8292e-05
+    },
+    {
+      "ordinal": 322,
+      "label": "I am testing shadow __nano_module___9_parser_get_import",
+      "next_label": "I am testing shadow __nano_module___9_parse_phase_run",
+      "receipt_interval_seconds": 1.975e-05
+    },
+    {
+      "ordinal": 323,
+      "label": "I am testing shadow __nano_module___9_parse_phase_run",
+      "next_label": "I am testing shadow __nano_module___10_passive_reads",
+      "receipt_interval_seconds": 1.85e-05
+    },
+    {
+      "ordinal": 324,
+      "label": "I am testing shadow __nano_module___10_passive_reads",
+      "next_label": "I am testing shadow __nano_module___10_passive_order",
+      "receipt_interval_seconds": 2.0083e-05
+    },
+    {
+      "ordinal": 325,
+      "label": "I am testing shadow __nano_module___10_passive_order",
+      "next_label": "I am testing shadow __nano_module___11_mb_active",
+      "receipt_interval_seconds": 1.9208e-05
+    },
+    {
+      "ordinal": 326,
+      "label": "I am testing shadow __nano_module___11_mb_active",
+      "next_label": "I am testing shadow __nano_module___11_mb_reset",
+      "receipt_interval_seconds": 3.225e-05
+    },
+    {
+      "ordinal": 327,
+      "label": "I am testing shadow __nano_module___11_mb_reset",
+      "next_label": "I am testing shadow __nano_module___11_mb_owner",
+      "receipt_interval_seconds": 2.025e-05
+    },
+    {
+      "ordinal": 328,
+      "label": "I am testing shadow __nano_module___11_mb_owner",
+      "next_label": "I am testing shadow __nano_module___11_mb_add_target",
+      "receipt_interval_seconds": 2.0125e-05
+    },
+    {
+      "ordinal": 329,
+      "label": "I am testing shadow __nano_module___11_mb_add_target",
+      "next_label": "I am testing shadow __nano_module___11_mb_add",
+      "receipt_interval_seconds": 2.0125e-05
+    },
+    {
+      "ordinal": 330,
+      "label": "I am testing shadow __nano_module___11_mb_add",
+      "next_label": "I am testing shadow __nano_module___11_mb_lookup",
+      "receipt_interval_seconds": 2.0542e-05
+    },
+    {
+      "ordinal": 331,
+      "label": "I am testing shadow __nano_module___11_mb_lookup",
+      "next_label": "I am testing shadow __nano_module___11_mb_resolve",
+      "receipt_interval_seconds": 2.2583e-05
+    },
+    {
+      "ordinal": 332,
+      "label": "I am testing shadow __nano_module___11_mb_resolve",
+      "next_label": "I am testing shadow __nano_module___11_mb_target_owner",
+      "receipt_interval_seconds": 2.1625e-05
+    },
+    {
+      "ordinal": 333,
+      "label": "I am testing shadow __nano_module___11_mb_target_owner",
+      "next_label": "I am testing shadow __nano_module___11_mb_set_sources",
+      "receipt_interval_seconds": 2.4667e-05
+    },
+    {
+      "ordinal": 334,
+      "label": "I am testing shadow __nano_module___11_mb_set_sources",
+      "next_label": "I am testing shadow __nano_module___11_mb_source",
+      "receipt_interval_seconds": 2.1375e-05
+    },
+    {
+      "ordinal": 335,
+      "label": "I am testing shadow __nano_module___11_mb_source",
+      "next_label": "I am testing shadow __nano_module___12_par_scalar_type",
+      "receipt_interval_seconds": 2.1583e-05
+    },
+    {
+      "ordinal": 336,
+      "label": "I am testing shadow __nano_module___12_par_scalar_type",
+      "next_label": "I am testing shadow __nano_module___12_par_local",
+      "receipt_interval_seconds": 2.9834e-05
+    },
+    {
+      "ordinal": 337,
+      "label": "I am testing shadow __nano_module___12_par_local",
+      "next_label": "I am testing shadow __nano_module___12_par_call_index",
+      "receipt_interval_seconds": 2.1166e-05
+    },
+    {
+      "ordinal": 338,
+      "label": "I am testing shadow __nano_module___12_par_call_index",
+      "next_label": "I am testing shadow __nano_module___12_par_closed_target",
+      "receipt_interval_seconds": 1.8375e-05
+    },
+    {
+      "ordinal": 339,
+      "label": "I am testing shadow __nano_module___12_par_closed_target",
+      "next_label": "I am testing shadow __nano_module___12_par_closed_node",
+      "receipt_interval_seconds": 1.8709e-05
+    },
+    {
+      "ordinal": 340,
+      "label": "I am testing shadow __nano_module___12_par_closed_node",
+      "next_label": "I am testing shadow __nano_module___12_par_closed_function",
+      "receipt_interval_seconds": 1.9625e-05
+    },
+    {
+      "ordinal": 341,
+      "label": "I am testing shadow __nano_module___12_par_closed_function",
+      "next_label": "I am testing shadow __nano_module___12_par_closed_call",
+      "receipt_interval_seconds": 2.1708e-05
+    },
+    {
+      "ordinal": 342,
+      "label": "I am testing shadow __nano_module___12_par_closed_call",
+      "next_label": "I am testing shadow __nano_module___13_declaration_local_lets",
+      "receipt_interval_seconds": 2.3292e-05
+    },
+    {
+      "ordinal": 343,
+      "label": "I am testing shadow __nano_module___13_declaration_local_lets",
+      "next_label": "I am testing shadow __nano_module___14_type_parameter_word_char",
+      "receipt_interval_seconds": 2.1416e-05
+    },
+    {
+      "ordinal": 344,
+      "label": "I am testing shadow __nano_module___14_type_parameter_word_char",
+      "next_label": "I am testing shadow __nano_module___14_substitute_type_parameters",
+      "receipt_interval_seconds": 2.3209e-05
+    },
+    {
+      "ordinal": 345,
+      "label": "I am testing shadow __nano_module___14_substitute_type_parameters",
+      "next_label": "I am testing shadow __nano_module___15_nb_opaque_original",
+      "receipt_interval_seconds": 2.3291e-05
+    },
+    {
+      "ordinal": 346,
+      "label": "I am testing shadow __nano_module___15_nb_opaque_original",
+      "next_label": "I am testing shadow __nano_module___15_nb_opaque_origin",
+      "receipt_interval_seconds": 2.2834e-05
+    },
+    {
+      "ordinal": 347,
+      "label": "I am testing shadow __nano_module___15_nb_opaque_origin",
+      "next_label": "I am testing shadow __nano_module___15_nb_emission_prefix",
+      "receipt_interval_seconds": 2.3541e-05
+    },
+    {
+      "ordinal": 348,
+      "label": "I am testing shadow __nano_module___15_nb_emission_prefix",
+      "next_label": "I am testing shadow __nano_module___15_nb_valid",
+      "receipt_interval_seconds": 5.6334e-05
+    },
+    {
+      "ordinal": 349,
+      "label": "I am testing shadow __nano_module___15_nb_valid",
+      "next_label": "I am testing shadow __nano_module___15_nb_local",
+      "receipt_interval_seconds": 5.7041e-05
+    },
+    {
+      "ordinal": 350,
+      "label": "I am testing shadow __nano_module___15_nb_local",
+      "next_label": "I am testing shadow __nano_module___15_nb_visible",
+      "receipt_interval_seconds": 6.8375e-05
+    },
+    {
+      "ordinal": 351,
+      "label": "I am testing shadow __nano_module___15_nb_visible",
+      "next_label": "I am testing shadow __nano_module___15_nb_key",
+      "receipt_interval_seconds": 0.000100459
+    },
+    {
+      "ordinal": 352,
+      "label": "I am testing shadow __nano_module___15_nb_key",
+      "next_label": "I am testing shadow __nano_module___15_nb_external",
+      "receipt_interval_seconds": 4.5791e-05
+    },
+    {
+      "ordinal": 353,
+      "label": "I am testing shadow __nano_module___15_nb_external",
+      "next_label": "I am testing shadow __nano_module___15_nb_register",
+      "receipt_interval_seconds": 1.3875e-05
+    },
+    {
+      "ordinal": 354,
+      "label": "I am testing shadow __nano_module___15_nb_register",
+      "next_label": "I am testing shadow __nano_module___15_nb_import",
+      "receipt_interval_seconds": 0.000209542
+    },
+    {
+      "ordinal": 355,
+      "label": "I am testing shadow __nano_module___15_nb_import",
+      "next_label": "I am testing shadow __nano_module___15_nb_name_char",
+      "receipt_interval_seconds": 5.6667e-05
+    },
+    {
+      "ordinal": 356,
+      "label": "I am testing shadow __nano_module___15_nb_name_char",
+      "next_label": "I am testing shadow __nano_module___15_nb_scoped_type",
+      "receipt_interval_seconds": 1.3541e-05
+    },
+    {
+      "ordinal": 357,
+      "label": "I am testing shadow __nano_module___15_nb_scoped_type",
+      "next_label": "I am testing shadow __nano_module___15_nb_type",
+      "receipt_interval_seconds": 3.9417e-05
+    },
+    {
+      "ordinal": 358,
+      "label": "I am testing shadow __nano_module___15_nb_type",
+      "next_label": "I am testing shadow __nano_module___15_nb_scoped_types",
+      "receipt_interval_seconds": 5.1375e-05
+    },
+    {
+      "ordinal": 359,
+      "label": "I am testing shadow __nano_module___15_nb_scoped_types",
+      "next_label": "I am testing shadow __nano_module___15_nb_types",
+      "receipt_interval_seconds": 1.675e-05
+    },
+    {
+      "ordinal": 360,
+      "label": "I am testing shadow __nano_module___15_nb_types",
+      "next_label": "I am testing shadow __nano_module___15_nb_rewrite",
+      "receipt_interval_seconds": 3.1042e-05
+    },
+    {
+      "ordinal": 361,
+      "label": "I am testing shadow __nano_module___15_nb_rewrite",
+      "next_label": "I am testing shadow __nano_module___16_purity_intrinsic",
+      "receipt_interval_seconds": 0.000148583
+    },
+    {
+      "ordinal": 362,
+      "label": "I am testing shadow __nano_module___16_purity_intrinsic",
+      "next_label": "I am testing shadow __nano_module___16_purity_observable",
+      "receipt_interval_seconds": 2.3958e-05
+    },
+    {
+      "ordinal": 363,
+      "label": "I am testing shadow __nano_module___16_purity_observable",
+      "next_label": "I am testing shadow __nano_module___17_error_message_new",
+      "receipt_interval_seconds": 1.6375e-05
+    },
+    {
+      "ordinal": 364,
+      "label": "I am testing shadow __nano_module___17_error_message_new",
+      "next_label": "I am testing shadow __nano_module___17_repeat_string",
+      "receipt_interval_seconds": 1.25e-05
+    },
+    {
+      "ordinal": 365,
+      "label": "I am testing shadow __nano_module___17_repeat_string",
+      "next_label": "I am testing shadow __nano_module___17_pad_right",
+      "receipt_interval_seconds": 8.792e-06
+    },
+    {
+      "ordinal": 366,
+      "label": "I am testing shadow __nano_module___17_pad_right",
+      "next_label": "I am testing shadow __nano_module___17_wrap_backticks",
+      "receipt_interval_seconds": 9e-06
+    },
+    {
+      "ordinal": 367,
+      "label": "I am testing shadow __nano_module___17_wrap_backticks",
+      "next_label": "I am testing shadow __nano_module___17_get_line_from_source",
+      "receipt_interval_seconds": 9.458e-06
+    },
+    {
+      "ordinal": 368,
+      "label": "I am testing shadow __nano_module___17_get_line_from_source",
+      "next_label": "I am testing shadow __nano_module___17_build_error_explanations",
+      "receipt_interval_seconds": 8.125e-06
+    },
+    {
+      "ordinal": 369,
+      "label": "I am testing shadow __nano_module___17_build_error_explanations",
+      "next_label": "I am testing shadow __nano_module___17_build_error_suggestions",
+      "receipt_interval_seconds": 7.709e-06
+    },
+    {
+      "ordinal": 370,
+      "label": "I am testing shadow __nano_module___17_build_error_suggestions",
+      "next_label": "I am testing shadow __nano_module___17_explanation_for_code",
+      "receipt_interval_seconds": 7.416e-06
+    },
+    {
+      "ordinal": 371,
+      "label": "I am testing shadow __nano_module___17_explanation_for_code",
+      "next_label": "I am testing shadow __nano_module___17_suggestion_for_code",
+      "receipt_interval_seconds": 6.709e-06
+    },
+    {
+      "ordinal": 372,
+      "label": "I am testing shadow __nano_module___17_suggestion_for_code",
+      "next_label": "I am testing shadow __nano_module___17_diagnostic_to_elm_error",
+      "receipt_interval_seconds": 6.708e-06
+    },
+    {
+      "ordinal": 373,
+      "label": "I am testing shadow __nano_module___17_diagnostic_to_elm_error",
+      "next_label": "I am testing shadow __nano_module___17_format_error_elm_style",
+      "receipt_interval_seconds": 6.875e-06
+    },
+    {
+      "ordinal": 374,
+      "label": "I am testing shadow __nano_module___17_format_error_elm_style",
+      "next_label": "I am testing shadow __nano_module___17_format_diagnostics_elm_style",
+      "receipt_interval_seconds": 6.542e-06
+    },
+    {
+      "ordinal": 375,
+      "label": "I am testing shadow __nano_module___17_format_diagnostics_elm_style",
+      "next_label": "I am testing shadow __nano_module___17_error_type_mismatch",
+      "receipt_interval_seconds": 9.875e-06
+    },
+    {
+      "ordinal": 376,
+      "label": "I am testing shadow __nano_module___17_error_type_mismatch",
+      "next_label": "I am testing shadow __nano_module___17_error_undefined_variable",
+      "receipt_interval_seconds": 6.833e-06
+    },
+    {
+      "ordinal": 377,
+      "label": "I am testing shadow __nano_module___17_error_undefined_variable",
+      "next_label": "I am testing shadow __nano_module___17_error_arity_mismatch",
+      "receipt_interval_seconds": 1.6958e-05
+    },
+    {
+      "ordinal": 378,
+      "label": "I am testing shadow __nano_module___17_error_arity_mismatch",
+      "next_label": "I am testing shadow __nano_module___17_error_missing_return",
+      "receipt_interval_seconds": 6.834e-06
+    },
+    {
+      "ordinal": 379,
+      "label": "I am testing shadow __nano_module___17_error_missing_return",
+      "next_label": "I am testing shadow __nano_module___17_error_immutable_assignment",
+      "receipt_interval_seconds": 5.958e-06
+    },
+    {
+      "ordinal": 380,
+      "label": "I am testing shadow __nano_module___17_error_immutable_assignment",
+      "next_label": "I am testing shadow __nano_module___17_encode_type_mismatch_message",
+      "receipt_interval_seconds": 6.208e-06
+    },
+    {
+      "ordinal": 381,
+      "label": "I am testing shadow __nano_module___17_encode_type_mismatch_message",
+      "next_label": "I am testing shadow __nano_module___17_encode_undefined_name_message",
+      "receipt_interval_seconds": 1.6334e-05
+    },
+    {
+      "ordinal": 382,
+      "label": "I am testing shadow __nano_module___17_encode_undefined_name_message",
+      "next_label": "I am testing shadow __nano_module___17_encode_wrong_arg_count_message",
+      "receipt_interval_seconds": 2.5e-05
+    },
+    {
+      "ordinal": 383,
+      "label": "I am testing shadow __nano_module___17_encode_wrong_arg_count_message",
+      "next_label": "I am testing shadow __nano_module___17_encode_missing_return_message",
+      "receipt_interval_seconds": 1.4375e-05
+    },
+    {
+      "ordinal": 384,
+      "label": "I am testing shadow __nano_module___17_encode_missing_return_message",
+      "next_label": "I am testing shadow __nano_module___17_encode_immutable_assignment_message",
+      "receipt_interval_seconds": 1.1791e-05
+    },
+    {
+      "ordinal": 385,
+      "label": "I am testing shadow __nano_module___17_encode_immutable_assignment_message",
+      "next_label": "I am testing shadow __nano_module___17_error_unsafe_required",
+      "receipt_interval_seconds": 1.225e-05
+    },
+    {
+      "ordinal": 386,
+      "label": "I am testing shadow __nano_module___17_error_unsafe_required",
+      "next_label": "I am testing shadow __nano_module___17_error_use_after_consume",
+      "receipt_interval_seconds": 8.084e-06
+    },
+    {
+      "ordinal": 387,
+      "label": "I am testing shadow __nano_module___17_error_use_after_consume",
+      "next_label": "I am testing shadow __nano_module___17_error_resource_leak",
+      "receipt_interval_seconds": 7.708e-06
+    },
+    {
+      "ordinal": 388,
+      "label": "I am testing shadow __nano_module___17_error_resource_leak",
+      "next_label": "I am testing shadow __nano_module___17_get_error_template",
+      "receipt_interval_seconds": 1.9417e-05
+    },
+    {
+      "ordinal": 389,
+      "label": "I am testing shadow __nano_module___17_get_error_template",
+      "next_label": "I am testing shadow __nano_module___18_resource_name_in",
+      "receipt_interval_seconds": 8.958e-06
+    },
+    {
+      "ordinal": 390,
+      "label": "I am testing shadow __nano_module___18_resource_name_in",
+      "next_label": "I am testing shadow __nano_module___18_resource_variant_key",
+      "receipt_interval_seconds": 7.958e-06
+    },
+    {
+      "ordinal": 391,
+      "label": "I am testing shadow __nano_module___18_resource_variant_key",
+      "next_label": "I am testing shadow __nano_module___18_resource_concrete_identity",
+      "receipt_interval_seconds": 1.9875e-05
+    },
+    {
+      "ordinal": 392,
+      "label": "I am testing shadow __nano_module___18_resource_concrete_identity",
+      "next_label": "I am testing shadow __nano_module___18_resource_type_identity",
+      "receipt_interval_seconds": 1.5834e-05
+    },
+    {
+      "ordinal": 393,
+      "label": "I am testing shadow __nano_module___18_resource_type_identity",
+      "next_label": "I am testing shadow __nano_module___18_resource_fixed_payload_bearing",
+      "receipt_interval_seconds": 2.7791e-05
+    },
+    {
+      "ordinal": 394,
+      "label": "I am testing shadow __nano_module___18_resource_fixed_payload_bearing",
+      "next_label": "I am testing shadow __nano_module___18_resource_concrete_payload_fact",
+      "receipt_interval_seconds": 1.7209e-05
+    },
+    {
+      "ordinal": 395,
+      "label": "I am testing shadow __nano_module___18_resource_concrete_payload_fact",
+      "next_label": "I am testing shadow __nano_module___18_resource_classify",
+      "receipt_interval_seconds": 0.000814291
+    },
+    {
+      "ordinal": 396,
+      "label": "I am testing shadow __nano_module___18_resource_classify",
+      "next_label": "I am testing shadow __nano_module___18_resource_has_collection_payload",
+      "receipt_interval_seconds": 0.0002085
+    },
+    {
+      "ordinal": 397,
+      "label": "I am testing shadow __nano_module___18_resource_has_collection_payload",
+      "next_label": "I am testing shadow __nano_module___18_resource_type_is_declared",
+      "receipt_interval_seconds": 0.000165417
+    },
+    {
+      "ordinal": 398,
+      "label": "I am testing shadow __nano_module___18_resource_type_is_declared",
+      "next_label": "I am testing shadow __nano_module___18_resource_find",
+      "receipt_interval_seconds": 0.000895417
+    },
+    {
+      "ordinal": 399,
+      "label": "I am testing shadow __nano_module___18_resource_find",
+      "next_label": "I am testing shadow __nano_module___18_resource_test_parser",
+      "receipt_interval_seconds": 2.1333e-05
+    },
+    {
+      "ordinal": 400,
+      "label": "I am testing shadow __nano_module___18_resource_test_parser",
+      "next_label": "I am testing shadow __nano_module___18_resource_copy",
+      "receipt_interval_seconds": 1.0833e-05
+    },
+    {
+      "ordinal": 401,
+      "label": "I am testing shadow __nano_module___18_resource_copy",
+      "next_label": "I am testing shadow __nano_module___18_resource_place_root",
+      "receipt_interval_seconds": 1.1875e-05
+    },
+    {
+      "ordinal": 402,
+      "label": "I am testing shadow __nano_module___18_resource_place_root",
+      "next_label": "I am testing shadow __nano_module___18_resource_place_path",
+      "receipt_interval_seconds": 7.709e-06
+    },
+    {
+      "ordinal": 403,
+      "label": "I am testing shadow __nano_module___18_resource_place_path",
+      "next_label": "I am testing shadow __nano_module___18_resource_path_prefix",
+      "receipt_interval_seconds": 6.25e-06
+    },
+    {
+      "ordinal": 404,
+      "label": "I am testing shadow __nano_module___18_resource_path_prefix",
+      "next_label": "I am testing shadow __nano_module___18_resource_place_conflict",
+      "receipt_interval_seconds": 6.666e-06
+    },
+    {
+      "ordinal": 405,
+      "label": "I am testing shadow __nano_module___18_resource_place_conflict",
+      "next_label": "I am testing shadow __nano_module___18_resource_place_hold",
+      "receipt_interval_seconds": 6.459e-06
+    },
+    {
+      "ordinal": 406,
+      "label": "I am testing shadow __nano_module___18_resource_place_hold",
+      "next_label": "I am testing shadow __nano_module___18_resource_restore_holds",
+      "receipt_interval_seconds": 7.875e-06
+    },
+    {
+      "ordinal": 407,
+      "label": "I am testing shadow __nano_module___18_resource_restore_holds",
+      "next_label": "I am testing shadow __nano_module___18_resource_replace",
+      "receipt_interval_seconds": 7.041e-06
+    },
+    {
+      "ordinal": 408,
+      "label": "I am testing shadow __nano_module___18_resource_replace",
+      "next_label": "I am testing shadow __nano_module___18_resource_flow_error",
+      "receipt_interval_seconds": 6.917e-06
+    },
+    {
+      "ordinal": 409,
+      "label": "I am testing shadow __nano_module___18_resource_flow_error",
+      "next_label": "I am testing shadow __nano_module___18_resource_resolve_exit",
+      "receipt_interval_seconds": 7.292e-06
+    },
+    {
+      "ordinal": 410,
+      "label": "I am testing shadow __nano_module___18_resource_resolve_exit",
+      "next_label": "I am testing shadow __nano_module___18_resource_join",
+      "receipt_interval_seconds": 6.375e-06
+    },
+    {
+      "ordinal": 411,
+      "label": "I am testing shadow __nano_module___18_resource_join",
+      "next_label": "I am testing shadow __nano_module___18_resource_loop_edge",
+      "receipt_interval_seconds": 6.875e-06
+    },
+    {
+      "ordinal": 412,
+      "label": "I am testing shadow __nano_module___18_resource_loop_edge",
+      "next_label": "I am testing shadow __nano_module___18_resource_value_type",
+      "receipt_interval_seconds": 3.2958e-05
+    },
+    {
+      "ordinal": 413,
+      "label": "I am testing shadow __nano_module___18_resource_value_type",
+      "next_label": "I am testing shadow __nano_module___18_tc_generic_arguments",
+      "receipt_interval_seconds": 9.75e-06
+    },
+    {
+      "ordinal": 414,
+      "label": "I am testing shadow __nano_module___18_tc_generic_arguments",
+      "next_label": "I am testing shadow __nano_module___18_tc_substitute_generic",
+      "receipt_interval_seconds": 8.042e-06
+    },
+    {
+      "ordinal": 415,
+      "label": "I am testing shadow __nano_module___18_tc_substitute_generic",
+      "next_label": "I am testing shadow __nano_module___18_resource_instantiated_classify",
+      "receipt_interval_seconds": 7.291e-06
+    },
+    {
+      "ordinal": 416,
+      "label": "I am testing shadow __nano_module___18_resource_instantiated_classify",
+      "next_label": "I am testing shadow __nano_module___18_resource_generic_contains",
+      "receipt_interval_seconds": 0.000452834
+    },
+    {
+      "ordinal": 417,
+      "label": "I am testing shadow __nano_module___18_resource_generic_contains",
+      "next_label": "I am testing shadow __nano_module___18_resource_transfer_supported",
+      "receipt_interval_seconds": 0.000166291
+    },
+    {
+      "ordinal": 418,
+      "label": "I am testing shadow __nano_module___18_resource_transfer_supported",
+      "next_label": "I am testing shadow __nano_module___18_resource_callback_unsupported",
+      "receipt_interval_seconds": 0.000821375
+    },
+    {
+      "ordinal": 419,
+      "label": "I am testing shadow __nano_module___18_resource_callback_unsupported",
+      "next_label": "I am testing shadow __nano_module___18_resource_check_annotation",
+      "receipt_interval_seconds": 0.000410375
+    },
+    {
+      "ordinal": 420,
+      "label": "I am testing shadow __nano_module___18_resource_check_annotation",
+      "next_label": "I am testing shadow __nano_module___18_resource_flow_block",
+      "receipt_interval_seconds": 6.225e-05
+    },
+    {
+      "ordinal": 421,
+      "label": "I am testing shadow __nano_module___18_resource_flow_block",
+      "next_label": "I am testing shadow __nano_module___18_resource_union_index",
+      "receipt_interval_seconds": 1.2584e-05
+    },
+    {
+      "ordinal": 422,
+      "label": "I am testing shadow __nano_module___18_resource_union_index",
+      "next_label": "I am testing shadow __nano_module___18_resource_selected_identity",
+      "receipt_interval_seconds": 8.666e-06
+    },
+    {
+      "ordinal": 423,
+      "label": "I am testing shadow __nano_module___18_resource_selected_identity",
+      "next_label": "I am testing shadow __nano_module___18_resource_owned_union_index",
+      "receipt_interval_seconds": 7.084e-06
+    },
+    {
+      "ordinal": 424,
+      "label": "I am testing shadow __nano_module___18_resource_owned_union_index",
+      "next_label": "I am testing shadow __nano_module___18_resource_guard_preserves",
+      "receipt_interval_seconds": 3.6625e-05
+    },
+    {
+      "ordinal": 425,
+      "label": "I am testing shadow __nano_module___18_resource_guard_preserves",
+      "next_label": "I am testing shadow __nano_module___18_resource_match_supported",
+      "receipt_interval_seconds": 0.000101875
+    },
+    {
+      "ordinal": 426,
+      "label": "I am testing shadow __nano_module___18_resource_match_supported",
+      "next_label": "I am testing shadow __nano_module___18_resource_parameter_type",
+      "receipt_interval_seconds": 2.2833e-05
+    },
+    {
+      "ordinal": 427,
+      "label": "I am testing shadow __nano_module___18_resource_parameter_type",
+      "next_label": "I am testing shadow __nano_module___18_resource_flow_value",
+      "receipt_interval_seconds": 1.9042e-05
+    },
+    {
+      "ordinal": 428,
+      "label": "I am testing shadow __nano_module___18_resource_flow_value",
+      "next_label": "I am testing shadow __nano_module___18_resource_flow_node",
+      "receipt_interval_seconds": 5.375e-05
+    },
+    {
+      "ordinal": 429,
+      "label": "I am testing shadow __nano_module___18_resource_flow_node",
+      "next_label": "I am testing shadow __nano_module___18_resource_check_global",
+      "receipt_interval_seconds": 2.3208e-05
+    },
+    {
+      "ordinal": 430,
+      "label": "I am testing shadow __nano_module___18_resource_check_global",
+      "next_label": "I am testing shadow __nano_module___18_resource_check_function",
+      "receipt_interval_seconds": 8.1292e-05
+    },
+    {
+      "ordinal": 431,
+      "label": "I am testing shadow __nano_module___18_resource_check_function",
+      "next_label": "I am testing shadow __nano_module___18_type_int",
+      "receipt_interval_seconds": 3.2291e-05
+    },
+    {
+      "ordinal": 432,
+      "label": "I am testing shadow __nano_module___18_type_int",
+      "next_label": "I am testing shadow __nano_module___18_type_float",
+      "receipt_interval_seconds": 1.4709e-05
+    },
+    {
+      "ordinal": 433,
+      "label": "I am testing shadow __nano_module___18_type_float",
+      "next_label": "I am testing shadow __nano_module___18_type_bool",
+      "receipt_interval_seconds": 7.208e-06
+    },
+    {
+      "ordinal": 434,
+      "label": "I am testing shadow __nano_module___18_type_bool",
+      "next_label": "I am testing shadow __nano_module___18_type_string",
+      "receipt_interval_seconds": 6.458e-06
+    },
+    {
+      "ordinal": 435,
+      "label": "I am testing shadow __nano_module___18_type_string",
+      "next_label": "I am testing shadow __nano_module___18_type_void",
+      "receipt_interval_seconds": 6.834e-06
+    },
+    {
+      "ordinal": 436,
+      "label": "I am testing shadow __nano_module___18_type_void",
+      "next_label": "I am testing shadow __nano_module___18_type_unknown_named",
+      "receipt_interval_seconds": 6.5e-06
+    },
+    {
+      "ordinal": 437,
+      "label": "I am testing shadow __nano_module___18_type_unknown_named",
+      "next_label": "I am testing shadow __nano_module___18_type_from_kind",
+      "receipt_interval_seconds": 7.458e-06
+    },
+    {
+      "ordinal": 438,
+      "label": "I am testing shadow __nano_module___18_type_from_kind",
+      "next_label": "I am testing shadow __nano_module___18_init_struct_metadata",
+      "receipt_interval_seconds": 6.583e-06
+    },
+    {
+      "ordinal": 439,
+      "label": "I am testing shadow __nano_module___18_init_struct_metadata",
+      "next_label": "I am testing shadow __nano_module___18_capitalize_first",
+      "receipt_interval_seconds": 7.9e-05
+    },
+    {
+      "ordinal": 440,
+      "label": "I am testing shadow __nano_module___18_capitalize_first",
+      "next_label": "I am testing shadow __nano_module___18_extract_user_struct_metadata",
+      "receipt_interval_seconds": 9.209e-06
+    },
+    {
+      "ordinal": 441,
+      "label": "I am testing shadow __nano_module___18_extract_user_struct_metadata",
+      "next_label": "I am testing shadow __nano_module___18_merge_struct_metadata",
+      "receipt_interval_seconds": 6.583e-06
+    },
+    {
+      "ordinal": 442,
+      "label": "I am testing shadow __nano_module___18_merge_struct_metadata",
+      "next_label": "I am testing shadow __nano_module___18_field_metadata_key",
+      "receipt_interval_seconds": 6.375e-06
+    },
+    {
+      "ordinal": 443,
+      "label": "I am testing shadow __nano_module___18_field_metadata_key",
+      "next_label": "I am testing shadow __nano_module___18_field_metadata_type_string",
+      "receipt_interval_seconds": 6.25e-06
+    },
+    {
+      "ordinal": 444,
+      "label": "I am testing shadow __nano_module___18_field_metadata_type_string",
+      "next_label": "I am testing shadow __nano_module___18_build_field_metadata_index",
+      "receipt_interval_seconds": 9.833e-06
+    },
+    {
+      "ordinal": 445,
+      "label": "I am testing shadow __nano_module___18_build_field_metadata_index",
+      "next_label": "I am testing shadow __nano_module___18_lookup_field_type_kind",
+      "receipt_interval_seconds": 5.0459e-05
+    },
+    {
+      "ordinal": 446,
+      "label": "I am testing shadow __nano_module___18_lookup_field_type_kind",
+      "next_label": "I am testing shadow __nano_module___18_lookup_field_type",
+      "receipt_interval_seconds": 8.5625e-05
+    },
+    {
+      "ordinal": 447,
+      "label": "I am testing shadow __nano_module___18_lookup_field_type",
+      "next_label": "I am testing shadow __nano_module___18_option_type_some",
+      "receipt_interval_seconds": 8.2208e-05
+    },
+    {
+      "ordinal": 448,
+      "label": "I am testing shadow __nano_module___18_option_type_some",
+      "next_label": "I am testing shadow __nano_module___18_option_type_none",
+      "receipt_interval_seconds": 1.0917e-05
+    },
+    {
+      "ordinal": 449,
+      "label": "I am testing shadow __nano_module___18_option_type_none",
+      "next_label": "I am testing shadow __nano_module___18_type_kind_from_string",
+      "receipt_interval_seconds": 7.166e-06
+    },
+    {
+      "ordinal": 450,
+      "label": "I am testing shadow __nano_module___18_type_kind_from_string",
+      "next_label": "I am testing shadow __nano_module___18_type_array",
+      "receipt_interval_seconds": 6.542e-06
+    },
+    {
+      "ordinal": 451,
+      "label": "I am testing shadow __nano_module___18_type_array",
+      "next_label": "I am testing shadow __nano_module___18_type_array_of",
+      "receipt_interval_seconds": 6e-06
+    },
+    {
+      "ordinal": 452,
+      "label": "I am testing shadow __nano_module___18_type_array_of",
+      "next_label": "I am testing shadow __nano_module___18_type_list_generic",
+      "receipt_interval_seconds": 6.25e-06
+    },
+    {
+      "ordinal": 453,
+      "label": "I am testing shadow __nano_module___18_type_list_generic",
+      "next_label": "I am testing shadow __nano_module___18_type_union",
+      "receipt_interval_seconds": 7.25e-06
+    },
+    {
+      "ordinal": 454,
+      "label": "I am testing shadow __nano_module___18_type_union",
+      "next_label": "I am testing shadow __nano_module___18_type_tuple",
+      "receipt_interval_seconds": 6.375e-06
+    },
+    {
+      "ordinal": 455,
+      "label": "I am testing shadow __nano_module___18_type_tuple",
+      "next_label": "I am testing shadow __nano_module___18_strip_spaces",
+      "receipt_interval_seconds": 7.042e-06
+    },
+    {
+      "ordinal": 456,
+      "label": "I am testing shadow __nano_module___18_strip_spaces",
+      "next_label": "I am testing shadow __nano_module___18_types_equal",
+      "receipt_interval_seconds": 7.5e-06
+    },
+    {
+      "ordinal": 457,
+      "label": "I am testing shadow __nano_module___18_types_equal",
+      "next_label": "I am testing shadow __nano_module___18_fn_type_return_type",
+      "receipt_interval_seconds": 3.2958e-05
+    },
+    {
+      "ordinal": 458,
+      "label": "I am testing shadow __nano_module___18_fn_type_return_type",
+      "next_label": "I am testing shadow __nano_module___18_fn_type_param_types",
+      "receipt_interval_seconds": 2.4e-05
+    },
+    {
+      "ordinal": 459,
+      "label": "I am testing shadow __nano_module___18_fn_type_param_types",
+      "next_label": "I am testing shadow __nano_module___18_split_tuple_type_names",
+      "receipt_interval_seconds": 8.125e-06
+    },
+    {
+      "ordinal": 460,
+      "label": "I am testing shadow __nano_module___18_split_tuple_type_names",
+      "next_label": "I am testing shadow __nano_module___18_tuple_type_string_from_literal",
+      "receipt_interval_seconds": 7.375e-06
+    },
+    {
+      "ordinal": 461,
+      "label": "I am testing shadow __nano_module___18_tuple_type_string_from_literal",
+      "next_label": "I am testing shadow __nano_module___18_base_type_name",
+      "receipt_interval_seconds": 6.958e-06
+    },
+    {
+      "ordinal": 462,
+      "label": "I am testing shadow __nano_module___18_base_type_name",
+      "next_label": "I am testing shadow __nano_module___18_is_union_name",
+      "receipt_interval_seconds": 6.542e-06
+    },
+    {
+      "ordinal": 463,
+      "label": "I am testing shadow __nano_module___18_is_union_name",
+      "next_label": "I am testing shadow __nano_module___18_is_enum_name",
+      "receipt_interval_seconds": 6.208e-06
+    },
+    {
+      "ordinal": 464,
+      "label": "I am testing shadow __nano_module___18_is_enum_name",
+      "next_label": "I am testing shadow __nano_module___18_tc_is_opaque_name",
+      "receipt_interval_seconds": 6.25e-06
+    },
+    {
+      "ordinal": 465,
+      "label": "I am testing shadow __nano_module___18_tc_is_opaque_name",
+      "next_label": "I am testing shadow __nano_module___18_type_from_string_with_parser",
+      "receipt_interval_seconds": 6.459e-06
+    },
+    {
+      "ordinal": 466,
+      "label": "I am testing shadow __nano_module___18_type_from_string_with_parser",
+      "next_label": "I am testing shadow __nano_module___18_fn_type_params_with_parser",
+      "receipt_interval_seconds": 6.333e-06
+    },
+    {
+      "ordinal": 467,
+      "label": "I am testing shadow __nano_module___18_fn_type_params_with_parser",
+      "next_label": "I am testing shadow __nano_module___18_tc_str_index_of",
+      "receipt_interval_seconds": 1.1e-05
+    },
+    {
+      "ordinal": 468,
+      "label": "I am testing shadow __nano_module___18_tc_str_index_of",
+      "next_label": "I am testing shadow __nano_module___18_extract_list_element_type",
+      "receipt_interval_seconds": 6.875e-06
+    },
+    {
+      "ordinal": 469,
+      "label": "I am testing shadow __nano_module___18_extract_list_element_type",
+      "next_label": "I am testing shadow __nano_module___18_tc_str_starts_with",
+      "receipt_interval_seconds": 7.542e-06
+    },
+    {
+      "ordinal": 470,
+      "label": "I am testing shadow __nano_module___18_tc_str_starts_with",
+      "next_label": "I am testing shadow __nano_module___18_tc_str_last_index_of",
+      "receipt_interval_seconds": 6.25e-06
+    },
+    {
+      "ordinal": 471,
+      "label": "I am testing shadow __nano_module___18_tc_str_last_index_of",
+      "next_label": "I am testing shadow __nano_module___18_check_list_function_call",
+      "receipt_interval_seconds": 7.25e-06
+    },
+    {
+      "ordinal": 472,
+      "label": "I am testing shadow __nano_module___18_check_list_function_call",
+      "next_label": "I am testing shadow __nano_module___18_checked_list_operation",
+      "receipt_interval_seconds": 6.375e-06
+    },
+    {
+      "ordinal": 473,
+      "label": "I am testing shadow __nano_module___18_checked_list_operation",
+      "next_label": "I am testing shadow __nano_module___18_checked_list_element",
+      "receipt_interval_seconds": 5.958e-06
+    },
+    {
+      "ordinal": 474,
+      "label": "I am testing shadow __nano_module___18_checked_list_element",
+      "next_label": "I am testing shadow __nano_module___18_check_exact_list_call",
+      "receipt_interval_seconds": 0.000339167
+    },
+    {
+      "ordinal": 475,
+      "label": "I am testing shadow __nano_module___18_check_exact_list_call",
+      "next_label": "I am testing shadow __nano_module___18_check_trim_call",
+      "receipt_interval_seconds": 0.000298416
+    },
+    {
+      "ordinal": 476,
+      "label": "I am testing shadow __nano_module___18_check_trim_call",
+      "next_label": "I am testing shadow __nano_module___18_is_builtin_function",
+      "receipt_interval_seconds": 3.0667e-05
+    },
+    {
+      "ordinal": 477,
+      "label": "I am testing shadow __nano_module___18_is_builtin_function",
+      "next_label": "I am testing shadow __nano_module___18_type_u8_array",
+      "receipt_interval_seconds": 2.6083e-05
+    },
+    {
+      "ordinal": 478,
+      "label": "I am testing shadow __nano_module___18_type_u8_array",
+      "next_label": "I am testing shadow __nano_module___18_check_builtin_function",
+      "receipt_interval_seconds": 1.2417e-05
+    },
+    {
+      "ordinal": 479,
+      "label": "I am testing shadow __nano_module___18_check_builtin_function",
+      "next_label": "I am testing shadow __nano_module___18_extract_list_type_from_function",
+      "receipt_interval_seconds": 8.667e-06
+    },
+    {
+      "ordinal": 480,
+      "label": "I am testing shadow __nano_module___18_extract_list_type_from_function",
+      "next_label": "I am testing shadow __nano_module___18_type_from_element_name",
+      "receipt_interval_seconds": 7.708e-06
+    },
+    {
+      "ordinal": 481,
+      "label": "I am testing shadow __nano_module___18_type_from_element_name",
+      "next_label": "I am testing shadow __nano_module___18_type_from_string",
+      "receipt_interval_seconds": 2.2625e-05
+    },
+    {
+      "ordinal": 482,
+      "label": "I am testing shadow __nano_module___18_type_from_string",
+      "next_label": "I am testing shadow __nano_module___18_type_kind_to_string",
+      "receipt_interval_seconds": 1.55e-05
+    },
+    {
+      "ordinal": 483,
+      "label": "I am testing shadow __nano_module___18_type_kind_to_string",
+      "next_label": "I am testing shadow __nano_module___18_type_to_string",
+      "receipt_interval_seconds": 6.958e-06
+    },
+    {
+      "ordinal": 484,
+      "label": "I am testing shadow __nano_module___18_type_to_string",
+      "next_label": "I am testing shadow __nano_module___18_env_new",
+      "receipt_interval_seconds": 9.834e-06
+    },
+    {
+      "ordinal": 485,
+      "label": "I am testing shadow __nano_module___18_env_new",
+      "next_label": "I am testing shadow __nano_module___18_symbol_new",
+      "receipt_interval_seconds": 7.583e-06
+    },
+    {
+      "ordinal": 486,
+      "label": "I am testing shadow __nano_module___18_symbol_new",
+      "next_label": "I am testing shadow __nano_module___18_empty_param_types",
+      "receipt_interval_seconds": 2.9125e-05
+    },
+    {
+      "ordinal": 487,
+      "label": "I am testing shadow __nano_module___18_empty_param_types",
+      "next_label": "I am testing shadow __nano_module___18_env_add_symbol",
+      "receipt_interval_seconds": 9.583e-06
+    },
+    {
+      "ordinal": 488,
+      "label": "I am testing shadow __nano_module___18_env_add_symbol",
+      "next_label": "I am testing shadow __nano_module___18_env_copy_symbols",
+      "receipt_interval_seconds": 7.709e-06
+    },
+    {
+      "ordinal": 489,
+      "label": "I am testing shadow __nano_module___18_env_copy_symbols",
+      "next_label": "I am testing shadow __nano_module___18_typecheck_local_lets",
+      "receipt_interval_seconds": 7.125e-06
+    },
+    {
+      "ordinal": 490,
+      "label": "I am testing shadow __nano_module___18_typecheck_local_lets",
+      "next_label": "I am testing shadow __nano_module___18_last_index_of_dot",
+      "receipt_interval_seconds": 7.416e-06
+    },
+    {
+      "ordinal": 491,
+      "label": "I am testing shadow __nano_module___18_last_index_of_dot",
+      "next_label": "I am testing shadow __nano_module___18_module_qualified_suffix",
+      "receipt_interval_seconds": 6.709e-06
+    },
+    {
+      "ordinal": 492,
+      "label": "I am testing shadow __nano_module___18_module_qualified_suffix",
+      "next_label": "I am testing shadow __nano_module___18_tc_str_ends_with",
+      "receipt_interval_seconds": 6.208e-06
+    },
+    {
+      "ordinal": 493,
+      "label": "I am testing shadow __nano_module___18_tc_str_ends_with",
+      "next_label": "I am testing shadow __nano_module___18_env_lookup",
+      "receipt_interval_seconds": 6.5e-06
+    },
+    {
+      "ordinal": 494,
+      "label": "I am testing shadow __nano_module___18_env_lookup",
+      "next_label": "I am testing shadow __nano_module___18_env_has_symbol",
+      "receipt_interval_seconds": 7.25e-06
+    },
+    {
+      "ordinal": 495,
+      "label": "I am testing shadow __nano_module___18_env_has_symbol",
+      "next_label": "I am testing shadow __nano_module___18_env_get_type",
+      "receipt_interval_seconds": 7.125e-06
+    },
+    {
+      "ordinal": 496,
+      "label": "I am testing shadow __nano_module___18_env_get_type",
+      "next_label": "I am testing shadow __nano_module___18_check_number_literal",
+      "receipt_interval_seconds": 6.208e-06
+    },
+    {
+      "ordinal": 497,
+      "label": "I am testing shadow __nano_module___18_check_number_literal",
+      "next_label": "I am testing shadow __nano_module___18_check_string_literal",
+      "receipt_interval_seconds": 6.334e-06
+    },
+    {
+      "ordinal": 498,
+      "label": "I am testing shadow __nano_module___18_check_string_literal",
+      "next_label": "I am testing shadow __nano_module___18_check_bool_literal",
+      "receipt_interval_seconds": 1.2583e-05
+    },
+    {
+      "ordinal": 499,
+      "label": "I am testing shadow __nano_module___18_check_bool_literal",
+      "next_label": "I am testing shadow __nano_module___18_array_arithmetic_element",
+      "receipt_interval_seconds": 6.917e-06
+    },
+    {
+      "ordinal": 500,
+      "label": "I am testing shadow __nano_module___18_array_arithmetic_element",
+      "next_label": "I am testing shadow __nano_module___18_array_arithmetic_selected",
+      "receipt_interval_seconds": 6.041e-06
+    },
+    {
+      "ordinal": 501,
+      "label": "I am testing shadow __nano_module___18_array_arithmetic_selected",
+      "next_label": "I am testing shadow __nano_module___18_array_arithmetic_matches",
+      "receipt_interval_seconds": 6.125e-06
+    },
+    {
+      "ordinal": 502,
+      "label": "I am testing shadow __nano_module___18_array_arithmetic_matches",
+      "next_label": "I am testing shadow __nano_module___18_check_binary_op",
+      "receipt_interval_seconds": 6.125e-06
+    },
+    {
+      "ordinal": 503,
+      "label": "I am testing shadow __nano_module___18_check_binary_op",
+      "next_label": "I am testing shadow __nano_module___18_op_token_to_string",
+      "receipt_interval_seconds": 6.375e-06
+    },
+    {
+      "ordinal": 504,
+      "label": "I am testing shadow __nano_module___18_op_token_to_string",
+      "next_label": "I am testing shadow __nano_module___18_ensure_known_expr_node",
+      "receipt_interval_seconds": 6.042e-06
+    },
+    {
+      "ordinal": 505,
+      "label": "I am testing shadow __nano_module___18_ensure_known_expr_node",
+      "next_label": "I am testing shadow __nano_module___18_check_constructor_argument",
+      "receipt_interval_seconds": 7.167e-06
+    },
+    {
+      "ordinal": 506,
+      "label": "I am testing shadow __nano_module___18_check_constructor_argument",
+      "next_label": "I am testing shadow __nano_module___18_record_field_types_known",
+      "receipt_interval_seconds": 7.583e-06
+    },
+    {
+      "ordinal": 507,
+      "label": "I am testing shadow __nano_module___18_record_field_types_known",
+      "next_label": "I am testing shadow __nano_module___18_check_record_field_value",
+      "receipt_interval_seconds": 6.917e-06
+    },
+    {
+      "ordinal": 508,
+      "label": "I am testing shadow __nano_module___18_check_record_field_value",
+      "next_label": "I am testing shadow __nano_module___18_check_array_new_call",
+      "receipt_interval_seconds": 6.583e-06
+    },
+    {
+      "ordinal": 509,
+      "label": "I am testing shadow __nano_module___18_check_array_new_call",
+      "next_label": "I am testing shadow __nano_module___18_check_struct_literal",
+      "receipt_interval_seconds": 6.208e-06
+    },
+    {
+      "ordinal": 510,
+      "label": "I am testing shadow __nano_module___18_check_struct_literal",
+      "next_label": "I am testing shadow __nano_module___18_check_union_construct",
+      "receipt_interval_seconds": 6.917e-06
+    },
+    {
+      "ordinal": 511,
+      "label": "I am testing shadow __nano_module___18_check_union_construct",
+      "next_label": "I am testing shadow __nano_module___18_check_match_coverage",
+      "receipt_interval_seconds": 2.8625e-05
+    },
+    {
+      "ordinal": 512,
+      "label": "I am testing shadow __nano_module___18_check_match_coverage",
+      "next_label": "I am testing shadow __nano_module___18_check_match_value",
+      "receipt_interval_seconds": 2.8583e-05
+    },
+    {
+      "ordinal": 513,
+      "label": "I am testing shadow __nano_module___18_check_match_value",
+      "next_label": "I am testing shadow __nano_module___18_check_match_expr",
+      "receipt_interval_seconds": 2.3e-05
+    },
+    {
+      "ordinal": 514,
+      "label": "I am testing shadow __nano_module___18_check_match_expr",
+      "next_label": "I am testing shadow __nano_module___18_check_variant_field_type",
+      "receipt_interval_seconds": 0.000305667
+    },
+    {
+      "ordinal": 515,
+      "label": "I am testing shadow __nano_module___18_check_variant_field_type",
+      "next_label": "I am testing shadow __nano_module___18_tc_bound_name",
+      "receipt_interval_seconds": 3.0333e-05
+    },
+    {
+      "ordinal": 516,
+      "label": "I am testing shadow __nano_module___18_tc_bound_name",
+      "next_label": "I am testing shadow __nano_module___18_reduce_type_known",
+      "receipt_interval_seconds": 1.2167e-05
+    },
+    {
+      "ordinal": 517,
+      "label": "I am testing shadow __nano_module___18_reduce_type_known",
+      "next_label": "I am testing shadow __nano_module___18_reduce_types_exact",
+      "receipt_interval_seconds": 3.5875e-05
+    },
+    {
+      "ordinal": 518,
+      "label": "I am testing shadow __nano_module___18_reduce_types_exact",
+      "next_label": "I am testing shadow __nano_module___18_check_reduce_call",
+      "receipt_interval_seconds": 4.8625e-05
+    },
+    {
+      "ordinal": 519,
+      "label": "I am testing shadow __nano_module___18_check_reduce_call",
+      "next_label": "I am testing shadow __nano_module___18_checked_value_errors",
+      "receipt_interval_seconds": 2.2125e-05
+    },
+    {
+      "ordinal": 520,
+      "label": "I am testing shadow __nano_module___18_checked_value_errors",
+      "next_label": "I am testing shadow __nano_module___18_checked_value",
+      "receipt_interval_seconds": 9.458e-06
+    },
+    {
+      "ordinal": 521,
+      "label": "I am testing shadow __nano_module___18_checked_value",
+      "next_label": "I am testing shadow __nano_module___18_array_element_fact",
+      "receipt_interval_seconds": 7.875e-06
+    },
+    {
+      "ordinal": 522,
+      "label": "I am testing shadow __nano_module___18_array_element_fact",
+      "next_label": "I am testing shadow __nano_module___18_merge_literal_types",
+      "receipt_interval_seconds": 8.834e-06
+    },
+    {
+      "ordinal": 523,
+      "label": "I am testing shadow __nano_module___18_merge_literal_types",
+      "next_label": "I am testing shadow __nano_module___18_join_checked_values",
+      "receipt_interval_seconds": 7.958e-06
+    },
+    {
+      "ordinal": 524,
+      "label": "I am testing shadow __nano_module___18_join_checked_values",
+      "next_label": "I am testing shadow __nano_module___18_check_literal_facts",
+      "receipt_interval_seconds": 7.25e-06
+    },
+    {
+      "ordinal": 525,
+      "label": "I am testing shadow __nano_module___18_check_literal_facts",
+      "next_label": "I am testing shadow __nano_module___18_check_value_facts",
+      "receipt_interval_seconds": 7.542e-06
+    },
+    {
+      "ordinal": 526,
+      "label": "I am testing shadow __nano_module___18_check_value_facts",
+      "next_label": "I am testing shadow __nano_module___18_check_if_value",
+      "receipt_interval_seconds": 8.291e-06
+    },
+    {
+      "ordinal": 527,
+      "label": "I am testing shadow __nano_module___18_check_if_value",
+      "next_label": "I am testing shadow __nano_module___18_check_map_call",
+      "receipt_interval_seconds": 1.7375e-05
+    },
+    {
+      "ordinal": 528,
+      "label": "I am testing shadow __nano_module___18_check_map_call",
+      "next_label": "I am testing shadow __nano_module___18_check_map_call",
+      "receipt_interval_seconds": 1.4125e-05
+    },
+    {
+      "ordinal": 529,
+      "label": "I am testing shadow __nano_module___18_check_map_call",
+      "next_label": "I am testing shadow __nano_module___18_array_intrinsic_name",
+      "receipt_interval_seconds": 3.9709e-05
+    },
+    {
+      "ordinal": 530,
+      "label": "I am testing shadow __nano_module___18_array_intrinsic_name",
+      "next_label": "I am testing shadow __nano_module___18_check_array_operation",
+      "receipt_interval_seconds": 1.0083e-05
+    },
+    {
+      "ordinal": 531,
+      "label": "I am testing shadow __nano_module___18_check_array_operation",
+      "next_label": "I am testing shadow __nano_module___18_check_expr_node",
+      "receipt_interval_seconds": 1.8958e-05
+    },
+    {
+      "ordinal": 532,
+      "label": "I am testing shadow __nano_module___18_check_expr_node",
+      "next_label": "I am testing shadow __nano_module___18_typecheck_return_expr",
+      "receipt_interval_seconds": 0.000650167
+    },
+    {
+      "ordinal": 533,
+      "label": "I am testing shadow __nano_module___18_typecheck_return_expr",
+      "next_label": "I am testing shadow __nano_module___18_array_elem_type_from_array_decl",
+      "receipt_interval_seconds": 1.675e-05
+    },
+    {
+      "ordinal": 534,
+      "label": "I am testing shadow __nano_module___18_array_elem_type_from_array_decl",
+      "next_label": "I am testing shadow __nano_module___18_owned_pattern_complete",
+      "receipt_interval_seconds": 7.542e-06
+    },
+    {
+      "ordinal": 535,
+      "label": "I am testing shadow __nano_module___18_owned_pattern_complete",
+      "next_label": "I am testing shadow __nano_module___18_check_let_statement",
+      "receipt_interval_seconds": 7.2583e-05
+    },
+    {
+      "ordinal": 536,
+      "label": "I am testing shadow __nano_module___18_check_let_statement",
+      "next_label": "I am testing shadow __nano_module___18_check_return_statement",
+      "receipt_interval_seconds": 9.4667e-05
+    },
+    {
+      "ordinal": 537,
+      "label": "I am testing shadow __nano_module___18_check_return_statement",
+      "next_label": "I am testing shadow __nano_module___18_check_set_statement",
+      "receipt_interval_seconds": 1.4458e-05
+    },
+    {
+      "ordinal": 538,
+      "label": "I am testing shadow __nano_module___18_check_set_statement",
+      "next_label": "I am testing shadow __nano_module___18_expr_kind_from_pnode",
+      "receipt_interval_seconds": 7.25e-06
+    },
+    {
+      "ordinal": 539,
+      "label": "I am testing shadow __nano_module___18_expr_kind_from_pnode",
+      "next_label": "I am testing shadow __nano_module___18_par_scalar_expr",
+      "receipt_interval_seconds": 1.3458e-05
+    },
+    {
+      "ordinal": 540,
+      "label": "I am testing shadow __nano_module___18_par_scalar_expr",
+      "next_label": "I am testing shadow __nano_module___18_check_flow_statement",
+      "receipt_interval_seconds": 7.834e-06
+    },
+    {
+      "ordinal": 541,
+      "label": "I am testing shadow __nano_module___18_check_flow_statement",
+      "next_label": "I am testing shadow __nano_module___18_check_par_statement",
+      "receipt_interval_seconds": 2.6833e-05
+    },
+    {
+      "ordinal": 542,
+      "label": "I am testing shadow __nano_module___18_check_par_statement",
+      "next_label": "I am testing shadow __nano_module___18_check_statement_values",
+      "receipt_interval_seconds": 5.7625e-05
+    },
+    {
+      "ordinal": 543,
+      "label": "I am testing shadow __nano_module___18_check_statement_values",
+      "next_label": "I am testing shadow __nano_module___18_check_statement_values",
+      "receipt_interval_seconds": 1.9333e-05
+    },
+    {
+      "ordinal": 544,
+      "label": "I am testing shadow __nano_module___18_check_statement_values",
+      "next_label": "I am testing shadow __nano_module___18_check_block_value",
+      "receipt_interval_seconds": 0.000262584
+    },
+    {
+      "ordinal": 545,
+      "label": "I am testing shadow __nano_module___18_check_block_value",
+      "next_label": "I am testing shadow __nano_module___18_check_statement_list",
+      "receipt_interval_seconds": 7.4416e-05
+    },
+    {
+      "ordinal": 546,
+      "label": "I am testing shadow __nano_module___18_check_statement_list",
+      "next_label": "I am testing shadow __nano_module___18_check_statement_list",
+      "receipt_interval_seconds": 1.3542e-05
+    },
+    {
+      "ordinal": 547,
+      "label": "I am testing shadow __nano_module___18_check_statement_list",
+      "next_label": "I am testing shadow __nano_module___18_check_block",
+      "receipt_interval_seconds": 3.1792e-05
+    },
+    {
+      "ordinal": 548,
+      "label": "I am testing shadow __nano_module___18_check_block",
+      "next_label": "I am testing shadow __nano_module___18_scalar_borrow_shape",
+      "receipt_interval_seconds": 6.575e-05
+    },
+    {
+      "ordinal": 549,
+      "label": "I am testing shadow __nano_module___18_scalar_borrow_shape",
+      "next_label": "I am testing shadow __nano_module___18_check_function",
+      "receipt_interval_seconds": 1.3083e-05
+    },
+    {
+      "ordinal": 550,
+      "label": "I am testing shadow __nano_module___18_check_function",
+      "next_label": "I am testing shadow __nano_module___18_typecheck_output",
+      "receipt_interval_seconds": 7.917e-06
+    },
+    {
+      "ordinal": 551,
+      "label": "I am testing shadow __nano_module___18_typecheck_output",
+      "next_label": "I am testing shadow __nano_module___18_check_contextual_value",
+      "receipt_interval_seconds": 2.5791e-05
+    },
+    {
+      "ordinal": 552,
+      "label": "I am testing shadow __nano_module___18_check_contextual_value",
+      "next_label": "I am testing shadow __nano_module___18_check_contextual_value",
+      "receipt_interval_seconds": 2.125e-05
+    },
+    {
+      "ordinal": 553,
+      "label": "I am testing shadow __nano_module___18_check_contextual_value",
+      "next_label": "I am testing shadow __nano_module___18_apply_value_type_hint",
+      "receipt_interval_seconds": 3.2375e-05
+    },
+    {
+      "ordinal": 554,
+      "label": "I am testing shadow __nano_module___18_apply_value_type_hint",
+      "next_label": "I am testing shadow __nano_module___18_apply_return_type_hint",
+      "receipt_interval_seconds": 1.4959e-05
+    },
+    {
+      "ordinal": 555,
+      "label": "I am testing shadow __nano_module___18_apply_return_type_hint",
+      "next_label": "I am testing shadow __nano_module___18_typecheck_phase",
+      "receipt_interval_seconds": 7.541e-06
+    },
+    {
+      "ordinal": 556,
+      "label": "I am testing shadow __nano_module___18_typecheck_phase",
+      "next_label": "I am testing shadow __nano_module___18_purity_join",
+      "receipt_interval_seconds": 6.375e-06
+    },
+    {
+      "ordinal": 557,
+      "label": "I am testing shadow __nano_module___18_purity_join",
+      "next_label": "I am testing shadow __nano_module___18_purity_local",
+      "receipt_interval_seconds": 6.375e-06
+    },
+    {
+      "ordinal": 558,
+      "label": "I am testing shadow __nano_module___18_purity_local",
+      "next_label": "I am testing shadow __nano_module___18_purity_add",
+      "receipt_interval_seconds": 6.209e-06
+    },
+    {
+      "ordinal": 559,
+      "label": "I am testing shadow __nano_module___18_purity_add",
+      "next_label": "I am testing shadow __nano_module___18_purity_type",
+      "receipt_interval_seconds": 6.875e-06
+    },
+    {
+      "ordinal": 560,
+      "label": "I am testing shadow __nano_module___18_purity_type",
+      "next_label": "I am testing shadow __nano_module___18_purity_input_value",
+      "receipt_interval_seconds": 6.666e-06
+    },
+    {
+      "ordinal": 561,
+      "label": "I am testing shadow __nano_module___18_purity_input_value",
+      "next_label": "I am testing shadow __nano_module___18_purity_identifier",
+      "receipt_interval_seconds": 2.6209e-05
+    },
+    {
+      "ordinal": 562,
+      "label": "I am testing shadow __nano_module___18_purity_identifier",
+      "next_label": "I am testing shadow __nano_module___18_purity_call",
+      "receipt_interval_seconds": 1.0458e-05
+    },
+    {
+      "ordinal": 563,
+      "label": "I am testing shadow __nano_module___18_purity_call",
+      "next_label": "I am testing shadow __nano_module___18_purity_node",
+      "receipt_interval_seconds": 7.833e-06
+    },
+    {
+      "ordinal": 564,
+      "label": "I am testing shadow __nano_module___18_purity_node",
+      "next_label": "I am testing shadow __nano_module___18_purity_function",
+      "receipt_interval_seconds": 5.7167e-05
+    },
+    {
+      "ordinal": 565,
+      "label": "I am testing shadow __nano_module___18_purity_function",
+      "next_label": "I am testing shadow __nano_module___18_purity_summary",
+      "receipt_interval_seconds": 1.0042e-05
+    },
+    {
+      "ordinal": 566,
+      "label": "I am testing shadow __nano_module___18_purity_summary",
+      "next_label": "I am testing shadow __nano_module___18_typecheck_phase_with_symbols",
+      "receipt_interval_seconds": 2.1791e-05
+    },
+    {
+      "ordinal": 567,
+      "label": "I am testing shadow __nano_module___18_typecheck_phase_with_symbols",
+      "next_label": "I am testing shadow __nano_module___18_typecheck_phase_with_shadows",
+      "receipt_interval_seconds": 2.2917e-05
+    },
+    {
+      "ordinal": 568,
+      "label": "I am testing shadow __nano_module___18_typecheck_phase_with_shadows",
+      "next_label": "I am testing shadow __nano_module___18_typecheck_parser",
+      "receipt_interval_seconds": 5.5708e-05
+    },
+    {
+      "ordinal": 569,
+      "label": "I am testing shadow __nano_module___18_typecheck_parser",
+      "next_label": "I am testing shadow __nano_module___18_typecheck_with_count",
+      "receipt_interval_seconds": 1.4042e-05
+    },
+    {
+      "ordinal": 570,
+      "label": "I am testing shadow __nano_module___18_typecheck_with_count",
+      "next_label": "I am testing shadow __nano_module___18_typecheck",
+      "receipt_interval_seconds": 6.958e-06
+    },
+    {
+      "ordinal": 571,
+      "label": "I am testing shadow __nano_module___18_typecheck",
+      "next_label": "I am testing shadow __nano_module___19_gen_binary64_format_runtime",
+      "receipt_interval_seconds": 7.667e-06
+    },
+    {
+      "ordinal": 572,
+      "label": "I am testing shadow __nano_module___19_gen_binary64_format_runtime",
+      "next_label": "I am testing shadow __nano_module___20_gen_binary64_arithmetic_runtime",
+      "receipt_interval_seconds": 6.458e-06
+    },
+    {
+      "ordinal": 573,
+      "label": "I am testing shadow __nano_module___20_gen_binary64_arithmetic_runtime",
+      "next_label": "I am testing shadow __nano_module___21_register_extern_names",
+      "receipt_interval_seconds": 8.042e-06
+    },
+    {
+      "ordinal": 574,
+      "label": "I am testing shadow __nano_module___21_register_extern_names",
+      "next_label": "I am testing shadow __nano_module___21_would_collide_with_extern",
+      "receipt_interval_seconds": 7.042e-06
+    },
+    {
+      "ordinal": 575,
+      "label": "I am testing shadow __nano_module___21_would_collide_with_extern",
+      "next_label": "I am testing shadow __nano_module___21_known_opaque_abi",
+      "receipt_interval_seconds": 9.333e-06
+    },
+    {
+      "ordinal": 576,
+      "label": "I am testing shadow __nano_module___21_known_opaque_abi",
+      "next_label": "I am testing shadow __nano_module___21_opaque_c_type",
+      "receipt_interval_seconds": 6.625e-06
+    },
+    {
+      "ordinal": 577,
+      "label": "I am testing shadow __nano_module___21_opaque_c_type",
+      "next_label": "I am testing shadow __nano_module___21_is_opaque_type",
+      "receipt_interval_seconds": 6.5e-06
+    },
+    {
+      "ordinal": 578,
+      "label": "I am testing shadow __nano_module___21_is_opaque_type",
+      "next_label": "I am testing shadow __nano_module___21_native_name_in",
+      "receipt_interval_seconds": 6.25e-06
+    },
+    {
+      "ordinal": 579,
+      "label": "I am testing shadow __nano_module___21_native_name_in",
+      "next_label": "I am testing shadow __nano_module___21_reset_module_aliases",
+      "receipt_interval_seconds": 7.5e-06
+    },
+    {
+      "ordinal": 580,
+      "label": "I am testing shadow __nano_module___21_reset_module_aliases",
+      "next_label": "I am testing shadow __nano_module___21_reset_func_aliases",
+      "receipt_interval_seconds": 2.1333e-05
+    },
+    {
+      "ordinal": 581,
+      "label": "I am testing shadow __nano_module___21_reset_func_aliases",
+      "next_label": "I am testing shadow __nano_module___21_add_module_alias",
+      "receipt_interval_seconds": 1.1125e-05
+    },
+    {
+      "ordinal": 582,
+      "label": "I am testing shadow __nano_module___21_add_module_alias",
+      "next_label": "I am testing shadow __nano_module___21_add_func_alias",
+      "receipt_interval_seconds": 7.084e-06
+    },
+    {
+      "ordinal": 583,
+      "label": "I am testing shadow __nano_module___21_add_func_alias",
+      "next_label": "I am testing shadow __nano_module___21_resolve_module_alias",
+      "receipt_interval_seconds": 7.583e-06
+    },
+    {
+      "ordinal": 584,
+      "label": "I am testing shadow __nano_module___21_resolve_module_alias",
+      "next_label": "I am testing shadow __nano_module___21_resolve_func_alias",
+      "receipt_interval_seconds": 6.5e-06
+    },
+    {
+      "ordinal": 585,
+      "label": "I am testing shadow __nano_module___21_resolve_func_alias",
+      "next_label": "I am testing shadow __nano_module___21_reset_fn_types",
+      "receipt_interval_seconds": 5.958e-06
+    },
+    {
+      "ordinal": 586,
+      "label": "I am testing shadow __nano_module___21_reset_fn_types",
+      "next_label": "I am testing shadow __nano_module___21_register_fn_type",
+      "receipt_interval_seconds": 7.542e-06
+    },
+    {
+      "ordinal": 587,
+      "label": "I am testing shadow __nano_module___21_register_fn_type",
+      "next_label": "I am testing shadow __nano_module___21_parse_fn_type_params",
+      "receipt_interval_seconds": 2.1875e-05
+    },
+    {
+      "ordinal": 588,
+      "label": "I am testing shadow __nano_module___21_parse_fn_type_params",
+      "next_label": "I am testing shadow __nano_module___21_parse_fn_type_return",
+      "receipt_interval_seconds": 7.583e-06
+    },
+    {
+      "ordinal": 589,
+      "label": "I am testing shadow __nano_module___21_parse_fn_type_return",
+      "next_label": "I am testing shadow __nano_module___21_native_fn_typedef",
+      "receipt_interval_seconds": 6.334e-06
+    },
+    {
+      "ordinal": 590,
+      "label": "I am testing shadow __nano_module___21_native_fn_typedef",
+      "next_label": "I am testing shadow __nano_module___21_generate_fn_type_typedefs",
+      "receipt_interval_seconds": 3.2375e-05
+    },
+    {
+      "ordinal": 591,
+      "label": "I am testing shadow __nano_module___21_generate_fn_type_typedefs",
+      "next_label": "I am testing shadow __nano_module___21_is_fn_type",
+      "receipt_interval_seconds": 1.8416e-05
+    },
+    {
+      "ordinal": 592,
+      "label": "I am testing shadow __nano_module___21_is_fn_type",
+      "next_label": "I am testing shadow __nano_module___21_codegen_new",
+      "receipt_interval_seconds": 1.0917e-05
+    },
+    {
+      "ordinal": 593,
+      "label": "I am testing shadow __nano_module___21_codegen_new",
+      "next_label": "I am testing shadow __nano_module___21_gen_indent",
+      "receipt_interval_seconds": 8.667e-06
+    },
+    {
+      "ordinal": 594,
+      "label": "I am testing shadow __nano_module___21_gen_indent",
+      "next_label": "I am testing shadow __nano_module___21_cg_append",
+      "receipt_interval_seconds": 7.291e-06
+    },
+    {
+      "ordinal": 595,
+      "label": "I am testing shadow __nano_module___21_cg_append",
+      "next_label": "I am testing shadow __nano_module___21_cg_build",
+      "receipt_interval_seconds": 7.209e-06
+    },
+    {
+      "ordinal": 596,
+      "label": "I am testing shadow __nano_module___21_cg_build",
+      "next_label": "I am testing shadow __nano_module___21_gen_temp_var",
+      "receipt_interval_seconds": 6.583e-06
+    },
+    {
+      "ordinal": 597,
+      "label": "I am testing shadow __nano_module___21_gen_temp_var",
+      "next_label": "I am testing shadow __nano_module___21_codegen_next_temp",
+      "receipt_interval_seconds": 6.5e-06
+    },
+    {
+      "ordinal": 598,
+      "label": "I am testing shadow __nano_module___21_codegen_next_temp",
+      "next_label": "I am testing shadow __nano_module___21_mangle_name",
+      "receipt_interval_seconds": 6.5e-06
+    },
+    {
+      "ordinal": 599,
+      "label": "I am testing shadow __nano_module___21_mangle_name",
+      "next_label": "I am testing shadow __nano_module___21_transp_str_starts_with",
+      "receipt_interval_seconds": 6.208e-06
+    },
+    {
+      "ordinal": 600,
+      "label": "I am testing shadow __nano_module___21_transp_str_starts_with",
+      "next_label": "I am testing shadow __nano_module___21_transp_str_index_of",
+      "receipt_interval_seconds": 6.167e-06
+    }
+  ]
+}

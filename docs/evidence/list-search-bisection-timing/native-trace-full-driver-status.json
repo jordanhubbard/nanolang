@@ -1,0 +1,24 @@
+{
+  "name": "native-trace-full-driver",
+  "argv": [
+    "/Users/jkh/nanolang-qualification/native-trace-802-owning-source/bin/nanoc_stage1",
+    "src_nano/nanoc_v06.nano",
+    "-o",
+    "/Users/jkh/nanolang-qualification/native-trace-802-owning-report/nanoc_stage2"
+  ],
+  "bound_seconds": 1800,
+  "status": 1,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "reader_finished": true,
+  "seconds": 243.53687191699998,
+  "log": {
+    "sha256": "5bb61f776feb39e32a26ee42952845bc2daf65917869fae1f05284bc2c11c825",
+    "bytes": 69353,
+    "archive": "/Users/jkh/nanolang-qualification/native-trace-802-owning-report/objects/5bb61f776feb39e32a26ee42952845bc2daf65917869fae1f05284bc2c11c825"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

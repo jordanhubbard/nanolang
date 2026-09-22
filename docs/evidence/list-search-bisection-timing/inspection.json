@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/home/jkh/nanolang-qualification/record-lists-802-controlled-source/bin/nanoc_stage1",
+    "--target",
+    "c",
+    "/home/jkh/nanolang-qualification/length-carrier-802-inspection/helper.nano",
+    "-o",
+    "/home/jkh/nanolang-qualification/length-carrier-802-inspection/helper.c"
+  ],
+  "status": 0,
+  "bound": 30,
+  "inputs": [
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-802-controlled-source/bin/nanoc_stage1",
+      "sha256": "4e1b7351b232db5dc8a2622d62dc5c90e81bb27672e3f30ddbc417dc27ff8b03",
+      "bytes": 17886808
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/length-carrier-802-inspection/helper.nano",
+      "sha256": "3bdd2b61fcb2dd595f67223e909a4d6b1d19099be5d866da3a48e1a0ed6b15fe",
+      "bytes": 2224
+    },
+    {
+      "path": "/home/jkh/nanolang-qualification/record-lists-802-controlled-source/src_nano/transpiler.nano",
+      "sha256": "004851b0963b54c7638be5eb3170b6a8fb316e87964b39891e1855cdfb33cec5",
+      "bytes": 505828
+    }
+  ],
+  "output": {
+    "path": "/home/jkh/nanolang-qualification/length-carrier-802-inspection/helper.c",
+    "sha256": "867be840728ca07a49ced8cf9f936fcb176c3979056dee7bea654f572bb9e2db",
+    "bytes": 29991
+  },
+  "scope": "Source emission only; no generated C compilation or execution; exact helper and original full shadow text extracted from802."
+}

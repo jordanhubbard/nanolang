@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/home/jkh/nanolang-qualification/record-lists-802-controlled-source/bin/nanoc_stage1",
+    "--target",
+    "c",
+    "/home/jkh/nanolang-qualification/length-carrier-802-inspection/probe.nano",
+    "-o",
+    "/home/jkh/nanolang-qualification/length-carrier-802-inspection/probe.c"
+  ],
+  "status": 0,
+  "scope": "Original shadow body copied verbatim into unused void function only to inspect emitted C; no generated compilation/execution",
+  "source_sha256": "4dc3210fdc07f3a666098b38bbefbe436a9337a3e3345ca857bc7b91520f2c6b",
+  "output_sha256": "9366cfb3d33da12656ece13a7cd0c11feac3c6bff1db712cc2a4c24a472a4eae"
+}

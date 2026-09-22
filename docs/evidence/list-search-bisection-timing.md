@@ -53,3 +53,19 @@ per-interval load and CPU snapshots, independently copied original providers,
 and the earlier interpreter timeout. This pass through the interpreter phase
 does not establish the old failure's cause. Both hosts now retain Stage2 native
 deadline failures, and no dependent full18+8 matrix has launched.
+
+My corrected native trace exits1 after243.537 seconds, with source/tool maps
+unchanged and no remaining process group. It records601 shadow entries. The
+last is __nano_module___21_transp_str_index_of; the child timeout receipt follows
+10.152097 seconds later. The largest prior completed receipt interval is1.800ms.
+These are external intervals, not exclusive CPU measurements.
+
+I inspect actual retained Stage1 --target c output without compiling or executing
+it. The original differential shadow body is copied verbatim into an unused
+void function solely to expose its lowering. Its signed Nano bound becomes
+`nl_position <= (strlen(nl_text) - nl_width)` in C. The unsigned size_t result
+underflows when the needle is longer than the text. I preserve every original
+assertion and file task_716077fe2eb14ec89ead2ce9f2bb3cc2 for the primitive carrier.
+Precode3ff51643a and source/fixtureecaf373f0 are pushed on my production lane;
+corrected execution requires review. Raw inspection source/C and command hashes
+remain in /home/jkh/nanolang-qualification/length-carrier-802-inspection.
