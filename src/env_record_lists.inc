@@ -27,6 +27,7 @@ static const void *record_result_pointer(Value value) {
     if (value.type == VAL_STRING) return value.as.string_val;
     if (value.type == VAL_STRUCT) return value.as.struct_val;
     if (value.type == VAL_TUPLE) return value.as.tuple_val;
+    if (value.type == VAL_FUNCTION) return value.as.function_val.function_name;
     return NULL;
 }
 
@@ -237,8 +238,8 @@ bool env_record_result_borrowed(Environment *env, Value value) {
 /* I transfer ownership only after registration succeeds. My caller clears its
  * symbol after true; false preserves its ownership. */
 bool env_retire_value(Environment *env, Value owned) {
-    if (!env || (owned.type != VAL_STRUCT && owned.type != VAL_TUPLE) ||
-        (owned.type == VAL_STRUCT ? !owned.as.struct_val : !owned.as.tuple_val) ||
+    if (!env || (owned.type != VAL_STRUCT && owned.type != VAL_TUPLE &&
+                 owned.type != VAL_FUNCTION) || !record_result_pointer(owned) ||
         env_record_result_borrowed(env, owned)) return false;
     struct EnvRecordResult *entry = malloc(sizeof(*entry));
     if (!entry) return false;
@@ -394,7 +395,11 @@ static void env_record_storage_free(Environment *env) {
     while (env->record_results) {
         struct EnvRecordResult *entry = env->record_results;
         env->record_results = entry->next;
-        env_discard_value_snapshot(entry->value);
+        /* Callable leaves in value graphs borrow these independently owned roots. */
+        if (entry->value.type == VAL_FUNCTION) {
+            free((char *)entry->value.as.function_val.function_name);
+            free_function_signature(entry->value.as.function_val.signature);
+        } else env_discard_value_snapshot(entry->value);
         free(entry);
     }
 }

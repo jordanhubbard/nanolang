@@ -43,6 +43,15 @@ extern char **g_argv;
  * NULL when not debugging. */
 void (*g_dap_statement_hook)(ASTNode *stmt, Environment *env) = NULL;
 
+/* Fresh internal callable results have one Environment-lifetime owner. */
+static Value eval_retain_callable(Environment *env, Value value) {
+    if (value.type == VAL_FUNCTION && !env_record_result_borrowed(env, value) &&
+        !env_retire_value(env, value)) {
+        fprintf(stderr, "I cannot retain an owned callable result.\n"); exit(1);
+    }
+    return value;
+}
+
 /* ── Coroutine spawn helpers ─────────────────────────────────────────── */
 
 /* Argument bundle for spawned coroutines */
@@ -148,7 +157,7 @@ static Value eval_task_result(Environment *env, int id, bool await) {
             fprintf(stderr, "I cannot retain a copied task result.\n"); exit(1);
         }
     }
-    return result;
+    return eval_retain_callable(env, result);
 }
 
 typedef struct {
@@ -311,21 +320,10 @@ static void eval_match_release_empty_literal(Value value, bool owned, Value resu
     free(u);
 }
 
-/* I retire only owned names; values and declaration type facts are separate. */
-static void eval_match_pop_metadata(Environment *env, int first) {
-    for (int i = first; i < env->symbol_count; ++i) {
-        free(env->symbols[i].name);
-        free(env->symbols[i].struct_type_name);
-        env->symbols[i].name = NULL;
-        env->symbols[i].struct_type_name = NULL;
-    }
-    env->symbol_count = first;
-}
-
 /* I restore lexical bindings on every exit, retaining a yielded local string. */
 /* I release only binding-owned storage. Registry result snapshots are never
  * installed directly into an owning record binding. Borrow formals stay borrowed. */
-static void eval_scope_release(Environment *env, int first, bool functions) {
+static void eval_scope_release(Environment *env, int first) {
     for (int i = first; i < env->symbol_count; ++i) {
         Symbol *symbol = &env->symbols[i];
         bool borrowed = symbol->type == TYPE_BORROW_SHARED || symbol->type == TYPE_BORROW_MUT;
@@ -343,9 +341,11 @@ static void eval_scope_release(Environment *env, int first, bool functions) {
         else if (value.type == VAL_STRING) {
             if (gc_is_managed(value.as.string_val)) gc_release(value.as.string_val);
             else free(value.as.string_val);
-        } else if (functions && value.type == VAL_FUNCTION) {
-            free((char *)value.as.function_val.function_name);
-            free_function_signature(value.as.function_val.signature);
+        } else if (value.type == VAL_FUNCTION) {
+            if (!env_retire_value(env, value)) {
+                fprintf(stderr, "I cannot retire an owned callable binding.\n"); exit(1);
+            }
+            symbol->value = create_void();
         }
     }
     env->symbol_count = first;
@@ -403,9 +403,9 @@ static Value eval_scoped_block(ASTNode **statements, int count, Environment *env
             copy_function_signature(result.as.function_val.signature));
         copy.is_return = result.is_return;
         copy.return_target = result.return_target;
-        result = copy;
+        result = eval_retain_callable(env, copy);
     }
-    eval_scope_release(env, first, false);
+    eval_scope_release(env, first);
     return result;
 }
 static Value create_dyn_array(DynArray *arr);
@@ -3211,6 +3211,7 @@ static bool eval_record_list_call(const char *name, Value *args, int argc,
 static bool owns_declared_callback(ASTNode *expression, Environment *env, Value value) {
     if (!expression || expression->type != AST_IDENTIFIER || value.type != VAL_FUNCTION)
         return false;
+    if (env_record_result_borrowed(env, value)) return false;
     /* Runtime lookup may skip a later checker-only placeholder. I compare
      * actual live owners rather than repeating a different name lookup. */
     for (int i = 0; i < env->symbol_count; ++i) {
@@ -4871,7 +4872,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return_value = create_string(result.as.string_val);
     } else if (result.type == VAL_FUNCTION) {
         FunctionSignature *sig_copy = copy_function_signature(result.as.function_val.signature);
-        return_value = create_function(result.as.function_val.function_name, sig_copy);
+        return_value = eval_retain_callable(env,
+            create_function(result.as.function_val.function_name, sig_copy));
     } else if (result.type == VAL_STRUCT || result.type == VAL_TUPLE) {
         if (!env_value_snapshot(env, result, &return_value)) {
             fprintf(stderr, "I cannot copy a returned record.\n");
@@ -4886,7 +4888,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     return_value.is_break = false;
     return_value.is_continue = false;
 
-    eval_scope_release(env, old_symbol_count, true);
+    eval_scope_release(env, old_symbol_count);
 
     /* An outer handler's return has not reached its destination yet. */
     if (!return_value.is_return)
@@ -4986,7 +4988,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     func->return_type
                 );
                 free(param_types); /* The signature owns its independent copy. */
-                return create_function(expr->as.identifier, sig);
+                return eval_retain_callable(env, create_function(expr->as.identifier, sig));
             }
             
             /* Neither variable nor function */
@@ -5241,6 +5243,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                                              merged_names, merged_values, merged_count);
                 free(merged_names);
                 free(merged_values);
+                if (!env_retire_value(env, result)) {
+                    fprintf(stderr, "I cannot retain an owned record literal.\n"); exit(1);
+                }
                 return result;
             }
 
@@ -5281,8 +5286,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             free(canonical_name);
             free(field_names);
             free(field_values);
-            
-            
+            if (!env_retire_value(env, result)) {
+                fprintf(stderr, "I cannot retain an owned record literal.\n"); exit(1);
+            }
             return result;
         }
 
@@ -5444,10 +5450,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                             binding_value = create_struct(
                                 union_value->union_name, field_names, field_values,
                                 union_value->field_count);
+                            free(field_names);
+                            free(field_values);
                         } else {
                             binding_value = create_void();
                         }
                         env_define_var(env, binding, TYPE_STRUCT, false, binding_value);
+                        env_discard_value_snapshot(binding_value);
                     }
                 }
 
@@ -5456,24 +5465,24 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 if (guard) {
                     Value guard_value = eval_expression(guard, env);
                     if (guard_value.is_return || guard_value.is_break || guard_value.is_continue) {
-                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_scope_release(env, saved_symbol_count);
                         eval_match_release_empty_literal(match_val, owns_empty, guard_value);
                         return guard_value;
                     }
                     if (guard_value.type != VAL_BOOL) {
-                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_scope_release(env, saved_symbol_count);
                         eval_match_release_empty_literal(match_val, owns_empty, create_void());
                         return eval_match_invariant_failure(
                             "a checked match guard did not produce bool");
                     }
                     if (!guard_value.as.bool_val) {
-                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_scope_release(env, saved_symbol_count);
                         continue;
                     }
                 }
 
                 Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
-                eval_match_pop_metadata(env, saved_symbol_count);
+                eval_scope_release(env, saved_symbol_count);
                 eval_match_release_empty_literal(match_val, owns_empty, result);
                 return result;
             }
@@ -5683,7 +5692,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             for (int i = 0; i < count; i++) {
                 const char *param = frame->handler_param_groups
                     ? frame->handler_param_groups[arm_idx][i] : legacy_param;
-                env_define_var(henv, param, TYPE_UNKNOWN, false, args[i]);
+                Value argument = args[i];
+                if (argument.type == VAL_FUNCTION)
+                    argument = create_function(argument.as.function_val.function_name,
+                        copy_function_signature(argument.as.function_val.signature));
+                env_define_var(henv, param, TYPE_UNKNOWN, false, argument);
             }
             free(args);
 
@@ -5692,8 +5705,25 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             Value handler_result = eval_statement(frame->handler_bodies[arm_idx], henv);
             g_eval_return_target = saved_return_target;
 
-            /* Restore scope. */
-            henv->symbol_count = saved_sym;
+            /* My result must outlive the parameter bindings I now retire. */
+            handler_result = eval_preserve_value(henv, handler_result);
+            if (handler_result.type == VAL_FUNCTION) {
+                for (int i = saved_sym; i < henv->symbol_count; ++i) {
+                    Value binding = henv->symbols[i].value;
+                    if (binding.type == VAL_FUNCTION &&
+                        binding.as.function_val.function_name ==
+                            handler_result.as.function_val.function_name) {
+                        Value copy = create_function(
+                            handler_result.as.function_val.function_name,
+                            copy_function_signature(handler_result.as.function_val.signature));
+                        copy.is_return = handler_result.is_return;
+                        copy.return_target = handler_result.return_target;
+                        handler_result = eval_retain_callable(henv, copy);
+                        break;
+                    }
+                }
+            }
+            eval_scope_release(henv, saved_sym);
 
             /* I preserve lexical returns; ordinary final values resume perform. */
             handler_result.is_break    = false;
@@ -5928,7 +5958,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     }
                     result = eval_preserve_value(env, result);
                     if (result.is_break) result = create_void();
-                    eval_scope_release(env, first, false);
+                    eval_scope_release(env, first);
                     return result;
                 }
                 if (list_type == TYPE_LIST_GENERIC) {
@@ -6568,7 +6598,7 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     return_value.is_break = false;
     return_value.is_continue = false;
 
-    eval_scope_release(env, original_symbol_count, false);
+    eval_scope_release(env, original_symbol_count);
 
     /* An outer handler's return has not reached its destination yet. */
     if (!return_value.is_return)

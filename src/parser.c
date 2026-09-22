@@ -6158,6 +6158,12 @@ void free_ast(ASTNode *node) {
         case AST_TUPLE_INDEX:
             free_ast(node->as.tuple_index.tuple);
             break;
+        case AST_ASYNC_FN:
+            free_ast(node->as.async_fn.function);
+            break;
+        case AST_AWAIT:
+            free_ast(node->as.await_expr.expr);
+            break;
         case AST_TRY_OP:
             free_ast(node->as.try_op.operand);
             free(node->as.try_op.union_type_name);

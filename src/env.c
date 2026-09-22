@@ -392,6 +392,23 @@ void free_environment(Environment *env) {
     }
     env_function_index_invalidate(env);
     free(env->functions);
+
+    /* My effect rows own names and vectors; parameter type facts borrow the AST. */
+    for (int i = 0; i < env->effect_count; ++i) {
+        EffectDef *effect = &env->effects[i];
+        free(effect->name);
+        free(effect->module_name);
+        for (int j = 0; j < effect->op_count; ++j) {
+            EffectOp *operation = &effect->ops[j];
+            free(operation->name);
+            free(operation->return_type_name);
+            for (int k = 0; k < operation->param_count; ++k)
+                free(operation->params[k].name);
+            free(operation->params);
+        }
+        free(effect->ops);
+    }
+    free(env->effects);
     
     for (int i = 0; i < env->struct_count; i++) {
         free(env->structs[i].name);
@@ -596,6 +613,20 @@ static bool env_prepare_binding_string(Environment *env, Type type, Value value,
     return true;
 }
 
+/* Callable projections can borrow a live binding or a retired result. */
+static Value env_prepare_binding_callable(Environment *env, Type type, Value value) {
+    if (value.type != VAL_FUNCTION || type == TYPE_BORROW_SHARED || type == TYPE_BORROW_MUT)
+        return value;
+    bool borrowed = env_record_result_borrowed(env, value);
+    for (int i = 0; !borrowed && i < env->symbol_count; ++i) {
+        Value owner = env->symbols[i].value;
+        borrowed = owner.type == VAL_FUNCTION &&
+            owner.as.function_val.function_name == value.as.function_val.function_name;
+    }
+    return borrowed ? create_function(value.as.function_val.function_name,
+        copy_function_signature(value.as.function_val.signature)) : value;
+}
+
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
     value = eval_checked_scalar_destination(type, value);
     /* Borrowed parameters retain their caller's identity and do not own its storage. */
@@ -604,6 +635,7 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
         fprintf(stderr, "I cannot copy a borrowed string binding.\n"); exit(1);
     }
     value = prepared;
+    value = env_prepare_binding_callable(env, type, value);
     if ((value.type == VAL_STRUCT || value.type == VAL_TUPLE) &&
         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
         Value copy;
@@ -775,7 +807,13 @@ void env_set_var(Environment *env, const char *name, Value value) {
             }
             value = copy;
         }
-        env_free_value(sym->value);
+        value = env_prepare_binding_callable(env, sym->type, value);
+        /* Escaping value graphs may still borrow the old callable descriptor. */
+        if (sym->value.type == VAL_FUNCTION) {
+            if (!env_retire_value(env, sym->value)) {
+                fprintf(stderr, "I cannot retire a replaced callable binding.\n"); exit(1);
+            }
+        } else env_free_value(sym->value);
         sym->value = value;
 
         /* GC refcount fix: If the new string value is already referenced by
