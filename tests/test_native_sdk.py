@@ -119,6 +119,29 @@ class NativeSdk(unittest.TestCase):
         (parent/'case.json').write_text(json.dumps(dict(identity=identity,rows=rows),indent=2)+'\n')
         return target
 
+    def test_cop_exec_installed_source_hidden(self):
+        # I use the actual installed generation and existing hiding boundary.
+        self.command('cop-exec-fixtures', ['make', '-j2', 'CC='+shlex.join(self.cc),
+                     'cop-exec-fixtures'], cwd=ROOT, timeout=1200)
+        control=self.work/'cop-exec-control';provider=self.work/'exec-provider.so'
+        shutil.copy2(ROOT/'obj/test_cop_exec', control)
+        shutil.copy2(ROOT/'obj/exec_provider.so', provider)
+        before={str(p):digest(p) for p in (control,provider,self.generation/'bin/nano_cop')}
+        assembly=self.work/'cop-discovery.nasm';module=self.work/'cop-discovery.nvm'
+        assembly.write_text('.entry main\n.import "" "abs" int int\n'
+            '.function main 0 0 0 int 1\nPUSH_I64 -17\nCALL_EXTERN 0\n'
+            'PUSH_I64 17\nI64_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
+        self.command('cop-installed-assemble',[self.prefix/'bin/nanoisa','asm',assembly,'-o',module])
+        with self.hidden_source():
+            # No override: the installed CLI must discover its own SDK worker.
+            self.command('cop-installed-cli',[self.prefix/'bin/nano_vm','--isolate-ffi',module])
+            output,_,_=self.command('cop-installed-hidden', [control,provider],
+                extra={'NANOLANG_SDK_ROOT':self.generation}, timeout=180)
+            self.assertEqual(output.count(b'exit 0 before parent cleanup.'),6)
+            self.assertIn(b'I checked exec startup, independent images, transports, descriptors and concurrent workers.',output)
+        self.assertEqual(before,{str(p):digest(p) for p in (control,provider,self.generation/'bin/nano_cop')})
+        self.assert_package_unchanged()
+
     def test_0_nested_session_timeout_cleanup(self):
         directory=self.work/'nested-supervision';directory.mkdir()
         marker=directory/'child.json';survived=directory/'survived'

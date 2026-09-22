@@ -47,6 +47,27 @@ static NanoValue call(VmState *vm, const NvmModule *module, VmHeap *heap,
     return result;
 }
 static void stopped(VmState *vm) {
+    /* I observe normal exit independently of the production 50 ms stop grace.
+     * A zero wait status includes the exec image's sanitizer exit handlers. */
+    pid_t owned = vm->cop_pid;
+    assert(owned > 0);
+    if (vm->cop_sig_send_fd >= 0) { close(vm->cop_sig_send_fd); vm->cop_sig_send_fd = -1; }
+    if (vm->cop_in_fd >= 0) { close(vm->cop_in_fd); vm->cop_in_fd = -1; }
+    int status = -1;
+    int64_t start = cop_now_ms(); assert(start >= 0);
+    pid_t observed = 0;
+    do {
+        observed = waitpid(owned, &status, WNOHANG);
+        if (observed < 0 && errno == EINTR) continue;
+        if (observed != 0) break;
+        usleep(10000);
+    } while (cop_now_ms() >= 0 && cop_now_ms() - start < 5000);
+    if (observed != owned) {
+        kill(owned, SIGKILL);
+        while (waitpid(owned, NULL, 0) < 0 && errno == EINTR) {}
+    }
+    assert(observed == owned && WIFEXITED(status) && WEXITSTATUS(status) == 0);
+    printf("I observed exec worker %ld exit 0 before parent cleanup.\n", (long)owned);
     vm_ffi_cop_stop(vm);
     assert(vm->cop_pid == -1 && !vm->cop_mailbox && !vm->cop_opaque.generation);
 }
@@ -99,12 +120,51 @@ static void callback_drop(void *opaque) {
     CallbackPayload *payload = opaque;
     assert(pthread_equal(payload->owner, pthread_self())); ++payload->dropped;
 }
+static void snapshot_metadata(void) {
+    /* I use the same public V2 codec as launch, without executing this import. */
+    NvmModule *module = nvm_module_new(); assert(module);
+    uint32_t library = nvm_add_string(module, "/abs/declared-provider.so", (uint32_t)strlen("/abs/declared-provider.so"));
+    uint32_t symbol = nvm_add_string(module, "submit", 6);
+    uint32_t adapter = nvm_add_string(module, "retained_submit", 15);
+    uint8_t parameters[] = {TAG_OPAQUE, TAG_FUNCTION};
+    assert(nvm_add_import(module, library, symbol, 2, TAG_VOID, parameters) == 0);
+    module->imports[0].kind = NVM_IMPORT_ARTIFACT;
+    NvmCallbackContract callback = {.import_idx = 0, .adapter_name_idx = adapter,
+        .parameter_idx = 1, .abi_version = NVM_CALLBACK_ABI_RETAINED_V1,
+        .execution = NVM_FOREIGN_WORKER_THREAD, .param_count = 2,
+        .return_tag = TAG_BOOL, .param_tags = {TAG_INT, TAG_FLOAT}};
+    assert(nvm_add_callback_contract(module, &callback));
+    uint32_t key = nvm_add_string(module, "user.audit", 10);
+    const char bytes[] = {'a', 0, 'b'};
+    uint32_t value = nvm_add_string(module, bytes, sizeof bytes);
+    assert(nvm_add_metadata(module, key, value));
+    assert(nvm_add_module_ref(module, library) != UINT32_MAX);
+    NanoisaErr error; uint32_t size = 0;
+    uint8_t *snapshot = nanoisa_save_bytes(module, &size, &error); assert(snapshot && size);
+    NvmModule *copy = nanoisa_load_bytes(snapshot, size, &error); assert(copy);
+    assert(copy->import_count == 1 && copy->imports[0].kind == NVM_IMPORT_ARTIFACT);
+    assert(copy->imports[0].module_name_idx == library && copy->imports[0].function_name_idx == symbol);
+    assert(copy->imports[0].param_count == 2 && copy->imports[0].return_type == TAG_VOID);
+    assert(!memcmp(copy->import_param_types[0], parameters, sizeof parameters));
+    assert(copy->callback_contract_count == 1);
+    NvmCallbackContract *actual = copy->callback_contracts;
+    assert(actual->import_idx == callback.import_idx && actual->parameter_idx == callback.parameter_idx);
+    assert(actual->adapter_name_idx == adapter && actual->abi_version == callback.abi_version);
+    assert(actual->execution == callback.execution && actual->param_count == callback.param_count);
+    assert(actual->return_tag == callback.return_tag && !memcmp(actual->param_tags, callback.param_tags, 2));
+    assert(copy->metadata_count == 1 && copy->metadata[0].key_idx == key && copy->metadata[0].value_idx == value);
+    assert(copy->string_lengths[value] == sizeof bytes && !memcmp(copy->strings[value], bytes, sizeof bytes));
+    assert(copy->module_ref_count == 1 && copy->module_refs[0].module_name_idx == library);
+    assert(!copy->call_descriptors && !copy->call_descriptor_count);
+    nvm_module_free(copy); free(snapshot); nvm_module_free(module);
+}
 int main(int argc, char **argv) {
     if (argc == 2 && !strcmp(argv[1], "--wrong-ready")) {
         assert(write(5, "WRONGv1!", 8) == 8);
         return 0;
     }
     assert(argc == 2); self_path = argv[0];
+    snapshot_metadata();
     const char *sdk = getenv("NANOLANG_SDK_ROOT"); assert(sdk);
     char *saved_sdk = strdup(sdk); assert(saved_sdk);
     NvmModule *module = nvm_module_new(); assert(module);

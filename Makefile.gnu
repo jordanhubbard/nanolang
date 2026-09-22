@@ -944,10 +944,11 @@ $(OBJ_DIR)/nanovm/vmd_main.o: $(NANOVM_DIR)/vmd_main.c $(NANOVM_DIR)/vmd_server.
 # My public isolated callers need the validated sibling worker.
 nano_vm nano_vmd: nano_cop
 
-.PHONY: test-cop-exec
-test-cop-exec: nano_cop $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+.PHONY: test-cop-exec cop-exec-fixtures
+cop-exec-fixtures: nano_cop $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -fPIC $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) tests/nanovm/exec_provider.c -o $(OBJ_DIR)/exec_provider.so $(LDFLAGS)
 	$(CC) $(CFLAGS) -D_GNU_SOURCE -pthread tests/nanovm/test_cop_exec.c $(filter-out $(OBJ_DIR)/nanovm/vm_ffi.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS) -o $(OBJ_DIR)/test_cop_exec
+test-cop-exec: cop-exec-fixtures
 	NANOLANG_SDK_ROOT="$(CURDIR)" $(OBJ_DIR)/test_cop_exec "$(abspath $(OBJ_DIR)/exec_provider.so)"
 
 # ── Co-Process FFI (nano_cop) ────────────────────────────────────────────────
