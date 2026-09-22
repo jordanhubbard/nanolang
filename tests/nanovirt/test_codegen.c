@@ -2133,7 +2133,13 @@ static void test_array_scalar_opcode_refusals(void) {
     TEST_PASS();
 }
 
-int main(void) {
+int main(int argc, char **argv) {
+    if (argc == 2 && strcmp(argv[1], "--array-arithmetic-refusals") == 0) {
+        test_array_scalar_opcode_refusals();
+        fprintf(stderr, "I checked array scalar-opcode refusal: %d passed, %d failed.\n", tests_passed, tests_failed);
+        return tests_failed ? 1 : 0;
+    }
+    if (argc != 1) return 2;
     test_array_scalar_opcode_refusals();
     test_effect_recursive_owned_strings();
     test_unhandled_effect_traps();

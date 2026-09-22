@@ -6152,6 +6152,16 @@ shadow check_expr_node {
             assert (> (list_CompilerDiagnostic_length errors) 0)
             set oi (+ oi 1)
         }
+        let unary_text: string = (+ "fn probe(xs:" (+ (at refused_types ti) ")->void{(- xs)}"))
+        let unary_parser: Parser = (resource_test_parser unary_text)
+        assert (not (parser_has_error unary_parser))
+        assert (parser_get_binary_op unary_parser 0).is_unary
+        let unary_actual: NSType = (type_from_string_with_parser unary_parser (at refused_types ti))
+        let unary_values: array<Symbol> = [(symbol_new "xs" unary_actual false false 0 (empty_param_types) (type_void))]
+        let unary_errors: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+        let unary_result: NSType = (check_expr_node unary_parser 0 ParseNodeType.PNODE_BINARY_OP unary_values unary_errors "refused-unary-array.nano")
+        assert (== unary_result.name "unsupported array arithmetic storage")
+        assert (> (list_CompilerDiagnostic_length unary_errors) 0)
         set ti (+ ti 1)
     }
     let pop_parser: Parser = (resource_test_parser "fn probe(bytes: array<u8>) -> u8 { return (array_pop bytes) }")
