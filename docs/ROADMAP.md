@@ -5,6 +5,7 @@
   - [ ] I replace the two obsolete nested-float result refusal inputs with a genuinely unsupported boundary, retain previous-output assertions, and test the newly admitted case.
   - [ ] I select supported Darwin sanitizer tooling for native map-key acceptance without removing leak checks where they are supported.
   - [ ] I qualify main's signed Forth arithmetic repairs and correct the remaining zero-byte null-copy finding under strict UBSan.
+  - [ ] I reuse and qualify PR948's complete sanitizer partition inventory and provider fixes. I retain its failed run `35690205396`: empty-record array inference loses nominal identity, type-checker metadata leaks in native float-record compilation, and one partition exceeds twenty minutes. I correct these findings without removing cases or sanitizer checks.
   - [ ] I provide a finite sanitizer execution schedule that retains the complete test inventory, instrumentation and assertions, then require actual hosted completion.
   - [ ] I publish the corrected candidate, reconcile its PR description with exact-head evidence, and require all release checks before declaring it resolved.
 

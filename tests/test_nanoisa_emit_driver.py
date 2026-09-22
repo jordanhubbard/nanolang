@@ -16,6 +16,11 @@ fn main() -> int {
 shadow main { assert true }
 '''
 
+UNSUPPORTED_RESULT = '''struct Point { x: int }
+fn main() -> array<array<Point>> { return [[Point { x: 1 }]] }
+shadow main { assert true }
+'''
+
 
 class NanoisaEmitDriver(unittest.TestCase):
     def run_command(self, args, expected=0):
@@ -95,7 +100,7 @@ class NanoisaEmitDriver(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="nano-driver-errors-") as tmp:
             directory = Path(tmp)
             source, output = directory / "bad.nano", directory / "prior.nvm"
-            for body in ("fn broken(", "fn main() -> array<array<float>> { return [[1.5]] }\nshadow main { assert true }\n"):
+            for body in ("fn broken(", UNSUPPORTED_RESULT):
                 source.write_text(body)
                 output.write_bytes(b"previous bytes")
                 self.run_command([DRIVER, source, "--emit-nvm", "-o", output], expected=1)
@@ -108,12 +113,15 @@ class NanoisaEmitDriver(unittest.TestCase):
             self.assertEqual(output.read_bytes(), b"previous bytes")
             self.assertEqual(list(directory.glob("*.tmp.*")), [])
 
-    def test_supported_float_and_boolean_array_results(self):
+    def test_supported_float_boolean_and_nested_array_results(self):
         with tempfile.TemporaryDirectory(prefix="nano-supported-results-") as tmp:
             directory=Path(tmp); source=directory/"supported.nano"; output=directory/"supported.nvm"
             source.write_text('fn number() -> float { return 1.5 }\nshadow number { assert true }\n'
                               'fn flags() -> array<bool> { return [true] }\nshadow flags { assert true }\n'
-                              'fn main() -> int { assert (== (number) 1.5) assert (at (flags) 0) return 0 }\n'
+                              'fn grid() -> array<array<float>> { return [[1.5, 2.5], [3.5]] }\n'
+                              'shadow grid { assert (== (at (at (grid) 1) 0) 3.5) }\n'
+                              'fn main() -> int { assert (== (number) 1.5) assert (at (flags) 0) '
+                              'assert (== (at (at (grid) 0) 1) 2.5) return 0 }\n'
                               'shadow main { assert true }\n')
             self.run_command([DRIVER,source,"--emit-nvm","-o",output])
             self.run_command([ROOT/"bin/nano_vm","--verify-only",output])
@@ -123,9 +131,9 @@ class NanoisaEmitDriver(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="nano-driver-diagnostic-") as tmp:
             directory = Path(tmp)
             source, output = directory / "unsupported.nano", directory / "unsupported.nasm"
-            source.write_text('fn main() -> array<array<float>> { return [[1.5]] }\n')
+            source.write_text(UNSUPPORTED_RESULT)
             result = self.run_command([DRIVER, source, "-o", output], expected=1)
-            self.assertIn(b"I refused that program: unsupported result type array<array<float>>", result.stdout)
+            self.assertIn(b"I refused that program: unsupported result type array<array<Point>>", result.stdout)
             self.assertFalse(output.exists())
 
 
