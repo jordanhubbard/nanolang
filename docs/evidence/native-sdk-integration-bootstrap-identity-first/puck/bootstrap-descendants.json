@@ -1,0 +1,24 @@
+{
+  "owned": {
+    "19528": {
+      "parent": 93079,
+      "group": 19528,
+      "started": "Mon Sep 21 20:43:14 2026",
+      "command": "(make)"
+    },
+    "19550": {
+      "parent": 19528,
+      "group": 19528,
+      "started": "Mon Sep 21 20:43:14 2026",
+      "command": "(bash)"
+    },
+    "19551": {
+      "parent": 19550,
+      "group": 19528,
+      "started": "Mon Sep 21 20:43:14 2026",
+      "command": "(nanoc_c)"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

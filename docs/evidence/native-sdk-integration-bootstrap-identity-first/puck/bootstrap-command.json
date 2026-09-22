@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "make",
+    "-j2",
+    "CC=/usr/bin/clang",
+    "bootstrap"
+  ],
+  "cwd": "/private/tmp/nanolang-native-sdk-1bf6a-puck-source",
+  "expected": [
+    0
+  ],
+  "environment": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "CC": "/usr/bin/clang",
+    "NANO_CC": "/usr/bin/clang",
+    "TMPDIR": "/tmp/nanolang-native-sdk-1bf6a-puck-preparation/tmp",
+    "NANOLANG_SDK_ROOT": "/private/tmp/nanolang-native-sdk-1bf6a-puck-source",
+    "NANO_BUILD_CACHE": null,
+    "NANO_MODULE_PATH": null,
+    "NANO_SHADOW_TRACE": null,
+    "NANOVMD_SOCKET": null,
+    "SDK_CC_LOG": null,
+    "SDK_REAL_CC": null,
+    "SDK_REFUSED_SOURCE": null,
+    "SDK_REFUSAL_HIT": null,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "LSAN_OPTIONS": "",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  }
+}
