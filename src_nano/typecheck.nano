@@ -5079,6 +5079,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
+    let pop_parser: Parser = (resource_test_parser "fn probe(bytes: array<u8>) -> u8 { return (array_pop bytes) }")
+    let pop_symbols: array<Symbol> = [(symbol_new "bytes" (type_from_string_with_parser pop_parser "array<u8>") false false 0 (empty_param_types) (type_void))]
+    let pop_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let pop_type: NSType = (check_expr_node pop_parser 0 ParseNodeType.PNODE_CALL pop_symbols pop_diags "pop.nano")
+    assert (== (type_to_string pop_type) "u8")
+    assert (== (list_CompilerDiagnostic_length pop_diags) 0)
     let source: string = "fn message(var_name: string) -> string { return (+ \"Error: \" (+ var_name \"not found\")) }"
     let tokens: List<LexerToken> = (tokenize_string source "test.nano" (list_CompilerDiagnostic_new))
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "test.nano")

@@ -208,6 +208,8 @@ fn receiver() -> array<int> { set calls (+ calls 1) return [17, 42] }
 shadow receiver { set calls 0 let values: array<int> = (receiver) assert (== calls 1) assert (== (array_length values) 2) }
 fn main() -> int {
  set calls 0
+ let array_push: int = 7
+ assert (== array_push 7)
  let popped: int = (array_pop (receiver))
  assert (== calls 1)
  assert (== popped 42)
@@ -222,10 +224,10 @@ shadow main { assert (== (main) 0) }
 
     def test_array_pop_rejects_wrong_receiver_and_arity(self):
         original = self.artifacts
-        for index, call in enumerate(('(array_pop)', '(array_pop [1] 2)', '(array_pop 7)', '(array_pop true)')):
+        for index, (prefix, call) in enumerate((('', '(array_pop)'), ('', '(array_pop [1] 2)'), ('', '(array_pop 7)'), ('', '(array_pop true)'), ('let array_pop: int = 7 ', '(array_pop [1])'))):
             self.artifacts = original / ('pop-refusal-' + str(index)); self.artifacts.mkdir()
             source = self.artifacts / 'source.nano'
-            source.write_text('fn main() -> int { let value: int = ' + call + ' return 0 }\nshadow main { assert true }\n')
+            source.write_text('fn main() -> int { ' + prefix + 'let value: int = ' + call + ' return 0 }\nshadow main { assert true }\n')
             for producer in [ROOT / 'bin/nanoc_c', *self.producers()]:
                 output = self.artifacts / 'previous-output'; output.write_bytes(b'previous output\n')
                 args = [producer, source]

@@ -2381,7 +2381,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* I resolve this permitted builtin shadow through its lexical signature. */
             if (strcmp(expr->as.call.name, "array_push") == 0 ||
                 strcmp(expr->as.call.name, "array_pop") == 0) {
-                Symbol *binding = env_get_var_visible_at(env, "array_push", expr->line, expr->column);
+                Symbol *binding = env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column);
                 if (binding) {
                     binding->is_used = true;
                     if (binding->type != TYPE_FUNCTION) {
