@@ -718,6 +718,8 @@ static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type 
                (sym->type == TYPE_BORROW_SHARED || sym->type == TYPE_BORROW_MUT)))
             ? nominal_annotation(env, type, sym->type_info, sym->struct_type_name, sym->nominal_owner) : none;
     }
+    if (expr->type == AST_HANDLE_EXPR && type == TYPE_STRUCT)
+        return nominal_expression(expr->as.handle_expr.body, env, type, depth + 1);
     if (expr->type == AST_EFFECT_OP) {
         EffectDef *effect = env_get_effect(env, expr->as.effect_op.effect_name);
         EffectOp *op = effect ? effect_get_op(effect, expr->as.effect_op.op_name) : NULL;
@@ -3013,6 +3015,32 @@ static bool check_array_access_arguments(ASTNode *call, Environment *env) {
         call->as.call.return_struct_type_name = retained;
     }
     return valid;
+}
+
+/* I check normal operation results separately from lexical function exits.
+ * The caller has already checked each branch in its enclosing return context. */
+static bool handler_record_result_matches(ASTNode *body, Environment *env,
+                                          NominalIdentity expected, unsigned depth) {
+    if (!body || depth > 128) return false;
+    if (ast_always_returns(body)) return true;
+    if (body->type == AST_BLOCK)
+        return body->as.block.count > 0 && handler_record_result_matches(
+            body->as.block.statements[body->as.block.count - 1], env, expected, depth + 1);
+    if (body->type == AST_IF || body->type == AST_COND || body->type == AST_MATCH) {
+        int count = body->type == AST_IF ? 2 : body->type == AST_MATCH
+            ? body->as.match_expr.arm_count : body->as.cond_expr.clause_count + 1;
+        if (count <= 0) return false;
+        for (int i = 0; i < count; ++i) {
+            ASTNode *arm = body->type == AST_IF
+                ? (i ? body->as.if_stmt.else_branch : body->as.if_stmt.then_branch)
+                : body->type == AST_MATCH ? body->as.match_expr.arm_bodies[i]
+                : i < body->as.cond_expr.clause_count ? body->as.cond_expr.values[i]
+                : body->as.cond_expr.else_value;
+            if (!handler_record_result_matches(arm, env, expected, depth + 1)) return false;
+        }
+        return true;
+    }
+    return nominal_equal(expected, nominal_expression(body, env, TYPE_STRUCT, depth + 1));
 }
 
 /* Internal implementation of check_expression */
@@ -5751,6 +5779,7 @@ checked_array_declared_call: ;
                                 free(symbol->struct_type_name);
                                 symbol->struct_type_name = param->struct_type_name
                                     ? strdup(param->struct_type_name) : NULL;
+                                symbol->nominal_owner = matched_effect->module_name;
                                 symbol->def_line = expr->line;
                                 symbol->def_column = expr->column;
                             }
@@ -5758,7 +5787,31 @@ checked_array_declared_call: ;
                     }
                 }
 
-                check_expression(expr->as.handle_expr.handler_bodies[i], env);
+                ASTNode *handler_body = expr->as.handle_expr.handler_bodies[i];
+                NominalIdentity result_identity = op && op->return_type == TYPE_STRUCT
+                    ? env_nominal_identity(env, op->return_type_name, matched_effect->module_name, TYPE_STRUCT)
+                    : (NominalIdentity){TYPE_UNKNOWN, 0};
+                bool handler_valid = true;
+                if (result_identity.ordinal) {
+                    /* My general if-expression inference does not check its arms.
+                     * I check all handler statements in the lexical function context. */
+                    TypeChecker handler_checker = active_statement_checker
+                        ? *active_statement_checker : (TypeChecker){0};
+                    handler_checker.env = env;
+                    handler_checker.has_error = false;
+                    check_statement(&handler_checker, handler_body);
+                    handler_valid = !handler_checker.has_error &&
+                        handler_record_result_matches(handler_body, env, result_identity, 0);
+                } else {
+                    check_expression(handler_body, env);
+                }
+                if (!handler_valid) {
+                    emit_context_error("E001 TYPE MISMATCH", handler_body->line, handler_body->column, 1,
+                        "I require the operation's exact ordinary record in each normal handler result.",
+                        "Keep lexical function returns separate from operation results.");
+                    checker_pop_temporary_symbols(env, saved_count);
+                    return TYPE_UNKNOWN;
+                }
 
                 /* Pop handler-local symbols */
                 checker_pop_temporary_symbols(env, saved_count);

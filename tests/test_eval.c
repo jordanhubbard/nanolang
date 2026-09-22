@@ -1885,6 +1885,91 @@ void test_eval_callable_projection_lifetimes(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_handled_record_identity(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Packet { value: int }\n"
+        "effect Supply { next : int -> Packet }\n"
+        "fn direct() -> Packet {\n"
+        " return handle { perform Supply.next(8) } with { next n -> Packet { value: n } }\n"
+        "}\n"
+        "shadow direct { let p: Packet = (direct) assert (== p.value 8) }\n"
+        "fn branch(n: int) -> Packet {\n"
+        " return handle { perform Supply.next(n) } with {\n"
+        "  next value -> { if (== value 0) { return Packet { value: 41 } } else { Packet { value: value } } }\n"
+        " }\n"
+        "}\n"
+        "shadow branch { let a: Packet = (branch 0) let b: Packet = (branch 9) assert (== a.value 41) assert (== b.value 9) }\n"
+        "fn lexical() -> int {\n"
+        " let p: Packet = handle { perform Supply.next(0) } with { next n -> { return 73 } }\n"
+        " return p.value\n"
+        "}\n"
+        "shadow lexical { assert (== (lexical) 73) }\n"
+        "fn projected() -> int {\n"
+        " let p: Packet = handle { perform Supply.next(12) } with { next n -> Packet { value: n } }\n"
+        " return p.value\n"
+        "}\n"
+        "shadow projected { assert (== (projected) 12) }\n"
+        "fn main() -> int { let a: Packet = (direct) let b: Packet = (branch 0) let c: Packet = (branch 9) return (+ a.value (+ b.value (+ c.value (+ (lexical) (projected))))) }\n"
+        "shadow main { assert (== (main) 143) }\n"));
+    Value result = call_function("main", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 143);
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+
+    const char *invalid[] = {
+        "Other { value: n }",
+        "{ if (== n 0) { Packet { value: n } } else { Other { value: n } } }",
+        "{ let absent: int = n }",
+        "{ return 17 }",
+        "n"
+    };
+    for (size_t i = 0; i < sizeof invalid / sizeof *invalid; ++i) {
+        char source[2048];
+        int size = snprintf(source, sizeof source,
+            "struct Packet { value: int }\nstruct Other { value: int }\n"
+            "effect Supply { next : int -> Packet }\n"
+            "fn bad() -> Packet { return handle { perform Supply.next(8) } with { next n -> %s } }\n"
+            "shadow bad { assert true }\nfn main() -> int { return 0 }\nshadow main { assert true }\n", invalid[i]);
+        ASSERT(size > 0 && (size_t)size < sizeof source);
+        ASSERT(!run_ctx_init(&ctx, source));
+        run_ctx_free(&ctx);
+    }
+    /* I distinguish two identically shaped, identically named declarations. */
+    for (int wrong_owner = 0; wrong_owner < 2; ++wrong_owner) {
+        int owner_count = 0, caller_count = 0;
+        Token *owner_tokens = tokenize("struct Packet { value: int }\neffect Supply { next : Packet -> Packet }\n", &owner_count);
+        ASSERT(owner_tokens);
+        ASTNode *owner_ast = parse_program(owner_tokens, owner_count);
+        ASSERT(owner_ast);
+        Environment *env = create_environment(); ASSERT(env);
+        env->current_module = "Defining";
+        ASSERT(type_check_module(owner_ast, env));
+        NominalIdentity packet = env_nominal_identity(env, "Packet", "Defining", TYPE_STRUCT);
+        ASSERT(packet.ordinal);
+        env->current_module = "Caller";
+        ASSERT(env_register_nominal_import(env, "Caller", "RemotePacket", packet));
+        char source[2048];
+        int size = snprintf(source, sizeof source,
+            "struct Packet { value: int }\nfn main() -> int {\n"
+            "let p: RemotePacket = handle { perform Supply.next(RemotePacket { value: 4 }) } with { next q -> %s }\n"
+            "return p.value }\nshadow main { assert (== (main) 4) }\n",
+            wrong_owner ? "Packet { value: 4 }" : "q");
+        ASSERT(size > 0 && (size_t)size < sizeof source);
+        Token *caller_tokens = tokenize(source, &caller_count); ASSERT(caller_tokens);
+        ASTNode *caller_ast = parse_program(caller_tokens, caller_count); ASSERT(caller_ast);
+        suppress_stderr();
+        bool checked = type_check(caller_ast, env);
+        restore_stderr();
+        ASSERT(checked == !wrong_owner);
+        free_environment(env);
+        free_ast(caller_ast); free_tokens(caller_tokens, caller_count);
+        free_ast(owner_ast); free_tokens(owner_tokens, owner_count);
+        clear_module_cache();
+    }
+}
+
 void test_eval_match_miss_is_terminal(void) {
     int errors[2];
     ASSERT(pipe(errors) == 0);
@@ -3055,6 +3140,7 @@ int main(void) {
     TEST(eval_file_write_failures);
     TEST(eval_handler_return_async_calls);
     TEST(eval_callable_projection_lifetimes);
+    TEST(eval_handled_record_identity);
     TEST(eval_handler_return_higher_order);
     TEST(eval_handler_return_partial_literal_cleanup);
     TEST(eval_handler_return_recursive_activation);

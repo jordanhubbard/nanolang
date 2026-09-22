@@ -95,6 +95,21 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
     }
     if (expr->type == AST_BLOCK && expr->as.block.count)
         return nominal_value_view(expr->as.block.statements[expr->as.block.count - 1], env, depth + 1, out);
+    if (expr->type == AST_HANDLE_EXPR) {
+        if (!nominal_value_view(expr->as.handle_expr.body, env, depth + 1, &view)) return false;
+        if (nominal_view_identity(env, &view, TYPE_STRUCT).ordinal) { *out = view; return true; }
+        nominal_view_discard(&view);
+        return false;
+    }
+    if (expr->type == AST_EFFECT_OP) {
+        EffectDef *effect = env_get_effect(env, expr->as.effect_op.effect_name);
+        EffectOp *op = effect ? effect_get_op(effect, expr->as.effect_op.op_name) : NULL;
+        if (!op || op->return_type != TYPE_STRUCT ||
+            !env_nominal_identity(env, op->return_type_name, effect->module_name, TYPE_STRUCT).ordinal)
+            return false;
+        return nominal_view_copy(env, NULL, TYPE_STRUCT, TYPE_UNKNOWN,
+            op->return_type_name, effect->module_name, out);
+    }
     if (expr->type == AST_RETURN)
         return nominal_value_view(expr->as.return_stmt.value, env, depth + 1, out);
     if (expr->type == AST_IF || expr->type == AST_COND || expr->type == AST_MATCH) {
