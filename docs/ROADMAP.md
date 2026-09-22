@@ -17025,3 +17025,7 @@ My integrated ownership probe Make rules omit actual textual implementation depe
 I retain the third PR948 artifact transfer connection failure separately: sanitizer-result-units-08 returned1 after30.406seconds connecting to the hosted blob endpoint. Twelve complete archives are verified; the partial file/status remain. I continue missing artifacts only in a fresh directory after rehashing completed inputs, preserving the600-second transport bound and all actual product terminals.
 
 I qualified source4f7317344 default-all ownership controls on both hosts, ordinary and ASan/UBSan with LSan: all four gates pass with23 snapshot allocation positions in both modes and fresh recovery, plus original lookup and parsed lifecycle controls. I retain exact reports/products in [my focused snapshot seal](evidence/struct-snapshot-ownership/README.md), and preserve all first terminals separately. Integration and broader imported gates remain open.
+
+### I retain the combined sanitizer worker bound
+
+Source review finds the canonical merge resolution retained the prior partition worker outer bound of 30 minutes where the combined merge result supplied 90. I explicitly preserve 90 minutes for the final partitioned worker contract, retaining every exact worker/negative-suite check. This changes neither the inner compiler/shadow limits nor assertions, and no worker has run on the candidate. The older monolithic aggregate timeout remains inapplicable.
