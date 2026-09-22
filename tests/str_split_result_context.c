@@ -97,7 +97,7 @@ static void check_literal_context(Type expected_element, const char *literal, bo
     TypeInfo element = {.base_type = expected_element};
     TypeInfo expected = {.base_type = TYPE_ARRAY, .element_type = &element};
     int errors = g_typecheck_error_count;
-    check_concrete_union_arrays(env, &expected, value, 0);
+    check_concrete_union_arrays(env, &expected, env->current_module, value, 0);
     assert((g_typecheck_error_count > errors) == mismatch);
     assert(!env->opaque_resolution_failed);
     free_environment(env);
