@@ -304,3 +304,14 @@ elements retain contextual behavior; unrelated numeric compatibility remains
 unchanged. This is checker inference, not executing an initializer. The same
 existing lexical/declaration authority remains in inference. Original and
 additive refusal programs remain unchanged.
+
+My C correction keeps a complete result element (including UNKNOWN) when
+present, and invokes existing array inference only when that view is absent.
+The symmetric check runs only for two known element kinds with STRING on at
+least one side. Empty/unknown and unrelated numeric cases follow the existing
+remaining helper paths. I retain the original actual-STRING diagnostic and
+add a precise expected-STRING diagnostic. Six direct parsed-literal controls
+exercise both mismatch directions, matching STRING, empty STRING/INT and
+unchanged numeric helper behavior without emitting or executing invalid code.
+The original full paired reverse control remains unchanged. No execution has
+yet qualified this correction.

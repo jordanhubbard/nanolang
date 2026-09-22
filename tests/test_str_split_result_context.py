@@ -28,7 +28,7 @@ class SplitResultContext(unittest.TestCase):
             self.assertEqual(out,b'I checked the string-array field adapter and binding-refusal publication boundary.\n')
             self.assertIn(b'I require array<string> for this string-array result.',err)
             (work/'scope.json').write_text(json.dumps({'scope':'actual included C typechecker adapter; ordinary hashed complete providers; public array-field borrowing remains refused',
-                'failure':'injected false return at metadata binding boundary, not a malloc-site sweep','cases':['STRING acceptance and repeated exact metadata','INT refusal','binding refusal leaves no row and flags preparation failure']},indent=2)+'\n')
+                'failure':'injected false return at metadata binding boundary, not a malloc-site sweep','cases':['STRING acceptance and repeated exact metadata','INT refusal','binding refusal leaves no row and flags preparation failure','six actual parsed literal contexts: symmetric STRING mismatch, matching STRING, empty STRING/INT, unchanged numeric helper compatibility']},indent=2)+'\n')
         finally:
             after={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in providers}
             (work/'ordinary-providers-after.json').write_text(json.dumps(after,indent=2)+'\n')

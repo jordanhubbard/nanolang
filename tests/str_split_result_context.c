@@ -73,12 +73,49 @@ static void check_context(const char *element, bool refuse) {
     free_ast(body_program); free_tokens(body_tokens, body_count);
     free_ast(program); free_tokens(tokens, count);
 }
+/* I check the contextual helper directly, without publishing invalid code. */
+static void check_literal_context(Type expected_element, const char *literal, bool mismatch) {
+    char source[512];
+    int n = snprintf(source, sizeof source,
+        "fn probe() -> void { let values = %s }", literal);
+    assert(n > 0 && (size_t)n < sizeof source);
+    int count = 0;
+    Token *tokens = tokenize(source, &count);
+    assert(tokens);
+    ASTNode *program = parse_program(tokens, count);
+    assert(program && program->as.program.count == 1);
+    ASTNode *function = program->as.program.items[0];
+    assert(function->type == AST_FUNCTION && function->as.function.body);
+    ASTNode *body = function->as.function.body;
+    assert(body->type == AST_BLOCK && body->as.block.count == 1);
+    ASTNode *declaration = body->as.block.statements[0];
+    assert(declaration->type == AST_LET);
+    ASTNode *value = declaration->as.let.value;
+    assert(value && value->type == AST_ARRAY_LITERAL);
+    Environment *env = create_environment();
+    assert(env && check_expression(value, env) == TYPE_ARRAY);
+    TypeInfo element = {.base_type = expected_element};
+    TypeInfo expected = {.base_type = TYPE_ARRAY, .element_type = &element};
+    int errors = g_typecheck_error_count;
+    check_concrete_union_arrays(env, &expected, value, 0);
+    assert((g_typecheck_error_count > errors) == mismatch);
+    assert(!env->opaque_resolution_failed);
+    free_environment(env);
+    free_ast(program);
+    free_tokens(tokens, count);
+}
 int main(int argc, char **argv) {
     g_argc = argc;
     g_argv = argv;
     check_context("string", false);
     check_context("int", false);
     check_context("string", true);
+    check_literal_context(TYPE_STRING, "[41]", true);
+    check_literal_context(TYPE_INT, "[\"x\"]", true);
+    check_literal_context(TYPE_STRING, "[\"x\"]", false);
+    check_literal_context(TYPE_STRING, "[]", false);
+    check_literal_context(TYPE_INT, "[]", false);
+    check_literal_context(TYPE_FLOAT, "[41]", false);
     gc_shutdown();
     puts("I checked the string-array field adapter and binding-refusal publication boundary.");
     return 0;

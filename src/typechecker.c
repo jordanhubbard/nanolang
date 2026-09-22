@@ -994,6 +994,8 @@ static bool opaque_annotation_present(Environment *env, const TypeInfo *info, un
     return false;
 }
 
+static Type infer_array_element_type(ASTNode *array_expr, Environment *env);
+
 /* I resolve payload annotations and retain owned constructor context. */
 static void check_concrete_union_arrays(Environment *env, const TypeInfo *expected,
                                         ASTNode *value, unsigned depth) {
@@ -1148,11 +1150,16 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
     if (expected->base_type == TYPE_ARRAY && expected->element_type) {
         const TypeInfo *element = expected->element_type;
         const TypeInfo *result = try_get_expr_type_info(value, env);
-        if (result && result->base_type == TYPE_ARRAY && result->element_type &&
-            result->element_type->base_type == TYPE_STRING && element->base_type != TYPE_UNKNOWN) {
-            if (element->base_type != TYPE_STRING) {
+        /* I preserve complete element facts before inferring a missing view. */
+        Type actual_element = result && result->base_type == TYPE_ARRAY && result->element_type
+            ? result->element_type->base_type : infer_array_element_type(value, env);
+        if (actual_element != TYPE_UNKNOWN && element->base_type != TYPE_UNKNOWN &&
+            (actual_element == TYPE_STRING || element->base_type == TYPE_STRING)) {
+            if (actual_element != element->base_type) {
                 emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
-                    "I require array<string> for this string-array result.",
+                    actual_element == TYPE_STRING
+                        ? "I require array<string> for this string-array result."
+                        : "I require STRING elements for this array<string> annotation.",
                     "Preserve the result's string element annotation.");
             }
             return;
