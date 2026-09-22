@@ -103,10 +103,18 @@ static Value record_value(StructValue *r) { Value v = {0}; v.type = VAL_STRUCT; 
 static void graph_attempt(size_t at, bool once, size_t *count) {
     char payload[] = "kept";
     Value fields[] = {text_value(payload), integer(37)};
+    fields[0].is_return = fields[0].is_break = fields[0].is_continue = true;
+    fields[0].return_target = &fields[0];
+    fields[1].is_return = fields[1].is_break = fields[1].is_continue = true;
+    fields[1].return_target = &fields[1];
     char *names[] = {"text", "number"};
     StructValue record = {.struct_name = "Item", .field_names = names, .field_values = fields, .field_count = 2};
-    Value nested[] = {record_value(&record), text_value(payload)};
-    TupleValue tuple = {.elements = nested, .element_count = 2};
+    Value nested[] = {record_value(&record), text_value(payload), integer(73)};
+    nested[1].is_return = nested[1].is_break = nested[1].is_continue = true;
+    nested[1].return_target = &nested[1];
+    nested[2].is_return = nested[2].is_break = nested[2].is_continue = true;
+    nested[2].return_target = &nested[2];
+    TupleValue tuple = {.elements = nested, .element_count = 3};
     Value source = tuple_value(&tuple), output = integer(771), sentinel = output;
     begin(at, once);
     bool ok = env_clone_value_snapshot(source, &output);
@@ -120,8 +128,19 @@ static void graph_attempt(size_t at, bool once, size_t *count) {
         payload[0] = 'X'; fields[1] = integer(99);
         StructValue *copied = output.as.tuple_val->elements[0].as.struct_val;
         CHECK(!strcmp(copied->field_values[0].as.string_val, "kept"));
+        CHECK(copied->field_values[0].as.string_val != fields[0].as.string_val);
+        CHECK(!copied->field_values[0].is_return && !copied->field_values[0].is_break &&
+              !copied->field_values[0].is_continue && !copied->field_values[0].return_target);
         CHECK(copied->field_values[1].as.int_val == 37);
+        CHECK(!copied->field_values[1].is_return && !copied->field_values[1].is_break &&
+              !copied->field_values[1].is_continue && !copied->field_values[1].return_target);
         CHECK(!strcmp(output.as.tuple_val->elements[1].as.string_val, "kept"));
+        CHECK(output.as.tuple_val->elements[1].as.string_val != nested[1].as.string_val);
+        CHECK(!output.as.tuple_val->elements[1].is_return && !output.as.tuple_val->elements[1].is_break &&
+              !output.as.tuple_val->elements[1].is_continue && !output.as.tuple_val->elements[1].return_target);
+        CHECK(output.as.tuple_val->elements[2].as.int_val == 73);
+        CHECK(!output.as.tuple_val->elements[2].is_return && !output.as.tuple_val->elements[2].is_break &&
+              !output.as.tuple_val->elements[2].is_continue && !output.as.tuple_val->elements[2].return_target);
         env_discard_value_snapshot(output);
     }
     CHECK(live == 0);
@@ -369,7 +388,7 @@ static void index_attempt(bool retirement, size_t preload, size_t at, bool once,
     size_t bytes = 0; unsigned char *old_bytes = NULL;
     if (old_index) {
         CHECK(old_index->capacity == 16 && old_index->count == preload);
-        CHECK(record_index_bytes(old_index->capacity, &bytes));
+        bytes = record_index_bytes(old_index->capacity); CHECK(bytes);
         old_bytes = malloc(bytes); CHECK(old_bytes); memcpy(old_bytes, old_index, bytes);
     }
     TupleValue empty = {0}; Value owned = integer(0);
@@ -399,9 +418,9 @@ static void index_attempt(bool retirement, size_t preload, size_t at, bool once,
     for (size_t i = 0; i < preload; ++i) {
         CHECK(env_record_result_borrowed(env, retained[i]));
         CHECK(!strcmp(retained[i].as.string_val, "retained"));
-        size_t slot; bool found;
-        CHECK(record_index_slot(env->record_result_index, retained[i], &slot, &found) && found);
-        CHECK(env->record_result_index->slots[slot] == entries[i]);
+        struct EnvRecordSlot slot = record_index_slot(env->record_result_index, retained[i]);
+        CHECK(slot.valid && slot.found);
+        CHECK(env->record_result_index->slots[slot.position] == entries[i]);
     }
     if (at != SIZE_MAX) {
         Value recovered = integer(883);
@@ -485,14 +504,13 @@ static void index_collision_and_limits(void) {
     CHECK(!env_record_result_borrowed(env, pool[missing]));
     CHECK(!env_retire_value(env, pool[first]));
     end(); CHECK(attempts == 0 && failures == 0);
-    size_t bytes = 71;
-    CHECK(!record_index_bytes(0, &bytes) && bytes == 71);
-    CHECK(!record_index_bytes(15, &bytes) && bytes == 71);
-    CHECK(!record_index_bytes(24, &bytes) && bytes == 71);
-    CHECK(!record_index_bytes(SIZE_MAX, &bytes) && bytes == 71);
-    CHECK(!record_index_bytes(SIZE_MAX / 2 + 1, &bytes) && bytes == 71);
-    CHECK(!record_index_bytes(16, NULL));
-    CHECK(record_index_bytes(16, &bytes) && bytes == sizeof(struct EnvRecordIndex) + 16 * sizeof(struct EnvRecordResult *));
+    CHECK(!record_index_bytes(0));
+    CHECK(!record_index_bytes(15));
+    CHECK(!record_index_bytes(24));
+    CHECK(!record_index_bytes(SIZE_MAX));
+    CHECK(!record_index_bytes(SIZE_MAX / 2 + 1));
+    size_t bytes = record_index_bytes(16);
+    CHECK(bytes == sizeof(struct EnvRecordIndex) + 16 * sizeof(struct EnvRecordResult *));
     struct EnvRecordIndex *index = env->record_result_index;
     struct EnvRecordResult candidate = {.next = env->record_results, .value = pool[missing]};
     struct EnvRecordResult saved; memcpy(&saved, &candidate, sizeof candidate);

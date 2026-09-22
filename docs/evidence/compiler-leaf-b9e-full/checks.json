@@ -1,0 +1,18 @@
+{
+  "schema": "nanolang.compiler_leaf_full_gate.v1",
+  "source": "b9ee277eeaf429c6872d58587c8ea37d9f10d5ff",
+  "archive_sha256": "ceadbeb89fea4668ea18d7d247ee80752ff6d8838643ce2ac26eb318eb0f25a0",
+  "driver_sha256": "7e0e8b7eb2b96ffa5eb1e7b420a0a69ddf340101181e992d3f3805555bbff690",
+  "fresh_cseed_build": "pass",
+  "sanitizer_symbols": "pass",
+  "compiler_returncode": 1,
+  "outer_timeout": false,
+  "shadow_deadline_seconds": 60,
+  "completed_shadows": 557,
+  "selected_shadows": 604,
+  "pending_ordinal": 558,
+  "pending_source": 18,
+  "pending_item": 329,
+  "owned_processes_remaining": 0,
+  "timing_acceptance": false
+}

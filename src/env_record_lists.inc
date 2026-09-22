@@ -42,31 +42,31 @@ static size_t record_result_hash(Value value) {
     return (size_t)hash;
 }
 
-static bool record_index_bytes(size_t capacity, size_t *out) {
-    if (!out || capacity < 16 || (capacity & (capacity - 1)) ||
-        capacity > (SIZE_MAX - sizeof(struct EnvRecordIndex)) / sizeof(struct EnvRecordResult *)) return false;
-    *out = sizeof(struct EnvRecordIndex) + capacity * sizeof(struct EnvRecordResult *);
-    return true;
+static size_t record_index_bytes(size_t capacity) {
+    if (capacity < 16 || (capacity & (capacity - 1)) ||
+        capacity > (SIZE_MAX - sizeof(struct EnvRecordIndex)) / sizeof(struct EnvRecordResult *)) return 0;
+    return sizeof(struct EnvRecordIndex) + capacity * sizeof(struct EnvRecordResult *);
 }
 
+struct EnvRecordSlot { size_t position; bool found; bool valid; };
 /* I locate before writing. Hash equality alone grants no membership. */
-static bool record_index_slot(const struct EnvRecordIndex *index, Value value,
-                              size_t *slot, bool *found) {
-    size_t bytes;
+static struct EnvRecordSlot record_index_slot(const struct EnvRecordIndex *index, Value value) {
+    struct EnvRecordSlot result = {0};
     const void *pointer = record_result_pointer(value);
-    if (!index || !pointer || !slot || !found || !record_index_bytes(index->capacity, &bytes) ||
-        index->count > index->capacity - index->capacity / 4) return false;
+    if (!index || !pointer || !record_index_bytes(index->capacity) ||
+        index->count > index->capacity - index->capacity / 4) return result;
     size_t position = record_result_hash(value) & (index->capacity - 1);
     for (size_t probe = 0; probe < index->capacity; ++probe) {
         const struct EnvRecordResult *entry = index->slots[position];
         if (!entry || (entry->value.type == value.type && record_result_pointer(entry->value) == pointer)) {
-            *slot = position;
-            *found = entry != NULL;
-            return true;
+            result.position = position;
+            result.found = entry != NULL;
+            result.valid = true;
+            return result;
         }
         position = (position + 1) & (index->capacity - 1);
     }
-    return false;
+    return result;
 }
 
 /* True transfers the complete entry; false leaves caller ownership and every
@@ -75,16 +75,20 @@ static bool record_result_publish(Environment *env, struct EnvRecordResult *entr
     if (!env || !entry || !record_result_pointer(entry->value)) return false;
     struct EnvRecordIndex *old = env->record_result_index;
     size_t count = old ? old->count : 0, capacity = old ? old->capacity : 16;
-    size_t slot = 0, bytes;
-    bool found = false;
+    size_t bytes = record_index_bytes(capacity);
+    struct EnvRecordSlot lookup = {0};
     if (count == SIZE_MAX || (!old && env->record_results) ||
-        !record_index_bytes(capacity, &bytes)) return false;
-    if (old && (!record_index_slot(old, entry->value, &slot, &found) || found)) return false;
+        !bytes) return false;
+    if (old) {
+        lookup = record_index_slot(old, entry->value);
+        if (!lookup.valid || lookup.found) return false;
+    }
     bool grow = old && count + 1 > capacity - capacity / 4;
     if (grow) {
         if (capacity > SIZE_MAX / 2) return false;
         capacity *= 2;
-        if (!record_index_bytes(capacity, &bytes)) return false;
+        bytes = record_index_bytes(capacity);
+        if (!bytes) return false;
     }
     struct EnvRecordIndex *table = old;
     if (!old || grow) {
@@ -94,16 +98,17 @@ static bool record_result_publish(Environment *env, struct EnvRecordResult *entr
         for (size_t i = 0; old && i < old->capacity; ++i) {
             struct EnvRecordResult *retained = old->slots[i];
             if (!retained) continue;
-            if (!record_index_slot(table, retained->value, &slot, &found) || found) goto failed;
-            table->slots[slot] = retained;
+            lookup = record_index_slot(table, retained->value);
+            if (!lookup.valid || lookup.found) goto failed;
+            table->slots[lookup.position] = retained;
             ++table->count;
         }
-        if (table->count != count ||
-            !record_index_slot(table, entry->value, &slot, &found) || found) goto failed;
+        lookup = record_index_slot(table, entry->value);
+        if (table->count != count || !lookup.valid || lookup.found) goto failed;
     }
     /* All fallible work is complete; the old graphs stay at their addresses. */
     entry->next = env->record_results;
-    table->slots[slot] = entry;
+    table->slots[lookup.position] = entry;
     table->count = count + 1;
     env->record_results = entry;
     env->record_result_index = table;
@@ -190,7 +195,20 @@ static bool clone_value_at(Value source, Value *out, unsigned depth) {
             next_name += bytes;
             dst->field_values[i].type = VAL_VOID;
             dst->field_count = i + 1;
-            if (!clone_value_at(src->field_values[i], &dst->field_values[i], depth + 1)) goto fail;
+            Value child = src->field_values[i];
+            if (depth + 1 >= 128) goto fail;
+            child.is_return = child.is_break = child.is_continue = false;
+            child.return_target = NULL;
+            if (child.type == VAL_STRING) {
+                child.as.string_val = strdup(src->field_values[i].as.string_val ?
+                                             src->field_values[i].as.string_val : "");
+                if (!child.as.string_val) goto fail;
+                dst->field_values[i] = child;
+            } else if (child.type == VAL_STRUCT || child.type == VAL_TUPLE) {
+                if (!clone_value_at(child, &dst->field_values[i], depth + 1)) goto fail;
+            } else {
+                dst->field_values[i] = child;
+            }
         }
     } else if (source.type == VAL_TUPLE) {
         TupleValue *src = source.as.tuple_val;
@@ -204,7 +222,20 @@ static bool clone_value_at(Value source, Value *out, unsigned depth) {
             if (!dst->elements) goto fail;
         }
         for (int i = 0; i < src->element_count; ++i) {
-            if (!clone_value_at(src->elements[i], &dst->elements[i], depth + 1)) goto fail;
+            Value child = src->elements[i];
+            if (depth + 1 >= 128) goto fail;
+            child.is_return = child.is_break = child.is_continue = false;
+            child.return_target = NULL;
+            if (child.type == VAL_STRING) {
+                child.as.string_val = strdup(src->elements[i].as.string_val ?
+                                             src->elements[i].as.string_val : "");
+                if (!child.as.string_val) goto fail;
+                dst->elements[i] = child;
+            } else if (child.type == VAL_STRUCT || child.type == VAL_TUPLE) {
+                if (!clone_value_at(child, &dst->elements[i], depth + 1)) goto fail;
+            } else {
+                dst->elements[i] = child;
+            }
             ++dst->element_count;
         }
     }
@@ -244,9 +275,9 @@ bool env_record_snapshot(Environment *env, Value source, Value *out) {
 }
 
 bool env_record_result_borrowed(Environment *env, Value value) {
-    size_t slot;
-    bool found;
-    return env && record_index_slot(env->record_result_index, value, &slot, &found) && found;
+    if (!env) return false;
+    struct EnvRecordSlot slot = record_index_slot(env->record_result_index, value);
+    return slot.valid && slot.found;
 }
 
 /* I transfer ownership only after registration succeeds. My caller clears its
