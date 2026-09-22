@@ -75,6 +75,7 @@ static void test_generated_file_writers_report_failures(void) {
 
     ASSERT(strstr(builder->buffer, "nl_write_file_text(path, content, \"w\")") != NULL);
     ASSERT(strstr(builder->buffer, "nl_write_file_text(path, content, \"a\")") != NULL);
+    ASSERT(strstr(builder->buffer, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_os_file_read_bytes)") != NULL);
 
     free(builder->buffer);
     free(builder);
