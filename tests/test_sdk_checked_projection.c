@@ -103,26 +103,31 @@ static void limits_and_failures(void) {
     size_t allocations=sdk_calls,bytes=start.bytes-b.bytes;uint32_t steps=start.steps-b.steps;
     checker_sdk_projection_free(p);source_free(&s);assert(!sdk_live&&allocations>2&&bytes&&steps);
     for(unsigned mode=0;mode<3;mode++) {
-        s=source(program_text);b=(NvmPreparationBudget){bytes-(mode==1),steps-(mode==2)};start=b;p=(void *)(uintptr_t)1;
+        s=source(program_text);b=(NvmPreparationBudget){bytes-(mode==1),steps-(mode==2)};start=b;p=NULL;
         CheckerSdkStatus result=type_check_sdk_projection(s.program,s.env,true,&b,&p);
         if(!mode){assert(result==CHECKER_SDK_CAPTURED&&!b.bytes&&!b.steps);facts(p,&s);checker_sdk_projection_free(p);}
-        else assert(result==CHECKER_SDK_LIMIT&&p==(void *)(uintptr_t)1&&b.bytes==start.bytes&&b.steps==start.steps);
+        else assert(result==CHECKER_SDK_LIMIT&&p==NULL&&b.bytes==start.bytes&&b.steps==start.steps);
         source_free(&s);assert(!sdk_live);
     }
     for(unsigned mode=0;mode<2;mode++)for(size_t i=0;i<allocations;i++) {
-        s=source(program_text);b=budget();start=b;p=(void *)(uintptr_t)1;sdk_calls=0;sdk_fail=i;sdk_persistent=mode!=0;
+        s=source(program_text);b=budget();start=b;p=NULL;sdk_calls=0;sdk_fail=i;sdk_persistent=mode!=0;
         assert(type_check_sdk_projection(s.program,s.env,true,&b,&p)==CHECKER_SDK_MEMORY);
-        assert(p==(void *)(uintptr_t)1&&b.bytes==start.bytes&&b.steps==start.steps&&!sdk_live);
+        assert(p==NULL&&b.bytes==start.bytes&&b.steps==start.steps&&!sdk_live);
         sdk_fail=SIZE_MAX;sdk_persistent=false;source_free(&s);
         s=source(program_text);b=budget();p=NULL;
         assert(type_check_sdk_projection(s.program,s.env,true,&b,&p)==CHECKER_SDK_CAPTURED);facts(p,&s);
         checker_sdk_projection_free(p);source_free(&s);assert(!sdk_live);
     }
-    s=source("fn main()->int{return false}\nshadow main{assert true}\n");b=budget();start=b;p=(void *)(uintptr_t)1;
+    s=source("fn main()->int{return false}\nshadow main{assert true}\n");b=budget();start=b;p=NULL;
     assert(type_check_sdk_projection(s.program,s.env,false,&b,&p)==CHECKER_SDK_CHECK_FAILED);
-    assert(p==(void *)(uintptr_t)1&&b.bytes==start.bytes&&b.steps==start.steps&&!sdk_live);source_free(&s);
-    b=budget();start=b;p=(void *)(uintptr_t)1;
-    assert(type_check_sdk_projection(NULL,NULL,false,&b,&p)==CHECKER_SDK_INVALID);
+    assert(p==NULL&&b.bytes==start.bytes&&b.steps==start.steps&&!sdk_live);source_free(&s);
+    s=source(program_text);b=budget();start=b;p=(void *)(uintptr_t)1;
+    size_t before_calls=sdk_calls;int before_functions=s.env->function_count;
+    assert(type_check_sdk_projection(s.program,s.env,true,&b,&p)==CHECKER_SDK_INVALID);
     assert(p==(void *)(uintptr_t)1&&b.bytes==start.bytes&&b.steps==start.steps);
+    assert(sdk_calls==before_calls&&s.env->function_count==before_functions&&!sdk_live);source_free(&s);
+    b=budget();start=b;p=NULL;
+    assert(type_check_sdk_projection(NULL,NULL,false,&b,&p)==CHECKER_SDK_INVALID);
+    assert(p==NULL&&b.bytes==start.bytes&&b.steps==start.steps);
 }
 int main(void){positive(false);positive(true);opaque_and_async();limits_and_failures();puts("PASS actual checked SDK declaration capture; no binding or execution admission");return 0;}
