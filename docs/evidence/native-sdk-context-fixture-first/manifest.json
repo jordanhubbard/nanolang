@@ -1,0 +1,495 @@
+{
+  "pin": "bae599477588b57b89159e10f03d5f5518ca6093",
+  "records": [
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/bootstrap-provenance.json",
+      "path": "bootstrap-provenance.json",
+      "original_bytes": 248,
+      "original_sha256": "3ebb8998f27e600785e992dba81729f9533a0c9e0cf2c499004bde7163270b67",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 248,
+      "stored_sha256": "3ebb8998f27e600785e992dba81729f9533a0c9e0cf2c499004bde7163270b67"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/compiler-owner-capacity.json",
+      "path": "compiler-owner-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "a41c90d2bf1848ab813c053c061cf8f3a314409349683bc53e63469ab67ce2e4",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 58,
+      "stored_sha256": "a41c90d2bf1848ab813c053c061cf8f3a314409349683bc53e63469ab67ce2e4"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/compiler-owner-command.json",
+      "path": "compiler-owner-command.json",
+      "original_bytes": 815,
+      "original_sha256": "3673a181c469f7fa0150d6a8fdd5ce04cfbe64de7e8dba7ec71565cc0eb46c60",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 815,
+      "stored_sha256": "3673a181c469f7fa0150d6a8fdd5ce04cfbe64de7e8dba7ec71565cc0eb46c60"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/compiler-owner-descendants.json",
+      "path": "compiler-owner-descendants.json",
+      "original_bytes": 54,
+      "original_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/compiler-owner-status.json",
+      "path": "compiler-owner-status.json",
+      "original_bytes": 234,
+      "original_sha256": "3bf4e5d007c4ef06aacf719deef5d5c4a5383b693b27c8b199279035ddab4be0",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 234,
+      "stored_sha256": "3bf4e5d007c4ef06aacf719deef5d5c4a5383b693b27c8b199279035ddab4be0"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/compiler-owner.stderr",
+      "path": "compiler-owner.stderr",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/compiler-owner.stdout",
+      "path": "compiler-owner.stdout",
+      "original_bytes": 93,
+      "original_sha256": "083060ae79a9cc17bc69cb6166b1e16396c638b533de036324d8c6d49b77af24",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 93,
+      "stored_sha256": "083060ae79a9cc17bc69cb6166b1e16396c638b533de036324d8c6d49b77af24"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/compiler-version-capacity.json",
+      "path": "compiler-version-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "d98193a244a5c097350745aec81cb7a9eb827f173c793247e2907b6153096418",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 58,
+      "stored_sha256": "d98193a244a5c097350745aec81cb7a9eb827f173c793247e2907b6153096418"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/compiler-version-command.json",
+      "path": "compiler-version-command.json",
+      "original_bytes": 805,
+      "original_sha256": "7fc8064bcba8708a8729afd2c6d5b7a62192a3ebd02e710af88e0952f90e8073",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 805,
+      "stored_sha256": "7fc8064bcba8708a8729afd2c6d5b7a62192a3ebd02e710af88e0952f90e8073"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/compiler-version-descendants.json",
+      "path": "compiler-version-descendants.json",
+      "original_bytes": 54,
+      "original_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/compiler-version-status.json",
+      "path": "compiler-version-status.json",
+      "original_bytes": 242,
+      "original_sha256": "ce906511541dee4a9b8b7bbdebdf5c9ddd44c9818a0c7c4e1b38ae3fcda75a58",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 242,
+      "stored_sha256": "ce906511541dee4a9b8b7bbdebdf5c9ddd44c9818a0c7c4e1b38ae3fcda75a58"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/compiler-version.stderr",
+      "path": "compiler-version.stderr",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/compiler-version.stdout",
+      "path": "compiler-version.stdout",
+      "original_bytes": 200,
+      "original_sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 200,
+      "stored_sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/configuration.json",
+      "path": "configuration.json",
+      "original_bytes": 933,
+      "original_sha256": "720cd20d5082ca12d40a790ef31efe2c38a88bf126dc12ebc147ac48b7e05a7c",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 933,
+      "stored_sha256": "720cd20d5082ca12d40a790ef31efe2c38a88bf126dc12ebc147ac48b7e05a7c"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/direct-context-capacity.json",
+      "path": "direct-context-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "12b46705f52ec8257b3e21adb40eff79e30608248427ea74f2179b114dbea60c",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 58,
+      "stored_sha256": "12b46705f52ec8257b3e21adb40eff79e30608248427ea74f2179b114dbea60c"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/direct-context-command.json",
+      "path": "direct-context-command.json",
+      "original_bytes": 921,
+      "original_sha256": "09904bb868cc3fd4744f98d9f74e371af34bc2cd52e60c3c7e1ae66fa7bd8509",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 921,
+      "stored_sha256": "09904bb868cc3fd4744f98d9f74e371af34bc2cd52e60c3c7e1ae66fa7bd8509"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/direct-context-descendants.json",
+      "path": "direct-context-descendants.json",
+      "original_bytes": 377,
+      "original_sha256": "c44bac852d1e767a6cfed5e42cc11541c5ad365b2b0906b8c3f1448423d9d026",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 377,
+      "stored_sha256": "c44bac852d1e767a6cfed5e42cc11541c5ad365b2b0906b8c3f1448423d9d026"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/direct-context-status.json",
+      "path": "direct-context-status.json",
+      "original_bytes": 241,
+      "original_sha256": "cf27cc573618cd5d82980560fd8e159b4c2bd766cd40abeba8aa5c700a7ac8ef",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 241,
+      "stored_sha256": "cf27cc573618cd5d82980560fd8e159b4c2bd766cd40abeba8aa5c700a7ac8ef"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/direct-context.stderr",
+      "path": "direct-context.stderr",
+      "original_bytes": 1982,
+      "original_sha256": "cba4aa20c212315d19df33460549870c23f972311353272e041277df70ed10fb",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 1982,
+      "stored_sha256": "cba4aa20c212315d19df33460549870c23f972311353272e041277df70ed10fb"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/direct-context.stdout",
+      "path": "direct-context.stdout",
+      "original_bytes": 114,
+      "original_sha256": "24a1d3ee818e47015bb48423deb98617f7b2250324661790151fa871644a6238",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 114,
+      "stored_sha256": "24a1d3ee818e47015bb48423deb98617f7b2250324661790151fa871644a6238"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/first-failure.json",
+      "path": "first-failure.json",
+      "original_bytes": 2507,
+      "original_sha256": "640ce95e021ce65a71d8614a748ba20cc147915e63c237c89a68d3984c6e507e",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 2507,
+      "stored_sha256": "640ce95e021ce65a71d8614a748ba20cc147915e63c237c89a68d3984c6e507e"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/make-provider-inventory-capacity.json",
+      "path": "make-provider-inventory-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "45588ba5613ce4fc0b32fd259b29c51c6871b99fe89260193d818e64dee40c51",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 58,
+      "stored_sha256": "45588ba5613ce4fc0b32fd259b29c51c6871b99fe89260193d818e64dee40c51"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/make-provider-inventory-command.json",
+      "path": "make-provider-inventory-command.json",
+      "original_bytes": 920,
+      "original_sha256": "0dbbbab9250a4d88ae3b49c580dcf4701059ee3de075a0a966f956ca34f77d93",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 920,
+      "stored_sha256": "0dbbbab9250a4d88ae3b49c580dcf4701059ee3de075a0a966f956ca34f77d93"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/make-provider-inventory-descendants.json",
+      "path": "make-provider-inventory-descendants.json",
+      "original_bytes": 343,
+      "original_sha256": "b0d0da50728d161ca171cbd5393b4d84956446c8a7d650bef1fc024537224f43",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 343,
+      "stored_sha256": "b0d0da50728d161ca171cbd5393b4d84956446c8a7d650bef1fc024537224f43"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/make-provider-inventory-status.json",
+      "path": "make-provider-inventory-status.json",
+      "original_bytes": 234,
+      "original_sha256": "7e2eb7be5f4fe1b17aeae0002ef4d42500756b924b26d79e7ee9d036c6f7031e",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 234,
+      "stored_sha256": "7e2eb7be5f4fe1b17aeae0002ef4d42500756b924b26d79e7ee9d036c6f7031e"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/make-provider-inventory.stderr",
+      "path": "make-provider-inventory.stderr",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/make-provider-inventory.stdout",
+      "path": "make-provider-inventory.stdout",
+      "original_bytes": 4221,
+      "original_sha256": "8f995f938cbc40b93ed12ce38ab93eabcbd090735b0246b8bc17eb179ae2f324",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 4221,
+      "stored_sha256": "8f995f938cbc40b93ed12ce38ab93eabcbd090735b0246b8bc17eb179ae2f324"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/nano-split-context-8ouj9z31/build-capacity.json",
+      "path": "nano-split-context-8ouj9z31/build-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "6f458f9246817f697049ba8093fc08bf3503740b9f4ba921f903b8b1f95c6a83",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 58,
+      "stored_sha256": "6f458f9246817f697049ba8093fc08bf3503740b9f4ba921f903b8b1f95c6a83"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/nano-split-context-8ouj9z31/build-command.json",
+      "path": "nano-split-context-8ouj9z31/build-command.json",
+      "original_bytes": 14537,
+      "original_sha256": "6702e9ace32c7cb74b08efd5c9d581e0d9322e8eb60439b98f40a4b03a1ca529",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 14537,
+      "stored_sha256": "6702e9ace32c7cb74b08efd5c9d581e0d9322e8eb60439b98f40a4b03a1ca529"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/nano-split-context-8ouj9z31/build-status.json",
+      "path": "nano-split-context-8ouj9z31/build-status.json",
+      "original_bytes": 212,
+      "original_sha256": "26a747991285104e48f4d817950ff93ed1c71eb87258856ef42275d98d0d0af3",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 212,
+      "stored_sha256": "26a747991285104e48f4d817950ff93ed1c71eb87258856ef42275d98d0d0af3"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/nano-split-context-8ouj9z31/build.stderr",
+      "path": "nano-split-context-8ouj9z31/build.stderr",
+      "original_bytes": 754,
+      "original_sha256": "c16b8b56e08be3e2d869ce1f5663d7994199a5a1856e251357a47ed3731ae795",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 754,
+      "stored_sha256": "c16b8b56e08be3e2d869ce1f5663d7994199a5a1856e251357a47ed3731ae795"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/nano-split-context-8ouj9z31/build.stdout",
+      "path": "nano-split-context-8ouj9z31/build.stdout",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/nano-split-context-8ouj9z31/ordinary-providers-after.json",
+      "path": "nano-split-context-8ouj9z31/ordinary-providers-after.json",
+      "original_bytes": 23171,
+      "original_sha256": "58bad4df603f6e3e995f8842fafc883a8d9c8a01446b92545409efabf70d3e33",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 23171,
+      "stored_sha256": "58bad4df603f6e3e995f8842fafc883a8d9c8a01446b92545409efabf70d3e33"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/nano-split-context-8ouj9z31/ordinary-providers-before.json",
+      "path": "nano-split-context-8ouj9z31/ordinary-providers-before.json",
+      "original_bytes": 23171,
+      "original_sha256": "58bad4df603f6e3e995f8842fafc883a8d9c8a01446b92545409efabf70d3e33",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 23171,
+      "stored_sha256": "58bad4df603f6e3e995f8842fafc883a8d9c8a01446b92545409efabf70d3e33"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/ordinary-provider-map.json",
+      "path": "ordinary-provider-map.json",
+      "original_bytes": 32474,
+      "original_sha256": "1cec6149633d602128f5112ab2849283c998add3578c7dff1b012ceceb9188c4",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 32474,
+      "stored_sha256": "1cec6149633d602128f5112ab2849283c998add3578c7dff1b012ceceb9188c4"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/products-after.json",
+      "path": "products-after.json.gz",
+      "original_bytes": 114770,
+      "original_sha256": "65fa911f4b0405675d7fdb16f2dffcb5c6cc348c9878e48c4f7667319e4b153d",
+      "original_mode": 420,
+      "gzip": true,
+      "stored_bytes": 30992,
+      "stored_sha256": "ab19b731bed8364ccf3c8d96361b3c4cd1bdefa50497100ee01559b053872556"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/products-before.json",
+      "path": "products-before.json.gz",
+      "original_bytes": 114770,
+      "original_sha256": "65fa911f4b0405675d7fdb16f2dffcb5c6cc348c9878e48c4f7667319e4b153d",
+      "original_mode": 420,
+      "gzip": true,
+      "stored_bytes": 30992,
+      "stored_sha256": "ab19b731bed8364ccf3c8d96361b3c4cd1bdefa50497100ee01559b053872556"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/provider-query.mk",
+      "path": "provider-query.mk",
+      "original_bytes": 120,
+      "original_sha256": "1412fce166905a8395c1e5f4b83dfce85d6961687276358ab50b186c9b832011",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 120,
+      "stored_sha256": "1412fce166905a8395c1e5f4b83dfce85d6961687276358ab50b186c9b832011"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/sdk-path-capacity.json",
+      "path": "sdk-path-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "263f9d67b7042d8b5ee3cde5e9588cb4f3b3a75c1655e5322f9cdd22c6d5de95",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 58,
+      "stored_sha256": "263f9d67b7042d8b5ee3cde5e9588cb4f3b3a75c1655e5322f9cdd22c6d5de95"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/sdk-path-command.json",
+      "path": "sdk-path-command.json",
+      "original_bytes": 811,
+      "original_sha256": "79020bfc08d4b3869e244367484f81eb58f49b2ebe41c6163da6c3b037a66dc6",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 811,
+      "stored_sha256": "79020bfc08d4b3869e244367484f81eb58f49b2ebe41c6163da6c3b037a66dc6"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/sdk-path-descendants.json",
+      "path": "sdk-path-descendants.json",
+      "original_bytes": 54,
+      "original_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/sdk-path-status.json",
+      "path": "sdk-path-status.json",
+      "original_bytes": 242,
+      "original_sha256": "0e4b05b3e9a345b09ca7c7e98954125f9bcd09c4cb9f634144e531673b647ca0",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 242,
+      "stored_sha256": "0e4b05b3e9a345b09ca7c7e98954125f9bcd09c4cb9f634144e531673b647ca0"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/sdk-path.stderr",
+      "path": "sdk-path.stderr",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/sdk-path.stdout",
+      "path": "sdk-path.stdout",
+      "original_bytes": 95,
+      "original_sha256": "5cb2cff3541ae65432805aa9d9bbfa3454381ef60694cc7b47eed0e2bf973aaf",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 95,
+      "stored_sha256": "5cb2cff3541ae65432805aa9d9bbfa3454381ef60694cc7b47eed0e2bf973aaf"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/source-after.json",
+      "path": "source-after.json.gz",
+      "original_bytes": 630195,
+      "original_sha256": "53f708e1581f84f329aaab5c0f2ce9fe03f111d1904bf8b08e0e5616760afa2a",
+      "original_mode": 420,
+      "gzip": true,
+      "stored_bytes": 211575,
+      "stored_sha256": "c52af39c74b1c08845308d0739f149c0160de50720ac7121e549c01a76d17b9c"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/source-before.json",
+      "path": "source-before.json.gz",
+      "original_bytes": 630195,
+      "original_sha256": "53f708e1581f84f329aaab5c0f2ce9fe03f111d1904bf8b08e0e5616760afa2a",
+      "original_mode": 420,
+      "gzip": true,
+      "stored_bytes": 211575,
+      "stored_sha256": "c52af39c74b1c08845308d0739f149c0160de50720ac7121e549c01a76d17b9c"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/terminal.json",
+      "path": "terminal.json",
+      "original_bytes": 2562,
+      "original_sha256": "f2b0fed6dddf0f01fdf2e59d6e0d28ddea2dd09217990b879942ee71ac96d2d6",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 2562,
+      "stored_sha256": "f2b0fed6dddf0f01fdf2e59d6e0d28ddea2dd09217990b879942ee71ac96d2d6"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/tools-after.json",
+      "path": "tools-after.json",
+      "original_bytes": 1542,
+      "original_sha256": "a0b033ccc5d89520887fff0e047697f328e1c72a53b6f29d861b5a99452b2fc9",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 1542,
+      "stored_sha256": "a0b033ccc5d89520887fff0e047697f328e1c72a53b6f29d861b5a99452b2fc9"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-bae59-puck-focused/tools-before.json",
+      "path": "tools-before.json",
+      "original_bytes": 1542,
+      "original_sha256": "a0b033ccc5d89520887fff0e047697f328e1c72a53b6f29d861b5a99452b2fc9",
+      "original_mode": 420,
+      "gzip": false,
+      "stored_bytes": 1542,
+      "stored_sha256": "a0b033ccc5d89520887fff0e047697f328e1c72a53b6f29d861b5a99452b2fc9"
+    }
+  ]
+}
