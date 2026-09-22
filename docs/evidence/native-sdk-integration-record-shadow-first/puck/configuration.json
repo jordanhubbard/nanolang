@@ -1,0 +1,18 @@
+{
+  "pin": "1868433703addfaeceadbb3cfd10c51fbedc262f",
+  "host": "puck",
+  "environment": {
+    "CC": "/usr/bin/clang",
+    "NANO_CC": "/usr/bin/clang",
+    "NANOLANG_SDK_ROOT": "/private/tmp/nanolang-native-sdk-18684-puck-source",
+    "NANO_SHADOW_TIMING": null,
+    "NANO_SHADOW_TIMEOUT_SECONDS": null,
+    "NANO_SDK_MIN_FREE_BYTES": "2147483648",
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "PKG_CONFIG_PATH": "/opt/homebrew/opt/libffi/lib/pkgconfig:/opt/homebrew/opt/openssl@3/lib/pkgconfig",
+    "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+    "DYLD_LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  },
+  "scope": "fresh integrated build and C-seed/S1/S2 bootstrap; original compiler shadow bounds; ordinary providers"
+}

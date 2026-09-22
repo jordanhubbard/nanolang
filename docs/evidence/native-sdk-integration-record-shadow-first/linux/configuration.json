@@ -1,0 +1,13 @@
+{
+  "pin": "1868433703addfaeceadbb3cfd10c51fbedc262f",
+  "host": "linux",
+  "environment": {
+    "CC": "/usr/bin/gcc",
+    "NANO_CC": "/usr/bin/gcc",
+    "NANOLANG_SDK_ROOT": "/tmp/nanolang-native-sdk-18684-linux-source",
+    "NANO_SHADOW_TIMING": null,
+    "NANO_SHADOW_TIMEOUT_SECONDS": null,
+    "NANO_SDK_MIN_FREE_BYTES": "2147483648"
+  },
+  "scope": "fresh integrated build and C-seed/S1/S2 bootstrap; original compiler shadow bounds; ordinary providers"
+}
