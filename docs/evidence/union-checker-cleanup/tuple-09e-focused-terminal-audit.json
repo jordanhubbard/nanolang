@@ -1,0 +1,55 @@
+{
+  "cas_verified": 3949,
+  "selected": [
+    {
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "-f",
+        "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+        "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+      ],
+      "bound": 900,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "cwd": "/home/jkh/nanolang-qualification/tuple-09e-linux-source",
+      "reaped": true,
+      "remaining_groups": [],
+      "seconds": 15.040274115046486,
+      "log": {
+        "sha256": "606b74f8f7e29da90580982860cb5bf7de444ea7928e9231244de7f8952dd83d",
+        "bytes": 552,
+        "archive": "/home/jkh/nanolang-qualification/tuple-09e-linux-focused/objects/606b74f8f7e29da90580982860cb5bf7de444ea7928e9231244de7f8952dd83d"
+      },
+      "inputs_equal": true
+    },
+    {
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "-f",
+        "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+        "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+      ],
+      "bound": 900,
+      "status": 1,
+      "timeout": false,
+      "cleanup": [],
+      "cwd": "/home/jkh/nanolang-qualification/tuple-09e-linux-source",
+      "reaped": true,
+      "remaining_groups": [],
+      "seconds": 11.410196582088247,
+      "log": {
+        "sha256": "7dcadeade49177ac607c6185f90492e5b201ab40d6284cfd280445bdb07b5cdf",
+        "bytes": 9662,
+        "archive": "/home/jkh/nanolang-qualification/tuple-09e-linux-focused/objects/7dcadeade49177ac607c6185f90492e5b201ab40d6284cfd280445bdb07b5cdf"
+      },
+      "inputs_equal": true
+    }
+  ]
+}
