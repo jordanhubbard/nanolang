@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include "../../src/nanovm/vm_ffi.h"
 #include "../../src/nanovm/cop_protocol.h"
+#include "../../src/runtime/callback_runtime.h"
 static int spawn_mode;
 static const char *self_path;
 static int fixture_spawn(pid_t *, const char *, const posix_spawn_file_actions_t *,
@@ -66,6 +67,38 @@ static void *concurrent(void *opaque) {
     stopped(&vm); vm_heap_destroy(&heap);
     return NULL;
 }
+typedef struct { const NvmModule *module; pthread_t owner; int executed, dropped; } CallbackPayload;
+typedef struct { NanoCallbackV1 *callback; int64_t (*invoke)(NanoCallbackV1 *); int64_t result; } CallbackThread;
+static void *callback_native(void *opaque) {
+    CallbackThread *thread = opaque;
+    thread->result = thread->invoke(thread->callback);
+    return NULL;
+}
+static NanoCallbackStatus callback_execute(void *opaque, const NanoCallbackValue *arguments,
+                                          uint32_t count, NanoCallbackValue *result) {
+    CallbackPayload *payload = opaque;
+    (void)arguments;
+    assert(!count && pthread_equal(payload->owner, pthread_self()));
+    const NvmModule *module = payload->module;
+    /* An unavailable parent loader must not be inherited or entered by launch. */
+    FfiLoaderFork token;
+    assert(ffi_loader_fork_prepare(&token));
+    pthread_t threads[4];
+    for (int i = 0; i < 4; ++i) assert(!pthread_create(threads + i, NULL, concurrent, (void *)module));
+    pthread_mutex_lock(&lock);
+    while (waiting != 4) pthread_cond_wait(&condition, &lock);
+    release_threads = true; pthread_cond_broadcast(&condition);
+    pthread_mutex_unlock(&lock);
+    for (int i = 0; i < 4; ++i) assert(!pthread_join(threads[i], NULL));
+    ffi_loader_fork_parent(&token);
+    ++payload->executed;
+    *result = (NanoCallbackValue){.tag = NANO_CALLBACK_INT, .as.integer = 42};
+    return NANO_CALLBACK_OK;
+}
+static void callback_drop(void *opaque) {
+    CallbackPayload *payload = opaque;
+    assert(pthread_equal(payload->owner, pthread_self())); ++payload->dropped;
+}
 int main(int argc, char **argv) {
     if (argc == 2 && !strcmp(argv[1], "--wrong-ready")) {
         assert(write(5, "WRONGv1!", 8) == 8);
@@ -117,17 +150,25 @@ int main(int argc, char **argv) {
     assert(call(&vm, module, &heap, 0, val_int(1)).as.i64 == 1);
     assert(vm.cop_pid != original); stopped(&vm);
     assert(call(NULL, module, &heap, 0, val_int(0)).as.i64 == 100);
-    /* An unavailable parent loader must not be inherited or entered by launch. */
-    FfiLoaderFork token;
-    assert(ffi_loader_fork_prepare(&token));
-    pthread_t threads[4];
-    for (int i = 0; i < 4; ++i) assert(!pthread_create(threads + i, NULL, concurrent, module));
-    pthread_mutex_lock(&lock);
-    while (waiting != 4) pthread_cond_wait(&condition, &lock);
-    release_threads = true; pthread_cond_broadcast(&condition);
-    pthread_mutex_unlock(&lock);
-    for (int i = 0; i < 4; ++i) assert(!pthread_join(threads[i], NULL));
-    ffi_loader_fork_parent(&token);
+    /* A real retained native callback stays queued on a foreign thread while
+     * its owner launches workers under unavailable parent loader admission. */
+    NanoCallbackRuntime *runtime = nano_callback_runtime_create(); assert(runtime);
+    CallbackPayload payload = {.module = module, .owner = pthread_self()};
+    NanoCallbackSignature signature = {.result_tag = NANO_CALLBACK_INT};
+    NanoCallbackV1 *callback = nano_callback_create(runtime, &signature, callback_execute, callback_drop, &payload);
+    assert(callback);
+    void *library = dlopen(argv[1], RTLD_NOW | RTLD_LOCAL); assert(library);
+    CallbackThread native = {.callback = callback};
+    *(void **)(&native.invoke) = dlsym(library, "exec_retained_callback"); assert(native.invoke);
+    pthread_t callback_thread;
+    assert(!pthread_create(&callback_thread, NULL, callback_native, &native));
+    while (!payload.executed) assert(nano_callback_pump(runtime, true) >= 0);
+    assert(!pthread_join(callback_thread, NULL));
+    assert(native.result == 42 && payload.executed == 1);
+    callback->release(callback); nano_callback_collect(runtime);
+    assert(payload.dropped == 1);
+    assert(nano_callback_runtime_destroy(runtime) == NANO_CALLBACK_OK);
+    dlclose(library);
     assert(call(NULL, module, &heap, 0, val_int(0)).as.i64 == 100);
     vm_heap_destroy(&heap); nvm_module_free(module); vm_ffi_shutdown();
     puts("I checked exec startup, independent images, transports, descriptors and concurrent workers.");
