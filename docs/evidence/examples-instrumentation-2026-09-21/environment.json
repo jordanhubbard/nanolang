@@ -1,0 +1,14 @@
+{
+  "head": "e0c7eb76d415520f7298b9d20a22cba2f4825b00",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t26.7\nBuildVersion:\t\t25G229",
+  "cc": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+  "sdl": "2.32.72",
+  "sdl3": "3.4.16",
+  "host": "arm64",
+  "bin/nanoc_c": {
+    "sha256": "23aff7e45071f46b9e9d24228b694898ce65c95720895248f8c9c875f20f0d3d"
+  },
+  "bin/nanoc_c_examples_san": {
+    "sha256": "16411c8eb36609e1235b4d56ae26896e231fc8e074a7aae31c3088ef2708461f"
+  }
+}
