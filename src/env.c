@@ -688,6 +688,9 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
         }
     }
 
+    /* I unwind cached links before a popped slot is reused. This is index
+     * maintenance, independent of a prior binding's type metadata. */
+    (void)symbol_index_sync(env);
     env->symbols[env->symbol_count++] = sym;
 }
 
