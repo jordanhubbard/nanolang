@@ -17351,3 +17351,10 @@ existing structural decoder. Original fixture assertions remain, with additive
 V2 selector/name/limit/lifetime/allocation controls. Strict production and linked/
 instrumented fixture syntax checks pass. Runtime tests and revision2/provider
 cross-validation remain unrun and open pending source review.
+- [x] I retain collection6d92 fresh ordinary passes on both hosts and Darwin sanitizer first leak terminal (8,568bytes/441allocations); Linux sanitizer remains held. Evidence: `docs/evidence/collection-6d92/`.
+- [ ] I qualify standalone evaluator record projection ownership (`at` and `array_pop`) before replaying the owning collection target; root owns the correction under task_992713bde1494772b0cb0b58bc9ee3c3.
+- [ ] I audit and repair evaluator-created dynamic-array string/record child copies against the low-level borrowed-child GC contract, including actual public result consumers and existing fixture manual frees, before activating cleanup (same task_992713bde1494772b0cb0b58bc9ee3c3). No affected execution or ownership change precedes source review.
+
+- [ ] I implement the reviewed dynamic reference-leaf contract only after source-plan review: fresh evaluator copies belong to the existing Environment arena, low-level borrowed children and numeric GC buffers retain their owners. Precode/audit: `docs/EVALUATOR_DYNAMIC_ARRAY_CHILD_OWNERSHIP.md`.
+
+- [x] I qualify correcteddfbf original collection owning gate and12 additive record projection cases on fresh Linux/Darwin ordinary andASan/UBSan/LSan closures. Evidence: `docs/evidence/collection-dfbf/`. Earlier6d92 leak remains retained; dynamic child ownership and full evaluator/CI acceptance stay open.

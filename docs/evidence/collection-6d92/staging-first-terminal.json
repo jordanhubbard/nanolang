@@ -1,0 +1,7 @@
+{
+  "phase": "archive-staging",
+  "returncode": 1,
+  "python": "/usr/bin/python3",
+  "reason": "extractall filter unsupported",
+  "products_started": false
+}
