@@ -17156,3 +17156,16 @@ fixture correction: env_free_value omits VAL_UNION, so Choice.None's object and
 two owned labels need exact fixture-owned release before RunCtx teardown. The
 zero-argument public call allocates no separate frame; unmatched arm creates no
 payload. I retain task992713 and the independent general union ownership scope.
+
+### My measured parser snapshot reduction
+
+- [ ] I implement task_f78ce9cfafe14a89b785a67d04afe6e0 under [my precode contract](PARSER_TOKEN_SNAPSHOTS.md): reuse only invocation-local token reads and remove redundant pure Parser argument snapshots, preserving EOF/errors/ownership and both original520-statement controls.
+- [ ] I require source review, exact-provider corrected parser shadows and timing, then combined bootstrap/CI acceptance without changing original bounds. My original355-second preparation terminal remains failed.
+
+My MAC task is pinned to the existing root agent; its claim attempt returns agent_status_unavailable. I retain the open task and do not treat that ownership service refusal as completed work.
+
+I retain my first1ee parser qualification staging failure: the exact Cseed was copied without its required nano_as_capture.so companion. module_builder.c resolves this helper beside /proc/self/exe; its absence makes std compilation refuse captured inputs before any shadow timing record. The attempt exits1 after8.957seconds, all descendants gone. I retain [its reports and generated products](evidence/parser-token-snapshots/first-staging/checks.json). Corrected fresh staging copies and hashes the original companion and records it in the tool closure; no parser assertion, source policy or capture check changes.
+
+- [ ] I correct task_03c26b0bc49d4dbc9b193a83fb51d11d: generic expression EOF with no parsed operand returns a non-error Parser and lets malformed `assert` create an absent condition. I retain the1ee r2 firstterminal and new refusal assertion. My audited optional-return/guard boundaries remain accepted; I add direct empty/completed-expression controls before corrected qualification.
+
+I qualify reviewed e3a parser correction on Linux with exact retained instrumented Cseed and capture companion: all336 shadow entries pass across11 sources, selection37.962seconds within the original60, fullcompile58.381seconds. Both original520 controls remain byte-identical and take13.926/14.060seconds. I retain [the complete qualification](evidence/parser-token-snapshots/e3a-qualified/checks.json). Tasks f78ce and03c remain open pending canonical integration and broader gates; full preparation awaits the separate known Diagnostics helper correction, and I do not replay that stale path.
