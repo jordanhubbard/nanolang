@@ -291,3 +291,16 @@ STRING-array acceptance using real parsed records; full paired programs add
 matching nested fields, declared/local array-returning callees, reverse mismatch
 and nested refusal while preserving the original record-initializer negative.
 This checkpoint is source reviewed only until its next qualification approval.
+
+The 1ee9 refreshes pass (29.674/29.994 seconds), but the new reverse-direction
+record initializer reveals a C gap: [41] into array<string> is accepted. My
+existing complete-result helper checks actual STRING-array metadata only.
+Scalar literals do not retain that complete annotation; the later field check
+compares only ARRAY. Before changing source, I propose keeping complete result
+facts first and using existing infer_array_element_type for otherwise missing
+array element facts. I compare known STRING against the other known element
+kind in both directions at the existing contextual helper. Unknown/empty
+elements retain contextual behavior; unrelated numeric compatibility remains
+unchanged. This is checker inference, not executing an initializer. The same
+existing lexical/declaration authority remains in inference. Original and
+additive refusal programs remain unchanged.
