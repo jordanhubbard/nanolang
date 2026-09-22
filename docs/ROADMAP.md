@@ -17171,3 +17171,10 @@ I retain my first1ee parser qualification staging failure: the exact Cseed was c
 - [ ] I correct task_03c26b0bc49d4dbc9b193a83fb51d11d: generic expression EOF with no parsed operand returns a non-error Parser and lets malformed `assert` create an absent condition. I retain the1ee r2 firstterminal and new refusal assertion. My audited optional-return/guard boundaries remain accepted; I add direct empty/completed-expression controls before corrected qualification.
 
 I qualify reviewed e3a parser correction on Linux with exact retained instrumented Cseed and capture companion: all336 shadow entries pass across11 sources, selection37.962seconds within the original60, fullcompile58.381seconds. Both original520 controls remain byte-identical and take13.926/14.060seconds. I retain [the complete qualification](evidence/parser-token-snapshots/e3a-qualified/checks.json). Tasks f78ce and03c remain open pending canonical integration and broader gates; full preparation awaits the separate known Diagnostics helper correction, and I do not replay that stale path.
+
+I audit task992713's five original union-root direct leak stacks and three actual
+production constructors in `EVALUATOR_UNION_ROOT_OWNERSHIP.md` before source edits.
+I propose exact newly-created Environment-lifetime root ownership, preserving raw
+caller-owned constructors and borrowed union/array/callback payload leaves. Shared
+record-index/public-return authority cannot be widened by a shallow union clone.
+Full source/fixture review and original full-suite qualification remain required.
