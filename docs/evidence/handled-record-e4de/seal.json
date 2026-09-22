@@ -1,0 +1,180 @@
+{
+  "pin": "e4de5153f5308740a2450094652b88f4b3e550cd",
+  "scope": "Original five evaluator cleanup groups plus checked handled-record identity, not full checker or backend acceptance",
+  "reports": {
+    "linux": {
+      "sha256": "b4498582e45df1efd879dd2e925edfaf81cbc06c1c083f97dc8714d280ce977e",
+      "phases": [
+        {
+          "label": "ordinary-build",
+          "argv": [
+            "/bin/make",
+            "-f",
+            "focused-eval.mk",
+            "-j2",
+            "CC=/usr/bin/gcc",
+            "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+            "LDFLAGS=-lm",
+            "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+            "stage1"
+          ],
+          "bound": 1200,
+          "timeout": false,
+          "pid": 2459825,
+          "returncode": 0,
+          "remaining_groups": [],
+          "seconds": 21.812455458100885
+        },
+        {
+          "label": "ordinary-eval",
+          "argv": [
+            "/bin/make",
+            "-f",
+            "focused-eval.mk",
+            "-j2",
+            "CC=/usr/bin/gcc",
+            "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+            "LDFLAGS=-lm",
+            "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+            "focused-eval"
+          ],
+          "bound": 1200,
+          "timeout": false,
+          "pid": 2462734,
+          "returncode": 0,
+          "remaining_groups": [],
+          "seconds": 2.5768748649861664
+        },
+        {
+          "label": "sanitized-build",
+          "argv": [
+            "/bin/make",
+            "-f",
+            "focused-eval.mk",
+            "-j2",
+            "CC=/usr/bin/gcc",
+            "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+            "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+            "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+            "stage1"
+          ],
+          "bound": 1200,
+          "timeout": false,
+          "pid": 2462828,
+          "returncode": 0,
+          "remaining_groups": [],
+          "seconds": 34.049422193085775
+        },
+        {
+          "label": "sanitized-eval",
+          "argv": [
+            "/bin/make",
+            "-f",
+            "focused-eval.mk",
+            "-j2",
+            "CC=/usr/bin/gcc",
+            "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+            "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+            "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+            "focused-eval"
+          ],
+          "bound": 1200,
+          "timeout": false,
+          "pid": 2466487,
+          "returncode": 0,
+          "remaining_groups": [],
+          "seconds": 3.8724908910226077
+        }
+      ],
+      "source_and_tools_unchanged": true
+    },
+    "puck": {
+      "sha256": "4292b4be689d9c3926417d06b4f106b83aaef68e071f243a3f50e62664292538",
+      "phases": [
+        {
+          "label": "ordinary-build",
+          "argv": [
+            "/usr/bin/make",
+            "-f",
+            "focused-eval.mk",
+            "-j2",
+            "CC=/usr/bin/clang",
+            "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+            "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+            "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "stage1"
+          ],
+          "bound": 1200,
+          "timeout": false,
+          "pid": 35826,
+          "returncode": 0,
+          "remaining_groups": [],
+          "seconds": 11.798499042
+        },
+        {
+          "label": "ordinary-eval",
+          "argv": [
+            "/usr/bin/make",
+            "-f",
+            "focused-eval.mk",
+            "-j2",
+            "CC=/usr/bin/clang",
+            "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+            "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+            "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "focused-eval"
+          ],
+          "bound": 1200,
+          "timeout": false,
+          "pid": 36917,
+          "returncode": 0,
+          "remaining_groups": [],
+          "seconds": 1.6251069999999999
+        },
+        {
+          "label": "sanitized-build",
+          "argv": [
+            "/usr/bin/make",
+            "-f",
+            "focused-eval.mk",
+            "-j2",
+            "CC=/opt/homebrew/opt/llvm/bin/clang",
+            "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+            "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+            "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "stage1"
+          ],
+          "bound": 1200,
+          "timeout": false,
+          "pid": 37010,
+          "returncode": 0,
+          "remaining_groups": [],
+          "seconds": 18.965871833
+        },
+        {
+          "label": "sanitized-eval",
+          "argv": [
+            "/usr/bin/make",
+            "-f",
+            "focused-eval.mk",
+            "-j2",
+            "CC=/opt/homebrew/opt/llvm/bin/clang",
+            "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+            "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+            "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "focused-eval"
+          ],
+          "bound": 1200,
+          "timeout": false,
+          "pid": 37841,
+          "returncode": 0,
+          "remaining_groups": [],
+          "seconds": 2.529441458000001
+        }
+      ],
+      "source_and_tools_unchanged": true
+    }
+  },
+  "de741_terminal_sha256": "94e75051cb8152773d993268270e75b631fda0fd4662c9595b045ccc7c0fb82b",
+  "417_terminal_sha256": "7a830c63e0804c645e4b01a04ee88f59eed91de90b75f952655c24be400f1798"
+}
