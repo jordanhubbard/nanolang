@@ -6021,3 +6021,12 @@ test-module-sdk-abi: $(OBJ_DIR)/test_module_generation_probe $(OBJ_DIR)/cJSON.o
 	@SDK_ABI_CC='$(CC)' SDK_ABI_CFLAGS='$(CFLAGS)' SDK_ABI_LDFLAGS='$(LDFLAGS)' SDK_ABI_CJSON='$(abspath $(OBJ_DIR)/cJSON.o)' SDK_ABI_PROBE='$(abspath $(OBJ_DIR)/test_module_generation_probe)' $(PYTHON_WITH_YAML) -m unittest tests.test_module_sdk_abi
 
 test-units: test-module-sdk-abi
+
+# I qualify actual checked source captures without generating or calling providers.
+.PHONY: test-sdk-checked-projection
+test-sdk-checked-projection: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_sdk_checked_projection tests/test_sdk_checked_projection.c $(filter-out $(OBJ_DIR)/typechecker.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_sdk_checked_projection
+
+test-units: test-sdk-checked-projection
+$(OBJ_DIR)/typechecker.o $(OBJ_DIR)/struct_name_typechecker.o: src/checker_sdk_projection.h src/checker_sdk_projection.inc

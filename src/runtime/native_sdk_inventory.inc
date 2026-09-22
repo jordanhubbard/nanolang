@@ -689,6 +689,8 @@ static const char *const sdk_required_inputs[] = {
     "src/channel.c",
     "src/channel.h",
     "src/checked_loop_binding.h",
+    "src/checker_sdk_projection.h",
+    "src/checker_sdk_projection.inc",
     "src/colors.h",
     "src/coroutine.c",
     "src/coroutine.h",

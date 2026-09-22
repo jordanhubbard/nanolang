@@ -1,4 +1,7 @@
 #include "nanolang.h"
+#include "checker_sdk_projection.h"
+static void checker_sdk_capture(Environment *,const ASTNode *,Type,size_t);
+static void checker_sdk_capture_opaque(Environment *,const ASTNode *,const char *);
 #include "effects.h"
 #include "tracing.h"
 #include "resource_tracking.h"
@@ -8673,6 +8676,7 @@ static Function extern_declaration_view(Environment *env, const ASTNode *item) {
 static int extern_declaration_state(Environment *env, const ASTNode *item) {
     Function current = extern_declaration_view(env, item);
     bool same_declaration = false;
+    size_t same_ordinal = 0;
     for (int i = 0; i < env->function_count; ++i) {
         const Function *prior = &env->functions[i];
         if (prior->checker_builtin_placeholder) continue;
@@ -8683,9 +8687,11 @@ static int extern_declaration_state(Environment *env, const ASTNode *item) {
             (prior->module_name && current.module_name && !strcmp(prior->module_name, current.module_name));
         if (same_owner && prior->name && !strcmp(prior->name, current.name)) {
             if (prior->is_pub != current.is_pub) return -1;
+            if (!same_declaration) same_ordinal = (size_t)i;
             same_declaration = true;
         }
     }
+    if (same_declaration) checker_sdk_capture(env, item, TYPE_FUNCTION, same_ordinal);
     return same_declaration ? 1 : 0;
 }
 
@@ -8703,6 +8709,7 @@ static bool register_owned_extern_declaration(Environment *env, const ASTNode *i
     declaration.name = env_own_checker_allocation(env, name);
     declaration.module_name = owner ? env_own_checker_allocation(env, owner) : NULL;
     env_define_function(env, declaration);
+    checker_sdk_capture(env, item, TYPE_FUNCTION, (size_t)env->function_count - 1);
     register_native_function_context(env, &declaration);
     return true;
 }
@@ -8982,7 +8989,10 @@ static bool type_check_program_impl(ASTNode *program, Environment *env) {
 sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
             sdef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;  /* Set module context */
             
+            int sdk_before_struct = env->struct_count;
             env_define_struct(env, sdef);
+            if (env->struct_count > sdk_before_struct)
+                checker_sdk_capture(env, item, TYPE_STRUCT, (size_t)sdk_before_struct);
 
             /* Module introspection: track exported structs (public only) */
             if (sdef.is_pub && env->current_module) {
@@ -9083,7 +9093,10 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             udef.module_name = env->current_module ? strdup(env->current_module) : NULL;
             udef.is_extern = item->as.union_def.is_extern;
             
+            int sdk_before_union = env->union_count;
             env_define_union(env, udef);
+            if (env->union_count > sdk_before_union)
+                checker_sdk_capture(env, item, TYPE_UNION, (size_t)sdk_before_union);
             
         } else if (item->type == AST_OPAQUE_TYPE) {
             /* Register opaque type */
@@ -9091,6 +9104,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             /* The nominal prepass checked local duplicates and staged all rows. */
             if (!env_define_opaque_type(env, type_name)) tc.has_error = true;
+            else checker_sdk_capture_opaque(env, item, type_name);
 
         } else if (item->type == AST_EFFECT_DECL) {
             if (!register_effect_declaration(item, env)) tc.has_error = true;
@@ -9202,7 +9216,10 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             edef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
             edef.is_extern = item->as.enum_def.is_extern;
             
+            int sdk_before_enum = env->enum_count;
             env_define_enum(env, edef);
+            if (env->enum_count > sdk_before_enum)
+                checker_sdk_capture(env, item, TYPE_ENUM, (size_t)sdk_before_enum);
             
         } else if (item->type == AST_ASYNC_FN && item->as.async_fn.function &&
                    item->as.async_fn.function->type == AST_FUNCTION) {
@@ -9368,6 +9385,7 @@ register_function_pass1:;
             }
 
             env_define_function(env, func);
+            checker_sdk_capture(env, item, TYPE_FUNCTION, (size_t)env->function_count - 1);
             register_native_function_context(env, &func);
 
             /* Module introspection: track exported functions (public only) */
@@ -9864,7 +9882,10 @@ static bool type_check_module_impl(ASTNode *program, Environment *env) {
 sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
             sdef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;  /* Set module context */
             
+            int sdk_before_struct = env->struct_count;
             env_define_struct(env, sdef);
+            if (env->struct_count > sdk_before_struct)
+                checker_sdk_capture(env, item, TYPE_STRUCT, (size_t)sdk_before_struct);
 
             /* Module introspection: track exported structs (public only) */
             if (sdef.is_pub && env->current_module) {
@@ -9965,7 +9986,10 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             udef.module_name = env->current_module ? strdup(env->current_module) : NULL;
             udef.is_extern = item->as.union_def.is_extern;
             
+            int sdk_before_union = env->union_count;
             env_define_union(env, udef);
+            if (env->union_count > sdk_before_union)
+                checker_sdk_capture(env, item, TYPE_UNION, (size_t)sdk_before_union);
             
         } else if (item->type == AST_OPAQUE_TYPE) {
             /* Register opaque type */
@@ -9973,6 +9997,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             /* The nominal prepass checked local duplicates and staged all rows. */
             if (!env_define_opaque_type(env, type_name)) tc.has_error = true;
+            else checker_sdk_capture_opaque(env, item, type_name);
             
         } else if (item->type == AST_EFFECT_DECL) {
             if (!register_effect_declaration(item, env)) tc.has_error = true;
@@ -10071,7 +10096,10 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             edef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
             edef.is_extern = item->as.enum_def.is_extern;
             
+            int sdk_before_enum = env->enum_count;
             env_define_enum(env, edef);
+            if (env->enum_count > sdk_before_enum)
+                checker_sdk_capture(env, item, TYPE_ENUM, (size_t)sdk_before_enum);
             
         } else if (item->type == AST_ASYNC_FN && item->as.async_fn.function &&
                    item->as.async_fn.function->type == AST_FUNCTION) {
@@ -10182,6 +10210,7 @@ register_function_pass2:;
             f.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
 
             env_define_function(env, f);
+            checker_sdk_capture(env, item, TYPE_FUNCTION, (size_t)env->function_count - 1);
             register_native_function_context(env, &f);
 
             /* Module introspection: track exported functions (public only) */
@@ -10585,3 +10614,5 @@ bool type_check_module(ASTNode *program, Environment *env) {
     }
     return ok;
 }
+
+#include "checker_sdk_projection.inc"
