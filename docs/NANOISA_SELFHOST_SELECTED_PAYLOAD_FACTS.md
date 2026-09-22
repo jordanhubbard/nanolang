@@ -48,3 +48,58 @@ required. Source review precedes affected execution; this ledger entry is not an
 implementation or acceptance claim.
 
 MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
+
+## My concrete representation and adapter boundary
+
+I retain my public NSType layout. A checked named payload uses TYPE_STRUCT,
+with `name = CanonicalUnion<Actuals>.Variant` and `element_type_name =
+CanonicalUnion<Actuals>`. A nongeneric payload uses `CanonicalUnion.Variant`.
+The union name is the existing declaration key after nominal binding, not a
+new owner key. The complete spelling is an internal annotation carrier; a dot
+alone does not authorize a type.
+
+I resolve a selected annotation by locating its last top-level dot, excluding
+dots inside generic arguments and callable/tuple parentheses. I require balanced
+delimiters, a nonempty union annotation and variant, exactly one actual union
+and variant, the declared generic arity, and recursively known actual arguments.
+An ordinary declared record retains precedence. Missing, ambiguous or malformed
+selection returns an unknown fact. I validate any duplicate retained union
+annotation against the union portion of the selected name. I do not recover
+identity from an emitted C spelling or from an arbitrary suffix.
+
+My adapters must change together:
+
+- `check_match_value` creates the complete selected fact. Both statement and
+  expression match checking use this function; the other arm binding traversal
+  in `purity_node` tracks purity scope and is not a second type binder.
+- `type_from_string_with_parser`, `type_to_string`, `reduce_type_known` and
+  exact/ordinary equality preserve the selected union arguments. Array, list,
+  tuple and callable annotation round trips retain the same complete leaf.
+  Two selected values with different actual arguments cannot compare equal.
+- Variant field lookup resolves the actual union/variant before substituting
+  fixed and formal field annotations. Inferred lets publish the complete
+  annotation, and branches, assignments, calls, returns and destructuring use
+  the existing complete-value validation rather than a permissive dotted test.
+- `generate_match_ordered` keeps the complete source union annotation separate
+  from its monomorphized C storage name. Both expression and statement emission
+  use this function. Binder GenEnv registration uses the complete selected
+  annotation, while the emitted payload storage uses the concrete union C name
+  followed by the selected variant.
+- `type_to_c` handles the selected suffix before generic monomorphization:
+  `Outer<Item>.Wrapped` must become `nl_Outer_Item_Wrapped`, not
+  `nl_Outer_Item` or `nl_Outer_Wrapped`. Native discovery must register the
+  underlying concrete union and its derived field types before payload use.
+- `get_variant_field_type`, `gen_match_variant_binding`, field inference and
+  nested scrutinee inference resolve the declaration base using the retained
+  concrete annotation. They must not search parser declarations by a C name.
+  Existing positional `_0` extraction and unit-variant behavior require explicit
+  preservation controls; named-field payloads remain records, including a
+  single named field.
+
+I will add direct known-fact, round-trip, comparison and field-substitution
+shadows covering two concrete instantiations, malformed/unknown selections,
+nested generic arguments, tuple/list/callback leaves and selected payload
+aliases. I will retain the original native local/imported nested-match programs
+and add generated-storage assertions plus positional and unit controls. My full
+three-producer O0/O2 native suite remains required after source review. This
+contract does not authorize a narrower acceptance corpus or a timeout change.
