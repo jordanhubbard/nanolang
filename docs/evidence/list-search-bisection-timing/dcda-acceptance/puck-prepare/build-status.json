@@ -1,0 +1,26 @@
+{
+  "name": "build",
+  "argv": [
+    "make",
+    "-j2",
+    "build",
+    "CC=/usr/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 1.1148545839999997,
+  "log": {
+    "sha256": "243cb7c2c40b96f0bcaca9b0daad3692d4b9d5e42b5f5b4878175ac1c0e3de5a",
+    "bytes": 1651,
+    "archive": "/Users/jkh/nanolang-qualification/record-lists-dcda-prepare/objects/243cb7c2c40b96f0bcaca9b0daad3692d4b9d5e42b5f5b4878175ac1c0e3de5a"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

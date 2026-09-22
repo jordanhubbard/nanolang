@@ -116,3 +116,32 @@ I preserve both original build logs/statuses and report identities. The correcte
 run uses independent verified189 products, with exact one-line shadow source
 comparison and fresh actual Make component/bootstrap/provider gates; reused Cseed
 products are not represented as a new Cseed rebuild. Full acceptance is pending.
+
+My corrected dcda component/build/bootstrap/provider gates pass on both hosts.
+The full original bootstrap takes310.637s on Linux and309.342s on Puck, still
+using the original child10/outer1800 bounds. Cseed products are independent
+verified189 copies; only the reviewed shadow expectation changes before the
+fresh component/bootstrap gates. Linux GCC ordinary15.942s, GCC sanitizer48.046s
+and Clang sanitizer33.183s focused ownership/allocation configurations pass.
+
+The Linux native matrix then exits1 after79.301s in its second method. Nested
+projection Cseed O0 passes; O2 reaches a checked list refusal. Retained generated
+C line2031 declares `nl_Outer_Item_Wrapped alias = alias;` in a nested scope.
+That statically violates my source rule that the initializer reads the prior
+binding. I preserve the first terminal and generated C, hold the unstarted Puck
+native matrix, and do not rerun the unfixed path. Original18 source remains
+unreached; the native suite is not accepted.
+
+My production lane records task_5f7995c38375459f858ed017626dbc18 and source
+checkpoint7e6d6bd4c for review. A separate authorized syntax-only probe establishes
+that the proposed statement-expression/auto-scope alternative is accepted by
+GCC13 but rejected by Linux, Apple and Homebrew Clang. No probe binary is emitted
+or executed. I preserve the initial Linux compiler-driver selection refusal
+separately from the corrected explicit-selector semantic diagnostic. These probes
+are not product qualification.
+
+[My dcda retained report identities](list-search-bisection-timing/dcda-acceptance/retained-reports.json)
+cover locally copied Puck preparation, actual Linux matrix, native retained
+artifact identities and the probe source/tools/results. The failing generated C
+is reversibly compressed with original and stored hashes. This is a terminal
+supplement, not a full CAS/source archive seal, and does not close full acceptance.

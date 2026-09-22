@@ -1,0 +1,31 @@
+I retain native list artifacts at /home/jkh/nanolang-qualification/record-lists-dcda-linux-matrix/native-source/nano-native-record-lists-kgn9ji2m
+test_native_declared_and_callback_precedence (tests.test_native_record_lists.NativeRecordLists.test_native_declared_and_callback_precedence) ... ok
+test_native_discovery_and_copied_results (tests.test_native_record_lists.NativeRecordLists.test_native_discovery_and_copied_results) ... FAIL
+
+======================================================================
+FAIL: test_native_discovery_and_copied_results (tests.test_native_record_lists.NativeRecordLists.test_native_discovery_and_copied_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/nanolang-qualification/record-lists-dcda-linux-source/tests/test_native_record_lists.py", line 163, in test_native_discovery_and_copied_results
+            self.native_routes('native-nested-list-projections', '''struct Item { value:int }
+            ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Inner<T> { Items { values:List<T> } }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<29 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/home/jkh/nanolang-qualification/record-lists-dcda-linux-source/tests/test_native_record_lists.py", line 104, in native_routes
+    out, err = self.command(label + '-run', [output], timeout=15,
+               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          expected=(1,) if runtime_failure else (0,))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/nanolang-qualification/record-lists-dcda-linux-source/tests/test_generic_record_lists.py", line 127, in command
+    raise AssertionError((name, status, out[-8000:], err[-8000:]))
+AssertionError: ('0041-native-nested-list-projections-nanoc_c-O2-run', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'child_returncode': 1, 'elapsed': 0.0015687919221818447}, b'', b'I cannot complete this list operation: invalid bounds, storage, or allocation.\n')
+
+----------------------------------------------------------------------
+Ran 2 tests in 79.235s
+
+FAILED (failures=1)

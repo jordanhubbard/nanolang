@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "head": "dcda44b793fb430ebff0b088ebf9a7cc5ecf5104",
+  "scope": "corrected dcda shadow expectation only, verified189 products independently copied; failed transpiler component first then complete build/bootstrap/provider closure, original bounds; reused Cseed products are not a fresh Cseed rebuild; bootstrap runs again"
+}

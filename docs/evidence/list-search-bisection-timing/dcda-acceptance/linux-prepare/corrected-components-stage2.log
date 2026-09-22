@@ -1,0 +1,18 @@
+✓ Compiler: bin/nanoc -> bin/nanoc_c (C reference)
+✓ Stage 1 complete (C reference binaries)
+
+==========================================
+Stage 2: Building Self-Hosted Components
+==========================================
+Compiling components with bin/nanoc...
+
+  Building parser...
+    ✓ parser compiled successfully
+
+  Building typecheck...
+    ✓ typecheck compiled successfully
+
+  Building transpiler...
+    ✓ transpiler compiled successfully
+
+✓ Stage 2: 3/3 components built successfully

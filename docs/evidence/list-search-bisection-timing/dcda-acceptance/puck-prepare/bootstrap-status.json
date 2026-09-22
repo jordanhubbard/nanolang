@@ -1,0 +1,26 @@
+{
+  "name": "bootstrap",
+  "argv": [
+    "make",
+    "-j2",
+    "bootstrap",
+    "CC=/usr/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 309.34207204200004,
+  "log": {
+    "sha256": "6c9dbb61e8dc8f707d07cb9b49dcaca770c2aced2200a521203ec9af53234377",
+    "bytes": 74615,
+    "archive": "/Users/jkh/nanolang-qualification/record-lists-dcda-prepare/objects/6c9dbb61e8dc8f707d07cb9b49dcaca770c2aced2200a521203ec9af53234377"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

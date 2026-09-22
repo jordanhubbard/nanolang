@@ -1,0 +1,894 @@
+✓ Bootstrap Stage 0: C reference compiler ready
+
+==========================================
+Bootstrap Stage 1: Self-Hosted Compiler
+==========================================
+Compiling nanoc_v06.nano with C compiler...
+Warning at line 109, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2092, column 9: Unused variable 'rejected'
+Warning at line 2213, column 9: Unused variable 'rejected'
+Warning at line 2220, column 13: Unused variable 'rejected'
+Warning at line 2258, column 9: Unused variable 'rejected'
+Warning at line 2262, column 9: Unused variable 'rejected'
+Warning at line 2269, column 13: Unused variable 'rejected'
+Warning at line 5384, column 17: Unused variable 'imported'
+Warning at line 109, column 1: Unused variable 'parser'
+Warning at line 109, column 1: Unused variable 'parser'
+Warning at line 109, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2092, column 9: Unused variable 'rejected'
+Warning at line 2213, column 9: Unused variable 'rejected'
+Warning at line 2220, column 13: Unused variable 'rejected'
+Warning at line 2258, column 9: Unused variable 'rejected'
+Warning at line 2262, column 9: Unused variable 'rejected'
+Warning at line 2269, column 13: Unused variable 'rejected'
+Warning at line 5384, column 17: Unused variable 'imported'
+Warning at line 109, column 1: Unused variable 'parser'
+✓ Stage 1 compiler created: bin/nanoc_stage1
+
+Testing stage 1 compiler...
+Hello from NanoLang!
+✓ Stage 1 compiler works!
+
+==========================================
+Bootstrap Stage 2: Recompilation
+==========================================
+Compiling nanoc_v06.nano with stage 1 compiler...
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:916:40: warning: redefinition of typedef 'List_CompilerDiagnostic' is a C11 feature [-Wtypedef-redefinition]
+  916 | typedef struct List_CompilerDiagnostic List_CompilerDiagnostic;
+      |                                        ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:145:40: note: previous definition is here
+  145 | typedef struct List_CompilerDiagnostic List_CompilerDiagnostic;
+      |                                        ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:917:32: warning: redefinition of typedef 'List_LexerToken' is a C11 feature [-Wtypedef-redefinition]
+  917 | typedef struct List_LexerToken List_LexerToken;
+      |                                ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:149:32: note: previous definition is here
+  149 | typedef struct List_LexerToken List_LexerToken;
+      |                                ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:918:31: warning: redefinition of typedef 'List_ASTNumber' is a C11 feature [-Wtypedef-redefinition]
+  918 | typedef struct List_ASTNumber List_ASTNumber;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:81:31: note: previous definition is here
+   81 | typedef struct List_ASTNumber List_ASTNumber;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:919:30: warning: redefinition of typedef 'List_ASTFloat' is a C11 feature [-Wtypedef-redefinition]
+  919 | typedef struct List_ASTFloat List_ASTFloat;
+      |                              ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:45:30: note: previous definition is here
+   45 | typedef struct List_ASTFloat List_ASTFloat;
+      |                              ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:920:31: warning: redefinition of typedef 'List_ASTString' is a C11 feature [-Wtypedef-redefinition]
+  920 | typedef struct List_ASTString List_ASTString;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:109:31: note: previous definition is here
+  109 | typedef struct List_ASTString List_ASTString;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:921:29: warning: redefinition of typedef 'List_ASTBool' is a C11 feature [-Wtypedef-redefinition]
+  921 | typedef struct List_ASTBool List_ASTBool;
+      |                             ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:29:29: note: previous definition is here
+   29 | typedef struct List_ASTBool List_ASTBool;
+      |                             ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:922:35: warning: redefinition of typedef 'List_ASTIdentifier' is a C11 feature [-Wtypedef-redefinition]
+  922 | typedef struct List_ASTIdentifier List_ASTIdentifier;
+      |                                   ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:57:35: note: previous definition is here
+   57 | typedef struct List_ASTIdentifier List_ASTIdentifier;
+      |                                   ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:923:33: warning: redefinition of typedef 'List_ASTBinaryOp' is a C11 feature [-Wtypedef-redefinition]
+  923 | typedef struct List_ASTBinaryOp List_ASTBinaryOp;
+      |                                 ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:21:33: note: previous definition is here
+   21 | typedef struct List_ASTBinaryOp List_ASTBinaryOp;
+      |                                 ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:924:29: warning: redefinition of typedef 'List_ASTCall' is a C11 feature [-Wtypedef-redefinition]
+  924 | typedef struct List_ASTCall List_ASTCall;
+      |                             ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:33:29: note: previous definition is here
+   33 | typedef struct List_ASTCall List_ASTCall;
+      |                             ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:925:44: warning: redefinition of typedef 'List_ASTModuleQualifiedCall' is a C11 feature [-Wtypedef-redefinition]
+  925 | typedef struct List_ASTModuleQualifiedCall List_ASTModuleQualifiedCall;
+      |                                            ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:77:44: note: previous definition is here
+   77 | typedef struct List_ASTModuleQualifiedCall List_ASTModuleQualifiedCall;
+      |                                            ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:926:32: warning: redefinition of typedef 'List_ASTStmtRef' is a C11 feature [-Wtypedef-redefinition]
+  926 | typedef struct List_ASTStmtRef List_ASTStmtRef;
+      |                                ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:105:32: note: previous definition is here
+  105 | typedef struct List_ASTStmtRef List_ASTStmtRef;
+      |                                ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:927:37: warning: redefinition of typedef 'List_ASTArrayLiteral' is a C11 feature [-Wtypedef-redefinition]
+  927 | typedef struct List_ASTArrayLiteral List_ASTArrayLiteral;
+      |                                     ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:13:37: note: previous definition is here
+   13 | typedef struct List_ASTArrayLiteral List_ASTArrayLiteral;
+      |                                     ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:928:28: warning: redefinition of typedef 'List_ASTLet' is a C11 feature [-Wtypedef-redefinition]
+  928 | typedef struct List_ASTLet List_ASTLet;
+      |                            ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:69:28: note: previous definition is here
+   69 | typedef struct List_ASTLet List_ASTLet;
+      |                            ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:929:28: warning: redefinition of typedef 'List_ASTSet' is a C11 feature [-Wtypedef-redefinition]
+  929 | typedef struct List_ASTSet List_ASTSet;
+      |                            ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:97:28: note: previous definition is here
+   97 | typedef struct List_ASTSet List_ASTSet;
+      |                            ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:930:27: warning: redefinition of typedef 'List_ASTIf' is a C11 feature [-Wtypedef-redefinition]
+  930 | typedef struct List_ASTIf List_ASTIf;
+      |                           ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:61:27: note: previous definition is here
+   61 | typedef struct List_ASTIf List_ASTIf;
+      |                           ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:931:30: warning: redefinition of typedef 'List_ASTWhile' is a C11 feature [-Wtypedef-redefinition]
+  931 | typedef struct List_ASTWhile List_ASTWhile;
+      |                              ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:141:30: note: previous definition is here
+  141 | typedef struct List_ASTWhile List_ASTWhile;
+      |                              ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:932:28: warning: redefinition of typedef 'List_ASTFor' is a C11 feature [-Wtypedef-redefinition]
+  932 | typedef struct List_ASTFor List_ASTFor;
+      |                            ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:49:28: note: previous definition is here
+   49 | typedef struct List_ASTFor List_ASTFor;
+      |                            ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:933:31: warning: redefinition of typedef 'List_ASTReturn' is a C11 feature [-Wtypedef-redefinition]
+  933 | typedef struct List_ASTReturn List_ASTReturn;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:93:31: note: previous definition is here
+   93 | typedef struct List_ASTReturn List_ASTReturn;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:934:30: warning: redefinition of typedef 'List_ASTBlock' is a C11 feature [-Wtypedef-redefinition]
+  934 | typedef struct List_ASTBlock List_ASTBlock;
+      |                              ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:25:30: note: previous definition is here
+   25 | typedef struct List_ASTBlock List_ASTBlock;
+      |                              ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:935:36: warning: redefinition of typedef 'List_ASTUnsafeBlock' is a C11 feature [-Wtypedef-redefinition]
+  935 | typedef struct List_ASTUnsafeBlock List_ASTUnsafeBlock;
+      |                                    ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:137:36: note: previous definition is here
+  137 | typedef struct List_ASTUnsafeBlock List_ASTUnsafeBlock;
+      |                                    ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:936:30: warning: redefinition of typedef 'List_ASTPrint' is a C11 feature [-Wtypedef-redefinition]
+  936 | typedef struct List_ASTPrint List_ASTPrint;
+      |                              ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:89:30: note: previous definition is here
+   89 | typedef struct List_ASTPrint List_ASTPrint;
+      |                              ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:937:31: warning: redefinition of typedef 'List_ASTAssert' is a C11 feature [-Wtypedef-redefinition]
+  937 | typedef struct List_ASTAssert List_ASTAssert;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:17:31: note: previous definition is here
+   17 | typedef struct List_ASTAssert List_ASTAssert;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:938:33: warning: redefinition of typedef 'List_ASTFunction' is a C11 feature [-Wtypedef-redefinition]
+  938 | typedef struct List_ASTFunction List_ASTFunction;
+      |                                 ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:53:33: note: previous definition is here
+   53 | typedef struct List_ASTFunction List_ASTFunction;
+      |                                 ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:939:31: warning: redefinition of typedef 'List_ASTShadow' is a C11 feature [-Wtypedef-redefinition]
+  939 | typedef struct List_ASTShadow List_ASTShadow;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:101:31: note: previous definition is here
+  101 | typedef struct List_ASTShadow List_ASTShadow;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:940:31: warning: redefinition of typedef 'List_ASTStruct' is a C11 feature [-Wtypedef-redefinition]
+  940 | typedef struct List_ASTStruct List_ASTStruct;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:113:31: note: previous definition is here
+  113 | typedef struct List_ASTStruct List_ASTStruct;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:941:38: warning: redefinition of typedef 'List_ASTStructLiteral' is a C11 feature [-Wtypedef-redefinition]
+  941 | typedef struct List_ASTStructLiteral List_ASTStructLiteral;
+      |                                      ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:117:38: note: previous definition is here
+  117 | typedef struct List_ASTStructLiteral List_ASTStructLiteral;
+      |                                      ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:942:36: warning: redefinition of typedef 'List_ASTFieldAccess' is a C11 feature [-Wtypedef-redefinition]
+  942 | typedef struct List_ASTFieldAccess List_ASTFieldAccess;
+      |                                    ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:41:36: note: previous definition is here
+   41 | typedef struct List_ASTFieldAccess List_ASTFieldAccess;
+      |                                    ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:943:29: warning: redefinition of typedef 'List_ASTEnum' is a C11 feature [-Wtypedef-redefinition]
+  943 | typedef struct List_ASTEnum List_ASTEnum;
+      |                             ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:37:29: note: previous definition is here
+   37 | typedef struct List_ASTEnum List_ASTEnum;
+      |                             ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:944:30: warning: redefinition of typedef 'List_ASTUnion' is a C11 feature [-Wtypedef-redefinition]
+  944 | typedef struct List_ASTUnion List_ASTUnion;
+      |                              ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:129:30: note: previous definition is here
+  129 | typedef struct List_ASTUnion List_ASTUnion;
+      |                              ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:945:39: warning: redefinition of typedef 'List_ASTUnionConstruct' is a C11 feature [-Wtypedef-redefinition]
+  945 | typedef struct List_ASTUnionConstruct List_ASTUnionConstruct;
+      |                                       ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:133:39: note: previous definition is here
+  133 | typedef struct List_ASTUnionConstruct List_ASTUnionConstruct;
+      |                                       ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:946:30: warning: redefinition of typedef 'List_ASTMatch' is a C11 feature [-Wtypedef-redefinition]
+  946 | typedef struct List_ASTMatch List_ASTMatch;
+      |                              ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:73:30: note: previous definition is here
+   73 | typedef struct List_ASTMatch List_ASTMatch;
+      |                              ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:947:31: warning: redefinition of typedef 'List_ASTImport' is a C11 feature [-Wtypedef-redefinition]
+  947 | typedef struct List_ASTImport List_ASTImport;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:65:31: note: previous definition is here
+   65 | typedef struct List_ASTImport List_ASTImport;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:948:35: warning: redefinition of typedef 'List_ASTOpaqueType' is a C11 feature [-Wtypedef-redefinition]
+  948 | typedef struct List_ASTOpaqueType List_ASTOpaqueType;
+      |                                   ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:85:35: note: previous definition is here
+   85 | typedef struct List_ASTOpaqueType List_ASTOpaqueType;
+      |                                   ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:949:37: warning: redefinition of typedef 'List_ASTTupleLiteral' is a C11 feature [-Wtypedef-redefinition]
+  949 | typedef struct List_ASTTupleLiteral List_ASTTupleLiteral;
+      |                                     ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:125:37: note: previous definition is here
+  125 | typedef struct List_ASTTupleLiteral List_ASTTupleLiteral;
+      |                                     ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:950:35: warning: redefinition of typedef 'List_ASTTupleIndex' is a C11 feature [-Wtypedef-redefinition]
+  950 | typedef struct List_ASTTupleIndex List_ASTTupleIndex;
+      |                                   ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:121:35: note: previous definition is here
+  121 | typedef struct List_ASTTupleIndex List_ASTTupleIndex;
+      |                                   ^
+src_nano/nanoc_v06.nano:12670:5: warning: initializing 'typeof ((nl_nb_native_prefix)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 12670 |     NL_GUARDED_WRITE(nl_nb_native_prefix, nl_prefix);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:20361:9: warning: initializing 'typeof ((nl_tc_enclosing_function)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 20361 |         NL_GUARDED_WRITE(nl_tc_enclosing_function, nl_previous_function);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:20362:9: warning: initializing 'typeof ((nl_tc_enclosing_return)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 20362 |         NL_GUARDED_WRITE(nl_tc_enclosing_return, nl_previous_return);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:23633:9: warning: initializing 'typeof ((nl_reduce_emission_error)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23633 |         NL_GUARDED_WRITE(nl_reduce_emission_error, nl_message);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:32250:9: warning: initializing 'typeof ((nl_nb_expression_identity)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32250 |         NL_GUARDED_WRITE(nl_nb_expression_identity, nl_authoritative);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:32295:5: warning: initializing 'typeof ((nl_nb_expression_identity)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32295 |     NL_GUARDED_WRITE(nl_nb_expression_identity, nl_authoritative);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:32793:17: warning: initializing 'typeof ((nl_nb_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32793 |                 NL_GUARDED_WRITE(nl_nb_loop_top, nl_top);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:32793:17: warning: initializing 'typeof ((nl_nb_loop_done)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32793 |                 NL_GUARDED_WRITE(nl_nb_loop_done, nl_skip);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:32800:17: warning: initializing 'typeof ((nl_nb_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32800 |                 NL_GUARDED_WRITE(nl_nb_loop_top, nl_saved_top);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:32800:17: warning: initializing 'typeof ((nl_nb_loop_done)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32800 |                 NL_GUARDED_WRITE(nl_nb_loop_done, nl_saved_done);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:34200:9: warning: initializing 'typeof ((nl_nisa_err)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 34200 |         NL_GUARDED_WRITE(nl_nisa_err, nl_msg);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:35771:5: warning: initializing 'typeof ((nl_nisa_ordinary_init)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 35771 |     NL_GUARDED_WRITE(nl_nisa_ordinary_init, nl___nano_module___25_nisa_ordinary_contract(nl_parser, "void", 0, nl_nisa_types));
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38048:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38048 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_l_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38049:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38049 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_l_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38067:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38067 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_outer_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38068:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38068 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_outer_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38069:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38069 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_outer_index);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38116:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38116 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38117:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38117 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38118:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38118 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_index_slot);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38138:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38138 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_outer_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38139:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38139 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_outer_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38140:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38140 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_outer_index);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:23644:5: warning: initializing 'typeof ((nl_reduce_emission_error)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23644 |     NL_GUARDED_WRITE(nl_reduce_emission_error, nl_saved);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:23652:5: warning: initializing 'typeof ((nl_reduce_emission_error)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23652 |     NL_GUARDED_WRITE(nl_reduce_emission_error, nl_saved);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+60 warnings generated.
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/modules/std/collections/collections.c:1:9: warning: '_GNU_SOURCE' macro redefined [-Wmacro-redefined]
+    1 | #define _GNU_SOURCE
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define _GNU_SOURCE 1
+      |         ^
+1 warning generated.
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/modules/std/json/json.c:1:9: warning: '_GNU_SOURCE' macro redefined [-Wmacro-redefined]
+    1 | #define _GNU_SOURCE
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define _GNU_SOURCE 1
+      |         ^
+1 warning generated.
+I cannot define two type kinds with one local name: Handle
+I cannot resolve ambiguous imported type declarations: Handle
+I cannot define a record twice in one module: Handle
+I cannot define two type kinds with one local name: Handle
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+=== Code Generation ===
+Generating C code for 2 functions
+=== Code Generation ===
+Generating C code for 1 functions
+I cannot define a function twice in one module: answer
+I cannot resolve a qualified function in this module: lib.answer
+I require separate artifact and diagnostic destinations
+I require separate artifact and diagnostic destinations
+I will not overwrite a source file: /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_source_guard_1790049047_0/source.nano
+I will not overwrite a source file: /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_source_guard_1790049047_0/source.nano
+I cannot check source/output file identity: /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_source_guard_1790049047_0/missing
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Usage: nanoc <input.nano> [-o output] [options]
+
+Options:
+  -o <file>        Output executable (default: a.out)
+  -v, --verbose    Verbose compilation output
+  -k, --keep-c     Keep generated C file
+  --target <t>    native (default) or c (source output, no native compilation)
+  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o
+  --test-imports  I run dependency shadows before root shadows (default)
+  --root-shadows-only  I run only root-file shadows
+  --              End options; the remaining argument is my input path
+  -fshow-intermediate-code  Print generated C to stdout
+  -h, --help       Show this help
+  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)
+
+This compiler is 100% written in NanoLang!
+Pipeline: Lex → Parse → Typecheck → Transpile → Compile
+
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:914:40: warning: redefinition of typedef 'List_CompilerDiagnostic' is a C11 feature [-Wtypedef-redefinition]
+  914 | typedef struct List_CompilerDiagnostic List_CompilerDiagnostic;
+      |                                        ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:145:40: note: previous definition is here
+  145 | typedef struct List_CompilerDiagnostic List_CompilerDiagnostic;
+      |                                        ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:915:32: warning: redefinition of typedef 'List_LexerToken' is a C11 feature [-Wtypedef-redefinition]
+  915 | typedef struct List_LexerToken List_LexerToken;
+      |                                ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:149:32: note: previous definition is here
+  149 | typedef struct List_LexerToken List_LexerToken;
+      |                                ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:916:31: warning: redefinition of typedef 'List_ASTNumber' is a C11 feature [-Wtypedef-redefinition]
+  916 | typedef struct List_ASTNumber List_ASTNumber;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:81:31: note: previous definition is here
+   81 | typedef struct List_ASTNumber List_ASTNumber;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:917:30: warning: redefinition of typedef 'List_ASTFloat' is a C11 feature [-Wtypedef-redefinition]
+  917 | typedef struct List_ASTFloat List_ASTFloat;
+      |                              ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:45:30: note: previous definition is here
+   45 | typedef struct List_ASTFloat List_ASTFloat;
+      |                              ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:918:31: warning: redefinition of typedef 'List_ASTString' is a C11 feature [-Wtypedef-redefinition]
+  918 | typedef struct List_ASTString List_ASTString;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:109:31: note: previous definition is here
+  109 | typedef struct List_ASTString List_ASTString;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:919:29: warning: redefinition of typedef 'List_ASTBool' is a C11 feature [-Wtypedef-redefinition]
+  919 | typedef struct List_ASTBool List_ASTBool;
+      |                             ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:29:29: note: previous definition is here
+   29 | typedef struct List_ASTBool List_ASTBool;
+      |                             ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:920:35: warning: redefinition of typedef 'List_ASTIdentifier' is a C11 feature [-Wtypedef-redefinition]
+  920 | typedef struct List_ASTIdentifier List_ASTIdentifier;
+      |                                   ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:57:35: note: previous definition is here
+   57 | typedef struct List_ASTIdentifier List_ASTIdentifier;
+      |                                   ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:921:33: warning: redefinition of typedef 'List_ASTBinaryOp' is a C11 feature [-Wtypedef-redefinition]
+  921 | typedef struct List_ASTBinaryOp List_ASTBinaryOp;
+      |                                 ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:21:33: note: previous definition is here
+   21 | typedef struct List_ASTBinaryOp List_ASTBinaryOp;
+      |                                 ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:922:29: warning: redefinition of typedef 'List_ASTCall' is a C11 feature [-Wtypedef-redefinition]
+  922 | typedef struct List_ASTCall List_ASTCall;
+      |                             ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:33:29: note: previous definition is here
+   33 | typedef struct List_ASTCall List_ASTCall;
+      |                             ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:923:44: warning: redefinition of typedef 'List_ASTModuleQualifiedCall' is a C11 feature [-Wtypedef-redefinition]
+  923 | typedef struct List_ASTModuleQualifiedCall List_ASTModuleQualifiedCall;
+      |                                            ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:77:44: note: previous definition is here
+   77 | typedef struct List_ASTModuleQualifiedCall List_ASTModuleQualifiedCall;
+      |                                            ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:924:32: warning: redefinition of typedef 'List_ASTStmtRef' is a C11 feature [-Wtypedef-redefinition]
+  924 | typedef struct List_ASTStmtRef List_ASTStmtRef;
+      |                                ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:105:32: note: previous definition is here
+  105 | typedef struct List_ASTStmtRef List_ASTStmtRef;
+      |                                ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:925:37: warning: redefinition of typedef 'List_ASTArrayLiteral' is a C11 feature [-Wtypedef-redefinition]
+  925 | typedef struct List_ASTArrayLiteral List_ASTArrayLiteral;
+      |                                     ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:13:37: note: previous definition is here
+   13 | typedef struct List_ASTArrayLiteral List_ASTArrayLiteral;
+      |                                     ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:926:28: warning: redefinition of typedef 'List_ASTLet' is a C11 feature [-Wtypedef-redefinition]
+  926 | typedef struct List_ASTLet List_ASTLet;
+      |                            ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:69:28: note: previous definition is here
+   69 | typedef struct List_ASTLet List_ASTLet;
+      |                            ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:927:28: warning: redefinition of typedef 'List_ASTSet' is a C11 feature [-Wtypedef-redefinition]
+  927 | typedef struct List_ASTSet List_ASTSet;
+      |                            ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:97:28: note: previous definition is here
+   97 | typedef struct List_ASTSet List_ASTSet;
+      |                            ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:928:27: warning: redefinition of typedef 'List_ASTIf' is a C11 feature [-Wtypedef-redefinition]
+  928 | typedef struct List_ASTIf List_ASTIf;
+      |                           ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:61:27: note: previous definition is here
+   61 | typedef struct List_ASTIf List_ASTIf;
+      |                           ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:929:30: warning: redefinition of typedef 'List_ASTWhile' is a C11 feature [-Wtypedef-redefinition]
+  929 | typedef struct List_ASTWhile List_ASTWhile;
+      |                              ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:141:30: note: previous definition is here
+  141 | typedef struct List_ASTWhile List_ASTWhile;
+      |                              ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:930:28: warning: redefinition of typedef 'List_ASTFor' is a C11 feature [-Wtypedef-redefinition]
+  930 | typedef struct List_ASTFor List_ASTFor;
+      |                            ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:49:28: note: previous definition is here
+   49 | typedef struct List_ASTFor List_ASTFor;
+      |                            ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:931:31: warning: redefinition of typedef 'List_ASTReturn' is a C11 feature [-Wtypedef-redefinition]
+  931 | typedef struct List_ASTReturn List_ASTReturn;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:93:31: note: previous definition is here
+   93 | typedef struct List_ASTReturn List_ASTReturn;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:932:30: warning: redefinition of typedef 'List_ASTBlock' is a C11 feature [-Wtypedef-redefinition]
+  932 | typedef struct List_ASTBlock List_ASTBlock;
+      |                              ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:25:30: note: previous definition is here
+   25 | typedef struct List_ASTBlock List_ASTBlock;
+      |                              ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:933:36: warning: redefinition of typedef 'List_ASTUnsafeBlock' is a C11 feature [-Wtypedef-redefinition]
+  933 | typedef struct List_ASTUnsafeBlock List_ASTUnsafeBlock;
+      |                                    ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:137:36: note: previous definition is here
+  137 | typedef struct List_ASTUnsafeBlock List_ASTUnsafeBlock;
+      |                                    ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:934:30: warning: redefinition of typedef 'List_ASTPrint' is a C11 feature [-Wtypedef-redefinition]
+  934 | typedef struct List_ASTPrint List_ASTPrint;
+      |                              ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:89:30: note: previous definition is here
+   89 | typedef struct List_ASTPrint List_ASTPrint;
+      |                              ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:935:31: warning: redefinition of typedef 'List_ASTAssert' is a C11 feature [-Wtypedef-redefinition]
+  935 | typedef struct List_ASTAssert List_ASTAssert;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:17:31: note: previous definition is here
+   17 | typedef struct List_ASTAssert List_ASTAssert;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:936:33: warning: redefinition of typedef 'List_ASTFunction' is a C11 feature [-Wtypedef-redefinition]
+  936 | typedef struct List_ASTFunction List_ASTFunction;
+      |                                 ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:53:33: note: previous definition is here
+   53 | typedef struct List_ASTFunction List_ASTFunction;
+      |                                 ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:937:31: warning: redefinition of typedef 'List_ASTShadow' is a C11 feature [-Wtypedef-redefinition]
+  937 | typedef struct List_ASTShadow List_ASTShadow;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:101:31: note: previous definition is here
+  101 | typedef struct List_ASTShadow List_ASTShadow;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:938:31: warning: redefinition of typedef 'List_ASTStruct' is a C11 feature [-Wtypedef-redefinition]
+  938 | typedef struct List_ASTStruct List_ASTStruct;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:113:31: note: previous definition is here
+  113 | typedef struct List_ASTStruct List_ASTStruct;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:939:38: warning: redefinition of typedef 'List_ASTStructLiteral' is a C11 feature [-Wtypedef-redefinition]
+  939 | typedef struct List_ASTStructLiteral List_ASTStructLiteral;
+      |                                      ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:117:38: note: previous definition is here
+  117 | typedef struct List_ASTStructLiteral List_ASTStructLiteral;
+      |                                      ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:940:36: warning: redefinition of typedef 'List_ASTFieldAccess' is a C11 feature [-Wtypedef-redefinition]
+  940 | typedef struct List_ASTFieldAccess List_ASTFieldAccess;
+      |                                    ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:41:36: note: previous definition is here
+   41 | typedef struct List_ASTFieldAccess List_ASTFieldAccess;
+      |                                    ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:941:29: warning: redefinition of typedef 'List_ASTEnum' is a C11 feature [-Wtypedef-redefinition]
+  941 | typedef struct List_ASTEnum List_ASTEnum;
+      |                             ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:37:29: note: previous definition is here
+   37 | typedef struct List_ASTEnum List_ASTEnum;
+      |                             ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:942:30: warning: redefinition of typedef 'List_ASTUnion' is a C11 feature [-Wtypedef-redefinition]
+  942 | typedef struct List_ASTUnion List_ASTUnion;
+      |                              ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:129:30: note: previous definition is here
+  129 | typedef struct List_ASTUnion List_ASTUnion;
+      |                              ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:943:39: warning: redefinition of typedef 'List_ASTUnionConstruct' is a C11 feature [-Wtypedef-redefinition]
+  943 | typedef struct List_ASTUnionConstruct List_ASTUnionConstruct;
+      |                                       ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:133:39: note: previous definition is here
+  133 | typedef struct List_ASTUnionConstruct List_ASTUnionConstruct;
+      |                                       ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:944:30: warning: redefinition of typedef 'List_ASTMatch' is a C11 feature [-Wtypedef-redefinition]
+  944 | typedef struct List_ASTMatch List_ASTMatch;
+      |                              ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:73:30: note: previous definition is here
+   73 | typedef struct List_ASTMatch List_ASTMatch;
+      |                              ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:945:31: warning: redefinition of typedef 'List_ASTImport' is a C11 feature [-Wtypedef-redefinition]
+  945 | typedef struct List_ASTImport List_ASTImport;
+      |                               ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:65:31: note: previous definition is here
+   65 | typedef struct List_ASTImport List_ASTImport;
+      |                               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:946:35: warning: redefinition of typedef 'List_ASTOpaqueType' is a C11 feature [-Wtypedef-redefinition]
+  946 | typedef struct List_ASTOpaqueType List_ASTOpaqueType;
+      |                                   ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:85:35: note: previous definition is here
+   85 | typedef struct List_ASTOpaqueType List_ASTOpaqueType;
+      |                                   ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:947:37: warning: redefinition of typedef 'List_ASTTupleLiteral' is a C11 feature [-Wtypedef-redefinition]
+  947 | typedef struct List_ASTTupleLiteral List_ASTTupleLiteral;
+      |                                     ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:125:37: note: previous definition is here
+  125 | typedef struct List_ASTTupleLiteral List_ASTTupleLiteral;
+      |                                     ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_native_1790049037_0/program.c:948:35: warning: redefinition of typedef 'List_ASTTupleIndex' is a C11 feature [-Wtypedef-redefinition]
+  948 | typedef struct List_ASTTupleIndex List_ASTTupleIndex;
+      |                                   ^
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/generated/compiler_schema.h:121:35: note: previous definition is here
+  121 | typedef struct List_ASTTupleIndex List_ASTTupleIndex;
+      |                                   ^
+src_nano/nanoc_v06.nano:12670:5: warning: initializing 'typeof ((nl_nb_native_prefix)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 12670 |     NL_GUARDED_WRITE(nl_nb_native_prefix, nl_prefix);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:20361:9: warning: initializing 'typeof ((nl_tc_enclosing_function)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 20361 |         NL_GUARDED_WRITE(nl_tc_enclosing_function, nl_previous_function);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:20362:9: warning: initializing 'typeof ((nl_tc_enclosing_return)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 20362 |         NL_GUARDED_WRITE(nl_tc_enclosing_return, nl_previous_return);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:23633:9: warning: initializing 'typeof ((nl_reduce_emission_error)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23633 |         NL_GUARDED_WRITE(nl_reduce_emission_error, nl_message);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:32250:9: warning: initializing 'typeof ((nl_nb_expression_identity)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32250 |         NL_GUARDED_WRITE(nl_nb_expression_identity, nl_authoritative);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:32295:5: warning: initializing 'typeof ((nl_nb_expression_identity)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32295 |     NL_GUARDED_WRITE(nl_nb_expression_identity, nl_authoritative);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:32793:17: warning: initializing 'typeof ((nl_nb_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32793 |                 NL_GUARDED_WRITE(nl_nb_loop_top, nl_top);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:32793:17: warning: initializing 'typeof ((nl_nb_loop_done)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32793 |                 NL_GUARDED_WRITE(nl_nb_loop_done, nl_skip);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:32800:17: warning: initializing 'typeof ((nl_nb_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32800 |                 NL_GUARDED_WRITE(nl_nb_loop_top, nl_saved_top);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:32800:17: warning: initializing 'typeof ((nl_nb_loop_done)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32800 |                 NL_GUARDED_WRITE(nl_nb_loop_done, nl_saved_done);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:34200:9: warning: initializing 'typeof ((nl_nisa_err)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 34200 |         NL_GUARDED_WRITE(nl_nisa_err, nl_msg);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:35771:5: warning: initializing 'typeof ((nl_nisa_ordinary_init)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 35771 |     NL_GUARDED_WRITE(nl_nisa_ordinary_init, nl___nano_module___25_nisa_ordinary_contract(nl_parser, "void", 0, nl_nisa_types));
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38048:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38048 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_l_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38049:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38049 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_l_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38067:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38067 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_outer_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38068:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38068 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_outer_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38069:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38069 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_outer_index);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38116:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38116 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38117:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38117 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38118:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38118 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_index_slot);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38138:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38138 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_outer_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38139:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38139 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_outer_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+src_nano/nanoc_v06.nano:38140:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 38140 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_outer_index);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+58 warnings generated.
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/modules/std/collections/collections.c:1:9: warning: '_GNU_SOURCE' macro redefined [-Wmacro-redefined]
+    1 | #define _GNU_SOURCE
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define _GNU_SOURCE 1
+      |         ^
+1 warning generated.
+/Users/jkh/nanolang-qualification/record-lists-dcda-source/modules/std/json/json.c:1:9: warning: '_GNU_SOURCE' macro redefined [-Wmacro-redefined]
+    1 | #define _GNU_SOURCE
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define _GNU_SOURCE 1
+      |         ^
+1 warning generated.
+✓ Stage 2 compiler created: bin/nanoc_stage2
+
+Testing stage 2 compiler...
+Hello from NanoLang!
+✓ Stage 2 compiler works!
+
+==========================================
+Bootstrap Stage 3: Verification
+==========================================
+Comparing stage 1 and stage 2 binaries...
+
+-rwxr-xr-x  1 jkh  staff    12M Sep 21 20:46 bin/nanoc_stage1
+-rwxr-xr-x  1 jkh  staff    10M Sep 21 20:50 bin/nanoc_stage2
+
+⚠️  Bootstrap verification: Binaries differ
+
+Stage 1 size: 12484480
+Stage 2 size: 10683872
+
+I have not diagnosed the difference. These causes remain hypotheses:
+  - Embedded timestamps or other native artifact metadata
+  - Non-deterministic code generation
+  - Different compiler optimizations
+
+Both stages passed the configured smoke test; that is not a correctness proof.
+Canonical NanoISA artifact equality remains a separate 5.0 gate.
+
+==========================================
+Installing Self-Hosted Compiler
+==========================================
+Updating bin/nanoc to use self-hosted compiler...
+✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)
+
+Smoke test: installed bin/nanoc compiles + runs nl_hello.nano...
+Hello from NanoLang!
+✓ installed compiler works
+
+Verifying bin/nanoc does not depend on bin/nanoc_c...
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+
+All subsequent builds (test, examples) will use the self-hosted compiler!
+
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+

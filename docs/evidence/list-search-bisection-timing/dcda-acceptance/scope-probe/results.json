@@ -1,0 +1,33 @@
+{
+  "source_sha256": "69f769c5fcea30200b0ea9a6028ebfe0cf16ca59705cea317ab9ae04cfc4397b",
+  "results": [
+    {
+      "argv": [
+        "/bin/gcc",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsyntax-only",
+        "/home/jkh/nanolang-qualification/native-let-auto-scope-probe/scope.c"
+      ],
+      "exit": 0,
+      "version": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+    },
+    {
+      "argv": [
+        "/usr/local/bin/clang",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsyntax-only",
+        "/home/jkh/nanolang-qualification/native-let-auto-scope-probe/scope.c"
+      ],
+      "exit": 1,
+      "version": "clang version 23.0.0git (https://github.com/llvm/llvm-project.git 11af80c3ec82dc1800c9fa80190c75cd3d69249f)\nTarget: aarch64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /usr/local/bin\n",
+      "sha256": "3679c26d7a60727b11acba72366337f0e35853c9cd3cd342a463aa2f8fe10c9e"
+    }
+  ]
+}

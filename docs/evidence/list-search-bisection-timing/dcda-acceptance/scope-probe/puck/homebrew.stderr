@@ -1,0 +1,4 @@
+/Users/jkh/nanolang-qualification/native-let-scope-probe.c:1:81: error: variable 'value' declared with deduced type '__auto_type' cannot appear in its own initializer
+    1 | int scope_probe(void) { int value = 7; { __auto_type value = ({ int converted = value; converted; }); return value; } }
+      |                                                                                 ^
+1 error generated.
