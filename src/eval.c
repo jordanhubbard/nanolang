@@ -564,6 +564,18 @@ static const char *eval_dynamic_string_snapshot(Environment *env, const char *te
     return owned.as.string_val;
 }
 
+/* call_function publishes an independently owned STRING, including foreign calls. */
+static const char *eval_dynamic_callback_string(Environment *env, Value owned) {
+    Value retained;
+    bool ok = env_value_snapshot(env, owned, &retained);
+    env_discard_value_snapshot(owned); /* GC-aware, on success and failure. */
+    if (!ok) {
+        fprintf(stderr, "I cannot retain a dynamic callback string.\n");
+        exit(1);
+    }
+    return retained.as.string_val;
+}
+
 static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op, Environment *env);
 static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenType op, Environment *env);
 static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType op, Environment *env);
@@ -2308,7 +2320,12 @@ static Value builtin_map(Value *args, Environment *env) {
                         fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
-                    ((char**)output_arr->data)[i] = strdup(transformed.as.string_val);
+                    {
+                        char *copy = eval_collection_copy_string(transformed.as.string_val);
+                        env_discard_value_snapshot(transformed);
+                        if (!copy) eval_collection_allocation_failure();
+                        ((char**)output_arr->data)[i] = copy;
+                    }
                     break;
                 default:
                     break;
@@ -2428,7 +2445,7 @@ static Value builtin_map(Value *args, Environment *env) {
                         fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
-                    dyn_array_push_string(output_arr, eval_dynamic_string_snapshot(env, transformed.as.string_val, NULL));
+                    dyn_array_push_string(output_arr, eval_dynamic_callback_string(env, transformed));
                     break;
                 case ELEM_ARRAY:
                     if (transformed.type != VAL_DYN_ARRAY) {
