@@ -143,6 +143,75 @@ static void graph_controls(void) {
     CHECK(!env_clone_value_snapshot(tuple_value(&bad), &out) && out.as.int_val == 19);
 }
 
+static void record_names_attempt(int fields_count, size_t at, bool once, size_t *count) {
+    char *name = malloc(4097), *type_name = strdup("Independent");
+    char **names = calloc(fields_count ? (size_t)fields_count : 1, sizeof *names);
+    Value *values = calloc(fields_count ? (size_t)fields_count : 1, sizeof *values);
+    CHECK(name && type_name && names && values);
+    memset(name, 'n', 4096); name[4096] = 0;
+    for (int i = 0; i < fields_count; ++i) { names[i] = name; values[i] = integer(i); }
+    StructValue record = {.struct_name=type_name, .field_names=names,
+                         .field_values=values, .field_count=fields_count};
+    Value result = integer(919), sentinel = result;
+    begin(at, once);
+    bool ok = env_clone_record(record_value(&record), &result);
+    *count = attempts; end();
+    if (at != SIZE_MAX) {
+        CHECK(!ok && failures && !memcmp(&result, &sentinel, sizeof result));
+        CHECK(name[0] == 'n' && !strcmp(type_name, "Independent"));
+    } else {
+        CHECK(ok && result.as.struct_val != &record);
+        StructValue *copied = result.as.struct_val;
+        CHECK(copied->field_count == fields_count);
+        CHECK((copied->field_name_storage != NULL) == (fields_count != 0));
+        name[0] = 'x'; type_name[0] = 'X';
+        for (int i = 0; i < fields_count; ++i) values[i] = integer(-1);
+        free(name); free(type_name); free(names); free(values);
+        name = type_name = NULL; names = NULL; values = NULL;
+        CHECK(!strcmp(copied->struct_name, "Independent"));
+        for (int i = 0; i < fields_count; ++i) {
+            CHECK(strlen(copied->field_names[i]) == 4096 && copied->field_names[i][0] == 'n');
+            CHECK(copied->field_values[i].as.int_val == i);
+            if (i) CHECK(copied->field_names[i] != copied->field_names[i-1]);
+        }
+        Value sibling = integer(0);
+        CHECK(env_clone_record(result, &sibling));
+        if (fields_count) {
+            CHECK(sibling.as.struct_val->field_name_storage != copied->field_name_storage);
+            copied->field_names[0][0] = 'c';
+            CHECK(sibling.as.struct_val->field_names[0][0] == 'n');
+            if (fields_count > 1) CHECK(copied->field_names[1][0] == 'n');
+        }
+        env_discard_value_snapshot(result);
+        CHECK(!strcmp(sibling.as.struct_val->struct_name, "Independent"));
+        env_discard_value_snapshot(sibling);
+    }
+    free(name); free(type_name); free(names); free(values);
+    CHECK(live == 0);
+}
+static void record_names_controls(void) {
+    const int sizes[] = {0, 1, 77};
+    for (size_t s = 0; s < sizeof sizes / sizeof *sizes; ++s) {
+        size_t count; record_names_attempt(sizes[s], SIZE_MAX, false, &count);
+        for (int once = 0; once < 2; ++once) for (size_t i = 0; i < count; ++i) {
+            size_t ignored; record_names_attempt(sizes[s], i, once != 0, &ignored);
+            record_names_attempt(sizes[s], SIZE_MAX, false, &ignored);
+        }
+    }
+    /* I retain disposal of independently allocated names in legacy owned views. */
+    StructValue *legacy = calloc(1, sizeof *legacy); CHECK(legacy);
+    legacy->struct_name = strdup("Legacy");
+    legacy->field_names = calloc(1, sizeof *legacy->field_names);
+    legacy->field_values = calloc(1, sizeof *legacy->field_values);
+    CHECK(legacy->struct_name && legacy->field_names && legacy->field_values);
+    legacy->field_names[0] = strdup(""); CHECK(legacy->field_names[0]);
+    legacy->field_values[0] = integer(7); legacy->field_count = 1;
+    Value result = integer(0); CHECK(env_clone_record(record_value(legacy), &result));
+    env_discard_record(legacy);
+    CHECK(result.as.struct_val->field_names[0][0] == 0);
+    env_discard_value_snapshot(result);
+}
+
 static void signature_attempt(size_t at, bool once, size_t *count) {
     char nominal[] = "Item"; char *names[] = {nominal}; Type tags[] = {TYPE_STRUCT};
     TypeInfo leaf = {.base_type = TYPE_STRUCT, .generic_name = nominal};
@@ -1139,6 +1208,7 @@ int main(int argc, char **argv) {
         cache_registration_control(argv[2]); return 0;
     }
     CHECK(argc == 1);
+    record_names_controls();
     union_root_controls(); function_index_controls(); nominal_import_controls(); string_binding_ownership_controls(); evaluator_symbol_pop_controls(); graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); contextual_task_controls(); task_allocation_controls(); borrowed_staging_controls();
     CHECK(live == 0 && !observing);
     printf("I passed %zu checked ownership assertions.\n", checks);
