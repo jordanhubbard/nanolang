@@ -17,6 +17,7 @@
 #include "../src/interpreter_ffi.h"
 #include "../src/runtime/ffi_loader.h"
 #include "../src/runtime/dyn_array.h"
+#include "../src/runtime/list_string.h"
 #include <errno.h>
 #include <spawn.h>
 #include <signal.h>
@@ -2519,6 +2520,91 @@ void test_eval_for_over_float_array(void) {
     run_ctx_free(&ctx);
 }
 
+/* I keep the iteration copy alive when its collection changes, and return an
+ * independent public snapshot through normal and early exits. Caller arrays
+ * and lists remain caller-owned in this fixture. */
+void test_eval_string_loop_bindings(void) {
+    const char *source =
+        "fn walk(xs:array<string>, mode:int)->string {\n"
+        " let mut last:string = \"empty\" let mut index:int = 0\n"
+        " for item in xs {\n"
+        "  if (== mode 3) { return item }\n"
+        "  if (== mode 4) { (array_set xs index \"changed\") }\n"
+        "  set last item set index (+ index 1)\n"
+        "  if (== mode 1) { continue }\n"
+        "  if (== mode 2) { break }\n"
+        " } return last\n"
+        "}\n"
+        "shadow walk { assert (== (walk [\"first\", \"second\"] 3) \"first\") }\n"
+        "fn walk_list(xs:list_string, mode:int)->string {\n"
+        " let mut last:string = \"empty\" let mut index:int = 0\n"
+        " for item in xs {\n"
+        "  if (== mode 3) { return item }\n"
+        "  if (== mode 4) { (list_string_set xs index \"changed\") }\n"
+        "  set last item set index (+ index 1)\n"
+        "  if (== mode 1) { continue }\n"
+        "  if (== mode 2) { break }\n"
+        " } return last\n"
+        "}\n"
+        "shadow walk_list {\n"
+        " let xs:list_string = (list_string_new) (list_string_push xs \"first\")\n"
+        " assert (== (walk_list xs 3) \"first\") (list_string_free xs)\n"
+        "}\n"
+        "fn main()->int { return 0 }\n";
+    for (int kind = 0; kind < 3; ++kind) for (int mode = 0; mode < 5; ++mode)
+    for (int empty = 0; empty < 2; ++empty) {
+        RunCtx ctx;
+        ASSERT(run_ctx_init(&ctx, source));
+        for (int repeat = 0; repeat < 8; ++repeat) {
+            int length = empty ? 0 : 2;
+            const char *texts[] = {"first", "second"};
+            char *dynamic_inputs[2] = {NULL, NULL};
+            Value input = create_void();
+            List_string *list = NULL;
+            if (kind == 0) {
+                input = create_array(VAL_STRING, length, length);
+                for (int i = 0; i < length; ++i)
+                    ((char **)input.as.array_val->data)[i] = strdup(texts[i]);
+            } else if (kind == 1) {
+                input.type = VAL_DYN_ARRAY;
+                input.as.dyn_array_val = dyn_array_new(ELEM_STRING);
+                ASSERT_NOT_NULL(input.as.dyn_array_val);
+                for (int i = 0; i < length; ++i) {
+                    dynamic_inputs[i] = strdup(texts[i]);
+                    input.as.dyn_array_val = dyn_array_push_string(input.as.dyn_array_val, dynamic_inputs[i]);
+                }
+            } else {
+                list = list_string_new();
+                for (int i = 0; i < length; ++i) list_string_push(list, texts[i]);
+                input = create_int((intptr_t)list);
+            }
+            Value args[] = {input, create_int(mode)};
+            Value result = call_function(kind == 2 ? "walk_list" : "walk", args, 2, ctx.env);
+            const char *expected = empty ? "empty" : mode == 2 || mode == 3 ? "first" : "second";
+            ASSERT_EQ(result.type, VAL_STRING);
+            ASSERT(strcmp(result.as.string_val, expected) == 0);
+            for (int i = 0; i < length; ++i) {
+                const char *stored = kind == 0 ? ((char **)input.as.array_val->data)[i] :
+                    kind == 1 ? dyn_array_get_string(input.as.dyn_array_val, i) : list_string_get(list, i);
+                ASSERT(strcmp(stored, mode == 4 ? "changed" : texts[i]) == 0);
+            }
+            if (kind == 0) {
+                for (int i = 0; i < length; ++i) free(((char **)input.as.array_val->data)[i]);
+                free(input.as.array_val->data); free(input.as.array_val);
+            } else if (kind == 1) {
+                /* The low-level DynArray stores borrowed string pointers. */
+                if (mode == 4) for (int i = 0; i < length; ++i)
+                    free((char *)dyn_array_get_string(input.as.dyn_array_val, i));
+                for (int i = 0; i < length; ++i) free(dynamic_inputs[i]);
+                gc_release(input.as.dyn_array_val);
+            } else list_string_free(list);
+            if (repeat == 7) run_ctx_free(&ctx);
+            ASSERT(strcmp(result.as.string_val, expected) == 0);
+            env_discard_value_snapshot(result);
+        }
+    }
+}
+
 /* Coroutine spawn + scheduler_run (lines 48-56, 2841-2870, 4391-4401) */
 void test_eval_coroutine_spawn_and_run(void) {
     RunCtx ctx;
@@ -3303,6 +3389,7 @@ int main(int argc, char **argv) {
     TEST(eval_array_scalar_broadcast_mul);
     TEST(eval_for_over_dynarray);
     TEST(eval_for_over_float_array);
+    TEST(eval_string_loop_bindings);
     TEST(eval_coroutine_spawn_and_run);
     TEST(eval_async_fn_direct_call);
     TEST(eval_string_format_struct);
