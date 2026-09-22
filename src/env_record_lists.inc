@@ -190,7 +190,15 @@ static bool clone_value_at(Value source, Value *out, unsigned depth) {
             next_name += bytes;
             dst->field_values[i].type = VAL_VOID;
             dst->field_count = i + 1;
-            if (!clone_value_at(src->field_values[i], &dst->field_values[i], depth + 1)) goto fail;
+            Value child = src->field_values[i];
+            if (depth + 1 >= 128) goto fail;
+            if (child.type == VAL_STRING || child.type == VAL_STRUCT || child.type == VAL_TUPLE) {
+                if (!clone_value_at(child, &dst->field_values[i], depth + 1)) goto fail;
+            } else {
+                child.is_return = child.is_break = child.is_continue = false;
+                child.return_target = NULL;
+                dst->field_values[i] = child;
+            }
         }
     } else if (source.type == VAL_TUPLE) {
         TupleValue *src = source.as.tuple_val;
@@ -204,7 +212,15 @@ static bool clone_value_at(Value source, Value *out, unsigned depth) {
             if (!dst->elements) goto fail;
         }
         for (int i = 0; i < src->element_count; ++i) {
-            if (!clone_value_at(src->elements[i], &dst->elements[i], depth + 1)) goto fail;
+            Value child = src->elements[i];
+            if (depth + 1 >= 128) goto fail;
+            if (child.type == VAL_STRING || child.type == VAL_STRUCT || child.type == VAL_TUPLE) {
+                if (!clone_value_at(child, &dst->elements[i], depth + 1)) goto fail;
+            } else {
+                child.is_return = child.is_break = child.is_continue = false;
+                child.return_target = NULL;
+                dst->elements[i] = child;
+            }
             ++dst->element_count;
         }
     }
