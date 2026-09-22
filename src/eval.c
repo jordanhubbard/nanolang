@@ -13,6 +13,7 @@
 #include "runtime/list_token.h"
 #include "runtime/gc.h"
 #include "runtime/dyn_array.h"
+#include "runtime/shadow_timing.h"
 #include "tracing.h"
 #include "interpreter_ffi.h"
 #include "eval/eval_hashmap.h"
@@ -4656,6 +4657,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return create_void();
     }
 
+    NlSearchTiming search_timing = nl_search_begin(func->name);
+
     /* Trace function call */
     const char **param_names = NULL;
     if (func->params) {
@@ -4743,6 +4746,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     return_value.is_continue = false;
 
     eval_scope_release(env, old_symbol_count, true);
+    nl_search_end(search_timing);
 
     return return_value;
 }
@@ -6146,6 +6150,7 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
     const char *root_file = env_current_file(env);
     int imported_count = include_imports && modules ? modules->count : 0;
 
+    nl_shadow_timing("interpreter_start", -1, -1, 0, 0, 0);
     for (int source = 0; source <= imported_count; source++) {
         bool imported = source < imported_count;
         const char *file = imported ? modules->module_paths[source] : input_file;
@@ -6160,6 +6165,7 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
         env->current_module = imported ? owner : root_owner;
         env_set_current_file(env, file);
 
+        nl_shadow_timing("module_init_start", source, -1, test_count, 0, 0);
         /* First pass: Evaluate top-level constants */
         for (int i = 0; i < program->as.program.count; i++) {
             ASTNode *item = program->as.program.items[i];
@@ -6187,6 +6193,7 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
             }
         }
 
+        nl_shadow_timing("module_init_end", source, -1, test_count, 0, 0);
         /* Fourth pass: Run each shadow test */
         for (int i = 0; i < program->as.program.count; i++) {
             ASTNode *item = program->as.program.items[i];
@@ -6217,7 +6224,9 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
                     }
                 }
 
+                nl_shadow_timing("shadow_start", source, i, test_count, 0, 0);
                 eval_statement(item->as.shadow.body, env);
+                nl_shadow_timing("shadow_end", source, i, test_count, 0, g_shadow_current_fail_count);
 
                 if (!verbose && saved_stdout_fd >= 0) {
                     fflush(stdout);
@@ -6279,6 +6288,7 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
     free(failures);
     g_in_shadow_tests = false;
 
+    nl_shadow_timing("interpreter_end", -1, -1, test_count, 0, all_passed ? 0 : 1);
     return all_passed;
 }
 
@@ -6349,6 +6359,8 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
         return create_void();
     }
 
+    NlSearchTiming search_timing = nl_search_begin(func->name);
+
     /* Save original symbol count to restore environment after function call */
     int original_symbol_count = env->symbol_count;
 
@@ -6401,6 +6413,7 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     return_value.is_continue = false;
 
     eval_scope_release(env, original_symbol_count, false);
+    nl_search_end(search_timing);
 
     return return_value;
 }

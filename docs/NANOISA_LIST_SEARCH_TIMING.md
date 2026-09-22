@@ -31,3 +31,11 @@ the observer-owning TUs against exact frozen46b provider maps and execute one
 full-graph diagnostic. Observer overhead remains explicitly attributed. I do
 not rerun old memory-faulting revisions or relax acceptance. Post-terminal
 load snapshots cannot establish concurrent workload or infrastructure cause.
+
+My numeric row buffer grows from512 to1024 bytes to retain the added counters;
+the record count and bounded write attempts do not change. State is private
+to each translation unit/process, so main's zero search counters are not
+combined with eval's counters. Selected invocation work is inclusive and may
+overlap if a selected helper ever recursively calls itself; the current helper
+source has no recursion. Counters remain diagnostic even when observation
+changes elapsed time.
