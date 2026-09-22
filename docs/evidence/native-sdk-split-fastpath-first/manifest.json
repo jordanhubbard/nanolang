@@ -1,0 +1,405 @@
+{
+  "pin": "fe6450ea0ec020ee8cf1296711bfc1977723df52",
+  "records": [
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/bootstrap-capacity.json",
+      "path": "bootstrap-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "9d5998fb13f478e5c3403112ae5cd8cbfe0fc12c69399f02c20f25efd8ece2a5",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 58,
+      "stored_sha256": "9d5998fb13f478e5c3403112ae5cd8cbfe0fc12c69399f02c20f25efd8ece2a5"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/bootstrap-command.json",
+      "path": "bootstrap-command.json",
+      "original_bytes": 1384,
+      "original_sha256": "bf8650bc6a3c6721418b34fbdc1634578174b6f374e3df1091f092bfe72b401c",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 1384,
+      "stored_sha256": "bf8650bc6a3c6721418b34fbdc1634578174b6f374e3df1091f092bfe72b401c"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/bootstrap-descendants.json",
+      "path": "bootstrap-descendants.json.gz",
+      "original_bytes": 151226,
+      "original_sha256": "7902478c008226b036cc1c9b1642907e7d48bbf6d1dbbbbf77ad3c44dc408ea6",
+      "original_mode": 436,
+      "gzip": true,
+      "stored_bytes": 6606,
+      "stored_sha256": "95a2a7f3fd6ebb4d759000c61046acb001eb309753a094dcac8d26a0babbd50d"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/bootstrap-status.json",
+      "path": "bootstrap-status.json",
+      "original_bytes": 241,
+      "original_sha256": "1d7ead1668c53419689bf06b85d61f8959003f89210da8621c42668d5f495986",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 241,
+      "stored_sha256": "1d7ead1668c53419689bf06b85d61f8959003f89210da8621c42668d5f495986"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/bootstrap.stderr",
+      "path": "bootstrap.stderr",
+      "original_bytes": 1971,
+      "original_sha256": "a66d157bb2222a3329024d1f41b663313faad8e95dd4c917e560e76def870f8b",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 1971,
+      "stored_sha256": "a66d157bb2222a3329024d1f41b663313faad8e95dd4c917e560e76def870f8b"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/bootstrap.stdout",
+      "path": "bootstrap.stdout.gz",
+      "original_bytes": 212942,
+      "original_sha256": "5d9fdc8589d4acc33a99a94c4a9e3529aa47764e9631b9b176c8686334ae39c9",
+      "original_mode": 436,
+      "gzip": true,
+      "stored_bytes": 6203,
+      "stored_sha256": "dc46260027ada948470a72100c522c1db657d6b36d1705d05e96012759d26be9"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/build-capacity.json",
+      "path": "build-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "37acae0485883c779236cf3d5b72edd3343a95a41de4177d24f2a63ad46748b6",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 58,
+      "stored_sha256": "37acae0485883c779236cf3d5b72edd3343a95a41de4177d24f2a63ad46748b6"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/build-command.json",
+      "path": "build-command.json",
+      "original_bytes": 1380,
+      "original_sha256": "355a101f466e0f8182af4e74d7b6f805d9816eeeadfb3fc53f72aaedafcd417f",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 1380,
+      "stored_sha256": "355a101f466e0f8182af4e74d7b6f805d9816eeeadfb3fc53f72aaedafcd417f"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/build-descendants.json",
+      "path": "build-descendants.json.gz",
+      "original_bytes": 322974,
+      "original_sha256": "b498d50b31bdeb84f8663d1b7eedab8fc1c94ae467e1911d63c744c414ed9ac3",
+      "original_mode": 436,
+      "gzip": true,
+      "stored_bytes": 16599,
+      "stored_sha256": "7157c4f6590f379c4773df42cb64abc39142003a94e5af69e71ce857cf7c4807"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/build-status.json",
+      "path": "build-status.json",
+      "original_bytes": 240,
+      "original_sha256": "536e34225396c14cb62f2696572f27d7a00a0ed386fb286ec7fba1e1509153af",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 240,
+      "stored_sha256": "536e34225396c14cb62f2696572f27d7a00a0ed386fb286ec7fba1e1509153af"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/build.stderr",
+      "path": "build.stderr",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/build.stdout",
+      "path": "build.stdout",
+      "original_bytes": 31665,
+      "original_sha256": "be09f4137203e58573a0372c57ff4105302e5e40f81062120493999b42f991cc",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 31665,
+      "stored_sha256": "be09f4137203e58573a0372c57ff4105302e5e40f81062120493999b42f991cc"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/compiler-owner-capacity.json",
+      "path": "compiler-owner-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "9d795a1e2e1968a3c14622210b23236a1dc7ae4793c22751a003df5462760543",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 58,
+      "stored_sha256": "9d795a1e2e1968a3c14622210b23236a1dc7ae4793c22751a003df5462760543"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/compiler-owner-command.json",
+      "path": "compiler-owner-command.json",
+      "original_bytes": 1369,
+      "original_sha256": "0f9a95109a4358a695436a22dccf533f1b56730a406704c9bfd421139d3311d2",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 1369,
+      "stored_sha256": "0f9a95109a4358a695436a22dccf533f1b56730a406704c9bfd421139d3311d2"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/compiler-owner-descendants.json",
+      "path": "compiler-owner-descendants.json",
+      "original_bytes": 54,
+      "original_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/compiler-owner-status.json",
+      "path": "compiler-owner-status.json",
+      "original_bytes": 242,
+      "original_sha256": "77ebce87ee8cff69ae902e00a47e1ffd41c8ddde5d736b8c5ea45f08dc52fb1a",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 242,
+      "stored_sha256": "77ebce87ee8cff69ae902e00a47e1ffd41c8ddde5d736b8c5ea45f08dc52fb1a"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/compiler-owner.stderr",
+      "path": "compiler-owner.stderr",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/compiler-owner.stdout",
+      "path": "compiler-owner.stdout",
+      "original_bytes": 42,
+      "original_sha256": "64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 42,
+      "stored_sha256": "64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/compiler-version-capacity.json",
+      "path": "compiler-version-capacity.json",
+      "original_bytes": 58,
+      "original_sha256": "8f9e117f02b3eb1c945e0409b5ba386be538d36ec70f60345b5e4c5f8fc47baa",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 58,
+      "stored_sha256": "8f9e117f02b3eb1c945e0409b5ba386be538d36ec70f60345b5e4c5f8fc47baa"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/compiler-version-command.json",
+      "path": "compiler-version-command.json",
+      "original_bytes": 1358,
+      "original_sha256": "aeecf18130a06bfbd6a64c01757b4ebf92508c1b26b9dcf059b3053dcf7d91ae",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 1358,
+      "stored_sha256": "aeecf18130a06bfbd6a64c01757b4ebf92508c1b26b9dcf059b3053dcf7d91ae"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/compiler-version-descendants.json",
+      "path": "compiler-version-descendants.json",
+      "original_bytes": 54,
+      "original_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/compiler-version-status.json",
+      "path": "compiler-version-status.json",
+      "original_bytes": 242,
+      "original_sha256": "063e8550a44022eded0c6d87979f9e9958f8159fc4c77491d6f166fa45b763a3",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 242,
+      "stored_sha256": "063e8550a44022eded0c6d87979f9e9958f8159fc4c77491d6f166fa45b763a3"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/compiler-version.stderr",
+      "path": "compiler-version.stderr",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/compiler-version.stdout",
+      "path": "compiler-version.stdout",
+      "original_bytes": 246,
+      "original_sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 246,
+      "stored_sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/component-log-map.json",
+      "path": "component-log-map.json",
+      "original_bytes": 952,
+      "original_sha256": "7d83756543a9055ae235d3182996dc6b431ad0ae677152d671d1e717642a6235",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 952,
+      "stored_sha256": "7d83756543a9055ae235d3182996dc6b431ad0ae677152d671d1e717642a6235"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/configuration.json",
+      "path": "configuration.json",
+      "original_bytes": 532,
+      "original_sha256": "a478013e6ad3e49db218de6f888edbec63d679b430dde0c449eedb3a94e4ac19",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 532,
+      "stored_sha256": "a478013e6ad3e49db218de6f888edbec63d679b430dde0c449eedb3a94e4ac19"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/first-failure.json",
+      "path": "first-failure.json",
+      "original_bytes": 10414,
+      "original_sha256": "a6923c8ac8fb3ead2c82e2e6053f58fe96351cd9482649e13858d7a3648b7890",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 10414,
+      "stored_sha256": "a6923c8ac8fb3ead2c82e2e6053f58fe96351cd9482649e13858d7a3648b7890"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/products-after.json",
+      "path": "products-after.json.gz",
+      "original_bytes": 183477,
+      "original_sha256": "103b7c2edc031ed7cc9996256a34b9791e8922a592ec3b86bebdb763d4a28567",
+      "original_mode": 436,
+      "gzip": true,
+      "stored_bytes": 39288,
+      "stored_sha256": "14585f282d3fa5e926e8a88f21468b55fab841dafae0cda9a8e939f88e490880"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/products-before.json",
+      "path": "products-before.json",
+      "original_bytes": 3,
+      "original_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 3,
+      "stored_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/source-after.json",
+      "path": "source-after.json.gz",
+      "original_bytes": 629547,
+      "original_sha256": "88928cc0e66bf8096cac2dfee19e36af46bafdd9dfd60adc58b5ca04b18d147e",
+      "original_mode": 436,
+      "gzip": true,
+      "stored_bytes": 211345,
+      "stored_sha256": "42e4fbc9d8ac6c4993e9d7bc73d904816210710d3e6692d86ae03e044d23fbe0"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/source-before.json",
+      "path": "source-before.json.gz",
+      "original_bytes": 629547,
+      "original_sha256": "88928cc0e66bf8096cac2dfee19e36af46bafdd9dfd60adc58b5ca04b18d147e",
+      "original_mode": 436,
+      "gzip": true,
+      "stored_bytes": 211345,
+      "stored_sha256": "42e4fbc9d8ac6c4993e9d7bc73d904816210710d3e6692d86ae03e044d23fbe0"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/terminal.json",
+      "path": "terminal.json",
+      "original_bytes": 10469,
+      "original_sha256": "266d39ed5b0b25e260bcba3008f1b4b7d2c8581cba0b77a90ec1a25c1b391b77",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 10469,
+      "stored_sha256": "266d39ed5b0b25e260bcba3008f1b4b7d2c8581cba0b77a90ec1a25c1b391b77"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/tmp/nanolang_stage2_parser.log",
+      "path": "tmp/nanolang_stage2_parser.log.gz",
+      "original_bytes": 67841,
+      "original_sha256": "32777d37da6028b0d74d3539c13380132f07092ad06a29ddb4ad239c99d8124f",
+      "original_mode": 436,
+      "gzip": true,
+      "stored_bytes": 2293,
+      "stored_sha256": "a291aebc4c94bd67ff1e1a0beb5a237530d07e2ad69584380bb41f6316c0baf3"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/tmp/nanolang_stage2_transpiler.log",
+      "path": "tmp/nanolang_stage2_transpiler.log.gz",
+      "original_bytes": 112575,
+      "original_sha256": "3b4c9de430d3ada0ce2947b13a45a92f59418b82bc038360a4e0436f8232852c",
+      "original_mode": 436,
+      "gzip": true,
+      "stored_bytes": 3582,
+      "stored_sha256": "5433704722ffec803f17c7d34ac87c243f78515df960cac72aac6de2274ef813"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/tmp/nanolang_stage2_typecheck.log",
+      "path": "tmp/nanolang_stage2_typecheck.log.gz",
+      "original_bytes": 134885,
+      "original_sha256": "9d83efd3ccf01ed485420f28f52792f6e3d1047dab69e13724c4e6fc8c43a352",
+      "original_mode": 436,
+      "gzip": true,
+      "stored_bytes": 4163,
+      "stored_sha256": "76a964b37bfd6cfdd3bb3601422956f3fd6ff1d67fd88e16c293eb655b1d59e1"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/tmp/nanolang_stage3_parser.log",
+      "path": "tmp/nanolang_stage3_parser.log",
+      "original_bytes": 37,
+      "original_sha256": "c6b4ace9a783a116fe700f104f21d6f33b77bbff57717bda6ebcc98bfe7fe9ed",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 37,
+      "stored_sha256": "c6b4ace9a783a116fe700f104f21d6f33b77bbff57717bda6ebcc98bfe7fe9ed"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/tmp/nanolang_stage3_transpiler.log",
+      "path": "tmp/nanolang_stage3_transpiler.log",
+      "original_bytes": 41,
+      "original_sha256": "9847e7915b73a3b369a835d776b3b2c3bf670c88a6da376b6983955b56b6fd58",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 41,
+      "stored_sha256": "9847e7915b73a3b369a835d776b3b2c3bf670c88a6da376b6983955b56b6fd58"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/tmp/nanolang_stage3_typecheck.log",
+      "path": "tmp/nanolang_stage3_typecheck.log",
+      "original_bytes": 38,
+      "original_sha256": "e8cb849203a390f095b0a900056b497d46fdc899909f57431afbb1f2eb5345a5",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 38,
+      "stored_sha256": "e8cb849203a390f095b0a900056b497d46fdc899909f57431afbb1f2eb5345a5"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/tools-after.json",
+      "path": "tools-after.json",
+      "original_bytes": 1320,
+      "original_sha256": "db520925af2c92c4cac3f8fb78623777998d8782b6d78e743770231d4291ddb7",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 1320,
+      "stored_sha256": "db520925af2c92c4cac3f8fb78623777998d8782b6d78e743770231d4291ddb7"
+    },
+    {
+      "original_path": "/tmp/nanolang-native-sdk-fe645-linux-preparation/tools-before.json",
+      "path": "tools-before.json",
+      "original_bytes": 1320,
+      "original_sha256": "db520925af2c92c4cac3f8fb78623777998d8782b6d78e743770231d4291ddb7",
+      "original_mode": 436,
+      "gzip": false,
+      "stored_bytes": 1320,
+      "stored_sha256": "db520925af2c92c4cac3f8fb78623777998d8782b6d78e743770231d4291ddb7"
+    }
+  ]
+}
