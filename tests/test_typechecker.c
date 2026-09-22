@@ -1069,7 +1069,33 @@ static void test_array_arithmetic_result_views(void) {
     }
 }
 
+/* I reject unsupported storage even when no typed destination consumes it. */
+static void test_array_arithmetic_admission(void) {
+    const char *types[] = {"u8", "array<int>"};
+    const char *ops[] = {"+", "-", "*", "/", "%"};
+    char source[1536];
+    for (int type = 0; type < 2; ++type) for (int op = 0; op < 5; ++op)
+    for (int route = 0; route < 3; ++route) {
+        snprintf(source, sizeof source,
+            "fn probe(xs:array<%s>)->void{(%s %s)} fn main()->int{return 0}",
+            types[type], ops[op], route == 0 ? "xs xs" : route == 1 ? "xs 1" : "1 xs");
+        ASSERT(!tc_passes(source));
+    }
+    ASSERT(!tc_passes("fn probe(xs:array<u8>)->void{(- xs)} fn main()->int{return 0}"));
+    ASSERT(!tc_passes("fn probe(xs:array<array<int>>)->void{(- xs)} fn main()->int{return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(+ [] []) return 0}"));
+    ASSERT(!tc_passes("fn source(xs:array<u8>)->array<u8>{return xs} fn probe(xs:array<u8>)->void{(+ (source xs) 1)} fn main()->int{return 0}"));
+    ASSERT(!tc_passes("struct Box { xs:array<u8> } fn probe(box:Box)->void{(+ box.xs 1)} fn main()->int{return 0}"));
+    ASSERT(!tc_passes("fn probe(cb:fn()->array<u8>)->void{(+ (cb) 1)} fn main()->int{return 0}"));
+    ASSERT(!tc_passes("fn accept(xs:array<u8>)->void{} fn probe(xs:array<u8>)->void{(accept (+ xs xs))} fn main()->int{return 0}"));
+    ASSERT(!tc_passes("fn probe(xs:array<array<int>>)->void{let unused=(+ xs xs)} fn main()->int{return 0}"));
+    ASSERT(tc_passes("fn probe(xs:array<int>)->void{(- xs) (% xs 2) (+ xs 1)} fn main()->int{return 0}"));
+    ASSERT(tc_passes("fn probe(rows:array<array<int>>)->array<int>{return (+ (at rows 0) 1)} fn main()->int{return 0}"));
+    ASSERT(!tc_passes("fn probe(xs:array<int>, bytes:array<u8>)->void{{let xs:array<u8>=bytes (+ xs 1)}} fn main()->int{return 0}"));
+}
+
 int main(void) {
+    TEST(array_arithmetic_admission);
     TEST(array_arithmetic_result_views);
     TEST(tc_handler_parameter_metadata);
     TEST(tc_perform_signatures);

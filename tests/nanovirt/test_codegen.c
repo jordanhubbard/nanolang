@@ -2106,7 +2106,35 @@ static void test_effect_recursive_owned_strings(void) {
     TEST_PASS();
 }
 
+/* I check capability refusals without executing any rejected module. */
+static void test_array_scalar_opcode_refusals(void) {
+    const char *sources[] = {
+        "fn result(xs:array<int>)->array<int>{return (- xs)} fn main()->int{return 0}",
+        "fn result(xs:array<float>)->array<float>{return (- xs)} fn main()->int{return 0}",
+        "fn result(xs:array<int>)->array<int>{return (% xs 2)} fn main()->int{return 0}"
+    };
+    for (size_t i = 0; i < sizeof sources / sizeof sources[0]; ++i) {
+        int count = 0;
+        Token *tokens = tokenize(sources[i], &count);
+        ASSERT(tokens, "I tokenize the unchanged supported source operation");
+        ASTNode *program = parse_program(tokens, count);
+        ASSERT(program, "I parse the supported evaluator operation");
+        Environment *env = create_environment();
+        env->suppress_shadow_warnings = true;
+        bool checked = type_check(program, env);
+        CodegenResult result = {0};
+        if (checked) result = codegen_compile(program, env, NULL, NULL);
+        bool refused = checked && !result.ok && result.module == NULL &&
+            strstr(result.error_msg, i == 2 ? "array remainder" : "array negation");
+        if (result.module) nvm_module_free(result.module);
+        free_ast(program); free_tokens(tokens, count); free_environment(env);
+        ASSERT(refused, "I refuse before returning any array/scalar-opcode module");
+    }
+    TEST_PASS();
+}
+
 int main(void) {
+    test_array_scalar_opcode_refusals();
     test_effect_recursive_owned_strings();
     test_unhandled_effect_traps();
     test_handler_observes_perform();

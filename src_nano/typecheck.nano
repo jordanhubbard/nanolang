@@ -4218,6 +4218,24 @@ shadow array_arithmetic_element {
     assert (== (array_arithmetic_element (type_array TypeKind.TYPE_INT "u8")) TypeKind.TYPE_UNKNOWN)
     assert (== (array_arithmetic_element (type_array TypeKind.TYPE_ARRAY "array<int>")) TypeKind.TYPE_UNKNOWN)
 }
+# I reject unsupported array storage before older arithmetic inference paths.
+fn array_arithmetic_storage_refused(value: NSType) -> bool {
+    if (!= value.kind TypeKind.TYPE_ARRAY) { return false }
+    if (or (== value.element_type_name "u8") (== value.element_type_name "byte")) { return true }
+    return (or (== value.element_type_kind TypeKind.TYPE_ARRAY)
+               (== value.element_type_kind TypeKind.TYPE_UNKNOWN))
+}
+shadow array_arithmetic_storage_refused {
+    assert (array_arithmetic_storage_refused (type_from_string "array<u8>"))
+    assert (array_arithmetic_storage_refused (type_array TypeKind.TYPE_INT "u8"))
+    assert (array_arithmetic_storage_refused (type_from_string "array<array<int>>"))
+    assert (array_arithmetic_storage_refused (type_array TypeKind.TYPE_UNKNOWN ""))
+    assert (not (array_arithmetic_storage_refused (type_from_string "array<int>")))
+    assert (not (array_arithmetic_storage_refused (type_from_string "array<float>")))
+    assert (not (array_arithmetic_storage_refused (type_from_string "array<string>")))
+    assert (not (array_arithmetic_storage_refused (type_from_string "u8")))
+}
+
 fn array_arithmetic_selected(op: string, left: NSType, right: NSType) -> bool {
     let arithmetic: bool = (or (or (== op "+") (== op "-")) (or (== op "*") (== op "/")))
     return (and arithmetic (or (!= (array_arithmetic_element left) TypeKind.TYPE_UNKNOWN)
@@ -4255,6 +4273,10 @@ shadow scalar_integer_operand {
 }
 
 fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType {
+    let arithmetic: bool = (or (or (or (== op "+") (== op "-")) (or (== op "*") (== op "/"))) (== op "%"))
+    if (and arithmetic (or (array_arithmetic_storage_refused left_type) (array_arithmetic_storage_refused right_type))) {
+        return (type_unknown_named "unsupported array arithmetic storage")
+    }
     if (array_arithmetic_selected op left_type right_type) {
         let mut array_type: NSType = left_type
         if (!= left_type.kind TypeKind.TYPE_ARRAY) { set array_type right_type }
@@ -4326,6 +4348,10 @@ fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType 
 }
 
 shadow check_binary_op {
+    let forbidden: NSType = (type_from_string "array<u8>")
+    assert (== (check_binary_op "+" forbidden forbidden).name "unsupported array arithmetic storage")
+    assert (== (check_binary_op "%" (type_int) forbidden).name "unsupported array arithmetic storage")
+    assert (== (check_binary_op "-" (type_int) (type_from_string "array<array<int>>")).name "unsupported array arithmetic storage")
     assert (== (check_binary_op "+" (type_from_string "u8") (type_int)).kind TypeKind.TYPE_INT)
     assert (== (check_binary_op "-" (type_int) (type_from_string "u8")).kind TypeKind.TYPE_INT)
     assert (== (check_binary_op "*" (type_from_string "u8") (type_from_string "u8")).kind TypeKind.TYPE_INT)
@@ -5657,6 +5683,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         let right_t: NSType = (check_expr_node parser binop.right binop.right_type symbols diags file_name)
         let op_str: string = (op_token_to_string binop.op)
         let result: NSType = (check_binary_op op_str left_t right_t)
+        if (and (== result.kind TypeKind.TYPE_UNKNOWN) (== result.name "unsupported array arithmetic storage")) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I do not admit byte, nested or unknown array arithmetic." (Diagnostics.diag_location file_name binop.line binop.column)))
+            return result
+        }
         if (and (array_arithmetic_selected op_str left_t right_t) (== result.kind TypeKind.TYPE_UNKNOWN)) {
             (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I require matching flat numeric array and scalar element types for arithmetic." (Diagnostics.diag_location file_name binop.line binop.column)))
         }
@@ -6104,6 +6134,26 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
+    # I report unsupported storage on discarded expressions, not only destinations.
+    let refused_types: array<string> = ["array<u8>", "array<array<int>>"]
+    let refused_ops: array<string> = ["+", "-", "*", "/", "%"]
+    let mut ti: int = 0
+    while (< ti 2) {
+        let mut oi: int = 0
+        while (< oi 5) {
+            let text: string = (+ "fn probe(xs:" (+ (at refused_types ti) (+ ")->void{(" (+ (at refused_ops oi) " xs xs)}"))))
+            let parsed_refusal: Parser = (resource_test_parser text)
+            assert (not (parser_has_error parsed_refusal))
+            let actual: NSType = (type_from_string_with_parser parsed_refusal (at refused_types ti))
+            let values: array<Symbol> = [(symbol_new "xs" actual false false 0 (empty_param_types) (type_void))]
+            let errors: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+            let result: NSType = (check_expr_node parsed_refusal 0 ParseNodeType.PNODE_BINARY_OP values errors "refused-array.nano")
+            assert (== result.name "unsupported array arithmetic storage")
+            assert (> (list_CompilerDiagnostic_length errors) 0)
+            set oi (+ oi 1)
+        }
+        set ti (+ ti 1)
+    }
     let pop_parser: Parser = (resource_test_parser "fn probe(bytes: array<u8>) -> u8 { return (array_pop bytes) }")
     let pop_symbols: array<Symbol> = [(symbol_new "bytes" (type_from_string_with_parser pop_parser "array<u8>") false false 0 (empty_param_types) (type_void))]
     let pop_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)

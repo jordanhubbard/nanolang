@@ -17470,3 +17470,12 @@ boundary explicitly and do not execute those unsupported forms as positives.
 
 - [ ] I reconcile byte/nested arithmetic admission across whole expressions, not only typed destinations. My bounded source audit `docs/ARRAY_ARITHMETIC_ADMISSION_AUDIT.md` records coarse UNKNOWN/u8 acceptance, absent evaluator/VM byte dispatch, legacy ELEM_U8 narrowing, older Nano fallback behavior and the existing flat-only canonical contract. No new source semantics or unsupported execution is authorized by the audit.
 - [ ] I make C NanoISA unary ARRAY and ARRAY remainder lowering refuse before publication or implement separately reviewed correct lowering; current typed I64_NEG/I64_REM_S selection is a static operand mismatch. I preserve original passing evaluator unary/modulo behavior and retain all full5.1 required positive matrix obligations under task398942.
+
+I prepare the reviewed admission/refusal implementation: the C checker obtains
+complete operand views before accepting arithmetic leaves, the Nano checker
+reports byte/nested/unknown storage even for discarded expressions, and C
+NanoISA lowering refuses ARRAY NEG/REM before returning a module. Additive
+checker and nonexecuting codegen controls preserve all prior assertions;
+original nested containers still permit arithmetic on an indexed flat child.
+Strict C99 syntax and whitespace checks pass. No changed source has executed.
+Nano changes require fresh bootstrap after the compiler shadow-loader repair.

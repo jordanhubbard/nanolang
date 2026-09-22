@@ -416,3 +416,19 @@ fail:
     nominal_view_discard(&view);
     return false;
 }
+
+/* I inspect only an operand's complete facts, never the containing arithmetic
+ * expression. Recursive arithmetic therefore descends through strict children. */
+static Type nominal_arithmetic_array_element(ASTNode *operand, Environment *env) {
+    NominalView array = {0}, element = {0};
+    Type result = TYPE_UNKNOWN;
+    if (nominal_value_view(operand, env, 0, &array) && array.info->base_type == TYPE_ARRAY &&
+        nominal_view_child(env, &array, 0, 1, &element)) {
+        Type type = element.info->base_type;
+        if (type == TYPE_INT || type == TYPE_ENUM || type == TYPE_FLOAT || type == TYPE_STRING)
+            result = type;
+    }
+    nominal_view_discard(&element);
+    nominal_view_discard(&array);
+    return result;
+}

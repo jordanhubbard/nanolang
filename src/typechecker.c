@@ -3383,13 +3383,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     if (arg_type == TYPE_INT || arg_type == TYPE_U8) return TYPE_INT;
                     if (arg_type == TYPE_FLOAT) return TYPE_FLOAT;
                     if (arg_type == TYPE_ARRAY) {
-                        Type elem = infer_array_element_type(expr->as.prefix_op.args[0], env);
-                        if (elem == TYPE_UNKNOWN || elem == TYPE_INT || elem == TYPE_ENUM || elem == TYPE_FLOAT) {
+                        Type elem = nominal_arithmetic_array_element(expr->as.prefix_op.args[0], env);
+                        if (elem == TYPE_INT || elem == TYPE_ENUM || elem == TYPE_FLOAT) {
                             return TYPE_ARRAY;
                         }
                         emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                            "Unary minus requires array<int> or array<float>",
-                            "Only numeric arrays support element-wise negation");
+                            "I require a complete flat int, enum or float array for negation",
+                            "I do not admit byte, nested or unknown array arithmetic");
                         return TYPE_UNKNOWN;
                     }
                     emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
@@ -3419,17 +3419,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     bool left_is_array = (left == TYPE_ARRAY);
                     bool right_is_array = (right == TYPE_ARRAY);
 
-                    Type left_elem = left_is_array ? infer_array_element_type(left_expr, env) : left;
-                    Type right_elem = right_is_array ? infer_array_element_type(right_expr, env) : right;
-
-                    /* If both element types are unknown, allow and defer to runtime */
-                    if (left_is_array && right_is_array && left_elem == TYPE_UNKNOWN && right_elem == TYPE_UNKNOWN) {
-                        return TYPE_ARRAY;
-                    }
-
-                    /* If one side's element type is unknown, allow and defer to runtime */
-                    if ((left_is_array && left_elem == TYPE_UNKNOWN) || (right_is_array && right_elem == TYPE_UNKNOWN)) {
-                        return TYPE_ARRAY;
+                    Type left_elem = left_is_array ? nominal_arithmetic_array_element(left_expr, env) : left;
+                    Type right_elem = right_is_array ? nominal_arithmetic_array_element(right_expr, env) : right;
+                    if ((left_is_array && left_elem == TYPE_UNKNOWN) ||
+                        (right_is_array && right_elem == TYPE_UNKNOWN)) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            "I require complete flat array operands for arithmetic",
+                            "I do not admit byte, nested or unknown array arithmetic");
+                        return TYPE_UNKNOWN;
                     }
 
                     /* Normalize enums to int for array arithmetic */
@@ -3446,7 +3443,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                     if (op == TOKEN_PERCENT) {
                         if (left_elem == TYPE_INT && right_elem == TYPE_INT) return TYPE_ARRAY;
-                        fprintf(stderr, "Error at line %d, column %d: %% only supported on array<int> or array<u8>\n", expr->line, expr->column);
+                        fprintf(stderr, "Error at line %d, column %d: I require integer array operands for %%\n", expr->line, expr->column);
                         return TYPE_UNKNOWN;
                     }
 

@@ -2600,6 +2600,10 @@ static void compile_expr(CG *cg, ASTNode *node) {
         if (argc == 1) {
             /* Unary operators */
             Type arg_type = check_expression(args[0], cg->env);
+            if (op == TOKEN_MINUS && arg_type == TYPE_ARRAY) {
+                cg_error(cg, node->line, "I cannot lower array negation to a scalar NanoISA opcode");
+                break;
+            }
             compile_expr(cg, args[0]);
             switch (op) {
                 case TOKEN_MINUS:
@@ -2631,6 +2635,10 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 break;
             }
             bool array_op = left == TYPE_ARRAY || right == TYPE_ARRAY;
+            if (array_op && op == TOKEN_PERCENT) {
+                cg_error(cg, node->line, "I cannot lower array remainder to a scalar NanoISA opcode");
+                break;
+            }
             bool float_op = left == TYPE_FLOAT || right == TYPE_FLOAT;
             bool string_concat = op == TOKEN_PLUS
                 && left == TYPE_STRING && right == TYPE_STRING;
