@@ -101,7 +101,7 @@ const Environment *checker_sdk_projection_environment(const CheckerSdkProjection
 }
 CheckerSdkStatus type_check_sdk_projection(ASTNode *program,Environment *env,bool module,
         NvmPreparationBudget *budget,CheckerSdkProjection **out) {
-    if(!program||!env||!budget||!out||checker_sdk_active||program->type!=AST_PROGRAM||
+    if(!program||!env||!budget||!out||*out||checker_sdk_active||program->type!=AST_PROGRAM||
        program->as.program.count<0||(program->as.program.count&&!program->as.program.items))return CHECKER_SDK_INVALID;
     if(!nvm_preparation_budget_valid(budget)||program->as.program.count>65536)return CHECKER_SDK_LIMIT;
     size_t count=(size_t)program->as.program.count;
