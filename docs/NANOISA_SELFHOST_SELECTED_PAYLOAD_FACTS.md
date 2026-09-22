@@ -217,3 +217,11 @@ My 33e first native terminal exposes two connected lowering defects. A construct
 I retain the checked explicit generic annotation. Only a plain constructor may take a generic expected annotation, and only when their complete canonical base names agree. I convert that source annotation through `type_to_c` once for both the compound-literal carrier and tag prefix. I look up payload fields by the same exact canonical base declaration and substitute its fields with the retained complete annotation. This is lowering of checked facts, not a new declaration resolver or permission to accept conflicting explicit arguments.
 
 I preserve the original nested constructor program. I add generated-output controls for direct explicit, nested explicit and contextually supplied arguments, with exact carrier/tag checks and no trailing-underscore spelling. My original 18 source and 9 native methods remain required; neither this design nor a shadow substitutes for their actual producer runs.
+
+## I select a declared extern before the array intrinsic
+
+I adapt reviewed root `facc7221f` under `task_f83ba29713bf447fb70c2339fc98170d`. My native lookup already has a function-name index and a strict registry-pointer predicate. I keep its ascending candidate order, owner equality and allocation-denied linear fallback. I change only the local `array_push` candidate eligibility from a body-bearing non-extern to either an extern declaration or a body-bearing declaration.
+
+My evaluator snapshots the resolved builtin identity before evaluating arguments; a later callback cannot invalidate a borrowed Function pointer used for dispatch. My bytecode emitter refuses builtin lowering for a nonregistry callee before emitting operands. This change does not import the separate U8 mutation flag or its conversions.
+
+The existing index fixture explicitly expected extern candidates to lose to the builtin. I replace those three old-policy assertions with the selected declaration pointer and add owner exclusion, strict classification and allocation-denied lookup controls. I preserve all other ordering, collision, replacement and allocation assertions. Source review precedes execution; the shared module-metadata ownership hold remains.
