@@ -17076,3 +17076,5 @@ new byte-word root/field and len/get/set/push discriminator occurrences to15,
 retain recursive-array13 and public TAG_MAP13, audit every literal occurrence,
 and add a combined nested-string-array/byte-array retention and mutation control
 before execution review. Existing individual byte and recursive-array gates stay.
+
+I refine task_b6987's implementation boundary before edits: the eager nominal precheck precedes lexical branch bindings, while array literal NominalView inference currently reconstructs INT children after contextual byte conversion. My isolated9bc adapter will carry owned destination context at actual expression checking and retain validated complete literal proofs under existing Environment ownership, with direct-expression proof/cache rollback. I record this mechanism in the destination contract before changing source; no adapter product is executed.
