@@ -1391,6 +1391,8 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
     if (strcmp(name, "array_push") == 0 && argc == 2) {
+        if (!env_function_is_builtin(env_get_function(cg->env, name)))
+            return false;
         compile_expr(cg, args[0]); /* array */
         compile_expr(cg, args[1]); /* value */
         emit_op(cg, OP_ARR_PUSH);

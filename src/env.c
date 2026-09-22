@@ -929,7 +929,7 @@ static Function *env_get_function_with_index(Environment *env, const char *name,
              i = function_candidate_next(env, index, i)) {
             Function *function = &env->functions[i];
             if (function->name && strcmp(function->name, name) == 0 &&
-                !function->is_extern && function->body &&
+                (function->is_extern || function->body) &&
                 ((!env->current_module && !function->module_name) ||
                  (env->current_module && function->module_name &&
                   strcmp(env->current_module, function->module_name) == 0)))
