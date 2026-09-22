@@ -4,6 +4,7 @@ import shlex
 import shutil
 from pathlib import Path
 import unittest
+from tests.managed_probe_flags import compiler_command, compile_flags, link_flags
 from tests import test_llvm_managed_strings as managed
 from tests.test_managed_record_shapes import program, function, NO
 ROOT = managed.ROOT
@@ -156,8 +157,8 @@ class HeapSelector(unittest.TestCase):
         source.write_text(program('PUSH_STR text\nSTRUCT_LITERAL 0 1\nPOP',[(0,[(5,NO)])]))
         for compiler,flags in [('cc',[]),('clang',shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS',''))+['-fsanitize=address,undefined','-fno-sanitize-recover=all'])]:
             probe=self.work/'selector'
-            self.run_cmd([compiler,*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror','-DNMA_TESTING',
-                ROOT/'src/nanoisa/managed_array_shapes.c',ROOT/'tests/nanoisa/test_managed_heap_selector.c',*objects,'-lm','-lcrypto','-o',probe])
+            self.run_cmd([*compiler_command(compiler),*compile_flags(),*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror','-DNMA_TESTING',
+                ROOT/'src/nanoisa/managed_array_shapes.c',ROOT/'tests/nanoisa/test_managed_heap_selector.c',*objects,'-lm','-lcrypto',*link_flags(),'-o',probe])
             self.run_cmd([probe,source])
 
 if __name__=='__main__':unittest.main()

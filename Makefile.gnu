@@ -4865,15 +4865,20 @@ nvm2llvm: $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NAN
 test-nvm2llvm: nvm2llvm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2llvm tests.test_nvm2llvm_floats
 
+NMA_TEST_CC ?= $(CC)
+NMA_TEST_CLANG ?= clang
+NMA_TEST_CFLAGS ?= $(CFLAGS)
+NMA_TEST_LDFLAGS ?= $(LDFLAGS)
+
 .PHONY: test-managed-array-eligibility
 test-units: test-managed-array-eligibility
 test-managed-array-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
-	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_array_shapes tests.test_managed_graph_origins
+	NMA_TEST_CC="$(NMA_TEST_CC)" NMA_TEST_CLANG="$(NMA_TEST_CLANG)" NMA_TEST_CFLAGS="$(NMA_TEST_CFLAGS)" NMA_TEST_LDFLAGS="$(NMA_TEST_LDFLAGS)" NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_array_shapes tests.test_managed_graph_origins
 
 .PHONY: test-managed-record-eligibility
 test-units: test-managed-record-eligibility
 test-managed-record-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
-	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_shapes
+	NMA_TEST_CC="$(NMA_TEST_CC)" NMA_TEST_CLANG="$(NMA_TEST_CLANG)" NMA_TEST_CFLAGS="$(NMA_TEST_CFLAGS)" NMA_TEST_LDFLAGS="$(NMA_TEST_LDFLAGS)" NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_shapes
 
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_array_shapes.h $(NANOISA_DIR)/managed_record_shapes.h $(NANOISA_DIR)/managed_record_plan.h $(NANOISA_DIR)/ownership_contracts.h
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_execution.h $(NANOISA_DIR)/managed_record_array_execution.inc $(NANOISA_DIR)/record_array_snapshot_private.h
@@ -4891,7 +4896,7 @@ test-verifier-profiles: nvm2llvm nvm2wasm nanoisa_dump
 .PHONY: test-llvm-managed-records
 test-llvm-managed-records: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	$(CC) $(CFLAGS) -o obj/managed_record_reentry tests/nanoisa/managed_record_reentry.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_llvm_managed_records
+	NMA_TEST_CC="$(NMA_TEST_CC)" NMA_TEST_CLANG="$(NMA_TEST_CLANG)" NMA_TEST_CFLAGS="$(NMA_TEST_CFLAGS)" NMA_TEST_LDFLAGS="$(NMA_TEST_LDFLAGS)" NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_llvm_managed_records
 
 .PHONY: test-llvm-managed-forward-records
 test-llvm-managed-forward-records: test-llvm-managed-records test-managed-record-plan test-ordinary-record-authority

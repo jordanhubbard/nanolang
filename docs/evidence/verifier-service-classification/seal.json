@@ -1,0 +1,1877 @@
+{
+  "linux-ordinary": {
+    "source": "53a09f645",
+    "bundle": "linux-ordinary.tar.gz",
+    "sha256": "b1515d1d827e7bf634e49d7ed834a31b18455ce0f0f7bc58b63e4932399f6868",
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 159,
+        "sha256": "cf0ae863af5a9aa5af720c9eac12fe65f5dd3a7090e0f2ebbe138895ed7386eb"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2366,
+        "sha256": "3bc76f0ac56c5cf6bdc3ad4307baaa00f58ea6fd4d6de180328d3b214ede75c3"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8438,
+        "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+      },
+      {
+        "path": "final.json",
+        "bytes": 496,
+        "sha256": "997ee93939596106d76fdcffd676794af45a7c0003e66cbb6616b694b38a96f5"
+      },
+      {
+        "path": "results.json",
+        "bytes": 407,
+        "sha256": "da866e768459a7fe85449e2b5316f79b2644e83079441c62c0cfb4b2a04c049e"
+      },
+      {
+        "path": "test-forth-core-artifacts.json",
+        "bytes": 52956,
+        "sha256": "0bb4f1e41bf72913ab13edf8fc1cb2cddbb84f522376af5636bc362848fa985c"
+      },
+      {
+        "path": "test-forth-core-command.json",
+        "bytes": 220,
+        "sha256": "386ab2c3e622a5ce8cd1093b189381aaa86fc6e4305ed9749bc8882f980243c8"
+      },
+      {
+        "path": "test-forth-core-inputs-before.json",
+        "bytes": 52956,
+        "sha256": "0bb4f1e41bf72913ab13edf8fc1cb2cddbb84f522376af5636bc362848fa985c"
+      },
+      {
+        "path": "test-forth-core-nested-processes.json",
+        "bytes": 479,
+        "sha256": "98d84a3114af57eedadf226f3d7ca9399ee92c87f0411a859ff4775bbe93402c"
+      },
+      {
+        "path": "test-forth-core-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-core-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-core-space-before.json",
+        "bytes": 64,
+        "sha256": "5da9802ca89b87751342bc45b6c5cd21f9e6eff560876613d441e21df9517b67"
+      },
+      {
+        "path": "test-forth-core-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-core-tools-after.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-core-tools-before.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-core.log",
+        "bytes": 2609,
+        "sha256": "55f60c1a459be73670383a0ff64ce78223f098869ebd8270a3088191d56f6a8f"
+      },
+      {
+        "path": "test-forth-double-artifacts.json",
+        "bytes": 52956,
+        "sha256": "0bb4f1e41bf72913ab13edf8fc1cb2cddbb84f522376af5636bc362848fa985c"
+      },
+      {
+        "path": "test-forth-double-command.json",
+        "bytes": 222,
+        "sha256": "c64e34b3212ea048da97a7fccbdd28a9762c02ae189c3f9820c7500bd37c0d2d"
+      },
+      {
+        "path": "test-forth-double-inputs-before.json",
+        "bytes": 52956,
+        "sha256": "0bb4f1e41bf72913ab13edf8fc1cb2cddbb84f522376af5636bc362848fa985c"
+      },
+      {
+        "path": "test-forth-double-nested-processes.json",
+        "bytes": 828,
+        "sha256": "d5c6f150806bc08a8ae55d9cd391d1b0f146a0c6100f07e200229d4640ca376e"
+      },
+      {
+        "path": "test-forth-double-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-double-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-double-space-before.json",
+        "bytes": 64,
+        "sha256": "94754c0b79caf47e7716b1918bbcaa18f4dfcaf29d30a9199924c158c49af2f4"
+      },
+      {
+        "path": "test-forth-double-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-double-tools-after.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-double-tools-before.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-double.log",
+        "bytes": 3344,
+        "sha256": "87dc90a9b1965bd92ed42863bfc4b5bdf55c5094d8ca19c9f203c79dcebab21e"
+      },
+      {
+        "path": "test-forth-float-artifacts.json",
+        "bytes": 52956,
+        "sha256": "0bb4f1e41bf72913ab13edf8fc1cb2cddbb84f522376af5636bc362848fa985c"
+      },
+      {
+        "path": "test-forth-float-command.json",
+        "bytes": 221,
+        "sha256": "01b358a44985b6f6c27d11bf6f22a008cf4ef940f5d08a705f98747c1c02499f"
+      },
+      {
+        "path": "test-forth-float-inputs-before.json",
+        "bytes": 52956,
+        "sha256": "0bb4f1e41bf72913ab13edf8fc1cb2cddbb84f522376af5636bc362848fa985c"
+      },
+      {
+        "path": "test-forth-float-nested-processes.json",
+        "bytes": 830,
+        "sha256": "94890d6d6158f921cd7a86b2dc79687fc21b70fa318eebc923e4c5493a47e2ad"
+      },
+      {
+        "path": "test-forth-float-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-float-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-float-space-before.json",
+        "bytes": 64,
+        "sha256": "b364b613f33b236fb06f02621e4ce39c47c35ca0449bf107e47076b823e9e423"
+      },
+      {
+        "path": "test-forth-float-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-float-tools-after.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-float-tools-before.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-float.log",
+        "bytes": 3658,
+        "sha256": "3c6070e338314c7019bf943a5783a266298037d7fa16498715057374012efbc5"
+      },
+      {
+        "path": "test-forth-session-artifacts.json",
+        "bytes": 52956,
+        "sha256": "0bb4f1e41bf72913ab13edf8fc1cb2cddbb84f522376af5636bc362848fa985c"
+      },
+      {
+        "path": "test-forth-session-command.json",
+        "bytes": 223,
+        "sha256": "d77fc46da9d590ba48fb83f98d9a637c816dc12112216785c7aa0a7621467f27"
+      },
+      {
+        "path": "test-forth-session-inputs-before.json",
+        "bytes": 13634,
+        "sha256": "92b7341092436ee095dfab5341cefae636a692e9a94dc6206326ef50c9855a07"
+      },
+      {
+        "path": "test-forth-session-nested-processes.json",
+        "bytes": 2294,
+        "sha256": "f596d2a2e0e0a5072ece9917ee9ea92270942355c61383e70e8e3c374d849ea1"
+      },
+      {
+        "path": "test-forth-session-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-session-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-session-space-before.json",
+        "bytes": 64,
+        "sha256": "d4091dc2594bceeb4284ce51ce26490493ab7c64dca6a0bf113156f2423cda3e"
+      },
+      {
+        "path": "test-forth-session-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-session-tools-after.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-session-tools-before.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-session.log",
+        "bytes": 19912,
+        "sha256": "0855e1b003015e1eb40325a0c8417d3cac8429f6fb4427a5379410cc7c463653"
+      },
+      {
+        "path": "test-verifier-artifacts.json",
+        "bytes": 13634,
+        "sha256": "92b7341092436ee095dfab5341cefae636a692e9a94dc6206326ef50c9855a07"
+      },
+      {
+        "path": "test-verifier-command.json",
+        "bytes": 218,
+        "sha256": "3ab35389a8d71fac2110bced44d8bc9a68e7c449206c53897af3cc78fc76bbf1"
+      },
+      {
+        "path": "test-verifier-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "test-verifier-nested-processes.json",
+        "bytes": 2003,
+        "sha256": "53ddd639ae1f0471cd32aef9c3011d44420f14609352ec9ef765965199dca807"
+      },
+      {
+        "path": "test-verifier-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-verifier-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-verifier-space-before.json",
+        "bytes": 64,
+        "sha256": "8e2d09d0a4748d1550570a1d1a235212ae6b7e4dc45d59623febe8ff7a085317"
+      },
+      {
+        "path": "test-verifier-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-verifier-tools-after.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-verifier-tools-before.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-verifier.log",
+        "bytes": 14682,
+        "sha256": "9429f0dd5a9e0af6fa1551279fd9f1ad265d36e6416d1e43e15714598c87a531"
+      }
+    ],
+    "objects": 149,
+    "object_bytes": 22461448,
+    "equal_pairs": 10,
+    "artifact_references": 634,
+    "terminals": {
+      "test-forth-core-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-double-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-float-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-session-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-verifier-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      }
+    },
+    "results": [
+      {
+        "phase": "test-verifier",
+        "seconds": 1.736,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-session",
+        "seconds": 179.358,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-core",
+        "seconds": 45.109,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-double",
+        "seconds": 94.162,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-float",
+        "seconds": 77.125,
+        "status": 0
+      }
+    ]
+  },
+  "linux-sanitizer": {
+    "source": "53a09f645",
+    "bundle": "linux-sanitizer.tar.gz",
+    "sha256": "e8d62189e1e6c9ad6210d7eca6c901b3ac17939089bd66213edf28885037043c",
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 161,
+        "sha256": "7a6bb3987a4cd7ee7e0086f9b9bc7d951d91d9909a10776244c087c11d8fce29"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2366,
+        "sha256": "3bc76f0ac56c5cf6bdc3ad4307baaa00f58ea6fd4d6de180328d3b214ede75c3"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8438,
+        "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+      },
+      {
+        "path": "results.json",
+        "bytes": 328,
+        "sha256": "04424b849b2f2ef47ed341929a1e2b67f21252ebba20bd87921cd61825d0b77e"
+      },
+      {
+        "path": "test-forth-core-artifacts.json",
+        "bytes": 51764,
+        "sha256": "85808b83f6ab35f7cde0879de00b2ac87d9f18129f70e44ec71e5c17ea102f99"
+      },
+      {
+        "path": "test-forth-core-command.json",
+        "bytes": 302,
+        "sha256": "5c82b7460e05a98240f61f8f36208e7f600751622f0a4b40b5ef8230d4dc3b10"
+      },
+      {
+        "path": "test-forth-core-inputs-before.json",
+        "bytes": 51764,
+        "sha256": "85808b83f6ab35f7cde0879de00b2ac87d9f18129f70e44ec71e5c17ea102f99"
+      },
+      {
+        "path": "test-forth-core-nested-processes.json",
+        "bytes": 544,
+        "sha256": "b8386a7d6cefedc41932bc903f58d9f5b3d9ee3a970bcdad422249824d080a23"
+      },
+      {
+        "path": "test-forth-core-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-core-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-core-space-before.json",
+        "bytes": 64,
+        "sha256": "9b21b07875f6f57bc1ddb7edb07f2d6fc1efbf3217f8be27906dac942508cfbc"
+      },
+      {
+        "path": "test-forth-core-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-core-tools-after.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-core-tools-before.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-core.log",
+        "bytes": 2609,
+        "sha256": "55f60c1a459be73670383a0ff64ce78223f098869ebd8270a3088191d56f6a8f"
+      },
+      {
+        "path": "test-forth-double-artifacts.json",
+        "bytes": 51764,
+        "sha256": "85808b83f6ab35f7cde0879de00b2ac87d9f18129f70e44ec71e5c17ea102f99"
+      },
+      {
+        "path": "test-forth-double-command.json",
+        "bytes": 304,
+        "sha256": "af562b08070745f763bb94879ecdd9f4b73491601aa815fcc5e93dd54dd6982a"
+      },
+      {
+        "path": "test-forth-double-inputs-before.json",
+        "bytes": 51764,
+        "sha256": "85808b83f6ab35f7cde0879de00b2ac87d9f18129f70e44ec71e5c17ea102f99"
+      },
+      {
+        "path": "test-forth-double-nested-processes.json",
+        "bytes": 910,
+        "sha256": "aeb7b49454e4c3a2db01a360a91dc9acec799b56bc1224b18c613aeead056523"
+      },
+      {
+        "path": "test-forth-double-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-double-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-double-space-before.json",
+        "bytes": 64,
+        "sha256": "f2667e7d4e4fe9be9866ea0ea250fa6ba74a042f2bc17176806e461629f86768"
+      },
+      {
+        "path": "test-forth-double-terminal.json",
+        "bytes": 174,
+        "sha256": "c39856a35bff3f4c03333ee91e6e94e5c635f17cc9442766dd1e589118d61ebf"
+      },
+      {
+        "path": "test-forth-double-tools-after.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-double-tools-before.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-double.log",
+        "bytes": 664,
+        "sha256": "32a3368c022139d86d274c15b8a285291019ac9152759a1b8c5b9bfcd503026e"
+      },
+      {
+        "path": "test-forth-session-artifacts.json",
+        "bytes": 51764,
+        "sha256": "85808b83f6ab35f7cde0879de00b2ac87d9f18129f70e44ec71e5c17ea102f99"
+      },
+      {
+        "path": "test-forth-session-command.json",
+        "bytes": 305,
+        "sha256": "84eebc07cc57324affba636cc84902e8a1594d4fe5d7493764686048d70dd2fe"
+      },
+      {
+        "path": "test-forth-session-inputs-before.json",
+        "bytes": 13330,
+        "sha256": "3aaa7e117e79f233e0351abfbe1f1c87d4a1669341c630e96e5d526555d71245"
+      },
+      {
+        "path": "test-forth-session-nested-processes.json",
+        "bytes": 10439,
+        "sha256": "18147db51e139f357da3341e1a58748ae1f2c514a4c4bc3e7bdc7cfff873ed9d"
+      },
+      {
+        "path": "test-forth-session-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-session-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-session-space-before.json",
+        "bytes": 64,
+        "sha256": "811d62c6659e265740a63301b44e8dbc1f0c56c9b265e114ed5b189d8363b7c5"
+      },
+      {
+        "path": "test-forth-session-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-session-tools-after.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-session-tools-before.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-forth-session.log",
+        "bytes": 25877,
+        "sha256": "b5569eded7c09bf663a42bac92b73fa9cc889f9eab244acf23cd6f93990e477f"
+      },
+      {
+        "path": "test-verifier-artifacts.json",
+        "bytes": 13330,
+        "sha256": "3aaa7e117e79f233e0351abfbe1f1c87d4a1669341c630e96e5d526555d71245"
+      },
+      {
+        "path": "test-verifier-command.json",
+        "bytes": 300,
+        "sha256": "b95ce882229cad3849e97bacfe080b341ee24a9447dd49ae99b74b44ae5ba812"
+      },
+      {
+        "path": "test-verifier-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "test-verifier-nested-processes.json",
+        "bytes": 10119,
+        "sha256": "30648f7663234df050674ed524a2634f37b586a32ee4b538bdfff9e8c773a9cb"
+      },
+      {
+        "path": "test-verifier-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-verifier-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-verifier-space-before.json",
+        "bytes": 64,
+        "sha256": "9053e9c5cef055cd7675995c745fe1ed346e678f0794b0386f52daa0952918b3"
+      },
+      {
+        "path": "test-verifier-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-verifier-tools-after.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-verifier-tools-before.json",
+        "bytes": 2314,
+        "sha256": "90ed2a7956e05003c7a02a04075c1930967d35048f600fc8f83c35b820966644"
+      },
+      {
+        "path": "test-verifier.log",
+        "bytes": 16807,
+        "sha256": "701533de759c2f46d0424bfc05cfa2289f536e54d26a611765b7027c2d6eecde"
+      }
+    ],
+    "objects": 149,
+    "object_bytes": 89277416,
+    "equal_pairs": 8,
+    "artifact_references": 485,
+    "terminals": {
+      "test-forth-core-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-double-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 2,
+        "timeout": false
+      },
+      "test-forth-session-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-verifier-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      }
+    },
+    "results": [
+      {
+        "phase": "test-verifier",
+        "seconds": 4.651,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-session",
+        "seconds": 998.917,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-core",
+        "seconds": 439.354,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-double",
+        "seconds": 600.718,
+        "status": 2
+      }
+    ]
+  },
+  "darwin-apple-ordinary": {
+    "source": "53a09f645",
+    "bundle": "darwin-apple-ordinary.tar.gz",
+    "sha256": "fae744aa3804a190673ad85e03b6472ced645128a191981f352b9596fce48d74",
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 137,
+        "sha256": "50e4359edc6f6d1402ce6786ee5ae2823ce997f24f9e47b344f07dcf037e06ba"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2704,
+        "sha256": "34480176d0889766b3a4df8b1a1d1cbcdde4c2682ce9ec2caaeaaa6cece0746e"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8438,
+        "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+      },
+      {
+        "path": "final.json",
+        "bytes": 495,
+        "sha256": "ae9e0487f19ebab373527e6c9aef5233adf3cb95b53504f31d3fb9670627a35f"
+      },
+      {
+        "path": "results.json",
+        "bytes": 406,
+        "sha256": "c3b0c104aea8b0e8f07d510313af12ec020340bdba8938a23983cd2f6ba17867"
+      },
+      {
+        "path": "test-forth-core-artifacts.json",
+        "bytes": 53552,
+        "sha256": "f81c17324dddc6db1e9e7d18f9ba15f16073314d10dc78999664a8559e88d633"
+      },
+      {
+        "path": "test-forth-core-command.json",
+        "bytes": 626,
+        "sha256": "8c0c96b7abc7d6c8b9e407caebf7766bcf5d318199473468a2d80dd57125eda4"
+      },
+      {
+        "path": "test-forth-core-inputs-before.json",
+        "bytes": 53552,
+        "sha256": "f81c17324dddc6db1e9e7d18f9ba15f16073314d10dc78999664a8559e88d633"
+      },
+      {
+        "path": "test-forth-core-nested-processes.json",
+        "bytes": 811,
+        "sha256": "d27e9a24f78b155f1d6801b11ad5b1d9a3af292a6bd00729a66f3e401ad295c7"
+      },
+      {
+        "path": "test-forth-core-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-core-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-core-space-before.json",
+        "bytes": 64,
+        "sha256": "01c29cd39eca29ae1765d35f096fe8bc1da90122e5860d3d71c3036660a6c513"
+      },
+      {
+        "path": "test-forth-core-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-core-tools-after.json",
+        "bytes": 2174,
+        "sha256": "8b4a9966b42a081c1f4b5b3079423ee7853ff53f76b6035ae084bd4b93113fc8"
+      },
+      {
+        "path": "test-forth-core-tools-before.json",
+        "bytes": 2174,
+        "sha256": "8b4a9966b42a081c1f4b5b3079423ee7853ff53f76b6035ae084bd4b93113fc8"
+      },
+      {
+        "path": "test-forth-core.log",
+        "bytes": 2663,
+        "sha256": "fbd231f4c9929a9398fe70a9118c94b59c715cde4fab501c8de8214775234266"
+      },
+      {
+        "path": "test-forth-double-artifacts.json",
+        "bytes": 53552,
+        "sha256": "f81c17324dddc6db1e9e7d18f9ba15f16073314d10dc78999664a8559e88d633"
+      },
+      {
+        "path": "test-forth-double-command.json",
+        "bytes": 628,
+        "sha256": "189578fdedfc2017d38dd465e5c1d99ec9d460189995dd7787fe35c05c07867e"
+      },
+      {
+        "path": "test-forth-double-inputs-before.json",
+        "bytes": 53552,
+        "sha256": "f81c17324dddc6db1e9e7d18f9ba15f16073314d10dc78999664a8559e88d633"
+      },
+      {
+        "path": "test-forth-double-nested-processes.json",
+        "bytes": 1160,
+        "sha256": "92cbb89f117dee7605d993ea200256cce79fd5683da669ad4a1c53dc1e99adcd"
+      },
+      {
+        "path": "test-forth-double-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-double-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-double-space-before.json",
+        "bytes": 64,
+        "sha256": "d18726ec8077a11e715f46e1f0e3ef95c81a1a81839cb1bc358e7d3f6fcb4053"
+      },
+      {
+        "path": "test-forth-double-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-double-tools-after.json",
+        "bytes": 2174,
+        "sha256": "8b4a9966b42a081c1f4b5b3079423ee7853ff53f76b6035ae084bd4b93113fc8"
+      },
+      {
+        "path": "test-forth-double-tools-before.json",
+        "bytes": 2174,
+        "sha256": "8b4a9966b42a081c1f4b5b3079423ee7853ff53f76b6035ae084bd4b93113fc8"
+      },
+      {
+        "path": "test-forth-double.log",
+        "bytes": 3398,
+        "sha256": "29fe750071a96c8f6647f86912db53bb353a2976f62999011e90936ca3eb3ad0"
+      },
+      {
+        "path": "test-forth-float-artifacts.json",
+        "bytes": 53552,
+        "sha256": "f81c17324dddc6db1e9e7d18f9ba15f16073314d10dc78999664a8559e88d633"
+      },
+      {
+        "path": "test-forth-float-command.json",
+        "bytes": 627,
+        "sha256": "881e87c9f7454a43dafdf48c09d54d2cf6d88990bc7e21b841212d88a7c132e1"
+      },
+      {
+        "path": "test-forth-float-inputs-before.json",
+        "bytes": 53552,
+        "sha256": "f81c17324dddc6db1e9e7d18f9ba15f16073314d10dc78999664a8559e88d633"
+      },
+      {
+        "path": "test-forth-float-nested-processes.json",
+        "bytes": 1162,
+        "sha256": "6efa2956cd3181373e6ce075990b25f07967153aafeba60c86525ff1a2abf884"
+      },
+      {
+        "path": "test-forth-float-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-float-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-float-space-before.json",
+        "bytes": 64,
+        "sha256": "0db5c16bf79c98c0eee379a8ed8d4b9a8d00a24ee6e81336e95cfb69969db776"
+      },
+      {
+        "path": "test-forth-float-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-float-tools-after.json",
+        "bytes": 2174,
+        "sha256": "8b4a9966b42a081c1f4b5b3079423ee7853ff53f76b6035ae084bd4b93113fc8"
+      },
+      {
+        "path": "test-forth-float-tools-before.json",
+        "bytes": 2174,
+        "sha256": "8b4a9966b42a081c1f4b5b3079423ee7853ff53f76b6035ae084bd4b93113fc8"
+      },
+      {
+        "path": "test-forth-float.log",
+        "bytes": 3712,
+        "sha256": "d3a074d4287028525eaeb5fefca57e105028cb4fa8876b44e61d9d70845577b0"
+      },
+      {
+        "path": "test-forth-session-artifacts.json",
+        "bytes": 53552,
+        "sha256": "f81c17324dddc6db1e9e7d18f9ba15f16073314d10dc78999664a8559e88d633"
+      },
+      {
+        "path": "test-forth-session-command.json",
+        "bytes": 629,
+        "sha256": "078f94e19cec1385431e267e1226ece96364f805c8d925d8de716f1d45ae1a18"
+      },
+      {
+        "path": "test-forth-session-inputs-before.json",
+        "bytes": 13786,
+        "sha256": "2b029e5d0b5073dd6b5e0d1ab67420b33abfacc87dff7d314d43b2c24707f4ad"
+      },
+      {
+        "path": "test-forth-session-nested-processes.json",
+        "bytes": 2074,
+        "sha256": "80dd4a422fa2c78c999568a2e30ffa75ec7fc156c3949507e0f7435846a9f2a4"
+      },
+      {
+        "path": "test-forth-session-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-session-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-session-space-before.json",
+        "bytes": 64,
+        "sha256": "10484eafce381a972410974c72be7cf4998f271d2b2356fe6e40604f1f42b274"
+      },
+      {
+        "path": "test-forth-session-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-session-tools-after.json",
+        "bytes": 2174,
+        "sha256": "8b4a9966b42a081c1f4b5b3079423ee7853ff53f76b6035ae084bd4b93113fc8"
+      },
+      {
+        "path": "test-forth-session-tools-before.json",
+        "bytes": 2174,
+        "sha256": "8b4a9966b42a081c1f4b5b3079423ee7853ff53f76b6035ae084bd4b93113fc8"
+      },
+      {
+        "path": "test-forth-session.log",
+        "bytes": 54402,
+        "sha256": "c00424a0dffaccc010e5f6f528117441cf6bfc4685b683d002a339b7fe3d0ca8"
+      },
+      {
+        "path": "test-verifier-artifacts.json",
+        "bytes": 13786,
+        "sha256": "2b029e5d0b5073dd6b5e0d1ab67420b33abfacc87dff7d314d43b2c24707f4ad"
+      },
+      {
+        "path": "test-verifier-command.json",
+        "bytes": 624,
+        "sha256": "47b9b68e88eeafddca964af72fd68ef35c6c904fdfa73a12bc720c1aa27c6e40"
+      },
+      {
+        "path": "test-verifier-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "test-verifier-nested-processes.json",
+        "bytes": 924,
+        "sha256": "e854b68d8b34eb26ceccf6bc998e7b4671d6c302f95d4b353afbfa650eacbee9"
+      },
+      {
+        "path": "test-verifier-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-verifier-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-verifier-space-before.json",
+        "bytes": 64,
+        "sha256": "48b86e23ff99db6e5aa48233437ddf85377ec62df53ccd6c89566e7aaf37266d"
+      },
+      {
+        "path": "test-verifier-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-verifier-tools-after.json",
+        "bytes": 2174,
+        "sha256": "8b4a9966b42a081c1f4b5b3079423ee7853ff53f76b6035ae084bd4b93113fc8"
+      },
+      {
+        "path": "test-verifier-tools-before.json",
+        "bytes": 2174,
+        "sha256": "8b4a9966b42a081c1f4b5b3079423ee7853ff53f76b6035ae084bd4b93113fc8"
+      },
+      {
+        "path": "test-verifier.log",
+        "bytes": 27049,
+        "sha256": "1237cb849af12b58675953b0802f46e61bfbd050355a50b4768bf69b3e65b987"
+      }
+    ],
+    "objects": 149,
+    "object_bytes": 17569040,
+    "equal_pairs": 10,
+    "artifact_references": 634,
+    "terminals": {
+      "test-forth-core-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-double-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-float-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-session-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-verifier-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      }
+    },
+    "results": [
+      {
+        "phase": "test-verifier",
+        "seconds": 1.83,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-session",
+        "seconds": 116.585,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-core",
+        "seconds": 30.623,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-double",
+        "seconds": 61.683,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-float",
+        "seconds": 50.614,
+        "status": 0
+      }
+    ]
+  },
+  "darwin-clang-ordinary": {
+    "source": "53a09f645",
+    "bundle": "darwin-clang-ordinary.tar.gz",
+    "sha256": "172738d38046c343a2202689a88092be4c27a3938fea42ad2db5362e45d96449",
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 137,
+        "sha256": "0a827c10d60d3fa660f93b5a9ca0014a670dc4cad0c480d9fb1429fe8a301a4a"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2704,
+        "sha256": "34480176d0889766b3a4df8b1a1d1cbcdde4c2682ce9ec2caaeaaa6cece0746e"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8438,
+        "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+      },
+      {
+        "path": "final.json",
+        "bytes": 495,
+        "sha256": "8bfa1047ff9d98dfc79d5243a82f12508d03e8d2ac13deea26e27313b7cee253"
+      },
+      {
+        "path": "results.json",
+        "bytes": 406,
+        "sha256": "e7184d70b2d02e9a3711b5b3a627f9b8564e13c75d4211915c9fc9218d950eb3"
+      },
+      {
+        "path": "test-forth-core-artifacts.json",
+        "bytes": 53552,
+        "sha256": "9da309ee664058c5cd5706a82625b30dbe7deabf7ee16df8d1df1b491f3b9ac4"
+      },
+      {
+        "path": "test-forth-core-command.json",
+        "bytes": 644,
+        "sha256": "c39b5af57d25eff4a62bb59a3d8f4c6de0c899fa3e16f84cf20a8c026950e4ad"
+      },
+      {
+        "path": "test-forth-core-inputs-before.json",
+        "bytes": 53552,
+        "sha256": "9da309ee664058c5cd5706a82625b30dbe7deabf7ee16df8d1df1b491f3b9ac4"
+      },
+      {
+        "path": "test-forth-core-nested-processes.json",
+        "bytes": 829,
+        "sha256": "065e74efcbbd2f626f124c20af59817f0947fcbb067cf5c32673226cd166506c"
+      },
+      {
+        "path": "test-forth-core-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-core-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-core-space-before.json",
+        "bytes": 64,
+        "sha256": "fad4f0c6debd285d710302bff0acfe0b2e098c297e520ca8c755da1251e69e20"
+      },
+      {
+        "path": "test-forth-core-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-core-tools-after.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-core-tools-before.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-core.log",
+        "bytes": 2663,
+        "sha256": "fbd231f4c9929a9398fe70a9118c94b59c715cde4fab501c8de8214775234266"
+      },
+      {
+        "path": "test-forth-double-artifacts.json",
+        "bytes": 53552,
+        "sha256": "9da309ee664058c5cd5706a82625b30dbe7deabf7ee16df8d1df1b491f3b9ac4"
+      },
+      {
+        "path": "test-forth-double-command.json",
+        "bytes": 646,
+        "sha256": "be525471da24f596bc88f12aa1375db733411fb31af5a364300444ccec118f40"
+      },
+      {
+        "path": "test-forth-double-inputs-before.json",
+        "bytes": 53552,
+        "sha256": "9da309ee664058c5cd5706a82625b30dbe7deabf7ee16df8d1df1b491f3b9ac4"
+      },
+      {
+        "path": "test-forth-double-nested-processes.json",
+        "bytes": 1178,
+        "sha256": "26aadc7047508ddcf5d46f93989d9d83c7fd88aabff3315df77a7a7925f7d03d"
+      },
+      {
+        "path": "test-forth-double-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-double-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-double-space-before.json",
+        "bytes": 64,
+        "sha256": "56112b8292cff2d99ef989284e944b13ab224c1f2dc718658b098a4246324f8a"
+      },
+      {
+        "path": "test-forth-double-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-double-tools-after.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-double-tools-before.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-double.log",
+        "bytes": 3398,
+        "sha256": "29fe750071a96c8f6647f86912db53bb353a2976f62999011e90936ca3eb3ad0"
+      },
+      {
+        "path": "test-forth-float-artifacts.json",
+        "bytes": 53552,
+        "sha256": "9da309ee664058c5cd5706a82625b30dbe7deabf7ee16df8d1df1b491f3b9ac4"
+      },
+      {
+        "path": "test-forth-float-command.json",
+        "bytes": 645,
+        "sha256": "3f449a182c0cded1fc3a16f4687ec85dbf85562df85dd7fceec18b8f695e9f9f"
+      },
+      {
+        "path": "test-forth-float-inputs-before.json",
+        "bytes": 53552,
+        "sha256": "9da309ee664058c5cd5706a82625b30dbe7deabf7ee16df8d1df1b491f3b9ac4"
+      },
+      {
+        "path": "test-forth-float-nested-processes.json",
+        "bytes": 1180,
+        "sha256": "197444403ee3caf231f865e7d2ce19267fb79a5ceaeda9dcbb111cbd80ea13cd"
+      },
+      {
+        "path": "test-forth-float-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-float-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-float-space-before.json",
+        "bytes": 64,
+        "sha256": "0709441f37b930a9356d82b3528324a049523d8d7a3e14475156cfd2a2335ea7"
+      },
+      {
+        "path": "test-forth-float-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-float-tools-after.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-float-tools-before.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-float.log",
+        "bytes": 3712,
+        "sha256": "d3a074d4287028525eaeb5fefca57e105028cb4fa8876b44e61d9d70845577b0"
+      },
+      {
+        "path": "test-forth-session-artifacts.json",
+        "bytes": 53552,
+        "sha256": "9da309ee664058c5cd5706a82625b30dbe7deabf7ee16df8d1df1b491f3b9ac4"
+      },
+      {
+        "path": "test-forth-session-command.json",
+        "bytes": 647,
+        "sha256": "304b698044a803ef9ffb2235ecd2156584184a22a0177a58da993798eb709636"
+      },
+      {
+        "path": "test-forth-session-inputs-before.json",
+        "bytes": 13786,
+        "sha256": "500a938489630ae5b23a672b7160fe9b4aa0e94c1d6d2e0122abc979b4713047"
+      },
+      {
+        "path": "test-forth-session-nested-processes.json",
+        "bytes": 2122,
+        "sha256": "e6d350ff4ee101fec804e6e6ae4709a6b22b7e1166be266d0aa0890b9497b5bf"
+      },
+      {
+        "path": "test-forth-session-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-session-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-session-space-before.json",
+        "bytes": 64,
+        "sha256": "a82b660f13c8763f6b4ccb454c4ded9ec49d38b875c7fa76ae7601b2e06fdf26"
+      },
+      {
+        "path": "test-forth-session-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-session-tools-after.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-session-tools-before.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-session.log",
+        "bytes": 56418,
+        "sha256": "445c50f4f99035013b48b6ac725e53b22c0e311b308ab64b4b295e5e5a7ef8ef"
+      },
+      {
+        "path": "test-verifier-artifacts.json",
+        "bytes": 13786,
+        "sha256": "500a938489630ae5b23a672b7160fe9b4aa0e94c1d6d2e0122abc979b4713047"
+      },
+      {
+        "path": "test-verifier-command.json",
+        "bytes": 642,
+        "sha256": "f084f0ae6c2d5961f60c1a48578b2d86de1d5e8677e955dad7bf4937aacfd541"
+      },
+      {
+        "path": "test-verifier-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "test-verifier-nested-processes.json",
+        "bytes": 1559,
+        "sha256": "4a45ac48a47ec749ea6867da0f53bce7be5cf0e1275604a835868cba0e183090"
+      },
+      {
+        "path": "test-verifier-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-verifier-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-verifier-space-before.json",
+        "bytes": 64,
+        "sha256": "9f7c19cc6c981c248bf007989f2475a6d48c28018853226495a7c96251db8c41"
+      },
+      {
+        "path": "test-verifier-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-verifier-tools-after.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-verifier-tools-before.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-verifier.log",
+        "bytes": 27751,
+        "sha256": "6d21abe2433cb9738b5d062902b5afbe4418bafed30fed031c4c9fc2647c8b23"
+      }
+    ],
+    "objects": 149,
+    "object_bytes": 17615336,
+    "equal_pairs": 10,
+    "artifact_references": 634,
+    "terminals": {
+      "test-forth-core-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-double-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-float-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-session-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-verifier-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      }
+    },
+    "results": [
+      {
+        "phase": "test-verifier",
+        "seconds": 2.31,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-session",
+        "seconds": 139.878,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-core",
+        "seconds": 32.579,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-double",
+        "seconds": 66.224,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-float",
+        "seconds": 54.703,
+        "status": 0
+      }
+    ]
+  },
+  "darwin-clang-sanitizer": {
+    "source": "53a09f645",
+    "bundle": "darwin-clang-sanitizer.tar.gz",
+    "sha256": "460f17222dd6a962b3075e9f5914722d815c6bea08bf23eb08557224ab5bdd95",
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 139,
+        "sha256": "8e30fffff8fe161c0ce6b05a9bc13ecf006e696fb99439398ec2ad22a1c4ecb8"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2704,
+        "sha256": "34480176d0889766b3a4df8b1a1d1cbcdde4c2682ce9ec2caaeaaa6cece0746e"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8438,
+        "sha256": "d806f76eb2c17b80c59728240fd3556f6c3541f321b71191e8d215bd735623ab"
+      },
+      {
+        "path": "final.json",
+        "bytes": 499,
+        "sha256": "5f3b1c520b613ed37097b9cb684b4f1da22702c00b7d39a62fb8d779a1907c24"
+      },
+      {
+        "path": "results.json",
+        "bytes": 410,
+        "sha256": "b02b2790e5523e553316e1680b9e4523a5485c9cef1d58c0ccfe4c35669ab9fa"
+      },
+      {
+        "path": "test-forth-core-artifacts.json",
+        "bytes": 53850,
+        "sha256": "e72349a54440aab3baf41c35a9c0f03f37dc27c7fc12416ecc95a67691fbb259"
+      },
+      {
+        "path": "test-forth-core-command.json",
+        "bytes": 726,
+        "sha256": "f0dcc6ba8a4e8342082db93dffbb40c3fbc5a0f5cf09223643e6dfb1b0bd1301"
+      },
+      {
+        "path": "test-forth-core-inputs-before.json",
+        "bytes": 53850,
+        "sha256": "e72349a54440aab3baf41c35a9c0f03f37dc27c7fc12416ecc95a67691fbb259"
+      },
+      {
+        "path": "test-forth-core-nested-processes.json",
+        "bytes": 911,
+        "sha256": "2c51c8a0a18cfa3a48ca83d38015e43c389479186d9d191877589df61eb08b0d"
+      },
+      {
+        "path": "test-forth-core-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-core-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-core-space-before.json",
+        "bytes": 64,
+        "sha256": "a6900700f3d129429f379e32dff04af4003685f1cd8f7d9356f64d02a2326b3c"
+      },
+      {
+        "path": "test-forth-core-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-core-tools-after.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-core-tools-before.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-core.log",
+        "bytes": 2663,
+        "sha256": "fbd231f4c9929a9398fe70a9118c94b59c715cde4fab501c8de8214775234266"
+      },
+      {
+        "path": "test-forth-double-artifacts.json",
+        "bytes": 53850,
+        "sha256": "e72349a54440aab3baf41c35a9c0f03f37dc27c7fc12416ecc95a67691fbb259"
+      },
+      {
+        "path": "test-forth-double-command.json",
+        "bytes": 728,
+        "sha256": "fa364ac5a9a31d41d2510072bcfd7b320b0f2be05fe36b5b08e209ff837fa82e"
+      },
+      {
+        "path": "test-forth-double-inputs-before.json",
+        "bytes": 53850,
+        "sha256": "e72349a54440aab3baf41c35a9c0f03f37dc27c7fc12416ecc95a67691fbb259"
+      },
+      {
+        "path": "test-forth-double-nested-processes.json",
+        "bytes": 1260,
+        "sha256": "aac44a9748f4ac630a76ba12e817733cf50ed9396d3f38b6f920a1836fc4f4b4"
+      },
+      {
+        "path": "test-forth-double-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-double-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-double-space-before.json",
+        "bytes": 64,
+        "sha256": "16758b089f504591f6c5ffd4439f964273d25c730db06589788c492acd3ec26a"
+      },
+      {
+        "path": "test-forth-double-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-double-tools-after.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-double-tools-before.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-double.log",
+        "bytes": 3398,
+        "sha256": "29fe750071a96c8f6647f86912db53bb353a2976f62999011e90936ca3eb3ad0"
+      },
+      {
+        "path": "test-forth-float-artifacts.json",
+        "bytes": 53850,
+        "sha256": "e72349a54440aab3baf41c35a9c0f03f37dc27c7fc12416ecc95a67691fbb259"
+      },
+      {
+        "path": "test-forth-float-command.json",
+        "bytes": 727,
+        "sha256": "308e9ad541fb1e7363ea6ef0b5e43c6f5ab555abb45b45cbf89dcb2a1c2f8dab"
+      },
+      {
+        "path": "test-forth-float-inputs-before.json",
+        "bytes": 53850,
+        "sha256": "e72349a54440aab3baf41c35a9c0f03f37dc27c7fc12416ecc95a67691fbb259"
+      },
+      {
+        "path": "test-forth-float-nested-processes.json",
+        "bytes": 1262,
+        "sha256": "fd9e40d81c23a4bbf837c25133fe743b92fc11d6bed11bfbf28026272485da18"
+      },
+      {
+        "path": "test-forth-float-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-float-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-float-space-before.json",
+        "bytes": 64,
+        "sha256": "e837763d7dc7df4a6ba47be69ab19b2bb9bfcbb6a9f37e19552b6b1f889d35dc"
+      },
+      {
+        "path": "test-forth-float-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-float-tools-after.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-float-tools-before.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-float.log",
+        "bytes": 3712,
+        "sha256": "d3a074d4287028525eaeb5fefca57e105028cb4fa8876b44e61d9d70845577b0"
+      },
+      {
+        "path": "test-forth-session-artifacts.json",
+        "bytes": 53850,
+        "sha256": "e72349a54440aab3baf41c35a9c0f03f37dc27c7fc12416ecc95a67691fbb259"
+      },
+      {
+        "path": "test-forth-session-command.json",
+        "bytes": 729,
+        "sha256": "c2233ab9239782b04ca0cef60736ecf611210d3b5e18b6c197cd857e93f8da97"
+      },
+      {
+        "path": "test-forth-session-inputs-before.json",
+        "bytes": 13862,
+        "sha256": "56e3b5dbd63a12250829491ed8a6c283e1f08e6681d6499127680272ae6ab9dc"
+      },
+      {
+        "path": "test-forth-session-nested-processes.json",
+        "bytes": 8548,
+        "sha256": "c8f0b828df5d095cec7596c04adcd3130b3cb6611532177136dde75177d2545f"
+      },
+      {
+        "path": "test-forth-session-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-session-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-forth-session-space-before.json",
+        "bytes": 64,
+        "sha256": "d37b8480b0d6347fee83861a4cfc399010897bf81d8aacee688c9697d717bfe4"
+      },
+      {
+        "path": "test-forth-session-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-forth-session-tools-after.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-session-tools-before.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-forth-session.log",
+        "bytes": 62383,
+        "sha256": "b1ff7145f99208c4cc5ef6ff32d65fe8c44fe4be3bbc8012e48d909f81b06ef9"
+      },
+      {
+        "path": "test-verifier-artifacts.json",
+        "bytes": 13862,
+        "sha256": "56e3b5dbd63a12250829491ed8a6c283e1f08e6681d6499127680272ae6ab9dc"
+      },
+      {
+        "path": "test-verifier-command.json",
+        "bytes": 724,
+        "sha256": "c90a6df5f7d110fd9a45b254464621e139a644862e33b7a4da83e9da3246bbfe"
+      },
+      {
+        "path": "test-verifier-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "test-verifier-nested-processes.json",
+        "bytes": 3043,
+        "sha256": "e595db93cbaeca934cff960d2989006bbdc1c6b5450cd6901b25a8e08eea9e3f"
+      },
+      {
+        "path": "test-verifier-source-after.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-verifier-source-before.json",
+        "bytes": 399666,
+        "sha256": "e618144ed7117f85fd7e1e6160f79d4cce44e982e674af15644cf7e8028b41a6"
+      },
+      {
+        "path": "test-verifier-space-before.json",
+        "bytes": 64,
+        "sha256": "dbc25ee620c554b8658b4383fc8c0549873320e033f2da35dd8c740bb7f1d384"
+      },
+      {
+        "path": "test-verifier-terminal.json",
+        "bytes": 174,
+        "sha256": "2bb735531559d018e91fe9e2ac202e3049d7289d3143b7627dda71708849516d"
+      },
+      {
+        "path": "test-verifier-tools-after.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-verifier-tools-before.json",
+        "bytes": 2205,
+        "sha256": "f348e06bf19d178003752ee9307ae990d28d761d941f47280947f9644e7df141"
+      },
+      {
+        "path": "test-verifier.log",
+        "bytes": 29876,
+        "sha256": "e60ca36b07ab41949327dac3b0537072a93add2ce65c2bbf544053a8bb74c547"
+      }
+    ],
+    "objects": 149,
+    "object_bytes": 61210008,
+    "equal_pairs": 10,
+    "artifact_references": 634,
+    "terminals": {
+      "test-forth-core-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-double-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-float-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-forth-session-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      },
+      "test-verifier-terminal.json": {
+        "bound": 1200,
+        "cleanup_signals": [],
+        "errors": [],
+        "group_disappeared": true,
+        "launched": true,
+        "leader_reaped": true,
+        "returncode": 0,
+        "timeout": false
+      }
+    },
+    "results": [
+      {
+        "phase": "test-verifier",
+        "seconds": 3.213,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-session",
+        "seconds": 770.041,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-core",
+        "seconds": 198.013,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-double",
+        "seconds": 400.709,
+        "status": 0
+      },
+      {
+        "phase": "test-forth-float",
+        "seconds": 331.571,
+        "status": 0
+      }
+    ]
+  }
+}
