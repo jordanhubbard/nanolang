@@ -66,5 +66,29 @@
   "partition-final-pin.log": {
     "bytes": 1590,
     "sha256": "1d873d10c1d843bed3e74783e2849dae7ffba41341b8a4c24dbfce4cbd56301c"
+  },
+  "units01-first.log": {
+    "bytes": 239339,
+    "sha256": "3663355ffa8ee3bc1ffedf907a6db69093fa1a3dfb84ba7b62bb061aae041fcc"
+  },
+  "units03-first.log": {
+    "bytes": 238591,
+    "sha256": "ee2b02d3c34a6e3b4d896bfc26553eb1fd7cbb17fe7768f8af70abe836c80ee0"
+  },
+  "final-normal-build.log": {
+    "bytes": 12078,
+    "sha256": "779cc45c71e411faf3eb81d1230a6d6d4a7287a1efbf36271c4027f3a839505f"
+  },
+  "current-selected-pattern-probe.log": {
+    "bytes": 364,
+    "sha256": "15271798e166062c9f1e49127fc197d46e5c8d6d780aee417bab86209bea937f"
+  },
+  "final-clean-build.log": {
+    "bytes": 53040,
+    "sha256": "ab6c3b7a0376ae75da1fabf983941e550d666e633ee308498bae942050581c5f"
+  },
+  "final-normal-tests.log": {
+    "bytes": 455758,
+    "sha256": "2253884aed292cff583d5bc3ca2683a96917afc3c812a33f99a3854d1dde8b6e"
   }
 }

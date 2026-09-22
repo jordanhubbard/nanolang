@@ -1,7 +1,7 @@
 # My Roadmap
 
 - [ ] I resolve the current PR522 integration and hosted failures (`task_c2d5f6840c96fccfc49b173c5248dc2c`) from `9d36ed18c`, preserving run `35577220556` before correction.
-  - [ ] I integrate current main, resolve conflicts without discarding either branch's accepted behavior, and verify the canonical product bootstrap.
+  - [x] I integrate current main, resolve conflicts without discarding either branch's accepted behavior, and verify the canonical product bootstrap. The normal and strict bootstraps complete; broader generic-union compatibility remains separately blocked below.
   - [x] I replace the two obsolete nested-float result refusal inputs with a genuinely unsupported boundary, retain previous-output assertions, and test the newly admitted case.
   - [x] I select supported Darwin sanitizer tooling for native map-key acceptance without removing leak checks where they are supported.
   - [x] I qualify main's signed Forth arithmetic repairs and correct the remaining zero-byte null-copy finding under strict UBSan.
@@ -11,6 +11,7 @@
   - [x] I make the admitted binary64 reconstruction fixture return its computed bits. Hosted run `35791213789` correctly removes the fixture's discarded pure arithmetic, so its helper-presence assertion was testing dead code rather than arithmetic admission.
   - [x] I route short scalar foreign calls through the existing typed libffi path. Strict Clang UBSan stops the integrated bootstrap at `vm_mktemp_dir`: the generic dispatcher calls a string function through an integer-returning `void *` signature. I retain that terminal and require typed string, integer, boolean, void, array and mixed-signature controls before repeating the bootstrap.
   - [x] I preserve the borrowed record module-name contract: the environment-scoping fixture supplies a string literal. I retain its teardown failure, register only checker-created module-name copies with the checker allocation owner, and leave borrowed module names untouched.
+  - [ ] I close the canonical generic-union compatibility gap (`task_d44b2db373d38a942db3e8c4567b8044`). Run `35791213789` reaches unchanged selected-pattern and owned-generic acceptance, then Stage1/Stage2 refuse `Box.Some`, nested union payloads and resource-bearing union signatures. I preserve these positive cases and coordinate complete selected facts with `task_60f95962d16d4f7aa0a52deb9fda4dc8`; owned-union admission needs its source, wire, verifier and lifetime contract. These failures continue to block PR522 and release.
   - [ ] I provide a finite sanitizer execution schedule that retains the complete test inventory, instrumentation and assertions, then require actual hosted completion.
   - [ ] I publish the corrected candidate, reconcile its PR description with exact-head evidence, and require all release checks before declaring it resolved.
 

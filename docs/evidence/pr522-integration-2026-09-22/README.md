@@ -58,3 +58,29 @@ passes all 45 assertions under ASan/UBSan after that correction. I retain the
 failed combined gate as `metadata-ownership-final.log.gz` and the corrected
 scope result separately. The replacement complete hosted matrix remains pending. A passing focused check is not release
 acceptance. I require all release checks before merging or tagging.
+
+
+## My remaining compatibility hold
+
+The superseded run completes its dedicated Forth, source and scalar sanitizer
+workers, then other workers reach existing generic-union acceptance failures.
+Stage1/Stage2 refuse selected `Box.Some` locals, nested union payloads and owned
+generic signatures. I retain those terminals as `units01-first.log.gz` and
+`units03-first.log.gz`; task `task_d44b2db373d38a942db3e8c4567b8044` tracks their
+canonical compatibility requirement. I keep every semantic positive and do not
+admit resource payloads through scalar layouts. PR522 remains blocked.
+
+My initial switch back to normal local flags encountered the instrumented
+shared `libnano_file_runtime.a`; the link requires sanitizer symbols and stops.
+I retain `final-normal-build.log.gz`, then use `make clean` before the full
+normal build and tests. This setup correction does not alter test assertions.
+
+
+My clean normal build completes on implementation pin `ac0f2b60a`. The full
+local suite passes 2,428 native-translator checks, 1,412 shape checks and all
+90 source-emitter methods before I stop at the known release blocker while
+scope clarification is pending. `local-full-gate-checkpoint.json` identifies
+that intentional interruption; I do not claim a complete local suite pass.
+The current `nanoisa_emit` reproduces the exact existing integer selected-pattern
+positive refusal (`unsupported local type Box.Some`) and preserves its prior
+output. I retain that probe separately from the broader hosted failures.
