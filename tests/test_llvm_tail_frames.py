@@ -137,13 +137,10 @@ RET
 .end
 '''))
         module = self.artifacts / 'incompatible.nvm'
-        self.run_actual([ROOT / 'bin/nanoisa', 'asm', source, '-o', module])
-        for tool in ('nvm2llvm', 'nvm2wasm'):
-            output = self.artifacts / ('previous-' + tool)
-            output.write_bytes(b'previous output\n')
-            observed = self.run_trap([ROOT / 'bin' / tool, module, '-o', output])
-            self.assertIn('incompatible result signature', observed['stderr'])
-            self.assertEqual(output.read_bytes(), b'previous output\n')
+        module.write_bytes(b'previous output\n')
+        observed = self.run_trap([ROOT / 'bin/nanoisa', 'asm', source, '-o', module])
+        self.assertIn('incompatible result signature', observed['stderr'])
+        self.assertEqual(module.read_bytes(), b'previous output\n')
 
     def test_managed_tail_remains_refused_without_publication(self):
         source = self.artifacts / 'managed.nasm'
