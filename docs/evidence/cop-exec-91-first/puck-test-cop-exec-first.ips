@@ -1,0 +1,147 @@
+{"app_name":"test_cop_exec","timestamp":"2026-09-22 09:29:33.00 -0700","app_version":"","slice_uuid":"f29a16ad-2ed0-3e72-b8d1-9176d80926a4","build_version":"","platform":1,"share_with_app_devs":0,"is_first_party":1,"bug_type":"309","os_version":"macOS 27.0 (26A428)","roots_installed":0,"incident_id":"06979B85-B673-493D-8CF4-3FFEC812D5E8","name":"test_cop_exec"}
+{
+  "uptime" : 110000,
+  "procRole" : "Unspecified",
+  "version" : 2,
+  "userID" : 501,
+  "deployVersion" : 210,
+  "modelCode" : "Mac16,11",
+  "coalitionID" : 81631,
+  "osVersion" : {
+    "train" : "macOS 27.0",
+    "build" : "26A428",
+    "releaseType" : "User"
+  },
+  "captureTime" : "2026-09-22 09:29:28.7137 -0700",
+  "codeSigningMonitor" : 2,
+  "incident" : "06979B85-B673-493D-8CF4-3FFEC812D5E8",
+  "pid" : 58219,
+  "translated" : false,
+  "cpuType" : "ARM-64",
+  "procLaunch" : "2026-09-22 09:29:27.6610 -0700",
+  "procStartAbsTime" : 2789794735522,
+  "procExitAbsTime" : 2789818006509,
+  "procName" : "test_cop_exec",
+  "procPath" : "\/Users\/USER\/*\/test_cop_exec",
+  "parentProc" : "Exited process",
+  "parentPid" : 58179,
+  "coalitionName" : "com.openssh.sshd.158904C7-0222-412F-AF68-26CBBF023E48",
+  "crashReporterKey" : "DDA465BC-A71A-A3FE-557E-A39CD5C8E2DE",
+  "chargingStatus" : {"externalSourceConnected":true},
+  "developerMode" : 1,
+  "responsiblePid" : 58120,
+  "codeSigningID" : "test_cop_exec",
+  "codeSigningTeamID" : "",
+  "codeSigningFlags" : 570556929,
+  "codeSigningValidationCategory" : 10,
+  "codeSigningTrustLevel" : 4294967295,
+  "codeSigningAuxiliaryInfo" : 0,
+  "instructionByteStream" : {"beforePC":"S4Fd+OoDAJFfAQvrCQEAVEoBCeujAABUXwEL62MAAFTqL3+pwANf1g==","atPC":"a4Ff+OoDAJE\/BUDxwwAAVEoFQNFLAUD5KQVA0T8FQPGI\/\/9USgEJyw=="},
+  "bootSessionUUID" : "3F7D5D89-F5A4-4FF7-BC0B-43F70B3198F3",
+  "sip" : "enabled",
+  "vmRegionInfo" : "0x16fa9bff8 is in 0x16fa98000-0x16fa9c000;  bytes after start: 16376  bytes before end: 7\n      REGION TYPE                    START - END         [ VSIZE] PRT\/MAX SHRMOD  REGION DETAIL\n      Stack                       16fa10000-16fa98000    [  544K] rw-\/rwx SM=COW  thread 1\n--->  Stack Guard                 16fa98000-16fa9c000    [   16K] ---\/rwx SM=PRV  stack guard for thread 2\n      Stack                       16fa9c000-16fb24000    [  544K] rw-\/rwx SM=COW  thread 2",
+  "exception" : {"codes":"0x0000000000000002, 0x000000016fa9bff8","message":"Thread stack size exceeded","rawCodes":[2,6168363000],"type":"EXC_BAD_ACCESS","signal":"SIGBUS","subtype":"KERN_PROTECTION_FAILURE at 0x000000016fa9bff8"},
+  "termination" : {"flags":0,"code":10,"namespace":"SIGNAL","indicator":"Bus error: 10","byProc":"exc handler","byPid":58219},
+  "vmregioninfo" : "0x16fa9bff8 is in 0x16fa98000-0x16fa9c000;  bytes after start: 16376  bytes before end: 7\n      REGION TYPE                    START - END         [ VSIZE] PRT\/MAX SHRMOD  REGION DETAIL\n      Stack                       16fa10000-16fa98000    [  544K] rw-\/rwx SM=COW  thread 1\n--->  Stack Guard                 16fa98000-16fa9c000    [   16K] ---\/rwx SM=PRV  stack guard for thread 2\n      Stack                       16fa9c000-16fb24000    [  544K] rw-\/rwx SM=COW  thread 2",
+  "extMods" : {"caller":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"system":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"targeted":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"warnings":0},
+  "faultingThread" : 2,
+  "threads" : [{"id":11435816,"threadState":{"x":[{"value":4301328384,"symbolLocation":0,"symbol":"lock"},{"value":0},{"value":6170619904},{"value":6170619904},{"value":150997247},{"value":3},{"value":0},{"value":0},{"value":1297437786},{"value":6170046480},{"value":10},{"value":6943188720,"symbolLocation":8,"symbol":"_pthread_attr_default"},{"value":6170083328},{"value":8649423248,"symbolLocation":0,"symbol":"vm_page_size"},{"value":0},{"value":0},{"value":6943147224,"symbolLocation":0,"symbol":"pthread_mutex_lock"},{"value":8678978432},{"value":0},{"value":6168325664},{"value":6166956248},{"value":4324382288},{"sourceLine":81,"value":4299146000,"sourceFile":"test_cop_exec.c","symbol":"concurrent","symbolLocation":0},{"value":32},{"value":6166956040},{"value":6166956656},{"value":6167769280},{"value":6167767216},{"value":6166968960}],"flavor":"ARM_THREAD_STATE64","lr":{"value":4299134560},"cpsr":{"value":1610612736},"fp":{"value":6166956016},"sp":{"value":6166956016},"esr":{"value":2449473543,"description":"(Data Abort) byte read Translation fault"},"pc":{"value":6943147244},"far":{"value":4301328384}},"queue":"com.apple.main-thread","frames":[{"imageOffset":5356,"symbol":"pthread_mutex_lock","symbolLocation":20,"imageIndex":3},{"imageOffset":22112,"sourceLine":112,"sourceFile":"test_cop_exec.c","symbol":"callback_execute","imageIndex":0,"symbolLocation":156},{"symbol":"execute_request","inline":true,"imageIndex":0,"imageOffset":142288,"symbolLocation":36,"sourceLine":93,"sourceFile":"callback_runtime.c"},{"imageOffset":142288,"sourceLine":218,"sourceFile":"callback_runtime.c","symbol":"nano_callback_pump","imageIndex":0,"symbolLocation":180},{"imageOffset":20752,"sourceLine":240,"sourceFile":"test_cop_exec.c","symbol":"main","imageIndex":0,"symbolLocation":2828},{"imageOffset":204416,"symbol":"start","symbolLocation":6688,"imageIndex":4}]},{"id":11435851,"frames":[{"imageOffset":17676,"symbol":"__psynch_cvwait","symbolLocation":8,"imageIndex":6},{"imageOffset":29136,"symbol":"_pthread_cond_wait","symbolLocation":980,"imageIndex":3},{"imageOffset":141832,"sourceLine":135,"sourceFile":"callback_runtime.c","symbol":"invoke","imageIndex":0,"symbolLocation":560},{"imageOffset":1440,"sourceLine":15,"sourceFile":"exec_provider.c","symbol":"exec_retained_callback","imageIndex":2,"symbolLocation":56},{"imageOffset":22440,"sourceLine":98,"sourceFile":"test_cop_exec.c","symbol":"callback_native","imageIndex":0,"symbolLocation":24},{"imageOffset":27904,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":3},{"imageOffset":7404,"symbol":"thread_start","symbolLocation":8,"imageIndex":3}],"threadState":{"x":[{"value":260},{"value":0},{"value":256},{"value":0},{"value":0},{"value":160},{"value":0},{"value":0},{"value":6168325496},{"value":0},{"value":0},{"value":2},{"value":2},{"value":0},{"value":0},{"value":0},{"value":305},{"value":8678978760},{"value":0},{"value":4324388584},{"value":4324388648},{"value":6168326368},{"value":0},{"value":0},{"value":256},{"value":512},{"value":257},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6943171024},"cpsr":{"value":1610612736},"fp":{"value":6168325616},"sp":{"value":6168325472},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6942901516},"far":{"value":0}}},{"triggered":true,"id":11435852,"threadState":{"x":[{"value":4324382288},{"value":0},{"sourceLine":81,"value":4299146000,"sourceFile":"test_cop_exec.c","symbol":"concurrent","symbolLocation":0},{"value":4324382288},{"value":6168899584},{"value":419432703},{"value":0},{"value":0},{"sourceLine":81,"value":4299146000,"sourceFile":"test_cop_exec.c","symbol":"concurrent","symbolLocation":0},{"value":798304},{"value":6168101152},{"value":6168363008},{"value":0},{"value":0},{"value":0},{"value":0},{"value":6943149296,"symbolLocation":0,"symbol":"___chkstk_darwin"},{"value":8678978976},{"value":0},{"value":6168899584},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":4299146044},"cpsr":{"value":2147483648},"fp":{"value":6168899520},"sp":{"value":6168899456},"esr":{"value":2449473543,"description":"(Data Abort) byte read Translation fault"},"pc":{"value":6943149356,"matchesCrashFrame":1},"far":{"value":6168363000}},"frames":[{"imageOffset":7468,"symbol":"___chkstk_darwin","symbolLocation":60,"imageIndex":3},{"imageOffset":33596,"sourceLine":81,"sourceFile":"test_cop_exec.c","symbol":"concurrent","imageIndex":0,"symbolLocation":44},{"imageOffset":27904,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":3},{"imageOffset":7404,"symbol":"thread_start","symbolLocation":8,"imageIndex":3}]},{"id":11435854,"frames":[],"threadState":{"x":[{"value":6170046464},{"value":3331},{"sourceLine":81,"value":4299146000,"sourceFile":"test_cop_exec.c","symbol":"concurrent","symbolLocation":0},{"value":4324382288},{"value":6170046464},{"value":419432703},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6170046464},"esr":{"value":0},"pc":{"value":6943149284},"far":{"value":0}}},{"id":11435855,"frames":[],"threadState":{"x":[{"value":6170619904},{"value":7427},{"sourceLine":81,"value":4299146000,"sourceFile":"test_cop_exec.c","symbol":"concurrent","symbolLocation":0},{"value":4324382288},{"value":6170619904},{"value":419432703},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6170619904},"esr":{"value":0},"pc":{"value":6943149284},"far":{"value":0}}}],
+  "usedImages" : [
+  {
+    "source" : "P",
+    "arch" : "arm64",
+    "base" : 4299112448,
+    "size" : 2162688,
+    "uuid" : "f29a16ad-2ed0-3e72-b8d1-9176d80926a4",
+    "path" : "\/Users\/USER\/*\/test_cop_exec",
+    "name" : "test_cop_exec"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64",
+    "base" : 4319412224,
+    "size" : 3424256,
+    "uuid" : "b5fb28db-1ac6-383c-9ddd-585812a35ce8",
+    "path" : "\/opt\/homebrew\/*\/libcrypto.3.dylib",
+    "name" : "libcrypto.3.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64",
+    "base" : 4310614016,
+    "size" : 16384,
+    "uuid" : "5975fd41-b918-35a7-9d21-e2657d01ee8a",
+    "path" : "\/Users\/USER\/*\/exec_provider.so",
+    "name" : "exec_provider.so"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6943141888,
+    "size" : 51484,
+    "uuid" : "5a1828c3-cbc2-3b85-bd07-c8ed10021a41",
+    "path" : "\/usr\/lib\/system\/libsystem_pthread.dylib",
+    "name" : "libsystem_pthread.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6938943488,
+    "size" : 784100,
+    "uuid" : "d341ddcb-7969-3a9c-8e03-0cf4751398a9",
+    "path" : "\/usr\/lib\/dyld",
+    "name" : "dyld"
+  },
+  {
+    "size" : 0,
+    "source" : "A",
+    "base" : 0,
+    "uuid" : "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6942883840,
+    "size" : 256428,
+    "uuid" : "f63bf418-8f75-34a4-aaf1-8caf2b9b6a05",
+    "path" : "\/usr\/lib\/system\/libsystem_kernel.dylib",
+    "name" : "libsystem_kernel.dylib"
+  }
+],
+  "sharedCache" : {
+  "base" : 6934200320,
+  "size" : 7410352128,
+  "uuid" : "ea2c265e-297c-39c2-8646-7d8a2dff648a"
+},
+  "vmSummary" : "ReadOnly portion of Libraries: Total=1.6G resident=0K(0%) swapped_out_or_unallocated=1.6G(100%)\nWritable regions: Total=152.6M written=304K(0%) resident=304K(0%) swapped_out=0K(0%) unallocated=152.3M(100%)\n\n                                VIRTUAL   REGION \nREGION TYPE                        SIZE    COUNT (non-coalesced) \n===========                     =======  ======= \nDeferred Reclaim                  64.0M        1 \nGuard                            385.0G        1 \nMalloc                            21.4M       11 \nMalloc Guard Page                 3552K        4 \nOS Alloc Once                       32K        1 \nStack                             66.6M        6 \nStack Guard                         96K        6 \n__AUTH                              39K       12 \n__AUTH_CONST                       221K       41 \n__DATA                            8659K       72 \n__DATA_CONST                       637K       42 \n__DATA_DIRTY                       136K       35 \n__LINKEDIT                         1.6G        4 \n__OBJC_RO                        118.0M        1 \n__OBJC_RW                         2735K        1 \n__TEXT                            11.6M       85 \n__TPRO_CONST                       132K        4 \npage table in kernel               304K        1 \nshared memory                       32K        1 \n===========                     =======  ======= \nTOTAL                            386.8G      329 \n",
+  "legacyInfo" : {
+  "threadTriggered" : {
+
+  }
+},
+  "logWritingSignature" : "4647e7427101e338169388ecf30f4e473c2a33db",
+  "bug_type" : "309",
+  "roots_installed" : 0,
+  "trmStatus" : 8192,
+  "trialInfo" : {
+  "rollouts" : [
+    {
+      "rolloutId" : "645eb1d0417dab722a215927",
+      "factorPackIds" : [
+
+      ],
+      "deploymentId" : 240000005
+    },
+    {
+      "rolloutId" : "6410af69ed1e1e7ab93ed169",
+      "factorPackIds" : [
+
+      ],
+      "deploymentId" : 240000011
+    }
+  ],
+  "experiments" : [
+
+  ]
+}
+}

@@ -1,0 +1,7 @@
+# My exec91 first terminals
+
+I preserve source 91cd9dcfe5944744f825dfbb16bfb9d8eb3733b8 and its exact Git4008 input archive. Linux ordinary exec, FFI, lifecycle and borrowed strings passed; original ordinary opaque/protocol/fuzz had already passed on69. Fresh Linux sanitizer providers and exec/opaque/protocol/fuzz/FFI passed, then original lifecycle compilation of nl_extern_char reported LSan180 bytes in40 allocations from register_extern. Sanitized lifecycle execution and borrowed strings were not reached.
+
+Darwin ordinary exec stopped with SIGBUS. The retained system crash report identifies pthread stack exhaustion in the fixture concurrent function, not a launcher crash. A separate closure check found that the phony nano_cop recipe had relinked the copied Mach-O executable; original obj/lib hashes were unchanged. That invariant refusal interrupted terminal.json publication, so the retained phase JSON and logs are the actual failure authority. No Darwin sanitizer phase ran. I require fresh providers after correction. Both tracked process groups were absent; I make no passed-closure claim for Darwin.
+
+The archives contain59 Linux and18 Darwin report members, not all retained executable products. Follow-up tasks are task_c519c0990c8e4dd3b814231cf1296b82 and task_446e2673adbf45eb8f61f9912bea890f. The installed/source-hidden gate still requires the separate full bootstrap prerequisite.
