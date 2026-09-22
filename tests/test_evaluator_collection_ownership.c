@@ -177,7 +177,7 @@ extern Value lifetime_task_result(Environment *, int, bool);
 static void completed_collection_tasks(void) {
     const char *source =
         "fn numbers()->array<int> { return [41, 42] }\n"
-        "fn mapping()->HashMap<string,int> { let result:HashMap<string,int> = (map_new) (map_put result \"key\" 73) return result }\n"
+        "fn mapping()->HashMap<string,int> { let mut result:HashMap<string,int> = (map_new) (map_put result \"key\" 73) return result }\n"
         "fn main()->int { return 0 }\n";
     nano_scheduler_init();
     for (int map = 0; map < 2; ++map) {
