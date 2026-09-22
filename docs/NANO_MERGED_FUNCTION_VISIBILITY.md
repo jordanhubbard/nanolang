@@ -278,3 +278,16 @@ I require original record initializer/mutation negatives and additive positive
 STRING fields, non-STRING declared-call fields, and nested record initializer
 controls before another producer refresh. General record shape completeness
 is not established by this bounded prerequisite.
+
+My bounded implementation traverses each actual field expression once before
+comparing it with its matching parsed declaration annotation. Recursive calls
+through check_expr_node validate nested record literals. The new comparison
+uses existing types_equal only when either side has a known STRING-array
+result; empty unknown-element arrays retain contextual compatibility and
+unrelated numeric comparisons remain unchanged. I retain the returned record
+identity and existing field-shape policy. No initializer expression is executed
+by this checker. A direct shadow checks nested mismatch diagnostics and empty
+STRING-array acceptance using real parsed records; full paired programs add
+matching nested fields, declared/local array-returning callees, reverse mismatch
+and nested refusal while preserving the original record-initializer negative.
+This checkpoint is source reviewed only until its next qualification approval.

@@ -115,6 +115,9 @@ shadow probe { assert (== (probe) 0) }
         array_provider=self.work/'array-provider.nano'
         array_provider.write_text('module split_array_provider\npub fn str_split(value: int) -> array<int> { return [value] }\nshadow str_split { assert (== (at (str_split 41) 0) 41) }\n')
         positives['qualified-array']=(f'module {json.dumps(str(array_provider))} as Provider\nfn probe() -> int {{ let values: array<int> = (Provider.str_split 41) assert (== (at values 0) 41) return 0 }}\nshadow probe {{ assert (== (probe) 0) }}\n'+main,['str_split','probe','main'])
+        positives['record-nested']=('struct Words { items: array<string> }\nstruct Box { words: Words }\nfn probe() -> int {\n    let box: Box = Box { words: Words { items: (str_split "a,b" ",") } }\n    let words: Words = box.words\n    assert (== (at words.items 1) "b")\n    let empty: Words = Words { items: [] }\n    assert (== (array_length empty.items) 0)\n    return 0\n}\nshadow probe { assert (== (probe) 0) }\n'+main,['probe','main'])
+        positives['record-declared-array']=('struct Numbers { items: array<int> }\nfn str_split(value: int) -> array<int> { return [value] }\nshadow str_split { assert (== (at (str_split 41) 0) 41) }\nfn probe() -> int { let value: Numbers = Numbers { items: (str_split 41) } assert (== (at value.items 0) 41) return 0 }\nshadow probe { assert (== (probe) 0) }\n'+main,['str_split','probe','main'])
+        positives['record-local-array']=('struct Numbers { items: array<int> }\nfn wrap(value: int) -> array<int> { return [value] }\nshadow wrap { assert (== (at (wrap 41) 0) 41) }\nfn probe() -> int { let str_split: fn(int)->array<int> = wrap let value: Numbers = Numbers { items: (str_split 41) } assert (== (at value.items 0) 41) return 0 }\nshadow probe { assert (== (probe) 0) }\n'+main,['wrap','probe','main'])
         negatives={
             'arity':'let parts: array<string> = (str_split "a")',
             'source-type':'let parts: array<string> = (str_split 1 ",")',
@@ -132,6 +135,8 @@ shadow probe { assert (== (probe) 0) }
             'record-initializer':'struct Words { items: array<int> }\nfn main() -> int { let words: Words = Words { items: '+split+' } return 0 }\nshadow main { assert true }\n',
             'global':'let words: array<int> = '+split+'\n'+safe_main,
             'nested-array':'fn main() -> int { let words: array<array<int>> = ['+split+'] return 0 }\nshadow main { assert true }\n'}
+        boundary_refusals['record-nested']='struct Words { items: array<int> }\nstruct Box { words: Words }\nfn main() -> int { let box: Box = Box { words: Words { items: '+split+' } } return 0 }\nshadow main { assert true }\n'
+        boundary_refusals['record-reverse']='struct Words { items: array<string> }\nfn main() -> int { let words: Words = Words { items: [41] } return 0 }\nshadow main { assert true }\n'
         # Public borrowed array fields remain outside the scalar-borrow profile.
         for element in ('string','int'):
             boundary_refusals['borrow-profile-'+element]='resource struct Words { items: array<'+element+'> }\nfn replace(view: &mut Words) -> void { set view.items '+split+' }\nshadow replace { assert true }\n'+safe_main

@@ -4021,6 +4021,67 @@ shadow ensure_known_expr_node {
     assert (not (ensure_known_expr_node ParseNodeType.PNODE_FUNCTION))
 }
 
+# I check known STRING-array field results without inventing call authority.
+fn record_string_array_compatible(actual: NSType, expected: NSType) -> bool {
+    let actual_strings: bool = (and (== actual.kind TypeKind.TYPE_ARRAY) (== actual.element_type_kind TypeKind.TYPE_STRING))
+    let expected_strings: bool = (and (== expected.kind TypeKind.TYPE_ARRAY) (== expected.element_type_kind TypeKind.TYPE_STRING))
+    if (or actual_strings expected_strings) { return (types_equal actual expected) }
+    return true
+}
+shadow record_string_array_compatible {
+    let strings: NSType = (type_array TypeKind.TYPE_STRING "")
+    let integers: NSType = (type_array TypeKind.TYPE_INT "")
+    assert (record_string_array_compatible strings strings)
+    assert (not (record_string_array_compatible strings integers))
+    assert (not (record_string_array_compatible integers strings))
+    assert (record_string_array_compatible (type_array TypeKind.TYPE_UNKNOWN "") strings)
+    assert (record_string_array_compatible integers (type_array TypeKind.TYPE_FLOAT ""))
+}
+
+# I traverse every initializer, including nested record expressions. I retain
+# existing record shape policy; this boundary compares known STRING-array facts.
+fn check_record_string_array_fields(parser: Parser, literal: ASTStructLiteral, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+    let mut definition_index: int = -1
+    let mut i: int = 0
+    while (< i (parser_get_struct_def_count parser)) {
+        let definition: ASTStruct = (parser_get_struct_def parser i)
+        if (== definition.name literal.struct_name) { set definition_index i }
+        set i (+ i 1)
+    }
+    let mut field: int = 0
+    while (< field literal.field_count) {
+        let actual: NSType = (check_expr_node parser (at literal.field_value_ids field) (at literal.field_value_types field) symbols diags file_name)
+        if (>= definition_index 0) {
+            let definition: ASTStruct = (parser_get_struct_def parser definition_index)
+            let mut slot: int = 0
+            while (< slot definition.field_count) {
+                if (== (at definition.field_names slot) (at literal.field_names field)) {
+                    let expected: NSType = (type_from_string_with_parser parser (at definition.field_types slot))
+                    if (not (record_string_array_compatible actual expected)) {
+                        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require the declared STRING-array field type for this record initializer." (Diagnostics.diag_location file_name literal.line literal.column)))
+                    }
+                }
+                set slot (+ slot 1)
+            }
+        }
+        set field (+ field 1)
+    }
+}
+shadow check_record_string_array_fields {
+    let parser: Parser = (resource_test_parser "struct Words { items: array<int> } struct Box { words: Words } fn f() -> void { let box: Box = Box { words: Words { items: [\"x\"] } } }")
+    let declaration: ASTLet = (parser_get_let parser 0)
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let actual: NSType = (check_expr_node parser declaration.value declaration.value_type [] diags "record.nano")
+    assert (== actual.kind TypeKind.TYPE_STRUCT)
+    assert (== (Diagnostics.diag_list_count diags) 1)
+    let valid: Parser = (resource_test_parser "struct Words { items: array<string> } fn f() -> void { let words: Words = Words { items: [] } }")
+    let empty: ASTLet = (parser_get_let valid 0)
+    let clean: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let result: NSType = (check_expr_node valid empty.value empty.value_type [] clean "record.nano")
+    assert (== result.kind TypeKind.TYPE_STRUCT)
+    assert (== (Diagnostics.diag_list_count clean) 0)
+}
+
 /* Check union construction expression
  * Example: Option.Some { value: 42 }
  * Returns: The union type (TYPE_UNION with union name)
@@ -4972,6 +5033,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
         let sl: ASTStructLiteral = (parser_get_struct_literal parser node_id)
+        (check_record_string_array_fields parser sl symbols diags file_name)
         return NSType {
             kind: TypeKind.TYPE_STRUCT,
             name: sl.struct_name,
