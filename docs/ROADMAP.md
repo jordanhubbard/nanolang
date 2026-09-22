@@ -14466,3 +14466,14 @@ allocator failure claim.
   current Environment destructor does not establish complete effect storage
   cleanup. This static follow-up is outside the measured45c three-name repair.
   MAC: task_3a42bcf1be0c46ce88a085b4cb54bf2c.
+
+- [ ] I replace interpreted byte-by-byte transp_str_index_of scanning with
+  shortest-containing-prefix binary search after the reviewed4369 diagnostic
+  measures1.998 seconds in78 completed helper invocations. I retain first-index
+  semantics, original shadows and complete producer/deadline gates.
+  [Contract](NANOISA_COMPILER_SUBSTRING_SEARCH.md).
+  MAC: task_6ec8b514c61449d0863401584e86376b.
+- [ ] I complete exact self-hosted str_index_of builtin result/mapping parity
+  independently of this compiler optimization. C registry/runtime support does
+  not establish Nano checker/emitter or complete backend admission.
+  MAC: task_9ec92cecd44b4b91b3124e0f07617f64.
