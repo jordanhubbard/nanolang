@@ -1085,7 +1085,10 @@ ffi_array_failure:
 
 static bool local_opaque_arguments(NanoValue *args, int count,
                                    char *error, size_t size) {
-    if (count < 0 || count > NANO_MAX_FFI_ARGS || (!args && count)) return false;
+    if (count < 0 || count > NANO_MAX_FFI_ARGS || (!args && count)) {
+        snprintf(error, size, "I require a valid foreign argument count and argument storage");
+        return false;
+    }
     for (int i = 0; i < count; ++i) {
         if (args[i].tag == TAG_OPAQUE && args[i].opaque_owner) {
             snprintf(error, size, "I cannot pass an isolated opaque token as a local native pointer");
@@ -1107,8 +1110,11 @@ bool vm_ffi_call_captured(const NvmModule *module, uint32_t import_idx,
                           NanoValue *args, int arg_count, NanoValue *result,
                           VmHeap *heap, const VmFfiOpaqueCapture *capture,
                           char *error_msg, size_t error_msg_size) {
-    if (!capture || !capture->record ||
-        !local_opaque_arguments(args, arg_count, error_msg, error_msg_size)) return false;
+    if (!capture || !capture->record) {
+        snprintf(error_msg, error_msg_size, "I require an opaque result capture before native entry");
+        return false;
+    }
+    if (!local_opaque_arguments(args, arg_count, error_msg, error_msg_size)) return false;
     return vm_ffi_call_impl(module, import_idx, args, arg_count, result, heap,
                             error_msg, error_msg_size, capture);
 }
