@@ -1,0 +1,9 @@
+# My full dependency-shadow checker measurement
+
+I build one private diagnostic main translation unit from exact53cc. It changes only the dependency-shadow checker selection to true and prints checked-scope metadata counts. Runtime shadow selection and the original60-second alarm remain unchanged. I relink the reviewed object against the original160-object compiler closure with exactly main.o replaced, preserve the original sanitized flags, and verify actual ASan/UBSan symbols. This is a new diagnostic compiler, not the earlier retained executable under another label.
+
+Each invocation checks596 imported shadows across19 modules before executing only one byte-identical original520-statement root body. Function/struct/enum counts remain836/61/5. Checker symbol count grows3791 to5138 for the ordinary body and5136 for the unsafe body; ordinary compiler cleanup then restores the production symbol count. These counters cover public tables, not every private checker allocation.
+
+All five phases pass. Main compile1.775seconds, link0.523, symbol scan0.078; ordinary body14.480678267seconds/full compilation76.759; unsafe body13.288173202/full compilation76.237. Both original60-second inner and180-second outer bounds remain unchanged. All groups disappear and source/tool endpoint hashes agree. I retain75 reports,401 CAS objects, both sample executables, the diagnostic compiler, and all3168 reported native-work files.
+
+Combined body time27.769seconds remains close to27.893seconds without imported-shadow checking in the previous diagnostic. I cannot attribute the failed full typecheck aggregate deadline to successful dependency checking alone. Original imported-body execution also differs in current_module/source context and prior runtime initialization/state; root-only placement does not establish either cost. No original full-suite acceptance is claimed.
