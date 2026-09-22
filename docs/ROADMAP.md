@@ -17104,3 +17104,9 @@ values, mutation/tag assertions and bounds while declaring exact constants and
 referring to their symbols. Sanitizer and remaining methods did not run. I retain
 both first terminals, source/tool endpoints and process cleanup records before
 any corrected qualification.
+
+### I preserve the combined full evaluator first terminal
+
+- [ ] I repair handler return propagation across async calls (`task_3753dce667e14c66ba37f42baf987e48`). Fresh combined candidate `d25c42592` passes its ordinary C stage1 prerequisites on Linux and Darwin, then unchanged `test-eval` stops in its third group at `tests/test_eval.c:2972`: expected7, actual3099. The first two groups pass. I retain both exact source/tool maps, logs and reaped-group status in [my focused candidate evidence](evidence/candidate-focused-d25/README.md); no deadline fired and neither sanitizer phase ran. Root owns static diagnosis and reviewed correction before fresh full gates. Earlier focused evaluator ownership passes do not establish full evaluator acceptance.
+
+- [x] I qualify corrected `29a3b7c4a` byte-carrier focused controls in both ordinary and ASan/UBSan/LSan configurations on Linux and Darwin. All six original/additive methods pass; fresh sanitizer shapes and provider builds pass. Ordinary controls use verified unchanged9bc providers with only the reviewed fixture overlay, not a claimed fresh29a provider build. I preserve the original9bc assembler refusal separately. This does not close the full four-producer matrix or installed SDK acceptance.
