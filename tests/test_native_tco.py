@@ -143,6 +143,27 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''')
 
+    def test_reused_record_tuple_scalar_callback_parameter_names(self):
+        self.check_both('''
+struct Earlier { value: int }
+fn record(value: Earlier) -> int { return value.value }
+shadow record { assert (== (record Earlier { value: 6 }) 6) }
+fn pair(value: (int, int)) -> int { return (+ value.0 value.1) }
+shadow pair { assert (== (pair (2, 3)) 5) }
+fn scalar(value: int) -> int { return (+ value 1) }
+shadow scalar { assert (== (scalar 4) 5) }
+fn callback(value: fn(int) -> int) -> int { return (value 8) }
+shadow callback { assert (== (callback scalar) 9) }
+fn main() -> int {
+    assert (== (record Earlier { value: 7 }) 7)
+    assert (== (pair (3, 4)) 7)
+    assert (== (scalar 6) 7)
+    assert (== (callback scalar) 9)
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
     def test_function_parameter_and_callable_expression(self):
         self.check_both('''
 fn increment(value: int) -> int { return (+ value 1) }
