@@ -2379,13 +2379,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
 
             /* I resolve this permitted builtin shadow through its lexical signature. */
-            if (strcmp(expr->as.call.name, "array_push") == 0) {
+            if (strcmp(expr->as.call.name, "array_push") == 0 ||
+                strcmp(expr->as.call.name, "array_pop") == 0) {
                 Symbol *binding = env_get_var_visible_at(env, "array_push", expr->line, expr->column);
                 if (binding) {
                     binding->is_used = true;
                     if (binding->type != TYPE_FUNCTION) {
                         emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                            "I require a function value for a bound array_push call.",
+                            "I require a function value for a bound array operation.",
                             "Call the declared function or a function-typed binding.");
                         return TYPE_UNKNOWN;
                     }
@@ -2534,6 +2535,21 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Check if function exists */
             Function *func = env_get_function(env, expr->as.call.name);
             
+            if (env_function_is_builtin(func, "array_pop")) {
+                if (expr->as.call.arg_count != 1) {
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
+                        "I require one array receiver for array_pop.", "Pass exactly one array.");
+                    return TYPE_UNKNOWN;
+                }
+                ASTNode *receiver = expr->as.call.args[0];
+                if (check_expression(receiver, env) != TYPE_ARRAY) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require an array receiver for array_pop.", "Pass a typed array.");
+                    return TYPE_UNKNOWN;
+                }
+                return infer_array_element_type(receiver, env);
+            }
+
             /* Check visibility */
             if (func && !is_function_accessible(func, env, expr->line, expr->column)) {
                 return TYPE_UNKNOWN;
@@ -2606,39 +2622,6 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                     }
                     return TYPE_ARRAY;
-                }
-                
-                if (strcmp(expr->as.call.name, "array_pop") == 0) {
-                    /* array_pop(array) -> element type (infer from array) */
-                    if (expr->as.call.arg_count >= 1) {
-                        ASTNode *array_arg = expr->as.call.args[0];
-                        check_expression(array_arg, env);
-                        
-                        /* Try to infer element type from array */
-                        if (array_arg->type == AST_IDENTIFIER) {
-                            Symbol *sym = env_get_var_visible_at(env, array_arg->as.identifier, array_arg->line, array_arg->column);
-                            if (sym && sym->element_type != TYPE_UNKNOWN) {
-                                return sym->element_type;
-                            }
-                        }
-
-                        if (array_arg->type == AST_CALL && array_arg->as.call.name) {
-                            if (strcmp(array_arg->as.call.name, "file_read_bytes") == 0 ||
-                                strcmp(array_arg->as.call.name, "bytes_from_string") == 0) {
-                                return TYPE_U8;
-                            }
-                            if (strcmp(array_arg->as.call.name, "array_slice") == 0 && array_arg->as.call.arg_count >= 1) {
-                                ASTNode *inner = array_arg->as.call.args[0];
-                                if (inner && inner->type == AST_IDENTIFIER) {
-                                    Symbol *sym = env_get_var_visible_at(env, inner->as.identifier, inner->line, inner->column);
-                                    if (sym && sym->element_type != TYPE_UNKNOWN) {
-                                        return sym->element_type;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    return TYPE_INT;  /* Default fallback */
                 }
                 
                 if (strcmp(expr->as.call.name, "array_remove_at") == 0) {

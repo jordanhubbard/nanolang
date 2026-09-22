@@ -202,6 +202,39 @@ shadow main { assert (== (main) 0) }
         self.paired(before.decode(), backends=False, require_cast=False)
         self.assertEqual(source.read_bytes(), before)
 
+    def test_array_pop_receiver_type_and_once_only_evaluation(self):
+        self.paired('''let mut calls: int = 0
+fn receiver() -> array<int> { set calls (+ calls 1) return [17, 42] }
+shadow receiver { set calls 0 let values: array<int> = (receiver) assert (== calls 1) assert (== (array_length values) 2) }
+fn main() -> int {
+ set calls 0
+ let popped: int = (array_pop (receiver))
+ assert (== calls 1)
+ assert (== popped 42)
+ let mut bytes: array<u8> = [1, 255]
+ let byte_value: u8 = (array_pop bytes)
+ assert (== (cast_int byte_value) 255)
+ assert (== (array_length bytes) 1)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''', backends=False, require_cast=False)
+
+    def test_array_pop_rejects_wrong_receiver_and_arity(self):
+        original = self.artifacts
+        for index, call in enumerate(('(array_pop)', '(array_pop [1] 2)', '(array_pop 7)', '(array_pop true)')):
+            self.artifacts = original / ('pop-refusal-' + str(index)); self.artifacts.mkdir()
+            source = self.artifacts / 'source.nano'
+            source.write_text('fn main() -> int { let value: int = ' + call + ' return 0 }\nshadow main { assert true }\n')
+            for producer in [ROOT / 'bin/nanoc_c', *self.producers()]:
+                output = self.artifacts / 'previous-output'; output.write_bytes(b'previous output\n')
+                args = [producer, source]
+                if producer != ROOT / 'bin/nanoc_c': args.append('--emit-nvm')
+                result = self.run_trap([*args, '-o', output])
+                self.assertGreater(result['returncode'], 0)
+                self.assertEqual(output.read_bytes(), b'previous output\n')
+        self.artifacts = original
+
     def test_literal_and_wrong_source_refusals_preserve_output(self):
         original = self.artifacts
         for case, expression in enumerate(('256', '-1', 'true', '1.5', '"byte"')):

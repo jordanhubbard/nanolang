@@ -2996,6 +2996,7 @@ fn is_builtin_function(fn_name: string) -> bool {
     if (== fn_name "array_length") { return true } else { (print "") }
     if (== fn_name "array_new") { return true } else { (print "") }
     if (== fn_name "array_set") { return true } else { (print "") }
+    if (== fn_name "array_pop") { return true }
     if (== fn_name "array_push") { return true } else { (print "") }
     if (== fn_name "array_slice") { return true } else { (print "") }
     if (== fn_name "array_sort") { return true } else { (print "") }
@@ -4656,6 +4657,22 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 }
             }
         } else { (print "") }
+        if (and (== fn_name "array_pop") (< (env_lookup symbols fn_name) 0)) {
+            if (!= call_node.arg_count 1) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E003" "I require one array receiver for array_pop." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+                return (type_unknown_named "")
+            }
+            let receiver: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
+            let array_type: NSType = (check_expr_node parser receiver.node_id receiver.node_type symbols diags file_name)
+            if (!= array_type.kind TypeKind.TYPE_ARRAY) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E001" "I require an array receiver for array_pop." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+                return (type_unknown_named "")
+            }
+            if (and (== array_type.element_type_kind TypeKind.TYPE_ARRAY) (!= array_type.element_type_name "")) {
+                return (type_from_string_with_parser parser array_type.element_type_name)
+            }
+            return NSType { kind: array_type.element_type_kind, name: array_type.element_type_name, element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+        }
         if (and (== fn_name "array_push") (and (== call_node.arg_count 2) (< (env_lookup symbols fn_name) 0))) {
             let first: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
             let array_type: NSType = (check_expr_node parser first.node_id first.node_type symbols diags file_name)

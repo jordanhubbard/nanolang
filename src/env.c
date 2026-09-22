@@ -4,6 +4,9 @@
 #include "runtime/gc.h"
 #include <string.h>
 
+static Function builtin_function_cache[256];
+static bool builtin_function_initialized[256];
+
 typedef struct {
     uint64_t hash;
     int previous; /* I encode slot + 1; -1 marks a slot without a name. */
@@ -753,20 +756,18 @@ Function *env_get_function(Environment *env, const char *name) {
         if (!(builtin_registry[i].flags & BUILTIN_LANG)) continue;
         if (safe_strcmp(builtin_registry[i].name, name) == 0) {
             /* Create static function objects for built-ins */
-            static Function func_cache[256];
-            static bool initialized[256] = {false};
 
-            if (!initialized[i]) {
-                func_cache[i].name = (char *)builtin_registry[i].name;
-                func_cache[i].param_count = builtin_registry[i].arity;
-                func_cache[i].return_type = builtin_registry[i].return_type;
-                func_cache[i].params = NULL;  /* Built-ins don't need param names */
-                func_cache[i].body = NULL;
-                func_cache[i].shadow_test = NULL;
-                initialized[i] = true;
+            if (!builtin_function_initialized[i]) {
+                builtin_function_cache[i].name = (char *)builtin_registry[i].name;
+                builtin_function_cache[i].param_count = builtin_registry[i].arity;
+                builtin_function_cache[i].return_type = builtin_registry[i].return_type;
+                builtin_function_cache[i].params = NULL;  /* Built-ins don't need param names */
+                builtin_function_cache[i].body = NULL;
+                builtin_function_cache[i].shadow_test = NULL;
+                builtin_function_initialized[i] = true;
             }
 
-            return &func_cache[i];
+            return &builtin_function_cache[i];
         }
     }
 
@@ -796,6 +797,17 @@ Function *env_get_function(Environment *env, const char *name) {
     }
 
     return NULL;
+}
+
+/* I compare the resolved function with the registry entry, not its spelling. */
+bool env_function_is_builtin(const Function *function, const char *name) {
+    if (!function || !name) return false;
+    for (int i = 0; i < builtin_registry_count; ++i) {
+        if ((builtin_registry[i].flags & BUILTIN_LANG) &&
+            strcmp(builtin_registry[i].name, name) == 0)
+            return function == &builtin_function_cache[i];
+    }
+    return false;
 }
 
 /* I share push identity across inference and native lowering. */
