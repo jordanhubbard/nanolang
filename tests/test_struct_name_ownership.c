@@ -61,6 +61,7 @@ static void read_child_diagnostic(int fd,pid_t child,const char *expected) {
     if (strcmp(message,expected)) {
         fprintf(stderr,"I retained an unexpected child diagnostic (%zu bytes):\n",used);
         fwrite(message,1,used,stderr); fflush(stderr);
+        int status; while (waitpid(child,&status,0)<0 && errno==EINTR) {}
     }
     assert(!strcmp(message,expected));
 }
@@ -397,10 +398,10 @@ int main(int argc,char **argv) {
         }
     }
     parsed_parameter_names(); parsed_record_lifetimes(0); parsed_record_lifetimes(1); auxiliary_vectors();
+    puts("Parser/record ownership: qualified parameters, both destruction orders, zero/nonzero auxiliary vectors and borrowed annotations PASS");
     puts("Struct name ownership: four paths, exact copies, borrowed controls, all allocation positions/two modes/recovery PASS");
     }
     metadata_snapshot_lifetimes(0); metadata_snapshot_lifetimes(1); metadata_empty_vectors(); metadata_callback_annotation(); metadata_fault_positions(); checker_module_name_ownership();
-    puts("Parser/record ownership: qualified parameters, both destruction orders, zero/nonzero auxiliary vectors and borrowed annotations PASS");
     puts("Struct metadata snapshot ownership: lifetime, complete annotations, module owners and all allocation positions PASS");
     return 0;
 }
