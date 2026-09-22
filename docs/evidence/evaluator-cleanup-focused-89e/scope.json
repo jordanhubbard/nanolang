@@ -1,0 +1,13 @@
+{
+  "pin": "89e41b8fa0558a4bb631eff371fa71f2c2090954",
+  "files": 3957,
+  "archive_sha256": "a2f51dee6a5b2d9734eb8574d28ac2a2de006a70f3c6269a1962e4a8ca89bff2",
+  "driver_sha256": "c4737fa08cf473ff6c602bedbcaa26073a3af24fdd8a59079b07d167fdea0613",
+  "groups": [
+    "eval_handler_return_async_calls",
+    "eval_callable_projection_lifetimes",
+    "eval_struct_creation_and_access",
+    "eval_tuple_types",
+    "eval_effect_argument_lists"
+  ]
+}
