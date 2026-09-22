@@ -4928,6 +4928,14 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
         EffectOp *result_op = effect_get_op(env_get_effect(env, result_expr->as.effect_op.effect_name), result_expr->as.effect_op.op_name);
         if (result_op) result_name = result_op->return_type_name;
     }
+    if (result_name) {
+        char *snapshot = strdup(result_name);
+        if (!snapshot) {
+            fprintf(stderr, "I could not retain my effect result type name\n");
+            exit(1);
+        }
+        result_name = env_own_checker_allocation(env, snapshot);
+    }
     Type lexical = g_current_function->as.function.return_type;
     Symbol **captures = calloc((size_t)env->symbol_count, sizeof(*captures));
     int count = 0;

@@ -1109,9 +1109,20 @@ $(OBJ_DIR)/struct_snapshot_module.o: $(SRC_DIR)/module.c $(SRC_DIR)/nanolang.h |
 	$(CC) $(CFLAGS) -Dcalloc=struct_metadata_test_calloc -Dstrdup=struct_metadata_test_strdup -c $< -o $@
 .PHONY: test-struct-metadata-snapshot
 test-units: test-struct-metadata-snapshot
-test-struct-metadata-snapshot: $(OBJ_DIR)/struct_snapshot_module.o $(OBJ_DIR)/struct_snapshot_env.o $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+test-struct-metadata-snapshot: tests/struct_ownership_worker.h $(OBJ_DIR)/struct_snapshot_module.o $(OBJ_DIR)/struct_snapshot_env.o $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_struct_metadata_snapshot tests/test_struct_metadata_snapshot.c $(OBJ_DIR)/struct_snapshot_module.o $(OBJ_DIR)/struct_snapshot_env.o $(filter-out $(OBJ_DIR)/module.o $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	$(OBJ_DIR)/test_struct_metadata_snapshot
+$(OBJ_DIR)/struct_name_typechecker.o: $(SRC_DIR)/typechecker.c $(SRC_DIR)/nanolang.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dmalloc=struct_name_test_malloc -Dstrdup=struct_name_test_strdup -c $< -o $@
+$(OBJ_DIR)/struct_name_env.o: $(SRC_DIR)/env.c $(SRC_DIR)/nanolang.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dmalloc=struct_name_test_malloc -Dcalloc=struct_payload_test_calloc -c $< -o $@
+$(OBJ_DIR)/struct_name_module.o: $(SRC_DIR)/module.c $(SRC_DIR)/nanolang.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dcalloc=struct_metadata_test_calloc -Dstrdup=struct_metadata_test_strdup -c $< -o $@
+.PHONY: test-struct-name-ownership
+test-units: test-struct-name-ownership
+test-struct-name-ownership: tests/struct_ownership_worker.h $(OBJ_DIR)/struct_name_module.o $(OBJ_DIR)/struct_name_typechecker.o $(OBJ_DIR)/struct_name_env.o $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_struct_name_ownership tests/test_struct_name_ownership.c $(OBJ_DIR)/struct_name_module.o $(OBJ_DIR)/struct_name_typechecker.o $(OBJ_DIR)/struct_name_env.o $(filter-out $(OBJ_DIR)/module.o $(OBJ_DIR)/typechecker.o $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_struct_name_ownership $(STRUCT_NAME_OWNERSHIP_GROUP)
 
 .PHONY: test-checker-metadata-ownership
 test-checker-metadata-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)

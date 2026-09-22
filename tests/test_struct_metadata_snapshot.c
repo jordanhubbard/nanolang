@@ -3,10 +3,14 @@
 #include "../src/nanolang.h"
 #include <assert.h>
 #include <errno.h>
+#include <signal.h>
+#include <spawn.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+#include "struct_ownership_worker.h"
 
 int g_argc;
 char **g_argv;
@@ -207,27 +211,26 @@ static void metadata_fault_positions(void) {
     const char *messages[]={"I cannot allocate a module metadata copy.\n",
         "I cannot copy a module metadata owner.\n","I cannot allocate payload type metadata\n"};
     for (int mode=0;mode<2;++mode) for (size_t pos=1;pos<=count;++pos) {
-        int errors[2]; assert(pipe(errors)==0); pid_t child=fork(); assert(child>=0);
-        if (!child) {
-            close(errors[0]); assert(dup2(errors[1],STDERR_FILENO)>=0); close(errors[1]);
-            (void)metadata_fault_case(pos,mode); _Exit(89);
-        }
-        close(errors[1]); char message[4096]; size_t used=0;
-        for (;;) {
-            assert(used<sizeof(message)-1);
-            ssize_t got=read(errors[0],message+used,sizeof(message)-1-used);
-            if (got<0 && errno==EINTR) continue;
-            assert(got>=0); if (!got) break; used+=(size_t)got;
-        }
-        message[used]='\0'; close(errors[0]); int status=0;
+        int errors[2]; assert(pipe(errors)==0);
+        pid_t child=spawn_fault_case(errors,0,0,pos,mode);
+        close(errors[1]); read_child_diagnostic(errors[0],child,messages[kinds[pos-1]]);
+        int status=0;
         assert(waitpid(child,&status,0)==child && WIFEXITED(status) && WEXITSTATUS(status)==1);
-        assert(!strcmp(message,messages[kinds[pos-1]]));
         assert(metadata_fault_case(0,0)==count);
     }
     printf("Struct snapshot allocation positions: %zu, two failure modes and fresh recovery PASS\n",count);
 }
 
-int main(void) {
+int main(int argc,char **argv) {
+    fixture_executable=argv[0];
+    unsigned position=0,mode=0;
+    if (argc==4 && !strcmp(argv[1],"_snapshot_fault") &&
+        fixture_number(argv[2],255,&position) && position && fixture_number(argv[3],1,&mode)) {
+        (void)metadata_fault_case(position,(int)mode); return 89;
+    }
+    if (argc!=1) {
+        fprintf(stderr,"I accept only the default snapshot suite or an exact fault worker.\n"); return 2;
+    }
     metadata_snapshot_lifetimes(0); metadata_snapshot_lifetimes(1);
     metadata_empty_vectors(); metadata_callback_annotation(); metadata_complete_tuple(); metadata_fault_positions();
     puts("Struct metadata snapshots: both lifetimes, complete callbacks and every allocation position PASS");

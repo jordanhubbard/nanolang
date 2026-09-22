@@ -1,0 +1,30 @@
+{
+  "archive": "ab22b1b914c9598b8b9d5664bb9b12d6eff03f1b376f61cae61e617a5fd9e263",
+  "source_head": "fb913d5a6ae81a08c2f5f448cc30d147bfb36711",
+  "products": [
+    {
+      "member": "bin/nanoc_c",
+      "sha256": "1d32624072c35a20acbc675c1a7c869a64ab232e8a86244d057e9f7144aac725",
+      "nm_tool": "/usr/local/bin/llvm-nm",
+      "nm_returncode": 0,
+      "asan": true,
+      "ubsan": true
+    },
+    {
+      "member": "bin/nanoc_stage1",
+      "sha256": "fe31496afeb3385aca034b8ffa2bb86eafb431078aec74a3ef8bfc7195a82c9e",
+      "nm_tool": "/usr/local/bin/llvm-nm",
+      "nm_returncode": 0,
+      "asan": false,
+      "ubsan": false
+    },
+    {
+      "member": "bin/nanoc_stage2",
+      "sha256": "a618089d9f053b5c071ea96eae4abec86a81bfeb4ae896cff55ddb561a81d69a",
+      "nm_tool": "/usr/local/bin/llvm-nm",
+      "nm_returncode": 0,
+      "asan": false,
+      "ubsan": false
+    }
+  ]
+}
