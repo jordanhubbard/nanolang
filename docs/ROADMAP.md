@@ -17456,3 +17456,7 @@ Foreign referents remain explicitly unresolved, and all executable consumers
 keep legacy/public paths. Additive mixed-graph/depth/selector/rollback controls
 are source-only pending review; provider identity/lifetime/ABI crossvalidation
 and complete installed acceptance remain required.
+
+- [x] I preserve c34 first owning checker terminal and approved exact-literal checker-only diagnostic under `docs/evidence/collection-c34/`; other configurations remain unrun. Complete STRING-array result adapter22fb is source-reviewed-next, not runtime qualified.
+
+- [x] I qualify reviewed22fb dynamic reference-leaf owners, public map STRING snapshot disposal and complete STRING-array PLUS views through all eight original collection/fullCchecker phases on Linux/Darwin ordinary andASan/UBSan/LSan. Evidence: `docs/evidence/collection-22fb/`. c34 firstterminal remains retained; combinedcandidate/full evaluator/bootstrap/CI acceptance remains open.
