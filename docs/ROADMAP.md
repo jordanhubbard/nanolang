@@ -14570,3 +14570,9 @@ allocator failure claim.
   one-argument wrapper parser with nested/callback/malformed controls, and rerun
   only reviewed corrected sources. Bootstrap and all dependent matrices remain
   unreached. MAC: task_60f95962d16d4f7aa0a52deb9fda4dc8.
+
+### I integrate exact shadow completion proof into my native lane
+
+- [x] I retain my 66a uninstrumented ten-second refusal and independent 066ea observer success (1,086 shadows, 8.950973-second interpreter interval) separately at evidence checkpoint e2a231ffb. I have not explained the original refusal.
+- [ ] I integrate reviewed SDK bae599477 private completion proof onto 66a: shared pre-fork start, final flush before timestamp publication, complete on-time record and ordinary zero exit, unchanged child alarm and parent termination. I preserve selected payload code and all original 18 source plus 9 native methods. I copy the exact header and focused fixtures; my lane has no SDK inventory to amend. The fixture runner is an explicitly attributed dependency.
+- [ ] I source-review the adapted main/Make changes, run focused ordinary/sanitizer and actual compiler controls, then complete fresh original-bound bootstrap and the original matrices on both hosts. SDK qualification does not establish my native lane's acceptance.
