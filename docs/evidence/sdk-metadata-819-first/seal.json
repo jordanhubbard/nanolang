@@ -1,0 +1,573 @@
+{
+  "pin": "81947ae390dc85ce5d1a93e5b403adf55ce13875",
+  "archive_sha256": "48c0bd42b221d0df37be9ae25b0913438a6fd409131806b66b05b47cefcb8661",
+  "members": {
+    "terminal.json": {
+      "bytes": 448,
+      "sha256": "79cecc9352d1ce8806a92c6339337a944157e8be12b33aa694e85bde0c7268a6"
+    },
+    "tools-after-terminal.json": {
+      "bytes": 303,
+      "sha256": "b05f1155395301fa94db51add29e3f30e65468084e91090f84e8b6026838a7d2"
+    },
+    "identity.json": {
+      "bytes": 791,
+      "sha256": "898c4244f190de9919ef91e488928c86ac994cfaf5097cbee07785f34cf2d935"
+    },
+    "phases.json": {
+      "bytes": 987,
+      "sha256": "a7659d2a75c6100fb406b8c967a90c3a0371a365630ec665c6f021a728f9d0ad"
+    },
+    "ordinary/ordinary-providers.json": {
+      "bytes": 452,
+      "sha256": "651aa1ead432f27d4b4abf99738f18e932ba2ddb3aa40089f17b5e9cb1dbd5d2"
+    },
+    "ordinary/source-after-terminal.json": {
+      "bytes": 430706,
+      "sha256": "0a1df0347bb8455d01c81de74446dbc19093feb0d75db02018513712c5d93e6a"
+    },
+    "ordinary/providers.txt": {
+      "bytes": 112,
+      "sha256": "080621098f6cee3144730f90c674267dc30b1e471db5de6d0400dd39880bc15a"
+    },
+    "ordinary/providers.mk": {
+      "bytes": 529,
+      "sha256": "dcd7979a7d81929348b5d2938440ad97eff1728d7c4bd8f1cf910365001d47ba"
+    },
+    "ordinary/providers-before.json": {
+      "bytes": 840,
+      "sha256": "43a550b089118faa6430c3262184a175c0255a877f1fb666d5507033e8c3159c"
+    },
+    "ordinary/ldflags.txt": {
+      "bytes": 30,
+      "sha256": "449eed8c2998494066b8ce7562c2154de43a5ffe32ea917390b24b4b2d7e623d"
+    },
+    "ordinary/products-terminal.json": {
+      "bytes": 1053,
+      "sha256": "13520362e6c6deca01725b488c310b8271b192f94e3f670e3a936d38526dc9b3"
+    },
+    "ordinary/ordinary-metadata.log": {
+      "bytes": 876,
+      "sha256": "8bbccd9b1420c2bef28846877c7350fc5e8c86483152f3b0497b8258199b55dc"
+    },
+    "ordinary/fixture-products-terminal.json": {
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    "ordinary/ordinary-providers.log": {
+      "bytes": 1176,
+      "sha256": "f598b4d1066c5cdabaa93105e02bba687f2ce24dbbb295f35b886a9ac5d1938e"
+    },
+    "ordinary/providers-after.json": {
+      "bytes": 840,
+      "sha256": "43a550b089118faa6430c3262184a175c0255a877f1fb666d5507033e8c3159c"
+    },
+    "ordinary/ordinary-metadata.json": {
+      "bytes": 454,
+      "sha256": "adf79df2398465ae02c9b8c639377ece893805c1885415f039106013ce5c313a"
+    },
+    "ordinary/source-before.json": {
+      "bytes": 430706,
+      "sha256": "0a1df0347bb8455d01c81de74446dbc19093feb0d75db02018513712c5d93e6a"
+    },
+    "ordinary/cflags.txt": {
+      "bytes": 65,
+      "sha256": "eee81e67213f9d4967dd57ac8086be92d8d1dee93dcc4f768fa5430885b8ddb6"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/9-stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/10-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/3-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/21-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/13-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/2-command.txt": {
+      "bytes": 224,
+      "sha256": "fff29a47fdf88108382059a1c6fe515c22b6139e84e4f69e8fddb4e654b54518"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/8-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/13-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/14-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/26-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/12-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/17-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/10-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/3-command.txt": {
+      "bytes": 224,
+      "sha256": "fff29a47fdf88108382059a1c6fe515c22b6139e84e4f69e8fddb4e654b54518"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/1-command.txt": {
+      "bytes": 224,
+      "sha256": "fff29a47fdf88108382059a1c6fe515c22b6139e84e4f69e8fddb4e654b54518"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/17-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/26-stderr.log": {
+      "bytes": 167,
+      "sha256": "b611da7059b337c2fb8eb6f865ab906db3d7b8e75ecf80a1198bfa3a280d9771"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/19-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/22-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/2-stdout.log": {
+      "bytes": 399,
+      "sha256": "9397b33edb95c747b2cbd5222777a18a25955ae3add414d3cc265342f56ac58e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/17-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/1-stdout.log": {
+      "bytes": 47,
+      "sha256": "676316c9db198eddc9be0696a24350b9c1e52749d8b4891f98e262227953e880"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/25-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/14-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/2-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/6-stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/9-stdout.log": {
+      "bytes": 400,
+      "sha256": "a8269c33ceb3a2fec714ef200b49101a3cff4867141405cbfaff80f0f19a8dfa"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/14-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/15-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/7-command.txt": {
+      "bytes": 224,
+      "sha256": "fff29a47fdf88108382059a1c6fe515c22b6139e84e4f69e8fddb4e654b54518"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/15-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/23-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/10-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/16-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/6-command.txt": {
+      "bytes": 224,
+      "sha256": "fff29a47fdf88108382059a1c6fe515c22b6139e84e4f69e8fddb4e654b54518"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/16-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/3-stdout.log": {
+      "bytes": 399,
+      "sha256": "9397b33edb95c747b2cbd5222777a18a25955ae3add414d3cc265342f56ac58e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/22-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/8-stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/12-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/4-command.txt": {
+      "bytes": 224,
+      "sha256": "fff29a47fdf88108382059a1c6fe515c22b6139e84e4f69e8fddb4e654b54518"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/16-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/22-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/7-stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/7-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/9-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/12-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/17-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/5-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/18-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/4-stdout.log": {
+      "bytes": 399,
+      "sha256": "9397b33edb95c747b2cbd5222777a18a25955ae3add414d3cc265342f56ac58e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/24-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/20-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/8-command.txt": {
+      "bytes": 224,
+      "sha256": "fff29a47fdf88108382059a1c6fe515c22b6139e84e4f69e8fddb4e654b54518"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/2-stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/14-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/1-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/1-stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/5-stdout.log": {
+      "bytes": 399,
+      "sha256": "cf5f38a4975e4c0fb04f17ef88c3232d6b7b916c47df03d338f1ab5c2df5cf00"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/22-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/20-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/26-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/16-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/25-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/18-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/18-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/13-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/11-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/4-stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/13-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/19-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/11-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/5-stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/6-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/20-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/21-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/15-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/18-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/4-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/23-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/11-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/25-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/5-command.txt": {
+      "bytes": 224,
+      "sha256": "fff29a47fdf88108382059a1c6fe515c22b6139e84e4f69e8fddb4e654b54518"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/25-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/11-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/9-command.txt": {
+      "bytes": 224,
+      "sha256": "fff29a47fdf88108382059a1c6fe515c22b6139e84e4f69e8fddb4e654b54518"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/7-stdout.log": {
+      "bytes": 399,
+      "sha256": "77dec421c00fa7001c4be2e172943bd3436a93ae418a048531c5a1345692ae7e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/21-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/24-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/21-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/12-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/8-stdout.log": {
+      "bytes": 396,
+      "sha256": "3a56b41a5ead22a0ac4d725bf57f079da8be61d3b67e8539a9c9ff7ed60d74a6"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/15-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/24-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/23-stderr.log": {
+      "bytes": 169,
+      "sha256": "ba96672e69acf7bad8f991528b2b70f55dc86d96c5b99a8d9c13a08362b754f9"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/26-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/3-stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/20-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/19-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/23-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/10-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/6-stdout.log": {
+      "bytes": 405,
+      "sha256": "8880927048def8abf973d26f4194a9a8d9632b5ff80c1cd0e66a5dc0d3349e64"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/19-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/24-command.txt": {
+      "bytes": 528,
+      "sha256": "5d69780139afcdaf5736f9c392c79821fb244d1b8adf76f7e19448af5ba5c02e"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-vfjwof19/2-command.txt": {
+      "bytes": 106,
+      "sha256": "6fd8efa0dfb9d59a258f058ccca6d3fa8011445c103397ac5b44bc955c16ebad"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-vfjwof19/1-command.txt": {
+      "bytes": 333,
+      "sha256": "f57a3f503c86ab9ea8a9bb4f81fe3589b5449c461e43e2728b3b0dea57743b0c"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-vfjwof19/2-stdout.log": {
+      "bytes": 87,
+      "sha256": "73faa54f665ece14938afaea0a778cffe61aaff43cdc0f1cc6251041aa7593bf"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-vfjwof19/1-stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-vfjwof19/2-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-vfjwof19/2-stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-vfjwof19/1-status.json": {
+      "bytes": 181,
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-vfjwof19/1-stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ordinary/tmp/nano-sdk-abi-metadata-xrs8kn3s/provider/module.json": {
+      "bytes": 414,
+      "sha256": "e86970479ca2ba4fd63c19c4d6d708ab07b3ea29f3eb1d9814e460346a0de730"
+    }
+  },
+  "owning_products": {
+    "/home/jkh/nanolang-qualification/sdk-metadata-819-linux/ordinary/tmp/nano-sdk-abi-metadata-vfjwof19/owned": "78b73a6d360d9bfb42e503d78bfdb2eb3d8bbff62b532ac8c6ae120a40e94d2c"
+  },
+  "phases": [
+    {
+      "label": "ordinary-providers",
+      "argv": [
+        "/bin/make",
+        "-f",
+        "/home/jkh/nanolang-qualification/sdk-metadata-819-linux/ordinary/providers.mk",
+        "-j2",
+        "CC=/usr/bin/gcc",
+        "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+        "LDFLAGS=-lm",
+        "focused-providers"
+      ],
+      "bound": 1200,
+      "timeout": false,
+      "pid": 3893032,
+      "returncode": 0,
+      "remaining_groups": [],
+      "seconds": 3.230613067978993
+    },
+    {
+      "label": "ordinary-metadata",
+      "argv": [
+        "/bin/make",
+        "-f",
+        "/home/jkh/nanolang-qualification/sdk-metadata-819-linux/ordinary/providers.mk",
+        "-j2",
+        "CC=/usr/bin/gcc",
+        "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+        "LDFLAGS=-lm",
+        "test-module-sdk-abi"
+      ],
+      "bound": 1200,
+      "timeout": false,
+      "pid": 3893459,
+      "returncode": 2,
+      "remaining_groups": [],
+      "seconds": 1.0881344060180709
+    }
+  ]
+}
