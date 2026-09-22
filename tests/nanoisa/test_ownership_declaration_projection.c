@@ -592,6 +592,34 @@ static void description_policy_controls(void) {
     nvm_sdk_description_free(p);description_wire_free(wire);
 }
 
+static void description_ancestor_controls(void) {
+    /* Tuple -> union -> record crosses two hookless edges. Both selected and
+     * wholly unused policy components retain the same owner-path obligation. */
+    for(unsigned used=0;used<2;used++)for(unsigned hooks=1;hooks<=3;hooks++) {
+        DescriptionCase c;description_case(&c);
+        c.typed.wire[c.typed.types+7*8]=TAG_STRING;patch(c.typed.wire,c.typed.types+7*8+4,UINT32_MAX);
+        NvmSdkLifetimeNode nodes[]={
+            {2,NVM_SDK_SNAPSHOT_RESULT,UINT32_MAX,(hooks&1)?29:UINT32_MAX,1,2,0},
+            {3,NVM_SDK_SNAPSHOT_RESULT,UINT32_MAX,UINT32_MAX,3,2,0},
+            {4,NVM_SDK_VALUE,UINT32_MAX,UINT32_MAX,0,0,0},
+            {1,NVM_SDK_SNAPSHOT_RESULT,UINT32_MAX,(hooks&2)?28:UINT32_MAX,5,1,0},
+            {7,NVM_SDK_SNAPSHOT_RESULT,UINT32_MAX,UINT32_MAX,0,0,0},
+            {0,NVM_SDK_VALUE,UINT32_MAX,UINT32_MAX,0,0,0}
+        };
+        NvmSdkCallPolicy policy={0,0,0,1,UINT32_MAX};c.rows.nodes=nodes;c.rows.node_count=6;
+        c.rows.policies=&policy;c.rows.policy_count=used;
+        uint8_t *wire=NULL;size_t bytes=0;CHECK(nvm_sdk_provider_lifetime_encode(&c.rows,NVM_SDK_PROVIDER_MAX_BYTES,&wire,&bytes)==NVM_SDK_OK);
+        NvmPreparationBudget budget=typed_budget(),before=budget;NvmSdkDescription *p=(void *)(uintptr_t)1;
+        NvmSdkResult result=nvm_sdk_description_prepare(&c.typed.m,wire,bytes,&budget,&p);
+        if(hooks==3) {
+            CHECK(result==NVM_SDK_INVALID&&p==(void *)(uintptr_t)1&&budget.bytes==before.bytes&&budget.steps==before.steps);
+        } else {
+            CHECK(result==NVM_SDK_OK&&p!=(void *)(uintptr_t)1);nvm_sdk_description_free(p);
+        }
+        description_wire_free(wire);
+    }
+}
+
 int main(void){
     setvbuf(stdout,NULL,_IONBF,0);CHECK(ordinary_controls_main()==0);
     puts("I begin complete mixed declaration controls");positive(false);positive(true);malformed();borrowed_suffix();union_only();union_budget(7);union_budget(8);mixed_maximum();old_profiles();
@@ -609,6 +637,6 @@ int main(void){
     calls=0;union_budget(8);CHECK(!calls&&!live);
     printf("I covered %zu mixed allocation positions in both failure modes; two query TUs instrumented\n",measured);
 #endif
-    retained_v2();typed_profile_controls();description_controls();description_policy_controls();
+    retained_v2();typed_profile_controls();description_controls();description_policy_controls();description_ancestor_controls();
     printf("PASS %u complete mixed declaration checks; no execution authority\n",checks);return 0;
 }

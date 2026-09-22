@@ -389,6 +389,33 @@ static bool sdk_policy_graph(SdkCheck *c) {
     ok=true;
 done:free(color);free(stack);return ok;
 }
+/* Drop ownership is path state, independent of argument/result direction.
+ * I visit every component, including nodes unused by any call policy. A second
+ * state for the same node cannot erase a drop owner inherited along one path. */
+static bool sdk_policy_owners(SdkCheck *c) {
+    uint32_t nodes=c->lifetimes[1];if(!nodes)return true;
+    uint32_t maximum=nodes*2;
+    uint8_t *seen=sdk_allocate(c,maximum,1);
+    uint32_t *queue=sdk_allocate(c,maximum,sizeof *queue);bool ok=false;
+    if(!seen||!queue)goto done;
+    uint32_t count=nodes,at=0;
+    for(uint32_t i=0;i<nodes;i++){queue[i]=i*2;seen[i*2]=1;}
+    while(at<count) {
+        uint32_t state=queue[at++];NvmSdkLifetimeNode n;
+        if(!sdk_step(c,1)||!nvm_sdk_provider_lifetime_node(c->owned->provider,state/2,&n))goto done;
+        bool inherited=(state&1)!=0,owns=n.hook_set!=UINT32_MAX;
+        if(inherited&&owns)goto done;
+        for(uint32_t i=0;i<n.child_count;i++) {
+            if(!sdk_step(c,1))goto done;
+            uint32_t child=(n.child_first+i)*2+(inherited||owns?1u:0u);
+            if(seen[child])continue;
+            if(count==maximum){c->error=NVM_SDK_LIMIT;goto done;}
+            seen[child]=1;queue[count++]=child;
+        }
+    }
+    ok=true;
+done:free(seen);free(queue);return ok;
+}
 typedef struct {uint32_t node,arguments;bool result;} SdkPolicyVisit;
 static bool sdk_policy_context(SdkCheck *c,NvmSdkCallPolicy policy,SdkPolicyVisit *queue,uint8_t *reached) {
     uint32_t count=0,at=0;const uint32_t maximum=65536;
@@ -421,7 +448,7 @@ static bool sdk_policy_context(SdkCheck *c,NvmSdkCallPolicy policy,SdkPolicyVisi
     return true;
 }
 static bool sdk_policies(SdkCheck *c) {
-    if(!sdk_lifetime_nodes(c)||!sdk_policy_graph(c))return false;
+    if(!sdk_lifetime_nodes(c)||!sdk_policy_graph(c)||!sdk_policy_owners(c))return false;
     if(!c->lifetimes[1]&&!c->lifetimes[0])return true;
     SdkPolicyVisit *queue=sdk_allocate(c,65536,sizeof *queue);
     uint8_t *reached=sdk_allocate(c,c->lifetimes[1]?c->lifetimes[1]:1,1);bool ok=false;
