@@ -388,7 +388,7 @@ static void index_attempt(bool retirement, size_t preload, size_t at, bool once,
     size_t bytes = 0; unsigned char *old_bytes = NULL;
     if (old_index) {
         CHECK(old_index->capacity == 16 && old_index->count == preload);
-        CHECK(record_index_bytes(old_index->capacity, &bytes));
+        bytes = record_index_bytes(old_index->capacity); CHECK(bytes);
         old_bytes = malloc(bytes); CHECK(old_bytes); memcpy(old_bytes, old_index, bytes);
     }
     TupleValue empty = {0}; Value owned = integer(0);
@@ -418,9 +418,9 @@ static void index_attempt(bool retirement, size_t preload, size_t at, bool once,
     for (size_t i = 0; i < preload; ++i) {
         CHECK(env_record_result_borrowed(env, retained[i]));
         CHECK(!strcmp(retained[i].as.string_val, "retained"));
-        size_t slot; bool found;
-        CHECK(record_index_slot(env->record_result_index, retained[i], &slot, &found) && found);
-        CHECK(env->record_result_index->slots[slot] == entries[i]);
+        struct EnvRecordSlot slot = record_index_slot(env->record_result_index, retained[i]);
+        CHECK(slot.valid && slot.found);
+        CHECK(env->record_result_index->slots[slot.position] == entries[i]);
     }
     if (at != SIZE_MAX) {
         Value recovered = integer(883);
@@ -504,14 +504,13 @@ static void index_collision_and_limits(void) {
     CHECK(!env_record_result_borrowed(env, pool[missing]));
     CHECK(!env_retire_value(env, pool[first]));
     end(); CHECK(attempts == 0 && failures == 0);
-    size_t bytes = 71;
-    CHECK(!record_index_bytes(0, &bytes) && bytes == 71);
-    CHECK(!record_index_bytes(15, &bytes) && bytes == 71);
-    CHECK(!record_index_bytes(24, &bytes) && bytes == 71);
-    CHECK(!record_index_bytes(SIZE_MAX, &bytes) && bytes == 71);
-    CHECK(!record_index_bytes(SIZE_MAX / 2 + 1, &bytes) && bytes == 71);
-    CHECK(!record_index_bytes(16, NULL));
-    CHECK(record_index_bytes(16, &bytes) && bytes == sizeof(struct EnvRecordIndex) + 16 * sizeof(struct EnvRecordResult *));
+    CHECK(!record_index_bytes(0));
+    CHECK(!record_index_bytes(15));
+    CHECK(!record_index_bytes(24));
+    CHECK(!record_index_bytes(SIZE_MAX));
+    CHECK(!record_index_bytes(SIZE_MAX / 2 + 1));
+    size_t bytes = record_index_bytes(16);
+    CHECK(bytes == sizeof(struct EnvRecordIndex) + 16 * sizeof(struct EnvRecordResult *));
     struct EnvRecordIndex *index = env->record_result_index;
     struct EnvRecordResult candidate = {.next = env->record_results, .value = pool[missing]};
     struct EnvRecordResult saved; memcpy(&saved, &candidate, sizeof candidate);
