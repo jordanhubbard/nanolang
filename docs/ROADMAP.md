@@ -17264,3 +17264,10 @@ The complete field-copy contract now inventories every module table/payload,
 retains unused signature indices through the qualified snapshot, and distinguishes
 existing uint32/uint16 module dimensions from explicit bounded SDK preparation.
 This is a source contract checkpoint, not descriptor or installed SDK acceptance.
+
+I qualify task992713's union-root ownership at exact3917d61dc with fresh
+providers on Linux and Darwin, ordinary and ASan/UBSan/LSan. All four original
+owning methods plus reviewed constructor/result_map/task additions pass with
+unchanged source/provider/tool maps and no process groups. I retain raw evidence
+in `docs/evidence/evaluator-union-roots`; collection ownership and full evaluator
+acceptance remain open. I do not claim complete SDK or release qualification.
