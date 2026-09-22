@@ -17318,3 +17318,16 @@ callback annotation to supported fn(array<Point>,Point,int)->Other and pass7 as
 its third argument. The local name reduce, three-argument guard, Point initializer
 and Other-positive/Point-negative expectations remain. Puck1c4 and sanitizers
 were staged/unrun; fresh corrected whole-checker qualification remains required.
+
+I qualify the complete C checker at frozen6d92 on Linux and Darwin ordinary and
+ASan/UBSan/LSan with every original assertion and reviewed reduce controls.
+My [checker evidence](evidence/candidate-full-c-checker/) seals196 reports,
+including all distinct da88/1c4 first terminals and checker-only diagnosis.
+Actual source/provider/tool/product endpoints remain equal; no group survives.
+This closes the requested C checker regression, not self-hosted parity.
+
+I qualify private SDK module and unchanged signature snapshots at the same
+frozen6d92 across all four host/configuration lanes; all16 build/run phases pass.
+My [private snapshot evidence](evidence/sdk-module-snapshot/) seals44 reports.
+Complete provider attachment, shared declaration projection, cross-validation,
+all consuming routes and installed canonical acceptance remain required.
