@@ -17479,3 +17479,12 @@ checker and nonexecuting codegen controls preserve all prior assertions;
 original nested containers still permit arithmetic on an indexed flat child.
 Strict C99 syntax and whitespace checks pass. No changed source has executed.
 Nano changes require fresh bootstrap after the compiler shadow-loader repair.
+
+I retain the first2a4 Darwin terminal: fresh ordinary stage1 passes10.841s,
+then the full checker stops at the new positive admission fixture (line1092,
+0.928s). Evaluator, codegen controls and sanitizer remain unrun. The exact
+checker-only diagnostic reports three E034 EXPRESSION HAS NO EFFECT errors;
+my initial implicit-return hypothesis is not supported. Operator statements
+are already prohibited, so the fixture must consume flat results in typed
+bindings. Direct parsed-operand expression checks must distinguish the new
+storage guard from that outer statement refusal. No unsupported evaluation ran.
