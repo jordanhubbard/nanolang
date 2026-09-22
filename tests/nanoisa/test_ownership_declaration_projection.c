@@ -383,7 +383,7 @@ static void typed_profile_controls(void) {
     Typed c;typed_make(&c);NvmOwnershipDeclarationPlan *p=NULL;NvmPreparationBudget b=typed_budget();
     CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==NVM_DECL_PREPARED);typed_facts(p);nvm_ownership_declarations_free(p);
     p=(void *)(uintptr_t)1;CHECK(nvm_prepare_ownership_declarations_v2(&c.m,&p).status==NVM_DECL_INVALID);CHECK(p==(void *)(uintptr_t)1);
-#define TYPED_BAD(change) do {typed_make(&c);change;b=typed_budget();NvmPreparationBudget before=b;p=(void *)(uintptr_t)1;CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==NVM_DECL_INVALID);CHECK(p==(void *)(uintptr_t)1&&!memcmp(&b,&before,sizeof b));} while(0)
+#define TYPED_BAD(change) do {typed_make(&c);change;b=typed_budget();NvmPreparationBudget before=b;p=(void *)(uintptr_t)1;CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==NVM_DECL_INVALID);CHECK(p==(void *)(uintptr_t)1&&b.bytes==before.bytes&&b.steps==before.steps);} while(0)
     TYPED_BAD(c.fields[0][0].nested_idx=3);
     TYPED_BAD((c.fields[4][0]=(NvmV2LayoutField){TAG_STRUCT,0,18}));
     TYPED_BAD(c.fields[0][2].nested_idx=4);
@@ -413,7 +413,7 @@ static void typed_profile_controls(void) {
         b=typed_budget();NvmPreparationBudget before=b;p=(void *)(uintptr_t)1;
         CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==(depth==64?NVM_DECL_PREPARED:NVM_DECL_LIMIT));
         if(depth==64)nvm_ownership_declarations_free(p);
-        else CHECK(p==(void *)(uintptr_t)1&&!memcmp(&b,&before,sizeof b));
+        else CHECK(p==(void *)(uintptr_t)1&&b.bytes==before.bytes&&b.steps==before.steps);
     }
     /* I validate prior-only tables too; no forward edge triggers this check. */
     NvmV2LayoutField leaf={TAG_INT,0,0};NvmV2Layout prior[2]={{NVM_V2_LAYOUT_STRUCT,0,0,NULL},{NVM_V2_LAYOUT_STRUCT,1,1,&leaf}};
@@ -427,7 +427,7 @@ static void typed_profile_controls(void) {
     for(unsigned mode=0;mode<2;mode++)for(size_t i=0;i<measured;i++) {
         b=typed_budget();NvmPreparationBudget before=b;calls=0;fail_at=i;persistent=mode!=0;p=(void *)(uintptr_t)1;
         CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==NVM_DECL_MEMORY);
-        CHECK(p==(void *)(uintptr_t)1&&live==baseline&&!memcmp(&b,&before,sizeof b));
+        CHECK(p==(void *)(uintptr_t)1&&live==baseline&&b.bytes==before.bytes&&b.steps==before.steps);
         fail_at=SIZE_MAX;persistent=false;b=typed_budget();p=NULL;
         CHECK(nvm_prepare_ownership_declarations_typed_v2(&c.m,&b,&p).status==NVM_DECL_PREPARED);typed_facts(p);nvm_ownership_declarations_free(p);CHECK(live==baseline);
     }
