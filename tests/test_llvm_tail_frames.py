@@ -19,8 +19,8 @@ class ScalarTailFrames(unittest.TestCase):
     program = staticmethod(backend.CastU8Backends.program)
 
     def bounded_native_stack(self):
-        for optimization in ('O0', 'O2'):
-            executable = self.artifacts / ('llvm-native-' + optimization)
+        for target in ('native-O0', 'native-O2', 'llvm-native-O0', 'llvm-native-O2'):
+            executable = self.artifacts / target
             wrapper = ('import os,resource,sys\n'
                        '_,hard=resource.getrlimit(resource.RLIMIT_STACK)\n'
                        'soft=524288 if hard==resource.RLIM_INFINITY else min(524288,hard)\n'
