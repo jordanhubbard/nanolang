@@ -7581,7 +7581,7 @@ bool type_check(ASTNode *program, Environment *env) {
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
             sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
 sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
-            sdef.module_name = env->current_module ? strdup(env->current_module) : NULL;  /* Set module context */
+            sdef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;  /* Set module context */
             
             env_define_struct(env, sdef);
 
@@ -8434,7 +8434,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
             sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
 sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
-            sdef.module_name = env->current_module ? strdup(env->current_module) : NULL;  /* Set module context */
+            sdef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;  /* Set module context */
             
             env_define_struct(env, sdef);
 

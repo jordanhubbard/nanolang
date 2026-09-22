@@ -290,7 +290,6 @@ void free_environment(Environment *env) {
         free(env->structs[i].field_types);
         free(env->structs[i].field_type_names);
         free(env->structs[i].field_element_types);
-        free(env->structs[i].module_name);
         /* Complete field annotations remain borrowed from the AST. */
     }
     free(env->structs);
