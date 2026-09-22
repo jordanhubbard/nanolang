@@ -1,3 +1,6 @@
+#if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+#define _DARWIN_C_SOURCE 1
+#endif
 /* I run actual descriptor calls and replace only the result-copy allocator. */
 #include <assert.h>
 #include <errno.h>

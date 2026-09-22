@@ -1,3 +1,6 @@
+#if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+#define _DARWIN_C_SOURCE 1
+#endif
 /*
  * NanoVM FFI Bridge - Call native C functions from the VM
  *

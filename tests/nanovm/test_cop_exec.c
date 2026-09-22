@@ -1,3 +1,6 @@
+#if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+#define _DARWIN_C_SOURCE 1
+#endif
 /* I exercise the actual launcher with bounded startup fault injection. */
 #include <assert.h>
 #include <spawn.h>

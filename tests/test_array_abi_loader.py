@@ -14,7 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class ArrayAbiLoader(unittest.TestCase):
     def test_declarations(self):
-        cc = shlex.split(os.environ.get("CC", "cc"))
+        cc = shlex.split(os.environ.get("NANO_NATIVE_TEST_CC") or os.environ.get("CC", "cc"))
+        crypto = shlex.split(subprocess.check_output(
+            ["pkg-config", "--cflags", "--libs", "libcrypto"], text=True, timeout=30))
         retained = os.environ.get("NANO_ARRAY_ABI_REPORT_DIR")
         context = (contextlib.nullcontext(tempfile.mkdtemp(prefix="nano-array-abi-", dir=retained))
                    if retained else tempfile.TemporaryDirectory(prefix="nano-array-abi-"))
@@ -106,7 +108,7 @@ class ArrayAbiLoader(unittest.TestCase):
                     ffi_loader_shutdown();
                     return 0;
                 }
-                """, ["-D_GNU_SOURCE", "-D_DARWIN_C_SOURCE", "src/runtime/ffi_loader.c", "-pthread",
+                """, ["-D_GNU_SOURCE", "-D_DARWIN_C_SOURCE", "src/runtime/ffi_loader.c", "src/runtime/module_build_dir.c", "-pthread", *crypto,
                        *(["-ldl"] if sys.platform.startswith("linux") else [])])
             result = subprocess.run([str(probe), str(library)], capture_output=True,
                                     text=True, timeout=15)
