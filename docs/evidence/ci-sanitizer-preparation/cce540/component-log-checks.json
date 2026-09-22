@@ -1,0 +1,12 @@
+{
+  "original-stage2-parser.log": {
+    "raw_sha256": "e2442fc3602b238a48c44b63eb3d1a6474bb2a867e9f0d7fb90d335ce6761814",
+    "stored_sha256": "2588eb767eb7f0bbc88292e8ad23d55770f7cf7c791acbf6a54f68d24bac6b0f",
+    "bytes": 132308
+  },
+  "original-stage2-typecheck.log": {
+    "raw_sha256": "1567df63dbfbd72adc3ffccc2cff9687fb505779c07d28b160c574bf8ff78c7c",
+    "stored_sha256": "3d6fa83697e091d12854e9de65a1e89c8d19902b0075d43f94f664e03cc78379",
+    "bytes": 159798
+  }
+}

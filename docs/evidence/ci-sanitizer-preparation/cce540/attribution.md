@@ -1,0 +1,7 @@
+# My component shadow deadline attribution
+
+I retain the separate parser and typecheck component logs before another Make invocation can reuse their fixed temporary paths. The typecheck log records338 complete PASSED labels and a339th mb_private_target label followed by a partial PA from PASSED output. It has no diagnostic timing records, so I cannot infer individual shadow durations.
+
+At this exact candidate, src/main.c starts one monotonic deadline before fork and one child alarm around callback selection plus the complete run_shadow_tests_scope call. My60-second limit is aggregate over this compiler shadow selection, not reset for each shadow. src/eval.c evaluates each shadow before printing PASSED. The last label therefore does not establish that mb_private_target consumed the limit.
+
+The actual mb_private_target function concatenates the configured prefix and name. Its original shadow resets state, sets visibility, compares the returned name and resets state. The module has14 shadows and no imports. A proposed separate benign timing sample can import just this unchanged module through a trivial driver, enable existing NANO_SHADOW_TIMING metadata and retain the original60-second limit. It would measure only that small selection, not reconstruct costs of the preceding338 shadows. I will not replay the failed full typecheck workload or infer full preparation acceptance from the sample.
