@@ -94,7 +94,7 @@ shadow gen_expr_ir_as_string {
     (free e)
 }
 
-fn gen_program_from_plan(plan: Json) -> string {
+pub fn gen_program_from_plan(plan: Json) -> string {
     let mut out: string = ""
 
     set out (emit_line out (+ "module " (q "modules/std/json/json.nano")))
@@ -285,4 +285,3 @@ shadow gen_program_from_plan {
     assert (> (str_length prog) 100)
     (free plan)
 }
-
