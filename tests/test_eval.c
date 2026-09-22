@@ -1910,11 +1910,15 @@ void test_eval_handled_record_identity(void) {
         " return p.value\n"
         "}\n"
         "shadow projected { assert (== (projected) 12) }\n"
-        "fn main() -> int { let a: Packet = (direct) let b: Packet = (branch 0) let c: Packet = (branch 9) return (+ a.value (+ b.value (+ c.value (+ (lexical) (projected))))) }\n"
-        "shadow main { assert (== (main) 143) }\n"));
+        "fn nested() -> Packet {\n"
+        " return handle { perform Supply.next(8) } with { next n -> cond (true if true { Packet { value: n } } else { Packet { value: 0 } }) (else Packet { value: 0 }) }\n"
+        "}\n"
+        "shadow nested { let p: Packet = (nested) assert (== p.value 8) }\n"
+        "fn main() -> int { let a: Packet = (direct) let b: Packet = (branch 0) let c: Packet = (branch 9) let d: Packet = (nested) return (+ d.value (+ a.value (+ b.value (+ c.value (+ (lexical) (projected)))))) }\n"
+        "shadow main { assert (== (main) 151) }\n"));
     Value result = call_function("main", NULL, 0, ctx.env);
     ASSERT_EQ(result.type, VAL_INT);
-    ASSERT_EQ(result.as.int_val, 143);
+    ASSERT_EQ(result.as.int_val, 151);
     ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
     run_ctx_free(&ctx);
 
@@ -1923,6 +1927,8 @@ void test_eval_handled_record_identity(void) {
         "{ if (== n 0) { Packet { value: n } } else { Other { value: n } } }",
         "{ let absent: int = n }",
         "{ return 17 }",
+        "cond (true if true { Packet { value: true } } else { Packet { value: n } }) (else Packet { value: n })",
+        "cond (true if true { Packet { value: n } } else { Packet { value: true } }) (else Packet { value: n })",
         "n"
     };
     for (size_t i = 0; i < sizeof invalid / sizeof *invalid; ++i) {

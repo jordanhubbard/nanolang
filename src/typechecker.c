@@ -4877,10 +4877,24 @@ checked_array_declared_call: ;
                 );
             }
 
-            /* For if expressions, we need to infer the type from the blocks */
-            /* This is simplified - just return UNKNOWN for now */
-            /* A proper implementation would need to analyze the blocks */
-            return TYPE_UNKNOWN;
+            /* I check both arms, including nested branches and lexical returns,
+             * before inferring the value of paths that can complete normally. */
+            ASTNode *then_arm = expr->as.if_stmt.then_branch;
+            ASTNode *else_arm = expr->as.if_stmt.else_branch;
+            Type then_type = then_arm ? check_expression(then_arm, env) : TYPE_VOID;
+            Type else_type = else_arm ? check_expression(else_arm, env) : TYPE_VOID;
+            bool then_returns = ast_always_returns(then_arm);
+            bool else_returns = ast_always_returns(else_arm);
+            if (cond_type != TYPE_BOOL || (then_returns && else_returns)) return TYPE_UNKNOWN;
+            if (then_returns) return else_type;
+            if (else_returns) return then_type;
+            if (then_type != else_type) {
+                emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                    "I require the same type in every normally completing if arm.",
+                    "Keep lexical function returns separate from expression values.");
+                return TYPE_UNKNOWN;
+            }
+            return then_type;
         }
 
         case AST_COND: {
