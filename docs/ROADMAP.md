@@ -14453,3 +14453,10 @@ allocator failure claim.
   all earlier reported sites are absent. I preserve this terminal and require
   actual parsed spread success/failure cleanup before corrected sanitizer gates.
   MAC: task_ebfdc333d6a8495b8c903ab8142c88b6.
+
+- [ ] I retain checker-created module owner names under explicit Environment
+  ownership while preserving borrowed context/declaration producers. My45c
+  allocation executable reaches 8,532 leaked bytes in711 setup allocations.
+  I audit snapshot escape and duplicate only owner strings into independent
+  module metadata before changing teardown. [Contract](NANOISA_CHECKER_MODULE_NAME_OWNERSHIP.md).
+  MAC: task_3a42bcf1be0c46ce88a085b4cb54bf2c and task_ebfdc333d6a8495b8c903ab8142c88b6.
