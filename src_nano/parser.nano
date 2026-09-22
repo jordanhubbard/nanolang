@@ -2406,6 +2406,13 @@ shadow parse_match_guard {
     let absent: Parser = (parse_match_guard parsed)
     assert (== absent.last_expr_node_id -1)
     assert (== absent.position parsed.position)
+    assert (not absent.has_error)
+    let empty: Parser = (parse_match_guard (parser_new (list_LexerToken_new) 0 "guard-empty.nano"))
+    assert (not empty.has_error)
+    assert (== empty.last_expr_node_id -1)
+    let missing_tokens: List<LexerToken> = (tokenize_string "if" "guard-missing.nano" (list_CompilerDiagnostic_new))
+    let missing: Parser = (parse_match_guard (parser_new missing_tokens (list_LexerToken_length missing_tokens) "guard-missing.nano"))
+    assert missing.has_error
 }
 
 # I share my literal-true coverage rule with the checked match policy.
@@ -3406,7 +3413,8 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
         return p
     } else {
         if (parser_is_at_end p) {
-            return p
+            if left_parsed { return p }
+            return (parser_with_error p true)
         } else {
             let tok: LexerToken = (parser_current p)
             
@@ -3576,6 +3584,23 @@ fn parse_expression(p: Parser) -> Parser {
 shadow parse_expression_recursive {
     /* Tested via integration tests in tokenization and parsing pipeline */
     assert (== 1 1)
+    let empty: Parser = (parser_new (list_LexerToken_new) 0 "empty-expression.nano")
+    let rejected: Parser = (parse_expression_recursive empty false)
+    assert rejected.has_error
+    assert (== rejected.position 0)
+    assert (== rejected.last_expr_node_id -1)
+    let tokens: List<LexerToken> = (tokenize_string "7" "complete-expression.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_expression (parser_new tokens (list_LexerToken_length tokens) "complete-expression.nano"))
+    assert (not parsed.has_error)
+    assert (parser_is_at_end parsed)
+    let complete: Parser = (parse_expression_recursive parsed true)
+    assert (not complete.has_error)
+    assert (== complete.position parsed.position)
+    assert (== complete.last_expr_node_id parsed.last_expr_node_id)
+    assert (== complete.numbers_count parsed.numbers_count)
+    let failed: Parser = (parse_expression_recursive (parser_with_error parsed true) true)
+    assert failed.has_error
+    assert (== failed.position parsed.position)
 }
 
 shadow parse_expression {
@@ -6038,6 +6063,20 @@ fn parse_return_statement(p: Parser) -> Parser {
 
 shadow parse_return_statement {
     assert (== 1 1)
+    let sources: array<string> = ["return", "return }"]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "bare-return.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_return_statement (parser_new tokens (list_LexerToken_length tokens) "bare-return.nano"))
+        assert (not parsed.has_error)
+        assert (== parsed.last_expr_node_type ParseNodeType.PNODE_RETURN)
+        let returned: ASTReturn = (parser_get_return parsed parsed.last_expr_node_id)
+        assert (== returned.value -1)
+        assert (== returned.value_type -1)
+        if (== i 0) { assert (parser_is_at_end parsed) }
+        if (== i 1) { assert (== (parser_current parsed).token_type (token_rbrace)) }
+        set i (+ i 1)
+    }
 }
 
 /* Parse assert statement: assert expression */
