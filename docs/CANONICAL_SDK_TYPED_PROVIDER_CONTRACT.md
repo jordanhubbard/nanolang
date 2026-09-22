@@ -479,3 +479,49 @@ and recovery. A second generation stays readable after source mutation and first
 generation destruction. This is deliberately transport data; the fixture does
 not assert cross-section semantic validity or admission. Original signature
 controls remain unchanged and must rerun with the shared planning refactor.
+
+## I make the shared declaration reader consume retained V2 facts directly
+
+My complete snapshot now qualifies as independent storage. It still cannot feed
+nvm_prepare_ownership_declarations: that interface accepts NvmModule, and its
+shared reader consumes legacy function tags, union counts and string indices.
+Calling the legacy bridge would discard exact signature selectors. I will add a
+private V2 entry into the same reader rather than construct a second SDK grammar.
+
+I first factor the reader's borrowed module facts behind a bounded internal view:
+function count, locals, exact selected signature parameter/result tags, layout
+kind counts, named string constant validity, and ownership bytes. The legacy
+adapter reads its existing fields without reinterning or allocation. The V2
+adapter reads each function's actual signature_idx, bounds it before access,
+and checks complete parameter/result extents; no inferred signature index or
+first matching coarse row is substituted. Its layouts remain their original
+ordinal order. Layout names/field names/variant names must reference actual
+STRING constants, not merely a number below constants.count. Both adapters
+reuse the same descriptor, extension framing, union-fact and array-row readers.
+No public consumer obtains wider admission from this refactor.
+
+I retain a separate profile parameter selected only by the private typed SDK
+preparer. Legacy/public callers continue revision1 and existing UNKNOWN/refusal
+policy, including unsupported imports/capture/passive/service conjunctions.
+The private declaration reader may copy facts from a module carrying those
+sections without claiming their validation: full module preparation must check
+every section before dispatch. Presence of an unrelated section cannot be
+silently dropped, nor may a declaration query stand in for its checker.
+
+I then add revision2 ARRAY_FIELDS to that private profile using the reviewed
+8-byte shared row encoding, and carry its revision through extension framing.
+Opaque referents select exact provider nominal rows; function referents select
+exact provider signature details; tuple/union/enum referents select actual layout
+kinds. Legacy revision1 bytes keep their original meaning. The shared projection
+copies these numeric facts but reports unresolved foreign referents until the
+provider cross-validator proves them. No executable plan is published with
+unresolved identity, layout, signature or lifetime facts.
+
+Before exposing the new entry, I require unchanged legacy declaration/ownership
+fixtures, direct V2 duplicate/unused signature selectors, mixed constant tags,
+all layout kinds, array cycles/depth, malformed references, shared byte/work
+budgets, every allocation prefix, and old/new generation lifetime independence.
+New output publication remains atomic. The final consumer audit must cover
+VM, nvm2c, V2 serializer/deserializer, assembly/disassembly, linker and legacy
+bridge before the feature can be admitted; this reader alone closes none of
+those gates or the original installed SDK acceptance corpus.

@@ -17335,3 +17335,11 @@ frozen6d92 across all four host/configuration lanes; all16 build/run phases pass
 My [private snapshot evidence](evidence/sdk-module-snapshot/) seals44 reports.
 Complete provider attachment, shared declaration projection, cross-validation,
 all consuming routes and installed canonical acceptance remain required.
+
+- [ ] I feed retained V2 module/signature facts directly into my existing shared
+  ownership declaration reader before typed SDK attachment, under the amended
+  [provider contract](CANONICAL_SDK_TYPED_PROVIDER_CONTRACT.md). I preserve exact
+  selectors and string constant kinds without a lossy legacy conversion, keep
+  legacy revision1 admission unchanged, and qualify the common reader before
+  extending its private ARRAY_FIELDS profile. Full cross-validation and every
+  consuming/installed SDK gate remain required.
