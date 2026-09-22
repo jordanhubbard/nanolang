@@ -56,7 +56,13 @@ static bool parse_ctx_init(ParseCtx *ctx, const char *src) {
     ctx->tokens = tokenize(src, &ctx->token_count);
     if (!ctx->tokens) return false;
     ctx->program = parse_program(ctx->tokens, ctx->token_count);
-    return ctx->program != NULL;
+    if (!ctx->program) {
+        free_tokens(ctx->tokens, ctx->token_count);
+        ctx->tokens = NULL;
+        ctx->token_count = 0;
+        return false;
+    }
+    return true;
 }
 
 static void parse_ctx_free(ParseCtx *ctx) {
@@ -1093,8 +1099,19 @@ static Type tc_first_operator_type(const char *source) {
     return result;
 }
 
+static bool tc_refuses_parsed_source(const char *source) {
+    ParseCtx ctx;
+    ASSERT(parse_ctx_init(&ctx, source));
+    parse_ctx_free(&ctx);
+    return !tc_passes(source);
+}
+
 /* I reject unsupported storage even when no typed destination consumes it. */
 static void test_array_arithmetic_admission(void) {
+    ParseCtx invalid;
+    ASSERT(!parse_ctx_init(&invalid, "fn"));
+    ASSERT(invalid.program == NULL && invalid.tokens == NULL && invalid.token_count == 0);
+    parse_ctx_free(&invalid);
     const char *types[] = {"u8", "array<int>"};
     const char *ops[] = {"+", "-", "*", "/", "%"};
     char source[1536];
@@ -1104,23 +1121,23 @@ static void test_array_arithmetic_admission(void) {
             "fn probe(xs:array<%s>)->void{(%s %s)} fn main()->int{return 0}",
             types[type], ops[op], route == 0 ? "xs xs" : route == 1 ? "xs 1" : "1 xs");
         ASSERT_EQ(tc_first_operator_type(source), TYPE_UNKNOWN);
-        ASSERT(!tc_passes(source));
+        ASSERT(tc_refuses_parsed_source(source));
     }
-    ASSERT(!tc_passes("fn probe(xs:array<u8>)->void{(- xs)} fn main()->int{return 0}"));
-    ASSERT(!tc_passes("fn probe(xs:array<array<int>>)->void{(- xs)} fn main()->int{return 0}"));
-    ASSERT(!tc_passes("fn main()->int{(+ [] []) return 0}"));
-    ASSERT(!tc_passes("fn source(xs:array<u8>)->array<u8>{return xs} fn probe(xs:array<u8>)->void{(+ (source xs) 1)} fn main()->int{return 0}"));
-    ASSERT(!tc_passes("struct Box { xs:array<u8> } fn probe(box:Box)->void{(+ box.xs 1)} fn main()->int{return 0}"));
-    ASSERT(!tc_passes("fn probe(cb:fn()->array<u8>)->void{(+ (cb) 1)} fn main()->int{return 0}"));
-    ASSERT(!tc_passes("fn accept(xs:array<u8>)->void{} fn probe(xs:array<u8>)->void{(accept (+ xs xs))} fn main()->int{return 0}"));
-    ASSERT(!tc_passes("fn probe(xs:array<array<int>>)->void{let unused=(+ xs xs)} fn main()->int{return 0}"));
+    ASSERT(tc_refuses_parsed_source("fn probe(xs:array<u8>)->void{(- xs)} fn main()->int{return 0}"));
+    ASSERT(tc_refuses_parsed_source("fn probe(xs:array<array<int>>)->void{(- xs)} fn main()->int{return 0}"));
+    ASSERT(tc_refuses_parsed_source("fn main()->int{(+ [] []) return 0}"));
+    ASSERT(tc_refuses_parsed_source("fn source(xs:array<u8>)->array<u8>{return xs} fn probe(xs:array<u8>)->void{(+ (source xs) 1)} fn main()->int{return 0}"));
+    ASSERT(tc_refuses_parsed_source("struct Box { xs:array<u8> } fn probe(box:Box)->void{(+ box.xs 1)} fn main()->int{return 0}"));
+    ASSERT(tc_refuses_parsed_source("fn probe(cb:fn()->array<u8>)->void{(+ (cb) 1)} fn main()->int{return 0}"));
+    ASSERT(tc_refuses_parsed_source("fn accept(xs:array<u8>)->void{} fn probe(xs:array<u8>)->void{(accept (+ xs xs))} fn main()->int{return 0}"));
+    ASSERT(tc_refuses_parsed_source("fn probe(xs:array<array<int>>)->void{let unused=(+ xs xs)} fn main()->int{return 0}"));
     ASSERT(tc_passes("fn probe(xs:array<int>)->int{let a:array<int> = (- xs) let b:array<int> = (% xs 2) let c:array<int> = (+ xs 1) return 0} fn main()->int{return 0}"));
     ASSERT_EQ(tc_first_operator_type("fn probe(xs:array<int>)->int{(+ xs 1) return 0}"), TYPE_ARRAY);
     ASSERT_EQ(tc_first_operator_type("fn probe(xs:array<u8>)->int{(- xs) return 0}"), TYPE_UNKNOWN);
     ASSERT_EQ(tc_first_operator_type("fn probe(xs:array<array<int>>)->int{(- xs) return 0}"), TYPE_UNKNOWN);
     ASSERT_EQ(tc_first_operator_type("fn probe()->int{(+ [] []) return 0}"), TYPE_UNKNOWN);
     ASSERT(tc_passes("fn probe(rows:array<array<int>>)->array<int>{return (+ (at rows 0) 1)} fn main()->int{return 0}"));
-    ASSERT(!tc_passes("fn probe(xs:array<int>, bytes:array<u8>)->void{{let xs:array<u8> = bytes (+ xs 1)}} fn main()->int{return 0}"));
+    ASSERT(tc_refuses_parsed_source("fn probe(xs:array<int>, bytes:array<u8>)->int{if true {let xs:array<u8> = bytes let invalid = (+ xs 1)} return 0} fn main()->int{return 0}"));
 }
 
 int main(void) {
