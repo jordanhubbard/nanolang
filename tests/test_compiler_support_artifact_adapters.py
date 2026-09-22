@@ -79,7 +79,11 @@ class CompilerSupportArtifactAdapters(unittest.TestCase):
                 'void *library = dlopen(argv[1], RTLD_NOW | RTLD_LOCAL); assert(library); '
                 'int64_t (*abi)(void) = (int64_t (*)(void))dlsym(library, "nlc_native_array_abi"); '
                 'const char *(*root)(void) = (const char *(*)(void))dlsym(library, "nlc_runtime_root"); '
-                'assert(abi && root); printf("%" PRId64 "\\n%s\\n", abi(), root()); '
+                'assert(abi && root && dlsym(library, "nlc_module_artifact")); '
+                'assert(!dlsym(library, "module_builder_verbose")); '
+                'assert(!dlsym(library, "module_build")); '
+                'assert(!dlsym(library, "nano_native_sdk_prepare")); '
+                'printf("%" PRId64 "\\n%s\\n", abi(), root()); '
                 'dlclose(library); return 0; }\n')
             self.run_checked([*self.compiler, "-std=c11", "-Wall", "-Wextra", "-Werror",
                               *self.flags, oracle_source, ROOT / "bin/nano_aot_runtime.o", "-lm",
