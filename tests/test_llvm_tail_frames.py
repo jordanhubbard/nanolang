@@ -24,7 +24,7 @@ class ScalarTailFrames(unittest.TestCase):
             wrapper = ('import os,resource,sys\n'
                        '_,hard=resource.getrlimit(resource.RLIMIT_STACK)\n'
                        'soft=524288 if hard==resource.RLIM_INFINITY else min(524288,hard)\n'
-                       'resource.setrlimit(resource.RLIMIT_STACK,(soft,hard))\n'
+                       'resource.setrlimit(resource.RLIMIT_STACK,(soft,soft))\n'
                        'os.execv(sys.argv[1],[sys.argv[1]])\n')
             self.run_actual([sys.executable, '-c', wrapper, executable])
 
