@@ -17347,3 +17347,5 @@ all consuming routes and installed canonical acceptance remain required.
 - [ ] I repair missing complete STRING-array addition result views exposed by the first c34 fixture checker refusal (task_992713bde1494772b0cb0b58bc9ee3c3). Original source stays unchanged; contract `docs/STRING_ARRAY_ARITHMETIC_RESULT_VIEW.md` preserves actual operand provenance and no destination inference. Checker-only diagnostic is retained separately, not owning acceptance.
 
 - [x] I preserve c34 first owning checker terminal and approved exact-literal checker-only diagnostic under `docs/evidence/collection-c34/`; other configurations remain unrun. Complete STRING-array result adapter22fb is source-reviewed-next, not runtime qualified.
+
+- [x] I qualify reviewed22fb dynamic reference-leaf owners, public map STRING snapshot disposal and complete STRING-array PLUS views through all eight original collection/fullCchecker phases on Linux/Darwin ordinary andASan/UBSan/LSan. Evidence: `docs/evidence/collection-22fb/`. c34 firstterminal remains retained; combinedcandidate/full evaluator/bootstrap/CI acceptance remains open.
