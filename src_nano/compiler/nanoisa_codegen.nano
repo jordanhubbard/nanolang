@@ -2899,6 +2899,7 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
         let mut tag: string = "1"
         let element: string = (nisa_element_type parser expected)
+        if (== element "u8") { set tag "2" }
         if (== element "string") { set tag "5" }
         if (== element "bool") { set tag "4" }
         if (== element "float") { set tag "3" }
@@ -2907,10 +2908,14 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         let mut i: int = 0
         while (< i literal.element_count) {
             let value: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
-            if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
-                return (nisa_fail "array element does not match my declared type")
+            if (== element "u8") {
+                set output (+ output (nisa_emit_expected_expr parser value.node_id value.node_type "u8"))
+            } else {
+                if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
+                    return (nisa_fail "array element does not match my declared type")
+                }
+                set output (+ output (nisa_emit_expr parser value.node_id value.node_type))
             }
-            set output (+ output (nisa_emit_expr parser value.node_id value.node_type))
             set i (+ i 1)
         }
         return (+ output (nisa_line_imm "ARR_LITERAL" (+ tag (+ " " (int_to_string literal.element_count)))))
@@ -2918,6 +2923,11 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
     return (nisa_emit_expr parser node_id node_type)
 }
 shadow nisa_emit_expected_expr {
+    let byte_array_diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let byte_array_tokens: List<LexerToken> = (tokenize_string (+ "f" "n values() -> array<u8> { return [1, 255] }") "bytes.nano" byte_array_diagnostics)
+    let byte_array_parser: Parser = (parse_program byte_array_tokens (list_LexerToken_length byte_array_tokens) "bytes.nano")
+    let byte_array_text: string = (nisa_emit_expected_expr byte_array_parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<u8>")
+    assert (== byte_array_text "  PUSH_U8 1\n  PUSH_U8 255\n  ARR_LITERAL 2 2\n")
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = (+ "f" "n main() -> array<string> { return [] }")
     let tokens: List<LexerToken> = (tokenize_string source "array.nano" diagnostics)
