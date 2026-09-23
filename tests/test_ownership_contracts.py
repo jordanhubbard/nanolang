@@ -35,7 +35,7 @@ class OwnershipContracts(unittest.TestCase):
                 self.assertIn(b"reference lifetime and ownership", result.stdout + result.stderr)
             self.assertEqual(generated.read_text(), "previous output\n")
             for command, diagnostic in (
-                    ([ROOT / "bin/nano_vm", owned_union], b"selected owned-union transfer"),
+                    ([ROOT / "bin/nano_vm", owned_union], b"explicit owned entry execution"),
                     ([ROOT / "bin/nvm2c", owned_union, "-o", generated],
                      b"reference lifetime and ownership instruction verification")):
                 result = subprocess.run(command, cwd=ROOT, capture_output=True, timeout=90)

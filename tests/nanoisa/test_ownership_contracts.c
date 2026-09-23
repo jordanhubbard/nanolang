@@ -249,7 +249,7 @@ static void check_owned_union_transport(const char *path) {
           authority[0]==NVM_LAYOUT_AUTHORITY_RESOURCE && authority[1]==authority[0] && authority[2]==authority[0]);
     CHECK(!nvm_verify(m).ok);
     char diagnostic[256];char *c=nvm2c_emit(m,diagnostic,sizeof diagnostic);CHECK(!c);free(c);
-    /* I retain exact union descriptors without granting their execution. */
+    /* Exact descriptors alone do not grant execution without a checked transfer. */
     m->functions[0].result_tag=TAG_UNION;slot(b,20,TAG_UNION,0,2);
     CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
     word(b,24,NVM_V2_NO_INDEX);CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);
@@ -265,7 +265,7 @@ static void check_owned_union_transport(const char *path) {
     nvm_module_free(copy);nvm_v2_module_free(&decoded);free(bytes);
     char *text=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(text);
     copy=asm_assemble(text,&error);CHECK(!copy);
-    CHECK(strstr(error.message,"selected owned-union transfer")!=NULL);
+    CHECK(strstr(error.message,"explicit owned entry execution")!=NULL);
     copy=asm_assemble_unverified(text,&error);CHECK(copy);
     CHECK(copy->ownership_size==108 && !memcmp(copy->ownership_data,b,108));
     CHECK(nvm_ownership_contracts_validate(copy,&needs)==NVM_V2_OK && needs);

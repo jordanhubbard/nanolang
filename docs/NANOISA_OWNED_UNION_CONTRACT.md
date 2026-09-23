@@ -6,9 +6,10 @@ in `tests/test_generic_selected_ownership.py` and
 `task_d44b2db373d38a942db3e8c4567b8044` owns this work. PR #522 and v5.1 remain
 blocked until this feature and the other integrated acceptance gates pass.
 This document specifies required behavior. My format-4 declaration transport is
-implemented; selected transfer and source lowering remain incomplete.
+implemented. Selected VM/native transfers now execute for the bounded standalone
+owned profile; canonical source lowering remains incomplete.
 
-## My current boundary
+## My historical starting boundary
 
 At `7793ff5fe`, `nb_union_supported` accepts only scalar concrete arguments and
 scalar substituted fields. `nb_union_type_identity` cannot identify a resource
@@ -70,12 +71,20 @@ edge in this table. Aggregate descriptors require an exact layout index.
 My public declaration validator, authority queries and variant queries read
 these facts. Binary serialization/deserialization and unverified textual
 assembly retain them. Ordinary private declaration plans keep their old
-profile. The owner-array router leaves format 4 to this validator, and the
-shared executable verifier refuses it until runtime selected transfers are
-implemented. My affine-state and bytecode analyses now check selected transfers
-without granting execution. Verified assembly, VM execution and native
-publication therefore still refuse these declarations. Tests preserve prior
-native output and query outputs after malformed input.
+profile. The owner-array router leaves format 4 to this validator. My shared
+verifier checks selected affine transfers before admitting the bounded standalone
+owned runtime. A declaration alone does not grant execution: the transport-only
+fixture still refuses because it contains no owned transfer.
+
+My VM and native backend transfer whole unions and detach exactly the selected
+payload after checking its identity, variant, count and unique shell. VM union
+ordinals are resolved to retained layout indices before checking locals,
+arguments and results. Stack capacity is established before VM detachment.
+Native emission uses the selected count rather than the flattened union layout.
+The `test-owned-union-runtime` target checks resource, ordinary, empty, nested,
+STRING and call/return cases, allocation failures, assertion cleanup and public
+refusals. This raw-bytecode admission does not establish canonical source support.
+
 
 ## My transfer and selection
 
