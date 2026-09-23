@@ -1015,16 +1015,39 @@ static bool register_nominal_imports(Environment *env, ASTNode *import,
             kind = TYPE_UNION; name = actual = node->as.union_def.name;
         } else continue;
         bool selected = !import->as.import_stmt.is_selective || import->as.import_stmt.is_wildcard;
+        const char *binding = name;
         for (int j = 0; !selected && j < import->as.import_stmt.import_symbol_count; ++j) {
             const char *original = import->as.import_stmt.import_symbols[j];
             const char *alias = import->as.import_stmt.import_aliases ? import->as.import_stmt.import_aliases[j] : NULL;
-            if (!strcmp(original, name) && (!alias || !*alias || !strcmp(alias, original))) selected = true;
+            if (!strcmp(original, name)) {
+                selected = true;
+                if (alias && *alias) binding = alias;
+            }
         }
         if (!selected) continue;
         NominalIdentity identity = env_nominal_identity(env, actual, owner, kind);
         const char *registered_owner = env_nominal_owner(env, identity);
         ok = identity.ordinal && registered_owner && !strcmp(registered_owner, owner) &&
-             env_register_nominal_import(env, env->current_module, name, identity);
+             env_register_nominal_import(env, env->current_module, binding, identity);
+    }
+    /* A convenience module may re-export declarations that it imported from
+     * their defining modules. Selected consumers inherit that exact identity;
+     * the convenience module never becomes a new declaration owner. */
+    for (int j = 0; ok && import->as.import_stmt.is_selective &&
+                    j < import->as.import_stmt.import_symbol_count; ++j) {
+        const char *name = import->as.import_stmt.import_symbols[j];
+        const char *alias = import->as.import_stmt.import_aliases
+            ? import->as.import_stmt.import_aliases[j] : NULL;
+        const char *binding = alias && *alias ? alias : name;
+        NominalIdentity found = {TYPE_UNKNOWN, 0};
+        int matches = 0;
+        const Type kinds[] = {TYPE_STRUCT, TYPE_ENUM, TYPE_UNION};
+        for (size_t k = 0; k < sizeof kinds / sizeof kinds[0]; ++k) {
+            NominalIdentity candidate = env_nominal_identity(env, name, owner, kinds[k]);
+            if (candidate.ordinal) { found = candidate; ++matches; }
+        }
+        if (matches == 1)
+            ok = env_register_nominal_import(env, env->current_module, binding, found);
     }
     free(owner);
     return ok;

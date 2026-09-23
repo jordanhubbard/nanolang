@@ -351,7 +351,7 @@ shadow process_number {
  * Called after the 'grammar' keyword token has been emitted.
  * Skips whitespace, expects '{', reads raw text until the matching '}',
  * and emits it as TOKEN_STRING. Returns the position after the closing '}'. */
-fn process_grammar_body(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
+pub fn process_grammar_body(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = i
     /* Skip whitespace before '{' */
     while (and (< pos len) (is_whitespace_char (char_at source pos))) {

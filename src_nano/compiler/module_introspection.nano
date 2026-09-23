@@ -1,6 +1,6 @@
 import "src_nano/compiler/module_facts.nano"
 
-fn mi_quote(value: string) -> string {
+pub fn mi_quote(value: string) -> string {
     let q: string = (string_from_char 34)
     let mut result: string = q
     let mut i: int = 0

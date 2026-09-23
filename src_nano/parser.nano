@@ -626,13 +626,13 @@ shadow token_lparen { assert (== (token_lparen) LexerTokenType.TOKEN_LPAREN) }
 fn token_rparen() -> int { return LexerTokenType.TOKEN_RPAREN }
 shadow token_rparen { assert (== (token_rparen) LexerTokenType.TOKEN_RPAREN) }
 
-fn token_plus() -> int { return LexerTokenType.TOKEN_PLUS }
+pub fn token_plus() -> int { return LexerTokenType.TOKEN_PLUS }
 shadow token_plus { assert (== (token_plus) LexerTokenType.TOKEN_PLUS) }
 
 fn token_minus() -> int { return LexerTokenType.TOKEN_MINUS }
 shadow token_minus { assert (== (token_minus) LexerTokenType.TOKEN_MINUS) }
 
-fn token_star() -> int { return LexerTokenType.TOKEN_STAR }
+pub fn token_star() -> int { return LexerTokenType.TOKEN_STAR }
 shadow token_star { assert (== (token_star) LexerTokenType.TOKEN_STAR) }
 
 fn token_slash() -> int { return LexerTokenType.TOKEN_SLASH }
@@ -2697,7 +2697,7 @@ shadow parse_match {
 }
 
 /* Parse primary expression: number, identifier, string, bool, or parenthesized */
-fn parse_primary(p: Parser) -> Parser {
+pub fn parse_primary(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
@@ -3362,7 +3362,7 @@ shadow parse_parenthesized_head {
     }
 }
 
-fn parenthesized_call_start(p: Parser) -> bool {
+pub fn parenthesized_call_start(p: Parser) -> bool {
     let name: NameParseResult = (parse_call_name p)
     if (not name.ok) { return false }
     if (parser_is_at_end name.p) { return false }
@@ -3577,7 +3577,7 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
     }
 }
 
-fn parse_expression(p: Parser) -> Parser {
+pub fn parse_expression(p: Parser) -> Parser {
     return (parse_expression_recursive p false)
 }
 
@@ -6294,7 +6294,7 @@ shadow parser_mark_par {
     assert (not body.is_par)
 }
 
-fn parse_statement(p: Parser) -> Parser {
+pub fn parse_statement(p: Parser) -> Parser {
     let tok: LexerToken = (parser_current p)
     if (and (== tok.token_type LexerTokenType.TOKEN_IDENTIFIER) (and (== tok.value "flow") (== (parser_peek p 1) LexerTokenType.TOKEN_LBRACE))) {
         return (parser_mark_passive (parse_block (parser_advance p)) true)
@@ -8151,7 +8151,7 @@ shadow parse_union_definition {
 /* Parse definition (dispatcher): function, struct, enum, union */
 /* Parse import statement: import "path" as name */
 /* Parse import statement: import "path" [as alias] */
-fn parse_import(p: Parser) -> Parser {
+pub fn parse_import(p: Parser) -> Parser {
     let tok: LexerToken = (parser_current p)
     let p1: Parser = (parser_advance p)  /* consume 'import' */
     

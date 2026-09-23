@@ -110,7 +110,7 @@ shadow is_example_file {
     assert (not (is_example_file "readme.txt"))
 }
 
-fn parse_example_header(path: string) -> ExampleInfo {
+pub fn parse_example_header(path: string) -> ExampleInfo {
     let content: string = (read path)
     let mut nm: string = ""
     let mut ds: string = ""

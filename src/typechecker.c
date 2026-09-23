@@ -359,6 +359,7 @@ static const NominalView *nominal_constructor_view(Environment *, const ASTNode 
 static void nominal_view_discard(NominalView *view);
 static bool nominal_value_view(ASTNode *, Environment *, unsigned, NominalView *);
 static bool nominal_array_builtin(ASTNode *, Environment *, const char *, int);
+static TypeInfo *try_get_expr_type_info(ASTNode *, Environment *);
 static bool nominal_array_requires_identity(Environment *, const TypeInfo *, const char *, unsigned);
 static bool nominal_array_matches(Environment *, const TypeInfo *, const char *, ASTNode *, unsigned);
 
@@ -4519,11 +4520,20 @@ checked_array_declared_call: ;
             const char *parameter_owner = env_function_signature_owner(env, func);
             for (int i = 0; list_params && i < expr->as.call.arg_count; ++i) {
                 Parameter *param = &list_params[i];
+                ASTNode *argument = expr->as.call.args[i];
+                /* Give an anonymous record literal its declared destination
+                 * before the nominal preflight asks the literal for identity. */
+                if (argument->type == AST_STRUCT_LITERAL &&
+                    !argument->as.struct_literal.struct_name &&
+                    param->type == TYPE_STRUCT && param->struct_type_name) {
+                    argument->as.struct_literal.struct_name = strdup(param->struct_type_name);
+                    if (!argument->as.struct_literal.struct_name) return TYPE_UNKNOWN;
+                }
                 TypeInfo callable = {.base_type = TYPE_FUNCTION, .fn_sig = param->fn_sig};
                 const TypeInfo *annotation = param->type_info ? param->type_info
                     : param->type == TYPE_FUNCTION ? &callable : NULL;
                 if (!check_nominal_contract(env, param->type, annotation,
-                        param->struct_type_name, parameter_owner, expr->as.call.args[i]))
+                        param->struct_type_name, parameter_owner, argument))
                     return TYPE_UNKNOWN;
 
             }
@@ -8038,6 +8048,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_ARRAY;
+    func.return_element_type = TYPE_STRING;
     func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;
@@ -8051,6 +8062,7 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_ARRAY;
+    func.return_element_type = TYPE_STRING;
     func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;

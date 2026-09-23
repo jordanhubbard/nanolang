@@ -281,6 +281,17 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
     if (nominal_registered_builtin(expr, env, "bytes_from_string", 1) ||
         nominal_registered_builtin(expr, env, "file_read_bytes", 1))
         return nominal_view_copy(env, NULL, TYPE_ARRAY, TYPE_U8, NULL, NULL, out);
+    if (nominal_registered_builtin(expr, env, "dir_list", 1) ||
+        nominal_registered_builtin(expr, env, "process_run", 1))
+        return nominal_view_copy(env, NULL, TYPE_ARRAY, TYPE_STRING, NULL, NULL, out);
+    if (expr->type == AST_CALL && expr->as.call.name &&
+        (!strcmp(expr->as.call.name, "dir_list") || !strcmp(expr->as.call.name, "process_run"))) {
+        Function *producer = nominal_direct_function(expr, env);
+        if (producer && producer->return_type == TYPE_ARRAY &&
+            producer->return_element_type == TYPE_STRING)
+            return nominal_view_copy(env, producer->return_type_info, TYPE_ARRAY, TYPE_STRING,
+                producer->return_struct_type_name, env_function_signature_owner(env, producer), out);
+    }
     if (nominal_array_builtin(expr, env, "at", 2) || nominal_array_builtin(expr, env, "array_get", 2) ||
         nominal_array_builtin(expr, env, "array_pop", 1)) {
         if (!nominal_value_view(expr->as.call.args[0], env, depth + 1, &view) || !nominal_view_element(env, &view, depth + 1)) goto fail;
@@ -313,7 +324,10 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
         }
         *out = view; return true;
     }
-    if (nominal_array_builtin(expr, env, "array_slice", 3))
+    if (nominal_array_builtin(expr, env, "array_slice", 3) ||
+        nominal_array_builtin(expr, env, "array_remove_at", 2) ||
+        nominal_array_builtin(expr, env, "array_sort", 1) ||
+        nominal_array_builtin(expr, env, "array_reverse", 1))
         return nominal_value_view(expr->as.call.args[0], env, depth + 1, out);
     if (nominal_array_builtin(expr, env, "range", 2))
         return nominal_view_copy(env, NULL, TYPE_ARRAY, TYPE_INT, NULL, NULL, out);
@@ -374,6 +388,31 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
         TypeInfo element = {.base_type = TYPE_STRING};
         TypeInfo result = {.base_type = TYPE_ARRAY, .element_type = &element};
         return nominal_view_copy_context(env, &result, NULL, NULL, depth + 1, out);
+    }
+    if (nominal_registered_builtin(expr, env, "map_keys", 1) ||
+        nominal_registered_builtin(expr, env, "map_values", 1)) {
+        NominalView map = {0}, element = {0};
+        int index = !strcmp(expr->as.call.name, "map_values");
+        bool ok = nominal_value_view(expr->as.call.args[0], env, depth + 1, &map) &&
+            map.info->base_type == TYPE_HASHMAP && map.info->type_params &&
+            map.info->type_param_count == 2 && map.info->type_params[index] &&
+            nominal_view_copy_context(env, map.info->type_params[index], map.owner,
+                nominal_view_context(&map), depth + 1, &element) &&
+            nominal_view_wrap_array(&element);
+        nominal_view_discard(&map);
+        if (!ok) { nominal_view_discard(&element); return false; }
+        *out = element;
+        return true;
+    }
+    if (nominal_registered_builtin(expr, env, "result_unwrap", 1) ||
+        nominal_registered_builtin(expr, env, "result_unwrap_err", 1) ||
+        nominal_registered_builtin(expr, env, "result_unwrap_or", 2)) {
+        int index = !strcmp(expr->as.call.name, "result_unwrap_err");
+        TypeInfo *result = try_get_expr_type_info(expr->as.call.args[0], env);
+        return result && result->base_type == TYPE_UNION && result->type_params &&
+            result->type_param_count >= 2 && result->type_params[index] &&
+            nominal_view_copy_context(env, result->type_params[index], env->current_module,
+                NULL, depth + 1, out);
     }
     if (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL) {
         Function *function = nominal_direct_function(expr, env);

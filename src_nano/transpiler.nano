@@ -2101,7 +2101,7 @@ shadow has_function_named {
     assert (has_function_named p "main")
 }
 
-fn is_runtime_declared_extern(name: string) -> bool {
+pub fn is_runtime_declared_extern(name: string) -> bool {
     /* Module-specific introspection functions need their own declarations. */
     /* Prefix-based: json module functions */
     if (transp_str_starts_with name "nl_json_") { return true } else { (print "") }
@@ -2227,7 +2227,7 @@ shadow is_runtime_declared_extern {
     assert (not (is_runtime_declared_extern "___module_function_count_probe"))
 }
 
-fn generate_function_prototypes(parser: Parser) -> string {
+pub fn generate_function_prototypes(parser: Parser) -> string {
     let mut sb: array<string> = []
     set sb (cg_append sb "\n/* Extern function declarations (not covered by headers) */\n")
     let n: int = (parser_get_function_count parser)
@@ -3428,7 +3428,7 @@ shadow tuple_typedef_name {
     assert (== (tuple_typedef_name "(int, string)") "Tuple_int_string")
 }
 
-fn type_to_c(nano_type: string) -> string {
+pub fn type_to_c(nano_type: string) -> string {
     let trimmed: string = (str_trim nano_type)
     if (!= trimmed nano_type) { return (type_to_c trimmed) }
     if (transp_str_starts_with nano_type "&mut ") {

@@ -25,6 +25,15 @@
 #include "runtime/file_write.h"
 #include "utf8.h"
 
+NANO_EXPORT_ARRAY_ABI(vm_file_read_bytes);
+NANO_EXPORT_ARRAY_ABI(vm_dir_list);
+NANO_EXPORT_ARRAY_ABI(vm_format);
+NANO_EXPORT_ARRAY_ABI(vm_str_join);
+NANO_EXPORT_ARRAY_ABI(vm_array_sort);
+NANO_EXPORT_ARRAY_ABI(vm_bytes_from_string);
+NANO_EXPORT_ARRAY_ABI(vm_string_from_bytes);
+NANO_EXPORT_ARRAY_ABI(vm_process_run);
+
 /* mkdtemp declaration (not exposed on macOS with -std=c99) */
 #ifndef _DARWIN_C_SOURCE
 char *mkdtemp(char *);
