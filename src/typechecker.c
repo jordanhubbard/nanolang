@@ -6200,6 +6200,7 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
 static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
     switch (stmt->type) {
         case AST_LET: {
+            NominalView *destructure_payload_view = NULL;
             if (stmt->as.let.is_destructure) {
                 const char *pattern = stmt->as.let.type_name;
                 StructDef *record = env_get_struct(tc->env, pattern);
@@ -6246,6 +6247,16 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 if (variant_pattern && selected) {
                     free_payload_type_info(stmt->as.let.type_info);
                     stmt->as.let.type_info = copy_payload_type_info(selected);
+                    if (stmt->as.let.value->type == AST_IDENTIFIER) {
+                        Symbol *source = env_get_var_visible_at(tc->env,
+                            stmt->as.let.value->as.identifier,
+                            stmt->as.let.value->line, stmt->as.let.value->column);
+                        if (source && source->checker_nominal_view &&
+                            source->checker_nominal_view->payload) {
+                            destructure_payload_view = source->checker_nominal_view;
+                            stmt->as.let.var_type = TYPE_STRUCT;
+                        }
+                    }
                 }
             }
             /* INVARIANT (bead nl-ico): declared_type is a local working copy
@@ -6267,6 +6278,11 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             NominalView *retained_binding_view = retained_inference ? prior_binding->checker_nominal_view : NULL;
             const char *binding_owner = retained_inference ? prior_binding->nominal_owner : tc->env->current_module;
             const char *binding_callable_owner = retained_inference ? prior_binding->callable_owner : tc->env->current_module;
+            if (!retained_binding_view && destructure_payload_view) {
+                retained_inference = true;
+                retained_binding_view = destructure_payload_view;
+                binding_owner = destructure_payload_view->owner;
+            }
 
             /* Type inference: let x = expr  (no declared type annotation) */
             if (declared_type == TYPE_UNKNOWN && stmt->as.let.value) {

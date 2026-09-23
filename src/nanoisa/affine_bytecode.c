@@ -391,7 +391,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         f->count--;tag=TAG_INT;break;
     case OP_AGG_GET:
         if (f->count && f->stack[f->count-1].tag==TAG_UNION &&
-            !f->stack[f->count-1].observation && !f->stack[f->count-1].owned) {
+            !f->stack[f->count-1].owned) {
             Value value=f->stack[f->count-1];
             if (value.variant==NVM_AFFINE_UNKNOWN_VARIANT)
                 return "I require a proven scalar-union variant before projection";
@@ -400,7 +400,10 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
                                          NVM_AFFINE_MAX_STACK,&count) ||
                 in->operands[0].u16>=count)
                 return "I require an exact scalar-union payload field";
-            tag=fields[in->operands[0].u16].tag;f->count--;break;
+            NvmAffineType field=fields[in->operands[0].u16];
+            if (!scalar(field.tag) && field.tag!=TAG_STRING)
+                return "I require scalar or STRING union observations, not partial owner moves";
+            tag=field.tag;f->count--;break;
         }
         /* Resource-record observations retain their established path. */
         /* fall through */

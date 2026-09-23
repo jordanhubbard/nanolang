@@ -24,12 +24,33 @@ static const char *nominal_name(ASTNode *program, Environment *env, const char *
     return bound ? bound : name;
 }
 
+/* I retain a qualified selected-payload name only when both declaration and
+ * variant are present in this source. A dotted record annotation remains an
+ * unresolved nominal spelling and is refused below. */
+static bool nominal_local_union_variant(ASTNode *program, const char *name) {
+    const char *dot = name ? strrchr(name, '.') : NULL;
+    if (!dot || dot == name || !dot[1]) return false;
+    size_t declaration_length = (size_t)(dot - name);
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type != AST_UNION_DEF ||
+            strlen(item->as.union_def.name) != declaration_length ||
+            strncmp(item->as.union_def.name, name, declaration_length)) continue;
+        for (int variant = 0; variant < item->as.union_def.variant_count; ++variant)
+            if (item->as.union_def.variant_names[variant] &&
+                !strcmp(item->as.union_def.variant_names[variant], dot + 1)) return true;
+        return false;
+    }
+    return false;
+}
+
 static bool nominal_slot(ASTNode *program, Environment *env, char **slot) {
     if (!slot || !*slot) return true;
     if (!env_reserve_opaque_symbol_prefix(env, *slot)) return false;
     const char *name = nominal_name(program, env, *slot);
     if (env->opaque_resolution_failed) return false;
-    if (name == *slot && strchr(name, '.') && !env_get_enum(env, name) && !env_get_union(env, name)) {
+    if (name == *slot && strchr(name, '.') && !env_get_enum(env, name) &&
+        !env_get_union(env, name) && !nominal_local_union_variant(program, name)) {
         fprintf(stderr, "I cannot resolve a qualified type in this source: %s\n", name);
         return false;
     }

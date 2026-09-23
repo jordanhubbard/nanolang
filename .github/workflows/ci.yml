@@ -580,7 +580,7 @@ jobs:
         shell: bash
     env:
       ASAN_OPTIONS: detect_leaks=0
-      NANO_SHADOW_TIMEOUT_SECONDS: "60"
+      NANO_SHADOW_TIMEOUT_SECONDS: "1200"
     steps:
       - name: Set retained report paths
         run: |

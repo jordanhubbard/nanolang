@@ -109,7 +109,7 @@ int main(int argc,char **argv) {
     CHECK(argc==2);
     const char *select="LOAD_LOCAL 0\nMATCH_TAG 0 owner\nMATCH_TAG 1 ordinary\nMATCH_TAG 2 empty\nPOP\nHALT\n"
         "owner:\nPOP\nOWN_UNPACK_VARIANT 0 0 1\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nRET\n"
-        "ordinary:\nPOP\nOWN_UNPACK_VARIANT 0 1 2\nPOP\nRET\n"
+        "ordinary:\nPOP\nLOAD_LOCAL 0\nAGG_GET 0\nPOP\nOWN_UNPACK_VARIANT 0 1 2\nPOP\nRET\n"
         "empty:\nPOP\nOWN_UNPACK_VARIANT 0 2 0\nPUSH_I64 0\nRET\n";
     const char *construct[]={"PUSH_I64 42\nOWN_PACK 0\nAGG_PACK 1 0 0 1\n",
         "PUSH_I64 17\nPUSH_BOOL 1\nAGG_PACK 1 0 1 2\n","AGG_PACK 1 0 2 0\n"};
@@ -128,7 +128,7 @@ int main(int argc,char **argv) {
     }
     char trap_body[2048];snprintf(trap_body,sizeof(trap_body),"%sAGG_PACK 1 1 0 1\nOWN_STORE_LOCAL 2\nPUSH_BOOL 0\nASSERT\nLOAD_LOCAL 2\nMATCH_TAG 0 outer\nPOP\nHALT\nouter:\nPOP\nOWN_UNPACK_VARIANT 2 0 1\nOWN_STORE_LOCAL 0\n%s",construct[0],select);
     execute_module(nested_entry(trap_body),0,argv[1],9,TAG_INT,true);
-    NvmModule *text=entry("PUSH_STR 0\nPUSH_BOOL 1\nAGG_PACK 1 0 1 2\nOWN_STORE_LOCAL 0\nLOAD_LOCAL 0\nMATCH_TAG 1 text\nPOP\nHALT\ntext:\nPOP\nOWN_UNPACK_VARIANT 0 1 2\nPOP\nPOP\nPUSH_I64 0\nRET\n");
+    NvmModule *text=entry("PUSH_STR 0\nPUSH_BOOL 1\nAGG_PACK 1 0 1 2\nOWN_STORE_LOCAL 0\nLOAD_LOCAL 0\nMATCH_TAG 1 text\nPOP\nHALT\ntext:\nPOP\nLOAD_LOCAL 0\nAGG_GET 0\nPOP\nOWN_UNPACK_VARIANT 0 1 2\nPOP\nPOP\nPUSH_I64 0\nRET\n");
     NvmV2Layouts text_layouts={0};CHECK(nvm_v2_layouts_decode(text->layout_data,text->layout_size,&text_layouts)==NVM_V2_OK);
     text_layouts.items[1].fields[1].type_tag=TAG_STRING;
     CHECK(nvm_retain_layouts(text,&text_layouts)==NVM_V2_OK);nvm_v2_layouts_free(&text_layouts);
