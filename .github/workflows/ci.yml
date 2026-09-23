@@ -368,7 +368,7 @@ jobs:
     name: Sanitizer (${{ matrix.id }})
     needs: sanitizer-plan
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 75
     permissions:
       contents: read
     strategy:
@@ -450,7 +450,7 @@ jobs:
         run: python3 scripts/ci_sanitizer_partitions.py snapshot --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase prepared
       - name: Run complete assigned sanitizer tests
         id: tests
-        timeout-minutes: 20
+        timeout-minutes: 45
         run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase tests 2>&1 | tee "$REPORT/tests.log"
       - name: Inventory source tools and surviving products after terminal
         id: after

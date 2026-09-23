@@ -210,11 +210,11 @@ class SanitizerPartitions(unittest.TestCase):
                          'echo "REPORT=$RUNNER_TEMP/sanitizer-${{ matrix.id }}" >> "$GITHUB_ENV"\n'
                          'echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"\n')
         workers = jobs['sanitizer-workers']
-        self.assertEqual(workers['timeout-minutes'], 30)
+        self.assertEqual(workers['timeout-minutes'], 75)
         self.assertFalse(workers['strategy']['fail-fast'])
         self.assertEqual(workers['strategy']['max-parallel'], 4)
         tests = next(step for step in workers['steps'] if step.get('id') == 'tests')
-        self.assertEqual(tests['timeout-minutes'], 20)
+        self.assertEqual(tests['timeout-minutes'], 45)
         self.assertEqual(workers['env']['ASAN_OPTIONS'], 'detect_leaks=0')
         self.assertEqual(workers['env']['NANO_SHADOW_TIMEOUT_SECONDS'], '60')
         self.assertNotIn('NANOLANG_COMPILER', workers['env'])
