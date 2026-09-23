@@ -2000,6 +2000,10 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
         if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION) &&
             info->generic_name && env_get_union(env, info->generic_name))
             normalized_actual.base_type = TYPE_UNION;
+        /* Array annotations can retain a redundant flattened record name.
+         * I compare their complete element identities, not that parser cache. */
+        if (expected->base_type == TYPE_ARRAY)
+            return reduce_types_exact(expected, &normalized_actual, env, (unsigned)depth);
         return type_infos_equal(expected, &normalized_actual);
     }
     if (expected->base_type == TYPE_UNION && expected->generic_name) {

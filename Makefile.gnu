@@ -4565,7 +4565,7 @@ test-array-new-evaluation: $(COMPILER_C) $(INTERPRETER)
 	@python3 -m unittest tests.test_array_new_evaluation
 .PHONY: test-concrete-union-array-contracts
 test-units: test-concrete-union-array-contracts
-test-concrete-union-array-contracts: $(COMPILER_C) nano_virt
+test-concrete-union-array-contracts: $(COMPILER_C) nano_virt nano_vm
 	python3 tests/test_concrete_union_array_contracts.py
 
 .PHONY: test-selected-variant-patterns
