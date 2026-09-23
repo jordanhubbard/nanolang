@@ -227,6 +227,7 @@ typedef enum {
     OP_FILE_DROP_LOCAL    = 0x94, /* u16 local */
     OP_FILE_DROP_STACK    = 0x95,
     OP_FILE_END_BORROW    = 0x96, /* u16 reference */
+    OP_OWN_UNPACK_VARIANT = 0x97, /* u16 local, u16 selected variant, u16 count */
 
     /* Typed scalar operations (v2 migration) */
     OP_I64_ADD      = 0xC0,

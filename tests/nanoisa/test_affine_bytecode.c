@@ -165,7 +165,98 @@ static void analyze(const char *body,uint16_t params,uint16_t locals,const uint8
     if(resource)CHECK(!nvm_verify(m).ok); /* Analysis never admits runtime. */
     free(before);nvm_module_free(m);
 }
+static NvmModule *owned_union_fixture(const char *body) {
+    NvmModule *m=union_fixture(body,1,3,TAG_VOID);
+    NvmV2Layouts old={0};CHECK(nvm_v2_layouts_decode(m->layout_data,m->layout_size,&old)==NVM_V2_OK);
+    uint32_t name=nvm_add_string(m,"Handle",6);
+    NvmV2LayoutField fd={TAG_INT,NVM_V2_NO_INDEX,old.items[0].fields[0].name_idx};
+    old.items[0].fields[0].type_tag=TAG_STRUCT;old.items[0].fields[0].nested_idx=0;
+    old.items[0].fields[1].type_tag=TAG_INT;
+    NvmV2Layout items[]={{NVM_V2_LAYOUT_STRUCT,1,name,&fd},old.items[0]};
+    NvmV2Layouts layouts={items,2};m->struct_count=1;
+    CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);nvm_v2_layouts_free(&old);
+    uint8_t *p=m->ownership_data;word(p,NVM_OWNERSHIP_UNION_GRAPH_VERSION);word(p+4,2);
+    p[8]=p[9]=NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE;
+    slot(p+28,TAG_UNION,0);word(p+32,1);
+    slot(p+36,TAG_STRUCT,0);slot(p+44,TAG_UNION,0);word(p+48,1);
+    /* The union extension follows the three local descriptors and names layout 1. */
+    word(p+76,1);
+    bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
+    return m;
+}
+static void owned_union_case(const char *body,bool accepted,const char *reason) {
+    NvmModule *m=owned_union_fixture(body);
+    NvmAffineAnalysis result=nvm_affine_analyze_function(m,0);
+    if(result.ok!=accepted)fprintf(stderr,"Owned union analysis: %s at %u\n%s",result.message,result.byte_offset,body);
+    CHECK(result.ok==accepted);
+    if(reason)CHECK(strstr(result.message,reason));
+    CHECK(!nvm_verify(m).ok);
+    nvm_module_free(m);
+}
+#ifdef AFFINE_BYTECODE_ALLOCATION_TEST
+static void owned_union_allocations(void) {
+    NvmModule *m=owned_union_fixture("LOAD_LOCAL 0\nMATCH_TAG 0 owner\nPOP\nHALT\n"
+        "owner:\nPOP\nOWN_UNPACK_VARIANT 0 0 1\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nPOP\nRET\n");
+    allocation_attempts=0;fail_at=0;
+    CHECK(nvm_affine_analyze_function(m,0).ok);
+    unsigned attempts=allocation_attempts;CHECK(attempts>0);
+    for(unsigned failure=1;failure<=attempts;failure++) {
+        allocation_attempts=0;fail_at=failure;
+        NvmAffineAnalysis result=nvm_affine_analyze_function(m,0);
+        fail_at=0;CHECK(!result.ok);
+    }
+    nvm_module_free(m);
+}
+#endif
+static void owned_union_flow(void) {
+    DecodedInstruction instruction={0},decoded={0};uint8_t bytes[7];
+    instruction.opcode=OP_OWN_UNPACK_VARIANT;
+    instruction.operands[0].u16=0x1234;instruction.operands[1].u16=0x5678;instruction.operands[2].u16=0x9abc;
+    CHECK(isa_encode(&instruction,bytes,sizeof bytes)==7);
+    const uint8_t expected[]={0x97,0x34,0x12,0x78,0x56,0xbc,0x9a};
+    CHECK(!memcmp(bytes,expected,7));CHECK(isa_decode(bytes,7,&decoded)==7);
+    CHECK(decoded.operands[0].u16==0x1234 && decoded.operands[1].u16==0x5678 && decoded.operands[2].u16==0x9abc);
+    for(unsigned n=0;n<7;n++)CHECK(!isa_decode(bytes,n,&decoded));
+    owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 0 owner\nMATCH_TAG 1 ordinary\nMATCH_TAG 2 empty\nPOP\nHALT\n"
+        "owner:\nPOP\nOWN_UNPACK_VARIANT 0 0 1\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nPOP\nRET\n"
+        "ordinary:\nPOP\nOWN_UNPACK_VARIANT 0 1 2\nPOP\nPOP\nRET\n"
+        "empty:\nPOP\nOWN_UNPACK_VARIANT 0 2 0\nRET\n",true,NULL);
+    owned_union_case("OWN_UNPACK_VARIANT 0 0 1\nRET\n",false,"selected union");
+    owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 2 arm\nPOP\nHALT\narm:\nPOP\n"
+        "PUSH_BOOL 1\nJMP_FALSE keep\nOWN_UNPACK_VARIANT 0 2 0\nJMP join\n"
+        "keep:\nNOP\njoin:\nRET\n",false,NULL);
+    owned_union_case("PUSH_I64 7\nAGG_PACK 1 0 0 1\nRET\n",false,"fields in declaration order");
+    owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 0 arm\nPOP\nHALT\narm:\n"
+        "OWN_UNPACK_VARIANT 0 0 1\nRET\n",false,"unobserved");
+    owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 0 arm\nPOP\nHALT\narm:\nPOP\n"
+        "OWN_UNPACK_VARIANT 0 0 2\nRET\n",false,"payload count");
+    owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 0 arm\nPOP\nHALT\narm:\nPOP\n"
+        "OWN_UNPACK_VARIANT 0 1 2\nRET\n",false,"selected union");
+    owned_union_case("LOAD_LOCAL 0\nOWN_MOVE_LOCAL 0\nRET\n",false,"observed owner");
+    owned_union_case("LOAD_LOCAL 0\nDUP\nRET\n",false,"duplicate reference authority");
+    owned_union_case("OWN_MOVE_LOCAL 0\nDUP\nRET\n",false,"duplicate reference authority");
+    owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 2 arm\nPOP\nHALT\narm:\nPOP\n"
+        "OWN_UNPACK_VARIANT 0 2 0\nOWN_UNPACK_VARIANT 0 2 0\nRET\n",false,"selected union");
+    owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 2 arm\nPOP\nHALT\narm:\nPOP\n"
+        "OWN_MOVE_LOCAL 0\nOWN_STORE_LOCAL 2\nOWN_MOVE_LOCAL 2\nOWN_STORE_LOCAL 0\n"
+        "OWN_UNPACK_VARIANT 0 2 0\nRET\n",false,"selected union");
+    owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 2 arm\nPOP\nHALT\narm:\nPOP\n"
+        "AGG_PACK 1 0 2 0\nOWN_STORE_LOCAL 0\nRET\n",false,"owner destination");
+    owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 0 arm\nPOP\nHALT\narm:\nPOP\n"
+        "OWN_UNPACK_VARIANT 0 0 1\nPOP\nRET\n",false,"scalar discard");
+    owned_union_case("OWN_MOVE_LOCAL 0\nOWN_STORE_LOCAL 2\nLOAD_LOCAL 2\nMATCH_TAG 2 arm\nPOP\nHALT\n"
+        "arm:\nPOP\nOWN_UNPACK_VARIANT 2 2 0\nRET\n",true,NULL);
+    owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 2 arm\nPOP\nHALT\narm:\nPOP\n"
+        "OWN_UNPACK_VARIANT 0 2 0\nPUSH_I64 7\nOWN_PACK 0\nAGG_PACK 1 0 0 1\nOWN_STORE_LOCAL 2\n"
+        "LOAD_LOCAL 2\nMATCH_TAG 0 made\nPOP\nHALT\nmade:\nPOP\n"
+        "OWN_UNPACK_VARIANT 2 0 1\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nPOP\nRET\n",true,NULL);
+}
+
 int main(int argc,char **argv) {
+    owned_union_flow();
+#ifdef AFFINE_BYTECODE_ALLOCATION_TEST
+    owned_union_allocations();
+#endif
     if(argc==3){native_output=argv[1];module_output=argv[2];}
     else CHECK(argc==1);
     uint8_t tags[4]={TAG_STRUCT,TAG_BOOL,TAG_INT,TAG_INT};

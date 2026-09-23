@@ -23,7 +23,7 @@ SPECIALIZED_VERIFIER_OPCODES = {
     "OP_BORROW_PATH_SHARED", "OP_BORROW_PATH_EXCLUSIVE", "OP_REBORROW_SHARED", "OP_REBORROW_EXCLUSIVE",
     "OP_REGION_BEGIN", "OP_REGION_END",
     "OP_BORROW_LOCAL_SHARED", "OP_BORROW_LOCAL_EXCLUSIVE", "OP_REF_GET", "OP_REF_SET",
-    "OP_OWN_MOVE_LOCAL", "OP_OWN_STORE_LOCAL", "OP_OWN_PACK", "OP_OWN_UNPACK_LOCAL",
+    "OP_OWN_MOVE_LOCAL", "OP_OWN_STORE_LOCAL", "OP_OWN_PACK", "OP_OWN_UNPACK_LOCAL", "OP_OWN_UNPACK_VARIANT",
     "OP_HANDLER_PUSH", "OP_PERFORM",
     "OP_AGG_PACK",
     "OP_ARR_LITERAL",
@@ -138,6 +138,7 @@ class NanoisaSchemaTests(unittest.TestCase):
             "OP_FILE_SERVICE": 0x91, "OP_FILE_RESULT_BRANCH": 0x92,
             "OP_FILE_RESULT_TAKE": 0x93, "OP_FILE_DROP_LOCAL": 0x94,
             "OP_FILE_DROP_STACK": 0x95, "OP_FILE_END_BORROW": 0x96,
+            "OP_OWN_UNPACK_VARIANT": 0x97,
         }
         self.assertEqual({name: expected[name] for name in non_executing},
                          non_executing)

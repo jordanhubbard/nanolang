@@ -71,8 +71,9 @@ My public declaration validator, authority queries and variant queries read
 these facts. Binary serialization/deserialization and unverified textual
 assembly retain them. Ordinary private declaration plans keep their old
 profile. The owner-array router leaves format 4 to this validator, and the
-shared executable verifier and affine-state constructor refuse it until
-selected transfers are implemented. Verified assembly, VM execution and native
+shared executable verifier refuses it until runtime selected transfers are
+implemented. My affine-state and bytecode analyses now check selected transfers
+without granting execution. Verified assembly, VM execution and native
 publication therefore still refuse these declarations. Tests preserve prior
 native output and query outputs after malformed input.
 
@@ -100,13 +101,30 @@ union shell; they need no fabricated payload owners. Continuing arms agree on
 outer owner state. Terminal arms satisfy their exit obligations independently.
 Guarded resource matches retain their existing refusal boundary.
 
-Selected extraction needs an explicit, statically checkable variant and field
-count at each instruction. I must specify its encoding before implementation;
-I must not overload the existing record unpack by treating the full union field
-table as one runtime payload. The verifier, decoder, native stack analysis and
-VM must agree on that encoding and stack effect. Invalid or stale selection,
-wrong child layouts, mismatched counts and repeated extraction refuse. Existing
-record instruction encodings retain their semantics.
+`OWN_UNPACK_VARIANT` has primary byte `0x97`, followed by three little-endian
+`u16` operands: source local, selected variant, and payload field count. It pops
+no stack values and pushes exactly `count` fields in declaration order. The
+count must equal the retained selected variant slice; it is not the flattened
+union declaration's field count. Existing record unpack encodings keep their
+meaning. Schema generation and codec tests retain the seven exact bytes.
+
+My affine analysis treats `LOAD_LOCAL` of a resource union as a rooted
+observation. `MATCH_TAG` refines that exact local on the successful edge.
+Moving, replacing or unpacking an observed local refuses; `POP` can discard
+the union observation without consuming its owner. Extraction requires all
+observations to have ended and the local still to carry the selected variant.
+It consumes the local and creates exact typed payload tokens. Nested union
+payloads start with an unknown inner variant. Whole stack moves clear local
+selection, so reuse cannot inherit a stale arm. Live owner slots cannot be
+overwritten; joins must agree on owner liveness and can only weaken variant
+knowledge. The old scalar union rules retain their existing semantics.
+
+My local-normalized transfer APIs reject wrong counts, wrong nominal layouts,
+duplicate resource inputs, live owner destinations and unselected extraction
+without changing their input state. The stack caller retains each resulting
+resource obligation. Bytecode worklist and allocation refusals prevent a failed
+analysis from supplying execution authority. VM/native extraction is still
+unimplemented and the public executable gate remains closed.
 
 ## My execution and cleanup
 

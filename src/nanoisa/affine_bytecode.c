@@ -136,7 +136,7 @@ static bool supported(uint8_t op,bool value_graph) {
     case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
-    case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
+    case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL: case OP_OWN_UNPACK_VARIANT:
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_AGG_PACK: case OP_AGG_GET: case OP_AGG_TAG: case OP_STRUCT_GET:
@@ -151,6 +151,11 @@ static bool supported(uint8_t op,bool value_graph) {
         return value_graph;
     default:return false;
     }
+}
+static bool observed_local(const Frame *f,uint16_t local) {
+    for (uint16_t i=0;i<f->count;i++)
+        if (f->stack[i].observation && f->stack[i].root==local) return true;
+    return false;
 }
 static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function,AnalysisCalls *calls) {
     uint8_t op=in->opcode,tag=TAG_VOID,mode;
@@ -172,7 +177,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             Value argument=f->stack[f->count-count+p];
             NvmAffineType parameter=parameters[p];
             if (argument.observation || argument.tag!=parameter.tag ||
-                argument.owned!=(parameter.tag==TAG_STRUCT) ||
+                argument.owned!=nvm_affine_type_requires_move(f->locals,parameter) ||
                 ((argument.owned || argument.tag==TAG_UNION) &&
                  argument.layout!=parameter.layout))
                 return "I require exact positional consuming argument types";
@@ -182,7 +187,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         f->count-=count;
         if (result.tag==TAG_VOID) return NULL;
         return push(f,(Value){.tag=result.tag,.root=UINT16_MAX,
-                              .owned=result.tag==TAG_STRUCT,.layout=result.layout,
+                              .owned=nvm_affine_type_requires_move(f->locals,result),.layout=result.layout,
                               .variant=NVM_AFFINE_UNKNOWN_VARIANT})
             ? NULL:"I cannot retain a checked value-call result";
     }
@@ -245,6 +250,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             return pop_scalar(f,tag)?NULL:"I require the exact scalar reference field type";
         break;
     case OP_OWN_MOVE_LOCAL: {
+        if (observed_local(f,in->operands[0].u16)) return "I cannot move an observed owner";
         NvmAffineType type;
         if (!nvm_affine_take_local(f->locals,in->operands[0].u16,&type))
             return "I require a live unheld owner for an explicit move";
@@ -253,6 +259,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             "I cannot extend my owned analysis stack";
     }
     case OP_OWN_STORE_LOCAL: {
+        if (observed_local(f,in->operands[0].u16)) return "I cannot replace an observed owner";
         if (!f->count || !f->stack[f->count-1].owned)
             return "I require an owned token for an explicit store";
         Value value=f->stack[f->count-1];
@@ -268,7 +275,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         for (uint16_t i=0;i<count;i++) {
             Value value=f->stack[f->count-count+i];NvmAffineType field=fields[i];
             if (value.observation || value.tag!=field.tag ||
-                (field.tag==TAG_STRUCT ? (!value.owned || value.layout!=field.layout) : value.owned))
+                (value.owned!=nvm_affine_type_requires_move(f->locals,field)) ||
+                ((field.tag==TAG_STRUCT || field.tag==TAG_UNION) && value.layout!=field.layout))
                 return "I require exact scalar or owned fields in declaration order";
         }
         f->count-=count;
@@ -279,16 +287,33 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     case OP_OWN_UNPACK_LOCAL: {
         NvmAffineType type,fields[NVM_AFFINE_MAX_STACK];uint16_t count;
         uint16_t source=in->operands[0].u16;
+        if (observed_local(f,source)) return "I cannot unpack an observed owner";
         if (!nvm_affine_local_type(f->locals,source,&type) ||
             !nvm_affine_record_fields(f->locals,type.layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
             f->count+count>NVM_AFFINE_MAX_STACK || !nvm_affine_take_local(f->locals,source,&type))
             return "I require an intact owner and space for all unpacked fields";
         for (uint16_t i=0;i<count;i++) if (!push(f,(Value){.tag=fields[i].tag,
                                                     .root=UINT16_MAX,
-                                                    .owned=fields[i].tag==TAG_STRUCT,
+                                                    .owned=nvm_affine_type_requires_move(f->locals,fields[i]),
                                                     .layout=fields[i].layout,
                                                     .variant=NVM_AFFINE_UNKNOWN_VARIANT}))
             return "I cannot extend my unpacked analysis stack";
+        return NULL;
+    }
+    case OP_OWN_UNPACK_VARIANT: {
+        uint16_t source=in->operands[0].u16,variant=in->operands[1].u16;
+        uint16_t wanted=in->operands[2].u16,count=0;
+        NvmAffineType type,fields[NVM_AFFINE_MAX_STACK];
+        if (observed_local(f,source) || !nvm_affine_local_type(f->locals,source,&type) ||
+            type.tag!=TAG_UNION || wanted>NVM_AFFINE_MAX_STACK-f->count ||
+            !nvm_affine_union_fields(f->locals,type.layout,variant,fields,NVM_AFFINE_MAX_STACK,&count) ||
+            count!=wanted || !nvm_affine_take_union_payload(f->locals,source,variant,
+                fields,NVM_AFFINE_MAX_STACK,&count))
+            return "I require an unobserved selected union and its exact payload count";
+        for (uint16_t i=0;i<count;i++)
+            if (!push(f,(Value){.tag=fields[i].tag,.root=UINT16_MAX,
+                .owned=nvm_affine_type_requires_move(f->locals,fields[i]),.layout=fields[i].layout,
+                .variant=NVM_AFFINE_UNKNOWN_VARIANT})) return "I cannot retain selected payload fields";
         return NULL;
     }
     case OP_AGG_PACK: {
@@ -298,20 +323,22 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         uint16_t variant=in->operands[2].u16,count=in->operands[3].u16;
         if (nvm_ownership_union_variant(module,in->operands[1].u32,variant,&fact)!=NVM_V2_OK ||
             count!=fact.field_count || count>f->count)
-            return "I require an exact retained scalar-union constructor shape";
+            return "I require an exact retained union constructor shape";
         NvmAffineType fields[NVM_AFFINE_MAX_STACK];uint16_t available=0;
         if (!nvm_affine_union_fields(f->locals,fact.layout,variant,fields,
                                      NVM_AFFINE_MAX_STACK,&available) || available!=count)
-            return "I require exact scalar-union payload facts";
+            return "I require exact union payload facts";
         for (uint16_t i=0;i<count;i++) {
             Value value=f->stack[f->count-count+i];
-            if (value.observation || value.owned || value.tag!=fields[i].tag)
-                return "I require exact scalar-union fields in declaration order";
+            if (value.observation || value.tag!=fields[i].tag ||
+                value.owned!=nvm_affine_type_requires_move(f->locals,fields[i]) ||
+                ((fields[i].tag==TAG_STRUCT || fields[i].tag==TAG_UNION) && value.layout!=fields[i].layout))
+                return "I require exact union fields in declaration order";
         }
         f->count-=count;
         return push(f,(Value){.tag=TAG_UNION,.root=UINT16_MAX,.layout=fact.layout,
-                              .variant=variant})?NULL:
-            "I cannot retain a checked scalar-union value";
+                              .variant=variant,.owned=nvm_affine_type_requires_move(f->locals,(NvmAffineType){TAG_UNION,fact.layout})})?NULL:
+            "I cannot retain a checked union value";
     }
     case OP_LOAD_LOCAL: {
         local=in->operands[0].u16;
@@ -321,11 +348,11 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         if (tag==TAG_UNION) {
             NvmAffineType type;
             if (!nvm_affine_local_type(f->locals,local,&type))
-                return "I require an exact scalar-union local";
+                return "I require an exact union local";
             layout=type.layout;
             (void)nvm_affine_union_variant(f->locals,local,&variant);
         }
-        if (!push(f,(Value){.tag=tag,.observation=tag==TAG_STRUCT,.root=local,
+        if (!push(f,(Value){.tag=tag,.observation=tag==TAG_STRUCT || nvm_affine_type_requires_move(f->locals,(NvmAffineType){tag,layout}),.root=local,
                             .layout=layout,.variant=variant}))
             return "I cannot extend my analysis stack";
         return NULL;
@@ -348,8 +375,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     }
     case OP_MATCH_TAG: {
         if (!f->count || f->stack[f->count-1].tag!=TAG_UNION ||
-            f->stack[f->count-1].observation || f->stack[f->count-1].owned)
-            return "I require an exact scalar-union match source";
+            f->stack[f->count-1].owned)
+            return "I require an exact union match source";
         NvmUnionVariantFact fact;
         if (!union_fact_for_layout(module,f->stack[f->count-1].layout,
                                    in->operands[0].u16,&fact))
@@ -359,8 +386,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     }
     case OP_AGG_TAG:
         if (!f->count || f->stack[f->count-1].tag!=TAG_UNION ||
-            f->stack[f->count-1].observation || f->stack[f->count-1].owned)
-            return "I require an exact scalar-union tag source";
+            f->stack[f->count-1].owned)
+            return "I require an exact union tag source";
         f->count--;tag=TAG_INT;break;
     case OP_AGG_GET:
         if (f->count && f->stack[f->count-1].tag==TAG_UNION &&
@@ -393,6 +420,10 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         if (!push(f,f->stack[f->count-1])) return "I cannot extend my analysis stack";
         return NULL;
     case OP_POP:
+        if (f->count && f->stack[f->count-1].tag==TAG_UNION &&
+            f->stack[f->count-1].observation && !f->stack[f->count-1].owned) {
+            f->count--;return NULL;
+        }
         if (!f->count || (f->stack[f->count-1].observation || f->stack[f->count-1].owned))
             return "I require a scalar discard; an observation is not an owned consume";
         if (!calls->value_graph && f->stack[f->count-1].tag==TAG_STRING)
@@ -482,11 +513,13 @@ static bool propagate(Frame **frames,uint32_t target,const Frame *state,Worklist
 static bool match_refine(Frame *frame,uint16_t variant) {
     if (!frame || !frame->count) return false;
     Value *value=&frame->stack[frame->count-1];
-    if (value->tag!=TAG_UNION || value->observation || value->owned ||
+    if (value->tag!=TAG_UNION || value->owned ||
         (value->variant!=NVM_AFFINE_UNKNOWN_VARIANT && value->variant!=variant))
         return false;
+    if (value->observation && !nvm_affine_union_refine(frame->locals,value->root,variant)) return false;
     value->variant=variant;
-    /* MATCH_TAG proves only this tested value on this successful edge.  I do
+    /* A rooted owner observation cannot survive a move or replacement. Other
+     * MATCH_TAG values prove only this tested value on this successful edge.  I do
      * not turn its source local into a wider fact: a later load is a different
      * receiver and must retain or establish its own exact proof. */
     return true;
