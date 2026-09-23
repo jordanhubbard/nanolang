@@ -437,6 +437,8 @@ jobs:
         run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase sanitize 2>&1 | tee "$REPORT/sanitize.log"
       - name: Prepare the assigned native compiler prerequisites
         id: bootstrap
+        env:
+          NANO_SHADOW_TIMEOUT_SECONDS: "90"
         run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase bootstrap 2>&1 | tee "$REPORT/bootstrap.log"
       - name: Prepare instrumented source-emitter providers
         id: providers

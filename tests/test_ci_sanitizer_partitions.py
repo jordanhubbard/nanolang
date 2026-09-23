@@ -219,6 +219,8 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(tests['timeout-minutes'], "${{ (matrix.id == 'source' && 45) || (matrix.id == 'scalar' && 35) || 20 }}")
         self.assertEqual(workers['env']['ASAN_OPTIONS'], 'detect_leaks=0')
         self.assertEqual(workers['env']['NANO_SHADOW_TIMEOUT_SECONDS'], '60')
+        bootstrap = next(step for step in workers['steps'] if step.get('id') == 'bootstrap')
+        self.assertEqual(bootstrap['env']['NANO_SHADOW_TIMEOUT_SECONDS'], '90')
         self.assertNotIn('NANOLANG_COMPILER', workers['env'])
         instrumentation = next(step for step in workers['steps'] if step.get('id') == 'instrumentation')
         self.assertIn(' instrumentation --manifest ', instrumentation['run'])
