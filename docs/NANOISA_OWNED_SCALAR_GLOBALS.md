@@ -39,10 +39,18 @@ Wrong slot, wrong tag, missing initialization, incomplete branch initialization
 and a call before initialization refuse. Mutable source bindings retain checked
 assignment rules and lexical locals continue to shadow globals.
 
-My existing VM global storage must preserve these admitted operations, including
-scalar STRING retention and release. Generated native code must preserve the
-same tags, initialization, mutations and cleanup. Declaration transport alone
-must not enable instructions before verifier and runtime/native support agree.
+My VM uses its existing `VmState` global storage, retains STRING loads and
+releases overwritten values. Globals remain rooted until `vm_destroy`, as for
+ordinary VM invocations. Each entry must still initialize its slots before
+reading or calling helpers; a previous invocation supplies no verifier fact.
+
+My generated native entry allocates a separate local global context, passes it
+to helpers and releases every slot on success or a trap. Repeated entries share
+no static global state. Loads retain strings and stores transfer the scalar
+stack value, releasing the previous slot. Both runtimes check declared tags
+and initialization before helper calls. My public verifier admits this contract
+only in the standalone owned value graph; managed-array and borrowed-helper
+profiles remain separate.
 
 ## My acceptance
 

@@ -1556,6 +1556,10 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
     }
     const bool owned_execution = admitted || required;
     const bool mixed_execution = admitted && (proof->mixed || proof->owner_arrays);
+    uint8_t owned_global_tags[NVM_OWNERSHIP_MAX_SCALAR_GLOBALS];uint32_t owned_global_count=0;
+    if(owned_execution && !mixed_execution &&
+       nvm_ownership_scalar_globals(vm->module,owned_global_tags,sizeof(owned_global_tags),&owned_global_count)!=NVM_V2_OK)
+        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete scalar-global ownership declarations");
     if (owned_execution) {
         if (!vm->frame_count || vm->frame_count>NVM_OWNED_MAX_FUNCTIONS ||
             vm->frames[0].fn_idx!=0)
@@ -2330,6 +2334,8 @@ vm_dispatch_top:
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
             }
             NanoValue v = vm->globals[idx];
+            if(owned_execution && (idx>=owned_global_count || v.tag!=owned_global_tags[idx]))
+                return trap_error(vm,VM_ERR_UNDEFINED_GLOBAL,"I require an initialized scalar global with its declared tag");
             vm_retain(&vm->heap, v);
             stack_push(vm, v);
             VM_NEXT();
@@ -2337,6 +2343,9 @@ vm_dispatch_top:
 
         VM_CASE(OP_STORE_GLOBAL) {
             uint32_t idx = instr.operands[0].u32;
+            if(owned_execution && (idx>=owned_global_count || !stack_has_operands(vm,1) ||
+               vm->stack[vm->stack_size-1].tag!=owned_global_tags[idx]))
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact scalar-global store");
             if (idx >= VM_MAX_GLOBALS) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
             }
@@ -2988,6 +2997,9 @@ dynamic_div:
 
             VmReferenceActivation *next_reference_context=NULL;
             if (owned_execution) {
+                for(uint32_t g=0;g<owned_global_count;g++)
+                    if(g>=vm->global_count || vm->globals[g].tag!=owned_global_tags[g])
+                        return trap_error(vm,VM_ERR_UNDEFINED_GLOBAL,"I require initialized scalar globals before an owned call");
                 next_reference_context=vm_reference_activation(vm,vm->frame_count);
                 if (!callee_idx || !next_reference_context || next_reference_context->active ||
                     vm->reference_generation==UINT64_MAX)
