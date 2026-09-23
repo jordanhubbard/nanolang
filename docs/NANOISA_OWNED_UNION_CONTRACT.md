@@ -7,8 +7,8 @@ in `tests/test_generic_selected_ownership.py` and
 blocked until this feature and the other integrated acceptance gates pass.
 This document specifies required behavior. My format-4 declaration transport is
 implemented. Selected VM/native transfers now execute for the bounded standalone
-owned profile. My self-hosted source producer now emits these transfers, while
-the C-based `nano_virt` source producer and scalar global effects remain incomplete.
+owned profile. My self-hosted and C-based `nano_virt` source producers now emit these transfers.
+Scalar global effects and integrated release qualification remain incomplete.
 
 ## My historical starting boundary
 
@@ -138,8 +138,8 @@ My local-normalized transfer APIs reject wrong counts, wrong nominal layouts,
 duplicate resource inputs, live owner destinations and unselected extraction
 without changing their input state. The stack caller retains each resulting
 resource obligation. Bytecode worklist and allocation refusals prevent a failed
-analysis from supplying execution authority. VM/native extraction is still
-unimplemented and the public executable gate remains closed.
+analysis from supplying execution authority. VM/native extraction uses the same verified selected field count. Public execution
+requires the complete standalone owned-module verifier conjunction.
 
 ## My execution and cleanup
 

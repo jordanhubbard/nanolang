@@ -4539,6 +4539,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         /* Format: "UnionName.VariantName" */
                         char *type_name = malloc(strlen(union_base_name) + strlen(variant_name_i) + 2);
                         sprintf(type_name, "%s.%s", union_base_name, variant_name_i);
+                        free(binding_sym->struct_type_name);
                         binding_sym->struct_type_name = type_name;
 
                         /* Ensure bindings participate in visibility disambiguation */
@@ -5088,6 +5089,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     isym->def_line = stmt->line;
                     isym->def_column = stmt->column;
                     if (stmt->as.let.type_name) {
+                        free(isym->struct_type_name);
                         isym->struct_type_name = strdup(stmt->as.let.type_name);
                     }
                 }
@@ -5972,6 +5974,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         Symbol *binding_sym = &tc->env->symbols[tc->env->symbol_count - 1];
                         char *type_name = malloc(strlen(union_base_name) + strlen(variant_name_s) + 2);
                         sprintf(type_name, "%s.%s", union_base_name, variant_name_s);
+                        free(binding_sym->struct_type_name);
                         binding_sym->struct_type_name = type_name;
 
                         /* Ensure bindings participate in visibility disambiguation */
@@ -8242,10 +8245,12 @@ register_function_pass1:;
                     if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_LIST_GENERIC ||
                          param_type == TYPE_ENUM || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
                         item->as.function.params[j].struct_type_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
                     }
                     /* For generic unions with TypeInfo, use the generic_name as struct_type_name */
                     else if (param_type == TYPE_UNION && param_type_info && param_type_info->generic_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(param_type_info->generic_name);
                     }
                 }
@@ -9016,10 +9021,12 @@ register_function_pass2:;
                     if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_LIST_GENERIC ||
                          param_type == TYPE_ENUM || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
                         item->as.function.params[j].struct_type_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
                     }
                     /* For generic unions with TypeInfo, use the generic_name as struct_type_name */
                     else if (param_type == TYPE_UNION && param_type_info && param_type_info->generic_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(param_type_info->generic_name);
                     }
                 }

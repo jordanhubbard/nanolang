@@ -5842,5 +5842,5 @@ test-owned-union-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS)
 
 .PHONY: test-owned-union-source
 test-units: test-owned-union-source
-test-owned-union-source: nanoisa_emit nano_vm nvm2c
+test-owned-union-source: nanoisa_emit nano_virt nano_vm nvm2c test-local-binding-metadata
 	python3 -m unittest -v tests.test_owned_union_source
