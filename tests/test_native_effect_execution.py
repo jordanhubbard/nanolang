@@ -112,12 +112,14 @@ struct Result { value: int }
 effect Ask { ask : int -> int }
 fn identity(input: Result) -> Result { return input }
 shadow identity { assert true }
+fn request(input: Result) -> Result {
+ let observed: int = perform Ask.ask(7)
+ assert (== observed 46)
+ return (identity input)
+}
+shadow request { assert true }
 fn exercise(input: Result) -> Result {
- let result: Result = handle {
-  let observed: int = perform Ask.ask(7)
-  assert (== observed 46)
-  (identity input)
- } with { ask n -> {
+ let result: Result = handle { (request input) } with { ask n -> {
 ''' + growth + '''
   local_39
  } }
