@@ -1,8 +1,10 @@
 """I preserve complete sanitizer selection and refuse incomplete evidence."""
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
+import tarfile
 import tempfile
 import unittest
 from unittest import mock
@@ -27,7 +29,7 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(value['workers'][0]['targets'], ['test-forth-session'])
         self.assertEqual(value['workers'][1]['targets'], ['test-nanoisa-src-nano'])
         self.assertEqual(value['workers'][2]['targets'], ['test-scalar-reconstruction'])
-        self.assertEqual(len(value['workers']), 18)
+        self.assertEqual(len(value['workers']), 32)
         self.assertEqual(value['workers'][-1], {'id': 'negative', 'targets': [], 'native_bootstrap': False})
 
     def test_new_target_is_included_and_changes_digest(self):
@@ -156,6 +158,52 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(partition.sanitizer_symbols(' T ordinary_main\n'), {'asan': False, 'ubsan': False})
         self.assertEqual(partition.sanitizer_symbols(' U __asan_report_load8\n'), {'asan': True, 'ubsan': False})
 
+    def test_build_bundle_is_head_bound_checksummed_and_safe(self):
+        value = partition.plan('head', self.inventory())
+        previous = Path.cwd()
+        with tempfile.TemporaryDirectory() as source_tmp, tempfile.TemporaryDirectory() as restored_tmp:
+            source = Path(source_tmp)
+            (source / 'bin').mkdir()
+            (source / 'bin/nanoc_c').write_bytes(b'instrumented compiler')
+            (source / '.stage1.built').write_text('')
+            output = source / 'bundle'
+            try:
+                os.chdir(source)
+                with mock.patch.object(partition, 'current_head', return_value='head'):
+                    metadata = partition.bundle_create(output, value, 'base')
+                archive, description = output / 'base.tar.gz', output / 'base.json'
+                self.assertEqual(metadata['archive_sha256'], partition.file_hash(archive))
+                os.chdir(restored_tmp)
+                with mock.patch.object(partition, 'current_head', return_value='head'):
+                    restored = partition.bundle_restore(Path(restored_tmp) / 'report', value, 'base',
+                                                        archive, description)
+                self.assertTrue(restored['success'])
+                self.assertEqual(Path('bin/nanoc_c').read_bytes(), b'instrumented compiler')
+                tampered = source / 'tampered.tar.gz'
+                tampered.write_bytes(archive.read_bytes() + b'modified')
+                tampered_data = json.loads(description.read_text())
+                tampered_data['archive'] = tampered.name
+                tampered_description = source / 'tampered.json'
+                partition.save(tampered_description, tampered_data)
+                with mock.patch.object(partition, 'current_head', return_value='head'), self.assertRaises(ValueError):
+                    partition.bundle_restore(Path(restored_tmp) / 'report2', value, 'base', tampered,
+                                             tampered_description)
+                unsafe = source / 'unsafe.tar.gz'
+                with tarfile.open(unsafe, 'w:gz') as stream:
+                    info = tarfile.TarInfo('../outside')
+                    info.size = 0
+                    stream.addfile(info)
+                data = json.loads(description.read_text())
+                data['archive'] = unsafe.name
+                data['archive_sha256'] = partition.file_hash(unsafe)
+                unsafe_description = source / 'unsafe.json'
+                partition.save(unsafe_description, data)
+                with mock.patch.object(partition, 'current_head', return_value='head'), self.assertRaises(ValueError):
+                    partition.bundle_restore(Path(restored_tmp) / 'report3', value, 'base', unsafe,
+                                             unsafe_description)
+            finally:
+                os.chdir(previous)
+
     def test_instrumentation_refuses_missing_products_tool_failure_and_plain_stage(self):
         worker = {'id': 'unit', 'native_bootstrap': True}
         good = b' U __asan_init\n U __ubsan_handle_add_overflow\n'
@@ -210,26 +258,31 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertNotIn('PLAN', worker['env'])
         self.assertEqual(worker['steps'][0]['run'],
                          'echo "REPORT=$RUNNER_TEMP/sanitizer-${{ matrix.id }}" >> "$GITHUB_ENV"\n'
-                         'echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"\n')
+                         'echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"\n'
+                         'echo "BUNDLE=$RUNNER_TEMP/sanitizer-bootstrap" >> "$GITHUB_ENV"\n')
         workers = jobs['sanitizer-workers']
         self.assertEqual(workers['timeout-minutes'], "${{ (matrix.id == 'source' && 75) || (matrix.id == 'scalar' && 45) || 30 }}")
         self.assertFalse(workers['strategy']['fail-fast'])
-        self.assertEqual(workers['strategy']['max-parallel'], 4)
+        self.assertEqual(workers['strategy']['max-parallel'], 8)
         tests = next(step for step in workers['steps'] if step.get('id') == 'tests')
         self.assertEqual(tests['timeout-minutes'], "${{ (matrix.id == 'source' && 45) || (matrix.id == 'scalar' && 35) || 20 }}")
         self.assertEqual(workers['env']['ASAN_OPTIONS'], 'detect_leaks=0')
         self.assertEqual(workers['env']['NANO_SHADOW_TIMEOUT_SECONDS'], '60')
-        bootstrap = next(step for step in workers['steps'] if step.get('id') == 'bootstrap')
-        self.assertEqual(bootstrap['env']['NANO_SHADOW_TIMEOUT_SECONDS'], '90')
+        restore = next(step for step in workers['steps'] if step.get('id') == 'restore')
+        self.assertIn(' restore --manifest ', restore['run'])
         self.assertNotIn('NANOLANG_COMPILER', workers['env'])
         instrumentation = next(step for step in workers['steps'] if step.get('id') == 'instrumentation')
         self.assertIn(' instrumentation --manifest ', instrumentation['run'])
         self.assertLess(workers['steps'].index(instrumentation), workers['steps'].index(tests))
-        self.assertEqual(jobs['sanitizers']['needs'], ['sanitizer-plan', 'sanitizer-workers'])
+        self.assertEqual(jobs['sanitizer-workers']['needs'], ['sanitizer-plan', 'sanitizer-bootstrap'])
+        self.assertEqual(jobs['sanitizers']['needs'],
+                         ['sanitizer-plan', 'sanitizer-base', 'sanitizer-bootstrap', 'sanitizer-workers'])
         self.assertEqual(jobs['sanitizers']['if'], 'always()')
         aggregate = next(step for step in jobs['sanitizers']['steps'] if 'run' in step)
         self.assertIn('test "$WORKER_RESULT" = success', aggregate['run'])
         self.assertIn('test "$PLAN_RESULT" = success', aggregate['run'])
+        self.assertIn('test "$BASE_RESULT" = success', aggregate['run'])
+        self.assertIn('test "$BOOTSTRAP_RESULT" = success', aggregate['run'])
         for step in workers['steps']:
             self.assertNotIn('continue-on-error', step)
 

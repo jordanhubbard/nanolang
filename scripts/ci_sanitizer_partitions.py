@@ -9,6 +9,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
 
 CFLAGS = '-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer'
 LDFLAGS = '-lm -lcrypto -fsanitize=address,undefined'
@@ -16,6 +17,15 @@ FLAGS = ['CFLAGS=' + CFLAGS, 'LDFLAGS=' + LDFLAGS]
 NATIVE_CFLAGS = '-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer'
 DEDICATED = ('test-forth-session', 'test-nanoisa-src-nano', 'test-scalar-reconstruction')
 PROVIDERS = ['nanoisa_emit', 'nano_virt', 'nano_vm', 'nvm2c', 'nvm2c-runtime', 'nanoisa_dump']
+UNIT_PARTITIONS = 28
+BUNDLE_ROOTS = ('bin', 'obj', 'obj-runtime', 'lib', 'build')
+BUNDLE_SENTINELS = ('.stage1.built', '.stage2.built', '.stage3.built',
+                    '.bootstrap0.built', '.bootstrap1.built', '.bootstrap2.built', '.bootstrap3.built')
+BUNDLE_PRODUCTS = {
+    'base': ('bin/nanoc_c',),
+    'bootstrap': ('bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage2',
+                  'bin/nanoisa_emit', 'bin/nano_virt', 'bin/nano_vm', 'bin/nvm2c', 'bin/nanoisa_dump'),
+}
 
 
 def canonical(value):
@@ -132,8 +142,8 @@ def plan(head, targets, native_bootstrap_targets=()):
                {'id': 'source', 'targets': [DEDICATED[1]]},
                {'id': 'scalar', 'targets': [DEDICATED[2]]}]
     remainder = [target for target in targets if target not in DEDICATED]
-    workers.extend({'id': f'units-{index:02}', 'targets': remainder[index::14]}
-                   for index in range(14))
+    workers.extend({'id': f'units-{index:02}', 'targets': remainder[index::UNIT_PARTITIONS]}
+                   for index in range(UNIT_PARTITIONS))
     if any(not worker['targets'] for worker in workers):
         raise ValueError('I refuse empty unit partitions.')
     workers.append({'id': 'negative', 'targets': []})
@@ -175,6 +185,79 @@ def file_hash(path):
         for chunk in iter(lambda: stream.read(1024 * 1024), b''):
             hasher.update(chunk)
     return hasher.hexdigest()
+
+
+def bundle_create(output, manifest, stage):
+    if stage not in BUNDLE_PRODUCTS or current_head() != manifest['head']:
+        raise ValueError('I require an exact supported sanitizer bundle stage.')
+    output = Path(output)
+    output.mkdir(parents=True, exist_ok=True)
+    required = BUNDLE_PRODUCTS[stage]
+    if any(not Path(path).is_file() for path in required):
+        raise ValueError('I require every sanitizer bundle product before publication.')
+    selected = [Path(path) for path in (*BUNDLE_ROOTS, *BUNDLE_SENTINELS) if Path(path).exists()]
+    archive = output / (stage + '.tar.gz')
+    with tarfile.open(archive, 'w:gz') as stream:
+        for path in selected:
+            stream.add(path, arcname=str(path), recursive=True)
+    metadata = {'schema': 1, 'head': manifest['head'], 'stage': stage,
+                'inventory_sha256': manifest['inventory_sha256'],
+                'archive': archive.name, 'archive_sha256': file_hash(archive),
+                'products': {path: file_hash(path) for path in required}}
+    save(output / (stage + '.json'), metadata)
+    return metadata
+
+
+def safe_bundle_member(member):
+    path = Path(member.name)
+    if path.is_absolute() or '..' in path.parts or not path.parts:
+        return False
+    if path.parts[0] not in set(BUNDLE_ROOTS) | set(BUNDLE_SENTINELS):
+        return False
+    if member.islnk():
+        return False
+    if member.issym():
+        target = Path(member.linkname)
+        if target.is_absolute() or '..' in target.parts:
+            return False
+    return member.isdir() or member.isfile() or member.issym()
+
+
+def bundle_restore(output, manifest, stage, archive, metadata):
+    if stage not in BUNDLE_PRODUCTS or current_head() != manifest['head']:
+        raise ValueError('I require an exact supported sanitizer bundle stage.')
+    archive, metadata = Path(archive), json.loads(Path(metadata).read_text())
+    expected = {'schema': 1, 'head': manifest['head'], 'stage': stage,
+                'inventory_sha256': manifest['inventory_sha256'], 'archive': archive.name}
+    if any(metadata.get(key) != value for key, value in expected.items()):
+        raise ValueError('I refuse a sanitizer bundle from another source or plan.')
+    if metadata.get('archive_sha256') != file_hash(archive):
+        raise ValueError('I refuse a modified sanitizer build archive.')
+    with tarfile.open(archive, 'r:gz') as stream:
+        members = stream.getmembers()
+        if not members or any(not safe_bundle_member(member) for member in members):
+            raise ValueError('I refuse an unsafe sanitizer build archive.')
+        stream.extractall('.', members=members)
+    products = metadata.get('products', {})
+    if set(products) != set(BUNDLE_PRODUCTS[stage]) or any(
+            not Path(path).is_file() or file_hash(path) != digest_ for path, digest_ in products.items()):
+        raise ValueError('I refuse incomplete sanitizer build products.')
+    # A checkout in a dependent job is newer than the archived products. I
+    # preserve bytes, then make the verified restored graph current for Make.
+    for root in BUNDLE_ROOTS:
+        path = Path(root)
+        if path.exists():
+            for child in path.rglob('*'):
+                if child.is_file():
+                    child.touch()
+    for name in BUNDLE_SENTINELS:
+        path = Path(name)
+        if path.exists():
+            path.touch()
+    report = {**expected, 'archive_sha256': metadata['archive_sha256'],
+              'products': products, 'success': True}
+    save(Path(output) / ('restore-' + stage + '.json'), report)
+    return report
 
 
 def snapshot(output, name):
@@ -302,13 +385,17 @@ def aggregate(manifest, root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('plan', 'verify', 'command', 'snapshot', 'result', 'aggregate', 'instrumentation'))
+    parser.add_argument('action', choices=('plan', 'verify', 'command', 'snapshot', 'result', 'aggregate',
+                                           'instrumentation', 'bundle', 'restore'))
     parser.add_argument('--manifest')
     parser.add_argument('--output', required=True)
     parser.add_argument('--worker')
     parser.add_argument('--phase')
     parser.add_argument('--results')
     parser.add_argument('--github-output')
+    parser.add_argument('--stage', choices=tuple(BUNDLE_PRODUCTS))
+    parser.add_argument('--archive')
+    parser.add_argument('--metadata')
     args = parser.parse_args()
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
@@ -320,6 +407,12 @@ def main():
                 stream.write('matrix=' + json.dumps({'include': [{'id': w['id']} for w in value['workers']]}) + '\n')
         return
     manifest = checked_plan(args.manifest)
+    if args.action == 'bundle':
+        bundle_create(output, manifest, args.stage)
+        return
+    if args.action == 'restore':
+        bundle_restore(output, manifest, args.stage, args.archive, args.metadata)
+        return
     if args.action == 'aggregate':
         if current_head() != manifest['head']:
             raise ValueError('I require the same aggregate checkout head.')
@@ -355,9 +448,7 @@ def main():
                 raise ValueError('I refuse source or tool drift before test execution.')
     elif args.action == 'result':
         steps = json.loads(os.environ['CI_SANITIZER_STEPS'])
-        required = ['verify', 'before', 'sanitize', 'bootstrap', 'instrumentation', 'prepared', 'tests', 'after']
-        if worker['id'] == 'source':
-            required.append('providers')
+        required = ['verify', 'restore', 'before', 'instrumentation', 'prepared', 'tests', 'after']
         before = json.loads((output / 'before.json').read_text()) if (output / 'before.json').exists() else None
         after = json.loads((output / 'after.json').read_text()) if (output / 'after.json').exists() else None
         stable = bool(before and after and before['head'] == after['head'] == manifest['head'] and
