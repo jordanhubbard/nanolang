@@ -50,7 +50,7 @@ class CseedImportShadows(unittest.TestCase):
         path.write_text(source)
         output = directory / "program"
         report = directory / "shadows.json"
-        result = subprocess.run([str(ROOT / "bin/nanoc_c"), str(path), "-o", str(output),
+        result = subprocess.run([os.environ.get("NANO_CSEED_SHADOW_COMPILER", str(ROOT / "bin/nanoc_c")), str(path), "-o", str(output),
                                  "--llm-shadow-json", str(report), *options], cwd=ROOT,
                                 capture_output=True, timeout=60)
         return result, output, report
@@ -158,6 +158,62 @@ class CseedImportShadows(unittest.TestCase):
             result, output, report = self.compile(directory, source, "--target", "c")
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertTrue(output.exists())
+            self.assertFalse(report.exists())
+            executable = directory / "emitted"
+            built = subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-pedantic-errors",
+                                    "-Werror=implicit-function-declaration", "-Werror=return-type",
+                                    "-x", "c", output, "-o", executable],
+                                   capture_output=True, text=True, timeout=30)
+            self.assertEqual(built.returncode, 0, built.stdout + built.stderr)
+            ran = subprocess.run([executable], capture_output=True, timeout=10)
+            self.assertEqual(ran.returncode, 42, ran.stdout + ran.stderr)
+
+    def test_source_only_transitive_function_owners(self):
+        with tempfile.TemporaryDirectory(prefix="nano-c-source-owners-") as tmp:
+            directory = Path(tmp)
+            for side, value in (("left", 11), ("right", 22)):
+                folder = directory / side
+                folder.mkdir()
+                leaf = folder / "leaf.nano"
+                leaf.write_text(f'module {side.title()}Leaf\n'
+                    f'fn helper() -> int {{ return {value} }}\nshadow helper {{ assert true }}\n'
+                    'pub fn value() -> int { return (helper) }\nshadow value { assert false }\n'
+                    f'pub fn label() -> string {{ return "{side}" }}\nshadow label {{ assert false }}\n')
+                middle = directory / f"{side}.nano"
+                middle.write_text(f'module {side.title()}Middle\nmodule "{leaf}" as dep\n'
+                    'pub fn value() -> int { return (+ (dep.value) 1) }\nshadow value { assert false }\n'
+                    'pub fn label() -> string { return (dep.label) }\nshadow label { assert false }\n')
+            source = (f'module "{directory / "left.nano"}" as left\n'
+                      f'module "{directory / "right.nano"}" as right\n'
+                      'fn value() -> int { return 7 }\nshadow value { assert true }\n'
+                      'fn main() -> int { assert (== (left.value) 12) assert (== (right.value) 23) '
+                      'assert (== (value) 7) assert (== (left.label) "left") '
+                      'assert (== (right.label) "right") return 0 }\nshadow main { assert false }\n')
+            result, output, report = self.compile(directory, source, "--target", "c")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertFalse(report.exists())
+            executable = directory / "emitted"
+            built = subprocess.run([os.environ.get("CC", "cc"), "-std=c11", "-pedantic-errors",
+                                    "-Werror=implicit-function-declaration", "-Werror=return-type",
+                                    "-x", "c", output, "-o", executable],
+                                   capture_output=True, text=True, timeout=30)
+            self.assertEqual(built.returncode, 0, built.stdout + built.stderr)
+            ran = subprocess.run([executable], capture_output=True, timeout=10)
+            self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
+
+    def test_source_only_import_refusal_preserves_output(self):
+        with tempfile.TemporaryDirectory(prefix="nano-c-source-refusal-") as tmp:
+            directory = Path(tmp)
+            leaf = directory / "leaf.nano"
+            leaf.write_text('let state: int = 1\npub fn answer() -> int { return state }\n'
+                            'shadow answer { assert true }\n')
+            source = f'module "{leaf}" as lib\nfn main() -> int {{ return (lib.answer) }}\nshadow main {{ assert true }}\n'
+            output = directory / "program"
+            output.write_bytes(b"prior artifact")
+            result, output, report = self.compile(directory, source, "--target", "c")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(b"C source import profile", result.stderr)
+            self.assertEqual(output.read_bytes(), b"prior artifact")
             self.assertFalse(report.exists())
 
     def test_shadow_locals_do_not_change_production_lowering(self):

@@ -888,7 +888,17 @@ typedef struct {
 } Stage1Parser;
 
 ASTNode *parse_program(Token *tokens, int token_count);
-bool ast_has_service_declaration(const ASTNode *program);
+/* I inspect valid parser roots: service declarations occur only at program
+ * scope. Module declarations hold names, not child ASTs; imported programs are
+ * separately checked by process_imports. I do not validate arbitrary forged ASTs. */
+static inline bool ast_has_service_declaration(const ASTNode *program) {
+    if (!program) return false;
+    if (program->type == AST_SERVICE_DECL) return true;
+    if (program->type != AST_PROGRAM) return false;
+    for (int i = 0; i < program->as.program.count; ++i)
+        if (ast_has_service_declaration(program->as.program.items[i])) return true;
+    return false;
+}
 bool ast_is_value_expression(ASTNodeType type);
 bool ast_always_returns(const ASTNode *node);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */
