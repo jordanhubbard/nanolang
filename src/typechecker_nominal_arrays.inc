@@ -86,6 +86,17 @@ static bool nominal_array_builtin(ASTNode *expr, Environment *env, const char *n
     Function *function = env_get_function(env, name);
     return env_function_is_builtin(function);
 }
+/* Registry builtins without BUILTIN_LANG use dedicated checker paths. I still
+ * resolve a same-named declaration or callable binding before trusting them. */
+static bool nominal_registered_builtin(ASTNode *expr, Environment *env, const char *name, int arity) {
+    if (expr->type != AST_CALL || expr->as.call.func_expr || !expr->as.call.name ||
+        strcmp(expr->as.call.name, name) || expr->as.call.arg_count != arity ||
+        env_get_var_visible_at(env, name, expr->line, expr->column)) return false;
+    Function *function = env_get_function(env, name);
+    if (function) return env_function_is_named_builtin(function, name);
+    const BuiltinEntry *builtin = builtin_find(name);
+    return builtin && builtin->arity == arity;
+}
 /* I derive arithmetic results from complete operand facts, never a destination. */
 static bool nominal_array_arithmetic(ASTNode *expr, Environment *env, unsigned depth,
                                      NominalView *out) {
@@ -267,6 +278,9 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
         if (!nominal_view_wrap_array(&view)) goto fail;
         *out = view; return true;
     }
+    if (nominal_registered_builtin(expr, env, "bytes_from_string", 1) ||
+        nominal_registered_builtin(expr, env, "file_read_bytes", 1))
+        return nominal_view_copy(env, NULL, TYPE_ARRAY, TYPE_U8, NULL, NULL, out);
     if (nominal_array_builtin(expr, env, "at", 2) || nominal_array_builtin(expr, env, "array_get", 2) ||
         nominal_array_builtin(expr, env, "array_pop", 1)) {
         if (!nominal_value_view(expr->as.call.args[0], env, depth + 1, &view) || !nominal_view_element(env, &view, depth + 1)) goto fail;
@@ -275,16 +289,24 @@ static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, 
     if (nominal_array_builtin(expr, env, "array_push", 2)) {
         ASTNode *receiver = expr->as.call.args[0];
         NominalView element = {0};
-        if (!nominal_value_view(expr->as.call.args[1], env, depth + 1, &element)) return false;
         if (receiver->type == AST_ARRAY_LITERAL && receiver->as.array_literal.element_count == 0) {
+            if (!nominal_value_view(expr->as.call.args[1], env, depth + 1, &element)) return false;
             view = element;
             if (!nominal_view_wrap_array(&view)) goto fail;
         } else {
             NominalView destination = {0};
             bool ok = nominal_value_view(receiver, env, depth + 1, &view) &&
-                view.info->base_type == TYPE_ARRAY && nominal_view_child(env, &view, 0, depth + 1, &destination) &&
-                (!(destination.children || nominal_array_requires_context(env, destination.info, destination.owner,
-                    nominal_view_context(&destination), depth + 1)) || nominal_view_equal(env, &destination, &element, depth + 1));
+                view.info->base_type == TYPE_ARRAY && nominal_view_child(env, &view, 0, depth + 1, &destination);
+            ASTNode *value = expr->as.call.args[1];
+            if (ok && value->type == AST_ARRAY_LITERAL && value->as.array_literal.element_count == 0)
+                ok = check_destination_expression(env, &destination, value, depth + 1) != TYPE_UNKNOWN;
+            else if (ok)
+                ok = nominal_value_view(value, env, depth + 1, &element) &&
+                    (!(destination.children || destination.info->base_type == TYPE_ARRAY ||
+                       destination.info->base_type == TYPE_TUPLE ||
+                       nominal_array_requires_context(env, destination.info, destination.owner,
+                           nominal_view_context(&destination), depth + 1)) ||
+                     nominal_view_equal(env, &destination, &element, depth + 1));
             nominal_view_discard(&destination);
             nominal_view_discard(&element);
             if (!ok) goto fail;

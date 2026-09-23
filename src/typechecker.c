@@ -1046,8 +1046,10 @@ static bool check_nominal_array_mutation(Environment *env, ASTNode *call) {
     NominalView view = {0}, element = {0};
     bool matches = nominal_value_view(receiver, env, 0, &view) &&
         view.info->base_type == TYPE_ARRAY && nominal_view_child(env, &view, 0, 0, &element);
-    if (matches && (element.children || nominal_array_requires_context(env, element.info, element.owner,
-            nominal_view_context(&element), 0)))
+    if (matches && (element.children || element.info->base_type == TYPE_ARRAY ||
+            element.info->base_type == TYPE_TUPLE ||
+            nominal_array_requires_context(env, element.info, element.owner,
+                nominal_view_context(&element), 0)))
         matches = nominal_view_matches_value(env, &element, value, 0);
     nominal_view_discard(&element); nominal_view_discard(&view);
     if (!matches)
@@ -9744,7 +9746,7 @@ register_function_pass1:;
 
             /* Verify function has shadow test (skip for extern functions, main, and functions that use extern functions) */
             Function *func = env_get_function(env, item->as.function.name);
-            if (!env->suppress_shadow_warnings && !env->gpu_target &&
+            if (func && !env->suppress_shadow_warnings && !env->gpu_target &&
                 !func->is_extern && !func->shadow_test &&
                 strcmp(item->as.function.name, "main") != 0 &&
                 strncmp(item->as.function.name, "__lambda_", 9) != 0) {
