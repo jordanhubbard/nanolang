@@ -116,6 +116,16 @@ class MakeTimeouts(unittest.TestCase):
                             error = errno.ENOENT if args[0].endswith("/missing") else errno.EACCES
                             self.assertIn(os.strerror(error).encode(), result.stderr)
 
+    def test_release_matrix_carries_the_product_deadline_into_shadows(self):
+        makefile = (ROOT / "Makefile.gnu").read_text()
+        self.assertIn(
+            'NANO_SHADOW_TIMEOUT_SECONDS="$${NANO_SHADOW_TIMEOUT_SECONDS:-$(RELEASE_SHADOW_SECONDS)}"',
+            makefile,
+        )
+        self.assertIn('TEST_TIMEOUT ?= 7200', makefile)
+        self.assertIn('CMD_TIMEOUT ?= 1200', makefile)
+        self.assertIn('RELEASE_SHADOW_SECONDS ?= 300', makefile)
+
 
 if __name__ == "__main__":
     unittest.main()

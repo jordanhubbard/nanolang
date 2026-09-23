@@ -2810,6 +2810,7 @@ TEST_TIMEOUT ?= 7200
 USERGUIDE_TIMEOUT ?= 2400
 SHADOW_CHECK_TIMEOUT ?= 120
 CMD_TIMEOUT ?= 1200
+RELEASE_SHADOW_SECONDS ?= 300
 TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"'
 # Bootstrap2 needs extended timeout due to self-hosted compiler performance
 # See docs/BOOTSTRAP_PROFILING_2026-01-21.md for analysis
@@ -2828,7 +2829,9 @@ test: build shadow-check userguide-export
 	@echo ""
 	@rm -f $(COMPILER)
 	@ln -sf nanoc_c $(COMPILER)
-	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' $(MAKE) test-impl NANOLANG_COMPILER="$(abspath $(COMPILER_C))"
+	@NANO_SHADOW_TIMEOUT_SECONDS="$${NANO_SHADOW_TIMEOUT_SECONDS:-$(RELEASE_SHADOW_SECONDS)}" \
+		perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' \
+		$(MAKE) test-impl NANOLANG_COMPILER="$(abspath $(COMPILER_C))"
 	@# Restore proper link based on bootstrap status
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
 		rm -f $(COMPILER); \
