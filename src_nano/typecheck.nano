@@ -2914,6 +2914,25 @@ shadow tc_is_opaque_name {
     assert (not (tc_is_opaque_name parser "Point"))
 }
 
+# I show an opaque declaration's source spelling in diagnostics while retaining
+# its owner-bound internal identity for checking and emission.
+fn tc_diagnostic_type_name(name: string) -> string {
+    let original: string = (nb_opaque_original name)
+    if (!= original "") { return original }
+    return name
+}
+shadow tc_diagnostic_type_name {
+    let tokens: List<LexerToken> = (tokenize_string "opaque type Handle" "opaque.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "opaque.nano")
+    (mb_reset [1])
+    (mb_set_sources ["/opaque.nano"])
+    assert (nb_register parser "__diagnostic_")
+    let target: string = (nb_type "Handle" 1)
+    assert (== (tc_diagnostic_type_name target) "Handle")
+    assert (== (tc_diagnostic_type_name "int") "int")
+    (mb_reset [])
+}
+
 # I identify a selected payload through its actual declaration, never its suffix alone.
 fn tc_selected_payload_union(parser: Parser, spelling: string) -> int {
     let declarations: ResourceDeclarations = ResourceDeclarations { structs: parser.structs, unions: parser.unions }
@@ -5925,7 +5944,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                                 if (== number_arg.value "0") { set opaque_null true } else { (print "") }
                             } else { (print "") }
                             if (and (not opaque_null) (not (types_equal arg_t2 param_t))) {
-                                let msg: string = (+ "Argument " (+ (int_to_string (+ j 1)) (+ " to '" (+ fn_name (+ "': expected " (+ (type_to_string param_t) (+ ", got " (type_to_string arg_t2))))))))
+                                let expected_name: string = (tc_diagnostic_type_name (type_to_string param_t))
+                                let actual_name: string = (tc_diagnostic_type_name (type_to_string arg_t2))
+                                let msg: string = (+ "Argument " (+ (int_to_string (+ j 1)) (+ " to '" (+ fn_name (+ "': expected " (+ expected_name (+ ", got " actual_name)))))))
                                 let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
                                 (Diagnostics.diag_list_add diags diag)
                             } else { (print "") }

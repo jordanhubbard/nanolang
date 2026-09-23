@@ -16,8 +16,11 @@ class SelfhostImportPaths(unittest.TestCase):
         parts = []
         for source, name in [(driver, "nlc_str_starts_with"), (driver, "nlc_str_index_of"),
                              (parser, "parser_decode_import_path"), (driver, "parse_import_path_from_line")]:
-            body = source.split("\nfn " + name + "(", 1)[1].split("\nshadow " + name, 1)[0]
-            parts.append("fn " + name + "(" + body)
+            private = "\nfn " + name + "("
+            public = "\npub fn " + name + "("
+            marker = public if public in source else private
+            body = source.split(marker, 1)[1].split("\nshadow " + name, 1)[0]
+            parts.append(marker.lstrip() + body)
         with tempfile.TemporaryDirectory(prefix="nanolang-path-helpers-") as directory:
             path = Path(directory)
             source = path / "helpers.nano"
@@ -30,7 +33,7 @@ class SelfhostImportPaths(unittest.TestCase):
                                     cwd=ROOT, env=dict(os.environ, TMPDIR=directory),
                                     capture_output=True, text=True, timeout=120)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            retained = list(path.glob("nano_native_*/program.c"))
+            retained = list(path.glob("nano_native_*/program.c")) + list(path.glob(".nano-product.*/program.c"))
             self.assertEqual(len(retained), 1, result.stdout + result.stderr)
             self.assertIn(str(retained[0]), result.stdout)
             result = subprocess.run([str(path / "helpers")], capture_output=True, text=True)

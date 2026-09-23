@@ -2840,7 +2840,11 @@ fn compile_program_mode(input_file: string, output_file: string, verbose: bool, 
                 # I stage beside the destination so final publication is a rename.
                 let pattern: string = (native_operand_path (nl_path_join (nl_path_dirname output_file) ".nano-product.XXXXXX"))
                 let native_dir: string = (nlc_str_trim (nl_exec_capture (+ "mktemp -d " (native_shell_quote pattern))))
-                if (== native_dir "") { (println "I could not create native product staging") return 1 }
+                if (== native_dir "") {
+                    if emit_c { (println "I could not write the requested C source file") }
+                    else { (println "I could not create native product staging") }
+                    return 1
+                }
                 let module_file: string = (+ native_dir "/program.nvm")
                 let c_file: string = (+ native_dir "/program.c")
                 let executable: string = (+ native_dir "/program")

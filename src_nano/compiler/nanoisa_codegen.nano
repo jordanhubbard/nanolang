@@ -23,6 +23,7 @@ import "src_nano/compiler/module_facts.nano"
 import "src_nano/parser.nano"
 import "src_nano/compiler/lexer.nano"
 import "src_nano/compiler/module_bindings.nano"
+from "src_nano/compiler/nominal_bindings.nano" import nb_opaque_original
 module "modules/compiler_support/compiler_support.nano" as CompilerSupport
 from "src_nano/compiler/diagnostics.nano" import diag_list_new
 
@@ -1358,6 +1359,54 @@ shadow nisa_match_coverage {
     assert (not (nisa_match_coverage parser (parser_get_match parser 1) (parser_get_union parser 0)))
 }
 
+fn nisa_match_block_result_type(parser: Parser, block_id: int) -> string {
+    let block: ASTBlock = (parser_get_block parser block_id)
+    let count: int = (list_ASTStmtRef_length block.statements)
+    if (<= count 0) { return "" }
+    let mut saved_names: array<string> = []
+    let mut saved_types: array<string> = []
+    let mut saved_slot: int = 0
+    while (< saved_slot (array_length nisa_names)) {
+        set saved_names (array_push saved_names (at nisa_names saved_slot))
+        set saved_types (array_push saved_types (at nisa_types saved_slot))
+        set saved_slot (+ saved_slot 1)
+    }
+    let mut i: int = 0
+    while (< i (- count 1)) {
+        let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+        if (== statement.node_type ParseNodeType.PNODE_LET) {
+            let binding: ASTLet = (parser_get_let parser statement.node_id)
+            let mut value_type: string = binding.var_type
+            if (== value_type "") { set value_type (nisa_expr_type parser binding.value binding.value_type) }
+            if (== value_type "") {
+                set nisa_names saved_names
+                set nisa_types saved_types
+                return ""
+            }
+            set nisa_names (array_push nisa_names binding.name)
+            set nisa_types (array_push nisa_types value_type)
+        }
+        set i (+ i 1)
+    }
+    let value: ASTStmtRef = (list_ASTStmtRef_get block.statements (- count 1))
+    let result: string = (nisa_expr_type parser value.node_id value.node_type)
+    set nisa_names saved_names
+    set nisa_types saved_types
+    return result
+}
+shadow nisa_match_block_result_type {
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string "union Choice { Yes { value: int }, No {} } fn choose(c: Choice) -> int { return match c { Yes(x) => { let doubled: int = (* x.value 2) doubled } No(n) => { 0 } } }" "block.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "block.nano")
+    let matched: ASTMatch = (parser_get_match parser 0)
+    set nisa_names ["x"]
+    set nisa_types ["Choice.Yes"]
+    assert (== (nisa_match_block_result_type parser (at matched.arm_body_ids 0)) "int")
+    assert (== (array_length nisa_names) 1)
+    assert (== (at nisa_names 0) "x")
+    assert (== (at nisa_types 0) "Choice.Yes")
+}
+
 fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
     let node: ASTMatch = (parser_get_match parser node_id)
     let actual: string = (nisa_expr_type parser node.scrutinee node.scrutinee_type)
@@ -1371,7 +1420,6 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
     while (< i node.arm_count) {
         let variant: string = (at node.arm_variants i)
         if (< (nisa_union_variant definition variant) 0) { return "" }
-        if (== (at node.arm_body_types i) ParseNodeType.PNODE_BLOCK) { return "" }
         let mut names: array<string> = []
         let mut types: array<string> = []
         let mut slot: int = 0
@@ -1392,12 +1440,22 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
                 return ""
             }
         }
-        let arm_type: string = (nisa_expr_type parser (at node.arm_body_ids i) (at node.arm_body_types i))
+        let mut arm_type: string = ""
+        let body_type: int = (at node.arm_body_types i)
+        if (== body_type ParseNodeType.PNODE_BLOCK) {
+            if (nisa_block_falls_through parser (at node.arm_body_ids i)) {
+                set arm_type (nisa_match_block_result_type parser (at node.arm_body_ids i))
+            }
+        } else {
+            set arm_type (nisa_expr_type parser (at node.arm_body_ids i) body_type)
+        }
         set nisa_names saved_names
         set nisa_types saved_types
-        if (not (or (== arm_type "int") (or (== arm_type "bool") (or (== arm_type "float") (== arm_type "string"))))) { return "" }
-        if (== i 0) { set result arm_type }
-        if (!= arm_type result) { return "" }
+        if (!= arm_type "") {
+            if (not (or (== arm_type "int") (or (== arm_type "bool") (or (== arm_type "float") (== arm_type "string"))))) { return "" }
+            if (== result "") { set result arm_type }
+            if (!= arm_type result) { return "" }
+        }
         set i (+ i 1)
     }
     return result
@@ -1440,6 +1498,62 @@ shadow nisa_emit_match_value {
     let rejected: string = (nanoisa_emit_nasm "union Choice { Yes { value: int }, No {} } fn main() -> int { return match Choice.Yes { value: 2 } { Yes(x) => x.value No(n) => false } }")
     assert (not nisa_ok)
     assert (== (nisa_reset) 0)
+    let blocks: string = (nanoisa_emit_nasm "union Choice { Yes { value: int }, No {} } fn choose(c: Choice) -> int { let value = (match c { Yes(x) => { let doubled: int = (* x.value 2) doubled } No(n) => { 0 } }) return value } fn main() -> int { return (choose Choice.Yes { value: 4 }) }")
+    assert nisa_ok
+    assert (str_contains blocks "STORE_LOCAL")
+    assert (str_contains blocks "AGG_GET 0")
+    assert (== (nisa_reset) 0)
+}
+
+fn nisa_emit_match_value_block(parser: Parser, block_id: int, expected: string) -> string {
+    let block: ASTBlock = (parser_get_block parser block_id)
+    let count: int = (list_ASTStmtRef_length block.statements)
+    if (<= count 0) { return (nisa_fail "I require a final value in each fallthrough match block") }
+    let first_slot: int = (array_length nisa_names)
+    let mut output: string = ""
+    let mut i: int = 0
+    while (< i (- count 1)) {
+        let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+        set output (+ output (nisa_emit_stmt parser statement))
+        if (nisa_stmt_terminates parser statement) { return output }
+        set i (+ i 1)
+    }
+    let value: ASTStmtRef = (list_ASTStmtRef_get block.statements (- count 1))
+    set output (+ output (nisa_emit_expected_expr parser value.node_id value.node_type expected))
+    let mut active_names: array<int> = []
+    let mut named_index: int = 0
+    while (< named_index (array_length nisa_named_slots)) {
+        let named_slot: int = (at nisa_named_slots named_index)
+        if (>= named_slot first_slot) {
+            set output (+ output (+ ".local_end " (+ (int_to_string named_slot) "\n")))
+        } else {
+            set active_names (array_push active_names named_slot)
+        }
+        set named_index (+ named_index 1)
+    }
+    set nisa_named_slots active_names
+    let mut names: array<string> = []
+    let mut slot: int = 0
+    while (< slot (array_length nisa_names)) {
+        if (< slot first_slot) { set names (array_push names (at nisa_names slot)) }
+        else { set names (array_push names "") }
+        set slot (+ slot 1)
+    }
+    set nisa_names names
+    return output
+}
+shadow nisa_emit_match_value_block {
+    let _: int = (nisa_reset)
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string "union Choice { Yes { value: int }, No {} } fn choose(c: Choice) -> int { return match c { Yes(x) => { let doubled: int = (* x.value 2) doubled } No(n) => { 0 } } }" "block.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "block.nano")
+    let matched: ASTMatch = (parser_get_match parser 0)
+    set nisa_names ["x"]
+    set nisa_types ["Choice.Yes"]
+    let text: string = (nisa_emit_match_value_block parser (at matched.arm_body_ids 0) "int")
+    assert (str_contains text "STORE_LOCAL")
+    assert (str_contains text "I64_MUL")
+    assert (== (nisa_reset) 0)
 }
 
 fn nisa_emit_match_body_checked(parser: Parser, node_id: int, result_type: string) -> string {
@@ -1460,8 +1574,6 @@ fn nisa_emit_match_body_checked(parser: Parser, node_id: int, result_type: strin
         let guard_type: int = (at node.arm_guard_types i)
         if (== result_type "") {
             if (!= (at node.arm_body_types i) ParseNodeType.PNODE_BLOCK) { return (nisa_fail "I require a statement block in each match arm") }
-        } else {
-            if (== (at node.arm_body_types i) ParseNodeType.PNODE_BLOCK) { return (nisa_fail "I require a scalar expression in each value arm") }
         }
         let next: string = (nisa_fresh)
         set out (+ out (nisa_line "DUP"))
@@ -1485,7 +1597,16 @@ fn nisa_emit_match_body_checked(parser: Parser, node_id: int, result_type: strin
         if (== result_type "") {
             set out (+ out (nisa_emit_block parser (at node.arm_body_ids i)))
         } else {
-            set out (+ out (nisa_emit_expected_expr parser (at node.arm_body_ids i) (at node.arm_body_types i) result_type))
+            let body_type: int = (at node.arm_body_types i)
+            if (== body_type ParseNodeType.PNODE_BLOCK) {
+                if (nisa_block_falls_through parser (at node.arm_body_ids i)) {
+                    set out (+ out (nisa_emit_match_value_block parser (at node.arm_body_ids i) result_type))
+                } else {
+                    set out (+ out (nisa_emit_block parser (at node.arm_body_ids i)))
+                }
+            } else {
+                set out (+ out (nisa_emit_expected_expr parser (at node.arm_body_ids i) body_type result_type))
+            }
         }
         let mut names: array<string> = []
         let mut n: int = 0
@@ -1663,10 +1784,28 @@ shadow nisa_tuple_type_ok {
     assert (not (nisa_tuple_type_ok parser "(int)"))
 }
 
+fn nisa_opaque_type(parser: Parser, name: string) -> bool {
+    if (!= (nb_opaque_original name) "") { return true }
+    let mut i: int = 0
+    while (< i parser.opaque_types_count) {
+        if (== (list_ASTOpaqueType_get parser.opaque_types i).type_name name) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow nisa_opaque_type {
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string "opaque type Handle" "opaque.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "opaque.nano")
+    assert (nisa_opaque_type parser "Handle")
+    assert (not (nisa_opaque_type parser "Other"))
+}
+
 fn nisa_type_ok(parser: Parser, t: string) -> bool {
     if (nisa_tuple_type_ok parser t) { return true }
     if (nisa_union_supported parser t) { return true }
     if (>= (nisa_enum_index parser t) 0) { return true }
+    if (nisa_opaque_type parser t) { return true }
     if (and (str_starts_with t "array<") (str_ends_with t ">")) {
         let element: string = (str_substring t 6 (- (str_length t) 7))
         if (or (== element "u8") (== element "byte")) { return true }
@@ -2023,7 +2162,7 @@ shadow nisa_emit_map_call {
 fn nisa_host_result(name: string) -> string {
     if (== name "atan") { return "float" }
     let strings: array<string> = ["vm_string_from_char", "get_argv", "nl_os_getenv", "file_read", "vm_file_read", "path_normalize", "nl_exec_capture", "vm_getenv", "vm_getcwd", "vm_tmp_dir", "vm_mktemp", "vm_mktemp_dir", "nl_file_companion_text", "nl_file_source_catalog_string"]
-    let integers: array<string> = ["strlen", "get_argc", "file_write", "vm_file_write", "file_delete", "file_compare_identity", "file_compare_destinations", "nl_exec_shell", "vm_chdir", "vm_dir_create", "vm_setenv", "nl_file_companion_open", "nl_file_companion_number", "nl_file_companion_source", "nl_file_source_metadata", "nl_file_source_catalog_number"]
+    let integers: array<string> = ["strlen", "vm_str_index_of", "vm_str_last_index_of", "get_argc", "file_write", "vm_file_write", "file_delete", "file_compare_identity", "file_compare_destinations", "nl_exec_shell", "vm_chdir", "vm_dir_create", "vm_setenv", "nl_file_companion_open", "nl_file_companion_number", "nl_file_companion_source", "nl_file_source_metadata", "nl_file_source_catalog_number"]
     let booleans: array<string> = ["vm_is_alnum", "file_exists", "vm_file_exists", "vm_dir_exists", "nl_file_companion_destroy"]
     let mut i: int = 0
     while (< i (array_length strings)) {
@@ -2044,6 +2183,8 @@ fn nisa_host_result(name: string) -> string {
 }
 shadow nisa_host_result {
     assert (== (nisa_host_result "strlen") "int")
+    assert (== (nisa_host_result "vm_str_index_of") "int")
+    assert (== (nisa_host_result "vm_str_last_index_of") "int")
     assert (== (nisa_host_result "atan") "float")
     assert (== (nisa_host_result "vm_getenv") "string")
     assert (== (nisa_host_result "vm_string_from_char") "string")
@@ -2062,7 +2203,7 @@ fn nisa_host_arity(name: string) -> int {
     if (== (nisa_host_result name) "") { return -1 }
     if (or (== name "get_argc") (or (== name "vm_getcwd") (== name "vm_tmp_dir"))) { return 0 }
     if (or (== name "file_write") (or (== name "vm_file_write")
-            (or (== name "file_compare_identity") (or (== name "file_compare_destinations") (== name "vm_setenv"))))) { return 2 }
+            (or (== name "file_compare_identity") (or (== name "file_compare_destinations") (or (== name "vm_setenv") (or (== name "vm_str_index_of") (== name "vm_str_last_index_of"))))))) { return 2 }
     if (or (== name "nl_file_companion_open") (or (== name "nl_file_companion_source") (== name "nl_file_source_metadata"))) { return 2 }
     if (or (== name "nl_file_companion_number") (== name "nl_file_companion_text")) { return 3 }
     if (or (== name "nl_file_source_catalog_string") (== name "nl_file_source_catalog_number")) { return 4 }
@@ -2072,6 +2213,8 @@ shadow nisa_host_arity {
     assert (== (nisa_host_arity "get_argc") 0)
     assert (== (nisa_host_arity "vm_getenv") 1)
     assert (== (nisa_host_arity "file_write") 2)
+    assert (== (nisa_host_arity "vm_str_index_of") 2)
+    assert (== (nisa_host_arity "vm_str_last_index_of") 2)
     assert (== (nisa_host_arity "nl_file_companion_text") 3)
     assert (== (nisa_host_arity "nl_file_source_catalog_string") 4)
     assert (== (nisa_host_arity "unknown") -1)
@@ -2104,7 +2247,7 @@ shadow nisa_host_parameter {
 }
 
 fn nisa_builtin_host_symbol(name: string) -> string {
-    let names: array<string> = ["is_alnum", "string_from_char", "getenv", "getcwd", "chdir", "file_read", "file_write", "file_exists", "dir_exists", "dir_create", "tmp_dir", "mktemp", "mktemp_dir", "setenv"]
+    let names: array<string> = ["is_alnum", "string_from_char", "str_index_of", "str_last_index_of", "getenv", "getcwd", "chdir", "file_read", "file_write", "file_exists", "dir_exists", "dir_create", "tmp_dir", "mktemp", "mktemp_dir", "setenv"]
     let mut i: int = 0
     while (< i (array_length names)) {
         if (== name (at names i)) { return (+ "vm_" name) }
@@ -2116,6 +2259,8 @@ shadow nisa_builtin_host_symbol {
     assert (== (nisa_builtin_host_symbol "getenv") "vm_getenv")
     assert (== (nisa_builtin_host_symbol "is_alnum") "vm_is_alnum")
     assert (== (nisa_builtin_host_symbol "string_from_char") "vm_string_from_char")
+    assert (== (nisa_builtin_host_symbol "str_index_of") "vm_str_index_of")
+    assert (== (nisa_builtin_host_symbol "str_last_index_of") "vm_str_last_index_of")
     assert (== (nisa_builtin_host_symbol "file_exists") "vm_file_exists")
     assert (== (nisa_builtin_host_symbol "get_argc") "")
 }
@@ -2139,6 +2284,8 @@ shadow nisa_call_host_symbol {
     assert (== (nisa_call_host_symbol parser "get_argc") "get_argc")
     assert (== (nisa_call_host_symbol parser "getenv") "")
     assert (== (nisa_call_host_symbol parser "file_exists") "vm_file_exists")
+    assert (== (nisa_call_host_symbol parser "str_index_of") "vm_str_index_of")
+    assert (== (nisa_call_host_symbol parser "str_last_index_of") "vm_str_last_index_of")
     assert (== (nisa_call_host_symbol parser "unknown") "")
 }
 
@@ -5800,6 +5947,7 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
     if (str_starts_with (nisa_compact_type t) "fn(") { return "function" }
     if (== t "float") { return "float" }
     if (== t "u8") { return "u8" }
+    if (nisa_opaque_type parser t) { return "int" }
     if (nisa_tuple_type_ok parser t) { return "tuple" }
     if (>= (nisa_enum_index parser t) 0) { return "int" }
     if (and (str_starts_with t "array<") (nisa_type_ok parser t)) { return "array" }
