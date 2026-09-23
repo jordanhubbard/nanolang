@@ -5379,7 +5379,8 @@ static bool module_equal_libraries(const char *left, const char *right) {
  * A failed link is not permission to retry and hide its failure. */
 static int module_linux_link_matches(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
                                      const char *objects, const char *staging, const char *object_file) {
-    char retained[2048] = {0}, candidate[2048] = {0}, command[4096] = {0};
+    char retained[2048] = {0}, candidate[2048] = {0};
+    char command[NL_MODULE_LINK_COMMAND_CAPACITY] = {0};
     bool ok = module_build_append(retained, sizeof(retained), "%s/lib%s.so", objects, meta->name) &&
         module_build_append(candidate, sizeof(candidate), "%s/lib%s.so", staging, meta->name) &&
         module_shared_link_command(meta, flags, object_file, candidate, objects, command, sizeof(command));

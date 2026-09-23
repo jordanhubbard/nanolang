@@ -15,7 +15,7 @@ struct AST {
 }
 
 /* Create empty node */
-fn ast_empty() -> AST {
+pub fn ast_empty() -> AST {
     return AST {
         node_type: 8,
         name: "",
@@ -30,7 +30,7 @@ shadow ast_empty {
 }
 
 /* Create program */
-fn ast_program() -> AST {
+pub fn ast_program() -> AST {
     return AST {
         node_type: 0,
         name: "program",
@@ -46,7 +46,7 @@ shadow ast_program {
 }
 
 /* Create function */
-fn ast_function(name: string) -> AST {
+pub fn ast_function(name: string) -> AST {
     return AST {
         node_type: 1,
         name: name,
@@ -62,7 +62,7 @@ shadow ast_function {
 }
 
 /* Create identifier */
-fn ast_identifier(name: string) -> AST {
+pub fn ast_identifier(name: string) -> AST {
     return AST {
         node_type: 3,
         name: name,
@@ -79,7 +79,7 @@ shadow ast_identifier {
 }
 
 /* Create integer literal - store as string */
-fn ast_int(value: string) -> AST {
+pub fn ast_int(value: string) -> AST {
     return AST {
         node_type: 4,
         name: "",
@@ -95,7 +95,7 @@ shadow ast_int {
 }
 
 /* Create string literal */
-fn ast_string(value: string) -> AST {
+pub fn ast_string(value: string) -> AST {
     return AST {
         node_type: 5,
         name: "",
@@ -111,7 +111,7 @@ shadow ast_string {
 }
 
 /* Create call node */
-fn ast_call(func_name: string, arg_count: int) -> AST {
+pub fn ast_call(func_name: string, arg_count: int) -> AST {
     return AST {
         node_type: 2,
         name: func_name,
@@ -128,7 +128,7 @@ shadow ast_call {
 }
 
 /* Create block */
-fn ast_block(stmt_count: int) -> AST {
+pub fn ast_block(stmt_count: int) -> AST {
     return AST {
         node_type: 6,
         name: "",
@@ -144,7 +144,7 @@ shadow ast_block {
 }
 
 /* Query functions */
-fn ast_is_call(node: AST) -> bool {
+pub fn ast_is_call(node: AST) -> bool {
     return (== node.node_type 2)
 }
 
@@ -155,7 +155,7 @@ shadow ast_is_call {
     assert (not (ast_is_call int_node))
 }
 
-fn ast_is_identifier(node: AST) -> bool {
+pub fn ast_is_identifier(node: AST) -> bool {
     return (== node.node_type 3)
 }
 
@@ -166,7 +166,7 @@ shadow ast_is_identifier {
     assert (not (ast_is_identifier str_node))
 }
 
-fn ast_is_int_literal(node: AST) -> bool {
+pub fn ast_is_int_literal(node: AST) -> bool {
     return (== node.node_type 4)
 }
 
@@ -177,7 +177,7 @@ shadow ast_is_int_literal {
     assert (not (ast_is_int_literal call_node))
 }
 
-fn ast_is_string_literal(node: AST) -> bool {
+pub fn ast_is_string_literal(node: AST) -> bool {
     return (== node.node_type 5)
 }
 
@@ -188,7 +188,7 @@ shadow ast_is_string_literal {
     assert (not (ast_is_string_literal id_node))
 }
 
-fn ast_is_literal(node: AST) -> bool {
+pub fn ast_is_literal(node: AST) -> bool {
     let is_int: bool = (ast_is_int_literal node)
     let is_str: bool = (ast_is_string_literal node)
     
@@ -209,7 +209,7 @@ shadow ast_is_literal {
 }
 
 /* Get type name */
-fn ast_type_name(node: AST) -> string {
+pub fn ast_type_name(node: AST) -> string {
     let node_type: int = node.node_type
     
     if (== node_type 0) {
@@ -249,7 +249,7 @@ shadow ast_type_name {
 }
 
 /* Pretty print */
-fn ast_to_string(node: AST) -> string {
+pub fn ast_to_string(node: AST) -> string {
     let node_type: int = node.node_type
     
     if (== node_type 4) {
