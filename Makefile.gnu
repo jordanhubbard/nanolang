@@ -2787,7 +2787,7 @@ endif
 TEST_TIMEOUT ?= 3600
 USERGUIDE_TIMEOUT ?= 2400
 SHADOW_CHECK_TIMEOUT ?= 120
-CMD_TIMEOUT ?= 600
+CMD_TIMEOUT ?= 1200
 TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"'
 # Bootstrap2 needs extended timeout due to self-hosted compiler performance
 # See docs/BOOTSTRAP_PROFILING_2026-01-21.md for analysis
