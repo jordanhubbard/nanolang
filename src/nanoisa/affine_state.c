@@ -90,7 +90,9 @@ NvmAffineState *nvm_affine_state_create(const NvmModule *m, uint32_t function,
     if (nvm_v2_layouts_decode(m->layout_data,m->layout_size,&f->layouts)!=NVM_V2_OK) goto fail;
     NvmV2Cursor c; nvm_v2_cursor_init(&c,m->ownership_data,m->ownership_size);
     uint32_t ignored, count; const uint8_t *flags;
-    if (nvm_v2_u32(&c,&ignored)!=NVM_V2_OK || nvm_v2_u32(&c,&count)!=NVM_V2_OK ||
+    if (nvm_v2_u32(&c,&ignored)!=NVM_V2_OK ||
+        ignored==NVM_OWNERSHIP_UNION_GRAPH_VERSION ||
+        nvm_v2_u32(&c,&count)!=NVM_V2_OK ||
         nvm_v2_take(&c,count,&flags)!=NVM_V2_OK) goto fail;
     f->flags=malloc(count ? count : 1);
     if (!f->flags) goto fail;

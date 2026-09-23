@@ -501,6 +501,10 @@ static NvmVerifyResult verify_structure_checked_classified(const NvmModule *mod,
     bool needs_ownership = false;
     if (!mixed_composed && nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK)
         return fail("I found invalid ownership declarations");
+    if (mod->ownership_size>=4 && mod->ownership_data &&
+        mod->ownership_data[0]==NVM_OWNERSHIP_UNION_GRAPH_VERSION &&
+        !mod->ownership_data[1] && !mod->ownership_data[2] && !mod->ownership_data[3])
+        return fail("I require selected owned-union transfer verification before execution");
     if (needs_ownership && !affine_only) {
         for (uint32_t i=0;i<mod->function_count;i++) {
             NvmAffineAnalysis analysis=nvm_affine_analyze_function(mod,i);

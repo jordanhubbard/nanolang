@@ -5,7 +5,8 @@ in `tests/test_generic_selected_ownership.py` and
 `tests/test_generic_selected_patterns.py`. MAC
 `task_d44b2db373d38a942db3e8c4567b8044` owns this work. PR #522 and v5.1 remain
 blocked until this feature and the other integrated acceptance gates pass.
-This document specifies required behavior; it does not claim implementation.
+This document specifies required behavior. My format-4 declaration transport is
+implemented; selected transfer and source lowering remain incomplete.
 
 ## My current boundary
 
@@ -50,6 +51,30 @@ acyclic layout ordering, complete classification and variant coverage before
 using a descriptor. I preserve the existing scalar wire grammar and introduce
 an explicit versioned admission boundary for any expanded grammar. Unknown
 versions and incomplete facts refuse before publication.
+
+## My format-4 declaration transport
+
+Ownership format 4 keeps the format-3 framing: version and layout count, padded
+layout flags, function/local descriptors, bounded format-2 path suffix, and
+ordered revision-1 extensions. `UNION_VARIANTS` keeps the same ordinal, layout,
+variant-name and field-slice encoding. The new version changes the admissible
+layout graph and descriptors; older versions retain their prior grammar.
+
+Every layout is a COMPLETE record or union. Children precede their parents;
+STRUCT and UNION field tags must name that exact child kind. Scalar and STRING
+fields have no child index. Resource records may introduce an obligation;
+unions have the RESOURCE flag exactly when a stored child has it. Every parent
+of a resource child must propagate that flag. An unused type argument has no
+edge in this table. Aggregate descriptors require an exact layout index.
+
+My public declaration validator, authority queries and variant queries read
+these facts. Binary serialization/deserialization and unverified textual
+assembly retain them. Ordinary private declaration plans keep their old
+profile. The owner-array router leaves format 4 to this validator, and the
+shared executable verifier and affine-state constructor refuse it until
+selected transfers are implemented. Verified assembly, VM execution and native
+publication therefore still refuse these declarations. Tests preserve prior
+native output and query outputs after malformed input.
 
 ## My transfer and selection
 

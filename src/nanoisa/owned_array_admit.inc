@@ -11,8 +11,10 @@ NvmOwnedArrayRoute nvm_owned_array_route_classified(
         return NVM_OWNER_ARRAY_INVALID;
     NvmV2Cursor c;uint32_t version,count,layouts;const uint8_t *flags;
     nvm_v2_cursor_init(&c,m->ownership_data,m->ownership_size);
-    if(nvm_v2_u32(&c,&version)!=NVM_V2_OK ||
-       (version!=NVM_OWNERSHIP_VERSION && version!=NVM_OWNERSHIP_PATH_VERSION &&
+    if(nvm_v2_u32(&c,&version)!=NVM_V2_OK)return NVM_OWNER_ARRAY_INVALID;
+    /* I leave aggregate union declarations to their versioned validator. */
+    if(version==NVM_OWNERSHIP_UNION_GRAPH_VERSION)return NVM_OWNER_ARRAY_NOT_SELECTED;
+    if((version!=NVM_OWNERSHIP_VERSION && version!=NVM_OWNERSHIP_PATH_VERSION &&
         version!=NVM_OWNERSHIP_EXTENSION_VERSION) ||
        nvm_v2_u32(&c,&count)!=NVM_V2_OK || count>NVM_RECORD_PLAN_MAX_LAYOUTS ||
        nvm_v2_take(&c,count,&flags)!=NVM_V2_OK)return NVM_OWNER_ARRAY_INVALID;
