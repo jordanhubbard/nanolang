@@ -3037,185 +3037,11 @@ static Value eval_call(ASTNode *node, Environment *env) {
     return result;
 }
 
-/* Evaluate function call */
-static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name) {
-    /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
-    if (node->as.call.func_expr) {
-        /* Evaluate the inner function call to get the function */
-        Value func_val = eval_expression(node->as.call.func_expr, env);
-        if (func_val.is_return) return func_val;
-        if (func_val.type != VAL_FUNCTION) {
-            fprintf(stderr, "Error: Expression does not return a function\n");
-            return create_void();
-        }
-        
-        /* Get the function name from the function value */
-        const char *borrowed_name = func_val.as.function_val.function_name;
-        char *func_name = borrowed_name ? strdup(borrowed_name) : NULL;
-        if (!func_name) {
-            fprintf(stderr, "Error: Cannot get function name from function value\n");
-            return create_void();
-        }
-        
-        /* Call the function */
-        Function *func = env_get_function(env, func_name);
-
-        /* Infer anonymous struct literal names from parameter types before evaluating */
-        for (int i = 0; i < node->as.call.arg_count && func && i < func->param_count; i++) {
-            ASTNode *arg = node->as.call.args[i];
-            if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
-                if (func->params[i].type == TYPE_STRUCT && func->params[i].struct_type_name) {
-                    arg->as.struct_literal.struct_name = strdup(func->params[i].struct_type_name);
-                }
-            }
-        }
-
-        /* Evaluate arguments */
-        Value *args = malloc(sizeof(Value) * node->as.call.arg_count);
-        for (int i = 0; i < node->as.call.arg_count; i++) {
-            args[i] = eval_expression(node->as.call.args[i], env);
-            if (args[i].is_return) {
-                Value result = args[i];
-                free(args);
-                free(func_name);
-                return result;
-            }
-        }
-        if (!func) {
-            fprintf(stderr, "Error: Function '%s' not found\n", func_name);
-            free(args);
-            free(func_name);
-            return create_void();
-        }
-        
-        Value result = call_function_at(func_name, args, node->as.call.arg_count, env,
-                                        node->line, node->column);
-        free(args);
-        free(func_name);
-        return result;
-    }
-    
-    const char *name = bound_name ? bound_name : node->as.call.name;
-
-    /* Special built-in: range (used in for loops only) */
-    if (strcmp(name, "range") == 0) {
-        /* This should not be called directly */
-        return create_void();
-    }
-
-    /* ── Coroutine builtins ─────────────────────────────────────────── */
-
-    /* spawn(fn_name, arg1, arg2, ...) — spawn an async function as a coroutine.
-     * Returns a VAL_COROUTINE value (int_val = coroutine id).
-     */
-    if (strcmp(name, "coro_spawn") == 0) {
-        if (node->as.call.arg_count < 1) {
-            fprintf(stderr, "Error: spawn() requires at least a function name argument\n");
-            return create_void();
-        }
-        ASTNode *fn_arg = node->as.call.args[0];
-        const char *async_fn_name = NULL;
-        if (fn_arg->type == AST_IDENTIFIER) {
-            async_fn_name = fn_arg->as.identifier;
-        } else if (fn_arg->type == AST_STRING) {
-            async_fn_name = fn_arg->as.string_val;
-        } else {
-            Value fn_val = eval_expression(fn_arg, env);
-            if (fn_val.type == VAL_FUNCTION) {
-                async_fn_name = fn_val.as.function_val.function_name;
-            }
-        }
-        if (!async_fn_name) {
-            fprintf(stderr, "Error: spawn() first argument must be a function\n");
-            return create_void();
-        }
-
-        int extra_args = node->as.call.arg_count - 1;
-        Value *spawn_args = extra_args > 0
-            ? malloc(sizeof(Value) * extra_args)
-            : NULL;
-        for (int i = 0; i < extra_args; i++) {
-            spawn_args[i] = eval_expression(node->as.call.args[i + 1], env);
-        }
-
-        CoroCallArgs *ca = malloc(sizeof(CoroCallArgs));
-        ca->func_name = strdup(async_fn_name);
-        ca->args = spawn_args;
-        ca->arg_count = extra_args;
-        ca->env = env;
-
-        if (!g_scheduler.initialized) nano_scheduler_init();
-        int coro_id = nano_coro_spawn(coro_trampoline, ca);
-        if (coro_id < 0) {
-            fprintf(stderr, "Error: spawn() failed — scheduler full\n");
-            free(ca->func_name);
-            free(ca->args);
-            free(ca);
-            return create_void();
-        }
-
-        Value coro_val;
-        memset(&coro_val, 0, sizeof(coro_val));
-        coro_val.type = VAL_COROUTINE;
-        coro_val.as.int_val = (long long)coro_id;
-        return coro_val;
-    }
-
-    /* coro_yield() — cooperatively suspend the current coroutine */
-    if (strcmp(name, "coro_yield") == 0) {
-        nano_coro_yield();
-        return create_void();
-    }
-
-    /* coro_done(handle) — returns true if the coroutine is done */
-    if (strcmp(name, "coro_done") == 0) {
-        if (node->as.call.arg_count < 1) return create_void();
-        Value h = eval_expression(node->as.call.args[0], env);
-        bool done = (h.type == VAL_COROUTINE)
-            ? nano_coro_is_done((int)h.as.int_val)
-            : true;
-        return create_bool(done);
-    }
-
-    /* coro_result(handle) — returns result of a completed coroutine */
-    if (strcmp(name, "coro_result") == 0) {
-        if (node->as.call.arg_count < 1) return create_void();
-        Value h = eval_expression(node->as.call.args[0], env);
-        return (h.type == VAL_COROUTINE)
-            ? nano_coro_result((int)h.as.int_val)
-            : create_void();
-    }
-
-    /* scheduler_run() — drain all pending coroutines */
-    if (strcmp(name, "scheduler_run") == 0) {
-        nano_scheduler_run_until_done();
-        return create_void();
-    }
-
-    /* scheduler_step() — run one scheduler step */
-    if (strcmp(name, "scheduler_step") == 0) {
-        bool did_work = nano_scheduler_step();
-        return create_bool(did_work);
-    }
-
-    /* Infer anonymous struct literal names from parameter types before evaluating */
-    Function *named_func = env_get_function(env, name);
-    for (int i = 0; i < node->as.call.arg_count && named_func && i < named_func->param_count; i++) {
-        ASTNode *arg = node->as.call.args[i];
-        if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
-            if (named_func->params[i].type == TYPE_STRUCT && named_func->params[i].struct_type_name) {
-                arg->as.struct_literal.struct_name = strdup(named_func->params[i].struct_type_name);
-            }
-        }
-    }
-
-    /* Evaluate arguments */
-    Value args[16];  /* Max args for function calls */
-    for (int i = 0; i < node->as.call.arg_count; i++) {
-        args[i] = eval_expression(node->as.call.args[i], env);
-        if (args[i].is_return) return args[i];
-    }
-
+/* I finish builtin dispatch before entering a user function, so recursive
+ * calls do not retain the builtin temporaries in every instrumented frame. */
+static Value eval_builtin_call(ASTNode *node, Environment *env, const char *name,
+                               Value *args, Function *named_func, bool *handled) {
+    *handled = true;
     /* File operations */
     if (strcmp(name, "file_read") == 0) return builtin_file_read(args);
     if (strcmp(name, "file_read_bytes") == 0) return builtin_file_read_bytes(args);
@@ -4384,6 +4210,193 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return create_bool(ispunct((int)args[0].as.int_val) != 0);
     }
 
+    *handled = false;
+    return create_void();
+}
+
+/* Evaluate function call */
+static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name) {
+    /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
+    if (node->as.call.func_expr) {
+        /* Evaluate the inner function call to get the function */
+        Value func_val = eval_expression(node->as.call.func_expr, env);
+        if (func_val.is_return) return func_val;
+        if (func_val.type != VAL_FUNCTION) {
+            fprintf(stderr, "Error: Expression does not return a function\n");
+            return create_void();
+        }
+
+        /* Get the function name from the function value */
+        const char *borrowed_name = func_val.as.function_val.function_name;
+        char *func_name = borrowed_name ? strdup(borrowed_name) : NULL;
+        if (!func_name) {
+            fprintf(stderr, "Error: Cannot get function name from function value\n");
+            return create_void();
+        }
+
+        /* Call the function */
+        Function *func = env_get_function(env, func_name);
+
+        /* Infer anonymous struct literal names from parameter types before evaluating */
+        for (int i = 0; i < node->as.call.arg_count && func && i < func->param_count; i++) {
+            ASTNode *arg = node->as.call.args[i];
+            if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
+                if (func->params[i].type == TYPE_STRUCT && func->params[i].struct_type_name) {
+                    arg->as.struct_literal.struct_name = strdup(func->params[i].struct_type_name);
+                }
+            }
+        }
+
+        /* Evaluate arguments */
+        Value *args = malloc(sizeof(Value) * node->as.call.arg_count);
+        for (int i = 0; i < node->as.call.arg_count; i++) {
+            args[i] = eval_expression(node->as.call.args[i], env);
+            if (args[i].is_return) {
+                Value result = args[i];
+                free(args);
+                free(func_name);
+                return result;
+            }
+        }
+        if (!func) {
+            fprintf(stderr, "Error: Function '%s' not found\n", func_name);
+            free(args);
+            free(func_name);
+            return create_void();
+        }
+
+        Value result = call_function_at(func_name, args, node->as.call.arg_count, env,
+                                        node->line, node->column);
+        free(args);
+        free(func_name);
+        return result;
+    }
+
+    const char *name = bound_name ? bound_name : node->as.call.name;
+
+    /* Special built-in: range (used in for loops only) */
+    if (strcmp(name, "range") == 0) {
+        /* This should not be called directly */
+        return create_void();
+    }
+
+    /* ── Coroutine builtins ─────────────────────────────────────────── */
+
+    /* spawn(fn_name, arg1, arg2, ...) — spawn an async function as a coroutine.
+     * Returns a VAL_COROUTINE value (int_val = coroutine id).
+     */
+    if (strcmp(name, "coro_spawn") == 0) {
+        if (node->as.call.arg_count < 1) {
+            fprintf(stderr, "Error: spawn() requires at least a function name argument\n");
+            return create_void();
+        }
+        ASTNode *fn_arg = node->as.call.args[0];
+        const char *async_fn_name = NULL;
+        if (fn_arg->type == AST_IDENTIFIER) {
+            async_fn_name = fn_arg->as.identifier;
+        } else if (fn_arg->type == AST_STRING) {
+            async_fn_name = fn_arg->as.string_val;
+        } else {
+            Value fn_val = eval_expression(fn_arg, env);
+            if (fn_val.type == VAL_FUNCTION) {
+                async_fn_name = fn_val.as.function_val.function_name;
+            }
+        }
+        if (!async_fn_name) {
+            fprintf(stderr, "Error: spawn() first argument must be a function\n");
+            return create_void();
+        }
+
+        int extra_args = node->as.call.arg_count - 1;
+        Value *spawn_args = extra_args > 0
+            ? malloc(sizeof(Value) * extra_args)
+            : NULL;
+        for (int i = 0; i < extra_args; i++) {
+            spawn_args[i] = eval_expression(node->as.call.args[i + 1], env);
+        }
+
+        CoroCallArgs *ca = malloc(sizeof(CoroCallArgs));
+        ca->func_name = strdup(async_fn_name);
+        ca->args = spawn_args;
+        ca->arg_count = extra_args;
+        ca->env = env;
+
+        if (!g_scheduler.initialized) nano_scheduler_init();
+        int coro_id = nano_coro_spawn(coro_trampoline, ca);
+        if (coro_id < 0) {
+            fprintf(stderr, "Error: spawn() failed — scheduler full\n");
+            free(ca->func_name);
+            free(ca->args);
+            free(ca);
+            return create_void();
+        }
+
+        Value coro_val;
+        memset(&coro_val, 0, sizeof(coro_val));
+        coro_val.type = VAL_COROUTINE;
+        coro_val.as.int_val = (long long)coro_id;
+        return coro_val;
+    }
+
+    /* coro_yield() — cooperatively suspend the current coroutine */
+    if (strcmp(name, "coro_yield") == 0) {
+        nano_coro_yield();
+        return create_void();
+    }
+
+    /* coro_done(handle) — returns true if the coroutine is done */
+    if (strcmp(name, "coro_done") == 0) {
+        if (node->as.call.arg_count < 1) return create_void();
+        Value h = eval_expression(node->as.call.args[0], env);
+        bool done = (h.type == VAL_COROUTINE)
+            ? nano_coro_is_done((int)h.as.int_val)
+            : true;
+        return create_bool(done);
+    }
+
+    /* coro_result(handle) — returns result of a completed coroutine */
+    if (strcmp(name, "coro_result") == 0) {
+        if (node->as.call.arg_count < 1) return create_void();
+        Value h = eval_expression(node->as.call.args[0], env);
+        return (h.type == VAL_COROUTINE)
+            ? nano_coro_result((int)h.as.int_val)
+            : create_void();
+    }
+
+    /* scheduler_run() — drain all pending coroutines */
+    if (strcmp(name, "scheduler_run") == 0) {
+        nano_scheduler_run_until_done();
+        return create_void();
+    }
+
+    /* scheduler_step() — run one scheduler step */
+    if (strcmp(name, "scheduler_step") == 0) {
+        bool did_work = nano_scheduler_step();
+        return create_bool(did_work);
+    }
+
+    /* Infer anonymous struct literal names from parameter types before evaluating */
+    Function *named_func = env_get_function(env, name);
+    for (int i = 0; i < node->as.call.arg_count && named_func && i < named_func->param_count; i++) {
+        ASTNode *arg = node->as.call.args[i];
+        if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
+            if (named_func->params[i].type == TYPE_STRUCT && named_func->params[i].struct_type_name) {
+                arg->as.struct_literal.struct_name = strdup(named_func->params[i].struct_type_name);
+            }
+        }
+    }
+
+    /* Evaluate arguments */
+    Value args[16];  /* Max args for function calls */
+    for (int i = 0; i < node->as.call.arg_count; i++) {
+        args[i] = eval_expression(node->as.call.args[i], env);
+        if (args[i].is_return) return args[i];
+    }
+
+    bool handled = false;
+    Value builtin_result = eval_builtin_call(node, env, name, args, named_func, &handled);
+    if (handled) return builtin_result;
+
     /* Get user-defined function */
     Function *func = env_get_function(env, name);
 
@@ -4890,11 +4903,21 @@ static void discard_partial_owned_array(Array *array, int initialized) {
     free(array);
 }
 
-/* Evaluate expression */
+static Value eval_expression_other(ASTNode *expr, Environment *env);
+
+/* I dispatch recursive calls without reserving temporaries for every other
+ * expression form. Leaf and aggregate handling keeps its existing semantics. */
 static Value eval_expression(ASTNode *expr, Environment *env) {
     if (!expr) return create_void();
+    if (expr->type == AST_PREFIX_OP) return eval_prefix_op(expr, env);
+    if (expr->type == AST_CALL) {
+        if (expr->as.call.borrow_mode) return eval_expression(expr->as.call.args[0], env);
+        return eval_call(expr, env);
+    }
+    return eval_expression_other(expr, env);
+}
 
-
+static Value eval_expression_other(ASTNode *expr, Environment *env) {
     switch (expr->type) {
         case AST_NUMBER:
             return create_int(expr->as.number);
@@ -4972,13 +4995,6 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             fprintf(stderr, "Error: Undefined variable or function '%s'\n", expr->as.identifier);
             return create_void();
         }
-
-        case AST_PREFIX_OP:
-            return eval_prefix_op(expr, env);
-
-        case AST_CALL:
-            if (expr->as.call.borrow_mode) return eval_expression(expr->as.call.args[0], env);
-            return eval_call(expr, env);
 
         case AST_MODULE_QUALIFIED_CALL: {
             const char *module_alias = expr->as.module_qualified_call.module_alias;

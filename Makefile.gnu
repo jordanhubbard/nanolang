@@ -2810,6 +2810,11 @@ test-language-contract-runner:
 test-language-claims:
 	@python3 tests/test_language_claims.py
 
+.PHONY: test-interpreter-recursive-stack
+test-units: test-interpreter-recursive-stack
+test-interpreter-recursive-stack: $(COMPILER_C)
+	@python3 -m unittest -v tests.test_interpreter_recursive_stack
+
 .PHONY: test-cseed-import-shadows
 test-cseed-import-shadows: $(COMPILER_C)
 	@python3 -m unittest tests.test_cseed_import_shadows
