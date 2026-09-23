@@ -51,7 +51,7 @@ let SDL_GL_CONTEXT_PROFILE_COMPATIBILITY: int = 2
 # SDL2 Core Functions
 pub extern fn SDL_Init(_flags: int) -> int
 pub extern fn SDL_Quit() -> void
-extern fn SDL_GetError() -> string
+pub extern fn SDL_GetError() -> string
 pub extern fn SDL_GetTicks() -> int
 pub extern fn SDL_Delay(_ms: int) -> void
 
@@ -80,22 +80,22 @@ extern fn SDL_RenderSetScale(_renderer: SDL_Renderer, _scale_x: float, _scale_y:
 pub extern fn SDL_SetRenderDrawColor(_renderer: SDL_Renderer, _r: int, _g: int, _b: int, _a: int) -> int
 extern fn SDL_RenderFillRect(_renderer: SDL_Renderer, _rect_ptr: int) -> int
 pub extern fn SDL_RenderDrawPoint(_renderer: SDL_Renderer, _x: int, _y: int) -> int
-extern fn SDL_RenderDrawLine(_renderer: SDL_Renderer, _x1: int, _y1: int, _x2: int, _y2: int) -> int
+pub extern fn SDL_RenderDrawLine(_renderer: SDL_Renderer, _x1: int, _y1: int, _x2: int, _y2: int) -> int
 extern fn SDL_RenderDrawRect(_renderer: SDL_Renderer, _rect_ptr: int) -> int
 extern fn SDL_SetRenderDrawBlendMode(_renderer: SDL_Renderer, _mode: int) -> int
 extern fn SDL_RenderCopy(_renderer: SDL_Renderer, _texture: SDL_Texture, _srcrect: int, _dstrect: int) -> int
-extern fn SDL_CreateTexture(_renderer: SDL_Renderer, _format: int, _access: int, _w: int, _h: int) -> SDL_Texture
+pub extern fn SDL_CreateTexture(_renderer: SDL_Renderer, _format: int, _access: int, _w: int, _h: int) -> SDL_Texture
 extern fn SDL_UpdateTexture(_texture: SDL_Texture, _rect: int, _pixels: int, _pitch: int) -> int
 extern fn SDL_SetTextureBlendMode(_texture: SDL_Texture, _mode: int) -> int
 extern fn SDL_SetTextureAlphaMod(_texture: SDL_Texture, _alpha: int) -> int
 extern fn SDL_QueryTexture(_texture: SDL_Texture, _format: int, _access: int, _w: int, _h: int) -> int
 extern fn SDL_CreateTextureFromSurface(_renderer: SDL_Renderer, _surface: SDL_Surface) -> SDL_Texture
-extern fn SDL_DestroyTexture(_texture: SDL_Texture) -> void
+pub extern fn SDL_DestroyTexture(_texture: SDL_Texture) -> void
 extern fn SDL_FreeSurface(_surface: SDL_Surface) -> void
 
 # SDL2 Event Functions
 extern fn SDL_PollEvent(_event_ptr: int) -> int
-extern fn SDL_EventState(_type: int, _state: int) -> int
+pub extern fn SDL_EventState(_type: int, _state: int) -> int
 
 # SDL2 Hints
 extern fn SDL_SetHint(_name: string, _value: string) -> int

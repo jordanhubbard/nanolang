@@ -266,12 +266,20 @@ static void serve_static_file(http_server_t* server, http_request_t* req, http_r
 
     /* Build file path */
     char filepath[MAX_PATH * 2];
+    char with_index[MAX_PATH];
     const char* req_path = req->path;
     if (strcmp(req->path, "/") == 0) {
         req_path = "/index.html";
     } else if (req->path[0] != '\0' && req->path[strlen(req->path) - 1] == '/') {
-        static char with_index[MAX_PATH];
-        snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+        size_t path_length = strlen(req->path);
+        static const char suffix[] = "index.html";
+        if (path_length > sizeof(with_index) - sizeof(suffix)) {
+            http_response_set_status(res, 414, "URI Too Long");
+            http_response_text(res, "414 URI Too Long");
+            return;
+        }
+        memcpy(with_index, req->path, path_length);
+        memcpy(with_index + path_length, suffix, sizeof(suffix));
         req_path = with_index;
     }
     snprintf(filepath, sizeof(filepath), "%s%s", server->static_dir, req_path);
@@ -786,4 +794,3 @@ void nl_http_response_send_text(void* res_ptr, const char* text) {
     http_response_t* res = (http_response_t*)res_ptr;
     http_response_text(res, text);
 }
-

@@ -9,7 +9,7 @@
 #
 # Usage:
 #   let files: array<string> = (nl_fs_list_files "examples/audio" ".mp3")
-extern fn nl_fs_list_files(_path: string, _extension: string) -> array<string>
+pub extern fn nl_fs_list_files(_path: string, _extension: string) -> array<string>
 
 # List files in a directory (sorted) with case-insensitive extension filter.
 # If extension is "" then all files are returned.
@@ -25,7 +25,7 @@ pub extern fn nl_fs_list_files_ci(_path: string, _extension: string) -> array<st
 pub extern fn nl_fs_list_dirs(_path: string) -> array<string>
 
 # Return parent directory path for a given path.
-extern fn nl_fs_parent_dir(_path: string) -> string
+pub extern fn nl_fs_parent_dir(_path: string) -> string
 
 # Check if a path is a directory
 # Returns: 1 if directory, 0 otherwise

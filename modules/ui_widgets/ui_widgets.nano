@@ -11,7 +11,7 @@ pub extern fn nl_ui_update_mouse_state() -> void
 
 # Set a UI scale factor for input hit-testing when using logical render sizes.
 # Most apps can leave this at 1.0.
-extern fn nl_ui_set_scale(_scale: float) -> void
+pub extern fn nl_ui_set_scale(_scale: float) -> void
 
 # Button widget - draws a button with text and detects clicks
 # Returns: 1 if button was clicked (mouse released over button), 0 otherwise
@@ -61,7 +61,7 @@ pub extern fn nl_ui_slider(_renderer: SDL_Renderer, _x: int, _y: int, _w: int, _
 #   renderer: SDL renderer
 #   x, y, w, h: progress bar rectangle
 #   progress: current progress (0.0 to 1.0)
-extern fn nl_ui_progress_bar(_renderer: SDL_Renderer, _x: int, _y: int, _w: int, _h: int,
+pub extern fn nl_ui_progress_bar(_renderer: SDL_Renderer, _x: int, _y: int, _w: int, _h: int,
                               _progress: float) -> void
 
 # Checkbox widget - toggleable boolean state
@@ -77,7 +77,7 @@ extern fn nl_ui_progress_bar(_renderer: SDL_Renderer, _x: int, _y: int, _w: int,
 #
 # Usage:
 #   set paused (nl_ui_checkbox renderer font "Paused" 10 10 paused)
-extern fn nl_ui_checkbox(_renderer: SDL_Renderer, _font: TTF_Font, _label: string,
+pub extern fn nl_ui_checkbox(_renderer: SDL_Renderer, _font: TTF_Font, _label: string,
                          _x: int, _y: int, _checked: int) -> int
 
 # Radio button widget - selectable option in a group
@@ -96,7 +96,7 @@ extern fn nl_ui_checkbox(_renderer: SDL_Renderer, _font: TTF_Font, _label: strin
 #   if (== (nl_ui_radio_button renderer font "Sand" 10 10 (== material SAND)) 1) {
 #       set material SAND
 #   }
-extern fn nl_ui_radio_button(_renderer: SDL_Renderer, _font: TTF_Font, _label: string,
+pub extern fn nl_ui_radio_button(_renderer: SDL_Renderer, _font: TTF_Font, _label: string,
                               _x: int, _y: int, _selected: int) -> int
 
 # Panel widget - styled container for grouping widgets
@@ -182,7 +182,7 @@ pub extern fn nl_ui_seekable_progress_bar(_renderer: SDL_Renderer, _x: int, _y: 
 #
 # Usage:
 #   (nl_ui_text_input renderer font username_bytes 64 50 200 300 40 focused)
-extern fn nl_ui_text_input(_renderer: SDL_Renderer, _font: TTF_Font,
+pub extern fn nl_ui_text_input(_renderer: SDL_Renderer, _font: TTF_Font,
                             _buffer: array<u8>, _buffer_size: int,
                             _x: int, _y: int, _w: int, _h: int,
                             _is_focused: int) -> int
@@ -214,7 +214,7 @@ extern fn nl_ui_text_input(_renderer: SDL_Renderer, _font: TTF_Font,
 #           } else {}
 #       }
 #   }
-extern fn nl_ui_dropdown(_renderer: SDL_Renderer, _font: TTF_Font,
+pub extern fn nl_ui_dropdown(_renderer: SDL_Renderer, _font: TTF_Font,
                          _items: array<string>, _item_count: int,
                          _x: int, _y: int, _w: int, _h: int,
                          _selected_index: int, _is_open: int) -> int
@@ -233,7 +233,7 @@ extern fn nl_ui_dropdown(_renderer: SDL_Renderer, _font: TTF_Font,
 #
 # Usage:
 #   set volume (nl_ui_number_spinner renderer font volume 0 100 50 150 120 30)
-extern fn nl_ui_number_spinner(_renderer: SDL_Renderer, _font: TTF_Font,
+pub extern fn nl_ui_number_spinner(_renderer: SDL_Renderer, _font: TTF_Font,
                                 _value: int, _min_val: int, _max_val: int,
                                 _x: int, _y: int, _w: int, _h: int) -> int
 
@@ -250,7 +250,7 @@ extern fn nl_ui_number_spinner(_renderer: SDL_Renderer, _font: TTF_Font,
 # Usage:
 #   (nl_ui_button renderer font "Save" 100 100 80 40)
 #   (nl_ui_tooltip renderer font "Save your work" 100 100 80 40)
-extern fn nl_ui_tooltip(_renderer: SDL_Renderer, _font: TTF_Font,
+pub extern fn nl_ui_tooltip(_renderer: SDL_Renderer, _font: TTF_Font,
                         _text: string, _widget_x: int, _widget_y: int,
                         _widget_w: int, _widget_h: int) -> void
 
@@ -274,7 +274,7 @@ extern fn nl_ui_tooltip(_renderer: SDL_Renderer, _font: TTF_Font,
 #       set current clicked
 #       # Process selected file...
 #   }
-extern fn nl_ui_file_selector(_renderer: SDL_Renderer, _font: TTF_Font,
+pub extern fn nl_ui_file_selector(_renderer: SDL_Renderer, _font: TTF_Font,
                                _files: array<string>, _file_count: int,
                                _x: int, _y: int, _w: int, _h: int,
                                _scroll_offset: int, _selected_index: int) -> int
@@ -297,7 +297,7 @@ extern fn nl_ui_file_selector(_renderer: SDL_Renderer, _font: TTF_Font,
 #   if (== clicked 1) {
 #       (println "Button clicked!")
 #   }
-extern fn nl_ui_image_button(_renderer: SDL_Renderer, _texture_id: int,
+pub extern fn nl_ui_image_button(_renderer: SDL_Renderer, _texture_id: int,
                                _x: int, _y: int, _w: int, _h: int,
                                _hover_brightness: float) -> int
 
@@ -325,20 +325,20 @@ extern fn nl_ui_image_button(_renderer: SDL_Renderer, _texture_id: int,
 # Usage:
 #   let code: string = (read "examples/hello.nano")
 #   unsafe { (nl_ui_code_display renderer font code 10 10 600 400 0 18) }
-extern fn nl_ui_code_display(_renderer: SDL_Renderer, _font: TTF_Font,
+pub extern fn nl_ui_code_display(_renderer: SDL_Renderer, _font: TTF_Font,
                                _code: string, _x: int, _y: int,
                                _w: int, _h: int, _scroll_offset: int,
                                _line_height: int) -> void
 
 # ANSI code display widget - renders ANSI-colored source strings
-extern fn nl_ui_code_display_ansi(_renderer: SDL_Renderer, _font: TTF_Font,
+pub extern fn nl_ui_code_display_ansi(_renderer: SDL_Renderer, _font: TTF_Font,
                                   _code: string, _x: int, _y: int,
                                   _w: int, _h: int, _scroll_offset: int,
                                   _line_height: int) -> void
 
 # Code editor widget - syntax-highlighted code with line numbers and blinking cursor
 # Pass raw source code (not ANSI). cursor_row/cursor_col are 0-indexed.
-extern fn nl_ui_code_editor(_renderer: SDL_Renderer, _font: TTF_Font,
+pub extern fn nl_ui_code_editor(_renderer: SDL_Renderer, _font: TTF_Font,
                              _code: string, _x: int, _y: int,
                              _w: int, _h: int, _scroll_offset: int,
                              _line_height: int, _cursor_row: int, _cursor_col: int) -> void

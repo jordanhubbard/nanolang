@@ -12,7 +12,7 @@
 
 from "modules/std/fs.nano" import read, exists
 
-struct ResourceSnapshot {
+pub struct ResourceSnapshot {
     pid: int,
     cpu_user_ms: int,
     cpu_sys_ms: int,
@@ -202,7 +202,7 @@ shadow proc_cpu_ticks {
     assert (>= snap.cpu_user_ms 0)
 }
 
-fn resource_snapshot(pid: int) -> ResourceSnapshot {
+pub fn resource_snapshot(pid: int) -> ResourceSnapshot {
     let cpu: ResourceSnapshot = (proc_cpu_ticks pid)
     if (not cpu.valid) { return (empty_snapshot pid) }
     let mem: int = (proc_memory_kb pid)
@@ -217,7 +217,7 @@ shadow resource_snapshot {
     assert (>= snap.memory_kb 0)
 }
 
-fn format_memory(kb: int) -> string {
+pub fn format_memory(kb: int) -> string {
     if (>= kb 1048576) {
         let gb: int = (/ kb 1048576)
         return (+ (int_to_string gb) " GB")
@@ -235,7 +235,7 @@ shadow format_memory {
     assert (== (format_memory 2097152) "2 GB")
 }
 
-fn format_cpu_time(ms: int) -> string {
+pub fn format_cpu_time(ms: int) -> string {
     if (>= ms 60000) {
         let mins: int = (/ ms 60000)
         let secs: int = (/ (% ms 60000) 1000)

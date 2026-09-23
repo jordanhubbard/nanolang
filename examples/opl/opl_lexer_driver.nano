@@ -6,7 +6,8 @@
 # Prerequisites: opl_lexer
 # Expected Output: none
 
-import "examples/opl/opl_lexer.nano"
+from "examples/opl/opl_lexer.nano" import opl_lex
+from "examples/opl/opl_ast.nano" import OplTokensResult
 
 fn main() -> int {
     let r: OplTokensResult = (opl_lex "agent a { uses web.search }")
