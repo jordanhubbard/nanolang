@@ -5539,7 +5539,10 @@ fn check_map_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: 
     }
     let expected_source: NSType = (type_array_of parameter)
     let checked_source: NSType = (check_contextual_value parser source.node_id source.node_type source_type expected_source symbols diags file_name)
-    if (not (reduce_types_exact parser checked_source expected_source)) { return (type_unknown_named "map source") }
+    if (not (reduce_types_exact parser checked_source expected_source)) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require map input elements to match the transform parameter." location))
+        return (type_unknown_named "map source")
+    }
     let name: ASTIdentifier = (parser_get_identifier parser call.function)
     if (== (tc_bound_name name.name name.line symbols) "filter") {
         if (!= result.kind TypeKind.TYPE_BOOL) {
@@ -5577,6 +5580,34 @@ shadow check_map_call {
     let clean: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     assert (== (check_expr_node parser 0 ParseNodeType.PNODE_CALL bound clean "filter.nano").kind TypeKind.TYPE_INT)
     assert (not (checked_value_errors clean 0))
+}
+
+shadow check_map_call {
+    let parser: Parser = (resource_test_parser "fn f() -> void { let direct = (map [1.5] convert) let returned = (map [1.5] (choose)) }")
+    assert (not (parser_has_error parser))
+    let convert: Symbol = (symbol_new "convert" (type_float) false true 1 [(type_int)] (type_float))
+    let choose: Symbol = (symbol_new "choose" (type_from_string "fn(int)->float") false true 0 [] (type_from_string "fn(int)->float"))
+    let symbols: array<Symbol> = [convert, choose]
+    let mut index: int = 0
+    let mut checked: int = 0
+    while (< index (parser_get_call_count parser)) {
+        let call: ASTCall = (parser_get_call parser index)
+        if (== (parser_get_identifier parser call.function).name "map") {
+            let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+            let result: NSType = (check_map_call parser call symbols diags "map.nano")
+            assert (== result.kind TypeKind.TYPE_UNKNOWN)
+            let mut found: bool = false
+            let mut diagnostic: int = 0
+            while (< diagnostic (Diagnostics.diag_list_count diags)) {
+                if (== (Diagnostics.diag_list_get diags diagnostic).message "I require map input elements to match the transform parameter.") { set found true }
+                set diagnostic (+ diagnostic 1)
+            }
+            assert found
+            set checked (+ checked 1)
+        }
+        set index (+ index 1)
+    }
+    assert (== checked 2)
 }
 
 fn array_intrinsic_name(name: string) -> bool {
