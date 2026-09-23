@@ -218,6 +218,7 @@ typedef struct {
     int has_integer_arrays;
     int has_record_array_allocations;
     int has_record_array_getter;
+    int has_record_snapshots;
     int has_nested_arrays;
     int has_owned_strings;
     int has_owned_aggregates;
@@ -1815,6 +1816,20 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot rhs, lhs;
             if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
+            if (facts->final) {
+                Nvm2cSimSlot operands[2] = {lhs, rhs};
+                for (size_t operand = 0; operand < 2; ++operand) {
+                    NvmShapeId shape = operands[operand].shape;
+                    if (!shape) continue;
+                    if (nvm_shape_kind(&b->shapes, shape) == NVM_SHAPE_OPTIONAL)
+                        shape = nvm_shape_lookup(&b->shapes, shape, 0);
+                    if (shape && operands[operand].kind == NVM2C_VK_VALUE &&
+                        nvm_shape_kind(&b->shapes, shape) == NVM_SHAPE_RECORD) {
+                        nvm2c_fail(b, "I do not preserve record identity for tagged comparisons");
+                        return 0;
+                    }
+                }
+            }
             /* Generic comparison observes tags, not equal operand kinds. */
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             if (lhs.integer_known && rhs.integer_known &&
@@ -2307,8 +2322,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &rec)) return 0;
             /* A nested projection can have no local origin. I constrain the
              * consumed shape itself, not only the flat local-kind vector. */
+            if (rec.kind == NVM2C_VK_VALUE) {
+                if (!shape_type(b, rec.shape, NVM_SHAPE_OPTIONAL)) return 0;
+                rec.shape = shape_child(b, rec.shape, 0);
+            }
             if (!shape_type(b, rec.shape, NVM_SHAPE_RECORD)) return 0;
-            mark_origin(local_kind, nloc, rec.origin, NVM2C_VK_REC);
+            if (rec.kind != NVM2C_VK_VALUE)
+                mark_origin(local_kind, nloc, rec.origin, NVM2C_VK_REC);
             if (fi >= b->record_width) {
                 nvm2c_fail(b, "function %u: AGG_GET field is out of range", idx);
                 return 0;
@@ -3055,6 +3075,12 @@ static int stack_pop_expect(Nvm2cBuf *b, Nvm2cStack *st, uint8_t kind, const cha
         char expression[80];
         snprintf(expression, sizeof expression, "(nmap_value){13, 0, (char *)m[%d]}", slot);
         stack_push_value(b, st, expression);
+        return b->failed ? -1 : stack_pop_kind(b, st, NULL);
+    }
+    if (got == NVM2C_VK_VALUE && kind == NVM2C_VK_REC) {
+        char expression[80];
+        snprintf(expression, sizeof expression, "nvalue_require_record(v[%d])", slot);
+        stack_push_rec(b, st, expression);
         return b->failed ? -1 : stack_pop_kind(b, st, NULL);
     }
     if (got == NVM2C_VK_VALUE && kind == NVM2C_VK_MAP) {
@@ -6099,6 +6125,11 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         "static inline narr_t nvalue_require_int_array(nmap_value a) {\n"
         "    if (a.kind != 7 || a.integer != 3 || !a.text) NVM2C_ABORT();\n"
         "    return (narr_t)a.text;\n}\n"
+        "static inline nrec_t nvalue_require_record(nmap_value value) {\n"
+        "    if (value.kind != 8 || !value.text) NVM2C_ABORT();\n"
+        "    const nrec_t *record = (const nrec_t *)value.text;\n"
+        "    if (record->kind != 0) NVM2C_ABORT();\n"
+        "    return *record;\n}\n"
         "static inline int64_t nvalue_array_len(nmap_value a) {\n"
         "    if (a.kind != 7 || !a.text) NVM2C_ABORT();\n"
         "    if (a.integer == 3 || a.integer == 10 || a.integer == 12) return (int64_t)((narr_t)a.text)->len;\n"
@@ -6110,10 +6141,16 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
     nvm2c_puts(b,
         "    NVM2C_ABORT();\n}\n"
         "static inline nmap_value nvalue_array_get(nmap_value a, int64_t index) {\n"
-        "    if (a.integer == 6) NVM2C_ABORT();\n"
         "    int64_t length = nvalue_array_len(a);\n"
         "    if (index < 0 || (uint64_t)index >= (uint64_t)length) return (nmap_value){0, 0, NULL};\n"
         "    size_t at = (size_t)index;\n");
+    if (b->has_record_array_getter && b->has_record_snapshots) nvm2c_puts(b,
+        "    if (a.integer == 6) {\n"
+        "        nrec_t record = nrarr_get((nrarr_t)a.text, index);\n"
+        "        if (record.kind != 0) NVM2C_ABORT();\n"
+        "        return (nmap_value){8, 0, (char *)nrec_snapshot(record)};\n"
+        "    }\n");
+    else nvm2c_puts(b, "    if (a.integer == 6) NVM2C_ABORT();\n");
     if (b->has_nested_arrays) nvm2c_puts(b,
         "    if (a.integer == 13) return naarr_get((naarr_t)a.text, at);\n");
     nvm2c_printf(b,
@@ -7043,6 +7080,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_rarr = need_rarr_lit || module_has_array_constructor(&b, mod, kinds, NVM2C_VK_RARR) ||
             (b.array_shape_kinds & (1u << NVM2C_VK_RARR)) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_RARR);
+        b.has_record_snapshots = module_has_opcode(mod, OP_AGG_PACK) ||
+            (b.has_maps && need_rarr && need_arr_get);
         int need_aarr = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_ARRAY) ||
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_AARR) ||
             (b.array_shape_kinds & (1u << NVM2C_VK_AARR)) ||
@@ -7360,7 +7399,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    if (a.kind == 1 && b.kind == 3) return (double)a.integer == nvalue_require_float(b);\n"
                 "    if (a.kind == 3 && b.kind == 1) return nvalue_require_float(a) == (double)b.integer;\n"
                 "    if (a.kind != b.kind) return 0;\n"
-                "    if (a.kind == 7 || a.kind == 13) return a.text == b.text;\n"
+                "    if (a.kind == 8) NVM2C_ABORT();\n"
+        "    if (a.kind == 7 || a.kind == 13) return a.text == b.text;\n"
                 "    if (a.kind == 3) return nvalue_require_float(a) == nvalue_require_float(b);\n"
                 "    if (a.kind == 0) return 1;\n"
                 "    if (a.kind == 1 || a.kind == 2 || a.kind == 4 || a.kind == 9) return a.integer == b.integer;\n"
@@ -7414,7 +7454,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "           (at != 5 || (a->s[field] && b->s[field]));\n}\n");
         nvm2c_puts(&b,
             "struct nrarr_s { nrec_t *data; size_t len; struct nrarr_owner *owner; };\n\n");
-        if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b,
+        if (b.has_record_snapshots) nvm2c_puts(&b,
             "typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;\n"
             "static nrec_owned *nrec_owned_head;\n"
             "static inline const nrec_t *nrec_snapshot(nrec_t value) {\n"
@@ -7433,7 +7473,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
 #include "nvm2c_map_roots.inc"
             );
             if (b.has_owned_strings) emit_nstr_sweep(&b);
-            if (b.has_owned_aggregates) emit_nagg_sweep(&b, module_has_opcode(mod, OP_AGG_PACK));
+            if (b.has_owned_aggregates) emit_nagg_sweep(&b, b.has_record_snapshots);
             nvm2c_puts(&b, "static void nmap_collect(void) {\n    nroot_list work = {0};\n"
                 "    for (nroot_frame *f = nroot_head; f; f = f->prev)\n"
                 "        for (size_t i = 0; i < f->live.count; ++i)\n"
@@ -7544,7 +7584,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;\n"
             "    (void)nvalue_numeric; (void)nvalue_from_float; (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_u8; (void)nvalue_cast_float; (void)nvalue_equal;\n"
             "    (void)nvalue_compare;\n"
-            "    (void)nvalue_require_int_array; (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
+            "    (void)nvalue_require_record; (void)nvalue_require_int_array; (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
             "    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;\n"
             "    (void)nroot_reset; (void)nmap_collect_if_needed;\n");
         if (b.has_owned_aggregates) nvm2c_puts(&b,
@@ -7564,7 +7604,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             nvm2c_puts(&b, "    (void)nsarr_push;\n");
         if (module_has_opcode(mod, OP_ARR_PUSH) && b.has_integer_arrays)
             nvm2c_puts(&b, "    (void)narr_push;\n");
-        if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
+        if (b.has_record_snapshots) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
         if (module_has_opcode(mod, OP_ARR_SET)) nvm2c_puts(&b, "    (void)nrec_field_storage_matches;\n");
         if (b.has_owned_strings) nvm2c_puts(&b, "    (void)nstr_copy; (void)nstr_take; (void)nstr_copy_release;\n");
         if (module_has_opcode(mod, OP_CAST_STRING)) nvm2c_puts(&b, "    (void)nstr_from_i64; (void)nstr_from_f64;\n");
@@ -7593,7 +7633,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             }
         }
         nvm2c_printf(&b, "    int result = (int)%s();\n", ename);
-        if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    nrec_release_snapshots();\n");
+        if (b.has_record_snapshots) nvm2c_puts(&b, "    nrec_release_snapshots();\n");
         if (b.has_maps) nvm2c_puts(&b, "    nmap_release_owned();\n");
         if (b.has_nested_arrays) nvm2c_puts(&b, "    naarr_release_owned();\n");
         if (b.has_record_array_allocations) nvm2c_puts(&b, "    nrarr_release_owned();\n");
