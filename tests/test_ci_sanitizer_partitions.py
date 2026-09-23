@@ -74,7 +74,7 @@ class SanitizerPartitions(unittest.TestCase):
         value = partition.plan('head', self.inventory())
         self.assertEqual(partition.command_for(value['workers'][0], 'sanitize'), ['make', 'sanitize'])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap'),
-                         ['make', 'build', *partition.FLAGS])
+                         ['make', 'build', *partition.BOOTSTRAP_FLAGS, *partition.FLAGS])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap1'),
                          ['make', 'bootstrap1', *partition.FLAGS])
         for worker in value['workers'][:-1]:
@@ -144,7 +144,8 @@ class SanitizerPartitions(unittest.TestCase):
         value = partition.plan('head', targets, native)
         workers = [w for w in value['workers'] if w['native_bootstrap']]
         self.assertEqual(len(workers), 1)
-        self.assertEqual(partition.command_for(workers[0], 'bootstrap'), ['make', 'bootstrap3', *partition.FLAGS])
+        self.assertEqual(partition.command_for(workers[0], 'bootstrap'),
+                         ['make', 'bootstrap3', *partition.BOOTSTRAP_FLAGS, *partition.FLAGS])
         self.assertEqual(value['native_cflags'], partition.NATIVE_CFLAGS)
         for bad in (['absent'], [native[0], native[0]]):
             with self.assertRaises(ValueError):

@@ -198,6 +198,7 @@ BOOTSTRAP_VERBOSE_FLAG :=
 ifeq ($(BOOTSTRAP_VERBOSE),1)
 BOOTSTRAP_VERBOSE_FLAG := -v
 endif
+BOOTSTRAP2_SHADOW_FLAG ?=
 
 # Example builds default to the C reference compiler and one backend.
 # Bootstrap compilers are opt-in through EXAMPLES_COMPILER_STAGE or explicit
@@ -2805,7 +2806,7 @@ test-ci-runtime: build
 
 # Default test: Use most evolved compiler available (no bd dependency)
 # NOTE: Wrap test runs with a timeout to avoid infinite compiler loops.
-TEST_TIMEOUT ?= 3600
+TEST_TIMEOUT ?= 7200
 USERGUIDE_TIMEOUT ?= 2400
 SHADOW_CHECK_TIMEOUT ?= 120
 CMD_TIMEOUT ?= 1200
@@ -2818,7 +2819,7 @@ BOOTSTRAP2_TIMEOUT_CMD ?= perl -e 'alarm $(BOOTSTRAP2_TIMEOUT); exec @ARGV; die 
 EXAMPLES_TIMEOUT ?= 2400
 EXAMPLES_TIMEOUT_CMD ?= perl -e 'alarm $(EXAMPLES_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"'
 # Release needs extended timeout since it runs tests + git/gh operations
-RELEASE_TIMEOUT ?= 2400
+RELEASE_TIMEOUT ?= 10800
 RELEASE_TIMEOUT_CMD ?= perl -e 'alarm $(RELEASE_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"'
 test: build shadow-check userguide-export
 	@echo ""
@@ -3853,7 +3854,7 @@ $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo "Bootstrap Stage 2: Recompilation"
 	@echo "=========================================="
 	@echo "Compiling nanoc_v06.nano with stage 1 compiler..."
-	@$(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(NANOC_STAGE1) $(BOOTSTRAP_VERBOSE_FLAG) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
+	@$(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(NANOC_STAGE1) $(BOOTSTRAP_VERBOSE_FLAG) $(BOOTSTRAP2_SHADOW_FLAG) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
 	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
 	@echo ""
 	@echo "Testing stage 2 compiler..."

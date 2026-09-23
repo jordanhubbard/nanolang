@@ -91,7 +91,7 @@ shadow pm_shell_quote {
     assert (== (pm_shell_quote "plain") "'plain'")
 }
 
-fn pm_runtime_log_path(example_path: string, pid: int) -> string {
+pub fn pm_runtime_log_path(example_path: string, pid: int) -> string {
     return (+ "/tmp/nanolang-launcher-" (+ (int_to_string pid) (+ "-" (+ (basename example_path) ".log"))))
 }
 
@@ -105,7 +105,7 @@ shadow pm_runtime_log_path {
 # leave a large burst (or the tail of an exiting child) sitting in the pipe.
 # The iteration cap keeps a chatty child from stalling the launcher's frame loop;
 # whatever is left is picked up by the next poll.
-fn pm_drain_fd(fd: int) -> string {
+pub fn pm_drain_fd(fd: int) -> string {
     if (< fd 0) { return "" }
     let mut collected: string = ""
     let mut reads: int = 0
@@ -135,7 +135,7 @@ shadow pm_drain_fd {
 
 # I keep the tail of a capture, because that is where the diagnostic lives.
 # The complete stream always stays on disk in the per-launch log.
-fn pm_tail(text: string, max_chars: int) -> string {
+pub fn pm_tail(text: string, max_chars: int) -> string {
     let tlen: int = (str_length text)
     if (<= tlen max_chars) { return text }
     return (+ "[... I truncated the earlier output; the full stream is in the log file ...]\n"
@@ -151,7 +151,7 @@ shadow pm_tail {
 # I record which examples I already filed so repeated launches of the same
 # broken example do not create duplicate tasks, even across launcher restarts
 # and even when the `mac` CLI is unavailable.
-fn pm_failure_marker_path(example_path: string) -> string {
+pub fn pm_failure_marker_path(example_path: string) -> string {
     return (+ "/tmp/nanolang-launcher-filed-" (+ (basename example_path) ".marker"))
 }
 
@@ -160,7 +160,7 @@ shadow pm_failure_marker_path {
         "/tmp/nanolang-launcher-filed-sdl_pong.nano.marker")
 }
 
-fn pm_output_has_error(output: string) -> bool {
+pub fn pm_output_has_error(output: string) -> bool {
     let lower: string = (str_to_lower output)
     if (str_contains lower "addresssanitizer") { return true }
     if (str_contains lower "segmentation fault") { return true }

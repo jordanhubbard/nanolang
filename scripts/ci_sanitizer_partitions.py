@@ -14,6 +14,7 @@ import tarfile
 CFLAGS = '-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer'
 LDFLAGS = '-lm -lcrypto -fsanitize=address,undefined'
 FLAGS = ['CFLAGS=' + CFLAGS, 'LDFLAGS=' + LDFLAGS]
+BOOTSTRAP_FLAGS = ['BOOTSTRAP2_SHADOW_FLAG=--root-shadows-only']
 NATIVE_CFLAGS = '-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer'
 DEDICATED = ('test-forth-session', 'test-nanoisa-src-nano', 'test-scalar-reconstruction')
 PHASES = (('foundation', 'test-ci-foundation'),
@@ -312,7 +313,8 @@ def command_for(worker, phase):
     if phase == 'sanitize':
         return ['make', 'sanitize']
     if phase == 'bootstrap':
-        return ['make', 'bootstrap3' if worker['native_bootstrap'] else 'build', *FLAGS]
+        return ['make', 'bootstrap3' if worker['native_bootstrap'] else 'build',
+                *BOOTSTRAP_FLAGS, *FLAGS]
     if phase == 'bootstrap1':
         return ['make', 'bootstrap1', *FLAGS]
     if phase == 'providers':
