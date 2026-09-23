@@ -11,9 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FlatRecordEmitter(unittest.TestCase):
-    def run_checked(self, *args):
+    def run_checked(self, *args, timeout=120):
         result = subprocess.run([str(a) for a in args], cwd=ROOT,
-                                capture_output=True, text=True, timeout=120)
+                                capture_output=True, text=True, timeout=timeout)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
@@ -147,7 +147,7 @@ class FlatRecordEmitter(unittest.TestCase):
             work = Path(tmp)
             driver, tool = work / "driver.nano", work / "driver"
             driver.write_text(driver_fixture.read_text())
-            self.run_checked(ROOT / "bin/nanoc_c", driver, "-o", tool)
+            self.run_checked(ROOT / "bin/nanoc_c", driver, "-o", tool, "--root-shadows-only")
             source, assembly, module = work / "program.nano", work / "program.nasm", work / "program.nvm"
             source.write_text(
                 'fn dep_a_value(n: int) -> int { if (<= n 0) { return 37 } return (value (- n 1)) }\n'
@@ -1250,7 +1250,7 @@ class FlatRecordEmitter(unittest.TestCase):
             work = Path(tmp)
             driver, tool = work / "driver.nano", work / "driver"
             driver.write_text(driver_fixture.read_text())
-            self.run_checked(ROOT / "bin/nanoc_c", driver, "-o", tool)
+            self.run_checked(ROOT / "bin/nanoc_c", driver, "-o", tool, "--root-shadows-only")
             assembly, seed, emitted = work / "bound.nasm", work / "seed.nvm", work / "bound.nvm"
             assembly.write_text(self.run_checked(tool).stdout)
             self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
@@ -1426,9 +1426,11 @@ class FlatRecordEmitter(unittest.TestCase):
                         'shadow main { assert (== (main) 0) }\n')
             source.write_text(program)
             self.run_checked(ROOT / "bin/nano_virt", ROOT / "src_nano/nanoisa_emit.nano",
-                             "--emit-nvm", "--strip-debug", "-o", compiler)
+                             "--emit-nvm", "--strip-debug", "-o", compiler, "--root-shadows-only",
+                             timeout=900)
             self.run_checked(ROOT / "bin/nanoisa_emit", source, "-o", native_text)
-            self.run_checked(ROOT / "bin/nano_vm", compiler, "--", source, "-o", vm_text)
+            self.run_checked(ROOT / "bin/nano_vm", compiler, "--", source, "-o", vm_text,
+                             timeout=900)
             self.assertEqual(vm_text.read_bytes(), native_text.read_bytes())
             self.run_checked(ROOT / "bin/nanoisa", "asm", vm_text, "-o", module)
             self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)

@@ -2290,7 +2290,7 @@ static bool module_needs_rebuild_with_flags(const char *module_dir, ModuleBuildM
     struct stat object_stat;
     if (lstat(object_file, &object_stat) != 0 || !S_ISREG(object_stat.st_mode) || object_stat.st_size == 0) {
         if (module_builder_verbose) {
-            printf("[Module] %s needs build: object file missing\n", meta->name);
+            fprintf(stderr, "[Module] %s needs build: object file missing\n", meta->name);
         }
         return true;
     }
@@ -2311,7 +2311,7 @@ static bool module_needs_rebuild_with_flags(const char *module_dir, ModuleBuildM
     if (lstat(shared_lib, &library_stat) != 0 || !S_ISREG(library_stat.st_mode) ||
         library_stat.st_size == 0) {
         if (module_builder_verbose) {
-            printf("[Module] I must rebuild %s: shared library missing or empty\n", meta->name);
+            fprintf(stderr, "[Module] I must rebuild %s: shared library missing or empty\n", meta->name);
         }
         return true;
     }
@@ -2321,7 +2321,7 @@ static bool module_needs_rebuild_with_flags(const char *module_dir, ModuleBuildM
      * (handles git checkout, rsync copies, CI environments). */
     if (hashes_match(module_dir, meta, flags)) {
         if (module_builder_verbose) {
-            printf("[Module] %s up-to-date (hash cache hit)\n", meta->name);
+            fprintf(stderr, "[Module] %s up-to-date (hash cache hit)\n", meta->name);
         }
         return false;
     }
@@ -5063,7 +5063,7 @@ static int module_execute_unit(ModuleBuildMetadata *meta, const ModulePkgFlags *
     const char *source = group ? meta->shared_c_sources[index] : meta->c_sources[index];
     if (mode == MODULE_SNAPSHOT_NATIVE_UNITS && module_source_kind(source) > 1) {
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))
-            printf("[Module] I copy captured native unit %s\n", source);
+            fprintf(stderr, "[Module] I copy captured native unit %s\n", source);
         return module_copy_native_unit(directory, group, index, object) ? 0 : -1;
     }
 #ifdef __linux__
@@ -5077,7 +5077,7 @@ static int module_execute_unit(ModuleBuildMetadata *meta, const ModulePkgFlags *
         if (fd < 0) return -1;
         bool ok = module_snapshot_command(meta, flags, command, capacity, prefix, directory, group, index,
                                            object, mode, descriptor);
-        if (ok && (module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))) printf("[Module] %s\n", command);
+        if (ok && (module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))) fprintf(stderr, "[Module] %s\n", command);
         if (ok) ok = module_read_execute(command);
         if (close(fd)) ok = false;
         int status = ok ? 0 : -1;
@@ -5086,7 +5086,7 @@ static int module_execute_unit(ModuleBuildMetadata *meta, const ModulePkgFlags *
 #endif
     if (mode != MODULE_SNAPSHOT_NONE &&
         !module_snapshot_command(meta, flags, command, capacity, prefix, directory, group, index, object, mode, NULL)) return -1;
-    if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) printf("[Module] %s\n", command);
+    if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) fprintf(stderr, "[Module] %s\n", command);
     if (dependency) return module_run_source_command(command, dependency);
     return module_build_append(command, capacity, " 2>/dev/null") ? system(command) : -1;
 }
@@ -5564,7 +5564,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             return NULL;
         }
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-            printf("[Module] Building %s...\n", meta->name ? meta->name : "unknown");
+            fprintf(stderr, "[Module] Building %s...\n", meta->name ? meta->name : "unknown");
         }
 
         // Get CC from environment, module.json, or use POSIX cc
@@ -5640,7 +5640,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             }
 
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-                printf("[Module] %s\n", combine_cmd);
+                fprintf(stderr, "[Module] %s\n", combine_cmd);
             }
 
             int combine_result = command_ok ? system(combine_cmd) : -1;
@@ -5656,7 +5656,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         }
 
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-            printf("[Module] ✓ Built %s\n", meta->name);
+            fprintf(stderr, "[Module] ✓ Built %s\n", meta->name);
         }
         
         /* Also create shared library for interpreter FFI */
@@ -5721,7 +5721,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 
             /* Build shared library */
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-                printf("[Module] Building shared library: %s\n", lib_cmd);
+                fprintf(stderr, "[Module] Building shared library: %s\n", lib_cmd);
             }
             
             int lib_result = -1;
@@ -5770,12 +5770,12 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 free(build_dir);
                 return NULL;
             } else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-                printf("[Module] ✓ Built shared library %s\n", shared_lib);
+                fprintf(stderr, "[Module] ✓ Built shared library %s\n", shared_lib);
             }
         }
     } else {
         if (module_builder_verbose) {
-            printf("[Module] %s up to date (using cache)\n", meta->name);
+            fprintf(stderr, "[Module] %s up to date (using cache)\n", meta->name);
         }
     }
 

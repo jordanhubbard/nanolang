@@ -1322,7 +1322,7 @@ print("-D" + ("VALUE" if query == "cflags" else "LINK_VALUE") + "=" +
                                         env=env | {"NANO_VERBOSE_BUILD": "1"},
                                         capture_output=True, timeout=20)
                 self.assertEqual(result.returncode, 0, result.stderr)
-                return result.stdout.decode().splitlines()
+                return (result.stdout + result.stderr).decode().splitlines()
 
             lines = build(module)
             self.assertIn("compile:-DVALUE=42", lines)

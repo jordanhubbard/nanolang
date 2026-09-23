@@ -1902,7 +1902,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
     }
     
     if (verbose) {
-        printf("[Modules] Processing %d module(s)...\n", modules->count);
+        fprintf(stderr, "[Modules] Processing %d module(s)...\n", modules->count);
     }
     
     char generated_objects[4096];
