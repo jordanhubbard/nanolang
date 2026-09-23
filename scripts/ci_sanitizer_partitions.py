@@ -16,6 +16,14 @@ LDFLAGS = '-lm -lcrypto -fsanitize=address,undefined'
 FLAGS = ['CFLAGS=' + CFLAGS, 'LDFLAGS=' + LDFLAGS]
 NATIVE_CFLAGS = '-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer'
 DEDICATED = ('test-forth-session', 'test-nanoisa-src-nano', 'test-scalar-reconstruction')
+PHASES = (('foundation', 'test-ci-foundation'),
+          ('programs-language', 'test-ci-programs-language'),
+          ('programs-app', 'test-ci-programs-app'),
+          ('programs-unit', 'test-ci-programs-unit'),
+          ('contracts', 'test-ci-contracts'),
+          ('integrations', 'test-ci-integrations'),
+          ('forth-complete', 'test-ci-forth'),
+          ('runtime', 'test-ci-runtime'))
 PROVIDERS = ['nanoisa_emit', 'nano_virt', 'nano_vm', 'nvm2c', 'nvm2c-runtime', 'nanoisa_dump']
 UNIT_PARTITIONS = 28
 BUNDLE_ROOTS = ('bin', 'obj', 'obj-runtime', 'lib', 'build')
@@ -23,6 +31,8 @@ BUNDLE_SENTINELS = ('.stage1.built', '.stage2.built', '.stage3.built',
                     '.bootstrap0.built', '.bootstrap1.built', '.bootstrap2.built', '.bootstrap3.built')
 BUNDLE_PRODUCTS = {
     'base': ('bin/nanoc_c',),
+    'stage1': ('bin/nanoc_c', 'bin/nanoc_stage1'),
+    'stage2': ('bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage2'),
     'bootstrap': ('bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage2',
                   'bin/nanoisa_emit', 'bin/nano_virt', 'bin/nano_vm', 'bin/nvm2c', 'bin/nanoisa_dump'),
 }
@@ -46,7 +56,7 @@ def validate_targets(targets):
     if not targets or len(targets) != len(set(targets)) or any(
             not re.fullmatch(r'test-[a-z0-9-]+', item) for item in targets):
         raise ValueError('I refuse ambiguous or unsupported unit prerequisites.')
-    for required in (*DEDICATED, 'test-units-tail'):
+    for required in (*DEDICATED, *(target for _, target in PHASES), 'test-units-tail'):
         if required not in targets:
             raise ValueError('I require the original dedicated workers and trailing recipe.')
     return targets
@@ -141,7 +151,9 @@ def plan(head, targets, native_bootstrap_targets=()):
     workers = [{'id': 'forth', 'targets': [DEDICATED[0]]},
                {'id': 'source', 'targets': [DEDICATED[1]]},
                {'id': 'scalar', 'targets': [DEDICATED[2]]}]
-    remainder = [target for target in targets if target not in DEDICATED]
+    workers.extend({'id': name, 'targets': [target]} for name, target in PHASES)
+    dedicated = set(DEDICATED) | {target for _, target in PHASES}
+    remainder = [target for target in targets if target not in dedicated]
     workers.extend({'id': f'units-{index:02}', 'targets': remainder[index::UNIT_PARTITIONS]}
                    for index in range(UNIT_PARTITIONS))
     if any(not worker['targets'] for worker in workers):
@@ -301,6 +313,8 @@ def command_for(worker, phase):
         return ['make', 'sanitize']
     if phase == 'bootstrap':
         return ['make', 'bootstrap3' if worker['native_bootstrap'] else 'build', *FLAGS]
+    if phase == 'bootstrap1':
+        return ['make', 'bootstrap1', *FLAGS]
     if phase == 'providers':
         if worker['id'] != 'source':
             raise ValueError('I prepare extra source-emitter providers only for their worker.')

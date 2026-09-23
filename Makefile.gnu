@@ -2671,9 +2671,16 @@ test-forth-wordsets:
 	@echo "Checking 280 example T{ cases via C file-source REFILL..."
 	@$(MAKE) --no-print-directory test-forth-examples
 
-# Core test implementation (used by all test variants)
-.PHONY: test-impl
+# Core test implementation (used by all test variants). I expose each phase so
+# hosted runners can execute the same complete gate inside bounded leases.
+.PHONY: test-impl test-ci-foundation test-ci-programs-language test-ci-programs-app test-ci-programs-unit
+.PHONY: test-ci-contracts test-ci-integrations test-ci-forth test-ci-runtime
 test-impl: test-units
+
+test-units: test-ci-foundation test-ci-programs-language test-ci-programs-app test-ci-programs-unit
+test-units: test-ci-contracts test-ci-integrations test-ci-forth test-ci-runtime
+
+test-ci-foundation: build
 	@python3 tests/test_test_compiler_selection.py
 	@bash tests/test_make_header_dependencies.sh
 	@$(MAKE) --no-print-directory test-bootstrap-dependencies
@@ -2687,11 +2694,23 @@ test-impl: test-units
 	@$(MAKE) --no-print-directory test-locale-catalog
 	@$(MAKE) --no-print-directory test-i18n-scripts
 	@$(TIMEOUT_CMD) ./scripts/check_compiler_schema.sh
+
+test-ci-programs-language: build
 	@echo ""
-	@echo "=========================================="
-	@echo "Running Complete Test Suite"
-	@echo "=========================================="
-	@./tests/run_all_tests.sh
+	@echo "Running core language programs"
+	@./tests/run_all_tests.sh --lang
+
+test-ci-programs-app: build
+	@echo ""
+	@echo "Running application and user-guide programs"
+	@./tests/run_all_tests.sh --app
+
+test-ci-programs-unit: build
+	@echo ""
+	@echo "Running NanoLang unit programs"
+	@./tests/run_all_tests.sh --unit
+
+test-ci-contracts: build
 	@echo ""
 	@echo "Testing malformed-input compiler contracts..."
 	@$(MAKE) --no-print-directory test-negative
@@ -2713,6 +2732,8 @@ test-impl: test-units
 	@echo ""
 	@echo "Testing equivalent programs across compiler backends..."
 	@$(MAKE) --no-print-directory test-cross-backend
+
+test-ci-integrations: build
 	@echo ""
 	@echo "Testing the GLUT initialization boundary..."
 	@$(MAKE) --no-print-directory test-glut-init
@@ -2738,6 +2759,8 @@ test-impl: test-units
 	@echo ""
 	@echo "Checking stdlib documentation coverage..."
 	@bash tests/check_stdlib_docs.sh
+
+test-ci-forth: build
 	@echo ""
 	@echo "Checking Forth 2012 pins and Gforth differential runs..."
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
@@ -2764,6 +2787,8 @@ else
 	@echo "Checking Forth IDE build and graphical smoke..."
 	@$(MAKE) --no-print-directory test-forth-ide-smoke
 endif
+
+test-ci-runtime: build
 	@echo ""
 	@echo "Testing language examples under the tree-walking interpreter..."
 	@$(MAKE) --no-print-directory test-interpreter-examples
@@ -2777,10 +2802,6 @@ endif
 	else \
 		echo "Skipping proptest: $(INTERPRETER) not built (run 'make build' first)"; \
 	fi
-	@echo ""
-	@echo "✅ All tests completed!"
-	@echo ""
-	@echo "To build examples, run: make examples"
 
 # Default test: Use most evolved compiler available (no bd dependency)
 # NOTE: Wrap test runs with a timeout to avoid infinite compiler loops.

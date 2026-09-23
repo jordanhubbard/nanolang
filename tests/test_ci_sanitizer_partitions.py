@@ -17,7 +17,7 @@ spec.loader.exec_module(partition)
 
 class SanitizerPartitions(unittest.TestCase):
     def inventory(self):
-        return [*partition.DEDICATED, 'test-units-tail',
+        return [*partition.DEDICATED, *(target for _, target in partition.PHASES), 'test-units-tail',
                 *(f'test-control-{index}' for index in range(40))]
 
     def test_exact_union_and_fixed_dedicated_workers(self):
@@ -29,7 +29,9 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(value['workers'][0]['targets'], ['test-forth-session'])
         self.assertEqual(value['workers'][1]['targets'], ['test-nanoisa-src-nano'])
         self.assertEqual(value['workers'][2]['targets'], ['test-scalar-reconstruction'])
-        self.assertEqual(len(value['workers']), 32)
+        self.assertEqual(len(value['workers']), 40)
+        self.assertEqual([(worker['id'], worker['targets'][0]) for worker in value['workers'][3:11]],
+                         list(partition.PHASES))
         self.assertEqual(value['workers'][-1], {'id': 'negative', 'targets': [], 'native_bootstrap': False})
 
     def test_new_target_is_included_and_changes_digest(self):
@@ -73,6 +75,8 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(partition.command_for(value['workers'][0], 'sanitize'), ['make', 'sanitize'])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap'),
                          ['make', 'build', *partition.FLAGS])
+        self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap1'),
+                         ['make', 'bootstrap1', *partition.FLAGS])
         for worker in value['workers'][:-1]:
             self.assertEqual(partition.command_for(worker, 'tests'), ['make', *worker['targets'], *partition.FLAGS])
         self.assertEqual(partition.command_for(value['workers'][-1], 'tests'), ['bash', 'tests/run_negative_tests.sh'])
@@ -179,6 +183,12 @@ class SanitizerPartitions(unittest.TestCase):
                                                         archive, description)
                 self.assertTrue(restored['success'])
                 self.assertEqual(Path('bin/nanoc_c').read_bytes(), b'instrumented compiler')
+                os.chdir(source)
+                (source / 'bin/nanoc_stage1').write_bytes(b'instrumented stage 1')
+                with mock.patch.object(partition, 'current_head', return_value='head'):
+                    stage1 = partition.bundle_create(output, value, 'stage1')
+                self.assertEqual(set(stage1['products']), {'bin/nanoc_c', 'bin/nanoc_stage1'})
+                os.chdir(restored_tmp)
                 tampered = source / 'tampered.tar.gz'
                 tampered.write_bytes(archive.read_bytes() + b'modified')
                 tampered_data = json.loads(description.read_text())
@@ -274,15 +284,25 @@ class SanitizerPartitions(unittest.TestCase):
         instrumentation = next(step for step in workers['steps'] if step.get('id') == 'instrumentation')
         self.assertIn(' instrumentation --manifest ', instrumentation['run'])
         self.assertLess(workers['steps'].index(instrumentation), workers['steps'].index(tests))
-        self.assertEqual(jobs['sanitizer-workers']['needs'], ['sanitizer-plan', 'sanitizer-bootstrap'])
+        self.assertEqual(jobs['sanitizer-workers']['needs'], ['sanitizer-plan', 'sanitizer-providers'])
         self.assertEqual(jobs['sanitizers']['needs'],
-                         ['sanitizer-plan', 'sanitizer-base', 'sanitizer-bootstrap', 'sanitizer-workers'])
+                         ['sanitizer-plan', 'sanitizer-base', 'sanitizer-stage1',
+                          'sanitizer-bootstrap', 'sanitizer-providers', 'sanitizer-workers'])
+        self.assertEqual(jobs['sanitizer-stage1']['needs'], ['sanitizer-plan', 'sanitizer-base'])
+        self.assertEqual(jobs['sanitizer-bootstrap']['needs'], ['sanitizer-plan', 'sanitizer-stage1'])
+        self.assertEqual(jobs['sanitizer-providers']['needs'], ['sanitizer-plan', 'sanitizer-bootstrap'])
         self.assertEqual(jobs['sanitizers']['if'], 'always()')
         aggregate = next(step for step in jobs['sanitizers']['steps'] if 'run' in step)
         self.assertIn('test "$WORKER_RESULT" = success', aggregate['run'])
         self.assertIn('test "$PLAN_RESULT" = success', aggregate['run'])
         self.assertIn('test "$BASE_RESULT" = success', aggregate['run'])
+        self.assertIn('test "$STAGE1_RESULT" = success', aggregate['run'])
+        self.assertIn('test "$PROVIDERS_RESULT" = success', aggregate['run'])
         self.assertIn('test "$BOOTSTRAP_RESULT" = success', aggregate['run'])
+        platform_runs = [step.get('run', '') for step in jobs['build-and-test']['steps']]
+        self.assertNotIn('make test TEST_TIMEOUT=3600', platform_runs)
+        coverage_tests = next(step for step in jobs['coverage']['steps'] if step.get('name') == 'Run tests')
+        self.assertEqual(coverage_tests['run'], './tests/run_all_tests.sh')
         for step in workers['steps']:
             self.assertNotIn('continue-on-error', step)
 

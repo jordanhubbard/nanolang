@@ -20,6 +20,9 @@ class BootstrapDependencies(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         shutil.copyfile(MAKEFILE, self.root / "Makefile.gnu")
+        (self.root / "scripts").mkdir()
+        shutil.copyfile(ROOT / "scripts/native_sdk_objects.mk",
+                        self.root / "scripts/native_sdk_objects.mk")
         self.sources = ["src_nano/parser.nano", "src_nano/compiler/module_loader.nano",
                         "src_nano/compiler/nested/new_import.nano"]
         self.runtime_inputs = ["modules/std/fs.c", "modules/std/fs.h", "modules/std/module.json",
