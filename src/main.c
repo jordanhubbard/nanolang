@@ -556,8 +556,13 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
             fprintf(stderr, "I cannot measure the shadow execution deadline.\n");
         else if (timed_out || (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
             fprintf(stderr, "I stopped shadow execution after %d seconds.\n", shadow_seconds);
+        else if (WIFSIGNALED(status))
+            fprintf(stderr, "I stopped shadow execution after signal %d.\n", WTERMSIG(status));
+        else if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+            fprintf(stderr, "I will not publish output after shadow execution exited with status %d.\n",
+                    WEXITSTATUS(status));
         else
-            fprintf(stderr, "I will not publish output after failed shadow execution.\n");
+            fprintf(stderr, "I will not publish output without completed shadow execution.\n");
         return false;
     }
     return true;

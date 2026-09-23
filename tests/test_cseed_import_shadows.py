@@ -4,6 +4,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import subprocess
+import signal
 import tempfile
 import unittest
 
@@ -179,15 +180,17 @@ class CseedImportShadows(unittest.TestCase):
 
     def test_hanging_or_crashing_dependency_preserves_output(self):
         for body in ("while true { }", "let values: array<int> = [1] (at values 2)",
-                     "unsafe { (abort) }", "unsafe { (nano_shadow_exit_zero) }"):
+                     "unsafe { (abort) }", "unsafe { (nano_shadow_exit_zero) }",
+                     "unsafe { (nano_shadow_exit_seven) }"):
             with self.subTest(body=body), tempfile.TemporaryDirectory(prefix="nano-shadow-supervisor-") as tmp:
                 directory = Path(tmp)
                 module_dir = directory / "foreign"
                 module_dir.mkdir()
-                (module_dir / "exit.c").write_text('#include <stdlib.h>\nvoid nano_shadow_exit_zero(void) { exit(0); }\n')
+                (module_dir / "exit.c").write_text('#include <stdlib.h>\nvoid nano_shadow_exit_zero(void) { exit(0); }\n'
+                                                          'void nano_shadow_exit_seven(void) { exit(7); }\n')
                 (module_dir / "module.json").write_text(json.dumps({"name": "shadow_exit", "c_sources": ["exit.c"]}))
                 leaf = module_dir / "leaf.nano"
-                leaf.write_text(f'extern fn abort() -> void\nextern fn nano_shadow_exit_zero() -> void\n'
+                leaf.write_text(f'extern fn abort() -> void\nextern fn nano_shadow_exit_zero() -> void\nextern fn nano_shadow_exit_seven() -> void\n'
                                 f'pub fn answer() -> int {{ return 42 }}\nshadow answer {{ {body} }}\n')
                 source = f'module "{leaf}" as lib\nfn main() -> int {{ return (lib.answer) }}\n'
                 output = directory / "program"
@@ -203,6 +206,12 @@ class CseedImportShadows(unittest.TestCase):
                 self.assertIsNone(data["test_count"])
                 if "while" in body:
                     self.assertIn(b"10 seconds", result.stderr)
+                elif "abort" in body:
+                    self.assertIn(f"after signal {signal.SIGABRT}".encode(), result.stderr)
+                elif "exit_zero" in body:
+                    self.assertIn(b"without completed shadow execution", result.stderr)
+                elif "exit_seven" in body:
+                    self.assertIn(b"exited with status 7", result.stderr)
 
     def test_filesystem_shadows_use_private_fixtures_outside_repository(self):
         with tempfile.TemporaryDirectory(prefix="nano-cseed-fs-") as tmp:
