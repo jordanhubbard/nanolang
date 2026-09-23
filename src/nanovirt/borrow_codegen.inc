@@ -32,6 +32,8 @@ typedef struct {
     ASTNode *records[MAX_STRUCT_DEFS], *helper, *functions[8];
     BorrowUnion unions[256];
     unsigned function_count, current_function;
+    ASTNode *globals[NVM_OWNERSHIP_MAX_SCALAR_GLOBALS];
+    unsigned global_count;
     bool value_graph, mixed, owner_arrays, union_graph;
     bool ordinary[MAX_STRUCT_DEFS];
     uint32_t result_layout, expression_layout;
@@ -66,6 +68,11 @@ static uint8_t borrow_field_tag(Type type) {
 /* I do not grant float fields or signatures by admitting value locals. */
 static uint8_t borrow_local_tag(Type type) {
     return type==TYPE_FLOAT?TAG_FLOAT:borrow_field_tag(type);
+}
+static int borrow_global(BorrowCG *b,const char *name) {
+    for(unsigned i=0;i<b->global_count;i++)
+        if(!strcmp(b->globals[i]->as.let.name,name))return (int)i;
+    return -1;
 }
 /* I keep parameter transport separate from resource-leaf eligibility. */
 static uint8_t borrow_parameter_tag(Type type) {
@@ -576,6 +583,14 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
     if(n->type==AST_BOOL){emit_op(cg,OP_PUSH_BOOL,(int)n->as.bool_val);return TAG_BOOL;}
     if(n->type==AST_IDENTIFIER) {
         int local=borrow_local(b,n->as.identifier);
+        if(local<0) {
+            int global=borrow_global(b,n->as.identifier);
+            if(global>=0) {
+                b->expression_layout=NVM_V2_NO_INDEX;
+                emit_op(cg,OP_LOAD_GLOBAL,global);
+                return borrow_local_tag(b->globals[global]->as.let.var_type);
+            }
+        }
         if(local<0 || !b->live[local] || (b->tags[local]==TAG_STRUCT && !borrow_ordinary_local(b,(unsigned)local))) {
             borrow_error(b,n,"a live scalar value, not a copied owner/reference");return TAG_VOID;
         }
@@ -1318,7 +1333,14 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
             emit_op(cg,OP_ASSERT);
         } else if(n->type==AST_SET) {
             int local=borrow_local(b,n->as.set.name);
-            if(local<0){borrow_error(b,n,"an existing mutable target");break;}
+            if(local<0) {
+                int global=borrow_global(b,n->as.set.name);
+                if(global<0 || !b->globals[global]->as.let.is_mut || n->as.set.field_name ||
+                   borrow_expr(b,n->as.set.value)!=borrow_local_tag(b->globals[global]->as.let.var_type)) {
+                    borrow_error(b,n,"an existing mutable scalar global of the same type");break;
+                }
+                emit_op(cg,OP_STORE_GLOBAL,global);continue;
+            }
             if(borrow_ordinary_local(b,(unsigned)local) || b->tags[local]==TAG_ARRAY) {borrow_error(b,n,"ordinary managed bindings without assignment");break;}
             if(!n->as.set.field_name && b->tags[local]==TAG_STRUCT) {
                 ASTNode *value=n->as.set.value;
@@ -1383,6 +1405,12 @@ static void borrow_function(BorrowCG *b,ASTNode *function,bool shadows,unsigned 
             borrow_slot(b,p->name,tag,layout,b->value_graph?0:p->type==TYPE_BORROW_MUT?2:1,false);
             borrow_name_begin(b,(unsigned)i,p->name);
         }
+    }
+    if(!index) for(unsigned global=0;global<b->global_count && !cg->had_error;global++) {
+        ASTNode *declaration=b->globals[global];
+        if(borrow_expr(b,declaration->as.let.value)!=borrow_local_tag(declaration->as.let.var_type))
+            borrow_error(b,declaration,"an exact scalar global initializer");
+        emit_op(cg,OP_STORE_GLOBAL,global);
     }
     if(shadows && !index) {
         for(unsigned p=0;p<b->program_count && !cg->had_error;p++) {
@@ -1636,11 +1664,17 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
             for(unsigned j=0;j<declared_count;j++)if(!strcmp(declared[j]->as.function.name,n->as.function.name))borrow_error(b,n,"distinct function declarations");
             declared[declared_count++]=n;
             for(int j=0;j<n->as.function.param_count;j++)if(n->as.function.params[j].type==TYPE_BORROW_SHARED || n->as.function.params[j].type==TYPE_BORROW_MUT)has_borrow=true;
+        } else if(n->type==AST_LET) {
+            if(n->as.let.is_destructure || !n->as.let.name || !borrow_local_tag(n->as.let.var_type) ||
+               b->global_count==NVM_OWNERSHIP_MAX_SCALAR_GLOBALS || borrow_global(b,n->as.let.name)>=0)
+                borrow_error(b,n,"at most 256 distinct plain scalar global declarations");
+            else b->globals[b->global_count++]=n;
         } else if(n->type!=AST_SHADOW && n->type!=AST_IMPORT && n->type!=AST_MODULE_DECL)
             borrow_error(b,n,"only resource records, scalar unions, main, one helper and selected shadows");
     }
     for(unsigned p=0;p<b->program_count && !cg->had_error;p++)borrow_collect_unions(b,b->programs[p]);
     b->value_graph=!has_borrow;b->consuming=b->value_graph;
+    if(b->global_count && (borrow_arrays(b) || has_borrow))borrow_error(b,NULL,"scalar globals in a standalone owned value graph");
     if(b->union_graph && (borrow_arrays(b) || has_borrow))borrow_error(b,NULL,"standalone union value graphs without managed arrays or borrows");
     if(borrow_arrays(b) && has_borrow)borrow_error(b,NULL,"managed arrays only in my value graph");
     if(b->owner_arrays && b->mixed)borrow_error(b,NULL,"separate ordinary Samples and owner ARRAY profiles");
@@ -1736,11 +1770,11 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
             }
             if(!nvm_set_function_param_types(cg->module,i,parameters,f.arity))borrow_error(b,NULL,"exact positional parameter tags");
         }
-        borrow_word(b,b->union_graph?NVM_OWNERSHIP_UNION_GRAPH_VERSION:
+        borrow_word(b,(b->union_graph || b->global_count)?NVM_OWNERSHIP_UNION_GRAPH_VERSION:
                     b->union_count?NVM_OWNERSHIP_EXTENSION_VERSION:NVM_OWNERSHIP_VERSION,4);
         borrow_word(b,b->record_count+b->union_count,4);
         for(unsigned i=0;i<b->record_count;i++)borrow_word(b,b->ordinary[i]?1:3,1);
-        for(unsigned i=0;i<b->union_count;i++)borrow_word(b,b->union_graph?
+        for(unsigned i=0;i<b->union_count;i++)borrow_word(b,(b->union_graph || b->global_count)?
             NVM_LAYOUT_COMPLETE|(b->unions[i].resource?NVM_LAYOUT_RESOURCE:0):0,1);
         while(!cg->had_error && b->contract_size%4)borrow_word(b,0,1);
         borrow_word(b,b->function_count,4);
@@ -1749,10 +1783,10 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
         for(unsigned i=0;i<b->pending_name_count && !cg->had_error;i++)
             if(!nvm_add_local_binding(cg->module,&b->pending_names[i]))
                 borrow_error(b,NULL,"available lexical-name storage");
-        if((b->path_count || b->union_count) && !cg->had_error) {
-            if(!b->union_count)borrow_patch_word(b,0,NVM_OWNERSHIP_PATH_VERSION,1);
+        if((b->path_count || b->union_count || b->global_count) && !cg->had_error) {
+            if(!b->union_count && !b->global_count)borrow_patch_word(b,0,NVM_OWNERSHIP_PATH_VERSION,1);
             size_t paths_at=b->contract_size;
-            if(b->union_count)borrow_word(b,0,4);
+            if(b->union_count || b->global_count)borrow_word(b,0,4);
             size_t paths_begin=b->contract_size;
             borrow_word(b,b->path_count,4);
             for(unsigned path=0;path<b->path_count;path++) {
@@ -1760,10 +1794,12 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
                 for(unsigned f=0;f<b->path_lengths[path];f++)borrow_word(b,b->paths[path][f],2);
                 while(!cg->had_error && b->contract_size%4)borrow_word(b,0,1);
             }
-            if(b->union_count && !cg->had_error) {
+            if((b->union_count || b->global_count) && !cg->had_error) {
                 uint32_t path_bytes=(uint32_t)(b->contract_size-paths_begin);
                 borrow_patch_word(b,paths_at,path_bytes,4);
-                borrow_word(b,1,4);
+                borrow_word(b,(b->union_count?1:0)+(b->global_count?1:0),4);
+            }
+            if(b->union_count && !cg->had_error) {
                 borrow_word(b,NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS,2);
                 borrow_word(b,NVM_OWNERSHIP_EXTENSION_REVISION_1,2);
                 size_t size_at=b->contract_size;borrow_word(b,0,4);size_t payload=b->contract_size;
@@ -1784,6 +1820,15 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
                 uint32_t bytes=(uint32_t)(b->contract_size-payload);
                 borrow_patch_word(b,size_at,bytes,4);
                 while(!cg->had_error && b->contract_size%4)borrow_word(b,0,1);
+            }
+        }
+        if(b->global_count && !cg->had_error) {
+            borrow_word(b,NVM_OWNERSHIP_EXTENSION_SCALAR_GLOBALS,2);
+            borrow_word(b,NVM_OWNERSHIP_EXTENSION_REVISION_1,2);
+            borrow_word(b,4+4*b->global_count,4);borrow_word(b,b->global_count,4);
+            for(unsigned global=0;global<b->global_count;global++) {
+                borrow_word(b,borrow_local_tag(b->globals[global]->as.let.var_type),1);
+                borrow_word(b,0,1);borrow_word(b,0,2);
             }
         }
         if(!cg->had_error) {
