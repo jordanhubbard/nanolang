@@ -353,7 +353,7 @@ int main(int argc,char **argv) {
     fixture_executable=argv[0];
     unsigned kind=0,position=0,mode=0;
     if (argc==5 && !strcmp(argv[1],"_lookup_fault") &&
-        fixture_number(argv[2],3,&kind) && fixture_number(argv[3],kind==3 ? 2 : 3,&position) &&
+        fixture_number(argv[2],3,&kind) && fixture_number(argv[3],(kind==0 || kind==3) ? 2 : 3,&position) &&
         position && fixture_number(argv[4],1,&mode)) {
         (void)lookup_case((int)kind,position,(int)mode); return 0;
     }
@@ -368,7 +368,7 @@ int main(int argc,char **argv) {
     if (!snapshot_only) {
     for (int kind=0; kind<4; ++kind) {
         size_t count=lookup_case(kind,0,0);
-        assert(count == (kind == 3 ? 2u : 3u));
+        assert(count == ((kind == 0 || kind == 3) ? 2u : 3u));
         for (int mode=0; mode<2; ++mode) for (size_t pos=1; pos<=count; ++pos) {
             int errors[2]; assert(pipe(errors)==0);
             pid_t child=spawn_fault_case(errors,1,kind,pos,mode);
