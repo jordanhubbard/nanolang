@@ -114,5 +114,17 @@
   "fresh-matrix-final.log": {
     "sha256": "c8c9dc68c8090a676cee6f1b956e4095cfad2769a2053c1aee705254d09000a9",
     "bytes": 10219
+  },
+  "hosted-8e-units06.log": {
+    "sha256": "08132388d7ea706d6b8e0b11cc229ffb47010bb5cb480bb63ce009f91a796f51",
+    "bytes": 423243
+  },
+  "concrete-union-current.log": {
+    "sha256": "c44e5e0af43ec748f49cc7fbebb38592e141dca8bb4aebc14d8b35a212ebb40c",
+    "bytes": 1322
+  },
+  "compiler-shadow-profile.log": {
+    "sha256": "661601543542c77ea17100b8d1bdc31b3c8eaccf08d198dcf57c88c8d30597f5",
+    "bytes": 132624
   }
 }

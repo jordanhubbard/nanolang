@@ -69,3 +69,16 @@ compatibility methods. `frontend-full.log` passes all 91 methods in the complete
 checks for the restored nested-array fields. The 12-method scalar-match run
 preceded the final C nominal and record-return corrections; I do not present it
 as a complete scalar-match run against those final binaries.
+
+My next hosted triage finds a distinct units-06 failure: the concrete-union
+array contract rejects a correctly typed nested record-array variable.
+`concrete-union-current.log` reproduces the same failure locally at `5a179473c`;
+the 23 original cases do not cover this case. MAC
+`task_2470ce5099c24aacb031b1d881f9804e` tracks the repair.
+
+The sanitizer preparation phase calls `make build`, which builds three
+components and checks their entries. It does not perform the complete compiler
+`bootstrap3` build; the later whole-compiler build is a different gate. My
+ordinary local C seed completes a verbose whole-compiler build with
+`NANO_SHADOW_TIMEOUT_SECONDS=60` in `compiler-shadow-profile.log`. That ordinary
+Darwin run does not reproduce or explain the instrumented Linux deadline.
