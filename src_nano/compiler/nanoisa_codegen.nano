@@ -5035,6 +5035,46 @@ shadow nisa_local_name_begin {
     assert (== (nisa_local_name_begin 1 "items" "array<int>") "")
 }
 
+# I recover concrete arguments from the selected lexical payload, never from
+# the pattern's uninstantiated spelling alone.
+fn nisa_selected_pattern_type(parser: Parser, binding: ASTLet) -> string {
+    if (not binding.is_destructure) { return "" }
+    let actual: string = (nisa_expr_type parser binding.value binding.value_type)
+    let owner: string = (nisa_union_payload_owner parser actual)
+    if (or (== owner "") (not (nisa_union_supported parser owner))) { return "" }
+    let variant: string = (str_substring actual (str_length owner) (- (str_length actual) (str_length owner)))
+    if (!= (nisa_compact_type binding.var_type) (+ (nisa_union_base owner) variant)) { return "" }
+    let definition: ASTUnion = (parser_get_union parser (nisa_union_index parser owner))
+    let variant_index: int = (nisa_union_variant definition (str_substring variant 1 (- (str_length variant) 1)))
+    if (< variant_index 0) { return "" }
+    if (!= (array_length binding.destructure_names) (at definition.variant_field_counts variant_index)) { return "" }
+    let mut i: int = 0
+    while (< i (array_length binding.destructure_names)) {
+        let name: string = (at binding.destructure_names i)
+        if (< (nisa_union_field parser actual name) 0) { return "" }
+        let mut prior: int = 0
+        while (< prior i) {
+            if (== name (at binding.destructure_names prior)) { return "" }
+            set prior (+ prior 1)
+        }
+        set i (+ i 1)
+    }
+    return actual
+}
+shadow nisa_selected_pattern_type {
+    let _: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "union Box<T> { Some { value: T }, None {} } fn read() -> int { let Box.Some { value } = payload return 0 }" "pattern.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "pattern.nano")
+    set nisa_names ["payload"]
+    set nisa_types ["Box<string>.Some"]
+    assert (== (nisa_selected_pattern_type parser (parser_get_let parser 0)) "Box<string>.Some")
+    set nisa_types ["Box<string>.None"]
+    assert (== (nisa_selected_pattern_type parser (parser_get_let parser 0)) "")
+    set nisa_types ["Box<string>"]
+    assert (== (nisa_selected_pattern_type parser (parser_get_let parser 0)) "")
+    assert (== (nisa_reset) 0)
+}
+
 fn nisa_emit_typed_let(parser: Parser, binding: ASTLet, value_type: string) -> string {
     if (not nisa_ok) { return "" }
     if (str_starts_with (nisa_compact_type value_type) "fn(") {
@@ -5054,6 +5094,15 @@ fn nisa_emit_typed_let(parser: Parser, binding: ASTLet, value_type: string) -> s
         (nisa_require_function target_index)
         return (+ (nisa_line_imm "FUNCREF" target.name)
                   (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
+    }
+    let selected_type: string = (nisa_selected_pattern_type parser binding)
+    if (!= selected_type "") {
+        let value: string = (nisa_emit_expected_expr parser binding.value binding.value_type selected_type)
+        if (not nisa_ok) { return "" }
+        let slot: int = (array_length nisa_names)
+        set nisa_names (array_push nisa_names binding.name)
+        set nisa_types (array_push nisa_types selected_type)
+        return (+ value (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
     }
     if (not (nisa_type_ok parser value_type)) {
         return (nisa_fail (+ "unsupported local type " value_type))

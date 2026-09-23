@@ -4499,7 +4499,7 @@ test-map-constructor-diagnostics: $(COMPILER_C) nano_virt
 test-units: test-canonical-nvm-output
 .PHONY: test-canonical-nvm-output
 test-canonical-nvm-output: bootstrap3 nano_vm nvm2c nvm2c-runtime
-	@python3 -m unittest tests.test_canonical_nvm_output
+	@CC="$(CC)" LDFLAGS="$(LDFLAGS)" python3 -m unittest tests.test_canonical_nvm_output
 
 .PHONY: test-affine-generic-identity
 test-affine-generic-identity: bootstrap

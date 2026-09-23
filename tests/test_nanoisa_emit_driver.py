@@ -46,6 +46,48 @@ class NanoisaEmitDriver(unittest.TestCase):
             self.assertEqual(self.run_command([binary]).stdout, b"module-ok\n")
             self.assertEqual(list(directory.glob("*.tmp.*")), [])
 
+    def test_selected_patterns_retain_concrete_payload_identity(self):
+        from tests.test_generic_selected_patterns import GenericSelectedPatterns
+        fixtures = GenericSelectedPatterns()
+        cases = [
+            (fixtures.ordinary('let Box.Some { value } = payload'), True),
+            (fixtures.ordinary('let Box.Some { value } = payload', 'string',
+                               '"kept"', 'assert (== value "kept") return 7'), True),
+            (fixtures.ordinary('let Box.Some {} = payload', body='return 0'), False),
+            (fixtures.ordinary('let Box.Some { value, value } = payload'), False),
+            (fixtures.ordinary('let Box.Other { value } = payload'), False),
+            (fixtures.ordinary('let Box.Some { missing } = payload', body='return 0'), False),
+        ]
+        pair = '''union Pair<T> { Both { left: T, right: T } }
+fn read(pair: Pair<int>) -> int { match pair {
+ Both(payload) => { PATTERN return (+ left right) }
+} }
+fn main() -> int { let pair: Pair<int> = Pair.Both { left: 3, right: 4 }
+ return (- (read pair) 7) }
+'''
+        cases.extend([
+            (pair.replace("PATTERN", "let Pair.Both { right, left } = payload"), True),
+            (pair.replace("PATTERN", "let Pair.Both { left, left } = payload"), False),
+            (pair.replace("PATTERN", "let Pair.Both { left, right } = pair"), False),
+        ])
+        for index, (source, accepted) in enumerate(cases):
+            with self.subTest(case=index), tempfile.TemporaryDirectory(prefix="nano-selected-") as tmp:
+                root = Path(tmp)
+                program, module = root / "main.nano", root / "main.nvm"
+                program.write_text(source)
+                module.write_bytes(b"prior artifact")
+                self.run_command([DRIVER, program, "--emit-nvm", "-o", module],
+                                 expected=0 if accepted else 1)
+                if not accepted:
+                    self.assertEqual(module.read_bytes(), b"prior artifact")
+                    continue
+                self.run_command([ROOT / "bin/nano_vm", module])
+                generated, binary = root / "main.c", root / "native"
+                self.run_command([ROOT / "bin/nvm2c", module, "-o", generated])
+                self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                  generated, "-lm", "-o", binary])
+                self.run_command([binary])
+
     def test_assembly_mode_stays_equivalent(self):
         with tempfile.TemporaryDirectory(prefix="nano-driver-text-") as tmp:
             directory = Path(tmp)

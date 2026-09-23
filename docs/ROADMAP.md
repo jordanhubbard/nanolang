@@ -1,5 +1,14 @@
 # My Roadmap
 
+- [ ] I resume PR522 implementation on 2026-09-23 at `8c0b01360`, following the request to implement the full canonical product. I retain hosted run `35795377922` and keep the complete acceptance inventory.
+  - [ ] I preserve complete selected variant identity and validate destructuring before lowering ordinary payload bindings; then I qualify nested generic values and their native representation.
+    - [x] I lower complete ordinary selected patterns using the match binding’s concrete identity, with VM/native values, exact-field refusals and fresh Stage1/Stage2 checks. My retained first-slice evidence is in `docs/evidence/pr522-implementation-2026-09-23/`.
+    - [ ] I retain nested ordinary union payload layouts and unused generic resource arguments without treating them as stored owners.
+  - [ ] I implement resource-bearing union contracts through source ownership, retained wire facts, verification, runtime and native lifetime handling; I keep invalid moves and incomplete patterns refused.
+  - [x] I update canonical-publication refusal fixtures that still expect admitted nested integer arrays to fail, retain a genuinely unsupported nested-record boundary and prior-output checks, and pass selected runtime link flags into their native consumers. Run `35795377922` records both obsolete refusals and missing sanitizer/coverage link runtimes.
+  - [ ] I correct the newly exposed canonical publication and native provider-link failures, array-field and record-array lowering, match/callback purity cases and enum-metadata gate; I retain distinct terminals and qualify each owning target.
+  - [ ] I repeat fresh bootstrap, exact-source fixed points and the complete platform/sanitizer gates, then reconcile release documentation and PR status from those results.
+
 - [ ] I resolve the current PR522 integration and hosted failures (`task_c2d5f6840c96fccfc49b173c5248dc2c`) from `9d36ed18c`, preserving run `35577220556` before correction.
   - [x] I integrate current main, resolve conflicts without discarding either branch's accepted behavior, and verify the canonical product bootstrap. The normal and strict bootstraps complete; broader generic-union compatibility remains separately blocked below.
   - [x] I replace the two obsolete nested-float result refusal inputs with a genuinely unsupported boundary, retain previous-output assertions, and test the newly admitted case.

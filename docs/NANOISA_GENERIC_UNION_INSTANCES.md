@@ -23,6 +23,11 @@ Named fields remain complete and unique, evaluated in source order and packed
 in declaration order. Match payload bindings retain the instantiated identity
 and their original lexical endpoints.
 
+For a complete selected pattern such as `let Box.Some { value } = payload`,
+I retain `Box<string>.Some` from the lexical match binding. I check the exact
+variant and every field once before publishing the hidden pattern local. The
+pattern spelling alone cannot establish a selection or erase concrete arguments.
+
 This slice admits my existing plain scalar payloads and exact `array<int>`
 payloads required by the retained source corpus. Resource-bearing unions,
 unknown/unsupported argument or payload shapes and invalid copy/move paths
