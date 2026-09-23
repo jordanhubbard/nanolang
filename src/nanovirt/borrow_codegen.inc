@@ -1497,7 +1497,17 @@ static void borrow_collect_unions(BorrowCG *b,ASTNode *n) {
             break;
         case AST_FIELD_ACCESS:borrow_collect_unions(b,n->as.field_access.object);break;
         case AST_UNION_CONSTRUCT:
-            borrow_register_named_union(b,n->as.union_construct.type_info,n->as.union_construct.union_name,n);
+            /* Nominal binding can recognize qualified constructor syntax before
+             * contextual checking supplies its generic arguments. The enclosing
+             * let or call registers that complete instance; lowering still
+             * refuses this constructor if no exact context reaches it. */
+            {
+                TypeInfo *info=n->as.union_construct.type_info;
+                UnionDef *definition=env_get_union(b->env,n->as.union_construct.union_name);
+                if(!definition || !definition->generic_param_count ||
+                   (info && info->type_param_count==definition->generic_param_count))
+                    borrow_register_named_union(b,info,n->as.union_construct.union_name,n);
+            }
             for(int i=0;i<n->as.union_construct.field_count;i++)borrow_collect_unions(b,n->as.union_construct.field_values[i]);
             break;
         case AST_ARRAY_LITERAL:

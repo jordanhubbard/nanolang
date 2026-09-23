@@ -279,6 +279,9 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(tests['timeout-minutes'], "${{ (matrix.id == 'source' && 45) || (matrix.id == 'scalar' && 35) || 20 }}")
         self.assertEqual(workers['env']['ASAN_OPTIONS'], 'detect_leaks=0')
         self.assertEqual(workers['env']['NANO_SHADOW_TIMEOUT_SECONDS'], '300')
+        for job in ('sanitizer-base', 'sanitizer-stage1', 'sanitizer-bootstrap',
+                    'sanitizer-providers'):
+            self.assertEqual(jobs[job]['env']['NANO_SHADOW_TIMEOUT_SECONDS'], '300')
         restore = next(step for step in workers['steps'] if step.get('id') == 'restore')
         self.assertIn(' restore --manifest ', restore['run'])
         self.assertNotIn('NANOLANG_COMPILER', workers['env'])
