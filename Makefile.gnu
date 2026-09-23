@@ -4628,6 +4628,11 @@ test-map-constructor-contexts: $(COMPILER_C) nano_virt nano_vm
 
 test-units: test-map-constructor-contexts
 
+.PHONY: test-canonical-match-results
+test-units: test-canonical-match-results
+test-canonical-match-results: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_canonical_match_results
+
 .PHONY: test-match-aggregate-results
 test-units: test-match-aggregate-results
 test-match-aggregate-results: bootstrap

@@ -478,13 +478,41 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
 
+    def test_nested_array_record_fields_are_admitted(self):
+        for field, kind, value in (('flags', 'float', '1.5'), ('nested', 'int', '1')):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix="nano-nested-field-") as tmp:
+                work = Path(tmp)
+                source, assembly, module = (work / n for n in ('source.nano', 'source.nasm', 'source.nvm'))
+                declaration = f'struct Box {{ {field}: array<array<{kind}>> }} '
+                body = f'return Box {{ {field}: [[{value}]] }}'
+                source.write_text(declaration + 'fn main() -> Box { ' + body + ' }')
+                self.run_checked(ROOT / 'bin/nanoisa_emit', source, '-o', assembly)
+                self.run_checked(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.run_checked(ROOT / 'bin/nano_vm', '--verify-only', module)
+                source.write_text(declaration + 'fn make() -> Box { ' + body + ' } shadow make { assert true } '
+                                  'fn main() -> int { let box: Box = (make) '
+                                  f'let rows: array<array<{kind}>> = box.{field} '
+                                  f'assert (== (at (at rows 0) 0) {value}) return 0 }} '
+                                  'shadow main { assert (== (main) 0) }')
+                for emitter in ('nano_virt', 'nanoisa_emit'):
+                    with self.subTest(emitter=emitter):
+                        self.run_checked(ROOT / 'bin' / emitter, source, '--emit-nvm', '-o', module)
+                        self.run_checked(ROOT / 'bin/nano_vm', module)
+                        native, binary = work / 'output.c', work / 'program'
+                        self.run_checked(Path(os.environ.get('NVM2C', ROOT / 'bin/nvm2c')), module, '-o', native)
+                        compiler = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC') or os.environ.get('CC') or 'cc')
+                        self.run_checked(*compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+                                         '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                                         native, '-o', binary)
+                        self.run_checked(binary)
+
     def test_wrong_array_record_fields_are_refused(self):
         programs = [
             'struct Box { words: array<string> } fn main() -> Box { return Box { words: [1] } }',
             'struct Box { words: array<string> } fn main() -> Box { let xs: array<int> = [1] return Box { words: xs } }',
             'struct Box { value: int } fn main() -> Box { return Box { value: [1] } }',
-            'struct Box { flags: array<array<float>> } fn main() -> Box { return Box { flags: [[1.5]] } }',
-            'struct Box { nested: array<array<int>> } fn main() -> Box { return Box { nested: [[1]] } }',
+            'struct Box { flags: array<array<float>> } fn main() -> Box { let xs: array<array<int>> = [[1]] return Box { flags: xs } }',
+            'struct Box { nested: array<array<int>> } fn main() -> Box { let xs: array<int> = [1] return Box { nested: xs } }',
         ]
         with tempfile.TemporaryDirectory(prefix="nano-array-record-refusal-") as tmp:
             source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"

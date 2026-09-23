@@ -944,6 +944,9 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
     }
     if (expected->base_type == TYPE_ARRAY && expected->element_type) {
         const TypeInfo *element = expected->element_type;
+        if (value->type == AST_ARRAY_LITERAL && value->as.array_literal.element_count == 0)
+            value->as.array_literal.element_type = resolved_array_element(
+                element->base_type, element->generic_name, env);
         if (element->base_type == TYPE_STRUCT)
             check_record_array_contract(env, TYPE_ARRAY, TYPE_STRUCT, element->generic_name, value);
         else if (value->type == AST_ARRAY_LITERAL) {
@@ -4088,6 +4091,27 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                     }
 
+                    /* A named nested union retains nominal identity even without
+                     * generic arguments on its enclosing constructor. */
+                    if (udef->generic_param_count == 0) {
+                        TypeInfo *payload = resolve_union_payload_type_info(udef, variant_idx, field_index, NULL);
+                        bool nested_union = payload &&
+                            (payload->base_type == TYPE_STRUCT || payload->base_type == TYPE_UNION) &&
+                            payload->generic_name && env_get_union(env, payload->generic_name);
+                        if (nested_union) {
+                            ASTNode *value = expr->as.struct_literal.field_values[i];
+                            check_concrete_union_arrays(env, payload, value, 0);
+                            bool matches = indirect_argument_matches(value, env, payload, TYPE_UNION, 0);
+                            free_payload_type_info(payload);
+                            if (!matches)
+                                emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                                    "I require the declared nested union payload type.",
+                                    "Match the nested union declaration and concrete arguments.");
+                            goto next_union_field;
+                        }
+                        free_payload_type_info(payload);
+                    }
+
                     /* Generic unions (e.g., Result<T, E>) store TYPE_GENERIC for variant fields.
                      * If we don't have concrete substitution info at this node, treat TYPE_GENERIC
                      * as a wildcard to avoid spurious type mismatch errors.
@@ -4510,7 +4534,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 /* I check substituted payloads when the constructor has a concrete context. */
                 TypeInfo *context = expr->as.union_construct.type_info;
-                if (context && context->type_param_count == udef->generic_param_count) {
+                if (udef->generic_param_count == 0 ||
+                    (context && context->type_param_count == udef->generic_param_count)) {
                     TypeInfo *payload = resolve_union_payload_type_info(udef, variant_idx, field_index, context);
                     bool matches = payload && indirect_argument_matches(
                         expr->as.union_construct.field_values[i], env, payload, expected_type, 0);
