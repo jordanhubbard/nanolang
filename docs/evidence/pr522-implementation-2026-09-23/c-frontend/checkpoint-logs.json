@@ -38,5 +38,13 @@
   {
     "file": "pr522-c-owned-generic-regression.log.gz",
     "uncompressed_sha256": "1de857c2bc4d89be71b2410fbe41b1376aabf19585c341201791d0867781e6fa"
+  },
+  {
+    "file": "pr522-c-owned-borrow-regression.log.gz",
+    "uncompressed_sha256": "163863437266360d3e5e470cd3106bc63244caecd58b8ef46c5c14653e0aa06d"
+  },
+  {
+    "file": "pr522-c-owned-scalar-regression.log.gz",
+    "uncompressed_sha256": "42051dc5f3d68d97f457ba3711c46f599d5a309b535d41af427b4aabd903f455"
   }
 ]

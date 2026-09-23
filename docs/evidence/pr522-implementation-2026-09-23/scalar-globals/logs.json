@@ -1,0 +1,26 @@
+[
+  {
+    "file": "pr522-global-contracts.log.gz",
+    "uncompressed_sha256": "149068720a8821f7c893f5333aaf3545dd20b3d821b5d6f3a5806771652f6b69"
+  },
+  {
+    "file": "pr522-global-flow-final.log.gz",
+    "uncompressed_sha256": "66497d97db3a7944743e41618c939d08e28581d7273edd0945f3745932bb193d"
+  },
+  {
+    "file": "pr522-global-flow-instrumented-final.log.gz",
+    "uncompressed_sha256": "8c5ab5d95d2a48466b95eb453f5d29c7eedc13596ba34de42798168b6b2ef665"
+  },
+  {
+    "file": "pr522-global-flow-alloc.log.gz",
+    "uncompressed_sha256": "34ed1a069db13e12ffb12d19dc95286f224de1773951dee4e85426367d458b5e"
+  },
+  {
+    "file": "pr522-global-schema.log.gz",
+    "uncompressed_sha256": "5b529063122edff892e6bd5c7c7bdecbc5439b2c018907c79bf3f7b52368d8dd"
+  },
+  {
+    "file": "pr522-global-flow-native-regression.log.gz",
+    "uncompressed_sha256": "7e3c86ed710f9d1a7cd5f18f833436627091a46f1f6157cd6e03bd43a5aff943"
+  }
+]

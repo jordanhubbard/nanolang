@@ -3,6 +3,7 @@
 #include "reference_places.h"
 #include "isa.h"
 #include <stdlib.h>
+#include <string.h>
 
 static bool scalar(uint8_t tag) {
     return tag == TAG_INT || tag == TAG_U8 || tag == TAG_FLOAT || tag == TAG_BOOL;
@@ -150,6 +151,7 @@ typedef struct {
 typedef struct {
     NvmOwnershipExtensionView union_variants;
     NvmOwnershipExtensionView array_fields;
+    NvmOwnershipExtensionView scalar_globals;
 } NvmOwnershipExtensions;
 
 /* I frame all version-3 extensions before a feature query may inspect one.
@@ -174,6 +176,8 @@ static NvmV2Result extensions_read(NvmV2Cursor *cursor,NvmOwnershipExtensions *o
             found.union_variants=view;
         else if (kind==NVM_OWNERSHIP_EXTENSION_ARRAY_FIELDS)
             found.array_fields=view;
+        else if (kind==NVM_OWNERSHIP_EXTENSION_SCALAR_GLOBALS)
+            found.scalar_globals=view;
         else return NVM_V2_ERR_FORMAT_VERSION;
         prior=kind;
     }
@@ -327,6 +331,28 @@ static NvmV2Result union_facts_read(NvmV2Cursor *cursor,const NvmModule *module,
     return NVM_V2_OK;
 }
 
+static NvmV2Result scalar_globals_read(NvmOwnershipExtensionView view,
+                                        uint8_t *tags,uint32_t *count) {
+    NvmV2Cursor cursor;nvm_v2_cursor_init(&cursor,view.data,view.size);
+    uint32_t n;NvmV2Result result;
+    if((result=nvm_v2_u32(&cursor,&n))!=NVM_V2_OK)return result;
+    if(!n || n>NVM_OWNERSHIP_MAX_SCALAR_GLOBALS)return NVM_V2_ERR_INDEX_RANGE;
+    uint8_t selected[NVM_OWNERSHIP_MAX_SCALAR_GLOBALS];
+    for(uint32_t i=0;i<n;i++) {
+        const uint8_t *descriptor;
+        if((result=nvm_v2_take(&cursor,4,&descriptor))!=NVM_V2_OK)return result;
+        uint8_t tag=descriptor[0];
+        if(tag!=TAG_INT && tag!=TAG_U8 && tag!=TAG_BOOL && tag!=TAG_FLOAT && tag!=TAG_STRING)
+            return NVM_V2_ERR_SECTION_TYPE;
+        if(descriptor[1] || descriptor[2] || descriptor[3])return NVM_V2_ERR_RESERVED_FLAGS;
+        selected[i]=tag;
+    }
+    if(cursor.pos!=cursor.size)return NVM_V2_ERR_SECTION_RANGE;
+    if(tags)memcpy(tags,selected,n);
+    if(count)*count=n;
+    return NVM_V2_OK;
+}
+
 #include "ownership_array_fields.inc"
 static NvmV2Result ownership_validate_owned(const NvmModule *module,
         const NvmV2Layouts *layouts,bool *requires_verifier,
@@ -396,6 +422,13 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
             if ((result=union_facts_read(&unions,module,layouts,NVM_V2_NO_INDEX,0,NULL,projection,union_graph))
                 !=NVM_V2_OK) goto done;
             if (projection) projection->view=extensions.union_variants;
+            needs=true;
+        }
+        if (extensions.scalar_globals.data) {
+            if (!union_graph || private_plan || extensions.array_fields.data) {
+                result=NVM_V2_ERR_FORMAT_VERSION;goto done;
+            }
+            if ((result=scalar_globals_read(extensions.scalar_globals,NULL,NULL))!=NVM_V2_OK) goto done;
             needs=true;
         }
         if (extensions.array_fields.data) {
@@ -523,3 +556,36 @@ NvmV2Result nvm_ownership_layout_authorities(const NvmModule *module, uint32_t c
 #include "ordinary_array_authority.inc"
 
 #include "ownership_declaration_projection.inc"
+
+NvmV2Result nvm_ownership_scalar_globals(const NvmModule *module,uint8_t *tags,
+                                        uint32_t capacity,uint32_t *count) {
+    if(!module || !count)return NVM_V2_ERR_INDEX_RANGE;
+    bool needs=false;NvmV2Result result=nvm_ownership_contracts_validate(module,&needs);
+    if(result!=NVM_V2_OK)return result;
+    if(!module->ownership_size || module->ownership_data[0]!=NVM_OWNERSHIP_UNION_GRAPH_VERSION) {
+        *count=0;return NVM_V2_OK;
+    }
+    /* Validation establishes all sizes; I still use the checked cursor so this
+     * projection never relies on unchecked descriptor arithmetic. */
+    NvmV2Cursor cursor;nvm_v2_cursor_init(&cursor,module->ownership_data,module->ownership_size);
+    uint32_t version,layouts,functions;const uint8_t *ignored;
+    if((result=nvm_v2_u32(&cursor,&version))!=NVM_V2_OK ||
+       (result=nvm_v2_u32(&cursor,&layouts))!=NVM_V2_OK ||
+       (result=nvm_v2_take(&cursor,layouts,&ignored))!=NVM_V2_OK ||
+       (result=nvm_v2_align4(&cursor))!=NVM_V2_OK ||
+       (result=nvm_v2_u32(&cursor,&functions))!=NVM_V2_OK)return result;
+    for(uint32_t i=0;i<functions;i++) {
+        uint16_t locals,parameters;
+        if((result=nvm_v2_u16(&cursor,&locals))!=NVM_V2_OK ||
+           (result=nvm_v2_u16(&cursor,&parameters))!=NVM_V2_OK ||
+           (result=nvm_v2_take(&cursor,((size_t)locals+1)*8,&ignored))!=NVM_V2_OK)return result;
+    }
+    NvmOwnershipExtensions extensions={0};
+    if((result=extension_suffix_read(&cursor,NVM_V2_NO_INDEX,NULL,0,NULL,&extensions))!=NVM_V2_OK)return result;
+    uint8_t selected[NVM_OWNERSHIP_MAX_SCALAR_GLOBALS];uint32_t found=0;
+    if(extensions.scalar_globals.data &&
+       (result=scalar_globals_read(extensions.scalar_globals,selected,&found))!=NVM_V2_OK)return result;
+    if(found>capacity || (found && !tags))return NVM_V2_ERR_INDEX_RANGE;
+    if(found)memcpy(tags,selected,found);
+    *count=found;return NVM_V2_OK;
+}

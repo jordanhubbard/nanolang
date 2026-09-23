@@ -4837,6 +4837,15 @@ test-affine-state: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_ALLOCATION_TEST -o obj/test_affine_state_alloc tests/nanoisa/test_affine_state.c obj/test_affine_state_alloc.o $(filter-out obj/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_affine_state_alloc
 
+.PHONY: test-owned-scalar-global-contracts
+test-units: test-owned-scalar-global-contracts
+test-owned-scalar-global-contracts: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_scalar_global_contracts tests/nanoisa/test_owned_scalar_global_contracts.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_owned_scalar_global_contracts
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=global_flow_test_malloc -Dcalloc=global_flow_test_calloc -Drealloc=global_flow_test_realloc -c src/nanoisa/affine_bytecode.c -o obj/test_global_flow_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DGLOBAL_FLOW_ALLOCATION_TEST -o obj/test_global_flow_alloc tests/nanoisa/test_owned_scalar_global_contracts.c obj/test_global_flow_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_global_flow_alloc
+
 .PHONY: test-affine-bytecode
 test-units: test-affine-bytecode
 test-affine-bytecode: $(NANOISA_OBJECTS) $(NANOISA_UTF8)

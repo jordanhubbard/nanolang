@@ -1008,6 +1008,9 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     if (!mod->ownership_size || (!mod->function_count || mod->function_count>NVM_OWNED_MAX_FUNCTIONS) || mod->header.entry_point != 0 ||
         mod->import_count || mod->module_ref_count || mod->callback_contract_count || mod->passive_size)
         return fail("I require standalone ownership instruction execution semantics without linked contracts");
+    uint8_t global_tags[NVM_OWNERSHIP_MAX_SCALAR_GLOBALS];uint32_t global_count=0;
+    if(nvm_ownership_scalar_globals(mod,global_tags,sizeof(global_tags),&global_count)!=NVM_V2_OK || global_count)
+        return fail("I require verified scalar-global initialization before owned execution");
     bool value_graph=nvm_affine_value_call_graph(mod);
     if (!value_graph && mod->function_count>2)
         return fail("I require a bounded acyclic value graph or my separate borrowed helper");
