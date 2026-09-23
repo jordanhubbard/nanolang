@@ -291,6 +291,7 @@ class SanitizerPartitions(unittest.TestCase):
                           'sanitizer-bootstrap', 'sanitizer-providers', 'sanitizer-workers'])
         self.assertEqual(jobs['sanitizer-stage1']['needs'], ['sanitizer-plan', 'sanitizer-base'])
         self.assertEqual(jobs['sanitizer-bootstrap']['needs'], ['sanitizer-plan', 'sanitizer-stage1'])
+        self.assertEqual(jobs['sanitizer-bootstrap']['timeout-minutes'], 30)
         self.assertEqual(jobs['sanitizer-providers']['needs'], ['sanitizer-plan', 'sanitizer-bootstrap'])
         self.assertEqual(jobs['sanitizers']['if'], 'always()')
         aggregate = next(step for step in jobs['sanitizers']['steps'] if 'run' in step)
