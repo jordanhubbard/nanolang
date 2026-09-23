@@ -14,6 +14,9 @@
  * VARIANT_SCALAR is an explicit int/bool/float/string constructor payload set;
  * I never infer it by unifying unrelated exact kinds or arbitrary VALUE.
  * VARIANT_INT_ARRAY adds only exact ARRAY<INT> to that finite payload set.
+ * Nested optional copies may widen an inferred scalar payload to one of these
+ * constructor sets; explicitly constrained payloads and bare scalar destinations
+ * never acquire that widening authority.
  * Missing edges mean unconstrained, not absent fields or a proved width. */
 typedef uint32_t NvmShapeId;
 typedef enum {

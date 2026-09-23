@@ -1,6 +1,7 @@
 """I preserve canonical frontend checks before explicit NanoISA publication."""
 import os
 import json
+import shlex
 import sys
 from pathlib import Path
 import subprocess
@@ -17,6 +18,13 @@ class CanonicalNvmOutput(unittest.TestCase):
                                 capture_output=True, timeout=120)
         self.assertEqual(result.returncode, expected, (result.stdout + result.stderr)[-6000:])
         return result
+
+    def native_command(self, *args):
+        compiler = shlex.split(os.environ.get("NANO_NATIVE_TEST_CC") or
+                               os.environ.get("CC") or "cc")
+        flags = shlex.split(os.environ.get("NANO_ARTIFACT_LDFLAGS",
+                                          os.environ.get("LDFLAGS", "")))
+        return self.run_command([*compiler, *args, *flags])
 
     def sources(self, directory, bad_dependency=False):
         dependency = directory / "values.nano"
@@ -48,10 +56,10 @@ class CanonicalNvmOutput(unittest.TestCase):
             self.run_command([ROOT / "bin/nano_vm", output])
             c_file, executable = directory / "out.c", directory / "native"
             self.run_command([ROOT / "bin/nvm2c", output, "-o", c_file])
-            self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_file,
+            self.native_command("-std=c11", "-Wall", "-Wextra", "-Werror", c_file,
                               ROOT / "bin/nano_aot_runtime.o", "-lm",
                               *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
-                              "-o", executable])
+                              "-o", executable)
             self.run_command([executable])
 
     def test_assembly_publication_status_and_error_run_in_both_backends(self):
@@ -72,10 +80,10 @@ class CanonicalNvmOutput(unittest.TestCase):
             self.run_command([ROOT / "bin/nano_vm", target])
             native_c, binary = directory / "publisher.c", directory / "publisher"
             self.run_command([ROOT / "bin/nvm2c", output, "-o", native_c])
-            self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c,
+            self.native_command("-std=c11", "-Wall", "-Wextra", "-Werror", native_c,
                               ROOT / "bin/nano_aot_runtime.o", "-lm",
                               *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
-                              "-o", binary])
+                              "-o", binary)
             self.run_command([binary])
             self.assertEqual(published, target.read_bytes())
 
@@ -160,6 +168,23 @@ shadow main { assert (== (main) 0) }
             self.run_command([ROOT / "bin/nvm2c", output, "-o", c_file])
             self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_file, "-lm", "-o", executable])
             self.assertEqual(self.run_command([executable]).stdout, b"float-ok\n")
+
+    def test_reachable_nested_integer_array_publishes_and_executes(self):
+        with tempfile.TemporaryDirectory(prefix="canonical-nested-") as tmp:
+            directory = Path(tmp)
+            source, output = directory / "main.nano", directory / "main.nvm"
+            source.write_text('fn required() -> array<array<int>> { return [[7], []] }\n'
+                              'shadow required { let rows = (required) assert (== (at (at rows 0) 0) 7) }\n'
+                              'fn main() -> int { let rows = (required) '
+                              'assert (== (array_length (at rows 1)) 0) return (- (at (at rows 0) 0) 7) }\n'
+                              'shadow main { assert (== (main) 0) }\n')
+            self.run_command([COMPILER, source, "--emit-nvm", "-o", output])
+            self.run_command([ROOT / "bin/nano_vm", output])
+            c_file, executable = directory / "out.c", directory / "native"
+            self.run_command([ROOT / "bin/nvm2c", output, "-o", c_file])
+            self.native_command("-std=c11", "-Wall", "-Wextra", "-Werror",
+                                c_file, "-lm", "-o", executable)
+            self.run_command([executable])
 
     def test_reachable_refusal_reports_precise_boundary(self):
         with tempfile.TemporaryDirectory(prefix="canonical-program-route-") as tmp:

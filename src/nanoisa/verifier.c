@@ -587,7 +587,7 @@ static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_id
         case OP_REGION_BEGIN: case OP_REGION_END:
         case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
         case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL:
-        case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL: {
+        case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL: case OP_OWN_UNPACK_VARIANT: {
             NvmAffineAnalysis analysis=nvm_affine_analyze_function(mod,fn_idx);
             if (!analysis.ok) FAIL_DECODED("I refuse reference lifetime and ownership instruction dataflow: %s",analysis.message);
             FAIL_DECODED("I require owned-transfer execution semantics before execution");
@@ -977,7 +977,8 @@ bool nvm_uses_owned_transfers(const NvmModule *mod) {
             DecodedInstruction instruction;
             uint32_t count=isa_decode(mod->code+fn->code_offset+offset,fn->code_length-offset,&instruction);
             if (!count) break;
-            if ((instruction.opcode>=OP_OWN_MOVE_LOCAL && instruction.opcode<=OP_CALL_REF) ||
+            if (instruction.opcode==OP_OWN_UNPACK_VARIANT ||
+                (instruction.opcode>=OP_OWN_MOVE_LOCAL && instruction.opcode<=OP_CALL_REF) ||
                 (instruction.opcode>=OP_REGION_BEGIN && instruction.opcode<=OP_REBORROW_EXCLUSIVE)) return true;
             offset+=count;
         }
@@ -993,7 +994,7 @@ static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
     case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
-    case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
+    case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL: case OP_OWN_UNPACK_VARIANT:
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_BOOL: case OP_PUSH_F64:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_AGG_PACK: case OP_AGG_GET: case OP_AGG_TAG: case OP_STRUCT_GET:
@@ -1052,12 +1053,13 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     if (nvm_v2_layouts_decode(mod->layout_data, mod->layout_size, &layouts) != NVM_V2_OK)
         return fail("I require complete owned record layouts");
     bool supported = true;
+    bool union_graph=mod->ownership_data[0]==NVM_OWNERSHIP_UNION_GRAPH_VERSION;
     uint32_t union_ordinal=0;
     for (uint32_t i=0; i<layouts.count; i++) {
         const NvmV2Layout *layout = &layouts.items[i];
         if (layout->kind==NVM_V2_LAYOUT_UNION) {
             NvmUnionVariantFact fact;
-            if (mod->ownership_data[8+i] ||
+            if ((union_graph ? !(mod->ownership_data[8+i]&NVM_LAYOUT_COMPLETE) : mod->ownership_data[8+i]!=0) ||
                 nvm_ownership_union_variant(mod,union_ordinal,0,&fact)!=NVM_V2_OK ||
                 fact.layout!=i) supported=false;
             union_ordinal++;
@@ -1071,7 +1073,7 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             /* My owned execution profile retains its prior-only graph. */
             uint32_t child=layout->fields[f].nested_idx;
             if(child!=NVM_V2_NO_INDEX && child>=i) supported=false;
-            if (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_STRUCT &&
+            if (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_STRUCT && !(union_graph && tag==TAG_UNION) &&
                 !(value_graph && tag==TAG_STRING && child==NVM_V2_NO_INDEX)) supported=false;
         }
     }
@@ -1084,7 +1086,7 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
         for(uint32_t i=0;i<decoded.instruction_count;i++) {
             const DecodedInstruction *in=&decoded.instructions[i].instruction;
             uint8_t op=in->opcode;
-            if(op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) transfer=true;
+            if((op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) || op==OP_OWN_UNPACK_VARIANT) transfer=true;
             /* A retained scalar-union constructor creates the same refcounted
              * carrier that the owned runtime must release.  It is therefore
              * an explicit transfer boundary even when the source function has

@@ -14,6 +14,8 @@ class OwnedRuntime(unittest.TestCase):
     case_live_records = {}
     refusal_count = 7
     noninteger_cases = {5, 6}
+    assertion_cases = set()
+    compiler = staticmethod(lambda: os.environ.get("CC", "cc"))
     def test_paired_execution_lifetimes_and_refusals(self):
         with tempfile.TemporaryDirectory(prefix="nano-owned-runtime-") as name:
             tmp = Path(name)
@@ -32,6 +34,8 @@ class OwnedRuntime(unittest.TestCase):
                     # The CLI uses only int results as process exit codes; the C
                     # fixture checks exact bool/u8 tags and values separately.
                     exit_code = 0 if int(number) in self.noninteger_cases else int(expected) & 255
+                    if int(number) in self.assertion_cases:
+                        exit_code = 1
                     self.assertEqual(vm_result.returncode, exit_code, vm_result.stdout + vm_result.stderr)
                     translated = tmp / f"roundtrip{number}.c"
                     rebuilt = subprocess.run([ROOT / "bin/nvm2c", artifact, "-o", translated], capture_output=True, timeout=30)
@@ -54,14 +58,15 @@ static void release(void *p){assert(live);live--;free(p);}
   int64_t result=0;attempt=peak=0;fail_at=failure;
   int status=nvm_owned_entry(&result);
   assert(live==0);assert(peak<=MAX_LIVE_RECORDS);
-  if(!status){assert(result==(int64_t)UINT64_C(EXPECTED));break;}
+  if(status==EXPECTED_STATUS){if(!status)assert(result==(int64_t)UINT64_C(EXPECTED));break;}
+  assert(status==1);
   assert(failure<1100);
  }
  puts("owned cleanup passed");return 0;
 }
-'''.replace("EXPECTED", str(int(expected) & ((1 << 64) - 1))).replace("MAX_LIVE_RECORDS", str(self.case_live_records.get(int(number), self.max_live_records))))
+'''.replace("EXPECTED_STATUS", "2" if int(number) in self.assertion_cases else "0").replace("EXPECTED", str(int(expected) & ((1 << 64) - 1))).replace("MAX_LIVE_RECORDS", str(self.case_live_records.get(int(number), self.max_live_records))))
                     binary = tmp / f"check{number}"
-                    compiled = subprocess.run([os.environ.get("CC", "cc"), "-std=c11", "-Wall", "-Wextra", "-Werror",
+                    compiled = subprocess.run([self.compiler(), "-std=c11", "-Wall", "-Wextra", "-Werror",
                                                "-fsanitize=address,undefined", "-fno-omit-frame-pointer", "-g",
                                                harness, "-o", binary], capture_output=True, text=True, timeout=60)
                     self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)

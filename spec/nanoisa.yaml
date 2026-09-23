@@ -66,6 +66,7 @@ legacy_opcodes:
   - {name: OWN_STORE_LOCAL, code: 0x0c, operands: [U16], pops: 1, pushes: 0}
   - {name: OWN_PACK, code: 0x0d, operands: [U32], pops: -1, pushes: 1}
   - {name: OWN_UNPACK_LOCAL, code: 0x0e, operands: [U16], pops: 0, pushes: -1}
+  - {name: OWN_UNPACK_VARIANT, code: 0x9a, operands: [U16, U16, U16], pops: 0, pushes: -1}
   - {name: CALL_REF, code: 0x0f, operands: [U32, U16], pops: 0, pushes: 1}
   - {name: LOAD_LOCAL, code: 0x10, operands: [U16], pops: 0, pushes: 1}
   - {name: STORE_LOCAL, code: 0x11, operands: [U16], pops: 1, pushes: 0}

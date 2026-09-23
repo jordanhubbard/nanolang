@@ -207,7 +207,114 @@ static void check_concrete_union_instances(void) {
     nvm_module_free(module);
 }
 
+static void check_owned_union_transport(const char *path) {
+    AsmResult error;
+    NvmModule *m=asm_assemble(".types 1 0 2\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n",&error);
+    CHECK(m);
+    uint32_t handle=nvm_add_string(m,"Handle",6), result=nvm_add_string(m,"Result<Handle,string>",21);
+    uint32_t box=nvm_add_string(m,"Box<Result<Handle,string>>",26);
+    uint32_t value=nvm_add_string(m,"value",5), ok=nvm_add_string(m,"Ok",2);
+    uint32_t err=nvm_add_string(m,"Err",3), empty=nvm_add_string(m,"Empty",5);
+    NvmV2LayoutField fd={TAG_INT,NVM_V2_NO_INDEX,value};
+    NvmV2LayoutField payload[]={{TAG_STRUCT,0,value},{TAG_STRING,NVM_V2_NO_INDEX,value}};
+    NvmV2LayoutField nested={TAG_UNION,1,value};
+    NvmV2Layout items[]={{NVM_V2_LAYOUT_STRUCT,1,handle,&fd},
+        {NVM_V2_LAYOUT_UNION,2,result,payload},{NVM_V2_LAYOUT_UNION,1,box,&nested}};
+    NvmV2Layouts layouts={items,3};
+    CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    m->ownership_size=108;m->ownership_data=calloc(108,1);CHECK(m->ownership_data);
+    uint8_t *b=m->ownership_data;
+    word(b,0,NVM_OWNERSHIP_UNION_GRAPH_VERSION);word(b,4,3);
+    b[8]=b[9]=b[10]=NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE;
+    word(b,12,1);slot(b,20,TAG_INT,0,NVM_V2_NO_INDEX);
+    word(b,28,4);word(b,32,0);word(b,36,1);
+    half(b,40,NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS);
+    half(b,42,NVM_OWNERSHIP_EXTENSION_REVISION_1);word(b,44,60);
+    word(b,48,2);word(b,52,1);half(b,56,3);
+    word(b,60,ok);half(b,64,0);half(b,66,1);
+    word(b,68,err);half(b,72,1);half(b,74,1);
+    word(b,76,empty);half(b,80,2);half(b,82,0);
+    word(b,84,2);half(b,88,2);
+    word(b,92,ok);half(b,96,0);half(b,98,1);
+    word(b,100,empty);half(b,104,1);half(b,106,0);
+    bool needs=false;
+    CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
+    NvmUnionVariantFact fact={0};
+    CHECK(nvm_ownership_union_variant(m,0,1,&fact)==NVM_V2_OK &&
+          fact.layout==1 && fact.field_offset==1 && fact.field_count==1);
+    CHECK(nvm_ownership_union_variant(m,1,1,&fact)==NVM_V2_OK &&
+          fact.layout==2 && fact.field_offset==1 && fact.field_count==0);
+    NvmLayoutAuthority authority[3];
+    CHECK(nvm_ownership_layout_authorities(m,3,authority)==NVM_V2_OK &&
+          authority[0]==NVM_LAYOUT_AUTHORITY_RESOURCE && authority[1]==authority[0] && authority[2]==authority[0]);
+    CHECK(!nvm_verify(m).ok);
+    char diagnostic[256];char *c=nvm2c_emit(m,diagnostic,sizeof diagnostic);CHECK(!c);free(c);
+    /* Exact descriptors alone do not grant execution without a checked transfer. */
+    m->functions[0].result_tag=TAG_UNION;slot(b,20,TAG_UNION,0,2);
+    CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
+    word(b,24,NVM_V2_NO_INDEX);CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);
+    word(b,24,0);CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);
+    m->functions[0].result_tag=TAG_INT;slot(b,20,TAG_INT,0,NVM_V2_NO_INDEX);
+    /* I retain wire transport; textual assembly still requires execution admission. */
+    size_t size;uint8_t *bytes=wire(m,&size,path);NvmV2Module decoded;
+    CHECK(nvm_v2_module_deserialize(bytes,size,&decoded)==NVM_V2_OK);
+    NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);
+    CHECK(copy->ownership_size==108 && !memcmp(copy->ownership_data,b,108));
+    CHECK(nvm_ownership_union_variant(copy,1,0,&fact)==NVM_V2_OK && fact.layout==2);
+    CHECK(!nvm_verify(copy).ok);
+    nvm_module_free(copy);nvm_v2_module_free(&decoded);free(bytes);
+    char *text=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(text);
+    copy=asm_assemble(text,&error);CHECK(!copy);
+    CHECK(strstr(error.message,"explicit owned entry execution")!=NULL);
+    copy=asm_assemble_unverified(text,&error);CHECK(copy);
+    CHECK(copy->ownership_size==108 && !memcmp(copy->ownership_data,b,108));
+    CHECK(nvm_ownership_contracts_validate(copy,&needs)==NVM_V2_OK && needs);
+    nvm_module_free(copy);free(text);
+    /* I cannot erase a stored child's ownership or invent an empty owner. */
+    for(unsigned i=8;i<11;i++) {
+        uint8_t old=b[i];b[i]=0;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);b[i]=old;
+        b[i]=NVM_LAYOUT_COMPLETE;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);b[i]=old;
+    }
+    b[8]=b[9]=b[10]=NVM_LAYOUT_COMPLETE;
+    CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
+    CHECK(nvm_ownership_layout_authorities(m,3,authority)==NVM_V2_OK && authority[2]==NVM_LAYOUT_AUTHORITY_ORDINARY);
+    b[9]|=NVM_LAYOUT_RESOURCE;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);
+    b[8]=b[9]=b[10]=NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE;
+    word(b,0,NVM_OWNERSHIP_EXTENSION_VERSION);CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);
+    word(b,0,5);CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_ERR_FORMAT_VERSION);
+    word(b,0,NVM_OWNERSHIP_UNION_GRAPH_VERSION);
+    /* I validate aggregate tag/child-kind agreement, not just numeric indices. */
+    nested.type_tag=TAG_STRUCT;CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);
+    nested.type_tag=TAG_UNION;nested.nested_idx=0;CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);
+    nested.nested_idx=1;CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    /* I reject forward/cyclic and out-of-range children before any query writes. */
+    for(uint32_t child=1;child<=3;child++) {
+        word(m->layout_data,36,child);
+        CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);
+        authority[0]=authority[1]=authority[2]=NVM_LAYOUT_AUTHORITY_UNKNOWN;
+        CHECK(nvm_ownership_layout_authorities(m,3,authority)!=NVM_V2_OK);
+        CHECK(authority[0]==NVM_LAYOUT_AUTHORITY_UNKNOWN &&
+              authority[1]==NVM_LAYOUT_AUTHORITY_UNKNOWN && authority[2]==NVM_LAYOUT_AUTHORITY_UNKNOWN);
+    }
+    word(m->layout_data,36,0);
+    uint16_t path_fields[1]={99},path_count=99;
+    CHECK(nvm_ownership_path(m,0,path_fields,1,&path_count)==NVM_V2_ERR_INDEX_RANGE &&
+          path_fields[0]==99 && path_count==99);
+    for(uint32_t n=0;n<108;n++) {
+        m->ownership_size=n;fact=(NvmUnionVariantFact){99,99,99,99};
+        CHECK(nvm_ownership_union_variant(m,1,0,&fact)!=NVM_V2_OK);
+        CHECK(fact.layout==99 && fact.name_idx==99 && fact.field_offset==99 && fact.field_count==99);
+    }
+    m->ownership_size=108;
+    half(b,98,2);CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);half(b,98,1);
+    CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK);
+    nvm_module_free(m);
+}
+
 int main(int argc, char **argv) {
+    check_owned_union_transport(argc>3?argv[3]:NULL);
     check_union_transport();
     check_concrete_union_instances();
     AsmResult result;

@@ -46,6 +46,93 @@ class NanoisaEmitDriver(unittest.TestCase):
             self.assertEqual(self.run_command([binary]).stdout, b"module-ok\n")
             self.assertEqual(list(directory.glob("*.tmp.*")), [])
 
+    def test_selected_patterns_retain_concrete_payload_identity(self):
+        from tests.test_generic_selected_patterns import GenericSelectedPatterns
+        fixtures = GenericSelectedPatterns()
+        cases = [
+            (fixtures.ordinary('let Box.Some { value } = payload'), True),
+            (fixtures.ordinary('let Box.Some { value } = payload', 'string',
+                               '"kept"', 'assert (== value "kept") return 7'), True),
+            (fixtures.ordinary('let Box.Some {} = payload', body='return 0'), False),
+            (fixtures.ordinary('let Box.Some { value, value } = payload'), False),
+            (fixtures.ordinary('let Box.Other { value } = payload'), False),
+            (fixtures.ordinary('let Box.Some { missing } = payload', body='return 0'), False),
+        ]
+        pair = '''union Pair<T> { Both { left: T, right: T } }
+fn read(pair: Pair<int>) -> int { match pair {
+ Both(payload) => { PATTERN return (+ left right) }
+} }
+fn main() -> int { let pair: Pair<int> = Pair.Both { left: 3, right: 4 }
+ return (- (read pair) 7) }
+'''
+        cases.extend([
+            (pair.replace("PATTERN", "let Pair.Both { right, left } = payload"), True),
+            (pair.replace("PATTERN", "let Pair.Both { left, left } = payload"), False),
+            (pair.replace("PATTERN", "let Pair.Both { left, right } = pair"), False),
+        ])
+        for index, (source, accepted) in enumerate(cases):
+            with self.subTest(case=index), tempfile.TemporaryDirectory(prefix="nano-selected-") as tmp:
+                root = Path(tmp)
+                program, module = root / "main.nano", root / "main.nvm"
+                program.write_text(source)
+                module.write_bytes(b"prior artifact")
+                self.run_command([DRIVER, program, "--emit-nvm", "-o", module],
+                                 expected=0 if accepted else 1)
+                if not accepted:
+                    self.assertEqual(module.read_bytes(), b"prior artifact")
+                    continue
+                self.run_command([ROOT / "bin/nano_vm", module])
+                generated, binary = root / "main.c", root / "native"
+                self.run_command([ROOT / "bin/nvm2c", module, "-o", generated])
+                self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                  generated, "-lm", "-o", binary])
+                self.run_command([binary])
+
+    def test_nested_union_payloads_and_phantom_resource_arguments(self):
+        nested = (ROOT / "tests/unit/test_native_nested_generics.nano").read_text()
+        phantom = '''resource struct Handle { fd: int }
+union Marker<T> { Mark { number: int } }
+union Box<T> { Some { value: T }, None {} }
+fn read(value: Box<Marker<Handle>>) -> int { match value {
+ Some(payload) => { let Box.Some { value } = payload match value {
+  Mark(inner) => { return inner.number }
+ } }
+ None(payload) => { return 0 }
+} }
+fn main() -> int {
+ let marker: Marker<Handle> = Marker.Mark { number: 7 }
+ let boxed: Box<Marker<Handle>> = Box.Some { value: marker }
+ let copy: Box<Marker<Handle>> = boxed
+ return (- (+ (read boxed) (read copy)) 14)
+}
+'''
+        for source in (nested, phantom):
+            with self.subTest(source=source), tempfile.TemporaryDirectory(prefix="nano-nested-union-") as tmp:
+                root = Path(tmp)
+                program, module = root / "main.nano", root / "main.nvm"
+                program.write_text(source)
+                self.run_command([DRIVER, program, "--emit-nvm", "-o", module])
+                self.run_command([ROOT / "bin/nano_vm", module])
+                generated, binary = root / "main.c", root / "native"
+                self.run_command([ROOT / "bin/nvm2c", module, "-o", generated])
+                self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                  generated, "-lm", "-o", binary])
+                self.run_command([binary])
+
+    def test_nested_union_cycles_and_unknown_arguments_preserve_output(self):
+        cases = [
+            'union Cycle { Next { value: Cycle } } fn main() -> int { let value: Cycle = 0 return 0 }',
+            'union Grow<T> { Next { value: Grow<Grow<T>> } } fn main() -> int { let value: Grow<int> = 0 return 0 }',
+            'union Marker<T> { Mark { value: int } } fn main() -> int { let value: Marker<Unknown> = Marker.Mark { value: 7 } return 0 }',
+        ]
+        for source in cases:
+            with self.subTest(source=source), tempfile.TemporaryDirectory(prefix="nano-union-boundary-") as tmp:
+                program, module = Path(tmp) / "main.nano", Path(tmp) / "prior.nvm"
+                program.write_text(source)
+                module.write_bytes(b"prior artifact")
+                self.run_command([DRIVER, program, "--emit-nvm", "-o", module], expected=1)
+                self.assertEqual(module.read_bytes(), b"prior artifact")
+
     def test_assembly_mode_stays_equivalent(self):
         with tempfile.TemporaryDirectory(prefix="nano-driver-text-") as tmp:
             directory = Path(tmp)

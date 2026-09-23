@@ -36,7 +36,7 @@ static bool unsupported_opcode(uint8_t op) {
     case OP_CALL_MODULE: case OP_CALL_INDIRECT: case OP_CLOSURE_NEW:
     case OP_LOAD_UPVALUE: case OP_STORE_UPVALUE:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL:
-    case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL: case OP_CALL_REF:
+    case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL: case OP_OWN_UNPACK_VARIANT: case OP_CALL_REF:
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:
     case OP_REF_GET: case OP_REF_SET:

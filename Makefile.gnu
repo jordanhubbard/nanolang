@@ -4594,7 +4594,7 @@ test-map-constructor-diagnostics: $(COMPILER_C) nano_virt
 test-units: test-canonical-nvm-output
 .PHONY: test-canonical-nvm-output
 test-canonical-nvm-output: bootstrap3 nano_vm nvm2c nvm2c-runtime
-	@python3 -m unittest tests.test_canonical_nvm_output
+	@CC="$(CC)" LDFLAGS="$(LDFLAGS)" python3 -m unittest tests.test_canonical_nvm_output
 
 .PHONY: test-affine-generic-identity
 test-affine-generic-identity: bootstrap
@@ -6073,3 +6073,11 @@ test-sdk-checked-projection: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 
 test-units: test-sdk-checked-projection
 $(OBJ_DIR)/typechecker.o $(OBJ_DIR)/struct_name_typechecker.o: src/checker_sdk_projection.h src/checker_sdk_projection.inc
+.PHONY: test-owned-union-runtime
+test-units: test-owned-union-runtime
+test-owned-union-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_union_runtime tests/nanoisa/test_owned_union_runtime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=owned_heap_malloc -Dcalloc=owned_heap_calloc -Drealloc=owned_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_union_heap_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_union_runtime_alloc tests/nanoisa/test_owned_union_runtime_alloc.c obj/test_owned_union_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_union_runtime_alloc
+	python3 -m unittest tests.test_owned_union_runtime
