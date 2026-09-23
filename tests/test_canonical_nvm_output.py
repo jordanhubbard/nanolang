@@ -186,16 +186,37 @@ shadow main { assert (== (main) 0) }
                                 c_file, "-lm", "-o", executable)
             self.run_command([executable])
 
+    def test_nested_record_array_result_executes(self):
+        with tempfile.TemporaryDirectory(prefix="canonical-record-result-") as tmp:
+            directory = Path(tmp)
+            source, output = directory / "main.nano", directory / "main.nvm"
+            source.write_text('struct Point { x: int }\n'
+                              'fn required() -> array<array<Point>> { return [[Point { x: 7 }], []] }\n'
+                              'shadow required { let rows = (required) let point: Point = (at (at rows 0) 0) assert (== point.x 7) }\n'
+                              'fn main() -> int { let rows = (required) let point: Point = (at (at rows 0) 0) '
+                              'assert (== (array_length (at rows 1)) 0) return (- point.x 7) }\n'
+                              'shadow main { assert (== (main) 0) }\n')
+            for compiler in (COMPILER, ROOT / "bin/nanoisa_emit"):
+                with self.subTest(compiler=compiler):
+                    self.run_command([compiler, source, "--emit-nvm", "-o", output])
+                    self.run_command([ROOT / "bin/nano_vm", "--verify-only", output])
+                    self.run_command([ROOT / "bin/nano_vm", output])
+                    c_file, executable = directory / "out.c", directory / "native"
+                    self.run_command([ROOT / "bin/nvm2c", output, "-o", c_file])
+                    self.native_command("-std=c11", "-Wall", "-Wextra", "-Werror",
+                                        c_file, "-lm", "-o", executable)
+                    self.run_command([executable])
+
     def test_reachable_refusal_reports_precise_boundary(self):
         with tempfile.TemporaryDirectory(prefix="canonical-program-route-") as tmp:
             directory = Path(tmp)
             source, output = directory / "main.nano", directory / "main.nvm"
             output.write_bytes(b"prior")
-            source.write_text('struct Point { x: int }\nfn required() -> array<array<Point>> { return [[Point { x: 1 }]] }\n'
+            source.write_text('union Choice { Item { x: int } }\nfn required() -> array<Choice> { return [Choice.Item { x: 1 }] }\n'
                               'fn main() -> int { (required) return 0 }\n'
                               'shadow main { assert (== (main) 0) }\n')
             rejected = self.run_command([COMPILER, source, "--emit-nvm", "-o", output], 1)
-            self.assertIn(b"I cannot lower this checked program: unsupported result type array<array<Point>>",
+            self.assertIn(b"I cannot lower this checked program: unsupported result type array<Choice>",
                           rejected.stdout + rejected.stderr)
             self.assertEqual(output.read_bytes(), b"prior")
 
@@ -230,7 +251,7 @@ shadow main { assert (== (main) 0) }
                     self.assertEqual(original.read_bytes(), before)
             output = directory / "prior.nvm"
             for body in ('fn main() -> int { return "wrong" }\nshadow main { assert true }\n',
-                         'struct Point { x: int }\nfn required() -> array<array<Point>> { return [[Point { x: 1 }]] }\nfn main() -> int { (required) return 0 }\nshadow main { assert true }\n'):
+                         'union Choice { Item { x: int } }\nfn required() -> array<Choice> { return [Choice.Item { x: 1 }] }\nfn main() -> int { (required) return 0 }\nshadow main { assert true }\n'):
                 source.write_text(body)
                 output.write_bytes(b"prior")
                 self.run_command([COMPILER, source, "--emit-nvm", "-o", output], 1)

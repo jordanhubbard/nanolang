@@ -3141,6 +3141,8 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                         type_name = type_param_name;
                     }
 
+                    /* I release a leaf name when this local retains only its nested TypeInfo. */
+                    if (type_param_name != type_name) free(type_param_name);
                     if (type_info && type_info->generic_name) {
                         if (type_name) free(type_name);
                         type_name = strdup(type_info->generic_name);

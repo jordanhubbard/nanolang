@@ -16,8 +16,8 @@ fn main() -> int {
 shadow main { assert true }
 '''
 
-UNSUPPORTED_RESULT = '''struct Point { x: int }
-fn main() -> array<array<Point>> { return [[Point { x: 1 }]] }
+UNSUPPORTED_RESULT = '''union Choice { Item { x: int } }
+fn main() -> array<Choice> { return [Choice.Item { x: 1 }] }
 shadow main { assert true }
 '''
 
@@ -220,7 +220,7 @@ fn main() -> int {
             source, output = directory / "unsupported.nano", directory / "unsupported.nasm"
             source.write_text(UNSUPPORTED_RESULT)
             result = self.run_command([DRIVER, source, "-o", output], expected=1)
-            self.assertIn(b"I refused that program: unsupported result type array<array<Point>>", result.stdout)
+            self.assertIn(b"I refused that program: unsupported result type array<Choice>", result.stdout)
             self.assertFalse(output.exists())
 
 

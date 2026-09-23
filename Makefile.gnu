@@ -5233,6 +5233,11 @@ test-native-float-arrays: nanoisa_emit nano_virt nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_native_float_arrays
 test-units: test-native-float-arrays
 
+.PHONY: test-source-record-unions
+test-source-record-unions: nanoisa_emit nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest tests.test_source_record_unions -v
+test-units: test-source-record-unions
+
 .PHONY: test-native-optional-records
 test-native-optional-records: nano_virt nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_records -v

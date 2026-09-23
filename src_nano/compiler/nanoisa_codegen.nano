@@ -1179,7 +1179,17 @@ fn nisa_union_shape_supported(parser: Parser, name: string, ancestors: array<str
     while (< i count) {
         let t: string = (nisa_union_concrete_field definition name i)
         if (not (nisa_union_payload_type t)) {
-            if (not (nisa_union_shape_supported parser t path)) { return false }
+            let mut supported: bool = false
+            if (>= (nisa_union_index parser t) 0) {
+                set supported (nisa_union_shape_supported parser t path)
+            } else {
+                if (str_starts_with t "array<") {
+                    set supported (nisa_array_shape_supported parser t path)
+                } else {
+                    set supported (nisa_record_shape_supported parser t path)
+                }
+            }
+            if (not supported) { return false }
         }
         set i (+ i 1)
     }
@@ -1209,6 +1219,12 @@ shadow nisa_union_shape_supported {
     assert (not (nisa_union_shape_supported parser "Cycle" []))
     assert (not (nisa_union_shape_supported parser "Box<Handle>" []))
     assert (not (nisa_union_shape_supported parser "Marker<Unknown>" []))
+    let record_tokens: List<LexerToken> = (tokenize_string "struct Plain { value: int } union Box<T> { Some { value: T }, None {} } struct Outer { boxed: Box<int> } struct Loop { boxed: Box<Loop> } resource struct Handle { fd: int }" "records.nano" (diag_list_new))
+    let records: Parser = (parse_program record_tokens (list_LexerToken_length record_tokens) "records.nano")
+    assert (nisa_union_shape_supported records "Box<array<array<Plain>>>" [])
+    assert (nisa_union_shape_supported records "Box<Outer>" [])
+    assert (not (nisa_union_shape_supported records "Box<Loop>" []))
+    assert (not (nisa_union_shape_supported records "Box<array<Handle>>" []))
 }
 fn nisa_union_supported(parser: Parser, name: string) -> bool {
     return (nisa_union_shape_supported parser (nisa_compact_type name) [])
@@ -1315,7 +1331,9 @@ fn nisa_emit_union_context(parser: Parser, node_id: int, identity: string) -> st
         let expected: string = (nisa_union_concrete_field definition identity (+ offset field))
         let value: int = (at literal.field_value_ids i)
         let kind: int = (at literal.field_value_types i)
-        if (!= (nisa_expr_type parser value kind) expected) { return (nisa_fail "I require the declared union field type") }
+        let contextual_union: bool = (and (== kind ParseNodeType.PNODE_UNION_CONSTRUCT) (>= (nisa_union_index parser expected) 0))
+        let contextual_array: bool = (and (== kind ParseNodeType.PNODE_ARRAY_LITERAL) (nisa_array_shape_supported parser expected []))
+        if (and (not (or contextual_union contextual_array)) (!= (nisa_expr_type parser value kind) expected)) { return (nisa_fail "I require the declared union field type") }
         set out (+ out (nisa_emit_expected_expr parser value kind expected))
         if (not nisa_ok) { return "" }
         let slot: int = (array_length nisa_names)
@@ -1596,7 +1614,34 @@ shadow nisa_emit_match {
     assert (== (nisa_reset) 0)
 }
 
+# I share the record/union ancestor path while peeling finite array layers.
+fn nisa_array_shape_supported(parser: Parser, spelling: string, ancestors: array<string>) -> bool {
+    let mut element: string = spelling
+    let mut depth: int = 0
+    while (and (str_starts_with element "array<") (str_ends_with element ">")) {
+        set depth (+ depth 1)
+        if (> (+ depth (array_length ancestors)) 128) { return false }
+        set element (str_substring element 6 (- (str_length element) 7))
+    }
+    if (== depth 0) { return false }
+    if (or (== element "int") (or (== element "bool") (or (== element "float") (== element "string")))) { return true }
+    if (>= (nisa_enum_index parser element) 0) { return true }
+    return (nisa_record_shape_supported parser element ancestors)
+}
+shadow nisa_array_shape_supported {
+    let source: string = "struct Plain { value: int } resource struct Handle { fd: int } struct Cycle { next: array<Cycle> } union Choice { No {} }"
+    let tokens: List<LexerToken> = (tokenize_string source "array-shape.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "array-shape.nano")
+    assert (nisa_array_shape_supported parser "array<array<Plain>>" [])
+    assert (nisa_array_shape_supported parser "array<array<float>>" [])
+    assert (not (nisa_array_shape_supported parser "array<Handle>" []))
+    assert (not (nisa_array_shape_supported parser "array<Cycle>" []))
+    assert (not (nisa_array_shape_supported parser "array<Choice>" []))
+    assert (not (nisa_array_shape_supported parser "Plain" []))
+}
+
 fn nisa_field_shape_supported(parser: Parser, field: string, ancestors: array<string>) -> bool {
+    if (>= (nisa_union_index parser field) 0) { return (nisa_union_shape_supported parser field ancestors) }
     if (>= (nisa_enum_index parser field) 0) { return true }
     if (!= (nisa_map_value_type field) "") { return true }
     if (or (== field "float") (or (== field "int") (or (== field "string") (== field "bool")))) { return true }
@@ -1604,8 +1649,7 @@ fn nisa_field_shape_supported(parser: Parser, field: string, ancestors: array<st
     if (or (== field "array<bool>") (or (== field "array<int>") (== field "array<string>"))) { return true }
     if (or (== field "List<int>") (== field "List<string>")) { return true }
     if (and (str_starts_with field "array<") (str_ends_with field ">")) {
-        let element: string = (str_substring field 6 (- (str_length field) 7))
-        return (or (>= (nisa_enum_index parser element) 0) (nisa_record_shape_supported parser element ancestors))
+        return (nisa_array_shape_supported parser field ancestors)
     }
     if (and (str_starts_with field "List<") (str_ends_with field ">")) {
         let element: string = (str_substring field 5 (- (str_length field) 6))
@@ -1623,10 +1667,11 @@ shadow nisa_field_shape_supported {
     assert (nisa_field_shape_supported parser "array<bool>" [])
     assert (nisa_field_shape_supported parser "float" [])
     assert (nisa_field_shape_supported parser "array<float>" [])
-    assert (not (nisa_field_shape_supported parser "array<array<float>>" []))
+    assert (nisa_field_shape_supported parser "array<array<float>>" [])
 }
 
 fn nisa_record_shape_supported(parser: Parser, name: string, ancestors: array<string>) -> bool {
+    if (> (array_length ancestors) 128) { return false }
     let index: int = (nisa_struct_index parser name)
     if (< index 0) { return false }
     let mut path: array<string> = []
@@ -1639,6 +1684,8 @@ fn nisa_record_shape_supported(parser: Parser, name: string, ancestors: array<st
     }
     set path (array_push path name)
     let record: ASTStruct = (parser_get_struct_def parser index)
+    if record.is_resource { return false }
+    if (or (< record.field_count 0) (or (!= record.field_count (array_length record.field_names)) (!= record.field_count (array_length record.field_types)))) { return false }
     set i 0
     while (< i record.field_count) {
         if (not (nisa_field_shape_supported parser (at record.field_types i) path)) { return false }
@@ -1653,6 +1700,15 @@ shadow nisa_record_shape_supported {
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "shape.nano")
     assert (nisa_record_shape_supported parser "Pair" [])
     assert (not (nisa_record_shape_supported parser "Cycle" []))
+    let external_tokens: List<LexerToken> = (tokenize_string "extern struct Location { file: string } extern struct Diagnostic { location: Location, code: int }" "external.nano" (diag_list_new))
+    let external_parser: Parser = (parse_program external_tokens (list_LexerToken_length external_tokens) "external.nano")
+    assert (nisa_record_shape_supported external_parser "Diagnostic" [])
+    assert (nisa_type_ok external_parser "List<Diagnostic>")
+    let union_tokens: List<LexerToken> = (tokenize_string "union Box<T> { Some { value: T }, None {} } struct Outer { value: Box<int> } struct Loop { value: Box<Loop> } resource struct Handle { fd: int } struct Owned { value: Box<Handle> }" "record-union.nano" (diag_list_new))
+    let unions: Parser = (parse_program union_tokens (list_LexerToken_length union_tokens) "record-union.nano")
+    assert (nisa_record_shape_supported unions "Outer" [])
+    assert (not (nisa_record_shape_supported unions "Loop" []))
+    assert (not (nisa_record_shape_supported unions "Owned" []))
 }
 
 fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
@@ -1707,19 +1763,7 @@ fn nisa_type_ok(parser: Parser, t: string) -> bool {
     if (nisa_union_supported parser t) { return true }
     if (>= (nisa_enum_index parser t) 0) { return true }
     if (and (str_starts_with t "array<") (str_ends_with t ">")) {
-        let element: string = (str_substring t 6 (- (str_length t) 7))
-        if (== element "float") { return true }
-        if (or (== element "bool") (or (== element "int") (== element "string"))) { return true }
-        if (and (str_starts_with element "array<") (str_ends_with element ">")) {
-            let mut leaf: string = element
-            while (and (str_starts_with leaf "array<") (str_ends_with leaf ">")) {
-                set leaf (str_substring leaf 6 (- (str_length leaf) 7))
-            }
-            return (or (or (== leaf "int") (== leaf "bool"))
-                       (or (== leaf "float")
-                           (or (== leaf "string") (>= (nisa_enum_index parser leaf) 0))))
-        }
-        return (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element))
+        return (nisa_array_shape_supported parser t [])
     }
     if (nisa_local_type_ok t) {
         return true
@@ -1750,7 +1794,7 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "array<bool>")
     assert (nisa_type_ok p "array<array<int>>")
     assert (nisa_type_ok p "array<array<array<float>>>")
-    assert (not (nisa_type_ok p "array<array<Point>>"))
+    assert (nisa_type_ok p "array<array<Point>>")
     assert (nisa_type_ok p "(int,string,bool)")
     assert (not (nisa_type_ok p "(int,array<int>)"))
 }
@@ -3324,7 +3368,9 @@ fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
                         (and (str_starts_with expected "array<") (nisa_type_ok parser expected)))
                     let contextual_map: bool = (and (!= (nisa_map_value_type expected) "")
                         (nisa_is_map_constructor parser vid vty))
-                    if (and (not (or contextual_array contextual_map)) (not (nisa_value_type_matches parser (nisa_expr_type parser vid vty) expected))) {
+                    let contextual_union: bool = (and (== vty ParseNodeType.PNODE_UNION_CONSTRUCT)
+                        (>= (nisa_union_index parser expected) 0))
+                    if (and (not (or contextual_union (or contextual_array contextual_map))) (not (nisa_value_type_matches parser (nisa_expr_type parser vid vty) expected))) {
                         return (nisa_fail (+ "I require the declared type for record field " fname))
                     }
                     set out (+ out (nisa_emit_expected_expr parser vid vty expected))
@@ -3370,6 +3416,10 @@ shadow nisa_emit_struct_literal {
     assert (str_contains text2 "PUSH_I64 1")
     assert (str_contains text2 "PUSH_STR")
     assert (str_contains text2 "AGG_PACK 0 0 0 2")
+    let empty: string = (nanoisa_emit_nasm "union Box<T> { Some { value: T }, None {} } struct Outer { boxed: Box<Box<int>> } fn main() -> int { let outer: Outer = Outer { boxed: Box.Some { value: Box.None {} } } return 0 }")
+    assert nisa_ok
+    assert (str_contains empty "AGG_PACK 1 0 1 0")
+    assert (str_contains empty "AGG_PACK 0 0 0 1")
     let _2: int = (nisa_reset)
 }
 
