@@ -88,6 +88,51 @@ fn main() -> int { let pair: Pair<int> = Pair.Both { left: 3, right: 4 }
                                   generated, "-lm", "-o", binary])
                 self.run_command([binary])
 
+    def test_nested_union_payloads_and_phantom_resource_arguments(self):
+        nested = (ROOT / "tests/unit/test_native_nested_generics.nano").read_text()
+        phantom = '''resource struct Handle { fd: int }
+union Marker<T> { Mark { number: int } }
+union Box<T> { Some { value: T }, None {} }
+fn read(value: Box<Marker<Handle>>) -> int { match value {
+ Some(payload) => { let Box.Some { value } = payload match value {
+  Mark(inner) => { return inner.number }
+ } }
+ None(payload) => { return 0 }
+} }
+fn main() -> int {
+ let marker: Marker<Handle> = Marker.Mark { number: 7 }
+ let boxed: Box<Marker<Handle>> = Box.Some { value: marker }
+ let copy: Box<Marker<Handle>> = boxed
+ return (- (+ (read boxed) (read copy)) 14)
+}
+'''
+        for source in (nested, phantom):
+            with self.subTest(source=source), tempfile.TemporaryDirectory(prefix="nano-nested-union-") as tmp:
+                root = Path(tmp)
+                program, module = root / "main.nano", root / "main.nvm"
+                program.write_text(source)
+                self.run_command([DRIVER, program, "--emit-nvm", "-o", module])
+                self.run_command([ROOT / "bin/nano_vm", module])
+                generated, binary = root / "main.c", root / "native"
+                self.run_command([ROOT / "bin/nvm2c", module, "-o", generated])
+                self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                  generated, "-lm", "-o", binary])
+                self.run_command([binary])
+
+    def test_nested_union_cycles_and_unknown_arguments_preserve_output(self):
+        cases = [
+            'union Cycle { Next { value: Cycle } } fn main() -> int { let value: Cycle = 0 return 0 }',
+            'union Grow<T> { Next { value: Grow<Grow<T>> } } fn main() -> int { let value: Grow<int> = 0 return 0 }',
+            'union Marker<T> { Mark { value: int } } fn main() -> int { let value: Marker<Unknown> = Marker.Mark { value: 7 } return 0 }',
+        ]
+        for source in cases:
+            with self.subTest(source=source), tempfile.TemporaryDirectory(prefix="nano-union-boundary-") as tmp:
+                program, module = Path(tmp) / "main.nano", Path(tmp) / "prior.nvm"
+                program.write_text(source)
+                module.write_bytes(b"prior artifact")
+                self.run_command([DRIVER, program, "--emit-nvm", "-o", module], expected=1)
+                self.assertEqual(module.read_bytes(), b"prior artifact")
+
     def test_assembly_mode_stays_equivalent(self):
         with tempfile.TemporaryDirectory(prefix="nano-driver-text-") as tmp:
             directory = Path(tmp)

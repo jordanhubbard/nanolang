@@ -425,7 +425,38 @@ static void test_finite_variant_integer_array(void) {
     nvm_shape_destroy(&g);
 }
 
+static void test_nested_variant_payload_widening(void) {
+    const NvmShapeKind members[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL,
+        NVM_SHAPE_FLOAT, NVM_SHAPE_STRING};
+    for (size_t i = 0; i < sizeof members / sizeof members[0]; ++i) {
+        for (int exact = 0; exact < 2; ++exact) {
+            for (int reverse = 0; reverse < 2; ++reverse) {
+                NvmShapeGraph g = {0};
+                NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+                NvmShapeId payload = nvm_shape_child(&g, source, 0);
+                CHECK(nvm_shape_unify(&g, payload,
+                    nvm_shape_new(&g, NVM_SHAPE_VARIANT_SCALAR)));
+                NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+                NvmShapeId dest = nvm_shape_child(&g, target, 0);
+                NvmShapeId scalar = nvm_shape_new(&g, members[i]);
+                if (exact) CHECK(nvm_shape_unify(&g, dest, scalar));
+                if (reverse) CHECK(nvm_shape_convert(&g, source, target));
+                if (!exact) CHECK(nvm_shape_convert(&g, scalar, dest));
+                if (!reverse) CHECK(nvm_shape_convert(&g, source, target));
+                CHECK(nvm_shape_solve_conversions(&g) == !exact);
+                if (!exact) {
+                    CHECK(nvm_shape_kind(&g, dest) == NVM_SHAPE_VARIANT_SCALAR);
+                    CHECK(nvm_shape_kind(&g, scalar) == members[i]);
+                    CHECK(nvm_shape_root(&g, scalar) != nvm_shape_root(&g, dest));
+                }
+                nvm_shape_destroy(&g);
+            }
+        }
+    }
+}
+
 int main(void) {
+    test_nested_variant_payload_widening();
     test_finite_variant_integer_array();
     test_explicit_variant_scalar_storage();
     test_numeric_union_payload();

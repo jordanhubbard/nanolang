@@ -190,6 +190,7 @@ typedef struct {
     NvmShapeId source, target;
     int exact;
     int array_element;
+    int optional_payload;
 } FlowPair;
 
 static int flow_kind(NvmShapeGraph *g, NvmShapeId target, NvmShapeKind kind, int *changed) {
@@ -205,7 +206,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
     if (!queue) return 0;
-    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, 0};
+    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, 0, 0};
     while (cursor < count && !g->error) {
         FlowPair pair = queue[cursor++];
         NvmShapeId source = nvm_shape_root(g, pair.source), target = nvm_shape_root(g, pair.target);
@@ -216,7 +217,8 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             if (nvm_shape_root(g, queue[i].source) == source &&
                 nvm_shape_root(g, queue[i].target) == target &&
                 queue[i].exact == pair.exact &&
-                queue[i].array_element == pair.array_element) seen = 1;
+                queue[i].array_element == pair.array_element &&
+                queue[i].optional_payload == pair.optional_payload) seen = 1;
         if (seen) continue;
         NvmShapeKind from = g->nodes[source - 1].kind, to = g->nodes[target - 1].kind;
         if (from == NVM_SHAPE_UNKNOWN) {
@@ -268,7 +270,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             NvmShapeId payload = nvm_shape_child(g, target, 0);
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;
-            queue = next; queue[count++] = (FlowPair){source, payload, 1, 0};
+            queue = next; queue[count++] = (FlowPair){source, payload, 1, 0, 0};
             continue;
         }
         /* An explicitly declared union destination accepts either exact
@@ -293,6 +295,17 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
                 if (member == NVM_SHAPE_UNKNOWN && !final) continue;
                 fail(g, "I require an exact integer element for variant array storage"); break;
             }
+        }
+        /* A nested copy can discover a constructor's finite payload set after
+         * scalar flow inferred this optional payload. Widen only that inferred
+         * payload; exact destinations and unboxed projections stay exact. */
+        if (pair.optional_payload && g->nodes[target - 1].conversion_kind &&
+            (from == NVM_SHAPE_VARIANT_SCALAR || from == NVM_SHAPE_VARIANT_INT_ARRAY) &&
+            (to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL ||
+             to == NVM_SHAPE_FLOAT || to == NVM_SHAPE_STRING ||
+             (to == NVM_SHAPE_VARIANT_SCALAR && from == NVM_SHAPE_VARIANT_INT_ARRAY))) {
+            if (!flow_kind(g, target, from, changed)) break;
+            to = from;
         }
         if (from != to) {
             snprintf(g->error_detail, sizeof g->error_detail,
@@ -331,7 +344,8 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
                 child_source,
                 child_target,
                 pair.exact || from == NVM_SHAPE_OPTIONAL || from == NVM_SHAPE_MAP,
-                from == NVM_SHAPE_ARRAY && edge.index == 0
+                from == NVM_SHAPE_ARRAY && edge.index == 0,
+                from == NVM_SHAPE_OPTIONAL && edge.index == 0
             };
         }
     }
