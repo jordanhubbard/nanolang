@@ -1,6 +1,8 @@
 # My Roadmap
 
-- [ ] I resume PR522 implementation on 2026-09-23 at `8c0b01360`, following the request to implement the full canonical product. I retain hosted run `35795377922` and keep the complete acceptance inventory.
+**Current scope decision (2026-09-23):** I keep PR #522 blocked and in draft at Jordan’s latest direction. I track remaining canonical generic-union support separately in task_d44b2db373d38a942db3e8c4567b8044, including resource-bearing payload contracts and unchanged native-stage acceptance. I retain the integration dependency and completed evidence; further feature implementation is outside this hold-status update. I do not merge or release v5.1 while these requirements remain unmet.
+
+- [ ] I retain the incomplete PR522 implementation queue below while the current hold remains in effect. Implementation checkpoints begin at `8c0b01360`.  I retain hosted run `35795377922` and keep the complete acceptance inventory.
   - [ ] I preserve complete selected variant identity and validate destructuring before lowering ordinary payload bindings; then I qualify nested generic values and their native representation.
     - [x] I lower complete ordinary selected patterns using the match binding’s concrete identity, with VM/native values, exact-field refusals and fresh Stage1/Stage2 checks. My retained first-slice evidence is in `docs/evidence/pr522-implementation-2026-09-23/`.
     - [x] I retain nested ordinary union payload layouts and unused generic resource arguments without treating them as stored owners. Fresh bootstrap and 23 selected methods pass; alias-return reachability remains separately open below.
