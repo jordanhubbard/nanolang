@@ -135,6 +135,52 @@ RET
 '''
         self.paired(text)
 
+    def guarded_return(self, tag=1, expected=0, compare="EQ", jump="JMP_FALSE", extra="", tail=False, bypass=False):
+        relay = ('LOAD_LOCAL 0\nTAIL_CALL identity\n' if tail else
+                 'LOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n')
+        return (HEADER + '.function main 0 0 0 int 1\n' + extra +
+                f'PUSH_STR kept\nAGG_PACK 1 0 {tag} 1\nCALL relay\nCALL read\n'
+                'PUSH_I64 4\nI64_SUB\nRET\n.end\n' +
+                '.function relay 1 2 0 union 1\n' + relay + '.end\n' +
+                '.function identity 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n' +
+                '.function read 1 1 0 int 1\n' +
+                ('PUSH_BOOL 1\nJMP_TRUE bad\n' if bypass else '') +
+                f'LOAD_LOCAL 0\nAGG_TAG\nPUSH_I64 {expected}\n{compare}\n{jump} valid\n' +
+                'bad:\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n' +
+                'valid:\nLOAD_LOCAL 0\nAGG_GET 0\nSTR_LEN\nRET\n.end\n')
+
+    def test_unreachable_variant_return_through_alias_and_tail_call(self):
+        for compare, jump in (("EQ", "JMP_FALSE"), ("NE", "JMP_TRUE"),
+                              ("I64_EQ", "JMP_FALSE"), ("I64_NE", "JMP_TRUE")):
+            for tail in (False, True):
+                with self.subTest(compare=compare, tail=tail):
+                    self.paired(self.guarded_return(compare=compare, jump=jump, tail=tail))
+
+    def test_maximum_variant_number_remains_distinct_from_unknown(self):
+        self.paired(self.guarded_return(tag=65535))
+
+    def test_reachable_variant_return_and_bypass_preserve_output(self):
+        sources = [
+            self.guarded_return(tag=0),
+            self.guarded_return(expected=1),
+            self.guarded_return(extra='PUSH_STR kept\nAGG_PACK 1 0 0 1\nCALL relay\nCALL read\nPOP\n'),
+            self.guarded_return(bypass=True),
+            self.guarded_return(extra='FUNCREF read\nPOP\n'),
+            self.guarded_return(extra='PUSH_STR kept\nAGG_PACK 1 0 0 1\nAGG_PACK 0 0 0 1\nAGG_GET 0\nCALL relay\nCALL read\nPOP\n'),
+        ]
+        for index, source in enumerate(sources):
+            with self.subTest(case=index), tempfile.TemporaryDirectory(prefix='variant-guard-') as tmp:
+                root = Path(tmp)
+                assembly, module, output = root/'input.nasm', root/'input.nvm', root/'output.c'
+                assembly.write_text(source)
+                self.checked([ROOT/'bin/nanoisa', 'asm', assembly, '-o', module])
+                output.write_text('previous')
+                result = subprocess.run([ROOT/'bin/nvm2c', module, '-o', output],
+                                        capture_output=True, text=True, timeout=60)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn('known incompatible variant scalar payload', result.stderr)
+                self.assertEqual(output.read_text(), 'previous')
+
     def test_struct_tuple_and_heap_conflicts_preserve_output(self):
         for kind, second in ((0, 'PUSH_STR kept'), (2, 'PUSH_STR kept'), (1, 'ARR_NEW 4'), (1, 'PUSH_U8 1')):
             with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix='variant-refusal-') as tmp:
