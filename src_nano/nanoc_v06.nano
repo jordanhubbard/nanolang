@@ -2860,25 +2860,48 @@ fn compile_program_mode(input_file: string, output_file: string, verbose: bool, 
                 if show_intermediate_code { (print (file_read c_file)) }
                 let mut staged_product: string = c_file
                 if (not emit_c) {
+                    let mut module_root: string = merge_repo_root
+                    if (== module_root "") { set module_root repo_root }
+                    let mod_flags: ModuleBuildFlags = (collect_module_build_flags merged_files module_root repo_root native_dir verbose)
+                    if (not mod_flags.ok) {
+                        (println (+ "I stopped native provider preparation with status " (int_to_string mod_flags.first_status)))
+                        (native_provider_cleanup mod_flags)
+                        (native_cleanup native_dir keep_c)
+                        return 1
+                    }
                     let mut runtime: string = (getenv "NANO_AOT_RUNTIME")
                     if (== runtime "") { set runtime (nl_path_join repo_root "bin/nano_aot_runtime.o") }
                     if (not (file_exists runtime)) {
                         (println (+ "I require the native artifact runtime: " runtime))
+                        (native_provider_cleanup mod_flags)
                         (native_cleanup native_dir keep_c)
                         return 1
                     }
                     let platform: string = (nlc_str_trim (nl_exec_capture "uname -s"))
-                    if (== platform "") { (native_cleanup native_dir keep_c) return 1 }
-                    let mut command: string = (+ (resolve_cc_binary) " -std=c11 ")
-                    let cflags: string = (native_product_cflags (getenv "NANO_CFLAGS"))
-                    if (!= cflags "") { set command (+ command (+ cflags " ")) }
-                    set command (+ command (+ (native_shell_quote c_file) (+ " " (native_shell_quote runtime))))
+                    if (== platform "") {
+                        (native_provider_cleanup mod_flags)
+                        (native_cleanup native_dir keep_c)
+                        return 1
+                    }
+                    let mut command: string = (native_profile_append mod_flags.compiler " -std=c11")
+                    set command (native_profile_append command mod_flags.compile_flags)
+                    set command (+ command (+ " " (+ (native_shell_quote c_file) (+ " " (native_shell_quote runtime)))))
                     set command (+ command (+ " -lm" (native_array_abi_link_flags platform)))
+                    if (> (str_length mod_flags.link_flags) 0) {
+                        set command (native_profile_append command mod_flags.link_flags)
+                    } else { (print "") }
                     let ldflags: string = (getenv "NANO_LDFLAGS")
                     if (!= ldflags "") { set command (+ command (+ " " ldflags)) }
                     set command (+ command (+ " -o " (native_shell_quote executable)))
+                    if (== command "") {
+                        (native_provider_cleanup mod_flags)
+                        (native_cleanup native_dir keep_c)
+                        return 1
+                    }
                     if verbose { (println command) }
-                    if (!= (nl_exec_shell command) 0) {
+                    let compile_status: int = (nl_exec_shell command)
+                    let provider_clean: bool = (native_provider_cleanup mod_flags)
+                    if (or (!= compile_status 0) (not provider_clean)) {
                         (println "I could not compile the native NanoISA product")
                         (native_cleanup native_dir keep_c)
                         return 1

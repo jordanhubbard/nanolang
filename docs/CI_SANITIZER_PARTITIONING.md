@@ -1,5 +1,23 @@
 # I preserve my complete sanitizer suite when I schedule it
 
+## My integrated PR522 schedule
+
+I retain run `35690205396` as failed. Its `units-03` worker enters the scalar
+reconstruction suite at 05:38:05 UTC and is terminated at 05:53:24 after many
+passing methods. I give the complete scalar target a dedicated worker with a
+35-minute test bound and a 45-minute job bound. The other workers retain their
+20-minute test and 30-minute job bounds. My integrated schedule has eighteen
+workers: Forth, source emission, scalar reconstruction, fourteen remaining unit
+partitions, and the negative suite. Every original target still occurs exactly
+once. I require a completed hosted run; these bounds do not imply acceptance.
+
+I accept GNU Make 3.81's empty tab-only recipe line while requiring the same
+sole nonempty tail invocation. My actual-inventory regression covers Darwin,
+and my malformed-recipe controls still refuse additional commands.
+
+The following sections retain my earlier schedule and its evidence.
+
+
 ## Measured failure and scope
 
 I retain PR947 head81cb6eb50 and the earlier PR946 whole-step timeout. My actual947 sanitizer step begins at16:19:11, reaches the Forth session at16:21:27, then the next target at16:32:44. That target interval is11m17s, including its compile and execution; I do not attribute all of it to one function. I reach nvm2c at16:33:18, build the instrumented NanoISA emitter at16:34:59 and enter its comparison at16:36:09. Sixteen Python methods then pass before Actions enforces the unchanged20-minute step limit. The first terminal remains a failure. A timeout increase alone does not establish full-suite acceptance.

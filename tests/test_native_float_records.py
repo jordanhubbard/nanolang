@@ -13,7 +13,8 @@ class NativeFloatRecords(unittest.TestCase):
     def checked(self, args):
         result = subprocess.run(list(map(str, args)), cwd=ROOT, capture_output=True,
             text=True, timeout=120, env={**os.environ,
-            'ASAN_OPTIONS': 'detect_leaks=0' if sys.platform == 'darwin' else 'detect_leaks=1'})
+            'ASAN_OPTIONS': ('detect_leaks=0' if sys.platform == 'darwin' and
+                             not os.environ.get('NANO_NATIVE_TEST_CC') else 'detect_leaks=1')})
         self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
         return result.stdout
 

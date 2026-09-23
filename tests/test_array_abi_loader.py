@@ -64,6 +64,13 @@ class ArrayAbiLoader(unittest.TestCase):
                 bool nano_module_artifact_dir(const char *p, char *d, size_t n) {
                     (void)p; (void)d; (void)n; return false;
                 }
+                /* This focused probe supplies the host half of loader registration. */
+                static void (*registered_shutdown)(void);
+                bool nano_native_register_loader_shutdown(void (*callback)(void)) {
+                    if (!callback || (registered_shutdown && registered_shutdown != callback)) return false;
+                    registered_shutdown = callback;
+                    return true;
+                }
                 static int local_provider(void) { return 42; }
                 static int other_provider(void) { return 43; }
                 NANO_DECLARE_LOCAL_ARRAY_ABI(local_provider);

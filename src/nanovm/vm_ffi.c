@@ -747,9 +747,16 @@ static bool vm_ffi_call_impl(const NvmModule *module, uint32_t import_idx,
             }
             arguments[i] = vmstring_cstr(args[i].as.string);
         }
-        const char *text = arg_count == 0 ? ((const char *(*)(void))func_ptr)() :
-            arg_count == 1 ? ((const char *(*)(const char *))func_ptr)(arguments[0]) :
-            ((const char *(*)(const char *, const char *))func_ptr)(arguments[0], arguments[1]);
+        ffi_type *types[2] = {&ffi_type_pointer, &ffi_type_pointer};
+        void *values[2] = {&arguments[0], &arguments[1]};
+        ffi_cif cif;
+        if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, (unsigned)arg_count,
+                         &ffi_type_pointer, types) != FFI_OK) {
+            snprintf(error_msg, error_msg_size, "I could not prepare a provider string signature");
+            return false;
+        }
+        const char *text = NULL;
+        ffi_call(&cif, FFI_FN(func_ptr), &text, values);
         bool copied = false;
         bool has_text = text != NULL;
         NanoValue snapshot = marshal_result((int64_t)(intptr_t)text, TAG_STRING, heap, &copied, capture);
@@ -775,7 +782,8 @@ static bool vm_ffi_call_impl(const NvmModule *module, uint32_t import_idx,
         }
     }
 
-    /* I invoke every admitted signature through its declared C ABI. */
+    /* I use the declared ABI for every arity. Register-class compatibility
+     * does not make mismatched C function pointer types interchangeable. */
     {
         ffi_type *types[NANO_MAX_FFI_ARGS];
         void *values[NANO_MAX_FFI_ARGS];

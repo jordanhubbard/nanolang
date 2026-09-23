@@ -3,7 +3,6 @@ import json
 import os
 import shlex
 from pathlib import Path
-import shlex
 import subprocess
 import sys
 import tempfile
@@ -11,7 +10,6 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPILER = Path(os.environ.get("NANOC", ROOT / "bin/nanoc_c")).resolve()
-ARTIFACT_LINK_FLAGS = shlex.split(os.environ.get("NANO_ARTIFACT_LDFLAGS", ""))
 
 
 class ArtifactImports(unittest.TestCase):

@@ -526,10 +526,11 @@ test-nvm2c-sanitizers:
 
 # I provide the native host ABI required by artifact-backed array operations.
 # A relocatable object retains exports even when only a dlopened module uses them.
-AOT_RUNTIME_OBJECTS = $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o
+AOT_RUNTIME_OBJECTS = $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o \
+	$(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o
 .PHONY: nvm2c-runtime
 nvm2c-runtime: $(BIN_DIR)/nano_aot_runtime.o
-$(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
+$(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) Makefile.gnu | $(BIN_DIR)
 	$(CC) -r -nostdlib -o $@ $(AOT_RUNTIME_OBJECTS)
 
 .PHONY: test-one-ir-compiler
@@ -890,7 +891,7 @@ test-native-array-abi: $(COMPILER_C)
 test-selfhost-array-abi: bootstrap3
 	NANO_TEST_SELFHOST=1 NANO_TEST_NATIVE_COMPILER=$(NANOC_STAGE2) python3 -m unittest tests.test_native_array_abi
 
-test-array-abi-loader:
+test-array-abi-loader: $(COMPILER_C)
 	python3 -m unittest tests.test_array_abi_loader
 
 test-vm-ffi: test-array-abi-loader $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)

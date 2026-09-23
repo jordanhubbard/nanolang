@@ -7145,7 +7145,17 @@ fn apply_return_type_hint(expr_type: NSType, expected_type: NSType) -> NSType {
 
 # I convert a checked literal destination without converting existing array values.
 fn check_contextual_value(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
-    if (and (== (type_to_string expected) "u8") (== actual.kind TypeKind.TYPE_INT)) { return expected }
+    if (and (== (type_to_string expected) "u8") (== actual.kind TypeKind.TYPE_INT)) {
+        if (== node_type ParseNodeType.PNODE_NUMBER) {
+            let number: ASTNumber = (parser_get_number parser node_id)
+            let literal: int = (string_to_int number.value)
+            if (or (< literal 0) (> literal 255)) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require a byte literal from 0 through 255." (Diagnostics.diag_location file_name number.line number.column)))
+                return actual
+            }
+        }
+        return expected
+    }
     if (and (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) (== (type_to_string expected) "array<u8>")) {
         let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
         let mut valid: bool = true
@@ -7232,6 +7242,22 @@ fn check_contextual_value(parser: Parser, node_id: int, node_type: int, actual: 
         return (type_unknown_named "array at scalar destination")
     }
     return (apply_value_type_hint parser node_id node_type actual expected)
+}
+
+shadow check_contextual_value {
+    let parser: Parser = (resource_test_parser "fn main() -> int { let low: u8 = -1 let high: u8 = 256 let edge: u8 = 255 let computed: u8 = (+ 255 2) return 0 }")
+    let expected: NSType = (type_from_string "u8")
+    let symbols: array<Symbol> = []
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let low: ASTLet = (parser_get_let parser 0)
+    assert (== (check_contextual_value parser low.value low.value_type (type_int) expected symbols diags "byte.nano").kind TypeKind.TYPE_INT)
+    let high: ASTLet = (parser_get_let parser 1)
+    assert (== (check_contextual_value parser high.value high.value_type (type_int) expected symbols diags "byte.nano").kind TypeKind.TYPE_INT)
+    let edge: ASTLet = (parser_get_let parser 2)
+    assert (types_equal (check_contextual_value parser edge.value edge.value_type (type_int) expected symbols diags "byte.nano") expected)
+    let computed: ASTLet = (parser_get_let parser 3)
+    assert (types_equal (check_contextual_value parser computed.value computed.value_type (type_int) expected symbols diags "byte.nano") expected)
+    assert (== (list_CompilerDiagnostic_length diags) 2)
 }
 
 shadow check_contextual_value {

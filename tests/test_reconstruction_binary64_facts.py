@@ -56,7 +56,10 @@ class Binary64Facts(unittest.TestCase):
     def test_current_arithmetic_reconstruction_is_admitted(self):
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
-            module = self.module(directory, 'DUP\nF64_ADD\n')
+            source, module = directory/'arithmetic.nasm', directory/'arithmetic.nvm'
+            source.write_text('.entry main\n.function main 0 0 0 int 1\n'
+                              'PUSH_F64 1.23456789\nDUP\nF64_ADD\nF64_TO_BITS\nRET\n.end\n')
+            self.checked(ROOT/'bin/nanoisa', 'asm', source, '-o', module)
             self.checked(ROOT/'bin/nanoisa_hl_facts', module)
             for target in ('c', 'nano'):
                 output = directory/f'arithmetic.{target}'
