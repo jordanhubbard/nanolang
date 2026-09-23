@@ -7,7 +7,8 @@ in `tests/test_generic_selected_ownership.py` and
 blocked until this feature and the other integrated acceptance gates pass.
 This document specifies required behavior. My format-4 declaration transport is
 implemented. Selected VM/native transfers now execute for the bounded standalone
-owned profile; canonical source lowering remains incomplete.
+owned profile. My self-hosted source producer now emits these transfers, while
+the C-based `nano_virt` source producer and scalar global effects remain incomplete.
 
 ## My historical starting boundary
 
@@ -83,7 +84,12 @@ arguments and results. Stack capacity is established before VM detachment.
 Native emission uses the selected count rather than the flattened union layout.
 The `test-owned-union-runtime` target checks resource, ordinary, empty, nested,
 STRING and call/return cases, allocation failures, assertion cleanup and public
-refusals. This raw-bytecode admission does not establish canonical source support.
+refusals. My self-hosted producer retains aggregate payload identities and ownership flags,
+moves aliases and arguments, and emits selected extraction for complete patterns.
+Fresh C-seed/Stage1/Stage2 generic acceptance and paired raw source execution pass.
+My C-based `nano_virt` producer still has a scalar-only union boundary; owned
+programs with mutable scalar globals also remain refused. Neither the raw runtime
+checks nor the generic acceptance establish complete frontend or release parity.
 
 
 ## My transfer and selection

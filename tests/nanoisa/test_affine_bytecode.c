@@ -141,6 +141,9 @@ static void owned_union_flow(void) {
         "owner:\nPOP\nOWN_UNPACK_VARIANT 0 0 1\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nPOP\nRET\n"
         "ordinary:\nPOP\nOWN_UNPACK_VARIANT 0 1 2\nPOP\nPOP\nRET\n"
         "empty:\nPOP\nOWN_UNPACK_VARIANT 0 2 0\nRET\n",true,NULL);
+    owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 1 ordinary\nPOP\nHALT\nordinary:\nPOP\nLOAD_LOCAL 0\nAGG_GET 0\nPOP\nOWN_UNPACK_VARIANT 0 1 2\nPOP\nPOP\nRET\n",true,NULL);
+    owned_union_case("LOAD_LOCAL 0\nAGG_GET 0\nRET\n",false,"proven scalar-union variant");
+    owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 0 owner\nPOP\nHALT\nowner:\nPOP\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n",false,"not partial owner moves");
     owned_union_case("OWN_UNPACK_VARIANT 0 0 1\nRET\n",false,"selected union");
     owned_union_case("LOAD_LOCAL 0\nMATCH_TAG 2 arm\nPOP\nHALT\narm:\nPOP\n"
         "PUSH_BOOL 1\nJMP_FALSE keep\nOWN_UNPACK_VARIANT 0 2 0\nJMP join\n"
