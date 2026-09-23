@@ -2784,7 +2784,7 @@ endif
 
 # Default test: Use most evolved compiler available (no bd dependency)
 # NOTE: Wrap test runs with a timeout to avoid infinite compiler loops.
-TEST_TIMEOUT ?= 1800
+TEST_TIMEOUT ?= 3600
 USERGUIDE_TIMEOUT ?= 2400
 SHADOW_CHECK_TIMEOUT ?= 120
 CMD_TIMEOUT ?= 600

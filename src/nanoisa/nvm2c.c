@@ -6324,18 +6324,22 @@ static void emit_nsarr_storage(Nvm2cBuf *b) {
         "    owner->bytes = sizeof *owner + n + 1; nagg_add(owner->bytes);\n"
         "    memcpy(owner->data, value, n + 1); owner->next = nsarr_strings;\n"
         "    nsarr_strings = owner; return owner->data;\n}\n"
+        "static inline void nsarr_release_owned(void) {\n"
+        "    while (nsarr_owners) { struct nsarr_owner *owner = nsarr_owners;\n"
+        "        nsarr_owners = owner->next; nagg_drop(owner->bytes); free(owner->data); free(owner->handle); free(owner); }\n"
+        "    while (nsarr_strings) { nsarr_string *owner = nsarr_strings;\n"
+        "        nsarr_strings = owner->next; nagg_drop(owner->bytes); free(owner->data); free(owner); }\n}\n");
+}
+
+static void emit_nsarr_copy_span(Nvm2cBuf *b) {
+    nvm2c_puts(b,
         "static inline const char *nsarr_copy_span(const char *value, size_t n) {\n"
         "    if (!value || n > SIZE_MAX - sizeof(nsarr_string) - 1) NVM2C_ABORT();\n"
         "    nsarr_string *owner = malloc(sizeof *owner); if (!owner) NVM2C_ABORT();\n"
         "    owner->data = malloc(n + 1); if (!owner->data) { free(owner); NVM2C_ABORT(); }\n"
         "    owner->bytes = sizeof *owner + n + 1; nagg_add(owner->bytes);\n"
         "    memcpy(owner->data, value, n); owner->data[n] = 0; owner->next = nsarr_strings;\n"
-        "    nsarr_strings = owner; return owner->data;\n}\n"
-        "static inline void nsarr_release_owned(void) {\n"
-        "    while (nsarr_owners) { struct nsarr_owner *owner = nsarr_owners;\n"
-        "        nsarr_owners = owner->next; nagg_drop(owner->bytes); free(owner->data); free(owner->handle); free(owner); }\n"
-        "    while (nsarr_strings) { nsarr_string *owner = nsarr_strings;\n"
-        "        nsarr_strings = owner->next; nagg_drop(owner->bytes); free(owner->data); free(owner); }\n}\n");
+        "    nsarr_strings = owner; return owner->data;\n}\n");
 }
 
 static void emit_nstr_split(Nvm2cBuf *b) {
@@ -7676,7 +7680,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    double result; memcpy(&result, &bits, sizeof result); return result;\n}\n");
         }
         if (need_sarr) { b.has_string_arrays = 1; emit_nsarr_storage(&b); }
-        if (need_split) emit_nstr_split(&b);
+        if (need_split) { emit_nsarr_copy_span(&b); emit_nstr_split(&b); }
         if (need_iarr) { b.has_integer_arrays = 1; emit_narr_storage(&b); }
         if (b.has_maps) {
             nvm2c_puts(&b,
