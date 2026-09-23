@@ -18,6 +18,7 @@ typedef struct {
     Value *stack;
     uint16_t count;
     bool visited;
+    bool global_initialized[NVM_OWNERSHIP_MAX_SCALAR_GLOBALS];
 } Frame;
 static void frame_free(Frame *frame) {
     if (!frame) return;
@@ -28,6 +29,7 @@ static Frame *frame_clone(const Frame *from) {
     if (!out) return NULL;
     out->locals=nvm_affine_state_clone(from->locals);
     if (!out->locals) {frame_free(out);return NULL;}
+    memcpy(out->global_initialized,from->global_initialized,sizeof(out->global_initialized));
     out->count=from->count;
     if (out->count) {
         out->stack=malloc(out->count*sizeof(*out->stack));
@@ -39,6 +41,10 @@ static Frame *frame_clone(const Frame *from) {
 static bool stack_meet(Frame *destination,const Frame *incoming,bool *changed) {
     if (!changed) return false;
     *changed=false;
+    for(uint32_t i=0;i<NVM_OWNERSHIP_MAX_SCALAR_GLOBALS;i++)
+        if(destination->global_initialized[i] && !incoming->global_initialized[i]) {
+            destination->global_initialized[i]=false;*changed=true;
+        }
     if (destination->count!=incoming->count) return false;
     for (uint16_t i=0;i<destination->count;i++) {
         Value x=destination->stack[i],y=incoming->stack[i];
@@ -84,6 +90,8 @@ static bool pop_scalar(Frame *f,uint8_t tag) {
 }
 typedef struct {
     bool value_graph;
+    uint8_t global_tags[NVM_OWNERSHIP_MAX_SCALAR_GLOBALS];
+    uint32_t global_count;
     uint8_t status[NVM_OWNED_MAX_FUNCTIONS];
     NvmAffineAnalysis results[NVM_OWNED_MAX_FUNCTIONS];
 } AnalysisCalls;
@@ -148,6 +156,7 @@ static bool supported(uint8_t op,bool value_graph) {
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
     case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+    case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
         return value_graph;
     default:return false;
     }
@@ -157,12 +166,17 @@ static bool observed_local(const Frame *f,uint16_t local) {
         if (f->stack[i].observation && f->stack[i].root==local) return true;
     return false;
 }
+static bool globals_initialized(const Frame *frame,const AnalysisCalls *calls) {
+    for(uint32_t i=0;i<calls->global_count;i++)if(!frame->global_initialized[i])return false;
+    return true;
+}
 static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function,AnalysisCalls *calls) {
     uint8_t op=in->opcode,tag=TAG_VOID,mode;
     uint16_t local;
     switch(op) {
     case OP_NOP: case OP_JMP: case OP_HALT: return NULL;
     case OP_CALL: {
+        if(!globals_initialized(f,calls))return "I require initialized scalar globals before an owned helper call";
         uint32_t target=in->operands[0].u32;
         if (!calls->value_graph || !target || target>=module->function_count)
             return "I require a checked acyclic owned value call";
@@ -201,6 +215,18 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8))
             return "I require a single scalar reference-call result";
         break;
+    }
+    case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL: {
+        uint32_t slot=in->operands[0].u32;
+        if(!calls->value_graph || slot>=calls->global_count)
+            return "I require a declared scalar-global slot in an owned value graph";
+        tag=calls->global_tags[slot];
+        if(op==OP_LOAD_GLOBAL) {
+            if(!f->global_initialized[slot])return "I require scalar-global initialization before a read";
+            break;
+        }
+        if(!pop_scalar(f,tag))return "I require an exact scalar global store without an owner or observation";
+        f->global_initialized[slot]=true;return NULL;
     }
     case OP_PUSH_I64:tag=TAG_INT;break;
     case OP_PUSH_U8:tag=TAG_U8;break;
@@ -578,9 +604,11 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
     frames[0]=calloc(1,sizeof(*frames[0]));
     if (!frames[0]) {nvm_affine_state_free(initial);error="I cannot allocate entry state";goto done;}
     frames[0]->locals=initial;
+    /* Helpers rely on the checked entry-to-helper initialization boundary. */
+    if(function)for(uint32_t i=0;i<calls->global_count;i++)frames[0]->global_initialized[i]=true;
     /* Each instruction is first visited once, then only after one or more
-     * of its at most local_count initialized scalar bits decrease. */
-    uint32_t visit_limit=count*((uint32_t)entry->local_count+1u);
+     * of its bounded local/global initialized scalar bits decrease. */
+    uint32_t visit_limit=count*((uint32_t)entry->local_count+calls->global_count+1u);
 #ifdef NVM_AFFINE_TEST_VISIT_LIMIT
     visit_limit=NVM_AFFINE_TEST_VISIT_LIMIT(visit_limit);
 #endif
@@ -597,6 +625,9 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
         if (!current) {error="I cannot allocate an instruction state";goto done;}
         uint8_t op=instruction->instruction.opcode;
         bool fallthrough=true;
+        if(!function && (op==OP_RET || op==OP_HALT) && !globals_initialized(current,calls)) {
+            error="I require every scalar global initialized before entry exits";goto done;
+        }
         if (op==OP_RET) {
             uint8_t tag=TAG_VOID;
             if (current->count==1 && !current->stack[0].observation) tag=current->stack[0].tag;
@@ -660,6 +691,10 @@ done:
 }
 
 NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t function) {
-    AnalysisCalls calls={0};calls.value_graph=nvm_affine_value_call_graph(m);
+    AnalysisCalls calls={0};
+    if(nvm_ownership_scalar_globals(m,calls.global_tags,sizeof(calls.global_tags),&calls.global_count)!=NVM_V2_OK) {
+        NvmAffineAnalysis result={0};snprintf(result.message,sizeof(result.message),"I require complete scalar-global declarations");return result;
+    }
+    calls.value_graph=nvm_affine_value_call_graph(m);
     return analyze(m,function,NULL,0,&calls);
 }

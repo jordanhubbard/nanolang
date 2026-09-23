@@ -1006,6 +1006,7 @@ static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
     case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+    case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
         return value_graph;
     default: return false;
     }
@@ -1019,7 +1020,11 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     if (!mod->ownership_size || (!mod->function_count || mod->function_count>NVM_OWNED_MAX_FUNCTIONS) || mod->header.entry_point != 0 ||
         mod->import_count || mod->module_ref_count || mod->callback_contract_count || mod->passive_size)
         return fail("I require standalone ownership instruction execution semantics without linked contracts");
+    uint8_t global_tags[NVM_OWNERSHIP_MAX_SCALAR_GLOBALS];uint32_t global_count=0;
+    if(nvm_ownership_scalar_globals(mod,global_tags,sizeof(global_tags),&global_count)!=NVM_V2_OK)
+        return fail("I require complete scalar-global declarations before owned execution");
     bool value_graph=nvm_affine_value_call_graph(mod);
+    if(global_count && !value_graph)return fail("I require scalar globals in a standalone owned value graph");
     if (!value_graph && mod->function_count>2)
         return fail("I require a bounded acyclic value graph or my separate borrowed helper");
     for(uint32_t function=0;function<mod->function_count;function++) {

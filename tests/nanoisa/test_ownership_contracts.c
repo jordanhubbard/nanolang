@@ -151,7 +151,7 @@ static void check_union_transport(void) {
     word(data,36,2);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_INDEX_RANGE);word(data,36,1);
     word(data,16,3);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_RANGE);word(data,16,4);
     word(data,24,0);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_INDEX_RANGE);word(data,24,1);
-    half(data,28,3);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);half(data,28,1);
+    half(data,28,4);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);half(data,28,1);
     half(data,30,2);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);half(data,30,1);
     word(data,32,35);data[71]=1;CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_RANGE);
     data[71]=0;CHECK(nvm_ownership_contracts_validate(module,&needs)!=NVM_V2_OK);word(data,32,36);
@@ -163,7 +163,7 @@ static void check_union_transport(void) {
     CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);
     half(data,72,NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS);
     CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_TYPE);
-    half(data,72,3);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);
+    half(data,72,4);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);
     module->ownership_size=72;word(data,24,1);
     word(data,0,NVM_OWNERSHIP_PATH_VERSION);
     fact=(NvmUnionVariantFact){99,99,99,99};

@@ -27,10 +27,13 @@ The new match root initially retained only its final arm's lexical name. I
 retain that one-interval observation; my regression now requires both disjoint
 payload intervals and the existing local-name codec's canonical round trips.
 
-The complete scalar-union source and source-borrow regression processes remain
-running at this checkpoint. They rebuild self-hosted emitters; I do not infer
-their outcome from the focused passes. Full integrated platform/sanitizer and
-final-source fixed-point qualification remain incomplete. PR #522 stays draft.
+The complete scalar-union source suite passes all four methods (635.345 seconds).
+The complete source-borrow target passes all 56 methods (1,259.976 seconds),
+after its bootstrap and rebuilt emitter/shadow drivers. Native fixture execution
+uses Homebrew LLVM through `NANO_NATIVE_TEST_CC` with leak detection enabled.
+The final terminals are retained alongside the focused checkpoint. These runs
+qualify the C frontend regression boundary; full integrated platform/sanitizer
+and final-source fixed-point qualification remain incomplete. PR #522 stays draft.
 
 `checkpoint-provenance.json` pins implementation, test and executable hashes;
 `checkpoint-logs.json` hashes the uncompressed retained logs. From this checkout,
