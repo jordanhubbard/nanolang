@@ -469,7 +469,11 @@ class Emit:
                 self.line('return ' + self.expression(stmt[1]) + (';' if c else ''), indent)
             elif kind in ('if', 'while'):
                 expression = self.expression(stmt[1])
-                self.line(f'{kind} ({expression}) {{' if c else f'{kind} {expression} {{', indent)
+                if c:
+                    condition = expression if expression.startswith('(') and expression.endswith(')') else f'({expression})'
+                    self.line(f'{kind} {condition} {{', indent)
+                else:
+                    self.line(f'{kind} {expression} {{', indent)
                 self.statements(stmt[2], indent + 1)
                 if kind == 'if' and stmt[3]:
                     self.line('} else {', indent)

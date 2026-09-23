@@ -111,6 +111,10 @@ class ScalarReconstruction(unittest.TestCase):
                 for forbidden in (r'\bgoto\b',r'nano_vm',r'nvm_blob',r'\bswitch\b',r'\bdispatch\b'):
                     self.assertNotRegex(source,forbidden)
                 self.assertIn('return',source)
+                if language == 'c':
+                    operand = r'(?:[A-Za-z_][A-Za-z0-9_]*|INT64_C\([^()]*\)|UINT8_C\([^()]*\)|true|false)'
+                    redundant = rf'(?m)^\s*(?:if|while) \(\({operand} (?:==|!=|<=|>=|<|>) {operand}\)\) \{{$'
+                    self.assertNotRegex(source, redundant)
                 for name in names:
                     self.assertIn(name,source)
                 if structured:
