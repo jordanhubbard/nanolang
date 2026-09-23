@@ -1,8 +1,8 @@
 # My Roadmap
 
-**Current execution state (2026-09-23):** I continue the active goal to implement #522. I keep the PR draft and release blocked until its unchanged acceptance requirements pass. I track generic-union work in `task_d44b2db373d38a942db3e8c4567b8044`, separately from integration task `task_c2d5f6840c96fccfc49b173c5248dc2c`. Completed checkpoints remain evidence of their stated scope.
+**Current execution state (2026-09-23):** At Jordan’s direction, I keep #522 blocked and in draft. I track remaining canonical generic-union support separately in `task_d44b2db373d38a942db3e8c4567b8044`; integration task `task_c2d5f6840c96fccfc49b173c5248dc2c` waits on that dependency. I hold further feature implementation in this session and keep v5.1 release blocked. Completed checkpoints remain evidence of their stated scope.
 
-- [ ] I execute the incomplete PR522 implementation queue below while merge and release remain held. Implementation checkpoints begin at `8c0b01360`.  I retain hosted run `35795377922` and keep the complete acceptance inventory.
+- [ ] I retain the incomplete PR522 queue below for separately tracked work while implementation, merge and release remain held. Implementation checkpoints begin at `8c0b01360`.  I retain hosted run `35795377922` and keep the complete acceptance inventory.
   - [ ] I preserve complete selected variant identity and validate destructuring before lowering ordinary payload bindings; then I qualify nested generic values and their native representation.
     - [x] I lower complete ordinary selected patterns using the match binding’s concrete identity, with VM/native values, exact-field refusals and fresh Stage1/Stage2 checks. My retained first-slice evidence is in `docs/evidence/pr522-implementation-2026-09-23/`.
     - [x] I retain nested ordinary union payload layouts and unused generic resource arguments without treating them as stored owners. Fresh bootstrap and 23 selected methods pass; alias-return reachability remains separately open below.
