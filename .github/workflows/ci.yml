@@ -729,6 +729,8 @@ jobs:
     name: Code Coverage
     runs-on: ubuntu-latest
     timeout-minutes: 65
+    env:
+      COVERAGE_THRESHOLD: "25.0"
     permissions:
       contents: read
       pull-requests: write

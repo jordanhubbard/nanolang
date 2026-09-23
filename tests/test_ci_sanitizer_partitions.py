@@ -304,6 +304,7 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertNotIn('make test TEST_TIMEOUT=3600', platform_runs)
         coverage_tests = next(step for step in jobs['coverage']['steps'] if step.get('name') == 'Run tests')
         self.assertEqual(coverage_tests['run'], './tests/run_all_tests.sh')
+        self.assertEqual(jobs['coverage']['env']['COVERAGE_THRESHOLD'], '25.0')
         for step in workers['steps']:
             self.assertNotIn('continue-on-error', step)
 
