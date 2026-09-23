@@ -166,11 +166,12 @@ shadow main { assert (== (main) 0) }
             directory = Path(tmp)
             source, output = directory / "main.nano", directory / "main.nvm"
             output.write_bytes(b"prior")
-            source.write_text('fn required() -> array<array<int>> { return [[1]] }\n'
+            source.write_text('struct Point { value: int }\n'
+                              'fn required() -> array<array<Point>> { return [[Point { value: 1 }]] }\n'
                               'fn main() -> int { (required) return 0 }\n'
                               'shadow main { assert (== (main) 0) }\n')
             rejected = self.run_command([COMPILER, source, "--emit-nvm", "-o", output], 1)
-            self.assertIn(b"I cannot lower this checked program: unsupported result type array<array<int>>",
+            self.assertIn(b"I cannot lower this checked program: unsupported result type array<array<Point>>",
                           rejected.stdout + rejected.stderr)
             self.assertEqual(output.read_bytes(), b"prior")
 
@@ -205,7 +206,7 @@ shadow main { assert (== (main) 0) }
                     self.assertEqual(original.read_bytes(), before)
             output = directory / "prior.nvm"
             for body in ('fn main() -> int { return "wrong" }\nshadow main { assert true }\n',
-                         'fn required() -> array<array<int>> { return [[1]] }\nfn main() -> int { (required) return 0 }\nshadow main { assert true }\n'):
+                         'struct Point { value: int }\nfn required() -> array<array<Point>> { return [[Point { value: 1 }]] }\nfn main() -> int { (required) return 0 }\nshadow main { assert true }\n'):
                 source.write_text(body)
                 output.write_bytes(b"prior")
                 self.run_command([COMPILER, source, "--emit-nvm", "-o", output], 1)
