@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from tests import test_selected_variant_ownership as original
 from tests import test_affine_scalar_union_runtime as runtime
+from tests import test_nanoisa_shadow_emitter as shadows
 
 ROOT = Path(__file__).resolve().parents[1]
 PREFIX = """resource struct Handle { fd: int }
@@ -51,31 +52,69 @@ def cases():
 class OwnedScalarGlobalSource(unittest.TestCase):
     compiler = runtime.AffineScalarUnionRuntime.compiler
 
-    def test_c_source_effects_and_refusals(self):
+    def test_source_effects_and_refusals(self):
         with tempfile.TemporaryDirectory(prefix='nano-owned-global-source-') as directory:
             work = Path(directory)
+            for producer in ('nano_virt', 'nanoisa_emit'):
+                for name, source, accepted in cases():
+                    with self.subTest(producer=producer, case=name):
+                        program, module, generated, binary = [work / n for n in ('source.nano', 'source.nvm', 'source.c', 'source.native')]
+                        program.write_text(source)
+                        module.write_bytes(b'prior module')
+                        result = subprocess.run([ROOT / 'bin' / producer, program, '--emit-nvm', '-o', module],
+                                                cwd=ROOT, capture_output=True, text=True, timeout=120)
+                        # My raw self-hosted producer publishes production only; the
+                        # separate shadow emitter below checks this failing assertion.
+                        production_only = producer == 'nanoisa_emit' and name == 'failing_effect_shadow'
+                        if not accepted and not production_only:
+                            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                            self.assertEqual(module.read_bytes(), b'prior module')
+                            continue
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                        for command in ([ROOT / 'bin/nano_vm', '--verify-only', module],
+                                        [ROOT / 'bin/nano_vm', module],
+                                        [ROOT / 'bin/nvm2c', module, '-o', generated],
+                                        [self.compiler(), '-std=c11', '-Wall', '-Wextra', '-Werror',
+                                         '-fsanitize=address,undefined', '-fno-omit-frame-pointer', generated, '-o', binary],
+                                        [binary]):
+                            result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120,
+                                                    env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1',
+                                                         'UBSAN_OPTIONS': 'halt_on_error=1'})
+                            self.assertEqual(result.returncode, 0, str(command) + '\n' + result.stdout + result.stderr)
+
+
+    def test_native_stages_effects_and_refusals(self):
+        for compiler in ('nanoc_stage1', 'nanoc_stage2'):
             for name, source, accepted in cases():
-                with self.subTest(case=name):
-                    program, module, generated, binary = [work / n for n in ('source.nano', 'source.nvm', 'source.c', 'source.native')]
+                with self.subTest(compiler=compiler, case=name), tempfile.TemporaryDirectory(prefix='nano-owned-global-native-') as directory:
+                    program, output = Path(directory) / 'source.nano', Path(directory) / 'program'
                     program.write_text(source)
-                    module.write_bytes(b'prior module')
-                    result = subprocess.run([ROOT / 'bin/nano_virt', program, '--emit-nvm', '-o', module],
+                    output.write_bytes(b'prior artifact')
+                    result = subprocess.run([ROOT / 'bin' / compiler, program, '-o', output],
                                             cwd=ROOT, capture_output=True, text=True, timeout=120)
                     if not accepted:
                         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
-                        self.assertEqual(module.read_bytes(), b'prior module')
-                        continue
-                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-                    for command in ([ROOT / 'bin/nano_vm', '--verify-only', module],
-                                    [ROOT / 'bin/nano_vm', module],
-                                    [ROOT / 'bin/nvm2c', module, '-o', generated],
-                                    [self.compiler(), '-std=c11', '-Wall', '-Wextra', '-Werror',
-                                     '-fsanitize=address,undefined', '-fno-omit-frame-pointer', generated, '-o', binary],
-                                    [binary]):
-                        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120,
-                                                env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1',
-                                                     'UBSAN_OPTIONS': 'halt_on_error=1'})
-                        self.assertEqual(result.returncode, 0, str(command) + '\n' + result.stdout + result.stderr)
+                        self.assertEqual(output.read_bytes(), b'prior artifact')
+                    else:
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                        result = subprocess.run([output], capture_output=True, text=True, timeout=15)
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
+class OwnedScalarGlobalShadows(unittest.TestCase):
+    setUpClass = classmethod(shadows.ShadowEmitter.setUpClass.__func__)
+    tearDownClass = classmethod(shadows.ShadowEmitter.tearDownClass.__func__)
+    command = staticmethod(shadows.ShadowEmitter.command)
+    emit = shadows.ShadowEmitter.emit
+    execute = shadows.ShadowEmitter.execute
+
+    def test_selfhosted_shadow_effects(self):
+        for name, source, accepted in cases():
+            if not accepted and name != 'failing_effect_shadow':
+                continue
+            with self.subTest(case=name):
+                assembly = self.emit(source).stdout
+                self.execute(assembly, success=accepted)
 
 
 if __name__ == '__main__':

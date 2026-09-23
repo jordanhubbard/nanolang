@@ -1,0 +1,54 @@
+{
+  "pr522-global-selfhost-build.log.gz": {
+    "uncompressed_sha256": "b12f634918733f352e2b39442e30b27d5fe1b01e24a323f445a1948169d9153e",
+    "exit_code": 0
+  },
+  "pr522-global-selfhost-source.log.gz": {
+    "uncompressed_sha256": "89b31679b283bc84e458963d80849c0f3d5e0d053fa9a030e80e5b3e3d6b17af",
+    "exit_code": 1
+  },
+  "pr522-global-selfhost-source2.log.gz": {
+    "uncompressed_sha256": "124c5e96a30a5d49d15edcc9850065f0fe49ce8af1ce21a2e5252858faf0ac4e",
+    "exit_code": 1
+  },
+  "pr522-global-selfhost-shadows.log.gz": {
+    "uncompressed_sha256": "8e5d882a5bc35a8a861f1951da9cd3efca14b76df7bfe8867d1750353b7ba71d",
+    "exit_code": 1
+  },
+  "pr522-global-selfhost-shadows2.log.gz": {
+    "uncompressed_sha256": "23dda8316365ef11790a417851ccaefd9ed0cd7f76f170c4116047580d0cde9b",
+    "exit_code": 0
+  },
+  "pr522-global-selfhost-shadow-policy.log.gz": {
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "exit_code": 0
+  },
+  "pr522-global-assembler-build.log.gz": {
+    "uncompressed_sha256": "a767163221d255fe35b2bc754906ade9365bfab9c794c9b3715cb46600449a5d",
+    "exit_code": 2
+  },
+  "pr522-global-assembler-build2.log.gz": {
+    "uncompressed_sha256": "b1498019a32fd5e4b39d05d5aadbbe5e885bd4c9f20852740dfcdda93b9af04b",
+    "exit_code": 0
+  },
+  "pr522-global-bootstrap.log.gz": {
+    "uncompressed_sha256": "9e66fd61194bb76f314da3bdde9e08cbb20c6d9e362e42dfa487d1e9ea8f730a",
+    "exit_code": 0
+  },
+  "pr522-global-stage1-original.log.gz": {
+    "uncompressed_sha256": "6be610f43e0cabfd35e35b36ca9c8e1a47ef2afee46cfefca7e20507ce129d94",
+    "exit_code": 0
+  },
+  "pr522-global-selfhost-union-regressions.log.gz": {
+    "uncompressed_sha256": "931e4bd6179decb1841f8506383b4cf6bd536c8e2dc07bd964845ca7ba0cc918",
+    "exit_code": 0
+  },
+  "pr522-owned-array-linkflags.log.gz": {
+    "uncompressed_sha256": "9f124c5a95c045c6b144b513e49401f1af3a608503083c7516768b09f2d5d008",
+    "exit_code": 0
+  },
+  "pr522-global-native-matrix.log.gz": {
+    "uncompressed_sha256": "cf7740dc09958c5a2ef19dae9b24938ad36974ca10afc11ce88a03cd1b12a278",
+    "exit_code": 0
+  }
+}

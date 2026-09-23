@@ -37,7 +37,11 @@ because all entry-to-helper calls establish that precondition.
 matching scalar stack value and never an owned token or rooted observation.
 Wrong slot, wrong tag, missing initialization, incomplete branch initialization
 and a call before initialization refuse. Mutable source bindings retain checked
-assignment rules and lexical locals continue to shadow globals.
+assignment rules and lexical locals continue to shadow globals. My two source
+producers require explicit scalar global annotations under this profile. The
+raw self-hosted production emitter does not execute shadows; its separate shadow
+module API emits the same initializers into the selected test entry. Native
+drivers must execute that entry before publishing their production artifact.
 
 My VM uses its existing `VmState` global storage, retains STRING loads and
 releases overwritten values. Globals remain rooted until `vm_destroy`, as for
