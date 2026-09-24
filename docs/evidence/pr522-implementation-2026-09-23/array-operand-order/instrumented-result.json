@@ -1,0 +1,14 @@
+{
+  "exit_code": 0,
+  "seconds": 49.18345962499734,
+  "ordinary_seed_restored": "ba9c0e4f8b966b9b90021a4319b0661b42fe7be7c8d5a74f0d36b4d5e02a13b8",
+  "instrumented_seed": "57fe47d57afba88c2b2bc8c92c1aad8ac05407f19579182ac4dba9bc336696ec",
+  "settings": {
+    "NANO_CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_CFLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+    "NANO_LDFLAGS": "-fsanitize=address,undefined",
+    "NANO_SHADOW_TIMEOUT_SECONDS": "60",
+    "ASAN_OPTIONS": "detect_leaks=1:detect_stack_use_after_return=1",
+    "UBSAN_OPTIONS": "halt_on_error=1"
+  }
+}

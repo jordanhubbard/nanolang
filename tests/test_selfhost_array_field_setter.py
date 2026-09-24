@@ -92,6 +92,52 @@ fn main() -> int {{
 shadow main {{ assert (== (main) 0) }}
 ''')
 
+    def test_scalar_and_record_accesses_evaluate_operands_once_in_order(self):
+        for kind, before, after in (
+            ('int', '1', '7'), ('bool', 'false', 'true'),
+            ('string', '"before"', '"after"'), ('float', '1.25', '2.5'),
+            ('Cell', 'Cell { value: 1 }', 'Cell { value: 9 }'),
+        ):
+            with self.subTest(element=kind):
+                check = '(== value.value 9)' if kind == 'Cell' else f'(== value {after})'
+                self.run_program(f'''struct Cell {{ value: int }}
+let mut order: int = 0
+fn receiver(values: array<{kind}>) -> array<{kind}> {{
+ set order (+ (* order 10) 1)
+ return values
+}}
+shadow receiver {{
+ set order 0
+ assert (== (array_length (receiver [{before}])) 1)
+ assert (== order 1)
+}}
+fn offset() -> int {{ set order (+ (* order 10) 2) return 0 }}
+shadow offset {{ set order 0 assert (== (offset) 0) assert (== order 2) }}
+fn replacement() -> {kind} {{ set order (+ (* order 10) 3) return {after} }}
+shadow replacement {{
+ set order 0
+ let value: {kind} = (replacement)
+ assert {check}
+ assert (== order 3)
+}}
+fn main() -> int {{
+ let values: array<{kind}> = [{before}]
+ set order 0
+ (array_set (receiver values) (offset) (replacement))
+ assert (== order 123)
+ set order 0
+ let value: {kind} = (at (receiver values) (offset))
+ assert (== order 12)
+ assert {check}
+ set order 0
+ let second: {kind} = (array_get (receiver values) (offset))
+ assert (== order 12)
+ assert {check.replace("value", "second", 1)}
+ return 0
+}}
+shadow main {{ assert (== (main) 0) }}
+''')
+
     def test_setter_evaluates_arguments_once_in_order(self):
         self.run_program('''struct Box { rows: array<array<string>> }
 let mut order: int = 0

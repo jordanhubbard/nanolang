@@ -2318,24 +2318,21 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (elem_type == TYPE_STRUCT && (strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0))
                     struct_name = get_struct_type_name(expr, env);
 
-                /* For structs, use dyn_array_get/set_struct with casts */
+                /* I snapshot operands before the host call for both reads
+                 * and writes; C does not specify argument evaluation order. */
                 if (elem_type == TYPE_STRUCT && struct_name) {
+                    emit_literal(list, "({ ");
+                    unsigned call_id = build_ordered_call_args(
+                        list, expr->as.call.args, expr->as.call.arg_count, env, NULL);
                     if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0)) {
-                        /* Generate: *((nl_StructName*)dyn_array_get_struct(arr, idx)) */
-                        emit_formatted(list, "(*((nl_%s*)dyn_array_get_struct(", struct_name);
-                        build_expr(list, expr->as.call.args[0], env);  /* array */
-                        emit_literal(list, ", ");
-                        build_expr(list, expr->as.call.args[1], env);  /* index */
-                        emit_literal(list, ")))");
+                        emit_formatted(list,
+                            "(*((nl_%s*)dyn_array_get_struct(__nl_arg_%u_0, __nl_arg_%u_1))); })",
+                            struct_name, call_id, call_id);
                     } else {
-                        /* Generate: dyn_array_set_struct(arr, idx, &value, sizeof(nl_StructName)) */
-                        emit_literal(list, "dyn_array_set_struct(");
-                        build_expr(list, expr->as.call.args[0], env);  /* array */
-                        emit_literal(list, ", ");
-                        build_expr(list, expr->as.call.args[1], env);  /* index */
-                        emit_literal(list, ", &(");
-                        build_expr(list, expr->as.call.args[2], env);  /* value */
-                        emit_formatted(list, "), sizeof(nl_%s))", struct_name);
+                        emit_formatted(list,
+                            "dyn_array_set_struct(__nl_arg_%u_0, __nl_arg_%u_1, "
+                            "&__nl_arg_%u_2, sizeof(nl_%s)); })",
+                            call_id, call_id, call_id, struct_name);
                     }
                 } else {
                     /* Map element type to suffix for primitive types */
@@ -2382,13 +2379,16 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                             "nl_array_at_array(__nl_arg_%u_0, __nl_arg_%u_1)))); })",
                             call_id, call_id, call_id, call_id);
                     } else {
+                        emit_literal(list, "({ ");
+                        unsigned call_id = build_ordered_call_args(
+                            list, expr->as.call.args, expr->as.call.arg_count, env, NULL);
                         emit_literal(list, func_buf);
                         emit_literal(list, "(");
                         for (int i = 0; i < expr->as.call.arg_count; i++) {
                             if (i > 0) emit_literal(list, ", ");
-                            build_expr(list, expr->as.call.args[i], env);
+                            emit_formatted(list, "__nl_arg_%u_%d", call_id, i);
                         }
-                        emit_literal(list, ")");
+                        emit_literal(list, "); })");
                     }
                 }
             }

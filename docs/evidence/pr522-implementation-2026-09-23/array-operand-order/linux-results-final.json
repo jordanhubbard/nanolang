@@ -1,0 +1,198 @@
+[
+  {
+    "version": "before",
+    "fixture": "00-test_empty_replacement_element_types.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8243135129996517
+  },
+  {
+    "version": "before",
+    "fixture": "01-test_empty_replacement_element_types.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.878110886000286
+  },
+  {
+    "version": "before",
+    "fixture": "02-test_empty_replacement_element_types.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8765288859995053
+  },
+  {
+    "version": "before",
+    "fixture": "03-test_empty_replacement_element_types.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 1.0406013800002256
+  },
+  {
+    "version": "before",
+    "fixture": "04-test_nested_array_replacement_context.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.9348736419997294
+  },
+  {
+    "version": "before",
+    "fixture": "05-test_nested_record_field.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8245009370002663
+  },
+  {
+    "version": "before",
+    "fixture": "06-test_returned_array.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.882943818000058
+  },
+  {
+    "version": "before",
+    "fixture": "07-test_scalar_and_record_accesses_evaluate_operands_once_in_order.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8763502679994417
+  },
+  {
+    "version": "before",
+    "fixture": "08-test_scalar_and_record_accesses_evaluate_operands_once_in_order.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8268571950011392
+  },
+  {
+    "version": "before",
+    "fixture": "09-test_scalar_and_record_accesses_evaluate_operands_once_in_order.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.884560574999341
+  },
+  {
+    "version": "before",
+    "fixture": "10-test_scalar_and_record_accesses_evaluate_operands_once_in_order.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8241090700012137
+  },
+  {
+    "version": "before",
+    "fixture": "11-test_scalar_and_record_accesses_evaluate_operands_once_in_order.nano",
+    "compile_exit": 1,
+    "execution_exit": null,
+    "seconds": 0.7216908760001388
+  },
+  {
+    "version": "before",
+    "fixture": "12-test_scalar_fields.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8813981169987528
+  },
+  {
+    "version": "before",
+    "fixture": "13-test_setter_evaluates_arguments_once_in_order.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8833938290008518
+  },
+  {
+    "version": "after",
+    "fixture": "00-test_empty_replacement_element_types.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8769360299993423
+  },
+  {
+    "version": "after",
+    "fixture": "01-test_empty_replacement_element_types.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8841229999998177
+  },
+  {
+    "version": "after",
+    "fixture": "02-test_empty_replacement_element_types.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8297749609992024
+  },
+  {
+    "version": "after",
+    "fixture": "03-test_empty_replacement_element_types.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8259501660013484
+  },
+  {
+    "version": "after",
+    "fixture": "04-test_nested_array_replacement_context.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8747528650001186
+  },
+  {
+    "version": "after",
+    "fixture": "05-test_nested_record_field.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.825237291999656
+  },
+  {
+    "version": "after",
+    "fixture": "06-test_returned_array.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8831240479994449
+  },
+  {
+    "version": "after",
+    "fixture": "07-test_scalar_and_record_accesses_evaluate_operands_once_in_order.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8858385539988376
+  },
+  {
+    "version": "after",
+    "fixture": "08-test_scalar_and_record_accesses_evaluate_operands_once_in_order.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8299848449987621
+  },
+  {
+    "version": "after",
+    "fixture": "09-test_scalar_and_record_accesses_evaluate_operands_once_in_order.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8818537169991032
+  },
+  {
+    "version": "after",
+    "fixture": "10-test_scalar_and_record_accesses_evaluate_operands_once_in_order.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8780843389995425
+  },
+  {
+    "version": "after",
+    "fixture": "11-test_scalar_and_record_accesses_evaluate_operands_once_in_order.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8223766299997806
+  },
+  {
+    "version": "after",
+    "fixture": "12-test_scalar_fields.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.873693085000923
+  },
+  {
+    "version": "after",
+    "fixture": "13-test_setter_evaluates_arguments_once_in_order.nano",
+    "compile_exit": 0,
+    "execution_exit": 0,
+    "seconds": 0.8769394249993638
+  }
+]

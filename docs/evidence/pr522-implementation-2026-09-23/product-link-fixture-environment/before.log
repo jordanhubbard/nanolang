@@ -1,0 +1,66 @@
+python3 -m unittest tests.test_product_instrument_link_flags -v
+test_coverage_and_sanitizer_links_receive_only_required_flags (tests.test_product_instrument_link_flags.ProductInstrumentLinkFlags.test_coverage_and_sanitizer_links_receive_only_required_flags) ... FAIL
+test_explicit_product_link_flags_win (tests.test_product_instrument_link_flags.ProductInstrumentLinkFlags.test_explicit_product_link_flags_win) ... FAIL
+test_unrelated_build_flags_are_not_exported (tests.test_product_instrument_link_flags.ProductInstrumentLinkFlags.test_unrelated_build_flags_are_not_exported) ... FAIL
+
+======================================================================
+FAIL: test_coverage_and_sanitizer_links_receive_only_required_flags (tests.test_product_instrument_link_flags.ProductInstrumentLinkFlags.test_coverage_and_sanitizer_links_receive_only_required_flags)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_product_instrument_link_flags.py", line 41, in test_coverage_and_sanitizer_links_receive_only_required_flags
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        observed,
+        ^^^^^^^^^
+        "-fprofile-arcs -fsanitize=address,undefined -ftest-coverage",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+AssertionError: '-fsanitize=address,undefined --rtlib=compiler-rt' != '-fprofile-arcs -fsanitize=address,undefined -ftest-coverage'
+- -fsanitize=address,undefined --rtlib=compiler-rt
++ -fprofile-arcs -fsanitize=address,undefined -ftest-coverage
+
+
+======================================================================
+FAIL: test_explicit_product_link_flags_win (tests.test_product_instrument_link_flags.ProductInstrumentLinkFlags.test_explicit_product_link_flags_win)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_product_instrument_link_flags.py", line 54, in test_explicit_product_link_flags_win
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        self.exported_flags(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        "-L/declared/product -lfixture",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+AssertionError: '-fsanitize=address,undefined --rtlib=compiler-rt' != '-L/declared/product -lfixture'
+- -fsanitize=address,undefined --rtlib=compiler-rt
++ -L/declared/product -lfixture
+
+
+======================================================================
+FAIL: test_unrelated_build_flags_are_not_exported (tests.test_product_instrument_link_flags.ProductInstrumentLinkFlags.test_unrelated_build_flags_are_not_exported)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_product_instrument_link_flags.py", line 47, in test_unrelated_build_flags_are_not_exported
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        self.exported_flags(cflags="-Wall -I/private/input",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            ldflags="-lm -L/private/lib"),
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "",
+        ^^^
+    )
+    ^
+AssertionError: '-fsanitize=address,undefined --rtlib=compiler-rt' != ''
+- -fsanitize=address,undefined --rtlib=compiler-rt
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.780s
+
+FAILED (failures=3)
+make: *** [check] Error 1

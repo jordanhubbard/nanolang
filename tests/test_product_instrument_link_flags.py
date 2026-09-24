@@ -21,6 +21,10 @@ class ProductInstrumentLinkFlags(unittest.TestCase):
                 "\t@printf '%s\\n' \"$$NANO_LDFLAGS\"\n"
             )
             env = os.environ.copy()
+            # I test these declared inputs independently of the parent make's
+            # command-line assignments, which travel through MAKEFLAGS too.
+            for name in ("MAKEFLAGS", "MAKEOVERRIDES", "MFLAGS"):
+                env.pop(name, None)
             if nano_ldflags is None:
                 env.pop("NANO_LDFLAGS", None)
             else:

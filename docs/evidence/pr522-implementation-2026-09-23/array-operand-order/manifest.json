@@ -1,0 +1,18 @@
+{
+  "base_commit": "eb521d5b8",
+  "sha256": {
+    "src/transpiler_iterative_v3_twopass.c": "089128712f92743cdaa9d6c7cd75105aa3859e1e0b8895f404644bacff3aaf9f",
+    "tests/test_selfhost_array_field_setter.py": "f1c276a5da7242ea2189be1bf890406147f0995edd502477461667e5ee7d033c",
+    "bin/nanoc_c": "ba9c0e4f8b966b9b90021a4319b0661b42fe7be7c8d5a74f0d36b4d5e02a13b8",
+    "bin/nanoc_stage1": "7c23241199bf4be630ff900b42960ddde1a841ab7de34e4c247e7c524a3af5c1",
+    "bin/nanoc_stage2": "893d9e8a2771b7561969a19509684943f20564ba462c0059703cf5dbe18db1de",
+    "bin/nvm2c": "be377a8ed7a11ab8b3a886865b2b67b61aec76f9b4a99824ec39dcb30e2536c7"
+  },
+  "ordinary_methods": 7,
+  "adjacent_methods": 9,
+  "instrumented_methods": 7,
+  "fresh_stage_methods": 7,
+  "linux_gcc_sources": 14,
+  "linux_base": "d48a78783482bd6bc201ea710b49f4f4d1173eff plus the changed transpiler translation unit",
+  "hosted_acceptance": "pending"
+}
