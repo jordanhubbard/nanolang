@@ -17,6 +17,7 @@ FLAGS = ['CFLAGS=' + CFLAGS, 'LDFLAGS=' + LDFLAGS]
 BOOTSTRAP_FLAGS = ['BOOTSTRAP2_SHADOW_FLAG=--root-shadows-only']
 BOOTSTRAP_DRIVER_FLAGS = ['NANOC_STAGE1=bin/nanoc_stage1_driver']
 NATIVE_CFLAGS = '-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer'
+NATIVE_CC = 'clang'
 DEDICATED = ('test-forth-session', 'test-nanoisa-src-nano', 'test-scalar-reconstruction')
 PHASES = (('foundation', 'test-ci-foundation'),
           ('programs-language', 'test-ci-programs-language'),
@@ -163,9 +164,10 @@ def plan(head, targets, native_bootstrap_targets=()):
     workers.append({'id': 'negative', 'targets': []})
     for worker in workers:
         worker['native_bootstrap'] = any(target in native_bootstrap_targets for target in worker['targets'])
-    body = {'schema': 2, 'head': head, 'targets': targets, 'workers': workers,
+    body = {'schema': 3, 'head': head, 'targets': targets, 'workers': workers,
             'native_bootstrap_targets': native_bootstrap_targets,
-            'cflags': CFLAGS, 'ldflags': LDFLAGS, 'native_cflags': NATIVE_CFLAGS}
+            'cflags': CFLAGS, 'ldflags': LDFLAGS, 'native_cflags': NATIVE_CFLAGS,
+            'native_cc': NATIVE_CC}
     return {**body, 'inventory_sha256': digest(body)}
 
 
@@ -343,7 +345,7 @@ def instrumented_products(worker, output):
     paths = ['bin/nanoc_c']
     if worker['native_bootstrap']:
         paths += ['bin/nanoc_stage1', 'bin/nanoc_stage2']
-    report = {'worker': worker['id'], 'native_cflags': NATIVE_CFLAGS,
+    report = {'worker': worker['id'], 'native_cflags': NATIVE_CFLAGS, 'native_cc': NATIVE_CC,
               'nm': {'path': nm, 'sha256': file_hash(nm)}, 'products': {}, 'success': False}
     for name in paths:
         path = Path(name)
@@ -372,7 +374,8 @@ def instrumentation_stable(worker, output, prepared, after):
     report = json.loads(path.read_text())
     required = ['bin/nanoc_c'] + (['bin/nanoc_stage1', 'bin/nanoc_stage2'] if worker['native_bootstrap'] else [])
     if (not report.get('success') or report.get('worker') != worker['id'] or
-            report.get('native_cflags') != NATIVE_CFLAGS or set(report.get('products', {})) != set(required)):
+            report.get('native_cflags') != NATIVE_CFLAGS or report.get('native_cc') != NATIVE_CC or
+            set(report.get('products', {})) != set(required)):
         return False
     return all(product.get('returncode') == 0 and product.get('asan') and product.get('ubsan') and
                prepared['products'].get(name) == after['products'].get(name) == product.get('sha256')
@@ -445,7 +448,10 @@ def main():
     elif args.action == 'command':
         if os.environ.get('NANO_CFLAGS', NATIVE_CFLAGS) != NATIVE_CFLAGS:
             raise ValueError('I refuse different generated-native instrumentation flags.')
+        if os.environ.get('NANO_CC', NATIVE_CC) != NATIVE_CC:
+            raise ValueError('I refuse a different generated-native compiler.')
         os.environ['NANO_CFLAGS'] = NATIVE_CFLAGS
+        os.environ['NANO_CC'] = NATIVE_CC
         os.environ['NANO_VERBOSE_BUILD'] = '1'
         command = command_for(worker, args.phase)
         if args.phase == 'tests' and worker['id'] == 'negative':
@@ -456,6 +462,7 @@ def main():
              'NANO_SHADOW_TIMEOUT_SECONDS': os.environ.get('NANO_SHADOW_TIMEOUT_SECONDS'),
              'NANOLANG_COMPILER': os.environ.get('NANOLANG_COMPILER'),
              'NANO_CFLAGS': os.environ.get('NANO_CFLAGS'),
+             'NANO_CC': os.environ.get('NANO_CC'),
              'NANO_VERBOSE_BUILD': os.environ.get('NANO_VERBOSE_BUILD')})
         # The owning Actions step retains its original deadline and group cleanup.
         os.execvp(command[0], command)

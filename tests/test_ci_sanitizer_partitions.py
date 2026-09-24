@@ -151,6 +151,7 @@ class SanitizerPartitions(unittest.TestCase):
                          ['make', 'bootstrap3', *partition.BOOTSTRAP_FLAGS,
                           *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.FLAGS])
         self.assertEqual(value['native_cflags'], partition.NATIVE_CFLAGS)
+        self.assertEqual(value['native_cc'], partition.NATIVE_CC)
         for bad in (['absent'], [native[0], native[0]]):
             with self.assertRaises(ValueError):
                 partition.plan('head', targets, bad)
@@ -241,6 +242,7 @@ class SanitizerPartitions(unittest.TestCase):
                  mock.patch.object(partition, 'file_hash', return_value='digest'), \
                  mock.patch.object(partition.subprocess, 'run', return_value=completed):
                 result = partition.instrumented_products(worker, output)
+            self.assertEqual(result['native_cc'], partition.NATIVE_CC)
             self.assertEqual(set(result['products']), {'bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage2'})
             prepared = {'products': {p: 'digest' for p in result['products']}}
             self.assertTrue(partition.instrumentation_stable(worker, output, prepared, prepared))
@@ -313,6 +315,7 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertIn('sleep 60', bootstrap['run'])
         self.assertIn('wait "$bootstrap_pid"', bootstrap['run'])
         self.assertNotIn('continue-on-error', bootstrap)
+        self.assertIn('clang', partition.NATIVE_CC)
         self.assertEqual(jobs['sanitizer-providers']['needs'], ['sanitizer-plan', 'sanitizer-bootstrap'])
         self.assertEqual(jobs['sanitizers']['if'], 'always()')
         aggregate = next(step for step in jobs['sanitizers']['steps'] if 'run' in step)
