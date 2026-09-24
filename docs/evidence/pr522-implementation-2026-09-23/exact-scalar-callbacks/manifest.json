@@ -1,0 +1,20 @@
+{
+  "base": "e18e8bd5a9f49ceb340248ae8a908f437b5b146e",
+  "inputs": {
+    "src/nanoisa/nvm2c.c": "d853b29fe2a0d598111a12d342221437e44ccb7e0b0dd075e99564a76abdebe5",
+    "tests/nanoisa/test_nvm2c.c": "25d737759eaa948fef043648fc98520f4a41ce16a45afb3c5d1c268b44b2ce4f",
+    "bin/nvm2c": "9c00f4ee8e934e5d59a19494940513a7ec7d0f8d30d9c03624a52b68385f8d82",
+    "bin/nanoc_c": "cad1b7c5e6fa5de90b72abc0fbf95f37dfda99def8338dbaf2daf6ad56cf6dbd",
+    "bin/nanoc_stage1": "edc5f14ca0ec1b071a7dfd152e8a4efed80a1d08077897756cbb7f93e1ebeb37",
+    "bin/nanoc_stage2": "b05b0a2bd3a6a9b2fb620900858d300e1f76ced72ed3ce521bce397357ee8953"
+  },
+  "logs": {
+    "translator-after.log": "0ae713896783ce7f33f0848c56d2adc7841c8ee6df5ea2ad718d9ad2b9ba27ff",
+    "translator-sanitizers-after.log": "900431004a2779be870566d27c1704bcbbcaa20e720203eedae9be2b306600dd",
+    "translator-before-diagnostic-update.log": "d1681b6ceafcacdabe89e4037d6ec4d3b639ccfeeb3c1e42d1b935d045dc91d5",
+    "lexical-after.log": "553ae5b9e3b34a0e40951890df0078ee2877eebbb34efaec9b4ef5389513ad6b",
+    "translator-sanitizers-fixture-error.log": "d8fb5421a4c906e137ac992b7339c96cd2a8c0c1fc133b28059749cb23906d1e",
+    "translator-fixture-error.log": "478eb349a8061dd31c2d2494a05ea4663c8d6b9899b6084ab26a797f5c6e8521",
+    "declared-suite-after.log": "a2734477f90606c8a80a9d96003574c492534b2e1659387c28d9c0af06d5c99c"
+  }
+}

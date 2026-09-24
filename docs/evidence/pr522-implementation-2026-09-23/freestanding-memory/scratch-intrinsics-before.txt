@@ -1,0 +1,10 @@
+define internal i32 @value_array_write(ptr noundef %0, i64 noundef %1, i64 noundef %2, ptr noundef byval(%struct.NmsValue) align 8 %3, i32 noundef %4) #0 {
+  call void @llvm.memset.p0.i32(ptr align 8 %22, i8 0, i32 16, i1 false)
+define internal zeroext i1 @nrg_program_valid(ptr noundef %0, ptr noundef %1) #0 {
+  call void @llvm.memset.p0.i32(ptr align 16 %13, i8 0, i32 8192, i1 false)
+define internal zeroext i1 @nrg_program_valid(ptr noundef %0, ptr noundef %1) #0 {
+  call void @llvm.memset.p0.i32(ptr align 16 %14, i8 0, i32 512, i1 false)
+define internal void @nrg_void(ptr dead_on_unwind noalias writable sret(%struct.NmsValue) align 8 %0) #0 {
+  call void @llvm.memset.p0.i32(ptr align 8 %0, i8 0, i32 16, i1 false)
+define internal void @nbp_zero(ptr noundef %0) #0 {
+  call void @llvm.memset.p0.i64(ptr align 4 %3, i8 0, i64 516, i1 false)

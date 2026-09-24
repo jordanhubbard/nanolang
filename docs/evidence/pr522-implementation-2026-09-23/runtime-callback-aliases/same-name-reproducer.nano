@@ -1,0 +1,16 @@
+fn sum(left: int, right: int) -> int { return (+ left right) }
+shadow sum { assert (== (sum 8 3) 11) }
+fn difference(left: int, right: int) -> int { return (- left right) }
+shadow difference { assert (== (difference 8 3) 5) }
+fn invoke(callback: fn(int, int) -> int) -> int {
+ let callback: fn(int, int) -> int = callback
+ let alias: fn(int, int) -> int = callback
+ return (alias 8 3)
+}
+shadow invoke { assert (== (invoke sum) 11) assert (== (invoke difference) 5) }
+fn main() -> int {
+ assert (== (invoke sum) 11)
+ assert (== (invoke difference) 5)
+ return 0
+}
+shadow main { assert (== (main) 0) }
