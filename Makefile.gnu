@@ -4609,6 +4609,11 @@ test-units: test-canonical-aggregate-globals
 test-canonical-aggregate-globals: stage1 nano_vm
 	python3 -m unittest tests.test_canonical_aggregate_globals
 
+.PHONY: test-canonical-aggregate-formatting
+test-units: test-canonical-aggregate-formatting
+test-canonical-aggregate-formatting: bootstrap nano_vm
+	python3 -m unittest tests.test_canonical_aggregate_formatting
+
 .PHONY: test-canonical-string-conversion
 test-units: test-canonical-string-conversion
 test-canonical-string-conversion: stage1 nano_vm

@@ -1,0 +1,194 @@
+[
+  {
+    "source": "test_records_and_alternating_union_payloads.nano",
+    "steps": [
+      {
+        "command": [
+          "/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoisa_emit",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_records_and_alternating_union_payloads.nano",
+          "-o",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_records_and_alternating_union_payloads.nasm"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoisa",
+          "asm",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_records_and_alternating_union_payloads.nasm",
+          "-o",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_records_and_alternating_union_payloads.nvm"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/Users/jordanh/Src/nanolang-pr522-repair/bin/nano_vm",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_records_and_alternating_union_payloads.nvm"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/Users/jordanh/Src/nanolang-pr522-repair/bin/nvm2c",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_records_and_alternating_union_payloads.nvm",
+          "-o",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_records_and_alternating_union_payloads.c"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "I cannot translate '/tmp/pr522-aggregate-lowering-direct-corrected/test_records_and_alternating_union_payloads.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 1, offset 112: nrec_t versus int64_t at field 0 of parameter 2 of function 1)\n"
+      }
+    ]
+  },
+  {
+    "source": "test_scalar_and_nested_arrays.nano",
+    "steps": [
+      {
+        "command": [
+          "/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoisa_emit",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_scalar_and_nested_arrays.nano",
+          "-o",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_scalar_and_nested_arrays.nasm"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoisa",
+          "asm",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_scalar_and_nested_arrays.nasm",
+          "-o",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_scalar_and_nested_arrays.nvm"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/Users/jordanh/Src/nanolang-pr522-repair/bin/nano_vm",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_scalar_and_nested_arrays.nvm"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/Users/jordanh/Src/nanolang-pr522-repair/bin/nvm2c",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_scalar_and_nested_arrays.nvm",
+          "-o",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_scalar_and_nested_arrays.c"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "cc",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_scalar_and_nested_arrays.c",
+          "-lm",
+          "-o",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_scalar_and_nested_arrays.exe"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_scalar_and_nested_arrays.exe"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "test_single_evaluation_and_retained_strings.nano",
+    "steps": [
+      {
+        "command": [
+          "/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoisa_emit",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_single_evaluation_and_retained_strings.nano",
+          "-o",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_single_evaluation_and_retained_strings.nasm"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoisa",
+          "asm",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_single_evaluation_and_retained_strings.nasm",
+          "-o",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_single_evaluation_and_retained_strings.nvm"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/Users/jordanh/Src/nanolang-pr522-repair/bin/nano_vm",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_single_evaluation_and_retained_strings.nvm"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/Users/jordanh/Src/nanolang-pr522-repair/bin/nvm2c",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_single_evaluation_and_retained_strings.nvm",
+          "-o",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_single_evaluation_and_retained_strings.c"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "cc",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_single_evaluation_and_retained_strings.c",
+          "-lm",
+          "-o",
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_single_evaluation_and_retained_strings.exe"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "/tmp/pr522-aggregate-lowering-direct-corrected/test_single_evaluation_and_retained_strings.exe"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ]
+  }
+]
