@@ -271,6 +271,7 @@ void env_restore_symbol_count(Environment *env, int count) {
 /* Free environment */
 void free_environment(Environment *env) {
     env_symbol_index_invalidate(env);
+    env_function_index_invalidate(env);
     env_restore_symbol_count(env, 0);
     free(env->symbols);
     if (env->import_tracker) {
@@ -681,6 +682,110 @@ static bool module_string_list_contains(char **items, int count, const char *nam
     return false;
 }
 
+/* I index function slots, never borrowed names or reallocatable pointers.
+ * Name-changing external writes invalidate explicitly. Body/module changes are
+ * read from the authoritative slot on every lookup. */
+struct EnvFunctionIndex {
+    int *heads;
+    EnvSymbolLink *links;
+    size_t bucket_count, capacity;
+    int count;
+};
+
+void env_function_index_invalidate(Environment *env) {
+    if (!env || !env->function_index) return;
+    free(env->function_index->heads);
+    free(env->function_index->links);
+    free(env->function_index);
+    env->function_index = NULL;
+}
+
+static struct EnvFunctionIndex *function_index_sync(Environment *env) {
+    struct EnvFunctionIndex *index = env->function_index;
+    if (!index) {
+        index = calloc(1, sizeof *index);
+        if (!index) return NULL;
+        env->function_index = index;
+    }
+    while (index->count > env->function_count) {
+        EnvSymbolLink *link = &index->links[--index->count];
+        if (link->previous >= 0)
+            index->heads[link->hash & (index->bucket_count - 1)] = link->previous;
+    }
+    size_t needed = (size_t)env->function_count;
+    if (needed > index->capacity) {
+        size_t capacity = index->capacity ? index->capacity : 16;
+        while (capacity < needed) {
+            if (capacity > SIZE_MAX / 2) goto unavailable;
+            capacity *= 2;
+        }
+        if (capacity > SIZE_MAX / sizeof *index->links) goto unavailable;
+        EnvSymbolLink *links = realloc(index->links, capacity * sizeof *links);
+        if (!links) goto unavailable;
+        index->links = links;
+        index->capacity = capacity;
+    }
+    if (!index->bucket_count || needed > index->bucket_count / 2) {
+        size_t buckets = index->bucket_count ? index->bucket_count : 32;
+        while (needed > buckets / 2) {
+            if (buckets > SIZE_MAX / 2) goto unavailable;
+            buckets *= 2;
+        }
+        if (buckets > SIZE_MAX / sizeof *index->heads) goto unavailable;
+        int *heads = calloc(buckets, sizeof *heads);
+        if (!heads) goto unavailable;
+        for (int i = 0; i < index->count; ++i) {
+            EnvSymbolLink *link = &index->links[i];
+            if (link->previous < 0) continue;
+            size_t bucket = link->hash & (buckets - 1);
+            link->previous = heads[bucket];
+            heads[bucket] = i + 1;
+        }
+        free(index->heads);
+        index->heads = heads;
+        index->bucket_count = buckets;
+    }
+    while (index->count < env->function_count) {
+        int slot = index->count++;
+        EnvSymbolLink *link = &index->links[slot];
+        const char *name = env->functions[slot].name;
+        link->previous = -1;
+        if (!name) continue;
+        link->hash = symbol_name_hash(name);
+        size_t bucket = link->hash & (index->bucket_count - 1);
+        link->previous = index->heads[bucket];
+        index->heads[bucket] = slot + 1;
+    }
+    return index;
+
+unavailable:
+    /* I retain correct lookup when an optional index allocation fails. */
+    env_function_index_invalidate(env);
+    return NULL;
+}
+
+static Function *function_lookup(Environment *env, const char *name,
+                                 const char *module, bool require_module,
+                                 bool require_body) {
+    struct EnvFunctionIndex *index = function_index_sync(env);
+    uint64_t hash = symbol_name_hash(name);
+    int next = index ? index->heads[hash & (index->bucket_count - 1)] : env->function_count;
+    Function *first = NULL;
+    while (next) {
+        int slot = next - 1;
+        next = index ? index->links[slot].previous : slot;
+        if (index && index->links[slot].hash != hash) continue;
+        Function *function = &env->functions[slot];
+        if (!function->name || safe_strcmp(function->name, name) != 0) continue;
+        if (require_body && (function->is_extern || !function->body)) continue;
+        if (require_module && !((!module && !function->module_name) ||
+            (module && function->module_name && strcmp(module, function->module_name) == 0))) continue;
+        /* Bucket chains descend by slot. I retain the first declaration. */
+        first = function;
+    }
+    return first;
+}
+
 /* Define function */
 void env_define_function(Environment *env, Function func) {
     if (env->function_count >= env->function_capacity) {
@@ -740,16 +845,7 @@ Function *env_get_function(Environment *env, const char *name) {
                     if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
                         /* Look up the actual function by its original name AND module name */
                         const char *orig_mod = env->namespaces[i].module_name;
-                        for (int k = 0; k < env->function_count; k++) {
-                            if (safe_strcmp(env->functions[k].name, func_name) == 0) {
-                                /* I bind a qualified name only to its namespace owner. */
-                                if ((!orig_mod && !env->functions[k].module_name) ||
-                                    (orig_mod && env->functions[k].module_name &&
-                                     strcmp(env->functions[k].module_name, orig_mod) == 0)) {
-                                    return &env->functions[k];
-                                }
-                            }
-                        }
+                        return function_lookup(env, func_name, orig_mod, true, false);
                     }
                 }
                 /* Function not found in this module's namespace */
@@ -762,15 +858,8 @@ Function *env_get_function(Environment *env, const char *name) {
 
     /* I permit this non-reserved declaration only in its own module. */
     if (strcmp(name, "array_push") == 0) {
-        for (int i = 0; i < env->function_count; i++) {
-            Function *function = &env->functions[i];
-            if (function->name && strcmp(function->name, name) == 0 &&
-                !function->is_extern && function->body &&
-                ((!env->current_module && !function->module_name) ||
-                 (env->current_module && function->module_name &&
-                  strcmp(env->current_module, function->module_name) == 0)))
-                return function;
-        }
+        Function *local = function_lookup(env, name, env->current_module, true, true);
+        if (local) return local;
     }
 
     /* Check built-in functions via unified registry (only BUILTIN_LANG entries) */
@@ -795,32 +884,8 @@ Function *env_get_function(Environment *env, const char *name) {
         }
     }
 
-    /* Check user-defined functions */
-    /* First pass: prefer functions in the current module */
-    {
-        for (int i = 0; i < env->function_count; i++) {
-            if (env->functions[i].name && safe_strcmp(env->functions[i].name, name) == 0) {
-                if ((!env->current_module && !env->functions[i].module_name) ||
-                    (env->current_module && env->functions[i].module_name &&
-                     strcmp(env->functions[i].module_name, env->current_module) == 0)) {
-                    return &env->functions[i];
-                }
-            }
-        }
-    }
-
-    /* Second pass: check all functions (global or other modules) */
-    for (int i = 0; i < env->function_count; i++) {
-        /* Skip functions with NULL names */
-        if (!env->functions[i].name) {
-            continue;
-        }
-        if (safe_strcmp(env->functions[i].name, name) == 0) {
-            return &env->functions[i];
-        }
-    }
-
-    return NULL;
+    Function *local = function_lookup(env, name, env->current_module, true, false);
+    return local ? local : function_lookup(env, name, NULL, false, false);
 }
 
 /* I share push identity across inference and native lowering. */

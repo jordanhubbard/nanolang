@@ -1,0 +1,17 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O0 -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/repl.c -o /tmp/pr522-function-index/obj/repl.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O0 -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/repl_main.c -o /tmp/pr522-function-index/obj/repl_main.o
+src/repl.c:296:10: error: no member named 'parent' in 'Environment'
+  296 |     tmp->parent = env;
+      |     ~~~  ^
+src/repl.c:328:10: error: no member named 'parent' in 'Environment'
+  328 |     tmp->parent = NULL; /* unlink before free to avoid double-free of shared nodes */
+      |     ~~~  ^
+src/repl.c:339:5: error: use of undeclared identifier 'g_mod_count'
+  339 |     g_mod_count = 0;
+      |     ^~~~~~~~~~~
+src/repl.c:392:13: error: call to undeclared function 'cmd_modules'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  392 |             cmd_modules(env);
+      |             ^
+4 errors generated.
+make: *** [/tmp/pr522-function-index/obj/repl.o] Error 1
+make: *** Waiting for unfinished jobs....

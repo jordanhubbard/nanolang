@@ -50,6 +50,87 @@ static void pop_to(Environment *env, int count) {
     env->symbol_count = count;
 }
 
+static void check_function_index(void) {
+    Environment *env = create_environment();
+    char names[4096][32];
+    assert(!env_get_function(env, NULL));
+    assert(!env_get_function(env, "absent"));
+    for (int i = 0; i < 4096; ++i) {
+        snprintf(names[i], sizeof names[i], "function_%d", i);
+        env_define_function(env, (Function){.name = names[i]});
+        /* I query while the table and index grow independently. */
+        assert(env_get_function(env, names[i]) == &env->functions[i]);
+    }
+    name_comparisons = 0;
+    for (int i = 0; i < 1000; ++i) {
+        assert(env_get_function(env, "function_0") == &env->functions[0]);
+        assert(!env_get_function(env, "ordinary_missing_function"));
+    }
+    printf("I perform 2000 function lookups with %zu name comparisons.\n", name_comparisons);
+    /* I include the unchanged builtin registry scan in this bound. */
+    assert(name_comparisons < 1000000);
+
+    int first = env->function_count;
+    env_define_function(env, (Function){.name = "shared", .module_name = "A"});
+    env_define_function(env, (Function){.name = "shared", .module_name = "B"});
+    env_define_function(env, (Function){.name = "shared", .module_name = "B"});
+    env_define_function(env, (Function){.name = "shared"});
+    assert(env_get_function(env, "shared") == &env->functions[first + 3]);
+    env->current_module = "B";
+    assert(env_get_function(env, "shared") == &env->functions[first + 1]);
+    env->current_module = "unrelated";
+    assert(env_get_function(env, "shared") == &env->functions[first]);
+    char **exported = malloc(sizeof *exported);
+    exported[0] = strdup("shared");
+    env_register_namespace(env, "alias", "B", exported, 1, NULL, 0, NULL, 0, NULL, 0);
+    assert(env_get_function(env, "alias.shared") == &env->functions[first + 1]);
+    assert(!env_get_function(env, "alias.function_0"));
+    env->current_module = "other_owner";
+    assert(!env_get_function(env, "alias.shared"));
+
+    Function *builtin = env_get_function(env, "println");
+    assert(builtin);
+    ASTNode body = {0};
+    env_define_function(env, (Function){.name = "println", .body = &body});
+    assert(env_get_function(env, "println") == builtin);
+    Function *push_builtin = env_get_function(env, "array_push");
+    int push_slot = env->function_count;
+    env_define_function(env, (Function){.name = "array_push", .module_name = "A", .body = &body});
+    env->current_module = "A";
+    assert(env_get_function(env, "array_push") == &env->functions[push_slot]);
+    env->functions[push_slot].is_extern = true;
+    assert(env_get_function(env, "array_push") == push_builtin);
+    env->functions[push_slot].is_extern = false;
+    env->current_module = "B";
+    assert(env_get_function(env, "array_push") == push_builtin);
+
+    /* I observe same-name whole-slot replacement, as used by REPL reload. */
+    env->functions[0] = (Function){.name = names[0], .return_type = TYPE_BOOL, .body = &body};
+    assert(env_get_function(env, names[0])->return_type == TYPE_BOOL);
+    assert(env_get_function(env, names[0])->body == &body);
+
+    /* I observe changed module/body metadata without caching a resolution. */
+    env->functions[first].module_name = "B";
+    assert(env_get_function(env, "shared") == &env->functions[first]);
+    env_function_index_invalidate(env);
+    env->functions[first].name = "renamed";
+    assert(env_get_function(env, "shared") == &env->functions[first + 1]);
+    assert(env_get_function(env, "renamed") == &env->functions[first]);
+    env_define_function(env, (Function){0});
+    assert(!env_get_function(env, "missing"));
+    for (int failure = 1; failure <= 3; ++failure) {
+        env_function_index_invalidate(env);
+        index_allocation_number = 0;
+        fail_index_allocation = failure;
+        assert(env_get_function(env, "shared") == &env->functions[first + 1]);
+        assert(index_allocation_number >= failure);
+        fail_index_allocation = 0;
+        assert(env_get_function(env, "renamed") == &env->functions[first]);
+    }
+    free_environment(env);
+    puts("I preserve function ownership, first declarations, builtin precedence and allocation fallback.");
+}
+
 int main(void) {
     gc_init();
     Environment *env = create_environment();
@@ -155,6 +236,7 @@ int main(void) {
     env_define_var(env, "after_reset", TYPE_INT, false, create_int(9));
     assert(env_get_var(env, "after_reset")->value.as.int_val == 9);
     free_environment(env);
+    check_function_index();
     gc_shutdown();
     puts("I preserve indexed symbol scope, metadata, reset and fallback semantics.");
     return 0;

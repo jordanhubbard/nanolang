@@ -1,0 +1,13 @@
+/tmp/pr522-function-index/baseline-repl.c:296:10: error: no member named 'parent' in 'Environment'
+  296 |     tmp->parent = env;
+      |     ~~~  ^
+/tmp/pr522-function-index/baseline-repl.c:327:10: error: no member named 'parent' in 'Environment'
+  327 |     tmp->parent = NULL; /* unlink before free to avoid double-free of shared nodes */
+      |     ~~~  ^
+/tmp/pr522-function-index/baseline-repl.c:338:5: error: use of undeclared identifier 'g_mod_count'
+  338 |     g_mod_count = 0;
+      |     ^~~~~~~~~~~
+/tmp/pr522-function-index/baseline-repl.c:391:13: error: call to undeclared function 'cmd_modules'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  391 |             cmd_modules(env);
+      |             ^
+4 errors generated.

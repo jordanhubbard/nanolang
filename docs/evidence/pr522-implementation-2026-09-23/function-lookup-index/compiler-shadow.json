@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "bin/nanoc_c",
+    "src_nano/nanoc_v06.nano",
+    "-o",
+    "/tmp/pr522-function-index/stage1"
+  ],
+  "env": {
+    "CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_SHADOW_TIMEOUT_SECONDS": "60",
+    "NANO_BUILD_CACHE": "",
+    "ASAN_OPTIONS": "detect_leaks=0:detect_stack_use_after_return=1",
+    "UBSAN_OPTIONS": "halt_on_error=1"
+  },
+  "source_hashes": {
+    "src/env.c": "e5866b29124c8cab774aa04efab3e88f663390fad91d16a7be47c7d5f66e81cd",
+    "src/nanolang.h": "85369c145f67067049ecd68d88da4630232b80bbd3602494471f9ad5540a5f78",
+    "src/repl.c": "a5ef4b836f7563c5b4807a6ac168efd317d9780b69cc60b8551c63535ce5c49e"
+  },
+  "compiler_sha256": "4f5d286bc45cb00aec6f2b65d6837fd4940195ffb133e97176c4546717b8f698",
+  "pid": 4593,
+  "exit": 0,
+  "seconds": 135.89000345798559
+}

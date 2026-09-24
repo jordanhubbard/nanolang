@@ -1,0 +1,4 @@
+I perform 2000 lookups with 1000 name comparisons.
+I perform 2000 function lookups with 201000 name comparisons.
+I preserve function ownership, first declarations, builtin precedence and allocation fallback.
+I preserve indexed symbol scope, metadata, reset and fallback semantics.
