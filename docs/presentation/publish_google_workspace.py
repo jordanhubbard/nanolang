@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import ssl
 import subprocess
 import sys
@@ -22,6 +23,7 @@ from pathlib import Path
 from xml.etree import ElementTree
 
 HERE = Path(__file__).resolve().parent
+VERSION_HEADER = HERE.parents[1] / "src" / "version.h"
 SLIDES_ID = "1V9mt1JpEst_2ucC0eJIIw7dff64MrtFRfut8MSiukeE"
 PPTX_MIME = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
 DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -29,6 +31,24 @@ SLIDES_GOOGLE = "application/vnd.google-apps.presentation"
 DOCS_GOOGLE = "application/vnd.google-apps.document"
 DRIVE = "https://www.googleapis.com/drive/v3"
 UPLOAD = "https://www.googleapis.com/upload/drive/v3"
+
+
+def _release_edition(path: Path = VERSION_HEADER) -> str:
+    text = path.read_text(encoding="utf-8")
+    values = {}
+    for part in ("MAJOR", "MINOR"):
+        match = re.search(
+            rf"^#define NANOLANG_VERSION_{part} ([0-9]+)$", text, re.MULTILINE
+        )
+        if match:
+            values[part] = match.group(1)
+    if set(values) != {"MAJOR", "MINOR"}:
+        raise SystemExit("src/version.h must define numeric major and minor release versions")
+    return f"{values['MAJOR']}.{values['MINOR']}"
+
+
+def _resource_name(kind: str, edition: str) -> str:
+    return f"NanoLang Developer {kind} ({edition} edition)"
 
 
 def _ssl() -> ssl.SSLContext:
@@ -257,6 +277,9 @@ def main() -> int:
     docx = Path(args.docx)
     if not pptx.is_file() or not docx.is_file():
         raise SystemExit("local PPTX and DOCX must both exist before publication")
+    edition = _release_edition()
+    slides_name = _resource_name("Overview", edition)
+    doc_name = _resource_name("Narrative", edition)
 
     token = _token()
     slides_meta = {}
@@ -276,14 +299,14 @@ def main() -> int:
             token,
             "PATCH",
             f"{DRIVE}/files/{urllib.parse.quote(slides_id)}?supportsAllDrives=true",
-            {"name": "NanoLang Developer Overview (4.5 edition)"},
+            {"name": slides_name},
         )
         if renamed_slides.get("name"):
             updated_slides["name"] = renamed_slides["name"]
         parents = [str(item) for item in (slides_meta.get("parents") or []) if item]
     else:
         updated_slides = _resumable_create(
-            token, name="NanoLang Developer Overview (4.5 edition)", parents=[],
+            token, name=slides_name, parents=[],
             source_mime=PPTX_MIME, google_mime=SLIDES_GOOGLE, path=pptx,
         )
         slides_id = str(updated_slides.get("id") or "")
@@ -303,14 +326,14 @@ def main() -> int:
             token,
             "PATCH",
             f"{DRIVE}/files/{urllib.parse.quote(doc_id)}?supportsAllDrives=true",
-            {"name": "NanoLang Developer Narrative (4.5 edition)"},
+            {"name": doc_name},
         )
         if renamed.get("name"):
             updated_doc["name"] = renamed["name"]
     else:
         updated_doc = _resumable_create(
             token,
-            name="NanoLang Developer Narrative (4.5 edition)",
+            name=doc_name,
             parents=parents,
             source_mime=DOCX_MIME,
             google_mime=DOCS_GOOGLE,
@@ -332,6 +355,7 @@ def main() -> int:
     exported_headings = _docx_headings(exported_docx)
 
     receipt = {
+        "edition": edition,
         "slides_id": slides_id,
         "slides_url": f"https://docs.google.com/presentation/d/{slides_id}/edit",
         "slides_version": updated_slides.get("version") or slides_meta.get("version"),
