@@ -574,10 +574,11 @@ static void test_variant_shape_boundaries(void) {
         NvmShapeId producer = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
         NvmShapeId consumer = tagged_record(&g, 3, NVM_SHAPE_STRING);
         CHECK(nvm_shape_convert(&g, producer, consumer));
-        CHECK(nvm_shape_solve_conversions(&g));
         CHECK(nvm_shape_kind(&g, producer) == NVM_SHAPE_UNKNOWN);
         CHECK(!nvm_shape_lookup(&g, producer, 3));
         CHECK(!g.error);
+        CHECK(!nvm_shape_solve_conversions(&g));
+        CHECK(g.error && strstr(g.error, "proved producers"));
         nvm_shape_destroy(&g);
     }
     for (int flow = 0; flow < 2; ++flow) {
@@ -630,10 +631,110 @@ static void test_recursive_variant_copy(void) {
           nvm_shape_root(&g, viewed));
     CHECK(nvm_shape_root(&g, nvm_shape_lookup(&g, second_view, 0)) ==
           nvm_shape_root(&g, viewed));
+    NvmShapeId selected = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+    CHECK(nvm_shape_select_variant(&g, sum, 1, selected));
+    CHECK(nvm_shape_solve_conversions(&g));
+    NvmShapeId selected_array = nvm_shape_lookup(&g, selected, 0);
+    NvmShapeId selected_sum = nvm_shape_lookup(&g, selected_array, 0);
+    CHECK(nvm_shape_kind(&g, selected) == NVM_SHAPE_RECORD);
+    CHECK(nvm_shape_root(&g, nvm_shape_lookup(&g, selected_sum, 1)) ==
+          nvm_shape_root(&g, selected));
     nvm_shape_destroy(&g);
 }
 
+static void test_deferred_variant_selection(void) {
+    for (int reverse = 0; reverse < 2; ++reverse) {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId number = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId name = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId result = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId absent = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        CHECK(nvm_shape_select_variant(&g, source, 0, number));
+        CHECK(nvm_shape_select_variant(&g, source, 1, name));
+        CHECK(nvm_shape_select_variant(&g, source, 2, absent));
+        CHECK(nvm_shape_convert(&g, name, result));
+        NvmShapeId a = tagged_record(&g, 0, NVM_SHAPE_INT);
+        NvmShapeId b = tagged_record(&g, 1, NVM_SHAPE_STRING);
+        CHECK(nvm_shape_convert(&g, reverse ? a : b, source));
+        CHECK(nvm_shape_convert(&g, reverse ? b : a, source));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, nvm_shape_lookup(&g, number, 0)) == NVM_SHAPE_INT);
+        CHECK(nvm_shape_kind(&g, nvm_shape_lookup(&g, result, 0)) == NVM_SHAPE_STRING);
+        CHECK(nvm_shape_kind(&g, absent) == NVM_SHAPE_UNKNOWN);
+        CHECK(!nvm_shape_lookup(&g, source, 2));
+        CHECK(nvm_shape_root(&g, name) != nvm_shape_root(&g, result));
+        size_t count = g.count;
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(g.count == count);
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, number, 1),
+                              nvm_shape_new(&g, NVM_SHAPE_BOOL)));
+        CHECK(!nvm_shape_lookup(&g, nvm_shape_lookup(&g, source, 0), 1));
+        nvm_shape_destroy(&g);
+        CHECK(!g.selections && !g.selection_count && !g.selection_capacity);
+    }
+    for (int reverse = 0; reverse < 2; ++reverse) {
+        NvmShapeGraph g = {0};
+        NvmShapeId known = tagged_record(&g, 0, NVM_SHAPE_INT);
+        NvmShapeId unknown = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId joined = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId selected = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        CHECK(nvm_shape_convert(&g, reverse ? known : unknown, joined));
+        CHECK(nvm_shape_convert(&g, reverse ? unknown : known, joined));
+        CHECK(nvm_shape_select_variant(&g, joined, 0, selected));
+        /* One known caller must not hide another caller's missing contract. */
+        CHECK(!nvm_shape_solve_conversions(&g));
+        CHECK(g.error != NULL);
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId outer = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId selected = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId inner = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId final = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        /* I solve the inner selection before its enclosing caller arrives. */
+        CHECK(nvm_shape_select_variant(&g, inner, 7, final));
+        CHECK(nvm_shape_select_variant(&g, outer, 3, selected));
+        CHECK(nvm_shape_unify(&g, selected, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        CHECK(nvm_shape_convert(&g, nvm_shape_child(&g, selected, 0), inner));
+        NvmShapeId producer = nvm_shape_new(&g, NVM_SHAPE_VARIANT);
+        NvmShapeId payload = nvm_shape_child(&g, producer, 3);
+        CHECK(nvm_shape_unify(&g, payload, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, payload, 0),
+                              tagged_record(&g, 7, NVM_SHAPE_FLOAT)));
+        CHECK(nvm_shape_convert(&g, producer, outer));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, nvm_shape_lookup(&g, final, 0)) == NVM_SHAPE_FLOAT);
+        nvm_shape_destroy(&g);
+    }
+    for (int error = 0; error < 6; ++error) {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = error == 0 ? nvm_shape_new(&g, NVM_SHAPE_UNKNOWN) :
+                            error == 1 ? nvm_shape_new(&g, NVM_SHAPE_RECORD) :
+                            tagged_record(&g, 0, NVM_SHAPE_INT);
+        NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        if (error == 2) {
+            CHECK(nvm_shape_unify(&g, target, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, target, 0),
+                                  nvm_shape_new(&g, NVM_SHAPE_STRING)));
+        }
+        if (error == 3) CHECK(!nvm_shape_select_variant(&g, source, 65536, target));
+        else if (error == 4) CHECK(!nvm_shape_select_variant(&g, 0, 0, target));
+        else {
+            uint32_t tag = error == 5 ? 9 : 0;
+            if (error == 5) CHECK(nvm_shape_child(&g, source, tag) != 0);
+            CHECK(nvm_shape_select_variant(&g, source, tag, target));
+            CHECK(!nvm_shape_solve_conversions(&g));
+        }
+        CHECK(g.error != NULL);
+        CHECK(!nvm_shape_select_variant(&g, source, 0, target));
+        nvm_shape_destroy(&g);
+    }
+}
+
 int main(void) {
+    test_deferred_variant_selection();
     test_constructor_indexed_storage();
     test_variant_shape_boundaries();
     test_recursive_variant_copy();

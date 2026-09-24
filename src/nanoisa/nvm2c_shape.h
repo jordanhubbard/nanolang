@@ -29,6 +29,7 @@ typedef enum {
 } NvmShapeKind;
 typedef struct NvmShapeNode NvmShapeNode;
 typedef struct { NvmShapeId source, target; } NvmShapeConversion;
+typedef struct { NvmShapeId source, target; uint16_t tag; } NvmShapeSelection;
 typedef struct {
     NvmShapeNode *nodes;
     size_t count, capacity;
@@ -36,6 +37,8 @@ typedef struct {
     char error_detail[160];
     NvmShapeConversion *conversions;
     size_t conversion_count, conversion_capacity;
+    NvmShapeSelection *selections;
+    size_t selection_count, selection_capacity;
 } NvmShapeGraph;
 
 void nvm_shape_destroy(NvmShapeGraph *graph);
@@ -50,6 +53,13 @@ int nvm_shape_unify(NvmShapeGraph *graph, NvmShapeId a, NvmShapeId b);
 /* Storage conversion does not equate source and destination nodes. I solve
  * these directed constraints after collecting the module's exact shapes. */
 int nvm_shape_convert(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target);
+/* I copy only this constructor's payload into a separate destination view.
+ * The caller must establish a tag guard on the same unchanged value; shapes
+ * alone cannot prove control flow or authorize a projection. I defer lookup
+ * until producer conversions converge. An absent tag supplies no facts and
+ * does not create a source member. An unresolved producer is an error. */
+int nvm_shape_select_variant(NvmShapeGraph *graph, NvmShapeId source,
+                             uint32_t tag, NvmShapeId target);
 int nvm_shape_solve_conversions(NvmShapeGraph *graph);
 
 #endif

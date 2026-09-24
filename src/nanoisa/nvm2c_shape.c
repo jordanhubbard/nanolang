@@ -53,6 +53,7 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
     for (size_t i = 0; i < g->count; ++i) free(g->nodes[i].edges);
     free(g->nodes);
     free(g->conversions);
+    free(g->selections);
     memset(g, 0, sizeof *g);
 }
 
@@ -187,6 +188,18 @@ int nvm_shape_convert(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
     return 1;
 }
 
+int nvm_shape_select_variant(NvmShapeGraph *g, NvmShapeId source,
+                             uint32_t tag, NvmShapeId target) {
+    if (!nvm_shape_root(g, source) || !nvm_shape_root(g, target)) return 0;
+    if (tag > UINT16_MAX) return fail(g, "I require a uint16 constructor tag");
+    NvmShapeSelection *next = grow(g, g->selections, &g->selection_capacity,
+                                   g->selection_count + 1, sizeof *next);
+    if (!next) return 0;
+    g->selections = next;
+    g->selections[g->selection_count++] = (NvmShapeSelection){source, target, (uint16_t)tag};
+    return 1;
+}
+
 typedef struct {
     NvmShapeId source, target;
     int exact;
@@ -224,6 +237,9 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         if (seen) continue;
         NvmShapeKind from = g->nodes[source - 1].kind, to = g->nodes[target - 1].kind;
         if (from == NVM_SHAPE_UNKNOWN) {
+            if (final && to == NVM_SHAPE_VARIANT) {
+                fail(g, "I require proved producers for constructor-indexed storage"); break;
+            }
             if (final && (to == NVM_SHAPE_VARIANT_SCALAR || to == NVM_SHAPE_VARIANT_INT_ARRAY)) {
                 fail(g, "I require proved scalar producers for variant scalar storage"); break;
             }
@@ -366,6 +382,21 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
     return !g->error;
 }
 
+static int select_one(NvmShapeGraph *g, NvmShapeSelection selection,
+                      int *changed, int final) {
+    NvmShapeKind kind = nvm_shape_kind(g, selection.source);
+    if (g->error) return 0;
+    if (kind == NVM_SHAPE_UNKNOWN)
+        return final ? fail(g, "I require a proved variant producer for a selected payload") : 1;
+    if (kind != NVM_SHAPE_VARIANT)
+        return fail(g, "I cannot select a constructor payload from a non-variant shape");
+    NvmShapeId payload = nvm_shape_lookup(g, selection.source, selection.tag);
+    if (!payload) return !g->error;
+    if (final && nvm_shape_kind(g, payload) == NVM_SHAPE_UNKNOWN)
+        return fail(g, "I require a proved constructor payload shape");
+    return flow_one(g, (NvmShapeConversion){payload, selection.target}, changed, final);
+}
+
 int nvm_shape_solve_conversions(NvmShapeGraph *g) {
     int changed;
     do {
@@ -373,6 +404,8 @@ int nvm_shape_solve_conversions(NvmShapeGraph *g) {
             changed = 0;
             for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
                 if (!flow_one(g, g->conversions[i], &changed, 0)) return 0;
+            for (size_t i = 0; i < g->selection_count && !g->error; ++i)
+                if (!select_one(g, g->selections[i], &changed, 0)) return 0;
         } while (changed && !g->error);
         /* A record or array consumer also constrains an unknown producer's
          * container kind. I retain distinct copy layouts and do not infer
@@ -393,5 +426,7 @@ int nvm_shape_solve_conversions(NvmShapeGraph *g) {
      * Missing record edges never enter this worklist and remain unconstrained. */
     for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
         if (!flow_one(g, g->conversions[i], &changed, 1)) return 0;
+    for (size_t i = 0; i < g->selection_count && !g->error; ++i)
+        if (!select_one(g, g->selections[i], &changed, 1)) return 0;
     return !g->error;
 }
