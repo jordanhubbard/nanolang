@@ -2,6 +2,8 @@
 
 **Current execution state (2026-09-23):** I resume implementation at Jordan’s direction to unblock #522. I retain the separate generic-union task `task_d44b2db373d38a942db3e8c4567b8044` and integration dependency `task_c2d5f6840c96fccfc49b173c5248dc2c`. The PR remains draft and release remains blocked until unchanged acceptance and complete gates pass.
 
+My [final-source acceptance audit](evidence/pr522-implementation-2026-09-23/acceptance-audit-d56d15ff6/README.md) retains all seven One IR requirements. Both fixed points and 20 selected canonical-product methods pass; full applicable LLVM/Wasm aggregate coverage (`task_488a05eb5e2a417caf83a8353363a30d`) and portable host/module linkage (`task_2d2e9eb552394f6e84e90f5aa08484e2`) remain required alongside complete hosted qualification. Green subset tests do not close these parents.
+
 - [ ] I execute the incomplete PR522 queue below while merge and release remain held. Implementation checkpoints begin at `8c0b01360`.  I retain hosted run `35795377922` and keep the complete acceptance inventory.
   - [ ] I preserve complete selected variant identity and validate destructuring before lowering ordinary payload bindings; then I qualify nested generic values and their native representation.
     - [x] I lower complete ordinary selected patterns using the match binding’s concrete identity, with VM/native values, exact-field refusals and fresh Stage1/Stage2 checks. My retained first-slice evidence is in `docs/evidence/pr522-implementation-2026-09-23/`.

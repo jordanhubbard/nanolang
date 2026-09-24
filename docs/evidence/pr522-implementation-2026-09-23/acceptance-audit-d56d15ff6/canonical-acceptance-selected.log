@@ -1,0 +1,25 @@
+test_artifact_paths_preserve_library_identity_and_execution (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_artifact_paths_preserve_library_identity_and_execution) ... ok
+test_assembly_publication_status_and_error_run_in_both_backends (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_assembly_publication_status_and_error_run_in_both_backends) ... ok
+test_bound_imports_repeatable_vm_and_native (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_bound_imports_repeatable_vm_and_native) ... ok
+test_dependency_and_root_shadow_failures_preserve_output (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_dependency_and_root_shadow_failures_preserve_output) ... ok
+test_native_string_prefix_builtin (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_native_string_prefix_builtin) ... ok
+test_nested_record_array_result_executes (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_nested_record_array_result_executes) ... ok
+test_reachable_nested_integer_array_publishes_and_executes (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_reachable_nested_integer_array_publishes_and_executes) ... ok
+test_reachable_refusal_reports_precise_boundary (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_reachable_refusal_reports_precise_boundary) ... ok
+test_reachable_scalar_float_publishes_and_executes (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_reachable_scalar_float_publishes_and_executes) ... ok
+test_source_aliases_and_rejections_preserve_files (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_source_aliases_and_rejections_preserve_files) ... ok
+test_unreachable_helper_still_runs_dependency_shadows (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_unreachable_helper_still_runs_dependency_shadows) ... ok
+test_all_operations_and_single_index_evaluation (tests.test_canonical_module_facts.CanonicalModuleFacts.test_all_operations_and_single_index_evaluation) ... ok
+test_canonical_source_closure_excludes_legacy_emission (tests.test_canonical_module_facts.CanonicalModuleFacts.test_canonical_source_closure_excludes_legacy_emission) ... ok
+test_duplicate_module_identity (tests.test_canonical_module_facts.CanonicalModuleFacts.test_duplicate_module_identity) ... ok
+test_empty_export_sets (tests.test_canonical_module_facts.CanonicalModuleFacts.test_empty_export_sets) ... ok
+test_existing_flags_and_export_shadows (tests.test_canonical_module_facts.CanonicalModuleFacts.test_existing_flags_and_export_shadows) ... ok
+test_intrinsic_signature_is_required_before_publication (tests.test_canonical_module_facts.CanonicalModuleFacts.test_intrinsic_signature_is_required_before_publication) ... ok
+test_ordinary_function_with_similar_name_keeps_its_body (tests.test_canonical_module_facts.CanonicalModuleFacts.test_ordinary_function_with_similar_name_keeps_its_body) ... ok
+test_public_pure_modifier_exports (tests.test_canonical_module_facts.CanonicalModuleFacts.test_public_pure_modifier_exports) ... ok
+test_symlink_import_retains_canonical_module_path (tests.test_canonical_module_facts.CanonicalModuleFacts.test_symlink_import_retains_canonical_module_path) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 10.199s
+
+OK
