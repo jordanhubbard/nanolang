@@ -1,0 +1,8 @@
+{
+  "parent": "9237c78e59f3a74837335b1b201dcf3e265ba5e1",
+  "sha256": {
+    "tests/nanoisa/test_ownership_contracts.c": "39780786b62863dd30187ae855d63e9ad355a911e3162a89aece1f50b8ad1aa7",
+    "src/nanoisa/ownership_contracts.c": "345bd9f551cca72de2a26608f9af0c1f887eb08743f96d8e00782638bd797258",
+    "src/nanoisa/ownership_contracts.h": "d8f0a5d9b9c1591e0d4efd330a26c5d69f67d2b0afd23e17b23b68735df70dc2"
+  }
+}
