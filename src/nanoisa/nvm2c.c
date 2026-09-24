@@ -7021,8 +7021,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             /* I use declarations only after caller facts converge. An
              * observed tagged argument keeps its checked representation;
              * an unused parameter still has its declared scalar/record type.
-             * An array tag alone does not determine its element storage;
-             * I retain a tagged handle when no caller supplies that fact. */
+             * An array tag alone does not determine its element storage. */
             for (uint32_t f = 0; f < mod->function_count; ++f) {
                 const uint8_t *tags = mod->function_param_types ? mod->function_param_types[f] : NULL;
                 if (!tags) continue;
@@ -7034,7 +7033,6 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                         tags[p] == TAG_BOOL ? NVM2C_VK_BOOL :
                         tags[p] == TAG_FLOAT ? NVM2C_VK_FLOAT :
                         tags[p] == TAG_STRING ? NVM2C_VK_STR :
-                        tags[p] == TAG_ARRAY ? NVM2C_VK_VALUE :
                         tags[p] == TAG_FUNCTION ? NVM2C_VK_FUNCTION :
                         aggregate_value_tag(tags[p]) ? NVM2C_VK_REC : NVM2C_VK_UNK;
                     if (declared != NVM2C_VK_UNK) { *kind = declared; facts.changed = 1; }
@@ -7058,6 +7056,31 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
 
     if (!nvm_shape_solve_conversions(&b.shapes)) {
         nvm2c_fail(&b, "I cannot solve aggregate storage shape conversions: %s", b.shapes.error);
+        goto fail;
+    }
+    /* I wait for all caller and consumer shape constraints before choosing
+     * storage for an unresolved array read. Its local copies retain runtime
+     * tags rather than falling through to the scalar integer default. */
+    int unresolved_array_reads = 0;
+    for (uint32_t f = 0; f < mod->function_count; ++f) {
+        const NvmFunctionEntry *fn = &mod->functions[f];
+        for (size_t pc = 0; pc < fn->code_length;) {
+            DecodedInstruction ins;
+            uint32_t size = isa_decode(mod->code + fn->code_offset + pc,
+                                       fn->code_length - pc, &ins);
+            if (!size) { nvm2c_fail(&b, "I cannot decode array projection storage"); goto fail; }
+            NvmShapeId shape = b.shape_outputs[f][pc];
+            if (ins.opcode == OP_ARR_GET && shape &&
+                nvm_shape_kind(&b.shapes, shape) == NVM_SHAPE_UNKNOWN) {
+                if (!shape_type(&b, shape, NVM_SHAPE_OPTIONAL)) goto fail;
+                unresolved_array_reads = 1;
+                b.has_maps = 1;
+            }
+            pc += size;
+        }
+    }
+    if (unresolved_array_reads && !nvm_shape_solve_conversions(&b.shapes)) {
+        nvm2c_fail(&b, "I cannot solve unresolved array read storage: %s", b.shapes.error);
         goto fail;
     }
     for (size_t slot = 0; slot < b.global_count; ++slot) {

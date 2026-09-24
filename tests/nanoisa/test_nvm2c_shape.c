@@ -148,7 +148,7 @@ static void test_map_shapes(void) {
 }
 
 static void test_directed_conversions(void) {
-    const NvmShapeKind kinds[] = {NVM_SHAPE_STRING, NVM_SHAPE_INT, NVM_SHAPE_BOOL};
+    const NvmShapeKind kinds[] = {NVM_SHAPE_STRING, NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT};
     for (unsigned kind = 0; kind < sizeof kinds / sizeof *kinds; ++kind) {
         for (int reverse = 0; reverse < 2; ++reverse) {
             for (int conflict = 0; conflict < 2; ++conflict) {
@@ -159,7 +159,8 @@ static void test_directed_conversions(void) {
                 NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
                 CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, plain, 1), text));
                 CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, maybe, 1), optional));
-                NvmShapeId payload = conflict ? nvm_shape_new(&g, NVM_SHAPE_FLOAT) : text;
+                NvmShapeId payload = conflict ? nvm_shape_new(&g,
+                    kinds[kind] == NVM_SHAPE_FLOAT ? NVM_SHAPE_INT : NVM_SHAPE_FLOAT) : text;
                 CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, optional, 0), payload));
                 CHECK(nvm_shape_convert(&g, reverse ? maybe : plain, result));
                 CHECK(nvm_shape_convert(&g, reverse ? plain : maybe, result));

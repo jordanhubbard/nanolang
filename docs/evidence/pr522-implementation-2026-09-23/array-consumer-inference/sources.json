@@ -1,0 +1,10 @@
+{
+  "base": "0eb94026ce9f0be3b374e45931c50b874a63f8da",
+  "sources": {
+    "src/nanoisa/nvm2c.c": "56dcc4dbe9ffe0f6f0a9d6d3905d10a3aaf068cf3d3e846055e32371561aafd5",
+    "src/nanoisa/nvm2c_shape.c": "44a9c73648b96926aee026710d22722a4069d339213d8926a85d6176589b8956",
+    "tests/nanoisa/test_nvm2c.c": "8f0eef13a47555fd608cf692ebaa5da0956bb37956558e67b62df0f9bbcf5cf9",
+    "tests/nanoisa/test_nvm2c_shape.c": "ada676907e14d5e66dfc9d49a21f7dbe63bef335d7df8f4f83d0234df58faa90",
+    "tests/test_nanoisa_functional_arrays.py": "8bdba7518140a3afb5aa66713326abeb41fa171e138531bcd35721c9f0a8e364"
+  }
+}

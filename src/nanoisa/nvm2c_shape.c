@@ -250,7 +250,8 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             continue;
         }
         if (!pair.exact && from == NVM_SHAPE_OPTIONAL &&
-            (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL)) {
+            (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT ||
+             to == NVM_SHAPE_BOOL || to == NVM_SHAPE_FLOAT)) {
             if (!g->nodes[target - 1].conversion_kind) {
                 snprintf(g->error_detail, sizeof g->error_detail,
                          "I cannot widen an exactly constrained %s destination at nodes %u/%u (conversion %u/%u)",

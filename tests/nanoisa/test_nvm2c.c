@@ -6640,6 +6640,33 @@ static void test_uncalled_array_parameter_projection_storage(void) {
     }
 }
 
+static void test_uncalled_array_record_consumer_constraints(void) {
+    for (unsigned order = 0; order < 2; ++order) {
+        const char *reader =
+            ".function reader 1 1 0 int 1\n"
+            " LOAD_LOCAL 0\n PUSH_I64 0\n ARR_GET\n CALL consume\n RET\n.end\n";
+        const char *consumer =
+            ".function consume 1 1 0 int 1\n"
+            " LOAD_LOCAL 0\n AGG_GET 0\n RET\n.end\n";
+        char source[1024];
+        snprintf(source, sizeof source,
+            ".entry 2\n%s%s.parameters %u array\n"
+            ".function main 0 0 0 int 1\n PUSH_I64 0\n RET\n.end\n",
+            order ? consumer : reader, order ? reader : consumer, order);
+        NvmModule *m = assemble_ok(source, "I retain record consumer constraints before array fallback");
+        CHECK(m != NULL, "I assemble both record-consumer declaration orders");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I infer a record array from its consumer before choosing tagged storage");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0, "I compile the retained record-array reader");
+            CHECK(status == 0, "I preserve its independent entry point");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 static void test_void_local_flows_through_branches_loops_and_calls(void) {
     const char *src =
         ".entry 1\n"
@@ -6975,6 +7002,7 @@ int main(int argc, char **argv) {
     test_array_growth_has_no_process_wide_arena_limit();
     test_string_array_growth_has_no_process_wide_arena_limit();
     test_uncalled_array_parameter_projection_storage();
+    test_uncalled_array_record_consumer_constraints();
     test_void_local_flows_through_branches_loops_and_calls();
     test_tagged_string_array_writes();
     test_boolean_arrays();
