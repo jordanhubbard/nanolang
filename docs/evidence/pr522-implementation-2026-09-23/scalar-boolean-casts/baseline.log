@@ -1,0 +1,51 @@
+test_cseed_stage1_and_stage2_compile_and_run (tests.test_selfhost_native_u8.SelfhostNativeU8.test_cseed_stage1_and_stage2_compile_and_run) ... 
+  test_cseed_stage1_and_stage2_compile_and_run (tests.test_selfhost_native_u8.SelfhostNativeU8.test_cseed_stage1_and_stage2_compile_and_run) (compiler='nanoc_stage1') ... FAIL
+  test_cseed_stage1_and_stage2_compile_and_run (tests.test_selfhost_native_u8.SelfhostNativeU8.test_cseed_stage1_and_stage2_compile_and_run) (compiler='nanoc_stage2') ... FAIL
+test_failed_shadow_preserves_prior_output (tests.test_selfhost_native_u8.SelfhostNativeU8.test_failed_shadow_preserves_prior_output) ... 
+  test_failed_shadow_preserves_prior_output (tests.test_selfhost_native_u8.SelfhostNativeU8.test_failed_shadow_preserves_prior_output) (compiler='nanoc_stage1') ... FAIL
+  test_failed_shadow_preserves_prior_output (tests.test_selfhost_native_u8.SelfhostNativeU8.test_failed_shadow_preserves_prior_output) (compiler='nanoc_stage2') ... FAIL
+test_out_of_range_literal_preserves_prior_output (tests.test_selfhost_native_u8.SelfhostNativeU8.test_out_of_range_literal_preserves_prior_output) ... ok
+test_runtime_cast_helpers_build_under_strict_sanitizers (tests.test_selfhost_native_u8.SelfhostNativeU8.test_runtime_cast_helpers_build_under_strict_sanitizers) ... ok
+
+======================================================================
+FAIL: test_cseed_stage1_and_stage2_compile_and_run (tests.test_selfhost_native_u8.SelfhostNativeU8.test_cseed_stage1_and_stage2_compile_and_run) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_selfhost_native_u8.py", line 30, in test_cseed_stage1_and_stage2_compile_and_run
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: undefined function cast_bool
+
+
+======================================================================
+FAIL: test_cseed_stage1_and_stage2_compile_and_run (tests.test_selfhost_native_u8.SelfhostNativeU8.test_cseed_stage1_and_stage2_compile_and_run) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_selfhost_native_u8.py", line 30, in test_cseed_stage1_and_stage2_compile_and_run
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: undefined function cast_bool
+
+
+======================================================================
+FAIL: test_failed_shadow_preserves_prior_output (tests.test_selfhost_native_u8.SelfhostNativeU8.test_failed_shadow_preserves_prior_output) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_selfhost_native_u8.py", line 57, in test_failed_shadow_preserves_prior_output
+    self.assertIn("shadow", (result.stdout + result.stderr).lower())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'shadow' not found in 'i cannot lower this checked program: undefined function cast_bool\n'
+
+======================================================================
+FAIL: test_failed_shadow_preserves_prior_output (tests.test_selfhost_native_u8.SelfhostNativeU8.test_failed_shadow_preserves_prior_output) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_selfhost_native_u8.py", line 57, in test_failed_shadow_preserves_prior_output
+    self.assertIn("shadow", (result.stdout + result.stderr).lower())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'shadow' not found in 'i cannot lower this checked program: undefined function cast_bool\n'
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.400s
+
+FAILED (failures=4)

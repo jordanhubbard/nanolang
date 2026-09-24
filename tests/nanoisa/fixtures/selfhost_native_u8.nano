@@ -17,6 +17,14 @@ fn main() -> int {
     let value: u8 = 255
     assert (== (cast_int (byte_identity value)) 255)
     assert (cast_bool value)
+    assert (not (cast_bool 0))
+    assert (cast_bool -1)
+    assert (cast_bool true)
+    assert (not (cast_bool false))
+    assert (cast_bool 0.5)
+    assert (cast_bool -0.5)
+    assert (not (cast_bool 0.0))
+    assert (not (cast_bool -0.0))
     return 0
 }
 

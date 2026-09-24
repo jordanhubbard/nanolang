@@ -2573,6 +2573,13 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     needs_wrapping = false;
                     needs_unwrap_check = false;
                 }
+                /* I test fractional truth without first truncating to an integer. */
+                if (!capture_callee && (!func_info || (!func_info->body && !func_info->is_extern)) &&
+                    strcmp(func_name, "cast_bool") == 0 &&
+                    expr->as.call.arg_count == 1 &&
+                    check_expression(expr->as.call.args[0], env) == TYPE_FLOAT) {
+                    mapped_name = "nl_cast_bool_from_float";
+                }
                 /* I retain the callee name before recursive lowering reuses its buffer. */
                 char *call_name = strdup(mapped_name);
                 if (!call_name) {

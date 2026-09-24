@@ -1,0 +1,5 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O0 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/stdlib_runtime.c -o /tmp/pr522-setter-order/instrumented-obj/stdlib_runtime.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O0 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/transpiler.c -o /tmp/pr522-setter-order/instrumented-obj/transpiler.o
+Stage 1: Building C reference compiler...
+ld: warning: ignoring duplicate libraries: '-lcrypto'
+✓ C Compiler: /tmp/pr522-setter-order/instrumented-bin/nanoc_c

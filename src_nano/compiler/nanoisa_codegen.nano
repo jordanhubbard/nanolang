@@ -829,6 +829,7 @@ fn nisa_is_inline_call(name: string) -> bool {
     if (== name "str_trim") { return true }
     if (or (== name "abs") (nisa_functional_name name)) { return true }
     if (== name "cast_int") { return true }
+    if (== name "cast_bool") { return true }
     if (== name "float_to_string") { return true }
     if (== name "string_to_int") { return true }
     if (== name "string_to_float") { return true }
@@ -849,6 +850,7 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "float_to_bits")
     assert (nisa_is_inline_call "str_trim")
     assert (nisa_is_inline_call "cast_int")
+    assert (nisa_is_inline_call "cast_bool")
     assert (nisa_is_inline_call "float_to_string")
     assert (nisa_is_inline_call "string_to_float")
     assert (nisa_is_inline_call "array_length")
@@ -3068,6 +3070,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             return (nisa_access_result parser call)
         }
         if (and (== target_name "cast_int") (< (nisa_call_index parser call) 0)) { return "int" }
+        if (and (== target_name "cast_bool") (< (nisa_call_index parser call) 0)) { return "bool" }
         if (and (== target_name "float_from_bits") (< (nisa_call_index parser call) 0)) { return "float" }
         if (and (== target_name "float_to_bits") (< (nisa_call_index parser call) 0)) { return "int" }
         if (== target_name "string_to_int") { return "int" }
@@ -3128,8 +3131,8 @@ shadow nisa_expr_type {
     let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
     let result: ASTReturn = (parser_get_return parser statement.node_id)
     assert (== (nisa_expr_type parser result.value result.value_type) "string")
-    let choices: array<string> = ["(cond (true \"yes\") (else \"no\"))", "(cond (true \"yes\") (else 7))", "(cond (true \"yes\") (else (cond (false \"no\") (else \"last\"))))"]
-    let expected: array<string> = ["string", "", "string"]
+    let choices: array<string> = ["(cond (true \"yes\") (else \"no\"))", "(cond (true \"yes\") (else 7))", "(cond (true \"yes\") (else (cond (false \"no\") (else \"last\"))))", "(cast_bool 0.5)"]
+    let expected: array<string> = ["string", "", "string", "bool"]
     let mut i: int = 0
     while (< i (array_length choices)) {
         let text: string = (+ "fn probe() -> string { return " (+ (at choices i) " }"))
@@ -4412,6 +4415,15 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         }
         return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_INT"))
     }
+    if (and (== function_name "cast_bool") (< declared_index 0)) {
+        if (!= call.arg_count 1) { return (nisa_fail "I require one scalar argument for cast_bool") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        let kind: string = (nisa_expr_type parser argument.node_id argument.node_type)
+        if (not (or (== kind "int") (or (== kind "u8") (or (== kind "float") (== kind "bool"))))) {
+            return (nisa_fail "I require int, u8, float or bool for scalar cast_bool")
+        }
+        return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_BOOL"))
+    }
     if (and (or (== function_name "float_from_bits") (== function_name "float_to_bits")) (< declared_index 0)) {
         if (!= call.arg_count 1) { return (nisa_fail "I require one operand for binary64 bit transport") }
         let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
@@ -4595,6 +4607,21 @@ shadow nisa_emit_call {
     assert nisa_ok
     assert (str_contains widened "PUSH_U8 255")
     assert (str_contains widened "CAST_INT")
+    let truth: string = (nanoisa_emit_nasm "fn truth(value: u8) -> bool { return (cast_bool value) } fn main() -> bool { return (truth 255) }")
+    assert nisa_ok
+    assert (str_contains truth "CAST_BOOL")
+    let fractional: string = (nanoisa_emit_nasm "fn main() -> bool { return (cast_bool 0.5) }")
+    assert nisa_ok
+    assert (str_contains fractional "CAST_BOOL")
+    assert (not (str_contains fractional "CAST_INT"))
+    let invalid_arity: string = (nanoisa_emit_nasm "fn main() -> bool { return (cast_bool 1 2) }")
+    assert (not nisa_ok)
+    let invalid_type: string = (nanoisa_emit_nasm "fn main() -> bool { return (cast_bool [1]) }")
+    assert (not nisa_ok)
+    let declared: string = (nanoisa_emit_nasm "fn cast_bool(value: int) -> bool { return (== value 7) } fn main() -> bool { return (cast_bool 7) }")
+    assert nisa_ok
+    assert (str_contains declared "CALL cast_bool")
+    assert (not (str_contains declared "CAST_BOOL"))
     let _2: int = (nisa_reset)
 }
 

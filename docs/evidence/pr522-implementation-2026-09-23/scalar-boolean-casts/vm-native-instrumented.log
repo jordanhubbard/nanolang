@@ -1,0 +1,6 @@
+test_scalar_boolean_casts_agree_in_vm_and_native (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_scalar_boolean_casts_agree_in_vm_and_native) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.401s
+
+OK

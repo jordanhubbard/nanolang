@@ -29,6 +29,23 @@ class NanoisaEmitDriver(unittest.TestCase):
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
         return result
 
+    def test_scalar_boolean_casts_agree_in_vm_and_native(self):
+        from tests.native_toolchain import native_cc, native_link_flags
+
+        source = ROOT / "tests/nanoisa/fixtures/selfhost_native_u8.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-bool-casts-") as tmp:
+            directory = Path(tmp)
+            module = directory / "program.nvm"
+            generated = directory / "program.c"
+            binary = directory / "program"
+            self.run_command([DRIVER, source, "--emit-nvm", "-o", module])
+            self.run_command([ROOT / "bin/nano_vm", module])
+            self.run_command([ROOT / "bin/nvm2c", module, "-o", generated])
+            self.run_command([*native_cc(), "-std=c11", "-Wall", "-Wextra",
+                              "-Werror", generated, "-lm", *native_link_flags(),
+                              "-o", binary])
+            self.run_command([binary])
+
     def test_repeatable_module_executes_in_vm_and_native(self):
         with tempfile.TemporaryDirectory(prefix="nano-driver-") as tmp:
             directory = Path(tmp)
