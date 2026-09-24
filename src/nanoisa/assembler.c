@@ -1152,12 +1152,13 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             char kind[32];
             if (!parse_uint32(&p, &index) || index >= state->mod->import_count ||
                 !parse_identifier(&p, kind, sizeof(kind)) || !at_line_end(p) ||
-                (strcmp(kind, "ffi") && strcmp(kind, "coprocess") && strcmp(kind, "artifact"))) {
+                (strcmp(kind, "ffi") && strcmp(kind, "coprocess") && strcmp(kind, "artifact") && strcmp(kind, "declared_scalar_artifact"))) {
                 result->error = ASM_ERR_BAD_OPERAND;
-                snprintf(result->message, sizeof(result->message), "I expect .import_kind index ffi|coprocess|artifact");
+                snprintf(result->message, sizeof(result->message), "I expect .import_kind index ffi|coprocess|artifact|declared_scalar_artifact");
                 return false;
             }
-            state->mod->imports[index].kind = !strcmp(kind, "artifact") ? NVM_IMPORT_ARTIFACT :
+            state->mod->imports[index].kind = !strcmp(kind, "declared_scalar_artifact") ? NVM_IMPORT_DECLARED_SCALAR_ARTIFACT :
+                !strcmp(kind, "artifact") ? NVM_IMPORT_ARTIFACT :
                 !strcmp(kind, "coprocess") ? NVM_IMPORT_COPROCESS : NVM_IMPORT_FFI;
             return true;
         }

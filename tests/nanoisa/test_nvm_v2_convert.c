@@ -339,7 +339,7 @@ static void test_declared_scalar_transport(void) {
               back->imports[0].return_type == TAG_STRING &&
               memcmp(back->import_param_types[0], tags, sizeof tags) == 0,
               "I preserve heterogeneous parameter order and result");
-        CHECK(!nvm_verify(back).ok, "I refuse execution before consumer support exists");
+        CHECK(nvm_verify(back).ok, "I validate unused declared scalar imports");
         nvm_module_free(back);
     }
     nvm_v2_module_free(&decoded);

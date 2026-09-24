@@ -4,7 +4,7 @@ I restore ordinary module-manifest extern declarations under task
 `task_b8838417bbc54fb98a4c49eea1b0885a`. The unchanged native module-linking suite fails
 all three methods before its linker assertions: `fixture_value` is rejected by
 `nisa_register_extern`. I reproduce this at repaired checkpoint `59ff072cc`.
-My [transport checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-transport) implements codec and structural checks; it does not grant executable admission.
+My [transport checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-transport) establishes codec and structural checks. My [consumer checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-consumers) adds explicit raw kind-4 VM/native execution; source emission and driver/package linkage remain incomplete.
 
 ## The current gap
 
@@ -12,8 +12,9 @@ My merged frontend retains the extern's owning source through `mb_owner` and
 `mb_source`. `CompilerSupport.module_artifact` can build that source directory's
 manifest and return the exact immutable library generation. However,
 `nisa_register_artifact` recognizes only a fixed symbol/arity/result catalog,
-and `nvm2c` independently requires the same kind of named adapter. Adding a
-test symbol to either table would leave the language feature unsupported.
+while `nvm2c` now accepts explicit kind-4 declarations through typed libffi.
+Adding a test symbol to the source catalog would leave the language feature
+unsupported.
 
 My VM already marshals declared foreign scalars through libffi for every arity.
 Its signed-64, binary64, byte/bool and pointer mappings give the implementation
@@ -24,7 +25,7 @@ not establish C type compatibility.
 ## My wire decision
 
 I allocate import kind 4 to `DECLARED_SCALAR_ARTIFACT`; kind 3 remains SERVICE.
-This is an implementation decision, not current executable admission. I retain
+My raw VM/native consumers implement this kind. I retain
 the v2 import record's existing 16-byte shape: counted module/symbol indices,
 signature index, kind and three zero reserved bytes. The signature table carries
 every parameter and the result. I add no advisory metadata key that a consumer
@@ -33,14 +34,15 @@ kind; kinds 0–3 retain their meanings and validation.
 
 The new kind explicitly requests the scalar ABI and synchronous string-result
 lifetime described below. A raw assembler may request that contract explicitly
-once its complete verifier and execution support exist. The kind is not a
+with `.import_kind index declared_scalar_artifact`. The kind is not a
 signature, authentication token, proof of manifest ownership, or verification
 of the library's C implementation. Ordinary kind-2 artifact imports do not
 silently gain arbitrary native scalar admission. Foreign declarations remain
 trusted ABI claims at an unsafe boundary.
 
-My source producer resolves the declaration's actual owning source and its
-manifest into an immutable artifact generation before emitting kind 4. My
+My source producer must resolve the declaration's actual owning source and its
+manifest into an immutable artifact generation before emitting kind 4; that
+producer work remains incomplete. My
 structural verifier requires a nonempty absolute counted path, a nonempty
 counted symbol, no embedded NUL in either, a complete bounded scalar signature,
 and no void parameters. It checks unused declarations too. The execution
@@ -55,8 +57,8 @@ require a discovered companion to come from the called function's own image.
 A missing companion means borrowed storage; a present companion receives the
 original pointer once after the copy attempt. A null result remains a failure.
 My VM provider cleanup now uses the typed libffi path for heterogeneous
-arguments through the existing arity bound. Native kind-4 execution remains
-unimplemented.
+arguments through the existing arity bound. My native kind-4 adapter uses
+libffi with the same declared scalar types and string snapshot/release rule.
 Known adapters keep their existing behavior and do not change kind implicitly.
 
 My implementation order is transport/structural refusals, VM/native matching

@@ -1,0 +1,281 @@
+...........F.FFFFFFFFFFFFFFFF
+======================================================================
+FAIL: test_dependency_cleanup_symbol_is_not_accepted_as_owner (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_dependency_cleanup_symbol_is_not_accepted_as_owner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 288, in test_dependency_cleanup_symbol_is_not_accepted_as_owner
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-s7i0c97y/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_native_copy_allocation_failure_still_releases_provider (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_native_copy_allocation_failure_still_releases_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 336, in test_native_copy_allocation_failure_still_releases_provider
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-wjeb0ys_/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_null_provider_result_is_released_once_then_refused (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_null_provider_result_is_released_once_then_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 262, in test_null_provider_result_is_released_once_then_refused
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-ceuv72az/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_provider_cleanup_counts_zero_one_two_args_and_borrowed (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_provider_cleanup_counts_zero_one_two_args_and_borrowed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 110, in test_provider_cleanup_counts_zero_one_two_args_and_borrowed
+    self.paired(imports+strings+'.entry main\n.function main 0 2 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 89, in paired
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-2chorild/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_real_fs_allocation_failure_preserves_empty_sentinel (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_fs_allocation_failure_preserves_empty_sentinel)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 331, in test_real_fs_allocation_failure_preserves_empty_sentinel
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 89, in paired
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-nk9ye064/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_real_fs_text_empty_missing_and_embedded_nul (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_fs_text_empty_missing_and_embedded_nul)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 177, in test_real_fs_text_empty_missing_and_embedded_nul
+    self.paired(imports+strings+'.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 89, in paired
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-5tyy18ib/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_real_path_provider_allocation_failure_retains_null_contract (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_provider_allocation_failure_retains_null_contract) (provider='path_normalize')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 240, in test_real_path_provider_allocation_failure_retains_null_contract
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-2ykxv7ty/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_real_path_provider_allocation_failure_retains_null_contract (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_provider_allocation_failure_retains_null_contract) (provider='path_canonical')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 240, in test_real_path_provider_allocation_failure_retains_null_contract
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-2ykxv7ty/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_real_path_provider_allocation_failure_retains_null_contract (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_provider_allocation_failure_retains_null_contract) (provider='path_join')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 240, in test_real_path_provider_allocation_failure_retains_null_contract
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-2ykxv7ty/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_real_path_provider_allocation_failure_retains_null_contract (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_provider_allocation_failure_retains_null_contract) (provider='path_basename')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 240, in test_real_path_provider_allocation_failure_retains_null_contract
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-2ykxv7ty/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_real_path_provider_allocation_failure_retains_null_contract (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_provider_allocation_failure_retains_null_contract) (provider='path_dirname')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 240, in test_real_path_provider_allocation_failure_retains_null_contract
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-2ykxv7ty/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_real_path_provider_allocation_failure_retains_null_contract (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_provider_allocation_failure_retains_null_contract) (provider='path_relpath')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 240, in test_real_path_provider_allocation_failure_retains_null_contract
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-2ykxv7ty/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_real_path_providers_repeated_results_preserve_aliases (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_providers_repeated_results_preserve_aliases)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 219, in test_real_path_providers_repeated_results_preserve_aliases
+    self.paired(imports+strings+'.entry main\n.function main 0 7 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 89, in paired
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-k2pwrhh_/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_same_symbol_distinct_libraries_keep_release_owner (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_same_symbol_distinct_libraries_keep_release_owner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 161, in test_same_symbol_distinct_libraries_keep_release_owner
+    self.paired(imports+strings+'.entry main\n.function main 0 1 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 89, in paired
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-42grc3o8/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_scalar_results_and_void_side_effect (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_scalar_results_and_void_side_effect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 49, in test_scalar_results_and_void_side_effect
+    self.paired(self.imports(entries)+'.string text "borrowed"\n.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 89, in paired
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-tbpka662/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_vm_copy_allocation_failure_still_releases_provider (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_vm_copy_allocation_failure_still_releases_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 301, in test_vm_copy_allocation_failure_still_releases_provider
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-niq9mao4/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+======================================================================
+FAIL: test_vm_heterogeneous_max_arity_provider_cleanup (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_vm_heterogeneous_max_arity_provider_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 23, in test_vm_heterogeneous_max_arity_provider_cleanup
+    super().test_vm_heterogeneous_max_arity_provider_cleanup()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 144, in test_vm_heterogeneous_max_arity_provider_cleanup
+    module = self.module(text)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 74, in module
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-cqy49maw/input.nasm': I expect .import_kind index ffi|coprocess|artifact
+
+
+----------------------------------------------------------------------
+Ran 24 tests in 9.952s
+
+FAILED (failures=17)
