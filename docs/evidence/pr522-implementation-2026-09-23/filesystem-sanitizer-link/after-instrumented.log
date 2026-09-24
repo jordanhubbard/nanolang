@@ -1,0 +1,7 @@
+test_declared_results_and_owned_arrays (tests.test_canonical_filesystem.CanonicalFilesystem.test_declared_results_and_owned_arrays) ... ok
+test_wrong_declared_abi_preserves_output (tests.test_canonical_filesystem.CanonicalFilesystem.test_wrong_declared_abi_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.738s
+
+OK

@@ -1,6 +1,7 @@
 """I keep declared filesystem artifacts exact across VM and native products."""
 import json
 import os
+import shlex
 from pathlib import Path
 import subprocess
 import sys
@@ -24,10 +25,12 @@ class CanonicalFilesystem(unittest.TestCase):
         self.command([ROOT / 'bin/nano_vm', module])
         generated, native = directory / 'program.c', directory / 'native'
         self.command([ROOT / 'bin/nvm2c', module, '-o', generated])
-        self.command(['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', generated,
+        cc = shlex.split(os.environ.get('NANO_CC') or os.environ.get('CC') or 'cc')
+        link_flags = shlex.split(os.environ.get('NANO_LDFLAGS', ''))
+        self.command([*cc, '-std=c11', '-Wall', '-Wextra', '-Werror', generated,
                       ROOT / 'bin/nano_aot_runtime.o', '-lm',
                       *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
-                      '-o', native])
+                      *link_flags, '-o', native])
         self.command([native])
 
     def test_declared_results_and_owned_arrays(self):
