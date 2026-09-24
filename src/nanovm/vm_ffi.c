@@ -380,16 +380,6 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
             desc->state = NVM_CALL_FAILED;
             return NULL;
         }
-        if (desc->string_release) {
-            bool supported = desc->param_count <= 2;
-            for (uint16_t i = 0; i < desc->param_count; ++i)
-                supported = supported && desc->param_types && desc->param_types[i] == TAG_STRING;
-            if (!supported) {
-                desc->state = NVM_CALL_FAILED;
-                snprintf(error_msg, error_msg_size, "I require up to two string parameters for provider string cleanup");
-                return NULL;
-            }
-        }
     }
     desc->func_ptr = func_ptr;
     desc->state = NVM_CALL_RESOLVED;
@@ -736,41 +726,18 @@ static bool vm_ffi_call_impl(const NvmModule *module, uint32_t import_idx,
         return false;
     }
 
-    /* I keep exact zero/one/two-string artifact results pointer-typed whether
-     * the provider lends storage or supplies cleanup. Arity was checked above. */
-    bool artifact_string_call = imp->kind == NVM_IMPORT_ARTIFACT &&
-        imp->return_type == TAG_STRING && arg_count <= 2;
-    for (int i = 0; artifact_string_call && i < arg_count; ++i)
-        if (!param_types || param_types[i] != TAG_STRING) artifact_string_call = false;
-    if (desc->string_release || artifact_string_call) {
-        const char *arguments[2] = {NULL, NULL};
+    if (desc->string_release) {
+        if (arg_count && !param_types) {
+            snprintf(error_msg, error_msg_size, "I require declared parameters for provider string cleanup");
+            return false;
+        }
         for (int i = 0; i < arg_count; ++i) {
-            if (args[i].tag != TAG_STRING || !args[i].as.string) {
+            if (param_types[i] == TAG_STRING &&
+                (args[i].tag != TAG_STRING || !args[i].as.string)) {
                 snprintf(error_msg, error_msg_size, "I require string values for provider string cleanup");
                 return false;
             }
-            arguments[i] = vmstring_cstr(args[i].as.string);
         }
-        ffi_type *types[2] = {&ffi_type_pointer, &ffi_type_pointer};
-        void *values[2] = {&arguments[0], &arguments[1]};
-        ffi_cif cif;
-        if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, (unsigned)arg_count,
-                         &ffi_type_pointer, types) != FFI_OK) {
-            snprintf(error_msg, error_msg_size, "I could not prepare a provider string signature");
-            return false;
-        }
-        const char *text = NULL;
-        ffi_call(&cif, FFI_FN(func_ptr), &text, values);
-        bool copied = false;
-        bool has_text = text != NULL;
-        NanoValue snapshot = marshal_result((int64_t)(intptr_t)text, TAG_STRING, heap, &copied, capture);
-        if (desc->string_release) desc->string_release(text);
-        if (!copied || !has_text) {
-            snprintf(error_msg, error_msg_size, "I could not retain the provider string result");
-            return false;
-        }
-        *result = snapshot;
-        return true;
     }
 
     /* A bytecode function index is not an executable C address. I reject it
@@ -839,7 +806,24 @@ static bool vm_ffi_call_impl(const NvmModule *module, uint32_t import_idx,
         else if (imp->return_type == TAG_ARRAY || imp->return_type == TAG_STRING ||
                  imp->return_type == TAG_OPAQUE)
             raw = (int64_t)(intptr_t)returned.pointer;
-        return finish_foreign_arrays(&arrays, raw, imp->return_type, result, error_msg, error_msg_size, capture);
+        if (desc->string_release) {
+            bool copied = false;
+            NanoValue snapshot = marshal_result(raw, TAG_STRING, heap, &copied, capture);
+            bool has_text = returned.pointer != NULL;
+            desc->string_release(returned.pointer);
+            if (!copied || !has_text) {
+                snprintf(error_msg, error_msg_size, "I could not retain the provider string result");
+                vm_ffi_arrays_dispose(&arrays);
+                return false;
+            }
+            bool committed = vm_ffi_arrays_commit(&arrays, error_msg, error_msg_size);
+            if (committed) *result = snapshot;
+            else vm_release(heap, snapshot);
+            vm_ffi_arrays_dispose(&arrays);
+            return committed;
+        }
+        return finish_foreign_arrays(&arrays, raw, imp->return_type, result,
+                                     error_msg, error_msg_size, capture);
     }
 
 ffi_array_failure:

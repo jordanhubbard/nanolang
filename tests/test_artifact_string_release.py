@@ -113,6 +113,44 @@ int64_t file_delete(const char *key) {
         strings += ''.join(f'.string {key} "{value}"\n' for key,value in [('allocations','allocations'),('releases','releases'),('live','live'),('borrowed_key','borrowed')])
         self.paired(imports+strings+'.entry main\n.function main 0 2 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
 
+    def test_vm_heterogeneous_max_arity_provider_cleanup(self):
+        lib = self.library('mixed_release', r'''
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+const char *mixed_owned(int64_t a, double b, uint8_t c, uint8_t d,
+    const char *text, int64_t f, double g, int64_t h, int64_t i,
+    int64_t j, int64_t k, int64_t l, int64_t m, int64_t n, int64_t o, int64_t p) {
+    if (a != -7 || b != 2.5 || c != 1 || d != 250 || strcmp(text, "payload") ||
+        f != 6 || g != -3.25 || h != 8 || i != 9 || j != 10 || k != 11 ||
+        l != 12 || m != 13 || n != 14 || o != 15 || p != 16) abort();
+    char *out = malloc(strlen(text) + 1);
+    if (out) strcpy(out, text);
+    return out;
+}
+void mixed_owned__nano_string_release_v1(const char *value) {
+    if (!value || strcmp(value, "payload")) abort();
+    memset((void *)value, 'x', strlen(value));
+    free((void *)value);
+    FILE *f = fopen(getenv("NANO_ARTIFACT_RELEASE_MARKER"), "a");
+    if (!f) abort();
+    fputs("released\n", f); fclose(f);
+}
+''')
+        imports = self.imports([(lib, 'mixed_owned',
+            'string int float bool u8 string int float int int int int int int int int int')])
+        body = ('PUSH_I64 -7\nPUSH_F64 2.5\nPUSH_BOOL 1\nPUSH_U8 250\n'
+                'PUSH_STR input\nPUSH_I64 6\nPUSH_F64 -3.25\n')
+        body += ''.join(f'PUSH_I64 {i}\n' for i in range(8, 17))
+        text = imports + '.string input "payload"\n.entry main\n.function main 0 0 0 int 1\n'
+        text += body + 'CALL_EXTERN 0\nPUSH_STR input\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n'
+        module = self.module(text)
+        marker = self.work/'mixed-release-count'
+        self.command([ROOT/'bin/nano_vm', module],
+                     env={**os.environ, 'NANO_ARTIFACT_RELEASE_MARKER':str(marker)})
+        self.assertEqual(marker.read_text(), 'released\n')
+
     def test_same_symbol_distinct_libraries_keep_release_owner(self):
         left, right = self.provider('left'), self.provider('right')
         imports = self.imports([(left,'path_basename','string string'), (right,'path_basename','string string'),
@@ -276,7 +314,7 @@ const char *path_basename(const char *input) {
             '$(filter-out $(OBJ_DIR)/nanovm/vm_ffi.o,$(NANOVM_OBJECTS)) '
             '$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) '
             '$(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o '
-            '$(OBJ_DIR)/nanovm/main.o $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS) -o '+str(binary)+'\n')
+            '$(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS) -o '+str(binary)+'\n')
         self.command(['make','-s','-f','Makefile.gnu','-f',makefile,'artifact-copy-failure'], cwd=ROOT)
         marker = self.work/'vm-copy-release'
         result = self.command([binary,module], success=False,
