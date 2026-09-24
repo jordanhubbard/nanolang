@@ -3586,7 +3586,94 @@ static void test_optional_record_arguments(void) {
     }
 }
 
+static void test_unresolved_local_storage(void) {
+    /* I exercise a nested field whose flat kind is still unknown when stored.
+     * Its second call observes the first call's tagged local requirement;
+     * returning the container must not impose that requirement on its field. */
+    const char *functions[] = {
+        ".function main 0 1 0 int 1\n"
+        "PUSH_STR text\n"
+        "AGG_PACK 0 0 0 1\n"
+        "ARR_LITERAL 8 1\n"
+        "AGG_PACK 0 0 0 1\n"
+        "STORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\n"
+        "CALL project\n"
+        "STORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\n"
+        "CALL rewrite\n"
+        "POP\n"
+        "PUSH_STR text\n"
+        "ARR_LITERAL 5 1\n"
+        "PUSH_I64 0\n"
+        "ARR_GET\n"
+        "CALL length\n"
+        "POP\n"
+        "PUSH_I64 0\n"
+        "RET\n"
+        ".end\n",
+        ".function project 1 3 0 struct 1\n"
+        "LOAD_LOCAL 0\n"
+        "AGG_GET 0\n"
+        "PUSH_I64 0\n"
+        "ARR_GET\n"
+        "AGG_GET 0\n"
+        "STORE_LOCAL 1\n"
+        "LOAD_LOCAL 1\n"
+        "CALL length\n"
+        "POP\n"
+        "LOAD_LOCAL 1\n"
+        "CALL length\n"
+        "PUSH_I64 4\n"
+        "EQ\n"
+        "ASSERT\n"
+        "LOAD_LOCAL 0\n"
+        "RET\n"
+        ".end\n",
+        ".function rewrite 1 1 0 struct 1\n"
+        "LOAD_LOCAL 0\n"
+        "AGG_GET 0\n"
+        "PUSH_I64 0\n"
+        "PUSH_STR text\n"
+        "CALL identity\n"
+        "AGG_PACK 0 0 0 1\n"
+        "ARR_SET\n"
+        "AGG_PACK 0 0 0 1\n"
+        "RET\n"
+        ".end\n",
+        ".function length 1 1 0 int 1\n"
+        "LOAD_LOCAL 0\n"
+        "STR_LEN\n"
+        "RET\n"
+        ".end\n",
+        ".function identity 1 1 0 string 1\n"
+        "LOAD_LOCAL 0\n"
+        "RET\n"
+        ".end\n"
+    };
+    const unsigned orders[][5] = {
+        {0, 1, 2, 3, 4}, {4, 3, 2, 1, 0}, {1, 0, 3, 4, 2},
+        {2, 4, 0, 3, 1}, {3, 2, 1, 0, 4}, {4, 1, 3, 2, 0}
+    };
+    for (size_t order = 0; order < sizeof orders / sizeof orders[0]; ++order) {
+        char source[4096] = ".string text \"kept\"\n.entry main\n";
+        for (unsigned i = 0; i < 5; ++i)
+            strcat(source, functions[orders[order][i]]);
+        NvmModule *m = assemble_ok(source, "unresolved local and exact producer storage");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I keep a tagged local separate from its unresolved producer");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I preserve exact record fields after repeated scalar calls and container returns");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 static void test_projected_string_call_storage(void) {
+    test_unresolved_local_storage();
     for (int boxed = 0; boxed < 2; ++boxed) {
         for (int reverse = 0; reverse < 2; ++reverse) {
             for (int tail = 0; tail < 2; ++tail) {

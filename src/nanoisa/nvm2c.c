@@ -1726,9 +1726,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!shape_type(b, destination, NVM_SHAPE_RECORD)) return 0;
                 if (b->track_shapes &&
                     !nvm_shape_convert_record_storage(&b->shapes, v.shape, destination)) return 0;
-            } else if (v.kind == NVM2C_VK_INT || v.kind == NVM2C_VK_BOOL || v.kind == NVM2C_VK_STR || v.kind == NVM2C_VK_FLOAT) {
-                /* Local storage can later receive an optional projection.
-                 * It must not equate that projection to an earlier literal. */
+            } else if (v.kind == NVM2C_VK_UNK || v.kind == NVM2C_VK_INT ||
+                       v.kind == NVM2C_VK_BOOL || v.kind == NVM2C_VK_STR || v.kind == NVM2C_VK_FLOAT) {
+                /* I give unresolved projections their own local storage too.
+                 * A later consumer can require a tagged local without changing
+                 * the producer's record field or an earlier scalar literal. */
                 if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, destination)) return 0;
             } else if (!shape_equal(b, v.shape, destination)) return 0;
             if (v.kind == NVM2C_VK_BOOL) {

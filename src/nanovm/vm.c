@@ -1,6 +1,7 @@
 #include "../nanoisa/service_bindings_module.h"
 #include "../nanoisa/service_classification_private.h"
 #include "../nanoisa/affine_state.h"
+#include "../nanoisa/affine_bytecode.h"
 #include "../nanoisa/mixed_samples_internal.h"
 #include "../nanoisa/owned_array_authority.h"
 #include "../nanoisa/owned_array_admission.h"
@@ -3194,11 +3195,50 @@ dynamic_div:
                                       callee_idx, callee->arity);
                 }
 
+                VmReferenceActivation *next_reference_context=NULL;
+                if (owned_execution) {
+                    if (mixed_execution || closure || callee_module!=vm->module ||
+                        !callee_idx || callee_idx>=NVM_OWNED_MAX_FUNCTIONS)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a same-module noncapturing owned callback");
+                    NvmAffineTargets *targets=nvm_affine_targets_create(vm->module);
+                    if (!targets)return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned callback targets");
+                    uint8_t mask=0;
+                    bool allowed=nvm_affine_targets_at(targets,vm->current_fn,decoded->byte_offset,&mask) &&
+                        (mask&(1u<<callee_idx));
+                    nvm_affine_targets_free(targets);
+                    if (!allowed)return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an inferred owned callback target");
+                    for(uint32_t g=0;g<owned_global_count;g++)
+                        if(g>=vm->global_count || vm->globals[g].tag!=owned_global_tags[g])
+                            return trap_error(vm,VM_ERR_UNDEFINED_GLOBAL,"I require initialized scalar globals before an owned call");
+                    next_reference_context=vm_reference_activation(vm,vm->frame_count);
+                    if (!next_reference_context || next_reference_context->active || vm->reference_generation==UINT64_MAX)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a checked bounded owned value activation");
+                    NvmAffineState *contract=nvm_affine_state_create(vm->module,callee_idx,callee->local_count);
+                    if (!contract)return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned callback parameter facts");
+                    NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
+                    bool valid=nvm_affine_value_parameters(contract,parameters,NVM_AFFINE_MAX_PARAMETERS,&count);
+                    nvm_affine_state_free(contract);
+                    if (!valid || count!=callee->arity)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a complete consuming parameter contract");
+                    for (uint16_t p=0;p<count;p++) {
+                        NanoValue argument=stack_peek(vm,count-p);
+                        if (argument.tag!=parameters[p].tag ||
+                            (argument.tag==TAG_STRUCT && (!argument.as.sval || argument.as.sval->def_idx!=parameters[p].layout)) ||
+                            (argument.tag==TAG_UNION && !owned_union_matches(vm->module,argument,parameters[p].layout)))
+                            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require exact positional consuming argument types");
+                    }
+                }
+
                 /* Transfer ownership only after every call validation passes. */
                 uint32_t new_base = vm->stack_size - 1 - callee->arity;
                 VmResult reserved = stack_reserve_frame(vm, new_base, callee);
                 if (reserved != VM_OK)
                     return trap_error(vm, reserved, "I could not reserve the indirect-call frame.");
+                if (owned_execution) {
+                    memset(next_reference_context,0,sizeof(*next_reference_context));
+                    next_reference_context->active=true;
+                    next_reference_context->generation=++vm->reference_generation;
+                }
                 fn_val = stack_pop(vm);
                 for (uint16_t i = callee->arity; i < callee->local_count; i++) {
                     stack_push(vm, val_void());

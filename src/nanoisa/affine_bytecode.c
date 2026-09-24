@@ -90,13 +90,16 @@ static bool pop_scalar(Frame *f,uint8_t tag) {
 }
 typedef struct {
     bool value_graph;
+    NvmAffineTargets *targets;
     uint8_t global_tags[NVM_OWNERSHIP_MAX_SCALAR_GLOBALS];
     uint32_t global_count;
     uint8_t status[NVM_OWNED_MAX_FUNCTIONS];
     NvmAffineAnalysis results[NVM_OWNED_MAX_FUNCTIONS];
 } AnalysisCalls;
 
-bool nvm_affine_value_call_graph(const NvmModule *m) {
+static bool value_call_graph(const NvmModule *m,NvmAffineTargets **targets) {
+    if (targets) *targets=NULL;
+    bool indirect=false;
     if (!m || !m->functions || !m->function_count ||
         m->function_count>NVM_OWNED_MAX_FUNCTIONS || m->header.entry_point!=0) return false;
     bool edges[NVM_OWNED_MAX_FUNCTIONS][NVM_OWNED_MAX_FUNCTIONS]={{false}};
@@ -121,8 +124,9 @@ bool nvm_affine_value_call_graph(const NvmModule *m) {
                 uint32_t target=in->operands[0].u32;
                 if (!target || target>=m->function_count) valid=false;
                 else edges[f][target]=true;
-            } else if (in->opcode==OP_CALL_REF || in->opcode==OP_TAIL_CALL ||
-                       in->opcode==OP_CALL_INDIRECT || in->opcode==OP_CALL_MODULE ||
+            } else if (in->opcode==OP_CALL_INDIRECT) indirect=true;
+            else if (in->opcode==OP_CALL_REF || in->opcode==OP_TAIL_CALL ||
+                       in->opcode==OP_CALL_MODULE ||
                        in->opcode==OP_CALL_EXTERN) valid=false;
         }
         vm_decoded_function_free(&decoded);
@@ -133,8 +137,14 @@ bool nvm_affine_value_call_graph(const NvmModule *m) {
             for (uint32_t j=0;j<m->function_count;j++)
                 edges[i][j]=edges[i][j] || (edges[i][k] && edges[k][j]);
     for (uint32_t i=0;i<m->function_count;i++) if (edges[i][i]) return false;
+    if (indirect) {
+        NvmAffineTargets *plan=nvm_affine_targets_create(m);
+        if (!plan) return false;
+        if (targets) *targets=plan;else nvm_affine_targets_free(plan);
+    }
     return true;
 }
+bool nvm_affine_value_call_graph(const NvmModule *m) {return value_call_graph(m,NULL);}
 static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                                    const NvmAffineState *caller,uint32_t reference,AnalysisCalls *calls);
 static bool supported(uint8_t op,bool value_graph) {
@@ -155,7 +165,7 @@ static bool supported(uint8_t op,bool value_graph) {
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
-    case OP_FUNCREF: case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+    case OP_CALL_INDIRECT: case OP_FUNCREF: case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
     case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
         return value_graph;
     default:return false;
@@ -170,35 +180,53 @@ static bool globals_initialized(const Frame *frame,const AnalysisCalls *calls) {
     for(uint32_t i=0;i<calls->global_count;i++)if(!frame->global_initialized[i])return false;
     return true;
 }
-static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function,AnalysisCalls *calls) {
+static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function,AnalysisCalls *calls,uint32_t byte_offset) {
     uint8_t op=in->opcode,tag=TAG_VOID,mode;
     uint16_t local;
     switch(op) {
     case OP_NOP: case OP_JMP: case OP_HALT: return NULL;
-    case OP_CALL: {
+    case OP_CALL: case OP_CALL_INDIRECT: {
         if(!globals_initialized(f,calls))return "I require initialized scalar globals before an owned helper call";
-        uint32_t target=in->operands[0].u32;
-        if (!calls->value_graph || !target || target>=module->function_count)
-            return "I require a checked acyclic owned value call";
-        NvmAffineState *callee=nvm_affine_state_create(module,target,module->functions[target].local_count);
-        NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS],result;uint16_t count=0,fields=0;
-        bool valid=nvm_affine_value_parameters(callee,parameters,NVM_AFFINE_MAX_PARAMETERS,&count) &&
-            nvm_affine_value_result(callee,&result,&fields);
-        nvm_affine_state_free(callee);
-        if (!valid || count!=module->functions[target].arity || f->count<count)
-            return "I require a complete consuming argument list";
-        for (uint16_t p=0;p<count;p++) {
-            Value argument=f->stack[f->count-count+p];
-            NvmAffineType parameter=parameters[p];
-            if (argument.observation || argument.tag!=parameter.tag ||
-                argument.owned!=nvm_affine_type_requires_move(f->locals,parameter) ||
-                ((argument.owned || argument.tag==TAG_UNION) &&
-                 argument.layout!=parameter.layout))
-                return "I require exact positional consuming argument types";
+        bool indirect=op==OP_CALL_INDIRECT;uint8_t targets=0;
+        uint16_t arity=0;NvmAffineType result={TAG_VOID,NVM_V2_NO_INDEX};bool have_result=false;
+        if (!calls->value_graph)return "I require a checked acyclic owned value call";
+        if (indirect) {
+            if (!f->count || f->stack[f->count-1].tag!=TAG_FUNCTION ||
+                f->stack[f->count-1].owned || f->stack[f->count-1].observation ||
+                !nvm_affine_targets_at(calls->targets,function,byte_offset,&targets))
+                return "I require a function value with a finite checked target set";
+            arity=in->operands[0].u16;
+        } else {
+            uint32_t target=in->operands[0].u32;
+            if (!target || target>=module->function_count)return "I require a checked acyclic owned value call";
+            targets=(uint8_t)(1u<<target);arity=module->functions[target].arity;
         }
-        NvmAffineAnalysis call=analyze(module,target,NULL,0,calls);
-        if (!call.ok) return "I require complete consuming-helper owner resolution";
-        f->count-=count;
+        if (f->count<(uint32_t)arity+indirect)return "I require a complete consuming argument list";
+        for (uint32_t target=1;target<module->function_count;target++) if(targets&(1u<<target)) {
+            NvmAffineState *callee=nvm_affine_state_create(module,target,module->functions[target].local_count);
+            NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS],candidate;uint16_t count=0,fields=0;
+            bool valid=nvm_affine_value_parameters(callee,parameters,NVM_AFFINE_MAX_PARAMETERS,&count) &&
+                nvm_affine_value_result(callee,&candidate,&fields);
+            nvm_affine_state_free(callee);
+            if (!valid || count!=arity || count!=module->functions[target].arity ||
+                (indirect && module->functions[target].result_count!=in->operands[1].u16))
+                return "I require a complete consuming argument list";
+            for (uint16_t p=0;p<count;p++) {
+                Value argument=f->stack[f->count-arity-indirect+p];
+                NvmAffineType parameter=parameters[p];
+                if (argument.observation || argument.tag!=parameter.tag ||
+                    argument.owned!=nvm_affine_type_requires_move(f->locals,parameter) ||
+                    ((argument.owned || argument.tag==TAG_UNION) && argument.layout!=parameter.layout))
+                    return "I require exact positional consuming argument types";
+            }
+            if (have_result && (result.tag!=candidate.tag || result.layout!=candidate.layout))
+                return "I require the same exact result contract for every indirect target";
+            result=candidate;have_result=true;
+            NvmAffineAnalysis call=analyze(module,target,NULL,0,calls);
+            if (!call.ok) return "I require complete consuming-helper owner resolution";
+        }
+        if (!have_result)return "I require a nonempty checked owned call target set";
+        f->count-=(uint16_t)(arity+indirect);
         if (result.tag==TAG_VOID) return NULL;
         return push(f,(Value){.tag=result.tag,.root=UINT16_MAX,
                               .owned=nvm_affine_type_requires_move(f->locals,result),.layout=result.layout,
@@ -649,7 +677,7 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
         } else if (op==OP_HALT) {
             if (current->count) {error="I require an empty stack at my terminal invariant";goto done;}
         } else {
-            error=step(current,&instruction->instruction,entry->local_count,m,function,calls);
+            error=step(current,&instruction->instruction,entry->local_count,m,function,calls,instruction->byte_offset);
             if (error) goto done;
             if (op==OP_MATCH_TAG) {
                 uint32_t relative=instruction->resolved_target-entry->code_offset;
@@ -701,8 +729,9 @@ NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t functi
     if(nvm_ownership_scalar_globals(m,calls.global_tags,sizeof(calls.global_tags),&calls.global_count)!=NVM_V2_OK) {
         NvmAffineAnalysis result={0};snprintf(result.message,sizeof(result.message),"I require complete scalar-global declarations");return result;
     }
-    calls.value_graph=nvm_affine_value_call_graph(m);
-    return analyze(m,function,NULL,0,&calls);
+    calls.value_graph=value_call_graph(m,&calls.targets);
+    NvmAffineAnalysis result=analyze(m,function,NULL,0,&calls);
+    nvm_affine_targets_free(calls.targets);return result;
 }
 
 /* I keep target inference separate from executable ownership admission. */

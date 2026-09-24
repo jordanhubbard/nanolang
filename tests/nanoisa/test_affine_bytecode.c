@@ -178,6 +178,7 @@ static void owned_union_flow(void) {
 #include "owned_targets_fixture.h"
 int main(int argc,char **argv) {
     owned_callback_targets();
+    owned_callback_contract_refusals();
     owned_union_flow();
 #ifdef AFFINE_BYTECODE_ALLOCATION_TEST
     owned_union_allocations();

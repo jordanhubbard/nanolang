@@ -7,7 +7,7 @@ static NvmModule *callback_value_fixture(unsigned kind) {
                          kind==5 ? "FUNCREF 9" : "FUNCREF 1";
     const char *control=kind==1 ? "PUSH_BOOL 0\nASSERT\n" :
         kind==4 ? "LOAD_LOCAL 1\nPUSH_I64 1\nADD\nPOP\n" :
-        kind==7 ? "LOAD_LOCAL 1\nFUNCREF 1\nCALL_INDIRECT 1 1\nPOP\n" : "";
+        kind==7 ? "LOAD_LOCAL 1\nFUNCREF 1\nCALL_INDIRECT 0 1\nPOP\nPOP\n" : "";
     snprintf(source,sizeof(source),
         ".types 3 0 0\n.entry 0\n.function main 0 16 0 int 1\n"
         "PUSH_I64 42\nOWN_PACK 0\nOWN_STORE_LOCAL 0\n"

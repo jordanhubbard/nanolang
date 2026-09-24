@@ -1005,7 +1005,7 @@ static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
-    case OP_FUNCREF: case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+    case OP_CALL_INDIRECT: case OP_FUNCREF: case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
     case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
         return value_graph;
     default: return false;
