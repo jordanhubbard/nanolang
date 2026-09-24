@@ -1,0 +1,14 @@
+{
+  "generated-c": {
+    "retained_products": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-array-generated-efwbgr8i",
+    "files": 8016,
+    "reports": 6656,
+    "archive_sha256": "dc7f24c4e4490be5f58fe3f46edc6ded58ee57a731d6085f5ca02dc1a4e535a3"
+  },
+  "llvm-wasm": {
+    "retained_products": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-array-llvm-px1usb9a",
+    "files": 28605,
+    "reports": 25411,
+    "archive_sha256": "39e78031a7829ce9bf43a0cfb4e178cd588148e4841f57e1f3d5fc471389d366"
+  }
+}

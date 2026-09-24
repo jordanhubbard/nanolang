@@ -1,0 +1,32 @@
+{
+  "base": "b34fbab63",
+  "incoming": "57542f703b16f92951e54d43962e68035d00fca1",
+  "workspace": "/Users/jordanh/Src/nanolang-pr522-generated-integration",
+  "scope": "Private generated consumer integration; no public admission or source widening",
+  "files": {
+    "scripts/embed_managed_runtime.py": "a442aaaf85e3ca7e303b43cdf16528db29e7dfff1fc8591f6d018b74c0b2402a",
+    "src/nanoisa/nvm2c_record_array_private.c": "c7a8c4e9faa54378123416ac324fe159580173e947b7a629633593530dd37c17",
+    "src/nanoisa/nvm2c_record_array_private.h": "3d6d1b239948b5fdee0bdfb890bda8abb7bed71b1b52557aad20ec2c6bba08a2",
+    "src/nanoisa/nvm2llvm_record_array_private.c": "89872619076cf83d97dc693f60f686388c512bb9e76c23279bdc8b664dcd674b",
+    "src/nanoisa/nvm2llvm_record_array_private.h": "98d52b3919be0982e5875275c4d4972fea586af28ed0d07646c2825858d64640",
+    "src/nanoisa/record_array_emission_private.inc": "ea9b2783d2acdc5c0359d38bc9997a7f1daf8dbc4cc066398d9e1c27e17ae548",
+    "src/nanoisa/record_array_generated_private.c": "5139137a42c528cb69755d5c75a951ccab7530afdcfb4632b4c40509ac8a69d5",
+    "src/nanoisa/record_array_generated_private.h": "ffedb53e0c194585233d2a773b80afb0172c157c6598b7795568fcafc282a327",
+    "src/nanoisa/record_array_llvm_operations_private.inc": "0fa38ae8d8c6e54f02fb920afb452d492da7ee2ff9acbfe7fedf2821f6f19a5a",
+    "tests/nanoisa/record_array_llvm_wasm_alloc.h": "40d36f857e0c31b23ca3c157a371d40ff89aa547c13907d62afd8d523f1fbae6",
+    "tests/nanoisa/record_array_llvm_wasm_faults.h": "9b19154548a27852fbaa90a10344866191b1a6422353af139b0d7b5c49698eab",
+    "tests/nanoisa/test_record_array_generated_capture.c": "624a734ac6e2215b0bec608303fc4b7bc3f6f6a339c5d5d375d6a1a509054c0f",
+    "tests/nanoisa/test_record_array_generated_emission.c": "5661c8974d718edcabfe2f1d03363579613cf4e5bd60d0cf9c28eaeff86709f8",
+    "tests/nanoisa/test_record_array_generated_lifecycle.c": "7b7c9d5b8a1527381fd7f5811cc99f68a6fb19ee28f8754103cc8b8f3aad0fc2",
+    "tests/nanoisa/test_record_array_llvm_capture.c": "c239ddb9b7029a2da074aecc56265fd475b22abf69743de7a0323f994f8e224a",
+    "tests/nanoisa/test_record_array_llvm_emission.c": "c9615d99e3fc773c6a7ade164d3afe49e6f81d4e53a02e8e20d751b2f61cfabe",
+    "tests/nanoisa/test_record_array_llvm_startup.c": "972183426b97c126b348121114fb77c93a1aae294ea9d6a913eca2c53b8786b1",
+    "tests/nanoisa/test_record_array_vm.c": "774b4067d82015858a8fbdf862e95cf92bed549aec3effb835029cc0d8737fe6",
+    "tests/test_record_array_generated.py": "938eef08d64d77179fa90ef31c6d8968127a1aa3ce592c5b23f473ae8cc589a4",
+    "tests/test_record_array_llvm.py": "0fda51b1a9810affae7159548a4299e9cfd08e74ef9a67ae45fbed96e79bd4fd",
+    "Makefile.gnu": "e403431945a57b0cf5af7f665663f29fe7e9bb6f0007dbd67c4e0b4a519a0423"
+  },
+  "gate": "make -j2 test-record-array-generated CC=/opt/homebrew/opt/llvm/bin/clang",
+  "gate_log": "/tmp/pr522-final-d56d15ff6/pr945-generated-integration.log",
+  "status": "running"
+}
