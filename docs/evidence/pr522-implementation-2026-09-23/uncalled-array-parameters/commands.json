@@ -1,0 +1,7 @@
+{
+  "ordinary": "make -j4 test-nvm2c",
+  "sanitizers": "python3 scripts/run_nvm2c_sanitizers.py --cc /opt/homebrew/opt/llvm/bin/clang",
+  "functional": "NANO_SHADOW_TIMEOUT_SECONDS=60 NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang CC=/opt/homebrew/opt/llvm/bin/clang NANO_CC=/opt/homebrew/opt/llvm/bin/clang ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_nanoisa_functional_arrays",
+  "gcc": "docker --context colima-nanolang-pr522 exec -w /work nanolang-pr522-debug gcc -std=c99 -O3 -Wall -Wextra -Werror -D_GNU_SOURCE -Isrc -Isrc/nanoisa -Imodules/nanoisa -c /tmp/pr522-array-param-test.c -o /tmp/pr522-array-param-test.o",
+  "gcc_exit": 0
+}

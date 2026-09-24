@@ -6609,6 +6609,37 @@ static void test_string_array_growth_has_no_process_wide_arena_limit(void) {
     nvm_module_free(m);
 }
 
+static void test_uncalled_array_parameter_projection_storage(void) {
+    const char *types[] = {"int", "bool", "float", "string"};
+    const char *initial[] = {"PUSH_I64 0", "PUSH_BOOL 0", "PUSH_F64 0", "PUSH_STR 0"};
+    for (unsigned type = 0; type < 4; ++type) {
+        for (unsigned order = 0; order < 2; ++order) {
+            char helper[512], source[2 * sizeof helper + 64];
+            snprintf(helper, sizeof helper,
+                ".function unused 1 3 0 %s 1\n"
+                " %s\n STORE_LOCAL 1\n"
+                " LOAD_LOCAL 0\n PUSH_I64 0\n ARR_GET\n STORE_LOCAL 2\n"
+                " LOAD_LOCAL 2\n STORE_LOCAL 1\n LOAD_LOCAL 1\n RET\n.end\n"
+                ".parameters %u array\n", types[type], initial[type], order);
+            const char *main = ".function main 0 0 0 int 1\n PUSH_I64 0\n RET\n.end\n";
+            snprintf(source, sizeof source, ".string \"\"\n.entry %u\n%s%s", 1 - order,
+                     order ? main : helper, order ? helper : main);
+            NvmModule *m = assemble_ok(source, "I retain uncalled array parameter projections");
+            CHECK(m != NULL, "I assemble both declaration orders for every scalar result");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "I retain tagged storage for an uncalled array parameter");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0,
+                      "I compile all retained helper bodies with strict diagnostics");
+                CHECK(status == 0, "I preserve the independent entry result");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+}
+
 static void test_void_local_flows_through_branches_loops_and_calls(void) {
     const char *src =
         ".entry 1\n"
@@ -6943,6 +6974,7 @@ int main(int argc, char **argv) {
     test_array_result_kinds_cross_calls();
     test_array_growth_has_no_process_wide_arena_limit();
     test_string_array_growth_has_no_process_wide_arena_limit();
+    test_uncalled_array_parameter_projection_storage();
     test_void_local_flows_through_branches_loops_and_calls();
     test_tagged_string_array_writes();
     test_boolean_arrays();

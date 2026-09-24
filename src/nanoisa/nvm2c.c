@@ -7021,7 +7021,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             /* I use declarations only after caller facts converge. An
              * observed tagged argument keeps its checked representation;
              * an unused parameter still has its declared scalar/record type.
-             * An array tag alone does not determine its element storage. */
+             * An array tag alone does not determine its element storage;
+             * I retain a tagged handle when no caller supplies that fact. */
             for (uint32_t f = 0; f < mod->function_count; ++f) {
                 const uint8_t *tags = mod->function_param_types ? mod->function_param_types[f] : NULL;
                 if (!tags) continue;
@@ -7033,6 +7034,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                         tags[p] == TAG_BOOL ? NVM2C_VK_BOOL :
                         tags[p] == TAG_FLOAT ? NVM2C_VK_FLOAT :
                         tags[p] == TAG_STRING ? NVM2C_VK_STR :
+                        tags[p] == TAG_ARRAY ? NVM2C_VK_VALUE :
                         tags[p] == TAG_FUNCTION ? NVM2C_VK_FUNCTION :
                         aggregate_value_tag(tags[p]) ? NVM2C_VK_REC : NVM2C_VK_UNK;
                     if (declared != NVM2C_VK_UNK) { *kind = declared; facts.changed = 1; }
