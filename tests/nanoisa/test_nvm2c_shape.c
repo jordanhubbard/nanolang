@@ -33,6 +33,66 @@ static void test_cycles_and_shared_children(void) {
     CHECK(!g.nodes && !g.count && !g.error);
 }
 
+static void test_copy_into_source_descendant(void) {
+    for (int depth = 1; depth <= 3; depth += 2) {
+        for (int unknown = 0; unknown < 2; ++unknown) {
+            NvmShapeGraph g = {0};
+            NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+            NvmShapeId node = source;
+            for (int i = 1; i < depth; ++i) {
+                NvmShapeId next = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+                CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, node, 0), next));
+                node = next;
+            }
+            NvmShapeId destination = nvm_shape_new(&g, unknown ? NVM_SHAPE_UNKNOWN : NVM_SHAPE_RECORD);
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, node, 0), destination));
+            CHECK(nvm_shape_convert(&g, source, destination));
+            CHECK(nvm_shape_solve_conversions(&g));
+            CHECK(g.count < 32);
+            CHECK(nvm_shape_root(&g, source) != nvm_shape_root(&g, destination));
+            node = destination;
+            for (int i = 0; i < depth; ++i) {
+                CHECK(nvm_shape_kind(&g, node) == NVM_SHAPE_RECORD);
+                node = nvm_shape_lookup(&g, node, 0);
+            }
+            CHECK(nvm_shape_root(&g, node) == nvm_shape_root(&g, destination));
+            size_t count = g.count;
+            CHECK(nvm_shape_solve_conversions(&g));
+            CHECK(g.count == count);
+            nvm_shape_destroy(&g);
+        }
+    }
+}
+
+static void test_recursive_conversion_chain(void) {
+    static const unsigned orders[6][3] = {{0,1,2},{0,2,1},{1,0,2},{1,2,0},{2,0,1},{2,1,0}};
+    for (size_t order = 0; order < 6; ++order) {
+        NvmShapeGraph g = {0};
+        NvmShapeId a = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+        NvmShapeId b = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+        NvmShapeId c = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+        NvmShapeId wrapper = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+        NvmShapeId leaf = a;
+        for (int depth = 0; depth < 3; ++depth) {
+            leaf = nvm_shape_child(&g, leaf, 0);
+            if (depth < 2) CHECK(nvm_shape_unify(&g, leaf, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        }
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, wrapper, 0), b));
+        NvmShapeId sources[] = {a, c, wrapper}, targets[] = {b, a, c};
+        for (size_t i = 0; i < 3; ++i)
+            CHECK(nvm_shape_convert(&g, sources[orders[order][i]], targets[orders[order][i]]));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(g.count < 100);
+        CHECK(nvm_shape_root(&g, a) != nvm_shape_root(&g, b));
+        CHECK(nvm_shape_root(&g, b) != nvm_shape_root(&g, c));
+        CHECK(nvm_shape_kind(&g, leaf) == NVM_SHAPE_RECORD);
+        size_t count = g.count;
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(g.count == count);
+        nvm_shape_destroy(&g);
+    }
+}
+
 static void test_deep_graph(int conflict) {
     NvmShapeGraph g = {0};
     NvmShapeId roots[2];
@@ -794,6 +854,8 @@ int main(void) {
     test_map_shapes();
     test_lookup_without_constraints();
     test_cycles_and_shared_children();
+    test_copy_into_source_descendant();
+    test_recursive_conversion_chain();
     test_deep_graph(0);
     test_deep_graph(1);
     test_wide_worklist();

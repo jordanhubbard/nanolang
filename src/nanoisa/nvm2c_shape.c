@@ -9,6 +9,7 @@ struct NvmShapeNode {
     uint32_t rank;
     NvmShapeKind kind;
     int conversion_kind;
+    NvmShapeId copy_source;
     ShapeEdge *edges;
     size_t count, capacity;
 };
@@ -206,6 +207,7 @@ typedef struct {
     int array_element;
     int optional_payload;
     int fresh_target;
+    size_t parent;
 } FlowPair;
 
 static int flow_kind(NvmShapeGraph *g, NvmShapeId target, NvmShapeKind kind, int *changed) {
@@ -221,7 +223,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
     if (!queue) return 0;
-    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, 0, 0, 0};
+    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, 0, 0, 0, SIZE_MAX};
     while (cursor < count && !g->error) {
         FlowPair pair = queue[cursor++];
         NvmShapeId source = nvm_shape_root(g, pair.source), target = nvm_shape_root(g, pair.target);
@@ -289,7 +291,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             NvmShapeId payload = nvm_shape_child(g, target, 0);
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;
-            queue = next; queue[count++] = (FlowPair){source, payload, 1, 0, 0, 0};
+            queue = next; queue[count++] = (FlowPair){source, payload, 1, 0, 0, 0, cursor - 1};
             continue;
         }
         /* An explicitly declared union destination accepts either exact
@@ -353,8 +355,33 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
                           nvm_shape_kind(g, queue[j].target) == NVM_SHAPE_UNKNOWN))) {
                         child_target = nvm_shape_root(g, queue[j].target); break;
                     }
+                /* A source descendant can itself be an ancestor destination
+                 * of this copy (A{B} -> B). Copying its newly added edges into
+                 * fresh nodes would grow the source while traversing it. Close
+                 * that recursive constraint at the existing destination; I
+                 * never replace an already constrained edge or alias siblings. */
+                for (size_t ancestor = cursor - 1; !child_target && ancestor != SIZE_MAX;
+                     ancestor = queue[ancestor].parent)
+                    if (nvm_shape_root(g, queue[ancestor].target) == child_source)
+                        child_target = child_source;
+                /* Copies through several conversions can return to their
+                 * original, still empty inferred destination. Only that empty
+                 * view may close the cycle; explicit fields and independently
+                 * constrained copies retain separate storage. */
+                NvmShapeId origin = g->nodes[child_source - 1].copy_source;
+                if (origin) origin = nvm_shape_root(g, origin);
+                for (size_t ancestor = cursor - 1; !child_target && origin && ancestor != SIZE_MAX;
+                     ancestor = queue[ancestor].parent) {
+                    NvmShapeId candidate = nvm_shape_root(g, queue[ancestor].target);
+                    NvmShapeNode *view = &g->nodes[candidate - 1];
+                    if (candidate == origin && view->conversion_kind && !view->count &&
+                        (child_kind == NVM_SHAPE_UNKNOWN || child_kind == view->kind))
+                        child_target = candidate;
+                }
                 if (!child_target) {
+                    NvmShapeId origin = g->nodes[child_source - 1].copy_source;
                     child_target = nvm_shape_new(g, NVM_SHAPE_UNKNOWN);
+                    if (child_target) g->nodes[child_target - 1].copy_source = origin ? origin : child_source;
                     fresh_target = 1;
                 }
                 if (!child_target) break;
@@ -374,7 +401,8 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
                     from == NVM_SHAPE_VARIANT,
                 from == NVM_SHAPE_ARRAY && edge.index == 0,
                 from == NVM_SHAPE_OPTIONAL && edge.index == 0,
-                fresh_target
+                fresh_target,
+                cursor - 1
             };
         }
     }

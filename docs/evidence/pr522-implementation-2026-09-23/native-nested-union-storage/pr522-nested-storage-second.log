@@ -1,0 +1,29 @@
+..FF......
+======================================================================
+FAIL: test_nested_union_record_transport (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_nested_union_record_transport) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_8c2oepk/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_8c2oepk/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_8c2oepk/.nano-product.cCUtFU/program.nvm': I require a selected constructor for heterogeneous union projection (function 2, offset 31)
+
+
+======================================================================
+FAIL: test_nested_union_record_transport (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_nested_union_record_transport) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_8c2oepk/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_8c2oepk/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_8c2oepk/.nano-product.rKxZKY/program.nvm': I require a selected constructor for heterogeneous union projection (function 2, offset 31)
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 15.085s
+
+FAILED (failures=2)

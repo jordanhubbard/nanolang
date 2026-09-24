@@ -148,3 +148,31 @@ fn main() -> int {
 }
 shadow main { assert (== (main) 0) }
 ''')
+
+    def test_nested_union_record_transport(self):
+        self.execute(r'''struct Item { label: string }
+union Choice { Box { value: Item }, Text { value: string }, Empty {} }
+struct Envelope { choice: Choice }
+fn identity(value: Envelope) -> Envelope { return value }
+shadow identity {
+ let envelope: Envelope = (identity Envelope { choice: Choice.Empty {} })
+ match envelope.choice { Box(b) => { assert false } Text(t) => { assert false } Empty(e) => { assert true } }
+}
+fn read(value: Envelope) -> string {
+ match value.choice {
+  Box(b) => { return b.value.label }
+  Text(t) => { return t.value }
+  Empty(e) => { return "empty" }
+ }
+}
+shadow read { assert (== (read Envelope { choice: Choice.Empty {} }) "empty") }
+fn main() -> int {
+ let saved: Envelope = (identity Envelope { choice: Choice.Box { value: Item { label: (+ "saved" "-label") } } })
+ let other: Envelope = (identity Envelope { choice: Choice.Text { value: (+ "text" "-label") } })
+ assert (== (read other) "text-label")
+ assert (== (read saved) "saved-label")
+ assert (== (read (identity Envelope { choice: Choice.Empty {} })) "empty")
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')

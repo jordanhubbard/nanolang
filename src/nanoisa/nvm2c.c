@@ -218,12 +218,18 @@ typedef struct Nvm2cConstructor {
     uint16_t tag;
     uint8_t fields[];
 } Nvm2cConstructor;
+typedef struct Nvm2cConstructorField {
+    struct Nvm2cConstructorField *next;
+    uint64_t key;
+    struct Nvm2cConstructors *value;
+} Nvm2cConstructorField;
 typedef struct Nvm2cConstructors {
     struct Nvm2cConstructors *next;
     const void *key;
     uint64_t part;
-    int unknown, indexed;
+    int unknown, indexed, record;
     Nvm2cConstructor *members;
+    Nvm2cConstructorField *fields;
 } Nvm2cConstructors;
 
 typedef struct {
@@ -657,9 +663,29 @@ static void constructor_facts_destroy(Nvm2cBuf *b) {
                 item->members = member->next;
                 free(member);
             }
+            while (item->fields) {
+                Nvm2cConstructorField *field = item->fields;
+                item->fields = field->next;
+                free(field);
+            }
             free(item);
         }
     }
+}
+
+static Nvm2cConstructorField *constructor_field(Nvm2cConstructors *parent, uint64_t key) {
+    for (Nvm2cConstructorField *field = parent ? parent->fields : NULL; field; field = field->next)
+        if (field->key == key) return field;
+    return NULL;
+}
+
+static int constructor_link(Nvm2cBuf *b, Nvm2cFacts *facts, Nvm2cConstructors *parent,
+                            uint64_t key, Nvm2cConstructors *value) {
+    Nvm2cConstructorField *field = malloc(sizeof *field);
+    if (!field) { nvm2c_fail(b, "I cannot allocate nested constructor facts"); return 0; }
+    field->key = key; field->value = value; field->next = parent->fields;
+    parent->fields = field; facts->changed = 1;
+    return 1;
 }
 
 static void constructor_storage(Nvm2cConstructors *dest, Nvm2cFacts *facts, size_t width) {
@@ -710,7 +736,7 @@ static int constructor_member(Nvm2cBuf *b, Nvm2cFacts *facts, Nvm2cConstructors 
     return 1;
 }
 
-static int merge_constructors(Nvm2cBuf *b, Nvm2cFacts *facts, Nvm2cConstructors *dest,
+static int merge_constructor_members(Nvm2cBuf *b, Nvm2cFacts *facts, Nvm2cConstructors *dest,
                                Nvm2cConstructors *source, uint32_t variant) {
     if (!dest || b->failed) return 0;
     if (dest == source) return 1;
@@ -718,14 +744,71 @@ static int merge_constructors(Nvm2cBuf *b, Nvm2cFacts *facts, Nvm2cConstructors 
         if (!source->indexed || !dest->indexed) facts->changed = 1;
         source->indexed = dest->indexed = 1;
     }
+    if (source && source->record && !dest->record) {
+        dest->record = 1; facts->changed = 1;
+    }
     if (((source && source->unknown) ||
-         ((!source || !source->members) && facts->variant_finalizing && variant == UINT32_MAX)) && !dest->unknown) {
+         ((!source || (!source->members && !source->record)) && facts->variant_finalizing && variant == UINT32_MAX)) && !dest->unknown) {
         dest->unknown = 1; facts->changed = 1;
     }
     for (const Nvm2cConstructor *member = source ? source->members : NULL;
          member; member = member->next)
         if (!constructor_member(b, facts, dest, member->tag, member->fields)) return 0;
     return 1;
+}
+
+/* Nested edges share representation facts, not value identity or tag guards.
+ * I join each pair once, preserving finite cyclic/shared graphs without
+ * recursively cloning a fresh descendant at every copy. Exact shape copies
+ * remain separate in the shape solver. */
+static int merge_constructors(Nvm2cBuf *b, Nvm2cFacts *facts, Nvm2cConstructors *dest,
+                               Nvm2cConstructors *source, uint32_t variant) {
+    if (!merge_constructor_members(b, facts, dest, source, variant)) return 0;
+    if (!source || dest == source || !source->fields) return 1;
+    typedef struct { Nvm2cConstructors *dest, *source; } Pair;
+    size_t capacity = 8, count = 1, cursor = 0;
+    Pair *queue = malloc(capacity * sizeof *queue);
+    if (!queue) { nvm2c_fail(b, "I cannot allocate nested constructor joins"); return 0; }
+    queue[0] = (Pair){dest, source};
+    while (cursor < count && !b->failed) {
+        Pair pair = queue[cursor++];
+        if (cursor > 1 && !merge_constructor_members(b, facts, pair.dest, pair.source, 0)) break;
+        for (Nvm2cConstructorField *field = pair.source->fields; field; field = field->next) {
+            Nvm2cConstructorField *existing = constructor_field(pair.dest, field->key);
+            if (!existing) {
+                if (!constructor_link(b, facts, pair.dest, field->key, field->value)) break;
+                continue;
+            }
+            if (existing->value == field->value) continue;
+            size_t seen = 0;
+            while (seen < count && (queue[seen].dest != existing->value || queue[seen].source != field->value)) ++seen;
+            if (seen < count) continue;
+            if (count == capacity) {
+                if (capacity > SIZE_MAX / 2 / sizeof *queue) {
+                    nvm2c_fail(b, "I cannot represent nested constructor joins"); break;
+                }
+                capacity *= 2;
+                Pair *grown = realloc(queue, capacity * sizeof *queue);
+                if (!grown) { nvm2c_fail(b, "I cannot grow nested constructor joins"); break; }
+                queue = grown;
+            }
+            queue[count++] = (Pair){existing->value, field->value};
+        }
+    }
+    free(queue);
+    return !b->failed;
+}
+
+static int merge_constructor_field(Nvm2cBuf *b, Nvm2cFacts *facts,
+                                    Nvm2cConstructors *parent, uint64_t key,
+                                    Nvm2cConstructors *source, uint32_t variant) {
+    Nvm2cConstructorField *field = constructor_field(parent, key);
+    if (!field) {
+        Nvm2cConstructors *value = source ? source : constructor_facts(b, parent, key);
+        if (!value || !constructor_link(b, facts, parent, key, value)) return 0;
+        field = constructor_field(parent, key);
+    }
+    return merge_constructors(b, facts, field->value, source, variant);
 }
 
 static uint32_t slot_variant(Nvm2cSimSlot slot, const Nvm2cFacts *facts) {
@@ -949,8 +1032,10 @@ static int shape_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
     if (kind == NVM2C_VK_BOOL) return shape_type(b, id, NVM_SHAPE_BOOL);
     if (kind == NVM2C_VK_FLOAT) return shape_type(b, id, NVM_SHAPE_FLOAT);
     if (kind == NVM2C_VK_STR) return shape_type(b, id, NVM_SHAPE_STRING);
-    if (kind == NVM2C_VK_REC) return nvm_shape_kind(&b->shapes, id) == NVM_SHAPE_VARIANT ||
-        shape_type(b, id, NVM_SHAPE_RECORD);
+    /* The native record carrier also holds constructor-indexed unions.
+     * I wait for producer or projection facts before choosing either shape. */
+    if (kind == NVM2C_VK_REC) return nvm_shape_kind(&b->shapes, id) == NVM_SHAPE_UNKNOWN ||
+        nvm_shape_kind(&b->shapes, id) == NVM_SHAPE_VARIANT || shape_type(b, id, NVM_SHAPE_RECORD);
     if (kind == NVM2C_VK_MAP) return shape_type(b, id, NVM_SHAPE_MAP);
     if (variant_field(kind)) {
         return shape_type(b, id, NVM_SHAPE_OPTIONAL) &&
@@ -1446,11 +1531,12 @@ static int select_stack_constructor(Nvm2cBuf *b, Nvm2cFacts *facts,
     if (!condition.guard_witness || truth != condition.guard_equal) return 1;
     uint16_t tag = (uint16_t)(condition.guard_variant - 1);
     for (int i = 0; i < count; ++i) {
-        if (stack[i].kind != NVM2C_VK_REC || stack[i].witness != condition.guard_witness ||
-            !stack[i].constructors || stack[i].constructors->unknown) continue;
+        if ((stack[i].kind != NVM2C_VK_REC && stack[i].kind != NVM2C_VK_UNK) ||
+            stack[i].witness != condition.guard_witness) continue;
         /* The value guard proves the tag before caller payload facts converge.
          * Missing payload facts still grant no field or shape authority. */
         stack[i].variant = condition.guard_variant;
+        if (!stack[i].constructors || stack[i].constructors->unknown) continue;
         const Nvm2cConstructor *member = stack[i].constructors->members;
         while (member && member->tag != tag) member = member->next;
         if (!member) continue; /* Absence is not authority to invent payload facts. */
@@ -1459,6 +1545,9 @@ static int select_stack_constructor(Nvm2cBuf *b, Nvm2cFacts *facts,
         Nvm2cConstructors *selected = constructor_facts(b, b->constructor_function,
             (UINT64_C(1) << 63) | ((uint64_t)b->classify_offset << 31) | ((uint32_t)i + 1));
         if (!constructor_member(b, facts, selected, tag, member->fields)) return 0;
+        for (Nvm2cConstructorField *field = stack[i].constructors->fields; field; field = field->next)
+            if ((field->key >> 32) == condition.guard_variant &&
+                !merge_constructor_field(b, facts, selected, field->key, field->value, 0)) return 0;
         if (stack[i].constructors->indexed || selected->indexed) {
             if (!stack[i].constructors->indexed || !selected->indexed) facts->changed = 1;
             stack[i].constructors->indexed = selected->indexed = 1;
@@ -2634,11 +2723,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 ? (uint32_t)ins.operands[2].u16 + 1 : UINT32_MAX;
             packed.origin = -1;
             packed.shape = shape_variable(b, b->shape_current);
-            if (aggregate_kind == AGG_VARIANT) {
-                packed.constructors = constructor_facts(b, b->constructor_function, (UINT64_C(1) << 62) | start);
-                if (!packed.constructors) return 0;
+            packed.constructors = constructor_facts(b, b->constructor_function, (UINT64_C(1) << 62) | start);
+            if (!packed.constructors) return 0;
+            if (aggregate_kind != AGG_VARIANT && !packed.constructors->record) {
+                packed.constructors->record = 1; facts->changed = 1;
             }
-            int indexed = packed.constructors && packed.constructors->indexed;
+            int indexed = aggregate_kind == AGG_VARIANT && packed.constructors->indexed;
             if (!shape_type(b, packed.shape, indexed ? NVM_SHAPE_VARIANT : NVM_SHAPE_RECORD)) return 0;
             NvmShapeId payload = indexed ? shape_child(b, packed.shape, ins.operands[2].u16) : packed.shape;
             if (!shape_type(b, payload, NVM_SHAPE_RECORD)) return 0;
@@ -2663,6 +2753,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     nvm2c_fail(b, "function %u at offset %zu: AGG_PACK field %u kind %u requires supported aggregate shape facts (final=%d)",
                                idx, start, (unsigned)(count - 1 - ai), v.kind, facts->final);
                     return 0;
+                }
+                if (v.kind == NVM2C_VK_REC) {
+                    uint64_t key = ((uint64_t)(aggregate_kind == AGG_VARIANT ? packed.variant : 0) << 32) |
+                        (uint32_t)(count - 1 - ai);
+                    if (!merge_constructor_field(b, facts, packed.constructors, key,
+                                                  v.constructors, slot_variant(v, facts))) return 0;
                 }
                 NvmShapeId field = shape_child(b, payload, count - 1 - ai);
                 if (aggregate_kind == AGG_VARIANT && (variant_scalar_kind(v.kind) || v.kind == NVM2C_VK_ARR)) {
@@ -2741,6 +2837,20 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             field.kind = variant_field(fk) ? NVM2C_VK_VALUE : fk;
             if (variant_field(fk)) field.scalar_tags = variant_field_tags(fk);
             field.shape = shape_child(b, rec.shape, fi);
+            if (rec.constructors && (rec.constructors->record ||
+                (rec.variant && rec.variant != UINT32_MAX))) {
+                uint64_t key = ((uint64_t)(rec.constructors->record ? 0 : rec.variant) << 32) | fi;
+                Nvm2cConstructorField *nested = constructor_field(rec.constructors, key);
+                if (nested) {
+                    field.constructors = nested->value;
+                    /* Nested edges are recorded only for record carriers.
+                     * Their producer evidence survives beyond the flat vector. */
+                    if (field.kind == NVM2C_VK_UNK) field.kind = NVM2C_VK_REC;
+                    if (rec.constructors->unknown && !field.constructors->unknown) {
+                        field.constructors->unknown = 1; facts->changed = 1;
+                    }
+                }
+            }
             if (b->track_shapes && field.kind == NVM2C_VK_VALUE &&
                 nvm_shape_kind(&b->shapes, field.shape) == NVM_SHAPE_ARRAY)
                 field.scalar_tags = 1u << TAG_ARRAY;

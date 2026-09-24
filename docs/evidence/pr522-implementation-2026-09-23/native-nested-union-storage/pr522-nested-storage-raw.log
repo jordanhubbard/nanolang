@@ -1,0 +1,143 @@
+.FFFFFF.
+======================================================================
+FAIL: test_nested_record_fields_and_shared_values (tests.test_native_indexed_union_payloads.IndexedUnionPayloads.test_nested_record_fields_and_shared_values) (depth=3, reverse=False, route='local')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_indexed_union_payloads.py", line 54, in test_nested_record_fields_and_shared_values
+    self.paired(HEADER + '.function main 0 0 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n' +
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 struct 1\n' + relay + '.end\n' +
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        'AGG_GET 0\nAGG_GET 0\nRET\ntext:\nDUP\nAGG_TAG\nPUSH_I64 1\nEQ\nJMP_FALSE empty\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'AGG_GET 0\nRET\nempty:\nPOP\nPUSH_STR kept\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 26, in paired
+    self.checked([ROOT/'bin/nvm2c',module,'-o',source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-optional-array-5l_nhpz6/input.nvm': I found invalid aggregate shape constraints during RET in function 3 at offset 35: I found conflicting aggregate shape kinds record/variant at nodes 138/150
+
+
+======================================================================
+FAIL: test_nested_record_fields_and_shared_values (tests.test_native_indexed_union_payloads.IndexedUnionPayloads.test_nested_record_fields_and_shared_values) (depth=3, reverse=False, route='global')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_indexed_union_payloads.py", line 54, in test_nested_record_fields_and_shared_values
+    self.paired(HEADER + '.function main 0 0 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n' +
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 struct 1\n' + relay + '.end\n' +
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        'AGG_GET 0\nAGG_GET 0\nRET\ntext:\nDUP\nAGG_TAG\nPUSH_I64 1\nEQ\nJMP_FALSE empty\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'AGG_GET 0\nRET\nempty:\nPOP\nPUSH_STR kept\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 26, in paired
+    self.checked([ROOT/'bin/nvm2c',module,'-o',source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-optional-array-m0j63j7i/input.nvm': I found invalid aggregate shape constraints during RET in function 3 at offset 35: I found conflicting aggregate shape kinds record/variant at nodes 140/152
+
+
+======================================================================
+FAIL: test_nested_record_fields_and_shared_values (tests.test_native_indexed_union_payloads.IndexedUnionPayloads.test_nested_record_fields_and_shared_values) (depth=3, reverse=False, route='tail')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_indexed_union_payloads.py", line 54, in test_nested_record_fields_and_shared_values
+    self.paired(HEADER + '.function main 0 0 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n' +
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 struct 1\n' + relay + '.end\n' +
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        'AGG_GET 0\nAGG_GET 0\nRET\ntext:\nDUP\nAGG_TAG\nPUSH_I64 1\nEQ\nJMP_FALSE empty\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'AGG_GET 0\nRET\nempty:\nPOP\nPUSH_STR kept\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 26, in paired
+    self.checked([ROOT/'bin/nvm2c',module,'-o',source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-optional-array-fptgfkuu/input.nvm': I found invalid aggregate shape constraints during RET in function 3 at offset 35: I found conflicting aggregate shape kinds record/variant at nodes 142/154
+
+
+======================================================================
+FAIL: test_nested_record_fields_and_shared_values (tests.test_native_indexed_union_payloads.IndexedUnionPayloads.test_nested_record_fields_and_shared_values) (depth=3, reverse=True, route='local')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_indexed_union_payloads.py", line 54, in test_nested_record_fields_and_shared_values
+    self.paired(HEADER + '.function main 0 0 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n' +
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 struct 1\n' + relay + '.end\n' +
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        'AGG_GET 0\nAGG_GET 0\nRET\ntext:\nDUP\nAGG_TAG\nPUSH_I64 1\nEQ\nJMP_FALSE empty\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'AGG_GET 0\nRET\nempty:\nPOP\nPUSH_STR kept\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 26, in paired
+    self.checked([ROOT/'bin/nvm2c',module,'-o',source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-optional-array-7ig30ske/input.nvm': I found invalid aggregate shape constraints during RET in function 3 at offset 35: I found conflicting aggregate shape kinds record/variant at nodes 138/150
+
+
+======================================================================
+FAIL: test_nested_record_fields_and_shared_values (tests.test_native_indexed_union_payloads.IndexedUnionPayloads.test_nested_record_fields_and_shared_values) (depth=3, reverse=True, route='global')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_indexed_union_payloads.py", line 54, in test_nested_record_fields_and_shared_values
+    self.paired(HEADER + '.function main 0 0 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n' +
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 struct 1\n' + relay + '.end\n' +
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        'AGG_GET 0\nAGG_GET 0\nRET\ntext:\nDUP\nAGG_TAG\nPUSH_I64 1\nEQ\nJMP_FALSE empty\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'AGG_GET 0\nRET\nempty:\nPOP\nPUSH_STR kept\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 26, in paired
+    self.checked([ROOT/'bin/nvm2c',module,'-o',source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-optional-array-myvcrj0o/input.nvm': I found invalid aggregate shape constraints during RET in function 3 at offset 35: I found conflicting aggregate shape kinds record/variant at nodes 140/152
+
+
+======================================================================
+FAIL: test_nested_record_fields_and_shared_values (tests.test_native_indexed_union_payloads.IndexedUnionPayloads.test_nested_record_fields_and_shared_values) (depth=3, reverse=True, route='tail')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_indexed_union_payloads.py", line 54, in test_nested_record_fields_and_shared_values
+    self.paired(HEADER + '.function main 0 0 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n' +
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 struct 1\n' + relay + '.end\n' +
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        'AGG_GET 0\nAGG_GET 0\nRET\ntext:\nDUP\nAGG_TAG\nPUSH_I64 1\nEQ\nJMP_FALSE empty\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'AGG_GET 0\nRET\nempty:\nPOP\nPUSH_STR kept\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 26, in paired
+    self.checked([ROOT/'bin/nvm2c',module,'-o',source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-optional-array-510onm7g/input.nvm': I found invalid aggregate shape constraints during RET in function 3 at offset 35: I found conflicting aggregate shape kinds record/variant at nodes 142/154
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 6.370s
+
+FAILED (failures=6)

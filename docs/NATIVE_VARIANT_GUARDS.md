@@ -47,3 +47,10 @@ and retained managed payloads across global reassignment and allocation churn.
 My raw controls retain wrong-field, wrong-tag, missing-guard and bypass refusals.
 This does not establish general local-load refinement, constructor provenance
 through every nested aggregate/array, or resource-bearing union ownership.
+
+I retain nested constructor metadata through ordinary record fields and selected
+variant payload fields. Copies share representation facts while keeping guard
+witnesses tied to their own values. An unknown enclosing producer also makes
+its projected constructor facts unknown. A record carrier alone does not choose
+between a plain-record shape and a constructor-indexed shape; producer and
+projection evidence make that choice.

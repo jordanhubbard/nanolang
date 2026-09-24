@@ -1,0 +1,62 @@
+.types 1 0 1
+.string kept "kept"
+.string seven "7"
+.string truth "true"
+.string real "1.5"
+.entry main
+.function main 0 2 0 int 1
+AGG_PACK 1 0 1 0
+STORE_LOCAL 0
+PUSH_I64 0
+STORE_LOCAL 1
+loop:
+LOAD_LOCAL 1
+PUSH_I64 3
+LT
+JMP_FALSE done
+LOAD_LOCAL 0
+CALL wrap
+STORE_LOCAL 0
+LOAD_LOCAL 1
+PUSH_I64 1
+I64_ADD
+STORE_LOCAL 1
+JMP loop
+done:
+LOAD_LOCAL 0
+DUP
+AGG_TAG
+PUSH_I64 0
+EQ
+JMP_FALSE bad
+AGG_GET 0
+DUP
+AGG_TAG
+PUSH_I64 0
+EQ
+JMP_FALSE bad
+AGG_GET 0
+DUP
+AGG_TAG
+PUSH_I64 0
+EQ
+JMP_FALSE bad
+AGG_GET 0
+AGG_TAG
+PUSH_I64 1
+EQ
+ASSERT
+PUSH_I64 0
+RET
+bad:
+POP
+PUSH_BOOL 0
+ASSERT
+PUSH_I64 1
+RET
+.end
+.function wrap 1 1 0 union 1
+LOAD_LOCAL 0
+AGG_PACK 1 0 0 1
+RET
+.end
