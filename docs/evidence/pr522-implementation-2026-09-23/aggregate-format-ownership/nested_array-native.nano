@@ -1,0 +1,2 @@
+fn main()->int { let xs: array<array<int>> = [[1,2], [], [3]] assert (== (to_string xs) "[[1, 2], [], [3]]") return 0 }
+shadow main { assert true }

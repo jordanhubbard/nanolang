@@ -1,0 +1,38 @@
+
+=================================================================
+==6503==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x00010116140c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x00010008d518 in nl_fmt_sb_new nanoc_6447_case.c:474
+    #2 0x00010008d518 in nl_to_string_Point nanoc_6447_case.c:1813
+    #3 0x00010008cac0 in nl_main case.nano:7
+    #4 0x00010008cac0 in main case.nano:26
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x00010116140c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x00010008caf8 in nl_fmt_sb_new nanoc_6447_case.c:474
+    #2 0x00010008caf8 in nl_to_string_Choice nanoc_6447_case.c:1825
+    #3 0x00010008caf8 in nl_main case.nano:9
+    #4 0x00010008caf8 in main case.nano:26
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x00010116140c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x00010008d518 in nl_fmt_sb_new nanoc_6447_case.c:474
+    #2 0x00010008d518 in nl_to_string_Point nanoc_6447_case.c:1813
+    #3 0x00010008cb50 in nl_to_string_Choice nanoc_6447_case.c:1831
+    #4 0x00010008cb50 in nl_main case.nano:9
+    #5 0x00010008cb50 in main case.nano:26
+    #6 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x00010116140c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x00010008cf8c in nl_fmt_sb_new nanoc_6447_case.c:474
+    #2 0x00010008cf8c in nl_to_string_array nanoc_6447_case.c:510
+    #3 0x00010008caa0 in nl_main case.nano:5
+    #4 0x00010008caa0 in main case.nano:26
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 1024 byte(s) leaked in 4 allocation(s).

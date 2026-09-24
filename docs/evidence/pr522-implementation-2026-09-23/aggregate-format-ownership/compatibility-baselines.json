@@ -1,0 +1,86 @@
+[
+  {
+    "case": "enum_field",
+    "shadow": true,
+    "compiler": "nanoc_c",
+    "build_exit": 1,
+    "stdout": "",
+    "stderr": "  Shadow test 'main' FAILED: 1 failure(s)\n  First failure at line 3, column 59\nI will not publish output after shadow execution exited with status 1.\nShadow tests failed\n"
+  },
+  {
+    "case": "enum_field",
+    "shadow": false,
+    "compiler": "nanoc_c",
+    "build_exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "run_exit": 0,
+    "run_stdout": "",
+    "run_stderr": ""
+  },
+  {
+    "case": "whole_float_array",
+    "shadow": true,
+    "compiler": "nanoc_c",
+    "build_exit": 1,
+    "stdout": "",
+    "stderr": "  Shadow test 'main' FAILED: 1 failure(s)\n  First failure at line 1, column 47\nI will not publish output after shadow execution exited with status 1.\nShadow tests failed\n"
+  },
+  {
+    "case": "whole_float_array",
+    "shadow": false,
+    "compiler": "nanoc_c",
+    "build_exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "run_exit": 0,
+    "run_stdout": "",
+    "run_stderr": ""
+  },
+  {
+    "case": "nested_array",
+    "shadow": true,
+    "compiler": "nanoc_c",
+    "build_exit": 1,
+    "stdout": "",
+    "stderr": "  Shadow test 'main' FAILED: 1 failure(s)\n  First failure at line 1, column 63\nI will not publish output after shadow execution exited with status 1.\nShadow tests failed\n"
+  },
+  {
+    "case": "nested_array",
+    "shadow": false,
+    "compiler": "nanoc_c",
+    "build_exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "run_exit": 0,
+    "run_stdout": "",
+    "run_stderr": ""
+  },
+  {
+    "case": "canonical_array",
+    "shadow": true,
+    "compiler": "nanoc_c",
+    "build_exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "run_exit": 0,
+    "run_stdout": "",
+    "run_stderr": ""
+  },
+  {
+    "case": "canonical_array",
+    "shadow": true,
+    "compiler": "nanoc_stage1",
+    "build_exit": 1,
+    "stdout": "I cannot lower this checked program: I require a scalar string-conversion operand\n",
+    "stderr": ""
+  },
+  {
+    "case": "canonical_array",
+    "shadow": true,
+    "compiler": "nanoc_stage2",
+    "build_exit": 1,
+    "stdout": "I cannot lower this checked program: I require a scalar string-conversion operand\n",
+    "stderr": ""
+  }
+]
