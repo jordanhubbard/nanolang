@@ -2208,6 +2208,16 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
             if (arr.kind == NVM2C_VK_VALUE) {
+                if (array_storage(val.kind)) {
+                    /* Tagged fields still retain exact recursive element
+                     * types. Boxing a replacement changes its carrier, not
+                     * the element contract of the aliased destination. */
+                    NvmShapeId container = b->track_shapes &&
+                        nvm_shape_kind(&b->shapes, arr.shape) == NVM_SHAPE_OPTIONAL
+                        ? shape_child(b, arr.shape, 0) : arr.shape;
+                    if (!shape_type(b, container, NVM_SHAPE_ARRAY) ||
+                        !shape_equal(b, shape_child(b, container, 0), val.shape)) return 0;
+                }
                 Nvm2cSimSlot pushed = arr;
                 uint16_t value_tags = val.scalar_tags;
                 if (!exact_scalar_tags(arr.array_scalar_tags) ||
@@ -2722,10 +2732,16 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         (v.scalar_tags == NVM2C_SCALAR_UNKNOWN ||
                          v.scalar_tags == (NVM2C_SCALAR_UNKNOWN | (1u << TAG_VOID)))) {
                         NvmShapeId result = shape_variable(b, &b->shape_results[idx]);
+                        /* A record parameter can box its array field. RET
+                         * checks presence and extracts that payload; it must
+                         * not equate the optional wrapper with the array. */
+                        NvmShapeId payload = b->track_shapes &&
+                            nvm_shape_kind(&b->shapes, v.shape) == NVM_SHAPE_OPTIONAL
+                            ? shape_child(b, v.shape, 0) : v.shape;
                         if (!merge_fact(b, facts, &b->array_results[idx], NVM2C_VK_AARR) ||
-                            !shape_type(b, v.shape, NVM_SHAPE_ARRAY) ||
+                            !shape_type(b, payload, NVM_SHAPE_ARRAY) ||
                             !shape_type(b, result, NVM_SHAPE_ARRAY) ||
-                            !shape_equal(b, v.shape, result)) return 0;
+                            !shape_equal(b, payload, result)) return 0;
                         break; /* Emission validates the tagged array carrier. */
                     }
                     if (v.kind == NVM2C_VK_VALUE && variant_payload_tags(v.scalar_tags) &&
@@ -5013,7 +5029,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             if (ak == NVM2C_VK_VALUE) {
                 char boxed[96], expr[192];
-                scalar_value_expression(b, boxed, sizeof boxed, vk, val);
+                tagged_array_element_expression(b, boxed, sizeof boxed, vk, val);
                 if (b->failed) goto done;
                 snprintf(expr, sizeof expr, "nvalue_array_set(v[%d], t[%d], %s)", arr, ix, boxed);
                 stack_push_value(b, &st, expr);
@@ -5071,7 +5087,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 stack_push_aarr(b, &st, expr);
             } else if (ak == NVM2C_VK_VALUE) {
                 char boxed[96], expr[192];
-                scalar_value_expression(b, boxed, sizeof boxed, vk, val);
+                tagged_array_element_expression(b, boxed, sizeof boxed, vk, val);
                 if (b->failed) goto done;
                 snprintf(expr, sizeof expr, "nvalue_array_push(v[%d], %s)", arr, boxed);
                 stack_push_value(b, &st, expr);

@@ -3776,7 +3776,8 @@ fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
     let object: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
     let index: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
     let value: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 2))
-    let element: string = (nisa_element_type parser (nisa_expr_type parser object.node_id object.node_type))
+    let container: string = (nisa_expr_type parser object.node_id object.node_type)
+    let element: string = (nisa_element_type parser container)
     if (== element "") { return (nisa_fail "I require a supported typed container for replacement") }
     if (!= (nisa_expr_type parser index.node_id index.node_type) "int") {
         return (nisa_fail "I require an integer replacement index")
@@ -3789,7 +3790,10 @@ fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
             (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
         return (nisa_fail "I require a replacement value matching the element type")
     }
-    return (+ (nisa_emit_call_args parser call) (+ (nisa_line "ARR_SET") (nisa_line "POP")))
+    let receiver: string = (nisa_emit_expected_expr parser object.node_id object.node_type container)
+    let offset: string = (nisa_emit_expected_expr parser index.node_id index.node_type "int")
+    let replacement: string = (nisa_emit_expected_expr parser value.node_id value.node_type element)
+    return (+ receiver (+ offset (+ replacement (+ (nisa_line "ARR_SET") (nisa_line "POP")))))
 }
 shadow nisa_emit_set_call {
     let _: int = (nisa_reset)
@@ -3800,6 +3804,16 @@ shadow nisa_emit_set_call {
     let text: string = (nisa_emit_set_call parser (parser_get_call parser 0) "array_set")
     assert (str_contains text "ARR_SET\n  POP")
     let reset: int = (nisa_reset)
+    let empty_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { (array_set values 0 []) return 0 }" "empty-set.nano" (diag_list_new))
+    let empty_parser: Parser = (parse_program empty_tokens (list_LexerToken_length empty_tokens) "empty-set.nano")
+    set nisa_names ["values"]
+    set nisa_types ["array<array<string>>"]
+    let empty_text: string = (nisa_emit_set_call empty_parser (parser_get_call empty_parser 0) "array_set")
+    assert (str_contains empty_text "ARR_LITERAL 5 0")
+    assert (str_contains empty_text "ARR_SET\n  POP")
+    set nisa_types ["array<array<array<bool>>>"]
+    assert (str_contains (nisa_emit_set_call empty_parser (parser_get_call empty_parser 0) "array_set") "ARR_LITERAL 7 0")
+    let reset_empty: int = (nisa_reset)
 }
 
 # I resolve only a declared callback, using the ordinary owner-aware call path.

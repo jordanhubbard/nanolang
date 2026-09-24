@@ -76,5 +76,49 @@ shadow main { assert (== (main) 0) }
 ''')
 
 
+    def test_empty_replacement_element_types(self):
+        for kind, value in [('int', '7'), ('float', '2.5'), ('bool', 'true'), ('string', '"after"')]:
+            with self.subTest(kind=kind):
+                self.run_program(f'''struct Box {{ rows: array<array<{kind}>> }}
+fn main() -> int {{
+ let box: Box = Box {{ rows: [[{value}]] }}
+ (array_set box.rows 0 [])
+ let row: array<{kind}> = (at box.rows 0)
+ let filled: array<{kind}> = (array_push row {value})
+ assert (== (array_length filled) 1)
+ assert (== (at filled 0) {value})
+ return 0
+}}
+shadow main {{ assert (== (main) 0) }}
+''')
+
+    def test_setter_evaluates_arguments_once_in_order(self):
+        self.run_program('''struct Box { rows: array<array<string>> }
+let mut order: int = 0
+fn receiver(box: Box) -> array<array<string>> {
+ set order (+ (* order 10) 1)
+ return box.rows
+}
+shadow receiver {
+ set order 0
+ assert (== (array_length (receiver Box { rows: [["before"]] })) 1)
+ assert (== order 1)
+}
+fn offset() -> int { set order (+ (* order 10) 2) return 0 }
+shadow offset { set order 0 assert (== (offset) 0) assert (== order 2) }
+fn replacement() -> array<string> { set order (+ (* order 10) 3) return [] }
+shadow replacement { set order 0 assert (== (array_length (replacement)) 0) assert (== order 3) }
+fn main() -> int {
+ set order 0
+ let box: Box = Box { rows: [["before"]] }
+ (array_set (receiver box) (offset) (replacement))
+ assert (== order 123)
+ assert (== (array_length (at box.rows 0)) 0)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
+
 if __name__ == '__main__':
     unittest.main()

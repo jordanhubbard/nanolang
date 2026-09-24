@@ -11,8 +11,11 @@ import subprocess
 import sys
 
 CFLAGS = '-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer'
-LDFLAGS = '-lm -lcrypto -fsanitize=address,undefined'
-FLAGS = ['CFLAGS=' + CFLAGS, 'LDFLAGS=' + LDFLAGS]
+CC = 'clang'
+LDFLAGS = '-lm -lcrypto -fsanitize=address,undefined --rtlib=compiler-rt'
+NATIVE_LDFLAGS = '-fsanitize=address,undefined --rtlib=compiler-rt'
+LINK_FLAGS = ['CC=' + CC, 'LDFLAGS=' + LDFLAGS, 'NANO_LDFLAGS=' + NATIVE_LDFLAGS]
+FLAGS = ['CFLAGS=' + CFLAGS, *LINK_FLAGS]
 DEDICATED = ('test-forth-session', 'test-nanoisa-src-nano', 'test-scalar-reconstruction')
 PROVIDERS = ['nanoisa_emit', 'nano_virt', 'nano_vm', 'nvm2c', 'nvm2c-runtime', 'nanoisa_dump']
 
@@ -89,7 +92,7 @@ def plan(head, targets):
         raise ValueError('I refuse empty unit partitions.')
     workers.append({'id': 'negative', 'targets': []})
     body = {'schema': 1, 'head': head, 'targets': targets, 'workers': workers,
-            'cflags': CFLAGS, 'ldflags': LDFLAGS}
+            'cc': CC, 'cflags': CFLAGS, 'ldflags': LDFLAGS, 'native_ldflags': NATIVE_LDFLAGS}
     return {**body, 'inventory_sha256': digest(body)}
 
 
@@ -139,13 +142,13 @@ def snapshot(output, name):
         else:
             raise ValueError('I cannot inventory a tracked input: ' + path)
     tools = {}
-    for name_ in ('make', 'cc', 'gcc', 'ld', 'ar', 'nm', 'python3', 'perl', 'pkg-config'):
+    for name_ in ('make', 'cc', 'gcc', 'clang', 'ld', 'ar', 'nm', 'python3', 'perl', 'pkg-config'):
         executable = shutil.which(name_)
         if not executable:
             raise ValueError('I require my selected tool: ' + name_)
         tools[name_] = {'path': executable, 'resolved': os.path.realpath(executable),
                         'sha256': file_hash(executable)}
-    for name_ in ('clang', 'opt', 'llvm-as', 'llvm-dis', 'lli', 'llc', 'llvm-nm', 'wasm-ld'):
+    for name_ in ('opt', 'llvm-as', 'llvm-dis', 'lli', 'llc', 'llvm-nm', 'wasm-ld'):
         executable = shutil.which(name_)
         if executable:
             tools[name_] = {'path': executable, 'resolved': os.path.realpath(executable),
@@ -163,9 +166,9 @@ def snapshot(output, name):
 
 def command_for(worker, phase):
     if phase == 'sanitize':
-        return ['make', 'sanitize']
+        return ['make', 'sanitize', *LINK_FLAGS]
     if phase == 'bootstrap':
-        return ['make', 'build', 'CFLAGS=' + CFLAGS]
+        return ['make', 'build', 'bootstrap3', *FLAGS]
     if phase == 'providers':
         if worker['id'] != 'source':
             raise ValueError('I prepare extra source-emitter providers only for their worker.')
@@ -228,11 +231,14 @@ def main():
         verify_local(manifest, output)
     elif args.action == 'command':
         command = command_for(worker, args.phase)
+        # I use the same compiler for Make, generated products and C harnesses.
+        os.environ.update(CC=CC, NANO_CC=CC, NANOLANG_GUARD_SAN_CC=CC,
+                          NANO_LDFLAGS=NATIVE_LDFLAGS)
         if args.phase == 'tests' and worker['id'] == 'negative':
             os.environ['NANOLANG_COMPILER'] = './bin/nanoc_c'
             os.environ.pop('NANO_SHADOW_TIMEOUT_SECONDS', None)
         save(output / (args.phase + '-command.json'), {'argv': command, 'head': manifest['head'],
-             'worker': worker, 'ASAN_OPTIONS': os.environ.get('ASAN_OPTIONS'),
+             'worker': worker, 'CC': CC, 'ASAN_OPTIONS': os.environ.get('ASAN_OPTIONS'),
              'NANO_SHADOW_TIMEOUT_SECONDS': os.environ.get('NANO_SHADOW_TIMEOUT_SECONDS'),
              'NANOLANG_COMPILER': os.environ.get('NANOLANG_COMPILER')})
         # The owning Actions step retains its original deadline and group cleanup.
@@ -245,7 +251,7 @@ def main():
                 raise ValueError('I refuse source or tool drift before test execution.')
     elif args.action == 'result':
         steps = json.loads(os.environ['CI_SANITIZER_STEPS'])
-        required = ['verify', 'before', 'sanitize', 'bootstrap', 'prepared', 'tests', 'after']
+        required = ['toolchain', 'verify', 'before', 'sanitize', 'bootstrap', 'prepared', 'tests', 'after']
         if worker['id'] == 'source':
             required.append('providers')
         before = json.loads((output / 'before.json').read_text()) if (output / 'before.json').exists() else None

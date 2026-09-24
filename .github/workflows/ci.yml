@@ -379,7 +379,7 @@ jobs:
       run:
         shell: bash
     env:
-      ASAN_OPTIONS: detect_leaks=0
+      ASAN_OPTIONS: detect_leaks=0:detect_stack_use_after_return=1
       NANO_SHADOW_TIMEOUT_SECONDS: "60"
     steps:
       - name: Set retained report paths
@@ -425,6 +425,10 @@ jobs:
             test -x "$LLVM_BIN/$tool"
           done
           echo "$LLVM_BIN" >> "$GITHUB_PATH"
+
+      - name: Check sanitizer detection after repeated calls
+        id: toolchain
+        run: python3 scripts/check_sanitizer_toolchain.py --output "$REPORT/toolchain"
 
       - name: Verify exact head and complete unit inventory
         id: verify

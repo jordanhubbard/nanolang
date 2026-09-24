@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('partition', ROOT / 'scripts/ci_sanitizer_partitions.py')
@@ -67,9 +68,9 @@ class SanitizerPartitions(unittest.TestCase):
 
     def test_commands_preserve_flags_and_whole_original_targets(self):
         value = partition.plan('head', self.inventory())
-        self.assertEqual(partition.command_for(value['workers'][0], 'sanitize'), ['make', 'sanitize'])
+        self.assertEqual(partition.command_for(value['workers'][0], 'sanitize'), ['make', 'sanitize', *partition.LINK_FLAGS])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap'),
-                         ['make', 'build', 'CFLAGS=' + partition.CFLAGS])
+                         ['make', 'build', 'bootstrap3', *partition.FLAGS])
         for worker in value['workers'][:-1]:
             self.assertEqual(partition.command_for(worker, 'tests'), ['make', *worker['targets'], *partition.FLAGS])
         self.assertEqual(partition.command_for(value['workers'][-1], 'tests'), ['bash', 'tests/run_negative_tests.sh'])
@@ -100,6 +101,34 @@ class SanitizerPartitions(unittest.TestCase):
             duplicate.unlink(); paths[-1].unlink()
             with self.assertRaises(ValueError):
                 partition.aggregate(value, tmp)
+
+    def test_worker_result_requires_successful_toolchain_preflight(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest = partition.plan('head', self.inventory())
+            partition.save(root / 'plan.json', manifest)
+            identity = {'head': 'head', 'sources': {'compiler': 'source-hash'},
+                        'tools': {'clang': 'tool-hash'}}
+            for name in ('before', 'after'):
+                partition.save(root / (name + '.json'), identity)
+            argv = ['partition', 'result', '--manifest', str(root / 'plan.json'),
+                    '--worker', 'units-00', '--output', str(root)]
+            for outcome in (None, 'failure', 'skipped', 'success'):
+                steps = {name: {'outcome': 'success'} for name in
+                         ('verify', 'before', 'sanitize', 'bootstrap', 'prepared', 'tests', 'after')}
+                if outcome is not None:
+                    steps['toolchain'] = {'outcome': outcome}
+                with self.subTest(outcome=outcome), \
+                        mock.patch.object(partition, 'current_head', return_value='head'), \
+                        mock.patch.object(partition.sys, 'argv', argv), \
+                        mock.patch.dict(partition.os.environ, {'CI_SANITIZER_STEPS': json.dumps(steps)}):
+                    if outcome == 'success':
+                        partition.main()
+                    else:
+                        with self.assertRaises(ValueError):
+                            partition.main()
+                    self.assertEqual(json.loads((root / 'result.json').read_text())['success'],
+                                     outcome == 'success')
 
     def test_actual_make_inventory_contains_tail(self):
         result = subprocess.run(['make', '-qp', 'test-units', *partition.FLAGS],
@@ -147,9 +176,13 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(workers['strategy']['max-parallel'], 4)
         tests = next(step for step in workers['steps'] if step.get('id') == 'tests')
         self.assertEqual(tests['timeout-minutes'], "${{ matrix.id == 'scalar' && 35 || 20 }}")
-        self.assertEqual(workers['env']['ASAN_OPTIONS'], 'detect_leaks=0')
+        self.assertEqual(workers['env']['ASAN_OPTIONS'], 'detect_leaks=0:detect_stack_use_after_return=1')
         self.assertEqual(workers['env']['NANO_SHADOW_TIMEOUT_SECONDS'], '60')
         self.assertNotIn('NANOLANG_COMPILER', workers['env'])
+        canary = next(step for step in workers['steps'] if step.get('id') == 'toolchain')
+        self.assertIn('scripts/check_sanitizer_toolchain.py', canary['run'])
+        self.assertLess(workers['steps'].index(canary),
+                        next(i for i, step in enumerate(workers['steps']) if step.get('id') == 'sanitize'))
         self.assertEqual(jobs['sanitizers']['needs'], ['sanitizer-plan', 'sanitizer-workers'])
         self.assertEqual(jobs['sanitizers']['if'], 'always()')
         aggregate = next(step for step in jobs['sanitizers']['steps'] if 'run' in step)

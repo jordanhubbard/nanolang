@@ -6807,6 +6807,61 @@ static void test_mixed_array_push_helpers(void) {
     }
 }
 
+static void test_nested_array_field_writes(void) {
+    const unsigned tags[] = {TAG_INT, TAG_FLOAT, TAG_BOOL, TAG_STRING};
+    const char *values[] = {"PUSH_I64 7\n", "PUSH_F64 2.5\n", "PUSH_BOOL 1\n", "PUSH_STR leaf\n"};
+    const char *equal[] = {"I64_EQ\n", "F64_EQ\n", "EQ\n", "EQ\n"};
+    const char *view = ".function view 1 1 0 array 1\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n.end\n";
+    for (unsigned type = 0; type < 4; ++type) {
+        for (unsigned order = 0; order < 2; ++order) {
+            char body[4096], source[8192];
+            snprintf(body, sizeof body,
+                ".function main 0 2 0 int 1\n"
+                "%sARR_LITERAL %u 1\nARR_LITERAL 7 1\nAGG_PACK 0 0 0 1\nSTORE_LOCAL 0\n"
+                /* I replace through a tagged field and observe the same handle through a call. */
+                "LOAD_LOCAL 0\nAGG_GET 0\nPUSH_I64 0\nARR_LITERAL %u 0\nARR_SET\nPOP\n"
+                "LOAD_LOCAL 0\nCALL view\nPUSH_I64 0\nARR_GET\nDUP\nSTORE_LOCAL 1\n"
+                "ARR_LEN\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+                "LOAD_LOCAL 1\n%sARR_PUSH\nPOP\n"
+                "LOAD_LOCAL 0\nAGG_GET 0\nPUSH_I64 0\nARR_GET\nPUSH_I64 0\nARR_GET\n%s%sASSERT\n"
+                /* I also box a concrete child when appending through the tagged field. */
+                "LOAD_LOCAL 0\nAGG_GET 0\n%sARR_LITERAL %u 1\nARR_PUSH\nPOP\n"
+                "LOAD_LOCAL 0\nCALL view\nPUSH_I64 1\nARR_GET\nPUSH_I64 0\nARR_GET\n%s%sASSERT\n"
+                "PUSH_I64 0\nRET\n.end\n",
+                values[type], tags[type], tags[type], values[type], values[type], equal[type],
+                values[type], tags[type], values[type], equal[type]);
+            snprintf(source, sizeof source, ".string leaf \"leaf\"\n.entry main\n%s%s",
+                     order ? body : view, order ? view : body);
+            NvmModule *m = assemble_ok(source, "nested array field writes");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "I retain nested array fields across declaration orders");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0, "I compile nested field replacement and append");
+                CHECK(status == 0, "I preserve child types and alias-visible nested writes");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+    for (unsigned push = 0; push < 2; ++push) {
+        char source[1024];
+        snprintf(source, sizeof source,
+            ".entry main\n.function main 0 1 0 int 1\n"
+            "ARR_LITERAL 1 0\nARR_LITERAL 7 1\nAGG_PACK 0 0 0 1\nSTORE_LOCAL 0\n"
+            "LOAD_LOCAL 0\nAGG_GET 0\n%sARR_LITERAL 5 0\n%s\nPOP\nPUSH_I64 0\nRET\n.end\n",
+            push ? "" : "PUSH_I64 0\n", push ? "ARR_PUSH" : "ARR_SET");
+        NvmModule *m = assemble_ok(source, "incompatible nested replacement");
+        if (!m) continue;
+        char error[512] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "shape"), "I reject conflicting nested element types through tagged fields");
+        free(c);
+        nvm_module_free(m);
+    }
+
+}
+
 static void test_nested_scalar_arrays(void) {
     const char *source =
         ".string leaf \"leaf\"\n"
@@ -6878,6 +6933,7 @@ static void test_nested_scalar_arrays(void) {
 int main(int argc, char **argv) {
     test_exact_aggregate_callback_provenance();
     test_indirect_target_inference_order();
+    test_nested_array_field_writes();
     test_nested_scalar_arrays();
     test_mixed_array_push_helpers();
     test_record_temporary_storage_is_function_sized();
