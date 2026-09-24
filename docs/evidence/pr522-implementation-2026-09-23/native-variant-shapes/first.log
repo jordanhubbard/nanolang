@@ -1,0 +1,5 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -Isrc/nanoisa -o obj/test_nvm2c_shape \
+		tests/nanoisa/test_nvm2c_shape.c src/nanoisa/nvm2c_shape.c
+I failed copied_array == nvm_shape_lookup(&g, copied_payload, 1) at line 613
+Shape constraints: 1706 passed, 1 failed
+make: *** [test-nvm2c-shapes] Error 1

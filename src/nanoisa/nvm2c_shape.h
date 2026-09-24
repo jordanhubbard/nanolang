@@ -16,12 +16,16 @@
  * Nested optional copies may widen an inferred scalar payload to one of these
  * constructor sets; explicitly constrained payloads and bare scalar destinations
  * never acquire that widening authority.
+ * VARIANT is a constructor-indexed sum: each uint16 tag has its own payload
+ * shape. Native aggregate constructors use a RECORD payload for their fields.
+ * I never merge payloads belonging to different tags. A missing member is no
+ * producer evidence; lookup does not establish that a branch is reachable.
  * Missing edges mean unconstrained, not absent fields or a proved width. */
 typedef uint32_t NvmShapeId;
 typedef enum {
     NVM_SHAPE_UNKNOWN, NVM_SHAPE_INT, NVM_SHAPE_STRING,
     NVM_SHAPE_ARRAY, NVM_SHAPE_RECORD, NVM_SHAPE_MAP, NVM_SHAPE_OPTIONAL,
-    NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_NUMERIC, NVM_SHAPE_VARIANT_SCALAR, NVM_SHAPE_VARIANT_INT_ARRAY
+    NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_NUMERIC, NVM_SHAPE_VARIANT_SCALAR, NVM_SHAPE_VARIANT_INT_ARRAY, NVM_SHAPE_VARIANT
 } NvmShapeKind;
 typedef struct NvmShapeNode NvmShapeNode;
 typedef struct { NvmShapeId source, target; } NvmShapeConversion;

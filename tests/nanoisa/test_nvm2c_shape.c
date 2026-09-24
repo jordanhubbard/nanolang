@@ -499,7 +499,144 @@ static void test_aggregate_consumer_copies(void) {
     }
 }
 
+/* I model full constructor payloads, including records with different layouts. */
+static NvmShapeId tagged_record(NvmShapeGraph *g, uint32_t tag, NvmShapeKind leaf) {
+    NvmShapeId sum = nvm_shape_new(g, NVM_SHAPE_VARIANT);
+    NvmShapeId record = nvm_shape_child(g, sum, tag);
+    CHECK(nvm_shape_unify(g, record, nvm_shape_new(g, NVM_SHAPE_RECORD)));
+    CHECK(nvm_shape_unify(g, nvm_shape_child(g, record, 0), nvm_shape_new(g, leaf)));
+    return sum;
+}
+
+static void test_constructor_indexed_storage(void) {
+    for (int reverse = 0; reverse < 2; ++reverse) {
+        NvmShapeGraph g = {0};
+        NvmShapeId numbered = tagged_record(&g, 0, NVM_SHAPE_INT);
+        NvmShapeId named = tagged_record(&g, UINT16_MAX, NVM_SHAPE_STRING);
+        NvmShapeId named_record = nvm_shape_child(&g, named, UINT16_MAX);
+        NvmShapeId items = nvm_shape_child(&g, named_record, 1);
+        CHECK(nvm_shape_unify(&g, items, nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, items, 0),
+                              nvm_shape_new(&g, NVM_SHAPE_STRING)));
+        NvmShapeId local = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId returned = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        /* I solve the consumer first, then discover both producers. */
+        CHECK(nvm_shape_convert(&g, local, returned));
+        CHECK(nvm_shape_convert(&g, reverse ? named : numbered, local));
+        CHECK(nvm_shape_convert(&g, reverse ? numbered : named, local));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, returned) == NVM_SHAPE_VARIANT);
+        NvmShapeId number_copy = nvm_shape_lookup(&g, returned, 0);
+        NvmShapeId name_copy = nvm_shape_lookup(&g, returned, UINT16_MAX);
+        CHECK(number_copy && name_copy && number_copy != name_copy);
+        CHECK(nvm_shape_kind(&g, nvm_shape_lookup(&g, number_copy, 0)) == NVM_SHAPE_INT);
+        CHECK(nvm_shape_kind(&g, nvm_shape_lookup(&g, name_copy, 0)) == NVM_SHAPE_STRING);
+        CHECK(nvm_shape_kind(&g, nvm_shape_lookup(&g,
+              nvm_shape_lookup(&g, name_copy, 1), 0)) == NVM_SHAPE_STRING);
+        CHECK(!nvm_shape_lookup(&g, numbered, UINT16_MAX));
+        CHECK(!nvm_shape_lookup(&g, named, 0));
+        CHECK(!nvm_shape_lookup(&g, returned, 7));
+        size_t nodes = g.count;
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(g.count == nodes);
+        /* A later producer cannot change the contract of an existing tag. */
+        NvmShapeId conflict = tagged_record(&g, 0, NVM_SHAPE_STRING);
+        CHECK(nvm_shape_convert(&g, conflict, local));
+        CHECK(!nvm_shape_solve_conversions(&g));
+        CHECK(g.error && strstr(g.error, "string to int"));
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId left = tagged_record(&g, 0, NVM_SHAPE_INT);
+        NvmShapeId right = tagged_record(&g, 1, NVM_SHAPE_STRING);
+        CHECK(nvm_shape_unify(&g, left, right));
+        CHECK(nvm_shape_lookup(&g, left, 0) != nvm_shape_lookup(&g, left, 1));
+        CHECK(!nvm_shape_unify(&g, left, tagged_record(&g, 0, NVM_SHAPE_STRING)));
+        CHECK(g.error != NULL);
+        nvm_shape_destroy(&g);
+    }
+}
+
+static void test_variant_shape_boundaries(void) {
+    for (int inferred = 0; inferred < 2; ++inferred) {
+        NvmShapeGraph g = {0};
+        NvmShapeId sum = nvm_shape_new(&g, inferred ? NVM_SHAPE_UNKNOWN : NVM_SHAPE_VARIANT);
+        if (inferred) {
+            CHECK(nvm_shape_child(&g, sum, (uint32_t)UINT16_MAX + 1) != 0);
+            CHECK(!nvm_shape_unify(&g, sum, nvm_shape_new(&g, NVM_SHAPE_VARIANT)));
+        } else CHECK(!nvm_shape_child(&g, sum, (uint32_t)UINT16_MAX + 1));
+        CHECK(g.error != NULL);
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId producer = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId consumer = tagged_record(&g, 3, NVM_SHAPE_STRING);
+        CHECK(nvm_shape_convert(&g, producer, consumer));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, producer) == NVM_SHAPE_UNKNOWN);
+        CHECK(!nvm_shape_lookup(&g, producer, 3));
+        CHECK(!g.error);
+        nvm_shape_destroy(&g);
+    }
+    for (int flow = 0; flow < 2; ++flow) {
+        NvmShapeGraph g = {0};
+        NvmShapeId sum = tagged_record(&g, 0, NVM_SHAPE_INT);
+        NvmShapeId record = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+        if (flow) {
+            CHECK(nvm_shape_convert(&g, sum, record));
+            CHECK(!nvm_shape_solve_conversions(&g));
+        } else CHECK(!nvm_shape_unify(&g, sum, record));
+        CHECK(g.error != NULL);
+        nvm_shape_destroy(&g);
+    }
+}
+
+static void test_recursive_variant_copy(void) {
+    NvmShapeGraph g = {0};
+    NvmShapeId sum = nvm_shape_new(&g, NVM_SHAPE_VARIANT);
+    NvmShapeId payload = nvm_shape_child(&g, sum, 1);
+    CHECK(nvm_shape_unify(&g, payload, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+    NvmShapeId array = nvm_shape_child(&g, payload, 0);
+    CHECK(nvm_shape_unify(&g, array, nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
+    CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, array, 0), sum));
+    CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, payload, 1), array));
+    NvmShapeId copy = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+    CHECK(nvm_shape_convert(&g, sum, copy));
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(nvm_shape_kind(&g, copy) == NVM_SHAPE_VARIANT);
+    NvmShapeId copied_payload = nvm_shape_lookup(&g, copy, 1);
+    NvmShapeId copied_array = nvm_shape_lookup(&g, copied_payload, 0);
+    CHECK(nvm_shape_root(&g, nvm_shape_lookup(&g, copied_array, 0)) ==
+          nvm_shape_root(&g, copy));
+    CHECK(copied_array == nvm_shape_lookup(&g, copied_payload, 1));
+    CHECK(nvm_shape_root(&g, sum) != nvm_shape_root(&g, copy));
+    size_t nodes = g.count;
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(g.count == nodes);
+    /* I retain two explicit consumer views even when their producer is shared. */
+    NvmShapeId viewed = nvm_shape_new(&g, NVM_SHAPE_VARIANT);
+    NvmShapeId viewed_payload = nvm_shape_child(&g, viewed, 1);
+    CHECK(nvm_shape_unify(&g, viewed_payload, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+    NvmShapeId first_view = nvm_shape_child(&g, viewed_payload, 0);
+    NvmShapeId second_view = nvm_shape_child(&g, viewed_payload, 1);
+    CHECK(nvm_shape_unify(&g, first_view, nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
+    CHECK(nvm_shape_unify(&g, second_view, nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
+    CHECK(nvm_shape_convert(&g, sum, viewed));
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(nvm_shape_root(&g, first_view) != nvm_shape_root(&g, second_view));
+    CHECK(nvm_shape_root(&g, nvm_shape_lookup(&g, first_view, 0)) ==
+          nvm_shape_root(&g, viewed));
+    CHECK(nvm_shape_root(&g, nvm_shape_lookup(&g, second_view, 0)) ==
+          nvm_shape_root(&g, viewed));
+    nvm_shape_destroy(&g);
+}
+
 int main(void) {
+    test_constructor_indexed_storage();
+    test_variant_shape_boundaries();
+    test_recursive_variant_copy();
     test_nested_variant_payload_widening();
     test_finite_variant_integer_array();
     test_explicit_variant_scalar_storage();

@@ -1,0 +1,77 @@
+FFFF..FF
+======================================================================
+FAIL: test_distinct_record_variant_layouts (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_distinct_record_variant_layouts) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-zrrbxb3g/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-zrrbxb3g/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-zrrbxb3g/.nano-product.k1Y6OM/program.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage string to int at nodes 157/153
+
+
+======================================================================
+FAIL: test_distinct_record_variant_layouts (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_distinct_record_variant_layouts) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-zrrbxb3g/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-zrrbxb3g/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-zrrbxb3g/.nano-product.zCFXaG/program.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage string to int at nodes 157/153
+
+
+======================================================================
+FAIL: test_records_and_alternating_union_payloads (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_records_and_alternating_union_payloads) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-w7s6z6xy/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-w7s6z6xy/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-w7s6z6xy/.nano-product.wjF6jw/program.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 0, offset 112: nrec_t versus int64_t at field 0 of parameter 2 of function 0)
+
+
+======================================================================
+FAIL: test_records_and_alternating_union_payloads (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_records_and_alternating_union_payloads) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-w7s6z6xy/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-w7s6z6xy/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-w7s6z6xy/.nano-product.LKLUjf/program.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 0, offset 112: nrec_t versus int64_t at field 0 of parameter 2 of function 0)
+
+
+======================================================================
+FAIL: test_union_storage_without_formatting (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_union_storage_without_formatting) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-hlcc2hg5/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-hlcc2hg5/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-hlcc2hg5/.nano-product.DW4XFw/program.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 0, offset 174: nrec_t versus int64_t at field 0 of parameter 1 of function 0)
+
+
+======================================================================
+FAIL: test_union_storage_without_formatting (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_union_storage_without_formatting) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-hlcc2hg5/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-hlcc2hg5/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-hlcc2hg5/.nano-product.Wa5nbj/program.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 0, offset 174: nrec_t versus int64_t at field 0 of parameter 1 of function 0)
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 8.512s
+
+FAILED (failures=6)
