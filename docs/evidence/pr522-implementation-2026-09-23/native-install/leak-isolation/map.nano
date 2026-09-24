@@ -1,0 +1,2 @@
+fn main() -> int { let values: HashMap<string, int> = (map_new) (map_put values "key" 42) assert (== (map_get values "key") 42) return 0 }
+shadow main { assert true }

@@ -1,0 +1,1033 @@
+I emitted C source without executing shadows; native and bytecode compilation run them.
+
+=================================================================
+==23606==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 65536 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x00010045d6b8 in nl_exec_capture nanoc_97309_nanoc_stage1.c:322
+    #2 0x00010045fedc in nl_compile_program nanoc_v06.nano:2236
+    #3 0x00010045fedc in nl_main nanoc_v06.nano:2388
+    #4 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 1025 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000101fa52b8 in realpath+0xb4 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x352b8)
+    #2 0x00010070eafc in path_canonical+0x4c (nanoc_stage1:arm64+0x1002b2afc)
+    #3 0x0001004878c4 in std_fs__canonical+0x1c (nanoc_stage1:arm64+0x10002b8c4)
+    #4 0x00010046388c in nl_native_product_tool nanoc_v06.nano:1823
+    #5 0x0001004600e0 in nl_compile_program nanoc_v06.nano:2246
+    #6 0x0001004600e0 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 1025 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000101fa52b8 in realpath+0xb4 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x352b8)
+    #2 0x00010070eafc in path_canonical+0x4c (nanoc_stage1:arm64+0x1002b2afc)
+    #3 0x0001004878c4 in std_fs__canonical+0x1c (nanoc_stage1:arm64+0x10002b8c4)
+    #4 0x00010045e594 in nl_merge_with_imports nanoc_v06.nano:1514
+    #5 0x00010045e594 in nl_compile_program nanoc_v06.nano:2003
+    #6 0x00010045e594 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 32 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x00010045e784 in nl_hashmap_string_int_alloc nanoc_97309_nanoc_stage1.c:4395
+    #2 0x00010045e784 in nl_hashmap_string_int_new nanoc_97309_nanoc_stage1.c:4452
+    #3 0x00010045e784 in nl_nlc_hashset_new_string nanoc_v06.nano:390
+    #4 0x00010045e784 in nl_merge_with_imports nanoc_v06.nano:1530
+    #5 0x00010045e784 in nl_compile_program nanoc_v06.nano:2003
+    #6 0x00010045e784 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007cc900 in nl_list_ASTBool_with_capacity list_ASTBool.c:37
+    #2 0x00010049ad7c in parser__parser_init_ast_lists+0x44 (nanoc_stage1:arm64+0x10003ed7c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007ef100 in nl_list_ASTOpaqueType_with_capacity list_ASTOpaqueType.c:37
+    #2 0x00010049af4c in parser__parser_init_ast_lists+0x214 (nanoc_stage1:arm64+0x10003ef4c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e4f00 in nl_list_ASTStruct_with_capacity list_ASTStruct.c:37
+    #2 0x00010049aebc in parser__parser_init_ast_lists+0x184 (nanoc_stage1:arm64+0x10003eebc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c3a40 in nl_list_LexerToken_with_capacity list_LexerToken.c:37
+    #2 0x00010048dac4 in lexer__tokenize_string+0x1c (nanoc_stage1:arm64+0x100031ac4)
+    #3 0x00010045ee3c in nl_compile_program nanoc_v06.nano:2038
+    #4 0x00010045ee3c in nl_main nanoc_v06.nano:2388
+    #5 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #6 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007ea000 in nl_list_ASTUnion_with_capacity list_ASTUnion.c:37
+    #2 0x00010049aefc in parser__parser_init_ast_lists+0x1c4 (nanoc_stage1:arm64+0x10003eefc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d3200 in nl_list_ASTArrayLiteral_with_capacity list_ASTArrayLiteral.c:37
+    #2 0x00010049adec in parser__parser_init_ast_lists+0xb4 (nanoc_stage1:arm64+0x10003edec)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e2680 in nl_list_ASTFunction_with_capacity list_ASTFunction.c:37
+    #2 0x00010049ae9c in parser__parser_init_ast_lists+0x164 (nanoc_stage1:arm64+0x10003ee9c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007de9c0 in nl_list_ASTUnsafeBlock_with_capacity list_ASTUnsafeBlock.c:37
+    #2 0x00010049ae6c in parser__parser_init_ast_lists+0x134 (nanoc_stage1:arm64+0x10003ee6c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d1dc0 in nl_list_ASTModuleQualifiedCall_with_capacity list_ASTModuleQualifiedCall.c:37
+    #2 0x00010049adbc in parser__parser_init_ast_lists+0x84 (nanoc_stage1:arm64+0x10003edbc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007dc140 in nl_list_ASTReturn_with_capacity list_ASTReturn.c:37
+    #2 0x00010049ae4c in parser__parser_init_ast_lists+0x114 (nanoc_stage1:arm64+0x10003ee4c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007ca080 in nl_list_ASTFloat_with_capacity list_ASTFloat.c:37
+    #2 0x00010049ad5c in parser__parser_init_ast_lists+0x24 (nanoc_stage1:arm64+0x10003ed5c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007dd580 in nl_list_ASTBlock_with_capacity list_ASTBlock.c:37
+    #2 0x00010049ae5c in parser__parser_init_ast_lists+0x124 (nanoc_stage1:arm64+0x10003ee5c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007dad00 in nl_list_ASTFor_with_capacity list_ASTFor.c:37
+    #2 0x00010049ae3c in parser__parser_init_ast_lists+0x104 (nanoc_stage1:arm64+0x10003ee3c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007ec880 in nl_list_ASTMatch_with_capacity list_ASTMatch.c:37
+    #2 0x00010049af1c in parser__parser_init_ast_lists+0x1e4 (nanoc_stage1:arm64+0x10003ef1c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d5a80 in nl_list_ASTSet_with_capacity list_ASTSet.c:37
+    #2 0x00010049ae0c in parser__parser_init_ast_lists+0xd4 (nanoc_stage1:arm64+0x10003ee0c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e7780 in nl_list_ASTFieldAccess_with_capacity list_ASTFieldAccess.c:37
+    #2 0x00010049aedc in parser__parser_init_ast_lists+0x1a4 (nanoc_stage1:arm64+0x10003eedc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c3a40 in nl_list_LexerToken_with_capacity list_LexerToken.c:37
+    #2 0x00010048dac4 in lexer__tokenize_string+0x1c (nanoc_stage1:arm64+0x100031ac4)
+    #3 0x0001005c6744 in module_facts__mi_scan+0x68 (nanoc_stage1:arm64+0x10016a744)
+    #4 0x00010046307c in nl_collect_introspection nanoc_v06.nano:1593
+    #5 0x00010045fc38 in nl_compile_program nanoc_v06.nano:2201
+    #6 0x00010045fc38 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c8c40 in nl_list_ASTNumber_with_capacity list_ASTNumber.c:37
+    #2 0x00010049ad4c in parser__parser_init_ast_lists+0x14 (nanoc_stage1:arm64+0x10003ed4c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d6ec0 in nl_list_ASTStmtRef_with_capacity list_ASTStmtRef.c:37
+    #2 0x00010049addc in parser__parser_init_ast_lists+0xa4 (nanoc_stage1:arm64+0x10003eddc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e3ac0 in nl_list_ASTShadow_with_capacity list_ASTShadow.c:37
+    #2 0x00010049aeac in parser__parser_init_ast_lists+0x174 (nanoc_stage1:arm64+0x10003eeac)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007dfe00 in nl_list_ASTPrint_with_capacity list_ASTPrint.c:37
+    #2 0x00010049ae7c in parser__parser_init_ast_lists+0x144 (nanoc_stage1:arm64+0x10003ee7c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c62c0 in nl_list_CompilerDiagnostic_with_capacity list_CompilerDiagnostic.c:34
+    #2 0x0001005c670c in module_facts__mi_scan+0x30 (nanoc_stage1:arm64+0x10016a70c)
+    #3 0x00010046307c in nl_collect_introspection nanoc_v06.nano:1593
+    #4 0x00010045fc38 in nl_compile_program nanoc_v06.nano:2201
+    #5 0x00010045fc38 in nl_main nanoc_v06.nano:2388
+    #6 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007ce100 in nl_list_ASTIdentifier_with_capacity list_ASTIdentifier.c:37
+    #2 0x00010049ad8c in parser__parser_init_ast_lists+0x54 (nanoc_stage1:arm64+0x10003ed8c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e8bc0 in nl_list_ASTEnum_with_capacity list_ASTEnum.c:37
+    #2 0x00010049aeec in parser__parser_init_ast_lists+0x1b4 (nanoc_stage1:arm64+0x10003eeec)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007cb4c0 in nl_list_ASTString_with_capacity list_ASTString.c:37
+    #2 0x00010049ad6c in parser__parser_init_ast_lists+0x34 (nanoc_stage1:arm64+0x10003ed6c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c3a40 in nl_list_LexerToken_with_capacity list_LexerToken.c:37
+    #2 0x00010049af8c in parser__parser_init_ast_lists+0x254 (nanoc_stage1:arm64+0x10003ef8c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007f2dc0 in nl_list_ASTTupleIndex_with_capacity list_ASTTupleIndex.c:34
+    #2 0x00010049af6c in parser__parser_init_ast_lists+0x234 (nanoc_stage1:arm64+0x10003ef6c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e1240 in nl_list_ASTAssert_with_capacity list_ASTAssert.c:37
+    #2 0x00010049ae8c in parser__parser_init_ast_lists+0x154 (nanoc_stage1:arm64+0x10003ee8c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007cf540 in nl_list_ASTBinaryOp_with_capacity list_ASTBinaryOp.c:37
+    #2 0x00010049ad9c in parser__parser_init_ast_lists+0x64 (nanoc_stage1:arm64+0x10003ed9c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007f1980 in nl_list_ASTTupleLiteral_with_capacity list_ASTTupleLiteral.c:37
+    #2 0x00010049af5c in parser__parser_init_ast_lists+0x224 (nanoc_stage1:arm64+0x10003ef5c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d0980 in nl_list_ASTCall_with_capacity list_ASTCall.c:37
+    #2 0x00010049adac in parser__parser_init_ast_lists+0x74 (nanoc_stage1:arm64+0x10003edac)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007f0540 in nl_list_ASTServiceDecl_with_capacity list_ASTServiceDecl.c:37
+    #2 0x00010049af3c in parser__parser_init_ast_lists+0x204 (nanoc_stage1:arm64+0x10003ef3c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007edcc0 in nl_list_ASTImport_with_capacity list_ASTImport.c:37
+    #2 0x00010049af2c in parser__parser_init_ast_lists+0x1f4 (nanoc_stage1:arm64+0x10003ef2c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d8480 in nl_list_ASTIf_with_capacity list_ASTIf.c:37
+    #2 0x00010049ae1c in parser__parser_init_ast_lists+0xe4 (nanoc_stage1:arm64+0x10003ee1c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c62c0 in nl_list_CompilerDiagnostic_with_capacity list_CompilerDiagnostic.c:34
+    #2 0x00010049af7c in parser__parser_init_ast_lists+0x244 (nanoc_stage1:arm64+0x10003ef7c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d98c0 in nl_list_ASTWhile_with_capacity list_ASTWhile.c:37
+    #2 0x00010049ae2c in parser__parser_init_ast_lists+0xf4 (nanoc_stage1:arm64+0x10003ee2c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c62c0 in nl_list_CompilerDiagnostic_with_capacity list_CompilerDiagnostic.c:34
+    #2 0x00010047f170 in diagnostics__diag_list_new+0xc (nanoc_stage1:arm64+0x100023170)
+    #3 0x000100577450 in typecheck__env_new+0x24 (nanoc_stage1:arm64+0x10011b450)
+    #4 0x0001005841b4 in typecheck__typecheck_phase_with_shadows+0x90 (nanoc_stage1:arm64+0x1001281b4)
+    #5 0x00010045fa00 in nl_compile_program nanoc_v06.nano:2157
+    #6 0x00010045fa00 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d4640 in nl_list_ASTLet_with_capacity list_ASTLet.c:37
+    #2 0x00010049adfc in parser__parser_init_ast_lists+0xc4 (nanoc_stage1:arm64+0x10003edfc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007eb440 in nl_list_ASTUnionConstruct_with_capacity list_ASTUnionConstruct.c:37
+    #2 0x00010049af0c in parser__parser_init_ast_lists+0x1d4 (nanoc_stage1:arm64+0x10003ef0c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e6340 in nl_list_ASTStructLiteral_with_capacity list_ASTStructLiteral.c:37
+    #2 0x00010049aecc in parser__parser_init_ast_lists+0x194 (nanoc_stage1:arm64+0x10003eecc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c62c0 in nl_list_CompilerDiagnostic_with_capacity list_CompilerDiagnostic.c:34
+    #2 0x00010045ee28 in nl_compile_program nanoc_v06.nano:2036
+    #3 0x00010045ee28 in nl_main nanoc_v06.nano:2388
+    #4 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d6ec0 in nl_list_ASTStmtRef_with_capacity list_ASTStmtRef.c:37
+    #2 0x00010049adcc in parser__parser_init_ast_lists+0x94 (nanoc_stage1:arm64+0x10003edcc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 1024 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc55f0 in realloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x555f0)
+    #1 0x0001007c3eec in ensure_capacity_LexerToken list_LexerToken.c:19
+    #2 0x0001007c3c8c in nl_list_LexerToken_push list_LexerToken.c:57
+    #3 0x00010048c8dc in lexer__push_tok+0xc8 (nanoc_stage1:arm64+0x1000308dc)
+    #4 0x00010048eab0 in lexer__tokenize_string+0x1008 (nanoc_stage1:arm64+0x100032ab0)
+    #5 0x0001005c6744 in module_facts__mi_scan+0x68 (nanoc_stage1:arm64+0x10016a744)
+    #6 0x00010046307c in nl_collect_introspection nanoc_v06.nano:1593
+    #7 0x00010045fc38 in nl_compile_program nanoc_v06.nano:2201
+    #8 0x00010045fc38 in nl_main nanoc_v06.nano:2388
+    #9 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #10 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 1024 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc55f0 in realloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x555f0)
+    #1 0x0001007c3eec in ensure_capacity_LexerToken list_LexerToken.c:19
+    #2 0x0001007c3c8c in nl_list_LexerToken_push list_LexerToken.c:57
+    #3 0x00010048c8dc in lexer__push_tok+0xc8 (nanoc_stage1:arm64+0x1000308dc)
+    #4 0x00010048eab0 in lexer__tokenize_string+0x1008 (nanoc_stage1:arm64+0x100032ab0)
+    #5 0x00010045ee3c in nl_compile_program nanoc_v06.nano:2038
+    #6 0x00010045ee3c in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 640 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007ec89c in nl_list_ASTMatch_with_capacity list_ASTMatch.c:43
+    #2 0x00010049af1c in parser__parser_init_ast_lists+0x1e4 (nanoc_stage1:arm64+0x10003ef1c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 640 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007ea01c in nl_list_ASTUnion_with_capacity list_ASTUnion.c:43
+    #2 0x00010049aefc in parser__parser_init_ast_lists+0x1c4 (nanoc_stage1:arm64+0x10003eefc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 512 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007edcd8 in nl_list_ASTImport_with_capacity list_ASTImport.c:43
+    #2 0x00010049af2c in parser__parser_init_ast_lists+0x1f4 (nanoc_stage1:arm64+0x10003ef2c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 512 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007eb458 in nl_list_ASTUnionConstruct_with_capacity list_ASTUnionConstruct.c:43
+    #2 0x00010049af0c in parser__parser_init_ast_lists+0x1d4 (nanoc_stage1:arm64+0x10003ef0c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 448 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007f055c in nl_list_ASTServiceDecl_with_capacity list_ASTServiceDecl.c:43
+    #2 0x00010049af3c in parser__parser_init_ast_lists+0x204 (nanoc_stage1:arm64+0x10003ef3c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 448 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e635c in nl_list_ASTStructLiteral_with_capacity list_ASTStructLiteral.c:43
+    #2 0x00010049aecc in parser__parser_init_ast_lists+0x194 (nanoc_stage1:arm64+0x10003eecc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 448 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e4f1c in nl_list_ASTStruct_with_capacity list_ASTStruct.c:43
+    #2 0x00010049aebc in parser__parser_init_ast_lists+0x184 (nanoc_stage1:arm64+0x10003eebc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 448 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d465c in nl_list_ASTLet_with_capacity list_ASTLet.c:43
+    #2 0x00010049adfc in parser__parser_init_ast_lists+0xc4 (nanoc_stage1:arm64+0x10003edfc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 384 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc56ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x00010045e7d4 in nl_hashmap_string_int_alloc nanoc_97309_nanoc_stage1.c:4400
+    #2 0x00010045e7d4 in nl_hashmap_string_int_new nanoc_97309_nanoc_stage1.c:4452
+    #3 0x00010045e7d4 in nl_nlc_hashset_new_string nanoc_v06.nano:390
+    #4 0x00010045e7d4 in nl_merge_with_imports nanoc_v06.nano:1530
+    #5 0x00010045e7d4 in nl_compile_program nanoc_v06.nano:2003
+    #6 0x00010045e7d4 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 384 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e8bdc in nl_list_ASTEnum_with_capacity list_ASTEnum.c:43
+    #2 0x00010049aeec in parser__parser_init_ast_lists+0x1b4 (nanoc_stage1:arm64+0x10003eeec)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 384 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e269c in nl_list_ASTFunction_with_capacity list_ASTFunction.c:43
+    #2 0x00010049ae9c in parser__parser_init_ast_lists+0x164 (nanoc_stage1:arm64+0x10003ee9c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 320 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c62dc in nl_list_CompilerDiagnostic_with_capacity list_CompilerDiagnostic.c:40
+    #2 0x0001005c670c in module_facts__mi_scan+0x30 (nanoc_stage1:arm64+0x10016a70c)
+    #3 0x00010046307c in nl_collect_introspection nanoc_v06.nano:1593
+    #4 0x00010045fc38 in nl_compile_program nanoc_v06.nano:2201
+    #5 0x00010045fc38 in nl_main nanoc_v06.nano:2388
+    #6 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 320 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c62dc in nl_list_CompilerDiagnostic_with_capacity list_CompilerDiagnostic.c:40
+    #2 0x00010047f170 in diagnostics__diag_list_new+0xc (nanoc_stage1:arm64+0x100023170)
+    #3 0x000100577450 in typecheck__env_new+0x24 (nanoc_stage1:arm64+0x10011b450)
+    #4 0x0001005841b4 in typecheck__typecheck_phase_with_shadows+0x90 (nanoc_stage1:arm64+0x1001281b4)
+    #5 0x00010045fa00 in nl_compile_program nanoc_v06.nano:2157
+    #6 0x00010045fa00 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 320 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c62dc in nl_list_CompilerDiagnostic_with_capacity list_CompilerDiagnostic.c:40
+    #2 0x00010049af7c in parser__parser_init_ast_lists+0x244 (nanoc_stage1:arm64+0x10003ef7c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 320 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007dad1c in nl_list_ASTFor_with_capacity list_ASTFor.c:43
+    #2 0x00010049ae3c in parser__parser_init_ast_lists+0x104 (nanoc_stage1:arm64+0x10003ee3c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 320 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d5a9c in nl_list_ASTSet_with_capacity list_ASTSet.c:43
+    #2 0x00010049ae0c in parser__parser_init_ast_lists+0xd4 (nanoc_stage1:arm64+0x10003ee0c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 320 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d1ddc in nl_list_ASTModuleQualifiedCall_with_capacity list_ASTModuleQualifiedCall.c:43
+    #2 0x00010049adbc in parser__parser_init_ast_lists+0x84 (nanoc_stage1:arm64+0x10003edbc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 320 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c62dc in nl_list_CompilerDiagnostic_with_capacity list_CompilerDiagnostic.c:40
+    #2 0x00010045ee28 in nl_compile_program nanoc_v06.nano:2036
+    #3 0x00010045ee28 in nl_main nanoc_v06.nano:2388
+    #4 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 320 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007f199c in nl_list_ASTTupleLiteral_with_capacity list_ASTTupleLiteral.c:43
+    #2 0x00010049af5c in parser__parser_init_ast_lists+0x224 (nanoc_stage1:arm64+0x10003ef5c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 288 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007cf55c in nl_list_ASTBinaryOp_with_capacity list_ASTBinaryOp.c:43
+    #2 0x00010049ad9c in parser__parser_init_ast_lists+0x64 (nanoc_stage1:arm64+0x10003ed9c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d0998 in nl_list_ASTCall_with_capacity list_ASTCall.c:43
+    #2 0x00010049adac in parser__parser_init_ast_lists+0x74 (nanoc_stage1:arm64+0x10003edac)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c3a58 in nl_list_LexerToken_with_capacity list_LexerToken.c:43
+    #2 0x00010049af8c in parser__parser_init_ast_lists+0x254 (nanoc_stage1:arm64+0x10003ef8c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e7798 in nl_list_ASTFieldAccess_with_capacity list_ASTFieldAccess.c:43
+    #2 0x00010049aedc in parser__parser_init_ast_lists+0x1a4 (nanoc_stage1:arm64+0x10003eedc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e3ad8 in nl_list_ASTShadow_with_capacity list_ASTShadow.c:43
+    #2 0x00010049aeac in parser__parser_init_ast_lists+0x174 (nanoc_stage1:arm64+0x10003eeac)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007dd598 in nl_list_ASTBlock_with_capacity list_ASTBlock.c:43
+    #2 0x00010049ae5c in parser__parser_init_ast_lists+0x124 (nanoc_stage1:arm64+0x10003ee5c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d3218 in nl_list_ASTArrayLiteral_with_capacity list_ASTArrayLiteral.c:43
+    #2 0x00010049adec in parser__parser_init_ast_lists+0xb4 (nanoc_stage1:arm64+0x10003edec)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 224 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d849c in nl_list_ASTIf_with_capacity list_ASTIf.c:43
+    #2 0x00010049ae1c in parser__parser_init_ast_lists+0xe4 (nanoc_stage1:arm64+0x10003ee1c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 192 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007f2ddc in nl_list_ASTTupleIndex_with_capacity list_ASTTupleIndex.c:40
+    #2 0x00010049af6c in parser__parser_init_ast_lists+0x234 (nanoc_stage1:arm64+0x10003ef6c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 192 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007ef11c in nl_list_ASTOpaqueType_with_capacity list_ASTOpaqueType.c:43
+    #2 0x00010049af4c in parser__parser_init_ast_lists+0x214 (nanoc_stage1:arm64+0x10003ef4c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 192 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007de9dc in nl_list_ASTUnsafeBlock_with_capacity list_ASTUnsafeBlock.c:43
+    #2 0x00010049ae6c in parser__parser_init_ast_lists+0x134 (nanoc_stage1:arm64+0x10003ee6c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 192 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d98dc in nl_list_ASTWhile_with_capacity list_ASTWhile.c:43
+    #2 0x00010049ae2c in parser__parser_init_ast_lists+0xf4 (nanoc_stage1:arm64+0x10003ee2c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 192 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007ce11c in nl_list_ASTIdentifier_with_capacity list_ASTIdentifier.c:43
+    #2 0x00010049ad8c in parser__parser_init_ast_lists+0x54 (nanoc_stage1:arm64+0x10003ed8c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 192 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007cb4dc in nl_list_ASTString_with_capacity list_ASTString.c:43
+    #2 0x00010049ad6c in parser__parser_init_ast_lists+0x34 (nanoc_stage1:arm64+0x10003ed6c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 192 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007ca09c in nl_list_ASTFloat_with_capacity list_ASTFloat.c:43
+    #2 0x00010049ad5c in parser__parser_init_ast_lists+0x24 (nanoc_stage1:arm64+0x10003ed5c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 192 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007c8c5c in nl_list_ASTNumber_with_capacity list_ASTNumber.c:43
+    #2 0x00010049ad4c in parser__parser_init_ast_lists+0x14 (nanoc_stage1:arm64+0x10003ed4c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 160 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007e125c in nl_list_ASTAssert_with_capacity list_ASTAssert.c:43
+    #2 0x00010049ae8c in parser__parser_init_ast_lists+0x154 (nanoc_stage1:arm64+0x10003ee8c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 160 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007dfe1c in nl_list_ASTPrint_with_capacity list_ASTPrint.c:43
+    #2 0x00010049ae7c in parser__parser_init_ast_lists+0x144 (nanoc_stage1:arm64+0x10003ee7c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 160 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007dc15c in nl_list_ASTReturn_with_capacity list_ASTReturn.c:43
+    #2 0x00010049ae4c in parser__parser_init_ast_lists+0x114 (nanoc_stage1:arm64+0x10003ee4c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 128 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007cc918 in nl_list_ASTBool_with_capacity list_ASTBool.c:43
+    #2 0x00010049ad7c in parser__parser_init_ast_lists+0x44 (nanoc_stage1:arm64+0x10003ed7c)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 73 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fbdda8 in strdup+0xf8 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x4dda8)
+    #1 0x000100464ff0 in nl_hashmap_string_int_put nanoc_97309_nanoc_stage1.c:4470
+    #2 0x000100464ff0 in nl_nlc_hashset_add_string nanoc_v06.nano:414
+    #3 0x000100464ff0 in nl_collect_files_dfs nanoc_v06.nano:812
+    #4 0x00010045e840 in nl_merge_with_imports nanoc_v06.nano:1532
+    #5 0x00010045e840 in nl_compile_program nanoc_v06.nano:2003
+    #6 0x00010045e840 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 64 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d6ed8 in nl_list_ASTStmtRef_with_capacity list_ASTStmtRef.c:43
+    #2 0x0001004a7048 in parser__parse_block+0x180 (nanoc_stage1:arm64+0x10004b048)
+    #3 0x0001004c4b30 in parser__parse_shadow+0x260 (nanoc_stage1:arm64+0x100068b30)
+    #4 0x0001004c6f40 in parser__parse_definition+0x12a4 (nanoc_stage1:arm64+0x10006af40)
+    #5 0x0001004c7184 in parser__parse_program+0x164 (nanoc_stage1:arm64+0x10006b184)
+    #6 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #7 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #8 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #9 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 64 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d6ed8 in nl_list_ASTStmtRef_with_capacity list_ASTStmtRef.c:43
+    #2 0x0001004a7048 in parser__parse_block+0x180 (nanoc_stage1:arm64+0x10004b048)
+    #3 0x0001004bdcb4 in parser__parse_function_definition+0xd88 (nanoc_stage1:arm64+0x100061cb4)
+    #4 0x0001004c6c20 in parser__parse_definition+0xf84 (nanoc_stage1:arm64+0x10006ac20)
+    #5 0x0001004c7184 in parser__parse_program+0x164 (nanoc_stage1:arm64+0x10006b184)
+    #6 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #7 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #8 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #9 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 64 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d6ed8 in nl_list_ASTStmtRef_with_capacity list_ASTStmtRef.c:43
+    #2 0x00010049addc in parser__parser_init_ast_lists+0xa4 (nanoc_stage1:arm64+0x10003eddc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 64 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d6ed8 in nl_list_ASTStmtRef_with_capacity list_ASTStmtRef.c:43
+    #2 0x00010049adcc in parser__parser_init_ast_lists+0x94 (nanoc_stage1:arm64+0x10003edcc)
+    #3 0x00010049b1b8 in parser__parser_new+0x24 (nanoc_stage1:arm64+0x10003f1b8)
+    #4 0x0001004c7074 in parser__parse_program+0x54 (nanoc_stage1:arm64+0x10006b074)
+    #5 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #6 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #7 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d6ec0 in nl_list_ASTStmtRef_with_capacity list_ASTStmtRef.c:37
+    #2 0x0001004a7048 in parser__parse_block+0x180 (nanoc_stage1:arm64+0x10004b048)
+    #3 0x0001004c4b30 in parser__parse_shadow+0x260 (nanoc_stage1:arm64+0x100068b30)
+    #4 0x0001004c6f40 in parser__parse_definition+0x12a4 (nanoc_stage1:arm64+0x10006af40)
+    #5 0x0001004c7184 in parser__parse_program+0x164 (nanoc_stage1:arm64+0x10006b184)
+    #6 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #7 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #8 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #9 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x000101fc540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001007d6ec0 in nl_list_ASTStmtRef_with_capacity list_ASTStmtRef.c:37
+    #2 0x0001004a7048 in parser__parse_block+0x180 (nanoc_stage1:arm64+0x10004b048)
+    #3 0x0001004bdcb4 in parser__parse_function_definition+0xd88 (nanoc_stage1:arm64+0x100061cb4)
+    #4 0x0001004c6c20 in parser__parse_definition+0xf84 (nanoc_stage1:arm64+0x10006ac20)
+    #5 0x0001004c7184 in parser__parse_program+0x164 (nanoc_stage1:arm64+0x10006b184)
+    #6 0x00010045ef68 in nl_compile_program nanoc_v06.nano:2066
+    #7 0x00010045ef68 in nl_main nanoc_v06.nano:2388
+    #8 0x00010045d7d4 in main nanoc_v06.nano:2401
+    #9 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 82699 byte(s) leaked in 94 allocation(s).

@@ -1,0 +1,3 @@
+extern fn nl_exec_capture(cmd: string) -> string
+fn main() -> int { unsafe { let a: string = (nl_exec_capture "printf first") let b: string = (nl_exec_capture "printf second") assert (== a "first") assert (== b "second") } return 0 }
+shadow main { assert true }
