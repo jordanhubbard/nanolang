@@ -155,7 +155,7 @@ static bool supported(uint8_t op,bool value_graph) {
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
-    case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+    case OP_FUNCREF: case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
     case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
         return value_graph;
     default:return false;
@@ -228,6 +228,11 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         if(!pop_scalar(f,tag))return "I require an exact scalar global store without an owner or observation";
         f->global_initialized[slot]=true;return NULL;
     }
+    case OP_FUNCREF:
+        if (!calls->value_graph || in->operands[0].u32>=module->function_count ||
+            module->functions[in->operands[0].u32].upvalue_count)
+            return "I require a same-module noncapturing function reference";
+        tag=TAG_FUNCTION;break;
     case OP_PUSH_I64:tag=TAG_INT;break;
     case OP_PUSH_U8:tag=TAG_U8;break;
     case OP_PUSH_F64:tag=TAG_FLOAT;break;
@@ -392,6 +397,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
          * lookup makes type disagreement a refusal, never a widening. */
         bool defined=scalar(value.tag) ? nvm_affine_scalar_define(f->locals,local) :
             calls->value_graph && value.tag==TAG_STRING ? nvm_affine_string_define(f->locals,local) :
+            calls->value_graph && value.tag==TAG_FUNCTION ? nvm_affine_function_define(f->locals,local) :
             calls->value_graph && value.tag==TAG_UNION ?
                 nvm_affine_union_define(f->locals,local,value.layout,value.variant) : false;
         if (!defined ||
@@ -633,7 +639,7 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
             if (current->count==1 && !current->stack[0].observation) tag=current->stack[0].tag;
             else if (current->count) {error="I refuse an observation escape or extra return operands";goto done;}
             bool exact_value=current->count==1 &&
-                (current->stack[0].owned || current->stack[0].tag==TAG_UNION);
+                (current->stack[0].owned || current->stack[0].tag==TAG_UNION || current->stack[0].tag==TAG_FUNCTION);
             bool exit_ok=exact_value
                 ? nvm_affine_can_exit_type(current->locals,(NvmAffineType){tag,current->stack[0].layout})
                 : nvm_affine_can_exit_scalar(current->locals,tag);
