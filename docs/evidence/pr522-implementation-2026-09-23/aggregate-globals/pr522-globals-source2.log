@@ -1,0 +1,23 @@
+test_existing_string_map_global (tests.test_canonical_aggregate_globals.AggregateGlobals.test_existing_string_map_global) ... ok
+test_nested_record_global_copy_and_replacement (tests.test_canonical_aggregate_globals.AggregateGlobals.test_nested_record_global_copy_and_replacement) ... ok
+test_variant_global_copy_and_alternating_payloads (tests.test_canonical_aggregate_globals.AggregateGlobals.test_variant_global_copy_and_alternating_payloads) ... ok
+test_empty_resource_union_rejected (tests.test_global_resource_boundary.GlobalResourceBoundary.test_empty_resource_union_rejected) ... ok
+test_fixed_union_rejected (tests.test_global_resource_boundary.GlobalResourceBoundary.test_fixed_union_rejected) ... ok
+test_generic_union_rejected (tests.test_global_resource_boundary.GlobalResourceBoundary.test_generic_union_rejected) ... ok
+test_immutable_record_rejected (tests.test_global_resource_boundary.GlobalResourceBoundary.test_immutable_record_rejected) ... ok
+test_imported_resource_global_rejected (tests.test_global_resource_boundary.GlobalResourceBoundary.test_imported_resource_global_rejected) ... ok
+test_inferred_resource_rejected (tests.test_global_resource_boundary.GlobalResourceBoundary.test_inferred_resource_rejected) ... ok
+test_local_owner_is_not_global (tests.test_global_resource_boundary.GlobalResourceBoundary.test_local_owner_is_not_global) ... ok
+test_mutable_record_rejected (tests.test_global_resource_boundary.GlobalResourceBoundary.test_mutable_record_rejected) ... ok
+test_nested_record_generic_chain_rejected (tests.test_global_resource_boundary.GlobalResourceBoundary.test_nested_record_generic_chain_rejected) ... ok
+test_nested_record_rejected (tests.test_global_resource_boundary.GlobalResourceBoundary.test_nested_record_rejected) ... ok
+test_ordinary_globals_execute (tests.test_global_resource_boundary.GlobalResourceBoundary.test_ordinary_globals_execute) ... ok
+test_record_generic_collection_rejected (tests.test_global_resource_boundary.GlobalResourceBoundary.test_record_generic_collection_rejected) ... ok
+test_record_with_generic_resource_payload_rejected (tests.test_global_resource_boundary.GlobalResourceBoundary.test_record_with_generic_resource_payload_rejected) ... ok
+test_resource_collection_rejected (tests.test_global_resource_boundary.GlobalResourceBoundary.test_resource_collection_rejected) ... ok
+test_unused_resource_argument_is_ordinary (tests.test_global_resource_boundary.GlobalResourceBoundary.test_unused_resource_argument_is_ordinary) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 10.316s
+
+OK

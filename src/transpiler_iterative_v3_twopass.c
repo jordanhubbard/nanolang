@@ -1346,11 +1346,16 @@ static void build_ordered_hashmap_call(WorkList *list, ASTNode *call, Environmen
         build_expr(list, call->as.call.args[i], env);
         emit_literal(list, "; ");
     }
+    /* I copy string results before later mutation can release the map's bytes. */
+    bool copy_string = strcmp(operation, "get") == 0 &&
+        (strcmp(suffix, "string_string") == 0 || strcmp(suffix, "int_string") == 0);
+    if (copy_string) emit_literal(list, "nl_str_concat(\"\", ");
     emit_formatted(list, "nl_hashmap_%s_%s(", suffix, operation);
     for (int i = 0; i < call->as.call.arg_count; ++i) {
         if (i) emit_literal(list, ", ");
         emit_formatted(list, "__nl_map_%u_arg_%d", id, i);
     }
+    if (copy_string) emit_literal(list, ")");
     emit_literal(list, "); })");
 }
 

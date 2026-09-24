@@ -4716,6 +4716,11 @@ test-instantiated-ownership: bootstrap
 test-units: test-native-module-linking
 test-native-module-linking: bootstrap3
 	@python3 -m unittest tests.test_native_module_linking tests.test_declared_scalar_source
+.PHONY: test-canonical-aggregate-globals
+test-units: test-canonical-aggregate-globals
+test-canonical-aggregate-globals: stage1 nano_vm
+	python3 -m unittest tests.test_canonical_aggregate_globals
+
 .PHONY: test-canonical-string-conversion
 test-units: test-canonical-string-conversion
 test-canonical-string-conversion: stage1 nano_vm

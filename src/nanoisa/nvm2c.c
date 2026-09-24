@@ -237,7 +237,7 @@ typedef struct {
     uint8_t *required_functions;
     uint8_t *tagged_locals;
     uint16_t *local_scalar_tags;
-    uint32_t *variant_locals, *variant_results;
+    uint32_t *variant_locals, *variant_results, *variant_globals;
     Nvm2cScalarJoin *scalar_joins;
     uint16_t array_shape_kinds;
     Nvm2cFieldBlock *field_blocks;
@@ -754,6 +754,10 @@ static int merge_global_kind(Nvm2cBuf *b, Nvm2cFacts *facts, uint32_t slot, uint
         *dest = kind;
         facts->changed = 1;
         return 1;
+    }
+    if (*dest == NVM2C_VK_REC || kind == NVM2C_VK_REC) {
+        nvm2c_fail(b, "I require aggregate global %u to retain one exact representation", slot);
+        return 0;
     }
     if (*dest == NVM2C_VK_RARR || kind == NVM2C_VK_RARR ||
         *dest == NVM2C_VK_UARR || kind == NVM2C_VK_UARR) {
@@ -1514,7 +1518,16 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         }
         case OP_LOAD_GLOBAL: {
             uint32_t slot = ins.operands[0].u32;
-            if (facts->global_kinds[slot] == NVM2C_VK_UARR) {
+            if (facts->global_kinds[slot] == NVM2C_VK_REC) {
+                Nvm2cSimSlot loaded = {0};
+                loaded.kind = NVM2C_VK_REC;
+                loaded.origin = -1;
+                loaded.variant = b->variant_globals[slot];
+                loaded.shape = shape_variable(b, &b->shape_globals[slot]);
+                loaded.rec_k = sim_fields(b,
+                    facts->global_fields + (size_t)slot * b->record_width, NVM2C_VK_UNK);
+                if (!loaded.rec_k || !sim_push_slot(b, idx, stk, &sp, loaded)) return 0;
+            } else if (facts->global_kinds[slot] == NVM2C_VK_UARR) {
                 Nvm2cSimSlot loaded = {0};
                 loaded.kind = NVM2C_VK_UARR; loaded.origin = -1;
                 loaded.shape = shape_variable(b, &b->shape_globals[slot]);
@@ -1585,7 +1598,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 facts->changed = 1;
             }
             if (!merge_global_kind(b, facts, slot, stored_kind)) return 0;
-            if (value.kind == NVM2C_VK_UARR) {
+            merge_variant(&b->variant_globals[slot], slot_variant(value, facts), facts);
+            if (value.kind == NVM2C_VK_REC) {
+                uint8_t *fields = facts->global_fields + (size_t)slot * b->record_width;
+                if (!merge_record_results(b, facts, fields, value.rec_k) ||
+                    !shape_record_return(b, value.shape,
+                        shape_variable(b, &b->shape_globals[slot]), value.rec_k, fields)) return 0;
+            } else if (value.kind == NVM2C_VK_UARR) {
                 if (!shape_equal(b, value.shape, shape_variable(b, &b->shape_globals[slot]))) return 0;
             } else if (value.kind == NVM2C_VK_RARR) {
                 if (!merge_global_fields(b, facts, slot, value.rec_k)) return 0;
@@ -1594,8 +1613,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     !shape_equal(b, shape_child(b, value.shape, 0),
                                  shape_child(b, global, 0))) return 0;
             } else if (facts->final && value.kind == NVM2C_VK_UNK &&
-                       facts->global_stored[slot] == NVM2C_GLOBAL_EXACT_CANDIDATE &&
-                       facts->global_kinds[slot] == NVM2C_VK_UNK) {
+                       facts->global_stored[slot] == NVM2C_GLOBAL_EXACT_CANDIDATE) {
                 if (!shape_equal(b, value.shape,
                                  shape_variable(b, &b->shape_globals[slot]))) return 0;
             } else if ((facts->global_kinds[slot] == NVM2C_VK_RARR ||
@@ -1615,7 +1633,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (value.kind != NVM2C_VK_INT && value.kind != NVM2C_VK_BOOL &&
                 value.kind != NVM2C_VK_STR && value.kind != NVM2C_VK_FLOAT && value.kind != NVM2C_VK_VALUE &&
                 !word_array_storage(value.kind) && value.kind != NVM2C_VK_SARR &&
-                value.kind != NVM2C_VK_RARR && value.kind != NVM2C_VK_AARR && value.kind != NVM2C_VK_MAP &&
+                value.kind != NVM2C_VK_REC && value.kind != NVM2C_VK_RARR && value.kind != NVM2C_VK_AARR && value.kind != NVM2C_VK_MAP &&
                 value.kind != NVM2C_VK_UNK) {
                 nvm2c_fail(b, "I cannot yet store an aggregate or unresolved global in function %u at offset %zu", idx, start);
                 return 0;
@@ -2092,14 +2110,20 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     !shape_equal(b, shape_child(b, map.shape, 0), key_shape)) return 0;
             }
             if (ins.opcode == OP_HM_SET) {
-                if (value.kind != NVM2C_VK_INT && value.kind != NVM2C_VK_STR && value.kind != NVM2C_VK_UNK) {
+                if (value.kind != NVM2C_VK_INT && value.kind != NVM2C_VK_STR &&
+                    value.kind != NVM2C_VK_UNK && value.kind != NVM2C_VK_VALUE) {
                     nvm2c_fail(b, "I require an integer or string hashmap value"); return 0;
                 }
                 if (map.kind == NVM2C_VK_MAP && map.rec_k[1] != NVM2C_VK_UNK &&
-                    value.kind != NVM2C_VK_UNK && map.rec_k[1] != value.kind) {
+                    value.kind != NVM2C_VK_UNK && value.kind != NVM2C_VK_VALUE &&
+                    map.rec_k[1] != value.kind) {
                     nvm2c_fail(b, "I found conflicting hashmap value representations"); return 0;
                 }
-                if (!shape_equal(b, shape_child(b, map.shape, 1), value.shape)) return 0;
+                /* nmap_set checks a tagged value against the destination's
+                 * exact value tag. Constrain its payload, not its carrier. */
+                NvmShapeId value_shape = value.kind == NVM2C_VK_VALUE ?
+                    shape_child(b, value.shape, 0) : value.shape;
+                if (!shape_equal(b, shape_child(b, map.shape, 1), value_shape)) return 0;
             }
             if (ins.opcode == OP_HM_GET) {
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1) ||
@@ -4396,7 +4420,19 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             uint8_t kind = resolved_shape_kind(b, b->shape_globals[slot]);
             uint8_t global_kind = b->array_results[mod->function_count + slot];
             uint8_t load_kind = kind == NVM2C_VK_UNK ? global_kind : kind;
-            if (word_array_storage(load_kind) || load_kind == NVM2C_VK_SARR) {
+            if (load_kind == NVM2C_VK_REC) {
+                nvm2c_printf(b, "    if (nglobal[%u].kind != 8 || !nglobal[%u].text) NVM2C_ABORT();\n", slot, slot);
+                char expression[80];
+                snprintf(expression, sizeof expression, "*(const nrec_t *)nglobal[%u].text", slot);
+                int record = stack_push_rec(b, &st, expression);
+                if (record >= 0) {
+                    for (size_t f = 0; f < b->record_width; ++f) {
+                        NvmShapeId field = nvm_shape_lookup(&b->shapes, b->shape_globals[slot], (uint32_t)f);
+                        st.rec_k[record][f] = resolved_shape_kind(b, field);
+                    }
+                    if (!shape_ok(b)) goto done;
+                }
+            } else if (word_array_storage(load_kind) || load_kind == NVM2C_VK_SARR) {
                 nvm2c_printf(b, "    if (nglobal[%u].kind != %u || nglobal[%u].integer != %u || !nglobal[%u].text) NVM2C_ABORT();\n",
                              slot, TAG_ARRAY, slot, load_kind, slot);
                 char expression[64];
@@ -4438,7 +4474,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             unsigned slot = ins.operands[0].u32;
             if (kind == NVM2C_VK_VALUE || kind == NVM2C_VK_AARR)
                 nvm2c_printf(b, "    nglobal[%u] = v[%d];\n", slot, value);
-            else if (kind == NVM2C_VK_FLOAT)
+            else if (kind == NVM2C_VK_REC) {
+                nvm2c_printf(b, "    nglobal_record_%u = r[%d];\n", slot, value);
+                nvm2c_printf(b, "    nglobal[%u] = (nmap_value){8, 0, (char *)&nglobal_record_%u};\n", slot, slot);
+            } else if (kind == NVM2C_VK_FLOAT)
                 nvm2c_printf(b, "    nglobal[%u] = nvalue_from_float(f[%d]);\n", slot, value);
             else if (kind == NVM2C_VK_MAP)
                 nvm2c_printf(b, "    nglobal[%u] = (nmap_value){13, 0, (char *)m[%d]};\n", slot, value);
@@ -5109,6 +5148,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     snprintf(expression, sizeof expression, "nmap_set(m[%d], s[%d], (nmap_value){1, t[%d], NULL})", map, key, value);
                 else if (value_kind == NVM2C_VK_STR)
                     snprintf(expression, sizeof expression, "nmap_set(m[%d], s[%d], (nmap_value){5, 0, (char *)s[%d]})", map, key, value);
+                else if (value_kind == NVM2C_VK_VALUE)
+                    snprintf(expression, sizeof expression, "nmap_set(m[%d], s[%d], v[%d])", map, key, value);
                 else { nvm2c_fail(b, "I cannot emit an unresolved or unsupported hashmap value"); goto done; }
                 stack_push_map(b, &st, expression);
             } else if (ins.opcode == OP_HM_DELETE) {
@@ -7357,6 +7398,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.local_scalar_tags = calloc(shape_local_count, sizeof *b.local_scalar_tags);
     b.variant_locals = calloc(shape_local_count ? shape_local_count : 1, sizeof(uint32_t));
     b.variant_results = calloc(mod->function_count ? mod->function_count : 1, sizeof(uint32_t));
+    b.variant_globals = calloc(b.global_count ? b.global_count : 1, sizeof(uint32_t));
     uint8_t *inference = malloc(fact_size);
     uint8_t *global_stored = calloc(b.global_count ? b.global_count : 1, 1);
     uint32_t *function_targets = calloc(shape_local_count, sizeof *function_targets);
@@ -7368,7 +7410,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     if (!kinds || !rec_fields || !inference || !global_stored || !function_targets || !function_results || !b.shape_locals || !b.shape_results ||
         !b.shape_globals || !b.shape_outputs || !b.indirect_targets || !b.join_shapes || !b.emitted_functions ||
         !b.required_functions || !b.tagged_locals || !b.local_scalar_tags ||
-        !b.variant_locals || !b.variant_results) {
+        !b.variant_locals || !b.variant_results || !b.variant_globals) {
         free(inference);
         free(global_stored);
         free(function_targets);
@@ -7387,6 +7429,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         free(b.local_scalar_tags);
         free(b.variant_locals);
         free(b.variant_results);
+        free(b.variant_globals);
         if (err && err_len) snprintf(err, err_len, "out of memory");
         return NULL;
     }
@@ -7410,10 +7453,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     facts.global_stored = global_stored;
     facts.function_targets = function_targets;
     facts.function_results = function_results;
-    /* I discover exact record/byte-array globals before ordinary inference. A
-     * load cannot publish the old tagged fallback into a local or parameter
+    /* I discover exact aggregate and byte-array globals before ordinary inference.
+     * A load cannot publish the old tagged fallback into a local or parameter
      * before a later function reveals the global's exact element shape. */
-    if (has_global_store && has_exact_array_constructor) {
+    if (has_global_store &&
+        (has_exact_array_constructor || module_has_opcode(mod, OP_AGG_PACK))) {
         facts.discover_globals = 1;
         for (size_t pass = 0; ; ++pass) {
             if (pass / 2 > fact_size && pass / 2 - fact_size > mod->code_size) {
@@ -7480,6 +7524,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                     if (!b.variant_locals[slot]) merge_variant(&b.variant_locals[slot], UINT32_MAX, &facts);
                 for (uint32_t f = 0; f < mod->function_count; ++f)
                     if (!b.variant_results[f]) merge_variant(&b.variant_results[f], UINT32_MAX, &facts);
+                for (size_t slot = 0; slot < b.global_count; ++slot)
+                    if (!b.variant_globals[slot]) merge_variant(&b.variant_globals[slot], UINT32_MAX, &facts);
                 if (!facts.changed) facts.final = 1;
             }
         }
@@ -7491,9 +7537,16 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     }
     for (size_t slot = 0; slot < b.global_count; ++slot) {
         uint8_t resolved = resolved_shape_kind(&b, b.shape_globals[slot]);
-        if (facts.global_kinds[slot] == NVM2C_VK_UNK && resolved == NVM2C_VK_RARR) {
-            facts.global_kinds[slot] = NVM2C_VK_RARR;
-            NvmShapeId element = nvm_shape_lookup(&b.shapes, b.shape_globals[slot], 0);
+        if (resolved == NVM2C_VK_REC && facts.global_kinds[slot] != NVM2C_VK_UNK &&
+            facts.global_kinds[slot] != NVM2C_VK_REC) {
+            nvm2c_fail(&b, "I require aggregate global %zu to retain one exact representation", slot);
+            goto fail;
+        }
+        if (facts.global_kinds[slot] == NVM2C_VK_UNK &&
+            (resolved == NVM2C_VK_RARR || resolved == NVM2C_VK_REC)) {
+            facts.global_kinds[slot] = resolved;
+            NvmShapeId element = resolved == NVM2C_VK_REC ? b.shape_globals[slot] :
+                nvm_shape_lookup(&b.shapes, b.shape_globals[slot], 0);
             for (size_t field = 0; field < b.record_width; ++field) {
                 NvmShapeId shape = element ? nvm_shape_lookup(&b.shapes, element, (uint32_t)field) : 0;
                 facts.global_fields[slot * b.record_width + field] = resolved_shape_kind(&b, shape);
@@ -8017,6 +8070,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width);
         if (b.has_maps) nvm2c_printf(&b, " nmap_t m[%zu];", b.record_width);
         nvm2c_puts(&b, " };\n");
+        /* I own one stable aggregate copy per global and trace its managed fields. */
+        for (size_t slot = 0; slot < b.global_count; ++slot)
+            if (facts.global_kinds[slot] == NVM2C_VK_REC)
+                nvm2c_printf(&b, "static nrec_t nglobal_record_%zu;\n", slot);
         if (module_has_opcode(mod, OP_ARR_SET)) nvm2c_puts(&b,
             "static inline int nrec_field_storage_matches(const nrec_t *a, const nrec_t *b, size_t field) {\n"
             "    unsigned ak = a->k[field], bk = b->k[field];\n"
@@ -8278,6 +8335,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(b.local_scalar_tags);
     free(b.variant_locals);
     free(b.variant_results);
+    free(b.variant_globals);
     while (b.scalar_joins) {
         Nvm2cScalarJoin *next = b.scalar_joins->next;
         free(b.scalar_joins); b.scalar_joins = next;
@@ -8312,6 +8370,7 @@ fail:
     free(b.local_scalar_tags);
     free(b.variant_locals);
     free(b.variant_results);
+    free(b.variant_globals);
     while (b.scalar_joins) {
         Nvm2cScalarJoin *next = b.scalar_joins->next;
         free(b.scalar_joins); b.scalar_joins = next;

@@ -9808,11 +9808,30 @@ register_function_pass1:;
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
+            /* I resolve nominal globals after declarations, as I do local bindings. */
+            if (item->as.let.var_type == TYPE_STRUCT && item->as.let.type_name) {
+                if (env_get_union(env, item->as.let.type_name)) item->as.let.var_type = TYPE_UNION;
+                else if (env_get_enum(env, item->as.let.type_name)) item->as.let.var_type = TYPE_ENUM;
+                if (item->as.let.type_info) item->as.let.type_info->base_type = item->as.let.var_type;
+            }
             /* I provide declared constructor context before checking the initializer. */
             prepare_map_initializer(&tc, item);
             check_concrete_union_arrays(env, item->as.let.type_info, env->current_module, item->as.let.value, 0);
             Type value_type = check_expression(item->as.let.value, env);
             check_global_ownership(env, item, &tc.has_error);
+            if (item->as.let.var_type == TYPE_UNION && item->as.let.type_name) {
+                TypeInfo nominal = {0};
+                nominal.base_type = TYPE_UNION;
+                nominal.generic_name = (char *)item->as.let.type_name;
+                const TypeInfo *expected = item->as.let.type_info ? item->as.let.type_info : &nominal;
+                if (!indirect_argument_matches(item->as.let.value, env, expected, TYPE_UNION, 0)) {
+                    emit_context_error("E001 TYPE MISMATCH", item->line, item->column, 1,
+                        "I require the global initializer's exact declared union type.",
+                        "Match the union declaration and its concrete type arguments.");
+                    tc.has_error = true;
+                    continue;
+                }
+            }
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
                     item->as.let.type_name, env->current_module, item->as.let.value)) tc.has_error = true;
             if (item->as.let.var_type == TYPE_ARRAY &&
@@ -10629,11 +10648,30 @@ register_function_pass2:;
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
+            /* I resolve nominal globals after declarations, as I do local bindings. */
+            if (item->as.let.var_type == TYPE_STRUCT && item->as.let.type_name) {
+                if (env_get_union(env, item->as.let.type_name)) item->as.let.var_type = TYPE_UNION;
+                else if (env_get_enum(env, item->as.let.type_name)) item->as.let.var_type = TYPE_ENUM;
+                if (item->as.let.type_info) item->as.let.type_info->base_type = item->as.let.var_type;
+            }
             /* I provide declared constructor context before checking the initializer. */
             prepare_map_initializer(&tc, item);
             check_concrete_union_arrays(env, item->as.let.type_info, env->current_module, item->as.let.value, 0);
             Type value_type = check_expression(item->as.let.value, env);
             check_global_ownership(env, item, &tc.has_error);
+            if (item->as.let.var_type == TYPE_UNION && item->as.let.type_name) {
+                TypeInfo nominal = {0};
+                nominal.base_type = TYPE_UNION;
+                nominal.generic_name = (char *)item->as.let.type_name;
+                const TypeInfo *expected = item->as.let.type_info ? item->as.let.type_info : &nominal;
+                if (!indirect_argument_matches(item->as.let.value, env, expected, TYPE_UNION, 0)) {
+                    emit_context_error("E001 TYPE MISMATCH", item->line, item->column, 1,
+                        "I require the global initializer's exact declared union type.",
+                        "Match the union declaration and its concrete type arguments.");
+                    tc.has_error = true;
+                    continue;
+                }
+            }
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
                     item->as.let.type_name, env->current_module, item->as.let.value)) tc.has_error = true;
             if (item->as.let.var_type == TYPE_ARRAY &&
