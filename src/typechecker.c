@@ -708,6 +708,8 @@ static bool checked_signature_equal(Environment *env, const FunctionSignature *a
 
 #include "typechecker_nominal_context.inc"
 
+static bool reduce_types_exact(const TypeInfo *, const TypeInfo *, Environment *, unsigned);
+
 static NominalIdentity nominal_view_identity(Environment *env, const NominalView *view, Type type) {
     NominalIdentity none = {TYPE_UNKNOWN, 0};
     const TypeInfo *info = view->info;
@@ -1690,6 +1692,117 @@ static bool opaque_annotation_present(Environment *env, const TypeInfo *info, un
 
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env);
 
+/* I compare complete reduce identities without the general compatibility rules.
+ * These views borrow annotations; none escape this check. */
+static TypeInfo reduce_type_view(Type type, const char *name, const TypeInfo *info) {
+    if (info) return *info;
+    TypeInfo view = {.base_type = type, .generic_name = (char *)name};
+    return view;
+}
+
+/* I recover nominal annotations erased by the legacy declaration pass. */
+static Type reduce_identity_kind(const TypeInfo *info, Environment *env) {
+    if (info->generic_name) {
+        if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_INT ||
+             info->base_type == TYPE_ENUM) && env_get_enum(env, info->generic_name))
+            return TYPE_ENUM;
+        if (info->base_type == TYPE_STRUCT && env_get_union(env, info->generic_name))
+            return TYPE_UNION;
+    }
+    return info->base_type;
+}
+
+static bool reduce_types_exact(const TypeInfo *a, const TypeInfo *b,
+                               Environment *env, unsigned depth) {
+    if (!a || !b || depth > 128 || a->is_open_row || b->is_open_row ||
+        a->type_var_count || b->type_var_count) return false;
+    Type at = reduce_identity_kind(a, env);
+    Type bt = reduce_identity_kind(b, env);
+    if (at != bt) return false;
+    switch (at) {
+        case TYPE_INT: case TYPE_U8: case TYPE_FLOAT: case TYPE_BOOL:
+        case TYPE_STRING: case TYPE_BSTRING:
+        case TYPE_LIST_INT: case TYPE_LIST_STRING: case TYPE_LIST_TOKEN:
+            return true;
+        case TYPE_ARRAY:
+            return reduce_types_exact(a->element_type, b->element_type, env, depth + 1);
+        case TYPE_STRUCT: case TYPE_ENUM: case TYPE_UNION: {
+            if (!a->generic_name || !b->generic_name) return false;
+            bool same = false;
+            if (at == TYPE_STRUCT) {
+                /* My record declarations have no generic parameter list. */
+                if (a->type_param_count || b->type_param_count) return false;
+                StructDef *left = env_get_struct(env, a->generic_name);
+                same = left && left == env_get_struct(env, b->generic_name);
+            } else if (at == TYPE_ENUM) {
+                if (a->type_param_count || b->type_param_count) return false;
+                EnumDef *left = env_get_enum(env, a->generic_name);
+                same = left && left == env_get_enum(env, b->generic_name);
+            } else {
+                UnionDef *left = env_get_union(env, a->generic_name);
+                same = left && left == env_get_union(env, b->generic_name);
+                if (left && left->generic_param_count != a->type_param_count) return false;
+            }
+            if (!same || a->type_param_count != b->type_param_count ||
+                a->type_param_count < 0) return false;
+            for (int i = 0; i < a->type_param_count; ++i)
+                if (!a->type_params || !b->type_params ||
+                    !reduce_types_exact(a->type_params[i], b->type_params[i], env, depth + 1))
+                    return false;
+            return true;
+        }
+        case TYPE_HASHMAP: case TYPE_LIST_GENERIC: {
+            int count = at == TYPE_HASHMAP ? 2 : 1;
+            if (a->type_param_count != count || b->type_param_count != count ||
+                !a->type_params || !b->type_params) return false;
+            for (int i = 0; i < count; ++i)
+                if (!reduce_types_exact(a->type_params[i], b->type_params[i], env, depth + 1))
+                    return false;
+            return true;
+        }
+        case TYPE_TUPLE:
+            if (a->tuple_element_count != b->tuple_element_count || a->tuple_element_count < 0)
+                return false;
+            for (int i = 0; i < a->tuple_element_count; ++i) {
+                if (!a->tuple_types || !b->tuple_types) return false;
+                TypeInfo left = reduce_type_view(a->tuple_types[i],
+                    a->tuple_type_names ? a->tuple_type_names[i] : NULL, NULL);
+                TypeInfo right = reduce_type_view(b->tuple_types[i],
+                    b->tuple_type_names ? b->tuple_type_names[i] : NULL, NULL);
+                if (!reduce_types_exact(&left, &right, env, depth + 1)) return false;
+            }
+            return true;
+        case TYPE_FUNCTION: {
+            FunctionSignature *left = a->fn_sig, *right = b->fn_sig;
+            if (!left || !right || left->param_count != right->param_count ||
+                left->param_count < 0) return false;
+            for (int i = 0; i < left->param_count; ++i) {
+                if (!left->param_types || !right->param_types) return false;
+                TypeInfo lp = reduce_type_view(left->param_types[i],
+                    left->param_struct_names ? left->param_struct_names[i] : NULL,
+                    left->param_type_info ? left->param_type_info[i] : NULL);
+                TypeInfo rp = reduce_type_view(right->param_types[i],
+                    right->param_struct_names ? right->param_struct_names[i] : NULL,
+                    right->param_type_info ? right->param_type_info[i] : NULL);
+                if (!reduce_types_exact(&lp, &rp, env, depth + 1)) return false;
+            }
+            TypeInfo lr = reduce_type_view(left->return_type, left->return_struct_name,
+                                            left->return_type_info);
+            TypeInfo rr = reduce_type_view(right->return_type, right->return_struct_name,
+                                            right->return_type_info);
+            if (!lr.fn_sig) lr.fn_sig = left->return_fn_sig;
+            if (!rr.fn_sig) rr.fn_sig = right->return_fn_sig;
+            if (lr.base_type == TYPE_VOID && rr.base_type == TYPE_VOID) return true;
+            return reduce_types_exact(&lr, &rr, env, depth + 1);
+        }
+        case TYPE_OPAQUE:
+            return a->opaque_type_name && b->opaque_type_name &&
+                !strcmp(a->opaque_type_name, b->opaque_type_name);
+        default:
+            return false;
+    }
+}
+
 /* I resolve payload annotations and retain owned constructor context. */
 /* I validate original templates before the legacy constructor-context visitor
  * materializes copied annotations. Context links point only into this call stack. */
@@ -1935,6 +2048,28 @@ static void apply_concrete_union_arrays(Environment *env, const TypeInfo *expect
         }
     }
     if (expected->base_type == TYPE_ARRAY && expected->element_type) {
+        const TypeInfo *element = expected->element_type;
+        if (value->type == AST_ARRAY_LITERAL && value->as.array_literal.element_count == 0)
+            value->as.array_literal.element_type = resolved_array_element(
+                element->base_type, element->generic_name, env);
+        if (element->base_type == TYPE_STRUCT)
+            (void)check_record_array_contract(env, TYPE_ARRAY, TYPE_STRUCT,
+                element->generic_name, expected_owner, value);
+        else if (value->type != AST_ARRAY_LITERAL && element->base_type == TYPE_ARRAY) {
+            const TypeInfo *wanted = expected;
+            const TypeInfo *actual = try_get_expr_type_info(value, env);
+            while (wanted && wanted->base_type == TYPE_ARRAY) {
+                wanted = wanted->element_type;
+                actual = actual && actual->base_type == TYPE_ARRAY ? actual->element_type : NULL;
+            }
+            StructDef *record = wanted && wanted->base_type == TYPE_STRUCT && wanted->generic_name
+                ? env_get_struct(env, wanted->generic_name) : NULL;
+            if (record && (!actual || actual->base_type != TYPE_STRUCT || !actual->generic_name ||
+                           env_get_struct(env, actual->generic_name) != record))
+                emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                    "I require the declared nominal record type for this array.",
+                    "Match the nested array element declaration, including its module identity.");
+        }
         if (value->type == AST_ARRAY_LITERAL)
             for (int i = 0; i < value->as.array_literal.element_count; ++i)
                 apply_concrete_union_arrays(env, expected->element_type, expected_owner,
@@ -2906,6 +3041,10 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
         if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION) &&
             info->generic_name && env_get_union(env, info->generic_name))
             normalized_actual.base_type = TYPE_UNION;
+        /* Array annotations can retain a redundant flattened record name.
+         * I compare their complete element identities, not that parser cache. */
+        if (expected->base_type == TYPE_ARRAY)
+            return reduce_types_exact(expected, &normalized_actual, env, (unsigned)depth);
         return type_infos_equal(expected, &normalized_actual);
     }
     if (expected->base_type == TYPE_UNION && expected->generic_name) {

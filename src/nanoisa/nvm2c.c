@@ -868,6 +868,10 @@ static int shape_carrier_box(Nvm2cBuf *b, NvmShapeId id, uint16_t tags) {
  * Constructors and native array/map payload constraints remain exact. */
 static int shape_field_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
     if (!b->track_shapes) return 1;
+    /* Nested arrays use the tagged field carrier without becoming optional.
+     * I preserve their already known shape across record returns and calls. */
+    if (kind == NVM2C_VK_VALUE && nvm_shape_kind(&b->shapes, id) == NVM_SHAPE_ARRAY)
+        return 1;
     if (kind != NVM2C_VK_STR && kind != NVM2C_VK_INT && kind != NVM2C_VK_BOOL && kind != NVM2C_VK_FLOAT)
         return shape_kind(b, id, kind);
     NvmShapeId source = nvm_shape_new(&b->shapes, kind == NVM2C_VK_STR ? NVM_SHAPE_STRING :
@@ -1101,7 +1105,11 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         join->slots[i].integer_known = 0;
         join->slots[i].predicate = 0;
         uint16_t array_tags = join->slots[i].array_scalar_tags | stack[i].array_scalar_tags;
-        uint16_t tags = join->slots[i].scalar_tags | stack[i].scalar_tags;
+        /* An unresolved kind is the inference bottom, not evidence of an
+         * arbitrary boxed producer. I retain unknown provenance on resolved
+         * heap/value kinds, including their joins with exact scalar storage. */
+        uint16_t tags = (join->slots[i].kind == NVM2C_VK_UNK ? 0 : join->slots[i].scalar_tags) |
+                        (stack[i].kind == NVM2C_VK_UNK ? 0 : stack[i].scalar_tags);
         if ((boxed_carrier_tags(join->slots[i].scalar_tags) || boxed_carrier_tags(stack[i].scalar_tags)) &&
             !boxed_carrier_tags(tags)) {
             nvm2c_fail(b, "I cannot join proved finite storage with unproved payload provenance");
@@ -1687,7 +1695,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (v.kind != NVM2C_VK_UNK &&
                 (boxed_carrier_tags(b->local_scalar_tags[local_at]) || boxed_carrier_tags(v.scalar_tags)) &&
                 !boxed_carrier_tags(tags)) {
-                nvm2c_fail(b, "I cannot mix numeric local storage with unproved scalar or heap provenance");
+                nvm2c_fail(b, "I cannot mix numeric local storage with unproved scalar or heap provenance "
+                              "(function %u, offset %zu, local %u, tags 0x%x / 0x%x, kind %u)",
+                              idx, start, slot, previous_tags, incoming_tags, v.kind);
                 return 0;
             }
             if (tags != b->local_scalar_tags[local_at]) {

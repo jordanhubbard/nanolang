@@ -56,6 +56,12 @@ typedef struct {
     bool no_main;        /* Omit hosted wrapper; globals require an entry and are refused. */
     bool static_strings; /* Compatibility alias: both values retain static literal storage. */
     bool verbose;
+    /* Optional checked dependency closure. I borrow declarations and context
+     * throughout planning/emission. Returned declarations must occur in root;
+     * caller is NULL for root context, alias is NULL for unqualified calls. */
+    ASTNode *(*resolve_function)(void *context, ASTNode *caller,
+                                 const char *name, const char *alias);
+    void *function_context;
 } CBOptions;
 
 /* Emit C source to a file path.

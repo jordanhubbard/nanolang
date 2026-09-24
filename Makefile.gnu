@@ -2908,6 +2908,11 @@ test-language-contract-runner:
 test-language-claims:
 	@python3 tests/test_language_claims.py
 
+.PHONY: test-interpreter-recursive-stack
+test-units: test-interpreter-recursive-stack
+test-interpreter-recursive-stack: $(COMPILER_C)
+	@python3 -m unittest -v tests.test_interpreter_recursive_stack
+
 .PHONY: test-cseed-import-shadows
 .PHONY: test-shadow-loader-fork-failure
 test-shadow-loader-fork-failure: $(COMPILER_OBJECTS)
@@ -4665,7 +4670,7 @@ test-array-new-evaluation: $(COMPILER_C) $(INTERPRETER)
 	@python3 -m unittest tests.test_array_new_evaluation
 .PHONY: test-concrete-union-array-contracts
 test-units: test-concrete-union-array-contracts
-test-concrete-union-array-contracts: $(COMPILER_C) nano_virt
+test-concrete-union-array-contracts: $(COMPILER_C) nano_virt nano_vm
 	python3 tests/test_concrete_union_array_contracts.py
 
 .PHONY: test-selected-variant-patterns
@@ -4727,6 +4732,11 @@ test-map-constructor-contexts: $(COMPILER_C) nano_virt nano_vm
 	python3 -m unittest tests.test_map_constructor_contexts
 
 test-units: test-map-constructor-contexts
+
+.PHONY: test-canonical-match-results
+test-units: test-canonical-match-results
+test-canonical-match-results: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_canonical_match_results
 
 .PHONY: test-match-aggregate-results
 test-units: test-match-aggregate-results

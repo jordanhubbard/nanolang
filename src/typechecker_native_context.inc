@@ -50,8 +50,12 @@ static bool native_bind_checked_view_impl(Environment *env, const NominalView *v
     if (!array && !tuple) return true;
     TypeInfo *concrete = NULL;
     if (!nominal_view_materialize(env, view, depth + 1, &concrete)) return false;
-    bool ok = array ? env_bind_array_expression(env, value, concrete)
-                    : env_bind_tuple_literal(env, value, concrete);
+    const TypeInfo *retained = array ? env_array_expression_info(env, value) : NULL;
+    /* A prior parser pass can retain a redundant flattened record spelling on
+     * an array. I compare its complete element tree before reusing that row. */
+    bool ok = retained ? reduce_types_exact(retained, concrete, env, depth + 1)
+                       : array ? env_bind_array_expression(env, value, concrete)
+                               : env_bind_tuple_literal(env, value, concrete);
     free_payload_type_info(concrete);
     if (!ok) return false;
     bool literal = array ? value->type == AST_ARRAY_LITERAL : tuple;

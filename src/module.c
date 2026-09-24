@@ -812,18 +812,16 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     bool module_typecheck_ok = type_check_module(module_ast, env);
     env_set_current_file(env, saved_source_file);
     env->suppress_shadow_warnings = saved_suppress_shadow_warnings;
+    /* I restore the borrowed context without shortening an owner retained by
+     * the Environment's checker-allocation ledger. */
+    env->current_module = saved_current_module;
     if (!module_typecheck_ok) {
         fprintf(stderr, "Error: Type checking failed for module '%s'\n", module_path);
-        /* My registered fallback and any explicit owner remain Environment-owned. */
-        env->current_module = saved_current_module;  /* Restore context */
         free_ast(module_ast);
         free_tokens(tokens, token_count);
         free(source);
         return NULL;
     }
-    
-    /* I restore the borrowed context without shortening retained owner lifetimes. */
-    env->current_module = saved_current_module;
     
     /* Load constants from C headers if module has module.json */
     char *module_dir_copy = strdup(module_path);
