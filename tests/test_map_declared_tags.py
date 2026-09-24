@@ -1,12 +1,14 @@
 """I preserve declared map writes across ordinary VM and native products."""
 from pathlib import Path
 import os
+import shlex
 import signal
 import subprocess
 import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+SANITIZER_CC = shlex.split(os.environ.get("NANOLANG_GUARD_SAN_CC", os.environ.get("CC", "cc")))
 
 class DeclaredMapTags(unittest.TestCase):
     def command(self, args, success=True):
@@ -18,7 +20,7 @@ class DeclaredMapTags(unittest.TestCase):
     def native(self, work, module):
         source, binary = work/'native.c', work/'native'
         self.command([ROOT/'bin/nvm2c',module,'-o',source])
-        self.command(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror',
+        self.command([*SANITIZER_CC,'-std=c11','-O2','-Wall','-Wextra','-Werror',
             '-fsanitize=address,undefined','-fno-sanitize-recover=all',source,'-o',binary])
         return binary
 

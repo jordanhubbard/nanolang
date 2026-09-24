@@ -1,0 +1,35 @@
+{
+  "base": "d54a2ac61e386bd54c447414aad8d1e337070201",
+  "platform": "macOS-26.7-arm64-arm-64bit-Mach-O",
+  "files": {
+    "Makefile.gnu": "78bc3ceb7b64979091ebab75888269dad441861bf45455fc4df216c9150fce25",
+    "src/nanoisa/affine_bytecode.c": "1abcfc7d5f8d02f2aed2c847b54da08cfaab6a05e549e18fa3f373757e644e45",
+    "src/nanoisa/nvm2c.c": "418be429f6ebdf967dab8ae490413e7d7b49844c69bbe41a51fd5d6dc2b78e1b",
+    "src/nanoisa/nvm2c_owned.h": "1b1800a89b1dae34a2544994fa755d5c0178aa0e62e7999af58d700c67535cf3",
+    "src/nanoisa/verifier.c": "279b26f47b5c6bcc659c03dc5b3af8f4bcc48d3ed3bdae0c1a3ad08dd42e2cd6",
+    "src/nanovm/vm.c": "b9ab2620b3955ca39bb2accebb425de932bfbf2ab2a7999832dba61433d17a4b",
+    "src_nano/compiler/function_type_spelling.nano": "852f95666a80d8da04d403c2d14e72c9857073f432ee9fe47e69d47e5d532bfe",
+    "src_nano/compiler/nanoisa_borrows.nano": "fab47d36a0393b5cd1a222ca9cca0bedb9bef1377fa086c0334b4d0ed3739310",
+    "src_nano/transpiler.nano": "58e78baeca227bac2405fdf494ea91ba5038a34b5cd54eca6bb5e9c6c5d3573e",
+    "tests/nanoisa/owned_targets_fixture.h": "bc4ff1b523e65668d1b73e1765e56af25d33477d983f71188bf8af07b0a094ed",
+    "tests/nanoisa/test_affine_bytecode.c": "035837d9e44fb7c824332029f023fb426f205c49e548f5ed8227afd4d33845a4",
+    "tests/nanoisa/test_nvm2c.c": "d96375c7d5ae35f10fd44826a4abb7c51e9beb189f0f6c7fbe8caeb210756dac",
+    "tests/nanoisa/test_owned_indirect_calls.c": "226610e02d34626915eb6d4882fc8912c6057d338bba4e42019149f1d01c6b36",
+    "tests/nanoisa/test_owned_value_graphs.c": "fe54864259690bbbffef5490886d28e7fac8ecd71dc028cde0174a27fa2b05a7",
+    "tests/test_map_declared_tags.py": "888024577b6a14c744658016151c4581354f00e481b4b836e87a45bf41a8cd3b",
+    "tests/test_native_map_globals.py": "880e8d7324dac3101179751a23d9d5e591874f27c10df9f7e86e970d70ca081c",
+    "tests/test_owned_indirect_calls.py": "701b4e2127bf5fd589be1715d3e244902211a459d8ed7873b82c67a160da35d7",
+    "tests/test_owned_value_graphs.py": "fe8264f48c00502b15da9303153761ff77b2a95eb4ff3ac61ec157b7a3b849dd",
+    "tests/test_resource_callback_boundary.py": "8f054ec598bfa70d522b68d68aa44eb46731c83b7639b6dc68ea31e69d0af1e0"
+  },
+  "binaries": {
+    "bin/nanoc_c": "04a4d8404e3786be39bf2038864c63468eea5bf49ff14543c0c688b638067e40",
+    "bin/nanoc_stage1": "7dca5cf091616c94658e88d4ba77325eb5a4f0e2134f1941242fac03cf1450f6",
+    "bin/nanoc_stage2": "38188aa33f0ffb931a1c04501af4993f41877efd0f145eb4b9bc3e43950199ff",
+    "bin/nvm2c": "6cc3ab580c9af1927c7da2df48dc82fc8d724c123ae102cda103271ba6b86044",
+    "bin/nano_vm": "9316719308238f540d37d00a49c942150a77cf7f37081b290942efddaff48e34"
+  },
+  "source_cc": "/opt/homebrew/opt/llvm/bin/clang",
+  "source_flags": "-O1 -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+  "source_asan": "detect_leaks=1:halt_on_error=1"
+}

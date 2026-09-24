@@ -42,7 +42,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
     if(!shared && nvm_ownership_scalar_globals(mod,global_tags,sizeof(global_tags),&global_count)!=NVM_V2_OK)return NULL;
     Nvm2cBuf b={0}; b.err=err; b.err_len=err_len;
     VmDecodedFunction code={0}; char decode_error[VM_DECODE_ERROR_SIZE];
-    NvmAffineState *state=NULL; NvmV2Layouts layouts={0};
+    NvmAffineState *state=NULL; NvmV2Layouts layouts={0};NvmAffineTargets *targets=NULL;
     int *depth=NULL; uint32_t *queue=NULL;
     const NvmFunctionEntry *fn=&mod->functions[function];
     if (!vm_decode_function(mod,function,&code,decode_error) ||
@@ -51,6 +51,9 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
     NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint8_t parameter_categories[NVM_AFFINE_MAX_PARAMETERS]={0};uint16_t parameter_count=0;
     bool value_graph=shared || nvm_affine_value_call_graph(mod);
     bool consuming=function && value_graph;
+    if(module_has_opcode(mod,OP_CALL_INDIRECT)) {
+        if(shared || !value_graph || !(targets=nvm_affine_targets_create(mod)))goto fail;
+    }
     NvmAffineType result_type;uint8_t result_category=0;uint16_t result_fields=0;
     if(owner_arrays) {
         NvmOwnerSignature signature;
@@ -91,6 +94,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         if(op==OP_AGG_PACK){pop=in->operands[3].u16;push=1;}
         if(shared && op==OP_ARR_LITERAL){pop=in->operands[1].u16;push=1;}
         if (op==OP_CALL) {pop=mod->functions[in->operands[0].u32].arity;push=mod->functions[in->operands[0].u32].result_count;}
+        if (op==OP_CALL_INDIRECT) {pop=(int)in->operands[0].u16+1;push=in->operands[1].u16;}
         if (op==OP_RET || op==OP_HALT) continue;
         if (pop<0 || push<0 || depth[i]<pop || depth[i]-pop+push>(int)NVM_AFFINE_MAX_STACK) goto fail;
         uint32_t targets[2],count=0;
@@ -253,19 +257,32 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
            op==OP_BOOL_AND || op==OP_BOOL_OR || op==OP_BOOL_NOT))goto fail;
         nvm2c_printf(&b,"L%u:;\n",d->byte_offset);
         switch(op) {
-        case OP_CALL: {
-            uint32_t target=in->operands[0].u32;
-            int first=n-mod->functions[target].arity;
+        case OP_CALL: case OP_CALL_INDIRECT: {
+            bool indirect=op==OP_CALL_INDIRECT;uint8_t mask=0;uint32_t single_target=0;
+            uint16_t arity;
+            if(indirect) {
+                if(!nvm_affine_targets_at(targets,function,d->byte_offset,&mask))goto fail;
+                arity=in->operands[0].u16;
+                nvm2c_printf(&b," if(t[%d].tag!=%u || t[%d].record || t[%d].string){status=3;goto cleanup;}\n switch(t[%d].scalar){\n",n-1,TAG_FUNCTION,n-1,n-1,n-1);
+            } else {
+                single_target=in->operands[0].u32;arity=mod->functions[single_target].arity;
+            }
+            int first=n-arity-indirect;
             const char *sequence=function?"*next_generation":"next_generation";
-            for(uint32_t g=0;g<global_count;g++)
-                nvm2c_printf(&b," if(globals[%u].tag!=%u){status=3;goto cleanup;}\n",g,global_tags[g]);
-            nvm2c_printf(&b," if(%s==UINT64_MAX){status=3;goto cleanup;}\n status=nown_function_%u(&t[%d],%s,++%s,",
-                sequence,target,first,function?"next_generation":"&next_generation",sequence);
-            if (mod->functions[target].result_count) nvm2c_printf(&b,"&t[%d]",first);
-            else nvm2c_puts(&b,"NULL");
-            if(shared)nvm2c_puts(&b,",managed");
-            else if(global_count)nvm2c_puts(&b,",globals");
-            nvm2c_puts(&b,"); if(status)goto cleanup;\n");
+            for(uint32_t target=1;target<mod->function_count;target++) if(indirect?(target<8 && (mask&(1u<<target))):target==single_target) {
+                if(indirect)nvm2c_printf(&b," case %u: t[%d]=(nown_value){0};\n",target,n-1);
+                for(uint32_t g=0;g<global_count;g++)
+                    nvm2c_printf(&b," if(globals[%u].tag!=%u){status=3;goto cleanup;}\n",g,global_tags[g]);
+                nvm2c_printf(&b," if(%s==UINT64_MAX){status=3;goto cleanup;}\n status=nown_function_%u(&t[%d],%s,++%s,",
+                    sequence,target,first,function?"next_generation":"&next_generation",sequence);
+                if (mod->functions[target].result_count) nvm2c_printf(&b,"&t[%d]",first);
+                else nvm2c_puts(&b,"NULL");
+                if(shared)nvm2c_puts(&b,",managed");
+                else if(global_count)nvm2c_puts(&b,",globals");
+                nvm2c_puts(&b,"); if(status)goto cleanup;\n");
+                if(indirect)nvm2c_puts(&b," break;\n");
+            }
+            if(indirect)nvm2c_puts(&b," default:status=3;goto cleanup;\n }\n");
             break;
         }
         case OP_CALL_REF:
@@ -511,10 +528,10 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         " if(!status){*result=pending.scalar; pending=(nown_value){0};}\n");
     nvm2c_puts(&b," nown_release(pending); return status;\n}\n");
     if(!function) nvm2c_puts(&b,"#ifndef NVM2C_NO_MAIN\nint main(void){int64_t result=0;return nvm_owned_entry(&result)?1:(int)result;}\n#endif\n");
-    free(depth);free(queue);nvm_affine_state_free(state);nvm_v2_layouts_free(&layouts);vm_decoded_function_free(&code);
+    free(depth);free(queue);nvm_affine_targets_free(targets);nvm_affine_state_free(state);nvm_v2_layouts_free(&layouts);vm_decoded_function_free(&code);
     if (b.failed) {free(b.data);return NULL;}return b.data;
 fail:
-    free(depth);free(queue);nvm_affine_state_free(state);nvm_v2_layouts_free(&layouts);vm_decoded_function_free(&code);free(b.data);
+    free(depth);free(queue);nvm_affine_targets_free(targets);nvm_affine_state_free(state);nvm_v2_layouts_free(&layouts);vm_decoded_function_free(&code);free(b.data);
     if(err && err_len)snprintf(err,err_len,"I cannot lower this verified owned-transfer function");
     return NULL;
 }

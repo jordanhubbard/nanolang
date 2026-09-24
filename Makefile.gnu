@@ -5423,6 +5423,12 @@ test-owned-value-graphs: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) 
 $(OBJ_DIR)/nanovm/vm.o: src/binary64_arithmetic.h
 $(OBJ_DIR)/nanovm/vm.o: CFLAGS += -ffp-contract=off -fno-fast-math
 
+.PHONY: test-owned-indirect-calls
+test-units: test-owned-indirect-calls
+test-owned-indirect-calls: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_owned_indirect_calls tests/nanoisa/test_owned_indirect_calls.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	NANO_OWNED_INDIRECT_TEST=$(OBJ_DIR)/test_owned_indirect_calls python3 -m unittest -v tests.test_owned_indirect_calls
+
 .PHONY: test-owned-result-descriptors
 test-units: test-owned-result-descriptors
 test-owned-result-descriptors: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
