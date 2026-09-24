@@ -134,7 +134,7 @@ static int boolean_result(uint8_t opcode) {
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
     case OP_LT: case OP_LE: case OP_GT: case OP_GE:
     case OP_I64_LT_S: case OP_I64_LE_S: case OP_I64_GT_S: case OP_I64_GE_S:
-    case OP_STR_STARTS_WITH: case OP_STR_ENDS_WITH: case OP_STR_CONTAINS:
+    case OP_STR_EQ: case OP_STR_STARTS_WITH: case OP_STR_ENDS_WITH: case OP_STR_CONTAINS:
     case OP_HM_HAS: case OP_TYPE_CHECK: return 1;
     default: return 0;
     }
@@ -1935,6 +1935,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
+        case OP_STR_EQ:
         case OP_STR_STARTS_WITH:
         case OP_STR_ENDS_WITH:
         case OP_STR_CONTAINS: {
@@ -4888,6 +4889,17 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             char expr[96];
             snprintf(expr, sizeof expr, "nstr_substr(s[%d], t[%d], t[%d])", s, start, len);
             stack_push_str(b, &st, expr);
+            break;
+        }
+        case OP_STR_EQ: {
+            int rhs = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_EQ rhs");
+            int lhs = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_EQ lhs");
+            if (b->failed) goto done;
+            char expr[160];
+            snprintf(expr, sizeof expr,
+                     "(int64_t)(strcmp(s[%d] ? s[%d] : \"\", s[%d] ? s[%d] : \"\") == 0)",
+                     lhs, lhs, rhs, rhs);
+            stack_push_temp(b, &st, expr);
             break;
         }
         case OP_STR_CONTAINS: {
