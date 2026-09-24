@@ -1,0 +1,11 @@
+{
+  "parent": "7724d383bbf208c532c9eaccff6456e5ce8a0acc",
+  "sources_sha256": {
+    "src/nanovirt/codegen.c": "6db1ef6902eadf854e085b35b87214c7a106b81fc9461a842224701b387b9891",
+    "src_nano/compiler/nanoisa_codegen.nano": "3ebecf4fa6aa6d21ab6cbc7f72fd8b8e150947e1c44e6df5c5889acba9fde3f3"
+  },
+  "providers_sha256": {
+    "bin/nano_virt": "c3244dc4b64376ed659a9ef0c82a1c61fa62c6a9fed6a6048391d0465593b742",
+    "bin/nanoisa_emit": "d57ade856b0dc8f0283547bca8376c836c3eae33eb6581dd5548e29df9a1208c"
+  }
+}

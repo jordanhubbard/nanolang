@@ -2051,8 +2051,12 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
                 return true;
             }
             if (strcmp(suffix, "_new") == 0 && argc == 0) {
-                /* list_T_new() -> create empty array */
-                emit_op(cg, OP_ARR_NEW, (int)list_element_tag(cg, name, suffix));
+                uint8_t element_tag = list_element_tag(cg, name, suffix);
+                /* I preserve exact integer elements through aggregate fields. */
+                if (element_tag == TAG_INT)
+                    emit_op(cg, OP_ARR_LITERAL, (int)element_tag, (uint32_t)0);
+                else
+                    emit_op(cg, OP_ARR_NEW, (int)element_tag);
                 return true;
             }
             if (strcmp(suffix, "_push") == 0 && argc == 2) {
