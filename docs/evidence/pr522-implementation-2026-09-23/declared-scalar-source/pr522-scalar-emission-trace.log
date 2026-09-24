@@ -1,0 +1,15 @@
+(lldb) target create "bin/nanoc_stage1"
+Current executable set to '/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1' (arm64).
+(lldb) settings set -- target.run-args  "/tmp/pr522-scalar-owner-probe/main.nano" "-o" "/tmp/pr522-scalar-owner-probe/program"
+(lldb) command script import /tmp/pr522_emit_trace.py
+(lldb) breakpoint set -n nanoisa_codegen__nisa_emit_call
+Breakpoint 1: where = nanoc_stage1`nanoisa_codegen__nisa_emit_call, address = 0x00000001001b75f4
+(lldb) breakpoint command add -F pr522_emit_trace.enter 1
+(lldb) run
+EMITTED '  CALL __nano_module_0_value\n'
+EMITTED '  CALL __nano_module_0_value\n'
+EMITTED '  CALL main\n'
+EMITTED '  CALL __nano_module_0_value\n'
+I could not verify the shadow module: Undefined function symbol: scalar_probe
+Process 32487 launched: '/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1' (arm64)
+Process 32487 exited with status = 1 (0x00000001)

@@ -4602,7 +4602,7 @@ test-instantiated-ownership: bootstrap
 .PHONY: test-native-module-linking
 test-units: test-native-module-linking
 test-native-module-linking: bootstrap3
-	@python3 -m unittest tests.test_native_module_linking
+	@python3 -m unittest tests.test_native_module_linking tests.test_declared_scalar_source
 .PHONY: test-compiler-artifact-support
 test-units: test-compiler-artifact-support
 test-compiler-artifact-support: $(COMPILER_C)

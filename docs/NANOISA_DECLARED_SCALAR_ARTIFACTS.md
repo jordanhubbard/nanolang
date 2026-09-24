@@ -1,20 +1,21 @@
 # My declared scalar module-artifact boundary
 
 I restore ordinary module-manifest extern declarations under task
-`task_b8838417bbc54fb98a4c49eea1b0885a`. The unchanged native module-linking suite fails
-all three methods before its linker assertions: `fixture_value` is rejected by
-`nisa_register_extern`. I reproduce this at repaired checkpoint `59ff072cc`.
-My [transport checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-transport) establishes codec and structural checks. My [consumer checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-consumers) adds explicit raw kind-4 VM/native execution; source emission and driver/package linkage remain incomplete.
+`task_b8838417bbc54fb98a4c49eea1b0885a`. My retained baseline fails all three unchanged native module-linking methods
+before their linker assertions: `fixture_value` is rejected by
+`nisa_register_extern` at repaired checkpoint `59ff072cc`. My [source checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-source) now passes those methods through both native stages on Darwin.
+My [transport checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-transport) establishes codec and structural checks. My [consumer checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-consumers) adds explicit raw kind-4 VM/native execution; source emission and repository-local native linkage are implemented, while installed-package qualification remains incomplete.
 
 ## The current gap
 
 My merged frontend retains the extern's owning source through `mb_owner` and
 `mb_source`. `CompilerSupport.module_artifact` can build that source directory's
-manifest and return the exact immutable library generation. However,
-`nisa_register_artifact` recognizes only a fixed symbol/arity/result catalog,
-while `nvm2c` now accepts explicit kind-4 declarations through typed libffi.
-Adding a test symbol to the source catalog would leave the language feature
-unsupported.
+manifest and return the exact immutable library generation. I retain
+`nisa_register_artifact` for its fixed named adapters and use
+`nisa_register_declared_scalar` for other bounded scalar declarations. My
+`nvm2c` consumer accepts those explicit kind-4 declarations through typed libffi.
+Pruned unused-source validation, installed packaging and full cross-platform
+qualification remain incomplete.
 
 My VM already marshals declared foreign scalars through libffi for every arity.
 Its signed-64, binary64, byte/bool and pointer mappings give the implementation
@@ -40,9 +41,9 @@ of the library's C implementation. Ordinary kind-2 artifact imports do not
 silently gain arbitrary native scalar admission. Foreign declarations remain
 trusted ABI claims at an unsafe boundary.
 
-My source producer must resolve the declaration's actual owning source and its
-manifest into an immutable artifact generation before emitting kind 4; that
-producer work remains incomplete. My
+My source producer resolves each selected declaration's actual owning source
+and its manifest into an immutable artifact generation before emitting kind 4.
+Validation of unused source declarations under program pruning remains required. My
 structural verifier requires a nonempty absolute counted path, a nonempty
 counted symbol, no embedded NUL in either, a complete bounded scalar signature,
 and no void parameters. It checks unused declarations too. The execution

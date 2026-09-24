@@ -2833,6 +2833,84 @@ shadow nisa_validate_metadata_declarations {
     let _: int = (nisa_reset)
 }
 
+fn nisa_declared_scalar_tag(parser: Parser, kind: string) -> string {
+    if (or (== kind "int") (or (== kind "float") (or (== kind "bool") (or (== kind "u8") (== kind "string"))))) { return kind }
+    if (>= (nisa_enum_index parser kind) 0) { return "int" }
+    return ""
+}
+shadow nisa_declared_scalar_tag {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { return 0 }" "scalar.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "scalar.nano")
+    assert (== (nisa_declared_scalar_tag parser "float") "float")
+    assert (== (nisa_declared_scalar_tag parser "void") "")
+    assert (== (nisa_declared_scalar_tag parser "array<int>") "")
+}
+
+fn nisa_register_declared_scalar(parser: Parser, function: ASTFunction) -> int {
+    let mut result: string = (nisa_declared_scalar_tag parser function.return_type)
+    if (== function.return_type "void") { set result "void" }
+    if (or (== result "") (> function.param_count 16)) {
+        let rejected: string = (nisa_fail (+ "unsupported extern result or symbol " (+ function.name ": I require a bounded scalar artifact signature")))
+        return -1
+    }
+    let mut parameters: string = ""
+    let mut i: int = 0
+    while (< i function.param_count) {
+        let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
+        let tag: string = (nisa_declared_scalar_tag parser parameter.var_type)
+        if (== tag "") {
+            let rejected: string = (nisa_fail "I require scalar artifact parameters without resources or callbacks")
+            return -1
+        }
+        set parameters (+ parameters (+ " " tag))
+        set i (+ i 1)
+    }
+    let owner: int = (mb_owner function.line)
+    let key: string = (+ "#declared-scalar:" (+ (int_to_string owner) (+ ":" function.name)))
+    let existing: int = (nisa_import_find key)
+    if (>= existing 0) { return existing }
+    let path: string = (nisa_artifact_path owner)
+    if (== path "") {
+        set nisa_err (+ "I cannot bind declared scalar artifact " (+ function.name (+ ": " nisa_err)))
+        return -1
+    }
+    let index: int = (array_length nisa_import_names)
+    set nisa_import_names (array_push nisa_import_names key)
+    set nisa_import_text (+ nisa_import_text (+ ".import \"" (+ (nisa_escape_string path) (+ "\" \"" (+ (nisa_escape_string function.name) (+ "\" " (+ result parameters)))))))
+    set nisa_import_text (+ nisa_import_text (+ "\n.import_kind " (+ (int_to_string index) " declared_scalar_artifact\n")))
+    return index
+}
+shadow nisa_register_declared_scalar {
+    let _: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "extern fn fixture(a: int, b: float, c: string) -> bool" "scalar.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "scalar.nano")
+    (mb_reset [1])
+    set nisa_artifact_owners [0]
+    set nisa_artifact_paths ["/retained/scalar.so"]
+    assert (== (nisa_register_declared_scalar parser (parser_get_function parser 0)) 0)
+    assert (str_contains nisa_import_text "bool int float string")
+    assert (str_contains nisa_import_text ".import_kind 0 declared_scalar_artifact")
+    assert (== (nisa_register_declared_scalar parser (parser_get_function parser 0)) 0)
+    assert (== (array_length nisa_import_names) 1)
+    (mb_reset [])
+    let reset: int = (nisa_reset)
+}
+
+shadow nisa_emit_stmt {
+    let _: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "extern fn scalar_fixture() -> int fn main() -> int { return (scalar_fixture) }" "scalar-return.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "scalar-return.nano")
+    (mb_reset [1])
+    set nisa_artifact_owners [0]
+    set nisa_artifact_paths ["/retained/scalar.so"]
+    let text: string = (nisa_emit_function parser (parser_get_function parser 1))
+    assert nisa_ok
+    assert (str_contains text "CALL_EXTERN 0")
+    assert (not (str_contains text "TAIL_CALL scalar_fixture"))
+    (mb_reset [])
+    let reset: int = (nisa_reset)
+}
+
 fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
     if (nisa_metadata_function function) {
         if (nisa_metadata_validate parser function) { return 0 }
@@ -2840,7 +2918,8 @@ fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
     }
     if (>= (nisa_artifact_arity function.name) 0) { return (nisa_register_artifact parser function) }
     let result: string = (nisa_host_result function.name)
-    if (or (== result "") (!= result function.return_type)) {
+    if (== result "") { return (nisa_register_declared_scalar parser function) }
+    if (!= result function.return_type) {
         let rejected: string = (nisa_fail (+ "unsupported extern result or symbol " function.name))
         return -1
     }
@@ -4572,6 +4651,15 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
             return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string index)))
         }
     }
+    if (>= declared_index 0) {
+        let declaration: ASTFunction = (parser_get_function parser declared_index)
+        if (and (< declaration.body 0) (== (nisa_host_result declaration.name) "")) {
+            if (!= call.arg_count declaration.param_count) { return (nisa_fail "I require the declared scalar artifact arity") }
+            let index: int = (nisa_register_declared_scalar parser declaration)
+            if (< index 0) { return "" }
+            return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string index)))
+        }
+    }
     if (and nisa_program_mode (>= declared_index 0)) {
         let declaration: ASTFunction = (parser_get_function parser declared_index)
         if (and (< declaration.body 0) (< (nisa_import_find declaration.name) 0)) {
@@ -5873,7 +5961,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                 }
                 let function_name: string = (nisa_call_name parser call)
                 let call_index: int = (nisa_call_index parser call)
-                if (and (>= call_index 0) (>= (nisa_artifact_arity function_name) 0)) {
+                if (>= call_index 0) {
                     if (< (parser_get_function parser call_index).body 0) {
                         return (+ (nisa_emit_call parser call) (nisa_line "RET"))
                     }
