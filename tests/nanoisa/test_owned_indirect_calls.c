@@ -13,7 +13,8 @@ static void indirect_artifacts(NvmModule *m,const char *directory,unsigned index
     FILE *file=fopen(path,"wb");CHECK(file);CHECK(fwrite(bytes,1,length,file)==length);CHECK(!fclose(file));
     free(bytes);nvm_v2_module_free(&wire);
     char error[256];char *source=nvm2c_emit(m,error,sizeof(error));
-    if(!source)fprintf(stderr,"%s\n",error);CHECK(source);
+    if(!source)fprintf(stderr,"%s\n",error);
+    CHECK(source);
     snprintf(path,sizeof(path),"%s/case%u.c",directory,index);
     file=fopen(path,"w");CHECK(file);CHECK(fputs(source,file)>=0);CHECK(!fclose(file));free(source);
     snprintf(path,sizeof(path),"%s/case%u.guard.c",directory,index);
@@ -35,7 +36,8 @@ int main(int argc,char **argv) {
         bool failure=kind>=32;int64_t expected=kind==1?41:42;
         NvmModule *m=targets_fixture(kind,orders[order]);
         NvmVerifyResult verified=nvm_verify_owned_module(m);
-        if(!verified.ok)fprintf(stderr,"case %u: %s\n",index,verified.error_msg);CHECK(verified.ok);
+        if(!verified.ok)fprintf(stderr,"case %u: %s\n",index,verified.error_msg);
+        CHECK(verified.ok);
         CHECK(nvm_verify(m).ok);
         unsigned id[6];for(unsigned f=0;f<6;f++)id[orders[order][f]]=f;
         indirect_artifacts(m,argv[1],index,id[3],id[2]);

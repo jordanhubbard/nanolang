@@ -21,7 +21,7 @@ class OwnedValueGraphs(unittest.TestCase):
         return result
 
     def test_owned_value_graphs_and_cleanup(self):
-        compiler = shlex.split(os.environ.get('CC', 'cc'))
+        compiler = shlex.split(os.environ.get('NANOLANG_GUARD_SAN_CC', os.environ.get('CC', 'cc')))
         with tempfile.TemporaryDirectory(prefix='nano-owned-graphs-') as name:
             tmp = Path(name)
             run = self.checked([os.environ.get(self.binary_environment, self.binary_default), tmp])
@@ -69,7 +69,7 @@ static void release(void *p){assert(live);live--;free(p);}
    .replace('EXPECTED_RESULT', value if succeeds else '-91'))
                     binary = tmp/f'check{index}'
                     self.checked([*compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
-                                  '-fsanitize=address,undefined', '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
+                                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
                     self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
                     self.checked([*compiler, '-std=c11', '-Wall', '-Wextra', '-Werror', generated, '-o', binary])
                     native = subprocess.run([binary], capture_output=True, timeout=30)

@@ -43,7 +43,8 @@ static NvmModule *targets_fixture(unsigned kind,const unsigned order[6]) {
         CHECK(used<sizeof(source));
     }
     AsmResult assembled;NvmModule *m=asm_assemble_unverified(source,&assembled);
-    if(!m)fprintf(stderr,"%s\n",assembled.message);CHECK(m);
+    if(!m)fprintf(stderr,"%s\n",assembled.message);
+    CHECK(m);
     NvmV2LayoutField field={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
     NvmV2Layout layout={NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field};
     NvmV2Layouts layouts={&layout,1};CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
@@ -57,7 +58,58 @@ static NvmModule *targets_fixture(unsigned kind,const unsigned order[6]) {
     }
     bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);return m;
 }
+static void owned_callback_target_boundaries(void) {
+    for (unsigned count=8;count<=9;count++) for (unsigned reverse=0;reverse<2;reverse++)
+        for (unsigned cycle=0;cycle<2;cycle++) {
+            unsigned id[9]={0};
+            for (unsigned role=1;role<count;role++) id[role]=reverse?count-role:role;
+            char source[4096]=".types 1 0 0\n.entry 0\n";size_t used=strlen(source);
+            for (unsigned f=0;f<count;f++) {
+                unsigned role=f?(reverse?count-f:f):0;
+                used+=(size_t)snprintf(source+used,sizeof(source)-used,
+                    ".function role%u 0 2 0 int 1\n",role);
+                if (!role) used+=(size_t)snprintf(source+used,sizeof(source)-used,
+                    "PUSH_I64 9\nOWN_PACK 0\nOWN_STORE_LOCAL 1\n");
+                if (role+1<count || cycle) used+=(size_t)snprintf(source+used,sizeof(source)-used,
+                    "FUNCREF %u\nCALL_INDIRECT 0 1\n",id[role+1<count?role+1:1]);
+                else used+=(size_t)snprintf(source+used,sizeof(source)-used,"PUSH_I64 42\n");
+                if (!role) used+=(size_t)snprintf(source+used,sizeof(source)-used,"OWN_UNPACK_LOCAL 1\nPOP\n");
+                used+=(size_t)snprintf(source+used,sizeof(source)-used,"RET\n.end\n");
+                CHECK(used<sizeof(source));
+            }
+            AsmResult assembled;NvmModule *m=asm_assemble_unverified(source,&assembled);CHECK(m);
+            NvmV2LayoutField field={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
+            NvmV2Layout layout={NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field};
+            NvmV2Layouts layouts={&layout,1};CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+            m->ownership_size=16+count*28+4;m->ownership_data=calloc(m->ownership_size,1);CHECK(m->ownership_data);
+            uint8_t *data=m->ownership_data;word(data,2);word(data+4,1);data[8]=3;word(data+12,count);
+            for (unsigned f=0;f<count;f++) {
+                unsigned base=16+f*28;data[base]=2;slot(data+base+4,TAG_INT,0);
+                slot(data+base+12,TAG_INT,0);slot(data+base+20,f?TAG_INT:TAG_STRUCT,0);
+            }
+            NvmAffineTargets *plan=nvm_affine_targets_create(m);
+            CHECK((plan!=NULL)==(count==8 && !cycle));
+            if (plan) {
+                CHECK(nvm_verify_owned_module(m).ok);
+                for (unsigned role=0;role+1<count;role++) {
+                    VmDecodedFunction code={0};char error[VM_DECODE_ERROR_SIZE];
+                    CHECK(vm_decode_function(m,id[role],&code,error));
+                    bool found=false;
+                    for (uint32_t i=0;i<code.instruction_count;i++)
+                        if (code.instructions[i].instruction.opcode==OP_CALL_INDIRECT) {
+                            uint8_t mask=0;found=true;
+                            CHECK(nvm_affine_targets_at(plan,id[role],code.instructions[i].byte_offset,&mask));
+                            CHECK(mask==(1u<<id[role+1]));
+                        }
+                    CHECK(found);vm_decoded_function_free(&code);
+                }
+                char error[256];char *native=nvm2c_emit(m,error,sizeof(error));CHECK(native);free(native);
+            }
+            nvm_affine_targets_free(plan);nvm_module_free(m);
+        }
+}
 static void owned_callback_targets(void) {
+    owned_callback_target_boundaries();
     const unsigned orders[][6]={{0,1,2,3,4,5},{0,5,4,3,2,1},{0,3,1,5,2,4},
         {0,2,4,1,5,3},{0,4,3,2,1,5},{0,5,2,4,3,1}};
     CHECK(!nvm_affine_targets_create(NULL));nvm_affine_targets_free(NULL);
