@@ -1,0 +1,39 @@
+elapsed=30.652
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+0x0000f4ad550db010 in __asan::FakeStack::Allocate (this=0xf4ad51ef7000, stack_size_log=20, class_id=3, real_stack=281474101285248) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:105
+#0  0x0000f4ad550db010 in __asan::FakeStack::Allocate (this=0xf4ad51ef7000, stack_size_log=20, class_id=3, real_stack=281474101285248) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:105
+#1  __asan::OnMalloc (class_id=3, size=<optimized out>) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:229
+#2  __asan_stack_malloc_3 (size=<optimized out>) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:276
+#3  0x0000bcac57b2111c [PAC] in env_get_function (env=0x5120000001c0, name=0x50300005fe30 "is_whitespace_char") at src/env.c:694
+#4  0x0000bcac57b9efd4 in eval_call_impl (node=0x50c000206740, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4401
+#5  0x0000bcac57b860d0 in eval_call (node=0x50c000206740, env=0x5120000001c0) at src/eval.c:3034
+#6  0x0000bcac57ba957c in eval_expression (expr=0x50c000206740, env=0x5120000001c0) at src/eval.c:4915
+#7  0x0000bcac57bad574 in eval_expression_other (expr=0x50c000236080, env=0x5120000001c0) at src/eval.c:5102
+#8  0x0000bcac57ba9590 in eval_expression (expr=0x50c000236080, env=0x5120000001c0) at src/eval.c:4917
+#9  0x0000bcac57bc6ed0 in eval_statement (stmt=0x50c000236080, env=0x5120000001c0) at src/eval.c:6210
+#10 0x0000bcac57b52cf8 in eval_scoped_block (statements=0x5060000183e0, count=2, env=0x5120000001c0) at src/eval.c:242
+#11 0x0000bcac57bc1f80 in eval_statement (stmt=0x50c000236140, env=0x5120000001c0) at src/eval.c:5962
+#0  0x0000f4ad550db010 in __asan::FakeStack::Allocate (this=0xf4ad51ef7000, stack_size_log=20, class_id=3, real_stack=281474101285248) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:105
+105	in ../../../../src/libsanitizer/asan/asan_fake_stack.cpp
+this = 0xf4ad51ef7000
+stack_size_log = 20
+class_id = 3
+real_stack = 281474101285248
+pos = 1567
+res = <optimized out>
+i = 0
+hint_position = @0xf4ad51ef7018: 1561230880
+num_iter = 2048
+flags = 0xf4ad51eff000 '\001' <repeats 200 times>...
+hint_position = <optimized out>
+num_iter = <optimized out>
+flags = <optimized out>
+v1 = <optimized out>
+v2 = <optimized out>
+i = <optimized out>
+pos = <optimized out>
+res = <optimized out>
+$1 = {static kMinStackFrameSizeLog = 6, static kMaxStackFrameSizeLog = 16, static kNumberOfSizeClasses = 11, static kFlagsOffset = 4096, static kMaxStackMallocSize = 65536, hint_position_ = {4391960576, 14209564672, 1572536320, 1561230880, 454937600, 431123, 548738, 1006, 61366, 385317, 33}, stack_size_log_ = 20, needs_gc_ = false}
+[Inferior 1 (process 93210) detached]
+warning: 105	../../../../src/libsanitizer/asan/asan_fake_stack.cpp: No such file or directory
