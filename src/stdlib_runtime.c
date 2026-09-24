@@ -732,7 +732,11 @@ void generate_string_operations(StringBuilder *sb) {
 
     sb_append(sb, "static char* nl_fmt_sb_build(nl_fmt_sb_t *sb) {\n");
     sb_append(sb, "    if (!sb || !sb->buf) return \"\";\n");
-    sb_append(sb, "    return sb->buf;\n");
+    sb_append(sb, "    char* result = gc_alloc_string(sb->len);\n");
+    sb_append(sb, "    if (result) memcpy(result, sb->buf, sb->len + 1);\n");
+    sb_append(sb, "    free(sb->buf);\n");
+    sb_append(sb, "    *sb = (nl_fmt_sb_t){0};\n");
+    sb_append(sb, "    return result ? result : \"\";\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static const char* nl_to_string_int(int64_t v) { return int_to_string(v); }\n");

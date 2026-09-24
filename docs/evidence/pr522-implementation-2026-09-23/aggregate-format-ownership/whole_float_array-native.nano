@@ -1,0 +1,2 @@
+fn main()->int { let xs: array<float> = [2.0] assert (== (to_string xs) "[2.0]") return 0 }
+shadow main { assert true }

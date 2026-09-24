@@ -1,0 +1,29 @@
+.F
+======================================================================
+FAIL: test_nested_values_and_retained_results (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_nested_values_and_retained_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 21, in test_nested_values_and_retained_results
+            self.execute(r'''struct Point { number: int, label: string, values: array<float> }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Choice { Some { value: Point }, Empty {} }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<22 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 18, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-l4w4s3l0/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-l4w4s3l0/product')]
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 12, column 2
+I will not publish output after shadow execution exited with status 1.
+Shadow tests failed
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.227s
+
+FAILED (failures=1)

@@ -1,0 +1,12 @@
+struct Point { x: int, label: string }
+union Choice { Some { value: Point }, Empty {} }
+fn main() -> int {
+ let xs: array<int> = [1, 2]
+ assert (== (to_string xs) "[1, 2]")
+ let point: Point = Point { x: 7, label: "saved" }
+ assert (== (to_string point) "Point { x: 7, label: saved }")
+ let choice: Choice = Choice.Some { value: point }
+ assert (== (to_string choice) "Choice.Some { value: Point { x: 7, label: saved } }")
+ return 0
+}
+shadow main { assert (== (main) 0) }

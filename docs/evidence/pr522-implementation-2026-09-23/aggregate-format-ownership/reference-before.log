@@ -1,0 +1,63 @@
+FF
+======================================================================
+FAIL: test_growth_and_single_evaluation (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_growth_and_single_evaluation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 50, in test_growth_and_single_evaluation
+            self.execute(r'''let mut calls: int = 0
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn values() -> array<int> { set calls (+ calls 1) return [calls] }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<19 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 18, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-u_aqs67y/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-u_aqs67y/product')]
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-u_aqs67y/case.nano:11:17: error: expected identifier or '('
+   11 |     const char* long = "";
+      |                 ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-u_aqs67y/case.nano:13:14: error: expected identifier or '('
+   13 |         long = nl_str_concat(long, "x");
+      |              ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-u_aqs67y/case.nano:14:56: error: expected expression
+   14 |     const char* result = ({ __auto_type __nl_arg_1_0 = long; nl_render(__nl_arg_1_0); });
+      |                                                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-u_aqs67y/case.nano:16:73: error: expected expression
+   16 |     if (!((strcmp(result, nl_str_concat("Label { text: ", nl_str_concat(long, " }"))) == 0))) { fputs("Contract violation at line 16: (== result (+ \"Label { text: \" (+ long \" }\")))\n", stderr); exit(1); }
+      |                                                                         ^
+4 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_nested_values_and_retained_results (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_nested_values_and_retained_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 21, in test_nested_values_and_retained_results
+            self.execute(r'''enum Mode { Quiet = 3, Loud = 7 }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    struct Point { number: int, label: string, mode: Mode, values: array<float> }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<23 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 18, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-abdksqzj/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-abdksqzj/product')]
+  Shadow test 'main' FAILED: 2 failure(s)
+  First failure at line 9, column 2
+I will not publish output after shadow execution exited with status 1.
+Shadow tests failed
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.293s
+
+FAILED (failures=2)
