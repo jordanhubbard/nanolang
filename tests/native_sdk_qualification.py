@@ -1,4 +1,8 @@
 """I qualify one frozen SDK tree; my caller supplies its exact source manifest."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import hashlib
 import json
 import os
@@ -43,7 +47,7 @@ def main():
     def products():
         return {str(p.relative_to(root)):hashfile(p,True) for name in ('bin','obj','lib')
                 for p in sorted((root/name).rglob('*')) if p.is_file()}
-    env=dict(LSAN_OPTIONS='',ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+    env=dict(LSAN_OPTIONS='',ASAN_OPTIONS=asan_options("halt_on_error=1"),
              UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
     if host=='linux':
         cc=['/usr/bin/gcc'];other=['/usr/local/bin/clang','--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13']

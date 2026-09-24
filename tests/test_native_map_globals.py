@@ -1,4 +1,8 @@
 """I preserve tagged map globals across calls, mutation and collection."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 from pathlib import Path
 import os
 import shlex
@@ -13,7 +17,7 @@ HEADER = '.entry main\n.string key "key"\n.string text "value"\n'
 class NativeMapGlobals(unittest.TestCase):
     def command(self, args):
         return subprocess.run([str(x) for x in args], capture_output=True, text=True,
-                              timeout=60, env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                              timeout=60, env={**os.environ, 'ASAN_OPTIONS': asan_options()})
 
     def check(self, body, helpers='', bad=False, vm_bad=None):
         with tempfile.TemporaryDirectory(prefix='nano-map-global-') as tmp:

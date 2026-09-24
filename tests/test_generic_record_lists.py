@@ -3,6 +3,10 @@
 My caller prepares fresh compilers/providers. I do not replace bootstrap with
 this fixture, suppress sanitizer findings, or relabel legacy allocation as checked.
 """
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 from pathlib import Path
 import hashlib
 import json
@@ -82,7 +86,7 @@ class GenericRecordLists(unittest.TestCase):
     def command(cls, name, args, timeout=180, expected=(0,), extra=None):
         cls.sequence += 1; name = f'{cls.sequence:04d}-{name}'
         args = list(map(str, args))
-        env = dict(os.environ, TMPDIR=str(cls.work / 'temporary'), ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+        env = dict(os.environ, TMPDIR=str(cls.work / 'temporary'), ASAN_OPTIONS=asan_options("halt_on_error=1"),
                    UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1', LSAN_OPTIONS='')
         if extra: env.update(extra)
         cls.products(name + '-before')

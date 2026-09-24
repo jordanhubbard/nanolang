@@ -1,4 +1,8 @@
 """I retain the existing generic ownership corpus through raw VM/native lowering."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 from pathlib import Path
 import os
 import subprocess
@@ -90,7 +94,7 @@ class OwnedUnionSource(unittest.TestCase):
                         for command in commands:
                             result = subprocess.run(command, cwd=ROOT, capture_output=True,
                                                     text=True, timeout=120,
-                                                    env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1',
+                                                    env={**os.environ, 'ASAN_OPTIONS': asan_options("halt_on_error=1"),
                                                          'UBSAN_OPTIONS': 'halt_on_error=1'})
                             self.assertEqual(result.returncode, 0, str(command) + '\n' + result.stdout + result.stderr)
 

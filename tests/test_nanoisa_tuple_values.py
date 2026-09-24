@@ -1,4 +1,8 @@
 """I preserve exact tuple values across my canonical VM and native routes."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 from pathlib import Path
 import os
 import platform
@@ -87,7 +91,7 @@ class CanonicalTupleValues(unittest.TestCase):
                     )
                     runtime_env = os.environ.copy()
                     runtime_env["ASAN_OPTIONS"] = (
-                        "detect_leaks=0" if platform.system() == "Darwin" else "detect_leaks=1"
+                        "detect_leaks=0" if platform.system() == "Darwin" else asan_options()
                     )
                     self.assertEqual(self.checked(native, env=runtime_env).stdout, expected)
 

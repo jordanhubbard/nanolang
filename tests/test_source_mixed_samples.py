@@ -1,4 +1,8 @@
 """I preserve every original Samples/PREFIX shadow while checking exact mixed lowering."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import ast
 import os
 from pathlib import Path
@@ -24,7 +28,7 @@ class SourceMixedSamples(support.SourceBorrowEmission):
         self.command(os.environ.get('CC','cc'),'-std=c11','-O2','-Wall','-Wextra','-Werror',
                      '-fsanitize=address,undefined','-fno-omit-frame-pointer',source,'-lm','-o',native)
         result=subprocess.run([native],cwd=ROOT,capture_output=True,timeout=30,
-                              env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1:halt_on_error=1'})
+                              env={**os.environ,'ASAN_OPTIONS':asan_options("halt_on_error=1")})
         self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
         self.assertNotIn(b'Sanitizer',result.stderr)
         if expected_output is not None:self.assertEqual(result.stdout,expected_output)

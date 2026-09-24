@@ -1,4 +1,8 @@
 """I retain source-level module introspection in VM and native products."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import json
 import os
 import re
@@ -18,7 +22,7 @@ class CanonicalModuleFacts(unittest.TestCase):
     def checked(self, args):
         result = subprocess.run([str(x) for x in args], cwd=ROOT,
                                 capture_output=True, timeout=120,
-                                env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                                env={**os.environ, 'ASAN_OPTIONS': asan_options()})
         self.assertEqual(result.returncode, 0, (result.stdout + result.stderr)[-6000:])
         return result
 

@@ -1,4 +1,8 @@
 """I retain float fields through source and bytecode aggregate transport."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 from pathlib import Path
 import shlex
@@ -14,7 +18,7 @@ class NativeFloatRecords(unittest.TestCase):
         result = subprocess.run(list(map(str, args)), cwd=ROOT, capture_output=True,
             text=True, timeout=120, env={**os.environ,
             'ASAN_OPTIONS': ('detect_leaks=0' if sys.platform == 'darwin' and
-                             not os.environ.get('NANO_NATIVE_TEST_CC') else 'detect_leaks=1')})
+                             not os.environ.get('NANO_NATIVE_TEST_CC') else asan_options())})
         self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
         return result.stdout
 

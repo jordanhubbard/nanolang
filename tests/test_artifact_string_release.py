@@ -1,4 +1,8 @@
 """I copy artifact strings before provider cleanup and preserve borrowed results."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import json
 import os
 from pathlib import Path
@@ -88,7 +92,7 @@ int64_t file_delete(const char *key) {
     def paired(self, text):
         module = self.module(text)
         vm = self.command([ROOT/'bin/nano_vm', module])
-        native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+        native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': asan_options()})
         self.assertEqual(vm.stdout, native.stdout)
         return module
 
@@ -203,7 +207,7 @@ int64_t file_delete(const char *key) {
                 result = self.command([ROOT/'bin/nano_vm',module], success=False)
                 self.assertIn('could not retain the provider string result', result.stderr)
                 refused = self.command([self.native(module)], success=False,
-                                       env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1'})
+                                       env={**os.environ, 'ASAN_OPTIONS':asan_options()})
                 self.assertNotIn('ERROR: AddressSanitizer', refused.stderr)
                 self.assertNotIn('LeakSanitizer', refused.stderr)
                 self.assertNotIn('runtime error:', refused.stderr)
@@ -225,7 +229,7 @@ void path_basename__nano_string_release_v1(const char *value) {
         binary = self.native(module)
         for name, command in [('vm',[ROOT/'bin/nano_vm',module]), ('native',[binary])]:
             marker = self.work/(name+'-null')
-            self.command(command, success=False, env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1',
+            self.command(command, success=False, env={**os.environ, 'ASAN_OPTIONS':asan_options(),
                                                        'NANO_ARTIFACT_RELEASE_MARKER':str(marker)})
             self.assertEqual(marker.read_text(), 'released-null\n')
 
@@ -250,7 +254,7 @@ const char *path_basename(const char *input) {
         module = self.module(text)
         binary = self.native(module)
         marker = self.work/'should-not-call'
-        env = {**os.environ, 'ASAN_OPTIONS':'detect_leaks=1', 'NANO_ARTIFACT_RELEASE_MARKER':str(marker)}
+        env = {**os.environ, 'ASAN_OPTIONS':asan_options(), 'NANO_ARTIFACT_RELEASE_MARKER':str(marker)}
         result = self.command([ROOT/'bin/nano_vm',module], success=False, env=env)
         self.assertIn("own image", result.stderr)
         self.assertFalse(marker.exists())
@@ -303,7 +307,7 @@ const char *path_basename(const char *input) {
             return source.replace(needle, 'nstr_owned *owner = NULL;')
         binary = self.native(module, fail_only_copy)
         marker = self.work/'released'
-        self.command([binary], success=False, env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1',
+        self.command([binary], success=False, env={**os.environ, 'ASAN_OPTIONS':asan_options(),
                                                    'NANO_ARTIFACT_RELEASE_MARKER':str(marker)})
         self.assertEqual(marker.read_text(), '1 1\n')
 

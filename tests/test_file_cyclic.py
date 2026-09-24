@@ -1,4 +1,8 @@
 """I qualify non-admitting cyclic File query facts; no File module executes."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import json
 import os
 from pathlib import Path
@@ -25,7 +29,7 @@ class FileCyclic(unittest.TestCase):
 
     def command(self, name, args):
         (self.artifacts / f"{name}-command.txt").write_text(shlex.join(args) + "\n")
-        env = dict(os.environ, ASAN_OPTIONS="detect_leaks=1:halt_on_error=1",
+        env = dict(os.environ, ASAN_OPTIONS=asan_options("halt_on_error=1"),
                    UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
         status = {"timeout": False, "returncode": None, "leader_reaped": False,
                   "group_disappeared": None, "bound_seconds": 240, "errors": [],

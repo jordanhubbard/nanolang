@@ -1,4 +1,8 @@
 """I retain bounded SDK commands outside a checkout without buffered output loss."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import json
 import os
 from pathlib import Path
@@ -21,7 +25,7 @@ def process_rows():
 
 def run(directory, name, argv, cwd, extra=None, expected=(0,), timeout=180, track_descendants=False):
     directory = Path(directory)
-    env = dict(os.environ, LSAN_OPTIONS='', ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+    env = dict(os.environ, LSAN_OPTIONS='', ASAN_OPTIONS=asan_options("halt_on_error=1"),
                UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
     for key, value in (extra or {}).items():
         if value is None:

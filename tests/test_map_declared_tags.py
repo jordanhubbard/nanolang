@@ -1,4 +1,8 @@
 """I preserve declared map writes across ordinary VM and native products."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 from pathlib import Path
 import os
 import shlex
@@ -13,7 +17,7 @@ SANITIZER_CC = shlex.split(os.environ.get("NANOLANG_GUARD_SAN_CC", os.environ.ge
 class DeclaredMapTags(unittest.TestCase):
     def command(self, args, success=True):
         result = subprocess.run([str(x) for x in args], capture_output=True, text=True,
-            timeout=90, env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1:abort_on_error=1'})
+            timeout=90, env={**os.environ, 'ASAN_OPTIONS':asan_options("abort_on_error=1")})
         self.assertEqual(result.returncode == 0, success, str(args)+'\n'+result.stdout+result.stderr)
         return result
 

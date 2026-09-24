@@ -1,4 +1,8 @@
 """I trace fresh roots when owners are allocated and bound allocation-free work."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 from pathlib import Path
 import subprocess
@@ -54,7 +58,7 @@ class NativeCollectionDebt(unittest.TestCase):
             self.run_checked(['cc', '-std=c11', '-O2', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                               source, '-o', binary])
-            result = self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+            result = self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': asan_options()})
             print(result.stdout, end='')
 
 
@@ -109,7 +113,7 @@ int main(void) {
             self.run_checked(['cc', '-std=c11', '-O2', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                               source, '-o', binary])
-            self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+            self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': asan_options()})
 
 
 if __name__ == '__main__':

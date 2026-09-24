@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """I require explicit actual-GPU execution; each fault case is a new process."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import argparse
 import os
 from pathlib import Path
@@ -36,5 +40,5 @@ if __name__ == '__main__':
     for name, command in commands(args.compiler, args.output.resolve(), args.sanitizers):
         print('CASE', name, flush=True)
         subprocess.run(command, check=True, timeout=180, env={**os.environ,
-                       'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1',
+                       'ASAN_OPTIONS': asan_options("halt_on_error=1"),
                        'UBSAN_OPTIONS': 'halt_on_error=1:print_stacktrace=1'})

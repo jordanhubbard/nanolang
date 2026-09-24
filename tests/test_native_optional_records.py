@@ -1,4 +1,8 @@
 """I preserve optional record values through nested arrays and collection."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 from pathlib import Path
 import os
 import shlex
@@ -17,7 +21,7 @@ SUFFIX = 'PUSH_I64 0\nRET\n.end\n'
 class OptionalRecords(unittest.TestCase):
     def run_command(self, args):
         return subprocess.run(list(map(str, args)), cwd=ROOT, capture_output=True, text=True,
-                              timeout=90, env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1',
+                              timeout=90, env={**os.environ, 'ASAN_OPTIONS': asan_options("halt_on_error=1"),
                                                'UBSAN_OPTIONS': 'halt_on_error=1'})
 
     def checked(self, args):

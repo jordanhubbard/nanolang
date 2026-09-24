@@ -1,4 +1,8 @@
 """I execute real owned transfers with identical VM/native results and cleanup."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 from pathlib import Path
 import os
 import subprocess
@@ -71,7 +75,7 @@ static void release(void *p){assert(live);live--;free(p);}
                                                harness, "-o", binary], capture_output=True, text=True, timeout=60)
                     self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
                     executed = subprocess.run([binary], capture_output=True, text=True, timeout=90,
-                                              env={**os.environ, "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"})
+                                              env={**os.environ, "ASAN_OPTIONS": asan_options("halt_on_error=1")})
                     self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)
                     self.assertIn("owned cleanup passed", executed.stdout)
             self.assertEqual(len(list(tmp.glob("refused*.nvm"))), self.refusal_count)
