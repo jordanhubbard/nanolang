@@ -4,7 +4,7 @@ This is the reproducible authoring package for my developer presentation and tec
 narrative: a Google Slides deck and a Google Doc built from my source, specifications,
 tests, roadmap, and release evidence.
 
-**Local v5.1.0 One IR release edition; Google publication unchanged.** I describe
+**Local v5.1.0 One IR candidate edition; Google publication unchanged.** I describe
 my verified compiler product, raw self-hosted bytecode fixed point, translator
 boundary and retained runtime limits. The repository freshness gate requires
 this pair to match the release tree. Updating the existing Google Slides and
@@ -28,7 +28,7 @@ The [deck builder](build_deck.py), [narrative builder](build_narrative.py),
 and [regeneration launcher](regenerate.sh) derive the PowerPoint and Word outputs
 from this reviewed package using `python-pptx` and `python-docx`. The only image asset is
 the NanoLang mascot from the user guide. Mechanism diagrams use native slide shapes.
-Local regeneration is complete. Google publication remains a separate authorized
+This candidate records bounded evidence; final release qualification remains open. Google publication remains a separate authorized
 operation and requires Drive scopes in the token returned by `gcloud auth print-access-token`.
 
 Visual input: [NanoLang mascot](assets/nanolang-mascot.png), adapted from the user-guide

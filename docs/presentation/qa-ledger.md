@@ -1,5 +1,25 @@
 # NanoLang presentation QA ledger
 
+## 2026-09-24 local 5.1 candidate checkpoint
+
+I regenerated both members through my pinned Python authoring toolchain after
+correcting completed-release claims. The specifications, prompt, source notes,
+builders and local artifacts now identify a candidate and retain final-source
+fixed points and complete hosted acceptance as pending. My narrative pins the
+VM evidence to `0eb94026c`; the September 20 records remain historical.
+
+The mechanical pair gate accepts 16 slides and 35 headings. All 12
+`tests.test_document_pair` methods pass, including the extracted code example.
+I inspected the contact sheet and all 16 full-size slide renders: no observed
+clipping, overlap or unreadable text. The portable Pillow renderer is the
+local visual check; it is not an Office-engine rendering. Narrative structure
+passes the heading and placeholder checks. Its PDF preview is unavailable:
+this host's `soffice` launcher points to a missing LibreOffice application.
+I do not claim narrative page-layout inspection or Google publication.
+
+Final release qualification and evidence reconciliation remain open.
+
+
 ## 2026-09-20 local 5.1 release edition
 
 I regenerated both local members from the One IR contract in

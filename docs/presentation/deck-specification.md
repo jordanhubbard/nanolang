@@ -6,9 +6,9 @@ Explain NanoLang to software developers and compiler engineers. Show the
 language contract, the compiler pipeline, NanoISA, NanoVM, tests, diagnostics,
 what my verifier checks, and what 4.1–4.5 added on top of that.
 
-**5.1 release edition; local until publication is explicitly initiated.** I
-retain the historical 4.0 and 4.1–4.5 account while presenting my completed
-One IR product transition and its proof boundaries.
+**5.1 candidate edition; local until publication is explicitly initiated.** I
+retain the historical 4.0 and 4.1–4.5 account while presenting my One IR
+implementation, pinned evidence and unfinished release qualification.
 4.0 added bytecode verification beyond structural loading.
 4.5 keeps that contract and adds Forth Core evidence, NSI, a POSIX capability
 fabric, an isolated editor walker, effects-to-policy, and a trap journal.
@@ -38,7 +38,7 @@ trap journal library is not a hook on every VM trap.
 
 ## Slide sequence
 
-1. I am NanoLang: my 5.1 One IR release scope.
+1. I am NanoLang: my 5.1 One IR candidate scope.
 2. My design refuses ambiguity.
 3. One verified compiler product, several consumers.
 4. NanoISA is readable bytecode, not a hidden intermediate.
@@ -79,8 +79,9 @@ Slide 14 is the runtime mechanism. Five named layers — source effect, module
 requirement, NanoISA trap, NSI method, capability — and a journal that records
 at the trap boundary. Do not collapse them into one word. POSIX is the host.
 
-Slide 15 names the audited 5.1 One IR contract, raw compiler fixed point and
-translator boundary. Retained callbacks execute through the owner-thread
+Slide 15 names the 5.1 One IR candidate contract, historical raw compiler
+fixed-point evidence and translator boundary. It explicitly retains final-source
+fixed points and complete hosted acceptance as pending gates. Retained callbacks execute through the owner-thread
 bridge; they do not establish isolated callback support. Private mixed graphs
 and conservative refusals do not become public authority. Slide 7 still shows
 the six-instruction program that passed verification; that lesson did not

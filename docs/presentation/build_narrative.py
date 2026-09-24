@@ -38,11 +38,11 @@ def build() -> Path:
     section.left_margin = section.right_margin = Inches(0.9)
     document.core_properties.title = "NanoLang: the language, compiler, and VM"
     document.core_properties.author = "NanoLang"
-    document.core_properties.subject = "NanoLang 5.1 One IR release edition"
+    document.core_properties.subject = "NanoLang 5.1 One IR candidate edition"
 
     heading(document, 1, "NanoLang: the language, compiler, and VM")
     heading(document, 2, "What I am")
-    paragraph(document, "I am NanoLang. This is my local 5.1 One IR release edition. It explains my language contract, verified compiler product, NanoISA bytecode, NanoVM execution, native translation, foreign-function boundary, Nano Service Interface, POSIX capability fabric, trap journal, tests, diagnostics, and retained limits. My runtime foundations are under development. Laboratory service tests do not establish production isolation. I do not claim a kernel.")
+    paragraph(document, "I am NanoLang. This is my local 5.1 One IR candidate edition. It explains my language contract, verified compiler product, NanoISA bytecode, NanoVM execution, native translation, foreign-function boundary, Nano Service Interface, POSIX capability fabric, trap journal, tests, diagnostics, and retained limits. My runtime foundations are under development. Laboratory service tests do not establish production isolation. I do not claim a kernel.")
     paragraph(document, "Authority: docs/PERSONA.md, README.md, docs/NANOISA.md, docs/NANOISA_ONLY.md, docs/NSI.md, docs/NSI_FABRIC.md, docs/NSI_EFFECTS.md, docs/NANO_EMACS.md, docs/ROADMAP.md, spec/nanoisa.yaml, docs/RELEASE_5.1.md, docs/CALLBACK_ABI.md, and the current test suites.")
     heading(document, 2, "Who this is for")
     paragraph(document, "Software developers and compiler engineers who need the technical account behind the companion deck. I describe tested behavior. Roadmap work is labelled as such.")
@@ -107,9 +107,9 @@ def build() -> Path:
     paragraph(document, "schema/nsi/effect_map.v0.json maps source effects, NanoISA traps, NSI methods, and capabilities. I emit an inventory, generate a deployment manifest, and reject uncovered grants. A versioned journal records trap-boundary events and replays the recorded result without calling the original service. HMAC-SHA256 authenticates a journal with a deployment key; that is not PKI. Checkpoints are sequence numbers, not heap snapshots. The journal is a tested C library, not a hook on every vm.c trap. Authority: docs/NSI_EFFECTS.md.")
 
     document.add_page_break()
-    heading(document, 1, "My 5.1 One IR release contract")
+    heading(document, 1, "My 5.1 One IR candidate contract")
     paragraph(document, "I publish verified NanoISA as my portable compiler product. Unqualified compilation writes a sibling .nvm; native and C outputs are translated from that verified module. LLVM and WebAssembly consume the same module. My old NanoLang-to-C pretty-printer is outside the product dependency closure. See docs/RELEASE_5.1.md and docs/NANOISA_ONLY.md.")
-    paragraph(document, "At compiler-source pin ebe3afddc, two successive NanoVM compiler generations produced identical 491,788-byte modules with SHA-256 7b8f96e51a146364448a37cce43dd414734d31aad53eb57359c6768a107f1575. Both verified, and the second compiled, verified and executed hello. This raw fixed point is reproducibility evidence; it does not prove compiler correctness.")
+    paragraph(document, "At compiler-source pin 0eb94026c, two successive NanoVM compiler generations produced identical 526,188-byte modules with SHA-256 19e49b0210f46e1bd7490ff0efa0e49f24bf42d924c3bbafb26af42850ef474b. Both verified, and the second compiled, verified and executed hello. This raw fixed point is reproducibility evidence; it does not prove compiler correctness. The later e70c0de46 translator correction still needs final-source VM and native fixed-point qualification. Complete hosted platform, coverage and sanitizer acceptance remain pending. I have not tagged or released 5.1.")
     paragraph(document, "I retain lexical first-success matches, enclosing-function return semantics, dependency shadows, concrete generic-union identity, checked ownership metadata and lifetime-safe in-process callbacks. Unsupported ownership or service profiles fail before publication rather than being guessed.")
     heading(document, 1, "What I have not done")
     paragraph(document, "I have not completed a Forth Standard System, reviewed human translations, GNU Emacs compatibility, a kernel, CUDA or CPython as wrapped runtimes, universal backend parity, unrestricted ownership acceptance, isolated callbacks, or production service isolation. My private mixed record-array VM experiment grants no public source or service authority. See docs/ROADMAP.md and docs/RELEASE_5.1.md.")

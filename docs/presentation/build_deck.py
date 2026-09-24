@@ -100,7 +100,7 @@ def build() -> Path:
     s = slide(INK)
     s.shapes.add_picture(str(mascot), Inches(8.0), Inches(0.0), width=Inches(5.33), height=Inches(7.5))
     box(s, 0, 0, 9.1, H, INK)
-    text(s, "NANOLANG 5.1", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
+    text(s, "NANOLANG 5.1 CANDIDATE", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
     text(s, "I say what I mean.\nI compile myself.\nI show my evidence.", 0.7, 1.55, 7.0, 2.5, 34, FOG, True)
     # Someone meeting this deck cold needs to know what I am before being told
     # what I prove. The previous subtitle assumed both.
@@ -108,7 +108,7 @@ def build() -> Path:
             "A developer's view of my syntax, compiler, NanoISA, and runtime foundations on POSIX.",
          0.75, 4.35, 7.5, 1.2, 16, BLUE)
     text(s, "Verified bytecode · NSI · capabilities · fabric · trap journal", 0.75, 6.55, 7.2, 0.3, 13, ORANGE, True)
-    notes(s, ["Authority: docs/PERSONA.md, README.md, docs/RELEASE_4.5.md.",
+    notes(s, ["Authority: docs/PERSONA.md, README.md, docs/RELEASE_5.1.md.",
               "I am a language with a runtime under development. My release scope does not establish production isolation.",
               "I describe tested behavior. Work I have not done is labelled as such."])
 
@@ -273,13 +273,13 @@ def build() -> Path:
               "I do not claim a kernel, AES, PKI, or that the journal is wired into every trap."])
 
     # 15 — boundary
-    s = slide(INK); title(s, "My 5.1 One IR contract, with boundaries intact.", "I completed the product transition without turning private experiments into public authority.", 15)
-    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "5.1 RELEASE SCOPE", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
+    s = slide(INK); title(s, "My 5.1 One IR contract, with boundaries intact.", "My implementation has pinned evidence; final release qualification remains open.", 15)
+    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "5.1 CANDIDATE SCOPE", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
     text(s, "verified .nvm default\nraw compiler fixed point\nC11 / LLVM / Wasm\nconcrete union identity\naffine ownership facts\nlifetime-safe callbacks", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
     box(s, 6.9, 2.0, 5.65, 3.9, INK, True); text(s, "EXPLICIT LIMITS", 7.2, 2.35, 4.9, .3, 15, ORANGE, True)
     text(s, "private mixed graphs\nconservative refusals\nno isolated callbacks\nformal core boundary\nno kernel claim\nno universal backend claim", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
     notes(s, ["Authority: docs/RELEASE_5.1.md, docs/NANOISA_ONLY.md, docs/CALLBACK_ABI.md and docs/ROADMAP.md.",
-              "The fixed point compares raw Stage 1 and Stage 2 compiler modules; it does not prove compiler correctness.",
+              "The VM fixed point at 0eb94026c compares raw Stage 1 and Stage 2 modules. It does not prove compiler correctness. Final-source VM/native fixed points and complete hosted acceptance remain pending.",
               "Private non-admitting mixed record-array work remains outside the public product contract."])
 
     # 16 — closing
@@ -287,7 +287,7 @@ def build() -> Path:
     text(s, "Start with the code.\nThen run the gates.", .75, 1.7, 7.4, 1.4, 34, FOG, True)
     text(s, "read · change · shadow-test · verify · measure", .8, 4.0, 7.5, .4, 18, ORANGE, True, mono=True)
     text(s, "docs/RELEASE_5.1.md · docs/NANOISA_ONLY.md", .8, 5.25, 7.6, .4, 12, BLUE, mono=True)
-    notes(s, ["Authority: CONTRIBUTING.md, docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_4.5.md."])
+    notes(s, ["Authority: CONTRIBUTING.md, docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_5.1.md."])
     footer(s, 16)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)

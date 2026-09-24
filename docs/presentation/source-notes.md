@@ -30,9 +30,9 @@
 
 ## Release evidence
 
-The release before this edition is `v5.0.0`. This local 5.1 release edition
+The release before this edition is `v5.0.0`. This local 5.1 candidate edition
 does not claim external document publication.
-`docs/RELEASE_5.1.md` is the current release authority;
+`docs/RELEASE_5.1.md` is the current candidate authority;
 `docs/RELEASE_5.0.md` preserves the narrower prior cut.
 The verified local counts at `v4.0.0` were 2,632 NanoISA tests, 621
 NanoVM tests, 63 NanoVirt tests, and 93 verifier tests. 4.1–4.5 add Forth,
@@ -85,6 +85,21 @@ processes have deadlines, not security sandboxing. `make test-language-claims`
 checks the compiler observations; formal correspondence remains separate.
 The shared nonnegative-input `examples/gcd.nano` demonstrates executable assertions,
 not a theorem for every integer. Artifact tests extract and compile its text.
+
+## 5.1 candidate checkpoint — 2026-09-24
+
+I have not completed or tagged 5.1. PR #522 remains draft while full hosted
+platforms, coverage, all sanitizer partitions and final-source fixed points
+are under qualification. The following September 20 record is historical.
+
+At `0eb94026c`, the VM gate produced matching 526,188-byte modules with SHA-256
+`19e49b0210f46e1bd7490ff0efa0e49f24bf42d924c3bbafb26af42850ef474b`.
+It verified both generations, stable host closure and a final hello, with zero
+NanoLang-generated C calls during VM generations. At `e70c0de46`, local
+translator gates pass 2,524 assertions, shape checks pass 1,565 and all nine
+original functional-array methods pass with generated sanitizers. Fresh Darwin
+native bootstrap passes. These bounded checks do not replace final acceptance.
+`docs/evidence/pr522-implementation-2026-09-23/` retains the exact evidence.
 
 ## 5.1 release-edition checkpoint — 2026-09-20
 
