@@ -4121,15 +4121,22 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         bool nested_union = payload &&
                             (payload->base_type == TYPE_STRUCT || payload->base_type == TYPE_UNION) &&
                             payload->generic_name && env_get_union(env, payload->generic_name);
-                        if (nested_union) {
+                        bool enum_payload = payload &&
+                            (payload->base_type == TYPE_STRUCT || payload->base_type == TYPE_ENUM) &&
+                            payload->generic_name && env_get_enum(env, payload->generic_name);
+                        if (nested_union || enum_payload) {
                             ASTNode *value = expr->as.struct_literal.field_values[i];
+                            if (enum_payload) payload->base_type = TYPE_ENUM;
                             check_concrete_union_arrays(env, payload, value, 0);
-                            bool matches = indirect_argument_matches(value, env, payload, TYPE_UNION, 0);
+                            bool matches = enum_payload ?
+                                reduce_expression_matches(value, payload, env, 0) :
+                                indirect_argument_matches(value, env, payload, TYPE_UNION, 0);
                             free_payload_type_info(payload);
                             if (!matches)
                                 emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
-                                    "I require the declared nested union payload type.",
-                                    "Match the nested union declaration and concrete arguments.");
+                                    enum_payload ? "I require the declared enum payload type." :
+                                        "I require the declared nested union payload type.",
+                                    "Match the declared enum or union and its concrete arguments.");
                             goto next_union_field;
                         }
                         free_payload_type_info(payload);

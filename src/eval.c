@@ -765,9 +765,27 @@ static void eval_sb_append_char(EvalSB *sb, char c) {
     sb->buf[sb->len] = '\0';
 }
 
-static void eval_sb_append_value(EvalSB *sb, Value val);
+static void eval_sb_append_value(EvalSB *sb, Value val, Environment *env);
 
-static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
+static void eval_sb_append_field(EvalSB *sb, Value val, Environment *env,
+                                 const char *type_name) {
+    EnumDef *definition = type_name ? env_get_enum(env, type_name) : NULL;
+    if (definition && val.type == VAL_INT) {
+        eval_sb_append_cstr(sb, definition->name);
+        eval_sb_append_char(sb, '.');
+        for (int i = 0; i < definition->variant_count; ++i) {
+            if (val.as.int_val == definition->variant_values[i]) {
+                eval_sb_append_cstr(sb, definition->variant_names[i]);
+                return;
+            }
+        }
+        eval_sb_append_cstr(sb, "<unknown>");
+        return;
+    }
+    eval_sb_append_value(sb, val, env);
+}
+
+static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr, Environment *env) {
     eval_sb_append_char(sb, '[');
     int64_t len = dyn_array_length(arr);
     ElementType elem_type = dyn_array_get_elem_type(arr);
@@ -781,9 +799,7 @@ static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
                 break;
             }
             case ELEM_FLOAT: {
-                char tmp[64];
-                nano_rt_f64_format(tmp, sizeof(tmp), dyn_array_get_float(arr, i));
-                eval_sb_append_cstr(sb, tmp);
+                eval_sb_append_value(sb, create_float(dyn_array_get_float(arr, i)), env);
                 break;
             }
             case ELEM_BOOL:
@@ -795,7 +811,7 @@ static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
                 eval_sb_append_char(sb, '"');
                 break;
             case ELEM_ARRAY:
-                eval_sb_append_dyn_array(sb, dyn_array_get_array(arr, i));
+                eval_sb_append_dyn_array(sb, dyn_array_get_array(arr, i), env);
                 break;
             default:
                 eval_sb_append_cstr(sb, "?");
@@ -805,7 +821,7 @@ static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
     eval_sb_append_char(sb, ']');
 }
 
-static void eval_sb_append_value(EvalSB *sb, Value val) {
+static void eval_sb_append_value(EvalSB *sb, Value val, Environment *env) {
     switch (val.type) {
         case VAL_INT: {
             char tmp[64];
@@ -849,9 +865,7 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
                         break;
                     }
                     case VAL_FLOAT: {
-                        char tmp[64];
-                        nano_rt_f64_format(tmp, sizeof(tmp), ((double*)arr->data)[i]);
-                        eval_sb_append_cstr(sb, tmp);
+                        eval_sb_append_value(sb, create_float(((double*)arr->data)[i]), env);
                         break;
                     }
                     case VAL_BOOL:
@@ -861,6 +875,9 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
                         eval_sb_append_char(sb, '"');
                         eval_sb_append_cstr(sb, ((char**)arr->data)[i]);
                         eval_sb_append_char(sb, '"');
+                        break;
+                    case VAL_ARRAY:
+                        eval_sb_append_value(sb, ((Value*)arr->data)[i], env);
                         break;
                     default:
                         eval_sb_append_cstr(sb, "?");
@@ -872,24 +889,35 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
         }
         case VAL_DYN_ARRAY: {
             DynArray *arr = val.as.dyn_array_val;
-            eval_sb_append_dyn_array(sb, arr);
+            eval_sb_append_dyn_array(sb, arr, env);
             break;
         }
         case VAL_STRUCT: {
             StructValue *sv = val.as.struct_val;
+            StructDef *definition = env_get_struct(env, sv->struct_name);
             eval_sb_append_cstr(sb, sv->struct_name);
             eval_sb_append_cstr(sb, " { ");
             for (int i = 0; i < sv->field_count; i++) {
                 if (i > 0) eval_sb_append_cstr(sb, ", ");
                 eval_sb_append_cstr(sb, sv->field_names[i]);
                 eval_sb_append_cstr(sb, ": ");
-                eval_sb_append_value(sb, sv->field_values[i]);
+                const char *type_name = NULL;
+                if (definition && definition->field_type_names) {
+                    for (int field = 0; field < definition->field_count; ++field) {
+                        if (strcmp(sv->field_names[i], definition->field_names[field]) == 0) {
+                            type_name = definition->field_type_names[field];
+                            break;
+                        }
+                    }
+                }
+                eval_sb_append_field(sb, sv->field_values[i], env, type_name);
             }
             eval_sb_append_cstr(sb, " }");
             break;
         }
         case VAL_UNION: {
             UnionValue *uv = val.as.union_val;
+            UnionDef *definition = env_get_union(env, uv->union_name);
             eval_sb_append_cstr(sb, uv->union_name);
             eval_sb_append_char(sb, '.');
             eval_sb_append_cstr(sb, uv->variant_name);
@@ -899,7 +927,18 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
                     if (i > 0) eval_sb_append_cstr(sb, ", ");
                     eval_sb_append_cstr(sb, uv->field_names[i]);
                     eval_sb_append_cstr(sb, ": ");
-                    eval_sb_append_value(sb, uv->field_values[i]);
+                    const char *type_name = NULL;
+                    int variant = uv->variant_index;
+                    if (definition && variant >= 0 && variant < definition->variant_count &&
+                        definition->variant_field_type_names && definition->variant_field_type_names[variant]) {
+                        for (int field = 0; field < definition->variant_field_counts[variant]; ++field) {
+                            if (strcmp(uv->field_names[i], definition->variant_field_names[variant][field]) == 0) {
+                                type_name = definition->variant_field_type_names[variant][field];
+                                break;
+                            }
+                        }
+                    }
+                    eval_sb_append_field(sb, uv->field_values[i], env, type_name);
                 }
                 eval_sb_append_cstr(sb, " }");
             }
@@ -910,7 +949,7 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
             eval_sb_append_char(sb, '(');
             for (int i = 0; i < tv->element_count; i++) {
                 if (i > 0) eval_sb_append_cstr(sb, ", ");
-                eval_sb_append_value(sb, tv->elements[i]);
+                eval_sb_append_value(sb, tv->elements[i], env);
             }
             eval_sb_append_char(sb, ')');
             break;
@@ -933,20 +972,20 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
     }
 }
 
-static Value builtin_to_string(Value *args) {
+static Value builtin_to_string(Value *args, Environment *env) {
     Value arg = args[0];
     if (arg.type == VAL_STRING) return arg;
 
     EvalSB sb = eval_sb_new(256);
-    eval_sb_append_value(&sb, arg);
+    eval_sb_append_value(&sb, arg, env);
     const char *out = sb.buf ? sb.buf : "";
     Value v = create_string(out);
     free(sb.buf);
     return v;
 }
 
-static Value builtin_cast_string(Value *args) {
-    return builtin_to_string(args);
+static Value builtin_cast_string(Value *args, Environment *env) {
+    return builtin_to_string(args, env);
 }
 
 static Value builtin_print(Value *args) {
@@ -3143,9 +3182,9 @@ static Value eval_builtin_call(ASTNode *node, Environment *env, const char *name
                     : create_int(nl_float_to_bits(args[0].as.float_val));
     }
     if (strcmp(name, "cast_bool") == 0) return builtin_cast_bool(args);
-    if (strcmp(name, "cast_string") == 0) return builtin_cast_string(args);
+    if (strcmp(name, "cast_string") == 0) return builtin_cast_string(args, env);
     if (strcmp(name, "null_opaque") == 0) return builtin_null_opaque(args);
-    if (strcmp(name, "to_string") == 0) return builtin_to_string(args);
+    if (strcmp(name, "to_string") == 0) return builtin_to_string(args, env);
 
     /* Additional type conversion functions */
     if (strcmp(name, "float_to_string") == 0) {

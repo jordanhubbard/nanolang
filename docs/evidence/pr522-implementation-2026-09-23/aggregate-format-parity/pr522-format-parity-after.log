@@ -1,0 +1,38 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -ffp-contract=off -fno-fast-math -c src/eval.c -o obj/eval.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -DNANO_WRAPPER_CRYPTO_DIR='"/opt/homebrew/opt/openssl@3/lib"' -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+python3 -m unittest tests.test_cseed_aggregate_formatting
+F...
+======================================================================
+FAIL: test_enum_union_fields_and_nested_float_arrays (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_enum_union_fields_and_nested_float_arrays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 27, in test_enum_union_fields_and_nested_float_arrays
+            self.execute(r'''enum Mode { Quiet = 3, Loud = 7 }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Choice { Selected { mode: Mode }, Empty {} }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 18, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-wcjrj0kl/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-wcjrj0kl/product')]
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-wcjrj0kl/case.nano
+Field type mismatch in variant 'Choice.Selected': got enum, expected struct.
+
+8|  let state: State = State { mode: Mode.Loud, choice: Choice.Selected { mode: Mode.Quiet }, values: nested }
+                                                        ^
+Hint: Ensure each field value matches the variant's declared type.
+Type checking failed
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 6.314s
+
+FAILED (failures=1)
+make: *** [test-cseed-aggregate-formatting] Error 1
