@@ -1,0 +1,12 @@
+{
+  "tuple-generic-cycle.nvm": {
+    "bytes": 368,
+    "sha256": "7b45f031a13acd63580a61ed7821955c1b880c6779c58740b047a83963b58f7b",
+    "observation": "incorrectly published before the corresponding validator correction"
+  },
+  "named-list-cycle.nvm": {
+    "bytes": 360,
+    "sha256": "4e7fd339dac41111d290b66ba69ef4bc45fd85e86c7cdaafffe4f099953c94bb",
+    "observation": "incorrectly published before the corresponding validator correction"
+  }
+}

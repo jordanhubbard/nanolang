@@ -85,6 +85,28 @@ shadow main {{ assert (== (main) 0) }}
                                   "-o", binary])
                 self.run_command([binary])
 
+    def test_nominal_cycles_are_rejected_before_bytecode_publication(self):
+        from tests.test_native_nominal_order import CYCLIC_LAYOUTS, FINITE_LAYOUTS, MAIN
+
+        cases = [(source, False) for source in CYCLIC_LAYOUTS]
+        cases.extend((source, True) for source in FINITE_LAYOUTS)
+        for index, (declarations, accepted) in enumerate(cases):
+            with self.subTest(case=index), tempfile.TemporaryDirectory(
+                prefix="nano-layout-cycle-"
+            ) as tmp:
+                directory = Path(tmp)
+                source = directory / "program.nano"
+                module = directory / "program.nvm"
+                source.write_text(declarations + '\n' + MAIN)
+                module.write_bytes(b"prior accepted module")
+                result = self.run_command([DRIVER, source, "--emit-nvm", "-o", module],
+                                          expected=0 if accepted else 1)
+                if accepted:
+                    self.run_command([ROOT / "bin/nano_vm", module])
+                else:
+                    self.assertIn(b"cyclic by-value", result.stdout + result.stderr)
+                    self.assertEqual(module.read_bytes(), b"prior accepted module")
+
     def test_repeatable_module_executes_in_vm_and_native(self):
         with tempfile.TemporaryDirectory(prefix="nano-driver-") as tmp:
             directory = Path(tmp)
