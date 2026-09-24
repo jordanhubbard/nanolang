@@ -48,7 +48,7 @@ pub fn parse_fn_type_params(t: string) -> array<string> {
         } else {
         if (and (== ch ",") (== depth 0)) {
             let param: string = (str_substring params_str start (- i start))
-            set result (array_push result param)
+            set result (array_push result (str_trim param))
             set start (+ i 1)
         } else { (print "") }
         } }
@@ -56,7 +56,7 @@ pub fn parse_fn_type_params(t: string) -> array<string> {
     }
     if (< start plen) {
         let param: string = (str_substring params_str start (- plen start))
-        set result (array_push result param)
+        set result (array_push result (str_trim param))
     } else { (print "") }
     return result
 }
@@ -113,7 +113,7 @@ pub fn parse_fn_type_return(t: string) -> string {
                 } else {
                     set i alen
                     let ret: string = (str_substring after rstart (- alen rstart))
-                    return ret
+                    return (str_trim ret)
                 }
             }
         } else { (print "") }
@@ -127,4 +127,3 @@ shadow parse_fn_type_return {
     assert (== (parse_fn_type_return "fn()->string") "string")
     assert (== (parse_fn_type_return "fn()->void") "void")
 }
-

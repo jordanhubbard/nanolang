@@ -2805,15 +2805,24 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (results && aggregate_value_tag(candidate->result_tag)) result_kind = NVM2C_VK_REC;
             else if (results && candidate->result_tag == TAG_HASHMAP) result_kind = NVM2C_VK_MAP;
             else if (results && candidate->result_tag == TAG_ARRAY) result_kind = b->array_results[target];
-            if (results && result_kind == NVM2C_VK_UNK) {
+            if (results && result_kind == NVM2C_VK_UNK && candidate->result_tag != TAG_ARRAY) {
                 nvm2c_fail(b, "function %u: CALL_INDIRECT target has an unresolved result representation", idx);
                 return 0;
             }
             for (uint16_t p = 0; p < argc; ++p) {
                 Nvm2cSimSlot *arg = &stk[sp - argc + p];
-                uint8_t expected = facts->parameters[(size_t)target * b->local_width + p];
+                size_t at = (size_t)target * b->local_width + p;
+                uint8_t expected = facts->parameters[at];
                 if (expected == NVM2C_VK_UNK && mod->function_param_types && mod->function_param_types[target])
                     expected = scalar_kind_for_tag(mod->function_param_types[target][p]);
+                uint8_t declared_tag = mod->function_param_types && mod->function_param_types[target]
+                    ? mod->function_param_types[target][p] : TAG_VOID;
+                if (expected == NVM2C_VK_UNK && declared_tag == TAG_ARRAY &&
+                    (word_array_storage(arg->kind) || arg->kind == NVM2C_VK_SARR ||
+                     arg->kind == NVM2C_VK_RARR || arg->kind == NVM2C_VK_AARR)) {
+                    if (!merge_call_parameter(b, facts, &facts->parameters[at], arg->kind)) return 0;
+                    expected = facts->parameters[at];
+                }
                 if (expected == NVM2C_VK_UNK) {
                     if (!facts->final) continue;
                     nvm2c_fail(b, "function %u: CALL_INDIRECT target parameter is unresolved", idx);
@@ -2829,6 +2838,16 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     arg->scalar_tags = scalar_kind_tags(expected);
                     mark_origin(local_kind, nloc, arg->origin, expected);
                     if (!shape_field_kind(b, arg->shape, expected)) return 0;
+                }
+                if (declared_tag == TAG_ARRAY) {
+                    NvmShapeId parameter = shape_variable(b, &b->shape_locals[at]);
+                    if (!shape_type(b, parameter, NVM_SHAPE_ARRAY)) return 0;
+                    if (arg->kind == NVM2C_VK_RARR) {
+                        uint8_t *fields = facts->fields + at * b->record_width;
+                        if (!merge_record_results(b, facts, fields, arg->rec_k) ||
+                            !shape_record_return(b, shape_child(b, arg->shape, 0),
+                                                 shape_child(b, parameter, 0), arg->rec_k, fields)) return 0;
+                    } else if (!shape_equal(b, arg->shape, parameter)) return 0;
                 }
             }
             for (uint16_t p = argc; p > 0; --p) {
@@ -5698,7 +5717,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 else if (result_kind == NVM2C_VK_MAP) result = stack_push_map(b, &st, "NULL");
                 else if (word_array_storage(result_kind)) result = stack_push_iarray(b, &st, "NULL", result_kind);
                 else if (result_kind == NVM2C_VK_SARR) result = stack_push_sarr(b, &st, "NULL");
-                else if (result_kind == NVM2C_VK_AARR) result = stack_push_aarr(b, &st, "NULL");
+                else if (result_kind == NVM2C_VK_AARR) result = stack_push_aarr(b, &st, "(nmap_value){0}");
                 else result = stack_push_temp(b, &st, "0");
                 if (b->failed) goto done;
             }
