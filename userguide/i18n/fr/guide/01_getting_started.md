@@ -18,8 +18,8 @@ Il te faut un compilateur C, Make, Git et pkg-config. Clone et construis :
 ```bash
 git clone https://github.com/jordanhubbard/nanolang.git
 cd nanolang
-make build
-./bin/nanoc --version
+make build bootstrap3
+./bin/nanoc --help
 ```
 
 `bin/nanoc` est mon compilateur. `bin/nano` est mon interpréteur qui parcourt l'arbre.
@@ -47,7 +47,14 @@ Compile-le et exécute-le :
 ./hello
 ```
 
-Je transpile ce programme vers C et j'invoque le compilateur C hôte. Les ombres s'exécutent pendant que je compile ; le programme résultant exécute ensuite son harnais d'ombres généré au démarrage. Une ombre en échec arrête le processus.
+Avec `-o hello`, je produis un exécutable natif à partir de NanoISA vérifié, via mon traducteur C et le compilateur C hôte. J’exécute les tests d’ombre sélectionnés séparément avant de publier l’exécutable ; ils ne s’exécutent pas de nouveau au démarrage du programme. L’échec d’un test d’ombre empêche la publication.
+
+Sans option de sortie ou de cible, je publie plutôt du bytecode portable :
+
+```bash
+./bin/nanoc hello.nano
+./bin/nano_vm hello.nvm
+```
 
 ## Interpréteur
 
@@ -74,5 +81,4 @@ Voir [`examples/hello_pkg`](https://github.com/jordanhubbard/nanolang/tree/main/
 
 ## Suite
 
-Lis [Langage](02_language.md) pour les appels, les opérateurs, les liaisons, les fonctions et le flot de contrôle.
-
+Lis [Langage](02_language.md) pour les appels, les opérateurs, les liaisons, les fonctions et le flot de contrôle. Ensuite, [Environnement d’exécution sécurisé](08_secure_runtime.md) explique comment un programme reçoit l’autorisation d’accéder à l’hôte.

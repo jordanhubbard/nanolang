@@ -18,8 +18,8 @@ lang: zh
 ```bash
 git clone https://github.com/jordanhubbard/nanolang.git
 cd nanolang
-make build
-./bin/nanoc --version
+make build bootstrap3
+./bin/nanoc --help
 ```
 
 `bin/nanoc` 是我的编译器。`bin/nano` 是我的树遍历解释器。
@@ -47,7 +47,14 @@ shadow main {
 ./hello
 ```
 
-我把这个程序转译成 C，并调用宿主 C 编译器。影子测试在我编译时执行；生成的程序随后在启动时运行其生成的影子测试套件。失败的影子测试会终止进程。
+使用 `-o hello` 时，我通过 C 转译器和宿主 C 编译器，将经过验证的 NanoISA 转换为原生可执行文件。我在发布可执行文件之前单独运行选定的影子测试；它们不会在程序启动时再次运行。影子测试失败会阻止发布。
+
+如果没有指定输出或目标选项，我会改为发布可移植字节码：
+
+```bash
+./bin/nanoc hello.nano
+./bin/nano_vm hello.nvm
+```
 
 ## 解释器
 
@@ -74,5 +81,4 @@ my_program/
 
 ## 下一步
 
-阅读 [语言](02_language.md)，了解调用、运算符、绑定、函数和控制流。
-
+阅读 [语言](02_language.md)，了解调用、运算符、绑定、函数和控制流。 接着阅读 [安全运行时](08_secure_runtime.md)，了解程序如何获准访问宿主。

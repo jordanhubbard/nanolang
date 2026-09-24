@@ -18,3 +18,10 @@ the code pin passed before these edits.
 
 Final hosted acceptance, native and VM fixed points, and release presentation
 reconciliation remain open. I have not tagged or released 5.1.
+
+The subsequent hosted guide unit gate catches a stale translation-memory hash
+for my changed getting-started chapter. I retain that first failure, refresh
+all five machine drafts (including commands and product/shadow explanations),
+and update the memory only afterward. All 15 guide tests and all six rendered
+editions pass. All five drafts retain byte-identical English code fences and
+snippet markers, `machine_generated: true` and `reviewed: false`.

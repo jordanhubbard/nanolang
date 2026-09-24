@@ -18,8 +18,8 @@ Necesitas un compilador C, Make, Git y pkg-config. Clona y construye:
 ```bash
 git clone https://github.com/jordanhubbard/nanolang.git
 cd nanolang
-make build
-./bin/nanoc --version
+make build bootstrap3
+./bin/nanoc --help
 ```
 
 `bin/nanoc` es mi compilador. `bin/nano` es mi intérprete que recorre el árbol.
@@ -47,7 +47,14 @@ Compílalo y ejecútalo:
 ./hello
 ```
 
-Transpilo este programa a C e invoco el compilador C del anfitrión. Las sombras se ejecutan mientras compilo; el programa resultante luego ejecuta su arnés de sombras generado como parte del arranque. Una sombra fallida detiene el proceso.
+Con `-o hello`, produzco un ejecutable nativo a partir de NanoISA verificado mediante mi traductor a C y el compilador C del anfitrión. Ejecuto las pruebas de sombra seleccionadas por separado antes de publicar el ejecutable; no vuelven a ejecutarse al iniciar el programa. Una prueba de sombra fallida impide la publicación.
+
+Sin una opción de salida o destino, publico bytecode portátil:
+
+```bash
+./bin/nanoc hello.nano
+./bin/nano_vm hello.nvm
+```
 
 ## Intérprete
 
@@ -74,5 +81,4 @@ Consulta [`examples/hello_pkg`](https://github.com/jordanhubbard/nanolang/tree/m
 
 ## Siguiente
 
-Lee [Lenguaje](02_language.md) para llamadas, operadores, enlaces, funciones y flujo de control.
-
+Lee [Lenguaje](02_language.md) para llamadas, operadores, enlaces, funciones y flujo de control. Después, [Entorno de ejecución seguro](08_secure_runtime.md) explica cómo se permite que un programa acceda al anfitrión.
