@@ -7054,6 +7054,20 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
     }
 
+    /* I retain declared array containers even when no caller supplies an
+     * element representation. Copies carry that container fact forward; a
+     * declaration alone never selects integer or record element storage. */
+    for (uint32_t f = 0; f < mod->function_count; ++f) {
+        const uint8_t *tags = mod->function_param_types ? mod->function_param_types[f] : NULL;
+        if (!tags) continue;
+        for (uint16_t p = 0; p < mod->functions[f].arity; ++p) {
+            size_t at = (size_t)f * b.local_width + p;
+            if (tags[p] != TAG_ARRAY || facts.parameters[at] != NVM2C_VK_UNK) continue;
+            NvmShapeId shape = shape_variable(&b, &b.shape_locals[at]);
+            if (nvm_shape_kind(&b.shapes, shape) == NVM_SHAPE_UNKNOWN &&
+                !shape_type(&b, shape, NVM_SHAPE_ARRAY)) goto fail;
+        }
+    }
     if (!nvm_shape_solve_conversions(&b.shapes)) {
         nvm2c_fail(&b, "I cannot solve aggregate storage shape conversions: %s", b.shapes.error);
         goto fail;
@@ -7122,6 +7136,23 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             pc += size;
         }
     }
+    /* A local copy has distinct storage, so its shape root need not equal
+     * the projected field's root. I retain tagged provenance through copies
+     * that remain unconstrained, without widening any exact consumer. */
+    int tagged_changed;
+    do {
+        tagged_changed = 0;
+        for (size_t i = 0; i < b.shapes.conversion_count; ++i) {
+            NvmShapeConversion conversion = b.shapes.conversions[i];
+            NvmShapeId source = nvm_shape_root(&b.shapes, conversion.source);
+            NvmShapeId target = nvm_shape_root(&b.shapes, conversion.target);
+            if (tagged_projections[source] && !tagged_projections[target] &&
+                nvm_shape_kind(&b.shapes, target) == NVM_SHAPE_UNKNOWN) {
+                tagged_projections[target] = 1;
+                tagged_changed = 1;
+            }
+        }
+    } while (tagged_changed);
     for (uint32_t f = 0; f < mod->function_count; ++f) {
         if (mod->functions[f].result_tag == TAG_ARRAY) {
             uint8_t resolved = resolved_shape_kind(&b, b.shape_results[f]);

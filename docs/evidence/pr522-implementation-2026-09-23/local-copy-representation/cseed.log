@@ -1,0 +1,12 @@
+UNRESOLVED f=325 pc=37 root=287242
+  TO root=287243 kind=4
+UNRESOLVED f=714 pc=38 root=613537
+  TO root=623847 kind=6
+UNRESOLVED f=717 pc=37 root=614021
+  TO root=614022 kind=0
+  TO root=614029 kind=0
+UNRESOLVED f=732 pc=69 root=619512
+  TO root=623847 kind=6
+UNRESOLVED f=779 pc=110 root=637263
+  TO root=637264 kind=2
+I cannot translate '/tmp/pr522-runtime-consumers/retained/nano-one-ir-compiler-qai9qh9e/compiler.nvm': I cannot solve unresolved array read storage: I cannot convert aggregate storage optional to record at nodes 287242/287243

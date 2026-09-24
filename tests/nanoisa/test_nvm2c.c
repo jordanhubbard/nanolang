@@ -6642,9 +6642,14 @@ static void test_uncalled_array_parameter_projection_storage(void) {
 
 static void test_uncalled_array_record_consumer_constraints(void) {
     for (unsigned order = 0; order < 2; ++order) {
-        const char *reader =
-            ".function reader 1 1 0 int 1\n"
-            " LOAD_LOCAL 0\n PUSH_I64 0\n ARR_GET\n CALL consume\n RET\n.end\n";
+      for (unsigned copies = 0; copies < 3; ++copies) {
+        char reader[512];
+        const char *aliases[] = {"", " STORE_LOCAL 1\n LOAD_LOCAL 1\n",
+            " STORE_LOCAL 1\n LOAD_LOCAL 1\n STORE_LOCAL 2\n LOAD_LOCAL 2\n"};
+        snprintf(reader, sizeof reader,
+            ".function reader 1 %u 0 int 1\n"
+            " LOAD_LOCAL 0\n PUSH_I64 0\n ARR_GET\n%s CALL consume\n RET\n.end\n",
+            copies + 1, aliases[copies]);
         const char *consumer =
             ".function consume 1 1 0 int 1\n"
             " LOAD_LOCAL 0\n AGG_GET 0\n RET\n.end\n";
@@ -6661,9 +6666,24 @@ static void test_uncalled_array_record_consumer_constraints(void) {
             int status = -1;
             CHECK(compile_and_run(c, &status) == 0, "I compile the retained record-array reader");
             CHECK(status == 0, "I preserve its independent entry point");
+            const char *prefix = "#define main generated_main\n";
+            const char *suffix = "\n#undef main\nint main(void) {\n"
+                " nrec_t record = {.n = 1}; record.f[0] = 42;\n"
+                " nrarr_s array = {.data = &record, .len = 1};\n"
+                " return nl_reader(&array) != 42;\n}\n";
+            size_t size = strlen(prefix) + strlen(c) + strlen(suffix) + 1;
+            char *probe = malloc(size);
+            CHECK(probe != NULL, "I allocate the record-array execution probe");
+            if (probe) {
+                snprintf(probe, size, "%s%s%s", prefix, c, suffix);
+                CHECK(compile_and_run(probe, &status) == 0, "I compile copied record-array consumers");
+                CHECK(status == 0, "I execute record reads through each local copy chain");
+                free(probe);
+            }
             free(c);
         }
         nvm_module_free(m);
+      }
     }
 }
 

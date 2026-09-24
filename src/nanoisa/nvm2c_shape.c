@@ -357,9 +357,24 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
 int nvm_shape_solve_conversions(NvmShapeGraph *g) {
     int changed;
     do {
-        changed = 0;
-        for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
-            if (!flow_one(g, g->conversions[i], &changed, 0)) return 0;
+        do {
+            changed = 0;
+            for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
+                if (!flow_one(g, g->conversions[i], &changed, 0)) return 0;
+        } while (changed && !g->error);
+        /* A record or array consumer also constrains an unknown producer's
+         * container kind. I retain distinct copy layouts and do not infer
+         * scalar tags, optional payloads or field types from a consumer. */
+        for (size_t i = 0; i < g->conversion_count && !g->error; ++i) {
+            NvmShapeConversion conversion = g->conversions[i];
+            NvmShapeKind target = nvm_shape_kind(g, conversion.target);
+            if ((target == NVM_SHAPE_RECORD || target == NVM_SHAPE_ARRAY) &&
+                nvm_shape_kind(g, conversion.source) == NVM_SHAPE_UNKNOWN) {
+                NvmShapeId container = nvm_shape_new(g, target);
+                if (!container || !nvm_shape_unify(g, conversion.source, container)) return 0;
+                changed = 1;
+            }
+        }
     } while (changed && !g->error);
     /* Unknown sources may resolve on a later conversion pass. Only after
      * convergence do I require evidence for explicit scalar-set injection.

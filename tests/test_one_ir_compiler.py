@@ -1,5 +1,6 @@
 """I require a native compiler built from bytecode to compile a real program."""
 import os
+import re
 from pathlib import Path
 import shutil
 import signal
@@ -16,6 +17,20 @@ HOST_RUNTIME = [ROOT / "bin/nano_aot_runtime.o", "-lm",
 
 
 class OneIrCompiler(unittest.TestCase):
+    def assert_standalone_c(self, source):
+        # My compiler retains VM launcher paths as data for its own products.
+        # A literal is not a reference to an embedded VM implementation.
+        code = re.sub(r'"(?:\\.|[^"\\])*"', '""', source)
+        self.assertNotIn("nano_vm", code)
+
+    def test_standalone_code_check_retains_vm_refusal(self):
+        self.assert_standalone_c('const char *path = "bin/nano_vm";')
+        self.assert_standalone_c(r'const char *text = "escaped \" nano_vm_run()";')
+        for source in ('nano_vm_run();', 'void *nano_vm_create(void);',
+                       'const char *path = "bin/nano_vm"; nano_vm_run();'):
+            with self.subTest(source=source), self.assertRaises(AssertionError):
+                self.assert_standalone_c(source)
+
     def test_void_locals_preserve_tags_through_calls_and_tail_restarts(self):
         fixtures = {}
         for name, tag, value, consume in (
@@ -235,7 +250,7 @@ static inline void tracked_free(void *p) {
                               "--emit-nvm", "--strip-debug", "-o", module], timeout=600)
             self.assertGreater(module.stat().st_size, 0)
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
-            self.assertNotIn("nano_vm", source.read_text())
+            self.assert_standalone_c(source.read_text())
             self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
                               source, "-o", compiler, *HOST_RUNTIME], timeout=240)
             help_output = self.run_checked([compiler, "--help"], timeout=10)
@@ -274,7 +289,7 @@ static inline void tracked_free(void *p) {
                               "-o", module], timeout=600, extra_env=helper_env)
             self.assertGreater(module.stat().st_size, 0)
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
-            self.assertNotIn("nano_vm", source.read_text())
+            self.assert_standalone_c(source.read_text())
             self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
                               source, "-o", compiler, *HOST_RUNTIME], timeout=240)
             self.assertIn(b"Compiler", self.run_checked([compiler, "--help"], timeout=10))
@@ -921,14 +936,14 @@ fn main() -> int {
         cc = native_cc()
         self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for reverse in (False, True):
-            for local in (False, True):
-                with self.subTest(reverse=reverse, local=local), tempfile.TemporaryDirectory(prefix="nano-projected-tag-") as tmp:
+            for copies in (0, 1, 3):
+                with self.subTest(reverse=reverse, copies=copies), tempfile.TemporaryDirectory(prefix="nano-projected-tag-") as tmp:
                     work = Path(tmp)
                     assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
                     main = '.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'
-                    helper = '.function probe 1 2 0 bool 1\nLOAD_LOCAL 0\nAGG_GET 0\n'
-                    if local:
-                        helper += 'STORE_LOCAL 1\nLOAD_LOCAL 1\n'
+                    helper = f'.function probe 1 {max(2, copies + 1)} 0 bool 1\nLOAD_LOCAL 0\nAGG_GET 0\n'
+                    for slot in range(1, copies + 1):
+                        helper += f'STORE_LOCAL {slot}\nLOAD_LOCAL {slot}\n'
                     helper += 'PUSH_I64 24\nEQ\nRET\n.end\n'
                     assembly.write_text('.entry main\n' + (helper + main if reverse else main + helper) +
                                         f'.parameters {0 if reverse else 1} struct\n')

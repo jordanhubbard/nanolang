@@ -456,6 +456,49 @@ static void test_nested_variant_payload_widening(void) {
     }
 }
 
+static void test_aggregate_consumer_copies(void) {
+    for (int reverse = 0; reverse < 2; ++reverse) {
+        for (int array = 0; array < 2; ++array) {
+            NvmShapeGraph g = {0};
+            NvmShapeKind kind = array ? NVM_SHAPE_ARRAY : NVM_SHAPE_RECORD;
+            NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+            NvmShapeId local = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+            NvmShapeId target = nvm_shape_new(&g, kind);
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, target, 0),
+                                  nvm_shape_new(&g, NVM_SHAPE_STRING)));
+            CHECK(nvm_shape_convert(&g, reverse ? local : source, reverse ? target : local));
+            CHECK(nvm_shape_convert(&g, reverse ? source : local, reverse ? local : target));
+            CHECK(nvm_shape_solve_conversions(&g));
+            CHECK(nvm_shape_kind(&g, source) == kind);
+            CHECK(nvm_shape_kind(&g, local) == kind);
+            CHECK(nvm_shape_root(&g, source) != nvm_shape_root(&g, target));
+            CHECK(nvm_shape_lookup(&g, source, 0) == 0);
+            /* A consumer never rewrites a producer's explicit field type. */
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, source, 0),
+                                  nvm_shape_new(&g, NVM_SHAPE_INT)));
+            CHECK(!nvm_shape_solve_conversions(&g));
+            nvm_shape_destroy(&g);
+        }
+    }
+    for (int optional = 0; optional < 2; ++optional) {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId target = nvm_shape_new(&g, optional ? NVM_SHAPE_OPTIONAL : NVM_SHAPE_INT);
+        CHECK(nvm_shape_convert(&g, source, target));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, source) == NVM_SHAPE_UNKNOWN);
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        CHECK(nvm_shape_convert(&g, source, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        CHECK(nvm_shape_convert(&g, source, nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
+        CHECK(!nvm_shape_solve_conversions(&g));
+        nvm_shape_destroy(&g);
+    }
+}
+
 int main(void) {
     test_nested_variant_payload_widening();
     test_finite_variant_integer_array();
@@ -509,6 +552,7 @@ int main(void) {
         CHECK(g.error != NULL);
         nvm_shape_destroy(&g);
     }
+    test_aggregate_consumer_copies();
     test_map_shapes();
     test_lookup_without_constraints();
     test_cycles_and_shared_children();
