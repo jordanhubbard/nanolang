@@ -4,7 +4,7 @@ I restore ordinary module-manifest extern declarations under task
 `task_b8838417bbc54fb98a4c49eea1b0885a`. My retained baseline fails all three unchanged native module-linking methods
 before their linker assertions: `fixture_value` is rejected by
 `nisa_register_extern` at repaired checkpoint `59ff072cc`. My [source checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-source) now passes those methods through both native stages on Darwin.
-My [transport checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-transport) establishes codec and structural checks. My [consumer checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-consumers) adds explicit raw kind-4 VM/native execution; source emission and repository-local native linkage are implemented, while installed-package qualification remains incomplete.
+My [transport checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-transport) establishes codec and structural checks. My [consumer checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-consumers) adds explicit raw kind-4 VM/native execution; source emission and repository-local native linkage are implemented, and my [ordinary Darwin installed-package check](evidence/pr522-implementation-2026-09-23/native-install) passes. Instrumented installation and Linux qualification remain incomplete.
 
 ## The current gap
 
@@ -14,7 +14,7 @@ manifest and return the exact immutable library generation. I retain
 `nisa_register_artifact` for its fixed named adapters and use
 `nisa_register_declared_scalar` for other bounded scalar declarations. My
 `nvm2c` consumer accepts those explicit kind-4 declarations through typed libffi.
-Pruned unused-source validation, installed packaging and full cross-platform
+Pruned unused-source validation, instrumented installation and full cross-platform
 qualification remain incomplete.
 
 My VM already marshals declared foreign scalars through libffi for every arity.
@@ -122,3 +122,17 @@ LLVM/Wasm coverage. Every complete hosted partition remains required.
 The first source checkpoint must specify how the serialized declaration
 authority and string-result ownership are distinguished from existing raw
 artifact imports. I do not widen native admission based on this prose alone.
+
+## Installed native tools
+
+I install `nano_aot_runtime.o` beside `nanoc`, `nvm2c` and `nano_vm`.
+My native driver honors `NANO_NVM2C`, `NANO_VM` and `NANO_AOT_RUNTIME`
+first. Otherwise I resolve the invoked compiler, including PATH lookup and
+symlinks, and use its sibling tools. I retain the repository `bin/` fallback
+when that sibling is absent.
+
+`make test-native-install` exercises the actual install/uninstall targets from
+an unrelated working directory, with a manifest-owned scalar provider and a
+prefix containing spaces and an apostrophe. It checks absolute, relative, PATH
+and symlink invocation, plus explicit override failure and prior-output
+preservation. This package check does not establish full LLVM/Wasm coverage.

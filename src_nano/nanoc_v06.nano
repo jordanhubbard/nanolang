@@ -1812,6 +1812,27 @@ shadow native_shell_quote {
     assert (== (native_shell_quote "a'b") "'a'\\''b'")
 }
 
+# I prefer explicit overrides, then the invoked compiler's installed siblings.
+fn native_product_tool(configured: string, invocation: string, repo_root: string, name: string) -> string {
+    if (!= configured "") { return configured }
+    let mut executable: string = invocation
+    if (not (str_contains executable "/")) {
+        set executable (nlc_str_trim (nl_exec_capture (+ "command -v -- " (native_shell_quote executable))))
+    }
+    if (!= executable "") {
+        let resolved: string = (canonical executable)
+        if (!= resolved "") {
+            let sibling: string = (nl_path_join (nl_path_dirname resolved) name)
+            if (file_exists sibling) { return sibling }
+        }
+    }
+    return (nl_path_join repo_root (+ "bin/" name))
+}
+shadow native_product_tool {
+    assert (== (native_product_tool "/explicit/tool" "ignored" "/repo" "nano_vm") "/explicit/tool")
+    assert (== (native_product_tool "" "/missing/compiler/tool" "/repo" "nano_vm") "/repo/bin/nano_vm")
+}
+
 fn native_shadow_start(parser: Parser, root_line: int) -> int {
     let mut i: int = 0
     while (< i parser.shadows_count) {
@@ -2199,8 +2220,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                     (bytecode_shadow_cleanup directory)
                     return 1
                 }
-                let mut vm: string = (getenv "NANO_VM")
-                if (== vm "") { set vm (nl_path_join repo_root "bin/nano_vm") }
+                let vm: string = (native_product_tool (getenv "NANO_VM") (get_argv 0) repo_root "nano_vm")
                 let checked: int = (nl_exec_shell (+ (native_shell_quote vm) (+ " --check-shadows " (native_shell_quote shadow_file))))
                 (bytecode_shadow_cleanup directory)
                 if (!= checked 0) { (println "I will not publish output after failed shadows") return 1 }
@@ -2223,8 +2243,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                     (native_cleanup native_dir false)
                     return 1
                 }
-                let mut translator: string = (getenv "NANO_NVM2C")
-                if (== translator "") { set translator (nl_path_join repo_root "bin/nvm2c") }
+                let translator: string = (native_product_tool (getenv "NANO_NVM2C") (get_argv 0) repo_root "nvm2c")
                 let translate: string = (+ (native_shell_quote translator) (+ " " (+ (native_shell_quote module_file) (+ " -o " (native_shell_quote c_file)))))
                 if (!= (nl_exec_shell translate) 0) {
                     (println "I could not translate the verified NanoISA product to C")
@@ -2234,8 +2253,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 if show_intermediate_code { (print (file_read c_file)) }
                 let mut staged_product: string = c_file
                 if (not emit_c) {
-                    let mut runtime: string = (getenv "NANO_AOT_RUNTIME")
-                    if (== runtime "") { set runtime (nl_path_join repo_root "bin/nano_aot_runtime.o") }
+                    let runtime: string = (native_product_tool (getenv "NANO_AOT_RUNTIME") (get_argv 0) repo_root "nano_aot_runtime.o")
                     if (not (file_exists runtime)) {
                         (println (+ "I require the native artifact runtime: " runtime))
                         (native_cleanup native_dir keep_c)

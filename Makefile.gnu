@@ -4088,15 +4088,16 @@ coverage-check: coverage.info
 	fi
 
 # Install binaries
-install: $(COMPILER) vm nvm2c file-public-runtime
-	install -d $(PREFIX)/bin
-	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
-	install -m 755 bin/nano_virt $(PREFIX)/bin/nano_virt
-	install -m 755 bin/nano_vm $(PREFIX)/bin/nano_vm
-	install -m 755 bin/nano_cop $(PREFIX)/bin/nano_cop
-	install -m 755 bin/nano_vmd $(PREFIX)/bin/nano_vmd
-	install -m 755 bin/nanoisa $(PREFIX)/bin/nanoisa
-	install -m 755 bin/nvm2c $(PREFIX)/bin/nvm2c
+install: $(COMPILER) vm nvm2c nvm2c-runtime file-public-runtime
+	install -d "$(PREFIX)/bin"
+	install -m 755 $(COMPILER) "$(PREFIX)/bin/nanoc"
+	install -m 755 bin/nano_virt "$(PREFIX)/bin/nano_virt"
+	install -m 755 bin/nano_vm "$(PREFIX)/bin/nano_vm"
+	install -m 755 bin/nano_cop "$(PREFIX)/bin/nano_cop"
+	install -m 755 bin/nano_vmd "$(PREFIX)/bin/nano_vmd"
+	install -m 755 bin/nanoisa "$(PREFIX)/bin/nanoisa"
+	install -m 755 bin/nvm2c "$(PREFIX)/bin/nvm2c"
+	install -m 644 "$(BIN_DIR)/nano_aot_runtime.o" "$(PREFIX)/bin/nano_aot_runtime.o"
 	install -d "$(PREFIX)/lib"
 	install -m 644 "$(FILE_PUBLIC_LIBRARY)" "$(PREFIX)/lib/libnano_file_runtime.a"
 	@set -e; for header in $(FILE_PUBLIC_HEADERS); do \
@@ -4104,18 +4105,18 @@ install: $(COMPILER) vm nvm2c file-public-runtime
 		install -m 644 "$(SRC_DIR)/$$header" "$(PREFIX)/include/nanolang/file/$$header"; \
 	done
 ifeq ($(UNAME_S),Linux)
-	install -m 755 bin/nano_as_capture.so $(PREFIX)/bin/nano_as_capture.so
+	install -m 755 bin/nano_as_capture.so "$(PREFIX)/bin/nano_as_capture.so"
 endif
-	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa, nvm2c; explicit File runtime package)"
+	@echo "I installed compiler tools, the native artifact runtime and the explicit File runtime package to $(PREFIX)."
 
 uninstall:
-	rm -f "$(PREFIX)/lib/libnano_file_runtime.a" "$(PREFIX)/bin/nvm2c"
+	rm -f "$(PREFIX)/lib/libnano_file_runtime.a" "$(PREFIX)/bin/nvm2c" "$(PREFIX)/bin/nano_aot_runtime.o"
 	@for header in $(FILE_PUBLIC_HEADERS); do rm -f "$(PREFIX)/include/nanolang/file/$$header"; done
 ifeq ($(UNAME_S),Linux)
-	rm -f $(PREFIX)/bin/nano_as_capture.so
+	rm -f "$(PREFIX)/bin/nano_as_capture.so"
 endif
-	rm -f $(PREFIX)/bin/nanoc $(PREFIX)/bin/nano_virt $(PREFIX)/bin/nano_vm $(PREFIX)/bin/nano_cop $(PREFIX)/bin/nano_vmd $(PREFIX)/bin/nanoisa
-	@echo "Uninstalled from $(PREFIX)/bin"
+	rm -f "$(PREFIX)/bin/nanoc" "$(PREFIX)/bin/nano_virt" "$(PREFIX)/bin/nano_vm" "$(PREFIX)/bin/nano_cop" "$(PREFIX)/bin/nano_vmd" "$(PREFIX)/bin/nanoisa"
+	@echo "I removed installed compiler tools and runtimes from $(PREFIX)."
 
 # Valgrind checks
 valgrind: $(COMPILER)
@@ -4603,6 +4604,11 @@ test-instantiated-ownership: bootstrap
 test-units: test-native-module-linking
 test-native-module-linking: bootstrap3
 	@python3 -m unittest tests.test_native_module_linking tests.test_declared_scalar_source
+.PHONY: test-native-install
+test-units: test-native-install
+test-native-install: bootstrap3
+	@python3 -m unittest -v tests.test_native_install
+
 .PHONY: test-compiler-artifact-support
 test-units: test-compiler-artifact-support
 test-compiler-artifact-support: $(COMPILER_C)
