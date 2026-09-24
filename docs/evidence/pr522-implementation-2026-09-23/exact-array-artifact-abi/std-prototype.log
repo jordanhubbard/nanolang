@@ -1,0 +1,7 @@
+I diagnose the real std artifact with an exact-declaration adapter prototype.
+test_real_std_artifact_uses_host_runtime (tests.test_one_ir_compiler.OneIrCompiler.test_real_std_artifact_uses_host_runtime) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.819s
+
+OK

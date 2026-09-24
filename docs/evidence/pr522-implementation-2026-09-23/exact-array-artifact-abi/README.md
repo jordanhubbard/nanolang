@@ -1,0 +1,7 @@
+# Exact native array artifact types
+
+I replace the generated adapter's independent `nh_array_value` type with the runtime's exact `DynArray` declaration. `runtime/dyn_array_abi.h` expands one declaration body into both public C types and standalone generated C text. Enum names/values, field names/order/types, and typedef identities are shared. ABI version, storage layout, export markers, producer-identity checks, owned-result copying and companion release checks remain unchanged.
+
+A private prototype using the exact public declaration passes the previously failing instrumented real std fixture. The production correction passes that same method with ASan/UBSan, leak detection and stack-use-after-return detection, without the prototype. It also passes with the ordinary host runtime. The fixture now includes the public array header after generated declarations, checking that the declarations coexist without duplication. Generated source remains standalone.
+
+The full translator gate passes 2,558 assertions and 1,614 shape checks. The broader array owning target has rebuilt Stage 1, passed its smoke check and is still rebuilding Stage 2; its terminal and final hosted qualification remain pending. I retain the independent full-suite parser stack overflows under `task_ec9e85c7c9ec4521bde658929f8a5e2f`; this ABI correction does not resolve them. ABI work is tracked by `task_89d0cef12ac34a1380fb952ff368be77`.

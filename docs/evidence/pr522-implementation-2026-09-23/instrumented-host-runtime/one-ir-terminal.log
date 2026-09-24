@@ -1,0 +1,133 @@
+I run every OneIrCompiler method with a fresh ASan/UBSan HOST_RUNTIME and instrumented generated native products.
+test_branch_record_fields_survive_later_assignments (tests.test_one_ir_compiler.OneIrCompiler.test_branch_record_fields_survive_later_assignments) ... ok
+test_compiler_bytecode_to_native_to_program (tests.test_one_ir_compiler.OneIrCompiler.test_compiler_bytecode_to_native_to_program) ... FAIL
+test_declared_empty_array_returns_reach_native (tests.test_one_ir_compiler.OneIrCompiler.test_declared_empty_array_returns_reach_native) ... ok
+test_declared_parameter_resolves_unused_packed_field (tests.test_one_ir_compiler.OneIrCompiler.test_declared_parameter_resolves_unused_packed_field) ... ok
+test_declared_parameters_keep_observed_tags (tests.test_one_ir_compiler.OneIrCompiler.test_declared_parameters_keep_observed_tags) ... ok
+test_generic_array_parameters_keep_runtime_tags (tests.test_one_ir_compiler.OneIrCompiler.test_generic_array_parameters_keep_runtime_tags) ... ok
+test_incoming_main_record_shapes_execute (tests.test_one_ir_compiler.OneIrCompiler.test_incoming_main_record_shapes_execute) ... ok
+test_integer_array_growth_owns_buffers_and_preserves_aliases (tests.test_one_ir_compiler.OneIrCompiler.test_integer_array_growth_owns_buffers_and_preserves_aliases) ... ok
+test_module_artifact_adapter_snapshots_borrowed_results (tests.test_one_ir_compiler.OneIrCompiler.test_module_artifact_adapter_snapshots_borrowed_results) ... ok
+test_nanoisa_artifact_contracts_remain_exact (tests.test_one_ir_compiler.OneIrCompiler.test_nanoisa_artifact_contracts_remain_exact) ... ok
+test_nanoisa_artifact_strings_survive_later_facade_calls (tests.test_one_ir_compiler.OneIrCompiler.test_nanoisa_artifact_strings_survive_later_facade_calls) ... ok
+test_nested_optional_returns_reach_native (tests.test_one_ir_compiler.OneIrCompiler.test_nested_optional_returns_reach_native) ... ok
+test_nested_record_consumer_constrains_projection (tests.test_one_ir_compiler.OneIrCompiler.test_nested_record_consumer_constrains_projection) ... ok
+test_nominal_constructor_scalar_evidence (tests.test_one_ir_compiler.OneIrCompiler.test_nominal_constructor_scalar_evidence) ... ok
+test_owned_strings_preserve_escaped_values_and_cleanup (tests.test_one_ir_compiler.OneIrCompiler.test_owned_strings_preserve_escaped_values_and_cleanup) ... ok
+test_projected_array_length_uses_runtime_storage_tag (tests.test_one_ir_compiler.OneIrCompiler.test_projected_array_length_uses_runtime_storage_tag) ... ok
+test_projected_array_reads_constrain_container (tests.test_one_ir_compiler.OneIrCompiler.test_projected_array_reads_constrain_container) ... ok
+test_projected_optional_arguments (tests.test_one_ir_compiler.OneIrCompiler.test_projected_optional_arguments) ... ok
+test_projected_record_arguments (tests.test_one_ir_compiler.OneIrCompiler.test_projected_record_arguments) ... ok
+test_real_std_artifact_uses_host_runtime (tests.test_one_ir_compiler.OneIrCompiler.test_real_std_artifact_uses_host_runtime) ... FAIL
+test_record_local_storage_joins (tests.test_one_ir_compiler.OneIrCompiler.test_record_local_storage_joins) ... ok
+test_record_temporaries_have_scoped_heap_storage (tests.test_one_ir_compiler.OneIrCompiler.test_record_temporaries_have_scoped_heap_storage) ... ok
+test_returned_native_values_release_owned_allocations (tests.test_one_ir_compiler.OneIrCompiler.test_returned_native_values_release_owned_allocations) ... ok
+test_selfhost_emitted_compiler_to_native_nanoisa_product (tests.test_one_ir_compiler.OneIrCompiler.test_selfhost_emitted_compiler_to_native_nanoisa_product)
+I execute my canonical emitter before translating its compiler product. ... FAIL
+test_standalone_code_check_retains_vm_refusal (tests.test_one_ir_compiler.OneIrCompiler.test_standalone_code_check_retains_vm_refusal) ... ok
+test_string_array_growth_owns_buffers_and_preserves_aliases (tests.test_one_ir_compiler.OneIrCompiler.test_string_array_growth_owns_buffers_and_preserves_aliases) ... ok
+test_string_consumers_constrain_projected_local (tests.test_one_ir_compiler.OneIrCompiler.test_string_consumers_constrain_projected_local) ... ok
+test_typed_i64_consumer_constrains_record_projection (tests.test_one_ir_compiler.OneIrCompiler.test_typed_i64_consumer_constrains_record_projection) ... ok
+test_uncalled_functions_are_warning_clean_not_executed (tests.test_one_ir_compiler.OneIrCompiler.test_uncalled_functions_are_warning_clean_not_executed) ... ok
+test_unconstrained_scalar_projection_preserves_tags (tests.test_one_ir_compiler.OneIrCompiler.test_unconstrained_scalar_projection_preserves_tags) ... ok
+test_void_locals_preserve_tags_through_calls_and_tail_restarts (tests.test_one_ir_compiler.OneIrCompiler.test_void_locals_preserve_tags_through_calls_and_tail_restarts) ... ok
+
+======================================================================
+FAIL: test_compiler_bytecode_to_native_to_program (tests.test_one_ir_compiler.OneIrCompiler.test_compiler_bytecode_to_native_to_program)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_one_ir_compiler.py", line 259, in test_compiler_bytecode_to_native_to_program
+    self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano", "-o", hello])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_one_ir_compiler.py", line 129, in run_checked
+    self.assertEqual(process.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+                     f"I failed {args[0]}\n" + (stdout + stderr).decode(errors="replace")[-6000:])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : I failed /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-one-ir-compiler-xnhrg_pi/compiler
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==51965==ERROR: AddressSanitizer: stack-overflow on address 0x00016ebba5a0 (pc 0x0001086d1674 bp 0x00016ee53ff0 sp 0x00016ebba5e0 T0)
+    #0 0x0001086d1674 in calloc+0x0 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x55674)
+    #1 0x00010197b82c in nl_parse_expression_recursive+0x24b6c (compiler:arm64+0x100f7b82c)
+    #2 0x0001019e6480 in nl_parse_expression+0x57c (compiler:arm64+0x100fe6480)
+    #3 0x0001017b4700 in nl_parse_primary+0x59669c (compiler:arm64+0x100db4700)
+    #4 0x00010197b82c in nl_parse_expression_recursive+0x24b6c (compiler:arm64+0x100f7b82c)
+    #5 0x0001019e6480 in nl_parse_expression+0x57c (compiler:arm64+0x100fe6480)
+    #6 0x0001021bb258 in nl_parse_statement+0x367a0 (compiler:arm64+0x1017bb258)
+    #7 0x000101feafac in nl_parse_block_recursive+0x18eac (compiler:arm64+0x1015eafac)
+    #8 0x000101ff4acc in nl_parse_block+0x5124 (compiler:arm64+0x1015f4acc)
+    #9 0x0001025dda6c in nl_parse_function_definition+0x61dc4 (compiler:arm64+0x101bdda6c)
+    #10 0x00010280ca54 in nl_parse_definition+0x3c274 (compiler:arm64+0x101e0ca54)
+    #11 0x000102822448 in nl_parse_program+0x2b24 (compiler:arm64+0x101e22448)
+    #12 0x00010566b244 in nl_compile_program+0x21314 (compiler:arm64+0x104c6b244)
+    #13 0x0001057590e4 in nl_main+0x1453c (compiler:arm64+0x104d590e4)
+    #14 0x000100a008dc in main+0x34 (compiler:arm64+0x1000008dc)
+    #15 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: stack-overflow (compiler:arm64+0x100f7b82c) in nl_parse_expression_recursive+0x24b6c
+==51965==ABORTING
+
+
+======================================================================
+FAIL: test_real_std_artifact_uses_host_runtime (tests.test_one_ir_compiler.OneIrCompiler.test_real_std_artifact_uses_host_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_one_ir_compiler.py", line 466, in test_real_std_artifact_uses_host_runtime
+    self.run_checked([binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_one_ir_compiler.py", line 129, in run_checked
+    self.assertEqual(process.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+                     f"I failed {args[0]}\n" + (stdout + stderr).decode(errors="replace")[-6000:])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : I failed /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aot-host-runtime-0d80p1h1/with-runtime
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aot-host-runtime-0d80p1h1/input.c:782:31: runtime error: call to function fs_walkdir through pointer to incorrect function type 'nh_array_value *(*)(const char *)'
+(std.dylib:arm64+0x910): note: fs_walkdir defined here
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aot-host-runtime-0d80p1h1/input.c:782:31 
+
+
+======================================================================
+FAIL: test_selfhost_emitted_compiler_to_native_nanoisa_product (tests.test_one_ir_compiler.OneIrCompiler.test_selfhost_emitted_compiler_to_native_nanoisa_product)
+I execute my canonical emitter before translating its compiler product.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_one_ir_compiler.py", line 298, in test_selfhost_emitted_compiler_to_native_nanoisa_product
+    self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "--emit-nvm", "-o", hello_module], extra_env=helper_env)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_one_ir_compiler.py", line 129, in run_checked
+    self.assertEqual(process.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+                     f"I failed {args[0]}\n" + (stdout + stderr).decode(errors="replace")[-6000:])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : I failed /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-selfhost-native-product-fq_gehra/compiler
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==69850==ERROR: AddressSanitizer: stack-overflow on address 0x00016abf69a0 (pc 0x00010c611674 bp 0x00016ae903f0 sp 0x00016abf69e0 T0)
+    #0 0x00010c611674 in calloc+0x0 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x55674)
+    #1 0x000106d90e08 in nl___nano_module___9_parse_expression_recursive+0x24bc4 (compiler:arm64+0x1023cce08)
+    #2 0x0001061b2674 in nl___nano_module___9_parse_expression+0x584 (compiler:arm64+0x1017ee674)
+    #3 0x000107c9c1b8 in nl___nano_module___9_parse_primary+0x596c64 (compiler:arm64+0x1032d81b8)
+    #4 0x000106d90e08 in nl___nano_module___9_parse_expression_recursive+0x24bc4 (compiler:arm64+0x1023cce08)
+    #5 0x0001061b2674 in nl___nano_module___9_parse_expression+0x584 (compiler:arm64+0x1017ee674)
+    #6 0x000108109820 in nl___nano_module___9_parse_statement+0x367a0 (compiler:arm64+0x103745820)
+    #7 0x000106e144dc in nl___nano_module___9_parse_block_recursive+0x18eac (compiler:arm64+0x1024504dc)
+    #8 0x000106214248 in nl___nano_module___9_parse_block+0x5124 (compiler:arm64+0x101850248)
+    #9 0x00010568a804 in nl___nano_module___9_parse_function_definition+0x61ce4 (compiler:arm64+0x100cc6804)
+    #10 0x000104f82b50 in nl___nano_module___9_parse_definition+0x3c1f4 (compiler:arm64+0x1005beb50)
+    #11 0x000104bfe2ac in nl___nano_module___9_parse_program+0x2b14 (compiler:arm64+0x10023a2ac)
+    #12 0x000104a01cbc in nl_compile_program+0x21298 (compiler:arm64+0x10003dcbc)
+    #13 0x0001049d946c in nl_main+0x144b4 (compiler:arm64+0x10001546c)
+    #14 0x0001049c48dc in main+0x34 (compiler:arm64+0x1000008dc)
+    #15 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: stack-overflow (compiler:arm64+0x1023cce08) in nl___nano_module___9_parse_expression_recursive+0x24bc4
+==69850==ABORTING
+
+
+----------------------------------------------------------------------
+Ran 31 tests in 458.990s
+
+FAILED (failures=3)

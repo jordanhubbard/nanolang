@@ -10,6 +10,7 @@
 #include "owned_array_admission.h"
 #include "nvm2c.h"
 #include "../binary64_bits.h"
+#include "../runtime/dyn_array_abi.h"
 #include "../binary64_format.h"
 #include "../binary64_arithmetic_source.h"
 #include "binary64_parse_source.h"
@@ -6480,18 +6481,15 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         if (!host || host->result != TAG_ARRAY) continue;
         if (!emitted++) nvm2c_puts(b,
             "#include <dlfcn.h>\n#include <stdbool.h>\n"
-            "typedef enum { nh_int=1, nh_float=2, nh_string=3, nh_bool=4,\n"
-            "    nh_array=5, nh_struct=6, nh_pointer=7, nh_u8=8 } nh_element;\n"
-            "typedef struct { int64_t length, capacity; nh_element type;\n"
-            "    uint8_t width; void *data; } nh_array_value;\n");
+            NANO_DYN_ARRAY_ABI_SOURCE);
         const char *parameters = host->argc == 2 ? "const char *root, const char *extension" : "const char *root";
         const char *types = host->argc == 2 ? "const char *, const char *" : "const char *";
         const char *release_name = !strcmp(host->name, "fs_walkdir") ? "fs_walkdir_release" : "nl_fs_list_release";
         nvm2c_printf(b, "static inline nsarr_t nhost_walk_%u(%s) {\n", i, parameters);
         nvm2c_puts(b, "    static void *library;\n");
-        nvm2c_printf(b, "    static nh_array_value *(*walk)(%s);\n", types);
+        nvm2c_printf(b, "    static DynArray *(*walk)(%s);\n", types);
         nvm2c_puts(b,
-            "    static bool (*release)(nh_array_value *);\n"
+            "    static bool (*release)(DynArray *);\n"
             "    if (!library) {\n"
             "        library = dlopen(");
         const NvmImportEntry *imp = &mod->imports[i];
@@ -6503,8 +6501,8 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         nvm2c_printf(b,
             "        const uint32_t *abi = (const uint32_t *)dlsym(library, \"%s__nano_array_abi\");\n"
             "        if (!abi || *abi != 1) NVM2C_ABORT();\n"
-            "        walk = (nh_array_value *(*)(%s))dlsym(library, \"%s\");\n"
-            "        release = (bool (*)(nh_array_value *))dlsym(library, \"%s\");\n",
+            "        walk = (DynArray *(*)(%s))dlsym(library, \"%s\");\n"
+            "        release = (bool (*)(DynArray *))dlsym(library, \"%s\");\n",
             host->name, types, host->name, release_name);
         nvm2c_puts(b,
             "        if (!walk || !release) NVM2C_ABORT();\n"
@@ -6514,10 +6512,10 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
             "            producer.dli_fbase != marker.dli_fbase ||\n"
             "            producer.dli_fbase != companion.dli_fbase) NVM2C_ABORT();\n"
             "    }\n");
-        nvm2c_printf(b, "    nh_array_value *foreign = walk(%s);\n", host->argc == 2 ? "root, extension" : "root");
+        nvm2c_printf(b, "    DynArray *foreign = walk(%s);\n", host->argc == 2 ? "root, extension" : "root");
         nvm2c_puts(b,
-            "    if (!foreign || !foreign->data || foreign->type != nh_string ||\n"
-            "        foreign->width != sizeof(char *) || foreign->length < 0 ||\n"
+            "    if (!foreign || !foreign->data || foreign->elem_type != ELEM_STRING ||\n"
+            "        foreign->elem_size != sizeof(char *) || foreign->length < 0 ||\n"
             "        foreign->capacity < foreign->length ||\n"
             "        (uint64_t)foreign->length > SIZE_MAX / sizeof(char *)) NVM2C_ABORT();\n"
             "    nsarr_t result = nsarr_new();\n"

@@ -455,7 +455,7 @@ fn main() -> int {
             failed = subprocess.run([missing], capture_output=True, timeout=10)
             self.assertLess(failed.returncode, 0, "I require the foreign artifact's host ABI")
             generated = source.read_text().replace("int main(", "int generated_main(")
-            source.write_text(generated + '\n#include "runtime/gc.h"\n'
+            source.write_text(generated + '\n#include "runtime/dyn_array.h"\n'
                               'int main(void) { gc_init(); size_t before = gc_get_stats().num_objects; '
                               'int result = generated_main(0, NULL); '
                               f'if (result != {len(str((directory / "one").resolve()))} || gc_get_stats().num_objects != before) return 1; '
