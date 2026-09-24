@@ -171,11 +171,20 @@ typedef struct UnderscoreAlias {
     char name[64];
 } UnderscoreAlias;
 
+typedef struct NativeBinding {
+    struct NativeBinding *allocated_next;
+    struct NativeBinding *outer;
+    const char *source_name;
+    const char *native_name;
+} NativeBinding;
+
 typedef struct {
     WorkItem *items;
     int capacity;
     int count;
     FunctionTypeRegistry *fn_registry;
+    NativeBinding *bindings;
+    NativeBinding *allocated_bindings;
     UnderscoreAlias *underscore_aliases;
     const char *underscore_name;
     ASTNode *source_root; /* Borrowed complete subtree for private-name collision checks. */
@@ -190,6 +199,8 @@ static WorkList *worklist_create(int initial_capacity) {
     list->capacity = initial_capacity;
     list->count = 0;
     list->fn_registry = NULL;
+    list->bindings = NULL;
+    list->allocated_bindings = NULL;
     list->underscore_aliases = NULL;
     list->underscore_name = NULL;
     list->source_root = NULL;
@@ -221,22 +232,66 @@ static void worklist_free(WorkList *list) {
         free(list->underscore_aliases);
         list->underscore_aliases = next;
     }
+    while (list->allocated_bindings) {
+        NativeBinding *next = list->allocated_bindings->allocated_next;
+        free(list->allocated_bindings);
+        list->allocated_bindings = next;
+    }
     free(list);
 }
 
 /* I change native storage names, never source names or diagnostic locations. */
 static const char *native_local_name(WorkList *list, const char *name) {
+    for (NativeBinding *binding = list->bindings; name && binding; binding = binding->outer)
+        if (!strcmp(name, binding->source_name)) return binding->native_name;
     return name && !strcmp(name, "_") && list->underscore_name
         ? list->underscore_name : name;
 }
 
-static const char *new_underscore_name(WorkList *list, Environment *env) {
-    static unsigned serial;
+static void bind_native_name(WorkList *list, const char *source, const char *native) {
+    if (!source || !source[0] || !strcmp(source, "_")) return;
+    NativeBinding *binding = malloc(sizeof *binding);
+    if (!binding) { fprintf(stderr, "I cannot allocate a native binding map.\n"); exit(1); }
+    *binding = (NativeBinding){list->allocated_bindings, list->bindings, source, native};
+    list->allocated_bindings = binding;
+    list->bindings = binding;
+}
+
+static bool native_subtree_uses_name(ASTNode *root, const char *name);
+
+static const char *new_native_name(WorkList *list, Environment *env, const char *source) {
+    static uint64_t serial;
     UnderscoreAlias *alias = malloc(sizeof *alias);
     if (!alias) { fprintf(stderr, "I cannot allocate a native binding name.\n"); exit(1); }
-    do {
-        snprintf(alias->name, sizeof alias->name, "__nl_underscore_%u", serial++);
-    } while (env_get_var(env, alias->name));
+    for (;;) {
+        if (serial == UINT64_MAX) {
+            free(alias);
+            fprintf(stderr, "I cannot allocate another native binding name.\n");
+            exit(1);
+        }
+        int written = snprintf(alias->name, sizeof alias->name, "__nl_%s_%llu",
+            !strcmp(source, "_") ? "underscore" : "local", (unsigned long long)serial++);
+        if (written < 0 || (size_t)written >= sizeof alias->name) {
+            free(alias);
+            fprintf(stderr, "I cannot represent a native binding name.\n");
+            exit(1);
+        }
+        bool used = env_get_var(env, alias->name) != NULL;
+        for (int i = 0; !used && i < env->function_count; ++i) {
+            Function *function = &env->functions[i];
+            used = (function->name && !strcmp(function->name, alias->name)) ||
+                   (function->alias_of && !strcmp(function->alias_of, alias->name));
+        }
+        for (int i = 0; !used && i < env->struct_count; ++i)
+            used = env->structs[i].name && !strcmp(env->structs[i].name, alias->name);
+        for (int i = 0; !used && i < env->enum_count; ++i)
+            used = env->enums[i].name && !strcmp(env->enums[i].name, alias->name);
+        for (int i = 0; !used && i < env->union_count; ++i)
+            used = env->unions[i].name && !strcmp(env->unions[i].name, alias->name);
+        for (int i = 0; !used && i < env->opaque_type_count; ++i)
+            used = env->opaque_types[i].name && !strcmp(env->opaque_types[i].name, alias->name);
+        if (!used && !native_subtree_uses_name(list->source_root, alias->name)) break;
+    }
     alias->next = list->underscore_aliases;
     list->underscore_aliases = alias;
     return alias->name;
@@ -361,60 +416,6 @@ allocation_failure:
 #undef CHECK_NAME
 }
 
-/* I keep converted storage private until the source binding becomes visible. */
-static const char *new_let_initializer_name(WorkList *list, Environment *env) {
-    static uint64_t serial;
-    UnderscoreAlias *alias = malloc(sizeof *alias);
-    if (!alias) { fprintf(stderr, "I cannot allocate a native initializer name.\n"); exit(1); }
-    for (;;) {
-        if (serial == UINT64_MAX) {
-            free(alias);
-            fprintf(stderr, "I cannot allocate another native initializer name.\n");
-            exit(1);
-        }
-        int written = snprintf(alias->name, sizeof alias->name,
-                               "__nl_let_initializer_%llu", (unsigned long long)serial++);
-        if (written < 0 || (size_t)written >= sizeof alias->name) {
-            free(alias);
-            fprintf(stderr, "I cannot represent a native initializer name.\n");
-            exit(1);
-        }
-        bool used = env_get_var(env, alias->name) != NULL;
-        for (int i = 0; !used && i < env->function_count; ++i) {
-            Function *function = &env->functions[i];
-            used = (function->name && !strcmp(function->name, alias->name)) ||
-                   (function->alias_of && !strcmp(function->alias_of, alias->name));
-        }
-        for (int i = 0; !used && i < env->struct_count; ++i)
-            used = env->structs[i].name && !strcmp(env->structs[i].name, alias->name);
-        for (int i = 0; !used && i < env->enum_count; ++i)
-            used = env->enums[i].name && !strcmp(env->enums[i].name, alias->name);
-        for (int i = 0; !used && i < env->union_count; ++i)
-            used = env->unions[i].name && !strcmp(env->unions[i].name, alias->name);
-        for (int i = 0; !used && i < env->opaque_type_count; ++i)
-            used = env->opaque_types[i].name && !strcmp(env->opaque_types[i].name, alias->name);
-        if (!used && !native_subtree_uses_name(list->source_root, alias->name)) break;
-    }
-    alias->next = list->underscore_aliases;
-    list->underscore_aliases = alias;
-    return alias->name;
-}
-
-static bool let_shadows_native_binding(ASTNode *stmt, Environment *env) {
-    if (!stmt->as.let.value || !strcmp(stmt->as.let.name, "_") ||
-        stmt->as.let.var_type == TYPE_VOID ||
-        (stmt->as.let.is_destructure && !stmt->as.let.destructure_count &&
-         stmt->as.let.value->type == AST_IDENTIFIER)) return false;
-    if (env_get_function(env, stmt->as.let.name)) return true;
-    /* The checker retains the current declaration too. Query its predecessor. */
-    if (stmt->line <= 0 || stmt->column <= 0) return true;
-    int line = stmt->line, column = stmt->column;
-    if (column > 1) --column;
-    else if (line > 1) { --line; column = INT_MAX; }
-    else return true;
-    return env_get_var_visible_at(env, stmt->as.let.name, line, column) != NULL;
-}
-
 static void worklist_grow(WorkList *list) {
     if ((size_t)list->capacity > SIZE_MAX / 2 / sizeof(WorkItem)) {
         fprintf(stderr, "Error: WorkList capacity overflow\n");
@@ -458,6 +459,7 @@ typedef struct {
 typedef struct {
     ScopeVar *vars;
     const char *underscore_name;
+    NativeBinding *bindings;
     int capacity;
     int count;
 } Scope;
@@ -508,6 +510,7 @@ static void scope_stack_push(ScopeStack *stack, WorkList *list) {
     }
     Scope *scope = &stack->scopes[stack->count++];
     scope->underscore_name = list->underscore_name;
+    scope->bindings = list->bindings;
     scope->capacity = 16;
     scope->count = 0;
     scope->vars = malloc(sizeof(ScopeVar) * scope->capacity);
@@ -586,6 +589,7 @@ static void scope_stack_pop(ScopeStack *stack, WorkList *list) {
 
     Scope *scope = &stack->scopes[--stack->count];
     list->underscore_name = scope->underscore_name;
+    list->bindings = scope->bindings;
     for (int i = 0; i < scope->count; i++) {
         free(scope->vars[i].name);
     }
@@ -599,13 +603,16 @@ static void build_loop_body(WorkList *list, ScopeStack *scopes, ASTNode *body,
                             ASTNode *loop, int indent, Environment *env,
                             FunctionTypeRegistry *registry) {
     const char *outer = list->underscore_name;
+    NativeBinding *outer_bindings = list->bindings;
     if (!reestablish_checked_loop_binding(env, loop)) {
         fprintf(stderr, "I require checked loop binding metadata at line %d.\n", loop->line);
         exit(1);
     }
+    bind_native_name(list, loop->as.for_stmt.var_name, loop->as.for_stmt.var_name);
     if (!strcmp(loop->as.for_stmt.var_name, "_")) list->underscore_name = NULL;
     build_stmt(list, scopes, body, indent, env, registry);
     list->underscore_name = outer;
+    list->bindings = outer_bindings;
 }
 
 static void build_scoped_statements(WorkList *list, ScopeStack *scopes, ASTNode *body,
@@ -3440,8 +3447,10 @@ native_array_declared_call: ;
                 emit_literal(list, " _out = {0}; int _matched = 0; ");
 
                 for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                    NativeBinding *arm_outer_bindings = list->bindings;
                     const char *variant_name = expr->as.match_expr.pattern_variants[i];
                     const char *binding_name = expr->as.match_expr.pattern_bindings[i];
+                    bind_native_name(list, binding_name, binding_name);
                     ASTNode *arm_body = expr->as.match_expr.arm_bodies[i];
                     restore_native_match_binding(env, expr, i, udef ? udef->name : NULL);
                     ASTNode *guard = expr->as.match_expr.guard_exprs ? expr->as.match_expr.guard_exprs[i] : NULL;
@@ -3513,6 +3522,7 @@ native_array_declared_call: ;
                         emit_literal(list, "} ");  /* close if (guard) */
                     }
                     emit_literal(list, "} ");  /* close if (!_matched && ...) */
+                    list->bindings = arm_outer_bindings;
                 }
 
                 emit_literal(list, "_out; })");
@@ -3536,8 +3546,10 @@ native_array_declared_call: ;
 
                 /* Generate each match arm */
                 for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                    NativeBinding *arm_outer_bindings = list->bindings;
                     const char *variant_name = expr->as.match_expr.pattern_variants[i];
                     const char *binding_name = expr->as.match_expr.pattern_bindings[i];
+                    bind_native_name(list, binding_name, binding_name);
                     ASTNode *arm_body = expr->as.match_expr.arm_bodies[i];
                     restore_native_match_binding(env, expr, i, udef ? udef->name : NULL);
 
@@ -3611,6 +3623,7 @@ native_array_declared_call: ;
 
                         emit_literal(list, "break; } ");
                     }
+                    list->bindings = arm_outer_bindings;
                 }
 
                 /* Close switch and compound expression */
@@ -3808,14 +3821,17 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, "/* par-let begin (independent bindings follow) */\n");
             for (int i = 0; i < stmt->as.par_let.count; i++) {
                 emit_indent_item(list, indent);
-                const char *binding_name = !strcmp(stmt->as.par_let.names[i], "_")
-                    ? new_underscore_name(list, env) : stmt->as.par_let.names[i];
+                const char *source_name = stmt->as.par_let.names[i];
+                const char *binding_name = !strcmp(source_name, "_") ||
+                    env_get_var_visible_at(env, source_name, stmt->line, stmt->column)
+                    ? new_native_name(list, env, source_name) : source_name;
                 emit_literal(list, "__auto_type ");
                 emit_literal(list, binding_name);
                 emit_literal(list, " = ");
                 build_expr(list, stmt->as.par_let.values[i], env);
                 emit_literal(list, "; /* par-let binding */\n");
-                if (!strcmp(stmt->as.par_let.names[i], "_")) list->underscore_name = binding_name;
+                bind_native_name(list, source_name, binding_name);
+                if (!strcmp(source_name, "_")) list->underscore_name = binding_name;
             }
             emit_indent_item(list, indent);
             emit_literal(list, "/* par-let end */\n");
@@ -3883,8 +3899,10 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_literal(list, "int _matched = 0;\n");
 
                 for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
+                    NativeBinding *arm_outer_bindings = list->bindings;
                     const char *variant_name = stmt->as.match_expr.pattern_variants[i];
                     const char *binding_name = stmt->as.match_expr.pattern_bindings[i];
+                    bind_native_name(list, binding_name, binding_name);
                     ASTNode *arm_body = stmt->as.match_expr.arm_bodies[i];
                     restore_native_match_binding(env, stmt, i, udef ? udef->name : NULL);
                     ASTNode *guard = stmt->as.match_expr.guard_exprs ? stmt->as.match_expr.guard_exprs[i] : NULL;
@@ -3962,6 +3980,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
 
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "}\n");
+                    list->bindings = arm_outer_bindings;
                 }
             } else {
                 /* No guards: use original switch-based approach */
@@ -3981,8 +4000,10 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 }
 
                 for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
+                    NativeBinding *arm_outer_bindings = list->bindings;
                     const char *variant_name = stmt->as.match_expr.pattern_variants[i];
                     const char *binding_name = stmt->as.match_expr.pattern_bindings[i];
+                    bind_native_name(list, binding_name, binding_name);
                     ASTNode *arm_body = stmt->as.match_expr.arm_bodies[i];
                     restore_native_match_binding(env, stmt, i, udef ? udef->name : NULL);
 
@@ -4073,6 +4094,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         emit_indent_item(list, indent + 2);
                         emit_literal(list, "}\n");
                     }
+                    list->bindings = arm_outer_bindings;
                 }
 
                 /* Add default: __builtin_unreachable() only when no wildcard arm.
@@ -4136,11 +4158,12 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             break;
             
         case AST_LET: {
-            const char *binding_name = !strcmp(stmt->as.let.name, "_")
-                ? new_underscore_name(list, env) : stmt->as.let.name;
-            const char *published_name = binding_name;
-            bool stage_initializer = let_shadows_native_binding(stmt, env);
-            if (stage_initializer) binding_name = new_let_initializer_name(list, env);
+            Symbol *previous = env_get_var_visible_at(env, stmt->as.let.name,
+                stmt->line, stmt->column > 1 ? stmt->column - 1 : stmt->column);
+            bool needs_name = !strcmp(stmt->as.let.name, "_") || previous ||
+                strcmp(native_local_name(list, stmt->as.let.name), stmt->as.let.name);
+            const char *binding_name = needs_name
+                ? new_native_name(list, env, stmt->as.let.name) : stmt->as.let.name;
             emit_indent_item(list, indent);
             
             /* A checked empty pattern over a name has no fields or runtime work. */
@@ -4391,13 +4414,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_literal(list, ";\n");
             }
             
-            if (stage_initializer) {
-                emit_indent_item(list, indent);
-                emit_formatted(list, "__auto_type %s = %s;\n", published_name, binding_name);
-                binding_name = published_name;
-            }
             /* I never mutate the AST name, including on failed emission. */
             /* The initializer above sees the previous lexical binding. */
+            bind_native_name(list, stmt->as.let.name, binding_name);
             if (!strcmp(stmt->as.let.name, "_")) list->underscore_name = binding_name;
 
             /* Register in environment */
@@ -4616,6 +4635,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         fprintf(stderr, "I require checked loop binding metadata at line %d.\n", stmt->line);
                         exit(1);
                     }
+                    bind_native_name(list, var, var);
                     if (!strcmp(var, "_")) list->underscore_name = NULL;
                     if (dyn_body && dyn_body->type == AST_BLOCK) {
                         for (int bi = 0; bi < dyn_body->as.block.count; bi++) {
@@ -4706,6 +4726,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         fprintf(stderr, "I require checked loop binding metadata at line %d.\n", stmt->line);
                         exit(1);
                     }
+                    bind_native_name(list, var, var);
                     if (!strcmp(var, "_")) list->underscore_name = NULL;
                     if (body && body->type == AST_BLOCK) {
                         for (int bi = 0; bi < body->as.block.count; bi++) {
@@ -5015,7 +5036,7 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
     }
     emit_literal(list, "({ ");
     emit_formatted(list, "void *_captures_%d[] = {", id);
-    for (int c = 0; c < count; ++c) emit_formatted(list, "%s&%s", c ? ", " : "", saved_handler ? effect_capture_name(captures[c]->name, expr->line, expr->column) : captures[c]->name);
+    for (int c = 0; c < count; ++c) emit_formatted(list, "%s&%s", c ? ", " : "", native_local_name(list, saved_handler ? effect_capture_name(captures[c]->name, expr->line, expr->column) : captures[c]->name));
     if (!count) emit_literal(list, "NULL");
     emit_literal(list, "}; ");
     emit_formatted(list, "NlEffectEntry _entries_%d[] = {", id);

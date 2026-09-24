@@ -1,0 +1,106 @@
+.FFF..FFF.....I retain declared push artifacts in /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanolang-declared-push-b8lhi3eg
+..................................
+======================================================================
+FAIL: test_cseed_cleanup_uses_each_emitted_binding (tests.test_native_underscore_bindings.NativeUnderscoreBindings.test_cseed_cleanup_uses_each_emitted_binding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 39, in test_cseed_cleanup_uses_each_emitted_binding
+    self.run_checked([COMPILERS/'nanoc_c', SOURCE, '--keep-c', '-o', output])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 17, in run_checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: error: loop not vectorized: the optimizer was unable to perform the requested transformation; the transformation might be disabled or specified as part of an unsupported transformation ordering [-Werror,-Wpass-failed=transform-warning]
+  126 | int main(int argc, char **argv) {
+      |     ^
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:82:9
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:83:9
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: error: loop not vectorized: the optimizer was unable to perform the requested transformation; the transformation might be disabled or specified as part of an unsupported transformation ordering [-Werror,-Wpass-failed=transform-warning]
+  126 | int main(int argc, char **argv) {
+      |     ^
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:83:9
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:97:9
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: error: loop not vectorized: the optimizer was unable to perform the requested transformation; the transformation might be disabled or specified as part of an unsupported transformation ordering [-Werror,-Wpass-failed=transform-warning]
+  126 | int main(int argc, char **argv) {
+      |     ^
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:97:9
+3 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_failed_shadow_preserves_output (tests.test_native_underscore_bindings.NativeUnderscoreBindings.test_failed_shadow_preserves_output) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 74, in test_failed_shadow_preserves_output
+    self.assertIn('shadow', (result.stdout + result.stderr).lower())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'shadow' not found in 'i cannot lower this checked program: i require two string operands for str_concat\n'
+
+======================================================================
+FAIL: test_failed_shadow_preserves_output (tests.test_native_underscore_bindings.NativeUnderscoreBindings.test_failed_shadow_preserves_output) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 74, in test_failed_shadow_preserves_output
+    self.assertIn('shadow', (result.stdout + result.stderr).lower())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'shadow' not found in 'i cannot lower this checked program: i require two string operands for str_concat\n'
+
+======================================================================
+FAIL: test_native_compiler_stages (tests.test_native_underscore_bindings.NativeUnderscoreBindings.test_native_compiler_stages) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 24, in test_native_compiler_stages
+    self.run_checked([COMPILERS/compiler, SOURCE, '-o', output])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 17, in run_checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: error: loop not vectorized: the optimizer was unable to perform the requested transformation; the transformation might be disabled or specified as part of an unsupported transformation ordering [-Werror,-Wpass-failed=transform-warning]
+  126 | int main(int argc, char **argv) {
+      |     ^
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:82:9
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:83:9
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: error: loop not vectorized: the optimizer was unable to perform the requested transformation; the transformation might be disabled or specified as part of an unsupported transformation ordering [-Werror,-Wpass-failed=transform-warning]
+  126 | int main(int argc, char **argv) {
+      |     ^
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:83:9
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:97:9
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: error: loop not vectorized: the optimizer was unable to perform the requested transformation; the transformation might be disabled or specified as part of an unsupported transformation ordering [-Werror,-Wpass-failed=transform-warning]
+  126 | int main(int argc, char **argv) {
+      |     ^
+/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:97:9
+3 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_native_compiler_stages (tests.test_native_underscore_bindings.NativeUnderscoreBindings.test_native_compiler_stages) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 24, in test_native_compiler_stages
+    self.run_checked([COMPILERS/compiler, SOURCE, '-o', output])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 17, in run_checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require two string operands for str_concat
+
+
+======================================================================
+FAIL: test_native_compiler_stages (tests.test_native_underscore_bindings.NativeUnderscoreBindings.test_native_compiler_stages) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 24, in test_native_compiler_stages
+    self.run_checked([COMPILERS/compiler, SOURCE, '-o', output])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 17, in run_checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require two string operands for str_concat
+
+
+----------------------------------------------------------------------
+Ran 45 tests in 113.306s
+
+FAILED (failures=6)
