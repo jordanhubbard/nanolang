@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -29,7 +30,7 @@ class NativeHostStrings(unittest.TestCase):
             '    if(nstr_live_bytes || nstr_owners || nstr_peak_bytes > 70000) abort();\n'
             '    return result;\n}')
         source.write_text(generated)
-        self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+        self.command([*native_cc(), '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                       '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                       source, '-o', binary, '-lm', '-ldl'])
         return self.command([binary, *args], env={**environment, 'ASAN_OPTIONS': 'detect_leaks=1'})
@@ -84,7 +85,7 @@ class NativeHostStrings(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='nano-host-snapshot-') as tmp:
             work=Path(tmp); library=work/'host.so'; host=work/'host.c'
             host.write_text('#include <stdio.h>\nconst char *nl_nanoisa_last_error(void) { static char text[32]; static int count; snprintf(text,sizeof text,"snapshot-%d",++count); return text; }\nconst char *path_basename(const char *s) { (void)s; return "borrowed-literal"; }\nconst char *path_normalize(const char *s) { (void)s; return "borrowed-literal"; }\n')
-            self.command(['cc','-shared','-fPIC',host,'-o',library])
+            self.command([*native_cc(),'-shared','-fPIC',host,'-o',library])
             text=(f'.import {json.dumps(str(library))} "nl_nanoisa_last_error" string\n.import_kind 0 artifact\n'
                   f'.import {json.dumps(str(library))} "path_basename" string string\n.import_kind 1 artifact\n'
                   f'.import {json.dumps(str(library))} "path_normalize" string string\n.import_kind 2 artifact\n'

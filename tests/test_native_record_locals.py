@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,7 +25,7 @@ class NativeRecordLocals(unittest.TestCase):
         return source
 
     def sanitized(self, source, binary):
-        self.checked(['cc', '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
+        self.checked([*native_cc(), '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                       '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                       source, '-o', binary])
         self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
@@ -48,7 +49,7 @@ class NativeRecordLocals(unittest.TestCase):
             work = Path(tmp)
             source = self.emit(work, text)
             # I measure stack use without executing an old overflowing compiler.
-            self.checked(['cc', '-std=c11', '-O0', '-fstack-usage', '-c', source,
+            self.checked([*native_cc(), '-std=c11', '-O0', '-fstack-usage', '-c', source,
                           '-o', work / 'frame.o'])
             lines = (work / 'frame.su').read_text().splitlines()
             frames = [int(line.split('\t')[1]) for line in lines

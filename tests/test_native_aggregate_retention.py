@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADER = '.types 8 0 0\n.string text "retained"\n.entry main\n'
@@ -33,7 +34,7 @@ class NativeAggregateRetention(unittest.TestCase):
         return source
 
     def compile_run(self, source, binary):
-        self.run_checked(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+        self.run_checked([*native_cc(), '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
         return self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
 

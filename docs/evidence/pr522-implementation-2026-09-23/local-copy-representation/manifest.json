@@ -11,7 +11,7 @@
     "bin/nano_virt": "4256896e4ca5ef810bdf836c722863413b53ab199e5942b5937c203d53c756f3",
     "bin/nano_aot_runtime.o": "8634f47b0b1015d0c8027caa4fc8746437e74825e63f214e37030a52b4a3ecfd"
   },
-  "final_owning_gate": "pending",
+  "final_owning_gate": "31 OneIrCompiler methods pass; 60 neighboring unsupported-leak-runtime failures are corrected in ../selected-native-retention/",
   "final_sanitizer_gate": "passed; owning harness retains its existing leak exclusion",
   "final_translator_assertions": 2558,
   "final_sanitizer_assertions": 2558,

@@ -45,9 +45,11 @@ My final ordinary and private ASan/UBSan translator gates both pass **2,558
 assertions**. The final shape suite passes **1,614 checks**, including strict
 GCC 13 at `-O3 -Wall -Wextra -Werror` in the isolated Linux ARM64 checkout.
 GCC also compiles the final translator translation unit at those strict flags.
-The complete fourteen-module Python owning run is still executing; its
-C-seed compiler-to-native method has passed, including both hello paths.
-I do not yet claim its terminal result or final hosted acceptance.
+The complete fourteen-module Python owning run subsequently finishes with
+all 31 One IR methods passing and 60 neighboring leak-runtime failures. My
+[selected-compiler evidence](../selected-native-retention/README.md) retains
+that terminal and the corrected 45-method rerun. Final hosted acceptance
+remains incomplete.
 
 The earlier d48 VM/native fixed points precede this compiler change. Final
 fixed-point qualification must be repeated after the outstanding compiler

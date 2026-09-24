@@ -1,0 +1,35 @@
+{
+  "compiler_source_commit": "df364a501",
+  "compiler_selection": {
+    "default": "/usr/bin/cc",
+    "selected": "/opt/homebrew/opt/llvm/bin/clang"
+  },
+  "sources": {
+    "tests/test_native_record_locals.py": "7e771655d67679638271edb5c479d49c2cc880ac7052ac14029ed04d198430a0",
+    "tests/test_native_aggregate_retention.py": "cd040213b853b2622c3e9b59a644fff07a3fef4223fef3913aea40cba953dd8a",
+    "tests/test_native_map_globals.py": "1c5a1ec4a7408887227735851fa5fa6da66c369c2ff6e3a24cf653aaf080c99b",
+    "tests/test_native_collection_debt.py": "2adfb65003354a39968ddbdf3f4aac90cb5cee4a336745d29df2700a702f1f82",
+    "tests/test_native_map_lifetimes.py": "58821c31caae2315bce4a43e54b259483f77085ddc3ebb57d08e16b1b5689fc6",
+    "tests/test_native_map_byte_debt.py": "b348b4a4ee2dc8ac7a8474720d0f1d6e3dbea5004e7951022119381c5f2dcf50",
+    "tests/test_native_string_retention.py": "c6f20c6420e0e4c7024b022d13af2b56098c5741e9fd815a8280e4fa986a711b",
+    "tests/test_native_root_scaling.py": "16fa469d11600e31316a3799498f2217f0c178786bc27aeb6f5ed5d829cdf7c9",
+    "tests/test_native_record_growth.py": "075ef63cb0497f225bb2107ef684fba5682bae517b123521a69df3e8f0ceb99e",
+    "tests/test_native_host_strings.py": "654ff82ed5890fe3b134e7504fbe1c2a1c36555ae0575ff4555dd46076fd98ee",
+    "tests/test_native_record_array_globals.py": "e7f076be10a0c3c9055661f9563b50f0adb88c5826e76fe9f2a14ed726891f74"
+  },
+  "final_retention_gate": {
+    "methods": 45,
+    "seconds": 70.551,
+    "exit_code": 0
+  },
+  "canonical_consumers": {
+    "methods": 16,
+    "seconds": 4.478,
+    "exit_code": 0
+  },
+  "complete_one_ir_class": {
+    "methods": 31,
+    "all_passed_in": "representation-final-owning.log.gz",
+    "broader_run_exit_code": 1
+  }
+}
