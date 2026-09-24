@@ -4567,7 +4567,7 @@ test-release-version: $(COMPILER_C)
 
 .PHONY: test-release-gates
 test-release-gates: test-release-version
-	@$(TIMEOUT_CMD) python3 -m unittest tests.test_release_gates tests.test_check_markdown_links tests.test_document_pair
+	@$(TIMEOUT_CMD) python3 -m unittest tests.test_release_gates tests.test_check_markdown_links tests.test_document_pair tests.test_presentation_publisher
 
 release:
 	@echo "Creating patch release..."
