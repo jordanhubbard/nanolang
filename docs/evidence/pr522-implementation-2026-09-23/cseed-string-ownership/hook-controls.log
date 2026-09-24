@@ -1,0 +1,16 @@
+[PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), '--profile', PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/docs/evidence/pr522-implementation-2026-09-23/cseed-string-ownership/hook-control.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/pr522-hooks-6eqsknp2/program')]
+exit=0
+[PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/pr522-hooks-6eqsknp2/program')]
+
+--- NanoLang Profile Report ---
+Function                               Calls      Total (ms)        Avg (us)
+--------                               -----      ----------        --------
+nl_main                                    1           8.279        8279.000
+--- End Profile Report ---
+exit=0
+[PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), '--trace', PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/docs/evidence/pr522-implementation-2026-09-23/cseed-string-ownership/hook-control.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/pr522-hooks-6eqsknp2/program')]
+exit=0
+[PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/pr522-hooks-6eqsknp2/program')]
+-> nl_main
+<- nl_main
+exit=0
