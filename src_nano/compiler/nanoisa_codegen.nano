@@ -3191,29 +3191,46 @@ shadow nisa_element_type {
     assert (== (nisa_element_type parser "array<array<array<string>>>") "array<array<string>>")
 }
 
-# I admit only the exact unbound scalar conversion supported by CAST_STRING.
+# I use the same finite type boundary for string-conversion typing and lowering.
+fn nisa_format_type_supported(parser: Parser, kind: string) -> bool {
+    if (or (>= (nisa_enum_index parser kind) 0)
+            (or (== kind "int") (or (== kind "u8") (or (== kind "float") (or (== kind "bool") (== kind "string")))))) { return true }
+    if (and (str_starts_with kind "array<") (nisa_array_shape_supported parser kind [])) { return true }
+    let record_index: int = (nisa_struct_index parser kind)
+    if (and (>= record_index 0) (nisa_record_shape_supported parser kind [])) {
+        return (not (parser_get_struct_def parser record_index).is_extern)
+    }
+    let union_index: int = (nisa_union_index parser kind)
+    if (and (>= union_index 0) (nisa_union_supported parser kind)) {
+        return (== (parser_get_union parser union_index).generic_param_count 0)
+    }
+    return false
+}
+
 fn nisa_to_string_result(parser: Parser, call: ASTCall) -> string {
     if (or (>= (nisa_local_find "to_string") 0) (>= (nisa_global_find "to_string" call.line) 0)) {
         return (nisa_fail "I cannot use a bound value as a to_string intrinsic")
     }
-    if (!= call.arg_count 1) { return (nisa_fail "I require one scalar argument for to_string") }
+    if (!= call.arg_count 1) { return (nisa_fail "I require one argument for to_string") }
     let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
     let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
-    if (or (>= (nisa_enum_index parser actual) 0)
-            (or (== actual "int") (or (== actual "u8") (or (== actual "float") (or (== actual "bool") (== actual "string")))))) { return "string" }
-    return (nisa_fail "I require an enum, int, u8, float, bool or string for to_string")
+    if (nisa_format_type_supported parser actual) { return "string" }
+    return (nisa_fail "I require a supported value type for to_string")
 }
 shadow nisa_to_string_result {
     let text: string = (nanoisa_emit_nasm "fn main()->string { let value:u8=200 return (to_string value) }")
     assert (str_contains text "LOAD_LOCAL 0\n  CAST_STRING\n  RET")
     assert (== (nanoisa_emit_nasm "fn main()->string { return (to_string) }") "")
-    assert (== (nanoisa_emit_nasm "fn main()->string { return (to_string [1]) }") "")
+    assert (str_contains (nanoisa_emit_nasm "fn main()->string { return (to_string [1]) }") "ARR_GET")
     assert (== (nanoisa_emit_nasm "fn main()->string { let to_string:int=1 return (to_string 7) }") "")
     let declared: string = (nanoisa_emit_nasm "fn to_string(value:int)->int{return value} fn main()->int{return (to_string 7)}")
     assert (str_contains declared "TAIL_CALL to_string")
     assert (not (str_contains declared "CAST_STRING"))
     let enumerated: string = (nanoisa_emit_nasm "enum Mode { Quiet = 3, Loud = 7 } fn main()->string { let mode:Mode=Mode.Loud return (to_string mode) }")
     assert (str_contains enumerated "CAST_STRING")
+    let aggregate: string = (nanoisa_emit_nasm "struct Pair { xs: array<int> } fn main()->string{return (to_string Pair { xs: [1,2] })}")
+    assert (str_contains aggregate "AGG_GET")
+    assert (str_contains aggregate "ARR_GET")
     let reset: int = (nisa_reset)
 }
 

@@ -2904,7 +2904,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 NvmShapeKind declared_parameter_shape = declared_tag == TAG_ARRAY ? NVM_SHAPE_ARRAY :
                     declared_tag == TAG_HASHMAP ? NVM_SHAPE_MAP :
                     aggregate_value_tag(declared_tag) ? NVM_SHAPE_RECORD : NVM_SHAPE_UNKNOWN;
-                int declared_aggregate = declared_parameter_shape == NVM_SHAPE_RECORD;
+                if (arg.kind == NVM2C_VK_REC && arg.constructors && arg.constructors->indexed)
+                    declared_parameter_shape = NVM_SHAPE_VARIANT;
+                int declared_aggregate = declared_parameter_shape == NVM_SHAPE_RECORD ||
+                                         declared_parameter_shape == NVM_SHAPE_VARIANT;
                 if (arg.kind == NVM2C_VK_FUNCTION)
                     merge_function_target(facts, at, arg.function_target);
                 merge_variant(&b->variant_locals[at],
