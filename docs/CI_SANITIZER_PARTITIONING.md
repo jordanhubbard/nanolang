@@ -1,5 +1,40 @@
 # I preserve my complete sanitizer suite when I schedule it
 
+## My bounded Stage 2 product chain
+
+I retain exact-head run `36022892074` as failed. Its Stage 2 owner restores the
+checksummed instrumented Stage 1, completes all 1,239 root shadows, and enters
+canonical NanoISA product generation. GitHub then reclaims the active runner
+after 38 minutes 38 seconds with exit 143, before the configured 90-minute job
+bound and without a sanitizer diagnostic. This is the third observed hosted
+runner shutdown during the same combined product command.
+
+I publish the existing compiler product boundaries as four dependent jobs:
+the self-hosted frontend writes verified `compiler.nvm`, `nvm2c` translates
+that exact module to `compiler.c`, `clang` compiles the exact translation to an
+instrumented object, and a final job links that object with my instrumented AOT
+runtime and file-companion provider objects. I build and bind
+those providers in the Stage 1 bundle instead of rediscovering mutable cache
+paths. Each boundary carries the exact source head,
+partition-manifest digest, archive digest, and product digests. Restore rejects
+different source, plans, products, or archive bytes. I retain root
+shadows, `-O1`, ASan, UBSan, frame pointers, the Stage 2 smoke test, Stage 3
+comparison, installed-compiler smoke test, and no-C-seed check. The aggregate
+gate requires all three product jobs before it can accept the worker matrix.
+
+The generated Stage 2 C translation is 25 MiB. A direct Clang compile reached
+12.7 GiB resident memory; disabling function inlining and retaining line-table
+debug information instead of full debug records reduced the observed active
+compile footprint before the same code-generation phase. I bind those two
+Stage 2-specific flags in the partition manifest. They retain optimization and
+sanitizer coverage while removing compiler work that is not part of the
+runtime acceptance contract.
+
+On the candidate host, the unchanged self-hosted frontend publishes the
+849 KiB Stage 2 NanoISA module in 317.14 seconds. That measurement establishes
+the first boundary; the exact hosted chain and complete aggregate remain the
+release gate.
+
 ## My integrated PR522 schedule
 
 I retain run `35690205396` as failed. Its `units-03` worker enters the scalar

@@ -17,7 +17,15 @@ FLAGS = ['CFLAGS=' + CFLAGS, 'LDFLAGS=' + LDFLAGS]
 BOOTSTRAP_FLAGS = ['BOOTSTRAP2_SHADOW_FLAG=--root-shadows-only']
 BOOTSTRAP_DRIVER_FLAGS = ['NANOC_STAGE1=bin/nanoc_stage1_driver']
 NATIVE_CFLAGS = '-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer'
+STAGE2_NATIVE_CFLAGS = '-O1 -gline-tables-only -fno-inline-functions -fsanitize=address,undefined -fno-omit-frame-pointer'
 NATIVE_CC = 'clang'
+STAGE2_NVM = 'build/sanitizer-stage2/compiler.nvm'
+STAGE2_C = 'build/sanitizer-stage2/compiler.c'
+STAGE2_OBJECT = 'build/sanitizer-stage2/compiler.o'
+STAGE2_PROVIDER_OBJECTS = tuple(
+    'obj/file-companion-plan/' + name + '.o' for name in
+    ('file_companion_bridge', 'file_source_input', 'file_companion_snapshot',
+     'nsi_file_binding', 'nsi_file_plan', 'nsi', 'file_source_catalog'))
 DEDICATED = ('test-forth-session', 'test-nanoisa-src-nano', 'test-scalar-reconstruction')
 PHASES = (('foundation', 'test-ci-foundation'),
           ('programs-language', 'test-ci-programs-language'),
@@ -34,7 +42,17 @@ BUNDLE_SENTINELS = ('.stage1.built', '.stage2.built', '.stage3.built',
                     '.bootstrap0.built', '.bootstrap1.built', '.bootstrap2.built', '.bootstrap3.built')
 BUNDLE_PRODUCTS = {
     'base': ('bin/nanoc_c',),
-    'stage1': ('bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage1_driver'),
+    'stage1': ('bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage1_driver',
+               'bin/nano_vm', 'bin/nvm2c', 'bin/nano_aot_runtime.o', *STAGE2_PROVIDER_OBJECTS),
+    'stage2-nvm': ('bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage1_driver',
+                   'bin/nano_vm', 'bin/nvm2c', 'bin/nano_aot_runtime.o',
+                   *STAGE2_PROVIDER_OBJECTS, STAGE2_NVM),
+    'stage2-c': ('bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage1_driver',
+                 'bin/nano_vm', 'bin/nvm2c', 'bin/nano_aot_runtime.o',
+                 *STAGE2_PROVIDER_OBJECTS, STAGE2_NVM, STAGE2_C),
+    'stage2-object': ('bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage1_driver',
+                      'bin/nano_vm', 'bin/nvm2c', 'bin/nano_aot_runtime.o',
+                      *STAGE2_PROVIDER_OBJECTS, STAGE2_NVM, STAGE2_C, STAGE2_OBJECT),
     'stage2': ('bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage1_driver', 'bin/nanoc_stage2'),
     'bootstrap': ('bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage2',
                   'bin/nanoisa_emit', 'bin/nano_virt', 'bin/nano_vm', 'bin/nvm2c', 'bin/nanoisa_dump'),
@@ -164,10 +182,10 @@ def plan(head, targets, native_bootstrap_targets=()):
     workers.append({'id': 'negative', 'targets': []})
     for worker in workers:
         worker['native_bootstrap'] = any(target in native_bootstrap_targets for target in worker['targets'])
-    body = {'schema': 3, 'head': head, 'targets': targets, 'workers': workers,
+    body = {'schema': 4, 'head': head, 'targets': targets, 'workers': workers,
             'native_bootstrap_targets': native_bootstrap_targets,
             'cflags': CFLAGS, 'ldflags': LDFLAGS, 'native_cflags': NATIVE_CFLAGS,
-            'native_cc': NATIVE_CC}
+            'native_cc': NATIVE_CC, 'stage2_native_cflags': STAGE2_NATIVE_CFLAGS}
     return {**body, 'inventory_sha256': digest(body)}
 
 
@@ -322,6 +340,23 @@ def command_for(worker, phase):
         return ['make', 'bootstrap1', *FLAGS]
     if phase == 'bootstrap1-driver':
         return ['make', 'bootstrap1-driver', *BOOTSTRAP_FLAGS, *FLAGS]
+    if phase == 'bootstrap1-companions':
+        return ['make', 'file-companion-plan', *FLAGS]
+    if phase == 'bootstrap2-nvm':
+        return ['bin/nanoc_stage1', '--root-shadows-only', 'src_nano/nanoc_v06.nano',
+                '--emit-nvm', '-o', STAGE2_NVM]
+    if phase == 'bootstrap2-c':
+        return ['bin/nvm2c', STAGE2_NVM, '-o', STAGE2_C]
+    if phase == 'bootstrap2-object':
+        return [NATIVE_CC, '-std=c11', *STAGE2_NATIVE_CFLAGS.split(), STAGE2_C,
+                '-c', '-o', STAGE2_OBJECT]
+    if phase == 'bootstrap2-native':
+        return [NATIVE_CC, STAGE2_OBJECT, 'bin/nano_aot_runtime.o',
+                *STAGE2_PROVIDER_OBJECTS, '-lm', '-Wl,--export-dynamic', '-ldl',
+                '-fsanitize=address,undefined',
+                '-o', 'bin/nanoc_stage2']
+    if phase == 'bootstrap3':
+        return ['make', 'bootstrap3', *BOOTSTRAP_FLAGS, *BOOTSTRAP_DRIVER_FLAGS, *FLAGS]
     if phase == 'providers':
         if worker['id'] != 'source':
             raise ValueError('I prepare extra source-emitter providers only for their worker.')
@@ -345,7 +380,8 @@ def instrumented_products(worker, output):
     paths = ['bin/nanoc_c']
     if worker['native_bootstrap']:
         paths += ['bin/nanoc_stage1', 'bin/nanoc_stage2']
-    report = {'worker': worker['id'], 'native_cflags': NATIVE_CFLAGS, 'native_cc': NATIVE_CC,
+    report = {'worker': worker['id'], 'native_cflags': NATIVE_CFLAGS,
+              'stage2_native_cflags': STAGE2_NATIVE_CFLAGS, 'native_cc': NATIVE_CC,
               'nm': {'path': nm, 'sha256': file_hash(nm)}, 'products': {}, 'success': False}
     for name in paths:
         path = Path(name)
@@ -374,7 +410,9 @@ def instrumentation_stable(worker, output, prepared, after):
     report = json.loads(path.read_text())
     required = ['bin/nanoc_c'] + (['bin/nanoc_stage1', 'bin/nanoc_stage2'] if worker['native_bootstrap'] else [])
     if (not report.get('success') or report.get('worker') != worker['id'] or
-            report.get('native_cflags') != NATIVE_CFLAGS or report.get('native_cc') != NATIVE_CC or
+            report.get('native_cflags') != NATIVE_CFLAGS or
+            report.get('stage2_native_cflags') != STAGE2_NATIVE_CFLAGS or
+            report.get('native_cc') != NATIVE_CC or
             set(report.get('products', {})) != set(required)):
         return False
     return all(product.get('returncode') == 0 and product.get('asan') and product.get('ubsan') and

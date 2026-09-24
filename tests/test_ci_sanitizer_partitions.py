@@ -80,6 +80,27 @@ class SanitizerPartitions(unittest.TestCase):
                          ['make', 'bootstrap1', *partition.FLAGS])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap1-driver'),
                          ['make', 'bootstrap1-driver', *partition.BOOTSTRAP_FLAGS, *partition.FLAGS])
+        self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap1-companions'),
+                         ['make', 'file-companion-plan', *partition.FLAGS])
+        self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap2-nvm'),
+                         ['bin/nanoc_stage1', '--root-shadows-only', 'src_nano/nanoc_v06.nano',
+                          '--emit-nvm', '-o', partition.STAGE2_NVM])
+        self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap2-c'),
+                         ['bin/nvm2c', partition.STAGE2_NVM, '-o', partition.STAGE2_C])
+        native_object = partition.command_for(value['workers'][0], 'bootstrap2-object')
+        self.assertEqual(native_object[0], partition.NATIVE_CC)
+        self.assertIn(partition.STAGE2_C, native_object)
+        self.assertEqual(native_object[-3:], ['-c', '-o', partition.STAGE2_OBJECT])
+        native = partition.command_for(value['workers'][0], 'bootstrap2-native')
+        self.assertEqual(native[0], partition.NATIVE_CC)
+        self.assertIn(partition.STAGE2_OBJECT, native)
+        self.assertIn('bin/nano_aot_runtime.o', native)
+        for provider in partition.STAGE2_PROVIDER_OBJECTS:
+            self.assertIn(provider, native)
+        self.assertEqual(native[-2:], ['-o', 'bin/nanoc_stage2'])
+        self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap3'),
+                         ['make', 'bootstrap3', *partition.BOOTSTRAP_FLAGS,
+                          *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.FLAGS])
         for worker in value['workers'][:-1]:
             self.assertEqual(partition.command_for(worker, 'tests'), ['make', *worker['targets'], *partition.FLAGS])
         self.assertEqual(partition.command_for(value['workers'][-1], 'tests'), ['bash', 'tests/run_negative_tests.sh'])
@@ -151,6 +172,7 @@ class SanitizerPartitions(unittest.TestCase):
                          ['make', 'bootstrap3', *partition.BOOTSTRAP_FLAGS,
                           *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.FLAGS])
         self.assertEqual(value['native_cflags'], partition.NATIVE_CFLAGS)
+        self.assertEqual(value['stage2_native_cflags'], partition.STAGE2_NATIVE_CFLAGS)
         self.assertEqual(value['native_cc'], partition.NATIVE_CC)
         for bad in (['absent'], [native[0], native[0]]):
             with self.assertRaises(ValueError):
@@ -192,10 +214,15 @@ class SanitizerPartitions(unittest.TestCase):
                 os.chdir(source)
                 (source / 'bin/nanoc_stage1').write_bytes(b'instrumented stage 1')
                 (source / 'bin/nanoc_stage1_driver').write_bytes(b'ordinary stage 1 producer')
+                for name in partition.BUNDLE_PRODUCTS['stage1']:
+                    path = source / name
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    if not path.exists():
+                        path.write_bytes(('required ' + name).encode())
                 with mock.patch.object(partition, 'current_head', return_value='head'):
                     stage1 = partition.bundle_create(output, value, 'stage1')
-                self.assertEqual(set(stage1['products']),
-                                 {'bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage1_driver'})
+                self.assertTrue({'bin/nanoc_c', 'bin/nanoc_stage1',
+                                 'bin/nanoc_stage1_driver'}.issubset(stage1['products']))
                 os.chdir(restored_tmp)
                 tampered = source / 'tampered.tar.gz'
                 tampered.write_bytes(archive.read_bytes() + b'modified')
@@ -243,6 +270,7 @@ class SanitizerPartitions(unittest.TestCase):
                  mock.patch.object(partition.subprocess, 'run', return_value=completed):
                 result = partition.instrumented_products(worker, output)
             self.assertEqual(result['native_cc'], partition.NATIVE_CC)
+            self.assertEqual(result['stage2_native_cflags'], partition.STAGE2_NATIVE_CFLAGS)
             self.assertEqual(set(result['products']), {'bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage2'})
             prepared = {'products': {p: 'digest' for p in result['products']}}
             self.assertTrue(partition.instrumentation_stable(worker, output, prepared, prepared))
@@ -287,7 +315,8 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(tests['timeout-minutes'], "${{ (matrix.id == 'source' && 45) || (matrix.id == 'scalar' && 35) || 20 }}")
         self.assertEqual(workers['env']['ASAN_OPTIONS'], 'detect_leaks=0')
         self.assertEqual(workers['env']['NANO_SHADOW_TIMEOUT_SECONDS'], '300')
-        for job in ('sanitizer-base', 'sanitizer-stage1', 'sanitizer-bootstrap',
+        for job in ('sanitizer-base', 'sanitizer-stage1', 'sanitizer-stage2-nvm',
+                    'sanitizer-stage2-c', 'sanitizer-stage2-object', 'sanitizer-bootstrap',
                     'sanitizer-providers'):
             self.assertEqual(jobs[job]['env']['NANO_SHADOW_TIMEOUT_SECONDS'], '300')
         restore = next(step for step in workers['steps'] if step.get('id') == 'restore')
@@ -299,22 +328,35 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(jobs['sanitizer-workers']['needs'], ['sanitizer-plan', 'sanitizer-providers'])
         self.assertEqual(jobs['sanitizers']['needs'],
                          ['sanitizer-plan', 'sanitizer-base', 'sanitizer-stage1',
+                          'sanitizer-stage2-nvm', 'sanitizer-stage2-c', 'sanitizer-stage2-object',
                           'sanitizer-bootstrap', 'sanitizer-providers', 'sanitizer-workers'])
         self.assertEqual(jobs['sanitizer-stage1']['needs'], ['sanitizer-plan', 'sanitizer-base'])
         stage1_steps = jobs['sanitizer-stage1']['steps']
         driver = next(step for step in stage1_steps if step.get('name') == 'Build ordinary Stage 1 producer')
+        companions = next(step for step in stage1_steps
+                          if step.get('name') == 'Build instrumented Stage 2 companion providers')
         publish_stage1 = next(step for step in stage1_steps if step.get('name') == 'Publish exact Stage 1 bundle')
         self.assertIn('--phase bootstrap1-driver', driver['run'])
+        self.assertIn('--phase bootstrap1-companions', companions['run'])
         self.assertLess(stage1_steps.index(driver), stage1_steps.index(publish_stage1))
-        self.assertEqual(jobs['sanitizer-bootstrap']['needs'], ['sanitizer-plan', 'sanitizer-stage1'])
+        self.assertLess(stage1_steps.index(companions), stage1_steps.index(publish_stage1))
+        self.assertEqual(jobs['sanitizer-stage2-nvm']['needs'], ['sanitizer-plan', 'sanitizer-stage1'])
+        self.assertEqual(jobs['sanitizer-stage2-c']['needs'], ['sanitizer-plan', 'sanitizer-stage2-nvm'])
+        self.assertEqual(jobs['sanitizer-stage2-object']['needs'], ['sanitizer-plan', 'sanitizer-stage2-c'])
+        self.assertEqual(jobs['sanitizer-bootstrap']['needs'], ['sanitizer-plan', 'sanitizer-stage2-object'])
         self.assertEqual(jobs['sanitizer-bootstrap']['timeout-minutes'], 90)
-        bootstrap = next(step for step in jobs['sanitizer-bootstrap']['steps']
-                         if step.get('name') == 'Build instrumented native Stage 2 and verify bootstrap')
-        self.assertIn('set -o pipefail', bootstrap['run'])
-        self.assertIn('bootstrap_pid=$!', bootstrap['run'])
-        self.assertIn('sleep 60', bootstrap['run'])
-        self.assertIn('wait "$bootstrap_pid"', bootstrap['run'])
-        self.assertNotIn('continue-on-error', bootstrap)
+        nvm = next(step for step in jobs['sanitizer-stage2-nvm']['steps']
+                   if step.get('name') == 'Build verified Stage 2 NanoISA')
+        translated = next(step for step in jobs['sanitizer-stage2-c']['steps']
+                          if step.get('name') == 'Translate verified Stage 2 NanoISA to C')
+        native_object = next(step for step in jobs['sanitizer-stage2-object']['steps']
+                             if step.get('name') == 'Compile instrumented Stage 2 object')
+        native = next(step for step in jobs['sanitizer-bootstrap']['steps']
+                      if step.get('name') == 'Compile instrumented native Stage 2')
+        self.assertIn('--phase bootstrap2-nvm', nvm['run'])
+        self.assertIn('--phase bootstrap2-c', translated['run'])
+        self.assertIn('--phase bootstrap2-object', native_object['run'])
+        self.assertIn('--phase bootstrap2-native', native['run'])
         self.assertIn('clang', partition.NATIVE_CC)
         self.assertEqual(jobs['sanitizer-providers']['needs'], ['sanitizer-plan', 'sanitizer-bootstrap'])
         self.assertEqual(jobs['sanitizers']['if'], 'always()')
@@ -323,6 +365,9 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertIn('test "$PLAN_RESULT" = success', aggregate['run'])
         self.assertIn('test "$BASE_RESULT" = success', aggregate['run'])
         self.assertIn('test "$STAGE1_RESULT" = success', aggregate['run'])
+        self.assertIn('test "$STAGE2_NVM_RESULT" = success', aggregate['run'])
+        self.assertIn('test "$STAGE2_C_RESULT" = success', aggregate['run'])
+        self.assertIn('test "$STAGE2_OBJECT_RESULT" = success', aggregate['run'])
         self.assertIn('test "$PROVIDERS_RESULT" = success', aggregate['run'])
         self.assertIn('test "$BOOTSTRAP_RESULT" = success', aggregate['run'])
         platform_runs = [step.get('run', '') for step in jobs['build-and-test']['steps']]

@@ -452,6 +452,8 @@ jobs:
         run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap1 2>&1 | tee "$REPORT/bootstrap1.log"
       - name: Build ordinary Stage 1 producer
         run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap1-driver 2>&1 | tee "$REPORT/bootstrap1-driver.log"
+      - name: Build instrumented Stage 2 companion providers
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap1-companions 2>&1 | tee "$REPORT/bootstrap1-companions.log"
       - name: Publish exact Stage 1 bundle
         run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage1 --output "$BUNDLE"
       - uses: actions/upload-artifact@v4
@@ -462,8 +464,8 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  sanitizer-bootstrap:
-    name: Sanitizer native Stage 2 and verification
+  sanitizer-stage2-nvm:
+    name: Sanitizer native Stage 2 NanoISA
     needs: [sanitizer-plan, sanitizer-stage1]
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -485,8 +487,8 @@ jobs:
       - name: Set retained paths
         run: |
           echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
-          echo "REPORT=$RUNNER_TEMP/sanitizer-bootstrap-report" >> "$GITHUB_ENV"
-          echo "BUNDLE=$RUNNER_TEMP/sanitizer-bootstrap" >> "$GITHUB_ENV"
+          echo "REPORT=$RUNNER_TEMP/sanitizer-stage2-nvm-report" >> "$GITHUB_ENV"
+          echo "BUNDLE=$RUNNER_TEMP/sanitizer-stage2-nvm" >> "$GITHUB_ENV"
       - name: Install Python dependencies
         run: |
           python3 -c 'import yaml' 2>/dev/null && exit 0
@@ -501,24 +503,175 @@ jobs:
           echo "$LLVM_BIN" >> "$GITHUB_PATH"
       - name: Restore exact instrumented Stage 1
         run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage stage1 --archive "$RUNNER_TEMP/sanitizer-stage1/stage1.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-stage1/stage1.json" --output "$REPORT"
-      - name: Build instrumented native Stage 2 and verify bootstrap
+      - name: Build verified Stage 2 NanoISA
         run: |
-          set -o pipefail
-          python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap 2>&1 | tee "$REPORT/bootstrap.log" &
-          bootstrap_pid=$!
-          while kill -0 "$bootstrap_pid" 2>/dev/null; do
-            sleep 60
-            if kill -0 "$bootstrap_pid" 2>/dev/null; then
-              echo "I am still building the instrumented native Stage 2 inside the 90-minute granted job lease."
-            fi
-          done
-          wait "$bootstrap_pid"
+          mkdir -p build/sanitizer-stage2
+          python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-nvm 2>&1 | tee "$REPORT/bootstrap2-nvm.log"
+      - name: Publish exact Stage 2 NanoISA bundle
+        run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage2-nvm --output "$BUNDLE"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-stage2-nvm
+          path: ${{ runner.temp }}/sanitizer-stage2-nvm/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  sanitizer-stage2-c:
+    name: Sanitizer native Stage 2 C
+    needs: [sanitizer-plan, sanitizer-stage2-nvm]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-stage2-nvm
+          path: ${{ runner.temp }}/sanitizer-stage2-nvm
+      - name: Set retained paths
+        run: |
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
+          echo "REPORT=$RUNNER_TEMP/sanitizer-stage2-c-report" >> "$GITHUB_ENV"
+          echo "BUNDLE=$RUNNER_TEMP/sanitizer-stage2-c" >> "$GITHUB_ENV"
+      - name: Install Python dependencies
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential clang llvm lld pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev
+      - name: Select matching distribution LLVM tools
+        run: |
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
+      - name: Restore exact Stage 2 NanoISA
+        run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage stage2-nvm --archive "$RUNNER_TEMP/sanitizer-stage2-nvm/stage2-nvm.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-stage2-nvm/stage2-nvm.json" --output "$REPORT"
+      - name: Translate verified Stage 2 NanoISA to C
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-c 2>&1 | tee "$REPORT/bootstrap2-c.log"
+      - name: Publish exact Stage 2 C bundle
+        run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage2-c --output "$BUNDLE"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-stage2-c
+          path: ${{ runner.temp }}/sanitizer-stage2-c/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  sanitizer-bootstrap:
+    name: Sanitizer native Stage 2 and verification
+    needs: [sanitizer-plan, sanitizer-stage2-object]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-stage2-object
+          path: ${{ runner.temp }}/sanitizer-stage2-object
+      - name: Set retained paths
+        run: |
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
+          echo "REPORT=$RUNNER_TEMP/sanitizer-bootstrap-report" >> "$GITHUB_ENV"
+          echo "BUNDLE=$RUNNER_TEMP/sanitizer-bootstrap" >> "$GITHUB_ENV"
+      - name: Install Python dependencies
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential clang llvm lld pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev
+      - name: Select matching distribution LLVM tools
+        run: |
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
+      - name: Restore exact Stage 2 object
+        run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage stage2-object --archive "$RUNNER_TEMP/sanitizer-stage2-object/stage2-object.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-stage2-object/stage2-object.json" --output "$REPORT"
+      - name: Compile instrumented native Stage 2
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-native 2>&1 | tee "$REPORT/bootstrap2-native.log"
+      - name: Verify Stage 2 and complete bootstrap
+        run: |
+          bin/nanoc_stage2 examples/language/nl_hello.nano -o build/sanitizer-stage2/hello
+          build/sanitizer-stage2/hello >/dev/null
+          touch .bootstrap2.built
+          python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap3 2>&1 | tee "$REPORT/bootstrap3.log"
       - name: Publish exact Stage 2 bundle
         run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage2 --output "$BUNDLE"
       - uses: actions/upload-artifact@v4
         with:
           name: sanitizer-stage2
           path: ${{ runner.temp }}/sanitizer-bootstrap/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  sanitizer-stage2-object:
+    name: Sanitizer native Stage 2 object
+    needs: [sanitizer-plan, sanitizer-stage2-c]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-stage2-c
+          path: ${{ runner.temp }}/sanitizer-stage2-c
+      - name: Set retained paths
+        run: |
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
+          echo "REPORT=$RUNNER_TEMP/sanitizer-stage2-object-report" >> "$GITHUB_ENV"
+          echo "BUNDLE=$RUNNER_TEMP/sanitizer-stage2-object" >> "$GITHUB_ENV"
+      - name: Install Python dependencies
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential clang llvm lld pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev
+      - name: Select matching distribution LLVM tools
+        run: |
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
+      - name: Restore exact Stage 2 C
+        run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage stage2-c --archive "$RUNNER_TEMP/sanitizer-stage2-c/stage2-c.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-stage2-c/stage2-c.json" --output "$REPORT"
+      - name: Compile instrumented Stage 2 object
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-object 2>&1 | tee "$REPORT/bootstrap2-object.log"
+      - name: Publish exact Stage 2 object bundle
+        run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage2-object --output "$BUNDLE"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-stage2-object
+          path: ${{ runner.temp }}/sanitizer-stage2-object/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
@@ -697,7 +850,7 @@ jobs:
 
   sanitizers:
     name: Memory Sanitizers
-    needs: [sanitizer-plan, sanitizer-base, sanitizer-stage1, sanitizer-bootstrap, sanitizer-providers, sanitizer-workers]
+    needs: [sanitizer-plan, sanitizer-base, sanitizer-stage1, sanitizer-stage2-nvm, sanitizer-stage2-c, sanitizer-stage2-object, sanitizer-bootstrap, sanitizer-providers, sanitizer-workers]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -718,6 +871,9 @@ jobs:
           PLAN_RESULT: ${{ needs.sanitizer-plan.result }}
           BASE_RESULT: ${{ needs.sanitizer-base.result }}
           STAGE1_RESULT: ${{ needs.sanitizer-stage1.result }}
+          STAGE2_NVM_RESULT: ${{ needs.sanitizer-stage2-nvm.result }}
+          STAGE2_C_RESULT: ${{ needs.sanitizer-stage2-c.result }}
+          STAGE2_OBJECT_RESULT: ${{ needs.sanitizer-stage2-object.result }}
           BOOTSTRAP_RESULT: ${{ needs.sanitizer-bootstrap.result }}
           PROVIDERS_RESULT: ${{ needs.sanitizer-providers.result }}
           WORKER_RESULT: ${{ needs.sanitizer-workers.result }}
@@ -725,6 +881,9 @@ jobs:
           test "$PLAN_RESULT" = success
           test "$BASE_RESULT" = success
           test "$STAGE1_RESULT" = success
+          test "$STAGE2_NVM_RESULT" = success
+          test "$STAGE2_C_RESULT" = success
+          test "$STAGE2_OBJECT_RESULT" = success
           test "$BOOTSTRAP_RESULT" = success
           test "$PROVIDERS_RESULT" = success
           test "$WORKER_RESULT" = success
