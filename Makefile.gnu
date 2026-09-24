@@ -4959,11 +4959,11 @@ test-owned-scalar-global-contracts: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 .PHONY: test-affine-bytecode
 test-units: test-affine-bytecode
 test-affine-bytecode: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
-	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_affine_bytecode tests/nanoisa/test_affine_bytecode.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
-	./obj/test_affine_bytecode
-	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=affine_bytecode_test_malloc -Dcalloc=affine_bytecode_test_calloc -Drealloc=affine_bytecode_test_realloc -DNVM_AFFINE_TEST_VISIT_LIMIT=affine_bytecode_test_visit_limit -c src/nanoisa/affine_bytecode.c -o obj/test_affine_bytecode_alloc.o
-	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_BYTECODE_ALLOCATION_TEST -o obj/test_affine_bytecode_alloc tests/nanoisa/test_affine_bytecode.c obj/test_affine_bytecode_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
-	./obj/test_affine_bytecode_alloc
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_affine_bytecode tests/nanoisa/test_affine_bytecode.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/test_affine_bytecode
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=affine_bytecode_test_malloc -Dcalloc=affine_bytecode_test_calloc -Drealloc=affine_bytecode_test_realloc -DNVM_AFFINE_TEST_VISIT_LIMIT=affine_bytecode_test_visit_limit -c src/nanoisa/affine_bytecode.c -o $(OBJ_DIR)/test_affine_bytecode_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_BYTECODE_ALLOCATION_TEST -o $(OBJ_DIR)/test_affine_bytecode_alloc tests/nanoisa/test_affine_bytecode.c $(OBJ_DIR)/test_affine_bytecode_alloc.o $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/test_affine_bytecode_alloc
 
 .PHONY: test-affine-scalar-union-runtime
 test-units: test-affine-scalar-union-runtime

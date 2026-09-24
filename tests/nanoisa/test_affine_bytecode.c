@@ -175,7 +175,9 @@ static void owned_union_flow(void) {
         "OWN_UNPACK_VARIANT 2 0 1\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nPOP\nRET\n",true,NULL);
 }
 
+#include "owned_targets_fixture.h"
 int main(int argc,char **argv) {
+    owned_callback_targets();
     owned_union_flow();
 #ifdef AFFINE_BYTECODE_ALLOCATION_TEST
     owned_union_allocations();
