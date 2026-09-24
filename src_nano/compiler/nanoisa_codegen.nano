@@ -812,12 +812,14 @@ shadow nisa_list_element_tag {
 
 # I preserve exact two-string operations without replacing declared functions.
 fn nisa_string_binary_opcode(name: string) -> string {
+    if (== name "str_equals") { return "STR_EQ" }
     if (== name "str_concat") { return "STR_CONCAT" }
     if (== name "str_starts_with") { return "STR_STARTS_WITH" }
     if (== name "str_ends_with") { return "STR_ENDS_WITH" }
     return ""
 }
 shadow nisa_string_binary_opcode {
+    assert (== (nisa_string_binary_opcode "str_equals") "STR_EQ")
     assert (== (nisa_string_binary_opcode "str_concat") "STR_CONCAT")
     assert (== (nisa_string_binary_opcode "str_starts_with") "STR_STARTS_WITH")
     assert (== (nisa_string_binary_opcode "str_ends_with") "STR_ENDS_WITH")
@@ -4704,6 +4706,9 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         }
     }
     if (and (!= (nisa_string_binary_opcode function_name) "") (< declared_index 0)) {
+        if (and (== function_name "str_equals") (or (>= local_target 0) (>= (nisa_global_find function_name call.line) 0))) {
+            return (nisa_fail "I cannot call a non-function value as string equality")
+        }
         if (!= call.arg_count 2) { return (nisa_fail (+ "I require two string operands for " function_name)) }
         let mut i: int = 0
         while (< i call.arg_count) {

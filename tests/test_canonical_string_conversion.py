@@ -84,3 +84,81 @@ class CanonicalStringConversion(unittest.TestCase):
                                                 capture_output=True,text=True,timeout=120)
                         self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
                         self.assertEqual(output.read_text(),'prior output')
+
+    def test_existing_comprehensive_fstrings(self):
+        with tempfile.TemporaryDirectory(prefix='nano-comprehensive-fstrings-') as tmp:
+            output = Path(tmp)/'product'
+            source = ROOT/'tests/unit/test_fstring_comprehensive.nano'
+            for compiler in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
+                for vm in (False, True) if compiler != 'nanoc_c' else (False,):
+                    with self.subTest(compiler=compiler, vm=vm):
+                        self.checked([ROOT/'bin'/compiler,source,*(['--emit-nvm'] if vm else []),'-o',output])
+                        self.checked([ROOT/'bin/nano_vm',output] if vm else [output])
+
+    def test_string_equality_values_and_order(self):
+        source_text = r'''let mut calls: int = 0
+fn operand(expected: int) -> string {
+ assert (== calls expected)
+ set calls (+ calls 1)
+ return (str_concat "same" " value")
+}
+shadow operand { set calls 0 assert (== (operand 0) "same value") }
+fn equal(a: string, b: string) -> bool { return (str_equals a b) }
+shadow equal { assert (equal "" "") assert (not (equal "a" "b")) }
+fn main() -> int {
+ set calls 0
+ assert (str_equals (operand 0) (operand 1))
+ assert (== calls 2)
+ assert (equal "" "")
+ assert (not (equal "a" "ab"))
+ assert (equal "héllo" "héllo")
+ assert (not (equal "same" "different"))
+ return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+        with tempfile.TemporaryDirectory(prefix='nano-string-equality-') as tmp:
+            source, output = Path(tmp)/'case.nano', Path(tmp)/'product'
+            source.write_text(source_text)
+            for compiler in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
+                for vm in (False, True) if compiler != 'nanoc_c' else (False,):
+                    with self.subTest(compiler=compiler,vm=vm):
+                        self.checked([ROOT/'bin'/compiler,source,*(['--emit-nvm'] if vm else []),'-o',output])
+                        self.checked([ROOT/'bin/nano_vm',output] if vm else [output])
+
+    def test_equality_keeps_declared_and_local_calls(self):
+        cases = (
+            'fn str_equals(a: int, b: int) -> int { return (+ a b) }\n'
+            'shadow str_equals { assert (== (str_equals 2 3) 5) }\n'
+            'fn main() -> int { assert (== (str_equals 2 3) 5) return 0 }\n',
+            'fn different(a: string, b: string) -> bool { return (!= a b) }\n'
+            'shadow different { assert (different "a" "b") }\n'
+            'fn main() -> int { let str_equals: fn(string, string) -> bool = different '
+            'assert (str_equals "a" "b") return 0 }\n')
+        for program in cases:
+            with tempfile.TemporaryDirectory(prefix='nano-equality-binding-') as tmp:
+                source, output = Path(tmp)/'case.nano', Path(tmp)/'product'
+                source.write_text(program+'shadow main { assert (== (main) 0) }\n')
+                for compiler in ('nanoc_stage1','nanoc_stage2'):
+                    for vm in (False,True):
+                        with self.subTest(compiler=compiler,vm=vm,program=program):
+                            self.checked([ROOT/'bin'/compiler,source,*(['--emit-nvm'] if vm else []),'-o',output])
+                            self.checked([ROOT/'bin/nano_vm',output] if vm else [output])
+
+    def test_invalid_equality_preserves_output(self):
+        bodies = ('let result = (str_equals "a")',
+                  'let result = (str_equals "a" "b" "c")',
+                  'let result = (str_equals "a" 1)',
+                  'let str_equals: int = 1 let result = (str_equals "a" "a")')
+        for body in bodies:
+            with tempfile.TemporaryDirectory(prefix='nano-equality-refusal-') as tmp:
+                source, output = Path(tmp)/'case.nano', Path(tmp)/'product'
+                source.write_text('fn main() -> int { '+body+' return 0 }\nshadow main { assert true }\n')
+                for compiler in ('nanoc_stage1','nanoc_stage2'):
+                    for vm in (False,True):
+                        with self.subTest(compiler=compiler,vm=vm,body=body):
+                            output.write_text('prior output')
+                            result = subprocess.run([ROOT/'bin'/compiler,source,*(['--emit-nvm'] if vm else []),'-o',output],cwd=ROOT,
+                                                    capture_output=True,text=True,timeout=120)
+                            self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+                            self.assertEqual(output.read_text(),'prior output')

@@ -6043,7 +6043,7 @@ static void test_string_edges_run_as_native_c(void) {
         {"é7", "7", 0, 1}, {"\0017", "\001", 1, 0}
     };
     for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
-        for (int suffix = 0; suffix < 2; ++suffix) {
+        for (int operation = 0; operation < 3; ++operation) {
             char source[512];
             snprintf(source, sizeof source,
                 ".string text \"%s\"\n.string part \"%s\"\n.entry 1\n"
@@ -6052,7 +6052,7 @@ static void test_string_edges_run_as_native_c(void) {
                 ".function main 0 0 0 int 1\nCALL predicate\nJMP_FALSE no\n"
                 "PUSH_I64 1\nRET\nno:\nPUSH_I64 0\nRET\n.end\n",
                 cases[i].text, cases[i].part,
-                suffix ? "STR_ENDS_WITH" : "STR_STARTS_WITH");
+                operation == 2 ? "STR_EQ" : operation == 1 ? "STR_ENDS_WITH" : "STR_STARTS_WITH");
             NvmModule *m = assemble_ok(source, "native string edge");
             CHECK(m != NULL, "string edge fixture assembles");
             if (!m) continue;
@@ -6064,7 +6064,8 @@ static void test_string_edges_run_as_native_c(void) {
                 CHECK(strstr(c, "nano_vm") == NULL, "string edge has no VM dependency");
                 int status = -1;
                 CHECK(compile_and_run(c, &status) == 0, "string edge C compiles and runs");
-                CHECK(status == (suffix ? cases[i].ends : cases[i].starts),
+                CHECK(status == (operation == 2 ? !strcmp(cases[i].text, cases[i].part) :
+                                 operation == 1 ? cases[i].ends : cases[i].starts),
                       "native string edge has expected byte semantics");
                 free(c);
             }
@@ -6161,6 +6162,7 @@ static void test_boolean_tags(void) {
         "PUSH_STR text\nPUSH_STR part\nSTR_STARTS_WITH\n",
         "PUSH_STR text\nPUSH_STR part\nSTR_ENDS_WITH\n",
         "PUSH_STR text\nPUSH_STR part\nSTR_CONTAINS\n",
+        "PUSH_STR text\nPUSH_STR part\nSTR_EQ\n",
         "PUSH_I64 1\nTYPE_CHECK 1\n"
     };
     char producer_source[4096] = ".string text \"abc\"\n.string part \"a\"\n.entry main\n.function main 0 0 0 int 1\n";
