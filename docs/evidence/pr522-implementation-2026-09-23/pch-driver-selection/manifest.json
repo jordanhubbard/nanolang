@@ -1,0 +1,8 @@
+{
+  "parent": "0993c48806f0b119627d565bb158cf8771144cf2",
+  "local_sha256": {
+    "src/module_builder.c": "d91953a1f90c7fc197419fa5d230dc59cbfbb537a47516722f5417246b0d3439",
+    "tests/test_module_generation_probe.c": "c78baf76ce3e5bd906da22573a71c2b875792e07b971dadf9c7007fcd8b92690",
+    "tests/test_module_builder_self_capture.py": "c88fabd8fc2729bc6e18979fe48d7d9051cb12b4983a4faafb036ae26e3be48f"
+  }
+}

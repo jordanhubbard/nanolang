@@ -6,4 +6,4 @@ I align the C-seed bytecode frontend with the canonical emitter: integer-tag lis
 
 The pinned comparison now passes all 86 checks. `make test-nanovirt` passes all 90 tests, including the empty struct-list element-tag control. Four focused canonical list methods pass in 1.369 seconds: nested record lists, list mutation, invalid operands and bounds traps across VM/native products.
 
-The broader target runs as `make -o nanoisa_emit test-nanoisa-src-nano`, reusing the emitter freshly rebuilt by the baseline because no NanoLang source changes. Its remaining Python suites are still running; I do not claim that gate passed. Final hosted acceptance and final-source fixed points remain open under `task_99b74dba668b48a18287a989258f7ea8`.
+The broader target runs as `make -o nanoisa_emit test-nanoisa-src-nano`, reusing the emitter freshly rebuilt by the baseline because no NanoLang source changes. The complete target exits zero: all 91 Python methods pass in 450.228 seconds (`after.log`), in addition to the 86 pinned checks. Final hosted acceptance and final-source fixed points remain open under `task_99b74dba668b48a18287a989258f7ea8`.

@@ -1,0 +1,9 @@
+test_builder_source_retains_and_builds_its_own_marker (tests.test_module_builder_self_capture.ModuleBuilderSelfCapture.test_builder_source_retains_and_builds_its_own_marker) ... ok
+test_gcc_still_captures_a_canonical_external_pch (tests.test_module_builder_self_capture.ModuleBuilderSelfCapture.test_gcc_still_captures_a_canonical_external_pch) ... ok
+test_gcc_still_refuses_a_literal_pch_marker (tests.test_module_builder_self_capture.ModuleBuilderSelfCapture.test_gcc_still_refuses_a_literal_pch_marker) ... ok
+test_gcc_still_refuses_an_unrepresentable_external_pch_path (tests.test_module_builder_self_capture.ModuleBuilderSelfCapture.test_gcc_still_refuses_an_unrepresentable_external_pch_path) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.159s
+
+OK
