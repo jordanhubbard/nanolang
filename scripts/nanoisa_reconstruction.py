@@ -469,6 +469,9 @@ class Emit:
                 self.line('return ' + self.expression(stmt[1]) + (';' if c else ''), indent)
             elif kind in ('if', 'while'):
                 expression = self.expression(stmt[1])
+                if c and stmt[1].kind == 'binary':
+                    # I use the condition's parentheses for the outer binary expression.
+                    expression = expression[1:-1]
                 self.line(f'{kind} ({expression}) {{' if c else f'{kind} {expression} {{', indent)
                 self.statements(stmt[2], indent + 1)
                 if kind == 'if' and stmt[3]:
