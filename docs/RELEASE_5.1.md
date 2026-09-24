@@ -1,6 +1,10 @@
-# NanoLang 5.1.0 — One verified compiler product
+# NanoLang 5.1.0 candidate — One verified compiler product
 
-I now publish verified NanoISA bytecode as my portable compiler product.
+I am preparing 5.1.0; this is a candidate record, not a completed release.
+Final platform, sanitizer and fixed-point qualification remain open in
+[PR #522](https://github.com/jordanhubbard/nanolang/pull/522).
+
+I publish verified NanoISA bytecode as my portable compiler product.
 Unqualified compilation writes a sibling `.nvm`; native executables and C11
 source are produced from that verified module through `nvm2c`. My self-hosted
 compiler no longer needs its NanoLang-to-C pretty-printer in the product
@@ -37,6 +41,17 @@ paths where they still provide bootstrap or compatibility evidence; their
 presence does not make them the default compiler product.
 
 ## Self-hosting evidence
+
+My latest recorded VM fixed point is at `0eb94026c`: both generations contain
+526,188 bytes with SHA-256
+`19e49b0210f46e1bd7490ff0efa0e49f24bf42d924c3bbafb26af42850ef474b`.
+Both verify, retain the same host closure, and the final compiler produces a
+verified executable test module. The gate records zero NanoLang-generated C
+compilation calls during VM generations. My [retained record](evidence/pr522-implementation-2026-09-23/vm-fixedpoint-0eb94026/README.md)
+preserves the exact pin and limits. The subsequent native translator correction
+still needs final-source VM and native qualification.
+
+The following earlier results remain historical evidence.
 
 At compiler-source pin `ebe3afddc8c9a7cd89b5d64b2928ea9dd269d08c`, my
 NanoVM bootstrap produced two successive 491,788-byte compiler modules with
@@ -92,13 +107,18 @@ evidence, not a proof that my compiler is correct.
 
 ## Verification and evidence
 
-My exact release-candidate verifier corpus selects and verifies 176 programs
-without a failure or skip. The ordinary native translator suite passes 2,422
-checks, the shape solver passes 1,412 checks, the self-hosted NanoISA emitter
-matrix passes 90 methods, and the shared frontend contract passes 367 checks.
-Canonical disassembly passes 210 round-trip checks. These counts describe
-tested surfaces; they are not a substitute for the exact clean-tree suite and
-hosted platform checks required before the tag.
+At `e70c0de46`, both complete native translator gates pass 2,524 assertions,
+including a fresh ASan/UBSan build; the shape solver passes 1,565 assertions.
+All nine original functional-array methods pass with generated ASan/UBSan and
+leak detection. Fresh Darwin bootstrap passes both native stages and installed
+execution without the C seed. Strict GCC builds the corrected full compiler
+output on Linux, and that standalone compiler produces a hello module that
+verifies and executes. My [retained correction evidence](evidence/pr522-implementation-2026-09-23/array-consumer-inference/README.md)
+includes the failures and qualification boundaries.
+
+These are local checks at a recorded checkpoint. They do not replace the
+complete clean-tree suite, every hosted platform and sanitizer partition, or
+final-source fixed points required before the tag.
 
 My formal NanoCore proofs remain `Admitted`-free for their stated model. They
 do not prove the full compiler, foreign code, service adapters or every

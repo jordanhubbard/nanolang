@@ -9,8 +9,8 @@ You need a C compiler, Make, Git, and pkg-config. Clone and build:
 ```bash
 git clone https://github.com/jordanhubbard/nanolang.git
 cd nanolang
-make build
-./bin/nanoc --version
+make build bootstrap3
+./bin/nanoc --help
 ```
 
 `bin/nanoc` is my compiler. `bin/nano` is my tree-walking interpreter.
@@ -38,7 +38,14 @@ Compile and run it:
 ./hello
 ```
 
-I transpile this program to C and invoke the host C compiler. Shadows execute while I compile; the resulting program then runs its generated shadow harness as part of startup. A failed shadow stops the process.
+With `-o hello`, I produce a native executable from verified NanoISA through my C translator and the host C compiler. I run selected shadows separately before publishing the executable; they do not run again at program startup. A failed shadow prevents publication.
+
+Without an output or target option, I publish portable bytecode instead:
+
+```bash
+./bin/nanoc hello.nano
+./bin/nano_vm hello.nvm
+```
 
 ## Interpreter
 

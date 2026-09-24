@@ -4,11 +4,11 @@
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Bootstrap](https://img.shields.io/badge/bootstrap-bytecode%20fixed%20point-green.svg)
 
-**I am a programming language designed for machines to write and humans to read, and a secure runtime that hosts least-privilege services on an ordinary kernel.** I require tests, I use unambiguous syntax, and my core is formally proved.
+**I am a programming language designed for machines to write and humans to read, with a runtime under development.** My project policy requires tests. I use unambiguous syntax, and my core model has mechanically checked proofs.
 
 I emit verified NanoISA bytecode as my portable compiler product. I translate that module to C11 when you need a native process, and I can execute it directly in NanoVM. NanoVM can isolate supported external calls in a separate process. After 4.0 I added versioned service contracts, unforgeable capabilities, a POSIX fabric, and a trap journal. I do not claim a kernel. My core semantics are mechanically proved in Coq — type soundness, progress, determinism, and the big-step ↔ small-step equivalence proof are all complete and `Admitted`-free.
 
-`v5.1.0` is my One IR release. Its [release record](docs/RELEASE_5.1.md) describes the NanoISA-only product path, matching self-hosted compiler bytecode, platform evidence and deliberate boundaries. I preserve the narrower [5.0 record](docs/RELEASE_5.0.md) as history.
+I am preparing `v5.1.0`, my One IR release. Its [candidate record](docs/RELEASE_5.1.md) describes the NanoISA-only product path, pinned self-hosting evidence and remaining qualification gates. I preserve the narrower [5.0 record](docs/RELEASE_5.0.md) as history.
 
 ## Documentation
 
@@ -34,7 +34,7 @@ I emit verified NanoISA bytecode as my portable compiler product. I translate th
 # Clone and build
 git clone https://github.com/jordanhubbard/nanolang.git
 cd nanolang
-make build
+make build bootstrap3
 
 # Create hello.nano
 cat > hello.nano << 'EOF'
@@ -191,8 +191,12 @@ make dap   # Build bin/nanolang-dap  (breakpoints, step-through, variable inspec
 A VS Code extension is provided in `editors/vscode/`. It wires the LSP and DAP servers automatically.
 
 ```bash
-# Compile through C to a native executable (default)
-./bin/nanoc program.nano -o program
+# Publish the default portable product, then execute it
+./bin/nanoc program.nano
+./bin/nano_vm program.nvm
+
+# Request a native executable from the verified product
+./bin/nanoc program.nano --target native -o program
 
 # Emit C source without invoking a native compiler
 ./bin/nanoc program.nano --target c -o program.c
@@ -205,12 +209,13 @@ A VS Code extension is provided in `editors/vscode/`. It wires the LSP and DAP s
 ./bin/nanoc_c program.nano --doc-md -o program.md
 ```
 
-My self-hosted driver accepts `--target native` and `--target c`; it rejects
-unknown options, unsupported targets, missing option values, and multiple
-input files. With `--target c` and no `-o`, I write a sibling `.c` file. Use
-`--` before an input path beginning with `-`. My generated C uses headers in
-`src` and `modules/std`; link the runtime and module libraries used by the
-program. Source emission alone does not prove that those dependencies link.
+With no output or target option, my installed self-hosted driver publishes a
+sibling `.nvm` file. `-o <binary>` selects native output unless `--emit-nvm` or
+`--target c` is selected. With `--target c` and no `-o`, I write a sibling `.c`
+file. Use `--target native` when I should compile and link the verified product;
+source emission alone does not establish that its runtime and provider
+dependencies link. I reject unknown options, unsupported targets, missing option
+values and multiple input files. Use `--` before an input path beginning with `-`.
 
 ## Performance Monitoring and LLM Optimization
 

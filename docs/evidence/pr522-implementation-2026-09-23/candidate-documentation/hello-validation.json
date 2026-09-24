@@ -1,0 +1,43 @@
+[
+  {
+    "name": "native-compile",
+    "command": [
+      "/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc",
+      "/tmp/pr522-release-audit-e70/hello.nano",
+      "-o",
+      "/tmp/pr522-release-audit-e70/hello"
+    ],
+    "exit": 0,
+    "seconds": 0.19039600001997314,
+    "stdout": ""
+  },
+  {
+    "name": "native-run",
+    "command": [
+      "/tmp/pr522-release-audit-e70/hello"
+    ],
+    "exit": 0,
+    "seconds": 0.008782124990830198,
+    "stdout": "Hello, World!\n"
+  },
+  {
+    "name": "bytecode-compile",
+    "command": [
+      "/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc",
+      "/tmp/pr522-release-audit-e70/hello.nano"
+    ],
+    "exit": 0,
+    "seconds": 0.038653666008030996,
+    "stdout": ""
+  },
+  {
+    "name": "bytecode-run",
+    "command": [
+      "/Users/jordanh/Src/nanolang-pr522-repair/bin/nano_vm",
+      "/tmp/pr522-release-audit-e70/hello.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.0068689170002471656,
+    "stdout": "Hello, World!\n"
+  }
+]
