@@ -74,9 +74,12 @@ class SanitizerPartitions(unittest.TestCase):
         value = partition.plan('head', self.inventory())
         self.assertEqual(partition.command_for(value['workers'][0], 'sanitize'), ['make', 'sanitize'])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap'),
-                         ['make', 'build', *partition.BOOTSTRAP_FLAGS, *partition.FLAGS])
+                         ['make', 'build', *partition.BOOTSTRAP_FLAGS,
+                          *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.FLAGS])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap1'),
                          ['make', 'bootstrap1', *partition.FLAGS])
+        self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap1-driver'),
+                         ['make', 'bootstrap1-driver', *partition.BOOTSTRAP_FLAGS, *partition.FLAGS])
         for worker in value['workers'][:-1]:
             self.assertEqual(partition.command_for(worker, 'tests'), ['make', *worker['targets'], *partition.FLAGS])
         self.assertEqual(partition.command_for(value['workers'][-1], 'tests'), ['bash', 'tests/run_negative_tests.sh'])
@@ -145,7 +148,8 @@ class SanitizerPartitions(unittest.TestCase):
         workers = [w for w in value['workers'] if w['native_bootstrap']]
         self.assertEqual(len(workers), 1)
         self.assertEqual(partition.command_for(workers[0], 'bootstrap'),
-                         ['make', 'bootstrap3', *partition.BOOTSTRAP_FLAGS, *partition.FLAGS])
+                         ['make', 'bootstrap3', *partition.BOOTSTRAP_FLAGS,
+                          *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.FLAGS])
         self.assertEqual(value['native_cflags'], partition.NATIVE_CFLAGS)
         for bad in (['absent'], [native[0], native[0]]):
             with self.assertRaises(ValueError):
@@ -186,9 +190,11 @@ class SanitizerPartitions(unittest.TestCase):
                 self.assertEqual(Path('bin/nanoc_c').read_bytes(), b'instrumented compiler')
                 os.chdir(source)
                 (source / 'bin/nanoc_stage1').write_bytes(b'instrumented stage 1')
+                (source / 'bin/nanoc_stage1_driver').write_bytes(b'ordinary stage 1 producer')
                 with mock.patch.object(partition, 'current_head', return_value='head'):
                     stage1 = partition.bundle_create(output, value, 'stage1')
-                self.assertEqual(set(stage1['products']), {'bin/nanoc_c', 'bin/nanoc_stage1'})
+                self.assertEqual(set(stage1['products']),
+                                 {'bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage1_driver'})
                 os.chdir(restored_tmp)
                 tampered = source / 'tampered.tar.gz'
                 tampered.write_bytes(archive.read_bytes() + b'modified')
@@ -293,6 +299,11 @@ class SanitizerPartitions(unittest.TestCase):
                          ['sanitizer-plan', 'sanitizer-base', 'sanitizer-stage1',
                           'sanitizer-bootstrap', 'sanitizer-providers', 'sanitizer-workers'])
         self.assertEqual(jobs['sanitizer-stage1']['needs'], ['sanitizer-plan', 'sanitizer-base'])
+        stage1_steps = jobs['sanitizer-stage1']['steps']
+        driver = next(step for step in stage1_steps if step.get('name') == 'Build ordinary Stage 1 producer')
+        publish_stage1 = next(step for step in stage1_steps if step.get('name') == 'Publish exact Stage 1 bundle')
+        self.assertIn('--phase bootstrap1-driver', driver['run'])
+        self.assertLess(stage1_steps.index(driver), stage1_steps.index(publish_stage1))
         self.assertEqual(jobs['sanitizer-bootstrap']['needs'], ['sanitizer-plan', 'sanitizer-stage1'])
         self.assertEqual(jobs['sanitizer-bootstrap']['timeout-minutes'], 60)
         bootstrap = next(step for step in jobs['sanitizer-bootstrap']['steps']

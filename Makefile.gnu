@@ -176,6 +176,7 @@ NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc_v06.nano
 bootstrap_input_tree = $(if $(wildcard $(1)/.),$(1)/. $(wildcard $(addprefix $(1)/,*.nano *.c *.h *.json)) $(foreach child,$(wildcard $(1)/*),$(call bootstrap_input_tree,$(child))))
 SELFHOST_SOURCES := $(sort $(foreach root,$(SRC_NANO_DIR) $(SRC_DIR) modules std stdlib,$(call bootstrap_input_tree,$(root))))
 NANOC_STAGE1 = $(BIN_DIR)/nanoc_stage1
+NANOC_STAGE1_DRIVER = $(BIN_DIR)/nanoc_stage1_driver
 NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
 VERIFY_SCRIPT = scripts/verify_no_nanoc_c.sh
 VERIFY_SMOKE_SOURCE = examples/language/nl_hello.nano
@@ -3822,6 +3823,18 @@ bootstrap1:
 		rm -f $(SENTINEL_BOOTSTRAP1); \
 	fi
 	@$(MAKE) $(SENTINEL_BOOTSTRAP1)
+
+.PHONY: bootstrap1-driver
+bootstrap1-driver: $(NANOC_STAGE1_DRIVER)
+
+$(NANOC_STAGE1_DRIVER): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu | nano_vm nvm2c nvm2c-runtime
+	@echo "Building my ordinary Stage 1 producer for the instrumented Stage 2 boundary..."
+	@NANO_CFLAGS="-O1 -g" \
+		NANO_SHADOW_TIMEOUT_SECONDS="$${NANO_SHADOW_TIMEOUT_SECONDS:-$(RELEASE_SHADOW_SECONDS)}" \
+		$(BOOTSTRAP_ENV) $(TIMEOUT_CMD) $(COMPILER_C) $(BOOTSTRAP2_SHADOW_FLAG) $(NANOC_SOURCE) -o $(NANOC_STAGE1_DRIVER)
+	@$(TIMEOUT_CMD) $(NANOC_STAGE1_DRIVER) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_driver_test
+	@$(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_driver_test >/dev/null 2>&1
+	@echo "✓ My ordinary Stage 1 producer works"
 
 
 $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu | nano_vm nvm2c nvm2c-runtime

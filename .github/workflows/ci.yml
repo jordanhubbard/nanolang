@@ -450,6 +450,8 @@ jobs:
         run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage base --archive "$RUNNER_TEMP/sanitizer-base/base.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-base/base.json" --output "$REPORT"
       - name: Build instrumented native Stage 1
         run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap1 2>&1 | tee "$REPORT/bootstrap1.log"
+      - name: Build ordinary Stage 1 producer
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap1-driver 2>&1 | tee "$REPORT/bootstrap1-driver.log"
       - name: Publish exact Stage 1 bundle
         run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage1 --output "$BUNDLE"
       - uses: actions/upload-artifact@v4
