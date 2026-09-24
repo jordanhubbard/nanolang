@@ -485,7 +485,9 @@ bool emit_doc_md(const char *output_path, ASTNode *program,
                    item->as.struct_def.is_pub &&
                    item->as.struct_def.name) {
 
-            const char *name = item->as.struct_def.name;
+            const char *name = item->as.struct_def.original_name
+                ? item->as.struct_def.original_name
+                : item->as.struct_def.name;
             const char *doc  = mddocmap_find(&dmap, item->line);
 
             if (!first_decl) fputs("\n---\n\n", out);

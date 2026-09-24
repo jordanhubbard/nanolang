@@ -1364,6 +1364,7 @@ const char *type_to_string(Type type) {
         case TYPE_ENUM: return "enum";
         case TYPE_UNION: return "union";
         case TYPE_FUNCTION: return "function";
+        case TYPE_OPAQUE: return "opaque";
         case TYPE_LIST_INT: return "list_int";
         case TYPE_LIST_STRING: return "list_string";
         case TYPE_HASHMAP: return "HashMap";
@@ -3846,7 +3847,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 bool types_ok = types_match(left, right);
                 if (!types_ok) {
                     /* Check if we're comparing an opaque type with int (null check) */
-                    if ((left == TYPE_STRUCT || left == TYPE_INT) && (right == TYPE_STRUCT || right == TYPE_INT)) {
+                    if ((left == TYPE_STRUCT || left == TYPE_OPAQUE || left == TYPE_INT) &&
+                        (right == TYPE_STRUCT || right == TYPE_OPAQUE || right == TYPE_INT)) {
                         /* One might be an opaque type - this is allowed for null checks */
                         types_ok = true;
                     }
