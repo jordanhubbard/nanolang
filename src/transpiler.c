@@ -960,6 +960,7 @@ static void emit_generic_forward_decl(StringBuilder *sb, const ASTNode *orig,
     else        sb_append(sb, type_to_c(rt));
 
     sb_appendf(sb, " nl_%s(", inst->mono_name);
+    if (orig->as.function.param_count == 0) sb_append(sb, "void");
 
     /* Parameters */
     for (int j = 0; j < orig->as.function.param_count; j++) {
@@ -3291,6 +3292,7 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
             }
 
             sb_appendf(sb, " %s(", c_name);
+            if (mi->as.function.param_count == 0) sb_append(sb, "void");
 
             /* Parameters */
             for (int p = 0; p < mi->as.function.param_count; p++) {
@@ -3476,6 +3478,7 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
             /* Use namespace-aware function name (handles module::function -> module__function) */
             const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name, item->as.function.is_extern);
             sb_appendf(sb, " %s(", c_func_name);
+            if (item->as.function.param_count == 0) sb_append(sb, "void");
             
             /* Function parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
@@ -3647,6 +3650,7 @@ static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
     else        sb_append(sb, type_to_c(rt));
 
     sb_appendf(sb, " nl_%s(", inst->mono_name);
+    if (orig->as.function.param_count == 0) sb_append(sb, "void");
 
     /* Parameters */
     for (int j = 0; j < orig->as.function.param_count; j++) {
@@ -3781,6 +3785,7 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
             /* Use namespace-aware function name (handles module::function -> module__function) */
             const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name, item->as.function.is_extern);
             sb_appendf(sb, " %s(", c_func_name);
+            if (item->as.function.param_count == 0) sb_append(sb, "void");
             
             /* Function parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
