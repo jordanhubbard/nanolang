@@ -15,7 +15,7 @@ struct NvmShapeNode {
 typedef struct { NvmShapeId a, b; } ShapePair;
 
 static const char *kind_name(NvmShapeKind kind) {
-    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar", "variant-int-array", "u8", "byte-integer"};
+    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar", "variant-int-array", "u8", "byte-integer", "variant"};
     return names[kind];
 }
 
@@ -58,7 +58,7 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
 
 NvmShapeId nvm_shape_new(NvmShapeGraph *g, NvmShapeKind kind) {
     if (g->error) return 0;
-    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_BYTE_INTEGER)
+    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_VARIANT)
         return fail(g, "I cannot create an invalid shape kind");
     if (g->count >= UINT32_MAX)
         return fail(g, "I cannot represent another shape ID");
@@ -90,6 +90,7 @@ NvmShapeKind nvm_shape_kind(NvmShapeGraph *g, NvmShapeId id) {
 
 static int allows_edge(NvmShapeKind kind, uint32_t index) {
     return kind == NVM_SHAPE_UNKNOWN || kind == NVM_SHAPE_RECORD ||
+           (kind == NVM_SHAPE_VARIANT && index <= UINT16_MAX) ||
            (kind == NVM_SHAPE_MAP && index < 2) ||
            (kind == NVM_SHAPE_OPTIONAL && index == 0) ||
            (kind == NVM_SHAPE_ARRAY && index == 0);
@@ -204,6 +205,7 @@ typedef struct {
     int array_element;
     int record_field;
     int optional_payload;
+    int fresh_target;
 } FlowPair;
 
 static int flow_kind(NvmShapeGraph *g, NvmShapeId target, NvmShapeKind kind, int *changed) {
@@ -224,7 +226,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
     if (!queue) return 0;
-    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, 0, 0, 0};
+    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, 0, 0, 0, 0};
     while (cursor < count && !g->error) {
         FlowPair pair = queue[cursor++];
         NvmShapeId source = nvm_shape_root(g, pair.source), target = nvm_shape_root(g, pair.target);
@@ -309,7 +311,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;
             queue = next; queue[count++] = (FlowPair){source, payload, 1, 0,
-                                                      pair.record_field, 0};
+                                                      pair.record_field, 0, 0};
             continue;
         }
         /* An explicitly declared union destination accepts either exact
@@ -359,18 +361,26 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             ShapeEdge edge = g->nodes[source - 1].edges[i];
             NvmShapeId child_source = nvm_shape_root(g, edge.child);
             NvmShapeId child_target = nvm_shape_lookup(g, target, edge.index);
+            int fresh_target = 0;
             if (!child_target && !g->error) {
                 /* I preserve cycles and sharing when creating missing target
-                 * edges, without equating an existing destination view. */
+                 * edges, without equating an existing destination view. A
+                 * freshly queued target may not have its source kind yet. */
                 NvmShapeKind child_kind = nvm_shape_kind(g, child_source);
-                for (size_t j = 0; j < cursor; ++j)
+                for (size_t j = 0; j < count; ++j)
                     if ((child_kind == NVM_SHAPE_RECORD || child_kind == NVM_SHAPE_ARRAY ||
-                         child_kind == NVM_SHAPE_MAP || child_kind == NVM_SHAPE_OPTIONAL) &&
+                         child_kind == NVM_SHAPE_MAP || child_kind == NVM_SHAPE_OPTIONAL ||
+                         child_kind == NVM_SHAPE_VARIANT) &&
                         nvm_shape_root(g, queue[j].source) == child_source &&
-                        nvm_shape_kind(g, queue[j].target) == child_kind) {
+                        (nvm_shape_kind(g, queue[j].target) == child_kind ||
+                         (queue[j].fresh_target &&
+                          nvm_shape_kind(g, queue[j].target) == NVM_SHAPE_UNKNOWN))) {
                         child_target = nvm_shape_root(g, queue[j].target); break;
                     }
-                if (!child_target) child_target = nvm_shape_new(g, NVM_SHAPE_UNKNOWN);
+                if (!child_target) {
+                    child_target = nvm_shape_new(g, NVM_SHAPE_UNKNOWN);
+                    fresh_target = 1;
+                }
                 if (!child_target) break;
                 NvmShapeNode *node = &g->nodes[target - 1];
                 ShapeEdge *next = grow(g, node->edges, &node->capacity, node->count + 1, sizeof *next);
@@ -384,10 +394,12 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             queue[count++] = (FlowPair){
                 child_source,
                 child_target,
-                pair.exact || from == NVM_SHAPE_OPTIONAL || from == NVM_SHAPE_MAP,
+                pair.exact || from == NVM_SHAPE_OPTIONAL || from == NVM_SHAPE_MAP ||
+                    from == NVM_SHAPE_VARIANT,
                 from == NVM_SHAPE_ARRAY && edge.index == 0,
                 pair.record_field || (conversion.record_storage && from == NVM_SHAPE_RECORD),
-                from == NVM_SHAPE_OPTIONAL && edge.index == 0
+                from == NVM_SHAPE_OPTIONAL && edge.index == 0,
+                fresh_target
             };
         }
     }
@@ -398,9 +410,24 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
 int nvm_shape_solve_conversions(NvmShapeGraph *g) {
     int changed;
     do {
-        changed = 0;
-        for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
-            if (!flow_one(g, g->conversions[i], &changed, 0)) return 0;
+        do {
+            changed = 0;
+            for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
+                if (!flow_one(g, g->conversions[i], &changed, 0)) return 0;
+        } while (changed && !g->error);
+        /* A record or array consumer also constrains an unknown producer's
+         * container kind. I retain distinct copy layouts and do not infer
+         * scalar tags, optional payloads or field types from a consumer. */
+        for (size_t i = 0; i < g->conversion_count && !g->error; ++i) {
+            NvmShapeConversion conversion = g->conversions[i];
+            NvmShapeKind target = nvm_shape_kind(g, conversion.target);
+            if ((target == NVM_SHAPE_RECORD || target == NVM_SHAPE_ARRAY) &&
+                nvm_shape_kind(g, conversion.source) == NVM_SHAPE_UNKNOWN) {
+                NvmShapeId container = nvm_shape_new(g, target);
+                if (!container || !nvm_shape_unify(g, conversion.source, container)) return 0;
+                changed = 1;
+            }
+        }
     } while (changed && !g->error);
     /* Unknown sources may resolve on a later conversion pass. Only after
      * convergence do I require evidence for explicit scalar-set injection.
