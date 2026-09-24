@@ -305,7 +305,7 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertIn('--phase bootstrap1-driver', driver['run'])
         self.assertLess(stage1_steps.index(driver), stage1_steps.index(publish_stage1))
         self.assertEqual(jobs['sanitizer-bootstrap']['needs'], ['sanitizer-plan', 'sanitizer-stage1'])
-        self.assertEqual(jobs['sanitizer-bootstrap']['timeout-minutes'], 60)
+        self.assertEqual(jobs['sanitizer-bootstrap']['timeout-minutes'], 90)
         bootstrap = next(step for step in jobs['sanitizer-bootstrap']['steps']
                          if step.get('name') == 'Build instrumented native Stage 2 and verify bootstrap')
         self.assertIn('set -o pipefail', bootstrap['run'])
