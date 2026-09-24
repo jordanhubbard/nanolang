@@ -1,0 +1,6 @@
+test_many_record_calls_fit_bounded_stack (tests.test_one_ir_compiler.OneIrCompiler.test_many_record_calls_fit_bounded_stack) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.883s
+
+OK
