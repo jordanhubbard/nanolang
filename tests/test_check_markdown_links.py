@@ -13,6 +13,31 @@ import check_markdown_links as checker  # noqa: E402
 
 
 class TestI18nGeneratedFallback(unittest.TestCase):
+    def test_published_chapter_fallback_and_refusals(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            source = root / "userguide"
+            (source / "guide").mkdir(parents=True)
+            (source / "nav.txt").write_text(
+                "guide/runtime.md | Runtime | Use\n"
+                "guide/missing.md | Missing | Use\n")
+            (source / "guide/runtime.md").write_text("# Runtime\n")
+            (source / "guide/unpublished.md").write_text("# Draft\n")
+            (root / "outside.md").write_text("# Outside\n")
+            rel = Path("userguide/i18n/fr/guide/start.md")
+            draft = root / rel
+            draft.parent.mkdir(parents=True)
+            draft.write_text("[Runtime](runtime.md) [HTML](runtime.html)\n"
+                             "[Missing](missing.md) [Draft](unpublished.md)\n"
+                             "[Outside](../../outside.md)\n")
+            broken = checker.find_broken_links_in_file(root, draft)
+            self.assertEqual([link.target for link in broken],
+                             ["missing.md", "unpublished.md", "../../outside.md"])
+            self.assertFalse(checker.i18n_published_fallback(
+                root, Path("docs/start.md"), "guide/runtime.md"))
+            self.assertFalse(checker.i18n_published_fallback(
+                root, Path("userguide/i18n/unknown/guide/start.md"), "runtime.md"))
+
     def test_accepts_english_generated_page(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)

@@ -130,11 +130,37 @@ def find_broken_links_in_file(repo_root: Path, md_path: Path) -> list[BrokenLink
                     md_abs_target = (md_path.parent / md_target).resolve()
                 if md_abs_target.exists():
                     continue  # .md file exists, .html will be generated
-            if i18n_generated_fallback(repo_root, rel_md_path, target):
+            if (i18n_generated_fallback(repo_root, rel_md_path, target)
+                    or i18n_published_fallback(repo_root, rel_md_path, target)):
                 continue
             broken.append(BrokenLink(str(rel_md_path), target))
 
     return broken
+
+
+def i18n_published_fallback(repo_root: Path, rel_md_path: Path, target: str) -> bool:
+    """I resolve locale links only to existing English navigation chapters."""
+    from build_userguide import LOCALE_LABEL
+
+    parts = rel_md_path.parts
+    if (len(parts) < 4 or parts[:2] != ("userguide", "i18n")
+            or parts[2] not in LOCALE_LABEL or parts[2] == "en"):
+        return False
+    source = repo_root / "userguide"
+    nav = source / "nav.txt"
+    if not nav.is_file() or Path(target).is_absolute():
+        return False
+    relative = Path(os.path.normpath(Path(*parts[3:]).parent / target))
+    if relative.suffix == ".html":
+        relative = relative.with_suffix(".md")
+    if ".." in relative.parts or relative.suffix != ".md":
+        return False
+    published = {line.split("|", 1)[0].strip()
+                 for line in nav.read_text(encoding="utf-8").splitlines()
+                 if line.strip() and not line.lstrip().startswith("#")}
+    fallback = source / relative
+    return (relative.as_posix() in published and fallback.is_file()
+            and fallback.resolve().is_relative_to(source.resolve()))
 
 
 def main() -> int:

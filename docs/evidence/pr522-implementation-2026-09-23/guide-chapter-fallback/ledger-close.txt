@@ -1,0 +1,2 @@
+cannot transition task from running to completed
+  From running the only legal move is: blocked, cancelled, failed, needs_input, needs_review, open (`mac task reopen <id>`), stopped, waiting
