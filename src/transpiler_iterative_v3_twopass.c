@@ -3514,36 +3514,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
  * PASS 1: BUILD WORK ITEMS (Statement Transpiler)
  * ============================================================================ */
 
-/* Loop exits invalidate my explicit vectorization promise. */
-static bool loop_body_has_exit(const ASTNode *node) {
-    if (!node) return false;
-    switch (node->type) {
-        case AST_RETURN: case AST_BREAK: case AST_CONTINUE: return true;
-        case AST_BLOCK:
-            for (int i = 0; i < node->as.block.count; i++)
-                if (loop_body_has_exit(node->as.block.statements[i])) return true;
-            return false;
-        case AST_UNSAFE_BLOCK:
-            for (int i = 0; i < node->as.unsafe_block.count; i++)
-                if (loop_body_has_exit(node->as.unsafe_block.statements[i])) return true;
-            return false;
-        case AST_IF:
-            return loop_body_has_exit(node->as.if_stmt.then_branch)
-                || loop_body_has_exit(node->as.if_stmt.else_branch);
-        case AST_WHILE: return loop_body_has_exit(node->as.while_stmt.body);
-        case AST_FOR: return loop_body_has_exit(node->as.for_stmt.body);
-        case AST_MATCH:
-            for (int i = 0; i < node->as.match_expr.arm_count; i++)
-                if (loop_body_has_exit(node->as.match_expr.arm_bodies[i])) return true;
-            return false;
-        case AST_COND:
-            for (int i = 0; i < node->as.cond_expr.clause_count; i++)
-                if (loop_body_has_exit(node->as.cond_expr.values[i])) return true;
-            return loop_body_has_exit(node->as.cond_expr.else_value);
-        default: return false;
-    }
-}
-
 static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry) {
     if (!stmt) return;
@@ -4388,22 +4358,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     emit_literal(list, ";\n");
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "int64_t __nl_len = dyn_array_length(__nl_arr);\n");
-                    /* Vectorization hints for numeric element types */
-                    if ((dyn_elem_type == TYPE_INT || dyn_elem_type == TYPE_FLOAT) &&
-                        !loop_body_has_exit(stmt->as.for_stmt.body)) {
-                        emit_indent_item(list, indent + 1);
-                        emit_literal(list, "#if defined(__GNUC__) && !defined(__clang__)\n");
-                        emit_indent_item(list, indent + 1);
-                        emit_literal(list, "#pragma GCC ivdep\n");
-                        emit_indent_item(list, indent + 1);
-                        emit_literal(list, "#endif\n");
-                        emit_indent_item(list, indent + 1);
-                        emit_literal(list, "#ifdef __clang__\n");
-                        emit_indent_item(list, indent + 1);
-                        emit_literal(list, "#pragma clang loop vectorize(enable) interleave(enable)\n");
-                        emit_indent_item(list, indent + 1);
-                        emit_literal(list, "#endif\n");
-                    }
+                    /* I leave vectorization to the C compiler; I have not proved loop independence. */
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n");
                     emit_indent_item(list, indent + 2);

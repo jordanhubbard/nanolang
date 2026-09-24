@@ -1,0 +1,11 @@
+['/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c', 'tests/unit/test_fstring_comprehensive.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/pr522-fstring-omvi___k/product']
+
+['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/pr522-fstring-omvi___k/product']
+f-string comprehensive tests PASSED
+
+['/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1', 'tests/unit/test_fstring_comprehensive.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/pr522-fstring-omvi___k/product']
+I cannot lower this checked program: undefined function str_equals
+
+Traceback (most recent call last):
+  File "<stdin>", line 13, in <module>
+AssertionError: 1
