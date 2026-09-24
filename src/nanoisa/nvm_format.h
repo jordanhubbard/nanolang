@@ -152,6 +152,8 @@ typedef struct {
     uint8_t param_tags[NANO_MAX_FFI_ARGS];
 } NvmCallbackContract;
 
+bool nvm_declared_scalar_shape_valid(const uint8_t *tags, uint16_t count, uint8_t result);
+
 bool nvm_callback_shape_valid(const uint8_t *tags, uint16_t count, uint8_t result);
 
 /* ========================================================================
@@ -162,7 +164,8 @@ typedef enum {
     NVM_IMPORT_FFI = 0,
     NVM_IMPORT_COPROCESS = 1,
     NVM_IMPORT_ARTIFACT = 2,
-    NVM_IMPORT_SERVICE = 3
+    NVM_IMPORT_SERVICE = 3,
+    NVM_IMPORT_DECLARED_SCALAR_ARTIFACT = 4
 } NvmImportKind;
 
 typedef struct {

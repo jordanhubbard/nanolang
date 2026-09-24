@@ -4,7 +4,7 @@ I restore ordinary module-manifest extern declarations under task
 `task_b8838417bbc54fb98a4c49eea1b0885a`. The unchanged native module-linking suite fails
 all three methods before its linker assertions: `fixture_value` is rejected by
 `nisa_register_extern`. I reproduce this at repaired checkpoint `59ff072cc`.
-This contract precedes implementation; it does not grant executable admission.
+My [transport checkpoint](evidence/pr522-implementation-2026-09-23/declared-scalar-transport) implements codec and structural checks; it does not grant executable admission.
 
 ## The current gap
 
