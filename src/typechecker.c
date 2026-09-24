@@ -3365,6 +3365,7 @@ static bool check_union_payload_values(Environment *env, ASTNode *expression,
     }
     /* No pointer into the growable declaration tables is used past this point. */
     bool ok = true;
+    bool enum_mismatch = false;
     for (int i = 0; ok && i < count; ++i) {
         const TypeInfo *expected = views[i].info;
         const char *owner = views[i].owner;
@@ -3373,14 +3374,21 @@ static bool check_union_payload_values(Environment *env, ASTNode *expression,
         ok = nominal_substitute_annotation(&expected, &owner, &context) &&
             checked_annotation_kind(env, expected, owner, &kind, &name);
         if (!ok) break;
-        if (kind == TYPE_INT || kind == TYPE_U8 || kind == TYPE_ENUM || kind == TYPE_FLOAT ||
-            kind == TYPE_BOOL || kind == TYPE_STRING || kind == TYPE_VOID)
+        if (kind == TYPE_ENUM) {
+            NominalView actual = {0};
+            ok = values[i] && nominal_value_view(values[i], env, 0, &actual) &&
+                nominal_view_equal(env, &views[i], &actual, 0);
+            nominal_view_discard(&actual);
+            enum_mismatch = !ok;
+        } else if (kind == TYPE_INT || kind == TYPE_U8 || kind == TYPE_FLOAT ||
+                   kind == TYPE_BOOL || kind == TYPE_STRING || kind == TYPE_VOID)
             ok = values[i] && union_scalar_payload_matches(values[i], env, kind);
         else ok = contextual_argument_matches(values[i], env, expected, owner, context, 0);
     }
     discard_union_payload_views(views, count);
     if (!ok) emit_context_error("E001 TYPE MISMATCH", expression->line, expression->column, 1,
-        "I require the union payload value to match its complete concrete destination.",
+        enum_mismatch ? "I require the declared enum payload type." :
+            "I require the union payload value to match its complete concrete destination.",
         "Preserve the actual type and every fixed or substituted declaration owner.");
     return ok;
 }

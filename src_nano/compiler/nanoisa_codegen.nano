@@ -3199,8 +3199,9 @@ fn nisa_to_string_result(parser: Parser, call: ASTCall) -> string {
     if (!= call.arg_count 1) { return (nisa_fail "I require one scalar argument for to_string") }
     let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
     let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
-    if (or (== actual "int") (or (== actual "u8") (or (== actual "float") (or (== actual "bool") (== actual "string"))))) { return "string" }
-    return (nisa_fail "I require int, u8, float, bool or string for to_string")
+    if (or (>= (nisa_enum_index parser actual) 0)
+            (or (== actual "int") (or (== actual "u8") (or (== actual "float") (or (== actual "bool") (== actual "string")))))) { return "string" }
+    return (nisa_fail "I require an enum, int, u8, float, bool or string for to_string")
 }
 shadow nisa_to_string_result {
     let text: string = (nanoisa_emit_nasm "fn main()->string { let value:u8=200 return (to_string value) }")
@@ -3211,6 +3212,8 @@ shadow nisa_to_string_result {
     let declared: string = (nanoisa_emit_nasm "fn to_string(value:int)->int{return value} fn main()->int{return (to_string 7)}")
     assert (str_contains declared "TAIL_CALL to_string")
     assert (not (str_contains declared "CAST_STRING"))
+    let enumerated: string = (nanoisa_emit_nasm "enum Mode { Quiet = 3, Loud = 7 } fn main()->string { let mode:Mode=Mode.Loud return (to_string mode) }")
+    assert (str_contains enumerated "CAST_STRING")
     let reset: int = (nisa_reset)
 }
 
@@ -4828,10 +4831,6 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     if (and (or (== function_name "float_from_bits") (== function_name "float_to_bits")) (or (>= (nisa_local_find function_name) 0) (>= (nisa_global_find function_name call.line) 0))) {
         return (nisa_fail "I cannot use a bound value as a binary64 bit intrinsic")
     }
-    if (and (== function_name "to_string") (< declared_index 0)) {
-        if (== (nisa_to_string_result parser call) "") { return "" }
-        return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_STRING"))
-    }
     if (and (== function_name "array_pop") (< declared_index 0)) {
         if (or (>= (nisa_local_find function_name) 0) (>= (nisa_global_find function_name call.line) 0)) {
             return (nisa_fail "I cannot use a bound value as an array_pop intrinsic")
@@ -6139,7 +6138,8 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                         return (+ (nisa_emit_call parser call) (nisa_line "RET"))
                     }
                 }
-                if (or (nisa_is_inline_call function_name) (!= (nisa_call_host_symbol parser function_name) "")) {
+                if (or (and (< call_index 0) (nisa_is_inline_call function_name))
+                        (!= (nisa_call_host_symbol parser function_name) "")) {
                     return (+ (nisa_emit_call parser call) (nisa_line "RET"))
                 } else {
                     if (< (nisa_fn_index parser function_name) 0) {
