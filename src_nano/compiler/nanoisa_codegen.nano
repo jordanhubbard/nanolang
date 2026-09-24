@@ -826,6 +826,7 @@ shadow nisa_string_binary_opcode {
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
+    if (or (== name "to_string") (== name "cast_string")) { return true }
     if (or (== name "float_from_bits") (== name "float_to_bits")) { return true }
     if (== name "str_trim") { return true }
     if (== name "str_split") { return true }
@@ -847,6 +848,8 @@ fn nisa_is_inline_call(name: string) -> bool {
 }
 
 shadow nisa_is_inline_call {
+    assert (nisa_is_inline_call "to_string")
+    assert (nisa_is_inline_call "cast_string")
     assert (nisa_is_inline_call "float_from_bits")
     assert (nisa_is_inline_call "float_to_bits")
     assert (nisa_is_inline_call "str_trim")
@@ -3434,6 +3437,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
                 (and (nisa_is_list_call target_name) (str_ends_with target_name "_get")))) {
             return (nisa_access_result parser call)
         }
+        if (and (or (== target_name "to_string") (== target_name "cast_string")) (< (nisa_call_index parser call) 0)) { return "string" }
         if (and (== target_name "cast_int") (< (nisa_call_index parser call) 0)) { return "int" }
         if (and (== target_name "float_from_bits") (< (nisa_call_index parser call) 0)) { return "float" }
         if (and (== target_name "float_to_bits") (< (nisa_call_index parser call) 0)) { return "int" }
@@ -4758,6 +4762,38 @@ shadow nisa_emit_functional_array {
     let reset: int = (nisa_reset)
 }
 
+fn nisa_emit_scalar_string(parser: Parser, argument: ASTStmtRef, kind: string) -> string {
+    if (not (or (>= (nisa_enum_index parser kind) 0) (or (== kind "int") (or (== kind "u8") (or (== kind "float") (or (== kind "bool") (== kind "string"))))))) {
+        return (nisa_fail "I require a scalar string-conversion operand")
+    }
+    if (!= kind "float") {
+        return (+ (nisa_emit_expr parser argument.node_id argument.node_type) (nisa_line "CAST_STRING"))
+    }
+    let done: string = (nisa_fresh)
+    let mut output: string = (+ (nisa_emit_expr parser argument.node_id argument.node_type) (nisa_line "CAST_STRING"))
+    let markers: array<string> = [".", "e", "n", "i"]
+    let mut index: int = 0
+    while (< index 4) {
+        set output (+ output (nisa_line "DUP"))
+        set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern (at markers index))))
+        set output (+ output (nisa_line "STR_CONTAINS"))
+        set output (+ output (nisa_line_imm "JMP_TRUE" done))
+        set index (+ index 1)
+    }
+    set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern ".0")))
+    set output (+ output (nisa_line "STR_CONCAT"))
+    return (+ output (nisa_label_line done))
+}
+shadow nisa_emit_scalar_string {
+    let text: string = (nanoisa_emit_nasm "fn main()->string{return (to_string 42)}")
+    assert nisa_ok
+    assert (str_contains text "CAST_STRING")
+    let floating: string = (nanoisa_emit_nasm "fn main()->string{return (to_string 2.0)}")
+    assert nisa_ok
+    assert (str_contains floating "STR_CONCAT")
+    let reset: int = (nisa_reset)
+}
+
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     if (and (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
         return (nisa_emit_exact_computed_call parser call)
@@ -4876,6 +4912,14 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     if (== function_name "range") { return (nisa_fail "I require range inside a for loop") }
     if (== function_name "array_new") { return (nisa_emit_filled_array parser call) }
     if (nisa_is_set_call function_name) { return (nisa_emit_set_call parser call function_name) }
+    if (and (or (== function_name "to_string") (== function_name "cast_string")) (< declared_index 0)) {
+        if (or (>= local_target 0) (>= (nisa_global_find function_name call.line) 0)) {
+            return (nisa_fail "I cannot call a non-function value as a string conversion")
+        }
+        if (!= call.arg_count 1) { return (nisa_fail "I require one string-conversion operand") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        return (nisa_emit_scalar_string parser argument (nisa_expr_type parser argument.node_id argument.node_type))
+    }
     if (and (== function_name "cast_int") (< declared_index 0)) {
         if (!= call.arg_count 1) { return (nisa_fail "I require one scalar argument for cast_int") }
         let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
@@ -4919,20 +4963,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         if (!= (nisa_expr_type parser argument.node_id argument.node_type) "float") {
             return (nisa_fail "I require a float to format")
         }
-        let done: string = (nisa_fresh)
-        let mut output: string = (+ (nisa_emit_expr parser argument.node_id argument.node_type) (nisa_line "CAST_STRING"))
-        let markers: array<string> = [".", "e", "n", "i"]
-        let mut index: int = 0
-        while (< index 4) {
-            set output (+ output (nisa_line "DUP"))
-            set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern (at markers index))))
-            set output (+ output (nisa_line "STR_CONTAINS"))
-            set output (+ output (nisa_line_imm "JMP_TRUE" done))
-            set index (+ index 1)
-        }
-        set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern ".0")))
-        set output (+ output (nisa_line "STR_CONCAT"))
-        return (+ output (nisa_label_line done))
+        return (nisa_emit_scalar_string parser argument "float")
     }
     let host_symbol: string = (nisa_call_host_symbol parser function_name)
     if (!= host_symbol "") { return (nisa_emit_host_call parser call host_symbol) }

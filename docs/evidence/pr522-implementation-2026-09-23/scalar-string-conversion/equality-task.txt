@@ -1,0 +1,153 @@
+{
+  "attempt_count": 0,
+  "completed_at": null,
+  "created_at": "2026-09-24T19:40:46.838321+00:00",
+  "created_by_human": null,
+  "dependencies": [],
+  "description": "I reproduce a compatibility gap in tests/unit/test_fstring_comprehensive.nano: the C seed compiles and executes the unchanged fixture, while fresh canonical Stage 1 refuses undefined function str_equals. I must preserve string equality, operand order, declared bindings and refusal boundaries across native and VM products, and run the unchanged fixture through both stages. Evidence: /tmp/pr522-format-comprehensive.log in the pr522 repair worktree; archive with scalar string conversion evidence.",
+  "id": "task_2cf42468d6094fa9b8396fa9de6e75e3",
+  "last_updated_at": "2026-09-24T19:40:46.838321+00:00",
+  "lease_id": null,
+  "leased_until": null,
+  "max_attempts": 3,
+  "metadata": {
+    "acc_metadata": {
+      "repository_contract_project": "nanolang",
+      "repository_contract_schema": "mac.repository_contract.v1",
+      "workflow_role": "work"
+    },
+    "execution_contract": {
+      "evidence_type": "repo_change",
+      "quality": "strong",
+      "repository_contract": {
+        "bootstrap": {
+          "command": "make build",
+          "creates": [
+            "bin/nanoc",
+            "bin/nano"
+          ]
+        },
+        "canonical_remote_url": "git@github.com:jordanhubbard/nanolang.git",
+        "contract_path": ".mac/project.yaml",
+        "default_branch": "main",
+        "evidence": {
+          "required": [
+            "repo.head_sha",
+            "repo.pushed",
+            "repo.dirty",
+            "repo.files_changed",
+            "tests"
+          ]
+        },
+        "platforms": [
+          "darwin",
+          "linux",
+          "wsl2"
+        ],
+        "project": "nanolang",
+        "schema": "mac.repository_contract.v1",
+        "test": {
+          "command": "make test-quick"
+        },
+        "toolchain": {
+          "required_commands": [
+            "python3",
+            "git",
+            "gh",
+            "make",
+            "cc"
+          ]
+        }
+      },
+      "repository_id": "projectrepo_ea061135933c485498ca97f7724c89d9",
+      "repository_path": "/Users/jkh/.mac/src/nanolang",
+      "schema": "mac.task_execution_contract.v1",
+      "source": "registered_project",
+      "type": "repository"
+    },
+    "no_dispatch": true,
+    "origin": {
+      "repository_contract": {
+        "bootstrap": {
+          "command": "make build",
+          "creates": [
+            "bin/nanoc",
+            "bin/nano"
+          ]
+        },
+        "canonical_remote_url": "git@github.com:jordanhubbard/nanolang.git",
+        "contract_path": ".mac/project.yaml",
+        "default_branch": "main",
+        "evidence": {
+          "required": [
+            "repo.head_sha",
+            "repo.pushed",
+            "repo.dirty",
+            "repo.files_changed",
+            "tests"
+          ]
+        },
+        "platforms": [
+          "darwin",
+          "linux",
+          "wsl2"
+        ],
+        "project": "nanolang",
+        "schema": "mac.repository_contract.v1",
+        "test": {
+          "command": "make test-quick"
+        },
+        "toolchain": {
+          "required_commands": [
+            "python3",
+            "git",
+            "gh",
+            "make",
+            "cc"
+          ]
+        }
+      },
+      "repository_id": "projectrepo_ea061135933c485498ca97f7724c89d9",
+      "repository_name": "nanolang",
+      "repository_path": "/Users/jkh/.mac/src/nanolang",
+      "source": "repo-nanolang",
+      "type": "direct_task"
+    },
+    "scientific_optimizer": {
+      "arm": "control",
+      "assigned_at": "2026-09-24T19:40:46.843266+00:00",
+      "experiment_id": "experiment_310b4390019d4393985873719896c517",
+      "phase": "experiment",
+      "policy_id": "policy_a6574cf8ac9d47799b0d48fa5bd18c2f",
+      "propensity": 0.1,
+      "schema": "mac.scientific_assignment.v1",
+      "stratum": "unknown:strong",
+      "task_id": "task_2cf42468d6094fa9b8396fa9de6e75e3"
+    },
+    "scientific_policy": {
+      "name": "baseline",
+      "policy_id": "policy_a6574cf8ac9d47799b0d48fa5bd18c2f",
+      "schema": "mac.scientific_policy.v1",
+      "version": 1
+    },
+    "toolchain_requirements": {
+      "required_commands": [
+        "python3",
+        "git",
+        "gh",
+        "make",
+        "cc"
+      ],
+      "schema": "mac.task_toolchain_requirements.v1",
+      "source": "repository_contract.toolchain.required_commands"
+    }
+  },
+  "owner_agent_id": null,
+  "priority": 1,
+  "project": "nanolang",
+  "required_capabilities": [],
+  "started_at": null,
+  "state": "open",
+  "title": "Preserve str_equals in canonical source products",
+  "updated_at": "2026-09-24T19:40:46.838321+00:00"
+}

@@ -4716,6 +4716,11 @@ test-instantiated-ownership: bootstrap
 test-units: test-native-module-linking
 test-native-module-linking: bootstrap3
 	@python3 -m unittest tests.test_native_module_linking tests.test_declared_scalar_source
+.PHONY: test-canonical-string-conversion
+test-units: test-canonical-string-conversion
+test-canonical-string-conversion: stage1 nano_vm
+	python3 -m unittest tests.test_canonical_string_conversion
+
 .PHONY: test-cseed-binding-names
 test-units: test-cseed-binding-names
 test-cseed-binding-names: $(COMPILER_C)
