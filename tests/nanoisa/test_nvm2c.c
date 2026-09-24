@@ -3317,6 +3317,46 @@ static void test_unsupported_classifier_instructions(void) {
     }
 }
 
+static void test_exact_scalar_callback_provenance(void) {
+    const char *tags[] = {"int", "bool", "float", "string", "function", "void"};
+    const char *values[] = {"PUSH_I64 7\n", "PUSH_BOOL 1\n", "PUSH_F64 2.5\n",
+        "PUSH_STR text\n", "FUNCREF answer\n", ""};
+    const char *checks[] = {"PUSH_I64 7\nI64_EQ\nASSERT\n",
+        "ASSERT\n", "PUSH_F64 2.5\nF64_EQ\nASSERT\n",
+        "PUSH_STR text\nEQ\nASSERT\n",
+        "CALL_INDIRECT 0 1\nPUSH_I64 42\nI64_EQ\nASSERT\n", ""};
+    for (unsigned kind = 0; kind < sizeof tags / sizeof tags[0]; ++kind) {
+        for (unsigned before = 0; before < 2; ++before) {
+            char main_fn[1024], workers[1024], source[2304];
+            unsigned results = kind == 5 ? 0 : 1;
+            snprintf(main_fn, sizeof main_fn,
+                ".function main 0 1 0 int 1\nCALL choose\nSTORE_LOCAL 0\n"
+                "LOAD_LOCAL 0\nCALL_INDIRECT 0 %u\n%sPUSH_I64 42\nRET\n.end\n",
+                results, checks[kind]);
+            snprintf(workers, sizeof workers,
+                ".function choose 0 0 0 function 1\nPUSH_I64 11\nPRINTLN\nFUNCREF selected\nRET\n.end\n"
+                ".function selected 0 0 0 %s %u\nPUSH_I64 22\nPRINTLN\n%sRET\n.end\n"
+                ".function answer 0 0 0 int 1\nPUSH_I64 42\nRET\n.end\n"
+                ".function decoy 0 0 0 float 1\nPUSH_F64 9.5\nRET\n.end\n",
+                tags[kind], results, values[kind]);
+            snprintf(source, sizeof source, ".entry main\n.string text \"selected\"\n%s%s",
+                before ? workers : main_fn, before ? main_fn : workers);
+            NvmModule *m = assemble_ok(source, "exact scalar callback with unrelated result types");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "I retain exact scalar and void callback results");
+            if (c) {
+                char output[128];
+                int status = -1;
+                CHECK(compile_and_run_capture(c, &status, output, sizeof output) == 0 &&
+                      status == 42 && strcmp(output, "11\n22\n") == 0,
+                      "I evaluate the scalar selector and selected target once in either function order");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+}
+
 static void test_exact_aggregate_callback_provenance(void) {
     const char *main_fn =
         ".function main 0 1 0 int 1\nCALL choose\nSTORE_LOCAL 0\n"
@@ -3357,7 +3397,7 @@ static void test_exact_aggregate_callback_provenance(void) {
     if (wrong) {
         char error[512];
         char *c = nvm2c_emit(wrong, error, sizeof error);
-        CHECK(c == NULL && strstr(error, "matching aggregate callback argument tags"),
+        CHECK(c == NULL && strstr(error, "matching callback argument tags"),
               "I do not use target identity to erase a callback argument mismatch");
         free(c);
         nvm_module_free(wrong);
@@ -3400,8 +3440,8 @@ static void test_indirect_target_inference_order(void) {
     if (missing) {
         char error[512];
         char *c = nvm2c_emit(missing, error, sizeof error);
-        CHECK(c == NULL && strstr(error, "CALL_INDIRECT has no exact scalar target"),
-              "I still refuse a missing target after callback facts converge");
+        CHECK(c == NULL && strstr(error, "matching callback argument tags"),
+              "I refuse incompatible arguments even when the callback target is known");
         free(c);
         nvm_module_free(missing);
     }
@@ -7009,6 +7049,7 @@ static void test_nested_scalar_arrays(void) {
 }
 
 int main(int argc, char **argv) {
+    test_exact_scalar_callback_provenance();
     test_exact_aggregate_callback_provenance();
     test_indirect_target_inference_order();
     test_nested_array_field_writes();

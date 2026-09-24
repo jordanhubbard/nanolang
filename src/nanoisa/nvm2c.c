@@ -1325,12 +1325,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             stk[sp - 1].callback != UINT32_MAX) {
             uint32_t target = stk[sp - 1].callback - 1;
             const NvmFunctionEntry *callee = &mod->functions[target];
-            if (callee->result_count == 1 &&
-                (aggregate_value_tag(callee->result_tag) || callee->result_tag == TAG_ARRAY)) {
+            if (callee->result_count == 0 ||
+                (callee->result_count == 1 &&
+                 (aggregate_value_tag(callee->result_tag) || callee->result_tag == TAG_ARRAY ||
+                  scalar_kind_for_tag(callee->result_tag) != NVM2C_VK_UNK))) {
                 uint16_t argc = ins.operands[0].u16;
                 if (argc != callee->arity || ins.operands[1].u16 != callee->result_count ||
                     sp < (int)argc + 1) {
-                    nvm2c_fail(b, "I require the exact aggregate callback signature");
+                    nvm2c_fail(b, "I require the exact callback signature");
                     return 0;
                 }
                 const uint8_t *tags = mod->function_param_types ? mod->function_param_types[target] : NULL;
@@ -1341,7 +1343,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         ((expected != NVM2C_VK_UNK && actual != expected) ||
                          (tags[p] == TAG_ARRAY && !array_storage(actual)) ||
                          (aggregate_value_tag(tags[p]) && actual != NVM2C_VK_REC))) {
-                        nvm2c_fail(b, "I require matching aggregate callback argument tags");
+                        nvm2c_fail(b, "I require matching callback argument tags");
                         return 0;
                     }
                 }
