@@ -4609,6 +4609,11 @@ test-units: test-canonical-aggregate-globals
 test-canonical-aggregate-globals: stage1 nano_vm
 	python3 -m unittest tests.test_canonical_aggregate_globals
 
+.PHONY: test-native-indexed-union-payloads
+test-units: test-native-indexed-union-payloads
+test-native-indexed-union-payloads: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest tests.test_native_indexed_union_payloads
+
 .PHONY: test-canonical-aggregate-formatting
 test-units: test-canonical-aggregate-formatting
 test-canonical-aggregate-formatting: bootstrap nano_vm
