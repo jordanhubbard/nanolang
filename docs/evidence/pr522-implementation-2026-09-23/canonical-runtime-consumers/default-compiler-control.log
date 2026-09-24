@@ -1,0 +1,12 @@
+test_existing_string_edges (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_existing_string_edges) ... ok
+test_nested_string_and_boolean_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_nested_string_and_boolean_results) ... ok
+test_wrong_trim_operands_preserve_output (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_wrong_trim_operands_preserve_output) ... ok
+test_failed_product_steps_preserve_previous_output (tests.test_nanoisa_only_product.NanoisaOnlyProduct.test_failed_product_steps_preserve_previous_output) ... ok
+test_native_and_source_products_use_translator (tests.test_nanoisa_only_product.NanoisaOnlyProduct.test_native_and_source_products_use_translator) ... ok
+test_declared_results_and_owned_arrays (tests.test_canonical_filesystem.CanonicalFilesystem.test_declared_results_and_owned_arrays) ... ok
+test_wrong_declared_abi_preserves_output (tests.test_canonical_filesystem.CanonicalFilesystem.test_wrong_declared_abi_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.581s
+
+OK

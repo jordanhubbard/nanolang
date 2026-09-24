@@ -7,10 +7,12 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc, native_link_flags
 
 ROOT = Path(__file__).resolve().parents[1]
 HOST_RUNTIME = [ROOT / "bin/nano_aot_runtime.o", "-lm",
-                *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else [])]
+                *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
+                *native_link_flags()]
 
 
 class OneIrCompiler(unittest.TestCase):
@@ -39,8 +41,8 @@ class OneIrCompiler(unittest.TestCase):
             'again:\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_SUB\nTAIL_CALL repeat\n.end\n'
             '.function main 0 0 0 int 1\nPUSH_I64 10000\nCALL repeat\nRET\n.end\n'
         )
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc)
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]))
         for name, body in fixtures.items():
             with self.subTest(name=name), tempfile.TemporaryDirectory(prefix="nano-void-local-") as tmp:
                 work = Path(tmp)
@@ -50,7 +52,7 @@ class OneIrCompiler(unittest.TestCase):
                 self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                 self.run_checked([ROOT / "bin/nano_vm", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                 self.run_checked([binary])
 
     def test_incoming_main_record_shapes_execute(self):
@@ -81,8 +83,8 @@ class OneIrCompiler(unittest.TestCase):
                 ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
             ),
         }
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for name, assembly_text in fixtures.items():
             with self.subTest(name=name), tempfile.TemporaryDirectory(prefix="nano-main-shapes-") as tmp:
                 work = Path(tmp)
@@ -91,7 +93,7 @@ class OneIrCompiler(unittest.TestCase):
                 assembly.write_text(assembly_text)
                 self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                 self.run_checked([binary])
 
     def run_checked(self, args, timeout=180, extra_env=None):
@@ -114,8 +116,8 @@ class OneIrCompiler(unittest.TestCase):
         return stdout
 
     def test_declared_empty_array_returns_reach_native(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for element_type, value in (("int", "42"), ("string", '"answer"'),
                                     ("Point", "Point { x: 42 }")):
             with self.subTest(element_type=element_type), tempfile.TemporaryDirectory(prefix="nano-empty-return-") as tmp:
@@ -135,12 +137,12 @@ class OneIrCompiler(unittest.TestCase):
                 )
                 self.run_checked([ROOT / "bin/nano_virt", source, "--emit-nvm", "-o", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", native_c])
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary])
+                self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary])
                 self.run_checked([binary])
 
     def test_returned_native_values_release_owned_allocations(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         rows = ('.function rows 0 0 0 array 1\nARR_NEW 8\nPUSH_I64 7\n'
                 'AGG_PACK 0 0 0 1\nARR_PUSH\nRET\n.end\n')
         repeated = ('PUSH_I64 0\nSTORE_LOCAL 2\nloop:\nLOAD_LOCAL 2\nPUSH_I64 64\nI64_LT_S\n'
@@ -217,15 +219,15 @@ static inline void tracked_free(void *p) {
                                   "int main(void) { int result = " + invoke + ";\n" +
                                   'if (live_allocations || !total_allocations) { fprintf(stderr, "I retained %zu allocations.\\n", live_allocations); return 97; }\n' +
                                   "return result; }\n")
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-g",
+                self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-g",
                                   "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
                                   "-fno-omit-frame-pointer", source, "-o", binary])
                 result = subprocess.run([binary], env=environment, capture_output=True, timeout=30)
                 self.assertEqual(result.returncode, 0, (result.stdout + result.stderr).decode(errors="replace"))
 
     def test_compiler_bytecode_to_native_to_program(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         with tempfile.TemporaryDirectory(prefix="nano-one-ir-compiler-") as tmp:
             work = Path(tmp)
             module, source, compiler = work / "compiler.nvm", work / "compiler.c", work / "compiler"
@@ -234,7 +236,7 @@ static inline void tracked_free(void *p) {
             self.assertGreater(module.stat().st_size, 0)
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
             self.assertNotIn("nano_vm", source.read_text())
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
+            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
                               source, "-o", compiler, *HOST_RUNTIME], timeout=240)
             help_output = self.run_checked([compiler, "--help"], timeout=10)
             self.assertIn(b"Compiler", help_output)
@@ -251,14 +253,14 @@ static inline void tracked_free(void *p) {
             self.assertEqual(self.run_checked([ROOT / "bin/nano_vm", hello_module], timeout=10),
                              b"Hello from NanoLang!\n")
             self.run_checked([ROOT / "bin/nvm2c", hello_module, "-o", hello_c])
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
                               hello_c, "-o", hello_aot])
             self.assertEqual(self.run_checked([hello_aot], timeout=10), b"Hello from NanoLang!\n")
 
     def test_selfhost_emitted_compiler_to_native_nanoisa_product(self):
         """I execute my canonical emitter before translating its compiler product."""
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         helper_env = ({"NANO_AS_CAPTURE_HELPER": str(ROOT / "bin/nano_as_capture.so")}
                       if sys.platform.startswith("linux") else {})
         with tempfile.TemporaryDirectory(prefix="nano-selfhost-native-product-") as tmp:
@@ -273,7 +275,7 @@ static inline void tracked_free(void *p) {
             self.assertGreater(module.stat().st_size, 0)
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
             self.assertNotIn("nano_vm", source.read_text())
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
+            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
                               source, "-o", compiler, *HOST_RUNTIME], timeout=240)
             self.assertIn(b"Compiler", self.run_checked([compiler, "--help"], timeout=10))
             hello_module, hello_c, hello_native = (work / name for name in
@@ -284,7 +286,7 @@ static inline void tracked_free(void *p) {
             self.assertEqual(self.run_checked([ROOT / "bin/nano_vm", hello_module], timeout=10),
                              b"Hello from NanoLang!\n")
             self.run_checked([ROOT / "bin/nvm2c", hello_module, "-o", hello_c])
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
                               hello_c, "-o", hello_native])
             self.assertEqual(self.run_checked([hello_native], timeout=10),
                              b"Hello from NanoLang!\n")
@@ -331,7 +333,7 @@ static inline void tracked_free(void *p) {
                                              capture_output=True, text=True, timeout=30)
                         if case == "exact":
                             self.assertEqual(run.returncode, 0, run.stderr)
-                            self.run_checked(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                            self.run_checked([*native_cc(), "-std=c11", "-Wall", "-Wextra", "-Werror",
                                               source, "-o", work / "input", *HOST_RUNTIME])
                         else:
                             self.assertNotEqual(run.returncode, 0)
@@ -349,7 +351,7 @@ static inline void tracked_free(void *p) {
                               ' if (!strcmp(path, "missing")) result[0] = 0;\n'
                               ' else snprintf(result, sizeof result, "/immutable/%s", path);\n'
                               ' return result; }\n')
-            self.run_checked(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fPIC",
+            self.run_checked([*native_cc(), "-std=c11", "-Wall", "-Wextra", "-Werror", "-fPIC",
                               "-dynamiclib" if sys.platform == "darwin" else "-shared",
                               helper, "-o", library])
             assembly, module, source, binary = (work/name for name in ("input.nasm", "input.nvm", "input.c", "input"))
@@ -363,12 +365,12 @@ static inline void tracked_free(void *p) {
                                 'LOAD_LOCAL 0\nPUSH_STR expected\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
             self.run_checked([ROOT/"bin/nanoisa", "asm", assembly, "-o", module])
             self.run_checked([ROOT/"bin/nvm2c", module, "-o", source])
-            self.run_checked(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary, *HOST_RUNTIME])
+            self.run_checked([*native_cc(), "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary, *HOST_RUNTIME])
             self.run_checked([binary])
 
     def test_nanoisa_artifact_strings_survive_later_facade_calls(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc)
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]))
         with tempfile.TemporaryDirectory(prefix="nano-aot-facade-") as tmp:
             work = Path(tmp)
             source, module, native_c, binary = (work / name for name in
@@ -404,13 +406,13 @@ fn main() -> int {
             self.run_checked([ROOT / "bin/nano_virt", source, "--emit-nvm", "-o", module])
             self.assertEqual(self.run_checked([ROOT / "bin/nano_vm", module, "--", work]), b"facade-ok\n")
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", native_c])
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", native_c,
+            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", native_c,
                               "-o", binary, *HOST_RUNTIME])
             self.assertEqual(self.run_checked([binary, work]), b"facade-ok\n")
 
     def test_real_std_artifact_uses_host_runtime(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         with tempfile.TemporaryDirectory(prefix="nano-aot-host-runtime-") as tmp:
             work = Path(tmp)
             directory = work / "files"
@@ -418,7 +420,7 @@ fn main() -> int {
             (directory / "one").write_text("payload")
             library = work / ("std.dylib" if sys.platform == "darwin" else "std.so")
             shared_flags = ["-dynamiclib", "-undefined", "dynamic_lookup"] if sys.platform == "darwin" else ["-shared"]
-            self.run_checked([cc, "-std=c11", "-fPIC", *shared_flags,
+            self.run_checked([*cc, "-std=c11", "-fPIC", *shared_flags,
                               ROOT / "modules/std/fs.c", ROOT / "modules/std/process.c", "-o", library])
             assembly, module, source = (work / name for name in ("input.nasm", "input.nvm", "input.c"))
             assembly.write_text(
@@ -433,7 +435,7 @@ fn main() -> int {
             self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
             missing = work / "missing-runtime"
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source,
+            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source,
                               "-o", missing, *(["-ldl"] if sys.platform.startswith("linux") else [])])
             failed = subprocess.run([missing], capture_output=True, timeout=10)
             self.assertLess(failed.returncode, 0, "I require the foreign artifact's host ABI")
@@ -444,13 +446,13 @@ fn main() -> int {
                               f'if (result != {len(str((directory / "one").resolve()))} || gc_get_stats().num_objects != before) return 1; '
                               'gc_shutdown(); return 0; }\n')
             binary = work / "with-runtime"
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-I", ROOT / "src",
+            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-I", ROOT / "src",
                               source, *HOST_RUNTIME, "-o", binary])
             self.run_checked([binary])
 
     def test_projected_optional_arguments(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         fixture = (ROOT / "tests/nanoisa/fixtures/nested_optional_returns.nasm").read_text()
         header, functions = fixture.split(".function main", 1)
         producers = ".function choose" + functions.split(".function choose", 1)[1]
@@ -489,12 +491,12 @@ fn main() -> int {
                         else:
                             self.run_checked([ROOT / "bin/nano_vm", module])
                             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                             self.run_checked([binary])
 
     def test_record_local_storage_joins(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         fixture = (ROOT / "tests/nanoisa/fixtures/nested_optional_returns.nasm").read_text()
         header, functions = fixture.split(".function main", 1)
         producers = ".function choose" + functions.split(".function choose", 1)[1]
@@ -528,12 +530,12 @@ fn main() -> int {
                         else:
                             self.run_checked([ROOT / "bin/nano_vm", module])
                             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                             self.run_checked([binary])
 
     def test_branch_record_fields_survive_later_assignments(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for reverse in (False, True):
             for taken in (False, True):
                 with self.subTest(reverse=reverse, taken=taken), tempfile.TemporaryDirectory(prefix="nano-branch-record-") as tmp:
@@ -555,12 +557,12 @@ fn main() -> int {
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     self.run_checked([ROOT / "bin/nano_vm", module])
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
 
     def test_projected_record_arguments(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         fixture = (ROOT / "tests/nanoisa/fixtures/nested_optional_returns.nasm").read_text()
         header, functions = fixture.split(".function main", 1)
         producers = ".function choose" + functions.split(".function choose", 1)[1]
@@ -587,7 +589,7 @@ fn main() -> int {
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     self.run_checked([ROOT / "bin/nano_vm", module])
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
 
                     # A missing value still carries its map's exact payload
@@ -600,8 +602,8 @@ fn main() -> int {
                     self.assertIn(b"shape", result.stderr)
 
     def test_declared_parameter_resolves_unused_packed_field(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for tag in ("int", "bool", "string", "struct"):
             for reverse in (False, True):
                 with self.subTest(tag=tag, reverse=reverse), tempfile.TemporaryDirectory(prefix="nano-declared-field-") as tmp:
@@ -624,14 +626,14 @@ fn main() -> int {
                     }[tag]
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     source.write_text(generated + f"\nint main(void) {{ nrec_t r = nl_pack({argument}); return !(r.n == 1 && {check}); }}\n")
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
                     untyped = text.split(".parameters", 1)[0]
                     assembly.write_text(untyped)
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                     self.assertNotIn("nl_pack", source.read_text())
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
                     # A required unresolved layout still fails; omission only
                     # applies when no VM execution root reaches the function.
@@ -642,8 +644,8 @@ fn main() -> int {
                     self.assertIn(b"cannot resolve AGG_PACK field 0", result.stderr)
 
     def test_declared_parameters_keep_observed_tags(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for tag in ("int", "bool", "string"):
             for reverse in (False, True):
                 with self.subTest(tag=tag, reverse=reverse), tempfile.TemporaryDirectory(prefix="nano-declared-tagged-") as tmp:
@@ -657,12 +659,12 @@ fn main() -> int {
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     self.run_checked([ROOT / "bin/nano_vm", module])
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
 
     def test_nominal_constructor_scalar_evidence(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for reverse in (False, True):
             for case in ("int", "bool", "string", "type", "variant", "width", "conflict", "alias_conflict"):
                 with self.subTest(reverse=reverse, case=case), tempfile.TemporaryDirectory(prefix="nano-nominal-field-") as tmp:
@@ -689,7 +691,7 @@ fn main() -> int {
                         if case != "alias_conflict":
                             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                             self.assertNotIn("nl_copy", source.read_text())
-                            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                             self.run_checked([binary])
                             assembly.write_text(text.replace(".entry main", ".entry copy"))
                             self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
@@ -701,12 +703,12 @@ fn main() -> int {
                     check = "r.k[0] == 9 && r.f[0] == 1" if case == "bool" else 'r.k[0] == 1 && strcmp(r.s[0], "hello") == 0' if case == "string" else "r.k[0] == 0 && r.f[0] == 42"
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     source.write_text(generated + f"\nint main(void) {{ nrec_t r = nl_copy(nl_seed()); return !(r.n == 1 && {check}); }}\n")
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
 
     def test_projected_array_length_uses_runtime_storage_tag(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for reverse in (False, True):
             for case in ("int", "bool", "string", "record", "empty", "bad_tag", "bad_width", "null", "record_get", "record_set"):
                 with self.subTest(reverse=reverse, case=case), tempfile.TemporaryDirectory(prefix="nano-projected-length-") as tmp:
@@ -733,7 +735,7 @@ fn main() -> int {
                         operation = "nvalue_array_get((nmap_value){7, 6, (char *)&a}, 0)" if case == "record_get" else "nvalue_array_set((nmap_value){7, 6, (char *)&a}, 0, (nmap_value){1, 0, NULL})"
                         body = setup + f"if (nl_length(r) != {initial}) return 1; (void){operation}; return 0;"
                     source.write_text(source.read_text().replace("int main(", "int generated_main(") + f"\nint main(void) {{ {body} }}\n")
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     if case in ("bad_tag", "bad_width", "null", "record_get", "record_set"):
                         result = subprocess.run([binary], capture_output=True, timeout=10)
                         self.assertLess(result.returncode, 0, "I trap an invalid projected array")
@@ -741,8 +743,8 @@ fn main() -> int {
                         self.run_checked([binary])
 
     def test_nested_record_consumer_constrains_projection(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for reverse in (False, True):
             for case in ("int", "bool", "string", "outer_tag", "inner_tag", "null", "outer_bounds", "inner_bounds"):
                 with self.subTest(reverse=reverse, case=case), tempfile.TemporaryDirectory(prefix="nano-nested-consumer-") as tmp:
@@ -776,7 +778,7 @@ fn main() -> int {
                         setup += "inner.n = 0;"
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     source.write_text(generated + f"\nint main(void) {{ {setup} return !({check}); }}\n")
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     if case in ("int", "bool", "string"):
                         self.run_checked([binary])
                     else:
@@ -784,8 +786,8 @@ fn main() -> int {
                         self.assertLess(result.returncode, 0, "I trap invalid nested record storage")
 
     def test_typed_i64_consumer_constrains_record_projection(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for reverse in (False, True):
             for case in ("negative", "nonnegative", "wrong_tag"):
                 with self.subTest(reverse=reverse, case=case), tempfile.TemporaryDirectory(prefix="nano-i64-projection-") as tmp:
@@ -805,7 +807,7 @@ fn main() -> int {
                         setup = 'nrec_t r = {.n = 1}; r.k[0] = 1; r.s[0] = "bad";'
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     source.write_text(generated + f"\nint main(void) {{ {setup} return nl_negative(r) != {expected}; }}\n")
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     if case == "wrong_tag":
                         result = subprocess.run([binary], capture_output=True, timeout=10)
                         self.assertLess(result.returncode, 0, "I trap a non-integer typed projection")
@@ -813,8 +815,8 @@ fn main() -> int {
                         self.run_checked([binary])
 
     def test_string_consumers_constrain_projected_local(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         operations = {
             "length": ("LOAD_LOCAL 1\nSTR_LEN", "int", "nl_use(r) == 5"),
             "concat_right": ("LOAD_LOCAL 1\nPUSH_STR bang\nSTR_CONCAT", "string", 'strcmp(nl_use(r), "hello!") == 0'),
@@ -839,14 +841,14 @@ fn main() -> int {
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     source.write_text(generated + f'\nint main(int argc, char **argv) {{ (void)argv; nrec_t r = {{.n = 1}}; r.k[0] = argc > 1 ? 0 : 1; r.s[0] = "hello"; return !({check}); }}\n')
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
                     rejected = subprocess.run([binary, "bad-tag"], capture_output=True, timeout=10)
                     self.assertLess(rejected.returncode, 0, "I trap a non-string field before its consumer")
 
     def test_projected_array_reads_constrain_container(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for reverse in (False, True):
             for tag in ("int", "bool", "string", "record"):
                 with self.subTest(reverse=reverse, tag=tag), tempfile.TemporaryDirectory(prefix="nano-array-consumer-") as tmp:
@@ -873,15 +875,15 @@ fn main() -> int {
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     wrong_storage = 3 if tag in ("bool", "string") else 10 if tag == "int" else 5
                     source.write_text(generated + f'\nint main(int argc, char **argv) {{ nrec_t r = {{.n = 1}}; {setup} if (argc > 1) {{ if (argv[1][0] == \'t\') r.k[0] = 0; else if (argv[1][0] == \'s\') r.k[0] = {wrong_storage}; else a.len = 0; }} return !({check}); }}\n')
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
                     for invalid in ("tag", "storage", "bounds"):
                         result = subprocess.run([binary, invalid], capture_output=True, timeout=10)
                         self.assertLess(result.returncode, 0, "I retain projected array tag and bounds checks")
 
     def test_generic_array_parameters_keep_runtime_tags(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for reverse in (False, True):
             for tail in (False, True):
                 for tag in ("int", "bool", "string"):
@@ -909,15 +911,15 @@ fn main() -> int {
                         body += f"if (nl_length(value) != 2 || !nl_forward(value)) return 1; a.len = 1; return nl_length(value) != 1 || value.integer != {storage_kind};"
                         generated = source.read_text().replace("int main(", "int generated_main(")
                         source.write_text(generated + f"\nint main(int argc, char **argv) {{ {body} }}\n")
-                        self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                        self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                         self.run_checked([binary])
                         for invalid in ("tag", "null", "storage"):
                             rejected = subprocess.run([binary, invalid], capture_output=True, timeout=10)
                             self.assertLess(rejected.returncode, 0, "I trap an invalid generic array descriptor")
 
     def test_unconstrained_scalar_projection_preserves_tags(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for reverse in (False, True):
             for local in (False, True):
                 with self.subTest(reverse=reverse, local=local), tempfile.TemporaryDirectory(prefix="nano-projected-tag-") as tmp:
@@ -946,7 +948,7 @@ int main(int argc, char **argv) {
     return nl_probe(record) != (which == 0 || which == 3);
 }
 ''')
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     for which in range(7):
                         self.run_checked([binary, str(which)])
                     for which in range(7, 12):
@@ -954,8 +956,8 @@ int main(int argc, char **argv) {
                         self.assertLess(rejected.returncode, 0, "I reject unsupported projected storage")
 
     def _check_record_temporary_count_boundaries(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc)
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]))
         for count in (8, 9, 10, 18, 100):
             with self.subTest(temporaries=count), tempfile.TemporaryDirectory(prefix="nano-record-count-") as tmp:
                 work = Path(tmp)
@@ -969,7 +971,7 @@ int main(int argc, char **argv) {
                                     "".join(operations) + "PUSH_I64 0\nRET\n.end\n")
                 self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+                self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
                                   "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
                                   source, "-o", binary])
                 self.run_checked([binary])
@@ -977,8 +979,8 @@ int main(int argc, char **argv) {
     def test_record_temporaries_have_scoped_heap_storage(self):
         self._check_record_temporary_count_boundaries()
         import resource
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         def bounded_stack():
             _, hard = resource.getrlimit(resource.RLIMIT_STACK)
             resource.setrlimit(resource.RLIMIT_STACK, (2 * 1024 * 1024, hard))
@@ -1017,15 +1019,15 @@ int main(int argc, char **argv) {
         if (result.n != 75 || result.f[0] != 24 || live) return 1;
     }
 ''' + ('if (peak != 2) return 2;\n' if mode == "self_tail" else 'if (peak < 26) return 2;\n') + 'return 0;\n}\n')
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
+                self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
                 result = subprocess.run([binary], capture_output=True, timeout=30, preexec_fn=bounded_stack)
                 self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
                 failed = subprocess.run([binary, "fail"], capture_output=True, timeout=10)
                 self.assertLess(failed.returncode, 0, "I fail closed when a record frame cannot be allocated")
 
     def test_string_array_growth_owns_buffers_and_preserves_aliases(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         with tempfile.TemporaryDirectory(prefix="nano-string-growth-") as tmp:
             work = Path(tmp)
             assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
@@ -1077,15 +1079,15 @@ int main(int argc, char **argv) {
     return 0;
 }
 ''')
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
+            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
             self.run_checked([binary])
             for mode in range(1, 13):
                 failed = subprocess.run([binary, str(mode)], capture_output=True, timeout=10)
                 self.assertLess(failed.returncode, 0, "I trap allocation, size and storage failures")
 
     def test_integer_array_growth_owns_buffers_and_preserves_aliases(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         with tempfile.TemporaryDirectory(prefix="nano-integer-growth-") as tmp:
             work = Path(tmp)
             assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
@@ -1133,15 +1135,15 @@ int main(int argc, char **argv) {
     return 0;
 }
 ''')
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
+            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
             self.run_checked([binary])
             for mode in range(1, 11):
                 failed = subprocess.run([binary, str(mode)], capture_output=True, timeout=10)
                 self.assertLess(failed.returncode, 0, "I trap allocation, size and storage failures")
 
     def test_owned_strings_preserve_escaped_values_and_cleanup(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         with tempfile.TemporaryDirectory(prefix="nano-owned-strings-") as tmp:
             work = Path(tmp)
             assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
@@ -1191,15 +1193,15 @@ int main(int argc, char **argv) {
     return 0;
 }
 ''')
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
+            self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
             self.run_checked([binary])
             for mode in range(1, 7):
                 failed = subprocess.run([binary, str(mode)], capture_output=True, timeout=10)
                 self.assertLess(failed.returncode, 0, "I reject allocation and string-size overflow")
 
     def test_uncalled_functions_are_warning_clean_not_executed(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         for reverse in (False, True):
             with self.subTest(reverse=reverse), tempfile.TemporaryDirectory(prefix="nano-uncalled-native-") as tmp:
                 work = Path(tmp)
@@ -1210,12 +1212,12 @@ int main(int argc, char **argv) {
                 self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                 self.run_checked([ROOT / "bin/nano_vm", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                 self.run_checked([binary])
 
     def test_nested_optional_returns_reach_native(self):
-        cc = shutil.which("cc")
-        self.assertIsNotNone(cc, "I require the host C compiler")
+        cc = native_cc()
+        self.assertIsNotNone(shutil.which(cc[0]), "I require the host C compiler")
         fixture = (ROOT / "tests/nanoisa/fixtures/nested_optional_returns.nasm").read_text()
         for tail in (False, True):
             for reverse in (False, True):
@@ -1233,7 +1235,7 @@ int main(int argc, char **argv) {
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     self.run_checked([ROOT / "bin/nano_vm", module])
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
 
 

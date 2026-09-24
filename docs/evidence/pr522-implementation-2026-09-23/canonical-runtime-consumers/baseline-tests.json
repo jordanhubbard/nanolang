@@ -1,0 +1,8 @@
+[
+  "tests.test_canonical_string_builtins",
+  "tests.test_nanoisa_only_product",
+  "tests.test_canonical_module_facts",
+  "tests.test_one_ir_compiler.OneIrCompiler.test_module_artifact_adapter_snapshots_borrowed_results",
+  "tests.test_one_ir_compiler.OneIrCompiler.test_nanoisa_artifact_strings_survive_later_facade_calls",
+  "tests.test_one_ir_compiler.OneIrCompiler.test_real_std_artifact_uses_host_runtime"
+]

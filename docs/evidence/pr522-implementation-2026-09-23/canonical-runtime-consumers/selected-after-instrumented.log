@@ -1,0 +1,24 @@
+test_existing_string_edges (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_existing_string_edges) ... ok
+test_nested_string_and_boolean_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_nested_string_and_boolean_results) ... ok
+test_wrong_trim_operands_preserve_output (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_wrong_trim_operands_preserve_output) ... ok
+test_failed_product_steps_preserve_previous_output (tests.test_nanoisa_only_product.NanoisaOnlyProduct.test_failed_product_steps_preserve_previous_output) ... ok
+test_native_and_source_products_use_translator (tests.test_nanoisa_only_product.NanoisaOnlyProduct.test_native_and_source_products_use_translator) ... ok
+test_all_operations_and_single_index_evaluation (tests.test_canonical_module_facts.CanonicalModuleFacts.test_all_operations_and_single_index_evaluation) ... ok
+test_canonical_source_closure_excludes_legacy_emission (tests.test_canonical_module_facts.CanonicalModuleFacts.test_canonical_source_closure_excludes_legacy_emission) ... ok
+test_duplicate_module_identity (tests.test_canonical_module_facts.CanonicalModuleFacts.test_duplicate_module_identity) ... ok
+test_empty_export_sets (tests.test_canonical_module_facts.CanonicalModuleFacts.test_empty_export_sets) ... ok
+test_existing_flags_and_export_shadows (tests.test_canonical_module_facts.CanonicalModuleFacts.test_existing_flags_and_export_shadows) ... ok
+test_intrinsic_signature_is_required_before_publication (tests.test_canonical_module_facts.CanonicalModuleFacts.test_intrinsic_signature_is_required_before_publication) ... ok
+test_ordinary_function_with_similar_name_keeps_its_body (tests.test_canonical_module_facts.CanonicalModuleFacts.test_ordinary_function_with_similar_name_keeps_its_body) ... ok
+test_public_pure_modifier_exports (tests.test_canonical_module_facts.CanonicalModuleFacts.test_public_pure_modifier_exports) ... ok
+test_symlink_import_retains_canonical_module_path (tests.test_canonical_module_facts.CanonicalModuleFacts.test_symlink_import_retains_canonical_module_path) ... ok
+test_module_artifact_adapter_snapshots_borrowed_results (tests.test_one_ir_compiler.OneIrCompiler.test_module_artifact_adapter_snapshots_borrowed_results) ... ok
+test_nanoisa_artifact_strings_survive_later_facade_calls (tests.test_one_ir_compiler.OneIrCompiler.test_nanoisa_artifact_strings_survive_later_facade_calls) ... ok
+test_real_std_artifact_uses_host_runtime (tests.test_one_ir_compiler.OneIrCompiler.test_real_std_artifact_uses_host_runtime) ... ok
+test_declared_results_and_owned_arrays (tests.test_canonical_filesystem.CanonicalFilesystem.test_declared_results_and_owned_arrays) ... ok
+test_wrong_declared_abi_preserves_output (tests.test_canonical_filesystem.CanonicalFilesystem.test_wrong_declared_abi_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 14.059s
+
+OK

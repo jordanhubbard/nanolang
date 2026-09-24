@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc, native_link_flags
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPILER = Path(os.environ.get('NANOLANG_SELFHOST_COMPILER', ROOT / 'bin/nanoc_stage2')).resolve()
@@ -40,8 +41,8 @@ class NanoisaOnlyProduct(unittest.TestCase):
             self.assertEqual(calls.read_text(), 'translate\ntranslate\n')
             rebuilt = work / 'rebuilt'
             flags = ['-rdynamic', '-ldl'] if sys.platform.startswith('linux') else []
-            self.invoke(['cc', '-std=c11', c_file, ROOT / 'bin/nano_aot_runtime.o',
-                         '-lm', *flags, '-o', rebuilt])
+            self.invoke([*native_cc(), '-std=c11', c_file, ROOT / 'bin/nano_aot_runtime.o',
+                         '-lm', *flags, *native_link_flags(), '-o', rebuilt])
             self.assertEqual(self.invoke([rebuilt]).stdout, b'one-ir\n')
             self.assertEqual(list(work.glob('.nano-product.*')), [])
 
