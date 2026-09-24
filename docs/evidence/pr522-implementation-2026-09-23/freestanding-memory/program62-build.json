@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/usr/bin/clang",
+    "--target=wasm32-unknown-unknown",
+    "-std=c11",
+    "-ffreestanding",
+    "-fno-builtin",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-DNANO_RECORD_ARRAY_GENERATED_PRIVATE",
+    "-Isrc/nanoisa",
+    "-Itests/nanoisa",
+    "-O0",
+    "-c",
+    "src/nanoisa/record_array_generated_private.c",
+    "-o",
+    "/tmp/pr522-memory-62-check/runtime.o"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": ""
+}

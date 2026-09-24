@@ -1,9 +1,9 @@
 /* I generate exact managed native source; do not edit.
  * managed_strings.h SHA256 487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699
  * binary64_parse.h SHA256 bc66ca560c1cbde3a075043174d165f56d3f85ee6026578b7b0cf8dd9ccf08c5
- * managed_strings.c SHA256 24c5d151d101a1b32ffcd34725e15814fb8bb8576cb5f255e2220564db368dc7
+ * managed_strings.c SHA256 dd21ba4b7e1f08c4dfded58418209950eb2df77e3d2bba4ca88b2212e6ff60f3
  * I remove only the two named local includes from managed_strings.c.
- * Assembled SHA256 82f4f199044f7247148da245e22279276cea04ab560258b6a132b00239ff8cd2
+ * Assembled SHA256 ef61fa1cef1acde234763b849aef28863d0abc5dd2eb817aefa77ad50ab7b943
  */
 #ifndef NANOISA_MANAGED_NATIVE_SOURCE_H
 #define NANOISA_MANAGED_NATIVE_SOURCE_H
@@ -493,6 +493,20 @@ static const char nms_native_source[] =
 "}\n"
 "\n"
 "#ifdef __wasm32__\n"
+"/* I supply the memory operations my freestanding C compiler can introduce for\n"
+" * aggregate initialization and copying. Volatile bytes prevent recursive\n"
+" * lowering back to these same routines at any selected optimization level. */\n"
+"void *memset(void *memory,int value,size_t bytes) {\n"
+"    volatile unsigned char *out=(volatile unsigned char *)memory;\n"
+"    for(size_t i=0;i<bytes;i++)out[i]=(unsigned char)value;\n"
+"    return memory;\n"
+"}\n"
+"void *memcpy(void *destination,const void *source,size_t bytes) {\n"
+"    volatile unsigned char *out=(volatile unsigned char *)destination;\n"
+"    const volatile unsigned char *in=(const volatile unsigned char *)source;\n"
+"    for(size_t i=0;i<bytes;i++)out[i]=in[i];\n"
+"    return destination;\n"
+"}\n"
 "/* Free-block headers live inside memory owned by this allocator. The sole\n"
 " * external boundary is wasm-ld's heap base, after data and reserved stack. */\n"
 "extern unsigned char __heap_base;\n"
@@ -1662,11 +1676,11 @@ static const char nms_native_source[] =
 "}\n"
 "int nms_reserved_entry(const char *name) {\n"
 "    if (!name) return 0;\n"
-"    const char *reserved[] = {\"nano_try_entry\", \"nano_dispose\", \"nano_runtime_\", \"nms_\"};\n"
+"    const char *reserved[] = {\"nano_try_entry\", \"nano_dispose\", \"nano_runtime_\", \"nms_\", \"memcpy\", \"memset\"};\n"
 "    for (unsigned i = 0; i < sizeof reserved / sizeof reserved[0]; i++) {\n"
 "        unsigned n = 0;\n"
 "        while (reserved[i][n] && name[n] == reserved[i][n]) n++;\n"
-"        if (!reserved[i][n] && (i >= 2 || !name[n])) return 1;\n"
+"        if (!reserved[i][n] && (i == 2 || i == 3 || !name[n])) return 1;\n"
 "    }\n"
 "    return 0;\n"
 "}\n"

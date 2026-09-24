@@ -1,0 +1,9 @@
+wasm-ld-18: error: /tmp/nano-record-array-llvm-vnjobctg/wasm-O0-linked-runtime.o: undefined symbol: memcpy
+wasm-ld-18: error: /tmp/nano-record-array-llvm-vnjobctg/wasm-O0-linked-runtime.o: undefined symbol: memcpy
+wasm-ld-18: error: /tmp/nano-record-array-llvm-vnjobctg/wasm-O0-linked-runtime.o: undefined symbol: memset
+wasm-ld-18: error: /tmp/nano-record-array-llvm-vnjobctg/wasm-O0-linked-runtime.o: undefined symbol: memcpy
+wasm-ld-18: error: /tmp/nano-record-array-llvm-vnjobctg/wasm-O0-linked-runtime.o: undefined symbol: memcpy
+wasm-ld-18: error: /tmp/nano-record-array-llvm-vnjobctg/wasm-O0-linked-runtime.o: undefined symbol: memcpy
+wasm-ld-18: error: /tmp/nano-record-array-llvm-vnjobctg/wasm-O0-linked-runtime.o: undefined symbol: memcpy
+wasm-ld-18: error: /tmp/nano-record-array-llvm-vnjobctg/wasm-O0-linked-runtime.o: undefined symbol: memcpy
+clang: error: linker command failed with exit code 1 (use -v to see invocation)

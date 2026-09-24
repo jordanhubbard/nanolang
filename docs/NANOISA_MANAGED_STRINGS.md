@@ -174,6 +174,12 @@ requirements are met. Aggregate and host-linkage tasks remain dependent on the
 runtime contract; neither reference counting for immutable strings nor this
 closed module ABI completes their alias/cycle/foreign-ownership requirements.
 
+My Wasm runtime supplies bytewise `memcpy` and `memset` for aggregate operations
+introduced by the C toolchain, including unoptimized builds. Their volatile
+accesses prevent recursive lowering to the same library routines. These exact
+names join my reserved runtime entry names on both targets. I do not import a
+host libc or claim support for other unspecified library calls.
+
 ## My acceptance evidence
 
 I compare ordinary valid programs across VM, LLVM before/after optimization,
