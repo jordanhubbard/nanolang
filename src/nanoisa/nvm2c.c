@@ -4459,7 +4459,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             {
                 uint8_t expect = fn_local_kind(b, kinds, idx, slot);
                 if (st.sp > 0 && st.kinds[st.sp - 1] == NVM2C_VK_VALUE &&
-                    expect != NVM2C_VK_VALUE && expect != NVM2C_VK_AARR &&
+                    expect != NVM2C_VK_VALUE &&
                     void_store_is_dead(code, remaining, pc, slot)) {
                     int value = stack_pop(b, &st);
                     if (b->failed) goto done;
@@ -4476,6 +4476,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                         nvm2c_printf(b, "    l%u = (nrarr_t){0};\n", (unsigned)slot);
                     else if (expect == NVM2C_VK_MAP)
                         nvm2c_printf(b, "    l%u = NULL;\n", (unsigned)slot);
+                    else if (expect == NVM2C_VK_AARR)
+                        nvm2c_printf(b, "    l%u = (nmap_value){0};\n", (unsigned)slot);
                     else if (expect == NVM2C_VK_REC) {
                         char local[32];
                         local_operand(local, b, kinds, idx, slot);
