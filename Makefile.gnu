@@ -4604,6 +4604,11 @@ test-instantiated-ownership: bootstrap
 test-units: test-native-module-linking
 test-native-module-linking: bootstrap3
 	@python3 -m unittest tests.test_native_module_linking tests.test_declared_scalar_source
+.PHONY: test-cseed-binding-names
+test-units: test-cseed-binding-names
+test-cseed-binding-names: $(COMPILER_C)
+	python3 -m unittest tests.test_cseed_binding_names
+
 .PHONY: test-cseed-process-ownership
 test-units: test-cseed-process-ownership
 test-cseed-process-ownership: $(COMPILER_C)

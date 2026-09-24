@@ -1,0 +1,14 @@
+{
+  "baseline_transpiler": "a29eb46ca3fd0189b21e7f248bdc4566e493449851a08b7a6ec1036120e73b0e",
+  "baseline_twopass": "7b1cc1a5033245c23cef8b08d484eb23adc542062e552da981264e6f34e83fe2",
+  "baseline_seed": "ef084e002bdd5aa4b76dc5131726705830118f7a19cd23898bd31217ab6165fd",
+  "baseline_stage1": "3b9f1d4837a903a75f71381418e2e1d84e7dba19997f10c731e46935ffe4c4bc",
+  "candidate_seed": "794aa26b8a11e07cdbfeb4382d7e2f398273cb20142dad2fd17fce3ef64968df",
+  "candidate_stage1": "705809df5ce08bc1aa14dc27e8cd6ddfac89cb9efe376ec36c69d68ecab9b1fd",
+  "candidate_stage2": "4f7ded16ad23db703320c285e2aeb4ada9e40a3b1b273b7b5cf5fe420e2dc83f",
+  "source": {
+    "src/transpiler_iterative_v3_twopass.c": "fd386c35c0ff968e81199ae48d622fa7dc5f0aad4ec578a6c17a51f52db3243b",
+    "tests/test_cseed_binding_names.py": "a6c4007df08514891441e9340aecb249c7fd1bb7805b1cd448eabc49478a6e07",
+    "Makefile.gnu": "b972062725e7b0bd346f1417d832991df42ba6f62ac64601f846a9ac81fe941f"
+  }
+}
