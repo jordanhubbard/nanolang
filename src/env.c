@@ -255,17 +255,23 @@ static void env_free_value(Value v) {
     }
 }
 
+/* I release only the symbols discarded by an existing lexical-scope pop. */
+void env_restore_symbol_count(Environment *env, int count) {
+    if (!env || count < 0 || count > env->symbol_count) return;
+    while (env->symbol_count > count) {
+        Symbol *symbol = &env->symbols[--env->symbol_count];
+        free(symbol->name);
+        free(symbol->struct_type_name);
+        if (symbol->type != TYPE_BORROW_SHARED && symbol->type != TYPE_BORROW_MUT)
+            env_free_value(symbol->value);
+        memset(symbol, 0, sizeof *symbol);
+    }
+}
+
 /* Free environment */
 void free_environment(Environment *env) {
     env_symbol_index_invalidate(env);
-    for (int i = 0; i < env->symbol_count; i++) {
-        free(env->symbols[i].name);
-        if (env->symbols[i].struct_type_name) {
-            free(env->symbols[i].struct_type_name);
-        }
-        if (env->symbols[i].type != TYPE_BORROW_SHARED && env->symbols[i].type != TYPE_BORROW_MUT)
-            env_free_value(env->symbols[i].value);
-    }
+    env_restore_symbol_count(env, 0);
     free(env->symbols);
     if (env->import_tracker) {
         free(env->import_tracker->imports);
@@ -342,6 +348,23 @@ void free_environment(Environment *env) {
     }
     free(env->unions);
     
+    /* I own effect declaration copies, but their parameter type annotations
+     * still borrow the AST. Only copied parameter names are mine. */
+    for (int i = 0; i < env->effect_count; ++i) {
+        EffectDef *effect = &env->effects[i];
+        free(effect->name);
+        free(effect->module_name);
+        for (int j = 0; j < effect->op_count; ++j) {
+            EffectOp *op = &effect->ops[j];
+            free(op->name);
+            free(op->return_type_name);
+            for (int k = 0; k < op->param_count; ++k) free(op->params[k].name);
+            free(op->params);
+        }
+        free(effect->ops);
+    }
+    free(env->effects);
+
     /* Free generic instantiations */
     for (int i = 0; i < env->generic_instance_count; i++) {
         free(env->generic_instances[i].generic_name);
@@ -1355,6 +1378,8 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     char func_name[512];  /* Increased to handle long type names + suffixes */
     /* Important: zero-init so module/visibility pointers don't contain garbage.
      * These generated externs are treated like builtins during typechecking. */
+    /* I own generated declaration storage independently of function slots;
+     * ordinary declarations continue to borrow their AST metadata. */
     Function func = (Function){0};
     Parameter *params;
 
@@ -1364,7 +1389,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* List_T_new() -> List<T>* */
     snprintf(func_name, sizeof(func_name), "%s_new", specialized);
-    func.name = strdup(func_name);
+    func.name = env_own_checker_allocation(env, strdup(func_name));
     func.param_count = 0;
     func.params = NULL;
     func.return_type = TYPE_LIST_GENERIC;
@@ -1377,16 +1402,16 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* List_T_push(list: List<T>*, value: T) -> void */
     snprintf(func_name, sizeof(func_name), "%s_push", specialized);
-    func.name = strdup(func_name);
+    func.name = env_own_checker_allocation(env, strdup(func_name));
     func.param_count = 2;
-    params = calloc(2, sizeof(Parameter));
-    params[0].name = strdup("list");
+    params = env_own_checker_allocation(env, calloc(2, sizeof(Parameter)));
+    params[0].name = env_own_checker_allocation(env, strdup("list"));
     params[0].type = TYPE_LIST_GENERIC;
     params[0].struct_type_name = NULL;
     params[0].element_type = TYPE_UNKNOWN;
-    params[1].name = strdup("value");
+    params[1].name = env_own_checker_allocation(env, strdup("value"));
     params[1].type = TYPE_STRUCT;
-    params[1].struct_type_name = strdup(element_type);
+    params[1].struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     params[1].element_type = TYPE_UNKNOWN;
     func.params = params;
     func.return_type = TYPE_VOID;
@@ -1398,20 +1423,20 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* List_T_get(list: List<T>*, index: int) -> T */
     snprintf(func_name, sizeof(func_name), "%s_get", specialized);
-    func.name = strdup(func_name);
+    func.name = env_own_checker_allocation(env, strdup(func_name));
     func.param_count = 2;
-    params = calloc(2, sizeof(Parameter));
-    params[0].name = strdup("list");
+    params = env_own_checker_allocation(env, calloc(2, sizeof(Parameter)));
+    params[0].name = env_own_checker_allocation(env, strdup("list"));
     params[0].type = TYPE_LIST_GENERIC;
     params[0].struct_type_name = NULL;
     params[0].element_type = TYPE_UNKNOWN;
-    params[1].name = strdup("index");
+    params[1].name = env_own_checker_allocation(env, strdup("index"));
     params[1].type = TYPE_INT;
     params[1].struct_type_name = NULL;
     params[1].element_type = TYPE_UNKNOWN;
     func.params = params;
     func.return_type = TYPE_STRUCT;
-    func.return_struct_type_name = strdup(element_type);
+    func.return_struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = true;
@@ -1419,10 +1444,10 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* List_T_length(list: List<T>*) -> int */
     snprintf(func_name, sizeof(func_name), "%s_length", specialized);
-    func.name = strdup(func_name);
+    func.name = env_own_checker_allocation(env, strdup(func_name));
     func.param_count = 1;
-    params = calloc(1, sizeof(Parameter));
-    params[0].name = strdup("list");
+    params = env_own_checker_allocation(env, calloc(1, sizeof(Parameter)));
+    params[0].name = env_own_checker_allocation(env, strdup("list"));
     params[0].type = TYPE_LIST_GENERIC;
     params[0].struct_type_name = NULL;
     params[0].element_type = TYPE_UNKNOWN;

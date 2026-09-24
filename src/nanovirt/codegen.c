@@ -79,6 +79,7 @@ typedef struct {
     char *name;
     uint32_t fn_idx;
     ASTNode *body; /* I identify a source function independently of its short name. */
+    bool owns_name; /* Qualified aliases are mine; AST and module names are borrowed. */
 } FnEntry;
 
 typedef struct {
@@ -719,8 +720,9 @@ static void register_extern(CG *cg, const char *name, const char *module_name,
 
     /* Add to codegen extern table */
     ExternFn *ef = &cg->externs[cg->extern_count];
-    ef->name = strdup(name);
-    ef->module_name = strdup(module_name);
+    /* I borrow the stable strings already owned by my output module. */
+    ef->name = cg->module->strings[fn_str];
+    ef->module_name = cg->module->strings[mod_str];
     ef->import_idx = imp_idx;
     ef->param_count = param_count;
     ef->return_tag = return_tag;
@@ -2488,7 +2490,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             compile_effect_block(cg, node->as.handle_expr.handler_bodies[i]);
             cg->handler_loop_floor = saved_loop_floor;
             emit_op(cg, OP_EFFECT_RESUME);
-            cg->env->symbol_count = symbol_start;
+            env_restore_symbol_count(cg->env, symbol_start);
             local_names_end(cg, outer_bindings);
             cg->local_binding_count = outer_bindings;
         }
@@ -4549,7 +4551,13 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                                 }
                             }
                             if (!qalready && cg.fn_count < MAX_FUNCTIONS) {
-                                cg.functions[cg.fn_count].name = strdup(qname);
+                                char *owned_name = strdup(qname);
+                                if (!owned_name) {
+                                    cg_error(&cg, mitem->line, "I could not allocate a qualified function alias");
+                                    continue;
+                                }
+                                cg.functions[cg.fn_count].name = owned_name;
+                                cg.functions[cg.fn_count].owns_name = true;
                                 cg.functions[cg.fn_count].fn_idx = idx; /* same fn_idx! */
                                 cg.functions[cg.fn_count].body = mitem->as.function.body;
                                 cg.fn_count++;
@@ -5078,6 +5086,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     }
     publish_local_names(&cg);
     publish_passive(&cg);
+    for (int i = 0; i < cg.fn_count; ++i)
+        if (cg.functions[i].owns_name) free(cg.functions[i].name);
     free(cg.code);
 
     if (cg.had_error) {

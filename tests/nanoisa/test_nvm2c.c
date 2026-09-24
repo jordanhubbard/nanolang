@@ -6814,7 +6814,7 @@ static void test_nested_array_field_writes(void) {
     const char *view = ".function view 1 1 0 array 1\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n.end\n";
     for (unsigned type = 0; type < 4; ++type) {
         for (unsigned order = 0; order < 2; ++order) {
-            char body[4096], source[8192];
+            char body[4096], source[2 * sizeof body + 64];
             snprintf(body, sizeof body,
                 ".function main 0 2 0 int 1\n"
                 "%sARR_LITERAL %u 1\nARR_LITERAL 7 1\nAGG_PACK 0 0 0 1\nSTORE_LOCAL 0\n"

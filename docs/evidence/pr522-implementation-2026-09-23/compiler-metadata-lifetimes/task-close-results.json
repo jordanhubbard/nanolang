@@ -1,0 +1,26 @@
+[
+  {
+    "id": "task_9c20181a4d7a4e67b83b52860fed51c6",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "cannot transition task from failed to completed\n  From failed the only legal move is: open (`mac task reopen <id>`)\n  To discard it instead: reopen first, then `mac task cancel` -- cancelling is only legal from a live state.\n"
+  },
+  {
+    "id": "task_8ad90858f649414499fa3b2e135a5d14",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "cannot transition task from failed to completed\n  From failed the only legal move is: open (`mac task reopen <id>`)\n  To discard it instead: reopen first, then `mac task cancel` -- cancelling is only legal from a live state.\n"
+  },
+  {
+    "id": "task_581ebdf8bcec45ce9d1482bafa88b368",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "cannot transition task from failed to completed\n  From failed the only legal move is: open (`mac task reopen <id>`)\n  To discard it instead: reopen first, then `mac task cancel` -- cancelling is only legal from a live state.\n"
+  },
+  {
+    "id": "task_273d5006d6264461982820c78bb2e87e",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "cannot transition task from failed to completed\n  From failed the only legal move is: open (`mac task reopen <id>`)\n  To discard it instead: reopen first, then `mac task cancel` -- cancelling is only legal from a live state.\n"
+  }
+]

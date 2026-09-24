@@ -3280,6 +3280,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 } else if (strcmp(operation, "get") == 0) {
                                     /* Set struct type name on the call node for field access */
                                     if (!edef && sdef) {
+                                        free(expr->as.call.return_struct_type_name);
                                         expr->as.call.return_struct_type_name = strdup(type_name);
                                     }
                                     free(type_name);
@@ -4781,7 +4782,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_TUPLE;
             }
             
-            /* Allocate space for element types */
+            /* I replace cached element types when a tuple is checked again. */
+            free(expr->as.tuple_literal.element_types);
             expr->as.tuple_literal.element_types = malloc(sizeof(Type) * element_count);
             
             /* Type check each element */
@@ -5025,7 +5027,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 check_expression(expr->as.handle_expr.handler_bodies[i], env);
 
                 /* Pop handler-local symbols */
-                env->symbol_count = saved_count;
+                env_restore_symbol_count(env, saved_count);
             }
 
             /* Type of handle expression = type of the handled body */
@@ -5054,7 +5056,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
                 if (expr->as.effect_handler.handler_bodies[i])
                     check_expression(expr->as.effect_handler.handler_bodies[i], env);
-                if (env) env->symbol_count = saved_sym;
+                env_restore_symbol_count(env, saved_sym);
             }
             return TYPE_VOID;
         }
@@ -5982,7 +5984,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 if (stmt->as.effect_handler.handler_bodies[i])
                     check_statement(tc, stmt->as.effect_handler.handler_bodies[i]);
                 /* Remove the temp param binding */
-                if (tc->env) tc->env->symbol_count = saved_sym;
+                env_restore_symbol_count(tc->env, saved_sym);
             }
             return TYPE_VOID;
         }
@@ -7966,7 +7968,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             /* Set module visibility */
             edef.is_pub = item->as.enum_def.is_pub;
-            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
             edef.is_extern = item->as.enum_def.is_extern;
             
             env_define_enum(env, edef);
@@ -8809,7 +8811,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             /* Set module visibility */
             edef.is_pub = item->as.enum_def.is_pub;
-            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
             edef.is_extern = item->as.enum_def.is_extern;
             
             env_define_enum(env, edef);
@@ -9109,6 +9111,7 @@ register_function_pass2:;
                 Type element_type = item->as.function.params[j].element_type;
                 TypeInfo *param_type_info = item->as.function.params[j].type_info;
                 Value val;
+                StructValue parameter_record = {0};
 
                 /* Register HashMap<K,V> instantiation for parameters */
                 if (param_type == TYPE_HASHMAP && param_type_info) {
@@ -9147,7 +9150,12 @@ register_function_pass2:;
                     env_own_checker_allocation(env, val.as.array_val);
                     env_own_checker_allocation(env, val.as.array_val->data);
                 } else if (param_type == TYPE_STRUCT) {
-                    val = create_struct(item->as.function.params[j].struct_type_name, NULL, NULL, 0);
+                    /* env_define_var copies record values. I lend it this
+                     * empty descriptor instead of leaking an allocated original. */
+                    parameter_record.struct_name = item->as.function.params[j].struct_type_name;
+                    val = create_void();
+                    val.type = VAL_STRUCT;
+                    val.as.struct_val = &parameter_record;
                 } else if (param_type == TYPE_UNION) {
                     /* For union parameters, create empty union value */
                     val = create_void();  /* Placeholder */

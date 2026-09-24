@@ -327,10 +327,33 @@ static void test_borrowed_record_identity(void) {
           "I observe exclusive mutation through the original owner");
     CHECK(owner.as.struct_val != &initial && initial.field_values[0].as.int_val == 7,
           "I preserve independent copying for ordinary record bindings");
+    env_restore_symbol_count(borrow_env, 0);
     free_environment(borrow_env);
     CHECK(owner.as.struct_val->field_values[0].as.int_val == 8,
           "I leave the owner alive after borrowed bindings are destroyed");
     free_environment(owner_env);
+}
+
+static void test_scope_pop_preserves_outer_aliases(void) {
+    gc_init();
+    Environment *env = create_environment();
+    Value outer = create_string("outer");
+    env_define_var(env, "name", TYPE_STRING, false, outer);
+    int boundary = env->symbol_count;
+    for (int i = 0; i < 20; ++i) {
+        env_define_var(env, "name", TYPE_STRING, false, create_string("inner"));
+        env_define_var(env, "alias", TYPE_STRING, false, outer);
+        CHECK(!strcmp(env_get_var(env, "name")->value.as.string_val, "inner"),
+              "I observe the inner binding before restoring its scope");
+        env_restore_symbol_count(env, boundary);
+        CHECK(env_get_var(env, "alias") == NULL,
+              "I remove popped aliases from indexed lookup before slot reuse");
+        CHECK(!strcmp(env_get_var(env, "name")->value.as.string_val, "outer"),
+              "I restore the outer binding without releasing its shared value");
+    }
+    free_environment(env);
+    CHECK(gc_get_stats().num_objects == 0, "I release every retained and popped string binding");
+    gc_shutdown();
 }
 
 int main(void) {
@@ -346,6 +369,7 @@ int main(void) {
     test_union_owns_string_payload();
     test_borrowed_record_identity();
     test_string_alias_lifetime();
+    test_scope_pop_preserves_outer_aliases();
     printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }

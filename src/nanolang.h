@@ -943,6 +943,8 @@ void env_symbol_index_invalidate(Environment *env);
 void env_set_current_file(Environment *env, const char *path);
 const char *env_current_file(Environment *env);
 void free_environment(Environment *env);
+/* I release discarded symbols while retaining the outer lexical bindings. */
+void env_restore_symbol_count(Environment *env, int count);
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);
