@@ -1,0 +1,22 @@
+test_declarations_transport_and_unchanged_profiles (tests.test_ordinary_record_authority.OrdinaryAuthority.test_declarations_transport_and_unchanged_profiles) ... FAIL
+
+======================================================================
+FAIL: test_declarations_transport_and_unchanged_profiles (tests.test_ordinary_record_authority.OrdinaryAuthority.test_declarations_transport_and_unchanged_profiles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_ordinary_record_authority.py", line 22, in test_declarations_transport_and_unchanged_profiles
+    self.command([compiler,*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror','-Isrc/nanoisa',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'tests/nanoisa/test_ordinary_record_authority.c',*shlex.split(os.environ['NOA_LINK_OBJECTS']),'-lm','-lcrypto','-o',exe])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_ordinary_record_authority.py", line 13, in command
+    self.assertEqual(result.returncode==0,success,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : ld: library 'crypto' not found
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.187s
+
+FAILED (failures=1)
