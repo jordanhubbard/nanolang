@@ -10,8 +10,10 @@
   },
   "logs": {
     "translator-after.log": "0ae713896783ce7f33f0848c56d2adc7841c8ee6df5ea2ad718d9ad2b9ba27ff",
+    "translator-sanitizers-after.log": "900431004a2779be870566d27c1704bcbbcaa20e720203eedae9be2b306600dd",
     "translator-before-diagnostic-update.log": "d1681b6ceafcacdabe89e4037d6ec4d3b639ccfeeb3c1e42d1b935d045dc91d5",
     "lexical-after.log": "553ae5b9e3b34a0e40951890df0078ee2877eebbb34efaec9b4ef5389513ad6b",
+    "translator-sanitizers-fixture-error.log": "d8fb5421a4c906e137ac992b7339c96cd2a8c0c1fc133b28059749cb23906d1e",
     "translator-fixture-error.log": "478eb349a8061dd31c2d2494a05ea4663c8d6b9899b6084ab26a797f5c6e8521",
     "declared-suite-after.log": "a2734477f90606c8a80a9d96003574c492534b2e1659387c28d9c0af06d5c99c"
   }

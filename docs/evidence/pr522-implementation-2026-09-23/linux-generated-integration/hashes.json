@@ -1,0 +1,8 @@
+{
+  "README.md": "8e94f28e18bc9dd092daba5d2bad483d2e3cffbaf5901b87c29804c726bb824e",
+  "generated-c.log": "9efd693286ff8bb69c134af92c43341e26e04c93bd546b96d7706d9af3b451de",
+  "selection.json": "405faebe35614f0653a5618c93f07415b32ea975488333a2203456c42db05b8f",
+  "wasm-link-stderr.log": "9cdbf4c0e3c4cd1e4675a1ff21bf4ddf5ca811902dd3fd80cb72ea89edea4139",
+  "llvm-wasm-before.log": "94759c2ac1a948e0d89f3d5478388fb9301a17074ec2ae1165100015fe48d602",
+  "wasm-link-command.txt": "a2abc6dd0becc2a26dc83cd41f37ed1ddcfade542c51ddf51abfe811250fdc59"
+}

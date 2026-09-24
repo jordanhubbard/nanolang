@@ -22,6 +22,9 @@ translator-only change. Their hashes and the tested translator are recorded.
 The earlier four-failure baseline remains in the record-projection-name-lifetime
 evidence directory.
 
-Fresh isolated ASan/UBSan qualification is running separately; this checkpoint
-makes no sanitizer completion claim. This is partial progress on
+Fresh isolated ASan/UBSan qualification also passes all 2,582 assertions via
+`make test-nvm2c-sanitizers CC=/opt/homebrew/opt/llvm/bin/clang`. The driver
+verifies instrumentation in the fresh translator and shape objects. It retains
+its existing `detect_leaks=0` setting; this is not a leak-freedom claim.
+I preserve the initial sanitizer run with the malformed boolean fixture too. This is partial progress on
 `task_560bf9f1fca645d7aff9b71004ee3859`, not completion of #522.
