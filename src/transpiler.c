@@ -4061,6 +4061,9 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
     if (env && env->profile_gprof && has_local_main) {
         const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name, main_func->is_extern);
         sb_append(sb, "int main(int argc, char **argv) {\n");
+        sb_append(sb, "#ifndef __wasm__\n");
+        sb_append(sb, "    if (atexit(gc_shutdown) != 0) { fprintf(stderr, \"I could not register GC shutdown.\\n\"); return 1; }\n");
+        sb_append(sb, "#endif\n");
         sb_append(sb, "    g_argc = argc;\n");
         sb_append(sb, "    g_argv = argv;\n");
         sb_append(sb, "    setvbuf(stdout, NULL, _IOLBF, 0);\n");
@@ -4069,6 +4072,9 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
     } else {
         /* Normal main without gprof profiling */
         sb_append(sb, "int main(int argc, char **argv) {\n");
+        sb_append(sb, "#ifndef __wasm__\n");
+        sb_append(sb, "    if (atexit(gc_shutdown) != 0) { fprintf(stderr, \"I could not register GC shutdown.\\n\"); return 1; }\n");
+        sb_append(sb, "#endif\n");
         sb_append(sb, "    g_argc = argc;\n");
         sb_append(sb, "    g_argv = argv;\n");
         /* Line-buffer stdout so println output appears immediately even when piped */
@@ -4365,7 +4371,55 @@ static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry
     }
 }
 
-/* Generate module extern declarations (extern functions from imported modules) */
+/* I require an explicit, same-source companion before adopting foreign storage.
+ * These adapters retain the raw string ABI until explicit release or exit. */
+static void generate_owned_string_adapters(StringBuilder *sb, Environment *env) {
+    if (!env) return;
+    sb_append(sb, "#ifndef __wasm__\n");
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *fn = &env->functions[i];
+        if (!fn->is_extern || fn->return_type != TYPE_STRING || !fn->name ||
+            fn->alias_of || !fn->source_file || strchr(fn->name, '.') ||
+            (fn->param_count > 0 && !fn->params)) continue;
+        bool scalar = true;
+        for (int j = 0; j < fn->param_count; ++j) {
+            Type t = fn->params[j].type;
+            if (t != TYPE_INT && t != TYPE_U8 && t != TYPE_FLOAT &&
+                t != TYPE_BOOL && t != TYPE_STRING) scalar = false;
+        }
+        if (!scalar) continue;
+        char release[1024];
+        int length = snprintf(release, sizeof(release), "%s__nano_string_release_v1", fn->name);
+        if (length < 0 || (size_t)length >= sizeof(release)) continue;
+        Function *cleanup = env_get_function(env, release);
+        if (!cleanup || !cleanup->is_extern || cleanup->return_type != TYPE_VOID ||
+            cleanup->param_count != 1 || !cleanup->params || cleanup->params[0].type != TYPE_STRING ||
+            !cleanup->source_file || strcmp(fn->source_file, cleanup->source_file) != 0)
+            continue;
+        sb_appendf(sb, "static void __nano_seed_string_%s_finalize(void *p) { %s((const char*)p); }\n",
+                   fn->name, release);
+        sb_appendf(sb, "static const char *__nano_seed_string_%s(", fn->name);
+        if (!fn->param_count) sb_append(sb, "void");
+        for (int j = 0; j < fn->param_count; ++j) {
+            if (j) sb_append(sb, ", ");
+            sb_appendf(sb, "%s a%d", type_to_c(fn->params[j].type), j);
+        }
+        sb_appendf(sb, ") { const char *p = %s(", fn->name);
+        for (int j = 0; j < fn->param_count; ++j) {
+            if (j) sb_append(sb, ", ");
+            sb_appendf(sb, "a%d", j);
+        }
+        sb_appendf(sb, "); if (!p) return NULL; const char *owned = gc_process_own((void*)p, __nano_seed_string_%s_finalize); "
+                   "if (!owned) { fprintf(stderr, \"I could not retain an owned foreign string.\\n\"); exit(1); } return owned; }\n", fn->name);
+        sb_appendf(sb, "static void __nano_seed_string_%s_release(const char *p) { gc_process_forget((void*)p); %s(p); }\n",
+                   fn->name, release);
+        /* Object-like names also preserve ownership through function values. */
+        sb_appendf(sb, "#define %s __nano_seed_string_%s\n#define %s __nano_seed_string_%s_release\n",
+                   fn->name, fn->name, release, fn->name);
+    }
+    sb_append(sb, "#endif\n");
+}
+
 static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env, FunctionTypeRegistry *fn_registry) {
     /* Generate extern declarations for module wrapper functions (e.g., nl_sqlite3_*)
      * Note: System library functions (e.g., SDL_*, sqlite3_*) are declared in module headers,
@@ -4914,6 +4968,7 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
 
     /* Also generate extern declarations for extern functions from imported modules */
     generate_module_extern_declarations(sb, program, env, fn_registry);
+    generate_owned_string_adapters(sb, env);
 
     /* Forward declare imported module functions */
     generate_module_function_declarations(sb, program, env, input_file, fn_registry);

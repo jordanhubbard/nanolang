@@ -1,5 +1,6 @@
 """I clean up raw C-seed maps without invalidating returned aliases."""
 import os
+import json
 import shlex
 from pathlib import Path
 import subprocess
@@ -86,6 +87,84 @@ class CSeedProcessOwnership(unittest.TestCase):
                           '-c',ROOT/'src/runtime/gc.c','-o',obj])
             self.checked([*native_cc(),*FLAGS,source,obj,ROOT/'src/runtime/gc_struct.c','-o',binary])
             self.checked([binary],env=ENV)
+
+    def test_declared_string_owner_counts_function_values_and_release(self):
+        with tempfile.TemporaryDirectory(prefix='seed_string_', dir=ROOT/'modules') as tmp:
+            work = Path(tmp)
+            (work/'module.json').write_text(json.dumps({'name':work.name,'c_sources':['provider.c']}))
+            (work/'provider.c').write_text(r'''#include <assert.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+static int allocated, released;
+static void check_exit(void) { assert(allocated == 3); assert(released == allocated); }
+const char *borrowed_text(void) { return "borrowed"; }
+const char *owned_text(const char *text) {
+    if (!text[0]) return NULL;
+    if (!allocated) assert(atexit(check_exit) == 0);
+    char *p = strdup(text); assert(p); allocated++; return p;
+}
+void owned_text__nano_string_release_v1(const char *p) {
+    if (p) { released++; free((void*)p); }
+}
+int64_t release_count(void) { return released; }
+''')
+            (work/'api.nano').write_text('''module OwnedStrings
+extern fn owned_text(text: string) -> string
+extern fn owned_text__nano_string_release_v1(text: string) -> void
+extern fn release_count() -> int
+extern fn borrowed_text() -> string
+pub fn exercise() -> string {
+    unsafe {
+        let callback: fn(string) -> string = owned_text
+        let first: string = (callback "first")
+        let second: string = (owned_text "second")
+        let alias: string = second
+        let release_value: fn(string) -> void = owned_text__nano_string_release_v1
+        (release_value first)
+        let missing: string = (callback "")
+        (release_value missing)
+        assert (== (borrowed_text) "borrowed")
+        assert (== (release_count) 1)
+        let third: string = (callback "third")
+        assert (== third "third")
+        return alias
+    }
+}
+shadow exercise { assert true }
+''')
+            source, binary = work/'main.nano', work/'program'
+            source.write_text('module "'+str(work/'api.nano')+'" as fixture\n'
+                'fn main() -> int { let retained: string = (fixture.exercise) '
+                'assert (== retained "second") return 0 }\nshadow main { assert true }\n')
+            env = {**ENV,'NANO_CC':shlex.join(native_cc()),
+                   'NANO_CFLAGS':'-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all',
+                   'NANO_LDFLAGS':'-fsanitize=address,undefined'}
+            self.checked([ROOT/'bin/nanoc_c',source,'-o',binary],cwd=ROOT,env=env)
+            self.checked([binary],env=env)
+
+    def test_owned_path_results_preserve_aliases(self):
+        with tempfile.TemporaryDirectory(prefix='nano-seed-path-owner-') as tmp:
+            work = Path(tmp)
+            source, binary = work/'main.nano', work/'program'
+            source.write_text('module "'+str(ROOT/'modules/std/fs.nano')+'" as fs\n'
+                'fn retained() -> string { return (fs.canonical ".") }\n'
+                'shadow retained { assert (!= (retained) "") }\n'
+                'fn main() -> int { let first: string = (retained) '
+                'let alias: string = first let second: string = (retained) '
+                'assert (== alias second) assert (!= alias "") '
+                'assert (== (fs.canonical "") "") '
+                'assert (== (fs.normalize "a/./b") "a/b") '
+                'assert (== (fs.join "a" "b") "a/b") '
+                'assert (== (fs.basename "a/b") "b") '
+                'assert (== (fs.dirname "a/b") "a") '
+                'assert (== (fs.relpath "/a/b" "/a") "b") return 0 }\n'
+                'shadow main { assert true }\n')
+            env = {**ENV,'NANO_CC':shlex.join(native_cc()),
+                   'NANO_CFLAGS':'-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all',
+                   'NANO_LDFLAGS':'-fsanitize=address,undefined'}
+            self.checked([ROOT/'bin/nanoc_c',source,'-o',binary],cwd=ROOT,env=env)
+            self.checked([binary],cwd=ROOT,env=env)
 
     def test_generated_maps_preserve_aliases_and_explicit_free(self):
         with tempfile.TemporaryDirectory(prefix='nano-seed-map-owner-') as tmp:

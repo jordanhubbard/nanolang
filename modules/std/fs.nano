@@ -13,6 +13,14 @@ extern fn path_join(_a: string, _b: string) -> string
 extern fn path_basename(_path: string) -> string
 extern fn path_dirname(_path: string) -> string
 extern fn path_relpath(_target: string, _base: string) -> string
+
+# I declare the ownership companions used by my C-seed adapters.
+extern fn path_normalize__nano_string_release_v1(_result: string) -> void
+extern fn path_canonical__nano_string_release_v1(_result: string) -> void
+extern fn path_join__nano_string_release_v1(_result: string) -> void
+extern fn path_basename__nano_string_release_v1(_result: string) -> void
+extern fn path_dirname__nano_string_release_v1(_result: string) -> void
+extern fn path_relpath__nano_string_release_v1(_result: string) -> void
 extern fn file_read(_path: string) -> string
 extern fn file_write(_path: string, _content: string) -> int
 extern fn file_append(_path: string, _content: string) -> int
