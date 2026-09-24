@@ -157,13 +157,15 @@ NvmAffineTargets *nvm_affine_targets_create(const NvmModule *m) {
         m->functions[0].result_count!=1 ||
         (m->functions[0].result_tag!=TAG_INT && m->functions[0].result_tag!=TAG_BOOL &&
          m->functions[0].result_tag!=TAG_U8) || m->import_count || m->module_ref_count) return NULL;
+    /* I retain the validated bound outside the mutable plan while solving. */
+    const uint32_t function_count=m->function_count;
     NvmAffineTargets *plan=calloc(1,sizeof(*plan));NvmV2Layouts layouts={0};
     if (!plan) return NULL;
-    plan->count=m->function_count;
+    plan->count=function_count;
     if (nvm_v2_layouts_decode(m->layout_data,m->layout_size,&layouts)!=NVM_V2_OK) goto fail;
     uint8_t globals[NVM_OWNERSHIP_MAX_SCALAR_GLOBALS];uint32_t global_count=0;
     if (nvm_ownership_scalar_globals(m,globals,sizeof(globals),&global_count)!=NVM_V2_OK) goto fail;
-    for (uint32_t f=0;f<plan->count;f++) {
+    for (uint32_t f=0;f<function_count;f++) {
         const NvmFunctionEntry *fn=&m->functions[f];
         if (fn->upvalue_count || fn->local_count>NVM_AFFINE_MAX_LOCALS ||
             fn->code_length>NVM_AFFINE_MAX_INSTRUCTIONS*ISA_MAX_INSTRUCTION_SIZE) goto fail;
@@ -190,23 +192,23 @@ NvmAffineTargets *nvm_affine_targets_create(const NvmModule *m) {
     }
     /* Only parameter and returned-value summaries drive another global pass.
      * Each bit can be added once; I reserve one final unchanged pass. */
-    uint32_t limit=8u*plan->count*(NVM_AFFINE_MAX_PARAMETERS+1u)+1u;
+    uint32_t limit=8u*function_count*(NVM_AFFINE_MAX_PARAMETERS+1u)+1u;
     bool converged=false;
     for (uint32_t pass=0;pass<limit;pass++) {
         bool changed=false;
-        for (uint32_t f=0;f<plan->count;f++)
+        for (uint32_t f=0;f<function_count;f++)
             if (!targets_function(plan,m,f,&layouts,&changed)) goto fail;
         if (!changed) {converged=true;break;}
     }
     if (!converged) goto fail;
-    for(uint32_t f=0;f<plan->count;f++) {
+    for(uint32_t f=0;f<function_count;f++) {
         for(uint32_t i=0;i<plan->code[f].instruction_count;i++)
             if (plan->code[f].instructions[i].instruction.opcode==OP_CALL_INDIRECT && !plan->sites[f][i])goto fail;
     }
-    for(uint32_t k=0;k<plan->count;k++)
-        for(uint32_t f=0;f<plan->count;f++)
+    for(uint32_t k=0;k<function_count;k++)
+        for(uint32_t f=0;f<function_count;f++)
             if(plan->edges[f]&(1u<<k))plan->edges[f]|=plan->edges[k];
-    for(uint32_t f=0;f<plan->count;f++)if(plan->edges[f]&(1u<<f))goto fail;
+    for(uint32_t f=0;f<function_count;f++)if(plan->edges[f]&(1u<<f))goto fail;
     nvm_v2_layouts_free(&layouts);return plan;
 fail:
     nvm_v2_layouts_free(&layouts);nvm_affine_targets_free(plan);return NULL;
