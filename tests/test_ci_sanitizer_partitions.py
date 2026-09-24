@@ -295,6 +295,13 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(jobs['sanitizer-stage1']['needs'], ['sanitizer-plan', 'sanitizer-base'])
         self.assertEqual(jobs['sanitizer-bootstrap']['needs'], ['sanitizer-plan', 'sanitizer-stage1'])
         self.assertEqual(jobs['sanitizer-bootstrap']['timeout-minutes'], 60)
+        bootstrap = next(step for step in jobs['sanitizer-bootstrap']['steps']
+                         if step.get('name') == 'Build instrumented native Stage 2 and verify bootstrap')
+        self.assertIn('set -o pipefail', bootstrap['run'])
+        self.assertIn('bootstrap_pid=$!', bootstrap['run'])
+        self.assertIn('sleep 60', bootstrap['run'])
+        self.assertIn('wait "$bootstrap_pid"', bootstrap['run'])
+        self.assertNotIn('continue-on-error', bootstrap)
         self.assertEqual(jobs['sanitizer-providers']['needs'], ['sanitizer-plan', 'sanitizer-bootstrap'])
         self.assertEqual(jobs['sanitizers']['if'], 'always()')
         aggregate = next(step for step in jobs['sanitizers']['steps'] if 'run' in step)

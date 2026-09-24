@@ -500,7 +500,17 @@ jobs:
       - name: Restore exact instrumented Stage 1
         run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage stage1 --archive "$RUNNER_TEMP/sanitizer-stage1/stage1.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-stage1/stage1.json" --output "$REPORT"
       - name: Build instrumented native Stage 2 and verify bootstrap
-        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap 2>&1 | tee "$REPORT/bootstrap.log"
+        run: |
+          set -o pipefail
+          python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap 2>&1 | tee "$REPORT/bootstrap.log" &
+          bootstrap_pid=$!
+          while kill -0 "$bootstrap_pid" 2>/dev/null; do
+            sleep 60
+            if kill -0 "$bootstrap_pid" 2>/dev/null; then
+              echo "I am still building the instrumented native Stage 2 inside the 60-minute job lease."
+            fi
+          done
+          wait "$bootstrap_pid"
       - name: Publish exact Stage 2 bundle
         run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage2 --output "$BUNDLE"
       - uses: actions/upload-artifact@v4
