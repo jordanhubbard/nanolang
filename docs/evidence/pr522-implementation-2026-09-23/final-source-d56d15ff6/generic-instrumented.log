@@ -1,0 +1,32 @@
+test_computed_generic_callback (tests.test_generic_function_values.GenericFunctionValues.test_computed_generic_callback) ... ok
+test_forwarded_function_value (tests.test_generic_function_values.GenericFunctionValues.test_forwarded_function_value) ... ok
+test_generic_parameter (tests.test_generic_function_values.GenericFunctionValues.test_generic_parameter) ... ok
+test_generic_result (tests.test_generic_function_values.GenericFunctionValues.test_generic_result) ... ok
+test_indirect_record_literal_identity (tests.test_generic_function_values.GenericFunctionValues.test_indirect_record_literal_identity) ... ok
+test_local_function_value (tests.test_generic_function_values.GenericFunctionValues.test_local_function_value) ... ok
+test_nested_array_callback (tests.test_generic_function_values.GenericFunctionValues.test_nested_array_callback) ... ok
+test_qualified_import_callback_signatures (tests.test_generic_function_values.GenericFunctionValues.test_qualified_import_callback_signatures) ... ok
+test_reject_computed_nested_array_argument (tests.test_generic_function_values.GenericFunctionValues.test_reject_computed_nested_array_argument) ... ok
+test_reject_indirect_wrong_record_literal (tests.test_generic_function_values.GenericFunctionValues.test_reject_indirect_wrong_record_literal) ... ok
+test_reject_nested_array_signature (tests.test_generic_function_values.GenericFunctionValues.test_reject_nested_array_signature) ... ok
+test_reject_wrong_forwarded_signature (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_forwarded_signature) ... ok
+test_reject_wrong_generic_parameter (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_generic_parameter) ... ok
+test_reject_wrong_generic_result (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_generic_result) ... ok
+test_reject_wrong_indirect_generic_argument (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_indirect_generic_argument) ... ok
+test_reject_wrong_indirect_nested_array_argument (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_indirect_nested_array_argument) ... ok
+test_reject_wrong_local_generic_result (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_local_generic_result) ... ok
+test_vm_generic_callback_context (tests.test_generic_function_values.GenericFunctionValues.test_vm_generic_callback_context) ... ok
+test_callback_parameter (tests.test_cseed_union_signatures.CseedUnionSignatures.test_callback_parameter) ... ok
+test_concrete_generic_identity (tests.test_cseed_union_signatures.CseedUnionSignatures.test_concrete_generic_identity) ... ok
+test_empty_and_stored_arguments (tests.test_cseed_union_signatures.CseedUnionSignatures.test_empty_and_stored_arguments) ... ok
+test_local_and_computed_constructor_arguments (tests.test_cseed_union_signatures.CseedUnionSignatures.test_local_and_computed_constructor_arguments) ... ok
+test_shadow_preserves_previous_output (tests.test_cseed_union_signatures.CseedUnionSignatures.test_shadow_preserves_previous_output) ... ok
+test_union_return_signature (tests.test_cseed_union_signatures.CseedUnionSignatures.test_union_return_signature) ... ok
+test_wrong_nominal_argument (tests.test_cseed_union_signatures.CseedUnionSignatures.test_wrong_nominal_argument) ... ok
+test_wrong_nominal_signature (tests.test_cseed_union_signatures.CseedUnionSignatures.test_wrong_nominal_signature) ... ok
+test_wrong_payload (tests.test_cseed_union_signatures.CseedUnionSignatures.test_wrong_payload) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 40.606s
+
+OK

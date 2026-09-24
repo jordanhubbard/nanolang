@@ -1,0 +1,124 @@
+{
+  "root": "/qualification-vm-final-d56d15ff6",
+  "stages": {
+    "seed": {
+      "argv": [
+        "/qualification-vm-final-d56d15ff6/bin/nano_virt",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/evidence-vm-d56d15ff6/seed.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.139021771999978
+    },
+    "seed-verify": {
+      "argv": [
+        "/qualification-vm-final-d56d15ff6/bin/nano_vm",
+        "--verify-only",
+        "/evidence-vm-d56d15ff6/seed.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.8165632969976286
+    },
+    "stage1": {
+      "argv": [
+        "/qualification-vm-final-d56d15ff6/bin/nano_vm",
+        "/evidence-vm-d56d15ff6/seed.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/evidence-vm-d56d15ff6/stage1.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 371.12904977200014,
+      "sha256": "e6cc1c67ce6c2a8dc2d9ea0729f02c3b157e12a01299d220cb531e80839fd143",
+      "bytes": 530308
+    },
+    "stage1-verify": {
+      "argv": [
+        "/qualification-vm-final-d56d15ff6/bin/nano_vm",
+        "--verify-only",
+        "/evidence-vm-d56d15ff6/stage1.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.5694168699992588
+    },
+    "stage2": {
+      "argv": [
+        "/qualification-vm-final-d56d15ff6/bin/nano_vm",
+        "/evidence-vm-d56d15ff6/stage1.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/evidence-vm-d56d15ff6/stage2.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 388.15131653700155,
+      "sha256": "e6cc1c67ce6c2a8dc2d9ea0729f02c3b157e12a01299d220cb531e80839fd143",
+      "bytes": 530308
+    },
+    "stage2-verify": {
+      "argv": [
+        "/qualification-vm-final-d56d15ff6/bin/nano_vm",
+        "--verify-only",
+        "/evidence-vm-d56d15ff6/stage2.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.5703406920001726
+    },
+    "hello-compile": {
+      "argv": [
+        "/qualification-vm-final-d56d15ff6/bin/nano_vm",
+        "/evidence-vm-d56d15ff6/stage2.nvm",
+        "--",
+        "/evidence-vm-d56d15ff6/hello.nano",
+        "--emit-nvm",
+        "-o",
+        "/evidence-vm-d56d15ff6/hello.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.869299707999744
+    },
+    "hello-verify": {
+      "argv": [
+        "/qualification-vm-final-d56d15ff6/bin/nano_vm",
+        "--verify-only",
+        "/evidence-vm-d56d15ff6/hello.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.002165504000004148
+    },
+    "hello-execute": {
+      "argv": [
+        "/qualification-vm-final-d56d15ff6/bin/nano_vm",
+        "/evidence-vm-d56d15ff6/hello.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.0007160009990911931
+    }
+  },
+  "stage_timeout_seconds": 1800,
+  "boundary": "I execute VM-generation shadows as bytecode and reject NanoLang-generated C compilation. Declared native host artifacts retain their existing build and cache-validation paths; the product still contains its separate legacy C backend.",
+  "source_commit": "d56d15ff6934dcd4872aa0f90bfe7ea828cf79fa",
+  "helper_sha256": "21d6b073cfd2d252a82845a86edf0fbfcc7ae744a38400fa0c76355575d573ab",
+  "labels": {
+    "seed": "C-seed NanoVirt output, a different lowering implementation",
+    "stage1": "VM execution of seed compiling the same source",
+    "stage2": "VM execution of stage1 compiling the same source",
+    "comparison": "raw stage1 versus stage2; no normalization"
+  },
+  "host_libraries": {
+    "/qualification-vm-final-d56d15ff6/modules/compiler_support/.build/.nano-gen-qiGHIr/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+    "/qualification-vm-final-d56d15ff6/modules/nanoisa/.build/.nano-gen-vv1MYW/libnanoisa.so": "c6c4ba8075924b09e32a4fcc2aff44af86e0696b86cc84078ccc5ed8b8d99f27",
+    "/qualification-vm-final-d56d15ff6/modules/std/.build/.nano-gen-eaPvZA/libstd.so": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4"
+  },
+  "raw_stage1_stage2_equal": true,
+  "vm_generations_nanolang_codegen_calls": 0,
+  "host_cache_probe_calls": 196,
+  "native_host_artifact_calls": 548,
+  "complete": true
+}

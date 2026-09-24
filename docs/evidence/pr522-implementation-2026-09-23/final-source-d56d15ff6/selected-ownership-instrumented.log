@@ -1,0 +1,41 @@
+test_branch_join_consumes_outer_owner (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_branch_join_consumes_outer_owner) ... ok
+test_conditional_constructor_return (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_conditional_constructor_return) ... ok
+test_declared_constructor_argument (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_declared_constructor_argument) ... ok
+test_declared_constructor_return (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_declared_constructor_return) ... ok
+test_declared_return_and_alias_transfer (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_declared_return_and_alias_transfer) ... ok
+test_drop_selected_field_rejected (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_drop_selected_field_rejected) ... ok
+test_drop_union_rejected (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_drop_union_rejected) ... ok
+test_duplicate_consume_rejected (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_duplicate_consume_rejected) ... ok
+test_empty_arm_has_no_obligation (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_empty_arm_has_no_obligation) ... ok
+test_guarded_generic_match_remains_rejected (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_guarded_generic_match_remains_rejected) ... ok
+test_incomplete_match_rejected (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_incomplete_match_rejected) ... ok
+test_join_mismatch_rejected (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_join_mismatch_rejected) ... ok
+test_match_constructor_return (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_match_constructor_return) ... ok
+test_match_then_reuse_rejected (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_match_then_reuse_rejected) ... ok
+test_nested_generic_transfer (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_nested_generic_transfer) ... ok
+test_ordinary_selected_arm_can_be_ignored (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_ordinary_selected_arm_can_be_ignored) ... ok
+test_partial_move_rejected (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_partial_move_rejected) ... ok
+test_resource_and_ordinary_selected_arms (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_resource_and_ordinary_selected_arms) ... ok
+test_resource_collection_still_rejected (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_resource_collection_still_rejected) ... ok
+test_unresolved_tuple_still_rejected (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_unresolved_tuple_still_rejected) ... ok
+test_compatible_outer_join (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_compatible_outer_join) ... ok
+test_duplicate_selected_field_consumption (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_duplicate_selected_field_consumption) ... ok
+test_guarded_owned_match_remains_rejected (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_guarded_owned_match_remains_rejected) ... ok
+test_ignored_resource_binding (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_ignored_resource_binding) ... ok
+test_ignored_selected_payload (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_ignored_selected_payload) ... ok
+test_incompatible_outer_join (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_incompatible_outer_join) ... ok
+test_loop_cannot_reconsume_outer_scrutinee (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_loop_cannot_reconsume_outer_scrutinee) ... ok
+test_nested_resource_record (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_nested_resource_record) ... ok
+test_ordinary_call_match_expression_and_statement (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_ordinary_call_match_expression_and_statement) ... ok
+test_original_scrutinee_after_match (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_original_scrutinee_after_match) ... ok
+test_partial_resource_field_move (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_partial_resource_field_move) ... ok
+test_scrutinee_call_evaluates_once (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_scrutinee_call_evaluates_once) ... ok
+test_two_resources_and_ordinary_sibling_arms (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_two_resources_and_ordinary_sibling_arms) ... ok
+test_unresolved_selected_field (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_unresolved_selected_field) ... ok
+test_use_payload_after_destructure (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_use_payload_after_destructure) ... ok
+test_wildcard_cannot_hide_owned_payload (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_wildcard_cannot_hide_owned_payload) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 51.799s
+
+OK
