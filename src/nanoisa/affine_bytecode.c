@@ -704,3 +704,6 @@ NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t functi
     calls.value_graph=nvm_affine_value_call_graph(m);
     return analyze(m,function,NULL,0,&calls);
 }
+
+/* I keep target inference separate from executable ownership admission. */
+#include "affine_targets.inc"
