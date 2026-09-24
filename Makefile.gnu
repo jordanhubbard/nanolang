@@ -3826,6 +3826,7 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu 
 	@echo "=========================================="
 	@echo "Compiling nanoc_v06.nano with C compiler..."
 	@if [ -f $(NANOC_SOURCE) ]; then \
+		NANO_SHADOW_TIMEOUT_SECONDS="$${NANO_SHADOW_TIMEOUT_SECONDS:-$(RELEASE_SHADOW_SECONDS)}" \
 		$(BOOTSTRAP_ENV) $(TIMEOUT_CMD) $(COMPILER_C) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
 		echo "" && \
@@ -3857,7 +3858,8 @@ $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo "Bootstrap Stage 2: Recompilation"
 	@echo "=========================================="
 	@echo "Compiling nanoc_v06.nano with stage 1 compiler..."
-	@$(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(NANOC_STAGE1) $(BOOTSTRAP_VERBOSE_FLAG) $(BOOTSTRAP2_SHADOW_FLAG) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
+	@NANO_SHADOW_TIMEOUT_SECONDS="$${NANO_SHADOW_TIMEOUT_SECONDS:-$(RELEASE_SHADOW_SECONDS)}" \
+		$(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(NANOC_STAGE1) $(BOOTSTRAP_VERBOSE_FLAG) $(BOOTSTRAP2_SHADOW_FLAG) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
 	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
 	@echo ""
 	@echo "Testing stage 2 compiler..."
@@ -5331,6 +5333,16 @@ test-native-float-arrays: nanoisa_emit nano_virt nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_native_float_arrays
 test-units: test-native-float-arrays
 
+.PHONY: test-source-record-unions
+test-source-record-unions: nanoisa_emit nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest tests.test_source_record_unions -v
+test-units: test-source-record-unions
+
+.PHONY: test-native-optional-records
+test-native-optional-records: nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest tests.test_native_optional_records -v
+test-units: test-native-optional-records
+
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_array_reads -v
@@ -5629,6 +5641,7 @@ test-nsi-gpu-private:
 .PHONY: test-owned-array-layouts
 test-units: test-owned-array-layouts
 test-owned-array-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	CC="$(CC)" OWNED_ARRAY_LAYOUT_CFLAGS="$(CFLAGS)" OWNED_ARRAY_LAYOUT_LDFLAGS="$(LDFLAGS)" \
 	OWNED_ARRAY_LAYOUT_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_layouts
 
 .PHONY: test-file-nominal test-file-nominal-sanitizers
@@ -6112,5 +6125,5 @@ test-owned-union-source: nanoisa_emit nano_virt nano_vm nvm2c test-local-binding
 
 .PHONY: test-owned-scalar-global-source
 test-units: test-owned-scalar-global-source
-test-owned-scalar-global-source: nano_virt nano_vm nvm2c
+test-owned-scalar-global-source: bootstrap nanoisa_emit nano_virt nano_vm nanoisa_dump nvm2c
 	python3 -m unittest tests.test_owned_scalar_global_source -v

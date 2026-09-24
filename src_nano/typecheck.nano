@@ -5053,7 +5053,7 @@ fn check_match_value(parser: Parser, node_id: int, symbols: array<Symbol>, expec
         let mut fact: CheckedBlock = (check_value_facts parser body_id body_type arm_symbols diags file_name)
         if (and (not fact.terminates) (!= expected.kind TypeKind.TYPE_UNKNOWN)) {
             let before: int = (list_CompilerDiagnostic_length diags)
-            let value: NSType = (check_contextual_value parser body_id body_type fact.value_type expected arm_symbols diags file_name)
+            let value: NSType = (check_constructor_argument parser body_id body_type fact.value_type expected arm_symbols diags file_name)
             set fact (checked_value value (and (not (checked_value_errors diags before)) (and (reduce_type_known parser value) (types_equal value expected))) false false)
         }
         set joined (join_checked_values parser joined fact)
@@ -6557,7 +6557,13 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
             return false
         }
     } else {
-        let expr_t_raw: NSType = (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
+        # I check a value-producing match once against its declared return
+        # destination. An inference pass has no context for generic union
+        # constructors and must not publish a diagnostic before that check.
+        let mut expr_t_raw: NSType = expected_type
+        if (!= ret_node.value_type ParseNodeType.PNODE_MATCH) {
+            set expr_t_raw (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
+        }
         (check_contextual_union_string_arrays parser ret_node.value ret_node.value_type expected_type symbols diags file_name)
         let expr_t_hint: NSType = (check_contextual_value parser ret_node.value ret_node.value_type expr_t_raw expected_type symbols diags file_name)
         let expr_t: NSType = (apply_return_type_hint expr_t_hint expected_type)
@@ -6573,7 +6579,19 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
     }
 }
 
-shadow check_return_statement { assert true }
+shadow check_return_statement {
+    let parser: Parser = (resource_test_parser "union Box<T> { Some { value: T }, None {} } fn remap(boxed: Box<int>) -> Box<int> { return match boxed { Some(payload) => Box.Some { value: (+ payload.value 1) } None(payload) => Box.None {} } } fn choose(value: int) -> int { return match value { 1 => 7 _ => 8 } }")
+    let remap: ASTFunction = (parser_get_function parser 0)
+    let remap_block: ASTBlock = (parser_get_block parser remap.body)
+    let remap_return: ASTReturn = (parser_get_return parser (list_ASTStmtRef_get remap_block.statements 0).node_id)
+    let remap_symbols: array<Symbol> = [(symbol_new "boxed" (type_from_string_with_parser parser "Box<int>") false false 0 (empty_param_types) (type_void))]
+    assert (check_return_statement parser remap_return (type_from_string_with_parser parser "Box<int>") remap_symbols (list_CompilerDiagnostic_new) "return.nano" "remap")
+    let choose: ASTFunction = (parser_get_function parser 1)
+    let choose_block: ASTBlock = (parser_get_block parser choose.body)
+    let choose_return: ASTReturn = (parser_get_return parser (list_ASTStmtRef_get choose_block.statements 0).node_id)
+    let choose_symbols: array<Symbol> = [(symbol_new "value" (type_int) false false 0 (empty_param_types) (type_void))]
+    assert (check_return_statement parser choose_return (type_int) choose_symbols (list_CompilerDiagnostic_new) "return.nano" "choose")
+}
 
 fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
     let idx: int = (env_lookup symbols set_node.target)

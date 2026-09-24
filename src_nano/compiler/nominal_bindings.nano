@@ -172,6 +172,15 @@ pub fn nb_register(parser: Parser, prefix: string) -> bool {
         let mut target: string = def.name
         if collision { set target (+ prefix (+ (int_to_string owner) (+ "_type_" def.name))) }
         if (not (nb_local owner def.name target)) { return false }
+        # I retain an exact locally declared selected-payload spelling. It is
+        # private to the declaration owner and does not admit an unknown dotted
+        # annotation.
+        let mut variant_index: int = 0
+        while (< variant_index def.variant_count) {
+            let variant_name: string = (+ def.name (+ "." (at def.variant_names variant_index)))
+            if (not (nb_local owner variant_name variant_name)) { return false }
+            set variant_index (+ variant_index 1)
+        }
         set i (+ i 1)
     }
     set i 0
@@ -221,6 +230,8 @@ shadow nb_register {
     (mb_reset [1, 2])
     assert (nb_register unions "__test_")
     assert (!= (mb_lookup 0 (nb_key "Choice")) (mb_lookup 1 (nb_key "Choice")))
+    assert (== (nb_type "Choice.One" 1) "Choice.One")
+    assert (== (nb_type "Choice.Two" 2) "Choice.Two")
     (mb_reset [])
     let opaque_tokens: List<LexerToken> = (tokenize_string "opaque type Handle\nopaque type Handle\nmodule \"left.nano\" as left\n" "opaque-owners.nano" (list_CompilerDiagnostic_new))
     let opaques: Parser = (parse_program opaque_tokens (list_LexerToken_length opaque_tokens) "opaque-owners.nano")

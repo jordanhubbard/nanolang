@@ -1,0 +1,6 @@
+{
+  "sha256": "d0210c2507f6458f901efeaed3846df7ec76bf12b7ac393ff435cb74900197c6",
+  "command": "NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang python3 -m unittest -v tests.test_source_borrow_emission tests.test_affine_scalar_union_source",
+  "exit_code": 0,
+  "methods": 60
+}

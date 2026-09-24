@@ -1,0 +1,9 @@
+{
+  "parent": "14d9776f07580c6bd97aa31a9db36b9318787b29",
+  "source_sha256": {
+    "src_nano/compiler/nanoisa_borrows.nano": "deaddfd0054d408fb7c5601f54352c744d923cce8d6daed38b4c41f4e0e81387",
+    "tests/test_owned_scalar_global_source.py": "3b3402ee2e2c0bafa32846cb67fbdc0aa1e210fd5b791723477c3f673a4b2952",
+    "tests/test_owned_array_layouts.py": "dc42dd42d52742fccf20f177ef97e2f4d522b902dfbe18e18fdacb88d48ff7af",
+    "Makefile.gnu": "ebdebdfa5916ed65e58184537b4221fb9e211688bb7521129fc7f20ff4792616"
+  }
+}

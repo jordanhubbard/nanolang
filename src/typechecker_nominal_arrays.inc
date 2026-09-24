@@ -46,6 +46,11 @@ static bool nominal_field_view(ASTNode *expr, Environment *env, unsigned depth, 
     NominalView object = {0};
     if (depth > 128 || !nominal_value_view(expr->as.field_access.object, env, depth + 1, &object)) return false;
     bool ok = false;
+    if (expr->as.field_access.resolved_type_info) {
+        ok = nominal_view_copy_context(env, expr->as.field_access.resolved_type_info,
+            object.owner, NULL, depth + 1, out);
+        goto done;
+    }
     if (object.payload) {
         NominalIdentity id = env_nominal_identity(env, object.info->generic_name, object.owner, TYPE_UNION);
         if (!id.ordinal) goto done;

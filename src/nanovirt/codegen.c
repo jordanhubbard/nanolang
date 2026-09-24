@@ -2850,7 +2850,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
         uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
         uint32_t jf_patch = jf_off + 1;
 
-        compile_expr(cg, node->as.if_stmt.then_branch);
+        compile_effect_block(cg, node->as.if_stmt.then_branch);
 
         if (node->as.if_stmt.else_branch) {
             uint32_t je_instr = cg->code_size;
@@ -2858,7 +2858,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             uint32_t je_patch = je_off + 1;
 
             patch_jump(cg, jf_patch, jf_instr, cg->code_size);
-            compile_expr(cg, node->as.if_stmt.else_branch);
+            compile_effect_block(cg, node->as.if_stmt.else_branch);
             patch_jump(cg, je_patch, je_instr, cg->code_size);
         } else {
             patch_jump(cg, jf_patch, jf_instr, cg->code_size);

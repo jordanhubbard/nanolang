@@ -564,6 +564,12 @@ static bool checked_annotations_equal_context(Environment *env, const TypeInfo *
         av.opaque_type_name = av.generic_name;
         bv.opaque_type_name = bv.generic_name;
     }
+    if (ak == TYPE_ARRAY) {
+        /* The recursive element annotation is authoritative. Older parser
+         * paths also cache the deepest leaf name on an intermediate array. */
+        av.generic_name = NULL;
+        bv.generic_name = NULL;
+    }
     if (av.opaque_type_name || bv.opaque_type_name) {
         OpaqueTypeDef *left = av.opaque_type_name ? env_get_opaque_type(env, av.opaque_type_name) : NULL;
         OpaqueTypeDef *right = bv.opaque_type_name ? env_get_opaque_type(env, bv.opaque_type_name) : NULL;
@@ -1265,6 +1271,12 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
         Function *function = env_get_function(env, qualified); free(qualified);
         return function ? function->return_type_info : NULL;
     }
+    if (expr->type == AST_CALL && expr->as.call.name &&
+        (nominal_array_builtin(expr, env, "at", 2) ||
+         nominal_array_builtin(expr, env, "array_get", 2))) {
+        TypeInfo *array = try_get_expr_type_info(expr->as.call.args[0], env);
+        if (array && array->base_type == TYPE_ARRAY) return array->element_type;
+    }
     if (expr->type == AST_CALL) {
         if (expr->as.call.checked_signature)
             return expr->as.call.checked_signature->return_type_info;
@@ -1284,10 +1296,6 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
         return (TypeInfo *)env_array_expression_info(env, expr);
     }
     if (expr->type == AST_CALL && expr->as.call.name) {
-        if (nominal_array_builtin(expr, env, "at", 2) || nominal_array_builtin(expr, env, "array_get", 2)) {
-            TypeInfo *array = try_get_expr_type_info(expr->as.call.args[0], env);
-            if (array && array->base_type == TYPE_ARRAY) return array->element_type;
-        }
         Function *func = env_get_function(env, expr->as.call.name);
         if (func && func->return_type_info) return func->return_type_info;
     }
@@ -2767,12 +2775,120 @@ static Type check_reduce_call(ASTNode *call, Environment *env) {
     return initial_type;
 }
 
-/* I check literal leaves against the complete callback annotation. */
+/* I retain the union identity of the parser's dotted variant literals. */
+static const char *inline_variant_union(ASTNode *node, Environment *env) {
+    if (!node || node->type != AST_STRUCT_LITERAL || !node->as.struct_literal.struct_name)
+        return NULL;
+    const char *name = node->as.struct_literal.struct_name;
+    const char *dot = strchr(name, '.');
+    if (!dot) return NULL;
+    char *prefix = strndup(name, (size_t)(dot - name));
+    if (!prefix) return NULL;
+    UnionDef *definition = env_get_union(env, prefix);
+    free(prefix);
+    return definition ? definition->name : NULL;
+}
+
+/* I infer direct formal arguments only when every selected payload supplies a
+ * complete type. Empty/phantom or nested-template arguments need a context. */
+static TypeInfo *infer_inline_union_context(ASTNode *node, Environment *env) {
+    const char *owner = inline_variant_union(node, env);
+    const char *variant = NULL;
+    ASTNode **values = NULL;
+    char **names = NULL;
+    int count = 0;
+    if (owner) {
+        variant = strrchr(node->as.struct_literal.struct_name, '.') + 1;
+        values = node->as.struct_literal.field_values;
+        names = node->as.struct_literal.field_names;
+        count = node->as.struct_literal.field_count;
+    } else if (node->type == AST_UNION_CONSTRUCT && !node->as.union_construct.type_info) {
+        owner = node->as.union_construct.union_name;
+        variant = node->as.union_construct.variant_name;
+        values = node->as.union_construct.field_values;
+        names = node->as.union_construct.field_names;
+        count = node->as.union_construct.field_count;
+    }
+    UnionDef *definition = owner ? env_get_union(env, owner) : NULL;
+    if (!definition || definition->generic_param_count <= 0) return NULL;
+    int arm = env_get_union_variant_index(env, owner, variant);
+    if (arm < 0 || !definition->variant_field_type_names ||
+        !definition->variant_field_type_names[arm]) return NULL;
+    TypeInfo *context = calloc(1, sizeof *context);
+    if (!context) return NULL;
+    context->base_type = TYPE_UNION;
+    context->generic_name = strdup(definition->name);
+    context->type_param_count = definition->generic_param_count;
+    context->type_params = calloc((size_t)context->type_param_count, sizeof *context->type_params);
+    if (!context->generic_name || !context->type_params) goto fail;
+    for (int i = 0; i < count; ++i) {
+        int field = -1;
+        for (int j = 0; j < definition->variant_field_counts[arm]; ++j)
+            if (!strcmp(names[i], definition->variant_field_names[arm][j])) field = j;
+        if (field < 0) goto fail;
+        const char *formal = definition->variant_field_type_names[arm][field];
+        for (int parameter = 0; formal && parameter < context->type_param_count; ++parameter) {
+            if (strcmp(formal, definition->generic_params[parameter])) continue;
+            Type type = check_expression(values[i], env);
+            TypeInfo *argument = copy_payload_type_info(try_get_expr_type_info(values[i], env));
+            if (!argument && (type == TYPE_INT || type == TYPE_U8 || type == TYPE_BOOL ||
+                              type == TYPE_FLOAT || type == TYPE_STRING)) {
+                argument = calloc(1, sizeof *argument);
+                if (argument) argument->base_type = type;
+            }
+            if (!argument) goto fail;
+            if (context->type_params[parameter]) {
+                bool same = type_infos_equal(context->type_params[parameter], argument);
+                free_payload_type_info(argument);
+                if (!same) goto fail;
+            } else context->type_params[parameter] = argument;
+        }
+    }
+    for (int parameter = 0; parameter < context->type_param_count; ++parameter)
+        if (!context->type_params[parameter]) goto fail;
+    return context;
+fail:
+    free_payload_type_info(context);
+    return NULL;
+}
+
+/* I check literal leaves against the complete value annotation. */
 static bool indirect_argument_matches(ASTNode *argument, Environment *env,
                                       const TypeInfo *expected, Type fallback,
                                       int depth) {
     if (depth > 128) return false;
+    if (!argument) return false;
     Type actual = check_expression(argument, env);
+    /* I compare every value arm, not only the first nominal name. The normal
+     * expression checker has already checked control flow and arm bindings. */
+    if (argument->type == AST_MATCH) {
+        for (int i = 0; i < argument->as.match_expr.arm_count; ++i)
+            if (!indirect_argument_matches(argument->as.match_expr.arm_bodies[i], env,
+                                           expected, fallback, depth + 1)) return false;
+        return argument->as.match_expr.arm_count > 0;
+    }
+    if (argument->type == AST_IF)
+        return indirect_argument_matches(argument->as.if_stmt.then_branch, env, expected, fallback, depth + 1) &&
+               indirect_argument_matches(argument->as.if_stmt.else_branch, env, expected, fallback, depth + 1);
+    if (argument->type == AST_COND) {
+        for (int i = 0; i < argument->as.cond_expr.clause_count; ++i)
+            if (!indirect_argument_matches(argument->as.cond_expr.values[i], env,
+                                           expected, fallback, depth + 1)) return false;
+        return indirect_argument_matches(argument->as.cond_expr.else_value, env, expected, fallback, depth + 1);
+    }
+    if (argument->type == AST_BLOCK) {
+        if (argument->as.block.count <= 0) return false;
+        ASTNode *tail = argument->as.block.statements[argument->as.block.count - 1];
+        if (tail->type == AST_RETURN) return true; /* This exits the enclosing function. */
+        return indirect_argument_matches(tail, env, expected, fallback, depth + 1);
+    }
+    TypeInfo normalized_expected;
+    if (expected && (expected->base_type == TYPE_STRUCT || expected->base_type == TYPE_UNION) &&
+        expected->generic_name && env_get_union(env, expected->generic_name)) {
+        normalized_expected = *expected;
+        normalized_expected.base_type = TYPE_UNION;
+        expected = &normalized_expected;
+    }
     if (!scalar_value_matches(actual, expected ? expected->base_type : fallback, argument)) return false;
     if (!expected) return true;
     if (expected->base_type == TYPE_ARRAY && expected->element_type &&
@@ -2785,7 +2901,18 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
         return true;
     }
     TypeInfo *info = try_get_expr_type_info(argument, env);
-    if (info) return type_infos_equal(expected, info);
+    if (info) {
+        TypeInfo normalized_actual = *info;
+        if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION) &&
+            info->generic_name && env_get_union(env, info->generic_name))
+            normalized_actual.base_type = TYPE_UNION;
+        return type_infos_equal(expected, &normalized_actual);
+    }
+    if (expected->base_type == TYPE_UNION && expected->generic_name) {
+        const char *actual_name = get_struct_type_name(argument, env);
+        return actual_name && expected->type_param_count == 0 &&
+            env_get_union(env, actual_name) == env_get_union(env, expected->generic_name);
+    }
     if (expected->base_type == TYPE_STRUCT && expected->generic_name) {
         const char *actual_name = get_struct_type_name(argument, env);
         if (!actual_name) return false;
@@ -5322,6 +5449,13 @@ checked_array_declared_call: ;
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
                 ASTNode *field_value = expr->as.struct_literal.field_values[i];
+                TypeInfo *field_info = sdef->field_type_info ? sdef->field_type_info[field_index] : NULL;
+                if (field_info && field_info->generic_name && env_get_union(env, field_info->generic_name) &&
+                    !indirect_argument_matches(field_value, env, field_info, TYPE_UNION, 0)) {
+                    emit_context_error("E001 TYPE MISMATCH", field_value->line, field_value->column, 1,
+                        "I require the record field's exact union declaration and concrete arguments.",
+                        "Match the complete declared field type.");
+                }
                 check_opaque_value(env, sdef->field_types[field_index],
                     sdef->field_type_names ? sdef->field_type_names[field_index] : NULL, field_value);
                 check_nominal_contract(env, sdef->field_types[field_index],
@@ -5466,8 +5600,15 @@ checked_array_declared_call: ;
                 for (int i = 0; i < udef->variant_field_counts[variant_idx]; i++) {
                     if (strcmp(udef->variant_field_names[variant_idx][i], field_name) == 0) {
                         Type field_type = udef->variant_field_types[variant_idx][i];
-                        TypeInfo *arguments = try_get_expr_type_info(expr->as.field_access.object, env);
-                        TypeInfo *payload = resolve_union_payload_type_info(udef, variant_idx, i, arguments);
+                        NominalView projected = {0};
+                        TypeInfo *payload = NULL;
+                        if (nominal_field_view(expr, env, 0, &projected))
+                            (void)nominal_view_materialize(env, &projected, 0, &payload);
+                        nominal_view_discard(&projected);
+                        if (!payload) {
+                            TypeInfo *arguments = try_get_expr_type_info(expr->as.field_access.object, env);
+                            payload = resolve_union_payload_type_info(udef, variant_idx, i, arguments);
+                        }
                         if (payload) {
                             free_payload_type_info(expr->as.field_access.resolved_type_info);
                             expr->as.field_access.resolved_type_info = payload;
@@ -5629,7 +5770,14 @@ checked_array_declared_call: ;
             expr->as.match_expr.checked_scrutinee_type = TYPE_UNKNOWN;
             expr->as.match_expr.scrutinee_type_checked = false;
             /* Check the expression being matched */
-            Type match_type = check_expression(expr->as.match_expr.expr, env);
+            ASTNode *match_expr_node = expr->as.match_expr.expr;
+            TypeInfo *inferred_context = infer_inline_union_context(match_expr_node, env);
+            if (inferred_context) {
+                check_concrete_union_arrays(env, inferred_context, env->current_module,
+                    match_expr_node, 0);
+                free_payload_type_info(inferred_context);
+            }
+            Type match_type = check_expression(match_expr_node, env);
             bool has_int_patterns_expr;
             bool has_variant_patterns_expr;
             match_arm_families(expr, &has_int_patterns_expr, &has_variant_patterns_expr);
@@ -5638,7 +5786,6 @@ checked_array_declared_call: ;
             const char *union_base_name = NULL;
             char *union_concrete_name = NULL;
             TypeInfo *union_type_info = NULL;
-            ASTNode *match_expr_node = expr->as.match_expr.expr;
             if (match_type == TYPE_UNION) {
                 char *selected_variant = NULL;
                 if (!checked_union_projection_copy(match_expr_node, env, &union_type_info, &selected_variant) ||
