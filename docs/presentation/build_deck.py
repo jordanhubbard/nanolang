@@ -279,7 +279,7 @@ def build() -> Path:
     box(s, 6.9, 2.0, 5.65, 3.9, INK, True); text(s, "EXPLICIT LIMITS", 7.2, 2.35, 4.9, .3, 15, ORANGE, True)
     text(s, "private mixed graphs\nconservative refusals\nno isolated callbacks\nformal core boundary\nno kernel claim\nno universal backend claim", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
     notes(s, ["Authority: docs/RELEASE_5.1.md, docs/NANOISA_ONLY.md, docs/CALLBACK_ABI.md and docs/ROADMAP.md.",
-              "The VM fixed point at 0eb94026c compares raw Stage 1 and Stage 2 modules. It does not prove compiler correctness. Final-source VM/native fixed points and complete hosted acceptance remain pending.",
+              "The VM fixed point at d56d15ff6 compares identical raw 530,308-byte Stage 1 and Stage 2 modules. It does not prove compiler correctness. My standalone-native generations also match at 530,296 bytes and compile the verified hello product. Complete hosted acceptance remain pending.",
               "Private non-admitting mixed record-array work remains outside the public product contract."])
 
     # 16 — closing

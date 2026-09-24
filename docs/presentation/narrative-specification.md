@@ -10,7 +10,7 @@ This local member is my 5.1 candidate edition. I retain historical release
 sections, distinguish shadow policy from enforcement and tests from proof,
 and use the shared `examples/gcd.nano` source rather than an untested
 code-shaped placeholder. I present the One IR implementation,
-pinned compiler fixed points, unfinished qualification and translator boundary without claiming universal
+the verified `d56d15ff6` VM and standalone-native fixed points, pending hosted qualification and translator boundary without claiming universal
 backend parity or production isolation.
 
 ## Heading hierarchy

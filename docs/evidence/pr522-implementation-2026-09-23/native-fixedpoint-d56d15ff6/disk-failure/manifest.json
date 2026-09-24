@@ -1,0 +1,37 @@
+{
+  "source_commit": "d56d15ff6934dcd4872aa0f90bfe7ea828cf79fa",
+  "stages": {
+    "providers": {
+      "argv": [
+        "make",
+        "-j2",
+        "bin/nanoc_c",
+        "nvm2c",
+        "nvm2c-runtime"
+      ],
+      "exit_code": 0,
+      "seconds": 0.11910446600086289
+    },
+    "seed-build": {
+      "argv": [
+        "/qualification-final-d56d15ff6/bin/nanoc_c",
+        "/qualification-final-d56d15ff6/src_nano/nanoc_v06.nano",
+        "-o",
+        "/evidence-native-d56d15ff6/seed"
+      ],
+      "exit_code": 1,
+      "seconds": 9.072254498001712
+    }
+  },
+  "stage_timeout_seconds": 1800,
+  "complete": false,
+  "boundary": "I compare raw modules from two standalone native compiler generations. I preserve the existing default shadow deadline and record this 16 GiB Linux VM separately from historical hosts.",
+  "providers": {
+    "/qualification-final-d56d15ff6/bin/nanoc_c": "d8edbe5d53f1cf528e5d8ad59776dc2112fe087b0156f52c4c6f78484d56e669",
+    "/qualification-final-d56d15ff6/bin/nvm2c": "0b086b59d0ad5c66f5ced98ecf5c656335481301e32e92111f540ac790a81e25",
+    "/qualification-final-d56d15ff6/bin/nano_vm": "c0a2bb301e122ad478a0f2b73baed9c188c65d4230d489aeb120ec66e4440089",
+    "/qualification-final-d56d15ff6/bin/nanoisa": "edefa404066fe3b507fb7e1518c53dff03b32b41571dea06cf31c948559456c6",
+    "/qualification-final-d56d15ff6/bin/nano_as_capture.so": "f76e0a978efbc463965d45699c8c24e638c4a8e34ddbb2042a1abfd778f334a5",
+    "/qualification-final-d56d15ff6/bin/nano_aot_runtime.o": "5dc3c0b4223d8f86f0142f8e079d96812ab22b5eed73bb5ca510c127d5081250"
+  }
+}

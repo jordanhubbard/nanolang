@@ -42,14 +42,20 @@ presence does not make them the default compiler product.
 
 ## Self-hosting evidence
 
-My latest recorded VM fixed point is at `0eb94026c`: both generations contain
-526,188 bytes with SHA-256
-`19e49b0210f46e1bd7490ff0efa0e49f24bf42d924c3bbafb26af42850ef474b`.
-Both verify, retain the same host closure, and the final compiler produces a
-verified executable test module. The gate records zero NanoLang-generated C
-compilation calls during VM generations. My [retained record](evidence/pr522-implementation-2026-09-23/vm-fixedpoint-0eb94026/README.md)
-preserves the exact pin and limits. The subsequent native translator correction
-still needs final-source VM and native qualification.
+My final-source VM fixed point is at `d56d15ff6`: both generations contain
+530,308 bytes with SHA-256
+`e6cc1c67ce6c2a8dc2d9ea0729f02c3b157e12a01299d220cb531e80839fd143`.
+Both verify and retain the same host closure. The final compiler compiles a
+program with an arithmetic assertion and shadow; that product verifies and
+executes. The guard records zero NanoLang-generated C compilation calls during
+VM generations. My [retained VM record](evidence/pr522-implementation-2026-09-23/vm-fixedpoint-d56d15ff6/README.md)
+preserves the source pin, raw comparison, unchanged deadlines and complete
+776.915-second terminal. My [standalone-native gate](evidence/pr522-implementation-2026-09-23/native-fixedpoint-d56d15ff6/README.md)
+also passes at this source pin: both generations contain 530,296 bytes with
+SHA-256 `d678e0e1fe9e290592721b265f204b2917fc9369bf8db32d1c28835cc2c3f2ba`.
+Both verify, build as strict C11 standalone compilers without `libnanovm`,
+and the final compiler emits a verified hello module that executes. Equality
+is established within each pinned route; their host-path closures differ.
 
 My standalone native fixed point at `e70c0de46` also passes: successive
 526,188-byte modules have SHA-256
@@ -101,6 +107,9 @@ evidence, not a proof that my compiler is correct.
 - I lower records, tuples, maps, scalar and nested arrays, strings, optional
   values, floats and bytes through the canonical emitter. Computed integer to
   `u8` conversion is checked at destinations and before tail-return selection.
+- I preserve scalar `cast_bool` values and convert strings by exact comparison
+  with `"true"` and `"1"`, evaluating the argument once. Raw ISA truthiness
+  retains its separate contract.
 - I retain ownership and borrow facts across calls, results, callbacks,
   globals, loops, snapshots and cleanup. Unsupported or incomplete profiles
   fail before publication rather than silently changing representation.
@@ -115,6 +124,18 @@ evidence, not a proof that my compiler is correct.
   widen public authority.
 
 ## Verification and evidence
+
+At compiler-source pin `d56d15ff6`, the complete instrumented One IR gate passes
+all 32 methods, including both full compiler paths and the real std artifact.
+The generated native products and host runtime retain ASan/UBSan, leak and
+stack-use-after-return checks. The unchanged generic-function/signature suites
+pass 27 methods, and selected-ownership suites pass 36 methods, across their
+C-seed and native-stage routes. My [final local qualification](evidence/pr522-implementation-2026-09-23/final-source-d56d15ff6/README.md)
+records the exact scope. The [string conversion gate](evidence/pr522-implementation-2026-09-23/string-boolean-casts/README.md)
+also passes all 15 driver methods ordinarily and with instrumented products,
+fresh bootstrap, 86 bytecode comparisons and 91 broader source methods.
+
+The following translator checkpoint remains historical evidence.
 
 At `e70c0de46`, both complete native translator gates pass 2,524 assertions,
 including a fresh ASan/UBSan build; the shape solver passes 1,565 assertions.

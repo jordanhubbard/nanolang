@@ -89,17 +89,28 @@ not a theorem for every integer. Artifact tests extract and compile its text.
 ## 5.1 candidate checkpoint — 2026-09-24
 
 I have not completed or tagged 5.1. PR #522 remains draft while full hosted
-platforms, coverage, all sanitizer partitions and final-source fixed points
-are under qualification. The following September 20 record is historical.
+platforms, coverage and all sanitizer partitions are under qualification. The following September 20 record is historical.
 
-At `0eb94026c`, the VM gate produced matching 526,188-byte modules with SHA-256
-`19e49b0210f46e1bd7490ff0efa0e49f24bf42d924c3bbafb26af42850ef474b`.
-It verified both generations, stable host closure and a final hello, with zero
-NanoLang-generated C calls during VM generations. At `e70c0de46`, local
-translator gates pass 2,524 assertions, shape checks pass 1,565 and all nine
-original functional-array methods pass with generated sanitizers. Fresh Darwin
-native bootstrap passes. These bounded checks do not replace final acceptance.
-`docs/evidence/pr522-implementation-2026-09-23/` retains the exact evidence.
+At compiler-source pin `d56d15ff6`, the VM gate produces identical 530,308-byte
+modules with SHA-256
+`e6cc1c67ce6c2a8dc2d9ea0729f02c3b157e12a01299d220cb531e80839fd143`.
+Both verify, preserve the exact host closure and execute the final compiler's
+test product. The guard records zero NanoLang-generated C compilation during
+VM generations. The complete gate passes in 776.915 seconds. Standalone-native
+equality also passes on this pin: 530,296 bytes, SHA-256
+`d678e0e1fe9e290592721b265f204b2917fc9369bf8db32d1c28835cc2c3f2ba`.
+Both native generations verify and build as strict C11 without `libnanovm`;
+the final compiler compiles a verified hello module that executes. I retain
+this route in `docs/evidence/pr522-implementation-2026-09-23/native-fixedpoint-d56d15ff6/`.
+Each route compares its own exact host-path closure.
+
+The same source pin passes all 32 instrumented One IR methods, including both
+complete compiler paths and the real std artifact. The original generic/signature
+and selected-ownership suites pass 27 and 36 methods with instrumented generated
+products, leak/UAR checks and unchanged deadlines. These bounded checks do not
+replace complete hosted acceptance. The source pin and retained evidence are in
+`docs/evidence/pr522-implementation-2026-09-23/vm-fixedpoint-d56d15ff6/` and
+`docs/evidence/pr522-implementation-2026-09-23/final-source-d56d15ff6/`.
 
 ## 5.1 release-edition checkpoint — 2026-09-20
 

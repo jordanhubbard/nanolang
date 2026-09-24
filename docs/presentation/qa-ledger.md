@@ -1,5 +1,33 @@
 # NanoLang presentation QA ledger
 
+## 2026-09-24 final-source fixed-point checkpoint
+
+I refreshed the candidate evidence to compiler-source pin `d56d15ff6`: both
+VM and standalone-native raw fixed points pass. Complete hosted platform,
+coverage and sanitizer qualification remains open. I regenerated both members
+with the pinned Python toolchain; the pair verifier accepts 16 slides and
+35 headings, and all 12 document-pair tests pass.
+
+I inspected the contact sheet and all 16 full-size slides during this refresh.
+The final regeneration changes only slide 15 speaker notes; its visible
+content is unchanged. I inspected the final contact sheet and all six final
+narrative pages. I observed no clipping, overlap or unreadable text.
+
+The deck uses the portable Pillow renderer, not an Office engine. For the
+narrative I reused the checksum-verified LibreOffice 26.8.0 ARM64 disk image
+(SHA-256 `8858d8058da4f862f47559486814e65efc27294da67c5e4bb56b006b1ee59f89`)
+through a temporary read-only mount and isolated profile, then rasterized the
+six-page PDF with Poppler. The optional managed renderer was unavailable;
+this direct PDF route supplies the page-layout inspection. I did not change
+the system installation or publish either member to Google.
+
+Local artifact SHA-256 hashes:
+
+- nanolang-developer-overview.pptx: `54f544aea6194f5dd1312a4072f84b5747ac40a4f4ceddc6bd866f5f803fbaa1`
+- nanolang-developer-overview.docx: `88668c2d542d99c8ff0e82340cb238360c86089f24ae9e6c95c884a3cc2a4de6`
+
+The earlier checkpoint below remains historical.
+
 ## 2026-09-24 local 5.1 candidate checkpoint
 
 I regenerated both members through my pinned Python authoring toolchain after

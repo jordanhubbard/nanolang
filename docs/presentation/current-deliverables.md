@@ -5,6 +5,10 @@
 - Local 5.1 candidate-edition PowerPoint: [nanolang-developer-overview.pptx](nanolang-developer-overview.pptx)
 - Local 5.1 candidate-edition Word narrative: [nanolang-developer-overview.docx](nanolang-developer-overview.docx)
 
+My September 24 local candidate records both fixed-point routes at
+`d56d15ff6`; complete hosted qualification remains open. The local QA ledger
+records the 16-slide and six-page visual checks and artifact hashes.
+
 The deck has 16 slides for software developers and compiler engineers. The
 narrative is its technical companion. Both are generated from my source,
 specifications, tests, roadmap, and release evidence.

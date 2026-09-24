@@ -79,9 +79,9 @@ Slide 14 is the runtime mechanism. Five named layers — source effect, module
 requirement, NanoISA trap, NSI method, capability — and a journal that records
 at the trap boundary. Do not collapse them into one word. POSIX is the host.
 
-Slide 15 names the 5.1 One IR candidate contract, historical raw compiler
-fixed-point evidence and translator boundary. It explicitly retains final-source
-fixed points and complete hosted acceptance as pending gates. Retained callbacks execute through the owner-thread
+Slide 15 names the 5.1 One IR candidate contract, the verified `d56d15ff6` VM
+and standalone-native fixed points and translator boundary. It retains
+complete hosted acceptance as a pending gate. Retained callbacks execute through the owner-thread
 bridge; they do not establish isolated callback support. Private mixed graphs
 and conservative refusals do not become public authority. Slide 7 still shows
 the six-instruction program that passed verification; that lesson did not
