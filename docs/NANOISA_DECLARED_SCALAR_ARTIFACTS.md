@@ -21,6 +21,48 @@ baseline. Calling an arbitrary native symbol through a guessed C function
 pointer type is not an acceptable replacement: equal register conventions do
 not establish C type compatibility.
 
+## My wire decision
+
+I allocate import kind 4 to `DECLARED_SCALAR_ARTIFACT`; kind 3 remains SERVICE.
+This is an implementation decision, not current executable admission. I retain
+the v2 import record's existing 16-byte shape: counted module/symbol indices,
+signature index, kind and three zero reserved bytes. The signature table carries
+every parameter and the result. I add no advisory metadata key that a consumer
+could mistake for proof of source checking. Older readers must refuse the new
+kind; kinds 0–3 retain their meanings and validation.
+
+The new kind explicitly requests the scalar ABI and synchronous string-result
+lifetime described below. A raw assembler may request that contract explicitly
+once its complete verifier and execution support exist. The kind is not a
+signature, authentication token, proof of manifest ownership, or verification
+of the library's C implementation. Ordinary kind-2 artifact imports do not
+silently gain arbitrary native scalar admission. Foreign declarations remain
+trusted ABI claims at an unsafe boundary.
+
+My source producer resolves the declaration's actual owning source and its
+manifest into an immutable artifact generation before emitting kind 4. My
+structural verifier requires a nonempty absolute counted path, a nonempty
+counted symbol, no embedded NUL in either, a complete bounded scalar signature,
+and no void parameters. It checks unused declarations too. The execution
+loader uses that exact artifact handle and never falls back to the global
+symbol search. Filesystem existence and symbol resolution are execution facts;
+I do not claim that a bytecode verifier proves them from strings.
+
+The string lifetime is part of this kind's ABI rather than a source-origin
+claim: I snapshot the result before releasing arguments. I preserve the
+existing provider opt-in convention, `<symbol>__nano_string_release_v1`, and
+require a discovered companion to come from the called function's own image.
+A missing companion means borrowed storage; a present companion receives the
+original pointer once after the copy attempt. A null result remains a failure.
+I extend the typed libffi path to heterogeneous arguments at every admitted
+arity instead of retaining the VM's current two-string-argument special case.
+Known adapters keep their existing behavior and do not change kind implicitly.
+
+My implementation order is transport/structural refusals, VM/native matching
+execution and string cleanup, then source emission and driver/package linkage.
+I require round-trip, malformed-signature, legacy-kind and linker-remapping
+checks before enabling a consumer. No decoder-only checkpoint grants execution.
+
 ## Required implementation
 
 1. I retain a declaration-derived scalar artifact contract for ordinary

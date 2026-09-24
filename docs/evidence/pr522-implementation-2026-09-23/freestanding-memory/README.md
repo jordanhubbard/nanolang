@@ -28,8 +28,8 @@ with the corrected runtime, then execute it in both Node and Wasmtime. The
 retained driver and command reports preserve the exact test and product hashes.
 
 Darwin uses Homebrew LLVM, Node and Wasmtime. Linux uses the retained Ubuntu
-24.04 ARM64 container, LLVM 18.1.3, Node 18.19.1 and Wasmtime 49.0.0. Full
-corrected generated-C and LLVM/Wasm corpus gates are running separately, with
-all original assertions and 240-second child deadlines unchanged. Their
-completion remains required by task_efde11810990406ba36311702a0746d6 and the
-aggregate parent; this checkpoint does not close #522.
+24.04 ARM64 container, LLVM 18.1.3, Node 18.19.1 and Wasmtime 49.0.0. The [complete corrected corpus gates](corpus/README.md) now pass on both
+platforms, together with their query/VM neighbors. All original assertions and
+240-second child deadlines remain unchanged. This qualifies the memory repair;
+public selection and the aggregate parent requirements still remain. It does
+not close #522.
