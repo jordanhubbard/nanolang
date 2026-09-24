@@ -93,7 +93,7 @@ evidence, not a proof that my compiler is correct.
 ## Verification and evidence
 
 My exact release-candidate verifier corpus selects and verifies 176 programs
-without a failure or skip. The ordinary native translator suite passes 2,485
+without a failure or skip. The ordinary native translator suite passes 2,560
 checks, the shape solver passes 1,539 checks, the self-hosted NanoISA emitter
 matrix passes 90 methods, and the shared frontend contract passes 367 checks.
 Canonical disassembly passes 210 round-trip checks. These counts describe
