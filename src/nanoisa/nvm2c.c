@@ -2550,7 +2550,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 result_kind = candidate_result;
                 candidates++;
             }
-            if (!candidates) {
+            /* I may visit this caller before its target's body establishes
+             * parameter storage. Missing candidates are unresolved facts
+             * until convergence, not a declaration-order-dependent refusal. */
+            if (!candidates && facts->final) {
                 nvm2c_fail(b, "function %u: CALL_INDIRECT has no exact scalar target", idx);
                 return 0;
             }
