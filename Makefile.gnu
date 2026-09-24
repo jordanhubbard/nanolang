@@ -4604,6 +4604,11 @@ test-instantiated-ownership: bootstrap
 test-units: test-native-module-linking
 test-native-module-linking: bootstrap3
 	@python3 -m unittest tests.test_native_module_linking tests.test_declared_scalar_source
+.PHONY: test-cseed-capture
+test-units: test-cseed-capture
+test-cseed-capture: $(COMPILER_C)
+	@python3 -m unittest -v tests.test_cseed_capture
+
 .PHONY: test-native-install
 test-units: test-native-install
 test-native-install: bootstrap3
