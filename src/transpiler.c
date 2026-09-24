@@ -4184,8 +4184,11 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
             } else {
                 sb_append(sb, "void*");
             }
-        } else if (item->as.let.var_type == TYPE_UNION && item->as.let.type_info) {
-            emit_native_type_info(env, sb, item->as.let.type_info);
+        } else if ((item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION ||
+                    item->as.let.var_type == TYPE_ENUM) && item->as.let.type_name) {
+            if (item->as.let.type_info && item->as.let.type_info->generic_name)
+                emit_native_type_info(env, sb, item->as.let.type_info);
+            else sb_append(sb, get_prefixed_type_name(item->as.let.type_name));
         } else {
             sb_append(sb, type_to_c(item->as.let.var_type));
         }

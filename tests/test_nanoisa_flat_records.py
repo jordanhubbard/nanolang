@@ -407,7 +407,7 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
                 self.run_checked(binary)
 
-    def test_aggregate_globals_match_and_execute_in_vm(self):
+    def test_aggregate_globals_match_and_execute_in_vm_and_native(self):
         fixture = ROOT / "tests/nanoisa/fixtures/global_aggregate_initialization.nano"
         with tempfile.TemporaryDirectory(prefix="nano-aggregate-globals-") as tmp:
             work = Path(tmp)
@@ -421,6 +421,10 @@ class FlatRecordEmitter(unittest.TestCase):
             for module in (seed, emitted):
                 self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
                 self.assertEqual(self.run_checked(ROOT / "bin/nano_vm", module).stdout, "init\n")
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.assertEqual(self.run_checked(binary).stdout, "init\n")
 
     def test_array_access_result_types_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/array_access_types.nano"

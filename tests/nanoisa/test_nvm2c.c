@@ -1186,6 +1186,7 @@ static void test_globals_cross_functions_and_preserve_identity(void) {
 
 static void test_projected_global_stores(void) {
     const struct { const char *value, *check; } cases[] = {
+        {"PUSH_I64 42\nAGG_PACK 0 0 0 1", "AGG_GET 0\nPUSH_I64 42\nEQ\nASSERT"},
         {"PUSH_I64 42", "PUSH_I64 42\nEQ\nASSERT"},
         {"PUSH_F64 1.5", "PUSH_F64 1.5\nF64_EQ\nASSERT"},
         {"PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1",
@@ -1212,7 +1213,7 @@ static void test_projected_global_stores(void) {
             if (c) {
                 int status = -1;
                 CHECK(compile_and_run(c, &status) == 0 && status == 0,
-                      "I preserve scalar and primitive-array values across nested-record global stores");
+                      "I preserve scalar, array and record values across nested-record global stores");
                 free(c);
             }
             nvm_module_free(m);
@@ -1224,13 +1225,13 @@ static void test_projected_global_stores(void) {
     for (size_t i = 0; i < sizeof unsupported / sizeof unsupported[0]; ++i) {
         char source[2048];
         snprintf(source, sizeof source, ".entry main\n.function main 0 0 0 int 1\n%s\n"
-            "AGG_PACK 0 0 0 1\nAGG_PACK 0 0 0 1\nCALL store\nPUSH_I64 0\nRET\n.end\n%s",
+            "AGG_PACK 0 0 0 1\nAGG_PACK 0 0 0 1\nCALL store\nPUSH_I64 9\nSTORE_GLOBAL 0\nPUSH_I64 0\nRET\n.end\n%s",
             unsupported[i], store);
         NvmModule *m = assemble_ok(source, "unsupported projected global storage");
         if (!m) continue;
         char error[256] = {0};
         char *c = nvm2c_emit(m, error, sizeof error);
-        CHECK(c == NULL, "I reject unsupported global storage after resolving nested fields");
+        CHECK(c == NULL, "I reject incompatible scalar and aggregate stores to one global");
         free(c); nvm_module_free(m);
     }
 }
@@ -4087,6 +4088,29 @@ static void test_scalar_globals(void) {
     test_array_globals();
     test_tagged_array_read_bounds();
     test_tagged_array_update_bounds();
+    const char *map_values[] = {"PUSH_I64 42", "PUSH_STR text", "PUSH_BOOL 1", "LOAD_GLOBAL 1"};
+    for (int strings = 0; strings < 2; ++strings) {
+        for (size_t i = 0; i < sizeof map_values / sizeof map_values[0]; ++i) {
+            char program[768];
+            snprintf(program, sizeof program,
+                ".string key \"key\"\n.string text \"saved\"\n.entry main\n"
+                ".function main 0 0 0 int 1\n%s\nSTORE_GLOBAL 0\n"
+                "HM_NEW 5 %d\nPUSH_STR key\nLOAD_GLOBAL 0\nHM_SET\n"
+                "PUSH_STR key\nHM_GET\n%s\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+                map_values[i], strings ? 5 : 1, strings ? "PUSH_STR text" : "PUSH_I64 42");
+            NvmModule *map_module = assemble_ok(program, "tagged global map value");
+            if (!map_module) continue;
+            char *map_c = emit_or_fail(map_module, "I defer tagged map value checks to the exact destination");
+            if (map_c) {
+                int status = 0;
+                CHECK(compile_and_run(map_c, &status) == 0 &&
+                      status == (i == (size_t)strings ? 0 : -1),
+                      "I retain scalar map contents and trap wrong or missing global value tags");
+                free(map_c);
+            }
+            nvm_module_free(map_module);
+        }
+    }
     const char *source =
         ".string text \"saved\"\n.string yes \"true\"\n.entry main\n"
         ".function main 0 1 0 int 1\n"

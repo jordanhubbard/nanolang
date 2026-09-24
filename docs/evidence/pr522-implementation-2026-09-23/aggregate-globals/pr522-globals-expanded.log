@@ -1,0 +1,49 @@
+.FFFF..
+======================================================================
+FAIL: test_integer_key_map_string_survives_replace_and_remove (tests.test_canonical_aggregate_globals.AggregateGlobals.test_integer_key_map_string_survives_replace_and_remove) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_globals.py", line 69, in execute
+    self.assertEqual(result.returncode, 0, str(command)+"\n"+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-c1d6kfiq/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-c1d6kfiq/product')]
+I cannot lower this checked program: I cannot lower this global type: HashMap<int,string>
+
+
+======================================================================
+FAIL: test_integer_key_map_string_survives_replace_and_remove (tests.test_canonical_aggregate_globals.AggregateGlobals.test_integer_key_map_string_survives_replace_and_remove) (compiler='nanoc_stage1', vm=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_globals.py", line 69, in execute
+    self.assertEqual(result.returncode, 0, str(command)+"\n"+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-c1d6kfiq/case.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-c1d6kfiq/product')]
+I cannot lower this checked program: I cannot lower this global type: HashMap<int,string>
+
+
+======================================================================
+FAIL: test_integer_key_map_string_survives_replace_and_remove (tests.test_canonical_aggregate_globals.AggregateGlobals.test_integer_key_map_string_survives_replace_and_remove) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_globals.py", line 69, in execute
+    self.assertEqual(result.returncode, 0, str(command)+"\n"+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-c1d6kfiq/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-c1d6kfiq/product')]
+I cannot lower this checked program: I cannot lower this global type: HashMap<int,string>
+
+
+======================================================================
+FAIL: test_integer_key_map_string_survives_replace_and_remove (tests.test_canonical_aggregate_globals.AggregateGlobals.test_integer_key_map_string_survives_replace_and_remove) (compiler='nanoc_stage2', vm=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_globals.py", line 69, in execute
+    self.assertEqual(result.returncode, 0, str(command)+"\n"+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-c1d6kfiq/case.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-c1d6kfiq/product')]
+I cannot lower this checked program: I cannot lower this global type: HashMap<int,string>
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 6.648s
+
+FAILED (failures=4)
