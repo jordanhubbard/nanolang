@@ -309,6 +309,19 @@ bool nvm_set_function_param_types(NvmModule *mod, uint32_t index,
     return true;
 }
 
+static bool declared_scalar(uint8_t tag) {
+    return tag == TAG_INT || tag == TAG_ENUM || tag == TAG_FLOAT ||
+           tag == TAG_BOOL || tag == TAG_U8 || tag == TAG_STRING;
+}
+
+bool nvm_declared_scalar_shape_valid(const uint8_t *tags, uint16_t count, uint8_t result) {
+    if (count > NANO_MAX_FFI_ARGS || (count && !tags) ||
+        (result != TAG_VOID && !declared_scalar(result))) return false;
+    for (uint16_t i = 0; i < count; i++)
+        if (!declared_scalar(tags[i])) return false;
+    return true;
+}
+
 static bool callback_scalar(uint8_t tag) {
     return tag == TAG_INT || tag == TAG_FLOAT || tag == TAG_BOOL ||
            tag == TAG_U8 || tag == TAG_OPAQUE;

@@ -283,10 +283,21 @@ static NvmV2Result validate_cross_section(const NvmV2Module *m,
         if (!index_ok(im->module_name_idx, nc, false)) return NVM_V2_ERR_INDEX_RANGE;
         if (!index_ok(im->symbol_name_idx, nc, false)) return NVM_V2_ERR_INDEX_RANGE;
         if (!index_ok(im->signature_idx, ns, false)) return NVM_V2_ERR_INDEX_RANGE;
-        if (im->kind == NVM_V2_IMPORT_ARTIFACT) {
+        if (im->kind == NVM_V2_IMPORT_ARTIFACT ||
+            im->kind == NVM_V2_IMPORT_DECLARED_SCALAR_ARTIFACT) {
             const NvmV2Constant *path = &m->constants.items[im->module_name_idx];
             if (path->tag != TAG_STRING || !path->length || !path->payload ||
                 path->payload[0] != '/' || memchr(path->payload, 0, path->length))
+                return NVM_V2_ERR_SECTION_TYPE;
+        }
+        if (im->kind == NVM_V2_IMPORT_DECLARED_SCALAR_ARTIFACT) {
+            const NvmV2Constant *symbol = &m->constants.items[im->symbol_name_idx];
+            const NvmV2Signature *sig = &m->signatures.items[im->signature_idx];
+            if (symbol->tag != TAG_STRING || !symbol->length || !symbol->payload ||
+                memchr(symbol->payload, 0, symbol->length) || sig->result_count > 1 ||
+                (sig->result_count && !sig->result_tags) ||
+                !nvm_declared_scalar_shape_valid(sig->param_tags, sig->param_count,
+                    sig->result_count ? sig->result_tags[0] : TAG_VOID))
                 return NVM_V2_ERR_SECTION_TYPE;
         }
     }

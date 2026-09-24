@@ -278,10 +278,11 @@ typedef enum {
     NVM_V2_IMPORT_FFI       = 0,
     NVM_V2_IMPORT_COPROCESS = 1,
     NVM_V2_IMPORT_ARTIFACT  = 2,
-    NVM_V2_IMPORT_SERVICE   = 3
+    NVM_V2_IMPORT_SERVICE   = 3,
+    NVM_V2_IMPORT_DECLARED_SCALAR_ARTIFACT = 4
 } NvmV2ImportKind;
 
-#define NVM_V2_IMPORT_KIND_MAX NVM_V2_IMPORT_SERVICE
+#define NVM_V2_IMPORT_KIND_MAX NVM_V2_IMPORT_DECLARED_SCALAR_ARTIFACT
 
 /* A weak link may resolve to nothing. Encoded and validated now; nothing
  * consumes it until the 4.4 capability work. */
