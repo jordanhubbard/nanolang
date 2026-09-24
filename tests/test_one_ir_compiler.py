@@ -1000,15 +1000,65 @@ int main(int argc, char **argv) {
                 self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                 generated = source.read_text().replace("int main(", "int generated_main(")
+                # I count record frames separately from root-list bookkeeping,
+                # and require every allocation category to be released.
+                lines = generated.splitlines(keepends=True)
+                frame_allocations = 0
+                for index, line in enumerate(lines):
+                    if line.lstrip().startswith(("nrec_t *r =", "nrec_t *rl =")) and "calloc(" in line:
+                        lines[index] = line.replace("calloc(", "frame_calloc(")
+                        frame_allocations += 1
+                self.assertGreaterEqual(frame_allocations, 2)
+                generated = "".join(lines)
                 source.write_text('''#include <stdlib.h>
-static size_t live, peak;
+static size_t live, frames, peak;
 static int fail_allocation;
-static void *tracked_calloc(size_t n, size_t size) {
-    if (fail_allocation) return NULL;
-    void *p = calloc(n, size); if (p) { ++live; if (live > peak) peak = live; } return p;
+static struct { void *pointer; int frame; } allocations[4096];
+static size_t allocation_slot(void *p) {
+    for (size_t i = 0; i < 4096; ++i)
+        if (allocations[i].pointer == p) return i;
+    abort();
 }
-static void tracked_free(void *p) { if (p) { if (!live) abort(); --live; } free(p); }
+static void *remember_allocation(void *p, int frame) {
+    if (p) {
+        size_t slot = allocation_slot(NULL);
+        allocations[slot].pointer = p; allocations[slot].frame = frame;
+        ++live;
+        if (frame && ++frames > peak) peak = frames;
+    }
+    return p;
+}
+static void *frame_calloc(size_t n, size_t size) {
+    if (fail_allocation) return NULL;
+    return remember_allocation(calloc(n, size), 1);
+}
+static inline void *tracked_calloc(size_t n, size_t size) {
+    return remember_allocation(calloc(n, size), 0);
+}
+static inline void *tracked_malloc(size_t size) {
+    return remember_allocation(malloc(size), 0);
+}
+static inline void *tracked_realloc(void *p, size_t size) {
+    if (!p) return remember_allocation(realloc(NULL, size), 0);
+    size_t slot = allocation_slot(p);
+    if (!size) abort();
+    void *next = realloc(p, size);
+    if (next) allocations[slot].pointer = next;
+    return next;
+}
+static void tracked_free(void *p) {
+    if (p) {
+        size_t slot = allocation_slot(p);
+        if (!live) abort();
+        --live;
+        if (allocations[slot].frame) { if (!frames) abort(); --frames; }
+        allocations[slot].pointer = NULL;
+    }
+    free(p);
+}
 #define calloc tracked_calloc
+#define malloc tracked_malloc
+#define realloc tracked_realloc
 #define free tracked_free
 ''' + generated + '''
 int main(int argc, char **argv) {

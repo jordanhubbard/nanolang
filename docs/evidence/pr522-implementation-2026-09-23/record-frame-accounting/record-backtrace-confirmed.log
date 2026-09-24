@@ -1,0 +1,22 @@
+(lldb) target create "/tmp/pr522-runtime-consumers/record-debug"
+Current executable set to '/tmp/pr522-runtime-consumers/record-debug' (arm64).
+(lldb) run
+Process 96719 launched: '/tmp/pr522-runtime-consumers/record-debug' (arm64)
+Process 96719 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = signal SIGABRT
+       frame #0: 0x00000001878745e8 libsystem_kernel.dylib`__pthread_kill + 8
+libsystem_kernel.dylib`__pthread_kill:
+->  0x1878745e8 <+8>:  b.lo   0x187874608               ; <+40>
+    0x1878745ec <+12>: pacibsp 
+    0x1878745f0 <+16>: stp    x29, x30, [sp, #-0x10]!
+    0x1878745f4 <+20>: mov    x29, sp
+Target 0: (record-debug) stopped.
+(lldb) bt
+* thread #1, queue = 'com.apple.main-thread', stop reason = signal SIGABRT
+   * frame #0: 0x00000001878745e8 libsystem_kernel.dylib`__pthread_kill + 8
+     frame #1: 0x00000001878af8d8 libsystem_pthread.dylib`pthread_kill + 296
+     frame #2: 0x00000001877b5978 libsystem_c.dylib`abort + 148
+     frame #3: 0x0000000100007848 record-debug`tracked_free(p=0x00000001005e5f50) at input.c:8:57
+     frame #4: 0x000000010000354c record-debug`nl_walk(a0=nrec_t @ 0x000000016fdfb550, a1=12) at input.c:1506:5
+     frame #5: 0x0000000100005c14 record-debug`main(argc=1, argv=0x000000016fdfef08) at input.c:1571:25
+     frame #6: 0x00000001874e44e4 dyld`start + 6992

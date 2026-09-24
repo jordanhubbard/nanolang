@@ -1,0 +1,124 @@
+{
+  "root": "/qualification",
+  "stages": {
+    "seed": {
+      "argv": [
+        "/qualification/bin/nano_virt",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/evidence-vm-d48a78783/seed.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.443381332999707
+    },
+    "seed-verify": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "--verify-only",
+        "/evidence-vm-d48a78783/seed.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.7951526289998583
+    },
+    "stage1": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "/evidence-vm-d48a78783/seed.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/evidence-vm-d48a78783/stage1.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 349.0231129840013,
+      "sha256": "068d5adc37a3b013450a754126a2ff6b257325ad14f2dca6d1afc276f19410ca",
+      "bytes": 526188
+    },
+    "stage1-verify": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "--verify-only",
+        "/evidence-vm-d48a78783/stage1.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.5404649270003574
+    },
+    "stage2": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "/evidence-vm-d48a78783/stage1.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/evidence-vm-d48a78783/stage2.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 351.9082125679997,
+      "sha256": "068d5adc37a3b013450a754126a2ff6b257325ad14f2dca6d1afc276f19410ca",
+      "bytes": 526188
+    },
+    "stage2-verify": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "--verify-only",
+        "/evidence-vm-d48a78783/stage2.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.5519588619990827
+    },
+    "hello-compile": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "/evidence-vm-d48a78783/stage2.nvm",
+        "--",
+        "/evidence-vm-d48a78783/hello.nano",
+        "--emit-nvm",
+        "-o",
+        "/evidence-vm-d48a78783/hello.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.7068484480005282
+    },
+    "hello-verify": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "--verify-only",
+        "/evidence-vm-d48a78783/hello.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.0018547150011727354
+    },
+    "hello-execute": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "/evidence-vm-d48a78783/hello.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.0012344630013103597
+    }
+  },
+  "stage_timeout_seconds": 1800,
+  "boundary": "I execute VM-generation shadows as bytecode and reject NanoLang-generated C compilation. Declared native host artifacts retain their existing build and cache-validation paths; the product still contains its separate legacy C backend.",
+  "source_commit": "d48a78783482bd6bc201ea710b49f4f4d1173eff",
+  "helper_sha256": "60a178d96aea6c8cad943c9d24d055921563aef0cbc8417319fff2007b246767",
+  "labels": {
+    "seed": "C-seed NanoVirt output, a different lowering implementation",
+    "stage1": "VM execution of seed compiling the same source",
+    "stage2": "VM execution of stage1 compiling the same source",
+    "comparison": "raw stage1 versus stage2; no normalization"
+  },
+  "host_libraries": {
+    "/qualification/modules/compiler_support/.build/.nano-gen-ZpIBAQ/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+    "/qualification/modules/nanoisa/.build/.nano-gen-j26EW5/libnanoisa.so": "f23619b5dcf320bae93c1e728dcc56c7d358db3af893870c182a6b3d4df5de95",
+    "/qualification/modules/std/.build/.nano-gen-ibyPls/libstd.so": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4"
+  },
+  "raw_stage1_stage2_equal": true,
+  "vm_generations_nanolang_codegen_calls": 0,
+  "host_cache_probe_calls": 196,
+  "native_host_artifact_calls": 548,
+  "complete": true
+}
