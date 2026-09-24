@@ -1549,6 +1549,11 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_appendf(sb, "    %s_Entry *entries;\n", struct_name);
         sb_append(sb, "};\n\n");
 
+        sb_appendf(sb, "static void nl_hashmap_%s_free(%s *hm);\n", suffix, struct_name);
+        sb_append(sb, "#ifndef __wasm__\n");
+        sb_appendf(sb, "static void nl_hashmap_%s_finalize(void *value) { nl_hashmap_%s_free((%s*)value); }\n", suffix, suffix, struct_name);
+        sb_append(sb, "#endif\n");
+
         sb_appendf(sb, "static %s* nl_hashmap_%s_alloc(int64_t cap) {\n", struct_name, suffix);
         sb_appendf(sb, "    %s *hm = (%s*)malloc(sizeof(%s));\n", struct_name, struct_name, struct_name);
         sb_append(sb, "    if (!hm) return NULL;\n");
@@ -1557,6 +1562,9 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    hm->tombstones = 0;\n");
         sb_appendf(sb, "    hm->entries = (%s_Entry*)calloc((size_t)cap, sizeof(%s_Entry));\n", struct_name, struct_name);
         sb_append(sb, "    if (!hm->entries) { free(hm); return NULL; }\n");
+        sb_append(sb, "#ifndef __wasm__\n");
+        sb_appendf(sb, "    return (%s*)gc_process_own(hm, nl_hashmap_%s_finalize);\n", struct_name, suffix);
+        sb_append(sb, "#endif\n");
         sb_append(sb, "    return hm;\n");
         sb_append(sb, "}\n\n");
 
@@ -1706,6 +1714,7 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "}\n\n");
 
         sb_appendf(sb, "static void nl_hashmap_%s_free(%s *hm) {\n", suffix, struct_name);
+        sb_append(sb, "#ifndef __wasm__\n    gc_process_forget(hm);\n#endif\n");
         sb_append(sb, "    if (!hm) return;\n");
         sb_appendf(sb, "    nl_hashmap_%s_clear(hm);\n", suffix);
         sb_append(sb, "    free(hm->entries);\n");
