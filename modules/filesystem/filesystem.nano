@@ -33,7 +33,7 @@ pub extern fn nl_fs_is_directory(_path: string) -> int
 
 # Check if a file exists
 # Returns: 1 if exists, 0 otherwise
-extern fn nl_fs_file_exists(_path: string) -> int
+pub extern fn nl_fs_file_exists(_path: string) -> int
 
 # Get file size in bytes
 # Returns: file size, or -1 on error

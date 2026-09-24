@@ -80,7 +80,7 @@ int64_t fakedep_answer(void) { return 42; }
 EOF
 
 cat >"$MOD_DIR/fakedep.nano" <<'EOF'
-extern fn fakedep_answer() -> int
+pub extern fn fakedep_answer() -> int
 EOF
 
 cat >"$WORK/prog.nano" <<EOF

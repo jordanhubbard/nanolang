@@ -73,7 +73,7 @@ extern fn TTF_SetFontStyle(_font: TTF_Font, _style: int) -> void
 # === Error Handling ===
 
 # Get last SDL_ttf error message
-extern fn TTF_GetError() -> string
+pub extern fn TTF_GetError() -> string
 
 # Clear error message
 extern fn TTF_ClearError() -> void

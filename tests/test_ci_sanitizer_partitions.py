@@ -197,6 +197,9 @@ class SanitizerPartitions(unittest.TestCase):
             source = Path(source_tmp)
             (source / 'bin').mkdir()
             (source / 'bin/nanoc_c').write_bytes(b'instrumented compiler')
+            provider = source / 'modules/compiler_support/.build/.nano-gen-test/libcompiler_support.so'
+            provider.parent.mkdir(parents=True)
+            provider.write_bytes(b'exact compiler support provider')
             (source / '.stage1.built').write_text('')
             output = source / 'bundle'
             try:
@@ -211,6 +214,9 @@ class SanitizerPartitions(unittest.TestCase):
                                                         archive, description)
                 self.assertTrue(restored['success'])
                 self.assertEqual(Path('bin/nanoc_c').read_bytes(), b'instrumented compiler')
+                self.assertEqual(
+                    Path('modules/compiler_support/.build/.nano-gen-test/libcompiler_support.so').read_bytes(),
+                    b'exact compiler support provider')
                 os.chdir(source)
                 (source / 'bin/nanoc_stage1').write_bytes(b'instrumented stage 1')
                 (source / 'bin/nanoc_stage1_driver').write_bytes(b'ordinary stage 1 producer')

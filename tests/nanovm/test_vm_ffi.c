@@ -41,6 +41,7 @@ long   nl_ffi_test_mix_fi_gp(double x, long n) { return (long)(x * 2.0) + n; }
 double nl_ffi_test_mix_iffi(long a, double b, double c, long d) {
     return (double)a + b * c + (double)d;
 }
+void *nl_ffi_test_pointer(void *pointer) { return pointer; }
 
 /* I keep these providers instrumented so incompatible indirect calls fail UBSan. */
 const char *nl_ffi_test_echo(const char *text) { return text; }
@@ -367,28 +368,29 @@ TEST(call_bool_arg_path) {
 }
 
 TEST(call_opaque_arg_path) {
-    /* Exercise TAG_OPAQUE arg marshaling */
+    /* I accept only the integer zero spelling of an opaque null pointer. */
     vm_ffi_init();
 
     NvmModule *mod = nvm_module_new();
     ASSERT(mod != NULL);
     uint32_t mod_idx = nvm_add_string(mod, "", 0);
-    uint32_t fn_idx  = nvm_add_string(mod, "xyzzy_no_such_fn2", 17);
+    uint32_t fn_idx  = nvm_add_string(mod, "nl_ffi_test_pointer", 19);
     uint8_t ptypes[1] = {TAG_OPAQUE};
-    nvm_add_import(mod, mod_idx, fn_idx, 1, TAG_INT, ptypes);
+    nvm_add_import(mod, mod_idx, fn_idx, 1, TAG_OPAQUE, ptypes);
 
     VmHeap heap;
     vm_heap_init(&heap);
 
-    NanoValue arg;
-    memset(&arg, 0, sizeof(arg));
-    arg.tag = TAG_OPAQUE;
-    arg.as.i64 = 12345;
-
     NanoValue result;
     char err[256] = "";
-    bool ok = vm_ffi_call(mod, 0, &arg, 1, &result, &heap, err, sizeof(err));
-    ASSERT(!ok);
+    NanoValue null = val_int(0);
+    ASSERT(vm_ffi_call(mod, 0, &null, 1, &result, &heap, err, sizeof(err)));
+    ASSERT_EQ(result.tag, TAG_OPAQUE);
+    ASSERT(result.as.obj == NULL);
+
+    NanoValue nonzero = val_int(1);
+    ASSERT(!vm_ffi_call(mod, 0, &nonzero, 1, &result, &heap, err, sizeof(err)));
+    ASSERT(strstr(err, "declared foreign value tag") != NULL);
 
     vm_heap_destroy(&heap);
     nvm_module_free(mod);

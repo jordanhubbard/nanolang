@@ -38,6 +38,14 @@ PHASES = (('foundation', 'test-ci-foundation'),
 PROVIDERS = ['nanoisa_emit', 'nano_virt', 'nano_vm', 'nvm2c', 'nvm2c-runtime', 'nanoisa_dump']
 UNIT_PARTITIONS = 28
 BUNDLE_ROOTS = ('bin', 'obj', 'obj-runtime', 'lib', 'build')
+# My native compiler loads the declaration-owned compiler-support artifacts at
+# runtime.  The generated Stage 2 C retains their exact library paths, so the
+# staged CI handoff must carry the matching private module build alongside the
+# compiler object.  This path is optional for early stages and bounded to the
+# one provider; archiving all of modules would mix unrelated build products
+# into the compiler boundary.
+BUNDLE_PROVIDER_PATHS = ('modules/compiler_support/.build',)
+BUNDLE_PATHS = (*BUNDLE_ROOTS, *BUNDLE_PROVIDER_PATHS)
 BUNDLE_SENTINELS = ('.stage1.built', '.stage2.built', '.stage3.built',
                     '.bootstrap0.built', '.bootstrap1.built', '.bootstrap2.built', '.bootstrap3.built')
 BUNDLE_PRODUCTS = {
@@ -229,7 +237,7 @@ def bundle_create(output, manifest, stage):
     required = BUNDLE_PRODUCTS[stage]
     if any(not Path(path).is_file() for path in required):
         raise ValueError('I require every sanitizer bundle product before publication.')
-    selected = [Path(path) for path in (*BUNDLE_ROOTS, *BUNDLE_SENTINELS) if Path(path).exists()]
+    selected = [Path(path) for path in (*BUNDLE_PATHS, *BUNDLE_SENTINELS) if Path(path).exists()]
     archive = output / (stage + '.tar.gz')
     with tarfile.open(archive, 'w:gz') as stream:
         for path in selected:
@@ -246,7 +254,8 @@ def safe_bundle_member(member):
     path = Path(member.name)
     if path.is_absolute() or '..' in path.parts or not path.parts:
         return False
-    if path.parts[0] not in set(BUNDLE_ROOTS) | set(BUNDLE_SENTINELS):
+    allowed = tuple(Path(root).parts for root in (*BUNDLE_PATHS, *BUNDLE_SENTINELS))
+    if not any(path.parts[:len(prefix)] == prefix for prefix in allowed):
         return False
     if member.islnk():
         return False
@@ -278,7 +287,7 @@ def bundle_restore(output, manifest, stage, archive, metadata):
         raise ValueError('I refuse incomplete sanitizer build products.')
     # A checkout in a dependent job is newer than the archived products. I
     # preserve bytes, then make the verified restored graph current for Make.
-    for root in BUNDLE_ROOTS:
+    for root in BUNDLE_PATHS:
         path = Path(root)
         if path.exists():
             for child in path.rglob('*'):

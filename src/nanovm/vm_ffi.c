@@ -104,6 +104,8 @@ static bool marshal_args(NanoValue *args, int arg_count,
         uint8_t expected = param_types[i];
         uint8_t actual = args[i].tag;
         bool compatible = expected == actual;
+        if (expected == TAG_OPAQUE && actual == TAG_INT && args[i].as.i64 == 0)
+            compatible = true;
         if (expected == TAG_FLOAT) compatible = actual == TAG_FLOAT || actual == TAG_INT;
         if (expected == TAG_ENUM) compatible = actual == TAG_ENUM || actual == TAG_INT;
         switch (expected) {
@@ -121,7 +123,9 @@ static bool marshal_args(NanoValue *args, int arg_count,
         switch (param_types[i]) {
             case TAG_BOOL: arg_ptrs[i] = (void *)(intptr_t)(args[i].as.boolean ? 1 : 0); break;
             case TAG_STRING: arg_ptrs[i] = (void *)vmstring_cstr(args[i].as.string); break;
-            case TAG_OPAQUE: arg_ptrs[i] = args[i].as.obj; break;
+            case TAG_OPAQUE:
+                arg_ptrs[i] = args[i].tag == TAG_INT ? NULL : args[i].as.obj;
+                break;
             case TAG_ARRAY:
                 if (!vm_ffi_array_argument(arrays, args[i], &arg_ptrs[i], error, size)) return false;
                 break;

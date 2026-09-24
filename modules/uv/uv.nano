@@ -17,19 +17,19 @@
 # Version information
 # ============================================================================
 
-extern fn nl_uv_version_string() -> string
-extern fn nl_uv_version() -> int
+pub extern fn nl_uv_version_string() -> string
+pub extern fn nl_uv_version() -> int
 
 # ============================================================================
 # Event loop management
 # ============================================================================
 
 extern fn nl_uv_default_loop() -> int
-extern fn nl_uv_loop_new() -> int
-extern fn nl_uv_loop_close(_loop: int) -> int
-extern fn nl_uv_run(_loop: int, _mode: int) -> int
+pub extern fn nl_uv_loop_new() -> int
+pub extern fn nl_uv_loop_close(_loop: int) -> int
+pub extern fn nl_uv_run(_loop: int, _mode: int) -> int
 extern fn nl_uv_stop(_loop: int) -> void
-extern fn nl_uv_loop_alive(_loop: int) -> int
+pub extern fn nl_uv_loop_alive(_loop: int) -> int
 extern fn nl_uv_loop_get_active_handles(_loop: int) -> int
 
 # ============================================================================
@@ -38,7 +38,7 @@ extern fn nl_uv_loop_get_active_handles(_loop: int) -> int
 
 extern fn nl_uv_now(_loop: int) -> int
 extern fn nl_uv_update_time(_loop: int) -> void
-extern fn nl_uv_hrtime() -> int
+pub extern fn nl_uv_hrtime() -> int
 extern fn nl_uv_sleep(_msec: int) -> void
 extern fn nl_uv_backend_timeout(_loop: int) -> int
 
@@ -61,4 +61,4 @@ extern fn nl_uv_loadavg_1min() -> int
 extern fn nl_uv_os_getpid() -> int
 extern fn nl_uv_os_getppid() -> int
 extern fn nl_uv_cwd() -> string
-extern fn nl_uv_os_gethostname() -> string
+pub extern fn nl_uv_os_gethostname() -> string
