@@ -1,6 +1,8 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
 
 #include "nanolang.h"
+#include "list_operation.h"
+#include "runtime/list_capacity.h"
 #include "string_literal_decode.h"
 #include "binary64_bits.h"
 #include "binary64_format.h"
@@ -3754,7 +3756,7 @@ static Value eval_builtin_call(ASTNode *node, Environment *env, const char *name
     /* For interpreter/shadow tests, we use a simple generic list that stores pointers */
     if (strncmp(name, "list_", 5) == 0) {
         /* Extract the operation: list_TypeName_op -> op */
-        const char *last_underscore = strrchr(name, '_');
+        const char *last_underscore = nl_list_operation_separator(name);
         if (last_underscore) {
             const char *operation = last_underscore + 1;
             
@@ -3764,7 +3766,7 @@ static Value eval_builtin_call(ASTNode *node, Environment *env, const char *name
                 return create_int((long long)list);
             }
             if (strcmp(operation, "with_capacity") == 0) {
-                List_int *list = list_int_with_capacity(args[0].as.int_val);
+                List_int *list = list_int_with_capacity(nl_list_checked_capacity(args[0].as.int_val));
                 return create_int((long long)list);
             }
             if (strcmp(operation, "push") == 0) {

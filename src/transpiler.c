@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "list_operation.h"
 #include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
@@ -168,17 +169,7 @@ static bool is_runtime_typedef(const char *name) {
 
 /* Schema-defined list element types have dedicated runtime list implementations */
 static bool is_schema_list_type(const char *name) {
-    if (!name) return false;
-    if (strncmp(name, "AST", 3) == 0) {
-        return true;
-    }
-    if (strcmp(name, "LexerToken") == 0) {
-        return true;
-    }
-    if (strcmp(name, "CompilerDiagnostic") == 0) {
-        return true;
-    }
-    return false;
+    return nl_list_has_schema_runtime(name);
 }
 
 /* Check if an enum/struct name would conflict with C runtime types */
@@ -1426,6 +1417,21 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
                     emitted_runtime_includes = true;
                 }
                 sb_appendf(sb, "#include \"runtime/list_%s.h\"\n", type_name);
+                /* I preserve the raw list ABI while owning constructor results.
+                 * Object-like aliases also cover references to constructors. */
+                sb_append(sb, "#ifndef __wasm__\n");
+                sb_append(sb, "#include \"runtime/list_capacity.h\"\n");
+                sb_appendf(sb, "static inline void __nano_seed_list_%s_finalize(void *value) { nl_list_%s_free((List_%s*)value); }\n", type_name, type_name, type_name);
+                sb_appendf(sb, "static inline List_%s *__nano_seed_list_%s_adopt(List_%s *value) {\n", type_name, type_name, type_name);
+                sb_appendf(sb, "    List_%s *owned = gc_process_own(value, __nano_seed_list_%s_finalize);\n", type_name, type_name);
+                sb_append(sb, "    if (!owned) { fputs(\"I could not retain list ownership.\\n\", stderr); exit(1); }\n    return owned;\n}\n");
+                sb_appendf(sb, "static inline List_%s *__nano_seed_list_%s_new(void) { return __nano_seed_list_%s_adopt(nl_list_%s_new()); }\n", type_name, type_name, type_name, type_name);
+                sb_appendf(sb, "static inline List_%s *__nano_seed_list_%s_with_capacity(int64_t capacity) { return __nano_seed_list_%s_adopt(nl_list_%s_with_capacity(nl_list_checked_capacity(capacity))); }\n", type_name, type_name, type_name, type_name);
+                sb_appendf(sb, "static inline void __nano_seed_list_%s_free(List_%s *value) { gc_process_forget(value); nl_list_%s_free(value); }\n", type_name, type_name, type_name);
+                sb_appendf(sb, "#define nl_list_%s_new __nano_seed_list_%s_new\n", type_name, type_name);
+                sb_appendf(sb, "#define nl_list_%s_with_capacity __nano_seed_list_%s_with_capacity\n", type_name, type_name);
+                sb_appendf(sb, "#define nl_list_%s_free __nano_seed_list_%s_free\n", type_name, type_name);
+                sb_append(sb, "#endif\n");
             }
         }
         if (emitted_runtime_includes) {

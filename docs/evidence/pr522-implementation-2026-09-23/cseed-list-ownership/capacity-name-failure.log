@@ -1,0 +1,29 @@
+test_counted_cleanup_failure_concurrency_and_exit (tests.test_cseed_process_ownership.CSeedProcessOwnership.test_counted_cleanup_failure_concurrency_and_exit) ... ok
+test_generated_maps_preserve_aliases_and_explicit_free (tests.test_cseed_process_ownership.CSeedProcessOwnership.test_generated_maps_preserve_aliases_and_explicit_free) ... ok
+test_schema_lists_preserve_nested_aliases_returns_and_explicit_free (tests.test_cseed_process_ownership.CSeedProcessOwnership.test_schema_lists_preserve_nested_aliases_returns_and_explicit_free) ... FAIL
+test_aliases_failure_cleanup_concurrency_and_exit (tests.test_cseed_capture.CSeedCapture.test_aliases_failure_cleanup_concurrency_and_exit) ... ok
+test_cseed_generated_capture_product (tests.test_cseed_capture.CSeedCapture.test_cseed_generated_capture_product) ... ok
+
+======================================================================
+FAIL: test_schema_lists_preserve_nested_aliases_returns_and_explicit_free (tests.test_cseed_process_ownership.CSeedProcessOwnership.test_schema_lists_preserve_nested_aliases_returns_and_explicit_free)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_process_ownership.py", line 154, in test_schema_lists_preserve_nested_aliases_returns_and_explicit_free
+    self.checked([ROOT/'bin/nanoc_c',source,'-o',binary],cwd=ROOT,env=env)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_process_ownership.py", line 77, in checked
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E026 UNDEFINED IDENTIFIER --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-seed-list-owner-y293tinb/main.nano
+Unknown list element type `ASTStmtRef_with` in `list_ASTStmtRef_with_capacity`.
+
+2| fn make_block() -> ASTBlock { let items: List<ASTStmtRef> = (list_ASTStmtRef_with_capacity 1) (list_ASTStmtRef_push items ASTStmtRef { node_id: 7, node_type: 0 }) (list_ASTStmtRef_push items ASTStmtRef { node_id: 9, node_type: 0 }) return ASTBlock { node_type: 0, line: 1, column: 1, statements: items, is_par: false, is_flow: false } }
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Hint: Define the struct/enum before using it in List<T>.
+Type checking failed
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 10.479s
+
+FAILED (failures=1)

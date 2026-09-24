@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "list_operation.h"
 #include "effects.h"
 #include "tracing.h"
 #include "resource_tracking.h"
@@ -384,13 +385,14 @@ static const char *list_nominal_name(ASTNode *expr, Environment *env, Type type)
             return NULL;
         Function *fn = env_get_function(env, expr->as.call.name);
         if (fn) return fn->return_type == type ? fn->return_struct_type_name : NULL;
-        /* The existing zero-argument constructor has no return TypeInfo. */
+        /* These built-in constructors have no return TypeInfo. */
         const char *name = expr->as.call.name;
         bool list_prefix = strlen(name) > 5 &&
             (!strncmp(name, "list_", 5) || !strncmp(name, "List_", 5));
-        const char *suffix = list_prefix ? strrchr(name, '_') : NULL;
-        if (type == TYPE_LIST_GENERIC && !expr->as.call.arg_count && suffix &&
-            suffix > name + 5 && !strcmp(suffix, "_new")) {
+        const char *suffix = list_prefix ? nl_list_operation_separator(name) : NULL;
+        if (type == TYPE_LIST_GENERIC && suffix && suffix > name + 5 &&
+            ((!expr->as.call.arg_count && !strcmp(suffix, "_new")) ||
+             (expr->as.call.arg_count == 1 && !strcmp(suffix, "_with_capacity")))) {
             size_t length = (size_t)(suffix - (name + 5));
             for (int i = 0; i < env->struct_count; ++i)
                 if (strlen(env->structs[i].name) == length &&
@@ -1121,7 +1123,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             /* Special handling for generic list get functions: List_TypeName_get */
             const char *func_name = expr->as.call.name;
             if (func_name && strncmp(func_name, "List_", 5) == 0) {
-                const char *func_suffix = strrchr(func_name, '_');
+                const char *func_suffix = nl_list_operation_separator(func_name);
                 if (func_suffix && strcmp(func_suffix, "_get") == 0) {
                     /* Extract type name: "List_MyToken_get" -> "MyToken" */
                     const char *type_start = func_name + 5;  /* Skip "List_" */
@@ -3240,8 +3242,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Special handling for generic list functions: list_TypeName_operation */
                 const char *func_name = expr->as.call.name;
                 if (func_name && (!strncmp(func_name, "list_", 5) || !strncmp(func_name, "List_", 5))) {
-                    /* Find the last underscore to identify the operation */
-                    const char *func_suffix = strrchr(func_name, '_');
+                    /* I preserve compound operation names when separating the element. */
+                    const char *func_suffix = nl_list_operation_separator(func_name);
                     if (func_suffix) {
                         /* Extract type name: "list_MyType_new" -> "MyType" */
                         const char *type_start = func_name + 5;  /* Skip "list_" */
@@ -3273,6 +3275,22 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 
                                 /* Return appropriate type based on operation */
                                 if (strcmp(operation, "new") == 0 || strcmp(operation, "with_capacity") == 0) {
+                                    int arity = !strcmp(operation, "new") ? 0 : 1;
+                                    if (expr->as.call.arg_count != arity ||
+                                        (arity && check_expression(expr->as.call.args[0], env) != TYPE_INT)) {
+                                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                                            "I require the list constructor arity and an INT capacity.",
+                                            "Use new with no arguments or with_capacity with one INT.");
+                                        free(type_name);
+                                        return TYPE_UNKNOWN;
+                                    }
+                                    if (arity && !nl_list_has_schema_runtime(type_name)) {
+                                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                                            "I require a schema-runtime list for this capacity constructor.",
+                                            "Use the supported new constructor for custom list types.");
+                                        free(type_name);
+                                        return TYPE_UNKNOWN;
+                                    }
                                     /* Register this instantiation for code generation */
                                     env_register_list_instantiation(env, type_name);
                                     free(type_name);
