@@ -781,19 +781,9 @@ void env_set_var(Environment *env, const char *name, Value value) {
     Symbol *sym = env_get_var(env, name);
     if (sym) {
         value = eval_checked_scalar_destination(sym->type, value);
-        /* I copy borrowed graphs before releasing the old binding. A fresh
-         * string replacement transfers its one reference into the binding. */
-        bool borrowed_string = false;
-        if (value.type == VAL_STRING && value.as.string_val) {
-            for (int i = 0; i < env->symbol_count; ++i) {
-                if (env->symbols[i].value.type == VAL_STRING &&
-                    env->symbols[i].value.as.string_val == value.as.string_val) {
-                    borrowed_string = true;
-                    break;
-                }
-            }
-        }
-        if (value.type == VAL_STRUCT || value.type == VAL_TUPLE || borrowed_string) {
+        /* I copy before releasing the old binding, including self-assignment,
+         * evaluator temporaries, and a record field borrowed from that binding. */
+        if (value.type == VAL_STRUCT || value.type == VAL_TUPLE || value.type == VAL_STRING) {
             Value copy;
             if (!env_clone_value_snapshot(value, &copy)) {
                 fprintf(stderr, "I cannot copy a replacement value graph.\n"); exit(1);

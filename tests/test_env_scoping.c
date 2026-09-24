@@ -290,8 +290,12 @@ static void test_string_alias_lifetime(void) {
     env_define_var(env, "early_alias", TYPE_STRING, true, early);
     env_define_var(env, "recent_alias", TYPE_STRING, true, recent);
     env_define_var(env, "recent_alias", TYPE_STRING, true, recent);
-    env_set_var(env, "early", create_string("replacement"));
-    env_set_var(env, "recent", create_string("replacement"));
+    Value early_replacement = create_string("replacement");
+    Value recent_replacement = create_string("replacement");
+    env_set_var(env, "early", early_replacement);
+    env_set_var(env, "recent", recent_replacement);
+    gc_release(early_replacement.as.string_val);
+    gc_release(recent_replacement.as.string_val);
     CHECK(!strcmp(env_get_var(env, "early_alias")->value.as.string_val, "early"),
           "I preserve an alias found near the start of the environment");
     CHECK(!strcmp(env_get_var(env, "recent_alias")->value.as.string_val, "recent"),
