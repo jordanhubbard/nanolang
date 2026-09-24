@@ -150,6 +150,12 @@ typedef struct Nvm2cJoinShape {
     NvmShapeId shapes[];
 } Nvm2cJoinShape;
 
+typedef struct Nvm2cExactCall {
+    struct Nvm2cExactCall *next;
+    uint32_t function, target;
+    size_t offset;
+} Nvm2cExactCall;
+
 typedef struct Nvm2cScalarJoin {
     struct Nvm2cScalarJoin *next;
     uint32_t function;
@@ -230,6 +236,8 @@ typedef struct {
     uint8_t *tagged_locals;
     uint16_t *local_scalar_tags;
     uint32_t *variant_locals, *variant_results;
+    uint32_t *callback_locals, *callback_results;
+    Nvm2cExactCall *exact_calls;
     Nvm2cScalarJoin *scalar_joins;
     uint16_t array_shape_kinds;
     Nvm2cFieldBlock *field_blocks;
@@ -565,6 +573,8 @@ typedef struct {
     uint16_t array_scalar_tags;
     /* Zero is pending, UINT32_MAX is unknown, otherwise the variant plus one. */
     uint32_t variant;
+    /* Zero is pending, UINT32_MAX is mixed/unproved, otherwise target + 1. */
+    uint32_t callback;
     int integer_known;
     int64_t integer;
     uint8_t predicate; /* zero unknown, one false, two true */
@@ -593,6 +603,17 @@ static uint32_t slot_variant(Nvm2cSimSlot slot, const Nvm2cFacts *facts) {
 static void merge_variant(uint32_t *dest, uint32_t incoming, Nvm2cFacts *facts) {
     if (!incoming || *dest == incoming || *dest == UINT32_MAX) return;
     *dest = *dest ? UINT32_MAX : incoming;
+    facts->changed = 1;
+}
+
+static uint32_t slot_callback(Nvm2cSimSlot slot) {
+    return slot.kind == NVM2C_VK_FUNCTION ? slot.callback :
+           slot.kind == NVM2C_VK_UNK ? 0 : UINT32_MAX;
+}
+
+static void merge_callback(uint32_t *dest, uint32_t value, Nvm2cFacts *facts) {
+    if (!value || *dest == value || *dest == UINT32_MAX) return;
+    *dest = *dest ? UINT32_MAX : value;
     facts->changed = 1;
 }
 
@@ -1035,6 +1056,9 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
     for (int i = 0; i < sp; i++) {
         join->slots[i].variant = join->slots[i].variant == stack[i].variant
             ? stack[i].variant : UINT32_MAX;
+        uint32_t left = slot_callback(join->slots[i]);
+        uint32_t right = slot_callback(stack[i]);
+        join->slots[i].callback = !left ? right : !right || left == right ? left : UINT32_MAX;
         join->slots[i].integer_known = 0;
         join->slots[i].predicate = 0;
         uint16_t array_tags = join->slots[i].array_scalar_tags | stack[i].array_scalar_tags;
@@ -1287,11 +1311,50 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             for (int value = 0; value < sp; ++value) {
                 stk[value].integer_known = 0;
                 stk[value].predicate = 0;
-                if (!forward_only) stk[value].variant = UINT32_MAX;
+                if (!forward_only) {
+                    stk[value].variant = UINT32_MAX;
+                    stk[value].callback = UINT32_MAX;
+                }
             }
             terminated = 0;
         }
 
+        if (ins.opcode == OP_CALL_INDIRECT && forward_only && sp > 0 &&
+            stk[sp - 1].kind == NVM2C_VK_FUNCTION && stk[sp - 1].callback &&
+            stk[sp - 1].callback != UINT32_MAX) {
+            uint32_t target = stk[sp - 1].callback - 1;
+            const NvmFunctionEntry *callee = &mod->functions[target];
+            if (callee->result_count == 1 &&
+                (aggregate_value_tag(callee->result_tag) || callee->result_tag == TAG_ARRAY)) {
+                uint16_t argc = ins.operands[0].u16;
+                if (argc != callee->arity || ins.operands[1].u16 != callee->result_count ||
+                    sp < (int)argc + 1) {
+                    nvm2c_fail(b, "I require the exact aggregate callback signature");
+                    return 0;
+                }
+                const uint8_t *tags = mod->function_param_types ? mod->function_param_types[target] : NULL;
+                for (uint16_t p = 0; tags && p < argc; ++p) {
+                    uint8_t actual = stk[sp - argc - 1 + p].kind;
+                    uint8_t expected = scalar_kind_for_tag(tags[p]);
+                    if (actual != NVM2C_VK_UNK &&
+                        ((expected != NVM2C_VK_UNK && actual != expected) ||
+                         (tags[p] == TAG_ARRAY && !array_storage(actual)) ||
+                         (aggregate_value_tag(tags[p]) && actual != NVM2C_VK_REC))) {
+                        nvm2c_fail(b, "I require matching aggregate callback argument tags");
+                        return 0;
+                    }
+                }
+                --sp;
+                ins.opcode = OP_CALL;
+                ins.operands[0].u32 = target;
+                if (facts->final) {
+                    Nvm2cExactCall *call = malloc(sizeof *call);
+                    if (!call) { nvm2c_fail(b, "I cannot retain callback target facts"); return 0; }
+                    *call = (Nvm2cExactCall){b->exact_calls, idx, target, start};
+                    b->exact_calls = call;
+                }
+            }
+        }
         b->shape_current = facts->final ? &b->shape_outputs[idx][start] : NULL;
         b->shape_opcode = ins.opcode;
         b->classify_offset = start;
@@ -1331,6 +1394,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 merge_variant(&b->variant_locals[(size_t)ins.operands[0].u32 * b->local_width + parameter],
                               UINT32_MAX, facts);
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_FUNCTION, -1)) return 0;
+            stk[sp - 1].callback = ins.operands[0].u32 + 1;
             break;
         case OP_DUP: {
             if (sp <= 0) {
@@ -1492,6 +1556,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 loaded.scalar_tags = b->local_scalar_tags[(size_t)idx * b->local_width + slot];
             loaded.origin = (int)slot;
             loaded.variant = b->variant_locals[(size_t)idx * b->local_width + slot];
+            loaded.callback = b->callback_locals[(size_t)idx * b->local_width + slot];
             loaded.shape = shape_variable(b, &b->shape_locals[(size_t)idx * b->local_width + slot]);
             if (loaded.kind == NVM2C_VK_REC || loaded.kind == NVM2C_VK_RARR || loaded.kind == NVM2C_VK_MAP) {
                 loaded.rec_k = sim_fields(b, rec_fields + (size_t)slot * b->record_width, 0);
@@ -1509,6 +1574,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
             size_t local_at = (size_t)idx * b->local_width + slot;
+            merge_callback(&b->callback_locals[local_at], slot_callback(v), facts);
             merge_variant(&b->variant_locals[local_at],
                           slot_variant(v, facts), facts);
             uint16_t previous_tags = b->local_scalar_tags[local_at];
@@ -2380,6 +2446,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
                 size_t at = (size_t)callee * b->local_width + i - 1;
+                merge_callback(&b->callback_locals[at], slot_callback(arg), facts);
                 merge_variant(&b->variant_locals[at],
                               slot_variant(arg, facts), facts);
                 uint16_t tags = b->local_scalar_tags[at] |
@@ -2447,6 +2514,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
                 } else if (cf->result_count == 1 && cf->result_tag == TAG_FUNCTION) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_FUNCTION, -1)) return 0;
+                    stk[sp - 1].callback = b->callback_results[callee];
                 } else if (cf->result_count == 1 && cf->result_tag == TAG_ARRAY) {
                     Nvm2cSimSlot result = {0};
                     result.kind = b->array_results[callee];
@@ -2466,6 +2534,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!result.rec_k) return 0;
                     if (!sim_push_slot(b, idx, stk, &sp, result)) return 0;
                 }
+            } else if (cf->result_tag == TAG_FUNCTION) {
+                merge_callback(&b->callback_results[idx], b->callback_results[callee], facts);
             } else if (aggregate_value_tag(cf->result_tag)) {
                 merge_variant(&b->variant_results[idx], b->variant_results[callee], facts);
                 if (!merge_record_results(b, facts, facts->results + (size_t)idx * b->record_width,
@@ -2515,6 +2585,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (callable.kind == NVM2C_VK_UNK)
                 mark_origin(local_kind, nloc, callable.origin, NVM2C_VK_FUNCTION);
 
+            if (!facts->final && !callable.callback) {
+                sp -= argc;
+                if (results && !sim_push(b, idx, stk, &sp, NVM2C_VK_UNK, -1)) return 0;
+                break;
+            }
             uint8_t actual[NVM2C_MAX_LOCALS];
             for (uint16_t p = 0; p < argc; ++p) {
                 Nvm2cSimSlot arg = stk[sp - argc + p];
@@ -2629,7 +2704,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 } else if (fn->result_tag == TAG_STRING) {
                     if (!mark_string_operand(b, local_kind, nloc, v)) return 0;
                 } else if (fn->result_tag == TAG_FUNCTION) {
-                    if (v.kind != NVM2C_VK_FUNCTION) {
+                    merge_callback(&b->callback_results[idx], slot_callback(v), facts);
+                    if (v.kind != NVM2C_VK_FUNCTION && facts->final) {
                         nvm2c_fail(b, "I require a function reference at return in function %u", idx);
                         return 0;
                     }
@@ -3841,6 +3917,17 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         pc += n;
 
+        if (ins.opcode == OP_CALL_INDIRECT) {
+            Nvm2cExactCall *call = b->exact_calls;
+            while (call && (call->function != idx || call->offset != start)) call = call->next;
+            if (call) {
+                int callable = stack_pop_expect(b, &st, NVM2C_VK_FUNCTION, "exact callback target");
+                if (b->failed) goto done;
+                nvm2c_printf(b, "    if ((uint64_t)t[%d] != %u) NVM2C_ABORT();\n", callable, call->target);
+                ins.opcode = OP_CALL;
+                ins.operands[0].u32 = call->target;
+            }
+        }
         if (!prepare_typed_integer_pair(b, &st, ins.opcode)) goto done;
         switch (ins.opcode) {
         case OP_NOP:
@@ -6825,6 +6912,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.local_scalar_tags = calloc(shape_local_count, sizeof *b.local_scalar_tags);
     b.variant_locals = calloc(shape_local_count ? shape_local_count : 1, sizeof(uint32_t));
     b.variant_results = calloc(mod->function_count ? mod->function_count : 1, sizeof(uint32_t));
+    b.callback_locals = calloc(shape_local_count ? shape_local_count : 1, sizeof(uint32_t));
+    b.callback_results = calloc(mod->function_count ? mod->function_count : 1, sizeof(uint32_t));
     uint8_t *inference = malloc(fact_size);
     uint8_t *global_stored = calloc(b.global_count ? b.global_count : 1, 1);
     uint8_t *kinds = calloc((size_t)mod->function_count * b.local_width, 1);
@@ -6833,7 +6922,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     if (!kinds || !rec_fields || !inference || !global_stored || !b.shape_locals || !b.shape_results ||
         !b.shape_globals || !b.shape_outputs || !b.join_shapes || !b.emitted_functions ||
         !b.required_functions || !b.tagged_locals || !b.local_scalar_tags ||
-        !b.variant_locals || !b.variant_results) {
+        !b.variant_locals || !b.variant_results || !b.callback_locals || !b.callback_results) {
         free(inference);
         free(global_stored);
         free(kinds);
@@ -6849,6 +6938,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         free(b.local_scalar_tags);
         free(b.variant_locals);
         free(b.variant_results);
+        free(b.callback_locals);
+        free(b.callback_results);
         if (err && err_len) snprintf(err, err_len, "out of memory");
         return NULL;
     }
@@ -7684,6 +7775,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(b.local_scalar_tags);
     free(b.variant_locals);
     free(b.variant_results);
+    free(b.callback_locals);
+    free(b.callback_results);
+    while (b.exact_calls) {
+        Nvm2cExactCall *next = b.exact_calls->next;
+        free(b.exact_calls); b.exact_calls = next;
+    }
     while (b.scalar_joins) {
         Nvm2cScalarJoin *next = b.scalar_joins->next;
         free(b.scalar_joins); b.scalar_joins = next;
@@ -7714,6 +7811,12 @@ fail:
     free(b.local_scalar_tags);
     free(b.variant_locals);
     free(b.variant_results);
+    free(b.callback_locals);
+    free(b.callback_results);
+    while (b.exact_calls) {
+        Nvm2cExactCall *next = b.exact_calls->next;
+        free(b.exact_calls); b.exact_calls = next;
+    }
     while (b.scalar_joins) {
         Nvm2cScalarJoin *next = b.scalar_joins->next;
         free(b.scalar_joins); b.scalar_joins = next;

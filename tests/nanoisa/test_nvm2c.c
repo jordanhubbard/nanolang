@@ -3317,6 +3317,53 @@ static void test_unsupported_classifier_instructions(void) {
     }
 }
 
+static void test_exact_aggregate_callback_provenance(void) {
+    const char *main_fn =
+        ".function main 0 1 0 int 1\nCALL choose\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nCALL forward\nAGG_GET 0\nPUSH_I64 35\nI64_ADD\nRET\n.end\n";
+    const char *workers =
+        ".function choose 0 0 0 function 1\nPUSH_I64 11\nPRINTLN\nFUNCREF make\nRET\n.end\n"
+        ".function forward 1 1 0 union 1\nLOAD_LOCAL 0\nTAIL_CALL apply\n.end\n"
+        ".parameters forward function\n"
+        ".function apply 1 1 0 union 1\nLOAD_LOCAL 0\nCALL_INDIRECT 0 1\nRET\n.end\n"
+        ".parameters apply function\n"
+        ".function make 0 0 0 union 1\nPUSH_I64 22\nPRINTLN\n"
+        "PUSH_I64 7\nAGG_PACK 1 0 0 1\nRET\n.end\n"
+        ".function decoy 0 0 0 float 1\nPUSH_F64 9.5\nRET\n.end\n";
+    for (int before = 0; before < 2; ++before) {
+        char source[2048];
+        snprintf(source, sizeof source, ".types 0 0 1\n.entry main\n%s%s",
+                 before ? workers : main_fn, before ? main_fn : workers);
+        NvmModule *m = assemble_ok(source, "returned and forwarded exact aggregate callback");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I follow the actual aggregate target instead of an unrelated scalar decoy");
+        if (c) {
+            char output[128];
+            int status = -1;
+            CHECK(compile_and_run_capture(c, &status, output, sizeof output) == 0 &&
+                  status == 42 && strcmp(output, "11\n22\n") == 0,
+                  "I evaluate the selector and selected aggregate callback once in order");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+
+    NvmModule *wrong = assemble_ok(
+        ".entry main\n.string text \"not an array\"\n"
+        ".function main 0 0 0 int 1\nPUSH_STR text\nFUNCREF identity\n"
+        "CALL_INDIRECT 1 1\nPOP\nPUSH_I64 0\nRET\n.end\n"
+        ".function identity 1 1 0 array 1\nLOAD_LOCAL 0\nRET\n.end\n"
+        ".parameters identity array\n", "exact target with an incompatible argument tag");
+    if (wrong) {
+        char error[512];
+        char *c = nvm2c_emit(wrong, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "matching aggregate callback argument tags"),
+              "I do not use target identity to erase a callback argument mismatch");
+        free(c);
+        nvm_module_free(wrong);
+    }
+}
+
 static void test_indirect_target_inference_order(void) {
     const char *functions[] = {
         ".function main 0 0 0 int 1\nPUSH_I64 42\nAGG_PACK 0 0 0 1\n"
@@ -6742,6 +6789,7 @@ static void test_nested_scalar_arrays(void) {
 }
 
 int main(int argc, char **argv) {
+    test_exact_aggregate_callback_provenance();
     test_indirect_target_inference_order();
     test_nested_scalar_arrays();
     test_mixed_array_push_helpers();
