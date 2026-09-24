@@ -1147,7 +1147,17 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     }
     if (strcmp(name, "cast_bool") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
-        emit_op(cg, OP_CAST_BOOL);
+        if (check_expression(args[0], cg->env) == TYPE_STRING) {
+            emit_op(cg, OP_DUP);
+            emit_op(cg, OP_PUSH_STR, nvm_add_string(cg->module, "true", 4));
+            emit_op(cg, OP_EQ);
+            emit_op(cg, OP_SWAP);
+            emit_op(cg, OP_PUSH_STR, nvm_add_string(cg->module, "1", 1));
+            emit_op(cg, OP_EQ);
+            emit_op(cg, OP_BOOL_OR);
+        } else {
+            emit_op(cg, OP_CAST_BOOL);
+        }
         return true;
     }
     if (strcmp(name, "float_to_string") == 0 && argc == 1) {

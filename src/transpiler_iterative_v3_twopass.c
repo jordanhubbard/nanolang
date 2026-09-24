@@ -2576,9 +2576,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 /* I test fractional truth without first truncating to an integer. */
                 if (!capture_callee && (!func_info || (!func_info->body && !func_info->is_extern)) &&
                     strcmp(func_name, "cast_bool") == 0 &&
-                    expr->as.call.arg_count == 1 &&
-                    check_expression(expr->as.call.args[0], env) == TYPE_FLOAT) {
-                    mapped_name = "nl_cast_bool_from_float";
+                    expr->as.call.arg_count == 1) {
+                    Type argument_type = check_expression(expr->as.call.args[0], env);
+                    if (argument_type == TYPE_FLOAT) mapped_name = "nl_cast_bool_from_float";
+                    else if (argument_type == TYPE_STRING) mapped_name = "nl_cast_bool_from_string";
                 }
                 /* I retain the callee name before recursive lowering reuses its buffer. */
                 char *call_name = strdup(mapped_name);

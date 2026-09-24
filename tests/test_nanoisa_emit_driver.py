@@ -46,6 +46,43 @@ class NanoisaEmitDriver(unittest.TestCase):
                               "-o", binary])
             self.run_command([binary])
 
+    def test_string_boolean_casts_agree_across_source_backends(self):
+        from tests.native_toolchain import native_cc, native_link_flags
+
+        source = ROOT / "tests/nanoisa/fixtures/string_boolean_casts.nano"
+        for compiler in ("nano_virt", "nanoisa_emit", "nanoc_c", "nanoc_stage1", "nanoc_stage2"):
+            with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(
+                prefix="nano-string-bool-"
+            ) as tmp:
+                directory = Path(tmp)
+                binary = directory / "program"
+                if compiler in ("nano_virt", "nanoisa_emit"):
+                    module, generated = directory / "program.nvm", directory / "program.c"
+                    self.run_command([ROOT / "bin" / compiler, source, "--emit-nvm", "-o", module])
+                    self.run_command([ROOT / "bin/nano_vm", module])
+                    self.run_command([ROOT / "bin/nvm2c", module, "-o", generated])
+                    self.run_command([*native_cc(), "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                      generated, "-lm", *native_link_flags(), "-o", binary])
+                else:
+                    self.run_command([ROOT / "bin" / compiler, source, "-o", binary])
+                self.run_command([binary])
+
+    def test_raw_string_truthiness_retains_isa_contract(self):
+        with tempfile.TemporaryDirectory(prefix="nano-raw-string-bool-") as tmp:
+            directory = Path(tmp)
+            assembly, module = directory / "input.nasm", directory / "input.nvm"
+            generated = directory / "program.c"
+            assembly.write_text(
+                '.string empty ""\n.string false "false"\n.entry main\n'
+                '.function main 0 0 0 int 1\n'
+                'PUSH_STR empty\nCAST_BOOL\nASSERT\n'
+                'PUSH_STR false\nCAST_BOOL\nASSERT\nPUSH_I64 0\nRET\n.end\n')
+            self.run_command([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+            self.run_command([ROOT / "bin/nano_vm", module])
+            result = self.run_command([ROOT / "bin/nvm2c", module, "-o", generated], expected=1)
+            self.assertIn(b"scalar truthiness", result.stderr)
+            self.assertFalse(generated.exists())
+
     def test_primitive_lists_retain_identity_in_records_and_generic_unions(self):
         from tests.native_toolchain import native_cc, native_link_flags
 

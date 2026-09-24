@@ -274,14 +274,19 @@ of substituting intrinsic semantics. See my [transport contract](https://github.
 for backend and reconstruction boundaries.
 
 ### `cast_bool(value: any) -> bool`
-I cast any value to a boolean. I treat 0, empty string, and null as false; everything else becomes true.
+I convert int, u8, float, bool and string values to bool. Numeric zero is false; nonzero numbers are true. I preserve boolean values. For strings, only the exact spellings `"true"` and `"1"` are true; every other string is false. I evaluate the argument once.
 
 ```nano
-(cast_bool 1)       # Returns true
-(cast_bool 0)       # Returns false
-(cast_bool "hello") # Returns true
-(cast_bool "")      # Returns false
+assert (cast_bool 1)
+assert (not (cast_bool 0))
+assert (cast_bool 0.5)
+assert (cast_bool "true")
+assert (cast_bool "1")
+assert (not (cast_bool "hello"))
+assert (not (cast_bool ""))
 ```
+
+This source conversion is distinct from raw NanoISA `CAST_BOOL` pointer truthiness.
 
 ### `cast_string(value: any) -> string`
 I cast any value to its string representation.

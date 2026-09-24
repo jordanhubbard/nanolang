@@ -1,0 +1,6 @@
+test_raw_string_truthiness_retains_isa_contract (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_raw_string_truthiness_retains_isa_contract) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.038s
+
+OK

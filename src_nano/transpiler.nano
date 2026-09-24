@@ -3876,6 +3876,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "int64_t nl_cast_int_from_int(int64_t x) { return x; }\n")
     set sb (cg_append sb "bool nl_cast_bool(int64_t x) { return x != 0; }\n")
     set sb (cg_append sb "bool nl_cast_bool_from_float(double x) { return x != 0.0; }\n\n")
+    set sb (cg_append sb "bool nl_cast_bool_from_string(const char *x) { return strcmp(x, \"true\") == 0 || strcmp(x, \"1\") == 0; }\n")
     
     /* String operations */
     set sb (cg_append sb "/* String operations */\n")
@@ -4283,6 +4284,7 @@ shadow gen_c_runtime {
     let runtime: string = (gen_c_runtime)
     assert (str_contains runtime "bool nl_cast_bool(int64_t x) { return x != 0; }")
     assert (str_contains runtime "bool nl_cast_bool_from_float(double x) { return x != 0.0; }")
+    assert (str_contains runtime "bool nl_cast_bool_from_string(const char *x)")
     assert (str_contains runtime "#include \"runtime/binary64_parse.h\"")
     assert (str_contains runtime "return nl_binary64_prefix(s);")
     assert (str_contains runtime "#include \"runtime/string_search.h\"")
@@ -6120,7 +6122,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         let bool_arg_type: string = (infer_expr_type parser bool_arg.node_id bool_arg.node_type env)
                         if (== bool_arg_type "float") {
                             set extern_builtin_map "nl_cast_bool_from_float"
-                        } else { (print "") }
+                        } else {
+                            if (== bool_arg_type "string") { set extern_builtin_map "nl_cast_bool_from_string" }
+                        }
                     } else { (print "") }
                     if (!= extern_builtin_map "") {
                         set c_func_name extern_builtin_map
@@ -6709,6 +6713,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 }
 
 shadow generate_expression {
+    let bool_tokens: List<LexerToken> = (tokenize_string "fn truth() -> bool { return (cast_bool \"true\") }" "truth.nano" (list_CompilerDiagnostic_new))
+    let bool_parser: Parser = (parse_program bool_tokens (list_LexerToken_length bool_tokens) "truth.nano")
+    let bool_return: ASTReturn = (parser_get_return bool_parser 0)
+    let bool_code: string = (generate_expression bool_parser bool_return.value bool_return.value_type (genenv_new "test") "bool")
+    assert (str_contains bool_code "nl_cast_bool_from_string(")
     let filter_types: array<string> = ["int", "float", "bool", "string"]
     let filter_values: array<string> = ["1", "1.5", "true", "\"text\""]
     let filter_helpers: array<string> = ["nl_filter(", "nl_filter_float(", "nl_filter_bool(", "nl_filter_str("]

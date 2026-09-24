@@ -1,0 +1,71 @@
+test_string_boolean_casts_agree_across_source_backends (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_string_boolean_casts_agree_across_source_backends) ... 
+  test_string_boolean_casts_agree_across_source_backends (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_string_boolean_casts_agree_across_source_backends) (compiler='nano_virt') ... FAIL
+  test_string_boolean_casts_agree_across_source_backends (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_string_boolean_casts_agree_across_source_backends) (compiler='nanoisa_emit') ... FAIL
+  test_string_boolean_casts_agree_across_source_backends (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_string_boolean_casts_agree_across_source_backends) (compiler='nanoc_c') ... FAIL
+  test_string_boolean_casts_agree_across_source_backends (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_string_boolean_casts_agree_across_source_backends) (compiler='nanoc_stage1') ... FAIL
+  test_string_boolean_casts_agree_across_source_backends (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_string_boolean_casts_agree_across_source_backends) (compiler='nanoc_stage2') ... FAIL
+
+======================================================================
+FAIL: test_string_boolean_casts_agree_across_source_backends (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_string_boolean_casts_agree_across_source_backends) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_nanoisa_emit_driver.py", line 61, in test_string_boolean_casts_agree_across_source_backends
+    self.run_command([ROOT / "bin" / compiler, source, "--emit-nvm", "-o", module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_nanoisa_emit_driver.py", line 29, in run_command
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'\nRuntime error: Assertion failed\nStack trace (most recent call first):\n  #0   $shadow_0_truth  /Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/string_boolean_casts.nano:8:5\n  #1   $shadow_entry  /Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/string_boolean_casts.nano:?\nI failed a shadow: Assertion failed\nStack trace (most recent call first):\n  #0   $shadow_0_truth  /Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/string_boolean_casts.nano:8:5\n  #1   $shadow_entry  /Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/string_boolean_casts.nano:?\nI will not publish output after failed shadow execution\n'
+
+======================================================================
+FAIL: test_string_boolean_casts_agree_across_source_backends (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_string_boolean_casts_agree_across_source_backends) (compiler='nanoisa_emit')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_nanoisa_emit_driver.py", line 61, in test_string_boolean_casts_agree_across_source_backends
+    self.run_command([ROOT / "bin" / compiler, source, "--emit-nvm", "-o", module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_nanoisa_emit_driver.py", line 29, in run_command
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I refused that program: I require int, u8, float or bool for scalar cast_bool\n'
+
+======================================================================
+FAIL: test_string_boolean_casts_agree_across_source_backends (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_string_boolean_casts_agree_across_source_backends) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_nanoisa_emit_driver.py", line 67, in test_string_boolean_casts_agree_across_source_backends
+    self.run_command([ROOT / "bin" / compiler, source, "-o", binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_nanoisa_emit_driver.py", line 29, in run_command
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/string_boolean_casts.nano:2:62: error: incompatible pointer to integer conversion passing \'const char *\' to parameter of type \'int64_t\' (aka \'long long\') [-Wint-conversion]\n    2 |     return ({ __auto_type __nl_arg_0_0 = value; nl_cast_bool(__nl_arg_0_0); });\n      |                                                              ^~~~~~~~~~~~\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_34237_program.c:1159:34: note: passing argument to parameter \'x\' here\n 1159 | static bool nl_cast_bool(int64_t x) { return x != 0; }\n      |                                  ^\n/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/string_boolean_casts.nano:33:169: error: incompatible pointer to integer conversion passing \'const char *\' to parameter of type \'int64_t\' (aka \'long long\') [-Wint-conversion]\n   33 |     if (!(({ __auto_type __nl_arg_8_0 = ({ __auto_type __nl_arg_9_0 = counter; __auto_type __nl_arg_9_1 = "true"; nl_once(__nl_arg_9_0, __nl_arg_9_1); }); nl_cast_bool(__nl_arg_8_0); }))) { fputs("Contract violation at line 33: (cast_bool (once counter \\"true\\"))\\n", stderr); exit(1); }\n      |                                                                                                                                                                         ^~~~~~~~~~~~\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_34237_program.c:1159:34: note: passing argument to parameter \'x\' here\n 1159 | static bool nl_cast_bool(int64_t x) { return x != 0; }\n      |                                  ^\n/Users/jordanh/Src/nanolang-pr522-repair/tests/nanoisa/fixtures/string_boolean_casts.nano:34:177: error: incompatible pointer to integer conversion passing \'const char *\' to parameter of type \'int64_t\' (aka \'long long\') [-Wint-conversion]\n   34 |     if (!((!({ __auto_type __nl_arg_10_0 = ({ __auto_type __nl_arg_11_0 = counter; __auto_type __nl_arg_11_1 = "false"; nl_once(__nl_arg_11_0, __nl_arg_11_1); }); nl_cast_bool(__nl_arg_10_0); })))) { fputs("Contract violation at line 34: (not (cast_bool (once counter \\"false\\")))\\n", stderr); exit(1); }\n      |                                                                                                                                                                                 ^~~~~~~~~~~~~\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_34237_program.c:1159:34: note: passing argument to parameter \'x\' here\n 1159 | static bool nl_cast_bool(int64_t x) { return x != 0; }\n      |                                  ^\n3 errors generated.\nC compilation failed\n'
+
+======================================================================
+FAIL: test_string_boolean_casts_agree_across_source_backends (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_string_boolean_casts_agree_across_source_backends) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_nanoisa_emit_driver.py", line 67, in test_string_boolean_casts_agree_across_source_backends
+    self.run_command([ROOT / "bin" / compiler, source, "-o", binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_nanoisa_emit_driver.py", line 29, in run_command
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I cannot lower this checked program: I require int, u8, float or bool for scalar cast_bool\n'
+
+======================================================================
+FAIL: test_string_boolean_casts_agree_across_source_backends (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_string_boolean_casts_agree_across_source_backends) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_nanoisa_emit_driver.py", line 67, in test_string_boolean_casts_agree_across_source_backends
+    self.run_command([ROOT / "bin" / compiler, source, "-o", binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_nanoisa_emit_driver.py", line 29, in run_command
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I cannot lower this checked program: I require int, u8, float or bool for scalar cast_bool\n'
+
+----------------------------------------------------------------------
+Ran 1 test in 1.205s
+
+FAILED (failures=5)

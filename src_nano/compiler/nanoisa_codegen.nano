@@ -4615,8 +4615,18 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         if (!= call.arg_count 1) { return (nisa_fail "I require one scalar argument for cast_bool") }
         let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
         let kind: string = (nisa_expr_type parser argument.node_id argument.node_type)
+        if (== kind "string") {
+            let mut output: string = (nisa_emit_call_args parser call)
+            set output (+ output (nisa_line "DUP"))
+            set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern "true")))
+            set output (+ output (nisa_line "EQ"))
+            set output (+ output (nisa_line "SWAP"))
+            set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern "1")))
+            set output (+ output (nisa_line "EQ"))
+            return (+ output (nisa_line "BOOL_OR"))
+        }
         if (not (or (== kind "int") (or (== kind "u8") (or (== kind "float") (== kind "bool"))))) {
-            return (nisa_fail "I require int, u8, float or bool for scalar cast_bool")
+            return (nisa_fail "I require int, u8, float, bool or string for cast_bool")
         }
         return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_BOOL"))
     }
@@ -4813,6 +4823,11 @@ shadow nisa_emit_call {
     assert nisa_ok
     assert (str_contains fractional "CAST_BOOL")
     assert (not (str_contains fractional "CAST_INT"))
+    let text_truth: string = (nanoisa_emit_nasm "fn truth(value: string) -> bool { return (cast_bool value) } fn main() -> bool { return (truth \"true\") }")
+    assert nisa_ok
+    assert (str_contains text_truth "EQ")
+    assert (str_contains text_truth "BOOL_OR")
+    assert (not (str_contains text_truth "CAST_BOOL"))
     let invalid_arity: string = (nanoisa_emit_nasm "fn main() -> bool { return (cast_bool 1 2) }")
     assert (not nisa_ok)
     let invalid_type: string = (nanoisa_emit_nasm "fn main() -> bool { return (cast_bool [1]) }")
