@@ -1,0 +1,72 @@
+test_different_source_with_runtime_basename_is_retained (tests.test_native_module_linking.NativeModuleLinking.test_different_source_with_runtime_basename_is_retained) ... FAIL
+test_external_source_retains_repository_module_manifest (tests.test_native_module_linking.NativeModuleLinking.test_external_source_retains_repository_module_manifest) ... FAIL
+test_runtime_source_is_not_linked_twice_and_crypto_follows_objects (tests.test_native_module_linking.NativeModuleLinking.test_runtime_source_is_not_linked_twice_and_crypto_follows_objects) ... FAIL
+test_missing_manifest_preserves_prior_output (tests.test_declared_scalar_source.DeclaredScalarSource.test_missing_manifest_preserves_prior_output) ... ok
+test_mixed_scalar_manifest_through_native_and_vm (tests.test_declared_scalar_source.DeclaredScalarSource.test_mixed_scalar_manifest_through_native_and_vm) ... 
+  test_mixed_scalar_manifest_through_native_and_vm (tests.test_declared_scalar_source.DeclaredScalarSource.test_mixed_scalar_manifest_through_native_and_vm) (product='native') ... FAIL
+  test_mixed_scalar_manifest_through_native_and_vm (tests.test_declared_scalar_source.DeclaredScalarSource.test_mixed_scalar_manifest_through_native_and_vm) (product='nvm') ... FAIL
+test_unsupported_declared_shape_preserves_prior_output (tests.test_declared_scalar_source.DeclaredScalarSource.test_unsupported_declared_shape_preserves_prior_output) ... ok
+
+======================================================================
+FAIL: test_different_source_with_runtime_basename_is_retained (tests.test_native_module_linking.NativeModuleLinking.test_different_source_with_runtime_basename_is_retained)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_module_linking.py", line 60, in test_different_source_with_runtime_basename_is_retained
+    self.compile_fixture(False)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_module_linking.py", line 49, in compile_fixture
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not verify the shadow module: Undefined function symbol: fixture_value
+
+
+======================================================================
+FAIL: test_external_source_retains_repository_module_manifest (tests.test_native_module_linking.NativeModuleLinking.test_external_source_retains_repository_module_manifest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_module_linking.py", line 57, in test_external_source_retains_repository_module_manifest
+    self.compile_fixture(True, external_root=True)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_module_linking.py", line 49, in compile_fixture
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not verify the shadow module: Undefined function symbol: fixture_value
+
+
+======================================================================
+FAIL: test_runtime_source_is_not_linked_twice_and_crypto_follows_objects (tests.test_native_module_linking.NativeModuleLinking.test_runtime_source_is_not_linked_twice_and_crypto_follows_objects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_module_linking.py", line 54, in test_runtime_source_is_not_linked_twice_and_crypto_follows_objects
+    self.compile_fixture(True)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_module_linking.py", line 49, in compile_fixture
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not verify the shadow module: Undefined function symbol: fixture_value
+
+
+======================================================================
+FAIL: test_mixed_scalar_manifest_through_native_and_vm (tests.test_declared_scalar_source.DeclaredScalarSource.test_mixed_scalar_manifest_through_native_and_vm) (product='native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_source.py", line 43, in test_mixed_scalar_manifest_through_native_and_vm
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not verify the shadow module: Undefined function symbol: scalar_mix
+
+
+======================================================================
+FAIL: test_mixed_scalar_manifest_through_native_and_vm (tests.test_declared_scalar_source.DeclaredScalarSource.test_mixed_scalar_manifest_through_native_and_vm) (product='nvm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_source.py", line 43, in test_mixed_scalar_manifest_through_native_and_vm
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not verify the shadow module: Undefined function symbol: scalar_mix
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 4.054s
+
+FAILED (failures=5)

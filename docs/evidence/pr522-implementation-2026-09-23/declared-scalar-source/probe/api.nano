@@ -1,0 +1,4 @@
+module OwnerProbe
+extern fn scalar_probe() -> int
+pub fn value() -> int { unsafe { return (scalar_probe) } }
+shadow value { assert (== (value) 37) }

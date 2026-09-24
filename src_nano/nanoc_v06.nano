@@ -2891,6 +2891,7 @@ fn compile_program_mode(input_file: string, output_file: string, verbose: bool, 
                     set command (native_profile_append command mod_flags.compile_flags)
                     set command (+ command (+ " " (+ (native_shell_quote c_file) (+ " " (native_shell_quote runtime)))))
                     set command (+ command (+ " -lm" (native_array_abi_link_flags platform)))
+                    set command (+ command (native_scalar_artifact_link_flags assembly))
                     if (> (str_length mod_flags.link_flags) 0) {
                         set command (native_profile_append command mod_flags.link_flags)
                     } else { (print "") }
@@ -3225,6 +3226,15 @@ fn show_usage() -> int {
 shadow show_usage {
     let result: int = (show_usage)
     assert (== result 0)  /* show_usage always returns 0 */
+}
+
+fn native_scalar_artifact_link_flags(assembly: string) -> string {
+    if (str_contains assembly " declared_scalar_artifact\n") { return " -lffi" }
+    return ""
+}
+shadow native_scalar_artifact_link_flags {
+    assert (== (native_scalar_artifact_link_flags ".import_kind 0 declared_scalar_artifact\n") " -lffi")
+    assert (== (native_scalar_artifact_link_flags ".import_kind 0 artifact\n") "")
 }
 
 fn native_array_abi_link_flags(platform: string) -> string {
