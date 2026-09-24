@@ -1,0 +1,24 @@
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==91866==ERROR: AddressSanitizer: stack-overflow on address 0x00016adde740 (pc 0x00010c4b1674 bp 0x00016b078190 sp 0x00016adde780 T0)
+    #0 0x00010c4b1674 in calloc+0x0 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x55674)
+    #1 0x00010575782c in nl_parse_expression_recursive+0x24b6c (compiler:arm64+0x100f7b82c)
+    #2 0x0001057c2480 in nl_parse_expression+0x57c (compiler:arm64+0x100fe6480)
+    #3 0x000105590700 in nl_parse_primary+0x59669c (compiler:arm64+0x100db4700)
+    #4 0x00010575782c in nl_parse_expression_recursive+0x24b6c (compiler:arm64+0x100f7b82c)
+    #5 0x0001057c2480 in nl_parse_expression+0x57c (compiler:arm64+0x100fe6480)
+    #6 0x000105f97258 in nl_parse_statement+0x367a0 (compiler:arm64+0x1017bb258)
+    #7 0x000105dc6fac in nl_parse_block_recursive+0x18eac (compiler:arm64+0x1015eafac)
+    #8 0x000105dd0acc in nl_parse_block+0x5124 (compiler:arm64+0x1015f4acc)
+    #9 0x0001063b9a6c in nl_parse_function_definition+0x61dc4 (compiler:arm64+0x101bdda6c)
+    #10 0x0001065e8a54 in nl_parse_definition+0x3c274 (compiler:arm64+0x101e0ca54)
+    #11 0x0001065fe448 in nl_parse_program+0x2b24 (compiler:arm64+0x101e22448)
+    #12 0x000109447248 in nl_compile_program+0x21314 (compiler:arm64+0x104c6b248)
+    #13 0x0001095350e8 in nl_main+0x1453c (compiler:arm64+0x104d590e8)
+    #14 0x0001047dc8dc in main+0x34 (compiler:arm64+0x1000008dc)
+    #15 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: stack-overflow (compiler:arm64+0x100f7b82c) in nl_parse_expression_recursive+0x24b6c
+==91866==ABORTING
+
+exit -6
