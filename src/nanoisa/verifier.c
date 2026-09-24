@@ -460,12 +460,19 @@ static NvmVerifyResult verify_module_contracts_and_imports(const NvmModule *mod)
         if (imp->function_name_idx >= mod->string_count)
             return fail("import[%u] function_name_idx %u >= string_count %u",
                         i, imp->function_name_idx, mod->string_count);
-        if (imp->kind > NVM_IMPORT_ARTIFACT)
+        if (imp->kind > NVM_IMPORT_DECLARED_SCALAR_ARTIFACT || imp->kind == NVM_IMPORT_SERVICE)
             return fail("import[%u] has unknown kind %u", i, imp->kind);
-        if (imp->kind == NVM_IMPORT_ARTIFACT) {
+        if (imp->kind == NVM_IMPORT_ARTIFACT || imp->kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT) {
             const char *path = nvm_get_string(mod, imp->module_name_idx);
             if (!path || path[0] != '/' || strlen(path) != nvm_get_string_len(mod, imp->module_name_idx))
                 return fail("import[%u] artifact path must be absolute and contain no NUL", i);
+        }
+        if (imp->kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT) {
+            const char *symbol = nvm_get_string(mod, imp->function_name_idx);
+            if (!symbol || !symbol[0] || strlen(symbol) != nvm_get_string_len(mod, imp->function_name_idx) ||
+                !nvm_declared_scalar_shape_valid(mod->import_param_types ? mod->import_param_types[i] : NULL,
+                                                imp->param_count, imp->return_type))
+                return fail("I require exact names and a complete declared scalar artifact signature");
         }
         if (imp->return_type >= TAG_COUNT)
             return fail("import[%u] return_type %u is not a valid value tag",

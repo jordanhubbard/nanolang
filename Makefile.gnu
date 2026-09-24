@@ -5264,7 +5264,7 @@ test-multi-caller-references: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJE
 .PHONY: test-artifact-string-release
 test-units: test-artifact-string-release
 test-artifact-string-release: nanoisa_dump nano_vm nvm2c
-	python3 -m unittest -v tests.test_artifact_string_release
+	python3 -m unittest -v tests.test_artifact_string_release tests.test_declared_scalar_artifacts
 .PHONY: test-native-underscore-bindings
 test-units: test-native-underscore-bindings
 test-native-underscore-bindings: bootstrap $(INTERPRETER) nano_virt nano_vm

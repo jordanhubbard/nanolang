@@ -44,8 +44,14 @@ bool vm_ffi_load_import(const NvmModule *module, uint32_t import_idx) {
     if (nvm_capture_bindings_present(module) || nvm_service_execution_pending(module)) return false;
     if (!module || import_idx >= module->import_count) return false;
     const NvmImportEntry *imp = &module->imports[import_idx];
+    if (imp->kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT) {
+        const char *symbol = nvm_get_string(module, imp->function_name_idx);
+        if (!symbol || !symbol[0] || strlen(symbol) != nvm_get_string_len(module, imp->function_name_idx) ||
+            !nvm_declared_scalar_shape_valid(module->import_param_types ? module->import_param_types[import_idx] : NULL,
+                                            imp->param_count, imp->return_type)) return false;
+    }
     const char *name = nvm_get_string(module, imp->module_name_idx);
-    if (imp->kind == NVM_IMPORT_ARTIFACT) {
+    if (imp->kind == NVM_IMPORT_ARTIFACT || imp->kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT) {
         if (!name || name[0] != '/' ||
             strlen(name) != nvm_get_string_len(module, imp->module_name_idx)) return false;
         if (!ffi_loader_is_initialized()) ffi_loader_init(false);
@@ -351,7 +357,7 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
      * best-effort loading and the legacy global symbol search. */
     bool loaded = vm_ffi_load_import(module, import_idx);
     void *func_ptr = NULL;
-    if (imp->kind == NVM_IMPORT_ARTIFACT) {
+    if (imp->kind == NVM_IMPORT_ARTIFACT || imp->kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT) {
         if (loaded) func_ptr = ffi_loader_resolve_module(func_name, mod_name);
     } else if (imp->kind <= NVM_IMPORT_COPROCESS) {
         func_ptr = ffi_loader_resolve(func_name);
@@ -374,7 +380,7 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
         return NULL;
     }
 
-    if (imp->kind == NVM_IMPORT_ARTIFACT && imp->return_type == TAG_STRING) {
+    if ((imp->kind == NVM_IMPORT_ARTIFACT || imp->kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT) && imp->return_type == TAG_STRING) {
         if (!ffi_loader_string_release(mod_name, func_name, func_ptr,
                                        &desc->string_release, error_msg, error_msg_size)) {
             desc->state = NVM_CALL_FAILED;
@@ -726,6 +732,16 @@ static bool vm_ffi_call_impl(const NvmModule *module, uint32_t import_idx,
         return false;
     }
 
+    if (imp->kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT) {
+        for (int i = 0; i < arg_count; ++i) {
+            if (args[i].tag != param_types[i] ||
+                (param_types[i] == TAG_STRING && !args[i].as.string)) {
+                snprintf(error_msg, error_msg_size, "I require exact declared scalar argument tags");
+                return false;
+            }
+        }
+    }
+
     if (desc->string_release) {
         if (arg_count && !param_types) {
             snprintf(error_msg, error_msg_size, "I require declared parameters for provider string cleanup");
@@ -822,8 +838,15 @@ static bool vm_ffi_call_impl(const NvmModule *module, uint32_t import_idx,
             vm_ffi_arrays_dispose(&arrays);
             return committed;
         }
-        return finish_foreign_arrays(&arrays, raw, imp->return_type, result,
-                                     error_msg, error_msg_size, capture);
+        if (imp->kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT && imp->return_type == TAG_STRING && !raw) {
+            snprintf(error_msg, error_msg_size, "I could not retain the provider string result");
+            goto ffi_array_failure;
+        }
+        bool finished = finish_foreign_arrays(&arrays, raw, imp->return_type, result,
+                                              error_msg, error_msg_size, capture);
+        if (finished && imp->kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT && imp->return_type == TAG_ENUM)
+            result->tag = TAG_ENUM;
+        return finished;
     }
 
 ffi_array_failure:

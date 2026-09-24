@@ -395,6 +395,7 @@ static void disasm_module_write_validated(const NvmModule *mod, FILE *out,
         for (uint32_t i = 0; i < mod->import_count; i++) {
             if (mod->imports[i].kind != NVM_IMPORT_FFI)
                 fprintf(out, ".import_kind %u %s\n", i,
+                        mod->imports[i].kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT ? "declared_scalar_artifact" :
                         mod->imports[i].kind == NVM_IMPORT_ARTIFACT ? "artifact" : "coprocess");
         }
         for (uint32_t i = 0; i < mod->callback_contract_count; i++) {

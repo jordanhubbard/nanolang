@@ -544,6 +544,25 @@ static bool scalar_artifact_adapter(const Nvm2cHost *host) {
                     !strcmp(host->c_name, "nhost_snapshot"));
 }
 
+static bool declared_scalar_import(const NvmModule *mod, uint32_t index) {
+    if (!mod->imports || index >= mod->import_count) return false;
+    const NvmImportEntry *imp = &mod->imports[index];
+    const char *path = nvm_get_string(mod, imp->module_name_idx);
+    const char *symbol = nvm_get_string(mod, imp->function_name_idx);
+    return imp->kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT &&
+        path && path[0] == '/' && symbol && symbol[0] &&
+        strlen(path) == nvm_get_string_len(mod, imp->module_name_idx) &&
+        strlen(symbol) == nvm_get_string_len(mod, imp->function_name_idx) &&
+        nvm_declared_scalar_shape_valid(mod->import_param_types ?
+            mod->import_param_types[index] : NULL, imp->param_count, imp->return_type);
+}
+
+static uint8_t declared_scalar_kind(uint8_t tag) {
+    return (tag == TAG_U8 || tag == TAG_ENUM) ? NVM2C_VK_VALUE :
+           tag == TAG_STRING ? NVM2C_VK_STR : tag == TAG_FLOAT ? NVM2C_VK_FLOAT :
+           tag == TAG_BOOL ? NVM2C_VK_BOOL : NVM2C_VK_INT;
+}
+
 static const Nvm2cHost *import_host(const NvmModule *mod, uint32_t index) {
     if (index >= mod->import_count || !mod->imports) return NULL;
     const NvmImportEntry *imp = &mod->imports[index];
@@ -3182,6 +3201,25 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             break;
         }
         case OP_CALL_EXTERN: {
+            uint32_t import = ins.operands[0].u32;
+            if (declared_scalar_import(mod, import)) {
+                const NvmImportEntry *imp = &mod->imports[import];
+                for (uint16_t p = imp->param_count; p > 0; --p) {
+                    Nvm2cSimSlot arg;
+                    if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
+                    uint8_t expected = declared_scalar_kind(mod->import_param_types[import][p - 1]);
+                    if (arg.kind != NVM2C_VK_VALUE && arg.kind != NVM2C_VK_UNK &&
+                        arg.kind != expected && !(expected == NVM2C_VK_INT && arg.kind == NVM2C_VK_BOOL)) {
+                        nvm2c_fail(b, "function %u: declared scalar argument %u has incompatible storage", idx, p - 1);
+                        return 0;
+                    }
+                    if (arg.kind != NVM2C_VK_VALUE && (arg.kind != NVM2C_VK_UNK || facts->final))
+                        mark_origin(local_kind, nloc, arg.origin, expected);
+                }
+                if (imp->return_type != TAG_VOID && !sim_push(b, idx, stk, &sp,
+                    declared_scalar_kind(imp->return_type), -1)) return 0;
+                break;
+            }
             const Nvm2cHost *host = import_host(mod, ins.operands[0].u32);
             if (!host) {
                 nvm2c_fail(b, "function %u: CALL_EXTERN has no exact builtin host ABI", idx);
@@ -6237,6 +6275,37 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             emit_map_roots(b, &st, fn, kinds, idx);
             if (b->has_owned_strings || b->has_owned_aggregates)
                 nvm2c_puts(b, "    nmap_collect_if_needed();\n");
+            uint32_t import = ins.operands[0].u32;
+            if (declared_scalar_import(mod, import)) {
+                const NvmImportEntry *imp = &mod->imports[import];
+                int args[NANO_MAX_FFI_ARGS];
+                for (uint16_t p = imp->param_count; p > 0; --p)
+                    args[p - 1] = stack_pop_expect(b, &st,
+                        declared_scalar_kind(mod->import_param_types[import][p - 1]), "CALL_EXTERN");
+                if (b->failed) goto done;
+                char expression[1024];
+                size_t used = (size_t)snprintf(expression, sizeof expression, "nhost_declared_%u(", import);
+                for (uint16_t p = 0; p < imp->param_count; ++p) {
+                    uint8_t tag = mod->import_param_types[import][p];
+                    bool tagged = tag == TAG_U8 || tag == TAG_ENUM;
+                    if (tagged) nvm2c_printf(b, "    if (v[%d].kind != %u) NVM2C_ABORT();\n", args[p], tag);
+                    used += (size_t)snprintf(expression + used, sizeof expression - used,
+                        "%s%c[%d]%s", p ? ", " : "", tagged ? 'v' : tag == TAG_STRING ? 's' : tag == TAG_FLOAT ? 'f' : 't',
+                        args[p], tagged ? ".integer" : "");
+                }
+                snprintf(expression + used, sizeof expression - used, ")");
+                if (imp->return_type == TAG_VOID) nvm2c_printf(b, "    %s;\n", expression);
+                else if (imp->return_type == TAG_STRING) stack_push_str(b, &st, expression);
+                else if (imp->return_type == TAG_FLOAT) stack_push_float(b, &st, expression);
+                else if (imp->return_type == TAG_BOOL) stack_push_bool(b, &st, expression);
+                else if (imp->return_type == TAG_U8 || imp->return_type == TAG_ENUM) {
+                    char tagged[1100];
+                    snprintf(tagged, sizeof tagged, "(nmap_value){%u, %s, NULL}", imp->return_type, expression);
+                    stack_push_value(b, &st, tagged);
+                }
+                else stack_push_temp(b, &st, expression);
+                break;
+            }
             const Nvm2cHost *host = import_host(mod, ins.operands[0].u32);
             if (!host) {
                 nvm2c_fail(b, "CALL_EXTERN has no exact builtin host ABI");
@@ -7195,6 +7264,75 @@ static void emit_file_source_host_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         "    return nstr_copy(nl_file_source_catalog_string(kind, ordinal, field, member));\n}\n");
 }
 
+static const char *declared_scalar_c_type(uint8_t tag) {
+    switch (tag) {
+        case TAG_VOID: return "void";
+        case TAG_STRING: return "const char *";
+        case TAG_FLOAT: return "double";
+        case TAG_BOOL: case TAG_U8: return "uint8_t";
+        default: return "int64_t";
+    }
+}
+
+static const char *declared_scalar_ffi_type(uint8_t tag) {
+    switch (tag) {
+        case TAG_VOID: return "ffi_type_void";
+        case TAG_STRING: return "ffi_type_pointer";
+        case TAG_FLOAT: return "ffi_type_double";
+        case TAG_BOOL: case TAG_U8: return "ffi_type_uint8";
+        default: return "ffi_type_sint64";
+    }
+}
+
+static void emit_declared_scalar_adapters(Nvm2cBuf *b, const NvmModule *mod) {
+    for (uint32_t i = 0; i < mod->import_count; ++i) {
+        if (!declared_scalar_import(mod, i)) continue;
+        const NvmImportEntry *imp = &mod->imports[i];
+        const uint8_t *tags = mod->import_param_types ? mod->import_param_types[i] : NULL;
+        nvm2c_puts(b, "#include <dlfcn.h>\n#ifdef __APPLE__\n#include <ffi/ffi.h>\n#else\n#include <ffi.h>\n#endif\n");
+        nvm2c_printf(b, "static inline %s nhost_declared_%u(", declared_scalar_c_type(imp->return_type), i);
+        if (!imp->param_count) nvm2c_puts(b, "void");
+        for (uint16_t p = 0; p < imp->param_count; ++p)
+            nvm2c_printf(b, "%s%s a%u", p ? ", " : "", declared_scalar_c_type(tags[p]), p);
+        nvm2c_puts(b, ") {\n    static void *library, *function;\n");
+        if (imp->return_type == TAG_STRING) nvm2c_puts(b, "    static void (*release)(const char *);\n");
+        nvm2c_puts(b, "    if (!library) {\n        library = dlopen(");
+        emit_c_string_lit(b, mod->strings[imp->module_name_idx], mod->string_lengths[imp->module_name_idx]);
+        nvm2c_puts(b, ", RTLD_NOW | RTLD_LOCAL);\n        if (!library) NVM2C_ABORT();\n        function = dlsym(library, ");
+        emit_c_string_lit(b, mod->strings[imp->function_name_idx], mod->string_lengths[imp->function_name_idx]);
+        nvm2c_puts(b, ");\n        if (!function) NVM2C_ABORT();\n");
+        if (imp->return_type == TAG_STRING) {
+            nvm2c_puts(b, "        void *cleanup = dlsym(library, ");
+            emit_c_string_lit(b, mod->strings[imp->function_name_idx], mod->string_lengths[imp->function_name_idx]);
+            nvm2c_puts(b, " \"__nano_string_release_v1\");\n"
+                "        if (cleanup) {\n            Dl_info origin, companion;\n"
+                "            if (!dladdr(function, &origin) || !dladdr(cleanup, &companion) ||\n"
+                "                origin.dli_fbase != companion.dli_fbase) NVM2C_ABORT();\n"
+                "            release = (void (*)(const char *))cleanup;\n        }\n");
+        }
+        nvm2c_puts(b, "    }\n    ffi_cif cif;\n");
+        nvm2c_printf(b, "    ffi_type *types[%u] = {", imp->param_count ? imp->param_count : 1);
+        if (!imp->param_count) nvm2c_puts(b, "NULL");
+        for (uint16_t p = 0; p < imp->param_count; ++p)
+            nvm2c_printf(b, "%s&%s", p ? ", " : "", declared_scalar_ffi_type(tags[p]));
+        nvm2c_printf(b, "};\n    void *values[%u] = {", imp->param_count ? imp->param_count : 1);
+        if (!imp->param_count) nvm2c_puts(b, "NULL");
+        for (uint16_t p = 0; p < imp->param_count; ++p) nvm2c_printf(b, "%s&a%u", p ? ", " : "", p);
+        nvm2c_printf(b, "};\n    if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, %u, &%s, types) != FFI_OK) NVM2C_ABORT();\n",
+            imp->param_count, declared_scalar_ffi_type(imp->return_type));
+        nvm2c_puts(b, "    union { ffi_arg word; int64_t integer; double number; const char *text; } result = {0};\n"
+            "    ffi_call(&cif, FFI_FN(function), &result, values);\n");
+        if (imp->return_type == TAG_STRING) nvm2c_puts(b,
+            "    if (release) return nstr_copy_release(result.text, release);\n"
+            "    if (!result.text) NVM2C_ABORT();\n    return nstr_copy(result.text);\n");
+        else if (imp->return_type != TAG_VOID)
+            nvm2c_printf(b, "    return %s;\n", imp->return_type == TAG_FLOAT ? "result.number" :
+                imp->return_type == TAG_BOOL ? "result.word != 0" :
+                imp->return_type == TAG_U8 ? "(uint8_t)result.word" : "result.integer");
+        nvm2c_puts(b, "}\n");
+    }
+}
+
 static void emit_scalar_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
     for (uint32_t i = 0; i < mod->import_count; ++i) {
         const Nvm2cHost *host = import_host(mod, i);
@@ -7570,7 +7708,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         return NULL;
     }
     for (uint32_t i = 0; i < mod->import_count; ++i) {
-        if (!import_host(mod, i)) {
+        if (!import_host(mod, i) && !declared_scalar_import(mod, i)) {
             const char *name = mod->imports ? nvm_get_string(mod, mod->imports[i].function_name_idx) : NULL;
             if (err && err_len) {
                 if (mod->imports && mod->imports[i].kind == NVM_IMPORT_ARTIFACT)
@@ -7597,8 +7735,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
      * artifacts without a companion retain their existing borrowed contract. */
     for (uint32_t i = 0; i < mod->import_count; ++i) {
         const Nvm2cHost *host = import_host(mod, i);
-        if (host && host->result == TAG_STRING)
+        if ((host && host->result == TAG_STRING) ||
+            (declared_scalar_import(mod, i) && mod->imports[i].return_type == TAG_STRING))
             b.has_owned_strings = 1;
+        if (declared_scalar_import(mod, i)) {
+            if (mod->imports[i].return_type == TAG_U8 || mod->imports[i].return_type == TAG_ENUM) b.has_maps = 1;
+            for (uint16_t p = 0; p < mod->imports[i].param_count; ++p)
+                if (mod->import_param_types[i][p] == TAG_U8 || mod->import_param_types[i][p] == TAG_ENUM) b.has_maps = 1;
+        }
     }
     int has_global_store = 0, has_exact_array_constructor = 0;
     /* The tagged map runtime also provides shared frame/aggregate root tracing.
@@ -8365,6 +8509,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (b.global_count) nvm2c_printf(&b, "static nmap_value nglobal[%zu];\n", b.global_count);
         emit_walk_adapters(&b, mod);
         emit_scalar_artifact_adapters(&b, mod);
+        emit_declared_scalar_adapters(&b, mod);
         nvm2c_puts(&b, "typedef struct nrarr_s nrarr_s;\ntypedef nrarr_s *nrarr_t;\n");
         nvm2c_puts(&b, "typedef struct nrec_s nrec_t;\n");
         nvm2c_printf(&b,
@@ -8579,6 +8724,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 nvm2c_printf(&b, "    (void)nhost_walk_%u;\n", i);
             if (scalar_artifact_adapter(host))
                 nvm2c_printf(&b, "    (void)nhost_artifact_%u;\n", i);
+            if (declared_scalar_import(mod, i))
+                nvm2c_printf(&b, "    (void)nhost_declared_%u;\n", i);
         }
         /* I mirror vm_execute: the first named initializer runs before entry,
          * even when that same function is also the entry point. */
