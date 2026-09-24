@@ -1,0 +1,20 @@
+let mut calls: int = 0
+struct Sample { values: array<int> }
+fn next() -> Sample { set calls (+ calls 1) return Sample { values: [calls] } }
+shadow next { set calls 0 assert (== (at (next).values 0) 1) }
+fn main() -> int {
+ set calls 0
+ let saved: string = (to_string (next))
+ assert (== calls 1)
+ assert (== saved "Sample { values: [1] }")
+ let mut i: int = 0
+ while (< i 300) {
+  let text: string = (to_string (next))
+  assert (== text (+ "Sample { values: [" (+ (to_string calls) "] }")))
+  set i (+ i 1)
+ }
+ assert (== calls 301)
+ assert (== saved "Sample { values: [1] }")
+ return 0
+}
+shadow main { assert (== (main) 0) }

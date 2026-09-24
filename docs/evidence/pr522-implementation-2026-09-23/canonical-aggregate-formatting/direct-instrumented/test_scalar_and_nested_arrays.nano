@@ -1,0 +1,13 @@
+fn main() -> int {
+ let empty: array<int> = []
+ assert (== (to_string empty) "[]")
+ assert (== (cast_string [1, -2, 3]) "[1, -2, 3]")
+ assert (== (to_string [true, false]) "[true, false]")
+ assert (== (to_string [2.0, -1.5, (float_from_bits -9223372036854775808)]) "[2.0, -1.5, -0.0]")
+ assert (== (to_string ["a\"b", "line\nnext", "λ"]) "[\"a\"b\", \"line\nnext\", \"λ\"]")
+ let nested: array<array<int>> = [[1, 2], [], [3]]
+ assert (== (to_string nested) "[[1, 2], [], [3]]")
+ assert (== f"values {nested}" "values [[1, 2], [], [3]]")
+ return 0
+}
+shadow main { assert (== (main) 0) }

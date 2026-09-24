@@ -4767,15 +4767,11 @@ shadow nisa_emit_functional_array {
     let reset: int = (nisa_reset)
 }
 
-fn nisa_emit_scalar_string(parser: Parser, argument: ASTStmtRef, kind: string) -> string {
-    if (not (or (>= (nisa_enum_index parser kind) 0) (or (== kind "int") (or (== kind "u8") (or (== kind "float") (or (== kind "bool") (== kind "string"))))))) {
-        return (nisa_fail "I require a scalar string-conversion operand")
-    }
-    if (!= kind "float") {
-        return (+ (nisa_emit_expr parser argument.node_id argument.node_type) (nisa_line "CAST_STRING"))
-    }
+# I format an already evaluated scalar without evaluating its source again.
+fn nisa_format_scalar(kind: string) -> string {
+    let mut output: string = (nisa_line "CAST_STRING")
+    if (!= kind "float") { return output }
     let done: string = (nisa_fresh)
-    let mut output: string = (+ (nisa_emit_expr parser argument.node_id argument.node_type) (nisa_line "CAST_STRING"))
     let markers: array<string> = [".", "e", "n", "i"]
     let mut index: int = 0
     while (< index 4) {
@@ -4788,6 +4784,191 @@ fn nisa_emit_scalar_string(parser: Parser, argument: ASTStmtRef, kind: string) -
     set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern ".0")))
     set output (+ output (nisa_line "STR_CONCAT"))
     return (+ output (nisa_label_line done))
+}
+shadow nisa_format_scalar {
+    let reset: int = (nisa_reset)
+    assert (== (nisa_format_scalar "int") "  CAST_STRING\n")
+    assert (str_contains (nisa_format_scalar "float") "STR_CONTAINS")
+    let reset_again: int = (nisa_reset)
+}
+
+# My seed names enum fields but converts standalone enum values numerically.
+fn nisa_format_enum_field(parser: Parser, index: int) -> string {
+    let definition: ASTEnum = (parser_get_enum parser index)
+    let slot: string = (nisa_temp_local "int")
+    let end: string = (nisa_fresh)
+    let mut out: string = (nisa_line_imm "STORE_LOCAL" slot)
+    let mut variant: int = 0
+    while (< variant definition.variant_count) {
+        let next: string = (nisa_fresh)
+        set out (+ out (nisa_line_imm "LOAD_LOCAL" slot))
+        set out (+ out (nisa_line_imm "PUSH_I64" (int_to_string (at definition.variant_values variant))))
+        set out (+ out (nisa_line "EQ"))
+        set out (+ out (nisa_line_imm "JMP_FALSE" next))
+        set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern (+ definition.name (+ "." (at definition.variant_names variant))))))
+        set out (+ out (nisa_line_imm "JMP" end))
+        set out (+ out (nisa_label_line next))
+        set variant (+ variant 1)
+    }
+    set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern (+ definition.name ".<unknown>"))))
+    return (+ out (nisa_label_line end))
+}
+shadow nisa_format_enum_field {
+    let reset: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "enum Mode { Quiet = 3, Loud = 7 }" "format.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "format.nano")
+    let code: string = (nisa_format_enum_field parser 0)
+    assert (str_contains code "PUSH_I64 7")
+    assert (str_contains (nisa_str_prelude) "Mode.Loud")
+    let reset_again: int = (nisa_reset)
+}
+
+# I consume one stack value and leave one owned string through common ISA ops.
+fn nisa_format_value(parser: Parser, kind: string, field: bool) -> string {
+    if (not nisa_ok) { return "" }
+    let enum_index: int = (nisa_enum_index parser kind)
+    if (>= enum_index 0) {
+        if field { return (nisa_format_enum_field parser enum_index) }
+        return (nisa_format_scalar "int")
+    }
+    if (or (== kind "int") (or (== kind "u8") (or (== kind "float") (or (== kind "bool") (== kind "string"))))) {
+        return (nisa_format_scalar kind)
+    }
+    if (and (str_starts_with kind "array<") (nisa_array_shape_supported parser kind [])) {
+        let element: string = (str_substring kind 6 (- (str_length kind) 7))
+        let value: string = (nisa_temp_local kind)
+        let result: string = (nisa_temp_local "string")
+        let index: string = (nisa_temp_local "int")
+        let top: string = (nisa_fresh)
+        let end: string = (nisa_fresh)
+        let item: string = (nisa_fresh)
+        let mut out: string = (nisa_line_imm "STORE_LOCAL" value)
+        set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern "[")))
+        set out (+ out (nisa_line_imm "STORE_LOCAL" result))
+        set out (+ out (nisa_line_imm "PUSH_I64" "0"))
+        set out (+ out (nisa_line_imm "STORE_LOCAL" index))
+        set out (+ out (nisa_label_line top))
+        set out (+ out (nisa_line_imm "LOAD_LOCAL" index))
+        set out (+ out (nisa_line_imm "LOAD_LOCAL" value))
+        set out (+ out (nisa_line "ARR_LEN"))
+        set out (+ out (nisa_line "LT"))
+        set out (+ out (nisa_line_imm "JMP_FALSE" end))
+        set out (+ out (nisa_line_imm "LOAD_LOCAL" result))
+        set out (+ out (nisa_line_imm "LOAD_LOCAL" index))
+        set out (+ out (nisa_line_imm "JMP_FALSE" item))
+        set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern ", ")))
+        set out (+ out (nisa_line "STR_CONCAT"))
+        set out (+ out (nisa_label_line item))
+        if (== element "string") {
+            set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern "\"")))
+            set out (+ out (nisa_line "STR_CONCAT"))
+        }
+        set out (+ out (nisa_line_imm "LOAD_LOCAL" value))
+        set out (+ out (nisa_line_imm "LOAD_LOCAL" index))
+        set out (+ out (nisa_line "ARR_GET"))
+        if (>= (nisa_struct_index parser element) 0) {
+            # My reference array formatter retains this existing placeholder.
+            set out (+ out (nisa_line "POP"))
+            set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern "<struct>")))
+        } else { set out (+ out (nisa_format_value parser element false)) }
+        set out (+ out (nisa_line "STR_CONCAT"))
+        if (== element "string") {
+            set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern "\"")))
+            set out (+ out (nisa_line "STR_CONCAT"))
+        }
+        set out (+ out (nisa_line_imm "STORE_LOCAL" result))
+        set out (+ out (nisa_increment_local index))
+        set out (+ out (nisa_line_imm "JMP" top))
+        set out (+ out (nisa_label_line end))
+        set out (+ out (nisa_line_imm "LOAD_LOCAL" result))
+        set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern "]")))
+        return (+ out (nisa_line "STR_CONCAT"))
+    }
+    let record_index: int = (nisa_struct_index parser kind)
+    if (and (>= record_index 0) (nisa_record_shape_supported parser kind [])) {
+        let definition: ASTStruct = (parser_get_struct_def parser record_index)
+        if definition.is_extern { return (nisa_fail "I require an ordinary record formatter") }
+        let value: string = (nisa_temp_local kind)
+        let mut out: string = (nisa_line_imm "STORE_LOCAL" value)
+        set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern (+ definition.name " { "))))
+        let mut index: int = 0
+        while (< index definition.field_count) {
+            let prefix: string = (cond ((== index 0) "") (else ", "))
+            set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern (+ prefix (+ (at definition.field_names index) ": ")))))
+            set out (+ out (nisa_line "STR_CONCAT"))
+            set out (+ out (nisa_line_imm "LOAD_LOCAL" value))
+            set out (+ out (nisa_line_imm "AGG_GET" (int_to_string index)))
+            set out (+ out (nisa_format_value parser (at definition.field_types index) true))
+            set out (+ out (nisa_line "STR_CONCAT"))
+            set index (+ index 1)
+        }
+        set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern " }")))
+        return (+ out (nisa_line "STR_CONCAT"))
+    }
+    let union_index: int = (nisa_union_index parser kind)
+    if (and (>= union_index 0) (nisa_union_supported parser kind)) {
+        let definition: ASTUnion = (parser_get_union parser union_index)
+        if (> definition.generic_param_count 0) { return (nisa_fail "I require an ordinary union formatter") }
+        let end: string = (nisa_fresh)
+        let mut out: string = ""
+        let mut variant: int = 0
+        while (< variant definition.variant_count) {
+            let next: string = (nisa_fresh)
+            set out (+ out (nisa_line "DUP"))
+            set out (+ out (nisa_line "AGG_TAG"))
+            set out (+ out (nisa_line_imm "PUSH_I64" (int_to_string variant)))
+            set out (+ out (nisa_line "EQ"))
+            set out (+ out (nisa_line_imm "JMP_FALSE" next))
+            let value: string = (nisa_temp_local (+ kind (+ "." (at definition.variant_names variant))))
+            set out (+ out (nisa_line "DUP"))
+            set out (+ out (nisa_line_imm "STORE_LOCAL" value))
+            set out (+ out (nisa_line "POP"))
+            let count: int = (at definition.variant_field_counts variant)
+            let offset: int = (nisa_union_offset definition variant)
+            let suffix: string = (cond ((> count 0) " { ") (else ""))
+            set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern (+ definition.name (+ "." (+ (at definition.variant_names variant) suffix))))))
+            let mut index: int = 0
+            while (< index count) {
+                let prefix: string = (cond ((== index 0) "") (else ", "))
+                set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern (+ prefix (+ (at definition.variant_field_names (+ offset index)) ": ")))))
+                set out (+ out (nisa_line "STR_CONCAT"))
+                set out (+ out (nisa_line_imm "LOAD_LOCAL" value))
+                set out (+ out (nisa_line_imm "AGG_GET" (int_to_string index)))
+                set out (+ out (nisa_format_value parser (nisa_union_concrete_field definition kind (+ offset index)) true))
+                set out (+ out (nisa_line "STR_CONCAT"))
+                set index (+ index 1)
+            }
+            if (> count 0) {
+                set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern " }")))
+                set out (+ out (nisa_line "STR_CONCAT"))
+            }
+            set out (+ out (nisa_line_imm "JMP" end))
+            set out (+ out (nisa_label_line next))
+            set variant (+ variant 1)
+        }
+        set out (+ out (nisa_line "POP"))
+        set out (+ out (nisa_line_imm "PUSH_STR" (nisa_intern "<union>")))
+        return (+ out (nisa_label_line end))
+    }
+    if (and field (!= (nisa_map_value_type kind) "")) {
+        return (+ (nisa_line "POP") (nisa_line_imm "PUSH_STR" (nisa_intern "?")))
+    }
+    return (nisa_fail (+ "I cannot format this value type: " kind))
+}
+shadow nisa_format_value {
+    let text: string = (nanoisa_emit_nasm "struct Pair { xs: array<int> } fn main()->string{return (to_string Pair { xs: [1,2] })}")
+    assert nisa_ok
+    assert (str_contains text "ARR_GET")
+    assert (str_contains text "AGG_GET")
+    assert (== (nanoisa_emit_nasm "resource struct Handle { fd:int } fn main()->string{let h:Handle=Handle{fd:1} return (to_string h)}") "")
+    let reset: int = (nisa_reset)
+}
+
+fn nisa_emit_scalar_string(parser: Parser, argument: ASTStmtRef, kind: string) -> string {
+    if (not (or (>= (nisa_enum_index parser kind) 0) (or (== kind "int") (or (== kind "u8") (or (== kind "float") (or (== kind "bool") (== kind "string"))))))) {
+        return (nisa_fail "I require a scalar string-conversion operand")
+    }
+    return (+ (nisa_emit_expr parser argument.node_id argument.node_type) (nisa_format_scalar kind))
 }
 shadow nisa_emit_scalar_string {
     let text: string = (nanoisa_emit_nasm "fn main()->string{return (to_string 42)}")
@@ -4922,7 +5103,8 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         }
         if (!= call.arg_count 1) { return (nisa_fail "I require one string-conversion operand") }
         let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
-        return (nisa_emit_scalar_string parser argument (nisa_expr_type parser argument.node_id argument.node_type))
+        return (+ (nisa_emit_expr parser argument.node_id argument.node_type)
+            (nisa_format_value parser (nisa_expr_type parser argument.node_id argument.node_type) false))
     }
     if (and (== function_name "cast_int") (< declared_index 0)) {
         if (!= call.arg_count 1) { return (nisa_fail "I require one scalar argument for cast_int") }
