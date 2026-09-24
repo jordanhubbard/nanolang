@@ -1,0 +1,36 @@
+test_selected_mixed_callers_refuse_wrong_return (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_selected_mixed_callers_refuse_wrong_return) ... 
+  test_selected_mixed_callers_refuse_wrong_return (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_selected_mixed_callers_refuse_wrong_return) (compare='EQ', jump='JMP_FALSE') ... FAIL
+  test_selected_mixed_callers_refuse_wrong_return (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_selected_mixed_callers_refuse_wrong_return) (compare='NE', jump='JMP_TRUE') ... FAIL
+  test_selected_mixed_callers_refuse_wrong_return (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_selected_mixed_callers_refuse_wrong_return) (compare='I64_EQ', jump='JMP_TRUE') ... FAIL
+
+======================================================================
+FAIL: test_selected_mixed_callers_refuse_wrong_return (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_selected_mixed_callers_refuse_wrong_return) (compare='EQ', jump='JMP_FALSE')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 203, in test_selected_mixed_callers_refuse_wrong_return
+    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_selected_mixed_callers_refuse_wrong_return (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_selected_mixed_callers_refuse_wrong_return) (compare='NE', jump='JMP_TRUE')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 203, in test_selected_mixed_callers_refuse_wrong_return
+    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_selected_mixed_callers_refuse_wrong_return (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_selected_mixed_callers_refuse_wrong_return) (compare='I64_EQ', jump='JMP_TRUE')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 203, in test_selected_mixed_callers_refuse_wrong_return
+    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+----------------------------------------------------------------------
+Ran 1 test in 0.207s
+
+FAILED (failures=3)
