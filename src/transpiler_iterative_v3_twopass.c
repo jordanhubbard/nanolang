@@ -2321,18 +2321,20 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 /* I snapshot operands before the host call for both reads
                  * and writes; C does not specify argument evaluation order. */
                 if (elem_type == TYPE_STRUCT && struct_name) {
-                    emit_literal(list, "({ ");
+                    /* I capture the borrowed nominal name before recursive
+                     * operand checking can replace its AST type information. */
+                    emit_formatted(list, "({ typedef nl_%s __nl_array_element; ", struct_name);
                     unsigned call_id = build_ordered_call_args(
                         list, expr->as.call.args, expr->as.call.arg_count, env, NULL);
                     if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0)) {
                         emit_formatted(list,
-                            "(*((nl_%s*)dyn_array_get_struct(__nl_arg_%u_0, __nl_arg_%u_1))); })",
-                            struct_name, call_id, call_id);
+                            "(*((__nl_array_element*)dyn_array_get_struct(__nl_arg_%u_0, __nl_arg_%u_1))); })",
+                            call_id, call_id);
                     } else {
                         emit_formatted(list,
                             "dyn_array_set_struct(__nl_arg_%u_0, __nl_arg_%u_1, "
-                            "&__nl_arg_%u_2, sizeof(nl_%s)); })",
-                            call_id, call_id, call_id, struct_name);
+                            "&__nl_arg_%u_2, sizeof(__nl_array_element)); })",
+                            call_id, call_id, call_id);
                     }
                 } else {
                     /* Map element type to suffix for primitive types */
