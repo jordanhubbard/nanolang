@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "list_operation.h"
 #include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
@@ -184,49 +185,7 @@ static bool is_runtime_typedef(const char *name) {
 
 /* Schema-defined list element types have dedicated runtime list implementations */
 static bool is_schema_list_type(const char *name) {
-    static const char *types[] = {
-        "ASTArrayLiteral",
-        "ASTAssert",
-        "ASTBinaryOp",
-        "ASTBlock",
-        "ASTBool",
-        "ASTCall",
-        "ASTEnum",
-        "ASTFieldAccess",
-        "ASTFloat",
-        "ASTFor",
-        "ASTFunction",
-        "ASTIdentifier",
-        "ASTIf",
-        "ASTImport",
-        "ASTLet",
-        "ASTMatch",
-        "ASTModuleQualifiedCall",
-        "ASTNumber",
-        "ASTOpaqueType",
-        "ASTServiceDecl",
-        "ASTPrint",
-        "ASTReturn",
-        "ASTSet",
-        "ASTShadow",
-        "ASTStmtRef",
-        "ASTString",
-        "ASTStruct",
-        "ASTStructLiteral",
-        "ASTTupleIndex",
-        "ASTTupleLiteral",
-        "ASTUnion",
-        "ASTUnionConstruct",
-        "ASTUnsafeBlock",
-        "ASTWhile",
-        "CompilerDiagnostic",
-        "CompilerSourceLocation",
-        "LexerToken",
-    };
-    if (!name) return false;
-    for (size_t i = 0; i < sizeof(types) / sizeof(types[0]); ++i)
-        if (!strcmp(name, types[i])) return true;
-    return false;
+    return nl_list_has_schema_runtime(name);
 }
 
 /* Check if an enum/struct name would conflict with C runtime types */
@@ -1429,6 +1388,24 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
         StructDef *record = &env->structs[inst->list_element.ordinal - 1];
         if (record->is_extern && is_schema_list_type(name)) {
             sb_appendf(sb, "#include \"runtime/list_%s.h\"\n", name);
+            /* I preserve the raw list ABI while owning constructor results. */
+            sb_append(sb, "#ifndef __wasm__\n#include \"runtime/list_capacity.h\"\n");
+            sb_appendf(sb, "static inline void __nano_seed_list_%s_finalize(void *value) { nl_list_%s_free((List_%s*)value); }\n", name, name, name);
+            sb_appendf(sb, "static inline List_%s *__nano_seed_list_%s_adopt(List_%s *value) {\n", name, name, name);
+            sb_appendf(sb, "    List_%s *owned = gc_process_own(value, __nano_seed_list_%s_finalize);\n", name, name);
+            sb_append(sb, "    if (!owned) { fputs(\"I could not retain list ownership.\\n\", stderr); exit(1); }\n    return owned;\n}\n");
+            sb_appendf(sb, "static inline List_%s *__nano_seed_list_%s_new(void) { return __nano_seed_list_%s_adopt(nl_list_%s_new()); }\n", name, name, name, name);
+            sb_appendf(sb, "static inline List_%s *__nano_seed_list_%s_with_capacity(int64_t capacity) { return __nano_seed_list_%s_adopt(nl_list_%s_with_capacity(nl_list_checked_capacity(capacity))); }\n", name, name, name, name);
+            sb_appendf(sb, "static inline void __nano_seed_list_%s_free(List_%s *value) { gc_process_forget(value); nl_list_%s_free(value); }\n", name, name, name);
+            sb_appendf(sb, "#define nl_list_%s_new __nano_seed_list_%s_new\n", name, name);
+            sb_appendf(sb, "#define nl_list_%s_with_capacity __nano_seed_list_%s_with_capacity\n", name, name);
+            sb_appendf(sb, "#define nl_list_%s_free __nano_seed_list_%s_free\n", name, name);
+            static const char *aliases[] = {"new", "with_capacity", "push", "pop", "insert",
+                "remove", "set", "get", "clear", "length", "capacity", "is_empty", "free"};
+            for (size_t op = 0; op < sizeof(aliases) / sizeof(aliases[0]); ++op)
+                sb_appendf(sb, "#define list_%s_%s nl_list_%s_%s\n",
+                           name, aliases[op], name, aliases[op]);
+            sb_append(sb, "#endif\n");
         } else {
             static const char *operations[] = {"new", "push", "get", "set", "insert", "remove",
                 "pop", "length", "capacity", "is_empty", "clear", "free", "validate", "index", "reserve"};

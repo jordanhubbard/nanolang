@@ -1,5 +1,6 @@
 #include "nanolang.h"
 #include "checker_sdk_projection.h"
+#include "list_operation.h"
 static void checker_sdk_capture(Environment *,const ASTNode *,Type,size_t);
 static void checker_sdk_capture_opaque(Environment *,const ASTNode *,const char *);
 #include "effects.h"
@@ -813,8 +814,10 @@ static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type 
         if (expr->as.call.func_expr || !name || strlen(name) <= 5 ||
             (strncmp(name, "list_", 5) && strncmp(name, "List_", 5)) ||
             env_get_var_visible_at(env, name, expr->line, expr->column)) return none;
-        const char *suffix = strrchr(name, '_');
-        bool constructor = type == TYPE_LIST_GENERIC && !expr->as.call.arg_count && !strcmp(suffix, "_new");
+        const char *suffix = nl_list_operation_separator(name);
+        bool constructor = type == TYPE_LIST_GENERIC && suffix &&
+            ((!expr->as.call.arg_count && !strcmp(suffix, "_new")) ||
+             (expr->as.call.arg_count == 1 && !strcmp(suffix, "_with_capacity")));
         bool element = (type == TYPE_STRUCT || type == TYPE_ENUM) &&
             (!strcmp(suffix, "_get") || !strcmp(suffix, "_remove") || !strcmp(suffix, "_pop"));
         if (suffix <= name + 5 || (!constructor && !element)) return none;
@@ -1127,21 +1130,15 @@ static bool checked_list_instantiation(Environment *env, const char *name, int l
 
 /* I match the complete operation suffix, including embedded underscores. */
 static const char *checked_list_operation_suffix(const char *name) {
-    static const char *operations[] = {"with_capacity", "is_empty", "new", "push",
-        "get", "set", "insert", "remove", "pop", "length", "capacity", "clear", "free"};
-    size_t length = name ? strlen(name) : 0;
-    for (size_t i = 0; i < sizeof(operations) / sizeof(operations[0]); ++i) {
-        size_t n = strlen(operations[i]);
-        if (length > n + 6 && name[length - n - 1] == '_' &&
-            !strcmp(name + length - n, operations[i])) return name + length - n - 1;
-    }
-    return NULL;
+    return nl_list_operation_separator(name);
 }
 
 static Type check_list_operation(ASTNode *expr, Environment *env,
                                   const char *name, const char *operation,
                                   bool is_enum) {
     bool create = !strcmp(operation, "new");
+    bool capacity_create = !strcmp(operation, "with_capacity");
+    bool constructor = create || capacity_create;
     bool insert = !strcmp(operation, "insert"), set = !strcmp(operation, "set");
     bool push = !strcmp(operation, "push"), get = !strcmp(operation, "get");
     bool remove = !strcmp(operation, "remove"), pop = !strcmp(operation, "pop");
@@ -1151,18 +1148,20 @@ static Type check_list_operation(ASTNode *expr, Environment *env,
     bool measure = !strcmp(operation, "length") || !strcmp(operation, "capacity");
     bool empty = !strcmp(operation, "is_empty");
     bool clear = !strcmp(operation, "clear") || !strcmp(operation, "free");
-    int arity = create ? 0 : insert || set ? 3 : push || get || remove ? 2 : 1;
+    int arity = create ? 0 : capacity_create ? 1 : insert || set ? 3 : push || get || remove ? 2 : 1;
     Type element = is_enum ? TYPE_ENUM : TYPE_STRUCT;
     NominalIdentity expected = env_nominal_identity(env, name, env->current_module,
                                                     is_enum ? TYPE_ENUM : TYPE_STRUCT);
     bool valid = expected.ordinal &&
-        (create || index || write || pop || measure || empty || clear) && expr->as.call.arg_count == arity;
+        (constructor || index || write || pop || measure || empty || clear) && expr->as.call.arg_count == arity;
     Type types[3] = {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN};
     for (int i = 0; i < expr->as.call.arg_count; ++i) {
         Type actual = check_expression(expr->as.call.args[i], env);
         if (i < 3) types[i] = actual;
     }
-    if (valid && !create) {
+    if (valid && capacity_create)
+        valid = types[0] == TYPE_INT && nl_list_has_schema_runtime(name);
+    if (valid && !constructor) {
         valid = types[0] == TYPE_LIST_GENERIC &&
             nominal_equal(expected, nominal_expression(expr->as.call.args[0], env, TYPE_LIST_GENERIC, 0));
         if (index) valid = valid && types[1] == TYPE_INT;
@@ -1174,8 +1173,14 @@ static Type check_list_operation(ASTNode *expr, Environment *env,
         valid = false;
     if (!valid) {
         emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-            "I require the exact ordinary list element type, operation arity and INT index.",
-            "Use the declared List<T> receiver and matching ordinary element type.");
+            capacity_create && !nl_list_has_schema_runtime(name)
+                ? "I require a schema-runtime list for this capacity constructor."
+                : constructor
+                    ? "I require the list constructor arity and an INT capacity."
+                    : "I require the exact ordinary list element type, operation arity and INT index.",
+            constructor
+                ? "Use new with no arguments or with_capacity with one INT."
+                : "Use the declared List<T> receiver and matching ordinary element type.");
         return TYPE_UNKNOWN;
     }
     /* I publish only the selected intrinsic's exact declaration key. All owned
@@ -1211,7 +1216,7 @@ static Type check_list_operation(ASTNode *expr, Environment *env,
         free(expr->as.call.return_struct_type_name);
         expr->as.call.return_struct_type_name = result_name;
     }
-    if (create) return TYPE_LIST_GENERIC;
+    if (constructor) return TYPE_LIST_GENERIC;
     return returns_element ? element : measure ? TYPE_INT : empty ? TYPE_BOOL : TYPE_VOID;
 }
 

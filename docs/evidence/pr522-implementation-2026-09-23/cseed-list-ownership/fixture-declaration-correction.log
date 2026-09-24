@@ -1,0 +1,36 @@
+test_counted_cleanup_failure_concurrency_and_exit (tests.test_cseed_process_ownership.CSeedProcessOwnership.test_counted_cleanup_failure_concurrency_and_exit) ... ok
+test_generated_maps_preserve_aliases_and_explicit_free (tests.test_cseed_process_ownership.CSeedProcessOwnership.test_generated_maps_preserve_aliases_and_explicit_free) ... ok
+test_schema_list_capacity_argument_and_runtime_bounds (tests.test_cseed_process_ownership.CSeedProcessOwnership.test_schema_list_capacity_argument_and_runtime_bounds) ... FAIL
+test_schema_lists_preserve_nested_aliases_returns_and_explicit_free (tests.test_cseed_process_ownership.CSeedProcessOwnership.test_schema_lists_preserve_nested_aliases_returns_and_explicit_free) ... ok
+test_aliases_failure_cleanup_concurrency_and_exit (tests.test_cseed_capture.CSeedCapture.test_aliases_failure_cleanup_concurrency_and_exit) ... ok
+test_cseed_generated_capture_product (tests.test_cseed_capture.CSeedCapture.test_cseed_generated_capture_product) ... ok
+
+======================================================================
+FAIL: test_schema_list_capacity_argument_and_runtime_bounds (tests.test_cseed_process_ownership.CSeedProcessOwnership.test_schema_list_capacity_argument_and_runtime_bounds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_process_ownership.py", line 192, in test_schema_list_capacity_argument_and_runtime_bounds
+    self.checked([ROOT/'bin/nanoc_c',source,'-o',binary],cwd=ROOT,env=env)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_process_ownership.py", line 77, in checked
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E027 UNDEFINED FUNCTION --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-capacity-0z749793/main.nano
+I cannot find a function named `get_argv`.
+
+2| fn main() -> int { let mut capacity: int = -1 if (== (get_argv 1) "zero") { set capacity 0 } if (== (get_argv 1) "large") { set capacity 2147483648 } let xs: List<ASTStmtRef> = (list_ASTStmtRef_with_capacity capacity) assert (list_ASTStmtRef_is_empty xs) (list_ASTStmtRef_push xs ASTStmtRef { node_id: 7, node_type: 0 }) assert (== (list_ASTStmtRef_length xs) 1) return 0 }
+                                                        ^^^^^^^^
+Hint: Check spelling or ensure the function is defined/imported.
+-- E027 UNDEFINED FUNCTION --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-capacity-0z749793/main.nano
+I cannot find a function named `get_argv`.
+
+2| fn main() -> int { let mut capacity: int = -1 if (== (get_argv 1) "zero") { set capacity 0 } if (== (get_argv 1) "large") { set capacity 2147483648 } let xs: List<ASTStmtRef> = (list_ASTStmtRef_with_capacity capacity) assert (list_ASTStmtRef_is_empty xs) (list_ASTStmtRef_push xs ASTStmtRef { node_id: 7, node_type: 0 }) assert (== (list_ASTStmtRef_length xs) 1) return 0 }
+                                                                                                       ^^^^^^^^
+Hint: Check spelling or ensure the function is defined/imported.
+Type checking failed
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 31.023s
+
+FAILED (failures=1)
