@@ -5291,20 +5291,22 @@ fn nisa_emit_typed_let(parser: Parser, binding: ASTLet, value_type: string) -> s
     if (str_starts_with (nisa_compact_type value_type) "fn(") {
         if binding.is_mut { return (nisa_fail "I require an immutable exact callback local") }
         let value: ASTStmtRef = ASTStmtRef { node_id: binding.value, node_type: binding.value_type }
-        let target_index: int = (nisa_function_identifier_index parser value)
+        let target_index: int = (nisa_functional_callback_index parser value)
         if (< target_index 0) { return (nisa_fail "I require one exact declared callback local") }
         let target: ASTFunction = (parser_get_function parser target_index)
         if (!= (nisa_compact_type value_type) (nisa_function_spelling parser target)) {
             return (nisa_fail "I require the exact declared callback local signature")
         }
+        # I evaluate the initializer before introducing its local binding.
+        let emitted: string = (nisa_emit_expr parser binding.value binding.value_type)
+        if (not nisa_ok) { return "" }
         let slot: int = (array_length nisa_names)
         set nisa_names (array_push nisa_names binding.name)
         set nisa_types (array_push nisa_types value_type)
         set nisa_callback_slots (array_push nisa_callback_slots slot)
         set nisa_callback_targets (array_push nisa_callback_targets target_index)
         (nisa_require_function target_index)
-        return (+ (nisa_line_imm "FUNCREF" target.name)
-                  (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
+        return (+ emitted (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
     }
     let selected_type: string = (nisa_selected_pattern_type parser binding)
     if (!= selected_type "") {
@@ -5358,6 +5360,18 @@ shadow nisa_emit_typed_let {
     let callback_text: string = (nisa_emit_typed_let callback_parser callback_binding callback_binding.var_type)
     assert (str_contains callback_text "FUNCREF convert")
     assert (== (nisa_callback_target 0) 0)
+    assert (== (nisa_reset) 0)
+    let factory_tokens: List<LexerToken> = (tokenize_string "fn convert(n:int)->float{return 1.5} fn factory()->fn(int)->float{return convert} fn main()->int{let chosen:fn(int)->float=(factory) let alias:fn(int)->float=chosen return 0}" "factory-local.nano" (diag_list_new))
+    let factory_parser: Parser = (parse_program factory_tokens (list_LexerToken_length factory_tokens) "factory-local.nano")
+    let factory_body: ASTBlock = (parser_get_block factory_parser (parser_get_function factory_parser 2).body)
+    let chosen: ASTLet = (parser_get_let factory_parser (list_ASTStmtRef_get factory_body.statements 0).node_id)
+    assert (== (nisa_emit_typed_let factory_parser chosen chosen.var_type) "  CALL factory\n  STORE_LOCAL 0\n")
+    assert (== (nisa_callback_target 0) 0)
+    let alias: ASTLet = (parser_get_let factory_parser (list_ASTStmtRef_get factory_body.statements 1).node_id)
+    assert (== (nisa_emit_typed_let factory_parser alias alias.var_type) "  LOAD_LOCAL 0\n  STORE_LOCAL 1\n")
+    assert (== (nisa_callback_target 1) 0)
+    assert (== (nisa_emit_typed_let factory_parser chosen "fn(int)->int") "")
+    assert (not nisa_ok)
     assert (== (nisa_reset) 0)
 }
 
