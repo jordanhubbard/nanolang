@@ -1,0 +1,123 @@
+test_alternating_chain (tests.test_native_nominal_order.NativeNominalOrder.test_alternating_chain) ... ok
+test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) ... 
+  test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) (compiler='nanoc_stage1') ... FAIL
+  test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) (compiler='nanoc_stage2') ... FAIL
+test_pointer_backed_array_is_not_a_layout_cycle (tests.test_native_nominal_order.NativeNominalOrder.test_pointer_backed_array_is_not_a_layout_cycle) ... ok
+test_pointer_backed_list_is_not_a_layout_cycle (tests.test_native_nominal_order.NativeNominalOrder.test_pointer_backed_list_is_not_a_layout_cycle) ... ok
+test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) ... 
+  test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='int') ... FAIL
+  test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='int') ... FAIL
+test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) ... 
+  test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='int') ... FAIL
+  test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='int') ... FAIL
+  test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='string') ... FAIL
+  test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='string') ... FAIL
+test_record_contains_union (tests.test_native_nominal_order.NativeNominalOrder.test_record_contains_union) ... ok
+test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) ... 
+  test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) (compiler='nanoc_stage1') ... FAIL
+  test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) (compiler='nanoc_stage2') ... FAIL
+test_reverse_record_dependencies (tests.test_native_nominal_order.NativeNominalOrder.test_reverse_record_dependencies) ... ok
+test_union_contains_record (tests.test_native_nominal_order.NativeNominalOrder.test_union_contains_record) ... ok
+
+======================================================================
+FAIL: test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_nominal_order.py", line 27, in check
+    self.assertGreater(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : 
+
+======================================================================
+FAIL: test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_nominal_order.py", line 27, in check
+    self.assertGreater(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : 
+
+======================================================================
+FAIL: test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-nominal-order-jexkhfbe/.nano-product.Z85smv/program.nvm': function 0 at offset 17: I cannot resolve AGG_PACK field 0
+
+
+======================================================================
+FAIL: test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-nominal-order-o2wt0cfs/.nano-product.0vMN9q/program.nvm': function 0 at offset 17: I cannot resolve AGG_PACK field 0
+
+
+======================================================================
+FAIL: test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_nominal_order.py", line 27, in check
+    self.assertGreater(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : 
+
+======================================================================
+FAIL: test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_nominal_order.py", line 27, in check
+    self.assertGreater(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : 
+
+----------------------------------------------------------------------
+Ran 10 tests in 4.303s
+
+FAILED (failures=10)

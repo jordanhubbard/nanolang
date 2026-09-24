@@ -1,0 +1,15 @@
+2026-09-24T09:55:35.2278106Z FAIL: test_transport_execution_and_reference_refusal (tests.test_ownership_contracts.OwnershipContracts.test_transport_execution_and_reference_refusal)
+2026-09-24T09:55:35.2279441Z ----------------------------------------------------------------------
+2026-09-24T09:55:35.2280047Z Traceback (most recent call last):
+2026-09-24T09:55:35.2281105Z   File "/home/runner/work/nanolang/nanolang/tests/test_ownership_contracts.py", line 24, in test_transport_execution_and_reference_refusal
+2026-09-24T09:55:35.2282467Z     self.run_checked([ROOT / "obj/test_ownership_contracts", ordinary, borrowed, owned_union])
+2026-09-24T09:55:35.2283572Z   File "/home/runner/work/nanolang/nanolang/tests/test_ownership_contracts.py", line 14, in run_checked
+2026-09-24T09:55:35.2284875Z     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+2026-09-24T09:55:35.2301595Z AssertionError: -6 != 0 : b"test_ownership_contracts: tests/nanoisa/test_ownership_contracts.c:154: void check_union_transport(void): Assertion `nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION' failed.\n"
+2026-09-24T09:55:35.2303144Z 
+2026-09-24T09:55:35.2303404Z ----------------------------------------------------------------------
+2026-09-24T09:55:35.2303979Z Ran 1 test in 0.210s
+2026-09-24T09:55:35.2304780Z 
+2026-09-24T09:55:35.2304918Z FAILED (failures=1)
+2026-09-24T09:55:35.2375270Z make: *** [Makefile.gnu:4820: test-ownership-contracts] Error 1
+2026-09-24T09:55:35.2397489Z ##[error]Process completed with exit code 2.

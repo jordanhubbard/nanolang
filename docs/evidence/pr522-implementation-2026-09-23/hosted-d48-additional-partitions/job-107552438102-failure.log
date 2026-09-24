@@ -1,0 +1,23 @@
+2026-09-24T09:52:54.2017811Z ERROR: test_nested_record_array_result_executes (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_nested_record_array_result_executes) (compiler=PosixPath('/home/runner/work/nanolang/nanolang/bin/nanoisa_emit'))
+2026-09-24T09:52:54.2019293Z ----------------------------------------------------------------------
+2026-09-24T09:52:54.2019975Z Traceback (most recent call last):
+2026-09-24T09:52:54.2020883Z   File "/home/runner/work/nanolang/nanolang/tests/test_canonical_nvm_output.py", line 201, in test_nested_record_array_result_executes
+2026-09-24T09:52:54.2021931Z     self.run_command([compiler, source, "--emit-nvm", "-o", output])
+2026-09-24T09:52:54.2023000Z   File "/home/runner/work/nanolang/nanolang/tests/test_canonical_nvm_output.py", line 17, in run_command
+2026-09-24T09:52:54.2023821Z     result = subprocess.run([str(x) for x in args], cwd=ROOT,
+2026-09-24T09:52:54.2024557Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-24T09:52:54.2025141Z   File "/usr/lib/python3.12/subprocess.py", line 548, in run
+2026-09-24T09:52:54.2025918Z     with Popen(*popenargs, **kwargs) as process:
+2026-09-24T09:52:54.2026450Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-24T09:52:54.2027035Z   File "/usr/lib/python3.12/subprocess.py", line 1026, in __init__
+2026-09-24T09:52:54.2027861Z     self._execute_child(args, executable, preexec_fn, close_fds,
+2026-09-24T09:52:54.2028564Z   File "/usr/lib/python3.12/subprocess.py", line 1955, in _execute_child
+2026-09-24T09:52:54.2029264Z     raise child_exception_type(errno_num, err_msg, err_filename)
+2026-09-24T09:52:54.2030231Z FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/nanolang/nanolang/bin/nanoisa_emit'
+2026-09-24T09:52:54.2030879Z 
+2026-09-24T09:52:54.2031156Z ----------------------------------------------------------------------
+2026-09-24T09:52:54.2031899Z Ran 11 tests in 21.472s
+2026-09-24T09:52:54.2032251Z 
+2026-09-24T09:52:54.2032495Z FAILED (errors=1)
+2026-09-24T09:52:54.2094092Z make: *** [Makefile.gnu:4507: test-canonical-nvm-output] Error 1
+2026-09-24T09:52:54.2111739Z ##[error]Process completed with exit code 2.

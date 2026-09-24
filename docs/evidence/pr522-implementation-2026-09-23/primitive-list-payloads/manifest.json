@@ -1,0 +1,14 @@
+{
+  "base_commit": "1d20a33ace24b26a42a069fdbfc80cfface1a4f5",
+  "sha256": {
+    "src_nano/compiler/nanoisa_codegen.nano": "5320035532cd16ac0fe45435245a855d93d8d6ece1ec2fd30b5d637460fa8fbc",
+    "tests/test_nanoisa_emit_driver.py": "6c198ee8507bc7df4fb647f0c53b0fb0ec7f01ec6a84c5c1d066a7e4cb158fcb",
+    "tests/test_native_nominal_order.py": "a9f61caafd62582af0e2d15061427f86cb519f87f4fa5fbc96c8c6343881e144",
+    "bin/nanoc_c": "272340ad04598f085ea02ce9825078b67c1f1910ef7a5b993dfa71ea85e9dcb3",
+    "bin/nanoc_stage1": "e2c501c6426810dcd263ef4ef87dee5f23fcfd3218540a02468ce7af20d4f0ee",
+    "bin/nanoc_stage2": "b88c9251ab1adbb518857e74f4cacf9903ad5c801253b5f6387f832aa463bf02",
+    "bin/nanoisa_emit": "c7d156dfd15ac0865cbaf192d46f147dce5b8db20ad4b62939b8c54eebb69b3b",
+    "bin/nano_vm": "da6a9b917189e6a9ea4461ce6912bbf4fdee765f72d7a95bfbe7372a23c4ef6f",
+    "bin/nvm2c": "be377a8ed7a11ab8b3a886865b2b67b61aec76f9b4a99824ec39dcb30e2536c7"
+  }
+}

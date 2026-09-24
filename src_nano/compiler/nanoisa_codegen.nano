@@ -1097,10 +1097,13 @@ shadow nisa_union_offset {
 }
 
 fn nisa_union_payload_type(t: string) -> bool {
+    if (or (== t "List<int>") (== t "List<string>")) { return true }
     return (or (== t "int") (or (== t "bool") (or (== t "float") (or (== t "string") (== t "array<int>")))))
 }
 shadow nisa_union_payload_type {
     assert (nisa_union_payload_type "array<int>")
+    assert (nisa_union_payload_type "List<int>")
+    assert (nisa_union_payload_type "List<string>")
     assert (not (nisa_union_payload_type "Handle"))
 }
 fn nisa_union_concrete_field(definition: ASTUnion, identity: string, field: int) -> string {
@@ -4479,7 +4482,10 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         if (!= call.arg_count 0) {
             return (nisa_fail "list_T_new needs 0 arguments")
         } else {
-            return (nisa_line_imm "ARR_NEW" (nisa_list_element_tag parser function_name))
+            let tag: string = (nisa_list_element_tag parser function_name)
+            # I retain exact integer elements instead of a legacy polymorphic empty array.
+            if (== tag "1") { return (nisa_line "ARR_LITERAL 1 0") }
+            return (nisa_line_imm "ARR_NEW" tag)
         }
     } else {
     if (or (== function_name "array_length") (and (nisa_is_list_call function_name) (str_ends_with function_name "_length"))) {
@@ -6192,7 +6198,7 @@ shadow nisa_emit_function {
     let blank_fn: ASTFunction = (parser_get_function p24 0)
     let blank_text: string = (nisa_emit_function p24 blank_fn)
     assert (str_contains blank_text ".function blank_l 0 1 0 int 1")
-    assert (str_contains blank_text "ARR_NEW 1")
+    assert (str_contains blank_text "ARR_LITERAL 1 0")
     assert (str_contains blank_text "ARR_LEN")
     let src25: string = (+ "f" "n grow_l() -> int { let xs: List<int> = (list_int_new) (list_int_push xs 7) return (list_int_get xs 0) } shadow grow_l { assert true }")
     let toks25: List<LexerToken> = (tokenize_string src25 "t.nano" diags)

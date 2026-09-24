@@ -46,6 +46,45 @@ class NanoisaEmitDriver(unittest.TestCase):
                               "-o", binary])
             self.run_command([binary])
 
+    def test_primitive_lists_retain_identity_in_records_and_generic_unions(self):
+        from tests.native_toolchain import native_cc, native_link_flags
+
+        for element, value in (("int", "7"), ("string", '"kept"')):
+            with self.subTest(element=element), tempfile.TemporaryDirectory(
+                prefix="nano-list-payload-"
+            ) as tmp:
+                directory = Path(tmp)
+                source = directory / "program.nano"
+                module = directory / "program.nvm"
+                generated = directory / "program.c"
+                binary = directory / "program"
+                source.write_text(f'''struct Holder {{ values: List<{element}> }}
+union Box<T> {{ Some {{ value: T }}, None {{}} }}
+fn main() -> int {{
+    let values: List<{element}> = (list_{element}_new)
+    let holder: Holder = Holder {{ values: values }}
+    let boxed: Box<List<{element}>> = Box.Some {{ value: values }}
+    (list_{element}_push holder.values {value})
+    match boxed {{
+        Some(payload) => {{
+            assert (== (list_{element}_length payload.value) 1)
+            assert (== (list_{element}_get payload.value 0) {value})
+        }}
+        None(empty) => {{ assert false }}
+    }}
+    assert (== (list_{element}_length values) 1)
+    return 0
+}}
+shadow main {{ assert (== (main) 0) }}
+''')
+                self.run_command([DRIVER, source, "--emit-nvm", "-o", module])
+                self.run_command([ROOT / "bin/nano_vm", module])
+                self.run_command([ROOT / "bin/nvm2c", module, "-o", generated])
+                self.run_command([*native_cc(), "-std=c11", "-Wall", "-Wextra",
+                                  "-Werror", generated, "-lm", *native_link_flags(),
+                                  "-o", binary])
+                self.run_command([binary])
+
     def test_repeatable_module_executes_in_vm_and_native(self):
         with tempfile.TemporaryDirectory(prefix="nano-driver-") as tmp:
             directory = Path(tmp)
