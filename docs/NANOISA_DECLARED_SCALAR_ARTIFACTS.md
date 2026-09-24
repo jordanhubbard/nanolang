@@ -54,8 +54,9 @@ existing provider opt-in convention, `<symbol>__nano_string_release_v1`, and
 require a discovered companion to come from the called function's own image.
 A missing companion means borrowed storage; a present companion receives the
 original pointer once after the copy attempt. A null result remains a failure.
-I extend the typed libffi path to heterogeneous arguments at every admitted
-arity instead of retaining the VM's current two-string-argument special case.
+My VM provider cleanup now uses the typed libffi path for heterogeneous
+arguments through the existing arity bound. Native kind-4 execution remains
+unimplemented.
 Known adapters keep their existing behavior and do not change kind implicitly.
 
 My implementation order is transport/structural refusals, VM/native matching
