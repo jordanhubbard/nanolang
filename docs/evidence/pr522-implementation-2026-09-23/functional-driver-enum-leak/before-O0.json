@@ -1,0 +1,14 @@
+{
+  "exit": 1,
+  "seconds": 101.57722991600167,
+  "compiler_sha256": "997d0ba0f9594ee7b1430a5b9fc1e594a1c90361d622eac1ee42e2c325d67943",
+  "typechecker_sha256": "7094cfe9eb3a08dad8622a8e469b328be2ee6fe8f4184b05eadf2063aabd5a51",
+  "env": {
+    "CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_SHADOW_TIMEOUT_SECONDS": "60",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1"
+  },
+  "source_hash_note": "I record the source used to build the unchanged baseline executable; the host source was edited while this executable ran."
+}

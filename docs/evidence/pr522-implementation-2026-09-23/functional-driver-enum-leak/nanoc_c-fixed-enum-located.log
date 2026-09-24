@@ -1,0 +1,6 @@
+test_imported_enum_definition (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_imported_enum_definition) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.302s
+
+OK

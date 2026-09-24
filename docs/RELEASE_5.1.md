@@ -51,6 +51,15 @@ compilation calls during VM generations. My [retained record](evidence/pr522-imp
 preserves the exact pin and limits. The subsequent native translator correction
 still needs final-source VM and native qualification.
 
+My standalone native fixed point at `e70c0de46` also passes: successive
+526,188-byte modules have SHA-256
+`2c107f991005a04259a9978e2609ad97be5c45299712f9ca0c223d63e4d70ca5`.
+Both verify with a stable host closure. I translate and build the final
+compared module, then compile, verify and execute hello with it. My
+[retained native record](evidence/pr522-implementation-2026-09-23/native-fixedpoint-e70c0de46/README.md)
+contains the complete gate and hashes. This pin predates subsequent C-seed
+metadata cleanup; it does not qualify later source revisions.
+
 The following earlier results remain historical evidence.
 
 At compiler-source pin `ebe3afddc8c9a7cd89b5d64b2928ea9dd269d08c`, my

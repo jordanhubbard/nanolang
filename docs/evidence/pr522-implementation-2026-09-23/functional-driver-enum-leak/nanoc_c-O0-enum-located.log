@@ -1,0 +1,41 @@
+test_imported_enum_definition (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_imported_enum_definition) ... 
+  test_imported_enum_definition (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_imported_enum_definition) (compiler='pr522-nanoc_c-O0') ... FAIL
+
+======================================================================
+FAIL: test_imported_enum_definition (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_imported_enum_definition) (compiler='pr522-nanoc_c-O0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_single_letter_nominals.py", line 35, in check
+    self.assertEqual(result.returncode, 0, diagnostic)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+=================================================================
+==15091==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x0001053d540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001034e5508 in type_check_module+0xcad8 (pr522-nanoc_c-O0:arm64+0x100fad508)
+    #2 0x0001027eb094 in load_module_internal module.c:707
+    #3 0x0001027f82a0 in compile_module_to_object module.c:1235
+    #4 0x00010282e438 in compile_modules module.c:1823
+    #5 0x0001027cd1c4 in compile_file main.c:1232
+    #6 0x0001027c1d90 in main main.c:2321
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x0001053d540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001034e5508 in type_check_module+0xcad8 (pr522-nanoc_c-O0:arm64+0x100fad508)
+    #2 0x0001027eb094 in load_module_internal module.c:707
+    #3 0x0001027f157c in process_imports_owned module.c:993
+    #4 0x0001027ef5e4 in process_imports module.c:908
+    #5 0x0001027c6bb4 in compile_file main.c:799
+    #6 0x0001027c1d90 in main main.c:2321
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 16 byte(s) leaked in 2 allocation(s).
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.457s
+
+FAILED (failures=1)

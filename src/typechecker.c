@@ -8796,8 +8796,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 }
             }
             
-            /* Duplicate variant values */
-            edef.variant_values = malloc(sizeof(int) * edef.variant_count);
+            /* I fill the checked allocation above; the environment owns it. */
             if (item->as.enum_def.variant_values) {
                 for (int j = 0; j < edef.variant_count; j++) {
                     edef.variant_values[j] = item->as.enum_def.variant_values[j];

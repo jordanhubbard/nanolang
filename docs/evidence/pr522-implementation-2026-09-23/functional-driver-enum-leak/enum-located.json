@@ -1,0 +1,10 @@
+[
+  {
+    "compiler": "nanoc_c-O0",
+    "exit": 1
+  },
+  {
+    "compiler": "nanoc_c-fixed",
+    "exit": 0
+  }
+]

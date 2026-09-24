@@ -1,0 +1,26 @@
+test_imported_enum_definition (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_imported_enum_definition) ... 
+  test_imported_enum_definition (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_imported_enum_definition) (compiler='/tmp/pr522-enum-leak-instrumented/nanoc_c-fixed') ... FAIL
+
+======================================================================
+FAIL: test_imported_enum_definition (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_imported_enum_definition) (compiler='/tmp/pr522-enum-leak-instrumented/nanoc_c-fixed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_single_letter_nominals.py", line 35, in check
+    self.assertEqual(result.returncode, 0, diagnostic)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-single-letter-4autixa0/choice.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-JoJbHM/source.c:13:10: fatal error: 'runtime/nl_string.h' file not found
+   13 | #include "runtime/nl_string.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-JoJbHM/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-single-letter-4autixa0/choice.nano'
+Error: Failed to compile modules
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.262s
+
+FAILED (failures=1)

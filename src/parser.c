@@ -5951,6 +5951,7 @@ void free_ast(ASTNode *node) {
             break;
         case AST_CALL:
             free(node->as.call.name);
+            free(node->as.call.concrete_func_name);
             free_function_signature(node->as.call.checked_signature);
             if (node->as.call.return_struct_type_name) {
                 free(node->as.call.return_struct_type_name);
