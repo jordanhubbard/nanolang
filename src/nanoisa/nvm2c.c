@@ -615,6 +615,7 @@ typedef struct {
     uint8_t *global_fields;
     uint8_t *global_stored;
     uint32_t *function_targets;
+    uint32_t *function_results;
     int changed;
     int discover_globals;
     int variant_finalizing;
@@ -985,14 +986,17 @@ static int sim_push(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
     return sim_push_slot(b, idx, stk, sp, slot);
 }
 
-static void merge_function_target(Nvm2cFacts *facts, size_t at, uint32_t incoming) {
+static void merge_exact_target(Nvm2cFacts *facts, uint32_t *target, uint32_t incoming) {
     if (!incoming) return;
-    uint32_t *target = &facts->function_targets[at];
     uint32_t merged = !*target ? incoming : *target == incoming ? *target : UINT32_MAX;
     if (*target != merged) {
         *target = merged;
         facts->changed = 1;
     }
+}
+
+static void merge_function_target(Nvm2cFacts *facts, size_t at, uint32_t incoming) {
+    merge_exact_target(facts, &facts->function_targets[at], incoming);
 }
 
 static int sim_pop(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
@@ -2703,6 +2707,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
                 } else if (cf->result_count == 1 && cf->result_tag == TAG_FUNCTION) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_FUNCTION, -1)) return 0;
+                    stk[sp - 1].function_target = facts->function_results[callee];
                 } else if (cf->result_count == 1 && cf->result_tag == TAG_ARRAY) {
                     Nvm2cSimSlot result = {0};
                     result.kind = b->array_results[callee];
@@ -2722,6 +2727,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!result.rec_k) return 0;
                     if (!sim_push_slot(b, idx, stk, &sp, result)) return 0;
                 }
+            } else if (cf->result_tag == TAG_FUNCTION) {
+                merge_exact_target(facts, &facts->function_results[idx], facts->function_results[callee]);
             } else if (aggregate_value_tag(cf->result_tag)) {
                 merge_variant(&b->variant_results[idx], b->variant_results[callee], facts);
                 if (!merge_record_results(b, facts, facts->results + (size_t)idx * b->record_width,
@@ -2795,8 +2802,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (facts->final) b->indirect_targets[idx][start] = target + 1;
             uint8_t result_kind = results ? scalar_kind_for_tag(candidate->result_tag) : NVM2C_VK_UNK;
+            if (results && aggregate_value_tag(candidate->result_tag)) result_kind = NVM2C_VK_REC;
+            else if (results && candidate->result_tag == TAG_HASHMAP) result_kind = NVM2C_VK_MAP;
+            else if (results && candidate->result_tag == TAG_ARRAY) result_kind = b->array_results[target];
             if (results && result_kind == NVM2C_VK_UNK) {
-                nvm2c_fail(b, "function %u: CALL_INDIRECT target has unsupported scalar result", idx);
+                nvm2c_fail(b, "function %u: CALL_INDIRECT target has an unresolved result representation", idx);
                 return 0;
             }
             for (uint16_t p = 0; p < argc; ++p) {
@@ -2825,7 +2835,23 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
             }
-            if (results && !sim_push(b, idx, stk, &sp, result_kind, -1)) return 0;
+            if (results && aggregate_value_tag(candidate->result_tag)) {
+                Nvm2cSimSlot result;
+                memset(&result, 0, sizeof result);
+                result.kind = NVM2C_VK_REC;
+                result.variant = b->variant_results[target];
+                result.origin = -1;
+                result.rec_k = sim_fields(b, facts->results + (size_t)target * b->record_width, 0);
+                if (!result.rec_k || !sim_push_slot(b, idx, stk, &sp, result)) return 0;
+            } else if (results && candidate->result_tag == TAG_ARRAY) {
+                Nvm2cSimSlot result = {0};
+                result.kind = result_kind;
+                result.origin = -1;
+                result.rec_k = sim_fields(b, facts->results + (size_t)target * b->record_width, 0);
+                if (!result.rec_k || !sim_push_slot(b, idx, stk, &sp, result)) return 0;
+            } else if (results && !sim_push(b, idx, stk, &sp, result_kind, -1)) return 0;
+            if (results && !shape_equal(b, stk[sp - 1].shape,
+                                        shape_variable(b, &b->shape_results[target]))) return 0;
             break;
         }
         case OP_CALL_EXTERN: {
@@ -2897,6 +2923,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         nvm2c_fail(b, "I require a function reference at return in function %u", idx);
                         return 0;
                     }
+                    merge_exact_target(facts, &facts->function_results[idx], v.function_target);
                 } else if (fn->result_tag == TAG_ARRAY) {
                     if (v.kind == NVM2C_VK_VALUE && v.scalar_tags == (1u << TAG_ARRAY)) {
                         if (!merge_fact(b, facts, &b->array_results[idx], NVM2C_VK_AARR) ||
@@ -5644,8 +5671,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (b->failed) goto done;
             }
             uint8_t result_kind = results ? scalar_kind_for_tag(candidate->result_tag) : NVM2C_VK_UNK;
+            if (results && aggregate_value_tag(candidate->result_tag)) result_kind = NVM2C_VK_REC;
+            else if (results && candidate->result_tag == TAG_HASHMAP) result_kind = NVM2C_VK_MAP;
+            else if (results && candidate->result_tag == TAG_ARRAY) result_kind = b->array_results[target];
             if (results && result_kind == NVM2C_VK_UNK) {
-                nvm2c_fail(b, "function %u: CALL_INDIRECT target has unsupported scalar result", idx);
+                nvm2c_fail(b, "function %u: CALL_INDIRECT target has an unresolved result representation", idx);
                 goto done;
             }
             emit_map_roots(b, &st, fn, kinds, idx);
@@ -5653,10 +5683,22 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_puts(b, "    nmap_collect_if_needed();\n");
             int result = -1;
             if (results) {
-                if (result_kind == NVM2C_VK_FLOAT) result = stack_push_float(b, &st, "0.0");
+                if (result_kind == NVM2C_VK_REC) {
+                    result = stack_push_rec(b, &st, "(nrec_t){0}");
+                    if (result >= 0) memcpy(st.rec_k[result], result_fields + (size_t)target * b->record_width,
+                                            b->record_width);
+                } else if (result_kind == NVM2C_VK_RARR) {
+                    result = stack_push_rarr(b, &st, "(nrarr_t){0}");
+                    if (result >= 0) memcpy(st.rarr_k[result], result_fields + (size_t)target * b->record_width,
+                                            b->record_width);
+                } else if (result_kind == NVM2C_VK_FLOAT) result = stack_push_float(b, &st, "0.0");
                 else if (result_kind == NVM2C_VK_STR) result = stack_push_str(b, &st, "\"\"");
                 else if (result_kind == NVM2C_VK_BOOL) result = stack_push_bool(b, &st, "0");
                 else if (result_kind == NVM2C_VK_FUNCTION) result = stack_push_function(b, &st, "0");
+                else if (result_kind == NVM2C_VK_MAP) result = stack_push_map(b, &st, "NULL");
+                else if (word_array_storage(result_kind)) result = stack_push_iarray(b, &st, "NULL", result_kind);
+                else if (result_kind == NVM2C_VK_SARR) result = stack_push_sarr(b, &st, "NULL");
+                else if (result_kind == NVM2C_VK_AARR) result = stack_push_aarr(b, &st, "NULL");
                 else result = stack_push_temp(b, &st, "0");
                 if (b->failed) goto done;
             }
@@ -7287,16 +7329,19 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     uint8_t *inference = malloc(fact_size);
     uint8_t *global_stored = calloc(b.global_count ? b.global_count : 1, 1);
     uint32_t *function_targets = calloc(shape_local_count, sizeof *function_targets);
+    uint32_t *function_results = calloc(mod->function_count ? mod->function_count : 1,
+                                        sizeof *function_results);
     uint8_t *kinds = calloc((size_t)mod->function_count * b.local_width, 1);
     uint8_t *rec_fields = calloc((size_t)mod->function_count * b.local_width
                                  * b.record_width, 1);
-    if (!kinds || !rec_fields || !inference || !global_stored || !function_targets || !b.shape_locals || !b.shape_results ||
+    if (!kinds || !rec_fields || !inference || !global_stored || !function_targets || !function_results || !b.shape_locals || !b.shape_results ||
         !b.shape_globals || !b.shape_outputs || !b.indirect_targets || !b.join_shapes || !b.emitted_functions ||
         !b.required_functions || !b.tagged_locals || !b.local_scalar_tags ||
         !b.variant_locals || !b.variant_results) {
         free(inference);
         free(global_stored);
         free(function_targets);
+        free(function_results);
         free(kinds);
         free(rec_fields);
         free(b.shape_locals);
@@ -7333,6 +7378,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     facts.global_fields = facts.global_kinds + b.global_count;
     facts.global_stored = global_stored;
     facts.function_targets = function_targets;
+    facts.function_results = function_results;
     /* I discover exact record/byte-array globals before ordinary inference. A
      * load cannot publish the old tagged fallback into a local or parameter
      * before a later function reveals the global's exact element shape. */
@@ -8179,6 +8225,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(inference);
     free(global_stored);
     free(function_targets);
+    free(function_results);
     nvm_shape_destroy(&b.shapes);
     free(b.shape_locals);
     free(b.shape_results);
@@ -8212,6 +8259,7 @@ fail:
     free(inference);
     free(global_stored);
     free(function_targets);
+    free(function_results);
     nvm_shape_destroy(&b.shapes);
     free(b.shape_locals);
     free(b.shape_results);

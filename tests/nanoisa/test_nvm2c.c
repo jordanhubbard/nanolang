@@ -3385,8 +3385,8 @@ static void test_indirect_target_inference_order(void) {
     if (missing) {
         char error[512];
         char *c = nvm2c_emit(missing, error, sizeof error);
-        CHECK(c == NULL && strstr(error, "CALL_INDIRECT has no exact function target"),
-              "I still refuse a missing target after callback facts converge");
+        CHECK(c == NULL && strstr(error, "CALL_INDIRECT target parameter mismatch"),
+              "I use the exact target to refuse an incompatible callback argument");
         free(c);
         nvm_module_free(missing);
     }
@@ -3424,11 +3424,11 @@ static void test_exact_aggregate_callback_provenance(void) {
     }
 
     NvmModule *wrong = assemble_ok(
-        ".entry main\n.string text \"not an array\"\n"
-        ".function main 0 0 0 int 1\nPUSH_STR text\nFUNCREF identity\n"
+        ".entry main\n"
+        ".function main 0 0 0 int 1\nPUSH_F64 1.5\nFUNCREF identity\n"
         "CALL_INDIRECT 1 1\nPOP\nPUSH_I64 0\nRET\n.end\n"
-        ".function identity 1 1 0 array 1\nLOAD_LOCAL 0\nRET\n.end\n"
-        ".parameters identity array\n", "exact target with an incompatible argument tag");
+        ".function identity 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n"
+        ".parameters identity int\n", "exact target with an incompatible argument tag");
     if (wrong) {
         char error[512];
         char *c = nvm2c_emit(wrong, error, sizeof error);
