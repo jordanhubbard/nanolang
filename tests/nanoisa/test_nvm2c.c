@@ -6653,7 +6653,7 @@ static void test_uncalled_array_record_consumer_constraints(void) {
         const char *consumer =
             ".function consume 1 1 0 int 1\n"
             " LOAD_LOCAL 0\n AGG_GET 0\n RET\n.end\n";
-        char source[1024];
+        char source[2 * sizeof reader + 128];
         snprintf(source, sizeof source,
             ".entry 2\n%s%s.parameters %u array\n"
             ".function main 0 0 0 int 1\n PUSH_I64 0\n RET\n.end\n",

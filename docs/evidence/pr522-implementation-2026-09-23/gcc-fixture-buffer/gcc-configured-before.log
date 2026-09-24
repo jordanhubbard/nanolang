@@ -1,0 +1,22 @@
+docker --context colima-nanolang-pr522 exec -w /qualification nanolang-pr522-debug gcc -Wall -Wextra -Werror -std=c99 -O3 -D_GNU_SOURCE -Isrc -Isrc/nanoisa -Imodules/nanoisa -c /tmp/pr522-test-nvm2c-before.c -o /tmp/pr522-test-nvm2c-before.o
+/tmp/pr522-test-nvm2c-before.c: In function 'test_uncalled_array_record_consumer_constraints':
+/tmp/pr522-test-nvm2c-before.c:6658:26: error: '%s' directive output may be truncated writing up to 511 bytes into a region of size between 504 and 1015 [-Werror=format-truncation=]
+ 6658 |             ".entry 2\n%s%s.parameters %u array\n"
+      |                          ^~
+/tmp/pr522-test-nvm2c-before.c:6658:13: note: directive argument in the range [0, 1]
+ 6658 |             ".entry 2\n%s%s.parameters %u array\n"
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /usr/include/stdio.h:980,
+                 from /tmp/pr522-test-nvm2c-before.c:5:
+In function 'snprintf',
+    inlined from 'test_uncalled_array_record_consumer_constraints' at /tmp/pr522-test-nvm2c-before.c:6657:9:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: '__builtin___snprintf_chk' output between 79 and 1101 bytes into a destination of size 1024
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+
+exit 1
