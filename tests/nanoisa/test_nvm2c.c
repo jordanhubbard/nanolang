@@ -3349,6 +3349,49 @@ static void test_string_split_structured_c(void) {
     nvm_module_free(module);
 }
 
+static void test_indirect_target_inference_order(void) {
+    const char *functions[] = {
+        ".function main 0 0 0 int 1\nPUSH_I64 42\nAGG_PACK 0 0 0 1\n"
+        "FUNCREF read\nCALL apply\nRET\n.end\n",
+        ".function apply 2 2 0 int 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\n"
+        "CALL_INDIRECT 1 1\nRET\n.end\n.parameters apply struct function\n",
+        ".function read 1 1 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n.end\n"
+        ".parameters read struct\n"
+    };
+    const unsigned orders[][3] = {{0,1,2}, {0,2,1}, {1,0,2}, {1,2,0}, {2,0,1}, {2,1,0}};
+    for (size_t order = 0; order < sizeof orders / sizeof orders[0]; ++order) {
+        char source[2048];
+        snprintf(source, sizeof source, ".types 1 0 0\n.entry main\n%s%s%s",
+                 functions[orders[order][0]], functions[orders[order][1]],
+                 functions[orders[order][2]]);
+        NvmModule *m = assemble_ok(source, "indirect record argument in every function order");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I converge indirect target facts independently of function order");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 42,
+                  "I execute the same record callback in every function order");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+
+    NvmModule *missing = assemble_ok(
+        ".entry main\n.string text \"wrong argument\"\n"
+        ".function main 0 0 0 int 1\nPUSH_STR text\nFUNCREF identity\n"
+        "CALL_INDIRECT 1 1\nRET\n.end\n"
+        ".function identity 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n"
+        ".parameters identity int\n", "unresolved indirect target after convergence");
+    if (missing) {
+        char error[512];
+        char *c = nvm2c_emit(missing, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "CALL_INDIRECT has no exact function target"),
+              "I still refuse a missing target after callback facts converge");
+        free(c);
+        nvm_module_free(missing);
+    }
+}
+
 static void test_array_result_kinds(void) {
     const int tags[] = {1, 5, 8};
     const char *elements[] = {"PUSH_I64 42", "PUSH_STR text", "PUSH_I64 42\nAGG_PACK 0 0 0 1"};
@@ -6764,6 +6807,7 @@ static void test_nested_scalar_arrays(void) {
 }
 
 int main(int argc, char **argv) {
+    test_indirect_target_inference_order();
     test_nested_scalar_arrays();
     test_mixed_array_push_helpers();
     test_record_temporary_storage_is_function_sized();

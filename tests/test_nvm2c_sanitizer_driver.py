@@ -20,6 +20,7 @@ class SanitizerDriver(unittest.TestCase):
             self.assertTrue(root.is_dir())
             self.assertFalse(obj.exists())
             self.assertEqual(Path(values["BIN_DIR"]), root / "bin")
+            self.assertEqual(Path(values["FILE_PUBLIC_LIBRARY"]), root / "lib/libnano_file_runtime.a")
             self.assertEqual(Path(values["NVM2C_TEST_BINARY"]), root / "bin/test_nvm2c")
             self.assertIn(driver.FLAGS, values["CC"])
             self.assertEqual(command[-1], "test-nvm2c")
