@@ -21,7 +21,7 @@ class OwnedValueGraphs(unittest.TestCase):
             run = self.checked([os.environ.get('NANO_OWNED_VALUE_GRAPH_TEST', ROOT/'obj/test_owned_value_graphs'), tmp])
             print(run.stdout, end='')
             cases = [line.split() for line in run.stdout.splitlines() if line.startswith('case ')]
-            self.assertEqual(len(cases), 10)
+            self.assertEqual(len(cases), 12)
             for _, index, status, value in cases:
                 with self.subTest(case=index):
                     succeeds = status == '0'

@@ -295,6 +295,10 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             nvm2c_printf(&b," { nown_record *record=nown_referent(origins,generations,&refs[%u]); if(!record){status=3;goto cleanup;} record->fields[%u]=t[%d]; t[%d]=(nown_value){0}; }\n",local,in->operands[1].u16,n-1,n-1);break;
         case OP_NOP: break;
         case OP_PUSH_VOID:nvm2c_printf(&b," t[%d]=(nown_value){0};\n",n);break;
+        case OP_FUNCREF:
+            if(!value_graph || in->operands[0].u32>=mod->function_count ||
+               mod->functions[in->operands[0].u32].upvalue_count) goto fail;
+            nvm2c_printf(&b," t[%d]=(nown_value){.scalar=%u,.tag=%u};\n",n,in->operands[0].u32,TAG_FUNCTION);break;
         case OP_PUSH_I64:
             nvm2c_printf(&b,shared?" t[%d]=(nown_value){.scalar=nown_i64_bits(UINT64_C(%llu)),.tag=%u};\n":
                 " t[%d]=(nown_value){.scalar=(int64_t)UINT64_C(%llu),.tag=%u};\n",n,(unsigned long long)(uint64_t)in->operands[0].i64,TAG_INT);break;

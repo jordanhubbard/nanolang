@@ -22,6 +22,8 @@ bool nvm_affine_state_equal(const NvmAffineState *a, const NvmAffineState *b);
 bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
                                           const NvmAffineState *incoming,bool *changed);
 bool nvm_affine_scalar_define(NvmAffineState *state, uint16_t local);
+/* I initialize a noncapturing function value, never a numeric scalar or owner. */
+bool nvm_affine_function_define(NvmAffineState *state, uint16_t local);
 /* I keep retainable STRING operations separate from numeric scalar APIs. */
 bool nvm_affine_string_define(NvmAffineState *state, uint16_t local);
 bool nvm_affine_string_field(const NvmAffineState *state, uint16_t local,

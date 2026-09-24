@@ -55,7 +55,7 @@ static bool union_value(const Facts *f, Slot slot) {
 }
 static bool supported(const Facts *f,Slot slot) {
     return scalar(slot.tag) ||
-           (slot.tag == TAG_STRING && slot.layout == NVM_V2_NO_INDEX) ||
+           ((slot.tag == TAG_STRING || slot.tag == TAG_FUNCTION) && slot.layout == NVM_V2_NO_INDEX) ||
            (slot.tag == TAG_STRUCT && slot.layout != NVM_V2_NO_INDEX) ||
            union_value(f,slot);
 }
@@ -171,7 +171,7 @@ static bool state_equal(const NvmAffineState *a, const NvmAffineState *b, bool m
     for (uint16_t i=0;i<a->facts->count;i++) {
         Slot slot=a->facts->locals[i];
         if (meet_scalars && !slot.mode && !resource(a->facts,slot) &&
-            (scalar(slot.tag) || slot.tag==TAG_STRING || slot.tag==TAG_UNION)) continue;
+            (scalar(slot.tag) || slot.tag==TAG_STRING || slot.tag==TAG_FUNCTION || slot.tag==TAG_UNION)) continue;
         if (a->live[i]!=b->live[i]) return false;
         if (!meet_scalars && slot.tag==TAG_UNION && a->live[i] &&
             a->variants[i]!=b->variants[i]) return false;
@@ -203,7 +203,7 @@ bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
     if (!state_equal(destination,incoming,true)) return false;
     for (uint16_t i=0;i<destination->facts->count;i++) {
         Slot slot=destination->facts->locals[i];
-        if (!slot.mode && !resource(destination->facts,slot) && (scalar(slot.tag) || slot.tag==TAG_STRING || slot.tag==TAG_UNION) && destination->live[i] && !incoming->live[i]) {
+        if (!slot.mode && !resource(destination->facts,slot) && (scalar(slot.tag) || slot.tag==TAG_STRING || slot.tag==TAG_FUNCTION || slot.tag==TAG_UNION) && destination->live[i] && !incoming->live[i]) {
             destination->live[i]=false;
             if (slot.tag==TAG_UNION) destination->variants[i]=NVM_AFFINE_UNKNOWN_VARIANT;
             *changed=true;
@@ -247,13 +247,18 @@ bool nvm_affine_owner_access(const NvmAffineState *s,uint16_t local,
 static bool destination(const NvmAffineState *s,uint16_t local) {
     if (!value_local(s,local)) return false;
     if (!s->live[local]) return true;
-    if (s->facts->locals[local].tag==TAG_UNION) return !resource(s->facts,s->facts->locals[local]);
+    if (s->facts->locals[local].tag==TAG_UNION || s->facts->locals[local].tag==TAG_FUNCTION) return !resource(s->facts,s->facts->locals[local]);
     return !resource(s->facts,s->facts->locals[local]) &&
            nvm_affine_owner_access(s,local,NULL,0,true);
 }
 bool nvm_affine_scalar_define(NvmAffineState *s,uint16_t local) {
     if (!destination(s,local) || !scalar(s->facts->locals[local].tag)) return false;
     s->live[local]=true; return true;
+}
+bool nvm_affine_function_define(NvmAffineState *s,uint16_t local) {
+    if (!destination(s,local) || s->facts->locals[local].tag!=TAG_FUNCTION ||
+        s->facts->locals[local].layout!=NVM_V2_NO_INDEX) return false;
+    s->live[local]=true;return true;
 }
 bool nvm_affine_string_define(NvmAffineState *s,uint16_t local) {
     if (!destination(s,local) || s->facts->locals[local].tag!=TAG_STRING ||
@@ -442,7 +447,7 @@ bool nvm_affine_local_info(const NvmAffineState *s,uint16_t local,
     if (!s || local>=s->facts->count || !s->live[local] || !tag || !mode) return false;
     Slot slot=s->facts->locals[local];
     if (s->caller_bound && slot.mode) return false;
-    if (!slot.mode && slot.tag!=TAG_UNION &&
+    if (!slot.mode && slot.tag!=TAG_UNION && slot.tag!=TAG_FUNCTION &&
         !nvm_affine_owner_access(s,local,NULL,0,false)) return false;
     *tag=slot.tag; *mode=slot.mode; return true;
 }
@@ -664,7 +669,7 @@ bool nvm_affine_value_result(const NvmAffineState *s,NvmAffineType *type,
     } else if (result.tag==TAG_UNION) {
         if (!union_value(s->facts,result)) return false;
     } else if ((result.tag!=TAG_VOID && result.tag!=TAG_INT &&
-                result.tag!=TAG_BOOL && result.tag!=TAG_U8) ||
+                result.tag!=TAG_BOOL && result.tag!=TAG_U8 && result.tag!=TAG_FUNCTION) ||
                result.layout!=NVM_V2_NO_INDEX) return false;
     *type=(NvmAffineType){result.tag,result.layout};*field_count=fields;
     return true;
@@ -680,7 +685,7 @@ bool nvm_affine_value_parameters(const NvmAffineState *s,NvmAffineType *types,
         if (parameter.tag==TAG_STRUCT) {
             if (!resource(s->facts,parameter) ||
                 !(s->facts->flags[parameter.layout]&NVM_LAYOUT_COMPLETE)) return false;
-        } else if (parameter.tag==TAG_STRING) {
+        } else if (parameter.tag==TAG_STRING || parameter.tag==TAG_FUNCTION) {
             if (parameter.layout!=NVM_V2_NO_INDEX) return false;
         } else if (parameter.tag==TAG_UNION) {
             if (!union_value(s->facts,parameter)) return false;
