@@ -105,6 +105,7 @@ static int interpret_file(const char *input_file, bool do_proptest,
     }
 
     /* Phase 4: Type check (also registers all functions/structs/enums/unions) */
+    env_set_current_file(env, input_file);
     typecheck_set_current_file(input_file);
     if (!type_check(program, env)) {
         fprintf(stderr, "nano: type checking failed\n");

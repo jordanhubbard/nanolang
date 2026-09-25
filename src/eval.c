@@ -3618,6 +3618,14 @@ static Value eval_builtin_call(ASTNode *node, Environment *env, const char *name
         }
         return create_int((long long)ts.tv_sec * 1000LL + ts.tv_nsec / 1000000LL);
     }
+    if (strcmp(name, "nl_timing_get_microseconds") == 0) {
+        struct timespec ts;
+        if (node->as.call.arg_count != 0 || clock_gettime(CLOCK_REALTIME, &ts) != 0) {
+            fprintf(stderr, "I cannot read epoch microseconds.\n");
+            exit(1);
+        }
+        return create_int((long long)ts.tv_sec * 1000000LL + ts.tv_nsec / 1000LL);
+    }
     if (strcmp(name, "nl_timing_get_nanoseconds") == 0) {
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);

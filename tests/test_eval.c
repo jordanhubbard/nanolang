@@ -2944,15 +2944,25 @@ void test_eval_epoch_milliseconds(void) {
     RunCtx ctx;
     ASSERT(run_ctx_init(&ctx,
         "extern fn nl_get_time_ms() -> int\n"
+        "extern fn nl_timing_get_microseconds() -> int\n"
         "fn now() -> int { unsafe { return (nl_get_time_ms) } }\n"
+        "fn now_us() -> int { unsafe { return (nl_timing_get_microseconds) } }\n"
         "fn main() -> int { return 0 }\n"
-        "shadow now { assert (> (now) 0) }\n"));
-    const struct { time_t seconds; long nanoseconds; long long expected; } cases[] = {
-        {0, 0, 0},
-        {1700000000, 999999, 1700000000000LL},
-        {1700000000, 1000000, 1700000000001LL},
-        {1700000000, 999999999, 1700000000999LL},
-        {1700000001, 0, 1700000001000LL},
+        "shadow now { assert (> (now) 0) }\n"
+        "shadow now_us { assert (> (now_us) 0) }\n"));
+    const struct {
+        time_t seconds;
+        long nanoseconds;
+        long long expected_ms;
+        long long expected_us;
+    } cases[] = {
+        {0, 0, 0, 0},
+        {1700000000, 999, 1700000000000LL, 1700000000000000LL},
+        {1700000000, 1000, 1700000000000LL, 1700000000000001LL},
+        {1700000000, 999999, 1700000000000LL, 1700000000000999LL},
+        {1700000000, 1000000, 1700000000001LL, 1700000000001000LL},
+        {1700000000, 999999999, 1700000000999LL, 1700000000999999LL},
+        {1700000001, 0, 1700000001000LL, 1700000001000000LL},
     };
     s_epoch_clock_active = 1;
     for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
@@ -2963,7 +2973,13 @@ void test_eval_epoch_milliseconds(void) {
         ASSERT_EQ(s_epoch_clock_calls, 1);
         ASSERT_EQ(s_epoch_clock_id, CLOCK_REALTIME);
         ASSERT(result.type == VAL_INT);
-        ASSERT_EQ(result.as.int_val, cases[i].expected);
+        ASSERT_EQ(result.as.int_val, cases[i].expected_ms);
+        s_epoch_clock_calls = 0;
+        result = call_function("now_us", NULL, 0, ctx.env);
+        ASSERT_EQ(s_epoch_clock_calls, 1);
+        ASSERT_EQ(s_epoch_clock_id, CLOCK_REALTIME);
+        ASSERT(result.type == VAL_INT);
+        ASSERT_EQ(result.as.int_val, cases[i].expected_us);
     }
     s_epoch_clock_active = 0;
     run_ctx_free(&ctx);

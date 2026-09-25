@@ -23,7 +23,7 @@
  * relying on closure variable capture.
  */
 
-module "modules/dispatch/dispatch.nano"
+module "modules/dispatch/dispatch.nano" as dispatch
 
 # @pure
 fn noop_work() -> void {}
@@ -33,7 +33,7 @@ shadow noop_work {
 }
 
 fn main() -> int {
-    if (not (dispatch_available)) {
+    if (not (dispatch.dispatch_available)) {
         (println "SKIP: libdispatch is not available on this platform")
         return 0
     }
@@ -43,35 +43,35 @@ fn main() -> int {
     }
 
     let n_tasks: int = 16
-    let q_work: NlQueue = (queue_concurrent "nano.pipeline.work")
-    let q_result: NlQueue = (queue_serial "nano.pipeline.result")
-    let g: NlQueueGroup = (group_create)
+    let q_work: dispatch.NlQueue = (dispatch.queue_concurrent "nano.pipeline.work")
+    let q_result: dispatch.NlQueue = (dispatch.queue_serial "nano.pipeline.result")
+    let g: dispatch.NlQueueGroup = (dispatch.group_create)
 
     /* Fan out N no-op tasks */
     let mut i: int = 0
     while (< i n_tasks) {
-        (group_async g q_work fn() -> void { (noop_work) })
+        (dispatch.group_async g q_work fn() -> void { (noop_work) })
         set i (+ i 1)
     }
 
     /* Wait for all compute tasks */
-    let rc: int = (group_wait_ms g 5000)
+    let rc: int = (dispatch.group_wait_ms g 5000)
     if (!= rc 0) {
         (println "FAIL: compute group_wait failed!")
-        (group_destroy g)
-        (queue_destroy q_work)
-        (queue_destroy q_result)
+        (dispatch.group_destroy g)
+        (dispatch.queue_destroy q_work)
+        (dispatch.queue_destroy q_result)
         return 1
     }
 
     /* Drain result queue with a no-op */
-    (queue_sync q_result fn() -> void {})
+    (dispatch.queue_sync q_result fn() -> void {})
 
     (println "PASS: all pipeline tasks completed")
 
-    (group_destroy g)
-    (queue_destroy q_work)
-    (queue_destroy q_result)
+    (dispatch.group_destroy g)
+    (dispatch.queue_destroy q_work)
+    (dispatch.queue_destroy q_result)
     return 0
 }
 
