@@ -75,7 +75,8 @@ print-native-test-cc:
         self.assertNotIn("$(CC) $(CFLAGS)", target)
 
         for name in ("test_map_declared_tags.py", "test_native_map_globals.py",
-                     "test_owned_value_graphs.py", "test_canonical_match_guards.py"):
+                     "test_owned_value_graphs.py", "test_canonical_match_guards.py",
+                     "test_runtime_list_boundaries.py"):
             source = (ROOT / "tests" / name).read_text()
             self.assertIn("native_cc()", source)
             self.assertNotIn("NANOLANG_GUARD_SAN_CC", source)
