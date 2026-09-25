@@ -50,7 +50,7 @@ NvmDeclarationResult nvm_prepare_ownership_declarations(
         projection.rows=p->rows;projection.capacity=p->count;
         projection.starts=p->starts;projection.variants=p->variants;
         NvmV2Cursor cursor;nvm_v2_cursor_init(&cursor,projection.view.data,projection.view.size);
-        NvmV2Result result=union_facts_read(&cursor,m,&ordinary->layouts,NVM_V2_NO_INDEX,0,NULL,&projection);
+        NvmV2Result result=union_facts_read(&cursor,m,&ordinary->layouts,NVM_V2_NO_INDEX,0,NULL,&projection,false);
         if(result!=NVM_V2_OK || projection.count!=p->count) {
             nvm_ownership_declarations_free(p);return declaration_result(NVM_DECL_INVALID);
         }

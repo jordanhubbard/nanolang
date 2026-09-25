@@ -1,0 +1,7 @@
+test_primitive_lists_retain_identity_in_records_and_generic_unions (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_primitive_lists_retain_identity_in_records_and_generic_unions) ... ok
+test_scalar_boolean_casts_agree_in_vm_and_native (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_scalar_boolean_casts_agree_in_vm_and_native) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.080s
+
+OK

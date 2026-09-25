@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "list_operation.h"
 #include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
@@ -168,17 +169,7 @@ static bool is_runtime_typedef(const char *name) {
 
 /* Schema-defined list element types have dedicated runtime list implementations */
 static bool is_schema_list_type(const char *name) {
-    if (!name) return false;
-    if (strncmp(name, "AST", 3) == 0) {
-        return true;
-    }
-    if (strcmp(name, "LexerToken") == 0) {
-        return true;
-    }
-    if (strcmp(name, "CompilerDiagnostic") == 0) {
-        return true;
-    }
-    return false;
+    return nl_list_has_schema_runtime(name);
 }
 
 /* Check if an enum/struct name would conflict with C runtime types */
@@ -454,9 +445,8 @@ static void collect_headers_from_module(const char *module_path) {
         for (size_t i = 0; i < meta->headers_count; i++) {
             add_module_header(meta->headers[i], meta->header_priority);
         }
-        module_metadata_free(meta);
     }
-    
+    module_metadata_free(meta);
     free(path_copy);
 }
 
@@ -848,6 +838,7 @@ static void emit_generic_forward_decl(StringBuilder *sb, const ASTNode *orig,
     else        sb_append(sb, type_to_c(rt));
 
     sb_appendf(sb, " nl_%s(", inst->mono_name);
+    if (orig->as.function.param_count == 0) sb_append(sb, "void");
 
     /* Parameters */
     for (int j = 0; j < orig->as.function.param_count; j++) {
@@ -1426,6 +1417,21 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
                     emitted_runtime_includes = true;
                 }
                 sb_appendf(sb, "#include \"runtime/list_%s.h\"\n", type_name);
+                /* I preserve the raw list ABI while owning constructor results.
+                 * Object-like aliases also cover references to constructors. */
+                sb_append(sb, "#ifndef __wasm__\n");
+                sb_append(sb, "#include \"runtime/list_capacity.h\"\n");
+                sb_appendf(sb, "static inline void __nano_seed_list_%s_finalize(void *value) { nl_list_%s_free((List_%s*)value); }\n", type_name, type_name, type_name);
+                sb_appendf(sb, "static inline List_%s *__nano_seed_list_%s_adopt(List_%s *value) {\n", type_name, type_name, type_name);
+                sb_appendf(sb, "    List_%s *owned = gc_process_own(value, __nano_seed_list_%s_finalize);\n", type_name, type_name);
+                sb_append(sb, "    if (!owned) { fputs(\"I could not retain list ownership.\\n\", stderr); exit(1); }\n    return owned;\n}\n");
+                sb_appendf(sb, "static inline List_%s *__nano_seed_list_%s_new(void) { return __nano_seed_list_%s_adopt(nl_list_%s_new()); }\n", type_name, type_name, type_name, type_name);
+                sb_appendf(sb, "static inline List_%s *__nano_seed_list_%s_with_capacity(int64_t capacity) { return __nano_seed_list_%s_adopt(nl_list_%s_with_capacity(nl_list_checked_capacity(capacity))); }\n", type_name, type_name, type_name, type_name);
+                sb_appendf(sb, "static inline void __nano_seed_list_%s_free(List_%s *value) { gc_process_forget(value); nl_list_%s_free(value); }\n", type_name, type_name, type_name);
+                sb_appendf(sb, "#define nl_list_%s_new __nano_seed_list_%s_new\n", type_name, type_name);
+                sb_appendf(sb, "#define nl_list_%s_with_capacity __nano_seed_list_%s_with_capacity\n", type_name, type_name);
+                sb_appendf(sb, "#define nl_list_%s_free __nano_seed_list_%s_free\n", type_name, type_name);
+                sb_append(sb, "#endif\n");
             }
         }
         if (emitted_runtime_includes) {
@@ -1625,6 +1631,11 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_appendf(sb, "    %s_Entry *entries;\n", struct_name);
         sb_append(sb, "};\n\n");
 
+        sb_appendf(sb, "static void nl_hashmap_%s_free(%s *hm);\n", suffix, struct_name);
+        sb_append(sb, "#ifndef __wasm__\n");
+        sb_appendf(sb, "static void nl_hashmap_%s_finalize(void *value) { nl_hashmap_%s_free((%s*)value); }\n", suffix, suffix, struct_name);
+        sb_append(sb, "#endif\n");
+
         sb_appendf(sb, "static %s* nl_hashmap_%s_alloc(int64_t cap) {\n", struct_name, suffix);
         sb_appendf(sb, "    %s *hm = (%s*)malloc(sizeof(%s));\n", struct_name, struct_name, struct_name);
         sb_append(sb, "    if (!hm) return NULL;\n");
@@ -1633,6 +1644,9 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    hm->tombstones = 0;\n");
         sb_appendf(sb, "    hm->entries = (%s_Entry*)calloc((size_t)cap, sizeof(%s_Entry));\n", struct_name, struct_name);
         sb_append(sb, "    if (!hm->entries) { free(hm); return NULL; }\n");
+        sb_append(sb, "#ifndef __wasm__\n");
+        sb_appendf(sb, "    return (%s*)gc_process_own(hm, nl_hashmap_%s_finalize);\n", struct_name, suffix);
+        sb_append(sb, "#endif\n");
         sb_append(sb, "    return hm;\n");
         sb_append(sb, "}\n\n");
 
@@ -1782,6 +1796,7 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "}\n\n");
 
         sb_appendf(sb, "static void nl_hashmap_%s_free(%s *hm) {\n", suffix, struct_name);
+        sb_append(sb, "#ifndef __wasm__\n    gc_process_forget(hm);\n#endif\n");
         sb_append(sb, "    if (!hm) return;\n");
         sb_appendf(sb, "    nl_hashmap_%s_clear(hm);\n", suffix);
         sb_append(sb, "    free(hm->entries);\n");
@@ -3347,6 +3362,7 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
             }
 
             sb_appendf(sb, " %s(", c_name);
+            if (mi->as.function.param_count == 0) sb_append(sb, "void");
 
             /* Parameters */
             for (int p = 0; p < mi->as.function.param_count; p++) {
@@ -3532,6 +3548,7 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
             /* Use namespace-aware function name (handles module::function -> module__function) */
             const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name, item->as.function.is_extern);
             sb_appendf(sb, " %s(", c_func_name);
+            if (item->as.function.param_count == 0) sb_append(sb, "void");
             
             /* Function parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
@@ -3658,6 +3675,7 @@ static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
     else        sb_append(sb, type_to_c(rt));
 
     sb_appendf(sb, " nl_%s(", inst->mono_name);
+    if (orig->as.function.param_count == 0) sb_append(sb, "void");
 
     /* Parameters */
     for (int j = 0; j < orig->as.function.param_count; j++) {
@@ -3804,6 +3822,7 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
             /* Use namespace-aware function name (handles module::function -> module__function) */
             const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name, item->as.function.is_extern);
             sb_appendf(sb, " %s(", c_func_name);
+            if (item->as.function.param_count == 0) sb_append(sb, "void");
             
             /* Function parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
@@ -3998,23 +4017,7 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    return (int64_t)isatty((int)fd);\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "/* Capture stdout from a shell command */\n");
-    sb_append(sb, "static inline const char* nl_exec_capture(const char* cmd) {\n");
-    sb_append(sb, "    FILE* pipe = popen(cmd, \"r\");\n");
-    sb_append(sb, "    if (!pipe) return \"\";\n");
-    sb_append(sb, "    char* out = (char*)malloc(65536);\n");
-    sb_append(sb, "    if (!out) { pclose(pipe); return \"\"; }\n");
-    sb_append(sb, "    size_t total = 0;\n");
-    sb_append(sb, "    while (total < 65535) {\n");
-    sb_append(sb, "        size_t n = fread(out + total, 1, 65535 - total, pipe);\n");
-    sb_append(sb, "        if (n == 0) break;\n");
-    sb_append(sb, "        total += n;\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    out[total] = '\\0';\n");
-    sb_append(sb, "    pclose(pipe);\n");
-    sb_append(sb, "    return out;\n");
-    sb_append(sb, "}\n\n");
-
+    sb_append(sb, "#include \"runtime/cseed_capture.h\"\n");
     sb_append(sb, "#include \"runtime/process_capture.h\"\n");
     sb_append(sb, "#ifndef NANOLANG_STD_PROCESS_H\n");
     sb_append(sb, "static DynArray* nl_os_process_run(const char* command) {\n");
@@ -4058,6 +4061,9 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
     if (env && env->profile_gprof && has_local_main) {
         const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name, main_func->is_extern);
         sb_append(sb, "int main(int argc, char **argv) {\n");
+        sb_append(sb, "#ifndef __wasm__\n");
+        sb_append(sb, "    if (atexit(gc_shutdown) != 0) { fprintf(stderr, \"I could not register GC shutdown.\\n\"); return 1; }\n");
+        sb_append(sb, "#endif\n");
         sb_append(sb, "    g_argc = argc;\n");
         sb_append(sb, "    g_argv = argv;\n");
         sb_append(sb, "    setvbuf(stdout, NULL, _IOLBF, 0);\n");
@@ -4066,6 +4072,9 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
     } else {
         /* Normal main without gprof profiling */
         sb_append(sb, "int main(int argc, char **argv) {\n");
+        sb_append(sb, "#ifndef __wasm__\n");
+        sb_append(sb, "    if (atexit(gc_shutdown) != 0) { fprintf(stderr, \"I could not register GC shutdown.\\n\"); return 1; }\n");
+        sb_append(sb, "#endif\n");
         sb_append(sb, "    g_argc = argc;\n");
         sb_append(sb, "    g_argv = argv;\n");
         /* Line-buffer stdout so println output appears immediately even when piped */
@@ -4175,8 +4184,11 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
             } else {
                 sb_append(sb, "void*");
             }
-        } else if (item->as.let.var_type == TYPE_UNION && item->as.let.type_info) {
-            emit_native_type_info(env, sb, item->as.let.type_info);
+        } else if ((item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION ||
+                    item->as.let.var_type == TYPE_ENUM) && item->as.let.type_name) {
+            if (item->as.let.type_info && item->as.let.type_info->generic_name)
+                emit_native_type_info(env, sb, item->as.let.type_info);
+            else sb_append(sb, get_prefixed_type_name(item->as.let.type_name));
         } else {
             sb_append(sb, type_to_c(item->as.let.var_type));
         }
@@ -4362,7 +4374,55 @@ static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry
     }
 }
 
-/* Generate module extern declarations (extern functions from imported modules) */
+/* I require an explicit, same-source companion before adopting foreign storage.
+ * These adapters retain the raw string ABI until explicit release or exit. */
+static void generate_owned_string_adapters(StringBuilder *sb, Environment *env) {
+    if (!env) return;
+    sb_append(sb, "#ifndef __wasm__\n");
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *fn = &env->functions[i];
+        if (!fn->is_extern || fn->return_type != TYPE_STRING || !fn->name ||
+            fn->alias_of || !fn->source_file || strchr(fn->name, '.') ||
+            (fn->param_count > 0 && !fn->params)) continue;
+        bool scalar = true;
+        for (int j = 0; j < fn->param_count; ++j) {
+            Type t = fn->params[j].type;
+            if (t != TYPE_INT && t != TYPE_U8 && t != TYPE_FLOAT &&
+                t != TYPE_BOOL && t != TYPE_STRING) scalar = false;
+        }
+        if (!scalar) continue;
+        char release[1024];
+        int length = snprintf(release, sizeof(release), "%s__nano_string_release_v1", fn->name);
+        if (length < 0 || (size_t)length >= sizeof(release)) continue;
+        Function *cleanup = env_get_function(env, release);
+        if (!cleanup || !cleanup->is_extern || cleanup->return_type != TYPE_VOID ||
+            cleanup->param_count != 1 || !cleanup->params || cleanup->params[0].type != TYPE_STRING ||
+            !cleanup->source_file || strcmp(fn->source_file, cleanup->source_file) != 0)
+            continue;
+        sb_appendf(sb, "static void __nano_seed_string_%s_finalize(void *p) { %s((const char*)p); }\n",
+                   fn->name, release);
+        sb_appendf(sb, "static const char *__nano_seed_string_%s(", fn->name);
+        if (!fn->param_count) sb_append(sb, "void");
+        for (int j = 0; j < fn->param_count; ++j) {
+            if (j) sb_append(sb, ", ");
+            sb_appendf(sb, "%s a%d", type_to_c(fn->params[j].type), j);
+        }
+        sb_appendf(sb, ") { const char *p = %s(", fn->name);
+        for (int j = 0; j < fn->param_count; ++j) {
+            if (j) sb_append(sb, ", ");
+            sb_appendf(sb, "a%d", j);
+        }
+        sb_appendf(sb, "); if (!p) return NULL; const char *owned = gc_process_own((void*)p, __nano_seed_string_%s_finalize); "
+                   "if (!owned) { fprintf(stderr, \"I could not retain an owned foreign string.\\n\"); exit(1); } return owned; }\n", fn->name);
+        sb_appendf(sb, "static void __nano_seed_string_%s_release(const char *p) { gc_process_forget((void*)p); %s(p); }\n",
+                   fn->name, release);
+        /* Object-like names also preserve ownership through function values. */
+        sb_appendf(sb, "#define %s __nano_seed_string_%s\n#define %s __nano_seed_string_%s_release\n",
+                   fn->name, fn->name, release, fn->name);
+    }
+    sb_append(sb, "#endif\n");
+}
+
 static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env, FunctionTypeRegistry *fn_registry) {
     /* Generate extern declarations for module wrapper functions (e.g., nl_sqlite3_*)
      * Note: System library functions (e.g., SDL_*, sqlite3_*) are declared in module headers,
@@ -4911,6 +4971,7 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
 
     /* Also generate extern declarations for extern functions from imported modules */
     generate_module_extern_declarations(sb, program, env, fn_registry);
+    generate_owned_string_adapters(sb, env);
 
     /* Forward declare imported module functions */
     generate_module_function_declarations(sb, program, env, input_file, fn_registry);

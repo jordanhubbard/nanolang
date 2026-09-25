@@ -13,9 +13,11 @@ PROBE = ROOT / "obj/test_module_generation_probe"
 
 
 class ModuleBuilderSelfCapture(unittest.TestCase):
-    def build(self, module):
+    def build(self, module, compiler=None):
         env = os.environ.copy()
         env.pop("NANO_BUILD_CACHE", None)
+        if compiler is not None:
+            env["NANO_CC"] = compiler
         if sys.platform == "linux":
             env["NANO_AS_CAPTURE_HELPER"] = str(ROOT / "bin/nano_as_capture.so")
         return subprocess.run([PROBE, "build", module], cwd=ROOT, env=env,
@@ -41,14 +43,15 @@ class ModuleBuilderSelfCapture(unittest.TestCase):
                             list(artifact.parent.glob("__snapshot_*.s")))
 
     def test_gcc_still_refuses_a_literal_pch_marker(self):
-        version = subprocess.run([shutil.which("cc"), "--version"], capture_output=True, check=True)
+        compiler = shutil.which("cc")
+        version = subprocess.run([compiler, "--version"], capture_output=True, check=True)
         if b"clang" in version.stdout.lower():
             self.skipTest("I exercise the GCC retained-preprocessor scanner")
         with tempfile.TemporaryDirectory(prefix="nano-literal-pch-") as tmp:
             module = Path(tmp)
             (module / "input.c").write_text('const char *marker = "#pragma GCC pch_preprocess";\n')
             (module / "module.json").write_text(json.dumps({"name": "literal", "c_sources": ["input.c"]}))
-            result = self.build(module)
+            result = self.build(module, compiler=compiler)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("I could not retain compiler and assembler inputs", result.stderr)
             self.assertFalse((module / ".build/current").exists())

@@ -1,0 +1,7 @@
+# I replace owned local nominal names without losing them
+
+I track `task_2186ee27985a4a95961c6d500bf7b6c3`. My PR948 units-07 raw LSan report points to the independently copied name in `env_define_var_with_type_info`. The AST_LET lowering then overwrites that symbol field with another strdup without releasing its previous allocation. Parser parameter names and struct-table teardown are separate findings and repairs.
+
+Before correction I retain the existing ownership: my environment owns Symbol.struct_type_name and frees it in env_free; env_define_var_with_type_info duplicates an existing name rather than sharing it. The AST owns node.as.let.type_name separately. My local code-generation descriptor borrows the AST name, not the environment copy. I complete expression lowering before obtaining the new symbol pointer, and do not call a recursive helper between the replacement allocation and publication. This narrow correction does not alter checked type_info, module provenance or declaration coordinates.
+
+I allocate a replacement first. Allocation failure reports a compiler error and leaves the previous owned name attached for ordinary environment cleanup; no module is published. Success frees the prior owned symbol name and installs the independent copy. The original LSan source fixtures remain unchanged and require fresh corrected compiler qualification; this scoped fix alone does not claim that their other reported allocations are repaired.

@@ -1,0 +1,45 @@
+{
+  "compiler": "clang",
+  "compile": [
+    "clang",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-fno-sanitize-recover=all",
+    "/home/runner/work/nanolang/nanolang/tests/fixtures/sanitizer_toolchain_canary.c",
+    "-o",
+    "/home/runner/work/_temp/sanitizer-forth/toolchain/canary",
+    "-lm",
+    "-lcrypto",
+    "-fsanitize=address,undefined",
+    "--rtlib=compiler-rt"
+  ],
+  "runs": [
+    {
+      "mode": "valid",
+      "returncode": 0,
+      "expected_diagnosis": null,
+      "accepted": true
+    },
+    {
+      "mode": "uar",
+      "returncode": 1,
+      "expected_diagnosis": "ERROR: AddressSanitizer: stack-use-after-return",
+      "accepted": true
+    },
+    {
+      "mode": "overflow",
+      "returncode": 1,
+      "expected_diagnosis": "runtime error: signed integer overflow",
+      "accepted": true
+    }
+  ],
+  "success": true,
+  "compile_returncode": 0
+}

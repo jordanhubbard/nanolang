@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 ASM = ('.types 1 0 0\n.entry main\n.function main 0 0 0 int 1\n'
@@ -19,7 +20,7 @@ class NativeMapByteDebt(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
-    def check_harness(self, body, refusals=()):
+    def check_harness(self, body, refusals=(), counters=()):
         with tempfile.TemporaryDirectory(prefix='nano-map-byte-debt-') as tmp:
             work = Path(tmp)
             asm, module, source, binary = [work / x for x in ('input.nasm', 'input.nvm', 'input.c', 'program')]
@@ -27,12 +28,19 @@ class NativeMapByteDebt(unittest.TestCase):
             self.run_checked([ROOT / 'bin/nanoisa', 'asm', asm, '-o', module])
             self.run_checked([ROOT / 'bin/nano_vm', module])
             self.run_checked([ROOT / 'bin/nvm2c', module, '-o', source])
-            generated = source.read_text().replace('static void nroot_trace(nroot_list *work) {',
-                'static size_t scans, visits;\nstatic void nroot_trace(nroot_list *work) {\n++scans;')
-            generated = generated.replace('        nroot_ref root = work->items[cursor];',
-                                          '        ++visits;\n        nroot_ref root = work->items[cursor];')
+            generated = source.read_text()
+            if counters:
+                declaration = 'static size_t ' + ', '.join(counters) + ';\n'
+                scan = '\n++scans;' if 'scans' in counters else ''
+                hook = 'static void nroot_trace(nroot_list *work) {'
+                self.assertEqual(generated.count(hook), 1)
+                generated = generated.replace(hook, declaration + hook + scan)
+            if 'visits' in counters:
+                hook = '        nroot_ref root = work->items[cursor];'
+                self.assertEqual(generated.count(hook), 1)
+                generated = generated.replace(hook, '        ++visits;\n' + hook)
             source.write_text('#define main original_main\n' + generated + '\n#undef main\n#include <stdio.h>\n' + body)
-            self.run_checked(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+            self.run_checked([*native_cc(), '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
             env = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}
             print(self.run_checked([binary], env=env).stdout, end='')
@@ -67,7 +75,7 @@ int main(void) {
     nmap_release_owned(); nrarr_release_owned(); nrec_release_snapshots();
     return 0;
 }
-''')
+''', counters=('scans', 'visits'))
 
     def test_accounting_rejects_wrap_and_underflow(self):
         self.check_harness(r'''
@@ -110,7 +118,7 @@ int main(void) {
     nmap_release_owned();
     return 0;
 }
-''')
+''', counters=('scans',))
 
 
 if __name__ == '__main__':

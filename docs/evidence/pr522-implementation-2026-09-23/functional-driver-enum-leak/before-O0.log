@@ -1,0 +1,238 @@
+setUpClass (tests.test_nanoisa_functional_arrays.FunctionalArrays) ... ERROR
+
+======================================================================
+ERROR: setUpClass (tests.test_nanoisa_functional_arrays.FunctionalArrays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_nanoisa_functional_arrays.py", line 16, in setUpClass
+    cls.run_checked([ROOT/'bin/nanoc_c',source,'-o',cls.driver])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_nanoisa_functional_arrays.py", line 23, in run_checked
+    if r.returncode: raise AssertionError(f'{args}: {r.returncode}\n{r.stdout}\n{r.stderr}')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-functional-driver-p7e59jxt/driver.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-functional-driver-p7e59jxt/shadows')]: 1
+
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2304, column 9: Unused variable 'rejected'
+Warning at line 2433, column 9: Unused variable 'rejected'
+Warning at line 2440, column 13: Unused variable 'rejected'
+Warning at line 2521, column 9: Unused variable 'rejected'
+Warning at line 2530, column 9: Unused variable 'rejected'
+Warning at line 2535, column 13: Unused variable 'rejected'
+Warning at line 2646, column 9: Unused variable 'rejected'
+Warning at line 2650, column 9: Unused variable 'rejected'
+Warning at line 2657, column 13: Unused variable 'rejected'
+Warning at line 6382, column 21: Unused variable 'imported'
+Warning at line 6532, column 13: Unused variable 'rejected'
+Warning at line 6538, column 17: Unused variable 'rejected'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2304, column 9: Unused variable 'rejected'
+Warning at line 2433, column 9: Unused variable 'rejected'
+Warning at line 2440, column 13: Unused variable 'rejected'
+Warning at line 2521, column 9: Unused variable 'rejected'
+Warning at line 2530, column 9: Unused variable 'rejected'
+Warning at line 2535, column 13: Unused variable 'rejected'
+Warning at line 2646, column 9: Unused variable 'rejected'
+Warning at line 2650, column 9: Unused variable 'rejected'
+Warning at line 2657, column 13: Unused variable 'rejected'
+Warning at line 6382, column 21: Unused variable 'imported'
+Warning at line 6532, column 13: Unused variable 'rejected'
+Warning at line 6538, column 17: Unused variable 'rejected'
+
+=================================================================
+==89305==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 2888 byte(s) in 16 object(s) allocated from:
+    #0 0x00010389d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000101c51508 in type_check_module+0xcad8 (nanoc_c:arm64+0x100fad508)
+    #2 0x000100f57094 in load_module_internal module.c:707
+    #3 0x000100f5d57c in process_imports_owned module.c:993
+    #4 0x000100f5b5e4 in process_imports module.c:908
+    #5 0x000100f55e90 in load_module_internal module.c:662
+    #6 0x000100f5d57c in process_imports_owned module.c:993
+    #7 0x000100f5b5e4 in process_imports module.c:908
+    #8 0x000100f55e90 in load_module_internal module.c:662
+    #9 0x000100f5d57c in process_imports_owned module.c:993
+    #10 0x000100f5b5e4 in process_imports module.c:908
+    #11 0x000100f55e90 in load_module_internal module.c:662
+    #12 0x000100f5d57c in process_imports_owned module.c:993
+    #13 0x000100f5b5e4 in process_imports module.c:908
+    #14 0x000100f55e90 in load_module_internal module.c:662
+    #15 0x000100f642a0 in compile_module_to_object module.c:1235
+    #16 0x000100f9a438 in compile_modules module.c:1823
+    #17 0x000100f391c4 in compile_file main.c:1232
+    #18 0x000100f2dd90 in main main.c:2321
+    #19 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 2248 byte(s) in 11 object(s) allocated from:
+    #0 0x00010389d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000101c51508 in type_check_module+0xcad8 (nanoc_c:arm64+0x100fad508)
+    #2 0x000100f57094 in load_module_internal module.c:707
+    #3 0x000100f5d57c in process_imports_owned module.c:993
+    #4 0x000100f5b5e4 in process_imports module.c:908
+    #5 0x000100f55e90 in load_module_internal module.c:662
+    #6 0x000100f642a0 in compile_module_to_object module.c:1235
+    #7 0x000100f9a438 in compile_modules module.c:1823
+    #8 0x000100f391c4 in compile_file main.c:1232
+    #9 0x000100f2dd90 in main main.c:2321
+    #10 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 1384 byte(s) in 13 object(s) allocated from:
+    #0 0x00010389d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000101c51508 in type_check_module+0xcad8 (nanoc_c:arm64+0x100fad508)
+    #2 0x000100f57094 in load_module_internal module.c:707
+    #3 0x000100f5d57c in process_imports_owned module.c:993
+    #4 0x000100f5b5e4 in process_imports module.c:908
+    #5 0x000100f55e90 in load_module_internal module.c:662
+    #6 0x000100f5d57c in process_imports_owned module.c:993
+    #7 0x000100f5b5e4 in process_imports module.c:908
+    #8 0x000100f55e90 in load_module_internal module.c:662
+    #9 0x000100f642a0 in compile_module_to_object module.c:1235
+    #10 0x000100f9a438 in compile_modules module.c:1823
+    #11 0x000100f391c4 in compile_file main.c:1232
+    #12 0x000100f2dd90 in main main.c:2321
+    #13 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 1176 byte(s) in 7 object(s) allocated from:
+    #0 0x00010389d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000101c51508 in type_check_module+0xcad8 (nanoc_c:arm64+0x100fad508)
+    #2 0x000100f57094 in load_module_internal module.c:707
+    #3 0x000100f5d57c in process_imports_owned module.c:993
+    #4 0x000100f5b5e4 in process_imports module.c:908
+    #5 0x000100f55e90 in load_module_internal module.c:662
+    #6 0x000100f5d57c in process_imports_owned module.c:993
+    #7 0x000100f5b5e4 in process_imports module.c:908
+    #8 0x000100f55e90 in load_module_internal module.c:662
+    #9 0x000100f5d57c in process_imports_owned module.c:993
+    #10 0x000100f5b5e4 in process_imports module.c:908
+    #11 0x000100f55e90 in load_module_internal module.c:662
+    #12 0x000100f642a0 in compile_module_to_object module.c:1235
+    #13 0x000100f9a438 in compile_modules module.c:1823
+    #14 0x000100f391c4 in compile_file main.c:1232
+    #15 0x000100f2dd90 in main main.c:2321
+    #16 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 1056 byte(s) in 17 object(s) allocated from:
+    #0 0x00010389d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000101c51508 in type_check_module+0xcad8 (nanoc_c:arm64+0x100fad508)
+    #2 0x000100f57094 in load_module_internal module.c:707
+    #3 0x000100f5d57c in process_imports_owned module.c:993
+    #4 0x000100f5b5e4 in process_imports module.c:908
+    #5 0x000100f55e90 in load_module_internal module.c:662
+    #6 0x000100f5d57c in process_imports_owned module.c:993
+    #7 0x000100f5b5e4 in process_imports module.c:908
+    #8 0x000100f55e90 in load_module_internal module.c:662
+    #9 0x000100f5d57c in process_imports_owned module.c:993
+    #10 0x000100f5b5e4 in process_imports module.c:908
+    #11 0x000100f55e90 in load_module_internal module.c:662
+    #12 0x000100f5d57c in process_imports_owned module.c:993
+    #13 0x000100f5b5e4 in process_imports module.c:908
+    #14 0x000100f55e90 in load_module_internal module.c:662
+    #15 0x000100f5d57c in process_imports_owned module.c:993
+    #16 0x000100f5b5e4 in process_imports module.c:908
+    #17 0x000100f55e90 in load_module_internal module.c:662
+    #18 0x000100f642a0 in compile_module_to_object module.c:1235
+    #19 0x000100f9a438 in compile_modules module.c:1823
+    #20 0x000100f391c4 in compile_file main.c:1232
+    #21 0x000100f2dd90 in main main.c:2321
+    #22 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 640 byte(s) in 5 object(s) allocated from:
+    #0 0x00010389d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000101c51508 in type_check_module+0xcad8 (nanoc_c:arm64+0x100fad508)
+    #2 0x000100f57094 in load_module_internal module.c:707
+    #3 0x000100f642a0 in compile_module_to_object module.c:1235
+    #4 0x000100f9a438 in compile_modules module.c:1823
+    #5 0x000100f391c4 in compile_file main.c:1232
+    #6 0x000100f2dd90 in main main.c:2321
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 536 byte(s) in 2 object(s) allocated from:
+    #0 0x00010389d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000101c51508 in type_check_module+0xcad8 (nanoc_c:arm64+0x100fad508)
+    #2 0x000100f57094 in load_module_internal module.c:707
+    #3 0x000100f5d57c in process_imports_owned module.c:993
+    #4 0x000100f5b5e4 in process_imports module.c:908
+    #5 0x000100f55e90 in load_module_internal module.c:662
+    #6 0x000100f5d57c in process_imports_owned module.c:993
+    #7 0x000100f5b5e4 in process_imports module.c:908
+    #8 0x000100f55e90 in load_module_internal module.c:662
+    #9 0x000100f5d57c in process_imports_owned module.c:993
+    #10 0x000100f5b5e4 in process_imports module.c:908
+    #11 0x000100f55e90 in load_module_internal module.c:662
+    #12 0x000100f5d57c in process_imports_owned module.c:993
+    #13 0x000100f5b5e4 in process_imports module.c:908
+    #14 0x000100f55e90 in load_module_internal module.c:662
+    #15 0x000100f5d57c in process_imports_owned module.c:993
+    #16 0x000100f5b5e4 in process_imports module.c:908
+    #17 0x000100f55e90 in load_module_internal module.c:662
+    #18 0x000100f5d57c in process_imports_owned module.c:993
+    #19 0x000100f5b5e4 in process_imports module.c:908
+    #20 0x000100f32bb4 in compile_file main.c:799
+    #21 0x000100f2dd90 in main main.c:2321
+    #22 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 104 byte(s) in 3 object(s) allocated from:
+    #0 0x00010389d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000101c51508 in type_check_module+0xcad8 (nanoc_c:arm64+0x100fad508)
+    #2 0x000100f57094 in load_module_internal module.c:707
+    #3 0x000100f5d57c in process_imports_owned module.c:993
+    #4 0x000100f5b5e4 in process_imports module.c:908
+    #5 0x000100f55e90 in load_module_internal module.c:662
+    #6 0x000100f5d57c in process_imports_owned module.c:993
+    #7 0x000100f5b5e4 in process_imports module.c:908
+    #8 0x000100f55e90 in load_module_internal module.c:662
+    #9 0x000100f5d57c in process_imports_owned module.c:993
+    #10 0x000100f5b5e4 in process_imports module.c:908
+    #11 0x000100f55e90 in load_module_internal module.c:662
+    #12 0x000100f5d57c in process_imports_owned module.c:993
+    #13 0x000100f5b5e4 in process_imports module.c:908
+    #14 0x000100f55e90 in load_module_internal module.c:662
+    #15 0x000100f5d57c in process_imports_owned module.c:993
+    #16 0x000100f5b5e4 in process_imports module.c:908
+    #17 0x000100f55e90 in load_module_internal module.c:662
+    #18 0x000100f5d57c in process_imports_owned module.c:993
+    #19 0x000100f5b5e4 in process_imports module.c:908
+    #20 0x000100f55e90 in load_module_internal module.c:662
+    #21 0x000100f642a0 in compile_module_to_object module.c:1235
+    #22 0x000100f9a438 in compile_modules module.c:1823
+    #23 0x000100f391c4 in compile_file main.c:1232
+    #24 0x000100f2dd90 in main main.c:2321
+    #25 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 104 byte(s) in 3 object(s) allocated from:
+    #0 0x00010389d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000101c51508 in type_check_module+0xcad8 (nanoc_c:arm64+0x100fad508)
+    #2 0x000100f57094 in load_module_internal module.c:707
+    #3 0x000100f5d57c in process_imports_owned module.c:993
+    #4 0x000100f5b5e4 in process_imports module.c:908
+    #5 0x000100f55e90 in load_module_internal module.c:662
+    #6 0x000100f5d57c in process_imports_owned module.c:993
+    #7 0x000100f5b5e4 in process_imports module.c:908
+    #8 0x000100f55e90 in load_module_internal module.c:662
+    #9 0x000100f5d57c in process_imports_owned module.c:993
+    #10 0x000100f5b5e4 in process_imports module.c:908
+    #11 0x000100f55e90 in load_module_internal module.c:662
+    #12 0x000100f5d57c in process_imports_owned module.c:993
+    #13 0x000100f5b5e4 in process_imports module.c:908
+    #14 0x000100f55e90 in load_module_internal module.c:662
+    #15 0x000100f5d57c in process_imports_owned module.c:993
+    #16 0x000100f5b5e4 in process_imports module.c:908
+    #17 0x000100f55e90 in load_module_internal module.c:662
+    #18 0x000100f5d57c in process_imports_owned module.c:993
+    #19 0x000100f5b5e4 in process_imports module.c:908
+    #20 0x000100f55e90 in load_module_internal module.c:662
+    #21 0x000100f5d57c in process_imports_owned module.c:993
+    #22 0x000100f5b5e4 in process_imports module.c:908
+    #23 0x000100f32bb4 in compile_file main.c:799
+    #24 0x000100f2dd90 in main main.c:2321
+    #25 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 10136 byte(s) leaked in 77 allocation(s).
+
+
+----------------------------------------------------------------------
+Ran 0 tests in 101.520s
+
+FAILED (errors=1)

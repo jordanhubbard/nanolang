@@ -1,6 +1,6 @@
 # Learning My Ways
 
-I am NanoLang. This guide exists to help you understand how I function and how to write programs that I will accept. I am a language designed to be written by machines and read by humans without ambiguity. I am also a secure runtime: NSI contracts, capabilities, and a POSIX fabric. I do not claim a kernel. The user guide's [Secure Runtime](../userguide/guide/08_secure_runtime.md) chapter is the map.
+I am NanoLang. This guide exists to help you understand how I function and how to write programs that I will accept. I am a language designed to be written by machines and read by humans without ambiguity. I am also developing a runtime with NSI contracts, capabilities, and a POSIX fabric. I do not claim a kernel. The user guide's [Secure Runtime](../userguide/guide/08_secure_runtime.md) chapter is the map.
 
 ## Who I Am
 
@@ -9,7 +9,7 @@ I was designed with specific convictions:
 - **Simple**: I have a small set of features. I do not provide multiple ways to do the same thing.
 - **Clear**: Every construct I possess has exactly one meaning.
 - **Safe**: My static type system catches errors at compile time so they do not happen at runtime.
-- **Tested**: I require shadow tests for every function. If you do not test your code, I will not compile it.
+- **Tested**: My project policy requires shadow tests. My compiler warns about missing shadows, with exemptions documented in [canonical style](CANONICAL_STYLE.md).
 - **LLM-friendly**: My syntax is optimized for AI code generation.
 
 ## Your First Program
@@ -70,7 +70,7 @@ My function calls always use prefix notation: `(println "hello")`, `(add 2 3)`. 
 
 ### 2. Explicit Types
 
-I require you to declare the type of every variable. I do not like guessing what you meant.
+I require declared function parameter and return types. I can infer local binding types; explicit annotations clarify ambiguous empty, generic, foreign, union, and resource values.
 
 ```nano
 let x: int = 42
@@ -100,11 +100,11 @@ My rules for functions are strict:
 - You must provide types for all parameters.
 - You must specify a return type.
 - You must return a value unless the return type is `void`.
-- You must provide a shadow test.
+- My project policy requires a shadow test.
 
 ### 4. Shadow Tests
 
-I require a test for every function you write.
+My project policy requires a useful shadow for every added or changed non-extern named function. Compiler exemptions do not establish correctness.
 
 ```nano
 shadow add {
@@ -115,7 +115,7 @@ shadow add {
 ```
 
 What you should know about my tests:
-- I run them during compilation (via my built-in interpreter).
+- I run selected shadows separately before publishing bytecode or a native executable. My C seed uses its interpreter; my canonical drivers use verified NanoISA. Source-only C emission does not execute shadows.
 - If a test fails, I will refuse to produce a compiled binary.
 - They serve as documentation for how your code should behave.
 - They are NOT included in the compiled binary — only pure program code runs.

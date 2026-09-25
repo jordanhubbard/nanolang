@@ -1,0 +1,21 @@
+=== GC Statistics ===
+Total allocated: 309681865 bytes
+Total freed:     4032 bytes
+Current usage:   309677833 bytes
+Live objects:    5801208
+Collections:     0
+====================
+=== GC Statistics ===
+Total allocated: 488197605 bytes
+Total freed:     4032 bytes
+Current usage:   488193573 bytes
+Live objects:    9001529
+Collections:     0
+====================
+=== GC Statistics ===
+Total allocated: 643806234 bytes
+Total freed:     4032 bytes
+Current usage:   643802202 bytes
+Live objects:    11791180
+Collections:     0
+====================

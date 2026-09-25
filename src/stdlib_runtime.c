@@ -56,6 +56,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "static void* nl_null_opaque() { return NULL; }\n");
     sb_append(sb, "static int64_t nl_cast_bool_to_int(bool x) { return x ? 1 : 0; }\n");
     sb_append(sb, "static bool nl_cast_bool(int64_t x) { return x != 0; }\n");
+    sb_append(sb, "static bool nl_cast_bool_from_float(double x) { return x != 0.0; }\n");
+    sb_append(sb, "static bool nl_cast_bool_from_string(const char *x) { return strcmp(x, \"true\") == 0 || strcmp(x, \"1\") == 0; }\n");
 
     /* Total integer division/modulo: matches the Coq semantics and the NanoISA
      * VM. Division by zero yields 0; INT64_MIN/-1 (and INT64_MIN%-1) are
@@ -718,7 +720,11 @@ void generate_string_operations(StringBuilder *sb) {
 
     sb_append(sb, "static char* nl_fmt_sb_build(nl_fmt_sb_t *sb) {\n");
     sb_append(sb, "    if (!sb || !sb->buf) return \"\";\n");
-    sb_append(sb, "    return sb->buf;\n");
+    sb_append(sb, "    char* result = gc_alloc_string(sb->len);\n");
+    sb_append(sb, "    if (result) memcpy(result, sb->buf, sb->len + 1);\n");
+    sb_append(sb, "    free(sb->buf);\n");
+    sb_append(sb, "    *sb = (nl_fmt_sb_t){0};\n");
+    sb_append(sb, "    return result ? result : \"\";\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static const char* nl_to_string_int(int64_t v) { return int_to_string(v); }\n");

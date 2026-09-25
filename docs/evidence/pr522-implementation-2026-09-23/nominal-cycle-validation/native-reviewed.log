@@ -1,0 +1,18 @@
+test_alternating_chain (tests.test_native_nominal_order.NativeNominalOrder.test_alternating_chain) ... ok
+test_finite_generic_and_pointer_layouts (tests.test_native_nominal_order.NativeNominalOrder.test_finite_generic_and_pointer_layouts) ... ok
+test_generic_by_value_cycles_preserve_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_generic_by_value_cycles_preserve_previous_output) ... ok
+test_long_finite_declaration_chain (tests.test_native_nominal_order.NativeNominalOrder.test_long_finite_declaration_chain) ... ok
+test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) ... ok
+test_pointer_backed_array_is_not_a_layout_cycle (tests.test_native_nominal_order.NativeNominalOrder.test_pointer_backed_array_is_not_a_layout_cycle) ... ok
+test_pointer_backed_list_is_not_a_layout_cycle (tests.test_native_nominal_order.NativeNominalOrder.test_pointer_backed_list_is_not_a_layout_cycle) ... ok
+test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) ... ok
+test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) ... ok
+test_record_contains_union (tests.test_native_nominal_order.NativeNominalOrder.test_record_contains_union) ... ok
+test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) ... ok
+test_reverse_record_dependencies (tests.test_native_nominal_order.NativeNominalOrder.test_reverse_record_dependencies) ... ok
+test_union_contains_record (tests.test_native_nominal_order.NativeNominalOrder.test_union_contains_record) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 7.653s
+
+OK

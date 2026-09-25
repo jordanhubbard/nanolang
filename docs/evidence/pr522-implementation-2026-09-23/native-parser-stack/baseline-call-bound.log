@@ -1,0 +1,15 @@
+test_many_record_calls_fit_bounded_stack (tests.test_one_ir_compiler.OneIrCompiler.test_many_record_calls_fit_bounded_stack) ... FAIL
+
+======================================================================
+FAIL: test_many_record_calls_fit_bounded_stack (tests.test_one_ir_compiler.OneIrCompiler.test_many_record_calls_fit_bounded_stack)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_one_ir_compiler.py", line 1019, in test_many_record_calls_fit_bounded_stack
+    self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -11 != 0 : 
+
+----------------------------------------------------------------------
+Ran 1 test in 0.301s
+
+FAILED (failures=1)

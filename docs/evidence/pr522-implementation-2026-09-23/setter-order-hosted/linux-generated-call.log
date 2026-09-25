@@ -1,0 +1,8 @@
+1343:static void nl_array_set_array(DynArray* arr, int64_t idx, DynArray* val) {
+1819:static DynArray* nl_receiver(nl_Box box);
+1820:static int64_t nl_offset(void);
+1821:static DynArray* nl_replacement(void);
+1827:static DynArray* nl_receiver(nl_Box box) {
+1834:static int64_t nl_offset(void) {
+1841:static DynArray* nl_replacement(void) {
+1854:    nl_array_set_array(({ __auto_type __nl_arg_0_0 = box; nl_receiver(__nl_arg_0_0); }), ({ nl_offset(); }), ({ nl_replacement(); }));

@@ -1,0 +1,39 @@
+fn truth(value: string) -> bool {
+    return (cast_bool value)
+}
+
+shadow truth {
+    assert (truth "true")
+    assert (truth "1")
+    assert (not (truth "false"))
+    assert (not (truth ""))
+}
+
+fn once(counter: array<int>, value: string) -> string {
+    (array_set counter 0 (+ (at counter 0) 1))
+    return value
+}
+
+shadow once {
+    let counter: array<int> = [0]
+    assert (== (once counter "1") "1")
+    assert (== (at counter 0) 1)
+}
+
+fn main() -> int {
+    assert (truth "true")
+    assert (truth "1")
+    let rejected: array<string> = ["", "0", "false", "TRUE", "True", " true", "true ", "01", "yes"]
+    let mut index: int = 0
+    while (< index (array_length rejected)) {
+        assert (not (truth (at rejected index)))
+        set index (+ index 1)
+    }
+    let counter: array<int> = [0]
+    assert (cast_bool (once counter "true"))
+    assert (not (cast_bool (once counter "false")))
+    assert (== (at counter 0) 2)
+    return 0
+}
+
+shadow main { assert (== (main) 0) }

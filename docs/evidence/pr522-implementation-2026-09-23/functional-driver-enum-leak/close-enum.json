@@ -1,0 +1,3 @@
+cannot transition task from failed to completed
+  From failed the only legal move is: open (`mac task reopen <id>`)
+  To discard it instead: reopen first, then `mac task cancel` -- cancelling is only legal from a live state.

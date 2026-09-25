@@ -1,0 +1,14 @@
+test_all_operations_and_single_index_evaluation (tests.test_canonical_module_facts.CanonicalModuleFacts.test_all_operations_and_single_index_evaluation) ... ok
+test_canonical_source_closure_excludes_legacy_emission (tests.test_canonical_module_facts.CanonicalModuleFacts.test_canonical_source_closure_excludes_legacy_emission) ... ok
+test_duplicate_module_identity (tests.test_canonical_module_facts.CanonicalModuleFacts.test_duplicate_module_identity) ... ok
+test_empty_export_sets (tests.test_canonical_module_facts.CanonicalModuleFacts.test_empty_export_sets) ... ok
+test_existing_flags_and_export_shadows (tests.test_canonical_module_facts.CanonicalModuleFacts.test_existing_flags_and_export_shadows) ... ok
+test_intrinsic_signature_is_required_before_publication (tests.test_canonical_module_facts.CanonicalModuleFacts.test_intrinsic_signature_is_required_before_publication) ... ok
+test_ordinary_function_with_similar_name_keeps_its_body (tests.test_canonical_module_facts.CanonicalModuleFacts.test_ordinary_function_with_similar_name_keeps_its_body) ... ok
+test_public_pure_modifier_exports (tests.test_canonical_module_facts.CanonicalModuleFacts.test_public_pure_modifier_exports) ... ok
+test_symlink_import_retains_canonical_module_path (tests.test_canonical_module_facts.CanonicalModuleFacts.test_symlink_import_retains_canonical_module_path) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 2.935s
+
+OK

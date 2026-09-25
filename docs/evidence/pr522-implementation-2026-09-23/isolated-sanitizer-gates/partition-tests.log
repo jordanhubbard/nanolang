@@ -1,0 +1,15 @@
+test_actual_make_inventory_contains_tail (tests.test_ci_sanitizer_partitions.SanitizerPartitions.test_actual_make_inventory_contains_tail) ... ok
+test_aggregate_requires_all_exact_successful_workers (tests.test_ci_sanitizer_partitions.SanitizerPartitions.test_aggregate_requires_all_exact_successful_workers) ... ok
+test_commands_preserve_flags_and_whole_original_targets (tests.test_ci_sanitizer_partitions.SanitizerPartitions.test_commands_preserve_flags_and_whole_original_targets) ... ok
+test_database_refuses_missing_tail_duplicates_and_syntax (tests.test_ci_sanitizer_partitions.SanitizerPartitions.test_database_refuses_missing_tail_duplicates_and_syntax) ... ok
+test_exact_union_and_fixed_dedicated_workers (tests.test_ci_sanitizer_partitions.SanitizerPartitions.test_exact_union_and_fixed_dedicated_workers) ... ok
+test_manifest_rejects_reassignment_and_wrong_digest (tests.test_ci_sanitizer_partitions.SanitizerPartitions.test_manifest_rejects_reassignment_and_wrong_digest) ... ok
+test_new_target_is_included_and_changes_digest (tests.test_ci_sanitizer_partitions.SanitizerPartitions.test_new_target_is_included_and_changes_digest) ... ok
+test_parallel_make_tail_waits_for_every_prerequisite (tests.test_ci_sanitizer_partitions.SanitizerPartitions.test_parallel_make_tail_waits_for_every_prerequisite) ... ok
+test_worker_result_requires_successful_toolchain_preflight (tests.test_ci_sanitizer_partitions.SanitizerPartitions.test_worker_result_requires_successful_toolchain_preflight) ... ok
+test_workflow_requires_aggregate_and_preserves_limits (tests.test_ci_sanitizer_partitions.SanitizerPartitions.test_workflow_requires_aggregate_and_preserves_limits) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.674s
+
+OK

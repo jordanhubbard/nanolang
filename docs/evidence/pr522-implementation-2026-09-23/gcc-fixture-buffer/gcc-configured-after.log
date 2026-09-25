@@ -1,0 +1,3 @@
+docker --context colima-nanolang-pr522 exec -w /qualification nanolang-pr522-debug gcc -Wall -Wextra -Werror -std=c99 -O3 -D_GNU_SOURCE -Isrc -Isrc/nanoisa -Imodules/nanoisa -c /tmp/pr522-test-nvm2c-after.c -o /tmp/pr522-test-nvm2c-after.o
+
+exit 0

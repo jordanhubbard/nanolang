@@ -1,0 +1,11 @@
+['bin/nano_virt', 'tests/nanoisa/fixtures/string_boolean_casts.nano', '--emit-nvm', '-o', '/tmp/pr522-string-bool/nano_virt.nvm']
+['bin/nano_vm', '/tmp/pr522-string-bool/nano_virt.nvm']
+['bin/nvm2c', '/tmp/pr522-string-bool/nano_virt.nvm', '-o', '/tmp/pr522-string-bool/nano_virt.c']
+['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-O0', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/tmp/pr522-string-bool/nano_virt.c', '-lm', '-o', '/tmp/pr522-string-bool/nano_virt-native']
+['/tmp/pr522-string-bool/nano_virt-native']
+['bin/nanoisa_emit', 'tests/nanoisa/fixtures/string_boolean_casts.nano', '--emit-nvm', '-o', '/tmp/pr522-string-bool/nanoisa_emit.nvm']
+['bin/nano_vm', '/tmp/pr522-string-bool/nanoisa_emit.nvm']
+['bin/nvm2c', '/tmp/pr522-string-bool/nanoisa_emit.nvm', '-o', '/tmp/pr522-string-bool/nanoisa_emit.c']
+['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-O0', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/tmp/pr522-string-bool/nanoisa_emit.c', '-lm', '-o', '/tmp/pr522-string-bool/nanoisa_emit-native']
+['/tmp/pr522-string-bool/nanoisa_emit-native']
+Both source frontends pass VM execution and instrumented native execution.

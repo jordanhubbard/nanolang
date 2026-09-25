@@ -1,0 +1,57 @@
+{
+  "head": "27ed9107284c498699e833e34454374f99411539",
+  "inventory_sha256": "109c07c2f7e86a8e67d4f1196b1b6be490744b91de5b19491bcd3643bcdc82c2",
+  "source_tools_unchanged": true,
+  "steps": {
+    "after": {
+      "conclusion": "success",
+      "outcome": "success",
+      "outputs": {}
+    },
+    "before": {
+      "conclusion": "success",
+      "outcome": "success",
+      "outputs": {}
+    },
+    "bootstrap": {
+      "conclusion": "failure",
+      "outcome": "failure",
+      "outputs": {}
+    },
+    "prepared": {
+      "conclusion": "skipped",
+      "outcome": "skipped",
+      "outputs": {}
+    },
+    "providers": {
+      "conclusion": "skipped",
+      "outcome": "skipped",
+      "outputs": {}
+    },
+    "sanitize": {
+      "conclusion": "success",
+      "outcome": "success",
+      "outputs": {}
+    },
+    "tests": {
+      "conclusion": "skipped",
+      "outcome": "skipped",
+      "outputs": {}
+    },
+    "toolchain": {
+      "conclusion": "success",
+      "outcome": "success",
+      "outputs": {}
+    },
+    "verify": {
+      "conclusion": "success",
+      "outcome": "success",
+      "outputs": {}
+    }
+  },
+  "success": false,
+  "targets": [
+    "test-forth-session"
+  ],
+  "worker": "forth"
+}

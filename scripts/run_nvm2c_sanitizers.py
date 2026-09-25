@@ -20,6 +20,7 @@ def run_sanitizers(make, cc):
         env.setdefault("ASAN_OPTIONS", "detect_leaks=0")
         command = [*shlex.split(make), "-j1", f"CC={cc} {FLAGS}",
                    f"OBJ_DIR={work / 'obj'}", f"BIN_DIR={work / 'bin'}",
+                   f"FILE_PUBLIC_LIBRARY={work / 'lib/libnano_file_runtime.a'}",
                    f"NVM2C_TEST_BINARY={work / 'bin/test_nvm2c'}", "test-nvm2c"]
         result = subprocess.run(command, cwd=ROOT, env=env, check=False)
         if result.returncode:

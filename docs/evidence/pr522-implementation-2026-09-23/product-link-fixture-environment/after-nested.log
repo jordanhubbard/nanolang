@@ -1,0 +1,9 @@
+python3 -m unittest tests.test_product_instrument_link_flags -v
+test_coverage_and_sanitizer_links_receive_only_required_flags (tests.test_product_instrument_link_flags.ProductInstrumentLinkFlags.test_coverage_and_sanitizer_links_receive_only_required_flags) ... ok
+test_explicit_product_link_flags_win (tests.test_product_instrument_link_flags.ProductInstrumentLinkFlags.test_explicit_product_link_flags_win) ... ok
+test_unrelated_build_flags_are_not_exported (tests.test_product_instrument_link_flags.ProductInstrumentLinkFlags.test_unrelated_build_flags_are_not_exported) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.916s
+
+OK

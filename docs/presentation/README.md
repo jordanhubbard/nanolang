@@ -4,15 +4,12 @@ This is the reproducible authoring package for my developer presentation and tec
 narrative: a Google Slides deck and a Google Doc built from my source, specifications,
 tests, roadmap, and release evidence.
 
-**Local 5.0 release edition; Google publication unchanged.** I describe my audited language
-contract, dependency shadows, retained callback bridge and runtime boundaries,
-with the historical NanoISA and 4.1–4.5 runtime account. My latest public
-release is `v5.0.0`. Full NanoISA-only bootstrap, backend parity and production
-service isolation remain unfinished. My planned v5.1.0 must satisfy the full
-remaining [5.0 roadmap](../ROADMAP.md), including matching compiler bytecode.
-This existing presentation is not evidence that those gates passed. I will
-regenerate it against the completed release tree before tagging v5.1.0.
-The Google links below retain the 4.5 edition.
+**Local v5.1.0 One IR candidate edition; Google publication unchanged.** I describe
+my verified compiler product, raw self-hosted bytecode fixed point, translator
+boundary and retained runtime limits. The repository freshness gate requires
+this pair to match the release tree. Updating the existing Google Slides and
+Docs resources remains a separate, explicitly initiated action. The Google
+links below retain the 4.5 edition.
 
 Published presentation: https://docs.google.com/presentation/d/1oWP5WJ7q5XhUF5jB_iLf3qO1mTdtrNt3FqIvYfbH2uM/preview
 
@@ -31,7 +28,7 @@ The [deck builder](build_deck.py), [narrative builder](build_narrative.py),
 and [regeneration launcher](regenerate.sh) derive the PowerPoint and Word outputs
 from this reviewed package using `python-pptx` and `python-docx`. The only image asset is
 the NanoLang mascot from the user guide. Mechanism diagrams use native slide shapes.
-Local regeneration is complete. Google publication remains a separate authorized
+This candidate records bounded evidence; final release qualification remains open. Google publication remains a separate authorized
 operation and requires Drive scopes in the token returned by `gcloud auth print-access-token`.
 
 Visual input: [NanoLang mascot](assets/nanolang-mascot.png), adapted from the user-guide

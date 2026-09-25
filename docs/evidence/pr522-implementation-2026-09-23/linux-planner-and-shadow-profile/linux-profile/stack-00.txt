@@ -1,0 +1,30 @@
+elapsed=29.549
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+0x0000ffe705a4a350 in __asan::FakeStack::Allocate (this=0xffe7026f7000, stack_size_log=20, class_id=1, real_stack=281474869186080) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:105
+#0  0x0000ffe705a4a350 in __asan::FakeStack::Allocate (this=0xffe7026f7000, stack_size_log=20, class_id=1, real_stack=281474869186080) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:105
+#1  __asan::OnMalloc (class_id=1, size=<optimized out>) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:229
+#2  __asan_stack_malloc_1 (size=<optimized out>) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:274
+#3  0x0000c2499f7649f0 [PAC] in create_int (val=1) at src/env.c:811
+#4  0x0000c2499f7e9f2c in eval_expression_other (expr=0x50c000208000, env=0x5120000001c0) at src/eval.c:4923
+#5  0x0000c2499f7e9b48 in eval_expression (expr=0x50c000208000, env=0x5120000001c0) at src/eval.c:4917
+#6  0x0000c2499f7bb490 in eval_prefix_op (node=0x50c0002080c0, env=0x5120000001c0) at src/eval.c:2529
+#7  0x0000c2499f7e9910 in eval_expression (expr=0x50c0002080c0, env=0x5120000001c0) at src/eval.c:4912
+#8  0x0000c2499f7fb89c in eval_statement (stmt=0x50c000208180, env=0x5120000001c0) at src/eval.c:5766
+#9  0x0000c2499f7932b0 in eval_scoped_block (statements=0x5060000185c0, count=1, env=0x5120000001c0) at src/eval.c:242
+#10 0x0000c2499f802538 in eval_statement (stmt=0x50c000208240, env=0x5120000001c0) at src/eval.c:5962
+#11 0x0000c2499f7fc868 in eval_statement (stmt=0x50c000208300, env=0x5120000001c0) at src/eval.c:5805
+#12 0x0000c2499f7932b0 in eval_scoped_block (statements=0x506000018560, count=1, env=0x5120000001c0) at src/eval.c:242
+#13 0x0000c2499f802538 in eval_statement (stmt=0x50c0002083c0, env=0x5120000001c0) at src/eval.c:5962
+#14 0x0000c2499f7eddac in eval_expression_other (expr=0x50c000235f00, env=0x5120000001c0) at src/eval.c:5105
+#15 0x0000c2499f7e9b48 in eval_expression (expr=0x50c000235f00, env=0x5120000001c0) at src/eval.c:4917
+#16 0x0000c2499f807488 in eval_statement (stmt=0x50c000235f00, env=0x5120000001c0) at src/eval.c:6210
+#17 0x0000c2499f7932b0 in eval_scoped_block (statements=0x506000018500, count=1, env=0x5120000001c0) at src/eval.c:242
+#18 0x0000c2499f802538 in eval_statement (stmt=0x50c000235fc0, env=0x5120000001c0) at src/eval.c:5962
+#19 0x0000c2499f7ede38 in eval_expression_other (expr=0x50c000236080, env=0x5120000001c0) at src/eval.c:5107
+#20 0x0000c2499f7e9b48 in eval_expression (expr=0x50c000236080, env=0x5120000001c0) at src/eval.c:4917
+#21 0x0000c2499f807488 in eval_statement (stmt=0x50c000236080, env=0x5120000001c0) at src/eval.c:6210
+#22 0x0000c2499f7932b0 in eval_scoped_block (statements=0x5060000183e0, count=2, env=0x5120000001c0) at src/eval.c:242
+#23 0x0000c2499f802538 in eval_statement (stmt=0x50c000236140, env=0x5120000001c0) at src/eval.c:5962
+[Inferior 1 (process 42926) detached]
+warning: 105	../../../../src/libsanitizer/asan/asan_fake_stack.cpp: No such file or directory

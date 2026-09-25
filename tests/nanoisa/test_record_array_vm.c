@@ -594,7 +594,10 @@ static void heap_result_alias_and_call(void) {
     /* Root ownership is preserved. Alias mutation is deliberately not rolled back. */
     dispose(p);
 }
-int main(void) {
+#ifndef RECORD_ARRAY_VM_MAIN
+#define RECORD_ARRAY_VM_MAIN main
+#endif
+int RECORD_ARRAY_VM_MAIN(void) {
     setvbuf(stdout,NULL,_IONBF,0);
 #define CASE(name) do {printf("I begin %s\n",#name);name();} while(0)
     CASE(graph_aliases_and_independent_copies);CASE(wrong_tag_cleanup);

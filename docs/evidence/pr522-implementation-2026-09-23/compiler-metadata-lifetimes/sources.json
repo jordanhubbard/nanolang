@@ -1,0 +1,19 @@
+{
+  "base": "d74ae8a6620d67e4176eb70b7f6fa2e04a0e9f56",
+  "sources": {
+    "src/env.c": "a2da576f5474d5f815a08708941e3563e02c1cb143793507396d2a22207f2578",
+    "src/nanolang.h": "266b04dec5b1488bb63a3968f1e278140a0d601cc6cebf3764b80a9242f8fb05",
+    "src/nanovirt/codegen.c": "10a34542e55f95e21c7927fcf4986965277c7f0a47e290e9c79969bbce4c092e",
+    "src/transpiler.c": "2d90c6682ccf1082deedaac8e2d139ace14e34c0291683af12c611efce9f84a8",
+    "src/typechecker.c": "7094cfe9eb3a08dad8622a8e469b328be2ee6fe8f4184b05eadf2063aabd5a51",
+    "tests/nanoisa/test_nvm2c.c": "883099c05e30c4ef29ba0aa381691de3b5131a2db15226b1f848897133c94979",
+    "tests/test_env_scoping.c": "4aadcfed081adb98514cd2b7bd115b5ff2079ca74a0f52f76759b3f0c9aeb496",
+    "tests/test_nanoisa_introspection.py": "466206dab1a5eb958828c2c42b571259dcdaed9a160b6c6e6d69e1f2ffeeefbf"
+  },
+  "binaries_at_scope_completion": {
+    "bin/nanoc_c": "51b1e745a63cce5c65cee025367b6af296e80efcc842c696b52b2dc0666d2451",
+    "bin/nano_virt": "4256896e4ca5ef810bdf836c722863413b53ab199e5942b5937c203d53c756f3",
+    "bin/nanoc_stage1": "583376308b62ee445baa0144326484aa1bd21cfd0a4403dc408e2c90bf85d7b7",
+    "bin/nanoc_stage2": "9d886f99b22da0dc9e06014de01be5c884d48ab0d7ed983aa47ee9fb7c7069b1"
+  }
+}

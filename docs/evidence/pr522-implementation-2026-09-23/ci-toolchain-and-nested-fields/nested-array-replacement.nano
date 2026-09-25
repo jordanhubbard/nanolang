@@ -1,0 +1,11 @@
+struct Box { rows: array<array<string>> }
+fn main() -> int {
+ let rows: array<array<string>> = [["before"]]
+ let box: Box = Box { rows: rows }
+ (array_set box.rows 0 [])
+ let row: array<string> = (at box.rows 0)
+ let filled: array<string> = (array_push row "after")
+ assert (== (at filled 0) "after")
+ return 0
+}
+shadow main { assert (== (main) 0) }

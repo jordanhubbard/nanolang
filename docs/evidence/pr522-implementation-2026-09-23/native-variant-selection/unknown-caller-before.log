@@ -1,0 +1,8 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -Isrc/nanoisa -o obj/test_nvm2c_shape \
+		tests/nanoisa/test_nvm2c_shape.c src/nanoisa/nvm2c_shape.c
+I failed !nvm_shape_solve_conversions(&g) at line 677
+I failed g.error != NULL at line 678
+I failed !nvm_shape_solve_conversions(&g) at line 677
+I failed g.error != NULL at line 678
+Shape constraints: 1811 passed, 4 failed
+make: *** [test-nvm2c-shapes] Error 1

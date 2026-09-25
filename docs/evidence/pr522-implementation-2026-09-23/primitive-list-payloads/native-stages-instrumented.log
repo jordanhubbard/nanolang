@@ -1,0 +1,7 @@
+test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) ... ok
+test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.519s
+
+OK

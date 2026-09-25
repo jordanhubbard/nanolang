@@ -1,0 +1,3 @@
+wasm-ld-18: error: /tmp/nano-record-array-llvm-ec3dfes7/wasm-startup-runtime.o: undefined symbol: memset
+wasm-ld-18: error: /tmp/nano-record-array-llvm-ec3dfes7/wasm-startup-runtime.o: undefined symbol: memset
+clang: error: linker command failed with exit code 1 (use -v to see invocation)

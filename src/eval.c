@@ -1,6 +1,8 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
 
 #include "nanolang.h"
+#include "list_operation.h"
+#include "runtime/list_capacity.h"
 #include "string_literal_decode.h"
 #include "binary64_bits.h"
 #include "binary64_format.h"
@@ -763,9 +765,27 @@ static void eval_sb_append_char(EvalSB *sb, char c) {
     sb->buf[sb->len] = '\0';
 }
 
-static void eval_sb_append_value(EvalSB *sb, Value val);
+static void eval_sb_append_value(EvalSB *sb, Value val, Environment *env);
 
-static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
+static void eval_sb_append_field(EvalSB *sb, Value val, Environment *env,
+                                 const char *type_name) {
+    EnumDef *definition = type_name ? env_get_enum(env, type_name) : NULL;
+    if (definition && val.type == VAL_INT) {
+        eval_sb_append_cstr(sb, definition->name);
+        eval_sb_append_char(sb, '.');
+        for (int i = 0; i < definition->variant_count; ++i) {
+            if (val.as.int_val == definition->variant_values[i]) {
+                eval_sb_append_cstr(sb, definition->variant_names[i]);
+                return;
+            }
+        }
+        eval_sb_append_cstr(sb, "<unknown>");
+        return;
+    }
+    eval_sb_append_value(sb, val, env);
+}
+
+static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr, Environment *env) {
     eval_sb_append_char(sb, '[');
     int64_t len = dyn_array_length(arr);
     ElementType elem_type = dyn_array_get_elem_type(arr);
@@ -779,9 +799,7 @@ static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
                 break;
             }
             case ELEM_FLOAT: {
-                char tmp[64];
-                nano_rt_f64_format(tmp, sizeof(tmp), dyn_array_get_float(arr, i));
-                eval_sb_append_cstr(sb, tmp);
+                eval_sb_append_value(sb, create_float(dyn_array_get_float(arr, i)), env);
                 break;
             }
             case ELEM_BOOL:
@@ -793,7 +811,7 @@ static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
                 eval_sb_append_char(sb, '"');
                 break;
             case ELEM_ARRAY:
-                eval_sb_append_dyn_array(sb, dyn_array_get_array(arr, i));
+                eval_sb_append_dyn_array(sb, dyn_array_get_array(arr, i), env);
                 break;
             default:
                 eval_sb_append_cstr(sb, "?");
@@ -803,7 +821,7 @@ static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
     eval_sb_append_char(sb, ']');
 }
 
-static void eval_sb_append_value(EvalSB *sb, Value val) {
+static void eval_sb_append_value(EvalSB *sb, Value val, Environment *env) {
     switch (val.type) {
         case VAL_INT: {
             char tmp[64];
@@ -847,9 +865,7 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
                         break;
                     }
                     case VAL_FLOAT: {
-                        char tmp[64];
-                        nano_rt_f64_format(tmp, sizeof(tmp), ((double*)arr->data)[i]);
-                        eval_sb_append_cstr(sb, tmp);
+                        eval_sb_append_value(sb, create_float(((double*)arr->data)[i]), env);
                         break;
                     }
                     case VAL_BOOL:
@@ -859,6 +875,9 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
                         eval_sb_append_char(sb, '"');
                         eval_sb_append_cstr(sb, ((char**)arr->data)[i]);
                         eval_sb_append_char(sb, '"');
+                        break;
+                    case VAL_ARRAY:
+                        eval_sb_append_value(sb, ((Value*)arr->data)[i], env);
                         break;
                     default:
                         eval_sb_append_cstr(sb, "?");
@@ -870,24 +889,35 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
         }
         case VAL_DYN_ARRAY: {
             DynArray *arr = val.as.dyn_array_val;
-            eval_sb_append_dyn_array(sb, arr);
+            eval_sb_append_dyn_array(sb, arr, env);
             break;
         }
         case VAL_STRUCT: {
             StructValue *sv = val.as.struct_val;
+            StructDef *definition = env_get_struct(env, sv->struct_name);
             eval_sb_append_cstr(sb, sv->struct_name);
             eval_sb_append_cstr(sb, " { ");
             for (int i = 0; i < sv->field_count; i++) {
                 if (i > 0) eval_sb_append_cstr(sb, ", ");
                 eval_sb_append_cstr(sb, sv->field_names[i]);
                 eval_sb_append_cstr(sb, ": ");
-                eval_sb_append_value(sb, sv->field_values[i]);
+                const char *type_name = NULL;
+                if (definition && definition->field_type_names) {
+                    for (int field = 0; field < definition->field_count; ++field) {
+                        if (strcmp(sv->field_names[i], definition->field_names[field]) == 0) {
+                            type_name = definition->field_type_names[field];
+                            break;
+                        }
+                    }
+                }
+                eval_sb_append_field(sb, sv->field_values[i], env, type_name);
             }
             eval_sb_append_cstr(sb, " }");
             break;
         }
         case VAL_UNION: {
             UnionValue *uv = val.as.union_val;
+            UnionDef *definition = env_get_union(env, uv->union_name);
             eval_sb_append_cstr(sb, uv->union_name);
             eval_sb_append_char(sb, '.');
             eval_sb_append_cstr(sb, uv->variant_name);
@@ -897,7 +927,18 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
                     if (i > 0) eval_sb_append_cstr(sb, ", ");
                     eval_sb_append_cstr(sb, uv->field_names[i]);
                     eval_sb_append_cstr(sb, ": ");
-                    eval_sb_append_value(sb, uv->field_values[i]);
+                    const char *type_name = NULL;
+                    int variant = uv->variant_index;
+                    if (definition && variant >= 0 && variant < definition->variant_count &&
+                        definition->variant_field_type_names && definition->variant_field_type_names[variant]) {
+                        for (int field = 0; field < definition->variant_field_counts[variant]; ++field) {
+                            if (strcmp(uv->field_names[i], definition->variant_field_names[variant][field]) == 0) {
+                                type_name = definition->variant_field_type_names[variant][field];
+                                break;
+                            }
+                        }
+                    }
+                    eval_sb_append_field(sb, uv->field_values[i], env, type_name);
                 }
                 eval_sb_append_cstr(sb, " }");
             }
@@ -908,7 +949,7 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
             eval_sb_append_char(sb, '(');
             for (int i = 0; i < tv->element_count; i++) {
                 if (i > 0) eval_sb_append_cstr(sb, ", ");
-                eval_sb_append_value(sb, tv->elements[i]);
+                eval_sb_append_value(sb, tv->elements[i], env);
             }
             eval_sb_append_char(sb, ')');
             break;
@@ -931,20 +972,20 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
     }
 }
 
-static Value builtin_to_string(Value *args) {
+static Value builtin_to_string(Value *args, Environment *env) {
     Value arg = args[0];
     if (arg.type == VAL_STRING) return arg;
 
     EvalSB sb = eval_sb_new(256);
-    eval_sb_append_value(&sb, arg);
+    eval_sb_append_value(&sb, arg, env);
     const char *out = sb.buf ? sb.buf : "";
     Value v = create_string(out);
     free(sb.buf);
     return v;
 }
 
-static Value builtin_cast_string(Value *args) {
-    return builtin_to_string(args);
+static Value builtin_cast_string(Value *args, Environment *env) {
+    return builtin_to_string(args, env);
 }
 
 static Value builtin_print(Value *args) {
@@ -3037,185 +3078,11 @@ static Value eval_call(ASTNode *node, Environment *env) {
     return result;
 }
 
-/* Evaluate function call */
-static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name) {
-    /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
-    if (node->as.call.func_expr) {
-        /* Evaluate the inner function call to get the function */
-        Value func_val = eval_expression(node->as.call.func_expr, env);
-        if (func_val.is_return) return func_val;
-        if (func_val.type != VAL_FUNCTION) {
-            fprintf(stderr, "Error: Expression does not return a function\n");
-            return create_void();
-        }
-        
-        /* Get the function name from the function value */
-        const char *borrowed_name = func_val.as.function_val.function_name;
-        char *func_name = borrowed_name ? strdup(borrowed_name) : NULL;
-        if (!func_name) {
-            fprintf(stderr, "Error: Cannot get function name from function value\n");
-            return create_void();
-        }
-        
-        /* Call the function */
-        Function *func = env_get_function(env, func_name);
-
-        /* Infer anonymous struct literal names from parameter types before evaluating */
-        for (int i = 0; i < node->as.call.arg_count && func && i < func->param_count; i++) {
-            ASTNode *arg = node->as.call.args[i];
-            if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
-                if (func->params[i].type == TYPE_STRUCT && func->params[i].struct_type_name) {
-                    arg->as.struct_literal.struct_name = strdup(func->params[i].struct_type_name);
-                }
-            }
-        }
-
-        /* Evaluate arguments */
-        Value *args = malloc(sizeof(Value) * node->as.call.arg_count);
-        for (int i = 0; i < node->as.call.arg_count; i++) {
-            args[i] = eval_expression(node->as.call.args[i], env);
-            if (args[i].is_return) {
-                Value result = args[i];
-                free(args);
-                free(func_name);
-                return result;
-            }
-        }
-        if (!func) {
-            fprintf(stderr, "Error: Function '%s' not found\n", func_name);
-            free(args);
-            free(func_name);
-            return create_void();
-        }
-        
-        Value result = call_function_at(func_name, args, node->as.call.arg_count, env,
-                                        node->line, node->column);
-        free(args);
-        free(func_name);
-        return result;
-    }
-    
-    const char *name = bound_name ? bound_name : node->as.call.name;
-
-    /* Special built-in: range (used in for loops only) */
-    if (strcmp(name, "range") == 0) {
-        /* This should not be called directly */
-        return create_void();
-    }
-
-    /* ── Coroutine builtins ─────────────────────────────────────────── */
-
-    /* spawn(fn_name, arg1, arg2, ...) — spawn an async function as a coroutine.
-     * Returns a VAL_COROUTINE value (int_val = coroutine id).
-     */
-    if (strcmp(name, "coro_spawn") == 0) {
-        if (node->as.call.arg_count < 1) {
-            fprintf(stderr, "Error: spawn() requires at least a function name argument\n");
-            return create_void();
-        }
-        ASTNode *fn_arg = node->as.call.args[0];
-        const char *async_fn_name = NULL;
-        if (fn_arg->type == AST_IDENTIFIER) {
-            async_fn_name = fn_arg->as.identifier;
-        } else if (fn_arg->type == AST_STRING) {
-            async_fn_name = fn_arg->as.string_val;
-        } else {
-            Value fn_val = eval_expression(fn_arg, env);
-            if (fn_val.type == VAL_FUNCTION) {
-                async_fn_name = fn_val.as.function_val.function_name;
-            }
-        }
-        if (!async_fn_name) {
-            fprintf(stderr, "Error: spawn() first argument must be a function\n");
-            return create_void();
-        }
-
-        int extra_args = node->as.call.arg_count - 1;
-        Value *spawn_args = extra_args > 0
-            ? malloc(sizeof(Value) * extra_args)
-            : NULL;
-        for (int i = 0; i < extra_args; i++) {
-            spawn_args[i] = eval_expression(node->as.call.args[i + 1], env);
-        }
-
-        CoroCallArgs *ca = malloc(sizeof(CoroCallArgs));
-        ca->func_name = strdup(async_fn_name);
-        ca->args = spawn_args;
-        ca->arg_count = extra_args;
-        ca->env = env;
-
-        if (!g_scheduler.initialized) nano_scheduler_init();
-        int coro_id = nano_coro_spawn(coro_trampoline, ca);
-        if (coro_id < 0) {
-            fprintf(stderr, "Error: spawn() failed — scheduler full\n");
-            free(ca->func_name);
-            free(ca->args);
-            free(ca);
-            return create_void();
-        }
-
-        Value coro_val;
-        memset(&coro_val, 0, sizeof(coro_val));
-        coro_val.type = VAL_COROUTINE;
-        coro_val.as.int_val = (long long)coro_id;
-        return coro_val;
-    }
-
-    /* coro_yield() — cooperatively suspend the current coroutine */
-    if (strcmp(name, "coro_yield") == 0) {
-        nano_coro_yield();
-        return create_void();
-    }
-
-    /* coro_done(handle) — returns true if the coroutine is done */
-    if (strcmp(name, "coro_done") == 0) {
-        if (node->as.call.arg_count < 1) return create_void();
-        Value h = eval_expression(node->as.call.args[0], env);
-        bool done = (h.type == VAL_COROUTINE)
-            ? nano_coro_is_done((int)h.as.int_val)
-            : true;
-        return create_bool(done);
-    }
-
-    /* coro_result(handle) — returns result of a completed coroutine */
-    if (strcmp(name, "coro_result") == 0) {
-        if (node->as.call.arg_count < 1) return create_void();
-        Value h = eval_expression(node->as.call.args[0], env);
-        return (h.type == VAL_COROUTINE)
-            ? nano_coro_result((int)h.as.int_val)
-            : create_void();
-    }
-
-    /* scheduler_run() — drain all pending coroutines */
-    if (strcmp(name, "scheduler_run") == 0) {
-        nano_scheduler_run_until_done();
-        return create_void();
-    }
-
-    /* scheduler_step() — run one scheduler step */
-    if (strcmp(name, "scheduler_step") == 0) {
-        bool did_work = nano_scheduler_step();
-        return create_bool(did_work);
-    }
-
-    /* Infer anonymous struct literal names from parameter types before evaluating */
-    Function *named_func = env_get_function(env, name);
-    for (int i = 0; i < node->as.call.arg_count && named_func && i < named_func->param_count; i++) {
-        ASTNode *arg = node->as.call.args[i];
-        if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
-            if (named_func->params[i].type == TYPE_STRUCT && named_func->params[i].struct_type_name) {
-                arg->as.struct_literal.struct_name = strdup(named_func->params[i].struct_type_name);
-            }
-        }
-    }
-
-    /* Evaluate arguments */
-    Value args[16];  /* Max args for function calls */
-    for (int i = 0; i < node->as.call.arg_count; i++) {
-        args[i] = eval_expression(node->as.call.args[i], env);
-        if (args[i].is_return) return args[i];
-    }
-
+/* I finish builtin dispatch before entering a user function, so recursive
+ * calls do not retain the builtin temporaries in every instrumented frame. */
+static Value eval_builtin_call(ASTNode *node, Environment *env, const char *name,
+                               Value *args, Function *named_func, bool *handled) {
+    *handled = true;
     /* File operations */
     if (strcmp(name, "file_read") == 0) return builtin_file_read(args);
     if (strcmp(name, "file_read_bytes") == 0) return builtin_file_read_bytes(args);
@@ -3315,9 +3182,9 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                     : create_int(nl_float_to_bits(args[0].as.float_val));
     }
     if (strcmp(name, "cast_bool") == 0) return builtin_cast_bool(args);
-    if (strcmp(name, "cast_string") == 0) return builtin_cast_string(args);
+    if (strcmp(name, "cast_string") == 0) return builtin_cast_string(args, env);
     if (strcmp(name, "null_opaque") == 0) return builtin_null_opaque(args);
-    if (strcmp(name, "to_string") == 0) return builtin_to_string(args);
+    if (strcmp(name, "to_string") == 0) return builtin_to_string(args, env);
 
     /* Additional type conversion functions */
     if (strcmp(name, "float_to_string") == 0) {
@@ -3928,7 +3795,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     /* For interpreter/shadow tests, we use a simple generic list that stores pointers */
     if (strncmp(name, "list_", 5) == 0) {
         /* Extract the operation: list_TypeName_op -> op */
-        const char *last_underscore = strrchr(name, '_');
+        const char *last_underscore = nl_list_operation_separator(name);
         if (last_underscore) {
             const char *operation = last_underscore + 1;
             
@@ -3938,7 +3805,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                 return create_int((long long)list);
             }
             if (strcmp(operation, "with_capacity") == 0) {
-                List_int *list = list_int_with_capacity(args[0].as.int_val);
+                List_int *list = list_int_with_capacity(nl_list_checked_capacity(args[0].as.int_val));
                 return create_int((long long)list);
             }
             if (strcmp(operation, "push") == 0) {
@@ -4383,6 +4250,193 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
         return create_bool(ispunct((int)args[0].as.int_val) != 0);
     }
+
+    *handled = false;
+    return create_void();
+}
+
+/* Evaluate function call */
+static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name) {
+    /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
+    if (node->as.call.func_expr) {
+        /* Evaluate the inner function call to get the function */
+        Value func_val = eval_expression(node->as.call.func_expr, env);
+        if (func_val.is_return) return func_val;
+        if (func_val.type != VAL_FUNCTION) {
+            fprintf(stderr, "Error: Expression does not return a function\n");
+            return create_void();
+        }
+
+        /* Get the function name from the function value */
+        const char *borrowed_name = func_val.as.function_val.function_name;
+        char *func_name = borrowed_name ? strdup(borrowed_name) : NULL;
+        if (!func_name) {
+            fprintf(stderr, "Error: Cannot get function name from function value\n");
+            return create_void();
+        }
+
+        /* Call the function */
+        Function *func = env_get_function(env, func_name);
+
+        /* Infer anonymous struct literal names from parameter types before evaluating */
+        for (int i = 0; i < node->as.call.arg_count && func && i < func->param_count; i++) {
+            ASTNode *arg = node->as.call.args[i];
+            if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
+                if (func->params[i].type == TYPE_STRUCT && func->params[i].struct_type_name) {
+                    arg->as.struct_literal.struct_name = strdup(func->params[i].struct_type_name);
+                }
+            }
+        }
+
+        /* Evaluate arguments */
+        Value *args = malloc(sizeof(Value) * node->as.call.arg_count);
+        for (int i = 0; i < node->as.call.arg_count; i++) {
+            args[i] = eval_expression(node->as.call.args[i], env);
+            if (args[i].is_return) {
+                Value result = args[i];
+                free(args);
+                free(func_name);
+                return result;
+            }
+        }
+        if (!func) {
+            fprintf(stderr, "Error: Function '%s' not found\n", func_name);
+            free(args);
+            free(func_name);
+            return create_void();
+        }
+
+        Value result = call_function_at(func_name, args, node->as.call.arg_count, env,
+                                        node->line, node->column);
+        free(args);
+        free(func_name);
+        return result;
+    }
+
+    const char *name = bound_name ? bound_name : node->as.call.name;
+
+    /* Special built-in: range (used in for loops only) */
+    if (strcmp(name, "range") == 0) {
+        /* This should not be called directly */
+        return create_void();
+    }
+
+    /* ── Coroutine builtins ─────────────────────────────────────────── */
+
+    /* spawn(fn_name, arg1, arg2, ...) — spawn an async function as a coroutine.
+     * Returns a VAL_COROUTINE value (int_val = coroutine id).
+     */
+    if (strcmp(name, "coro_spawn") == 0) {
+        if (node->as.call.arg_count < 1) {
+            fprintf(stderr, "Error: spawn() requires at least a function name argument\n");
+            return create_void();
+        }
+        ASTNode *fn_arg = node->as.call.args[0];
+        const char *async_fn_name = NULL;
+        if (fn_arg->type == AST_IDENTIFIER) {
+            async_fn_name = fn_arg->as.identifier;
+        } else if (fn_arg->type == AST_STRING) {
+            async_fn_name = fn_arg->as.string_val;
+        } else {
+            Value fn_val = eval_expression(fn_arg, env);
+            if (fn_val.type == VAL_FUNCTION) {
+                async_fn_name = fn_val.as.function_val.function_name;
+            }
+        }
+        if (!async_fn_name) {
+            fprintf(stderr, "Error: spawn() first argument must be a function\n");
+            return create_void();
+        }
+
+        int extra_args = node->as.call.arg_count - 1;
+        Value *spawn_args = extra_args > 0
+            ? malloc(sizeof(Value) * extra_args)
+            : NULL;
+        for (int i = 0; i < extra_args; i++) {
+            spawn_args[i] = eval_expression(node->as.call.args[i + 1], env);
+        }
+
+        CoroCallArgs *ca = malloc(sizeof(CoroCallArgs));
+        ca->func_name = strdup(async_fn_name);
+        ca->args = spawn_args;
+        ca->arg_count = extra_args;
+        ca->env = env;
+
+        if (!g_scheduler.initialized) nano_scheduler_init();
+        int coro_id = nano_coro_spawn(coro_trampoline, ca);
+        if (coro_id < 0) {
+            fprintf(stderr, "Error: spawn() failed — scheduler full\n");
+            free(ca->func_name);
+            free(ca->args);
+            free(ca);
+            return create_void();
+        }
+
+        Value coro_val;
+        memset(&coro_val, 0, sizeof(coro_val));
+        coro_val.type = VAL_COROUTINE;
+        coro_val.as.int_val = (long long)coro_id;
+        return coro_val;
+    }
+
+    /* coro_yield() — cooperatively suspend the current coroutine */
+    if (strcmp(name, "coro_yield") == 0) {
+        nano_coro_yield();
+        return create_void();
+    }
+
+    /* coro_done(handle) — returns true if the coroutine is done */
+    if (strcmp(name, "coro_done") == 0) {
+        if (node->as.call.arg_count < 1) return create_void();
+        Value h = eval_expression(node->as.call.args[0], env);
+        bool done = (h.type == VAL_COROUTINE)
+            ? nano_coro_is_done((int)h.as.int_val)
+            : true;
+        return create_bool(done);
+    }
+
+    /* coro_result(handle) — returns result of a completed coroutine */
+    if (strcmp(name, "coro_result") == 0) {
+        if (node->as.call.arg_count < 1) return create_void();
+        Value h = eval_expression(node->as.call.args[0], env);
+        return (h.type == VAL_COROUTINE)
+            ? nano_coro_result((int)h.as.int_val)
+            : create_void();
+    }
+
+    /* scheduler_run() — drain all pending coroutines */
+    if (strcmp(name, "scheduler_run") == 0) {
+        nano_scheduler_run_until_done();
+        return create_void();
+    }
+
+    /* scheduler_step() — run one scheduler step */
+    if (strcmp(name, "scheduler_step") == 0) {
+        bool did_work = nano_scheduler_step();
+        return create_bool(did_work);
+    }
+
+    /* Infer anonymous struct literal names from parameter types before evaluating */
+    Function *named_func = env_get_function(env, name);
+    for (int i = 0; i < node->as.call.arg_count && named_func && i < named_func->param_count; i++) {
+        ASTNode *arg = node->as.call.args[i];
+        if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
+            if (named_func->params[i].type == TYPE_STRUCT && named_func->params[i].struct_type_name) {
+                arg->as.struct_literal.struct_name = strdup(named_func->params[i].struct_type_name);
+            }
+        }
+    }
+
+    /* Evaluate arguments */
+    Value args[16];  /* Max args for function calls */
+    for (int i = 0; i < node->as.call.arg_count; i++) {
+        args[i] = eval_expression(node->as.call.args[i], env);
+        if (args[i].is_return) return args[i];
+    }
+
+    bool handled = false;
+    Value builtin_result = eval_builtin_call(node, env, name, args, named_func, &handled);
+    if (handled) return builtin_result;
 
     /* Get user-defined function */
     Function *func = env_get_function(env, name);
@@ -4890,11 +4944,21 @@ static void discard_partial_owned_array(Array *array, int initialized) {
     free(array);
 }
 
-/* Evaluate expression */
+static Value eval_expression_other(ASTNode *expr, Environment *env);
+
+/* I dispatch recursive calls without reserving temporaries for every other
+ * expression form. Leaf and aggregate handling keeps its existing semantics. */
 static Value eval_expression(ASTNode *expr, Environment *env) {
     if (!expr) return create_void();
+    if (expr->type == AST_PREFIX_OP) return eval_prefix_op(expr, env);
+    if (expr->type == AST_CALL) {
+        if (expr->as.call.borrow_mode) return eval_expression(expr->as.call.args[0], env);
+        return eval_call(expr, env);
+    }
+    return eval_expression_other(expr, env);
+}
 
-
+static Value eval_expression_other(ASTNode *expr, Environment *env) {
     switch (expr->type) {
         case AST_NUMBER:
             return create_int(expr->as.number);
@@ -4972,13 +5036,6 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             fprintf(stderr, "Error: Undefined variable or function '%s'\n", expr->as.identifier);
             return create_void();
         }
-
-        case AST_PREFIX_OP:
-            return eval_prefix_op(expr, env);
-
-        case AST_CALL:
-            if (expr->as.call.borrow_mode) return eval_expression(expr->as.call.args[0], env);
-            return eval_call(expr, env);
 
         case AST_MODULE_QUALIFIED_CALL: {
             const char *module_alias = expr->as.module_qualified_call.module_alias;

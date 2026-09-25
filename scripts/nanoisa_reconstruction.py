@@ -32,7 +32,15 @@ ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 're
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_U8', 'PUSH_BOOL', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG', 'LOAD_LOCAL', 'STORE_LOCAL',
           'DUP', 'POP', 'SWAP', 'ROT3', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
-          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE) | set(FLOAT_ARITHMETIC) | set(CARRY)
+          'CAST_INT', 'CAST_U8', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE) | set(FLOAT_ARITHMETIC) | set(CARRY)
+
+# Loads and calls observe mutable state, byte literals require an explicit
+# source type, and the polymorphic eager logical operators retain their
+# independently tested evaluation boundary. Exact boolean operators and other
+# single-result scalar operations are pure expression nodes; naming each one
+# can turn a bounded input function into more than NanoVirt's supported 1,024
+# source locals.
+SNAPSHOT_SINGLE = {'PUSH_U8', 'LOAD_LOCAL', 'CALL', 'AND', 'OR', 'NOT'}
 
 
 @dataclass(frozen=True)
@@ -228,6 +236,10 @@ class Analyze:
             expr = self.truth(value)
         elif op == 'NOT':
             expr = Expr(BOOL, 'not', None, (self.truth(self.pop(stack)),))
+        elif op == 'CAST_U8':
+            value = self.pop(stack)
+            require(value.tag in (INT, U8), 'require exact int/u8 byte conversion operands')
+            expr = value if value.tag == U8 else Expr(U8, 'int_u8', None, (value,))
         elif op == 'CAST_INT':
             value = self.pop(stack)
             require(value.tag in (INT, U8, BOOL), 'require exact int/u8/bool cast operands')
@@ -245,12 +257,23 @@ class Analyze:
             require(not pure, 'require side-effect-free loop conditions without calls')
             require(0 <= arg < len(self.module['functions']), 'require an existing direct callee')
             callee = self.module['functions'][arg]
-            args = [self.pop(stack, t) for t in reversed(callee['params'])]
+            args = []
+            for position, tag in reversed(tuple(enumerate(callee['params']))):
+                value = self.pop(stack, tag)
+                if value.kind != 'temporary':
+                    # Bytecode offsets occupy the u32 range. Synthetic call
+                    # argument snapshots use the disjoint numeric range above
+                    # it, retaining the established nlr_t<digits> source form.
+                    snapshot = (1 << 32) + ins['pc'] * 32 + position
+                    temporary = Expr(value.tag, 'temporary', snapshot)
+                    statements.append(('let', temporary, value))
+                    value = temporary
+                args.append(value)
             expr = Expr(callee['result'], 'call', arg, tuple(reversed(args)))
             self.calls.add(arg)
         else:
             raise Refusal('I require a simple scalar instruction here')
-        if pure:
+        if pure or op not in SNAPSHOT_SINGLE:
             stack.append(expr)
         else:
             temporary = Expr(expr.tag, 'temporary', ins['pc'])
@@ -413,6 +436,8 @@ class Emit:
             return name + '(' + ', '.join(args) + ')' if self.language == 'c' else '(' + ' '.join([name] + args) + ')'
         if expr.kind == 'bool_int':
             return '((int64_t)' + args[0] + ')' if self.language == 'c' else '(nlr_bool_int ' + args[0] + ')'
+        if expr.kind == 'int_u8':
+            return '((uint8_t)' + args[0] + ')' if self.language == 'c' else '(nlr_int_u8 ' + args[0] + ')'
         if expr.kind == 'u8_int':
             return '((int64_t)' + args[0] + ')' if self.language == 'c' else '(cast_int ' + args[0] + ')'
         if expr.kind == 'not':
@@ -444,6 +469,9 @@ class Emit:
                 self.line('return ' + self.expression(stmt[1]) + (';' if c else ''), indent)
             elif kind in ('if', 'while'):
                 expression = self.expression(stmt[1])
+                if c and stmt[1].kind == 'binary':
+                    # I use the condition's parentheses for the outer binary expression.
+                    expression = expression[1:-1]
                 self.line(f'{kind} ({expression}) {{' if c else f'{kind} {expression} {{', indent)
                 self.statements(stmt[2], indent + 1)
                 if kind == 'if' and stmt[3]:
@@ -467,6 +495,7 @@ class Emit:
                 self.line(self.signature(index) + ';')
         else:
             self.line('# I reconstruct executable scalar regions; original shadows are not retained.')
+        self.byte_helpers()
         self.float_helpers()
         self.arithmetic_helpers()
         for index, function in enumerate(self.functions):
@@ -491,6 +520,19 @@ class Emit:
         self.line(f'return (int){self.name(entry)}();' if c else f'return ({self.name(entry)})', 1)
         self.line('}')
         return '\n'.join(self.lines) + '\n'
+
+    def byte_helpers(self):
+        def contains(node):
+            if isinstance(node, Expr):
+                return node.kind == 'int_u8' or any(contains(arg) for arg in node.args)
+            return isinstance(node, (tuple, list)) and any(contains(child) for child in node)
+        if self.language == 'nano' and any(contains(function.body) for function in self.functions):
+            # Generated function names use nlr_f<index>_; this helper is disjoint.
+            self.line('''fn nlr_int_u8(value: int) -> u8 { return value }
+shadow nlr_int_u8 {
+    assert (== (cast_int (nlr_int_u8 257)) 1)
+    assert (== (cast_int (nlr_int_u8 (- 0 1))) 255)
+}''')
 
     def float_helpers(self):
         def uses_arithmetic(node):

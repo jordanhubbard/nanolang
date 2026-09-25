@@ -12,10 +12,20 @@ storage into `uint64_t` with `memcpy`, then format the integer bits. I do no
 floating arithmetic or decimal formatting. The field retains signed zeros,
 finite values, infinities, and quiet/signaling NaN payload and sign bits.
 
-These facts do not grant executable admission. I retain my bounded int/bool
+These facts did not grant executable admission by themselves. My later
+binary64 transport, arithmetic, comparison and negation contracts admit their
+named typed operations with independent evidence. This facts gate still checks
+the exact operand bits and atomic previous-output preservation by using a
+generic float `ADD`, which remains outside those typed contracts.
+At this historical facts checkpoint, these facts did not grant executable admission. I retained my bounded int/bool
 function signatures, entry restrictions, instruction whitelist and atomic
-source publication. `PUSH_F64` still refuses reconstructed C and NanoLang
-output. I do not claim float source constants, arithmetic or comparisons.
+source publication. `PUSH_F64` refused reconstructed C and NanoLang
+output at that checkpoint. My subsequent binary64 arithmetic implementation now
+reconstructs exact constants and F64 arithmetic. My current facts fixture retains
+the17 operand-pattern controls, checks current arithmetic reconstruction for both
+source targets, and tests atomic refusal with a verified float-bearing module
+containing unsupported PRINT. I preserve the original failed stale F64_ADD
+refusal from PR948; this fixture correction does not change production admission.
 
 My next source contract must distinguish exact bit transport from arithmetic
 results. Typed F64 comparisons use IEEE unordered behavior; generic float

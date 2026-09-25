@@ -1,0 +1,75 @@
+............FF.....F...FF
+======================================================================
+FAIL: test_nested_generic_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_generic_field_executes) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_affine_generic_identity.py", line 27, in check
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-affine-m062wtfi/.nano-product.DAT9Yy/program.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage variant to record at nodes 13/23
+
+
+======================================================================
+FAIL: test_nested_generic_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_generic_field_executes) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_affine_generic_identity.py", line 27, in check
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-affine-k6_mo_pl/.nano-product.BWGBNx/program.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage variant to record at nodes 13/23
+
+
+======================================================================
+FAIL: test_original_standalone_shadows (tests.test_source_record_unions.SourceRecordUnionShadows.test_original_standalone_shadows) (case='test_nested_generic_field_executes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_source_record_unions.py", line 162, in test_original_standalone_shadows
+    self.execute(work, module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_source_record_unions.py", line 49, in execute
+    self.checked([TRANSLATOR, module, '-o', native])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_source_record_unions.py", line 42, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-union-shadow-qeiqu2gf/shadow.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage variant to record at nodes 24/34
+
+
+======================================================================
+FAIL: test_original_standalone_sources (tests.test_source_record_unions.SourceRecordUnions.test_original_standalone_sources) (case='test_nested_generic_field_executes', emitter=PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nano_virt'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_source_record_unions.py", line 65, in test_original_standalone_sources
+    self.execute(work, module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_source_record_unions.py", line 49, in execute
+    self.checked([TRANSLATOR, module, '-o', native])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_source_record_unions.py", line 42, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-unions-xdb99h1n/source.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage variant to record at nodes 13/23
+
+
+======================================================================
+FAIL: test_original_standalone_sources (tests.test_source_record_unions.SourceRecordUnions.test_original_standalone_sources) (case='test_nested_generic_field_executes', emitter=PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoisa_emit'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_source_record_unions.py", line 65, in test_original_standalone_sources
+    self.execute(work, module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_source_record_unions.py", line 49, in execute
+    self.checked([TRANSLATOR, module, '-o', native])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_source_record_unions.py", line 42, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-unions-1i2qs_pm/source.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage variant to record at nodes 13/23
+
+
+----------------------------------------------------------------------
+Ran 23 tests in 112.901s
+
+FAILED (failures=5)

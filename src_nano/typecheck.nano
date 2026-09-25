@@ -2233,21 +2233,47 @@ shadow lookup_field_type_kind {
     assert (== kind TypeKind.TYPE_INT)
 }
 
-fn lookup_field_type(metadata: array<FieldMetadata>, struct_name: string, field_name: string) -> NSType {
-    let idx: HashMap<string, string> = (build_field_metadata_index metadata)
+# I search from the end because later user declarations override built-ins.
+fn find_field_metadata(metadata: array<FieldMetadata>, struct_name: string, field_name: string) -> int {
     let key: string = (field_metadata_key struct_name field_name)
-    if (map_has idx key) {
-        let type_str: string = (map_get idx key)
-        return (type_from_string type_str)
-    } else { (print "") }
+    let key_length: int = (str_length key)
+    let mut i: int = (- (array_length metadata) 1)
+    while (>= i 0) {
+        let entry: FieldMetadata = (at metadata i)
+        let prefix_length: int = (str_length entry.struct_name)
+        if (== key_length (+ (+ prefix_length 1) (str_length entry.field_name))) {
+            if (and (str_starts_with key entry.struct_name) (str_ends_with key entry.field_name)) {
+                if (== (char_at key prefix_length) 46) { return i }
+            }
+        }
+        set i (- i 1)
+    }
+    return -1
+}
 
-    let capitalized: string = (capitalize_first struct_name)
-    let cap_key: string = (field_metadata_key capitalized field_name)
-    if (map_has idx cap_key) {
-        let type_str: string = (map_get idx cap_key)
-        return (type_from_string type_str)
-    } else { (print "") }
+shadow find_field_metadata {
+    let entries: array<FieldMetadata> = [
+        FieldMetadata { struct_name: "Pkg.Record", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" },
+        FieldMetadata { struct_name: "Record", field_name: "value", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" },
+        FieldMetadata { struct_name: "Pkg.Record", field_name: "value", field_type_kind: TypeKind.TYPE_FLOAT, field_type_is_list: false, field_type_name: "" },
+        FieldMetadata { struct_name: "Pkg", field_name: "Record.value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" }
+    ]
+    assert (== (find_field_metadata entries "Pkg.Record" "value") 3)
+    assert (== (find_field_metadata entries "Pkg" "Record.value") 3)
+    assert (== (find_field_metadata entries "Record" "value") 1)
+    assert (== (find_field_metadata entries "Pkg.Record" "missing") -1)
+    let empty: array<FieldMetadata> = []
+    assert (== (find_field_metadata empty "Record" "value") -1)
+}
 
+fn lookup_field_type(metadata: array<FieldMetadata>, struct_name: string, field_name: string) -> NSType {
+    let mut index: int = (find_field_metadata metadata struct_name field_name)
+    if (< index 0) {
+        set index (find_field_metadata metadata (capitalize_first struct_name) field_name)
+    }
+    if (>= index 0) {
+        return (type_from_string (field_metadata_type_string (at metadata index)))
+    }
     return (type_unknown_named "field_type")
 }
 
@@ -2255,6 +2281,22 @@ shadow lookup_field_type {
     let m: array<FieldMetadata> = (init_struct_metadata)
     let t: NSType = (lookup_field_type m "ASTPrint" "value")
     assert (== t.kind TypeKind.TYPE_INT)
+    assert (== (lookup_field_type m "parser" "position").kind TypeKind.TYPE_INT)
+    let entries: array<FieldMetadata> = [
+        FieldMetadata { struct_name: "Parser", field_name: "position", field_type_kind: TypeKind.TYPE_FLOAT, field_type_is_list: false, field_type_name: "" },
+        FieldMetadata { struct_name: "parser", field_name: "position", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" },
+        FieldMetadata { struct_name: "Parser", field_name: "position", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" },
+        FieldMetadata { struct_name: "Packet", field_name: "values", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false, field_type_name: "Token" }
+    ]
+    assert (== (lookup_field_type entries "Parser" "position").kind TypeKind.TYPE_INT)
+    assert (== (lookup_field_type entries "parser" "position").kind TypeKind.TYPE_BOOL)
+    let values: NSType = (lookup_field_type entries "Packet" "values")
+    assert (== values.kind TypeKind.TYPE_ARRAY)
+    assert (== values.element_type_name "Token")
+    assert (== (lookup_field_type entries "packet" "values").kind TypeKind.TYPE_UNKNOWN)
+    let missing: NSType = (lookup_field_type entries "Packet" "missing")
+    assert (== missing.kind TypeKind.TYPE_UNKNOWN)
+    assert (== missing.name "field_type")
 }
 
 fn option_type_some(value: NSType) -> OptionType {
@@ -3295,7 +3337,7 @@ fn check_builtin_function(fn_name: string) -> NSType {
     
     /* Diagnostics module functions (workaround for module qualification) */
     if (== fn_name "diag_typecheck_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
-    if (== fn_name "diag_transpiler_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
+    if (== fn_name "diag_lowering_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
     if (== fn_name "diag_location") { return (type_from_string "CompilerSourceLocation") } else { (print "") }
     if (== fn_name "diag_list_new") { return (type_from_string "List<CompilerDiagnostic>") } else { (print "") }
     if (== fn_name "list_CompilerDiagnostic_new") { return (type_from_string "List<CompilerDiagnostic>") } else { (print "") }

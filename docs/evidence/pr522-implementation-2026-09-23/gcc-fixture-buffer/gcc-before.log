@@ -1,0 +1,84 @@
+/tmp/pr522-test-nvm2c-before.c: In function 'compile_and_run_with_args':
+/tmp/pr522-test-nvm2c-before.c:44:10: error: implicit declaration of function 'mkdtemp' [-Werror=implicit-function-declaration]
+   44 |     if (!mkdtemp(dir)) return -1;
+      |          ^~~~~~~
+/tmp/pr522-test-nvm2c-before.c: In function 'test_owned_artifact_execution':
+/tmp/pr522-test-nvm2c-before.c:289:30: error: comparison between pointer and integer [-Werror]
+  289 |     CHECK(mkdtemp(directory) != NULL, "I create a private artifact fixture");
+      |                              ^~
+/tmp/pr522-test-nvm2c-before.c:27:9: note: in definition of macro 'CHECK'
+   27 |     if (cond) { g_pass++; } \
+      |         ^~~~
+/tmp/pr522-test-nvm2c-before.c:331:34: error: implicit declaration of function 'strdup'; did you mean 'strcmp'? [-Werror=implicit-function-declaration]
+  331 |             module->strings[0] = strdup("bad-layout");
+      |                                  ^~~~~~
+      |                                  strcmp
+/tmp/pr522-test-nvm2c-before.c:331:32: error: assignment to 'char *' from 'int' makes pointer from integer without a cast [-Werror=int-conversion]
+  331 |             module->strings[0] = strdup("bad-layout");
+      |                                ^
+/tmp/pr522-test-nvm2c-before.c: In function 'test_builtin_text_reader':
+/tmp/pr522-test-nvm2c-before.c:491:28: error: assignment to 'char *' from 'int' makes pointer from integer without a cast [-Werror=int-conversion]
+  491 |         module->strings[1] = strdup(expected);
+      |                            ^
+/tmp/pr522-test-nvm2c-before.c: In function 'test_builtin_filesystem_predicates':
+/tmp/pr522-test-nvm2c-before.c:597:11: error: implicit declaration of function 'symlink' [-Werror=implicit-function-declaration]
+  597 |     CHECK(symlink(file, link) == 0 && symlink(missing, broken) == 0 &&
+      |           ^~~~~~~
+/tmp/pr522-test-nvm2c-before.c:27:9: note: in definition of macro 'CHECK'
+   27 |     if (cond) { g_pass++; } \
+      |         ^~~~
+/tmp/pr522-test-nvm2c-before.c: In function 'test_builtin_normalize':
+/tmp/pr522-test-nvm2c-before.c:788:62: error: assignment to 'char *' from 'int' makes pointer from integer without a cast [-Werror=int-conversion]
+  788 |                 free(module->strings[s]); module->strings[s] = strdup(value);
+      |                                                              ^
+/tmp/pr522-test-nvm2c-before.c: In function 'test_builtin_from_char':
+/tmp/pr522-test-nvm2c-before.c:868:58: error: assignment to 'char *' from 'int' makes pointer from integer without a cast [-Werror=int-conversion]
+  868 |             free(module->strings[0]); module->strings[0] = strdup(expected);
+      |                                                          ^
+/tmp/pr522-test-nvm2c-before.c: In function 'test_builtin_temp_directory':
+/tmp/pr522-test-nvm2c-before.c:891:47: error: pointer/integer type mismatch in conditional expression [-Werror]
+  891 |     char *saved = previous ? strdup(previous) : NULL;
+      |                                               ^
+/tmp/pr522-test-nvm2c-before.c:895:15: error: implicit declaration of function 'setenv'; did you mean 'getenv'? [-Werror=implicit-function-declaration]
+  895 |         CHECK(setenv("TMPDIR", temporary_root, 1) == 0, "I scope temporary creation to my private root");
+      |               ^~~~~~
+/tmp/pr522-test-nvm2c-before.c:27:9: note: in definition of macro 'CHECK'
+   27 |     if (cond) { g_pass++; } \
+      |         ^~~~
+/tmp/pr522-test-nvm2c-before.c:930:10: error: implicit declaration of function 'unsetenv'; did you mean 'getenv'? [-Werror=implicit-function-declaration]
+  930 |     else unsetenv("TMPDIR");
+      |          ^~~~~~~~
+      |          getenv
+/tmp/pr522-test-nvm2c-before.c: In function 'test_builtin_host_imports':
+/tmp/pr522-test-nvm2c-before.c:1061:37: error: pointer/integer type mismatch in conditional expression [-Werror]
+ 1061 |     char *saved = old ? strdup(old) : NULL;
+      |                                     ^
+/tmp/pr522-test-nvm2c-before.c: In function 'capture_cmd':
+/tmp/pr522-test-nvm2c-before.c:4574:18: error: implicit declaration of function 'popen'; did you mean 'fopen'? [-Werror=implicit-function-declaration]
+ 4574 |     FILE *pipe = popen(cmd, "r");
+      |                  ^~~~~
+      |                  fopen
+/tmp/pr522-test-nvm2c-before.c:4574:18: error: initialization of 'FILE *' from 'int' makes pointer from integer without a cast [-Werror=int-conversion]
+/tmp/pr522-test-nvm2c-before.c:4583:23: error: implicit declaration of function 'pclose'; did you mean 'close'? [-Werror=implicit-function-declaration]
+ 4583 |     int wait_status = pclose(pipe);
+      |                       ^~~~~~
+      |                       close
+/tmp/pr522-test-nvm2c-before.c: In function 'test_uncalled_array_record_consumer_constraints':
+/tmp/pr522-test-nvm2c-before.c:6658:26: error: '%s' directive output may be truncated writing up to 511 bytes into a region of size between 504 and 1015 [-Werror=format-truncation=]
+ 6658 |             ".entry 2\n%s%s.parameters %u array\n"
+      |                          ^~
+/tmp/pr522-test-nvm2c-before.c:6658:13: note: directive argument in the range [0, 1]
+ 6658 |             ".entry 2\n%s%s.parameters %u array\n"
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /usr/include/stdio.h:980,
+                 from /tmp/pr522-test-nvm2c-before.c:5:
+In function 'snprintf',
+    inlined from 'test_uncalled_array_record_consumer_constraints' at /tmp/pr522-test-nvm2c-before.c:6657:9:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: '__builtin___snprintf_chk' output between 79 and 1101 bytes into a destination of size 1024
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors

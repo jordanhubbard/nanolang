@@ -1,0 +1,22 @@
+{
+  "source_sha256": {
+    "src/transpiler.c": "06407b1c61a1cf3e81ee21db9fc29450c3e9bd4d6d4d066db079df0bf0edc446",
+    "src/typechecker.c": "6d680e6cc73ac2a55567160b3bb392904bf9cd14147fd9b47cb07ab15b6b0e6f",
+    "src/eval.c": "e3cee270c79d9dc31f0c6adf70993713f24aac8999e6f119df7a7d0d748e3c3a",
+    "src/list_operation.h": "eeb417f5716ca24b6f925f346c22f30e273d58b7ab99f605c698e966bb24ef89",
+    "src/runtime/list_capacity.h": "cdd31d4a21714b98f95911694f10a84fcd5bcb80d45b15ab5941ae7c0d82a8a5",
+    "tests/test_cseed_process_ownership.py": "a751bfc19265b7f42766f5a1db15a0bab764f3a6bf839f8f6f1bd34dbee135b0"
+  },
+  "log_sha256": {
+    "before-private-name-smoke.log": "c72205c962deab06a0ce971aac42d9433a944a2afb2a03afdb2bb38bd1022486",
+    "checker-build-correction.log": "cfe974977e49f72800afe398a67c8cc7c7db334d2b8f47f9902eccfafc408167",
+    "instrumented-stage-smoke.log": "780b8c6def61dc99e05e8a8d563fd28627180767c13812f71be145c6ed89d08d",
+    "ownership-tests.log": "5ad7e41efa4abb07b0a6f2bc54b7c51ccd64fe551e1fe6b9ea92e28ec6eb7b0a",
+    "fixture-declaration-correction.log": "5468cc57319e65be2d478e6c876c334dc0b6c737d6e51eed54564aeb9a70ed92",
+    "capacity-name-failure.log": "7b8409e9e4a6b4e5333f8f6d6dbf7715ffaf8eb6c65ba2ab13f202c0b0e96405",
+    "instrumented-stage-build.log": "11c1bee87438b8744707ee4b03577aee63d1d59b3a9ddb06c7b8eb58a9d01a48",
+    "seed-build.log": "9a034d098c91cb2c1b973f93ee00ec6a1c64b753697fdd820707bf933afdabc1",
+    "final-gates.log": "952a0a3e87f9439c7814d4ed08448cda7d4303390897300bb3ec84b317362c53",
+    "before-private-name-gates.log": "8076b7db6a495fbad52e37ce9e31660355a46088eb00236a466647e3d46183e8"
+  }
+}

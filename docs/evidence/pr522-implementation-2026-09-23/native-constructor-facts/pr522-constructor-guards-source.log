@@ -1,0 +1,1079 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF..FFFFFFFFFFFFFFFFFFFFFFFF..FF
+======================================================================
+FAIL: test_branch_checked_consumers_and_empty_padding (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_branch_checked_consumers_and_empty_padding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 52, in test_branch_checked_consumers_and_empty_padding
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+read)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46813==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_maximum_variant_number_remains_distinct_from_unknown (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_maximum_variant_number_remains_distinct_from_unknown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 160, in test_maximum_variant_number_remains_distinct_from_unknown
+    self.paired(self.guarded_return(tag=65535))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46825==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_mixed_variant_record_branch_join (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_mixed_variant_record_branch_join) (selected=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 74, in test_mixed_variant_record_branch_join
+    self.paired(HEADER+f'.function main 0 0 0 int 1\nPUSH_BOOL {selected}\nJMP_FALSE other\n'
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'PUSH_I64 7\nAGG_PACK 1 0 0 1\nJMP joined\nother:\nPUSH_STR kept\nAGG_PACK 1 0 1 1\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'joined:\nCALL display\nPUSH_STR '+expected+'\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function display 1 1 0 string 1\nLOAD_LOCAL 0\nAGG_GET 0\nCAST_STRING\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46833==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_mixed_variant_record_branch_join (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_mixed_variant_record_branch_join) (selected=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 74, in test_mixed_variant_record_branch_join
+    self.paired(HEADER+f'.function main 0 0 0 int 1\nPUSH_BOOL {selected}\nJMP_FALSE other\n'
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'PUSH_I64 7\nAGG_PACK 1 0 0 1\nJMP joined\nother:\nPUSH_STR kept\nAGG_PACK 1 0 1 1\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'joined:\nCALL display\nPUSH_STR '+expected+'\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function display 1 1 0 string 1\nLOAD_LOCAL 0\nAGG_GET 0\nCAST_STRING\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46842==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=1, missing=0, reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46850==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=1, missing=0, reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46867==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=1, missing=1, reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46890==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=1, missing=1, reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46906==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=4, missing=0, reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46925==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=4, missing=0, reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46942==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=4, missing=1, reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46959==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=4, missing=1, reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46974==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=3, missing=0, reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46986==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=3, missing=0, reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==46997==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=3, missing=1, reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47006==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=3, missing=1, reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47014==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=5, missing=0, reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47022==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=5, missing=0, reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47030==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=5, missing=1, reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47043==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_optional_variant_payload_preserves_absence_and_present_tags (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_optional_variant_payload_preserves_absence_and_present_tags) (tag=5, missing=1, reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 37, in test_optional_variant_payload_preserves_absence_and_present_tags
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47055==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_string_alias_and_plain_string_cast (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_owned_string_alias_and_plain_string_cast)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 136, in test_owned_string_alias_and_plain_string_cast
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47073==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=1, reverse=False, selected=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47082==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=1, reverse=False, selected=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47094==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=1, reverse=True, selected=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47102==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=1, reverse=True, selected=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47110==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=4, reverse=False, selected=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47118==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=4, reverse=False, selected=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47126==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=4, reverse=True, selected=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47138==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=4, reverse=True, selected=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47149==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=3, reverse=False, selected=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47162==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=3, reverse=False, selected=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47174==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=3, reverse=True, selected=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47182==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=3, reverse=True, selected=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47190==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=5, reverse=False, selected=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47198==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=5, reverse=False, selected=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47206==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=5, reverse=True, selected=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47217==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_projected_and_concrete_scalar_expression_joins (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_projected_and_concrete_scalar_expression_joins) (tag=5, reverse=True, selected=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 68, in test_projected_and_concrete_scalar_expression_joins
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47230==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_unreachable_variant_return_through_alias_and_tail_call (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_unreachable_variant_return_through_alias_and_tail_call) (compare='EQ', tail=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 157, in test_unreachable_variant_return_through_alias_and_tail_call
+    self.paired(self.guarded_return(compare=compare, jump=jump, tail=tail))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47274==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_unreachable_variant_return_through_alias_and_tail_call (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_unreachable_variant_return_through_alias_and_tail_call) (compare='EQ', tail=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 157, in test_unreachable_variant_return_through_alias_and_tail_call
+    self.paired(self.guarded_return(compare=compare, jump=jump, tail=tail))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47283==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_unreachable_variant_return_through_alias_and_tail_call (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_unreachable_variant_return_through_alias_and_tail_call) (compare='NE', tail=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 157, in test_unreachable_variant_return_through_alias_and_tail_call
+    self.paired(self.guarded_return(compare=compare, jump=jump, tail=tail))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47291==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_unreachable_variant_return_through_alias_and_tail_call (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_unreachable_variant_return_through_alias_and_tail_call) (compare='NE', tail=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 157, in test_unreachable_variant_return_through_alias_and_tail_call
+    self.paired(self.guarded_return(compare=compare, jump=jump, tail=tail))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47303==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_unreachable_variant_return_through_alias_and_tail_call (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_unreachable_variant_return_through_alias_and_tail_call) (compare='I64_EQ', tail=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 157, in test_unreachable_variant_return_through_alias_and_tail_call
+    self.paired(self.guarded_return(compare=compare, jump=jump, tail=tail))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47312==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_unreachable_variant_return_through_alias_and_tail_call (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_unreachable_variant_return_through_alias_and_tail_call) (compare='I64_EQ', tail=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 157, in test_unreachable_variant_return_through_alias_and_tail_call
+    self.paired(self.guarded_return(compare=compare, jump=jump, tail=tail))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47327==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_unreachable_variant_return_through_alias_and_tail_call (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_unreachable_variant_return_through_alias_and_tail_call) (compare='I64_NE', tail=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 157, in test_unreachable_variant_return_through_alias_and_tail_call
+    self.paired(self.guarded_return(compare=compare, jump=jump, tail=tail))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47340==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_unreachable_variant_return_through_alias_and_tail_call (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_unreachable_variant_return_through_alias_and_tail_call) (compare='I64_NE', tail=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 157, in test_unreachable_variant_return_through_alias_and_tail_call
+    self.paired(self.guarded_return(compare=compare, jump=jump, tail=tail))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47348==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_variants_both_orders_and_same_variant_instantiations (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_variants_both_orders_and_same_variant_instantiations) (tags=(0, 1), reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 24, in test_variants_both_orders_and_same_variant_instantiations
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n'+
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function display 1 1 0 string 1\nLOAD_LOCAL 0\nAGG_GET 0\nCAST_STRING\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47356==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_variants_both_orders_and_same_variant_instantiations (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_variants_both_orders_and_same_variant_instantiations) (tags=(0, 1), reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 24, in test_variants_both_orders_and_same_variant_instantiations
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n'+
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function display 1 1 0 string 1\nLOAD_LOCAL 0\nAGG_GET 0\nCAST_STRING\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47364==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_variants_both_orders_and_same_variant_instantiations (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_variants_both_orders_and_same_variant_instantiations) (tags=(0, 0), reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 24, in test_variants_both_orders_and_same_variant_instantiations
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n'+
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function display 1 1 0 string 1\nLOAD_LOCAL 0\nAGG_GET 0\nCAST_STRING\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47372==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_variants_both_orders_and_same_variant_instantiations (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_variants_both_orders_and_same_variant_instantiations) (tags=(0, 0), reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 24, in test_variants_both_orders_and_same_variant_instantiations
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n'+
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function display 1 1 0 string 1\nLOAD_LOCAL 0\nAGG_GET 0\nCAST_STRING\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47383==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_aliases_after_churn_and_mutation (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_aliases_after_churn_and_mutation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_array_carriers.py", line 73, in test_aliases_after_churn_and_mutation
+            self.paired(HEADER+'''.function main 0 3 0 int 1
+            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ARR_NEW 1
+    ^^^^^^^^^
+    ...<60 lines>...
+    .end
+    ^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47407==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_empty_array_and_checked_return (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_empty_array_and_checked_return)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_array_carriers.py", line 33, in test_empty_array_and_checked_return
+            self.paired(HEADER+'''.function main 0 1 0 int 1
+            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    PUSH_I64 7
+    ^^^^^^^^^^
+    ...<34 lines>...
+    .end
+    ^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47424==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_record_join_padding_and_projected_call (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_record_join_padding_and_projected_call) (selected=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_array_carriers.py", line 28, in test_record_join_padding_and_projected_call
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n'+
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function is_array 1 2 0 bool 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nTYPE_CHECK 7\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47454==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_record_join_padding_and_projected_call (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_record_join_padding_and_projected_call) (selected=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_array_carriers.py", line 28, in test_record_join_padding_and_projected_call
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n'+
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function is_array 1 2 0 bool 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nTYPE_CHECK 7\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47467==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_scalar_array_instances_both_orders (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_scalar_array_instances_both_orders) (reverse=False, variant=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_array_carriers.py", line 18, in test_scalar_array_instances_both_orders
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47478==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_scalar_array_instances_both_orders (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_scalar_array_instances_both_orders) (reverse=False, variant=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_array_carriers.py", line 18, in test_scalar_array_instances_both_orders
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47491==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_scalar_array_instances_both_orders (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_scalar_array_instances_both_orders) (reverse=True, variant=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_array_carriers.py", line 18, in test_scalar_array_instances_both_orders
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47502==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_scalar_array_instances_both_orders (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_scalar_array_instances_both_orders) (reverse=True, variant=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_array_carriers.py", line 18, in test_scalar_array_instances_both_orders
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 29, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 17, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47519==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_distinct_record_variant_layouts (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_distinct_record_variant_layouts) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-u01qs4as/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-u01qs4as/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-u01qs4as/.nano-product.8NiTky/program.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage string to int at nodes 157/153
+
+
+======================================================================
+FAIL: test_distinct_record_variant_layouts (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_distinct_record_variant_layouts) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-u01qs4as/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-u01qs4as/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-u01qs4as/.nano-product.eAgmcZ/program.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage string to int at nodes 157/153
+
+
+======================================================================
+FAIL: test_records_and_alternating_union_payloads (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_records_and_alternating_union_payloads) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-9innws3t/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-9innws3t/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-9innws3t/.nano-product.VlIfp7/program.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 0, offset 112: nrec_t versus int64_t at field 0 of parameter 2 of function 0)
+
+
+======================================================================
+FAIL: test_records_and_alternating_union_payloads (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_records_and_alternating_union_payloads) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-9innws3t/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-9innws3t/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-9innws3t/.nano-product.DBaflc/program.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 0, offset 112: nrec_t versus int64_t at field 0 of parameter 2 of function 0)
+
+
+======================================================================
+FAIL: test_union_storage_without_formatting (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_union_storage_without_formatting) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-b8jjmzf_/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-b8jjmzf_/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-b8jjmzf_/.nano-product.wVdwpU/program.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 0, offset 174: nrec_t versus int64_t at field 0 of parameter 1 of function 0)
+
+
+======================================================================
+FAIL: test_union_storage_without_formatting (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_union_storage_without_formatting) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-b8jjmzf_/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-b8jjmzf_/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-b8jjmzf_/.nano-product.lQ3OaO/program.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 0, offset 174: nrec_t versus int64_t at field 0 of parameter 1 of function 0)
+
+
+----------------------------------------------------------------------
+Ran 19 tests in 20.051s
+
+FAILED (failures=63)

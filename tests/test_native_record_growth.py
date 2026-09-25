@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / 'tests/nanoisa/fixtures/record_array_growth_257.nasm'
@@ -25,7 +26,7 @@ class NativeRecordGrowth(unittest.TestCase):
         return source
 
     def compile(self, source, binary):
-        self.run_checked(['cc', '-std=c11', '-g', '-Wall', '-Wextra', '-Werror',
+        self.run_checked([*native_cc(), '-std=c11', '-g', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                           source, '-o', binary])
 

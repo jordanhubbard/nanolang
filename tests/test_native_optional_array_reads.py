@@ -1,10 +1,14 @@
 """I retain missing scalar array elements as void until a consumer checks them."""
 from pathlib import Path
 import os
+import shlex
 import subprocess
 import tempfile
 import unittest
 ROOT=Path(__file__).resolve().parents[1]
+
+def native_compiler():
+    return shlex.split(os.environ.get('NANO_NATIVE_TEST_CC') or os.environ.get('CC') or 'cc')
 
 class OptionalArrayReads(unittest.TestCase):
     def checked(self,args):
@@ -20,7 +24,7 @@ class OptionalArrayReads(unittest.TestCase):
             self.checked([ROOT/'bin/nano_vm','--verify-only',module])
             self.checked([ROOT/'bin/nano_vm',module])
             self.checked([ROOT/'bin/nvm2c',module,'-o',source])
-            self.checked([os.environ.get('CC','cc'),'-std=c11','-O1','-Wall','-Wextra','-Werror',
+            self.checked([*native_compiler(),'-std=c11','-O1','-Wall','-Wextra','-Werror',
                           '-fsanitize=address,undefined','-fno-sanitize-recover=all',source,'-o',binary])
             self.checked([binary])
     def test_tags_bounds_locals_and_calls(self):

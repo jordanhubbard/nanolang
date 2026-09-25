@@ -1,0 +1,14 @@
+{
+  "pr522-owned-transport-regression.log.gz": {
+    "uncompressed_sha256": "7178a9dbc3cc6f89fd6ec765a91af1ef77ef36ed9eef6447070d0ec93f11b60e"
+  },
+  "pr522-owned-array-layout-qualified.log.gz": {
+    "uncompressed_sha256": "1e215c79a470530df80c4030e7e394690b82893b1cde760f6d21165ee80c0423"
+  },
+  "pr522-owned-transport-final.log.gz": {
+    "uncompressed_sha256": "0ae8c8e7f31ec5ae983b876095a254097d3704ce7907f2b2bf05ba5e2231718f"
+  },
+  "pr522-owned-transport-asan-final.log.gz": {
+    "uncompressed_sha256": "264b51007569fef59587fff6e7a90d191246be5b8422fd359f29bf50ec64a9ba"
+  }
+}

@@ -1,0 +1,40 @@
+(lldb) target create "bin/nanoc_stage1"
+Current executable set to '/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1' (arm64).
+(lldb) settings set -- target.run-args  "/tmp/pr522-scalar-owner-probe/main.nano" "-o" "/tmp/pr522-scalar-owner-probe/program"
+(lldb) breakpoint set -n nanoisa_codegen__nisa_call_index
+Breakpoint 1: where = nanoc_stage1`nanoisa_codegen__nisa_call_index, address = 0x00000001001aec7c
+(lldb) run
+Process 32388 launched: '/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1' (arm64)
+Process 32388 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 1.1
+       frame #0: 0x00000001001aec7c nanoc_stage1`nanoisa_codegen__nisa_call_index
+nanoc_stage1`nanoisa_codegen__nisa_call_index:
+->  0x1001aec7c <+0>:  stp    x28, x27, [sp, #-0x20]!
+    0x1001aec80 <+4>:  stp    x29, x30, [sp, #0x10]
+    0x1001aec84 <+8>:  add    x29, sp, #0x10
+    0x1001aec88 <+12>: mov    w9, #0x1c60               ; =7264 
+Target 0: (nanoc_stage1) stopped.
+(lldb) register read x0 x1
+      x0 = 0x000000016fdccc70
+      x1 = 0x000000016fdccc50
+(lldb) memory read -f d -s 8 -c 8 $x1
+0x16fdccc50: 25769803782
+0x16fdccc58: 31
+0x16fdccc60: 38
+0x16fdccc68: 0
+0x16fdccc70: 48570134560
+0x16fdccc78: 6171914746
+0x16fdccc80: 304942678086
+0x16fdccc88: 0
+(lldb) thread step-out
+Process 32388 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = step out
+       frame #0: 0x000000010019f350 nanoc_stage1`nanoisa_codegen__nisa_expr_type + 6648
+nanoc_stage1`nanoisa_codegen__nisa_expr_type:
+->  0x10019f350 <+6648>: str    x0, [sp, #0x73f8]
+    0x10019f354 <+6652>: ldr    x8, [sp, #0x73f8]
+    0x10019f358 <+6656>: tbz    x8, #0x3f, 0x10019f560    ; <+7176>
+    0x10019f35c <+6660>: b      0x10019f360               ; <+6664>
+Target 0: (nanoc_stage1) stopped.
+(lldb) register read x0
+      x0 = 0x0000000000000001

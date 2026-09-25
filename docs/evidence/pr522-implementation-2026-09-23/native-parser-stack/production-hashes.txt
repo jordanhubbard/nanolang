@@ -1,0 +1,5 @@
+472353b98418d2817b89ef6e712824bd3706e83726de2e16aa55f9d43abbd027  src/nanoisa/nvm2c.c
+e392140f06f9a139b4fae8e0b14b43b92d3dcbd41208bf8b9ff72e1f87ac11d2  tests/test_one_ir_compiler.py
+1cf4d0332865324c1ffbe48bdf7508a638d804e89369b651e262d0328cc393d9  /tmp/pr522-native-parser-stack/compiler-production.c
+00afd5f8d2b76627d4e0d7faafda88499b65547d3fdda624f8d66686e2c3f6a3  /tmp/pr522-native-parser-stack/compiler-production.o
+6bf9964f86462d6e76d04b81d65a10aeea29a72b3eda80969d0df81092a77417  /tmp/pr522-native-parser-stack/compiler-production.su

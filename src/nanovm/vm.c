@@ -1,6 +1,7 @@
 #include "../nanoisa/service_bindings_module.h"
 #include "../nanoisa/service_classification_private.h"
 #include "../nanoisa/affine_state.h"
+#include "../nanoisa/affine_bytecode.h"
 #include "../nanoisa/mixed_samples_internal.h"
 #include "../nanoisa/owned_array_authority.h"
 #include "../nanoisa/owned_array_admission.h"
@@ -482,7 +483,8 @@ static bool vm_module_constants_build(VmState *vm, const NvmModule *module,
     return true;
 }
 
-void vm_init(VmState *vm, const NvmModule *module) {
+static void vm_init_common(VmState *vm, const NvmModule *module,
+                           bool verification_complete) {
     memset(vm, 0, sizeof(*vm));
     vm->owner_thread = pthread_self();
     vm->module = module;
@@ -529,8 +531,21 @@ void vm_init(VmState *vm, const NvmModule *module) {
         vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
     }
     /* Record whether the root module is verified so the hot path can pick
-     * the unchecked private handlers where the proof permits it. */
-    vm_recompute_verified(vm);
+     * the unchecked private handlers where the proof permits it. The CLI may
+     * carry the exact proof it just completed into this immutable instance. */
+    if (verification_complete) {
+        vm->verified = true;
+    } else {
+        vm_recompute_verified(vm);
+    }
+}
+
+void vm_init(VmState *vm, const NvmModule *module) {
+    vm_init_common(vm, module, false);
+}
+
+void vm_init_after_verify(VmState *vm, const NvmModule *module) {
+    vm_init_common(vm, module, true);
 }
 
 void vm_destroy(VmState *vm) {
@@ -1152,6 +1167,16 @@ static uint32_t effect_local_index(VmState *vm, VmCallFrame *frame, uint16_t ind
     return frame->stack_base + index;
 }
 
+/* VM union identities are ordinals; retained ownership identities are layouts. */
+static bool owned_union_matches(const NvmModule *module, NanoValue value,
+                                uint32_t layout) {
+    NvmUnionVariantFact fact;
+    return value.tag==TAG_UNION && value.as.uval &&
+        nvm_ownership_union_variant(module,value.as.uval->def_idx,
+                                    value.as.uval->variant,&fact)==NVM_V2_OK &&
+        fact.layout==layout && fact.field_count==value.as.uval->field_count;
+}
+
 static void effect_prune(VmState *vm, uint32_t frame_count) {
     while (vm->handler_count && vm->handlers[vm->handler_count - 1].owner >= frame_count)
         vm->handler_count--;
@@ -1532,6 +1557,10 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
     }
     const bool owned_execution = admitted || required;
     const bool mixed_execution = admitted && (proof->mixed || proof->owner_arrays);
+    uint8_t owned_global_tags[NVM_OWNERSHIP_MAX_SCALAR_GLOBALS];uint32_t owned_global_count=0;
+    if(owned_execution && !mixed_execution &&
+       nvm_ownership_scalar_globals(vm->module,owned_global_tags,sizeof(owned_global_tags),&owned_global_count)!=NVM_V2_OK)
+        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete scalar-global ownership declarations");
     if (owned_execution) {
         if (!vm->frame_count || vm->frame_count>NVM_OWNED_MAX_FUNCTIONS ||
             vm->frames[0].fn_idx!=0)
@@ -1606,6 +1635,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
         vm_labels[OP_OWN_STORE_LOCAL] = &&L_OP_OWN_STORE_LOCAL;
         vm_labels[OP_OWN_PACK] = &&L_OP_OWN_PACK;
         vm_labels[OP_OWN_UNPACK_LOCAL] = &&L_OP_OWN_UNPACK_LOCAL;
+        vm_labels[OP_OWN_UNPACK_VARIANT] = &&L_OP_OWN_UNPACK_VARIANT;
         vm_labels[OP_PUSH_I64] = &&L_OP_PUSH_I64;
         vm_labels[OP_PUSH_F64] = &&L_OP_PUSH_F64;
         vm_labels[OP_PUSH_BOOL] = &&L_OP_PUSH_BOOL;
@@ -1857,6 +1887,10 @@ vm_dispatch_top:
                 required = instr.operands[0].u16;
                 produced = 1;
                 break;
+            case OP_OWN_UNPACK_VARIANT:
+                required = 0;
+                produced = instr.operands[2].u16;
+                break;
             case OP_AGG_PACK:
                 required = instr.operands[3].u16;
                 produced = 1;
@@ -1945,7 +1979,8 @@ vm_dispatch_top:
         VM_CASE(OP_OWN_MOVE_LOCAL)
         VM_CASE(OP_OWN_STORE_LOCAL)
         VM_CASE(OP_OWN_PACK)
-        VM_CASE(OP_OWN_UNPACK_LOCAL) {
+        VM_CASE(OP_OWN_UNPACK_LOCAL)
+        VM_CASE(OP_OWN_UNPACK_VARIANT) {
             if (!owned_execution)
                 return trap_error(vm, VM_ERR_NOT_IMPLEMENTED,
                                   "I require owned-transfer execution semantics before execution");
@@ -1970,13 +2005,32 @@ vm_dispatch_top:
                 if (index>=vm->stack_size)
                     return trap_error(vm,VM_ERR_OUT_OF_BOUNDS,"I require an owned local slot");
                 if (op==OP_OWN_STORE_LOCAL) {
+                    NanoValue incoming=stack_peek(vm,0);
+                    if (incoming.tag==TAG_UNION) {
+                        NvmAffineType type;
+                        NvmAffineState *facts=nvm_affine_state_create(vm->module,vm->current_fn,frame->local_count);
+                        if (!facts) return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned union destination facts");
+                        bool valid=nvm_affine_local_type(facts,instr.operands[0].u16,&type) &&
+                            type.tag==TAG_UNION && owned_union_matches(vm->module,incoming,type.layout);
+                        nvm_affine_state_free(facts);
+                        if (!valid) return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact owned union destination");
+                    }
                     NanoValue previous=vm->stack[index];
                     vm->stack[index]=stack_pop(vm);
                     vm_release(&vm->heap,previous);
                 } else {
                     NanoValue value=vm->stack[index];
-                    if (value.tag!=TAG_STRUCT || !value.as.sval)
-                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a live owned record");
+                    if (value.tag==TAG_UNION) {
+                        NvmAffineType type;
+                        NvmAffineState *facts=nvm_affine_state_create(vm->module,vm->current_fn,frame->local_count);
+                        if (!facts) return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned union local facts");
+                        bool valid=nvm_affine_local_type(facts,instr.operands[0].u16,&type) &&
+                            type.tag==TAG_UNION && owned_union_matches(vm->module,value,type.layout);
+                        nvm_affine_state_free(facts);
+                        if (!valid || (op!=OP_OWN_MOVE_LOCAL && op!=OP_OWN_UNPACK_VARIANT))
+                            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact owned union local");
+                    } else if (value.tag!=TAG_STRUCT || !value.as.sval || op==OP_OWN_UNPACK_VARIANT)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a live owner of the declared kind");
                     if (op==OP_OWN_MOVE_LOCAL) {
                         /* I preserve the owner even if this handler is later
                          * separated from the common instruction preflight. */
@@ -1984,6 +2038,22 @@ vm_dispatch_top:
                             return trap_error(vm,VM_ERR_MEMORY,"I cannot reserve a moved owner");
                         vm->stack[index]=val_void();
                         stack_push(vm,value);
+                    } else if (op==OP_OWN_UNPACK_VARIANT) {
+                        VmUnion *variant=value.as.uval;
+                        uint16_t count=instr.operands[2].u16;
+                        if (variant->variant!=instr.operands[1].u16 || variant->field_count!=count ||
+                            variant->header.ref_count!=1)
+                            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require the unique selected union payload");
+                        if (stack_reserve(vm,(uint64_t)vm->stack_size+count)!=VM_OK)
+                            return trap_error(vm,VM_ERR_MEMORY,"I cannot reserve every selected union field");
+                        vm->stack[index]=val_void();
+                        for (uint16_t i=0;i<count;i++) {
+                            stack_push(vm,variant->fields[i]);
+                            variant->fields[i]=val_void();
+                        }
+                        bool buffered=variant->header.buffered;
+                        vm_release(&vm->heap,value);
+                        if (buffered) vm_gc_collect_cycles(&vm->heap);
                     } else {
                         VmStruct *record=value.as.sval;
                         if (stack_reserve(vm,(uint64_t)vm->stack_size+record->field_count)!=VM_OK)
@@ -2265,6 +2335,8 @@ vm_dispatch_top:
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
             }
             NanoValue v = vm->globals[idx];
+            if(owned_execution && (idx>=owned_global_count || v.tag!=owned_global_tags[idx]))
+                return trap_error(vm,VM_ERR_UNDEFINED_GLOBAL,"I require an initialized scalar global with its declared tag");
             vm_retain(&vm->heap, v);
             stack_push(vm, v);
             VM_NEXT();
@@ -2272,6 +2344,9 @@ vm_dispatch_top:
 
         VM_CASE(OP_STORE_GLOBAL) {
             uint32_t idx = instr.operands[0].u32;
+            if(owned_execution && (idx>=owned_global_count || !stack_has_operands(vm,1) ||
+               vm->stack[vm->stack_size-1].tag!=owned_global_tags[idx]))
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact scalar-global store");
             if (idx >= VM_MAX_GLOBALS) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
             }
@@ -2923,6 +2998,9 @@ dynamic_div:
 
             VmReferenceActivation *next_reference_context=NULL;
             if (owned_execution) {
+                for(uint32_t g=0;g<owned_global_count;g++)
+                    if(g>=vm->global_count || vm->globals[g].tag!=owned_global_tags[g])
+                        return trap_error(vm,VM_ERR_UNDEFINED_GLOBAL,"I require initialized scalar globals before an owned call");
                 next_reference_context=vm_reference_activation(vm,vm->frame_count);
                 if (!callee_idx || !next_reference_context || next_reference_context->active ||
                     vm->reference_generation==UINT64_MAX)
@@ -2948,7 +3026,8 @@ dynamic_div:
                     NanoValue argument=stack_peek(vm,count-1-p);
                     if (argument.tag!=parameters[p].tag ||
                         (argument.tag==TAG_STRUCT && (!argument.as.sval ||
-                         argument.as.sval->def_idx!=parameters[p].layout)))
+                         argument.as.sval->def_idx!=parameters[p].layout)) ||
+                        (argument.tag==TAG_UNION && !owned_union_matches(vm->module,argument,parameters[p].layout)))
                         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require exact positional consuming argument types");
                 }
             }
@@ -3096,11 +3175,50 @@ dynamic_div:
                                       callee_idx, callee->arity);
                 }
 
+                VmReferenceActivation *next_reference_context=NULL;
+                if (owned_execution) {
+                    if (mixed_execution || closure || callee_module!=vm->module ||
+                        !callee_idx || callee_idx>=NVM_OWNED_MAX_FUNCTIONS)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a same-module noncapturing owned callback");
+                    NvmAffineTargets *targets=nvm_affine_targets_create(vm->module);
+                    if (!targets)return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned callback targets");
+                    uint8_t mask=0;
+                    bool allowed=nvm_affine_targets_at(targets,vm->current_fn,decoded->byte_offset,&mask) &&
+                        (mask&(1u<<callee_idx));
+                    nvm_affine_targets_free(targets);
+                    if (!allowed)return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an inferred owned callback target");
+                    for(uint32_t g=0;g<owned_global_count;g++)
+                        if(g>=vm->global_count || vm->globals[g].tag!=owned_global_tags[g])
+                            return trap_error(vm,VM_ERR_UNDEFINED_GLOBAL,"I require initialized scalar globals before an owned call");
+                    next_reference_context=vm_reference_activation(vm,vm->frame_count);
+                    if (!next_reference_context || next_reference_context->active || vm->reference_generation==UINT64_MAX)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a checked bounded owned value activation");
+                    NvmAffineState *contract=nvm_affine_state_create(vm->module,callee_idx,callee->local_count);
+                    if (!contract)return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned callback parameter facts");
+                    NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
+                    bool valid=nvm_affine_value_parameters(contract,parameters,NVM_AFFINE_MAX_PARAMETERS,&count);
+                    nvm_affine_state_free(contract);
+                    if (!valid || count!=callee->arity)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a complete consuming parameter contract");
+                    for (uint16_t p=0;p<count;p++) {
+                        NanoValue argument=stack_peek(vm,count-p);
+                        if (argument.tag!=parameters[p].tag ||
+                            (argument.tag==TAG_STRUCT && (!argument.as.sval || argument.as.sval->def_idx!=parameters[p].layout)) ||
+                            (argument.tag==TAG_UNION && !owned_union_matches(vm->module,argument,parameters[p].layout)))
+                            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require exact positional consuming argument types");
+                    }
+                }
+
                 /* Transfer ownership only after every call validation passes. */
                 uint32_t new_base = vm->stack_size - 1 - callee->arity;
                 VmResult reserved = stack_reserve_frame(vm, new_base, callee);
                 if (reserved != VM_OK)
                     return trap_error(vm, reserved, "I could not reserve the indirect-call frame.");
+                if (owned_execution) {
+                    memset(next_reference_context,0,sizeof(*next_reference_context));
+                    next_reference_context->active=true;
+                    next_reference_context->generation=++vm->reference_generation;
+                }
                 fn_val = stack_pop(vm);
                 for (uint16_t i = callee->arity; i < callee->local_count; i++) {
                     stack_push(vm, val_void());
@@ -3266,8 +3384,8 @@ vm_return_values: ;
                 }
             }
             if (owned_execution) {
-                if (returning->result_tag==TAG_STRUCT) {
-                    /* I validate while the pending owner is still a stack root.
+                if (returning->result_tag==TAG_STRUCT || returning->result_tag==TAG_UNION) {
+                    /* I validate while the pending managed result is still a stack root.
                      * Scalar/void count and tag checks need no extra facts. */
                     NvmAffineType type;uint16_t fields=0;
                     bool valid=false;
@@ -3277,15 +3395,18 @@ vm_return_values: ;
                         const NvmMixedSignature *signature=&proof->signatures[frame->fn_idx];
                         type=(NvmAffineType){signature->result.tag,signature->result.global_layout};
                         fields=signature->result_fields;
-                        valid=signature->result.category==NVM_MIXED_VALUE_OWNER;
+                        valid=signature->result.category==NVM_MIXED_VALUE_OWNER ||
+                            signature->result.category==NVM_MIXED_VALUE_ORDINARY;
                     } else {
                         NvmAffineState *contract=nvm_affine_state_create(vm->module,frame->fn_idx,returning->local_count);
                         if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned return facts");
                         valid=nvm_affine_value_result(contract,&type,&fields);
                         nvm_affine_state_free(contract);
                     }
-                    if (!valid || type.tag!=TAG_STRUCT || !results[0].as.sval ||
-                        results[0].as.sval->def_idx!=type.layout || results[0].as.sval->field_count!=fields)
+                    if (!valid || type.tag!=returning->result_tag ||
+                        (type.tag==TAG_UNION ? !owned_union_matches(vm->module,results[0],type.layout) :
+                         (!results[0].as.sval || results[0].as.sval->def_idx!=type.layout ||
+                          results[0].as.sval->field_count!=fields)))
                         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact declared owned result");
                 }
                 /* The returned operand already fits this stack. I establish

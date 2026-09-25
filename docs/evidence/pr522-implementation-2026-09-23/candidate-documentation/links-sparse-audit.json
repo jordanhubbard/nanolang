@@ -1,0 +1,1921 @@
+{
+  "checker_exit": 1,
+  "tracked_targets": [
+    {
+      "source": "docs/EXAMPLE_TIME_FFI.md",
+      "target": "evidence/example-time-ffi/seal.json",
+      "resolved": "docs/evidence/example-time-ffi/seal.json"
+    },
+    {
+      "source": "docs/ORIGINAL_ACCEPTANCE_RECONCILIATION.md",
+      "target": "evidence/original-acceptance-reconciliation/task-clauses.json",
+      "resolved": "docs/evidence/original-acceptance-reconciliation/task-clauses.json"
+    },
+    {
+      "source": "docs/ORIGINAL_ACCEPTANCE_RECONCILIATION.md",
+      "target": "evidence/native-full-fixedpoint-host-owned.json",
+      "resolved": "docs/evidence/native-full-fixedpoint-host-owned.json"
+    },
+    {
+      "source": "docs/DARWIN_ARITHMETIC_GRAPHS_732.md",
+      "target": "evidence/darwin-arithmetic-graphs-732/sealed-prerequisite-manifest.json",
+      "resolved": "docs/evidence/darwin-arithmetic-graphs-732/sealed-prerequisite-manifest.json"
+    },
+    {
+      "source": "docs/DARWIN_ARITHMETIC_GRAPHS_732.md",
+      "target": "evidence/darwin-arithmetic-graphs-732/qualified-manifest.json",
+      "resolved": "docs/evidence/darwin-arithmetic-graphs-732/qualified-manifest.json"
+    },
+    {
+      "source": "docs/BORROW_CANONICAL_SETUP.md",
+      "target": "evidence/borrow-canonical-setup-measurement.json",
+      "resolved": "docs/evidence/borrow-canonical-setup-measurement.json"
+    },
+    {
+      "source": "docs/BORROW_CANONICAL_SETUP.md",
+      "target": "evidence/borrow-canonical-missing-helper.json",
+      "resolved": "docs/evidence/borrow-canonical-missing-helper.json"
+    },
+    {
+      "source": "docs/BORROW_CANONICAL_SETUP.md",
+      "target": "evidence/borrow-canonical-missing-helper.log",
+      "resolved": "docs/evidence/borrow-canonical-missing-helper.log"
+    },
+    {
+      "source": "docs/BORROW_CANONICAL_SETUP.md",
+      "target": "evidence/borrow-canonical-qualified.json",
+      "resolved": "docs/evidence/borrow-canonical-qualified.json"
+    },
+    {
+      "source": "docs/BORROW_CANONICAL_SETUP.md",
+      "target": "evidence/borrow-canonical-qualified.log",
+      "resolved": "docs/evidence/borrow-canonical-qualified.log"
+    },
+    {
+      "source": "docs/NANOISA_RECONSTRUCT_ROT3.md",
+      "target": "evidence/reconstruction-scalar-rot3.json",
+      "resolved": "docs/evidence/reconstruction-scalar-rot3.json"
+    },
+    {
+      "source": "docs/ASSEMBLER_CAPTURE_FLAGS.md",
+      "target": "evidence/assembler-capture-flags-independent-review.json",
+      "resolved": "docs/evidence/assembler-capture-flags-independent-review.json"
+    },
+    {
+      "source": "docs/NANOVM_ARRAY_GROWTH_ACCOUNTING.md",
+      "target": "evidence/private-owned-array-runtime-graph-first.json",
+      "resolved": "docs/evidence/private-owned-array-runtime-graph-first.json"
+    },
+    {
+      "source": "docs/AFFINE_REMAINING_ACCEPTANCE.md",
+      "target": "evidence/affine-module-identity-3c728/README.md",
+      "resolved": "docs/evidence/affine-module-identity-3c728/README.md"
+    },
+    {
+      "source": "docs/COMPONENT_SHADOW_INVENTORY.md",
+      "target": "evidence/component-shadow-inventory.json",
+      "resolved": "docs/evidence/component-shadow-inventory.json"
+    },
+    {
+      "source": "docs/NANOISA_RECONSTRUCT_COMPARISONS.md",
+      "target": "evidence/reconstruction-scalar-comparisons.json",
+      "resolved": "docs/evidence/reconstruction-scalar-comparisons.json"
+    },
+    {
+      "source": "docs/COMPONENT_ENTRY_ASSERTIONS.md",
+      "target": "evidence/component-entry-assertions.json",
+      "resolved": "docs/evidence/component-entry-assertions.json"
+    },
+    {
+      "source": "docs/NATIVE_COMPILER_SELECTOR.md",
+      "target": "evidence/native-compiler-selector/nanolang-native-selector-independent-audit.json",
+      "resolved": "docs/evidence/native-compiler-selector/nanolang-native-selector-independent-audit.json"
+    },
+    {
+      "source": "docs/NATIVE_COMPILER_SELECTOR.md",
+      "target": "evidence/native-compiler-selector/seal.json",
+      "resolved": "docs/evidence/native-compiler-selector/seal.json"
+    },
+    {
+      "source": "docs/NATIVE_COMPILER_SELECTOR.md",
+      "target": "evidence/native-compiler-selector/archives.json",
+      "resolved": "docs/evidence/native-compiler-selector/archives.json"
+    },
+    {
+      "source": "docs/VM_SOURCE_LOCATIONS.md",
+      "target": "evidence/vm-source-locations/inventory.json",
+      "resolved": "docs/evidence/vm-source-locations/inventory.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/product-acceptance-ece241ba-darwin-corrected.txt",
+      "resolved": "docs/evidence/product-acceptance-ece241ba-darwin-corrected.txt"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/sail-rocq-f38b6409-evidence.txt",
+      "resolved": "docs/evidence/sail-rocq-f38b6409-evidence.txt"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/sail-rocq-f38b6409.log",
+      "resolved": "docs/evidence/sail-rocq-f38b6409.log"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/ci-sanitizer-partitions/corrected-hosted/README.md",
+      "resolved": "docs/evidence/ci-sanitizer-partitions/corrected-hosted/README.md"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/ci-sanitizer-partitions/corrected-early-terminals/reports.json",
+      "resolved": "docs/evidence/ci-sanitizer-partitions/corrected-early-terminals/reports.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/verifier-ordered-ranges/README.md",
+      "resolved": "docs/evidence/verifier-ordered-ranges/README.md"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/pr945-hosted/README.md",
+      "resolved": "docs/evidence/pr945-hosted/README.md"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/pr945-make-flags/README.md",
+      "resolved": "docs/evidence/pr945-make-flags/README.md"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/artifact-native-link-flags/checks.json",
+      "resolved": "docs/evidence/artifact-native-link-flags/checks.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/vm-trapped-callable-teardown/checks.json",
+      "resolved": "docs/evidence/vm-trapped-callable-teardown/checks.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/userguide-source-links/checks.json",
+      "resolved": "docs/evidence/userguide-source-links/checks.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/record-first-tuple-parser/README.md",
+      "resolved": "docs/evidence/record-first-tuple-parser/README.md"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/range-arity-parity.json",
+      "resolved": "docs/evidence/range-arity-parity.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/union-metadata-ownership/README.md",
+      "resolved": "docs/evidence/union-metadata-ownership/README.md"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/release-integration-3508bb20.json",
+      "resolved": "docs/evidence/release-integration-3508bb20.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/nested-owned-results-integrated.json",
+      "resolved": "docs/evidence/nested-owned-results-integrated.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-string-initialization-joins.json",
+      "resolved": "docs/evidence/owned-string-initialization-joins.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-string-fields-source-first.json",
+      "resolved": "docs/evidence/owned-string-fields-source-first.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-string-fields-integrated.json",
+      "resolved": "docs/evidence/owned-string-fields-integrated.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/mixed-samples-source-linux/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-linux/manifest.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/mixed-samples-source-darwin/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-darwin/manifest.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-array-operand-first.json",
+      "resolved": "docs/evidence/owned-array-operand-first.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/private-owned-array-runtime-first.json",
+      "resolved": "docs/evidence/private-owned-array-runtime-first.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/private-owned-array-runtime-native-status-first.json",
+      "resolved": "docs/evidence/private-owned-array-runtime-native-status-first.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/private-owned-array-runtime-graph-first.json",
+      "resolved": "docs/evidence/private-owned-array-runtime-graph-first.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/private-owned-array-runtime-baseline-first.json",
+      "resolved": "docs/evidence/private-owned-array-runtime-baseline-first.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-array-public-compile-first.json",
+      "resolved": "docs/evidence/owned-array-public-compile-first.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-array-public-serialization-first.json",
+      "resolved": "docs/evidence/owned-array-public-serialization-first.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-array-public-sidecars-first.json",
+      "resolved": "docs/evidence/owned-array-public-sidecars-first.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-array-public-callable-first.json",
+      "resolved": "docs/evidence/owned-array-public-callable-first.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-array-public-integration-tool-first.json",
+      "resolved": "docs/evidence/owned-array-public-integration-tool-first.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-array-public-frozen.json",
+      "resolved": "docs/evidence/owned-array-public-frozen.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/forth-string-output/report-sha256.json",
+      "resolved": "docs/evidence/forth-string-output/report-sha256.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/shared-match-linux/README.md",
+      "resolved": "docs/evidence/shared-match-linux/README.md"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-array-mutation-final/README.md",
+      "resolved": "docs/evidence/owned-array-mutation-final/README.md"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-array-mutation-final/README.md",
+      "resolved": "docs/evidence/owned-array-mutation-final/README.md"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/pr861-child-reconciliation.json",
+      "resolved": "docs/evidence/pr861-child-reconciliation.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-array-overwrite/README.md",
+      "resolved": "docs/evidence/owned-array-overwrite/README.md"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/union-metadata-ownership/README.md",
+      "resolved": "docs/evidence/union-metadata-ownership/README.md"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/owned-managed-bounded-reconciliation.json",
+      "resolved": "docs/evidence/owned-managed-bounded-reconciliation.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/portable-read-adapter-preflight/preflight-terminal.json",
+      "resolved": "docs/evidence/portable-read-adapter-preflight/preflight-terminal.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/file-cyclic-dispatch-restack-910/README.md",
+      "resolved": "docs/evidence/file-cyclic-dispatch-restack-910/README.md"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/assembler-capture-flags/summary.json",
+      "resolved": "docs/evidence/assembler-capture-flags/summary.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/game-of-life-timing/seal.json",
+      "resolved": "docs/evidence/game-of-life-timing/seal.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/macos-ci-native-compiler/source-log.json",
+      "resolved": "docs/evidence/macos-ci-native-compiler/source-log.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/macos-ci-native-compiler/hosted-transport-pass.json",
+      "resolved": "docs/evidence/macos-ci-native-compiler/hosted-transport-pass.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/example-time-ffi/seal.json",
+      "resolved": "docs/evidence/example-time-ffi/seal.json"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "target": "evidence/c-seed-comparison-grouping/seal.json",
+      "resolved": "docs/evidence/c-seed-comparison-grouping/seal.json"
+    },
+    {
+      "source": "docs/NANOISA_MIXED_SAMPLES_SOURCE.md",
+      "target": "evidence/mixed-samples-source-first/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-first/manifest.json"
+    },
+    {
+      "source": "docs/NANOISA_MIXED_SAMPLES_SOURCE.md",
+      "target": "evidence/mixed-samples-source-linux/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-linux/manifest.json"
+    },
+    {
+      "source": "docs/NANOISA_MIXED_SAMPLES_SOURCE.md",
+      "target": "evidence/mixed-samples-source-integration/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-integration/manifest.json"
+    },
+    {
+      "source": "docs/NANOISA_MIXED_SAMPLES_SOURCE.md",
+      "target": "evidence/mixed-samples-source-provider/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-provider/manifest.json"
+    },
+    {
+      "source": "docs/NANOISA_MIXED_SAMPLES_SOURCE.md",
+      "target": "evidence/mixed-samples-source-darwin/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-darwin/manifest.json"
+    },
+    {
+      "source": "docs/NANOISA_MIXED_SAMPLES_SOURCE.md",
+      "target": "evidence/mixed-samples-source-authority/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-authority/manifest.json"
+    },
+    {
+      "source": "docs/LINKER_INPUT_EVIDENCE.md",
+      "target": "evidence/linux-gcc12-ld240-linker.json",
+      "resolved": "docs/evidence/linux-gcc12-ld240-linker.json"
+    },
+    {
+      "source": "docs/COMPONENT_SHADOW_COMPLETION.md",
+      "target": "evidence/component-shadow-completion/manifest.json",
+      "resolved": "docs/evidence/component-shadow-completion/manifest.json"
+    },
+    {
+      "source": "docs/COMPONENT_SHADOW_COMPLETION.md",
+      "target": "evidence/component-shadow-completion/trace-comparison.json",
+      "resolved": "docs/evidence/component-shadow-completion/trace-comparison.json"
+    },
+    {
+      "source": "docs/C_SEED_COMPARISON_GROUPING.md",
+      "target": "evidence/c-seed-comparison-grouping/seal.json",
+      "resolved": "docs/evidence/c-seed-comparison-grouping/seal.json"
+    },
+    {
+      "source": "docs/RANGE_ARITY_PARITY.md",
+      "target": "evidence/range-arity-parity.json",
+      "resolved": "docs/evidence/range-arity-parity.json"
+    },
+    {
+      "source": "docs/OWNED_MANAGED_PARENT_ACCEPTANCE_AUDIT.md",
+      "target": "evidence/owned-array-overwrite/README.md",
+      "resolved": "docs/evidence/owned-array-overwrite/README.md"
+    },
+    {
+      "source": "docs/OWNED_MANAGED_PARENT_ACCEPTANCE_AUDIT.md",
+      "target": "evidence/owned-array-mutation-final/README.md",
+      "resolved": "docs/evidence/owned-array-mutation-final/README.md"
+    },
+    {
+      "source": "docs/OWNED_MANAGED_PARENT_ACCEPTANCE_AUDIT.md",
+      "target": "evidence/mixed-samples-source-linux/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-linux/manifest.json"
+    },
+    {
+      "source": "docs/OWNED_MANAGED_PARENT_ACCEPTANCE_AUDIT.md",
+      "target": "evidence/mixed-samples-source-darwin/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-darwin/manifest.json"
+    },
+    {
+      "source": "docs/NATIVE_OPTIONAL_MAP_KEYS.md",
+      "target": "evidence/native-optional-map-keys.json",
+      "resolved": "docs/evidence/native-optional-map-keys.json"
+    },
+    {
+      "source": "docs/RAW_CAST_U8_QUALIFICATION.md",
+      "target": "evidence/raw-cast-u8/seal.json",
+      "resolved": "docs/evidence/raw-cast-u8/seal.json"
+    },
+    {
+      "source": "docs/NATIVE_REFERENCED_LABELS.md",
+      "target": "evidence/native-referenced-labels.json",
+      "resolved": "docs/evidence/native-referenced-labels.json"
+    },
+    {
+      "source": "docs/NANOISA_RECONSTRUCT_GENERIC_INTEGER.md",
+      "target": "evidence/reconstruction-generic-integer.json",
+      "resolved": "docs/evidence/reconstruction-generic-integer.json"
+    },
+    {
+      "source": "docs/CANONICAL_COMPONENT_SHADOW_COMPLETION.md",
+      "target": "evidence/canonical-component-shadows/selection.json",
+      "resolved": "docs/evidence/canonical-component-shadows/selection.json"
+    },
+    {
+      "source": "docs/CANONICAL_COMPONENT_SHADOW_COMPLETION.md",
+      "target": "evidence/canonical-component-shadows/manifest.json",
+      "resolved": "docs/evidence/canonical-component-shadows/manifest.json"
+    },
+    {
+      "source": "docs/CANONICAL_COMPONENT_SHADOW_COMPLETION.md",
+      "target": "evidence/canonical-component-shadows/qualification.py",
+      "resolved": "docs/evidence/canonical-component-shadows/qualification.py"
+    },
+    {
+      "source": "docs/CANONICAL_COMPONENT_SHADOW_COMPLETION.md",
+      "target": "evidence/canonical-component-shadows/capture-vm.py",
+      "resolved": "docs/evidence/canonical-component-shadows/capture-vm.py"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-ece241ba.md",
+      "target": "product-gates-ece241ba-prefix.json",
+      "resolved": "docs/evidence/product-gates-ece241ba-prefix.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-ece241ba.md",
+      "target": "product-gates-ece241ba-complete.json",
+      "resolved": "docs/evidence/product-gates-ece241ba-complete.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-ece241ba.md",
+      "target": "product-acceptance-ece241ba-darwin.txt",
+      "resolved": "docs/evidence/product-acceptance-ece241ba-darwin.txt"
+    },
+    {
+      "source": "docs/evidence/file-binding-publisher.md",
+      "target": "file-binding-publisher/report-sha256.json",
+      "resolved": "docs/evidence/file-binding-publisher/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-binding-publisher.md",
+      "target": "file-binding-publisher/artifact-index.json",
+      "resolved": "docs/evidence/file-binding-publisher/artifact-index.json"
+    },
+    {
+      "source": "docs/evidence/file-indirect-flow.md",
+      "target": "file-indirect-flow/report-sha256.json",
+      "resolved": "docs/evidence/file-indirect-flow/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-indirect-flow.md",
+      "target": "file-indirect-flow-integration.json",
+      "resolved": "docs/evidence/file-indirect-flow-integration.json"
+    },
+    {
+      "source": "docs/evidence/file-indirect-flow.md",
+      "target": "file-indirect-flow-independent-review.json",
+      "resolved": "docs/evidence/file-indirect-flow-independent-review.json"
+    },
+    {
+      "source": "docs/evidence/binary64-bit-transport.md",
+      "target": "binary64-bit-transport.json",
+      "resolved": "docs/evidence/binary64-bit-transport.json"
+    },
+    {
+      "source": "docs/evidence/reconstruction-f64-transport.md",
+      "target": "reconstruction-f64-transport.json",
+      "resolved": "docs/evidence/reconstruction-f64-transport.json"
+    },
+    {
+      "source": "docs/evidence/legacy-signed-nan-format.md",
+      "target": "legacy-signed-nan-format/",
+      "resolved": "docs/evidence/legacy-signed-nan-format"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-e9a5f55f.md",
+      "target": "product-quick-e9a5f55f-failed.log",
+      "resolved": "docs/evidence/product-quick-e9a5f55f-failed.log"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-e9a5f55f.md",
+      "target": "product-quick-e9a5f55f-failed.json",
+      "resolved": "docs/evidence/product-quick-e9a5f55f-failed.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-e9a5f55f.md",
+      "target": "product-vm-fixedpoint-e9a5f55f.json",
+      "resolved": "docs/evidence/product-vm-fixedpoint-e9a5f55f.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-e9a5f55f.md",
+      "target": "product-vm-fixedpoint-e9a5f55f-integrity.json",
+      "resolved": "docs/evidence/product-vm-fixedpoint-e9a5f55f-integrity.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-e9a5f55f.md",
+      "target": "product-native-fixedpoint-e9a5f55f.json",
+      "resolved": "docs/evidence/product-native-fixedpoint-e9a5f55f.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-e9a5f55f.md",
+      "target": "product-native-fixedpoint-e9a5f55f-integrity.json",
+      "resolved": "docs/evidence/product-native-fixedpoint-e9a5f55f-integrity.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-e9a5f55f.md",
+      "target": "product-e9a5f55f-installed-darwin-evidence.txt",
+      "resolved": "docs/evidence/product-e9a5f55f-installed-darwin-evidence.txt"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-e9a5f55f.md",
+      "target": "product-e9a5f55f-installed-darwin-test-quick.log",
+      "resolved": "docs/evidence/product-e9a5f55f-installed-darwin-test-quick.log"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-e9a5f55f.md",
+      "target": "product-e9a5f55f-installed-darwin-bootstrap.log",
+      "resolved": "docs/evidence/product-e9a5f55f-installed-darwin-bootstrap.log"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-e9a5f55f.md",
+      "target": "product-e9a5f55f-installed-darwin-tools.log",
+      "resolved": "docs/evidence/product-e9a5f55f-installed-darwin-tools.log"
+    },
+    {
+      "source": "docs/evidence/managed-forward-records.md",
+      "target": "managed-forward-records/report-sha256.json",
+      "resolved": "docs/evidence/managed-forward-records/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/managed-forward-records.md",
+      "target": "managed-forward-records/qualification.json",
+      "resolved": "docs/evidence/managed-forward-records/qualification.json"
+    },
+    {
+      "source": "docs/evidence/token-value-bytes-integration.md",
+      "target": "token-value-bytes-integration-identity.json",
+      "resolved": "docs/evidence/token-value-bytes-integration-identity.json"
+    },
+    {
+      "source": "docs/evidence/token-value-bytes-integration.md",
+      "target": "token-value-bytes-integration/report-sha256.json",
+      "resolved": "docs/evidence/token-value-bytes-integration/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-hosted-plan.md",
+      "target": "file-hosted-plan/report-sha256.json",
+      "resolved": "docs/evidence/file-hosted-plan/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-origin-query.md",
+      "target": "owned-array-origin-query.json",
+      "resolved": "docs/evidence/owned-array-origin-query.json"
+    },
+    {
+      "source": "docs/evidence/mixed-layout-view.md",
+      "target": "mixed-layout-view/manifest.json",
+      "resolved": "docs/evidence/mixed-layout-view/manifest.json"
+    },
+    {
+      "source": "docs/evidence/portable-read-wasm-restack-910.md",
+      "target": "portable-read-wasm-restack-910.json",
+      "resolved": "docs/evidence/portable-read-wasm-restack-910.json"
+    },
+    {
+      "source": "docs/evidence/managed-native-embedding.md",
+      "target": "managed-native-embedding/manifest.json",
+      "resolved": "docs/evidence/managed-native-embedding/manifest.json"
+    },
+    {
+      "source": "docs/evidence/public-c-union-results.md",
+      "target": "public-c-union-results.json",
+      "resolved": "docs/evidence/public-c-union-results.json"
+    },
+    {
+      "source": "docs/evidence/mixed-samples-linkargs-darwin.md",
+      "target": "mixed-samples-linkargs-darwin/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-linkargs-darwin/manifest.json"
+    },
+    {
+      "source": "docs/evidence/reconstruction-f64-negation.md",
+      "target": "reconstruction-f64-negation.json",
+      "resolved": "docs/evidence/reconstruction-f64-negation.json"
+    },
+    {
+      "source": "docs/evidence/product-vm-fixedpoint-ae63b248.md",
+      "target": "product-vm-fixedpoint-ae63b248.json",
+      "resolved": "docs/evidence/product-vm-fixedpoint-ae63b248.json"
+    },
+    {
+      "source": "docs/evidence/ownership-declaration-projection.md",
+      "target": "ownership-declaration-projection/report-sha256.json",
+      "resolved": "docs/evidence/ownership-declaration-projection/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/ownership-declaration-projection.md",
+      "target": "ownership-declaration-projection-root-review.json",
+      "resolved": "docs/evidence/ownership-declaration-projection-root-review.json"
+    },
+    {
+      "source": "docs/evidence/managed-native-embedding-darwin.md",
+      "target": "managed-native-embedding-darwin/environment.json",
+      "resolved": "docs/evidence/managed-native-embedding-darwin/environment.json"
+    },
+    {
+      "source": "docs/evidence/managed-native-embedding-darwin.md",
+      "target": "managed-native-embedding-darwin/runner.py",
+      "resolved": "docs/evidence/managed-native-embedding-darwin/runner.py"
+    },
+    {
+      "source": "docs/evidence/managed-native-embedding-darwin.md",
+      "target": "managed-native-embedding-darwin/result.json",
+      "resolved": "docs/evidence/managed-native-embedding-darwin/result.json"
+    },
+    {
+      "source": "docs/evidence/managed-native-embedding-darwin.md",
+      "target": "managed-native-embedding-darwin/gate.log",
+      "resolved": "docs/evidence/managed-native-embedding-darwin/gate.log"
+    },
+    {
+      "source": "docs/evidence/managed-native-embedding-darwin.md",
+      "target": "managed-native-embedding-darwin/manifest.json",
+      "resolved": "docs/evidence/managed-native-embedding-darwin/manifest.json"
+    },
+    {
+      "source": "docs/evidence/managed-native-embedding-darwin.md",
+      "target": "managed-native-embedding-darwin/artifacts.tar.gz",
+      "resolved": "docs/evidence/managed-native-embedding-darwin/artifacts.tar.gz"
+    },
+    {
+      "source": "docs/evidence/ordered-inline-owned-construction.md",
+      "target": "ordered-inline-owned-construction/evidence-seal.json",
+      "resolved": "docs/evidence/ordered-inline-owned-construction/evidence-seal.json"
+    },
+    {
+      "source": "docs/evidence/private-layout.md",
+      "target": "private-layout/report-sha256.json",
+      "resolved": "docs/evidence/private-layout/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/private-layout.md",
+      "target": "private-layout-independent-review.json",
+      "resolved": "docs/evidence/private-layout-independent-review.json"
+    },
+    {
+      "source": "docs/evidence/public-c-string-equality.md",
+      "target": "public-c-string-equality.json",
+      "resolved": "docs/evidence/public-c-string-equality.json"
+    },
+    {
+      "source": "docs/evidence/layout-private-symbols.md",
+      "target": "layout-private-symbols/seal-sha256.json",
+      "resolved": "docs/evidence/layout-private-symbols/seal-sha256.json"
+    },
+    {
+      "source": "docs/evidence/vm-struct-new-allocation.md",
+      "target": "vm-struct-new-allocation-artifacts.json",
+      "resolved": "docs/evidence/vm-struct-new-allocation-artifacts.json"
+    },
+    {
+      "source": "docs/evidence/private-owned-array-runtime.md",
+      "target": "private-owned-array-runtime.json",
+      "resolved": "docs/evidence/private-owned-array-runtime.json"
+    },
+    {
+      "source": "docs/evidence/checker-metadata-ownership.md",
+      "target": "checker-metadata-ownership/report-sha256.json",
+      "resolved": "docs/evidence/checker-metadata-ownership/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/checker-metadata-ownership.md",
+      "target": "checker-metadata-full/report-sha256.json",
+      "resolved": "docs/evidence/checker-metadata-full/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-nominal-retention.md",
+      "target": "file-nominal-retention/report-sha256.json",
+      "resolved": "docs/evidence/file-nominal-retention/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-nominal-retention.md",
+      "target": "file-nominal-retention/artifact-store.json",
+      "resolved": "docs/evidence/file-nominal-retention/artifact-store.json"
+    },
+    {
+      "source": "docs/evidence/portable-read-wasm-current-integration.md",
+      "target": "portable-read-wasm-integration.json",
+      "resolved": "docs/evidence/portable-read-wasm-integration.json"
+    },
+    {
+      "source": "docs/evidence/portable-read-wasm-current-integration.md",
+      "target": "portable-read-wasm-current-integration/report-sha256.json",
+      "resolved": "docs/evidence/portable-read-wasm-current-integration/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-binding-plan.md",
+      "target": "file-binding-plan/report-sha256.json",
+      "resolved": "docs/evidence/file-binding-plan/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-binding-plan.md",
+      "target": "file-binding-plan/artifact-index.json",
+      "resolved": "docs/evidence/file-binding-plan/artifact-index.json"
+    },
+    {
+      "source": "docs/evidence/file-binding-plan.md",
+      "target": "file-binding-plan-integration.json",
+      "resolved": "docs/evidence/file-binding-plan-integration.json"
+    },
+    {
+      "source": "docs/evidence/mutation-builtin-identity.md",
+      "target": "mutation-builtin-identity/manifest.json",
+      "resolved": "docs/evidence/mutation-builtin-identity/manifest.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-gates-63c26ecd-initial.json",
+      "resolved": "docs/evidence/product-gates-63c26ecd-initial.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-gates-63c26ecd-initial-focused.log",
+      "resolved": "docs/evidence/product-gates-63c26ecd-initial-focused.log"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-vm-fixedpoint-63c26ecd-manifest.json",
+      "resolved": "docs/evidence/product-vm-fixedpoint-63c26ecd-manifest.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-vm-fixedpoint-63c26ecd-post-run-integrity.json",
+      "resolved": "docs/evidence/product-vm-fixedpoint-63c26ecd-post-run-integrity.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-native-fixedpoint-63c26ecd-manifest.json",
+      "resolved": "docs/evidence/product-native-fixedpoint-63c26ecd-manifest.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-native-fixedpoint-63c26ecd-post-run-integrity.json",
+      "resolved": "docs/evidence/product-native-fixedpoint-63c26ecd-post-run-integrity.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-acceptance-ece241ba-darwin-corrected.txt",
+      "resolved": "docs/evidence/product-acceptance-ece241ba-darwin-corrected.txt"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "sail-rocq-f38b6409-evidence.txt",
+      "resolved": "docs/evidence/sail-rocq-f38b6409-evidence.txt"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "sail-rocq-f38b6409.log",
+      "resolved": "docs/evidence/sail-rocq-f38b6409.log"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-quick-63c26ecd-failed.json",
+      "resolved": "docs/evidence/product-quick-63c26ecd-failed.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-quick-63c26ecd-failed.log",
+      "resolved": "docs/evidence/product-quick-63c26ecd-failed.log"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-quick-63c26ecd-post-failure-tools.json",
+      "resolved": "docs/evidence/product-quick-63c26ecd-post-failure-tools.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-63c26ecd-darwin-evidence.txt",
+      "resolved": "docs/evidence/product-63c26ecd-darwin-evidence.txt"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-borrow-qualified-63c26ecd.json",
+      "resolved": "docs/evidence/product-borrow-qualified-63c26ecd.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-63c26ecd.md",
+      "target": "product-borrow-qualified-63c26ecd.log",
+      "resolved": "docs/evidence/product-borrow-qualified-63c26ecd.log"
+    },
+    {
+      "source": "docs/evidence/nsi-file-plan.md",
+      "target": "nsi-file-plan/report-sha256.json",
+      "resolved": "docs/evidence/nsi-file-plan/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/canonical-emitter-setup.md",
+      "target": "canonical-emitter-setup-measurement.json",
+      "resolved": "docs/evidence/canonical-emitter-setup-measurement.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-source-final.md",
+      "target": "owned-array-source-final/report-sha256.json",
+      "resolved": "docs/evidence/owned-array-source-final/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-source-final.md",
+      "target": "owned-array-source-final/ready-integration.json",
+      "resolved": "docs/evidence/owned-array-source-final/ready-integration.json"
+    },
+    {
+      "source": "docs/evidence/ordinary-record-authority.md",
+      "target": "ordinary-record-authority-artifacts.json",
+      "resolved": "docs/evidence/ordinary-record-authority-artifacts.json"
+    },
+    {
+      "source": "docs/evidence/selfhost-native-array-slice.md",
+      "target": "selfhost-native-array-slice/reports.sha256.json",
+      "resolved": "docs/evidence/selfhost-native-array-slice/reports.sha256.json"
+    },
+    {
+      "source": "docs/evidence/named-scalar-callbacks.md",
+      "target": "named-scalar-callbacks.json",
+      "resolved": "docs/evidence/named-scalar-callbacks.json"
+    },
+    {
+      "source": "docs/evidence/file-opcode-encoding.md",
+      "target": "file-opcode-encoding/report-sha256.json",
+      "resolved": "docs/evidence/file-opcode-encoding/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-opcode-encoding.md",
+      "target": "file-opcode-encoding/artifact-index.json",
+      "resolved": "docs/evidence/file-opcode-encoding/artifact-index.json"
+    },
+    {
+      "source": "docs/evidence/file-opcode-encoding.md",
+      "target": "file-opcode-encoding/inventory-pairs.json",
+      "resolved": "docs/evidence/file-opcode-encoding/inventory-pairs.json"
+    },
+    {
+      "source": "docs/evidence/passive-internal-cfg.md",
+      "target": "passive-internal-cfg/report-sha256.json",
+      "resolved": "docs/evidence/passive-internal-cfg/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/passive-internal-cfg.md",
+      "target": "passive-internal-cfg-independent-review.json",
+      "resolved": "docs/evidence/passive-internal-cfg-independent-review.json"
+    },
+    {
+      "source": "docs/evidence/passive-internal-cfg.md",
+      "target": "passive-internal-cfg-integration/summary.json",
+      "resolved": "docs/evidence/passive-internal-cfg-integration/summary.json"
+    },
+    {
+      "source": "docs/evidence/passive-internal-cfg.md",
+      "target": "passive-internal-cfg-union-integration/summary.json",
+      "resolved": "docs/evidence/passive-internal-cfg-union-integration/summary.json"
+    },
+    {
+      "source": "docs/evidence/passive-internal-cfg.md",
+      "target": "passive-internal-cfg-integration-review.json",
+      "resolved": "docs/evidence/passive-internal-cfg-integration-review.json"
+    },
+    {
+      "source": "docs/evidence/passive-internal-cfg.md",
+      "target": "passive-internal-cfg-union-integration-review.json",
+      "resolved": "docs/evidence/passive-internal-cfg-union-integration-review.json"
+    },
+    {
+      "source": "docs/evidence/nested-owned-results-source.md",
+      "target": "nested-owned-results-source.json",
+      "resolved": "docs/evidence/nested-owned-results-source.json"
+    },
+    {
+      "source": "docs/evidence/nested-owned-results-source.md",
+      "target": "nested-owned-results-integrated.json",
+      "resolved": "docs/evidence/nested-owned-results-integrated.json"
+    },
+    {
+      "source": "docs/evidence/public-c-match-payloads.md",
+      "target": "public-c-match-payloads.json",
+      "resolved": "docs/evidence/public-c-match-payloads.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-operand-query.md",
+      "target": "owned-array-operand-first.json",
+      "resolved": "docs/evidence/owned-array-operand-first.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-operand-query.md",
+      "target": "owned-array-operand-query.json",
+      "resolved": "docs/evidence/owned-array-operand-query.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-layout-query.md",
+      "target": "owned-array-layout-query.json",
+      "resolved": "docs/evidence/owned-array-layout-query.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-layout-query.md",
+      "target": "owned-array-layout-query-integration.json",
+      "resolved": "docs/evidence/owned-array-layout-query-integration.json"
+    },
+    {
+      "source": "docs/evidence/file-private-native.md",
+      "target": "file-private-native/report-sha256.json",
+      "resolved": "docs/evidence/file-private-native/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-private-native.md",
+      "target": "file-private-native/artifact-archive.json",
+      "resolved": "docs/evidence/file-private-native/artifact-archive.json"
+    },
+    {
+      "source": "docs/evidence/file-private-native.md",
+      "target": "file-private-native-ready-integration.json",
+      "resolved": "docs/evidence/file-private-native-ready-integration.json"
+    },
+    {
+      "source": "docs/evidence/token-value-bytes.md",
+      "target": "token-value-bytes/report-sha256.json",
+      "resolved": "docs/evidence/token-value-bytes/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/token-value-bytes.md",
+      "target": "token-value-bytes/audit/acceptance-summary.json",
+      "resolved": "docs/evidence/token-value-bytes/audit/acceptance-summary.json"
+    },
+    {
+      "source": "docs/evidence/token-value-bytes.md",
+      "target": "token-value-bytes-independent-review.json",
+      "resolved": "docs/evidence/token-value-bytes-independent-review.json"
+    },
+    {
+      "source": "docs/evidence/aggregate-binary64-policy.md",
+      "target": "aggregate-binary64-policy/report-sha256.json",
+      "resolved": "docs/evidence/aggregate-binary64-policy/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/mixed-samples-composition.md",
+      "target": "mixed-samples-composition/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-composition/manifest.json"
+    },
+    {
+      "source": "docs/evidence/source-ledger-reconciliation.md",
+      "target": "source-ledger-reconciliation/actual-merge-reconciliation.log",
+      "resolved": "docs/evidence/source-ledger-reconciliation/actual-merge-reconciliation.log"
+    },
+    {
+      "source": "docs/evidence/source-ledger-reconciliation.md",
+      "target": "source-ledger-reconciliation/task-states.json",
+      "resolved": "docs/evidence/source-ledger-reconciliation/task-states.json"
+    },
+    {
+      "source": "docs/evidence/source-ledger-reconciliation.md",
+      "target": "mixed-samples-source-linux/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-linux/manifest.json"
+    },
+    {
+      "source": "docs/evidence/source-ledger-reconciliation.md",
+      "target": "mixed-samples-source-darwin/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-darwin/manifest.json"
+    },
+    {
+      "source": "docs/evidence/source-ledger-reconciliation.md",
+      "target": "mixed-samples-source-authority/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-source-authority/manifest.json"
+    },
+    {
+      "source": "docs/evidence/source-ledger-reconciliation.md",
+      "target": "source-ledger-reconciliation/product-evidence-reference.json",
+      "resolved": "docs/evidence/source-ledger-reconciliation/product-evidence-reference.json"
+    },
+    {
+      "source": "docs/evidence/affine-private-variants.md",
+      "target": "affine-private-variants/seal-sha256.json",
+      "resolved": "docs/evidence/affine-private-variants/seal-sha256.json"
+    },
+    {
+      "source": "docs/evidence/owned-value-results.md",
+      "target": "owned-result-lsan-current/report-sha256.json",
+      "resolved": "docs/evidence/owned-result-lsan-current/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/binary64-arithmetic-backends.md",
+      "target": "binary64-arithmetic-backends.json",
+      "resolved": "docs/evidence/binary64-arithmetic-backends.json"
+    },
+    {
+      "source": "docs/evidence/forth-arithmetic.md",
+      "target": "forth-arithmetic/seal.json",
+      "resolved": "docs/evidence/forth-arithmetic/seal.json"
+    },
+    {
+      "source": "docs/evidence/forth-arithmetic.md",
+      "target": "forth-arithmetic/local-audit.json",
+      "resolved": "docs/evidence/forth-arithmetic/local-audit.json"
+    },
+    {
+      "source": "docs/evidence/owned-string-fields-source.md",
+      "target": "owned-string-fields-source-first.json",
+      "resolved": "docs/evidence/owned-string-fields-source-first.json"
+    },
+    {
+      "source": "docs/evidence/owned-string-fields-source.md",
+      "target": "owned-string-fields-source.json",
+      "resolved": "docs/evidence/owned-string-fields-source.json"
+    },
+    {
+      "source": "docs/evidence/owned-string-fields-source.md",
+      "target": "owned-string-fields-integrated.json",
+      "resolved": "docs/evidence/owned-string-fields-integrated.json"
+    },
+    {
+      "source": "docs/evidence/emitted-array-binary64.md",
+      "target": "emitted-array-binary64/report-sha256.json",
+      "resolved": "docs/evidence/emitted-array-binary64/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/record-array-origins.md",
+      "target": "record-array-origins/seal-sha256.json",
+      "resolved": "docs/evidence/record-array-origins/seal-sha256.json"
+    },
+    {
+      "source": "docs/evidence/mixed-samples-runtime.md",
+      "target": "mixed-samples-runtime/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-runtime/manifest.json"
+    },
+    {
+      "source": "docs/evidence/file-runtime-frames.md",
+      "target": "file-runtime-frames/report-sha256.json",
+      "resolved": "docs/evidence/file-runtime-frames/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/darwin-export-buffer-fixture.md",
+      "target": "darwin-export-buffer-fixture/reports.sha256.json",
+      "resolved": "docs/evidence/darwin-export-buffer-fixture/reports.sha256.json"
+    },
+    {
+      "source": "docs/evidence/opencl-buffer-identity.md",
+      "target": "opencl-buffer-identity.json",
+      "resolved": "docs/evidence/opencl-buffer-identity.json"
+    },
+    {
+      "source": "docs/evidence/source-transitive-owned-wrappers.md",
+      "target": "source-transitive-owned-wrappers.json",
+      "resolved": "docs/evidence/source-transitive-owned-wrappers.json"
+    },
+    {
+      "source": "docs/evidence/source-transitive-owned-wrappers.md",
+      "target": "source-transitive-owned-wrappers-integrated.json",
+      "resolved": "docs/evidence/source-transitive-owned-wrappers-integrated.json"
+    },
+    {
+      "source": "docs/evidence/owned-binary64.md",
+      "target": "owned-binary64/reports.sha256",
+      "resolved": "docs/evidence/owned-binary64/reports.sha256"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-public.md",
+      "target": "file-cyclic-public/report-sha256.json",
+      "resolved": "docs/evidence/file-cyclic-public/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-public.md",
+      "target": "file-cyclic-public-integration/report-sha256.json",
+      "resolved": "docs/evidence/file-cyclic-public-integration/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-public.md",
+      "target": "file-cyclic-public-root-audit.json",
+      "resolved": "docs/evidence/file-cyclic-public-root-audit.json"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-public.md",
+      "target": "file-cyclic-public-integration-root-review.json",
+      "resolved": "docs/evidence/file-cyclic-public-integration-root-review.json"
+    },
+    {
+      "source": "docs/evidence/metadata-current-boundaries.md",
+      "target": "metadata-current-boundaries.json",
+      "resolved": "docs/evidence/metadata-current-boundaries.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-mutation-darwin.md",
+      "target": "owned-array-mutation-darwin.json",
+      "resolved": "docs/evidence/owned-array-mutation-darwin.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-mutation-darwin.md",
+      "target": "owned-array-mutation-darwin-ready.json",
+      "resolved": "docs/evidence/owned-array-mutation-darwin-ready.json"
+    },
+    {
+      "source": "docs/evidence/opencl-private-loader.md",
+      "target": "opencl-loader-diagnosis/DIAGNOSIS.md",
+      "resolved": "docs/evidence/opencl-loader-diagnosis/DIAGNOSIS.md"
+    },
+    {
+      "source": "docs/evidence/opencl-private-loader.md",
+      "target": "opencl-private-loader/reports.json",
+      "resolved": "docs/evidence/opencl-private-loader/reports.json"
+    },
+    {
+      "source": "docs/evidence/opencl-private-loader.md",
+      "target": "opencl-private-loader/artifacts.json",
+      "resolved": "docs/evidence/opencl-private-loader/artifacts.json"
+    },
+    {
+      "source": "docs/evidence/forth-demo-stack.md",
+      "target": "forth-demo-stack/report-sha256.json",
+      "resolved": "docs/evidence/forth-demo-stack/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/forth-demo-stack.md",
+      "target": "forth-see-provider-closure/demo.log",
+      "resolved": "docs/evidence/forth-see-provider-closure/demo.log"
+    },
+    {
+      "source": "docs/evidence/portable-read-adapters.md",
+      "target": "portable-read-adapters/report-sha256.json",
+      "resolved": "docs/evidence/portable-read-adapters/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/public-c-literal-normalization.md",
+      "target": "public-c-literal-normalization.json",
+      "resolved": "docs/evidence/public-c-literal-normalization.json"
+    },
+    {
+      "source": "docs/evidence/file-host-grant.md",
+      "target": "file-host-grant/report-sha256.json",
+      "resolved": "docs/evidence/file-host-grant/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-host-grant.md",
+      "target": "file-host-grant/acyclic-roadmap-reconciliation.json",
+      "resolved": "docs/evidence/file-host-grant/acyclic-roadmap-reconciliation.json"
+    },
+    {
+      "source": "docs/evidence/reconstruction-f64-arithmetic.md",
+      "target": "reconstruction-f64-arithmetic/report-sha256.json",
+      "resolved": "docs/evidence/reconstruction-f64-arithmetic/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/checked-owner-selection.md",
+      "target": "checked-owner-selection/reports.sha256",
+      "resolved": "docs/evidence/checked-owner-selection/reports.sha256"
+    },
+    {
+      "source": "docs/evidence/checked-owner-selection.md",
+      "target": "checked-owner-selection/summary.json",
+      "resolved": "docs/evidence/checked-owner-selection/summary.json"
+    },
+    {
+      "source": "docs/evidence/canonical-match-guards.md",
+      "target": "canonical-match-guards/ready-inputs.json",
+      "resolved": "docs/evidence/canonical-match-guards/ready-inputs.json"
+    },
+    {
+      "source": "docs/evidence/canonical-match-guards.md",
+      "target": "canonical-match-guards/report-sha256.json",
+      "resolved": "docs/evidence/canonical-match-guards/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/private-owned-array-true-switch.md",
+      "target": "private-owned-array-true-switch.json",
+      "resolved": "docs/evidence/private-owned-array-true-switch.json"
+    },
+    {
+      "source": "docs/evidence/portable-read-query.md",
+      "target": "portable-read-query/report-sha256.json",
+      "resolved": "docs/evidence/portable-read-query/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-binding-publisher-restack-910.md",
+      "target": "file-binding-publisher-restack-910.json",
+      "resolved": "docs/evidence/file-binding-publisher-restack-910.json"
+    },
+    {
+      "source": "docs/evidence/public-c-guarded-matches.md",
+      "target": "public-c-guarded-matches.json",
+      "resolved": "docs/evidence/public-c-guarded-matches.json"
+    },
+    {
+      "source": "docs/evidence/reference-transport-child-ownership.md",
+      "target": "reference-transport-child-ownership/reports.sha256.json",
+      "resolved": "docs/evidence/reference-transport-child-ownership/reports.sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-hosted.md",
+      "target": "file-cyclic-hosted/report-sha256.json",
+      "resolved": "docs/evidence/file-cyclic-hosted/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-hosted.md",
+      "target": "file-cyclic-hosted/qualification-summary.json",
+      "resolved": "docs/evidence/file-cyclic-hosted/qualification-summary.json"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-hosted.md",
+      "target": "file-cyclic-hosted/artifact-store.json",
+      "resolved": "docs/evidence/file-cyclic-hosted/artifact-store.json"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-hosted.md",
+      "target": "file-cyclic-hosted/artifact-archive.json",
+      "resolved": "docs/evidence/file-cyclic-hosted/artifact-archive.json"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-hosted.md",
+      "target": "file-cyclic-hosted-integration/report-sha256.json",
+      "resolved": "docs/evidence/file-cyclic-hosted-integration/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-hosted.md",
+      "target": "file-cyclic-hosted-integration/ready-identity.json",
+      "resolved": "docs/evidence/file-cyclic-hosted-integration/ready-identity.json"
+    },
+    {
+      "source": "docs/evidence/file-private-vm.md",
+      "target": "file-private-vm/report-sha256.json",
+      "resolved": "docs/evidence/file-private-vm/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/managed-record-storage.md",
+      "target": "managed-record-storage-artifacts.json",
+      "resolved": "docs/evidence/managed-record-storage-artifacts.json"
+    },
+    {
+      "source": "docs/evidence/public-c-binary64.md",
+      "target": "public-c-binary64.json",
+      "resolved": "docs/evidence/public-c-binary64.json"
+    },
+    {
+      "source": "docs/evidence/native-full-fixedpoint-host-owned.md",
+      "target": "native-full-fixedpoint-host-owned.json",
+      "resolved": "docs/evidence/native-full-fixedpoint-host-owned.json"
+    },
+    {
+      "source": "docs/evidence/product-formal-ece241ba.md",
+      "target": "product-formal-ece241ba.json",
+      "resolved": "docs/evidence/product-formal-ece241ba.json"
+    },
+    {
+      "source": "docs/evidence/product-formal-ece241ba.md",
+      "target": "product-formal-ece241ba-darwin.txt",
+      "resolved": "docs/evidence/product-formal-ece241ba-darwin.txt"
+    },
+    {
+      "source": "docs/evidence/product-formal-ece241ba.md",
+      "target": "product-formal-ece241ba-darwin.log",
+      "resolved": "docs/evidence/product-formal-ece241ba-darwin.log"
+    },
+    {
+      "source": "docs/evidence/local-file-service.md",
+      "target": "local-file-service/report-sha256.json",
+      "resolved": "docs/evidence/local-file-service/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/service-admission-final.md",
+      "target": "service-admission-final/seal-sha256.json",
+      "resolved": "docs/evidence/service-admission-final/seal-sha256.json"
+    },
+    {
+      "source": "docs/evidence/service-admission-final.md",
+      "target": "service-admission-final-independent-audit.json",
+      "resolved": "docs/evidence/service-admission-final-independent-audit.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-source-linux.md",
+      "target": "owned-array-source-linux/summary.json",
+      "resolved": "docs/evidence/owned-array-source-linux/summary.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-source-linux.md",
+      "target": "owned-array-source-linux/report-sha256.json",
+      "resolved": "docs/evidence/owned-array-source-linux/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/darwin-managed-parser-core.md",
+      "target": "darwin-managed-parser-core/reports.sha256.json",
+      "resolved": "docs/evidence/darwin-managed-parser-core/reports.sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-query.md",
+      "target": "file-cyclic-query/report-sha256.json",
+      "resolved": "docs/evidence/file-cyclic-query/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-query.md",
+      "target": "file-cyclic-query/qualification-summary.json",
+      "resolved": "docs/evidence/file-cyclic-query/qualification-summary.json"
+    },
+    {
+      "source": "docs/evidence/file-cyclic-query.md",
+      "target": "file-cyclic-query/artifact-store.json",
+      "resolved": "docs/evidence/file-cyclic-query/artifact-store.json"
+    },
+    {
+      "source": "docs/evidence/file-code-preparation.md",
+      "target": "file-code-preparation/report-sha256.json",
+      "resolved": "docs/evidence/file-code-preparation/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-code-preparation.md",
+      "target": "file-code-preparation/artifact-index.json",
+      "resolved": "docs/evidence/file-code-preparation/artifact-index.json"
+    },
+    {
+      "source": "docs/evidence/file-code-preparation.md",
+      "target": "file-code-preparation/inventory-pairs.json",
+      "resolved": "docs/evidence/file-code-preparation/inventory-pairs.json"
+    },
+    {
+      "source": "docs/evidence/file-code-preparation.md",
+      "target": "file-code-preparation/integrated-artifact-index.json",
+      "resolved": "docs/evidence/file-code-preparation/integrated-artifact-index.json"
+    },
+    {
+      "source": "docs/evidence/mixed-counted-runtime.md",
+      "target": "mixed-counted-runtime/seal-sha256.json",
+      "resolved": "docs/evidence/mixed-counted-runtime/seal-sha256.json"
+    },
+    {
+      "source": "docs/evidence/mixed-counted-runtime.md",
+      "target": "mixed-counted-runtime/summary.json",
+      "resolved": "docs/evidence/mixed-counted-runtime/summary.json"
+    },
+    {
+      "source": "docs/evidence/private-socket-lifecycle.md",
+      "target": "private-socket-lifecycle.json",
+      "resolved": "docs/evidence/private-socket-lifecycle.json"
+    },
+    {
+      "source": "docs/evidence/file-nominal-private.md",
+      "target": "file-nominal-private/report-sha256.json",
+      "resolved": "docs/evidence/file-nominal-private/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/token-value-bytes-union-integration.md",
+      "target": "token-value-bytes-union-integration-identity.json",
+      "resolved": "docs/evidence/token-value-bytes-union-integration-identity.json"
+    },
+    {
+      "source": "docs/evidence/token-value-bytes-union-integration.md",
+      "target": "token-value-bytes-union-integration/report-sha256.json",
+      "resolved": "docs/evidence/token-value-bytes-union-integration/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/private-gpu-lifecycle.md",
+      "target": "private-gpu-lifecycle.json",
+      "resolved": "docs/evidence/private-gpu-lifecycle.json"
+    },
+    {
+      "source": "docs/evidence/managed-record-field-origins.md",
+      "target": "managed-record-field-origins/qualification.json",
+      "resolved": "docs/evidence/managed-record-field-origins/qualification.json"
+    },
+    {
+      "source": "docs/evidence/managed-record-field-origins.md",
+      "target": "managed-record-field-origins/report-sha256.json",
+      "resolved": "docs/evidence/managed-record-field-origins/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-runtime-carrier.md",
+      "target": "file-runtime-carrier/report-sha256.json",
+      "resolved": "docs/evidence/file-runtime-carrier/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-runtime-carrier.md",
+      "target": "file-runtime-carrier/qualification-summary.json",
+      "resolved": "docs/evidence/file-runtime-carrier/qualification-summary.json"
+    },
+    {
+      "source": "docs/evidence/file-runtime-carrier.md",
+      "target": "file-runtime-carrier/artifact-store.json",
+      "resolved": "docs/evidence/file-runtime-carrier/artifact-store.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-mutation-runtime.md",
+      "target": "owned-array-mutation-runtime.json",
+      "resolved": "docs/evidence/owned-array-mutation-runtime.json"
+    },
+    {
+      "source": "docs/evidence/reconstruction-feasibility-audit.md",
+      "target": "reconstruction-feasibility-audit/original-task.json",
+      "resolved": "docs/evidence/reconstruction-feasibility-audit/original-task.json"
+    },
+    {
+      "source": "docs/evidence/reconstruction-feasibility-audit.md",
+      "target": "reconstruction-feasibility-audit/report-sha256.json",
+      "resolved": "docs/evidence/reconstruction-feasibility-audit/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/native-c-literal-preprocessing.md",
+      "target": "native-c-literal-preprocessing.json",
+      "resolved": "docs/evidence/native-c-literal-preprocessing.json"
+    },
+    {
+      "source": "docs/evidence/service-module-retention.md",
+      "target": "service-module-retention/report-sha256.json",
+      "resolved": "docs/evidence/service-module-retention/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/owned-string-fields-runtime.md",
+      "target": "owned-string-fields-runtime.json",
+      "resolved": "docs/evidence/owned-string-fields-runtime.json"
+    },
+    {
+      "source": "docs/evidence/owned-string-fields-runtime.md",
+      "target": "owned-string-initialization-joins.json",
+      "resolved": "docs/evidence/owned-string-initialization-joins.json"
+    },
+    {
+      "source": "docs/evidence/binary64-arithmetic-source.md",
+      "target": "binary64-arithmetic-source.json",
+      "resolved": "docs/evidence/binary64-arithmetic-source.json"
+    },
+    {
+      "source": "docs/evidence/public-c-nonfinite-format.md",
+      "target": "public-c-nonfinite-format.json",
+      "resolved": "docs/evidence/public-c-nonfinite-format.json"
+    },
+    {
+      "source": "docs/evidence/service-bindings-codec.md",
+      "target": "service-bindings-codec/report-sha256.json",
+      "resolved": "docs/evidence/service-bindings-codec/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/reconstruction-f64-comparisons.md",
+      "target": "reconstruction-f64-comparisons.json",
+      "resolved": "docs/evidence/reconstruction-f64-comparisons.json"
+    },
+    {
+      "source": "docs/evidence/forward-ordinary-authority.md",
+      "target": "forward-ordinary-authority/reports.sha256.json",
+      "resolved": "docs/evidence/forward-ordinary-authority/reports.sha256.json"
+    },
+    {
+      "source": "docs/evidence/source-owned-string-print.md",
+      "target": "source-owned-string-print/",
+      "resolved": "docs/evidence/source-owned-string-print"
+    },
+    {
+      "source": "docs/evidence/managed-record-execution.md",
+      "target": "managed-record-execution/report-sha256.json",
+      "resolved": "docs/evidence/managed-record-execution/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/managed-record-execution.md",
+      "target": "managed-record-execution/qualification.json",
+      "resolved": "docs/evidence/managed-record-execution/qualification.json"
+    },
+    {
+      "source": "docs/evidence/nested-owned-results-runtime.md",
+      "target": "nested-owned-results-runtime.json",
+      "resolved": "docs/evidence/nested-owned-results-runtime.json"
+    },
+    {
+      "source": "docs/evidence/public-c-darwin-policy.md",
+      "target": "public-c-darwin-policy/",
+      "resolved": "docs/evidence/public-c-darwin-policy"
+    },
+    {
+      "source": "docs/evidence/file-value-lifetimes.md",
+      "target": "file-value-lifetimes/report-sha256.json",
+      "resolved": "docs/evidence/file-value-lifetimes/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/opencl-bounded-reconciliation.md",
+      "target": "opencl-buffer-identity.json",
+      "resolved": "docs/evidence/opencl-buffer-identity.json"
+    },
+    {
+      "source": "docs/evidence/mixed-samples-runtime-integration.md",
+      "target": "mixed-samples-runtime-integration/manifest.json",
+      "resolved": "docs/evidence/mixed-samples-runtime-integration/manifest.json"
+    },
+    {
+      "source": "docs/evidence/file-service-parser-final.md",
+      "target": "file-service-parser-final/report-sha256.json",
+      "resolved": "docs/evidence/file-service-parser-final/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-service-parser-final.md",
+      "target": "file-service-parser-final/artifact-index.json",
+      "resolved": "docs/evidence/file-service-parser-final/artifact-index.json"
+    },
+    {
+      "source": "docs/evidence/file-service-parser-final.md",
+      "target": "file-service-parser-final/seal-summary.json",
+      "resolved": "docs/evidence/file-service-parser-final/seal-summary.json"
+    },
+    {
+      "source": "docs/evidence/public-c-concat.md",
+      "target": "public-c-concat.json",
+      "resolved": "docs/evidence/public-c-concat.json"
+    },
+    {
+      "source": "docs/evidence/nvm-v2-code-publication.md",
+      "target": "nvm-v2-code-publication-linux.json",
+      "resolved": "docs/evidence/nvm-v2-code-publication-linux.json"
+    },
+    {
+      "source": "docs/evidence/nvm-v2-code-publication.md",
+      "target": "nvm-v2-code-publication-darwin.json",
+      "resolved": "docs/evidence/nvm-v2-code-publication-darwin.json"
+    },
+    {
+      "source": "docs/evidence/nvm-v2-code-publication.md",
+      "target": "nvm-v2-code-publication-combined-linux.json",
+      "resolved": "docs/evidence/nvm-v2-code-publication-combined-linux.json"
+    },
+    {
+      "source": "docs/evidence/nvm-v2-code-publication.md",
+      "target": "nvm-v2-code-publication-combined-darwin.json",
+      "resolved": "docs/evidence/nvm-v2-code-publication-combined-darwin.json"
+    },
+    {
+      "source": "docs/evidence/file-public-admission.md",
+      "target": "file-public-admission/report-sha256.json",
+      "resolved": "docs/evidence/file-public-admission/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-public-admission.md",
+      "target": "file-public-admission/qualification-summary.json",
+      "resolved": "docs/evidence/file-public-admission/qualification-summary.json"
+    },
+    {
+      "source": "docs/evidence/file-public-admission.md",
+      "target": "file-public-admission/artifact-store.json",
+      "resolved": "docs/evidence/file-public-admission/artifact-store.json"
+    },
+    {
+      "source": "docs/evidence/mixed-float-proof.md",
+      "target": "mixed-float-proof/manifest.json",
+      "resolved": "docs/evidence/mixed-float-proof/manifest.json"
+    },
+    {
+      "source": "docs/evidence/portable-read-wasm.md",
+      "target": "portable-read-wasm/report-sha256.json",
+      "resolved": "docs/evidence/portable-read-wasm/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/portable-read-wasm.md",
+      "target": "portable-read-wasm/qualification-summary.json",
+      "resolved": "docs/evidence/portable-read-wasm/qualification-summary.json"
+    },
+    {
+      "source": "docs/evidence/portable-read-wasm.md",
+      "target": "portable-read-wasm/qualified-inputs.json",
+      "resolved": "docs/evidence/portable-read-wasm/qualified-inputs.json"
+    },
+    {
+      "source": "docs/evidence/managed-allocation-portability.md",
+      "target": "managed-allocation-portability/",
+      "resolved": "docs/evidence/managed-allocation-portability"
+    },
+    {
+      "source": "docs/evidence/forth-string-output.md",
+      "target": "forth-string-output/strings.fth",
+      "resolved": "docs/evidence/forth-string-output/strings.fth"
+    },
+    {
+      "source": "docs/evidence/forth-string-output.md",
+      "target": "forth-string-output/expected.bin",
+      "resolved": "docs/evidence/forth-string-output/expected.bin"
+    },
+    {
+      "source": "docs/evidence/forth-string-output.md",
+      "target": "forth-string-output/report-sha256.json",
+      "resolved": "docs/evidence/forth-string-output/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-authority-query.md",
+      "target": "owned-array-authority-query.json",
+      "resolved": "docs/evidence/owned-array-authority-query.json"
+    },
+    {
+      "source": "docs/evidence/source-owned-temporary-arguments.md",
+      "target": "source-owned-temporary-arguments/reports.sha256",
+      "resolved": "docs/evidence/source-owned-temporary-arguments/reports.sha256"
+    },
+    {
+      "source": "docs/evidence/record-array-execution-plan.md",
+      "target": "record-array-execution-plan/seal-sha256.json",
+      "resolved": "docs/evidence/record-array-execution-plan/seal-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-body-transfers.md",
+      "target": "file-body-transfers/report-sha256.json",
+      "resolved": "docs/evidence/file-body-transfers/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/managed-string-final-acceptance.md",
+      "target": "managed-string-final-acceptance/summary.json",
+      "resolved": "docs/evidence/managed-string-final-acceptance/summary.json"
+    },
+    {
+      "source": "docs/evidence/managed-string-final-acceptance.md",
+      "target": "managed-string-current-integration/summary.json",
+      "resolved": "docs/evidence/managed-string-current-integration/summary.json"
+    },
+    {
+      "source": "docs/evidence/managed-string-final-acceptance.md",
+      "target": "managed-string-current-integration/integration-identity.json",
+      "resolved": "docs/evidence/managed-string-current-integration/integration-identity.json"
+    },
+    {
+      "source": "docs/evidence/forth-see-provider-closure.md",
+      "target": "forth-see-provider-closure/report-sha256.json",
+      "resolved": "docs/evidence/forth-see-provider-closure/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-public-activation.md",
+      "target": "owned-array-public-activation.json",
+      "resolved": "docs/evidence/owned-array-public-activation.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-public-activation.md",
+      "target": "owned-array-public-compile-first.json",
+      "resolved": "docs/evidence/owned-array-public-compile-first.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-public-activation.md",
+      "target": "owned-array-public-serialization-first.json",
+      "resolved": "docs/evidence/owned-array-public-serialization-first.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-public-activation.md",
+      "target": "owned-array-public-sidecars-first.json",
+      "resolved": "docs/evidence/owned-array-public-sidecars-first.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-public-activation.md",
+      "target": "owned-array-public-callable-first.json",
+      "resolved": "docs/evidence/owned-array-public-callable-first.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-public-activation.md",
+      "target": "owned-array-public-parameter-bounds.json",
+      "resolved": "docs/evidence/owned-array-public-parameter-bounds.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-public-activation.md",
+      "target": "owned-array-public-integration-tool-first.json",
+      "resolved": "docs/evidence/owned-array-public-integration-tool-first.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-public-activation.md",
+      "target": "owned-array-public-frozen.json",
+      "resolved": "docs/evidence/owned-array-public-frozen.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-public-activation.md",
+      "target": "owned-array-public-ready.json",
+      "resolved": "docs/evidence/owned-array-public-ready.json"
+    },
+    {
+      "source": "docs/evidence/selfhost-source-short-circuit.md",
+      "target": "selfhost-source-short-circuit/report-sha256.json",
+      "resolved": "docs/evidence/selfhost-source-short-circuit/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/nvm-empty-code-append.md",
+      "target": "nvm-empty-code-append/manifest.json",
+      "resolved": "docs/evidence/nvm-empty-code-append/manifest.json"
+    },
+    {
+      "source": "docs/evidence/nvm-empty-code-append.md",
+      "target": "nvm-empty-code-append/archive.json",
+      "resolved": "docs/evidence/nvm-empty-code-append/archive.json"
+    },
+    {
+      "source": "docs/evidence/mixed-proof-provider-closure.md",
+      "target": "mixed-proof-provider-closure.json",
+      "resolved": "docs/evidence/mixed-proof-provider-closure.json"
+    },
+    {
+      "source": "docs/evidence/file-source-descriptive-plan.md",
+      "target": "file-source-descriptive-plan/report-sha256.json",
+      "resolved": "docs/evidence/file-source-descriptive-plan/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-source-descriptive-plan.md",
+      "target": "file-source-descriptive-plan-integration/report-sha256.json",
+      "resolved": "docs/evidence/file-source-descriptive-plan-integration/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-bits-boundaries.md",
+      "target": "owned-array-bits-first.json",
+      "resolved": "docs/evidence/owned-array-bits-first.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-bits-boundaries.md",
+      "target": "owned-array-bits-linux.json",
+      "resolved": "docs/evidence/owned-array-bits-linux.json"
+    },
+    {
+      "source": "docs/evidence/owned-array-bits-boundaries.md",
+      "target": "owned-array-bits-darwin.json",
+      "resolved": "docs/evidence/owned-array-bits-darwin.json"
+    },
+    {
+      "source": "docs/evidence/token-value-bytes-final-closure.md",
+      "target": "token-value-bytes-final-closure-identity.json",
+      "resolved": "docs/evidence/token-value-bytes-final-closure-identity.json"
+    },
+    {
+      "source": "docs/evidence/token-value-bytes-final-closure.md",
+      "target": "token-value-bytes-final-closure/report-sha256.json",
+      "resolved": "docs/evidence/token-value-bytes-final-closure/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/token-value-bytes-final-closure.md",
+      "target": "token-value-bytes-integrations-independent-review.json",
+      "resolved": "docs/evidence/token-value-bytes-integrations-independent-review.json"
+    },
+    {
+      "source": "docs/evidence/original-scalar-callback-acceptance.md",
+      "target": "original-scalar-callback-acceptance/original-task-scope.json",
+      "resolved": "docs/evidence/original-scalar-callback-acceptance/original-task-scope.json"
+    },
+    {
+      "source": "docs/evidence/original-scalar-callback-acceptance.md",
+      "target": "original-scalar-callback-acceptance/fresh_named_float_callbacks.nano",
+      "resolved": "docs/evidence/original-scalar-callback-acceptance/fresh_named_float_callbacks.nano"
+    },
+    {
+      "source": "docs/evidence/original-scalar-callback-acceptance.md",
+      "target": "original-scalar-callback-acceptance/report-sha256.json",
+      "resolved": "docs/evidence/original-scalar-callback-acceptance/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/ordinary-array-authority.md",
+      "target": "ordinary-array-authority-integration/summary.json",
+      "resolved": "docs/evidence/ordinary-array-authority-integration/summary.json"
+    },
+    {
+      "source": "docs/evidence/ordinary-array-authority.md",
+      "target": "ordinary-array-passive-integration.json",
+      "resolved": "docs/evidence/ordinary-array-passive-integration.json"
+    },
+    {
+      "source": "docs/evidence/ordinary-array-authority.md",
+      "target": "ordinary-array-integration-independent-review.json",
+      "resolved": "docs/evidence/ordinary-array-integration-independent-review.json"
+    },
+    {
+      "source": "docs/evidence/opencl-unload-attribution.md",
+      "target": "opencl-unload-attribution/manifest.json",
+      "resolved": "docs/evidence/opencl-unload-attribution/manifest.json"
+    },
+    {
+      "source": "docs/evidence/opencl-unload-attribution.md",
+      "target": "opencl-loader-diagnosis/DIAGNOSIS.md",
+      "resolved": "docs/evidence/opencl-loader-diagnosis/DIAGNOSIS.md"
+    },
+    {
+      "source": "docs/evidence/signed-nan-format.md",
+      "target": "signed-nan-format/",
+      "resolved": "docs/evidence/signed-nan-format"
+    },
+    {
+      "source": "docs/evidence/binary64-arithmetic-helper.md",
+      "target": "binary64-arithmetic-helper.json",
+      "resolved": "docs/evidence/binary64-arithmetic-helper.json"
+    },
+    {
+      "source": "docs/evidence/nanovirt-match-binding-scope.md",
+      "target": "nanovirt-match-binding-scope.json",
+      "resolved": "docs/evidence/nanovirt-match-binding-scope.json"
+    },
+    {
+      "source": "docs/evidence/record-array-execution-plan-integration.md",
+      "target": "record-array-execution-plan-integration/seal-sha256.json",
+      "resolved": "docs/evidence/record-array-execution-plan-integration/seal-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-result-flow.md",
+      "target": "file-result-flow/report-sha256.json",
+      "resolved": "docs/evidence/file-result-flow/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-result-flow.md",
+      "target": "file-result-flow/summary.json",
+      "resolved": "docs/evidence/file-result-flow/summary.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-84e04f5d.md",
+      "target": "product-vm-fixedpoint-84e04f5d.json",
+      "resolved": "docs/evidence/product-vm-fixedpoint-84e04f5d.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-84e04f5d.md",
+      "target": "product-vm-fixedpoint-84e04f5d-integrity.json",
+      "resolved": "docs/evidence/product-vm-fixedpoint-84e04f5d-integrity.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-84e04f5d.md",
+      "target": "product-native-fixedpoint-84e04f5d.json",
+      "resolved": "docs/evidence/product-native-fixedpoint-84e04f5d.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-84e04f5d.md",
+      "target": "product-native-fixedpoint-84e04f5d-integrity.json",
+      "resolved": "docs/evidence/product-native-fixedpoint-84e04f5d-integrity.json"
+    },
+    {
+      "source": "docs/evidence/managed-record-plan.md",
+      "target": "managed-record-plan-artifacts.json",
+      "resolved": "docs/evidence/managed-record-plan-artifacts.json"
+    },
+    {
+      "source": "docs/evidence/selfhost-extern-record-provenance.md",
+      "target": "selfhost-extern-record-provenance/report-sha256.json",
+      "resolved": "docs/evidence/selfhost-extern-record-provenance/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-indirect-targets.md",
+      "target": "file-indirect-targets/report-sha256.json",
+      "resolved": "docs/evidence/file-indirect-targets/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/public-c-int-conversion.md",
+      "target": "public-c-int-conversion.json",
+      "resolved": "docs/evidence/public-c-int-conversion.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-2c2f6f52.md",
+      "target": "product-vm-fixedpoint-2c2f6f52.json",
+      "resolved": "docs/evidence/product-vm-fixedpoint-2c2f6f52.json"
+    },
+    {
+      "source": "docs/evidence/product-acceptance-2c2f6f52.md",
+      "target": "product-native-fixedpoint-2c2f6f52.json",
+      "resolved": "docs/evidence/product-native-fixedpoint-2c2f6f52.json"
+    },
+    {
+      "source": "docs/evidence/file-indirect-hosted.md",
+      "target": "file-indirect-hosted/report-sha256.json",
+      "resolved": "docs/evidence/file-indirect-hosted/report-sha256.json"
+    },
+    {
+      "source": "docs/evidence/file-indirect-hosted.md",
+      "target": "file-indirect-hosted/artifact-store.json",
+      "resolved": "docs/evidence/file-indirect-hosted/artifact-store.json"
+    },
+    {
+      "source": "docs/evidence/file-indirect-hosted.md",
+      "target": "file-indirect-hosted/qualification-summary.json",
+      "resolved": "docs/evidence/file-indirect-hosted/qualification-summary.json"
+    },
+    {
+      "source": "docs/evidence/file-indirect-hosted.md",
+      "target": "file-indirect-hosted-independent-review.json",
+      "resolved": "docs/evidence/file-indirect-hosted-independent-review.json"
+    },
+    {
+      "source": "docs/evidence/file-indirect-hosted.md",
+      "target": "file-indirect-hosted-integration/summary.json",
+      "resolved": "docs/evidence/file-indirect-hosted-integration/summary.json"
+    },
+    {
+      "source": "docs/evidence/file-indirect-hosted.md",
+      "target": "file-indirect-hosted-passive-integration.json",
+      "resolved": "docs/evidence/file-indirect-hosted-passive-integration.json"
+    },
+    {
+      "source": "docs/evidence/file-indirect-hosted.md",
+      "target": "file-indirect-hosted-integration-review.json",
+      "resolved": "docs/evidence/file-indirect-hosted-integration-review.json"
+    }
+  ],
+  "unaccounted": []
+}

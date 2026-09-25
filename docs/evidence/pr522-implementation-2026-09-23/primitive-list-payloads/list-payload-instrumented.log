@@ -1,0 +1,6 @@
+test_primitive_lists_retain_identity_in_records_and_generic_unions (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_primitive_lists_retain_identity_in_records_and_generic_unions) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.688s
+
+OK

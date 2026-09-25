@@ -1,0 +1,14 @@
+{
+  "exit": 0,
+  "seconds": 177.08776766699157,
+  "compiler_sha256": "9f7b19b550cebdc329b0357bb1a387550ea541001ce9f8837f217914761b6383",
+  "typechecker_sha256": "64b017707156398a73dfe276aac06105a8b16fc8d00f3218f7876c22d20da8a4",
+  "parser_sha256": "a65d9ab53ee578b8fd636dcf39583f8f13a23fac41080a9c86cef47e00aac8e0",
+  "env": {
+    "CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_SHADOW_TIMEOUT_SECONDS": "60",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1"
+  }
+}

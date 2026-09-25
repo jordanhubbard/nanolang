@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "list_operation.h"
 #include "effects.h"
 #include "tracing.h"
 #include "resource_tracking.h"
@@ -350,6 +351,116 @@ static void check_unused_variables(TypeChecker *tc, int start_index) {
 }
 
 const char *get_struct_type_name(ASTNode *expr, Environment *env);
+/* I retain nominal evidence for checked list operations; a prefix alone is
+ * never a receiver or element type. Returned names are borrowed. */
+static const char *list_nominal_name(ASTNode *expr, Environment *env, Type type) {
+    if (!expr) return NULL;
+    if (expr->type == AST_IDENTIFIER) {
+        Symbol *sym = env_get_var_visible_at(env, expr->as.identifier,
+                                             expr->line, expr->column);
+        return sym && sym->type == type ? sym->struct_type_name : NULL;
+    }
+    if (expr->type == AST_STRUCT_LITERAL && type == TYPE_STRUCT)
+        return get_struct_type_name(expr, env);
+    if (expr->type == AST_FIELD_ACCESS) {
+        ASTNode *object = expr->as.field_access.object;
+        if (type == TYPE_ENUM && object->type == AST_IDENTIFIER &&
+            env_get_enum(env, object->as.identifier)) return object->as.identifier;
+        const char *owner = get_struct_type_name(object, env);
+        StructDef *def = owner ? env_get_struct(env, owner) : NULL;
+        for (int i = 0; def && i < def->field_count; ++i)
+            if (!strcmp(def->field_names[i], expr->as.field_access.field_name) &&
+                (def->field_types[i] == type ||
+                 (type == TYPE_ENUM && def->field_types[i] == TYPE_STRUCT)))
+                return def->field_type_names ? def->field_type_names[i] : NULL;
+        return NULL;
+    }
+    if (expr->type == AST_CALL) {
+        if (type != TYPE_LIST_GENERIC && expr->as.call.return_struct_type_name)
+            return expr->as.call.return_struct_type_name;
+        FunctionSignature *sig = expr->as.call.checked_signature;
+        if (sig && sig->return_type == type) return sig->return_struct_name;
+        if (expr->as.call.func_expr || !expr->as.call.name ||
+            env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column))
+            return NULL;
+        Function *fn = env_get_function(env, expr->as.call.name);
+        if (fn) return fn->return_type == type ? fn->return_struct_type_name : NULL;
+        /* These built-in constructors have no return TypeInfo. */
+        const char *name = expr->as.call.name;
+        bool list_prefix = strlen(name) > 5 &&
+            (!strncmp(name, "list_", 5) || !strncmp(name, "List_", 5));
+        const char *suffix = list_prefix ? nl_list_operation_separator(name) : NULL;
+        if (type == TYPE_LIST_GENERIC && suffix && suffix > name + 5 &&
+            ((!expr->as.call.arg_count && !strcmp(suffix, "_new")) ||
+             (expr->as.call.arg_count == 1 && !strcmp(suffix, "_with_capacity")))) {
+            size_t length = (size_t)(suffix - (name + 5));
+            for (int i = 0; i < env->struct_count; ++i)
+                if (strlen(env->structs[i].name) == length &&
+                    !memcmp(name + 5, env->structs[i].name, length))
+                    return env->structs[i].name;
+            for (int i = 0; i < env->enum_count; ++i)
+                if (strlen(env->enums[i].name) == length &&
+                    !memcmp(name + 5, env->enums[i].name, length))
+                    return env->enums[i].name;
+        }
+    }
+    if (expr->type == AST_BLOCK && expr->as.block.count)
+        return list_nominal_name(expr->as.block.statements[expr->as.block.count - 1], env, type);
+    return NULL;
+}
+
+static bool list_nominal_matches(Environment *env, const char *actual,
+                                 const char *expected, bool is_enum) {
+    if (!actual || !expected) return false;
+    if (is_enum) {
+        EnumDef *wanted = env_get_enum(env, expected);
+        EnumDef *found = env_get_enum(env, actual);
+        return wanted && found && wanted == found;
+    }
+    StructDef *wanted = env_get_struct(env, expected);
+    StructDef *found = env_get_struct(env, actual);
+    return wanted && found && wanted == found;
+}
+
+static Type check_list_mutation(ASTNode *expr, Environment *env,
+                                 const char *name, const char *operation,
+                                 bool is_enum) {
+    bool insert = !strcmp(operation, "insert");
+    bool pop = !strcmp(operation, "pop");
+    int arity = insert ? 3 : pop ? 1 : 2;
+    Type element = is_enum ? TYPE_ENUM : TYPE_STRUCT;
+    bool valid = expr->as.call.arg_count == arity;
+    Type types[3] = {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN};
+    for (int i = 0; i < expr->as.call.arg_count; ++i) {
+        Type actual = check_expression(expr->as.call.args[i], env);
+        if (i < 3) types[i] = actual;
+    }
+    if (valid) {
+        valid = types[0] == TYPE_LIST_GENERIC &&
+            list_nominal_matches(env, list_nominal_name(expr->as.call.args[0], env,
+                                                        TYPE_LIST_GENERIC), name, is_enum);
+        if (!pop) valid = valid && types[1] == TYPE_INT;
+        if (insert) valid = valid && types[2] == element &&
+            list_nominal_matches(env, list_nominal_name(expr->as.call.args[2], env,
+                                                        element), name, is_enum);
+    }
+    if (!is_enum && (is_resource_type(env, name) || has_resource_collection_payload(env, name)))
+        valid = false;
+    if (!valid) {
+        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+            "I require the exact ordinary list element type, operation arity and INT index.",
+            "Use the declared List<T> receiver and matching ordinary element type.");
+        return TYPE_UNKNOWN;
+    }
+    if (!insert) {
+        char *copy = strdup(name);
+        if (!copy) return TYPE_UNKNOWN;
+        free(expr->as.call.return_struct_type_name);
+        expr->as.call.return_struct_type_name = copy;
+    }
+    return insert ? TYPE_VOID : element;
+}
+
 static FunctionSignature *function_result_signature(ASTNode *call, Environment *env);
 
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
@@ -658,7 +769,16 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
         const char *name = array->as.call.name;
         bool builtin_push = !strcmp(name, "array_push") &&
             env_array_push_is_builtin(env, array->line, array->column);
-        if (((builtin_push || !strcmp(name, "filter")) && array->as.call.arg_count == 2) ||
+        if (builtin_push && array->as.call.arg_count == 2) {
+            const char *receiver_name = array_record_name(array->as.call.args[0], env);
+            if (receiver_name) return receiver_name;
+            ASTNode *receiver = array->as.call.args[0];
+            if (receiver->type == AST_ARRAY_LITERAL &&
+                receiver->as.array_literal.element_count == 0)
+                return get_struct_type_name(array->as.call.args[1], env);
+            return NULL;
+        }
+        if ((!strcmp(name, "filter") && array->as.call.arg_count == 2) ||
             (!strcmp(name, "array_slice") && array->as.call.arg_count == 3))
             return array_record_name(array->as.call.args[0], env);
         if (!strcmp(name, "array_new") && array->as.call.arg_count == 2)
@@ -826,6 +946,9 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
     }
     if (expected->base_type == TYPE_ARRAY && expected->element_type) {
         const TypeInfo *element = expected->element_type;
+        if (value->type == AST_ARRAY_LITERAL && value->as.array_literal.element_count == 0)
+            value->as.array_literal.element_type = resolved_array_element(
+                element->base_type, element->generic_name, env);
         if (element->base_type == TYPE_STRUCT)
             check_record_array_contract(env, TYPE_ARRAY, TYPE_STRUCT, element->generic_name, value);
         else if (value->type == AST_ARRAY_LITERAL) {
@@ -924,7 +1047,7 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
     }
 }
 
-/* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
+/* I borrow nominal names from the AST or environment; callers do not own them. */
 const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     if (expr && expr->type == AST_IDENTIFIER) {
         Symbol *symbol = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
@@ -1000,7 +1123,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             /* Special handling for generic list get functions: List_TypeName_get */
             const char *func_name = expr->as.call.name;
             if (func_name && strncmp(func_name, "List_", 5) == 0) {
-                const char *func_suffix = strrchr(func_name, '_');
+                const char *func_suffix = nl_list_operation_separator(func_name);
                 if (func_suffix && strcmp(func_suffix, "_get") == 0) {
                     /* Extract type name: "List_MyToken_get" -> "MyToken" */
                     const char *type_start = func_name + 5;  /* Skip "List_" */
@@ -1013,10 +1136,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                         /* Check if this type name exists as a struct */
                         StructDef *sdef = env_get_struct(env, type_name);
                         if (sdef) {
-                            /* Return a copy that will be used by the caller */
-                            char *result = strdup(type_name);
-                            free(type_name);
-                            return result;
+                            return env_own_checker_allocation(env, type_name);
                         }
                         free(type_name);
                     }
@@ -1070,7 +1190,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                                                     if ((concrete->base_type == TYPE_STRUCT || concrete->base_type == TYPE_UNION) &&
                                                         concrete->generic_name) {
                                                         free(union_name);
-                                                        return strdup(concrete->generic_name);
+                                                        return concrete->generic_name;
                                                     }
                                                 }
                                             }
@@ -1083,7 +1203,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                             /* Non-generic union (or unresolved generic): return declared struct/union name when available */
                             if ((field_type == TYPE_STRUCT || field_type == TYPE_UNION) && field_type_name) {
                                 free(union_name);
-                                return strdup(field_type_name);
+                                return field_type_name;
                             }
                         }
                     }
@@ -1106,7 +1226,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                     if ((sdef->field_types[i] == TYPE_STRUCT || sdef->field_types[i] == TYPE_UNION) &&
                         sdef->field_type_names && sdef->field_type_names[i]) {
                         /* Return the struct type name for this field */
-                        return strdup(sdef->field_type_names[i]);
+                        return sdef->field_type_names[i];
                     }
                     /* Field is not a struct, or type name not available */
                     return NULL;
@@ -1765,12 +1885,106 @@ static const char *inline_variant_union(ASTNode *node, Environment *env) {
     return definition ? definition->name : NULL;
 }
 
-/* I check literal leaves against the complete callback annotation. */
+/* I infer direct formal arguments only when every selected payload supplies a
+ * complete type. Empty/phantom or nested-template arguments need a context. */
+static TypeInfo *infer_inline_union_context(ASTNode *node, Environment *env) {
+    const char *owner = inline_variant_union(node, env);
+    const char *variant = NULL;
+    ASTNode **values = NULL;
+    char **names = NULL;
+    int count = 0;
+    if (owner) {
+        variant = strrchr(node->as.struct_literal.struct_name, '.') + 1;
+        values = node->as.struct_literal.field_values;
+        names = node->as.struct_literal.field_names;
+        count = node->as.struct_literal.field_count;
+    } else if (node->type == AST_UNION_CONSTRUCT && !node->as.union_construct.type_info) {
+        owner = node->as.union_construct.union_name;
+        variant = node->as.union_construct.variant_name;
+        values = node->as.union_construct.field_values;
+        names = node->as.union_construct.field_names;
+        count = node->as.union_construct.field_count;
+    }
+    UnionDef *definition = owner ? env_get_union(env, owner) : NULL;
+    if (!definition || definition->generic_param_count <= 0) return NULL;
+    int arm = env_get_union_variant_index(env, owner, variant);
+    if (arm < 0 || !definition->variant_field_type_names ||
+        !definition->variant_field_type_names[arm]) return NULL;
+    TypeInfo *context = calloc(1, sizeof *context);
+    if (!context) return NULL;
+    context->base_type = TYPE_UNION;
+    context->generic_name = strdup(definition->name);
+    context->type_param_count = definition->generic_param_count;
+    context->type_params = calloc((size_t)context->type_param_count, sizeof *context->type_params);
+    if (!context->generic_name || !context->type_params) goto fail;
+    for (int i = 0; i < count; ++i) {
+        int field = -1;
+        for (int j = 0; j < definition->variant_field_counts[arm]; ++j)
+            if (!strcmp(names[i], definition->variant_field_names[arm][j])) field = j;
+        if (field < 0) goto fail;
+        const char *formal = definition->variant_field_type_names[arm][field];
+        for (int parameter = 0; formal && parameter < context->type_param_count; ++parameter) {
+            if (strcmp(formal, definition->generic_params[parameter])) continue;
+            Type type = check_expression(values[i], env);
+            TypeInfo *argument = copy_payload_type_info(try_get_expr_type_info(values[i], env));
+            if (!argument && (type == TYPE_INT || type == TYPE_U8 || type == TYPE_BOOL ||
+                              type == TYPE_FLOAT || type == TYPE_STRING)) {
+                argument = calloc(1, sizeof *argument);
+                if (argument) argument->base_type = type;
+            }
+            if (!argument) goto fail;
+            if (context->type_params[parameter]) {
+                bool same = type_infos_equal(context->type_params[parameter], argument);
+                free_payload_type_info(argument);
+                if (!same) goto fail;
+            } else context->type_params[parameter] = argument;
+        }
+    }
+    for (int parameter = 0; parameter < context->type_param_count; ++parameter)
+        if (!context->type_params[parameter]) goto fail;
+    return context;
+fail:
+    free_payload_type_info(context);
+    return NULL;
+}
+
+/* I check literal leaves against the complete value annotation. */
 static bool indirect_argument_matches(ASTNode *argument, Environment *env,
                                       const TypeInfo *expected, Type fallback,
                                       int depth) {
     if (depth > 128) return false;
+    if (!argument) return false;
     Type actual = check_expression(argument, env);
+    /* I compare every value arm, not only the first nominal name. The normal
+     * expression checker has already checked control flow and arm bindings. */
+    if (argument->type == AST_MATCH) {
+        for (int i = 0; i < argument->as.match_expr.arm_count; ++i)
+            if (!indirect_argument_matches(argument->as.match_expr.arm_bodies[i], env,
+                                           expected, fallback, depth + 1)) return false;
+        return argument->as.match_expr.arm_count > 0;
+    }
+    if (argument->type == AST_IF)
+        return indirect_argument_matches(argument->as.if_stmt.then_branch, env, expected, fallback, depth + 1) &&
+               indirect_argument_matches(argument->as.if_stmt.else_branch, env, expected, fallback, depth + 1);
+    if (argument->type == AST_COND) {
+        for (int i = 0; i < argument->as.cond_expr.clause_count; ++i)
+            if (!indirect_argument_matches(argument->as.cond_expr.values[i], env,
+                                           expected, fallback, depth + 1)) return false;
+        return indirect_argument_matches(argument->as.cond_expr.else_value, env, expected, fallback, depth + 1);
+    }
+    if (argument->type == AST_BLOCK) {
+        if (argument->as.block.count <= 0) return false;
+        ASTNode *tail = argument->as.block.statements[argument->as.block.count - 1];
+        if (tail->type == AST_RETURN) return true; /* This exits the enclosing function. */
+        return indirect_argument_matches(tail, env, expected, fallback, depth + 1);
+    }
+    TypeInfo normalized_expected;
+    if (expected && (expected->base_type == TYPE_STRUCT || expected->base_type == TYPE_UNION) &&
+        expected->generic_name && env_get_union(env, expected->generic_name)) {
+        normalized_expected = *expected;
+        normalized_expected.base_type = TYPE_UNION;
+        expected = &normalized_expected;
+    }
     if (!types_match(actual, expected ? expected->base_type : fallback)) return false;
     if (!expected) return true;
     if (expected->base_type == TYPE_ARRAY && expected->element_type &&
@@ -1783,7 +1997,22 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
         return true;
     }
     TypeInfo *info = try_get_expr_type_info(argument, env);
-    if (info) return type_infos_equal(expected, info);
+    if (info) {
+        TypeInfo normalized_actual = *info;
+        if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION) &&
+            info->generic_name && env_get_union(env, info->generic_name))
+            normalized_actual.base_type = TYPE_UNION;
+        /* Array annotations can retain a redundant flattened record name.
+         * I compare their complete element identities, not that parser cache. */
+        if (expected->base_type == TYPE_ARRAY)
+            return reduce_types_exact(expected, &normalized_actual, env, (unsigned)depth);
+        return type_infos_equal(expected, &normalized_actual);
+    }
+    if (expected->base_type == TYPE_UNION && expected->generic_name) {
+        const char *actual_name = get_struct_type_name(argument, env);
+        return actual_name && expected->type_param_count == 0 &&
+            env_get_union(env, actual_name) == env_get_union(env, expected->generic_name);
+    }
     if (expected->base_type == TYPE_STRUCT && expected->generic_name) {
         const char *actual_name = get_struct_type_name(argument, env);
         if (!actual_name) return false;
@@ -2517,6 +2746,28 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             
             /* Check if function exists */
             Function *func = env_get_function(env, expr->as.call.name);
+            bool builtin_array_pop = !strcmp(expr->as.call.name, "array_pop") &&
+                (!func || (func->return_type == TYPE_UNKNOWN && !func->body &&
+                           !func->is_extern &&
+                           (!func->module_name || !func->module_name[0]) &&
+                           (!func->alias_of || !func->alias_of[0])));
+            if (builtin_array_pop) {
+                if (expr->as.call.arg_count != 1) {
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
+                        "array_pop requires exactly one array.",
+                        "Pass the array whose last element I should remove.");
+                    return TYPE_UNKNOWN;
+                }
+                ASTNode *array_arg = expr->as.call.args[0];
+                if (check_expression(array_arg, env) != TYPE_ARRAY) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "array_pop requires an array.",
+                        "Pass an array with a known element type.");
+                    return TYPE_UNKNOWN;
+                }
+                Type element = infer_array_element_type(array_arg, env);
+                if (element != TYPE_UNKNOWN) return element;
+            }
             
             /* Check visibility */
             if (func && !is_function_accessible(func, env, expr->line, expr->column)) {
@@ -2597,6 +2848,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     if (expr->as.call.arg_count >= 1) {
                         ASTNode *array_arg = expr->as.call.args[0];
                         check_expression(array_arg, env);
+
+                        /* Use the same complete receiver query as array_get.
+                         * The older identifier-only fallback loses explicit
+                         * array<u8> metadata after contextual empty literals. */
+                        Type inferred = infer_array_element_type(array_arg, env);
+                        if (inferred != TYPE_UNKNOWN) return inferred;
                         
                         /* Try to infer element type from array */
                         if (array_arg->type == AST_IDENTIFIER) {
@@ -2984,9 +3241,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 
                 /* Special handling for generic list functions: list_TypeName_operation */
                 const char *func_name = expr->as.call.name;
-                if (func_name && strncmp(func_name, "list_", 5) == 0) {
-                    /* Find the last underscore to identify the operation */
-                    const char *func_suffix = strrchr(func_name, '_');
+                if (func_name && (!strncmp(func_name, "list_", 5) || !strncmp(func_name, "List_", 5))) {
+                    /* I preserve compound operation names when separating the element. */
+                    const char *func_suffix = nl_list_operation_separator(func_name);
                     if (func_suffix) {
                         /* Extract type name: "list_MyType_new" -> "MyType" */
                         const char *type_start = func_name + 5;  /* Skip "list_" */
@@ -3004,6 +3261,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 /* Type check based on the operation */
                                 const char *operation = func_suffix + 1;  /* Skip the '_' */
                                 
+                                if (!strcmp(operation, "insert") || !strcmp(operation, "remove") ||
+                                    !strcmp(operation, "pop")) {
+                                    Type result = check_list_mutation(expr, env, type_name, operation, edef != NULL);
+                                    free(type_name);
+                                    return result;
+                                }
+
                                 /* Type check arguments */
                                 for (int i = 0; i < expr->as.call.arg_count; i++) {
                                     check_expression(expr->as.call.args[i], env);
@@ -3011,6 +3275,22 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 
                                 /* Return appropriate type based on operation */
                                 if (strcmp(operation, "new") == 0 || strcmp(operation, "with_capacity") == 0) {
+                                    int arity = !strcmp(operation, "new") ? 0 : 1;
+                                    if (expr->as.call.arg_count != arity ||
+                                        (arity && check_expression(expr->as.call.args[0], env) != TYPE_INT)) {
+                                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                                            "I require the list constructor arity and an INT capacity.",
+                                            "Use new with no arguments or with_capacity with one INT.");
+                                        free(type_name);
+                                        return TYPE_UNKNOWN;
+                                    }
+                                    if (arity && !nl_list_has_schema_runtime(type_name)) {
+                                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                                            "I require a schema-runtime list for this capacity constructor.",
+                                            "Use the supported new constructor for custom list types.");
+                                        free(type_name);
+                                        return TYPE_UNKNOWN;
+                                    }
                                     /* Register this instantiation for code generation */
                                     env_register_list_instantiation(env, type_name);
                                     free(type_name);
@@ -3018,6 +3298,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 } else if (strcmp(operation, "get") == 0) {
                                     /* Set struct type name on the call node for field access */
                                     if (!edef && sdef) {
+                                        free(expr->as.call.return_struct_type_name);
                                         expr->as.call.return_struct_type_name = strdup(type_name);
                                     }
                                     free(type_name);
@@ -3833,6 +4114,34 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                     }
 
+                    /* A named nested union retains nominal identity even without
+                     * generic arguments on its enclosing constructor. */
+                    if (udef->generic_param_count == 0) {
+                        TypeInfo *payload = resolve_union_payload_type_info(udef, variant_idx, field_index, NULL);
+                        bool nested_union = payload &&
+                            (payload->base_type == TYPE_STRUCT || payload->base_type == TYPE_UNION) &&
+                            payload->generic_name && env_get_union(env, payload->generic_name);
+                        bool enum_payload = payload &&
+                            (payload->base_type == TYPE_STRUCT || payload->base_type == TYPE_ENUM) &&
+                            payload->generic_name && env_get_enum(env, payload->generic_name);
+                        if (nested_union || enum_payload) {
+                            ASTNode *value = expr->as.struct_literal.field_values[i];
+                            if (enum_payload) payload->base_type = TYPE_ENUM;
+                            check_concrete_union_arrays(env, payload, value, 0);
+                            bool matches = enum_payload ?
+                                reduce_expression_matches(value, payload, env, 0) :
+                                indirect_argument_matches(value, env, payload, TYPE_UNION, 0);
+                            free_payload_type_info(payload);
+                            if (!matches)
+                                emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                                    enum_payload ? "I require the declared enum payload type." :
+                                        "I require the declared nested union payload type.",
+                                    "Match the declared enum or union and its concrete arguments.");
+                            goto next_union_field;
+                        }
+                        free_payload_type_info(payload);
+                    }
+
                     /* Generic unions (e.g., Result<T, E>) store TYPE_GENERIC for variant fields.
                      * If we don't have concrete substitution info at this node, treat TYPE_GENERIC
                      * as a wildcard to avoid spurious type mismatch errors.
@@ -3933,6 +4242,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
                 ASTNode *field_value = expr->as.struct_literal.field_values[i];
+                TypeInfo *field_info = sdef->field_type_info ? sdef->field_type_info[field_index] : NULL;
+                if (field_info && field_info->generic_name && env_get_union(env, field_info->generic_name) &&
+                    !indirect_argument_matches(field_value, env, field_info, TYPE_UNION, 0)) {
+                    emit_context_error("E001 TYPE MISMATCH", field_value->line, field_value->column, 1,
+                        "I require the record field's exact union declaration and concrete arguments.",
+                        "Match the complete declared field type.");
+                }
                 check_record_array_contract(env, sdef->field_types[field_index],
                     sdef->field_element_types ? sdef->field_element_types[field_index] : TYPE_UNKNOWN,
                     sdef->field_type_names ? sdef->field_type_names[field_index] : NULL, field_value);
@@ -4246,6 +4562,22 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 check_union_record_array_contract(env, udef, variant_idx, field_name,
                     expr->as.union_construct.field_values[i]);
 
+                /* I check substituted payloads when the constructor has a concrete context. */
+                TypeInfo *context = expr->as.union_construct.type_info;
+                if (udef->generic_param_count == 0 ||
+                    (context && context->type_param_count == udef->generic_param_count)) {
+                    TypeInfo *payload = resolve_union_payload_type_info(udef, variant_idx, field_index, context);
+                    bool matches = payload && indirect_argument_matches(
+                        expr->as.union_construct.field_values[i], env, payload, expected_type, 0);
+                    free_payload_type_info(payload);
+                    if (!matches) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            "I require the concrete union payload type declared by this constructor's context.",
+                            "Match the substituted field type, including nominal identity.");
+                    }
+                    continue;
+                }
+
                 /* For generic unions, accept any type for generic type parameters */
                 /* TODO: Proper type substitution for generic instantiations */
                 bool is_generic_param = (expected_type == TYPE_GENERIC || expected_type == TYPE_STRUCT);
@@ -4284,7 +4616,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             char *union_concrete_name = NULL;        /* for transpiler: Result_int_string */
             TypeInfo *union_type_info = NULL;        /* For generic unions: Result<int, string> */
             ASTNode *match_expr_node = expr->as.match_expr.expr;
-            
+            TypeInfo *inferred_context = infer_inline_union_context(match_expr_node, env);
+            if (inferred_context) {
+                check_concrete_union_arrays(env, inferred_context, match_expr_node, 0);
+                free_payload_type_info(inferred_context);
+            }
             if (match_expr_node->type == AST_IDENTIFIER) {
                 Symbol *sym = env_get_var_visible_at(env, match_expr_node->as.identifier, match_expr_node->line, match_expr_node->column);
                 if (sym && sym->struct_type_name) {
@@ -4298,6 +4634,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
                 union_type_name = match_expr_node->as.union_construct.union_name;
+                union_type_info = match_expr_node->as.union_construct.type_info;
             } else if (match_expr_node->type == AST_STRUCT_LITERAL) {
                 union_type_name = inline_variant_union(match_expr_node, env);
             } else if (match_expr_node->type == AST_CALL) {
@@ -4389,6 +4726,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         /* Format: "UnionName.VariantName" */
                         char *type_name = malloc(strlen(union_base_name) + strlen(variant_name_i) + 2);
                         sprintf(type_name, "%s.%s", union_base_name, variant_name_i);
+                        free(binding_sym->struct_type_name);
                         binding_sym->struct_type_name = type_name;
 
                         /* Ensure bindings participate in visibility disambiguation */
@@ -4469,7 +4807,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_TUPLE;
             }
             
-            /* Allocate space for element types */
+            /* I replace cached element types when a tuple is checked again. */
+            free(expr->as.tuple_literal.element_types);
             expr->as.tuple_literal.element_types = malloc(sizeof(Type) * element_count);
             
             /* Type check each element */
@@ -4713,7 +5052,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 check_expression(expr->as.handle_expr.handler_bodies[i], env);
 
                 /* Pop handler-local symbols */
-                env->symbol_count = saved_count;
+                env_restore_symbol_count(env, saved_count);
             }
 
             /* Type of handle expression = type of the handled body */
@@ -4742,7 +5081,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
                 if (expr->as.effect_handler.handler_bodies[i])
                     check_expression(expr->as.effect_handler.handler_bodies[i], env);
-                if (env) env->symbol_count = saved_sym;
+                env_restore_symbol_count(env, saved_sym);
             }
             return TYPE_VOID;
         }
@@ -4938,6 +5277,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     isym->def_line = stmt->line;
                     isym->def_column = stmt->column;
                     if (stmt->as.let.type_name) {
+                        free(isym->struct_type_name);
                         isym->struct_type_name = strdup(stmt->as.let.type_name);
                     }
                 }
@@ -5243,13 +5583,15 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Set struct type name - look up symbol again to be safe */
             sym = env_get_var(tc->env, stmt->as.let.name);
             if (sym && stmt->as.let.type_name) {
-                if (original_declared_type == TYPE_STRUCT || original_declared_type == TYPE_UNION) {
+                if (original_declared_type == TYPE_STRUCT || original_declared_type == TYPE_UNION ||
+                    original_declared_type == TYPE_LIST_GENERIC) {
                     /* Use the declared type name */
                     if (sym->struct_type_name) free(sym->struct_type_name);  /* Free old value if any */
                     sym->struct_type_name = strdup(stmt->as.let.type_name);
                     
                     /* Mark as resource if the struct type is a resource */
-                    mark_variable_as_resource_if_needed(tc->env, stmt->as.let.name, stmt->as.let.type_name);
+                    if (original_declared_type != TYPE_LIST_GENERIC)
+                        mark_variable_as_resource_if_needed(tc->env, stmt->as.let.name, stmt->as.let.type_name);
                 }
             }
             
@@ -5667,7 +6009,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 if (stmt->as.effect_handler.handler_bodies[i])
                     check_statement(tc, stmt->as.effect_handler.handler_bodies[i]);
                 /* Remove the temp param binding */
-                if (tc->env) tc->env->symbol_count = saved_sym;
+                env_restore_symbol_count(tc->env, saved_sym);
             }
             return TYPE_VOID;
         }
@@ -5820,6 +6162,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         Symbol *binding_sym = &tc->env->symbols[tc->env->symbol_count - 1];
                         char *type_name = malloc(strlen(union_base_name) + strlen(variant_name_s) + 2);
                         sprintf(type_name, "%s.%s", union_base_name, variant_name_s);
+                        free(binding_sym->struct_type_name);
                         binding_sym->struct_type_name = type_name;
 
                         /* Ensure bindings participate in visibility disambiguation */
@@ -7429,7 +7772,7 @@ bool type_check(ASTNode *program, Environment *env) {
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
             sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
 sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
-            sdef.module_name = env->current_module ? strdup(env->current_module) : NULL;  /* Set module context */
+            sdef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;  /* Set module context */
             
             env_define_struct(env, sdef);
 
@@ -7650,7 +7993,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             /* Set module visibility */
             edef.is_pub = item->as.enum_def.is_pub;
-            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
             edef.is_extern = item->as.enum_def.is_extern;
             
             env_define_enum(env, edef);
@@ -7879,11 +8222,30 @@ register_function_pass1:;
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
+            /* I resolve nominal globals after declarations, as I do local bindings. */
+            if (item->as.let.var_type == TYPE_STRUCT && item->as.let.type_name) {
+                if (env_get_union(env, item->as.let.type_name)) item->as.let.var_type = TYPE_UNION;
+                else if (env_get_enum(env, item->as.let.type_name)) item->as.let.var_type = TYPE_ENUM;
+                if (item->as.let.type_info) item->as.let.type_info->base_type = item->as.let.var_type;
+            }
             /* I provide declared constructor context before checking the initializer. */
             prepare_map_initializer(&tc, item);
             check_concrete_union_arrays(env, item->as.let.type_info, item->as.let.value, 0);
             Type value_type = check_expression(item->as.let.value, env);
             check_global_ownership(env, item, &tc.has_error);
+            if (item->as.let.var_type == TYPE_UNION && item->as.let.type_name) {
+                TypeInfo nominal = {0};
+                nominal.base_type = TYPE_UNION;
+                nominal.generic_name = (char *)item->as.let.type_name;
+                const TypeInfo *expected = item->as.let.type_info ? item->as.let.type_info : &nominal;
+                if (!indirect_argument_matches(item->as.let.value, env, expected, TYPE_UNION, 0)) {
+                    emit_context_error("E001 TYPE MISMATCH", item->line, item->column, 1,
+                        "I require the global initializer's exact declared union type.",
+                        "Match the union declaration and its concrete type arguments.");
+                    tc.has_error = true;
+                    continue;
+                }
+            }
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
                     item->as.let.type_name, item->as.let.value)) tc.has_error = true;
             if (item->as.let.var_type == TYPE_ARRAY &&
@@ -7929,9 +8291,11 @@ register_function_pass1:;
                 if (sym->struct_type_name) free(sym->struct_type_name);
                 sym->struct_type_name = NULL;
 
-                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION) {
+                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION ||
+                    item->as.let.var_type == TYPE_LIST_GENERIC) {
                     sym->struct_type_name = strdup(item->as.let.type_name);
-                    mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
+                    if (item->as.let.var_type != TYPE_LIST_GENERIC)
+                        mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
                 } else if (item->as.let.var_type == TYPE_ARRAY && item->as.let.element_type == TYPE_STRUCT) {
                     sym->struct_type_name = strdup(item->as.let.type_name);
                 }
@@ -8085,12 +8449,15 @@ register_function_pass1:;
                     param_sym->def_line = item->line;
                     param_sym->def_column = item->column;
 
-                    if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
+                    if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_LIST_GENERIC ||
+                         param_type == TYPE_ENUM || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
                         item->as.function.params[j].struct_type_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
                     }
                     /* For generic unions with TypeInfo, use the generic_name as struct_type_name */
                     else if (param_type == TYPE_UNION && param_type_info && param_type_info->generic_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(param_type_info->generic_name);
                     }
                 }
@@ -8279,7 +8646,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
             sdef.is_extern = item->as.struct_def.is_extern;      /* Propagate extern flag */
 sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibility flag */
-            sdef.module_name = env->current_module ? strdup(env->current_module) : NULL;  /* Set module context */
+            sdef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;  /* Set module context */
             
             env_define_struct(env, sdef);
 
@@ -8473,8 +8840,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 }
             }
             
-            /* Duplicate variant values */
-            edef.variant_values = malloc(sizeof(int) * edef.variant_count);
+            /* I fill the checked allocation above; the environment owns it. */
             if (item->as.enum_def.variant_values) {
                 for (int j = 0; j < edef.variant_count; j++) {
                     edef.variant_values[j] = item->as.enum_def.variant_values[j];
@@ -8488,7 +8854,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             /* Set module visibility */
             edef.is_pub = item->as.enum_def.is_pub;
-            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
             edef.is_extern = item->as.enum_def.is_extern;
             
             env_define_enum(env, edef);
@@ -8634,11 +9000,30 @@ register_function_pass2:;
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
+            /* I resolve nominal globals after declarations, as I do local bindings. */
+            if (item->as.let.var_type == TYPE_STRUCT && item->as.let.type_name) {
+                if (env_get_union(env, item->as.let.type_name)) item->as.let.var_type = TYPE_UNION;
+                else if (env_get_enum(env, item->as.let.type_name)) item->as.let.var_type = TYPE_ENUM;
+                if (item->as.let.type_info) item->as.let.type_info->base_type = item->as.let.var_type;
+            }
             /* I provide declared constructor context before checking the initializer. */
             prepare_map_initializer(&tc, item);
             check_concrete_union_arrays(env, item->as.let.type_info, item->as.let.value, 0);
             Type value_type = check_expression(item->as.let.value, env);
             check_global_ownership(env, item, &tc.has_error);
+            if (item->as.let.var_type == TYPE_UNION && item->as.let.type_name) {
+                TypeInfo nominal = {0};
+                nominal.base_type = TYPE_UNION;
+                nominal.generic_name = (char *)item->as.let.type_name;
+                const TypeInfo *expected = item->as.let.type_info ? item->as.let.type_info : &nominal;
+                if (!indirect_argument_matches(item->as.let.value, env, expected, TYPE_UNION, 0)) {
+                    emit_context_error("E001 TYPE MISMATCH", item->line, item->column, 1,
+                        "I require the global initializer's exact declared union type.",
+                        "Match the union declaration and its concrete type arguments.");
+                    tc.has_error = true;
+                    continue;
+                }
+            }
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
                     item->as.let.type_name, item->as.let.value)) tc.has_error = true;
             if (item->as.let.var_type == TYPE_ARRAY &&
@@ -8684,9 +9069,11 @@ register_function_pass2:;
                 if (sym->struct_type_name) free(sym->struct_type_name);
                 sym->struct_type_name = NULL;
 
-                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION) {
+                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION ||
+                    item->as.let.var_type == TYPE_LIST_GENERIC) {
                     sym->struct_type_name = strdup(item->as.let.type_name);
-                    mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
+                    if (item->as.let.var_type != TYPE_LIST_GENERIC)
+                        mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
                 } else if (item->as.let.var_type == TYPE_ARRAY && item->as.let.element_type == TYPE_STRUCT) {
                     sym->struct_type_name = strdup(item->as.let.type_name);
                 }
@@ -8786,6 +9173,7 @@ register_function_pass2:;
                 Type element_type = item->as.function.params[j].element_type;
                 TypeInfo *param_type_info = item->as.function.params[j].type_info;
                 Value val;
+                StructValue parameter_record = {0};
 
                 /* Register HashMap<K,V> instantiation for parameters */
                 if (param_type == TYPE_HASHMAP && param_type_info) {
@@ -8824,7 +9212,12 @@ register_function_pass2:;
                     env_own_checker_allocation(env, val.as.array_val);
                     env_own_checker_allocation(env, val.as.array_val->data);
                 } else if (param_type == TYPE_STRUCT) {
-                    val = create_struct(item->as.function.params[j].struct_type_name, NULL, NULL, 0);
+                    /* env_define_var copies record values. I lend it this
+                     * empty descriptor instead of leaking an allocated original. */
+                    parameter_record.struct_name = item->as.function.params[j].struct_type_name;
+                    val = create_void();
+                    val.type = VAL_STRUCT;
+                    val.as.struct_val = &parameter_record;
                 } else if (param_type == TYPE_UNION) {
                     /* For union parameters, create empty union value */
                     val = create_void();  /* Placeholder */
@@ -8856,12 +9249,15 @@ register_function_pass2:;
                     param_sym->def_line = item->line;
                     param_sym->def_column = item->column;
 
-                    if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
+                    if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_LIST_GENERIC ||
+                         param_type == TYPE_ENUM || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
                         item->as.function.params[j].struct_type_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
                     }
                     /* For generic unions with TypeInfo, use the generic_name as struct_type_name */
                     else if (param_type == TYPE_UNION && param_type_info && param_type_info->generic_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(param_type_info->generic_name);
                     }
                 }

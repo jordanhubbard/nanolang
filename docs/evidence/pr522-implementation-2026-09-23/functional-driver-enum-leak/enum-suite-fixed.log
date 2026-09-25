@@ -1,0 +1,60 @@
+test_declared_enum_function_annotation (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_declared_enum_function_annotation) ... ok
+test_declared_enum_is_not_implicit_function_variable (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_declared_enum_is_not_implicit_function_variable) ... ok
+test_enum_values_and_local (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_enum_values_and_local) ... ok
+test_imported_enum_definition (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_imported_enum_definition) ... ok
+test_payload_formal_is_not_declared_enum (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_payload_formal_is_not_declared_enum) ... ok
+test_unbound_other_function_variable (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_unbound_other_function_variable) ... 
+  test_unbound_other_function_variable (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_unbound_other_function_variable) (compiler='pr522-enum-fixed') ... FAIL
+test_unknown_variant_preserves_output (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_unknown_variant_preserves_output) ... ok
+test_wrong_scalar_preserves_output (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_wrong_scalar_preserves_output) ... ok
+
+======================================================================
+FAIL: test_unbound_other_function_variable (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_unbound_other_function_variable) (compiler='pr522-enum-fixed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_single_letter_nominals.py", line 35, in check
+    self.assertEqual(result.returncode, 0, diagnostic)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+=================================================================
+==26408==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 27 byte(s) in 2 object(s) allocated from:
+    #0 0x000106f41da8 in strdup+0xf8 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x4dda8)
+    #1 0x0001050807bc in check_expression_impl typechecker.c:3423
+    #2 0x0001050483e0 in check_expression typechecker.c:1392
+    #3 0x000104ef9f48 in build_expr transpiler_iterative_v3_twopass.c:1495
+    #4 0x000104f4d9b4 in build_stmt transpiler_iterative_v3_twopass.c:4563
+    #5 0x000104f30bc8 in build_stmt transpiler_iterative_v3_twopass.c:3537
+    #6 0x000104f2ef9c in transpile_statement_iterative transpiler_iterative_v3_twopass.c:4652
+    #7 0x00010500bba8 in transpile_statement_wrapper transpiler.c:1032
+    #8 0x000104fea120 in generate_function_implementations transpiler.c:3953
+    #9 0x000104f51d9c in transpile_to_c_impl transpiler.c:4931
+    #10 0x000104f5034c in transpile_to_c transpiler.c:4970
+    #11 0x00010440ebec in compile_file main.c:1330
+    #12 0x000104401d90 in main main.c:2321
+    #13 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 13 byte(s) in 1 object(s) allocated from:
+    #0 0x000106f41da8 in strdup+0xf8 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x4dda8)
+    #1 0x0001050807bc in check_expression_impl typechecker.c:3423
+    #2 0x0001050483e0 in check_expression typechecker.c:1392
+    #3 0x00010505061c in check_expression_impl typechecker.c:2432
+    #4 0x0001050483e0 in check_expression typechecker.c:1392
+    #5 0x000105195630 in check_statement_impl typechecker.c:5850
+    #6 0x0001050cbbd8 in check_statement typechecker.c:5153
+    #7 0x0001051950ac in check_statement_impl typechecker.c:5838
+    #8 0x0001050cbbd8 in check_statement typechecker.c:5153
+    #9 0x0001050caee0 in type_check_root_shadows typechecker.c:7498
+    #10 0x0001050cc1ac in type_check_shadow_scope typechecker.c:7513
+    #11 0x00010440762c in compile_file main.c:839
+    #12 0x000104401d90 in main main.c:2321
+    #13 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 40 byte(s) leaked in 3 allocation(s).
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 12.661s
+
+FAILED (failures=1)

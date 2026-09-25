@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/Users/jordanh/Src/nanolang-pr522-repair/bin/pr522-shadow-profile-seed",
+    "src_nano/nanoc_v06.nano",
+    "-o",
+    "/tmp/pr522-bootstrap-shadow-88eb43548/stage1"
+  ],
+  "exit": 0,
+  "seconds": 150.37080129201058,
+  "env": {
+    "NANO_MODULE_PATH": "modules",
+    "NANO_BUILD_CACHE": "1",
+    "NANO_SHADOW_TIMEOUT_SECONDS": "60",
+    "ASAN_OPTIONS": "detect_leaks=0:detect_stack_use_after_return=1",
+    "UBSAN_OPTIONS": "halt_on_error=1"
+  }
+}

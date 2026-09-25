@@ -42,6 +42,10 @@ double nl_ffi_test_mix_iffi(long a, double b, double c, long d) {
     return (double)a + b * c + (double)d;
 }
 
+/* I keep these providers instrumented so incompatible indirect calls fail UBSan. */
+const char *nl_ffi_test_echo(const char *text) { return text; }
+int64_t nl_ffi_test_step(int64_t value) { return value - 1; }
+
 static int g_pass = 0, g_fail = 0;
 double nl_ffi_test_wide(int64_t a, double b, int64_t c, double d,
                        int64_t e, double f, int64_t g, double h,
@@ -59,6 +63,30 @@ double nl_ffi_test_wide(int64_t a, double b, int64_t c, double d,
     g_fail++; return; } } while(0)
 
 /* ── Lifecycle tests ───────────────────────────────────────────────────── */
+
+TEST(short_typed_signatures) {
+    vm_ffi_init();
+    NvmModule *mod = nvm_module_new();
+    VmHeap heap;
+    vm_heap_init(&heap);
+    uint32_t module = nvm_add_string(mod, "", 0);
+    const char *names[] = {"nl_ffi_test_echo", "nl_ffi_test_step"};
+    uint8_t tags[] = {TAG_STRING, TAG_INT};
+    NanoValue args[] = {val_string(vm_string_new(&heap, "retained", 8)), val_int(-41)};
+    for (int i = 0; i < 2; ++i) {
+        uint32_t name = nvm_add_string(mod, names[i], (uint32_t)strlen(names[i]));
+        uint32_t imported = nvm_add_import(mod, module, name, 1, tags[i], &tags[i]);
+        NanoValue result;
+        char error[256];
+        ASSERT(vm_ffi_call(mod, imported, &args[i], 1, &result, &heap, error, sizeof error));
+        ASSERT_EQ(result.tag, tags[i]);
+        if (i == 0) ASSERT(strcmp(vmstring_cstr(result.as.string), "retained") == 0);
+        else ASSERT_EQ(result.as.i64, -42);
+    }
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
 
 TEST(wide_mixed_signature) {
     vm_ffi_init();
@@ -1199,6 +1227,7 @@ int main(void) {
     printf("\n[vm_ffi] FFI bridge unit tests...\n\n");
     RUN(init_shutdown_set_env);
     RUN(retained_native_scheduler);
+    RUN(short_typed_signatures);
     RUN(wide_mixed_signature);
     RUN(call_string_returning_float);
     RUN(call_bytecode_callback_rejected);

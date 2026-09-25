@@ -1,0 +1,26 @@
+enum Mode { Quiet = 3, Loud = 7 }
+struct Point { number: int, label: string, mode: Mode, values: array<float> }
+union Choice { Some { value: Point }, Empty {} }
+fn main() -> int {
+ let point: Point = Point { number: 7, label: "saved", mode: Mode.Loud, values: [2.0, -1.5] }
+ let choice: Choice = Choice.Some { value: point }
+ let saved: string = (to_string choice)
+ let alias: string = saved
+ assert (== saved "Choice.Some { value: Point { number: 7, label: saved, mode: Mode.Loud, values: [2.0, -1.5] } }")
+ assert (== (to_string Choice.Empty {}) "Choice.Empty")
+ let empty: array<int> = []
+ assert (== (cast_string empty) "[]")
+ assert (== (to_string [[1, 2], [], [3]]) "[[1, 2], [], [3]]")
+ assert (== (to_string [true, false]) "[true, false]")
+ assert (== (to_string ["a\"b", "line\nnext", "λ"]) "[\"a\"b\", \"line\nnext\", \"λ\"]")
+ let mut i: int = 0
+ while (< i 100) {
+  let next: string = (to_string [i, (+ i 1)])
+  assert (> (str_length next) 0)
+  set i (+ i 1)
+ }
+ assert (== saved alias)
+ assert (str_contains saved "label: saved")
+ return 0
+}
+shadow main { assert true }

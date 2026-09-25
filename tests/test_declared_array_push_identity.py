@@ -147,6 +147,25 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''', canonical=False)
 
+    def test_runtime_alias_retains_each_callers_target(self):
+        self.positive('runtime-alias-targets', '''fn sum(left: int, right: int) -> int { return (+ left right) }
+shadow sum { assert (== (sum 8 3) 11) }
+fn difference(left: int, right: int) -> int { return (- left right) }
+shadow difference { assert (== (difference 8 3) 5) }
+fn invoke(callback: fn(int, int) -> int) -> int {
+ let selected: fn(int, int) -> int = callback
+ let alias: fn(int, int) -> int = selected
+ return (alias 8 3)
+}
+shadow invoke { assert (== (invoke sum) 11) assert (== (invoke difference) 5) }
+fn main() -> int {
+ assert (== (invoke sum) 11)
+ assert (== (invoke difference) 5)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''', canonical=False)
+
     def test_unbound_push_alias_and_empty(self):
         self.positive('builtin', '''fn main() -> int {
  let values: array<float> = []

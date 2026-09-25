@@ -1,0 +1,18 @@
+...............
+----------------------------------------------------------------------
+Ran 15 tests in 0.952s
+
+OK
+Built 13 en pages in build/userguide/html
+Built 13 zh pages in build/userguide/html/zh
+Built 13 hi pages in build/userguide/html/hi
+Built 13 es pages in build/userguide/html/es
+Built 13 ar pages in build/userguide/html/ar
+Built 13 fr pages in build/userguide/html/fr
+Validated en edition
+Validated zh edition
+Validated hi edition
+Validated es edition
+Validated ar edition
+Validated fr edition
+Built 6 guide editions

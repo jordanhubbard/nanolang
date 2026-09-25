@@ -1,0 +1,44 @@
+{
+  "compiler": "gcc",
+  "compile": [
+    "gcc",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-fno-sanitize-recover=all",
+    "/work/tests/fixtures/sanitizer_toolchain_canary.c",
+    "-o",
+    "/work/ci-toolchain/gcc-control/canary",
+    "-lm",
+    "-lcrypto",
+    "-fsanitize=address,undefined"
+  ],
+  "runs": [
+    {
+      "mode": "valid",
+      "returncode": 0,
+      "expected_diagnosis": null,
+      "accepted": true
+    },
+    {
+      "mode": "uar",
+      "returncode": 120,
+      "expected_diagnosis": "ERROR: AddressSanitizer: stack-use-after-return",
+      "accepted": false
+    },
+    {
+      "mode": "overflow",
+      "returncode": 1,
+      "expected_diagnosis": "runtime error: signed integer overflow",
+      "accepted": true
+    }
+  ],
+  "success": false,
+  "compile_returncode": 0
+}

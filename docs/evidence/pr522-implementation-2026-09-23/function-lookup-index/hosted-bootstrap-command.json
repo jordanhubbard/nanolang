@@ -1,0 +1,22 @@
+{
+  "ASAN_OPTIONS": "detect_leaks=0:detect_stack_use_after_return=1",
+  "CC": "clang",
+  "NANOLANG_COMPILER": null,
+  "NANO_SHADOW_TIMEOUT_SECONDS": "60",
+  "argv": [
+    "make",
+    "build",
+    "bootstrap3",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer",
+    "CC=clang",
+    "LDFLAGS=-lm -lcrypto -fsanitize=address,undefined --rtlib=compiler-rt",
+    "NANO_LDFLAGS=-fsanitize=address,undefined --rtlib=compiler-rt"
+  ],
+  "head": "27ed9107284c498699e833e34454374f99411539",
+  "worker": {
+    "id": "forth",
+    "targets": [
+      "test-forth-session"
+    ]
+  }
+}

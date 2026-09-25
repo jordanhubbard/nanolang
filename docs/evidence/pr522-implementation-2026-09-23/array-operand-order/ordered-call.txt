@@ -1,0 +1,1 @@
+    ({ __auto_type __nl_arg_0_0 = ({ __auto_type __nl_arg_1_0 = box; nl_receiver(__nl_arg_1_0); }); __auto_type __nl_arg_0_1 = ({ nl_offset(); }); __auto_type __nl_arg_0_2 = ({ nl_replacement(); }); nl_array_set_array(__nl_arg_0_0, __nl_arg_0_1, __nl_arg_0_2); });

@@ -15,6 +15,20 @@ class ManagedRuntimePackage(unittest.TestCase):
         self.assertEqual(result.returncode, 0, str(args)+'\n'+result.stdout+result.stderr)
         return result.stdout
 
+    def test_freestanding_memory_intrinsics(self):
+        source = Path(__file__).resolve().parent/'nanoisa/test_wasm_memory.c'
+        clang = shlex.split(os.environ.get('NMS_RUNTIME_CLANG', 'clang'))
+        with tempfile.TemporaryDirectory(prefix='nano-wasm-memory-') as directory:
+            for optimization in ('-O0', '-O2'):
+                wasm = Path(directory)/(optimization+'.wasm')
+                self.run_cmd(clang+['--target=wasm32-unknown-unknown',optimization,
+                    '-ffreestanding','-fno-builtin','-nostdlib','-std=c11',
+                    '-Wall','-Wextra','-Werror',source,'-Wl,--no-entry',
+                    '-Wl,--export=nms_memory_tests','-Wl,--fatal-warnings','-o',wasm])
+                self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','nms_memory_tests',wasm]),'0\n')
+                script = "const fs=require('fs');const m=new WebAssembly.Module(fs.readFileSync(process.argv[1]));if(WebAssembly.Module.imports(m).length)throw Error('imports');for(let i=0;i<2;i++){const e=new WebAssembly.Instance(m).exports;if(e.nms_memory_tests())throw Error('memory ABI');}"
+                self.run_cmd(['node','-e',script,wasm])
+
     def test_private_module_scalar_abi_lifecycle(self):
         source = Path(__file__).resolve().parent/'nanoisa/test_managed_module.c'
         clang = shlex.split(os.environ.get('NMS_RUNTIME_CLANG', 'clang'))

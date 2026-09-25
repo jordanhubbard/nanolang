@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -141,7 +142,7 @@ RET
             self.assertIn("nglobal[0].integer != 6", generated)
             self.assertIn("nroot_value(&work, nglobal[i])", generated)
             compiled = self.command([
-                "cc", "-std=c11", "-O1", "-g", "-Wall", "-Wextra", "-Werror",
+                *native_cc(), "-std=c11", "-O1", "-g", "-Wall", "-Wextra", "-Werror",
                 "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
                 source, "-o", binary,
             ])

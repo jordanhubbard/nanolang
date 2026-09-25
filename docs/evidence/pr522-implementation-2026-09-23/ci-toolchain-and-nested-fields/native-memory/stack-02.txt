@@ -1,0 +1,40 @@
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+0x0000fdacaf560e2c in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+#0  0x0000fdacaf560e2c in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+#1  0x0000fdacaf560f8c in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+#2  0x0000fdacaf569cf0 in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+#3  0x0000fdacaf560628 in printf () from /lib/aarch64-linux-gnu/libc.so.6
+#4  0x0000be8b600bc3fc in nl_print_string ()
+#5  0x0000be8b600bc0a8 in typecheck.field_metadata_type_string ()
+#6  0x0000be8b600bc4e8 in typecheck.build_field_metadata_index ()
+#7  0x0000be8b600bca50 in typecheck.lookup_field_type ()
+#8  0x0000be8b600c2bc8 in typecheck.check_expr_node ()
+#9  0x0000be8b600c0de0 in typecheck.check_expr_node ()
+#10 0x0000be8b600d0734 in typecheck.check_return_statement ()
+#11 0x0000be8b600d3fd8 in typecheck.check_statement_list ()
+#12 0x0000be8b600ce378 in typecheck.check_block_value ()
+#13 0x0000be8b600d4648 in typecheck.check_block ()
+#14 0x0000be8b600d33f4 in typecheck.check_statement_list ()
+#15 0x0000be8b600ce378 in typecheck.check_block_value ()
+Breakpoint 1 at 0xbe8b6034a6d8
+
+Breakpoint 1, 0x0000be8b6034a6d8 in gc_alloc ()
+#0  0x0000be8b6034a6d8 in gc_alloc ()
+#1  0x0000be8b6034ae60 in gc_alloc_string ()
+#2  0x0000be8b600a6424 in nl_str_concat ()
+#3  0x0000be8b600bbfd0 in typecheck.field_metadata_key ()
+#4  0x0000be8b600bc49c in typecheck.build_field_metadata_index ()
+#5  0x0000be8b600bca50 in typecheck.lookup_field_type ()
+#6  0x0000be8b600c2bc8 in typecheck.check_expr_node ()
+#7  0x0000be8b600c0de0 in typecheck.check_expr_node ()
+#8  0x0000be8b600d0734 in typecheck.check_return_statement ()
+#9  0x0000be8b600d3fd8 in typecheck.check_statement_list ()
+#10 0x0000be8b600ce378 in typecheck.check_block_value ()
+#11 0x0000be8b600d4648 in typecheck.check_block ()
+#12 0x0000be8b600d33f4 in typecheck.check_statement_list ()
+#13 0x0000be8b600ce378 in typecheck.check_block_value ()
+#14 0x0000be8b600d4648 in typecheck.check_block ()
+#15 0x0000be8b600d33f4 in typecheck.check_statement_list ()
+$1 = 0
+[Inferior 1 (process 77952) detached]

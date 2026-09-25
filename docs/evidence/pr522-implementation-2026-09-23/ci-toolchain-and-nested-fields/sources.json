@@ -1,0 +1,21 @@
+{
+  "base": "530fb29c1aa9746477eb11b34bab1b4e54f9f35a",
+  "sources": {
+    ".github/workflows/ci.yml": "92367aa3df83984a33756ddbaaf715b2532490631f28b463d314cd5359c79e70",
+    "scripts/ci_sanitizer_partitions.py": "c98c1af867b0df9f1bf21d484c59b7462b1aff09a6873ea40e2cf71d3849042a",
+    "src/nanoisa/nvm2c.c": "371217be3c56069a79268d770ea51008d1339ae853ecdefd028e5a6bafbbc519",
+    "src_nano/compiler/nanoisa_codegen.nano": "a594f30505950fb41f21e0a6a9f08a6dd4cd037b8b056ee0c4f3860c031629c2",
+    "src_nano/typecheck.nano": "6bee3f5da72203cc05f2e5f76a801e4b49f3c9f70947234dd94a36b44b16b731",
+    "tests/nanoisa/test_nvm2c.c": "664ebc09ccbe430c4cf41918e41836206997a28bdd32b77458b4d9fede2a18a5",
+    "tests/test_ci_sanitizer_partitions.py": "2918b5be4368cc159e511da4267026aa9475a8d9d0d4d684d820f4847399590e",
+    "tests/test_selfhost_array_field_setter.py": "410016a2ada69e5c1de37e5289657e9f2a24ad21fc7cb694d960c5d52ad1b597",
+    "scripts/check_sanitizer_toolchain.py": "44382cc13b8cb79cbdf94f0d7fd710f970deb6b37b127c68b405450e17dcce4c",
+    "tests/fixtures/sanitizer_toolchain_canary.c": "e9f7dc16a5edeffb4298d30f9893e8f2051c7384f4fdcf8f70e637d8c25a141f"
+  },
+  "darwin_bootstrap_binaries": {
+    "bin/nanoc_c": "d8722e75f349eded6057271448b2ef3b8a502fa0b37d8034fe9e8a9c150461ca",
+    "bin/nanoc_stage1": "583376308b62ee445baa0144326484aa1bd21cfd0a4403dc408e2c90bf85d7b7",
+    "bin/nanoc_stage2": "300f7f2b6edd196382d0a7965dccea9307b01e2befb7a83c3af6cfff9f868c7b",
+    "bin/nvm2c": "ef58210a4d52fdd0429f672c135802cad595d27511884e47df559f35ec6ed0fb"
+  }
+}

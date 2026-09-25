@@ -30,6 +30,20 @@ static void copy_bytes(unsigned char *to, const unsigned char *from, uint64_t n)
 }
 
 #ifdef __wasm32__
+/* I supply the memory operations my freestanding C compiler can introduce for
+ * aggregate initialization and copying. Volatile bytes prevent recursive
+ * lowering back to these same routines at any selected optimization level. */
+void *memset(void *memory,int value,size_t bytes) {
+    volatile unsigned char *out=(volatile unsigned char *)memory;
+    for(size_t i=0;i<bytes;i++)out[i]=(unsigned char)value;
+    return memory;
+}
+void *memcpy(void *destination,const void *source,size_t bytes) {
+    volatile unsigned char *out=(volatile unsigned char *)destination;
+    const volatile unsigned char *in=(const volatile unsigned char *)source;
+    for(size_t i=0;i<bytes;i++)out[i]=in[i];
+    return destination;
+}
 /* Free-block headers live inside memory owned by this allocator. The sole
  * external boundary is wasm-ld's heap base, after data and reserved stack. */
 extern unsigned char __heap_base;
@@ -1199,11 +1213,11 @@ NmsStatus nms_dispose(NmsRuntime *runtime) {
 }
 int nms_reserved_entry(const char *name) {
     if (!name) return 0;
-    const char *reserved[] = {"nano_try_entry", "nano_dispose", "nano_runtime_", "nms_"};
+    const char *reserved[] = {"nano_try_entry", "nano_dispose", "nano_runtime_", "nms_", "memcpy", "memset"};
     for (unsigned i = 0; i < sizeof reserved / sizeof reserved[0]; i++) {
         unsigned n = 0;
         while (reserved[i][n] && name[n] == reserved[i][n]) n++;
-        if (!reserved[i][n] && (i >= 2 || !name[n])) return 1;
+        if (!reserved[i][n] && (i == 2 || i == 3 || !name[n])) return 1;
     }
     return 0;
 }

@@ -1,0 +1,270 @@
+{
+  "source_commit": "e70c0de4666139a01a77edd0e6dfa7fb9abe6f26",
+  "stages": {
+    "providers": {
+      "argv": [
+        "make",
+        "-j2",
+        "bin/nanoc_c",
+        "nvm2c",
+        "nvm2c-runtime"
+      ],
+      "exit_code": 0,
+      "seconds": 2.8433162190003713
+    },
+    "seed-build": {
+      "argv": [
+        "/qualification/bin/nanoc_c",
+        "/qualification/src_nano/nanoc_v06.nano",
+        "-o",
+        "/evidence-native-e70c0de46/seed"
+      ],
+      "exit_code": 0,
+      "seconds": 22.98007985700042
+    },
+    "initial-emission": {
+      "argv": [
+        "/evidence-native-e70c0de46/seed",
+        "/qualification/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/evidence-native-e70c0de46/initial.nvm"
+      ],
+      "exit_code": 0,
+      "seconds": 130.3302853820005
+    },
+    "initial-verify": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "--verify-only",
+        "/evidence-native-e70c0de46/initial.nvm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.5507789430002958
+    },
+    "initial-translate": {
+      "argv": [
+        "/qualification/bin/nvm2c",
+        "/evidence-native-e70c0de46/initial.nvm",
+        "-o",
+        "/evidence-native-e70c0de46/initial.c"
+      ],
+      "exit_code": 0,
+      "seconds": 8.028219759000422
+    },
+    "initial-native-build": {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/evidence-native-e70c0de46/initial.c",
+        "-o",
+        "/evidence-native-e70c0de46/initial-native",
+        "/qualification/bin/nano_aot_runtime.o",
+        "-lm",
+        "-Wl,--export-dynamic",
+        "-ldl"
+      ],
+      "exit_code": 0,
+      "seconds": 92.63158313799977
+    },
+    "initial-help": {
+      "argv": [
+        "/evidence-native-e70c0de46/initial-native",
+        "--help"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0017074209999918821
+    },
+    "initial-libraries": {
+      "argv": [
+        "ldd",
+        "/evidence-native-e70c0de46/initial-native"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0038779690003138967
+    },
+    "stage1": {
+      "argv": [
+        "/evidence-native-e70c0de46/initial-native",
+        "/qualification/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/evidence-native-e70c0de46/stage1.nvm"
+      ],
+      "exit_code": 0,
+      "seconds": 483.08121338599994,
+      "sha256": "2c107f991005a04259a9978e2609ad97be5c45299712f9ca0c223d63e4d70ca5",
+      "bytes": 526188
+    },
+    "stage1-verify": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "--verify-only",
+        "/evidence-native-e70c0de46/stage1.nvm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.5918404009998994
+    },
+    "stage1-translate": {
+      "argv": [
+        "/qualification/bin/nvm2c",
+        "/evidence-native-e70c0de46/stage1.nvm",
+        "-o",
+        "/evidence-native-e70c0de46/stage1.c"
+      ],
+      "exit_code": 0,
+      "seconds": 8.252979512999445
+    },
+    "stage1-native-build": {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/evidence-native-e70c0de46/stage1.c",
+        "-o",
+        "/evidence-native-e70c0de46/stage1-native",
+        "/qualification/bin/nano_aot_runtime.o",
+        "-lm",
+        "-Wl,--export-dynamic",
+        "-ldl"
+      ],
+      "exit_code": 0,
+      "seconds": 95.49383204100013
+    },
+    "stage1-help": {
+      "argv": [
+        "/evidence-native-e70c0de46/stage1-native",
+        "--help"
+      ],
+      "exit_code": 0,
+      "seconds": 0.00129337900034443
+    },
+    "stage1-libraries": {
+      "argv": [
+        "ldd",
+        "/evidence-native-e70c0de46/stage1-native"
+      ],
+      "exit_code": 0,
+      "seconds": 0.00377213599949755
+    },
+    "stage2": {
+      "argv": [
+        "/evidence-native-e70c0de46/stage1-native",
+        "/qualification/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/evidence-native-e70c0de46/stage2.nvm"
+      ],
+      "exit_code": 0,
+      "seconds": 479.6974624879995,
+      "sha256": "2c107f991005a04259a9978e2609ad97be5c45299712f9ca0c223d63e4d70ca5",
+      "bytes": 526188
+    },
+    "stage2-verify": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "--verify-only",
+        "/evidence-native-e70c0de46/stage2.nvm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.5441930910001247
+    },
+    "stage2-translate": {
+      "argv": [
+        "/qualification/bin/nvm2c",
+        "/evidence-native-e70c0de46/stage2.nvm",
+        "-o",
+        "/evidence-native-e70c0de46/stage2.c"
+      ],
+      "exit_code": 0,
+      "seconds": 8.50573673100007
+    },
+    "stage2-native-build": {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/evidence-native-e70c0de46/stage2.c",
+        "-o",
+        "/evidence-native-e70c0de46/stage2-native",
+        "/qualification/bin/nano_aot_runtime.o",
+        "-lm",
+        "-Wl,--export-dynamic",
+        "-ldl"
+      ],
+      "exit_code": 0,
+      "seconds": 97.51219448499978
+    },
+    "stage2-help": {
+      "argv": [
+        "/evidence-native-e70c0de46/stage2-native",
+        "--help"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0015764210002089385
+    },
+    "stage2-libraries": {
+      "argv": [
+        "ldd",
+        "/evidence-native-e70c0de46/stage2-native"
+      ],
+      "exit_code": 0,
+      "seconds": 0.004290886999115173
+    },
+    "hello-compile": {
+      "argv": [
+        "/evidence-native-e70c0de46/stage2-native",
+        "/qualification/examples/language/nl_hello.nano",
+        "--emit-nvm",
+        "-o",
+        "/evidence-native-e70c0de46/hello.nvm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.03244067300056486
+    },
+    "hello-verify": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "--verify-only",
+        "/evidence-native-e70c0de46/hello.nvm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0017431709993616096
+    },
+    "hello-execute": {
+      "argv": [
+        "/qualification/bin/nano_vm",
+        "/evidence-native-e70c0de46/hello.nvm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0016209220002565417
+    }
+  },
+  "stage_timeout_seconds": 1800,
+  "complete": true,
+  "boundary": "I compare raw modules from two standalone native compiler generations. I preserve the existing default shadow deadline and record this 16 GiB Linux VM separately from historical hosts.",
+  "providers": {
+    "/qualification/bin/nanoc_c": "62d378dd154ffbbc132244c462ff46660a747153c368bfb1b962962b91346d78",
+    "/qualification/bin/nvm2c": "8fee683a01b097bb7c222cfb50a3cba1b6168134196ad4f23e07ba6704734455",
+    "/qualification/bin/nano_vm": "79d9341046cd1426778d4f482d142d805e9b6f4e4e5a43dd9b3ce386b548424a",
+    "/qualification/bin/nanoisa": "5170921eb06c4ee24df9d54506d535ebe2a45545ad3678163dbc3e2c282f4a1e",
+    "/qualification/bin/nano_as_capture.so": "60a178d96aea6c8cad943c9d24d055921563aef0cbc8417319fff2007b246767",
+    "/qualification/bin/nano_aot_runtime.o": "ad4f62540f183f0aeca82c35ecaaf407abd6a04b63d508a535c813ddbe8dd5f1"
+  },
+  "host_libraries": {
+    "/qualification/modules/compiler_support/.build/.nano-gen-oI7Fqj/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+    "/qualification/modules/nanoisa/.build/.nano-gen-gTrkzj/libnanoisa.so": "f23619b5dcf320bae93c1e728dcc56c7d358db3af893870c182a6b3d4df5de95",
+    "/qualification/modules/std/.build/.nano-gen-pqINRl/libstd.so": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4"
+  },
+  "raw_stage1_stage2_equal": true
+}

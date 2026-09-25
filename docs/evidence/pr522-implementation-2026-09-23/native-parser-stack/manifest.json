@@ -1,0 +1,29 @@
+{
+  "parent": "e08f2c5fe563451bccb054ee6df99f370192cf1d",
+  "artifacts": {
+    "/tmp/pr522-native-parser-stack/compiler.nvm": {
+      "sha256": "43c1e95f92abafe2d88cc3bf84fbd45c4ed177c50cdc45a8b0a1746dacae944b",
+      "bytes": 562180
+    },
+    "/tmp/pr522-native-parser-stack/compiler.c": {
+      "sha256": "5f0972a22cc83dfac1886aab438e10fcac4c6a7acfc0039d3875f79eada56022",
+      "bytes": 12516465
+    },
+    "/tmp/pr522-native-parser-stack/compiler.o": {
+      "sha256": "df76b77c111c5cdc48040050e4b8bb83bade20e4f90f0690f9149ea7182e1201",
+      "bytes": 176543640
+    },
+    "/tmp/pr522-native-parser-stack/compiler-pointer.c": {
+      "sha256": "cd698d9e14c09c50c05f755a5b39b2dde0e3048e6b1463df58c7267033985795",
+      "bytes": 12536773
+    },
+    "/tmp/pr522-native-parser-stack/compiler-pointer.o": {
+      "sha256": "a534499b5a46a183a58bc2d376ddc99e929f560a7c2ce567f2983897f0f44d1b",
+      "bytes": 174511992
+    },
+    "src/nanoisa/nvm2c.c": {
+      "sha256": "313a631ad9ef5a98d079572f8a9e37830b03dc70266a33212c6df78c63135307",
+      "bytes": 407923
+    }
+  }
+}

@@ -1,0 +1,48 @@
+77
+
+exit 0
+
+exit 0
+
+[nanoisa src_nano] Cut A pinned subset...
+
+  FAIL: blank_l bytecode matches C seed  (tests/nanoisa/test_nanoisa_src_nano.c:392)
+  FAIL: grow_l bytecode matches C seed  (tests/nanoisa/test_nanoisa_src_nano.c:394)
+    C add locals=2 len=8  src add locals=2 len=8
+    C main locals=0 len=23  src main locals=0 len=23
+    C choose locals=1 len=38  src choose locals=1 len=38
+    C loop_sum locals=3 len=71  src loop_sum locals=3 len=71
+    C greeting locals=0 len=6  src greeting locals=0 len=6
+    C glue locals=2 len=8  src glue locals=2 len=8
+    C len3 locals=1 len=39  src len3 locals=1 len=39
+    C first locals=1 len=48  src first locals=1 len=48
+    C getx locals=1 len=38  src getx locals=1 len=38
+    C is_pos locals=1 len=14  src is_pos locals=1 len=14
+    C yes locals=0 len=3  src yes locals=0 len=3
+    C invert locals=1 len=5  src invert locals=1 len=5
+    C both locals=2 len=14  src both locals=2 len=14
+    C either locals=2 len=14  src either locals=2 len=2
+    C pick locals=1 len=42  src pick locals=1 len=42
+    C say locals=0 len=20  src say locals=0 len=20
+    C shout locals=0 len=20  src shout locals=0 len=20
+    C mutter locals=0 len=16  src mutter locals=0 len=16
+    C prove locals=1 len=14  src prove locals=1 len=14
+    C grow locals=1 len=37  src grow locals=1 len=37
+    C has_hi locals=1 len=10  src has_hi locals=1 len=10
+    C digits locals=1 len=5  src digits locals=1 len=5
+    C names locals=1 len=29  src names locals=1 len=29
+    C head_s locals=1 len=26  src head_s locals=1 len=26
+    C same locals=2 len=8  src same locals=2 len=8
+    C diff locals=2 len=8  src diff locals=2 len=8
+    C via_at locals=1 len=39  src via_at locals=1 len=39
+    C slen locals=1 len=5  src slen locals=1 len=5
+    C slice locals=1 len=23  src slice locals=1 len=23
+    C blank_l locals=1 len=10  src blank_l locals=1 len=12
+    C grow_l locals=1 len=33  src grow_l locals=1 len=35
+    C ch locals=0 len=16  src ch locals=0 len=16
+    C blank_s locals=1 len=10  src blank_s locals=1 len=10
+    C grow_s locals=1 len=29  src grow_s locals=1 len=29
+    C get_s locals=1 len=34  src get_s locals=1 len=34
+    C grow_t locals=2 len=57  src grow_t locals=2 len=57
+
+=== 84 passed, 2 failed ===

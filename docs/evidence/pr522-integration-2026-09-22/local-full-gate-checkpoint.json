@@ -1,0 +1,6 @@
+{
+  "status": "interrupted_at_known_release_blocker",
+  "reason": "The current emitter reproduces the unchanged generic selected-pattern positive refusal. Release-scope clarification is pending; no full-suite pass is claimed.",
+  "completed": "clean build; native translator2428; shape1412; source emitter90 methods; additional unit gates retained in log",
+  "process_group": 98460
+}

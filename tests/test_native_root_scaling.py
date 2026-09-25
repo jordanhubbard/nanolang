@@ -5,6 +5,7 @@ import re
 import subprocess
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -104,7 +105,7 @@ int main(void) {
 }
 ''')
             flags = ['-DNROOT_INDEX_TEST'] if 'static inline void nroot_reset(' in generated else []
-            self.run_checked(['cc', '-std=c11', '-O2', '-g', '-Wall', '-Wextra', '-Werror',
+            self.run_checked([*native_cc(), '-std=c11', '-O2', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                               *flags, source, '-o', binary])
             result = self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})

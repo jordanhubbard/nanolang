@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 IDLE = ('.function idle 0 1 0 void 0\nPUSH_I64 0\nSTORE_LOCAL 0\nloop:\n'
@@ -51,7 +52,7 @@ class NativeCollectionDebt(unittest.TestCase):
                 '    if (nmap_owned_live || nmap_owned_peak > 3) abort();\n'
                 '    if (root_scans != 0 || nmap_live_bytes || nmap_peak_bytes > 65536) return 2;\n')
             source.write_text('#include <stdio.h>\n' + generated)
-            self.run_checked(['cc', '-std=c11', '-O2', '-g', '-Wall', '-Wextra', '-Werror',
+            self.run_checked([*native_cc(), '-std=c11', '-O2', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                               source, '-o', binary])
             result = self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
@@ -106,7 +107,7 @@ int main(void) {
     return 0;
 }
 ''')
-            self.run_checked(['cc', '-std=c11', '-O2', '-g', '-Wall', '-Wextra', '-Werror',
+            self.run_checked([*native_cc(), '-std=c11', '-O2', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                               source, '-o', binary])
             self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})

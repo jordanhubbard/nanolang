@@ -1,0 +1,7 @@
+struct Point { x: int }
+fn point(value: int) -> Point { return match value { 1 => { Point { x: 7 } } _ => Point { x: 3 } } }
+shadow point { assert (== (point 1).x 7) }
+fn rows(value: int) -> array<array<Point>> { return match value { 1 => [[Point { x: 7 }], []] _ => [] } }
+shadow rows { let values = (rows 1) let p: Point = (at (at values 0) 0) assert (== p.x 7) }
+fn main() -> int { let p: Point = (point 0) assert (== p.x 3) let values = (rows 1) let first: Point = (at (at values 0) 0) assert (== first.x 7) assert (== (array_length (at values 1)) 0) assert (== (array_length (rows 0)) 0) return 0 }
+shadow main { assert (== (main) 0) }

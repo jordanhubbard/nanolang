@@ -1,0 +1,2 @@
+cannot transition task from open to completed
+  From open the only legal move is: blocked, cancelled, claimed, failed, needs_input, stopped, waiting

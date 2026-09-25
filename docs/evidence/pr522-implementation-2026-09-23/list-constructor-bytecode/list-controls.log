@@ -1,0 +1,9 @@
+test_nested_record_lists_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_nested_record_lists_match_and_execute) ... ok
+test_list_set_matches_and_executes (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_list_set_matches_and_executes) ... ok
+test_list_set_rejects_bad_operands (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_list_set_rejects_bad_operands) ... ok
+test_list_set_bounds_trap_in_both_backends (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_list_set_bounds_trap_in_both_backends) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.369s
+
+OK

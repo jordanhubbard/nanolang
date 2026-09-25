@@ -1,0 +1,12 @@
+{
+  "command": [
+    "wasmtime",
+    "run",
+    "--invoke",
+    "nano_main",
+    "/tmp/pr522-memory-62-check/product-0062.wasm"
+  ],
+  "returncode": 0,
+  "stdout": "0\n",
+  "stderr": "warning: using `--invoke` with a function that returns values is experimental and may break in the future\n"
+}

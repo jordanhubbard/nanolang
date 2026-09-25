@@ -48,6 +48,9 @@ typedef struct CBLiftTemp {
 typedef struct {
     FILE       *out;
     ASTNode    *root;
+    ASTNode    *active_function;
+    ASTNode    *entry_function;
+    const CBOptions *options;
     bool        planning;
     char        prefix[64];
     size_t      operand_slots;
@@ -342,6 +345,9 @@ static const char *c_type(CBCtx *c, Type t) {
 /* I resolve declarations before builtin spellings, never from a name fragment. */
 static ASTNode *ctx_function(CBCtx *c, const char *name) {
     if (!c->root || !name) return NULL;
+    if (c->options && c->options->resolve_function)
+        return c->options->resolve_function(c->options->function_context,
+                                            c->active_function, name, NULL);
     ASTNode **items = c->root->type == AST_PROGRAM ? c->root->as.program.items : &c->root;
     int count = c->root->type == AST_PROGRAM ? c->root->as.program.count : 1;
     for (int i = 0; i < count; ++i) {
@@ -351,6 +357,19 @@ static ASTNode *ctx_function(CBCtx *c, const char *name) {
             strcmp(item->as.function.name, name) == 0) return item;
     }
     return NULL;
+}
+
+/* I resolve qualified calls by checked owner identity when a closure exists. */
+static ASTNode *ctx_qualified_function(CBCtx *c, ASTNode *node) {
+    const char *alias = node->as.module_qualified_call.module_alias;
+    const char *name = node->as.module_qualified_call.function_name;
+    if (c->options && c->options->resolve_function)
+        return c->options->resolve_function(c->options->function_context,
+                                            c->active_function, name, alias);
+    char target[512];
+    int length = alias && name ? snprintf(target, sizeof target, "%s_%s", alias, name) :
+                 name ? snprintf(target, sizeof target, "%s", name) : -1;
+    return length >= 0 && (size_t)length < sizeof target ? ctx_function(c, target) : NULL;
 }
 
 /* I name payload types by exact declaration and variant indexes. */
@@ -515,10 +534,21 @@ static int emit_result_type(CBCtx *c, ASTNode *function) {
 }
 
 /* I separate the language's int64 entry from the hosted C int wrapper. */
-static void emit_function_name(CBCtx *c, const char *name, bool lexical) {
-    if (name && strcmp(name, "main") == 0 && ctx_function(c, name) &&
-        (!lexical || !ctx_has_binding(c, name))) fprintf(c->out, "%sentry", c->prefix);
+static void emit_decl_function_name(CBCtx *c, ASTNode *decl, const char *name) {
+    if (decl && decl == c->entry_function) fprintf(c->out, "%sentry", c->prefix);
+    else if (decl && !decl->as.function.is_extern && c->options && c->options->resolve_function) {
+        for (int i = 0; i < c->root->as.program.count; ++i)
+            if (c->root->as.program.items[i] == decl) {
+                fprintf(c->out, "%sfn_%d", c->prefix, i);
+                return;
+            }
+        ctx_error(c, "I require a retained declaration in my C closure.");
+    } else if (decl) fputs(decl->as.function.name, c->out);
     else if (name) fputs(name, c->out);
+}
+static void emit_function_name(CBCtx *c, const char *name, bool lexical) {
+    ASTNode *decl = lexical && ctx_has_binding(c, name) ? NULL : ctx_function(c, name);
+    emit_decl_function_name(c, decl, name);
 }
 
 /* I resolve absent annotations only from exact scoped declaration identities. */
@@ -600,6 +630,10 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
         }
         case AST_LET:        return node->as.let.var_type;
         case AST_RETURN:     return infer_expr_type(c, node->as.return_stmt.value);
+        case AST_MODULE_QUALIFIED_CALL: {
+            ASTNode *function = ctx_qualified_function(c, node);
+            return function ? function->as.function.return_type : TYPE_UNKNOWN;
+        }
         case AST_CALL: {
             const char *name = node->as.call.name;
             if (node->as.call.checked_signature)
@@ -699,12 +733,8 @@ static int cb_array_use(CBCtx *c, ASTNode *node) {
     if(node->type==AST_MODULE_QUALIFIED_CALL) {
         for(int i=0;i<node->as.module_qualified_call.arg_count;i++)
             if(infer_expr_type(c,node->as.module_qualified_call.args[i])==TYPE_ARRAY)return cb_array_refusal(c);
-        const char *alias=node->as.module_qualified_call.module_alias;
         const char *name=node->as.module_qualified_call.function_name;
-        char target[512];
-        int length=alias && name ? snprintf(target,sizeof target,"%s_%s",alias,name) :
-                   name ? snprintf(target,sizeof target,"%s",name) : -1;
-        ASTNode *decl=length>=0 && (size_t)length<sizeof target ? ctx_function(c,target) : NULL;
+        ASTNode *decl=ctx_qualified_function(c,node);
         if(decl && cb_node_has_array(decl))return cb_array_refusal(c);
         /* I preserve the exact emitted declaration identity. This AST form
          * otherwise retains no checked signature for an array-family call. */
@@ -723,16 +753,9 @@ static int cb_callable_use(CBCtx *c, ASTNode *node) {
     if(node->type==AST_CALL && (node->as.call.func_expr ||
        (node->as.call.name && ctx_has_binding(c,node->as.call.name))))return cb_callable_refusal(c);
     if(node->type==AST_MODULE_QUALIFIED_CALL) {
-        const char *alias=node->as.module_qualified_call.module_alias;
-        const char *name=node->as.module_qualified_call.function_name;
-        char target[512];
-        int length=alias && name ? snprintf(target,sizeof target,"%s_%s",alias,name) :
-                   name ? snprintf(target,sizeof target,"%s",name) : -1;
-        if(length<0 || (size_t)length>=sizeof target) {
-            ctx_error(c,"I require a bounded exact qualified C callee name.");return -1;
-        }
-        if(ctx_has_binding(c,target))return cb_callable_refusal(c);
-        ASTNode *decl=ctx_function(c,target);
+        ASTNode *decl=ctx_qualified_function(c,node);
+        if (decl && !(c->options && c->options->resolve_function) &&
+            ctx_has_binding(c, decl->as.function.name)) return cb_callable_refusal(c);
         if(!decl) {
             ctx_error(c,"I require the exact emitted declaration for this qualified C call.");return -1;
         }
@@ -1275,15 +1298,8 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
     }
 
     case AST_MODULE_QUALIFIED_CALL: {
-        /* Emit as alias_function(args) */
-        if (node->as.module_qualified_call.module_alias &&
-            node->as.module_qualified_call.function_name) {
-            fprintf(c->out, "%s_%s",
-                    node->as.module_qualified_call.module_alias,
-                    node->as.module_qualified_call.function_name);
-        } else if (node->as.module_qualified_call.function_name) {
-            fputs(node->as.module_qualified_call.function_name, c->out);
-        }
+        ASTNode *decl = ctx_qualified_function(c, node);
+        emit_decl_function_name(c, decl, node->as.module_qualified_call.function_name);
         fputc('(', c->out);
         for (int i = 0; i < node->as.module_qualified_call.arg_count; i++) {
             if (i > 0) fputs(", ", c->out);
@@ -1982,6 +1998,7 @@ static int emit_staged_body(CBCtx *c, FILE *body, FILE *destination) {
 }
 
 static int emit_function(CBCtx *c, ASTNode *node) {
+    c->active_function = node;
     if (node->as.function.is_extern) return 0;
 
     Type ret = node->as.function.return_type;
@@ -2020,7 +2037,7 @@ static int emit_function(CBCtx *c, ASTNode *node) {
     }
 
     c->indent = 1;
-    if (c->has_globals && strcmp(node->as.function.name, "main") == 0)
+    if (c->has_globals && node == c->entry_function)
         fprintf(c->out, "  %sinit();\n", c->prefix);
     if (node->as.function.body) {
         if (node->as.function.body->type == AST_BLOCK) {
@@ -2067,6 +2084,7 @@ static void emit_forward_decls(CBCtx *c, ASTNode *root) {
     for (int i = 0; i < count; i++) {
         ASTNode *n = items[i];
         if (!n || n->type != AST_FUNCTION) continue;
+        c->active_function = n;
         /* Emit prototypes for both regular and extern functions.
          * Without this, extern fn declarations (e.g. fs_mkdir_p, path_relpath,
          * file_copy, dir_copy) have no C prototype visible to the compiler,
@@ -2090,6 +2108,7 @@ static void emit_forward_decls(CBCtx *c, ASTNode *root) {
         fputs(");\n", c->out);
     }
     if (count > 0) fputc('\n', c->out);
+    c->active_function = NULL;
 }
 
 static int emit_global_initializer(CBCtx *c, ASTNode **items, int count) {
@@ -2169,6 +2188,7 @@ static int emit_program(CBCtx *c, ASTNode *root) {
         ctx_error(c, "I require a hosted main for ordered C global initialization."); return -1;
     }
     ASTNode *main_function = ctx_function(c, "main");
+    c->entry_function = main_function;
     if (main_function && (main_function->as.function.return_type != TYPE_INT || main_function->as.function.param_count != 0)) {
         ctx_error(c, "I require main()->int for this hosted C entry."); return -1;
     }
@@ -2201,6 +2221,7 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
     memset(&c, 0, sizeof(c));
     c.out = out;
     c.root = root;
+    c.options = opts;
     c.verbose = opts ? opts->verbose : false;
     c.no_main = opts && opts->no_main;
     if (opts && opts->no_stdlib)
@@ -2258,6 +2279,8 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
     c.lift_counter = 0;
     c.return_type = TYPE_VOID;
     c.return_union = NULL;
+    c.active_function = NULL;
+    c.entry_function = NULL;
     if (!c.error) {
         emit_preamble(&c, source_file);
         if (emit_program(&c, root) != 0 && !c.error)

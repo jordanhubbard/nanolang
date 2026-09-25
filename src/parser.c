@@ -1022,6 +1022,7 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
             
             /* If it's a struct type, save the struct name */
             if (param_list[count].type == TYPE_STRUCT && struct_name) {
+                free(param_list[count].struct_type_name);
                 param_list[count].struct_type_name = struct_name;
             } else if (struct_name) {
                 free(struct_name);
@@ -3140,6 +3141,8 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                         type_name = type_param_name;
                     }
 
+                    /* I release a leaf name when this local retains only its nested TypeInfo. */
+                    if (type_param_name != type_name) free(type_param_name);
                     if (type_info && type_info->generic_name) {
                         if (type_name) free(type_name);
                         type_name = strdup(type_info->generic_name);
@@ -5483,17 +5486,6 @@ static ASTNode *parse_shadow(Stage1Parser *p) {
 }
 
 /* Parse top-level program */
-/* I inspect valid parser roots: service declarations occur only at program
- * scope. Module declarations hold names, not child ASTs; imported programs are
- * separately checked by process_imports. I do not validate arbitrary forged ASTs. */
-bool ast_has_service_declaration(const ASTNode *program) {
-    if (!program) return false;
-    if (program->type == AST_SERVICE_DECL) return true;
-    if (program->type != AST_PROGRAM) return false;
-    for (int i = 0; i < program->as.program.count; ++i)
-        if (ast_has_service_declaration(program->as.program.items[i])) return true;
-    return false;
-}
 
 static ASTNode *parse_service_declaration(Stage1Parser *p) {
     Token *start = current_token(p);
@@ -5959,6 +5951,7 @@ void free_ast(ASTNode *node) {
             break;
         case AST_CALL:
             free(node->as.call.name);
+            free(node->as.call.concrete_func_name);
             free_function_signature(node->as.call.checked_signature);
             if (node->as.call.return_struct_type_name) {
                 free(node->as.call.return_struct_type_name);

@@ -39,6 +39,31 @@ class ConcreteUnionArrays(unittest.TestCase):
                         self.assertIn('declared nominal record type', result.stdout + result.stderr)
                         self.assertEqual(output.read_bytes(), b'prior artifact')
 
+    def test_nested_variable_payload_bytecode_executes(self):
+        program = DECL + """
+fn main() -> int {
+    let rows: array<array<Plain>> = [[Plain { value: 7 }]]
+    let value: Box<array<Plain>> = Box.Some { values: rows }
+    return match value {
+        Some(payload) => {
+            let row: array<Plain> = (at payload.values 0)
+            let item: Plain = (at row 0)
+            (- item.value 7)
+        }
+    }
+}
+""" + END
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            source, output = work / 'case.nano', work / 'case.nvm'
+            source.write_text(program)
+            result = subprocess.run([ROOT / 'bin/nano_virt', source, '--emit-nvm', '-o', output],
+                                    cwd=ROOT, capture_output=True, text=True, timeout=120)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            result = subprocess.run([ROOT / 'bin/nano_vm', output], cwd=ROOT,
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_matching_concrete_contexts_execute(self):
         programs = [
             'fn main() -> int { let rows: array<array<Plain>> = [[Plain { value: 7 }]] let value: Box<array<Plain>> = Box.Some { values: rows } return 0 }',

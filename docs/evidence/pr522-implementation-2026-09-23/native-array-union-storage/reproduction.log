@@ -1,0 +1,100 @@
+test_direct_array (__main__.ArrayUnionComparison.test_direct_array) ... 
+  test_direct_array (__main__.ArrayUnionComparison.test_direct_array) (compiler='nanoc_c', vm=False) ... FAIL
+  test_direct_array (__main__.ArrayUnionComparison.test_direct_array) (compiler='nanoc_stage1', vm=False) ... FAIL
+  test_direct_array (__main__.ArrayUnionComparison.test_direct_array) (compiler='nanoc_stage1', vm=True) ... FAIL
+  test_direct_array (__main__.ArrayUnionComparison.test_direct_array) (compiler='nanoc_stage2', vm=False) ... FAIL
+  test_direct_array (__main__.ArrayUnionComparison.test_direct_array) (compiler='nanoc_stage2', vm=True) ... FAIL
+test_record_array (__main__.ArrayUnionComparison.test_record_array) ... 
+  test_record_array (__main__.ArrayUnionComparison.test_record_array) (compiler='nanoc_stage1', vm=False) ... FAIL
+  test_record_array (__main__.ArrayUnionComparison.test_record_array) (compiler='nanoc_stage2', vm=False) ... FAIL
+
+======================================================================
+FAIL: test_direct_array (__main__.ArrayUnionComparison.test_direct_array) (compiler='nanoc_c', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-jtvkk1dc/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-jtvkk1dc/product')]
+Warning at line 4, column 2: Unused variable 'e'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-jtvkk1dc/case.nano
+I expected array elements of type struct, but found union.
+
+12|  let values: array<Choice> = [Choice.Box { value: Item { label: (+ "saved" "-label") } }, Choice.Text { value: (+ "text" "-label") }, Choice.Empty {}]
+                                 ^
+Hint: Use elements matching the array annotation.
+Type checking failed
+
+
+======================================================================
+FAIL: test_direct_array (__main__.ArrayUnionComparison.test_direct_array) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-jtvkk1dc/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-jtvkk1dc/product')]
+I cannot lower this checked program: unsupported local type array<Choice>
+
+
+======================================================================
+FAIL: test_direct_array (__main__.ArrayUnionComparison.test_direct_array) (compiler='nanoc_stage1', vm=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-jtvkk1dc/case.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-jtvkk1dc/product')]
+I cannot lower this checked program: unsupported local type array<Choice>
+
+
+======================================================================
+FAIL: test_direct_array (__main__.ArrayUnionComparison.test_direct_array) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-jtvkk1dc/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-jtvkk1dc/product')]
+I cannot lower this checked program: unsupported local type array<Choice>
+
+
+======================================================================
+FAIL: test_direct_array (__main__.ArrayUnionComparison.test_direct_array) (compiler='nanoc_stage2', vm=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-jtvkk1dc/case.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-jtvkk1dc/product')]
+I cannot lower this checked program: unsupported local type array<Choice>
+
+
+======================================================================
+FAIL: test_record_array (__main__.ArrayUnionComparison.test_record_array) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-lvc0o4s_/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-lvc0o4s_/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-lvc0o4s_/.nano-product.7gLri8/program.nvm': I found invalid aggregate shape constraints during ARR_LITERAL in function 0 at offset 104: I found conflicting aggregate shape kinds optional/record at nodes 28/10
+
+
+======================================================================
+FAIL: test_record_array (__main__.ArrayUnionComparison.test_record_array) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-lvc0o4s_/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-lvc0o4s_/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-lvc0o4s_/.nano-product.X9mrtb/program.nvm': I found invalid aggregate shape constraints during ARR_LITERAL in function 0 at offset 104: I found conflicting aggregate shape kinds optional/record at nodes 28/10
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.036s
+
+FAILED (failures=7)

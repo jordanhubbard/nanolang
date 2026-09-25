@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import subprocess
+import shlex
 import tempfile
 import unittest
 
@@ -9,6 +10,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class OwnedValueGraphs(unittest.TestCase):
+    binary_environment = 'NANO_OWNED_VALUE_GRAPH_TEST'
+    binary_default = ROOT/'obj/test_owned_value_graphs'
+    case_count = 12
+
     def checked(self, args, **kwargs):
         result = subprocess.run(list(map(str, args)), cwd=ROOT, capture_output=True,
                                 text=True, timeout=90, **kwargs)
@@ -16,12 +21,13 @@ class OwnedValueGraphs(unittest.TestCase):
         return result
 
     def test_owned_value_graphs_and_cleanup(self):
+        compiler = shlex.split(os.environ.get('NANOLANG_GUARD_SAN_CC', os.environ.get('CC', 'cc')))
         with tempfile.TemporaryDirectory(prefix='nano-owned-graphs-') as name:
             tmp = Path(name)
-            run = self.checked([os.environ.get('NANO_OWNED_VALUE_GRAPH_TEST', ROOT/'obj/test_owned_value_graphs'), tmp])
+            run = self.checked([os.environ.get(self.binary_environment, self.binary_default), tmp])
             print(run.stdout, end='')
             cases = [line.split() for line in run.stdout.splitlines() if line.startswith('case ')]
-            self.assertEqual(len(cases), 10)
+            self.assertEqual(len(cases), self.case_count)
             for _, index, status, value in cases:
                 with self.subTest(case=index):
                     succeeds = status == '0'
@@ -32,6 +38,8 @@ class OwnedValueGraphs(unittest.TestCase):
                     rebuilt = tmp/f'rebuilt{index}.c'
                     self.checked([ROOT/'bin/nvm2c', artifact, '-o', rebuilt])
                     self.assertEqual(generated.read_bytes(), rebuilt.read_bytes())
+                    extra_path = tmp/f'case{index}.guard.c'
+                    extra = extra_path.read_text() if extra_path.exists() else ''
                     harness = tmp/f'harness{index}.c'
                     harness.write_text('''#include <assert.h>
 #include <stdint.h>
@@ -47,6 +55,7 @@ static void release(void *p){assert(live);live--;free(p);}
   int64_t result=-91;int status=nvm_owned_entry(&result);
   assert(status==EXPECTED_STATUS);assert(result==EXPECTED_RESULT);assert(live==0);
  }
+ EXTRA_CHECKS
  for(fail_at=1;fail_at<128;fail_at++){
   attempts=0;int64_t result=-91;int status=nvm_owned_entry(&result);
   assert(live==0);
@@ -56,13 +65,13 @@ static void release(void *p){assert(live);live--;free(p);}
  assert(fail_at<128);
  return 0;
 }
-'''.replace('EXPECTED_STATUS', status)
+'''.replace('EXTRA_CHECKS', extra).replace('EXPECTED_STATUS', status)
    .replace('EXPECTED_RESULT', value if succeeds else '-91'))
                     binary = tmp/f'check{index}'
-                    self.checked([os.environ.get('CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
-                                  '-fsanitize=address,undefined', '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
+                    self.checked([*compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+                                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
                     self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
-                    self.checked([os.environ.get('CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror', generated, '-o', binary])
+                    self.checked([*compiler, '-std=c11', '-Wall', '-Wextra', '-Werror', generated, '-o', binary])
                     native = subprocess.run([binary], capture_output=True, timeout=30)
                     self.assertEqual(native.returncode, int(value) if succeeds else 1)
 

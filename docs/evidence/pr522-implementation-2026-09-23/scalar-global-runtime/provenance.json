@@ -1,0 +1,14 @@
+{
+  "parent": "d9d9353e2b077df021743487611c22888cdfbb5d",
+  "sha256": {
+    "src/nanoisa/nvm2c_owned.h": "0850ecc0d67366b5a0764c57cba699faff4c50d8919b4f7899e1f8e72ef54288",
+    "src/nanoisa/verifier.c": "bc4773d82161def33cacdafbeb36e44e27637f1dc24e3843f908231850cf5280",
+    "src/nanovm/vm.c": "9cecd4eedf0b8e2e97f803374ea8734633954719c8ceb50af1db0b375f5c62c4",
+    "tests/nanoisa/test_owned_scalar_global_contracts.c": "7abd9f1bb4f1041c2ca81baa1e18507ea7cf74277fac9fb0923542dcacd5b60b",
+    "tests/nanoisa/scalar_global_fixture.h": "e7f7c1265630165a69201e613daf267e80c1f506696601deab6bd6b7d65e3757",
+    "tests/nanoisa/test_owned_scalar_global_runtime.c": "d7124432d3f5f9d219966ea3c7f872dc26f66d7357b89f7dabbce8f7ccd4db59",
+    "tests/nanoisa/test_owned_scalar_global_runtime_alloc.c": "90080756373b1c0c96210c9d243219c1e15ead40600a718f1422199a0b0ed9d2",
+    "tests/test_owned_scalar_global_runtime.py": "98e9ca21f3fe66894cb9518fac093b39b9049db582e81d342f75bc35b9e6925c",
+    "Makefile.gnu": "9870cebb43238f8bc563a4b71bc92e55fe93da8798f98b8f31da329f192103c7"
+  }
+}

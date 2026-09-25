@@ -1,0 +1,22 @@
+[
+  {
+    "id": "task_6ab6cb8a0908464aabc37a6a5c86dcff",
+    "title": "Restore ordinary-record authority sanitizer linkage",
+    "description": "Hosted d48 run 35974675846 units-08 job 107552438029 fails test_declarations_transport_and_unchanged_profiles in tests.test_ordinary_record_authority with undefined ASan/UBSan references from instrumented obj/nanoisa/file_flow.o. Preserve the owning assertions and supply compatible sanitizer link flags; reproduce ordinary and instrumented object configurations. Raw hosted logs retained in /tmp/pr522-nominal/job-ID.log."
+  },
+  {
+    "id": "task_6fa5997a55b946a3a61ec4aa786dba24",
+    "title": "Reconcile ownership-contract union transport validation",
+    "description": "Hosted d48 run 35974675846 units-09 job 107552438089 aborts tests/nanoisa/test_ownership_contracts.c:154 in check_union_transport: nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION fails. Audit the validator and original rejection contract; preserve accepted transport and malformed-input refusal rather than weakening the assertion without semantic evidence. Raw hosted logs retained in /tmp/pr522-nominal/job-ID.log."
+  },
+  {
+    "id": "task_71b8cf39fceb414da8e7877aace3e710",
+    "title": "Build the canonical-output emitter prerequisite in isolated partitions",
+    "description": "Hosted d48 run 35974675846 units-10 job 107552438102 fails test_nested_record_array_result_executes in tests.test_canonical_nvm_output because bin/nanoisa_emit does not exist. Audit test-canonical-nvm-output prerequisites and reproduce with the driver absent in an isolated build. Do not rely on prior partition order. Raw hosted logs retained in /tmp/pr522-nominal/job-ID.log."
+  },
+  {
+    "id": "task_c07358e3ce754fc6bcfe4e6f99a9fe76",
+    "title": "Qualify the literal PCH-marker refusal with the actual GCC toolchain",
+    "description": "Hosted d48 run 35974675846 units-11 job 107552439639 fails tests.test_module_builder_self_capture.test_gcc_still_refuses_a_literal_pch_marker because the compile returns zero. Establish compiler selection and the intended GCC refusal under sanitizer CI; retain original marker handling and negative control. Raw hosted logs retained in /tmp/pr522-nominal/job-ID.log."
+  }
+]

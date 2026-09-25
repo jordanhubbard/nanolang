@@ -1,0 +1,30 @@
+[
+  {
+    "case": "int_",
+    "source": "fn main() -> int { let _: int = 3 assert (== f\"value {_}\" \"value 3\") return 0 }\nshadow main { assert true }\n",
+    "exit": 1,
+    "stdout": "I cannot lower this checked program: I require two string operands for str_concat\n",
+    "stderr": ""
+  },
+  {
+    "case": "int_named",
+    "source": "fn main() -> int { let value: int = 3 assert (== f\"value {value}\" \"value 3\") return 0 }\nshadow main { assert true }\n",
+    "exit": 1,
+    "stdout": "I cannot lower this checked program: I require two string operands for str_concat\n",
+    "stderr": ""
+  },
+  {
+    "case": "string_",
+    "source": "fn main() -> int { let _: string = \"first\" let _: string = (+ _ \" second\") assert (== _ \"first second\") return 0 }\nshadow main { assert true }\n",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "case": "string_named",
+    "source": "fn main() -> int { let value: string = \"first\" let value: string = (+ value \" second\") assert (== value \"first second\") return 0 }\nshadow main { assert true }\n",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

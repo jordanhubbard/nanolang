@@ -1,0 +1,10 @@
+{
+  "src_nano/compiler/nanoisa_codegen.nano": "8a319951122f29ec5d9a22cc3de276c0b64c262cb7e69d71871af00c15153adf",
+  "src/nanoisa/nvm2c.c": "792cdc4cae3871d6d8ebbaaf372f4d6d9aff59ea6583de0a5fa53053996a7602",
+  "src/nanoisa/nvm2c_shape.c": "8a910f0de218cecd3e4ea83d8eb3423c869f3754a01acc202fd8e58893180b4f",
+  "bin/nanoc_stage1": "af02457093c91845b81222efee7651b9d58f802e558dddde41a63dd9dbc842dd",
+  "bin/nanoc_stage2": "ce84aa3692a7b9a5f6cbe170ce8be1a170211c4868314c391c90e03eabe23627",
+  "bin/nanoisa_emit": "2853fabb8abd09315de095dcc484cd4f41500330960be920f0839b4fa8a69d61",
+  "bin/nvm2c": "30360f17b19dec71ab738754c9d886b6ed36260b31f1515f64e487cc41db0df9",
+  "bin/nano_vm": "f2f2fccb10271b721274e5ef3e74af0e8156a717820e79bff3b26796614c48f5"
+}

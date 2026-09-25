@@ -1,0 +1,12 @@
+{
+  "base_commit": "dbc6d31b2a961c71986e118cbdcdc5e02f326dc8",
+  "source_sha256": {
+    "src/nanoisa/affine_targets.inc": "a8f8e05ccb06027b01d648df9b0cec72dd399f7c0217fa2f32b43885397c12fa",
+    "tests/nanoisa/owned_targets_fixture.h": "c2bdc0fd3e8449d1a0cb57434ed6f2213a7ecef796885ef4cbaac492e085c415",
+    "tests/nanoisa/test_owned_indirect_calls.c": "0bc6d9678c29dfb117dc043d9f0c0912c807232a2f10c330610b188462cbd873",
+    "tests/test_owned_value_graphs.py": "100ad5366c2efba9bb8de5abdb67fd9bfec5e6772b871b9d378de5990b24716f",
+    "src/env.c": "de957b75647d460596cf7bfe3caf1abeeb545288eb302fd4395621bfa14220b7"
+  },
+  "linux_compiler_before_sha256": "1e5c7a647b1b7a43deede0e8a57ddcc5961d74716777f1b7da2ad6e0349134a8",
+  "linux_compiler_experiment_sha256": "80e0e7103618633f09f4a6e6464c91966a91f39b2d1144fd7060fa2b83c4a6ae"
+}

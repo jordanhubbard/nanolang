@@ -1,0 +1,13 @@
+2026-09-24T10:07:15.5933370Z FAIL: test_gcc_still_refuses_a_literal_pch_marker (tests.test_module_builder_self_capture.ModuleBuilderSelfCapture.test_gcc_still_refuses_a_literal_pch_marker)
+2026-09-24T10:07:15.5934385Z ----------------------------------------------------------------------
+2026-09-24T10:07:15.5934825Z Traceback (most recent call last):
+2026-09-24T10:07:15.5935550Z   File "/home/runner/work/nanolang/nanolang/tests/test_module_builder_self_capture.py", line 52, in test_gcc_still_refuses_a_literal_pch_marker
+2026-09-24T10:07:15.5936310Z     self.assertNotEqual(result.returncode, 0)
+2026-09-24T10:07:15.5936603Z AssertionError: 0 == 0
+2026-09-24T10:07:15.5936713Z 
+2026-09-24T10:07:15.5936837Z ----------------------------------------------------------------------
+2026-09-24T10:07:15.5937174Z Ran 4 tests in 1.330s
+2026-09-24T10:07:15.5937316Z 
+2026-09-24T10:07:15.5937391Z FAILED (failures=1)
+2026-09-24T10:07:15.6005664Z make: *** [Makefile.gnu:4596: test-module-builder-self-capture] Error 1
+2026-09-24T10:07:15.6035129Z ##[error]Process completed with exit code 2.

@@ -545,31 +545,26 @@ I explain namespaces in detail in `docs/NAMESPACE_USAGE.md`.
 
 ## Compilation
 
-### C Backend (default)
-I transpile to C for native performance.
+### Canonical Products
+I publish verified NanoISA by default. I derive native executables and C source from that module.
 ```bash
-nanoc program.nano -o program        # Compile to native binary
-nanoc program.nano --keep-c -o prog  # Keep generated C source
-nanoc program.nano -g -o prog        # Include DWARF debug info
-nanoc program.nano --doc-md -o doc.md  # Export triple-slash comments as Markdown
+./bin/nanoc program.nano                         # Publish program.nvm
+./bin/nano_vm program.nvm                        # Execute bytecode
+./bin/nanoc program.nano --target native -o program
+./bin/nanoc program.nano --target c -o program.c  # Emit C without linking
+./bin/nanoc program.nano --keep-c -o program      # Keep generated C
 ```
 
-### Additional Compilation Backends
+### Reference Compiler Tools
+My C seed retains experimental target and documentation tools. These commands use `nanoc_c`, not the installed self-hosted driver.
 ```bash
-nanoc program.nano --target wasm  -o program.wasm  # WebAssembly (+ .wasm.map sidecar)
-nanoc program.nano --target llvm  -o program.ll    # LLVM IR
-nanoc program.nano --target ptx   -o program.ptx   # CUDA PTX
-nanoc program.nano --target riscv -o program.s     # RISC-V assembly
-```
-
-### WASM Signing
-```bash
-nanoc sign   program.wasm   # Sign with ~/.nanoc/signing.key (created on first use)
-nanoc verify program.wasm   # Verify embedded Ed25519 signature
+./bin/nanoc_c program.nano --target ptx   -o program.ptx
+./bin/nanoc_c program.nano --target riscv -o program.s
+./bin/nanoc_c program.nano --doc-md -o doc.md
 ```
 
 ### NanoISA VM Backend
-I can also compile to my own virtual machine.
+My reference frontend also exposes a VM driver and a native wrapper that embeds the VM.
 ```bash
 nano_virt program.nano --run              # Compile + run in VM
 nano_virt program.nano -o program         # Native binary (embeds VM)
@@ -581,11 +576,12 @@ nano_vm --daemon p.nvm                    # Run via VM daemon
 
 ### Build Targets
 ```bash
-make build        # Build C compiler (nanoc)
+make build        # Build C seed and components
+make bootstrap3   # Build and install my self-hosted compiler
 make vm           # Build VM backend (nano_virt, nano_vm, nano_cop, nano_vmd)
 make lsp          # Build language server (nanolang-lsp)
 make dap          # Build debug adapter (nanolang-dap)
-make test         # Run tests with C backend
+make test         # Run the test suite
 make test-vm      # Run tests with VM backend
 make install      # Install all binaries
 ```
@@ -608,25 +604,25 @@ I expect you to use parentheses if you need a specific order.
 let x: int = 2 + (3 * 4)  # Explicit grouping: 14
 ```
 
-I will refuse to compile if you omit the type.
+I infer local binding types when their values determine them.
 ```nano
-let x = 42  # I will refuse this
+let x = 42  # I infer int
 ```
 
-I require explicit types.
+I require explicit function parameter and return types. Local annotations clarify ambiguous empty, generic, foreign, union, and resource values.
 ```nano
 let x: int = 42  # This is what I expect
 ```
 
-I will not compile a function without a shadow test.
+My project policy requires shadow tests. My compiler warns about missing shadows, with exemptions documented in [canonical style](CANONICAL_STYLE.md).
 ```nano
 fn double(x: int) -> int {
     return (* x 2)
 }
-# I will refuse this: Missing shadow test
+# Missing shadow: this does not meet my project policy
 ```
 
-I require a test block.
+I expect a test of an observable property.
 ```nano
 fn double(x: int) -> int {
     return (* x 2)

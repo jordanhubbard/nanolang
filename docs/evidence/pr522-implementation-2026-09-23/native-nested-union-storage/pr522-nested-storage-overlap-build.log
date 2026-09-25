@@ -1,0 +1,7 @@
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o obj/nanoisa/nvm2c_shape.o
+src/nanoisa/nvm2c_shape.c:293:82: error: missing field 'parent' initializer [-Werror,-Wmissing-field-initializers]
+  293 |             queue = next; queue[count++] = (FlowPair){source, payload, 1, 0, 0, 0};
+      |                                                                                  ^
+1 error generated.
+make: *** [obj/nanoisa/nvm2c_shape.o] Error 1

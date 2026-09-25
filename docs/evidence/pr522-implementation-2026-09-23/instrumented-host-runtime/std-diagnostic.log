@@ -1,0 +1,25 @@
+I run every OneIrCompiler method with a fresh ASan/UBSan HOST_RUNTIME and instrumented generated native products.
+test_real_std_artifact_uses_host_runtime (tests.test_one_ir_compiler.OneIrCompiler.test_real_std_artifact_uses_host_runtime) ... FAIL
+
+======================================================================
+FAIL: test_real_std_artifact_uses_host_runtime (tests.test_one_ir_compiler.OneIrCompiler.test_real_std_artifact_uses_host_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_one_ir_compiler.py", line 466, in test_real_std_artifact_uses_host_runtime
+    self.run_checked([binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_one_ir_compiler.py", line 129, in run_checked
+    self.assertEqual(process.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+                     f"I failed {args[0]}\n" + (stdout + stderr).decode(errors="replace")[-6000:])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : I failed /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aot-host-runtime-re36raue/with-runtime
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aot-host-runtime-re36raue/input.c:782:31: runtime error: call to function fs_walkdir through pointer to incorrect function type 'nh_array_value *(*)(const char *)'
+(std.dylib:arm64+0x910): note: fs_walkdir defined here
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aot-host-runtime-re36raue/input.c:782:31 
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.667s
+
+FAILED (failures=1)

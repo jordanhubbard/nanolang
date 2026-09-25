@@ -1,0 +1,21 @@
+{
+  "base_commit": "1971a80182becf8f8e10c17d4297d878c1be6c66",
+  "source_sha256": {
+    "src_nano/compiler/nanoisa_codegen.nano": "71b6d3c0def227cb64a762477fec786aeee4677147cbc9e54d13ffb08e0ce7b8",
+    "tests/nanoisa/fixtures/selfhost_native_u8.nano": "da058a6479ad183dc91eeb80542441b62ddbb268192cd962025fcc85363e557d",
+    "tests/test_nanoisa_emit_driver.py": "8703d405c98ecd747281208c6b426d917df215f6bfb9977022bbac44743a1c5c",
+    "src/stdlib_runtime.c": "ce2154064fa7e7dec444ffdc5986b440052cef738fadb26705a7274a870204f2",
+    "src/transpiler_iterative_v3_twopass.c": "44ff39410c276fd2486cd749e34485b172e28df37edff517e8bca817d6e95d30"
+  },
+  "baseline_command": "python3 -m unittest tests.test_selfhost_native_u8 -v",
+  "baseline_result": "4 methods, 4 failing native-stage subcases: undefined function cast_bool",
+  "provider_sha256": {
+    "bin/nanoc_c": "272340ad04598f085ea02ce9825078b67c1f1910ef7a5b993dfa71ea85e9dcb3",
+    "bin/nanoc_stage1": "962a4a933fc592ad078338a01d11988ae9b9e6bbcc1953e555e219f351463806",
+    "bin/nanoc_stage2": "7bf6f9734957d73d5de11b9e5f8d48e8b48b78c27b4be7430820440a684eda8d",
+    "bin/nanoisa_emit": "fbc091062261fafadc0d16ed6419104117c9816280d4ddc1cc3574cf7e73b1d9",
+    "bin/nano_vm": "97e153d4e059cd9e1b1f54f80814048af11740dc26db30cbc39d383b5e2806e0",
+    "bin/nvm2c": "be377a8ed7a11ab8b3a886865b2b67b61aec76f9b4a99824ec39dcb30e2536c7",
+    "/tmp/pr522-setter-order/instrumented-bin/nanoc_c": "a6ef8a445046300caaf33a122b5d726bc677113141b09def2277bd42bd62dae5"
+  }
+}

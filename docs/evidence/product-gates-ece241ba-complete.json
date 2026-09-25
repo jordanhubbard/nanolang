@@ -1,0 +1,86 @@
+{
+  "source": "ece241ba56c34ae6e47639cd7d618f43f20ba25d",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j8",
+        "bootstrap"
+      ],
+      "status": 0,
+      "seconds": 187.088,
+      "log": "/tmp/nanolang-product-gates-ece241ba/bootstrap.log",
+      "sha256": "1467b4fc69e1b08df48e93db6b582e171b62a05680a5b88cda0db3b420f519a4"
+    },
+    {
+      "name": "tools",
+      "command": [
+        "make",
+        "-j8",
+        "nanoisa_emit",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "nvm2c-runtime",
+        "nanoisa_dump"
+      ],
+      "status": 0,
+      "seconds": 25.45,
+      "log": "/tmp/nanolang-product-gates-ece241ba/tools.log",
+      "sha256": "46f6a75ab0f81819195e181ca0805912fba721c8cca4c490ec19a046df32fb26"
+    },
+    {
+      "name": "focused",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_canonical_module_facts",
+        "tests.test_canonical_nvm_output",
+        "tests.test_canonical_vm_shadows",
+        "tests.test_conditional_field_types",
+        "tests.test_default_nanoisa_product",
+        "tests.test_nanoisa_only_product",
+        "tests.test_canonical_string_builtins",
+        "tests.test_canonical_filesystem",
+        "tests.test_canonical_prefix_conversion",
+        "tests.test_legacy_binary64_parse",
+        "tests.test_generic_union_emission",
+        "tests.test_explicit_generic_constructors.ExplicitGenericConstructors.test_explicit_instances_in_locals_calls_returns_and_shadows",
+        "tests.test_explicit_generic_constructors.ExplicitGenericConstructors.test_nested_explicit_type_arguments",
+        "tests.test_explicit_generic_constructors.ExplicitGenericConstructors.test_explicit_empty_instance_mismatches_preserve_output"
+      ],
+      "status": 0,
+      "seconds": 1025.64,
+      "log": "/tmp/nanolang-product-gates-ece241ba/focused.log",
+      "sha256": "b4784bfd3ee784188e4b24ea80f4562682570c17ea03e21a95a102fa442d16bd"
+    },
+    {
+      "name": "test-quick",
+      "command": [
+        "make",
+        "test-quick"
+      ],
+      "status": 0,
+      "seconds": 1452.241,
+      "log": "/tmp/nanolang-product-gates-ece241ba/test-quick.log",
+      "sha256": "fb39ba92b9f11e2054295cb944ee85ebec50dfbc6a1416529c0df7b35d70bdbe"
+    }
+  ],
+  "unchanged_head": true,
+  "tracked_tree_clean": true,
+  "post_bootstrap_compilers": {
+    "bin/nanoc_stage1": "0d3b33f86f1ade73fdd4d53476d1278f869a8203b2016e3a2c97e6374e5447dd",
+    "bin/nanoc_stage2": "e31c7420c16f20b4557d117164e6054c434f5119136b159b878d9d871a2da195"
+  },
+  "post_full_gate_binaries": {
+    "bin/nanoc_c": "d930f285ada81cc37f85e4024d115e47e07756ddb81af925f1a509317574935a",
+    "bin/nanoc_stage1": "b299cb96cdbe66c7e1edb6f52539b2af1d9c1634f1d7fb5977fd6abd8f99f128",
+    "bin/nanoc_stage2": "e31c7420c16f20b4557d117164e6054c434f5119136b159b878d9d871a2da195",
+    "bin/nano_virt": "02d0b96dc45c6a911597a2839ae2104effe5b82b48f22e196c76c223df4804e3",
+    "bin/nano_vm": "6219d32ad1e2e9003452390df953114748d06d3cd8cde6cfc2a0716735c8de60",
+    "bin/nvm2c": "70e82157ab56704098181539668693fb69b8c07719adcc41794498bce2d0556d"
+  }
+}

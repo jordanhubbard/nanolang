@@ -1,0 +1,24 @@
+{
+  "returncode": -15,
+  "diagnostic_termination": true,
+  "samples": [
+    {
+      "elapsed": 84.51076496999997,
+      "rss_kb": 997612,
+      "gdb_exit": 0,
+      "file": "stack-00.txt"
+    },
+    {
+      "elapsed": 85.54763689499998,
+      "rss_kb": 1832492,
+      "gdb_exit": 0,
+      "file": "stack-01.txt"
+    },
+    {
+      "elapsed": 86.59144206100007,
+      "rss_kb": 2569340,
+      "gdb_exit": 0,
+      "file": "stack-02.txt"
+    }
+  ]
+}

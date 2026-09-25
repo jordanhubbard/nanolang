@@ -1,0 +1,17 @@
+# Isolated sanitizer gate qualification
+
+I reproduced two hosted failures at `6813cac92`: a missing canonical emitter prerequisite and ordinary-record authority links that omit configured runtime flags.
+
+With `bin/nanoisa_emit` temporarily absent, the unchanged `make test-canonical-nvm-output` runs eleven tests and fails only when it tries to execute that missing binary (`canonical-before.log`). I restore the saved binary after the baseline. My corrected target declares `nanoisa_emit` as a prerequisite; its qualification again starts without the binary and builds it before the same complete suite runs: all eleven tests pass in 11.088 seconds (`canonical-after.log`). All ten partition-inventory methods also pass (`partition-tests.log`); no partition or deadline changes.
+
+The ordinary-record harness hardcoded its native compiler and omitted configured link flags. My first private-instrumented-object reproduction stops at Darwin's missing crypto library search path (`ordinary-instrumented-before.log`). Supplying that search path independently exposes the hosted-class undefined sanitizer references (`ordinary-asan-before.log.gz`). I now use the shared native compiler/link-flag selectors. The separate Clang profile retains its sanitizer flags and accepts the existing `NANOLANG_GUARD_SAN_CC` selection. LLVM assembly still uses that Clang command. All original assertions remain intact.
+
+Both complete authority profiles pass with ordinary objects (`authority-ordinary-final.log`, 2.973 seconds) and with all 35 private ASan/UBSan objects (`authority-instrumented-final.log`, 4.348 seconds). Leak and stack-use-after-return detection are enabled. I preserve checks of declaration authority, allocation failures, VM/native execution, LLVM/Wasm output and refusal publication. The VM and translator executables are ordinary builds; this does not qualify every hosted sanitizer partition or the complete instrumented host runtime.
+
+The first local provider build failed because `opt` was not on PATH (`providers.log`). A subsequent fixture run reached the missing LLVM executable (`ordinary-instrumented-after.log`). I preserve both setup terminals. Using the existing `NMS_RUNTIME_CLANG` and `NMS_RUNTIME_OPT` selectors builds LLVM/Wasm providers successfully (`providers-configured.log`); `NANO_LLC` and `NANO_WASM_LD` select the installed tools for execution. I do not classify the original hosted product/test failures as infrastructure failures.
+
+`objects.json`, `manifest.json` and `qualify_authority.py` retain the exact object paths, hashes and qualification environment. The ordinary profile uses the default `cc`; the instrumented-object profile selects Homebrew Clang. Both retain a separate sanitized Clang leg.
+
+I track hosted acceptance separately in `task_6ab6cb8a0908464aabc37a6a5c86dcff` and `task_71b8cf39fceb414da8e7877aace3e710`. Ownership-contract validation, the GCC marker control, timeout qualification and the remaining PR gates remain open.
+
+My current-head hosted run `35988631497` exposes two further failures. Linux x64, ARM64 and coverage reject a potentially truncated assembly buffer in `test_nvm2c.c:6658` (`task_a131be9bdb044185976c63716eb12600`). macOS reports two pinned-subset list-constructor bytecode mismatches, `blank_l` and `grow_l` (`task_99b74dba668b48a18287a989258f7ea8`). I retain the four complete job logs as lossless gzip files. These gates remain open; the local fixes above do not resolve them.

@@ -1,0 +1,22 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2502, column 9: Unused variable 'rejected'
+Warning at line 2631, column 9: Unused variable 'rejected'
+Warning at line 2638, column 13: Unused variable 'rejected'
+Warning at line 2719, column 9: Unused variable 'rejected'
+Warning at line 2728, column 9: Unused variable 'rejected'
+Warning at line 2733, column 13: Unused variable 'rejected'
+Warning at line 2844, column 9: Unused variable 'rejected'
+Warning at line 2848, column 9: Unused variable 'rejected'
+Warning at line 2855, column 13: Unused variable 'rejected'
+Warning at line 6625, column 21: Unused variable 'imported'
+Warning at line 6775, column 13: Unused variable 'rejected'
+Warning at line 6781, column 17: Unused variable 'rejected'
+Warning at line 9, column 1: Unused variable 'parser'
+Error: Failed to compile module '/qualification-final-d56d15ff6/src_nano/compiler/module_bindings.nano' to object file
+Compilation errors:
+/qualification-final-d56d15ff6/src_nano/compiler/module_bindings.nano:1869:1: fatal error: error writing to /tmp/cclP9BvU.s: No space left on device
+compilation terminated.
+
+C file kept at: obj/nano_modules/.nano-module-RK47IA/source.c
+Error: Failed to compile module '/qualification-final-d56d15ff6/src_nano/compiler/module_bindings.nano'
+Error: Failed to compile modules

@@ -1,0 +1,6 @@
+test_record_temporaries_have_scoped_heap_storage (tests.test_one_ir_compiler.OneIrCompiler.test_record_temporaries_have_scoped_heap_storage) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.536s
+
+OK

@@ -1,4 +1,4 @@
-"""I retain operand bits without admitting float source reconstruction."""
+"""I retain operand bits and distinguish admitted arithmetic from refused output effects."""
 from pathlib import Path
 import json
 import struct
@@ -53,10 +53,27 @@ class Binary64Facts(unittest.TestCase):
                     self.assertEqual(code[4]['arg'], 37)
                     self.assertTrue(all('f64_bits' not in ins for ins in code[1:]))
 
+    def test_current_arithmetic_reconstruction_is_admitted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            source, module = directory/'arithmetic.nasm', directory/'arithmetic.nvm'
+            source.write_text('.entry main\n.function main 0 0 0 int 1\n'
+                              'PUSH_F64 1.23456789\nDUP\nF64_ADD\nF64_TO_BITS\nRET\n.end\n')
+            self.checked(ROOT/'bin/nanoisa', 'asm', source, '-o', module)
+            self.checked(ROOT/'bin/nanoisa_hl_facts', module)
+            for target in ('c', 'nano'):
+                output = directory/f'arithmetic.{target}'
+                self.checked(ROOT/'bin/nvm2hl', module, '--language', target,
+                             '-o', output)
+                text = output.read_text()
+                self.assertIn('nano_rt_f64_add(' if target == 'c' else '(+ ', text)
+                self.assertIn('nlr_f64_from_bits' if target == 'c' else 'float_from_bits', text)
+
     def test_source_refusal_preserves_previous_outputs(self):
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
-            module = self.module(directory, 'DUP\nF64_ADD\n')
+            module = self.module(directory, 'DUP\nF64_ADD\nDUP\nPRINT\n')
+            self.checked(ROOT/'bin/nanoisa_hl_facts', module)
             for target in ('c', 'nano'):
                 output = directory/f'previous.{target}'
                 output.write_text('retained output\n')
@@ -64,7 +81,24 @@ class Binary64Facts(unittest.TestCase):
                                          '-o', output], cwd=ROOT, capture_output=True,
                                         text=True, timeout=30)
                 self.assertNotEqual(result.returncode, 0)
-                self.assertIn('F64_ADD', result.stderr)
+                self.assertIn('PRINT', result.stderr)
+                self.assertEqual(output.read_text(), 'retained output\n')
+
+    def test_unsupported_float_source_preserves_previous_outputs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            # Typed F64_ADD reconstruction is supported by the later arithmetic
+            # contract. Generic ADD on FLOAT operands remains outside that
+            # contract and keeps this facts-era atomic-publication check useful.
+            module = self.module(directory, 'DUP\nADD\n')
+            for target in ('c', 'nano'):
+                output = directory/f'previous.{target}'
+                output.write_text('retained output\n')
+                result = subprocess.run([ROOT/'bin/nvm2hl', module, '--language', target,
+                                         '-o', output], cwd=ROOT, capture_output=True,
+                                        text=True, timeout=30)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('I require exact scalar operand types', result.stderr)
                 self.assertEqual(output.read_text(), 'retained output\n')
 
 if __name__ == '__main__':

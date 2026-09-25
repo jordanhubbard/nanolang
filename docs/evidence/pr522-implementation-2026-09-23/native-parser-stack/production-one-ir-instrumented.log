@@ -1,0 +1,39 @@
+I run every OneIrCompiler method with a fresh ASan/UBSan HOST_RUNTIME and instrumented generated native products.
+test_branch_record_fields_survive_later_assignments (tests.test_one_ir_compiler.OneIrCompiler.test_branch_record_fields_survive_later_assignments) ... ok
+test_compiler_bytecode_to_native_to_program (tests.test_one_ir_compiler.OneIrCompiler.test_compiler_bytecode_to_native_to_program) ... ok
+test_declared_empty_array_returns_reach_native (tests.test_one_ir_compiler.OneIrCompiler.test_declared_empty_array_returns_reach_native) ... ok
+test_declared_parameter_resolves_unused_packed_field (tests.test_one_ir_compiler.OneIrCompiler.test_declared_parameter_resolves_unused_packed_field) ... ok
+test_declared_parameters_keep_observed_tags (tests.test_one_ir_compiler.OneIrCompiler.test_declared_parameters_keep_observed_tags) ... ok
+test_generic_array_parameters_keep_runtime_tags (tests.test_one_ir_compiler.OneIrCompiler.test_generic_array_parameters_keep_runtime_tags) ... ok
+test_incoming_main_record_shapes_execute (tests.test_one_ir_compiler.OneIrCompiler.test_incoming_main_record_shapes_execute) ... ok
+test_integer_array_growth_owns_buffers_and_preserves_aliases (tests.test_one_ir_compiler.OneIrCompiler.test_integer_array_growth_owns_buffers_and_preserves_aliases) ... ok
+test_many_record_calls_fit_bounded_stack (tests.test_one_ir_compiler.OneIrCompiler.test_many_record_calls_fit_bounded_stack) ... ok
+test_module_artifact_adapter_snapshots_borrowed_results (tests.test_one_ir_compiler.OneIrCompiler.test_module_artifact_adapter_snapshots_borrowed_results) ... ok
+test_nanoisa_artifact_contracts_remain_exact (tests.test_one_ir_compiler.OneIrCompiler.test_nanoisa_artifact_contracts_remain_exact) ... ok
+test_nanoisa_artifact_strings_survive_later_facade_calls (tests.test_one_ir_compiler.OneIrCompiler.test_nanoisa_artifact_strings_survive_later_facade_calls) ... ok
+test_nested_optional_returns_reach_native (tests.test_one_ir_compiler.OneIrCompiler.test_nested_optional_returns_reach_native) ... ok
+test_nested_record_consumer_constrains_projection (tests.test_one_ir_compiler.OneIrCompiler.test_nested_record_consumer_constrains_projection) ... ok
+test_nominal_constructor_scalar_evidence (tests.test_one_ir_compiler.OneIrCompiler.test_nominal_constructor_scalar_evidence) ... ok
+test_owned_strings_preserve_escaped_values_and_cleanup (tests.test_one_ir_compiler.OneIrCompiler.test_owned_strings_preserve_escaped_values_and_cleanup) ... ok
+test_projected_array_length_uses_runtime_storage_tag (tests.test_one_ir_compiler.OneIrCompiler.test_projected_array_length_uses_runtime_storage_tag) ... ok
+test_projected_array_reads_constrain_container (tests.test_one_ir_compiler.OneIrCompiler.test_projected_array_reads_constrain_container) ... ok
+test_projected_optional_arguments (tests.test_one_ir_compiler.OneIrCompiler.test_projected_optional_arguments) ... ok
+test_projected_record_arguments (tests.test_one_ir_compiler.OneIrCompiler.test_projected_record_arguments) ... ok
+test_real_std_artifact_uses_host_runtime (tests.test_one_ir_compiler.OneIrCompiler.test_real_std_artifact_uses_host_runtime) ... ok
+test_record_local_storage_joins (tests.test_one_ir_compiler.OneIrCompiler.test_record_local_storage_joins) ... ok
+test_record_temporaries_have_scoped_heap_storage (tests.test_one_ir_compiler.OneIrCompiler.test_record_temporaries_have_scoped_heap_storage) ... ok
+test_returned_native_values_release_owned_allocations (tests.test_one_ir_compiler.OneIrCompiler.test_returned_native_values_release_owned_allocations) ... ok
+test_selfhost_emitted_compiler_to_native_nanoisa_product (tests.test_one_ir_compiler.OneIrCompiler.test_selfhost_emitted_compiler_to_native_nanoisa_product)
+I execute my canonical emitter before translating its compiler product. ... ok
+test_standalone_code_check_retains_vm_refusal (tests.test_one_ir_compiler.OneIrCompiler.test_standalone_code_check_retains_vm_refusal) ... ok
+test_string_array_growth_owns_buffers_and_preserves_aliases (tests.test_one_ir_compiler.OneIrCompiler.test_string_array_growth_owns_buffers_and_preserves_aliases) ... ok
+test_string_consumers_constrain_projected_local (tests.test_one_ir_compiler.OneIrCompiler.test_string_consumers_constrain_projected_local) ... ok
+test_typed_i64_consumer_constrains_record_projection (tests.test_one_ir_compiler.OneIrCompiler.test_typed_i64_consumer_constrains_record_projection) ... ok
+test_uncalled_functions_are_warning_clean_not_executed (tests.test_one_ir_compiler.OneIrCompiler.test_uncalled_functions_are_warning_clean_not_executed) ... ok
+test_unconstrained_scalar_projection_preserves_tags (tests.test_one_ir_compiler.OneIrCompiler.test_unconstrained_scalar_projection_preserves_tags) ... ok
+test_void_locals_preserve_tags_through_calls_and_tail_restarts (tests.test_one_ir_compiler.OneIrCompiler.test_void_locals_preserve_tags_through_calls_and_tail_restarts) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 417.283s
+
+OK

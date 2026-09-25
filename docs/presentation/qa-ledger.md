@@ -1,5 +1,78 @@
 # NanoLang presentation QA ledger
 
+## 2026-09-24 final-source fixed-point checkpoint
+
+I refreshed the candidate evidence to compiler-source pin `d56d15ff6`: both
+VM and standalone-native raw fixed points pass. Complete hosted platform,
+coverage and sanitizer qualification remains open. I regenerated both members
+with the pinned Python toolchain; the pair verifier accepts 16 slides and
+35 headings, and all 12 document-pair tests pass.
+
+I inspected the contact sheet and all 16 full-size slides during this refresh.
+The final regeneration changes only slide 15 speaker notes; its visible
+content is unchanged. I inspected the final contact sheet and all six final
+narrative pages. I observed no clipping, overlap or unreadable text.
+
+The deck uses the portable Pillow renderer, not an Office engine. For the
+narrative I reused the checksum-verified LibreOffice 26.8.0 ARM64 disk image
+(SHA-256 `8858d8058da4f862f47559486814e65efc27294da67c5e4bb56b006b1ee59f89`)
+through a temporary read-only mount and isolated profile, then rasterized the
+six-page PDF with Poppler. The optional managed renderer was unavailable;
+this direct PDF route supplies the page-layout inspection. I did not change
+the system installation or publish either member to Google.
+
+Local artifact SHA-256 hashes:
+
+- nanolang-developer-overview.pptx: `54f544aea6194f5dd1312a4072f84b5747ac40a4f4ceddc6bd866f5f803fbaa1`
+- nanolang-developer-overview.docx: `88668c2d542d99c8ff0e82340cb238360c86089f24ae9e6c95c884a3cc2a4de6`
+
+The earlier checkpoint below remains historical.
+
+## 2026-09-24 local 5.1 candidate checkpoint
+
+I regenerated both members through my pinned Python authoring toolchain after
+correcting completed-release claims. The specifications, prompt, source notes,
+builders and local artifacts now identify a candidate and retain final-source
+fixed points and complete hosted acceptance as pending. My narrative pins the
+VM evidence to `0eb94026c`; the September 20 records remain historical.
+
+The mechanical pair gate accepts 16 slides and 35 headings. All 12
+`tests.test_document_pair` methods pass, including the extracted code example.
+I inspected the contact sheet and all 16 full-size slide renders: no observed
+clipping, overlap or unreadable text. The portable Pillow renderer is the
+local visual check; it is not an Office-engine rendering. Narrative structure
+passes the heading and placeholder checks. Its PDF preview is unavailable:
+this host's `soffice` launcher points to a missing LibreOffice application.
+I do not claim narrative page-layout inspection or Google publication.
+
+Final release qualification and evidence reconciliation remain open.
+
+
+## 2026-09-20 local 5.1 release edition
+
+I regenerated both local members from the One IR contract in
+`docs/RELEASE_5.1.md` and the exact fixed-point evidence recorded in
+`docs/presentation/source-notes.md`. `make presentation` accepts 16 slides and
+35 narrative headings. Its document-pair verifier reports no geometry, notes,
+heading, placeholder or credential failures.
+
+I inspected the contact sheet and every changed full-size slide, including the
+cover, One IR pipeline, release boundary and closing slides. Text is readable,
+the mechanism remains visible, and I observed no clipping, overlap or broken
+connectors. The Pillow renderer is a layout aid rather than a pixel-identical
+PowerPoint or Google Slides renderer.
+
+The canonical DOCX renderer could not produce page images on this host because
+the installed `soffice` launcher points to a missing LibreOffice application.
+I therefore retain the structural document-pair result rather than claiming
+native Word visual acceptance. I have not uploaded either member; the external
+Google files remain the 4.5 edition. Local artifact SHA-256 hashes:
+
+- PPTX: `b0e140760bbac8dfba5c2ff40836116cdcca640eb905ae98a33f2f6b86683440`
+- DOCX: `073c2cb542132e3635f027036b267bdb471dafcdc260e9084c9e04377d2fc3a5`
+- Acceptance report: `3050e7791b6eeb6f8c6c3bcb3bd18cf483bab65a0d3f1656af1ba50e17d12ba0`
+- Contact sheet: `42e0d643f9c0891b354010dbde095127a2a1939cab1a13b70b605dbec1231215`
+
 ## 2026-09-16 local 5.0 release edition
 
 I regenerated both local members from the release scope and bounded evidence

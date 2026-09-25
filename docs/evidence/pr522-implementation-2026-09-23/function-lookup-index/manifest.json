@@ -1,0 +1,12 @@
+{
+  "parent": "5016427fde8b3e831bb78b98141d6df498e15413",
+  "source_hashes": {
+    "src/env.c": "e5866b29124c8cab774aa04efab3e88f663390fad91d16a7be47c7d5f66e81cd",
+    "src/nanolang.h": "85369c145f67067049ecd68d88da4630232b80bbd3602494471f9ad5540a5f78",
+    "tests/test_env_symbol_index.c": "24b24737e7b73c97114d4393f98b73f1b3900bf512ffe0b7dc163b0104359ad7"
+  },
+  "compiler_sha256": "4f5d286bc45cb00aec6f2b65d6837fd4940195ffb133e97176c4546717b8f698",
+  "compatibility_exit": 0,
+  "compatibility_seconds": 148.558,
+  "boundary": "I qualify local lookup semantics and the full compiler workload. Final hosted acceptance and new-source fixed points remain pending."
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "file": "pr522-c-owned-build.log.gz",
+    "uncompressed_sha256": "0852289de622540bebd0beb91c298167416c1575ce228ef4da2ab1ee7ac4f27e"
+  },
+  {
+    "file": "pr522-c-owned-build5.log.gz",
+    "uncompressed_sha256": "195a9968c9130a11c2201d1e807332b004b3f6e2b4c741f1160e63a85864887e"
+  },
+  {
+    "file": "pr522-c-owned-source3.log.gz",
+    "uncompressed_sha256": "4378ef01bfe5038dcde6fd92f1718f8fe81ac447347bc31279d5f5b9824afb2c"
+  },
+  {
+    "file": "pr522-c-owned-source-final.log.gz",
+    "uncompressed_sha256": "ab995f1e530b9e70c18a3f495bc6de3871e912d5b21de8ee471492e39042a7f9"
+  },
+  {
+    "file": "pr522-c-owned-instrumented-first.log.gz",
+    "uncompressed_sha256": "6f980dc8e8b39bdc21d76baf723066b12671733bf1ca4f5a1573860c674411c2"
+  },
+  {
+    "file": "pr522-c-owned-instrumented-final.log.gz",
+    "uncompressed_sha256": "c8865238800f9172ebd961e63f42c19dbf28dde89582308ee131c7dab57d68c8"
+  },
+  {
+    "file": "pr522-c-owned-instrumented.json.gz",
+    "uncompressed_sha256": "0f5f0053c9f7a7080eeeccb4af8cdd6f861c26cfbeb06239ce561044583231a5"
+  },
+  {
+    "file": "pr522-c-selected-final.json.gz",
+    "uncompressed_sha256": "681cd9a65169056d665bf00fb96652b393a467da0b927ccae85cd31b3bf1314d"
+  },
+  {
+    "file": "pr522-c-arm-names-before.json.gz",
+    "uncompressed_sha256": "c8df90558252f6a46e90f892c297dfbc919c318b4cc0d4eddd72973941dfcadb"
+  },
+  {
+    "file": "pr522-c-owned-generic-regression.log.gz",
+    "uncompressed_sha256": "1de857c2bc4d89be71b2410fbe41b1376aabf19585c341201791d0867781e6fa"
+  },
+  {
+    "file": "pr522-c-owned-borrow-regression.log.gz",
+    "uncompressed_sha256": "163863437266360d3e5e470cd3106bc63244caecd58b8ef46c5c14653e0aa06d"
+  },
+  {
+    "file": "pr522-c-owned-scalar-regression.log.gz",
+    "uncompressed_sha256": "42051dc5f3d68d97f457ba3711c46f599d5a309b535d41af427b4aabd903f455"
+  }
+]

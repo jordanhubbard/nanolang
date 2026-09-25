@@ -1,4 +1,4 @@
-"""I qualify named scalar calls without admitting native function values."""
+"""I qualify direct scalar calls and retain unsupported callback boundaries."""
 import os
 from pathlib import Path
 import subprocess
@@ -36,7 +36,7 @@ class NamedScalarCallbacks(unittest.TestCase):
         self.command(ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', module)
         return module
 
-    def execute(self, module, direct=True):
+    def execute(self, module, direct=True, refusal=None):
         self.command(ROOT/'bin/nano_vm', '--verify-only', module)
         vm = self.command(ROOT/'bin/nano_vm', module)
         dump = self.command(ROOT/'bin/nanoisa', 'dump', module).stdout
@@ -50,7 +50,8 @@ class NamedScalarCallbacks(unittest.TestCase):
             self.assertIn('CALL_INDIRECT', dump)
             output.write_text('previous')
             refused = self.command(ROOT/'bin/nvm2c', module, '-o', output, ok=False)
-            self.assertIn('unsupported opcode', refused.stderr)
+            self.assertIsNotNone(refusal, 'I require the specific unsupported boundary')
+            self.assertIn(refusal, refused.stderr)
             self.assertEqual(output.read_text(), 'previous')
             return
         self.command(ROOT/'bin/nvm2c', module, '-o', output)
@@ -113,17 +114,20 @@ shadow main{assert (== (main) 0)}
 }}
 shadow main{{assert (== (main) 0)}}
 ''')
-            self.execute(self.seed(source), direct=False)
+            self.execute(self.seed(source), direct=False,
+                         refusal='CALL_INDIRECT has no exact scalar target')
 
     def test_global_alias_after_initializer_mutation_stays_indirect(self):
-        self.execute(self.seed(self.source(GLOBAL_ALIAS)), direct=False)
+        self.execute(self.seed(self.source(GLOBAL_ALIAS)), direct=False,
+                     refusal='cannot yet store an aggregate or unresolved global')
 
     def test_u8_keeps_existing_indirect_boundary(self):
         self.execute(self.seed(self.source('''fn byte_identity(x:u8)->u8{return x}
 shadow byte_identity{let mut input:array<u8> = [] set input (array_push input 2) let result:u8=(byte_identity (array_get input 0)) let mut output:array<u8> = [] set output (array_push output result) assert (== (array_get output 0) (array_get input 0))}
 fn main()->int{let input:array<u8> = [] let result:array<u8> = (map input byte_identity) assert (== (array_length result) 0) return 0}
 shadow main{assert (== (main) 0)}
-''')), direct=False)
+''')), direct=False,
+                     refusal='I support int, bool, float, string, array or struct elements in ARR_NEW')
 
     def test_wrong_signatures_preserve_previous_output(self):
         for text in (

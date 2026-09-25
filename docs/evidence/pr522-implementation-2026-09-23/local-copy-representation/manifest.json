@@ -1,0 +1,20 @@
+{
+  "base_commit": "944d8ca6e",
+  "files": {
+    "src/nanoisa/nvm2c.c": "18c721526e3a01274255a97c44fb8c15efa4bdf2605e1151642f96f69894d17f",
+    "src/nanoisa/nvm2c_shape.c": "8a910f0de218cecd3e4ea83d8eb3423c869f3754a01acc202fd8e58893180b4f",
+    "tests/nanoisa/test_nvm2c.c": "9344d451cbe58388d29354b3cc92ecd7c6a8228a7e36b13945061df9cbd3eefc",
+    "tests/nanoisa/test_nvm2c_shape.c": "58fc91773654896051aa22edbd6a7b3a78bbad3fa5dea614252bf6430b4c27db",
+    "tests/test_one_ir_compiler.py": "f704323126861b87629575feaae368ecc217bbd3409c08b4afcb3d3715ff57c9",
+    "bin/nvm2c": "be377a8ed7a11ab8b3a886865b2b67b61aec76f9b4a99824ec39dcb30e2536c7",
+    "bin/nanoc_c": "4f5d286bc45cb00aec6f2b65d6837fd4940195ffb133e97176c4546717b8f698",
+    "bin/nano_virt": "4256896e4ca5ef810bdf836c722863413b53ab199e5942b5937c203d53c756f3",
+    "bin/nano_aot_runtime.o": "8634f47b0b1015d0c8027caa4fc8746437e74825e63f214e37030a52b4a3ecfd"
+  },
+  "final_owning_gate": "31 OneIrCompiler methods pass; 60 neighboring unsupported-leak-runtime failures are corrected in ../selected-native-retention/",
+  "final_sanitizer_gate": "passed; owning harness retains its existing leak exclusion",
+  "final_translator_assertions": 2558,
+  "final_sanitizer_assertions": 2558,
+  "final_shape_assertions": 1614,
+  "final_gcc_gate": "strict O3 compiler translation unit and all shape controls passed"
+}

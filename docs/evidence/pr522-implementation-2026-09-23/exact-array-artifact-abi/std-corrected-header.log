@@ -1,0 +1,7 @@
+I run every OneIrCompiler method with a fresh ASan/UBSan HOST_RUNTIME and instrumented generated native products.
+test_real_std_artifact_uses_host_runtime (tests.test_one_ir_compiler.OneIrCompiler.test_real_std_artifact_uses_host_runtime) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.892s
+
+OK

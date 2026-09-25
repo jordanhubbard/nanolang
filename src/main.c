@@ -187,7 +187,7 @@ static const char *phase_name(int phase) {
         case CompilerPhase_PHASE_LEXER: return "lexer";
         case CompilerPhase_PHASE_PARSER: return "parser";
         case CompilerPhase_PHASE_TYPECHECK: return "typecheck";
-        case CompilerPhase_PHASE_TRANSPILER: return "transpiler";
+        case CompilerPhase_PHASE_LOWERING: return "lowering";
         case CompilerPhase_PHASE_RUNTIME: return "runtime";
         default: return "unknown";
     }
@@ -556,11 +556,139 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
             fprintf(stderr, "I cannot measure the shadow execution deadline.\n");
         else if (timed_out || (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
             fprintf(stderr, "I stopped shadow execution after %d seconds.\n", shadow_seconds);
+        else if (WIFSIGNALED(status))
+            fprintf(stderr, "I stopped shadow execution after signal %d.\n", WTERMSIG(status));
+        else if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+            fprintf(stderr, "I will not publish output after shadow execution exited with status %d.\n",
+                    WEXITSTATUS(status));
         else
-            fprintf(stderr, "I will not publish output after failed shadow execution.\n");
+            fprintf(stderr, "I will not publish output without completed shadow execution.\n");
         return false;
     }
     return true;
+}
+
+typedef struct {
+    ASTNode *declaration;
+    const char *owner;
+} CSourceFunction;
+
+typedef struct {
+    Environment *env;
+    CSourceFunction *functions;
+    size_t count;
+    const char *root_owner;
+} CSourceClosure;
+
+/* I borrow the checker's callee identity, including transitive namespace owners. */
+static ASTNode *resolve_c_source_function(void *context, ASTNode *caller,
+                                         const char *name, const char *alias) {
+    CSourceClosure *closure = context;
+    if (!name) return NULL;
+    const char *owner = closure->root_owner;
+    for (size_t i = 0; caller && i < closure->count; ++i)
+        if (closure->functions[i].declaration == caller) {
+            owner = closure->functions[i].owner;
+            break;
+        }
+    char *qualified = NULL;
+    if (alias) {
+        size_t a = strlen(alias), n = strlen(name);
+        if (a > SIZE_MAX - n - 2) return NULL;
+        qualified = malloc(a + n + 2);
+        if (!qualified) return NULL;
+        snprintf(qualified, a + n + 2, "%s.%s", alias, name);
+    }
+    char *saved = closure->env->current_module;
+    closure->env->current_module = (char *)owner;
+    Function *function = env_get_function(closure->env, qualified ? qualified : name);
+    closure->env->current_module = saved;
+    free(qualified);
+    if (!function) return NULL;
+    const char *original = function->alias_of ? function->alias_of : function->name;
+    for (size_t i = 0; i < closure->count; ++i) {
+        CSourceFunction *entry = &closure->functions[i];
+        ASTNode *node = entry->declaration;
+        if (strcmp(node->as.function.name, original) || node->as.function.body != function->body)
+            continue;
+        if (function->body || ((!entry->owner && !function->module_name) ||
+            (entry->owner && function->module_name && !strcmp(entry->owner, function->module_name))))
+            return node;
+    }
+    return NULL;
+}
+
+static bool c_source_scalar(Type type) {
+    return type == TYPE_INT || type == TYPE_U8 || type == TYPE_FLOAT ||
+           type == TYPE_BOOL || type == TYPE_STRING || type == TYPE_VOID;
+}
+
+/* My C seed closes scalar function imports without executing their shadows.
+ * Imported storage/nominal declarations require a separate retained layout plan. */
+static int emit_c_source_closure(ASTNode *program, Environment *env, ModuleList *modules,
+                                  const char *output, const char *input, CBOptions *options) {
+    if (!modules || !modules->count) return c_backend_emit(program, output, input, options);
+    if (!program || program->type != AST_PROGRAM) return 1;
+    size_t total = (size_t)program->as.program.count;
+    for (int i = 0; i < modules->count; ++i) {
+        ASTNode *dependency = get_cached_module_ast(modules->module_paths[i]);
+        if (!dependency || dependency->type != AST_PROGRAM || dependency->as.program.count < 0 ||
+            (size_t)dependency->as.program.count > (size_t)INT_MAX - total) {
+            fprintf(stderr, "I require a complete checked C source dependency closure.\n");
+            return 1;
+        }
+        total += (size_t)dependency->as.program.count;
+    }
+    ASTNode **items = calloc(total ? total : 1, sizeof *items);
+    CSourceFunction *functions = calloc(total ? total : 1, sizeof *functions);
+    char **owners = calloc((size_t)modules->count, sizeof *owners);
+    if (!items || !functions || !owners) {
+        free(items); free(functions); free(owners);
+        fprintf(stderr, "I could not retain my C source dependency closure.\n");
+        return 1;
+    }
+    CSourceClosure closure = {env, functions, 0, env->current_module};
+    size_t count = 0;
+    int result = 1;
+    for (int unit = 0; unit <= modules->count; ++unit) {
+        bool imported = unit < modules->count;
+        ASTNode *root = imported ? get_cached_module_ast(modules->module_paths[unit]) : program;
+        const char *owner = closure.root_owner;
+        if (imported) {
+            owners[unit] = module_program_name(root, modules->module_paths[unit]);
+            if (!owners[unit]) goto cleanup;
+            owner = owners[unit];
+        }
+        for (int i = 0; i < root->as.program.count; ++i) {
+            ASTNode *node = root->as.program.items[i];
+            if (imported) {
+                if (node->type == AST_IMPORT || node->type == AST_MODULE_DECL || node->type == AST_SHADOW)
+                    continue;
+                if (node->type != AST_FUNCTION || !c_source_scalar(node->as.function.return_type)) {
+                    fprintf(stderr, "I require scalar function declarations in this C source import profile.\n");
+                    goto cleanup;
+                }
+                for (int p = 0; p < node->as.function.param_count; ++p)
+                    if (!c_source_scalar(node->as.function.params[p].type)) {
+                        fprintf(stderr, "I require scalar parameters in this C source import profile.\n");
+                        goto cleanup;
+                    }
+            }
+            items[count++] = node;
+            if (node->type == AST_FUNCTION) functions[closure.count++] = (CSourceFunction){node, owner};
+        }
+    }
+    ASTNode linked = *program;
+    linked.as.program.items = items;
+    linked.as.program.count = (int)count;
+    CBOptions retained = *options;
+    retained.resolve_function = resolve_c_source_function;
+    retained.function_context = &closure;
+    result = c_backend_emit(&linked, output, input, &retained);
+cleanup:
+    for (int i = 0; i < modules->count; ++i) free(owners[i]);
+    free(owners); free(functions); free(items);
+    return result;
 }
 
 /* Compile nanolang source to executable */
@@ -852,7 +980,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
         if (opts->verbose) printf("Emitting C → %s\n", c_out);
         CBOptions cb_opts = {0}; cb_opts.verbose = opts->verbose;
-        int c_rc = c_backend_emit(program, c_out, input_file, &cb_opts);
+        int c_rc = emit_c_source_closure(program, env, modules, c_out, input_file, &cb_opts);
         if (c_rc == 0 && opts->verbose) {
             printf("✓ C source emitted to %s\n", c_out);
             printf("  Compile with: gcc -std=c11 %s -o prog\n", c_out);
@@ -1202,7 +1330,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char *c_code = transpile_to_c(program, env, input_file);
     if (!c_code) {
         human_diag(NL_DIAG_TRANS_FAILED);
-        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_TRANS_FAILED);
+        diags_push_id(diags, CompilerPhase_PHASE_LOWERING, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_TRANS_FAILED);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1264,7 +1392,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (!c_file) {
         fprintf(stderr, "%s: %s\n", nl_catalog_text(NL_DIAG_C_TEMP),
                 nl_utf8_cstr_or_marker(temp_c_file));
-        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_C_TEMP);
+        diags_push_id(diags, CompilerPhase_PHASE_LOWERING, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_C_TEMP);
         free(c_code);
         free_ast(program);
         free_tokens(tokens, token_count);
@@ -1708,7 +1836,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         human_diag(NL_DIAG_CC_CMD);
         fprintf(stderr, "I could not represent all compiler arguments (%d command bytes, limit %zu).\n", cmd_len, sizeof(compile_cmd));
         fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
-        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_CMD);
+        diags_push_id(diags, CompilerPhase_PHASE_LOWERING, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_CMD);
         free(c_code);
         free_ast(program);
         free_tokens(tokens, token_count);
@@ -1737,7 +1865,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         if (opts->verbose) printf("✓ Compilation successful: %s\n", output_file);
     } else {
         human_diag(NL_DIAG_CC_FAILED);
-        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_FAILED);
+        diags_push_id(diags, CompilerPhase_PHASE_LOWERING, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_FAILED);
         /* Cleanup */
         free(c_code);
         free_ast(program);

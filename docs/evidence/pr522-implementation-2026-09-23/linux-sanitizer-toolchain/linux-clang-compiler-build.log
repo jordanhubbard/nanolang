@@ -1,0 +1,167 @@
+mkdir -p /work/san-clang/obj/build_bootstrap
+mkdir -p /work/san-clang/obj
+mkdir -p /work/san-clang/obj/nanoisa
+mkdir -p /work/san-clang/obj/nanovirt
+mkdir -p /work/san-clang/obj/nanovm
+mkdir -p /work/san-clang/bin
+mkdir -p /work/san-clang/obj/runtime
+[schema] Generating compiler schema artifacts...
+[schema] Using Python version (bootstrap)...
+mkdir -p /work/san-clang/obj/eval
+clang  -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fno-omit-frame-pointer -fPIC -shared -o /work/san-clang/bin/nano_as_capture.so src/runtime/assembler_capture.c -lm -lcrypto -lcrypto -lffi -rdynamic -ldl
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o /work/san-clang/obj/nanoisa/affine_bytecode.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o /work/san-clang/obj/nanoisa/affine_state.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/assembler.c -o /work/san-clang/obj/nanoisa/assembler.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/disassembler.c -o /work/san-clang/obj/nanoisa/disassembler.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o /work/san-clang/obj/nanoisa/file_flow.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/frontend.c -o /work/san-clang/obj/nanoisa/frontend.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/isa.c -o /work/san-clang/obj/nanoisa/isa.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/local_bindings.c -o /work/san-clang/obj/nanoisa/local_bindings.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o /work/san-clang/obj/nanoisa/managed_array_shapes.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/mixed_float_proof.c -o /work/san-clang/obj/nanoisa/mixed_float_proof.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/nanoisa.c -o /work/san-clang/obj/nanoisa/nanoisa_facade.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o /work/san-clang/obj/nanoisa/nvm2c.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o /work/san-clang/obj/nanoisa/nvm2c_shape.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format.c -o /work/san-clang/obj/nanoisa/nvm_format.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format_v2.c -o /work/san-clang/obj/nanoisa/nvm_format_v2.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_constants.c -o /work/san-clang/obj/nanoisa/nvm_v2_constants.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o /work/san-clang/obj/nanoisa/nvm_v2_convert.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_cursor.c -o /work/san-clang/obj/nanoisa/nvm_v2_cursor.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_functions.c -o /work/san-clang/obj/nanoisa/nvm_v2_functions.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_imports.c -o /work/san-clang/obj/nanoisa/nvm_v2_imports.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_layouts.c -o /work/san-clang/obj/nanoisa/nvm_v2_layouts.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_module.c -o /work/san-clang/obj/nanoisa/nvm_v2_module.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_signatures.c -o /work/san-clang/obj/nanoisa/nvm_v2_signatures.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o /work/san-clang/obj/nanoisa/ownership_contracts.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/passive.c -o /work/san-clang/obj/nanoisa/passive.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/reference_places.c -o /work/san-clang/obj/nanoisa/reference_places.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o /work/san-clang/obj/nanoisa/retained_layouts.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings.c -o /work/san-clang/obj/nanoisa/service_bindings.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings_module.c -o /work/san-clang/obj/nanoisa/service_bindings_module.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal.c -o /work/san-clang/obj/nanoisa/service_file_nominal.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal_plan.c -o /work/san-clang/obj/nanoisa/service_file_nominal_plan.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o /work/san-clang/obj/nanoisa/verifier.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier_types.c -o /work/san-clang/obj/nanoisa/verifier_types.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanovirt/codegen.c -o /work/san-clang/obj/nanovirt/codegen.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanovirt/shadow_runner.c -o /work/san-clang/obj/nanovirt/shadow_runner.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP  -DNANO_WRAPPER_INSTRUMENT_FLAGS='"-fsanitize=address,undefined"' -c src/nanovirt/wrapper_gen.c -o /work/san-clang/obj/nanovirt/wrapper_gen.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanovm/cop_protocol.c -o /work/san-clang/obj/nanovm/cop_protocol.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanovm/heap.c -o /work/san-clang/obj/nanovm/heap.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanovm/heap_cycles.c -o /work/san-clang/obj/nanovm/heap_cycles.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanovm/value.c -o /work/san-clang/obj/nanovm/value.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o /work/san-clang/obj/nanovm/vm.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanovm/vm_builtins.c -o /work/san-clang/obj/nanovm/vm_builtins.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanovm/vm_callback.c -o /work/san-clang/obj/nanovm/vm_callback.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanovm/vm_decode.c -o /work/san-clang/obj/nanovm/vm_decode.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanovm/vm_dispatch.c -o /work/san-clang/obj/nanovm/vm_dispatch.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanovm/vm_ffi.c -o /work/san-clang/obj/nanovm/vm_ffi.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanovm/vm_ffi_arrays.c -o /work/san-clang/obj/nanovm/vm_ffi_arrays.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nominal_types.c -o /work/san-clang/obj/nominal_types.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nsi_file_plan.c -o /work/san-clang/obj/nsi_file_plan.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/opencl_backend.c -o /work/san-clang/obj/opencl_backend.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/par_let_pass.c -o /work/san-clang/obj/par_let_pass.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/parser.c -o /work/san-clang/obj/parser.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/pgo_pass.c -o /work/san-clang/obj/pgo_pass.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/ptx_backend.c -o /work/san-clang/obj/ptx_backend.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/reflection.c -o /work/san-clang/obj/reflection.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/resource_flow.c -o /work/san-clang/obj/resource_flow.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/resource_tracking.c -o /work/san-clang/obj/resource_tracking.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/riscv_backend.c -o /work/san-clang/obj/riscv_backend.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/callback_runtime.c -o /work/san-clang/obj/runtime/callback_runtime.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/cli.c -o /work/san-clang/obj/runtime/cli.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/dyn_array.c -o /work/san-clang/obj/runtime/dyn_array.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/effect_runtime.c -o /work/san-clang/obj/runtime/effect_runtime.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/ffi_loader.c -o /work/san-clang/obj/runtime/ffi_loader.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/gc.c -o /work/san-clang/obj/runtime/gc.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/gc_struct.c -o /work/san-clang/obj/runtime/gc_struct.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTArrayLiteral.c -o /work/san-clang/obj/runtime/list_ASTArrayLiteral.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTAssert.c -o /work/san-clang/obj/runtime/list_ASTAssert.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTBinaryOp.c -o /work/san-clang/obj/runtime/list_ASTBinaryOp.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTBlock.c -o /work/san-clang/obj/runtime/list_ASTBlock.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTBool.c -o /work/san-clang/obj/runtime/list_ASTBool.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTCall.c -o /work/san-clang/obj/runtime/list_ASTCall.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTEnum.c -o /work/san-clang/obj/runtime/list_ASTEnum.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTFieldAccess.c -o /work/san-clang/obj/runtime/list_ASTFieldAccess.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTFloat.c -o /work/san-clang/obj/runtime/list_ASTFloat.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTFor.c -o /work/san-clang/obj/runtime/list_ASTFor.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTFunction.c -o /work/san-clang/obj/runtime/list_ASTFunction.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTIdentifier.c -o /work/san-clang/obj/runtime/list_ASTIdentifier.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTIf.c -o /work/san-clang/obj/runtime/list_ASTIf.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTImport.c -o /work/san-clang/obj/runtime/list_ASTImport.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTLet.c -o /work/san-clang/obj/runtime/list_ASTLet.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTMatch.c -o /work/san-clang/obj/runtime/list_ASTMatch.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTModuleQualifiedCall.c -o /work/san-clang/obj/runtime/list_ASTModuleQualifiedCall.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTNumber.c -o /work/san-clang/obj/runtime/list_ASTNumber.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTOpaqueType.c -o /work/san-clang/obj/runtime/list_ASTOpaqueType.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTPrint.c -o /work/san-clang/obj/runtime/list_ASTPrint.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTReturn.c -o /work/san-clang/obj/runtime/list_ASTReturn.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTServiceDecl.c -o /work/san-clang/obj/runtime/list_ASTServiceDecl.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTSet.c -o /work/san-clang/obj/runtime/list_ASTSet.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTShadow.c -o /work/san-clang/obj/runtime/list_ASTShadow.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTStmtRef.c -o /work/san-clang/obj/runtime/list_ASTStmtRef.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTString.c -o /work/san-clang/obj/runtime/list_ASTString.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTStruct.c -o /work/san-clang/obj/runtime/list_ASTStruct.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTStructLiteral.c -o /work/san-clang/obj/runtime/list_ASTStructLiteral.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTTupleIndex.c -o /work/san-clang/obj/runtime/list_ASTTupleIndex.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTTupleLiteral.c -o /work/san-clang/obj/runtime/list_ASTTupleLiteral.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTUnion.c -o /work/san-clang/obj/runtime/list_ASTUnion.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTUnionConstruct.c -o /work/san-clang/obj/runtime/list_ASTUnionConstruct.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTUnsafeBlock.c -o /work/san-clang/obj/runtime/list_ASTUnsafeBlock.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_ASTWhile.c -o /work/san-clang/obj/runtime/list_ASTWhile.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_CompilerDiagnostic.c -o /work/san-clang/obj/runtime/list_CompilerDiagnostic.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_CompilerSourceLocation.c -o /work/san-clang/obj/runtime/list_CompilerSourceLocation.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_LexerToken.c -o /work/san-clang/obj/runtime/list_LexerToken.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_int.c -o /work/san-clang/obj/runtime/list_int.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_string.c -o /work/san-clang/obj/runtime/list_string.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/list_token.c -o /work/san-clang/obj/runtime/list_token.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/module_build_dir.c -o /work/san-clang/obj/runtime/module_build_dir.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/nl_string.c -o /work/san-clang/obj/runtime/nl_string.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/regex.c -o /work/san-clang/obj/runtime/regex.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/runtime/token_helpers.c -o /work/san-clang/obj/runtime/token_helpers.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/stdlib_runtime.c -o /work/san-clang/obj/stdlib_runtime.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/tco_pass.c -o /work/san-clang/obj/tco_pass.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/toon_output.c -o /work/san-clang/obj/toon_output.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/transpiler.c -o /work/san-clang/obj/transpiler.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/type_infer.c -o /work/san-clang/obj/type_infer.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/typechecker.c -o /work/san-clang/obj/typechecker.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/utf8.c -o /work/san-clang/obj/utf8.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/bcp47.c -o /work/san-clang/obj/bcp47.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/bench.c -o /work/san-clang/obj/bench.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/bench_native.c -o /work/san-clang/obj/bench_native.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/builtins_registry.c -o /work/san-clang/obj/builtins_registry.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/cJSON.c -o /work/san-clang/obj/cJSON.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/c_backend.c -o /work/san-clang/obj/c_backend.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/catalog.c -o /work/san-clang/obj/catalog.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/channel.c -o /work/san-clang/obj/channel.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/coroutine.c -o /work/san-clang/obj/coroutine.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/cps_pass.c -o /work/san-clang/obj/cps_pass.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/dce_pass.c -o /work/san-clang/obj/dce_pass.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/diag_id.c -o /work/san-clang/obj/diag_id.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/docgen.c -o /work/san-clang/obj/docgen.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/docgen_md.c -o /work/san-clang/obj/docgen_md.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/dwarf_info.c -o /work/san-clang/obj/dwarf_info.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/effects.c -o /work/san-clang/obj/effects.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/emit_typed_ast.c -o /work/san-clang/obj/emit_typed_ast.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/env.c -o /work/san-clang/obj/env.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -ffp-contract=off -fno-fast-math -c src/eval.c -o /work/san-clang/obj/eval.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/eval/eval_hashmap.c -o /work/san-clang/obj/eval/eval_hashmap.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/eval/eval_io.c -o /work/san-clang/obj/eval/eval_io.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/eval/eval_math.c -o /work/san-clang/obj/eval/eval_math.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/eval/eval_string.c -o /work/san-clang/obj/eval/eval_string.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/fmt.c -o /work/san-clang/obj/fmt.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/fold_constants.c -o /work/san-clang/obj/fold_constants.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/interpreter_ffi.c -o /work/san-clang/obj/interpreter_ffi.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/json_diagnostics.c -o /work/san-clang/obj/json_diagnostics.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/lexer.c -o /work/san-clang/obj/lexer.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/locale.c -o /work/san-clang/obj/locale.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/main.c -o /work/san-clang/obj/main.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/module.c -o /work/san-clang/obj/module.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/module_builder.c -o /work/san-clang/obj/module_builder.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/module_metadata.c -o /work/san-clang/obj/module_metadata.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanocore_export.c -o /work/san-clang/obj/nanocore_export.o
+clang -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/nanocore_subset.c -o /work/san-clang/obj/nanocore_subset.o
+Stage 1: Building C reference compiler...
+/usr/bin/ld: /work/san-clang/obj/nanovm/vm.o: in function `vm_core_execute_scoped':
+/work/src/nanovm/vm.c:2922:(.text+0x53fa8): undefined reference to `__muloti4'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+make: *** [Makefile.gnu:3452: /work/san-clang/bin/nanoc_c] Error 1

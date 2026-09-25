@@ -1,0 +1,40 @@
+test_bound_callback_owners_and_selected_shadow_dependencies (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_bound_callback_owners_and_selected_shadow_dependencies) ... ok
+test_declared_builtin_names_keep_identity (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_declared_builtin_names_keep_identity) ... ok
+test_exact_returned_callback_selector (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_exact_returned_callback_selector) ... ok
+test_existing_core_examples (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_existing_core_examples) ... ok
+test_reduce_initializer_mutation_precedes_length_snapshot (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_reduce_initializer_mutation_precedes_length_snapshot) ... ok
+test_scalar_reductions_and_element_read_timing (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_scalar_reductions_and_element_read_timing) ... ok
+test_signature_and_shadowing_refusals_preserve_output (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_signature_and_shadowing_refusals_preserve_output) ... ok
+test_source_order_and_captured_length (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_source_order_and_captured_length) ... ok
+test_typed_empty_fresh_outputs_and_changed_map_type (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_typed_empty_fresh_outputs_and_changed_map_type) ... ok
+test_declared_enum_function_annotation (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_declared_enum_function_annotation) ... ok
+test_declared_enum_is_not_implicit_function_variable (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_declared_enum_is_not_implicit_function_variable) ... ok
+test_enum_values_and_local (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_enum_values_and_local) ... ok
+test_imported_enum_definition (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_imported_enum_definition) ... ok
+test_payload_formal_is_not_declared_enum (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_payload_formal_is_not_declared_enum) ... ok
+test_unbound_other_function_variable (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_unbound_other_function_variable) ... ok
+test_unknown_variant_preserves_output (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_unknown_variant_preserves_output) ... ok
+test_wrong_scalar_preserves_output (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_wrong_scalar_preserves_output) ... ok
+test_computed_generic_callback (tests.test_generic_function_values.GenericFunctionValues.test_computed_generic_callback) ... ok
+test_forwarded_function_value (tests.test_generic_function_values.GenericFunctionValues.test_forwarded_function_value) ... ok
+test_generic_parameter (tests.test_generic_function_values.GenericFunctionValues.test_generic_parameter) ... ok
+test_generic_result (tests.test_generic_function_values.GenericFunctionValues.test_generic_result) ... ok
+test_indirect_record_literal_identity (tests.test_generic_function_values.GenericFunctionValues.test_indirect_record_literal_identity) ... ok
+test_local_function_value (tests.test_generic_function_values.GenericFunctionValues.test_local_function_value) ... ok
+test_nested_array_callback (tests.test_generic_function_values.GenericFunctionValues.test_nested_array_callback) ... ok
+test_qualified_import_callback_signatures (tests.test_generic_function_values.GenericFunctionValues.test_qualified_import_callback_signatures) ... ok
+test_reject_computed_nested_array_argument (tests.test_generic_function_values.GenericFunctionValues.test_reject_computed_nested_array_argument) ... ok
+test_reject_indirect_wrong_record_literal (tests.test_generic_function_values.GenericFunctionValues.test_reject_indirect_wrong_record_literal) ... ok
+test_reject_nested_array_signature (tests.test_generic_function_values.GenericFunctionValues.test_reject_nested_array_signature) ... ok
+test_reject_wrong_forwarded_signature (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_forwarded_signature) ... ok
+test_reject_wrong_generic_parameter (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_generic_parameter) ... ok
+test_reject_wrong_generic_result (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_generic_result) ... ok
+test_reject_wrong_indirect_generic_argument (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_indirect_generic_argument) ... ok
+test_reject_wrong_indirect_nested_array_argument (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_indirect_nested_array_argument) ... ok
+test_reject_wrong_local_generic_result (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_local_generic_result) ... ok
+test_vm_generic_callback_context (tests.test_generic_function_values.GenericFunctionValues.test_vm_generic_callback_context) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 176.947s
+
+OK

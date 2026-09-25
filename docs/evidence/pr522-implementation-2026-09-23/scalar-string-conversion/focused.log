@@ -1,0 +1,32 @@
+test_declared_function_keeps_its_result (tests.test_canonical_string_conversion.CanonicalStringConversion.test_declared_function_keeps_its_result) ... ok
+test_invalid_calls_preserve_output (tests.test_canonical_string_conversion.CanonicalStringConversion.test_invalid_calls_preserve_output) ... ok
+test_local_function_value_keeps_its_target (tests.test_canonical_string_conversion.CanonicalStringConversion.test_local_function_value_keeps_its_target) ... ok
+test_values_and_evaluation_order (tests.test_canonical_string_conversion.CanonicalStringConversion.test_values_and_evaluation_order) ... 
+  test_values_and_evaluation_order (tests.test_canonical_string_conversion.CanonicalStringConversion.test_values_and_evaluation_order) (compiler='nanoc_c', vm=False) ... FAIL
+
+======================================================================
+FAIL: test_values_and_evaluation_order (tests.test_canonical_string_conversion.CanonicalStringConversion.test_values_and_evaluation_order) (compiler='nanoc_c', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_string_conversion.py", line 45, in test_values_and_evaluation_order
+    self.checked([ROOT/'bin'/compiler,source,*(['--emit-nvm'] if vm else []),'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_string_conversion.py", line 36, in checked
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 9, column 2: Expected variable name
+Error at line 9, column 10: Unexpected token in expression: COLON (type=14)
+Error at line 9, column 12: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 9, column 15: Unexpected token in expression: ASSIGN (type=17)
+Error at line 10, column 24: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 10, column 24: Failed to parse function argument
+Error at line 10, column 24: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 10, column 28: Unexpected token in expression: RPAREN (type=8)
+Error at line 10, column 35: Unexpected token in expression: RPAREN (type=8)
+Parsing error
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.182s
+
+FAILED (failures=1)

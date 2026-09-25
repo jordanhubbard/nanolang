@@ -59,6 +59,7 @@ typedef struct {
     char *name;
     uint16_t slot;
     CgLocalName *advisory;
+    Type declared_type; /* Checked lexical destination, independent of shared Environment. */
     char *struct_type;  /* Struct type name for field resolution (NULL if not a struct) */
 } Local;
 
@@ -78,6 +79,7 @@ typedef struct {
     char *name;
     uint32_t fn_idx;
     ASTNode *body; /* I identify a source function independently of its short name. */
+    bool owns_name; /* Qualified aliases are mine; AST and module names are borrowed. */
 } FnEntry;
 
 typedef struct {
@@ -108,6 +110,7 @@ typedef struct {
 typedef struct {
     char *name;
     uint16_t slot;
+    Type declared_type;
 } GlobalVar;
 
 typedef struct {
@@ -123,6 +126,7 @@ typedef struct {
     char *name;              /* Variable name */
     uint16_t parent_slot;    /* Slot in parent's locals (or parent's upvalues) */
     bool is_local;           /* true = parent local, false = parent upvalue */
+    Type declared_type;
 } Upvalue;
 
 typedef struct CgPassive {
@@ -286,6 +290,7 @@ static uint16_t local_add(CG *cg, const char *name, int line) {
     binding->slot = slot;
     binding->struct_type = NULL;
     binding->advisory = NULL;
+    binding->declared_type = TYPE_UNKNOWN;
     cg->local_count++;
     return slot;
 }
@@ -302,6 +307,8 @@ static uint8_t ordinary_slot_tag(Type type) {
     }
 }
 static void local_name_begin(CG *cg,uint16_t slot,const char *name,Type type,int line) {
+    for (int i = cg->local_binding_count - 1; i >= 0; --i)
+        if (cg->locals[i].slot == slot) { cg->locals[i].declared_type = type; break; }
     if(cg->struct_count && cg->names_enabled && !cg->had_error) {
         CgAuthoritySlot *fact=malloc(sizeof *fact);
         if(!fact){cg_error(cg,line,"I cannot retain a declared local tag");return;}
@@ -382,6 +389,14 @@ static int16_t upvalue_add(CG *cg, const char *name, uint16_t parent_slot, bool 
     cg->upvalues[idx].name = (char *)name;
     cg->upvalues[idx].parent_slot = parent_slot;
     cg->upvalues[idx].is_local = is_local;
+    cg->upvalues[idx].declared_type = TYPE_UNKNOWN;
+    if (is_local) {
+        for (int i = cg->parent->local_binding_count - 1; i >= 0; --i)
+            if (cg->parent->locals[i].slot == parent_slot) {
+                cg->upvalues[idx].declared_type = cg->parent->locals[i].declared_type;
+                break;
+            }
+    } else cg->upvalues[idx].declared_type = cg->parent->upvalues[parent_slot].declared_type;
     cg->upvalue_count++;
     return idx;
 }
@@ -705,8 +720,9 @@ static void register_extern(CG *cg, const char *name, const char *module_name,
 
     /* Add to codegen extern table */
     ExternFn *ef = &cg->externs[cg->extern_count];
-    ef->name = strdup(name);
-    ef->module_name = strdup(module_name);
+    /* I borrow the stable strings already owned by my output module. */
+    ef->name = cg->module->strings[fn_str];
+    ef->module_name = cg->module->strings[mod_str];
     ef->import_idx = imp_idx;
     ef->param_count = param_count;
     ef->return_tag = return_tag;
@@ -825,8 +841,8 @@ static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
     if (want_float && type != TYPE_FLOAT) emit_op(cg, OP_CAST_FLOAT);
 }
 
-/* An integer literal acquires the byte tag only from an exact checked
- * destination. I do not turn arbitrary integer expressions into bytes. */
+/* I narrow computed INT only at an exact checked byte destination. Literal
+ * range policy remains independent of this explicit runtime conversion. */
 static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
     if (tag == TAG_U8) {
         if (node && node->type == AST_NUMBER) {
@@ -837,7 +853,13 @@ static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
             emit_op(cg, OP_PUSH_U8, (uint8_t)node->as.number);
             return;
         }
-        if (check_expression(node, cg->env) != TYPE_U8) {
+        Type actual = check_expression(node, cg->env);
+        if (actual == TYPE_INT) {
+            compile_expr(cg, node);
+            emit_op(cg, OP_CAST_U8);
+            return;
+        }
+        if (actual != TYPE_U8) {
             cg_error(cg, node ? node->line : 0, "I require the declared byte value type");
             return;
         }
@@ -919,6 +941,107 @@ static int32_t named_scalar_callback(CG *cg, ASTNode *call, bool reduce) {
 }
 
 /* Handle built-in function calls. Returns true if handled, false if not a builtin. */
+/* I lower checked ordinary list mutations using existing array ownership.
+ * All arguments are rooted before observing length; scratch roots are cleared
+ * after the result is on the stack, or owned by frame unwind on failure. */
+static void compile_list_mutation(CG *cg, ASTNode *node, const char *operation) {
+    bool insert = !strcmp(operation, "insert");
+    bool pop = !strcmp(operation, "pop");
+    int argc = insert ? 3 : pop ? 1 : 2;
+    Type result = check_expression(node, cg->env);
+    if (node->as.call.arg_count != argc ||
+        (insert ? result != TYPE_VOID : result != TYPE_STRUCT && result != TYPE_ENUM)) {
+        cg_error(cg, node->line, "I require a checked ordinary list mutation");
+        return;
+    }
+    /* Reserve before child expressions can add their own scratch locals. */
+    uint16_t slots[4];
+    int count = argc + 1;
+    if (cg->local_count > MAX_LOCALS - count ||
+        cg->local_binding_count > MAX_LOCALS - count) {
+        cg_error(cg, node->line, "I cannot reserve list mutation locals");
+        return;
+    }
+    for (int i = 0; i < count; ++i) slots[i] = local_add(cg, "", node->line);
+    uint16_t array = slots[0], length = slots[argc];
+    for (int i = 0; i < argc; ++i) {
+        compile_expr(cg, node->as.call.args[i]);
+        emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+    }
+    emit_op(cg, OP_LOAD_LOCAL, (int)array);
+    emit_op(cg, OP_ARR_LEN);
+    emit_op(cg, OP_STORE_LOCAL, (int)length);
+    if (pop) {
+        emit_op(cg, OP_LOAD_LOCAL, (int)length);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_I64_GT_S);
+        emit_op(cg, OP_ASSERT);
+        emit_op(cg, OP_LOAD_LOCAL, (int)array);
+        emit_op(cg, OP_ARR_POP);
+    } else {
+        uint16_t index = slots[1];
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_I64_GE_S);
+        emit_op(cg, OP_ASSERT);
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_LOAD_LOCAL, (int)length);
+        emit_op(cg, insert ? OP_I64_LE_S : OP_I64_LT_S);
+        emit_op(cg, OP_ASSERT);
+        if (insert) {
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)slots[2]);
+            emit_op(cg, OP_ARR_PUSH);
+            emit_op(cg, OP_POP);
+            /* length doubles as the descending destination index. */
+            uint32_t top = cg->code_size;
+            emit_op(cg, OP_LOAD_LOCAL, (int)length);
+            emit_op(cg, OP_LOAD_LOCAL, (int)index);
+            emit_op(cg, OP_I64_GT_S);
+            uint32_t done = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)length);
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)length);
+            emit_op(cg, OP_PUSH_I64, (int64_t)1);
+            emit_op(cg, OP_I64_SUB);
+            emit_op(cg, OP_ARR_GET);
+            emit_op(cg, OP_ARR_SET);
+            emit_op(cg, OP_POP);
+            emit_op(cg, OP_LOAD_LOCAL, (int)length);
+            emit_op(cg, OP_PUSH_I64, (int64_t)1);
+            emit_op(cg, OP_I64_SUB);
+            emit_op(cg, OP_STORE_LOCAL, (int)length);
+            uint32_t again = emit_op(cg, OP_JMP, (int32_t)0);
+            if (cg->had_error) return;
+            /* This generated loop is fixed size, independent of input length. */
+            if ((uint64_t)cg->code_size - top > INT32_MAX) {
+                cg_error(cg, node->line, "I cannot encode the list mutation branch");
+                return;
+            }
+            patch_jump(cg, again + 1, again, top);
+            patch_jump(cg, done + 1, done, cg->code_size);
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)index);
+            emit_op(cg, OP_LOAD_LOCAL, (int)slots[2]);
+            emit_op(cg, OP_ARR_SET);
+            emit_op(cg, OP_POP);
+        } else {
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)index);
+            emit_op(cg, OP_ARR_GET); /* Retained result survives removal. */
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)index);
+            emit_op(cg, OP_ARR_REMOVE);
+            emit_op(cg, OP_POP);
+        }
+    }
+    for (int i = 0; i < count; ++i) {
+        emit_op(cg, OP_PUSH_VOID);
+        emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+    }
+}
+
 static bool compile_builtin_call(CG *cg, ASTNode *node) {
     const char *name = node->as.call.name;
     int argc = node->as.call.arg_count;
@@ -1024,7 +1147,17 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     }
     if (strcmp(name, "cast_bool") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
-        emit_op(cg, OP_CAST_BOOL);
+        if (check_expression(args[0], cg->env) == TYPE_STRING) {
+            emit_op(cg, OP_DUP);
+            emit_op(cg, OP_PUSH_STR, nvm_add_string(cg->module, "true", 4));
+            emit_op(cg, OP_EQ);
+            emit_op(cg, OP_SWAP);
+            emit_op(cg, OP_PUSH_STR, nvm_add_string(cg->module, "1", 1));
+            emit_op(cg, OP_EQ);
+            emit_op(cg, OP_BOOL_OR);
+        } else {
+            emit_op(cg, OP_CAST_BOOL);
+        }
         return true;
     }
     if (strcmp(name, "float_to_string") == 0 && argc == 1) {
@@ -1920,9 +2053,20 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         /* Find the operation suffix */
         const char *suffix = strrchr(name, '_');
         if (suffix) {
+            if (!strcmp(suffix, "_insert") || !strcmp(suffix, "_remove") ||
+                !strcmp(suffix, "_pop")) {
+                /* Real declarations, including externs, retain call precedence. */
+                if (env_get_function(cg->env, name)) return false;
+                compile_list_mutation(cg, node, suffix + 1);
+                return true;
+            }
             if (strcmp(suffix, "_new") == 0 && argc == 0) {
-                /* list_T_new() -> create empty array */
-                emit_op(cg, OP_ARR_NEW, (int)list_element_tag(cg, name, suffix));
+                uint8_t element_tag = list_element_tag(cg, name, suffix);
+                /* I preserve exact integer elements through aggregate fields. */
+                if (element_tag == TAG_INT)
+                    emit_op(cg, OP_ARR_LITERAL, (int)element_tag, (uint32_t)0);
+                else
+                    emit_op(cg, OP_ARR_NEW, (int)element_tag);
                 return true;
             }
             if (strcmp(suffix, "_push") == 0 && argc == 2) {
@@ -2360,7 +2504,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             compile_effect_block(cg, node->as.handle_expr.handler_bodies[i]);
             cg->handler_loop_floor = saved_loop_floor;
             emit_op(cg, OP_EFFECT_RESUME);
-            cg->env->symbol_count = symbol_start;
+            env_restore_symbol_count(cg->env, symbol_start);
             local_names_end(cg, outer_bindings);
             cg->local_binding_count = outer_bindings;
         }
@@ -2555,7 +2699,11 @@ static void compile_expr(CG *cg, ASTNode *node) {
             else emit_op(cg, OP_LOAD_UPVALUE, 0, (int)callable_upvalue);
             uint16_t saved_callee = local_add(cg, "", node->line);
             emit_op(cg, OP_STORE_LOCAL, (int)saved_callee);
-            for (int i = 0; i < argc; i++) compile_expr(cg, node->as.call.args[i]);
+            const FunctionSignature *signature = node->as.call.checked_signature;
+            for (int i = 0; i < argc; i++)
+                compile_expected_tag(cg, node->as.call.args[i],
+                    signature && signature->param_types && i < signature->param_count &&
+                    signature->param_types[i] == TYPE_U8 ? TAG_U8 : TAG_COUNT);
             emit_op(cg, OP_LOAD_LOCAL, (int)saved_callee);
             emit_op(cg, OP_CALL_INDIRECT, argc,
                     check_expression(node, cg->env) == TYPE_VOID ? 0 : 1);
@@ -2624,15 +2772,15 @@ static void compile_expr(CG *cg, ASTNode *node) {
         const char *func_name = node->as.module_qualified_call.function_name;
         int argc = node->as.module_qualified_call.arg_count;
 
-        /* Emit arguments left-to-right */
-        for (int i = 0; i < argc; i++) {
-            compile_expr(cg, node->as.module_qualified_call.args[i]);
-        }
-
-        /* Try qualified name "Module.function" in bytecode functions first */
+        /* I resolve the same qualified declaration before contextual arguments. */
         char qname[512];
         snprintf(qname, sizeof(qname), "%s.%s", mod_alias, func_name);
         int32_t fn_idx = fn_find(cg, qname);
+        if (fn_idx < 0) fn_idx = fn_find(cg, func_name);
+        uint8_t *tags = fn_idx >= 0 ? cg->module->function_param_types[fn_idx] : NULL;
+        for (int i = 0; i < argc; i++)
+            compile_expected_tag(cg, node->as.module_qualified_call.args[i],
+                tags && i < cg->module->functions[fn_idx].arity ? tags[i] : TAG_COUNT);
         if (fn_idx >= 0) {
             emit_op(cg, OP_CALL, (uint32_t)fn_idx);
         } else {
@@ -2710,7 +2858,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
         uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
         uint32_t jf_patch = jf_off + 1;
 
-        compile_expr(cg, node->as.if_stmt.then_branch);
+        compile_effect_block(cg, node->as.if_stmt.then_branch);
 
         if (node->as.if_stmt.else_branch) {
             uint32_t je_instr = cg->code_size;
@@ -2718,7 +2866,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             uint32_t je_patch = je_off + 1;
 
             patch_jump(cg, jf_patch, jf_instr, cg->code_size);
-            compile_expr(cg, node->as.if_stmt.else_branch);
+            compile_effect_block(cg, node->as.if_stmt.else_branch);
             patch_jump(cg, je_patch, je_instr, cg->code_size);
         } else {
             patch_jump(cg, jf_patch, jf_instr, cg->code_size);
@@ -3623,8 +3771,15 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         if (local_type) {
             local_type->def_line = node->line;
             local_type->def_column = node->column;
-            if (node->as.let.type_name)
-                local_type->struct_type_name = strdup(node->as.let.type_name);
+            if (node->as.let.type_name) {
+                char *replacement = strdup(node->as.let.type_name);
+                if (!replacement) {
+                    cg_error(cg, node->line, "I could not retain the local nominal type name");
+                    break;
+                }
+                free(local_type->struct_type_name);
+                local_type->struct_type_name = replacement;
+            }
         }
         emit_op(cg, OP_STORE_LOCAL, (int)slot);
         local_name_begin(cg,slot,node->as.let.name,node->as.let.var_type,node->line);
@@ -3638,9 +3793,12 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         }
         int16_t slot = local_find(cg, node->as.set.name);
         if (slot >= 0) {
-            Symbol *binding = env_get_var_visible_at(cg->env, node->as.set.name,
-                                                     node->line, node->column);
-            if (binding && binding->type == TYPE_U8)
+            Type destination = TYPE_UNKNOWN;
+            for (int i = cg->local_binding_count - 1; i >= 0; --i)
+                if (cg->locals[i].slot == (uint16_t)slot) {
+                    destination = cg->locals[i].declared_type; break;
+                }
+            if (destination == TYPE_U8)
                 compile_expected_tag(cg, node->as.set.value, TAG_U8);
             else
                 compile_stored_expr(cg, node->as.set.value);
@@ -3648,13 +3806,17 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         } else {
             int16_t gslot = global_find(cg, node->as.set.name);
             if (gslot >= 0) {
-                compile_stored_expr(cg, node->as.set.value);
+                if (cg->globals[gslot].declared_type == TYPE_U8)
+                    compile_expected_tag(cg, node->as.set.value, TAG_U8);
+                else compile_stored_expr(cg, node->as.set.value);
                 emit_op(cg, OP_STORE_GLOBAL, (uint32_t)gslot);
             } else {
                 /* Check upvalues for captured mutable variables */
                 int16_t uv = upvalue_resolve(cg, node->as.set.name);
                 if (uv >= 0) {
-                    compile_stored_expr(cg, node->as.set.value);
+                    if (cg->upvalues[uv].declared_type == TYPE_U8)
+                        compile_expected_tag(cg, node->as.set.value, TAG_U8);
+                    else compile_stored_expr(cg, node->as.set.value);
                     emit_op(cg, OP_STORE_UPVALUE, 0, (int)uv);
                 } else {
                     cg_error(cg, node->line, "undefined variable '%s'", node->as.set.name);
@@ -4403,7 +4565,13 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                                 }
                             }
                             if (!qalready && cg.fn_count < MAX_FUNCTIONS) {
-                                cg.functions[cg.fn_count].name = strdup(qname);
+                                char *owned_name = strdup(qname);
+                                if (!owned_name) {
+                                    cg_error(&cg, mitem->line, "I could not allocate a qualified function alias");
+                                    continue;
+                                }
+                                cg.functions[cg.fn_count].name = owned_name;
+                                cg.functions[cg.fn_count].owns_name = true;
                                 cg.functions[cg.fn_count].fn_idx = idx; /* same fn_idx! */
                                 cg.functions[cg.fn_count].body = mitem->as.function.body;
                                 cg.fn_count++;
@@ -4498,6 +4666,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         }
                         if (!dup) {
                             cg.globals[cg.global_count].name = mitem->as.let.name;
+                            cg.globals[cg.global_count].declared_type = mitem->as.let.var_type;
                             cg.globals[cg.global_count].slot = cg.global_count;
                             cg.global_count++;
                         }
@@ -4554,6 +4723,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         /* Register top-level let bindings as globals */
         if (item->type == AST_LET && cg.global_count < MAX_GLOBALS) {
             cg.globals[cg.global_count].name = item->as.let.name;
+                            cg.globals[cg.global_count].declared_type = item->as.let.var_type;
             cg.globals[cg.global_count].slot = cg.global_count;
             cg.global_count++;
         }
@@ -4676,6 +4846,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                     }
                     if (!dup) {
                         cg.globals[cg.global_count].name = mitem->as.let.name;
+                            cg.globals[cg.global_count].declared_type = mitem->as.let.var_type;
                         cg.globals[cg.global_count].slot = cg.global_count;
                         cg.global_count++;
                     }
@@ -4736,7 +4907,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 for (int m = 0; m < mod_ast->as.program.count; m++) {
                     ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
                     if (mitem->type == AST_LET) {
-                        compile_expr(&cg, mitem->as.let.value);
+                        compile_expected_tag(&cg, mitem->as.let.value,
+                            mitem->as.let.var_type == TYPE_U8 ? TAG_U8 : TAG_COUNT);
                         int16_t gslot = global_find(&cg, mitem->as.let.name);
                         if (gslot >= 0) {
                             emit_op(&cg, OP_STORE_GLOBAL, (uint32_t)gslot);
@@ -4749,7 +4921,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         for (int i = 0; i < program->as.program.count; i++) {
             ASTNode *item = bytecode_declaration(program->as.program.items[i]);
             if (item->type == AST_LET) {
-                compile_expr(&cg, item->as.let.value);
+                compile_expected_tag(&cg, item->as.let.value,
+                            item->as.let.var_type == TYPE_U8 ? TAG_U8 : TAG_COUNT);
                 int16_t gslot = global_find(&cg, item->as.let.name);
                 if (gslot >= 0) {
                     emit_op(&cg, OP_STORE_GLOBAL, (uint32_t)gslot);
@@ -4927,6 +5100,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     }
     publish_local_names(&cg);
     publish_passive(&cg);
+    for (int i = 0; i < cg.fn_count; ++i)
+        if (cg.functions[i].owns_name) free(cg.functions[i].name);
     free(cg.code);
 
     if (cg.had_error) {

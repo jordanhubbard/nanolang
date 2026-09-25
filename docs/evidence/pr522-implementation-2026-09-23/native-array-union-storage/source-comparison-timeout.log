@@ -1,0 +1,36 @@
+..................................................E....
+======================================================================
+ERROR: setUpClass (tests.test_source_record_unions.SourceRecordUnionShadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_source_record_unions.py", line 147, in setUpClass
+    cls().checked([ROOT / 'bin/nanoc_c', source, '-o', cls.driver])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_source_record_unions.py", line 41, in checked
+    result = self.command(args)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_source_record_unions.py", line 36, in command
+    return subprocess.run(list(map(str, args)), cwd=ROOT, capture_output=True, text=True,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          timeout=120, env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1',
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                            'UBSAN_OPTIONS': 'halt_on_error=1'})
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1221, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 2154, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1268, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-shadow-driver-pur63que/driver.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-shadow-driver-pur63que/driver']' timed out after 120 seconds
+
+----------------------------------------------------------------------
+Ran 54 tests in 309.441s
+
+FAILED (errors=1)

@@ -1,0 +1,32 @@
+runTest (__main__.Baseline.runTest) ... 
+  runTest (__main__.Baseline.runTest) (compiler='nanoc_stage1', vm=False) ... FAIL
+  runTest (__main__.Baseline.runTest) (compiler='nanoc_stage2', vm=False) ... FAIL
+
+======================================================================
+FAIL: runTest (__main__.Baseline.runTest) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-vgzr1p9g/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-vgzr1p9g/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-vgzr1p9g/.nano-product.iEwO5V/program.nvm': I found invalid aggregate shape constraints during ARR_LITERAL in function 0 at offset 104: I found conflicting aggregate shape kinds optional/record at nodes 28/10
+
+
+======================================================================
+FAIL: runTest (__main__.Baseline.runTest) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-vgzr1p9g/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-vgzr1p9g/product')]
+I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-vgzr1p9g/.nano-product.x7fqDI/program.nvm': I found invalid aggregate shape constraints during ARR_LITERAL in function 0 at offset 104: I found conflicting aggregate shape kinds optional/record at nodes 28/10
+
+
+----------------------------------------------------------------------
+Ran 1 test in 4.198s
+
+FAILED (failures=2)

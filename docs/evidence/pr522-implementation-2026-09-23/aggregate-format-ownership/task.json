@@ -1,0 +1,142 @@
+{
+  "attempt_count": 0,
+  "completed_at": null,
+  "created_at": "2026-09-24T20:54:20.978922+00:00",
+  "created_by_human": null,
+  "dependencies": [],
+  "description": "While qualifying PR522 aggregate string conversion, an instrumented C-seed program formatting an integer array, record and nested union leaks 1024 bytes in four allocations from nl_fmt_sb_new. nl_fmt_sb_build returns the malloc-backed buffer without transferring it to managed ownership. Preserve exact formatting, retained aliases, nested formatting and evaluation count; release scratch storage and retain ASan/UBSan/leak/UAR evidence. Baseline /tmp/pr522-aggregate-format/run.log; parent task_fe7abd6028d14ae387e70e0e83b8885e still requires canonical aggregate conversion.",
+  "id": "task_1d21d60b31c84be795fbdd629a180997",
+  "last_updated_at": "2026-09-24T20:54:20.978922+00:00",
+  "lease_id": null,
+  "leased_until": null,
+  "max_attempts": 3,
+  "metadata": {
+    "acc_metadata": {
+      "repository_contract_project": "nanolang",
+      "repository_contract_schema": "mac.repository_contract.v1",
+      "workflow_role": "work"
+    },
+    "execution_contract": {
+      "evidence_type": "repo_change",
+      "quality": "strong",
+      "repository_contract": {
+        "bootstrap": {
+          "command": "make build",
+          "creates": [
+            "bin/nanoc",
+            "bin/nano"
+          ]
+        },
+        "canonical_remote_url": "git@github.com:jordanhubbard/nanolang.git",
+        "contract_path": ".mac/project.yaml",
+        "default_branch": "main",
+        "evidence": {
+          "required": [
+            "repo.head_sha",
+            "repo.pushed",
+            "repo.dirty",
+            "repo.files_changed",
+            "tests"
+          ]
+        },
+        "platforms": [
+          "darwin",
+          "linux",
+          "wsl2"
+        ],
+        "project": "nanolang",
+        "schema": "mac.repository_contract.v1",
+        "test": {
+          "command": "make test-quick"
+        },
+        "toolchain": {
+          "required_commands": [
+            "python3",
+            "git",
+            "gh",
+            "make",
+            "cc"
+          ]
+        }
+      },
+      "repository_id": "projectrepo_ea061135933c485498ca97f7724c89d9",
+      "repository_path": "/Users/jkh/.mac/src/nanolang",
+      "schema": "mac.task_execution_contract.v1",
+      "source": "registered_project",
+      "type": "repository"
+    },
+    "no_dispatch": true,
+    "origin": {
+      "repository_contract": {
+        "bootstrap": {
+          "command": "make build",
+          "creates": [
+            "bin/nanoc",
+            "bin/nano"
+          ]
+        },
+        "canonical_remote_url": "git@github.com:jordanhubbard/nanolang.git",
+        "contract_path": ".mac/project.yaml",
+        "default_branch": "main",
+        "evidence": {
+          "required": [
+            "repo.head_sha",
+            "repo.pushed",
+            "repo.dirty",
+            "repo.files_changed",
+            "tests"
+          ]
+        },
+        "platforms": [
+          "darwin",
+          "linux",
+          "wsl2"
+        ],
+        "project": "nanolang",
+        "schema": "mac.repository_contract.v1",
+        "test": {
+          "command": "make test-quick"
+        },
+        "toolchain": {
+          "required_commands": [
+            "python3",
+            "git",
+            "gh",
+            "make",
+            "cc"
+          ]
+        }
+      },
+      "repository_id": "projectrepo_ea061135933c485498ca97f7724c89d9",
+      "repository_name": "nanolang",
+      "repository_path": "/Users/jkh/.mac/src/nanolang",
+      "source": "repo-nanolang",
+      "type": "direct_task"
+    },
+    "scientific_policy": {
+      "name": "baseline",
+      "policy_id": "policy_a6574cf8ac9d47799b0d48fa5bd18c2f",
+      "schema": "mac.scientific_policy.v1",
+      "version": 1
+    },
+    "toolchain_requirements": {
+      "required_commands": [
+        "python3",
+        "git",
+        "gh",
+        "make",
+        "cc"
+      ],
+      "schema": "mac.task_toolchain_requirements.v1",
+      "source": "repository_contract.toolchain.required_commands"
+    }
+  },
+  "owner_agent_id": null,
+  "priority": 1,
+  "project": "nanolang",
+  "required_capabilities": [],
+  "started_at": null,
+  "state": "open",
+  "title": "Release C-seed aggregate formatting buffers without invalidating returned strings",
+  "updated_at": "2026-09-24T20:54:20.978922+00:00"
+}

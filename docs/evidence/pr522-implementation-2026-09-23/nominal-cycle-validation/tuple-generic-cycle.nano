@@ -1,0 +1,3 @@
+union Box<T> { Some { value: T } } struct Loop { value: Box<(int,Loop)> }
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }

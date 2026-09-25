@@ -803,6 +803,7 @@ typedef struct {
     int symbol_capacity;
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
+    struct EnvFunctionIndex *function_index; /* Owned optional name index. */
     Function *functions;
     int function_count;
     int function_capacity;
@@ -888,7 +889,17 @@ typedef struct {
 } Stage1Parser;
 
 ASTNode *parse_program(Token *tokens, int token_count);
-bool ast_has_service_declaration(const ASTNode *program);
+/* I inspect valid parser roots: service declarations occur only at program
+ * scope. Module declarations hold names, not child ASTs; imported programs are
+ * separately checked by process_imports. I do not validate arbitrary forged ASTs. */
+static inline bool ast_has_service_declaration(const ASTNode *program) {
+    if (!program) return false;
+    if (program->type == AST_SERVICE_DECL) return true;
+    if (program->type != AST_PROGRAM) return false;
+    for (int i = 0; i < program->as.program.count; ++i)
+        if (ast_has_service_declaration(program->as.program.items[i])) return true;
+    return false;
+}
 bool ast_is_value_expression(ASTNodeType type);
 bool ast_always_returns(const ASTNode *node);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */
@@ -921,6 +932,7 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 Environment *create_environment(void);
 /* I invalidate cached names before replacing/appending symbols outside env_define_var. */
 void env_symbol_index_invalidate(Environment *env);
+void env_function_index_invalidate(Environment *env);
 
 /* The file whose code is currently being processed.
  *
@@ -933,6 +945,8 @@ void env_symbol_index_invalidate(Environment *env);
 void env_set_current_file(Environment *env, const char *path);
 const char *env_current_file(Environment *env);
 void free_environment(Environment *env);
+/* I release discarded symbols while retaining the outer lexical bindings. */
+void env_restore_symbol_count(Environment *env, int count);
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);

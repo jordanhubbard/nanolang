@@ -46,6 +46,8 @@ int nms_core_tests(void) {
     CHECK(nms_view(&runtime, first, &view) == NMS_DISPOSED);
     CHECK(nms_reserved_entry("nano_try_entry") && nms_reserved_entry("nano_dispose"));
     CHECK(nms_reserved_entry("nano_runtime_internal") && nms_reserved_entry("nms_create"));
+    CHECK(nms_reserved_entry("memcpy") && nms_reserved_entry("memset"));
+    CHECK(!nms_reserved_entry("memcpy_other") && !nms_reserved_entry("memset_other"));
     CHECK(!nms_reserved_entry("nano_entry") && !nms_reserved_entry("nano_try_entry_other"));
     return 0;
 }

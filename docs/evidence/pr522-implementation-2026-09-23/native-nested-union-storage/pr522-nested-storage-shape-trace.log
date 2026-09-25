@@ -1,0 +1,230 @@
+node 1 root 1 kind 4
+node 2 root 1 kind 4
+node 3 root 3 kind 4 [0:15]
+node 4 root 3 kind 4
+node 5 root 5 kind 1
+node 6 root 5 kind 1
+node 7 root 7 kind 0
+node 8 root 8 kind 1
+node 9 root 9 kind 1
+node 10 root 9 kind 1
+node 11 root 11 kind 7
+node 12 root 11 kind 7
+node 13 root 13 kind 4 [0:16]
+node 14 root 13 kind 4
+node 15 root 31 kind 0
+node 16 root 16 kind 0
+node 17 root 17 kind 4 [0:67]
+node 18 root 17 kind 0
+node 19 root 19 kind 1
+node 20 root 20 kind 1
+node 21 root 20 kind 1
+node 22 root 22 kind 1
+node 23 root 22 kind 1
+node 24 root 24 kind 1
+node 25 root 24 kind 1
+node 26 root 26 kind 1
+node 27 root 26 kind 1
+node 28 root 28 kind 7
+node 29 root 28 kind 7
+node 30 root 30 kind 4 [0:40]
+node 31 root 31 kind 4 [0:39]
+node 32 root 32 kind 1
+node 33 root 32 kind 1
+node 34 root 34 kind 1
+node 35 root 34 kind 1
+node 36 root 36 kind 7
+node 37 root 36 kind 7
+node 38 root 31 kind 4
+node 39 root 41 kind 0
+node 40 root 40 kind 0
+node 41 root 41 kind 4 [0:49]
+node 42 root 42 kind 1
+node 43 root 42 kind 1
+node 44 root 44 kind 1
+node 45 root 44 kind 1
+node 46 root 46 kind 7
+node 47 root 46 kind 7
+node 48 root 41 kind 4
+node 49 root 50 kind 0
+node 50 root 50 kind 0
+node 51 root 51 kind 1
+node 52 root 51 kind 1
+node 53 root 53 kind 1
+node 54 root 53 kind 1
+node 55 root 55 kind 7
+node 56 root 55 kind 7
+node 57 root 57 kind 1
+node 58 root 57 kind 1
+node 59 root 59 kind 1
+node 60 root 59 kind 1
+node 61 root 61 kind 7
+node 62 root 61 kind 7
+node 63 root 63 kind 4 [0:65]
+node 64 root 63 kind 4
+node 65 root 13 kind 0
+node 66 root 17 kind 4
+node 67 root 67 kind 0
+flow 1 -> 3
+flow 5 -> 7
+flow 8 -> 7
+flow 3 -> 13
+flow 17 -> 3
+flow 19 -> 7
+flow 22 -> 7
+flow 3 -> 30
+flow 31 -> 30
+flow 41 -> 30
+flow 63 -> 18
+new 68 from 41 edge 0 pair 31/16 conversion 3/13
+new 69 from 50 edge 0 pair 41/68 conversion 3/13
+new 70 from 41 edge 0 pair 31/40 conversion 3/30
+new 71 from 50 edge 0 pair 41/70 conversion 3/30
+new 72 from 16 edge 0 pair 13/67 conversion 63/18
+new 73 from 68 edge 0 pair 16/72 conversion 63/18
+new 74 from 69 edge 0 pair 68/73 conversion 63/18
+new 75 from 74 edge 0 pair 73/50 conversion 17/3
+new 76 from 75 edge 0 pair 50/71 conversion 3/30
+new 77 from 75 edge 0 pair 50/69 conversion 3/13
+new 78 from 77 edge 0 pair 69/74 conversion 63/18
+new 79 from 78 edge 0 pair 74/75 conversion 17/3
+new 80 from 79 edge 0 pair 75/76 conversion 3/30
+new 81 from 79 edge 0 pair 75/77 conversion 3/13
+new 82 from 81 edge 0 pair 77/78 conversion 63/18
+new 83 from 82 edge 0 pair 78/79 conversion 17/3
+new 84 from 83 edge 0 pair 79/80 conversion 3/30
+new 85 from 83 edge 0 pair 79/81 conversion 3/13
+new 86 from 85 edge 0 pair 81/82 conversion 63/18
+new 87 from 86 edge 0 pair 82/83 conversion 17/3
+new 88 from 87 edge 0 pair 83/84 conversion 3/30
+new 89 from 87 edge 0 pair 83/85 conversion 3/13
+new 90 from 89 edge 0 pair 85/86 conversion 63/18
+new 91 from 90 edge 0 pair 86/87 conversion 17/3
+new 92 from 91 edge 0 pair 87/88 conversion 3/30
+new 93 from 91 edge 0 pair 87/89 conversion 3/13
+new 94 from 93 edge 0 pair 89/90 conversion 63/18
+new 95 from 94 edge 0 pair 90/91 conversion 17/3
+new 96 from 95 edge 0 pair 91/92 conversion 3/30
+new 97 from 95 edge 0 pair 91/93 conversion 3/13
+new 98 from 97 edge 0 pair 93/94 conversion 63/18
+new 99 from 98 edge 0 pair 94/95 conversion 17/3
+new 100 from 99 edge 0 pair 95/96 conversion 3/30
+new 101 from 99 edge 0 pair 95/97 conversion 3/13
+new 102 from 101 edge 0 pair 97/98 conversion 63/18
+new 103 from 102 edge 0 pair 98/99 conversion 17/3
+new 104 from 103 edge 0 pair 99/100 conversion 3/30
+new 105 from 103 edge 0 pair 99/101 conversion 3/13
+new 106 from 105 edge 0 pair 101/102 conversion 63/18
+new 107 from 106 edge 0 pair 102/103 conversion 17/3
+new 108 from 107 edge 0 pair 103/104 conversion 3/30
+new 109 from 107 edge 0 pair 103/105 conversion 3/13
+new 110 from 109 edge 0 pair 105/106 conversion 63/18
+new 111 from 110 edge 0 pair 106/107 conversion 17/3
+new 112 from 111 edge 0 pair 107/108 conversion 3/30
+new 113 from 111 edge 0 pair 107/109 conversion 3/13
+new 114 from 113 edge 0 pair 109/110 conversion 63/18
+new 115 from 114 edge 0 pair 110/111 conversion 17/3
+new 116 from 115 edge 0 pair 111/112 conversion 3/30
+new 117 from 115 edge 0 pair 111/113 conversion 3/13
+new 118 from 117 edge 0 pair 113/114 conversion 63/18
+new 119 from 118 edge 0 pair 114/115 conversion 17/3
+new 120 from 119 edge 0 pair 115/116 conversion 3/30
+new 121 from 119 edge 0 pair 115/117 conversion 3/13
+new 122 from 121 edge 0 pair 117/118 conversion 63/18
+new 123 from 122 edge 0 pair 118/119 conversion 17/3
+new 124 from 123 edge 0 pair 119/120 conversion 3/30
+new 125 from 123 edge 0 pair 119/121 conversion 3/13
+new 126 from 125 edge 0 pair 121/122 conversion 63/18
+new 127 from 126 edge 0 pair 122/123 conversion 17/3
+new 128 from 127 edge 0 pair 123/124 conversion 3/30
+new 129 from 127 edge 0 pair 123/125 conversion 3/13
+new 130 from 129 edge 0 pair 125/126 conversion 63/18
+new 131 from 130 edge 0 pair 126/127 conversion 17/3
+new 132 from 131 edge 0 pair 127/128 conversion 3/30
+new 133 from 131 edge 0 pair 127/129 conversion 3/13
+new 134 from 133 edge 0 pair 129/130 conversion 63/18
+new 135 from 134 edge 0 pair 130/131 conversion 17/3
+new 136 from 135 edge 0 pair 131/132 conversion 3/30
+new 137 from 135 edge 0 pair 131/133 conversion 3/13
+new 138 from 137 edge 0 pair 133/134 conversion 63/18
+new 139 from 138 edge 0 pair 134/135 conversion 17/3
+new 140 from 139 edge 0 pair 135/136 conversion 3/30
+new 141 from 139 edge 0 pair 135/137 conversion 3/13
+new 142 from 141 edge 0 pair 137/138 conversion 63/18
+new 143 from 142 edge 0 pair 138/139 conversion 17/3
+new 144 from 143 edge 0 pair 139/140 conversion 3/30
+new 145 from 143 edge 0 pair 139/141 conversion 3/13
+new 146 from 145 edge 0 pair 141/142 conversion 63/18
+new 147 from 146 edge 0 pair 142/143 conversion 17/3
+new 148 from 147 edge 0 pair 143/144 conversion 3/30
+new 149 from 147 edge 0 pair 143/145 conversion 3/13
+new 150 from 149 edge 0 pair 145/146 conversion 63/18
+new 151 from 150 edge 0 pair 146/147 conversion 17/3
+new 152 from 151 edge 0 pair 147/148 conversion 3/30
+new 153 from 151 edge 0 pair 147/149 conversion 3/13
+new 154 from 153 edge 0 pair 149/150 conversion 63/18
+new 155 from 154 edge 0 pair 150/151 conversion 17/3
+new 156 from 155 edge 0 pair 151/152 conversion 3/30
+new 157 from 155 edge 0 pair 151/153 conversion 3/13
+new 158 from 157 edge 0 pair 153/154 conversion 63/18
+new 159 from 158 edge 0 pair 154/155 conversion 17/3
+new 160 from 159 edge 0 pair 155/156 conversion 3/30
+new 161 from 159 edge 0 pair 155/157 conversion 3/13
+new 162 from 161 edge 0 pair 157/158 conversion 63/18
+new 163 from 162 edge 0 pair 158/159 conversion 17/3
+new 164 from 163 edge 0 pair 159/160 conversion 3/30
+new 165 from 163 edge 0 pair 159/161 conversion 3/13
+new 166 from 165 edge 0 pair 161/162 conversion 63/18
+new 167 from 166 edge 0 pair 162/163 conversion 17/3
+new 168 from 167 edge 0 pair 163/164 conversion 3/30
+new 169 from 167 edge 0 pair 163/165 conversion 3/13
+new 170 from 169 edge 0 pair 165/166 conversion 63/18
+new 171 from 170 edge 0 pair 166/167 conversion 17/3
+new 172 from 171 edge 0 pair 167/168 conversion 3/30
+new 173 from 171 edge 0 pair 167/169 conversion 3/13
+new 174 from 173 edge 0 pair 169/170 conversion 63/18
+new 175 from 174 edge 0 pair 170/171 conversion 17/3
+new 176 from 175 edge 0 pair 171/172 conversion 3/30
+new 177 from 175 edge 0 pair 171/173 conversion 3/13
+new 178 from 177 edge 0 pair 173/174 conversion 63/18
+new 179 from 178 edge 0 pair 174/175 conversion 17/3
+new 180 from 179 edge 0 pair 175/176 conversion 3/30
+new 181 from 179 edge 0 pair 175/177 conversion 3/13
+new 182 from 181 edge 0 pair 177/178 conversion 63/18
+new 183 from 182 edge 0 pair 178/179 conversion 17/3
+new 184 from 183 edge 0 pair 179/180 conversion 3/30
+new 185 from 183 edge 0 pair 179/181 conversion 3/13
+new 186 from 185 edge 0 pair 181/182 conversion 63/18
+new 187 from 186 edge 0 pair 182/183 conversion 17/3
+new 188 from 187 edge 0 pair 183/184 conversion 3/30
+new 189 from 187 edge 0 pair 183/185 conversion 3/13
+new 190 from 189 edge 0 pair 185/186 conversion 63/18
+new 191 from 190 edge 0 pair 186/187 conversion 17/3
+new 192 from 191 edge 0 pair 187/188 conversion 3/30
+new 193 from 191 edge 0 pair 187/189 conversion 3/13
+new 194 from 193 edge 0 pair 189/190 conversion 63/18
+new 195 from 194 edge 0 pair 190/191 conversion 17/3
+new 196 from 195 edge 0 pair 191/192 conversion 3/30
+new 197 from 195 edge 0 pair 191/193 conversion 3/13
+new 198 from 197 edge 0 pair 193/194 conversion 63/18
+new 199 from 198 edge 0 pair 194/195 conversion 17/3
+new 200 from 199 edge 0 pair 195/196 conversion 3/30
+new 201 from 199 edge 0 pair 195/197 conversion 3/13
+new 202 from 201 edge 0 pair 197/198 conversion 63/18
+new 203 from 202 edge 0 pair 198/199 conversion 17/3
+new 204 from 203 edge 0 pair 199/200 conversion 3/30
+new 205 from 203 edge 0 pair 199/201 conversion 3/13
+new 206 from 205 edge 0 pair 201/202 conversion 63/18
+new 207 from 206 edge 0 pair 202/203 conversion 17/3
+new 208 from 207 edge 0 pair 203/204 conversion 3/30
+new 209 from 207 edge 0 pair 203/205 conversion 3/13
+new 210 from 209 edge 0 pair 205/206 conversion 63/18
+new 211 from 210 edge 0 pair 206/207 conversion 17/3
+new 212 from 211 edge 0 pair 207/208 conversion 3/30
+new 213 from 211 edge 0 pair 207/209 conversion 3/13
+new 214 from 213 edge 0 pair 209/210 conversion 63/18
+new 215 from 214 edge 0 pair 210/211 conversion 17/3
+new 216 from 215 edge 0 pair 211/212 conversion 3/30
+new 217 from 215 edge 0 pair 211/213 conversion 3/13
+new 218 from 217 edge 0 pair 213/214 conversion 63/18
+new 219 from 218 edge 0 pair 214/215 conversion 17/3

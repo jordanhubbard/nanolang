@@ -1,0 +1,18 @@
+{
+  "nanovirt/codegen": {
+    "asan": true,
+    "ubsan": true
+  },
+  "env": {
+    "asan": true,
+    "ubsan": true
+  },
+  "typechecker": {
+    "asan": true,
+    "ubsan": true
+  },
+  "transpiler": {
+    "asan": true,
+    "ubsan": true
+  }
+}

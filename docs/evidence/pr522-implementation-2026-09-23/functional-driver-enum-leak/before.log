@@ -1,0 +1,14 @@
+test_bound_callback_owners_and_selected_shadow_dependencies (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_bound_callback_owners_and_selected_shadow_dependencies) ... ok
+test_declared_builtin_names_keep_identity (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_declared_builtin_names_keep_identity) ... ok
+test_exact_returned_callback_selector (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_exact_returned_callback_selector) ... ok
+test_existing_core_examples (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_existing_core_examples) ... ok
+test_reduce_initializer_mutation_precedes_length_snapshot (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_reduce_initializer_mutation_precedes_length_snapshot) ... ok
+test_scalar_reductions_and_element_read_timing (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_scalar_reductions_and_element_read_timing) ... ok
+test_signature_and_shadowing_refusals_preserve_output (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_signature_and_shadowing_refusals_preserve_output) ... ok
+test_source_order_and_captured_length (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_source_order_and_captured_length) ... ok
+test_typed_empty_fresh_outputs_and_changed_map_type (tests.test_nanoisa_functional_arrays.FunctionalArrays.test_typed_empty_fresh_outputs_and_changed_map_type) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 93.696s
+
+OK

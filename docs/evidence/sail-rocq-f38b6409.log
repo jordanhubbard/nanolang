@@ -1,0 +1,54 @@
+task=task_f3524c87530e4b49aa71b5bf50e287e5
+head=f38b6409e0c4d94d84a4f1ac748e516cd100f6be
+roadmap_prework=d021ad9927f1fdfd8a8c6a3b72acf68c2430dcfa
+command=bash scripts/check_sail_container.sh --rocq-check
+execute_mode=false
+script_sha256=a66192c614bb6de9dd10a78b9ff61babba2efb52f4acd8bd6c0f36adc15a4202
+model_sha256=ae27a4e755f0f872e31b7a7a523a6963c5af82228257bb40bd4f60e21c8c1629
+proof_sha256=2f773b4fde344114e72e7f3cc2a7b6bfdfaba63f3144e8f2572ff2e7d889e8f4
+assumption_checker_sha256=a58b5b4cc55c76b612dcca70e03edd3e6e1d88fe9447ad537fec5fe454a4fa3e
+image_digest=sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2
+sail_archive_sha256=26b59bcab2d66e9f220d317dfe45f8b09170ed70e59a824553d6f525134d1ff6
+sail_release=0.20.2-binary
+rocq_packages=coq.9.0.1 coq-core.9.0.1 coq-stdlib.9.0.0 coq-sail-stdpp.0.20.2 coq-stdpp-bitvector.1.12.0 coq-stdpp.1.12.0
+started_utc=2026-09-18T10:30:36Z
+Sail 0.20.2 (sail2 @ 3b7af38d66466ecadad563158b07ce2f82fe05da)
+The following actions will be performed:
+=== install 6 packages
+  - install coq                 9.0.1
+  - install coq-core            9.0.1
+  - install coq-sail-stdpp      0.20.2
+  - install coq-stdlib          9.0.0
+  - install coq-stdpp           1.12.0
+  - install coq-stdpp-bitvector 1.12.0
+
+<><> Processing actions <><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+-> retrieved coq-sail-stdpp.0.20.2  (https://github.com/rems-project/coq-sail/archive/refs/tags/0.20.2.tar.gz)
+-> retrieved coq-stdpp.1.12.0, coq-stdpp-bitvector.1.12.0  (https://gitlab.mpi-sws.org/iris/stdpp/-/archive/coq-stdpp-1.12.0.tar.gz)
+-> retrieved coq-core.9.0.1  (https://opam.ocaml.org/cache)
+-> installed coq-core.9.0.1
+-> installed coq-stdlib.9.0.0
+-> installed coq.9.0.1
+-> installed coq-stdpp.1.12.0
+-> installed coq-stdpp-bitvector.1.12.0
+-> installed coq-sail-stdpp.0.20.2
+Done.
+
+<><> coq-core.9.0.1 installed successfully ><><><><><><><><><><><><><><><><><><>
+=> Coq has been renamed to The Rocq Prover, see https://rocq-prover.org/refman/changes.html#porting-to-the-rocq-prover for details.
+      This package provides compatibility binaries to ease the transition to the new rocq binary.
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+Closed under the global context
+I checked bounded stack-model lemmas, not VM refinement.
+real 529.47
+user 0.35
+sys 0.37
+finished_utc=2026-09-18T10:39:25Z
+exit_status=0

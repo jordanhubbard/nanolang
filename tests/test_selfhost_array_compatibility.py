@@ -85,6 +85,10 @@ fn main() -> int {
     let filled = (array_push (at fractional 0) 2.5)
     assert (== (at filled 0) 2.5)
     assert (== (at (at fractional 1) 0) 1.5)
+    let inferred = [[3.5]]
+    assert (== (at (at inferred 0) 0) 3.5)
+    let repeated: array<array<int>> = (array_new 2 [21, 22])
+    assert (== (at (at repeated 1) 0) 21)
     return 0
 }
 shadow main { assert (== (main) 0) }

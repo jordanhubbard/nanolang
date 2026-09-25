@@ -1,0 +1,82 @@
+.types 1 0 1
+.entry 2
+
+.function read 1 1 0 int 1
+  LOAD_LOCAL 0
+  AGG_GET 0
+  PUSH_I64 1
+  ARR_GET
+  RET
+.end
+
+.function choice_size 1 2 0 int 1
+  LOAD_LOCAL 0
+  DUP
+  AGG_TAG
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L1
+  DUP
+  STORE_LOCAL 1
+  POP
+  LOAD_LOCAL 1
+  AGG_GET 0
+  AGG_GET 0
+  ARR_LEN
+  LOAD_LOCAL 1
+  AGG_GET 0
+  AGG_GET 1
+  I64_ADD
+  RET
+  JMP L0
+L1:
+  POP
+  PUSH_BOOL 0
+  ASSERT
+  HALT
+L0:
+.end
+
+.function main 0 4 0 int 1
+  ARR_LITERAL 1 0
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  PUSH_I64 5
+  AGG_PACK 0 0 0 2
+  STORE_LOCAL 1
+  LOAD_LOCAL 1
+  AGG_GET 0
+  PUSH_I64 7
+  ARR_PUSH
+  POP
+  LOAD_LOCAL 1
+  AGG_GET 0
+  PUSH_I64 9
+  ARR_PUSH
+  POP
+  LOAD_LOCAL 1
+  CALL read
+  PUSH_I64 9
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 0
+  ARR_LEN
+  PUSH_I64 2
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 1
+  STORE_LOCAL 2
+  LOAD_LOCAL 2
+  AGG_PACK 1 0 0 1
+  STORE_LOCAL 3
+  LOAD_LOCAL 3
+  CALL choice_size
+  PUSH_I64 7
+  I64_EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.end
+
+.parameters read struct
+.parameters choice_size union

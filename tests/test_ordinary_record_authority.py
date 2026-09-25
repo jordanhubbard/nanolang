@@ -5,6 +5,7 @@ import shlex
 import subprocess
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc, native_link_flags
 ROOT=Path(__file__).resolve().parents[1]
 class OrdinaryAuthority(unittest.TestCase):
     def command(self,args,success=True,expected=None):
@@ -17,20 +18,23 @@ class OrdinaryAuthority(unittest.TestCase):
     def test_declarations_transport_and_unchanged_profiles(self):
         with tempfile.TemporaryDirectory(prefix='nano-ordinary-authority-') as temp:
             work=Path(temp)
-            for compiler,flags in [('cc',[]),('clang',shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS',''))+['-fsanitize=address,undefined','-fno-sanitize-recover=all'])]:
-                exe=work/compiler;module=work/(compiler+'.nvm')
-                self.command([compiler,*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror','-Isrc/nanoisa',
-                    'tests/nanoisa/test_ordinary_record_authority.c',*shlex.split(os.environ['NOA_LINK_OBJECTS']),'-lm','-lcrypto','-o',exe])
-                forward=work/(compiler+'-forward.nvm')
-                owned_forward=work/(compiler+'-owned-forward.nvm')
-                owned_prior=work/(compiler+'-owned-prior.nvm')
+            clang=shlex.split(os.environ.get('NANOLANG_GUARD_SAN_CC') or 'clang')
+            clang_flags=shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS',''))
+            link_flags=native_link_flags()
+            for label,compiler,flags in [('native',native_cc(),[]),('sanitized',clang,clang_flags+['-fsanitize=address,undefined','-fno-sanitize-recover=all'])]:
+                exe=work/label;module=work/(label+'.nvm')
+                self.command([*compiler,*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror','-Isrc/nanoisa',
+                    'tests/nanoisa/test_ordinary_record_authority.c',*shlex.split(os.environ['NOA_LINK_OBJECTS']),'-lm','-lcrypto',*link_flags,'-o',exe])
+                forward=work/(label+'-forward.nvm')
+                owned_forward=work/(label+'-owned-forward.nvm')
+                owned_prior=work/(label+'-owned-prior.nvm')
                 self.assertIn('ordinary authority checks',self.command([exe,module,forward,owned_forward,owned_prior]).stdout)
                 for accepted,expected in ((forward,0),(owned_prior,7)):
                     self.command([ROOT/'bin/nano_vm','--verify-only',accepted])
                     self.command([ROOT/'bin/nano_vm',accepted],expected=expected)
                     translated=accepted.with_suffix('.c');binary=accepted.with_suffix('.out')
                     self.command([ROOT/'bin/nvm2c',accepted,'-o',translated])
-                    self.command([compiler,*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror',translated,'-lm','-o',binary])
+                    self.command([*compiler,*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror',translated,'-lm',*link_flags,'-o',binary])
                     self.command([binary],expected=expected)
                 self.command([ROOT/'bin/nano_vm','--verify-only',owned_forward],False)
                 self.command([ROOT/'bin/nano_vm',owned_forward],False)
@@ -44,7 +48,7 @@ class OrdinaryAuthority(unittest.TestCase):
                         self.assertEqual(self.command(['wasmtime','run','--invoke','nano_entry',output]).stdout,'0\n')
                     else:
                         binary=work/'forward-llvm'
-                        self.command(['clang',*shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS','')),output,'-o',binary])
+                        self.command([*clang,*clang_flags,output,*link_flags,'-o',binary])
                         self.command([binary])
                 self.command([ROOT/'bin/nano_vm',module])
                 for tool in ('nvm2llvm','nvm2wasm'):
@@ -54,6 +58,6 @@ class OrdinaryAuthority(unittest.TestCase):
                         self.assertEqual(self.command(['wasmtime','run','--invoke','nano_entry',output]).stdout,'0\n')
                     else:
                         binary=work/'ordinary-llvm'
-                        self.command(['clang',*shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS','')),output,'-o',binary])
+                        self.command([*clang,*clang_flags,output,*link_flags,'-o',binary])
                         self.command([binary])
 if __name__=='__main__':unittest.main()

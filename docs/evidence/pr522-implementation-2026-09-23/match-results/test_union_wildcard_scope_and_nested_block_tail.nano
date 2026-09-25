@@ -1,0 +1,14 @@
+union Choice { Some { value: int }, None {} }
+fn choose(value: Choice) -> int {
+ let payload: int = 3
+ let result: int = match value {
+  _ if false => { 99 }
+  Some(payload) if false => { payload.value }
+  Some(payload) => { let local: int = match 1 { 1 => { 2 } _ => { 0 } } (+ payload.value local) }
+  _ if true => { payload }
+ }
+ return (+ result payload)
+}
+shadow choose { assert (== (choose Choice.Some { value: 7 }) 12) assert (== (choose Choice.None {}) 6) }
+fn main() -> int { assert (== (choose Choice.Some { value: 7 }) 12) assert (== (choose Choice.None {}) 6) return 0 }
+shadow main { assert (== (main) 0) }

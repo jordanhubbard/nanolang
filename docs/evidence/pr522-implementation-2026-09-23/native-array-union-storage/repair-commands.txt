@@ -1,0 +1,7 @@
+NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang make test-nvm2c test-native-indexed-union-payloads
+python3 docs/evidence/pr522-implementation-2026-09-23/native-nested-union-storage/run_instrumented_nested.py
+ASAN_OPTIONS=detect_leaks=1:detect_stack_use_after_return=1 UBSAN_OPTIONS=halt_on_error=1 python3 scripts/run_nvm2c_sanitizers.py --cc /opt/homebrew/opt/llvm/bin/clang
+
+The focused harness selects a fresh private translator via NANO_NVM2C, verifies ASan/UBSan symbols in both classifier/shape objects, instruments generated products, and retains leak/UAR checks. It selects the current 13 methods and routes 38 raw translator invocations. Existing raw product helpers retain their own leak/halt options; UAR is explicitly retained on the translator calls.
+
+NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang NANO_CC=/opt/homebrew/opt/llvm/bin/clang NANO_CFLAGS='-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all' NANO_LDFLAGS='-fsanitize=address,undefined' ASAN_OPTIONS=detect_leaks=1:detect_stack_use_after_return=1 UBSAN_OPTIONS=halt_on_error=1 python3 -m unittest tests.test_source_record_unions.SourceRecordUnionShadows

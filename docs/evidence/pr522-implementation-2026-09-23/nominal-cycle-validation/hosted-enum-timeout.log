@@ -1,0 +1,43 @@
+2026-09-24T10:19:40.5667448Z ERROR: test_shared_parser_values (__main__.EnumMetadata.test_shared_parser_values) (compiler='nanoc_stage1')
+2026-09-24T10:19:40.5668448Z ----------------------------------------------------------------------
+2026-09-24T10:19:40.5669103Z Traceback (most recent call last):
+2026-09-24T10:19:40.5670036Z   File "/home/runner/work/nanolang/nanolang/tests/test_selfhost_enum_metadata.py", line 16, in test_shared_parser_values
+2026-09-24T10:19:40.5671515Z     result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=180)
+2026-09-24T10:19:40.5672350Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-24T10:19:40.5673042Z   File "/usr/lib/python3.12/subprocess.py", line 550, in run
+2026-09-24T10:19:40.5673747Z     stdout, stderr = process.communicate(input, timeout=timeout)
+2026-09-24T10:19:40.5674372Z                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-24T10:19:40.5675000Z   File "/usr/lib/python3.12/subprocess.py", line 1209, in communicate
+2026-09-24T10:19:40.5675713Z     stdout, stderr = self._communicate(input, endtime, timeout)
+2026-09-24T10:19:40.5676315Z                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-24T10:19:40.5676955Z   File "/usr/lib/python3.12/subprocess.py", line 2116, in _communicate
+2026-09-24T10:19:40.5677680Z     self._check_timeout(endtime, orig_timeout, stdout, stderr)
+2026-09-24T10:19:40.5678389Z   File "/usr/lib/python3.12/subprocess.py", line 1253, in _check_timeout
+2026-09-24T10:19:40.5679106Z     raise TimeoutExpired(
+2026-09-24T10:19:40.5680936Z subprocess.TimeoutExpired: Command '[PosixPath('/home/runner/work/nanolang/nanolang/bin/nanoc_stage1'), PosixPath('/home/runner/work/nanolang/nanolang/tests/selfhost/test_enum_metadata.nano'), '-o', PosixPath('/tmp/tmpsxg8acmt/nanoc_stage1')]' timed out after 180 seconds
+2026-09-24T10:19:40.5682938Z 
+2026-09-24T10:19:40.5683340Z ======================================================================
+2026-09-24T10:19:40.5685915Z ERROR: test_shared_parser_values (__main__.EnumMetadata.test_shared_parser_values) (compiler='nanoc_stage2')
+2026-09-24T10:19:40.5686907Z ----------------------------------------------------------------------
+2026-09-24T10:19:40.5687511Z Traceback (most recent call last):
+2026-09-24T10:19:40.5688466Z   File "/home/runner/work/nanolang/nanolang/tests/test_selfhost_enum_metadata.py", line 16, in test_shared_parser_values
+2026-09-24T10:19:40.5689650Z     result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=180)
+2026-09-24T10:19:40.5690469Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-24T10:19:40.5691507Z   File "/usr/lib/python3.12/subprocess.py", line 550, in run
+2026-09-24T10:19:40.5692088Z     stdout, stderr = process.communicate(input, timeout=timeout)
+2026-09-24T10:19:40.5692721Z                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-24T10:19:40.5693338Z   File "/usr/lib/python3.12/subprocess.py", line 1209, in communicate
+2026-09-24T10:19:40.5694051Z     stdout, stderr = self._communicate(input, endtime, timeout)
+2026-09-24T10:19:40.5694612Z                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-24T10:19:40.5695274Z   File "/usr/lib/python3.12/subprocess.py", line 2116, in _communicate
+2026-09-24T10:19:40.5696017Z     self._check_timeout(endtime, orig_timeout, stdout, stderr)
+2026-09-24T10:19:40.5696774Z   File "/usr/lib/python3.12/subprocess.py", line 1253, in _check_timeout
+2026-09-24T10:19:40.5697427Z     raise TimeoutExpired(
+2026-09-24T10:19:40.5699305Z subprocess.TimeoutExpired: Command '[PosixPath('/home/runner/work/nanolang/nanolang/bin/nanoc_stage2'), PosixPath('/home/runner/work/nanolang/nanolang/tests/selfhost/test_enum_metadata.nano'), '-o', PosixPath('/tmp/tmpsxg8acmt/nanoc_stage2')]' timed out after 180 seconds
+2026-09-24T10:19:40.5701214Z 
+2026-09-24T10:19:40.5701465Z ----------------------------------------------------------------------
+2026-09-24T10:19:40.5702041Z Ran 1 test in 376.250s
+2026-09-24T10:19:40.5702283Z 
+2026-09-24T10:19:40.5702432Z FAILED (errors=2)
+2026-09-24T10:19:40.5750581Z make: *** [Makefile.gnu:4529: test-selfhost-enum-metadata] Error 1
+2026-09-24T10:19:40.5774488Z ##[error]Process completed with exit code 2.

@@ -1,0 +1,51 @@
+test_imported_enum_definition (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_imported_enum_definition) ... 
+  test_imported_enum_definition (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_imported_enum_definition) (compiler='/tmp/pr522-enum-leak-instrumented/nanoc_c-O0') ... FAIL
+
+======================================================================
+FAIL: test_imported_enum_definition (tests.test_cseed_single_letter_enums.SingleLetterEnums.test_imported_enum_definition) (compiler='/tmp/pr522-enum-leak-instrumented/nanoc_c-O0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_single_letter_nominals.py", line 35, in check
+    self.assertEqual(result.returncode, 0, diagnostic)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-single-letter-_tkdgrfo/choice.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-bFc6pI/source.c:13:10: fatal error: 'runtime/nl_string.h' file not found
+   13 | #include "runtime/nl_string.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-bFc6pI/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-single-letter-_tkdgrfo/choice.nano'
+Error: Failed to compile modules
+
+=================================================================
+==7537==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x000106fa940c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001051a5508 in type_check_module+0xcad8 (nanoc_c-O0:arm64+0x100fad508)
+    #2 0x0001044ab094 in load_module_internal module.c:707
+    #3 0x0001044b82a0 in compile_module_to_object module.c:1235
+    #4 0x0001044ee438 in compile_modules module.c:1823
+    #5 0x00010448d1c4 in compile_file main.c:1232
+    #6 0x000104481d90 in main main.c:2321
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x000106fa940c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001051a5508 in type_check_module+0xcad8 (nanoc_c-O0:arm64+0x100fad508)
+    #2 0x0001044ab094 in load_module_internal module.c:707
+    #3 0x0001044b157c in process_imports_owned module.c:993
+    #4 0x0001044af5e4 in process_imports module.c:908
+    #5 0x000104486bb4 in compile_file main.c:799
+    #6 0x000104481d90 in main main.c:2321
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 16 byte(s) leaked in 2 allocation(s).
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.414s
+
+FAILED (failures=1)

@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADER = '.string text "retained"\n.string empty ""\n.string unit "x"\n.entry main\n'
@@ -41,7 +42,7 @@ class NativeStringRetention(unittest.TestCase):
                 f'    if (nstr_live_bytes || nstr_owners || nstr_peak_bytes > {peak}) abort();\n'
                 '    printf("string_peak_bytes=%zu\\n", nstr_peak_bytes);\n')
             source.write_text('#include <stdio.h>\n' + generated)
-            self.run_checked(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+            self.run_checked([*native_cc(), '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                               source, '-o', binary])
             result = self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})

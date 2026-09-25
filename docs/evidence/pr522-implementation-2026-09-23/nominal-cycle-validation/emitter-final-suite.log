@@ -1,0 +1,18 @@
+test_assembly_mode_stays_equivalent (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_assembly_mode_stays_equivalent) ... ok
+test_lowering_refusal_reports_the_exact_boundary (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_lowering_refusal_reports_the_exact_boundary) ... ok
+test_nested_union_cycles_and_unknown_arguments_preserve_output (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_nested_union_cycles_and_unknown_arguments_preserve_output) ... ok
+test_nested_union_payloads_and_phantom_resource_arguments (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_nested_union_payloads_and_phantom_resource_arguments) ... ok
+test_nominal_cycles_are_rejected_before_bytecode_publication (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_nominal_cycles_are_rejected_before_bytecode_publication) ... ok
+test_output_aliases_preserve_source (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_output_aliases_preserve_source) ... ok
+test_primitive_lists_retain_identity_in_records_and_generic_unions (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_primitive_lists_retain_identity_in_records_and_generic_unions) ... ok
+test_rejection_preserves_previous_output (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_rejection_preserves_previous_output) ... ok
+test_repeatable_module_executes_in_vm_and_native (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_repeatable_module_executes_in_vm_and_native) ... ok
+test_scalar_boolean_casts_agree_in_vm_and_native (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_scalar_boolean_casts_agree_in_vm_and_native) ... ok
+test_selected_patterns_retain_concrete_payload_identity (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_selected_patterns_retain_concrete_payload_identity) ... ok
+test_supported_float_boolean_and_nested_array_results (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_supported_float_boolean_and_nested_array_results) ... ok
+test_unresolved_output_identity_preserves_source (tests.test_nanoisa_emit_driver.NanoisaEmitDriver.test_unresolved_output_identity_preserves_source) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 1.698s
+
+OK

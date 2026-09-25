@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADER = '.string key "key"\n.string text "retained"\n.entry main\n'
@@ -44,7 +45,7 @@ class NativeMapLifetimes(unittest.TestCase):
                 '    nmap_release_owned();\n'
                 '    if (nmap_owned_live || nmap_live_bytes || nmap_peak_bytes > 69632) abort();\n')
             source.write_text(generated)
-            self.run_checked(['cc', '-std=c11', '-g', '-Wall', '-Wextra', '-Werror',
+            self.run_checked([*native_cc(), '-std=c11', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                               source, '-o', binary])
             self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=0'})
