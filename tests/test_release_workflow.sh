@@ -36,6 +36,10 @@ require_line 'git reset --hard origin/main'
 require_line 'git tag -a "v$version" -m "Release v$version"'
 require_line 'python3 scripts/generate_root_package_json.py "$version" --version-header src/version.h'
 require_line 'git add CHANGELOG.md package.json src/version.h'
+require_line 'release_record="docs/RELEASE_${version%.*}.md"'
+require_line '[Full release record]'
+require_line '[Complete change ledger]'
+require_line '[Full comparison]'
 reject_line 'git push origin main'
 
 pr_line=$(grep -nF 'pr_url=$(gh pr create \' "$release_script" | cut -d: -f1)
