@@ -54,3 +54,14 @@ witnesses tied to their own values. An unknown enclosing producer also makes
 its projected constructor facts unknown. A record carrier alone does not choose
 between a plain-record shape and a constructor-indexed shape; producer and
 projection evidence make that choice.
+
+I retain element constructor metadata for record arrays through literals, local
+and global aliases, calls, returns, tail calls and operand-stack joins. Writes
+add producer layouts to the shared array obligations; reads acquire those
+layouts without acquiring a selected tag. I convert each record producer into
+element storage rather than equating its exact nested shape with every other
+element. Unknown address-taken array callers still taint projected facts.
+My array controls cover record envelopes containing record/string/unit unions,
+replacement and append through aliases, and preserved record snapshots. Direct
+source `array<Union>` admission, arrays nested in other containers and complete
+resource ownership remain separate work.

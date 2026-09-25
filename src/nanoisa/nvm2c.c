@@ -799,6 +799,14 @@ static int merge_constructors(Nvm2cBuf *b, Nvm2cFacts *facts, Nvm2cConstructors 
     return !b->failed;
 }
 
+/* Array aliases can receive writes through either spelling. I share layout
+ * obligations in both directions, never value witnesses or selected tags. */
+static int merge_array_constructors(Nvm2cBuf *b, Nvm2cFacts *facts,
+                                    Nvm2cConstructors *dest, Nvm2cConstructors *source) {
+    if (!merge_constructors(b, facts, dest, source, UINT32_MAX)) return 0;
+    return !source || merge_constructors(b, facts, source, dest, UINT32_MAX);
+}
+
 static int merge_constructor_field(Nvm2cBuf *b, Nvm2cFacts *facts,
                                     Nvm2cConstructors *parent, uint64_t key,
                                     Nvm2cConstructors *source, uint32_t variant) {
@@ -1263,11 +1271,14 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
             }
             memcpy(join->slots, stack, (size_t)sp * sizeof *stack);
             for (int i = 0; i < sp; ++i) {
-                if (stack[i].kind == NVM2C_VK_REC) {
+                if (stack[i].kind == NVM2C_VK_REC || stack[i].kind == NVM2C_VK_RARR) {
                     join->slots[i].constructors = constructor_facts(b, b->constructor_function,
                         ((uint64_t)target << 31) | ((uint32_t)i + 1));
-                    if (!merge_constructors(b, facts, join->slots[i].constructors,
-                                            stack[i].constructors, slot_variant(stack[i], facts))) return 0;
+                    if (stack[i].kind == NVM2C_VK_RARR) {
+                        if (!merge_array_constructors(b, facts, join->slots[i].constructors,
+                                                      stack[i].constructors)) return 0;
+                    } else if (!merge_constructors(b, facts, join->slots[i].constructors,
+                                                   stack[i].constructors, slot_variant(stack[i], facts))) return 0;
                 }
                 if (plan && plan->tags[i]) {
                     uint16_t tags = plan->tags[i] | stack[i].scalar_tags;
@@ -1314,11 +1325,13 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         return 0;
     }
     for (int i = 0; i < sp; i++) {
-        if (stack[i].kind == NVM2C_VK_REC) {
+        if (stack[i].kind == NVM2C_VK_REC || stack[i].kind == NVM2C_VK_RARR) {
             Nvm2cConstructors *dest = constructor_facts(b, b->constructor_function,
                 ((uint64_t)target << 31) | ((uint32_t)i + 1));
-            if (!merge_constructors(b, facts, dest, stack[i].constructors,
-                                    slot_variant(stack[i], facts))) return 0;
+            if (stack[i].kind == NVM2C_VK_RARR) {
+                if (!merge_array_constructors(b, facts, dest, stack[i].constructors)) return 0;
+            } else if (!merge_constructors(b, facts, dest, stack[i].constructors,
+                                           slot_variant(stack[i], facts))) return 0;
             join->slots[i].constructors = dest;
         }
         join->slots[i].variant = join->slots[i].variant == stack[i].variant
@@ -1784,6 +1797,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             } else if (facts->global_kinds[slot] == NVM2C_VK_RARR) {
                 Nvm2cSimSlot loaded = {0};
                 loaded.kind = NVM2C_VK_RARR;
+                loaded.constructors = constructor_facts(b,
+                    facts->global_fields + (size_t)slot * b->record_width, 0);
+                if (!loaded.constructors) return 0;
                 loaded.origin = -1;
                 loaded.shape = shape_variable(b, &b->shape_globals[slot]);
                 loaded.rec_k = sim_fields(b,
@@ -1854,6 +1870,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     !shape_record_return(b, value.shape,
                         shape_variable(b, &b->shape_globals[slot]), value.rec_k, fields)) return 0;
             } else if (value.kind == NVM2C_VK_RARR) {
+                if (!merge_array_constructors(b, facts, constructor_facts(b,
+                        facts->global_fields + (size_t)slot * b->record_width, 0), value.constructors)) return 0;
                 if (!merge_global_fields(b, facts, slot, value.rec_k)) return 0;
                 NvmShapeId global = shape_variable(b, &b->shape_globals[slot]);
                 if (!shape_type(b, global, NVM_SHAPE_ARRAY) ||
@@ -1894,7 +1912,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 loaded.scalar_tags = b->local_scalar_tags[(size_t)idx * b->local_width + slot];
             loaded.origin = (int)slot;
             loaded.variant = b->variant_locals[(size_t)idx * b->local_width + slot];
-            if (loaded.kind == NVM2C_VK_REC) {
+            if (loaded.kind == NVM2C_VK_REC || loaded.kind == NVM2C_VK_RARR) {
                 loaded.constructors = constructor_facts(b, facts->fields +
                     ((size_t)idx * b->local_width + slot) * b->record_width, 0);
                 if (!loaded.constructors) return 0;
@@ -1995,6 +2013,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                        fields, b->record_width);
             } else if (v.kind == NVM2C_VK_RARR || v.kind == NVM2C_VK_MAP) {
                 local_kind[slot] = v.kind;
+                if (v.kind == NVM2C_VK_RARR &&
+                    !merge_array_constructors(b, facts, constructor_facts(b,
+                        facts->fields + local_at * b->record_width, 0), v.constructors)) return 0;
                 memcpy(rec_fields + (size_t)slot * b->record_width,
                        v.rec_k, b->record_width);
             } else if (v.kind == NVM2C_VK_INT && local_kind[slot] != NVM2C_VK_STR
@@ -2378,6 +2399,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 array.origin = -1;
                 array.shape = shape_variable(b, b->shape_current);
                 array.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
+                array.constructors = constructor_facts(b, b->constructor_function, (UINT64_C(1) << 62) | start);
+                if (!array.constructors) return 0;
                 if (!array.rec_k || !shape_type(b, array.shape, NVM_SHAPE_ARRAY)) return 0;
                 NvmShapeId element = shape_child(b, array.shape, 0);
                 if (!shape_type(b, element, NVM_SHAPE_RECORD)) return 0;
@@ -2395,7 +2418,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                             return 0;
                         }
                     }
-                    if (!shape_equal(b, element, value.shape)) return 0;
+                    if (!merge_constructors(b, facts, array.constructors, value.constructors,
+                                            slot_variant(value, facts)) ||
+                        (value.kind == NVM2C_VK_REC
+                            ? !shape_record_return(b, value.shape, element, value.rec_k, array.rec_k)
+                            : (b->track_shapes && (!nvm_shape_convert(&b->shapes, value.shape, element) ||
+                                                   !shape_ok(b))))) return 0;
                 }
                 if (!sim_push_slot(b, idx, stk, &sp, array)) return 0;
                 break;
@@ -2445,6 +2473,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 array.kind = NVM2C_VK_RARR;
                 array.origin = -1;
                 array.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
+                array.constructors = constructor_facts(b, b->constructor_function, (UINT64_C(1) << 62) | start);
+                if (!array.constructors) return 0;
                 if (!array.rec_k) return 0;
                 if (!sim_push_slot(b, idx, stk, &sp, array)) return 0;
             } else if (tag == TAG_ARRAY) {
@@ -2536,6 +2566,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 rec.variant = UINT32_MAX;
                 rec.origin = -1;
                 rec.rec_k = arr.rec_k;
+                rec.constructors = arr.constructors;
+                rec.shape = result_shape;
                 if (!sim_push_slot(b, idx, stk, &sp, rec)) return 0;
             } else if (arr.kind == NVM2C_VK_AARR) {
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_AARR);
@@ -2672,6 +2704,18 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     memcpy(rec_fields + (size_t)arr.origin * b->record_width,
                            val.rec_k, b->record_width);
                 }
+                if (!arr.constructors) {
+                    arr.constructors = constructor_facts(b, b->constructor_function, (UINT64_C(1) << 62) | start);
+                    if (!arr.constructors) return 0;
+                    /* A write cannot establish the provenance of the other
+                     * elements in an untracked array. */
+                    if (facts->variant_finalizing && !arr.constructors->unknown) {
+                        arr.constructors->unknown = 1; facts->changed = 1;
+                    }
+                }
+                if (!merge_constructors(b, facts, arr.constructors, val.constructors,
+                                        slot_variant(val, facts))) return 0;
+                pushed.constructors = arr.constructors;
                 pushed.kind = NVM2C_VK_RARR;
                 pushed.origin = -1;
                 pushed.rec_k = val.rec_k;
@@ -2702,6 +2746,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 /* An already tagged value retains its known payload contract. */
                 if (val.kind == NVM2C_VK_VALUE &&
                     !shape_equal(b, shape_child(b, arr.shape, 0), shape_child(b, val.shape, 0))) return 0;
+            } else if (written_array == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC) {
+                if (!shape_record_return(b, val.shape, shape_child(b, arr.shape, 0),
+                                         val.rec_k, stk[sp - 1].rec_k)) return 0;
             } else if (!shape_equal(b, shape_child(b, arr.shape, 0), val.shape)) return 0;
             if (!shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
             break;
@@ -2912,7 +2959,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         !shape_record_return(b, arg.shape, parameter, arg.rec_k, fields)) return 0;
                 } else if (arg.kind == NVM2C_VK_RARR) {
                     uint8_t *fields = facts->fields + at * b->record_width;
-                    if (!merge_record_results(b, facts, fields, arg.rec_k) ||
+                    if (!merge_array_constructors(b, facts, constructor_facts(b, fields, 0), arg.constructors) ||
+                        !merge_record_results(b, facts, fields, arg.rec_k) ||
                         !shape_type(b, parameter, NVM_SHAPE_ARRAY) ||
                         !shape_record_return(b, shape_child(b, arg.shape, 0),
                                              shape_child(b, parameter, 0), arg.rec_k, fields)) return 0;
@@ -2954,6 +3002,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 } else if (cf->result_count == 1 && cf->result_tag == TAG_ARRAY) {
                     Nvm2cSimSlot result = {0};
                     result.kind = b->array_results[callee];
+                    if (result.kind == NVM2C_VK_RARR) {
+                        result.constructors = constructor_facts(b, facts->results + (size_t)callee * b->record_width, 0);
+                        if (!result.constructors) return 0;
+                    }
                     result.origin = -1;
                     result.rec_k = sim_fields(b, facts->results + (size_t)callee * b->record_width, 0);
                     if (!result.rec_k || !sim_push_slot(b, idx, stk, &sp, result)) return 0;
@@ -2991,7 +3043,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 uint8_t *dest = facts->results + (size_t)idx * b->record_width;
                 const uint8_t *source = facts->results + (size_t)callee * b->record_width;
                 if (b->array_results[callee] == NVM2C_VK_RARR && cf->result_tag == TAG_ARRAY) {
-                    if (!merge_record_results(b, facts, dest, source)) return 0;
+                    if (!merge_array_constructors(b, facts, constructor_facts(b, dest, 0),
+                                                  constructor_facts(b, source, 0)) ||
+                        !merge_record_results(b, facts, dest, source)) return 0;
                 } else if (!merge_fields(b, facts, dest, source)) return 0;
             }
             if (ins.opcode == OP_CALL && cf->result_count == 1 && sp > 0) {
@@ -3215,8 +3269,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!merge_fact(b, facts, &b->array_results[idx], v.kind)) return 0;
                     mark_origin(local_kind, nloc, v.origin, b->array_results[idx]);
                     if (v.kind == NVM2C_VK_RARR &&
-                        !merge_record_results(b, facts, facts->results + (size_t)idx * b->record_width,
-                                      v.rec_k)) return 0;
+                        (!merge_array_constructors(b, facts, constructor_facts(b,
+                            facts->results + (size_t)idx * b->record_width, 0), v.constructors) ||
+                         !merge_record_results(b, facts, facts->results + (size_t)idx * b->record_width,
+                                      v.rec_k))) return 0;
                 } else if (aggregate_value_tag(fn->result_tag) || fn->result_tag == TAG_HASHMAP) {
                     mark_origin(local_kind, nloc, v.origin, fn->result_tag == TAG_HASHMAP ? NVM2C_VK_MAP : NVM2C_VK_REC);
                     if (v.kind == NVM2C_VK_REC &&

@@ -19,6 +19,7 @@ class IndexedUnionPayloads(unittest.TestCase):
             'local': 'LOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n',
             'global': 'LOAD_LOCAL 0\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nRET\n',
             'tail': 'LOAD_LOCAL 0\nTAIL_CALL identity\n',
+            'array': 'LOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nCALL array_bridge\nPUSH_I64 0\nARR_GET\nAGG_GET 0\nRET\n',
             'join': 'LOAD_LOCAL 0\nPUSH_BOOL 1\nJMP_FALSE other\nJMP joined\nother:\nNOP\njoined:\nRET\n',
         }
         for route, relay in routes.items():
@@ -31,6 +32,8 @@ class IndexedUnionPayloads(unittest.TestCase):
                         'AGG_PACK 1 0 2 0\nCALL relay\nCALL read\nPUSH_STR kept\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n' +
                         '.function relay 1 2 0 union 1\n' + relay + '.end\n' +
                         '.function identity 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n' +
+                        ('.function array_bridge 1 1 0 array 1\nLOAD_LOCAL 0\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPUSH_BOOL 1\nJMP_FALSE other\nJMP joined\nother:\nNOP\njoined:\nTAIL_CALL array_identity\n.end\n' +
+                        '.function array_identity 1 1 0 array 1\nLOAD_LOCAL 0\nRET\n.end\n' if route == 'array' else '') +
                         '.function read 1 1 0 string 1\nLOAD_LOCAL 0\nDUP\nAGG_TAG\nPUSH_I64 0\nEQ\nJMP_FALSE text\n'
                         'AGG_GET 0\nAGG_GET 0\nRET\ntext:\nDUP\nAGG_TAG\nPUSH_I64 1\nNE\nJMP_TRUE empty\n'
                         'AGG_GET 0\nRET\nempty:\nPOP\nPUSH_STR kept\nRET\n.end\n')
@@ -76,15 +79,24 @@ class IndexedUnionPayloads(unittest.TestCase):
             'wrong_field': 'LOAD_LOCAL 0\nDUP\nAGG_TAG\nPUSH_I64 0\nEQ\nJMP_FALSE other\nAGG_GET 0\nAGG_GET 0\nSTR_LEN\nRET\nother:\nPOP\nPUSH_I64 0\nRET\n',
             'bypass': 'LOAD_LOCAL 0\nDUP\nAGG_TAG\nPUSH_I64 0\nEQ\nJMP_TRUE selected\nJMP joined\nselected:\nJMP joined\njoined:\nAGG_GET 0\nAGG_GET 0\nRET\n',
         }
-        cases = [(name, consumer, nested) for name, consumer in consumers.items() for nested in (False, True)]
-        cases.append(('unknown_parent', consumers['wrong_variant'].replace('PUSH_I64 1', 'PUSH_I64 0'), True))
+        cases = [(name, consumer, nested) for name, consumer in consumers.items() for nested in (False, True, 'array')]
+        cases.extend(('unknown_parent', consumers['wrong_variant'].replace('PUSH_I64 1', 'PUSH_I64 0'), nested) for nested in (True, 'array'))
+        cases.append(('unknown_nested_array_write', consumers['wrong_variant'].replace('PUSH_I64 1', 'PUSH_I64 0'), 'array'))
         for name, consumer, nested in cases:
             with self.subTest(case=name, nested=nested), tempfile.TemporaryDirectory(prefix='indexed-union-refusal-') as tmp:
                 root = Path(tmp)
                 assembly, module, output = root/'input.nasm', root/'input.nvm', root/'output.c'
                 wrap = 'AGG_PACK 0 0 0 1\n' if nested else ''
                 if nested: consumer = consumer.replace('LOAD_LOCAL 0\n', 'LOAD_LOCAL 0\nAGG_GET 0\n')
-                address = 'FUNCREF read\nPOP\n' if name == 'unknown_parent' else ''
+                if nested == 'array':
+                    wrap += 'ARR_LITERAL 8 1\n'
+                    consumer = consumer.replace('LOAD_LOCAL 0\n', 'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\n')
+                if name == 'unknown_nested_array_write':
+                    wrap += 'AGG_PACK 0 0 0 1\n'
+                    consumer = consumer.replace('LOAD_LOCAL 0\n',
+                        'LOAD_LOCAL 0\nAGG_GET 0\nPUSH_I64 0\nPUSH_I64 9\n'
+                        'AGG_PACK 0 0 0 1\nAGG_PACK 1 0 0 1\nAGG_PACK 0 0 0 1\nARR_SET\n')
+                address = 'FUNCREF read\nPOP\n' if name.startswith('unknown_') else ''
                 assembly.write_text(HEADER + '.function main 0 0 0 int 1\n' + address +
                     'PUSH_I64 7\nAGG_PACK 0 0 0 1\nAGG_PACK 1 0 0 1\n' + wrap + 'CALL read\nPOP\n' +
                     'PUSH_STR kept\nAGG_PACK 1 0 1 1\n' + wrap + 'CALL read\nPOP\nPUSH_I64 0\nRET\n.end\n' +

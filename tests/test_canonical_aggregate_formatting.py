@@ -176,3 +176,64 @@ fn main() -> int {
 }
 shadow main { assert (== (main) 0) }
 ''')
+
+    def test_union_record_array_literal(self):
+        self.execute(r'''struct Item { label: string }
+union Choice { Box { value: Item }, Text { value: string }, Empty {} }
+struct Envelope { choice: Choice }
+fn read(value: Choice) -> string {
+ match value {
+  Box(b) => { return b.value.label }
+  Text(t) => { return t.value }
+  Empty(e) => { return "empty" }
+ }
+}
+shadow read { assert (== (read Choice.Empty {}) "empty") }
+fn main() -> int {
+ let values: array<Envelope> = [Envelope { choice: Choice.Box { value: Item { label: (+ "saved" "-label") } } }, Envelope { choice: Choice.Text { value: (+ "text" "-label") } }, Envelope { choice: Choice.Empty {} }]
+ assert (== (read (at values 0).choice) "saved-label")
+ assert (== (read (at values 1).choice) "text-label")
+ assert (== (read (at values 2).choice) "empty")
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
+    def test_union_record_array_aliases(self):
+        self.execute(r'''struct Item { label: string }
+union Choice { Box { value: Item }, Text { value: string }, Empty {} }
+struct Envelope { choice: Choice }
+fn read(value: Choice) -> string {
+ match value {
+  Box(b) => { return b.value.label }
+  Text(t) => { return t.value }
+  Empty(e) => { return "empty" }
+ }
+}
+shadow read { assert (== (read Choice.Empty {}) "empty") }
+let mut current: array<Envelope> = []
+fn identity(values: array<Envelope>) -> array<Envelope> { return values }
+shadow identity { assert (== (array_length (identity [])) 0) }
+fn write(values: array<Envelope>, value: Envelope) -> void { (array_set values 0 value) }
+shadow write {
+ let values: array<Envelope> = [Envelope { choice: Choice.Empty {} }]
+ (write values Envelope { choice: Choice.Text { value: "shadow" } })
+ assert (== (read (at values 0).choice) "shadow")
+}
+fn main() -> int {
+ let values: array<Envelope> = [Envelope { choice: Choice.Box { value: Item { label: (+ "saved" "-label") } } }]
+ assert (== (read (at values 0).choice) "saved-label")
+ set current (identity values)
+ let alias: array<Envelope> = (identity current)
+ let saved: Envelope = (at values 0)
+ (write alias Envelope { choice: Choice.Text { value: (+ "changed" "-label") } })
+ assert (== (read (at current 0).choice) "changed-label")
+ assert (== (read saved.choice) "saved-label")
+ let grown: array<Envelope> = (array_push alias Envelope { choice: Choice.Box { value: Item { label: "appended" } } })
+ assert (== (read (at grown 1).choice) "appended")
+ (write current Envelope { choice: Choice.Empty {} })
+ assert (== (read (at values 0).choice) "empty")
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
