@@ -7,8 +7,7 @@ from pathlib import Path
 
 
 def native_cc():
-    selected = (os.environ.get('NANO_NATIVE_TEST_CC') or
-                os.environ.get('NANO_CC') or os.environ.get('CC'))
+    selected = os.environ.get('NANO_NATIVE_TEST_CC') or os.environ.get('NANO_CC')
     if selected:
         compiler = shlex.split(selected)
     else:
@@ -26,7 +25,7 @@ def native_cc():
                 raise RuntimeError(f'I cannot find the selected macOS SDK: {sdk}')
             compiler = [str(homebrew), '-isysroot', sdk]
         else:
-            compiler = ['cc']
+            compiler = shlex.split(os.environ.get('CC', 'cc'))
     if not compiler:
         raise ValueError('I require a nonempty native compiler command.')
     return compiler
