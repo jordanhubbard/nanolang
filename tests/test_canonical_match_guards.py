@@ -1,13 +1,14 @@
 """I retain canonical guard effects and check explicit profile refusals."""
 try:
     from tests.sanitizer_options import asan_options
+    from tests.native_toolchain import native_cc
 except ModuleNotFoundError:
     from sanitizer_options import asan_options
+    from native_toolchain import native_cc
 import hashlib
 import json
 import os
 from pathlib import Path
-import shlex
 import signal
 import subprocess
 import tempfile
@@ -88,7 +89,7 @@ class CanonicalMatchGuards(unittest.TestCase):
         print(f"I retain guard artifacts at {cls.work}", flush=True)
         cls.env = dict(os.environ, LSAN_OPTIONS="", ASAN_OPTIONS=asan_options("halt_on_error=1"),
                        UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
-        cls.cc = shlex.split(os.environ.get("NANOLANG_GUARD_SAN_CC", os.environ.get("CC", "cc")))
+        cls.cc = native_cc()
 
     def retain_files(self, paths):
         archive = self.work / "generated-artifacts"

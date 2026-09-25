@@ -1,18 +1,19 @@
 """I preserve declared map writes across ordinary VM and native products."""
 try:
     from tests.sanitizer_options import asan_options
+    from tests.native_toolchain import native_cc
 except ModuleNotFoundError:
     from sanitizer_options import asan_options
+    from native_toolchain import native_cc
 from pathlib import Path
 import os
-import shlex
 import signal
 import subprocess
 import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-SANITIZER_CC = shlex.split(os.environ.get("NANOLANG_GUARD_SAN_CC", os.environ.get("CC", "cc")))
+SANITIZER_CC = native_cc()
 
 class DeclaredMapTags(unittest.TestCase):
     def command(self, args, success=True):

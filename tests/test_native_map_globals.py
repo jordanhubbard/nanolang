@@ -1,17 +1,18 @@
 """I preserve tagged map globals across calls, mutation and collection."""
 try:
     from tests.sanitizer_options import asan_options
+    from tests.native_toolchain import native_cc
 except ModuleNotFoundError:
     from sanitizer_options import asan_options
+    from native_toolchain import native_cc
 from pathlib import Path
 import os
-import shlex
 import subprocess
 import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-SANITIZER_CC = shlex.split(os.environ.get("NANOLANG_GUARD_SAN_CC", os.environ.get("CC", "cc")))
+SANITIZER_CC = native_cc()
 HEADER = '.entry main\n.string key "key"\n.string text "value"\n'
 
 class NativeMapGlobals(unittest.TestCase):

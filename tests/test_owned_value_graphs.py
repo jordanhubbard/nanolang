@@ -1,12 +1,13 @@
 """I keep consuming arguments unique through normal and terminal cleanup."""
 try:
     from tests.sanitizer_options import asan_options
+    from tests.native_toolchain import native_cc
 except ModuleNotFoundError:
     from sanitizer_options import asan_options
+    from native_toolchain import native_cc
 import os
 from pathlib import Path
 import subprocess
-import shlex
 import tempfile
 import unittest
 
@@ -25,7 +26,7 @@ class OwnedValueGraphs(unittest.TestCase):
         return result
 
     def test_owned_value_graphs_and_cleanup(self):
-        compiler = shlex.split(os.environ.get('NANOLANG_GUARD_SAN_CC', os.environ.get('CC', 'cc')))
+        compiler = native_cc()
         with tempfile.TemporaryDirectory(prefix='nano-owned-graphs-') as name:
             tmp = Path(name)
             run = self.checked([os.environ.get(self.binary_environment, self.binary_default), tmp])

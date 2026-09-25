@@ -74,6 +74,12 @@ print-native-test-cc:
         self.assertIn("$(NATIVE_TEST_CC) $(CFLAGS)", target)
         self.assertNotIn("$(CC) $(CFLAGS)", target)
 
+        for name in ("test_map_declared_tags.py", "test_native_map_globals.py",
+                     "test_owned_value_graphs.py", "test_canonical_match_guards.py"):
+            source = (ROOT / "tests" / name).read_text()
+            self.assertIn("native_cc()", source)
+            self.assertNotIn("NANOLANG_GUARD_SAN_CC", source)
+
     @unittest.skipUnless(sys.platform == "darwin", "I select an Apple SDK only on Darwin")
     def test_default_darwin_headers_belong_to_the_active_sdk(self):
         cflags, _ = self.flags()
