@@ -2942,6 +2942,7 @@ fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
         return -1
     }
     if (>= (nisa_artifact_arity function.name) 0) { return (nisa_register_artifact parser function) }
+    if (mb_imported_owner (mb_owner function.line)) { return (nisa_register_declared_scalar parser function) }
     let result: string = (nisa_host_result function.name)
     if (== result "") { return (nisa_register_declared_scalar parser function) }
     if (!= result function.return_type) {
@@ -2994,6 +2995,25 @@ shadow nisa_register_extern {
     let _6: int = (nisa_reset)
 }
 
+fn nisa_imported_host_index(parser: Parser, call: ASTCall, symbol: string) -> int {
+    let resolved: int = (nisa_call_index parser call)
+    if (>= resolved 0) {
+        let declaration: ASTFunction = (parser_get_function parser resolved)
+        if (mb_imported_owner (mb_owner declaration.line)) { return resolved }
+    }
+    let mut candidate: int = (- 0 1)
+    let mut i: int = 0
+    while (< i (parser_get_function_count parser)) {
+        let declaration: ASTFunction = (parser_get_function parser i)
+        if (and (== declaration.name symbol) (mb_imported_owner (mb_owner declaration.line))) {
+            if (>= candidate 0) { return -1 }
+            set candidate i
+        }
+        set i (+ i 1)
+    }
+    return candidate
+}
+
 fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string {
     if (!= call.arg_count (nisa_host_arity symbol)) { return (nisa_fail "host call arity mismatch") }
     let mut i: int = 0
@@ -3003,7 +3023,15 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string 
         if (!= argument_type (nisa_host_parameter symbol i)) { return (nisa_fail "host call parameter type mismatch") }
         set i (+ i 1)
     }
-    let mut index: int = (nisa_import_find symbol)
+    let mut index: int = (- 0 1)
+    let declaration_index: int = (nisa_imported_host_index parser call symbol)
+    if (>= declaration_index 0) {
+        let declaration: ASTFunction = (parser_get_function parser declaration_index)
+        if (mb_imported_owner (mb_owner declaration.line)) {
+            set index (nisa_register_declared_scalar parser declaration)
+        }
+    }
+    if (< index 0) { set index (nisa_import_find symbol) }
     if (< index 0) { set index (nisa_import_add symbol) }
     return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string index)))
 }
@@ -3017,6 +3045,26 @@ shadow nisa_emit_host_call {
     assert (str_contains text "CALL_EXTERN 0")
     assert (str_contains nisa_import_text "vm_getenv")
     let _2: int = (nisa_reset)
+    let imported_source: string = "extern fn nl_file_companion_open(wire: string, size: int) -> int\nfn main() -> int { return (nl_file_companion_open \"wire\" 4) }"
+    let imported_tokens: List<LexerToken> = (tokenize_string imported_source "merged.nano" diagnostics)
+    let imported_parser: Parser = (parse_program imported_tokens (list_LexerToken_length imported_tokens) "merged.nano")
+    (mb_reset [1, 2])
+    (mb_set_sources ["companion.nano", "main.nano"])
+    set nisa_artifact_owners [0]
+    set nisa_artifact_paths ["/retained/file_companion.so"]
+    let imported_call: ASTCall = (parser_get_call imported_parser 0)
+    let imported_declaration_index: int = (nisa_imported_host_index imported_parser imported_call "nl_file_companion_open")
+    assert (== imported_declaration_index 0)
+    let imported_declaration: ASTFunction = (parser_get_function imported_parser imported_declaration_index)
+    assert (== (mb_owner imported_declaration.line) 0)
+    assert (mb_imported_owner (mb_owner imported_declaration.line))
+    assert (== (nisa_register_declared_scalar imported_parser imported_declaration) 0)
+    assert (str_contains nisa_import_text "\"/retained/file_companion.so\" \"nl_file_companion_open\"")
+    let imported_text: string = (nisa_emit_host_call imported_parser imported_call "nl_file_companion_open")
+    assert (str_contains imported_text "CALL_EXTERN 0")
+    assert (str_contains nisa_import_text "\"/retained/file_companion.so\" \"nl_file_companion_open\"")
+    (mb_reset [])
+    let _3: int = (nisa_reset)
 }
 
 # I preserve argument storage while adapting qualified calls to one call path.
