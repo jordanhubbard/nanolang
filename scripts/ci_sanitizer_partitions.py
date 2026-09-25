@@ -377,6 +377,9 @@ def command_for(worker, phase):
                 *STAGE2_PROVIDER_OBJECTS, '-lm', '-lffi', '-Wl,--export-dynamic', '-ldl',
                 '-fsanitize=address,undefined',
                 '-o', 'bin/nanoc_stage2']
+    if phase == 'bootstrap2-smoke':
+        return ['bin/nanoc_stage2', 'examples/language/nl_hello.nano',
+                '-o', 'build/sanitizer-stage2/hello']
     if phase == 'bootstrap3':
         return ['make', 'bootstrap3', *BOOTSTRAP_FLAGS, *BOOTSTRAP_DRIVER_FLAGS, *FLAGS]
     if phase == 'providers':

@@ -615,7 +615,7 @@ jobs:
         run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-native 2>&1 | tee "$REPORT/bootstrap2-native.log"
       - name: Verify Stage 2 and complete bootstrap
         run: |
-          bin/nanoc_stage2 examples/language/nl_hello.nano -o build/sanitizer-stage2/hello
+          python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-smoke 2>&1 | tee "$REPORT/bootstrap2-smoke.log"
           build/sanitizer-stage2/hello >/dev/null
           touch .bootstrap2.built
           python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap3 2>&1 | tee "$REPORT/bootstrap3.log"
