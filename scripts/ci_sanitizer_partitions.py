@@ -38,13 +38,14 @@ PHASES = (('foundation', 'test-ci-foundation'),
 PROVIDERS = ['nanoisa_emit', 'nano_virt', 'nano_vm', 'nvm2c', 'nvm2c-runtime', 'nanoisa_dump']
 UNIT_PARTITIONS = 28
 BUNDLE_ROOTS = ('bin', 'obj', 'obj-runtime', 'lib', 'build')
-# My native compiler loads the declaration-owned compiler-support artifacts at
-# runtime.  The generated Stage 2 C retains their exact library paths, so the
-# staged CI handoff must carry the matching private module build alongside the
-# compiler object.  This path is optional for early stages and bounded to the
-# one provider; archiving all of modules would mix unrelated build products
-# into the compiler boundary.
-BUNDLE_PROVIDER_PATHS = ('modules/compiler_support/.build',)
+# My native compiler loads declaration-owned host artifacts at runtime. The
+# generated Stage 2 C retains their exact library paths, so each staged handoff
+# carries the complete private host closure alongside the compiler object.
+# These paths are optional for early stages; I do not archive unrelated module
+# products.
+BUNDLE_PROVIDER_PATHS = tuple(
+    'modules/' + name + '/.build' for name in
+    ('compiler_support', 'file_companion', 'file_source_catalog', 'nanoisa', 'std'))
 BUNDLE_PATHS = (*BUNDLE_ROOTS, *BUNDLE_PROVIDER_PATHS)
 BUNDLE_SENTINELS = ('.stage1.built', '.stage2.built', '.stage3.built',
                     '.bootstrap0.built', '.bootstrap1.built', '.bootstrap2.built', '.bootstrap3.built')
