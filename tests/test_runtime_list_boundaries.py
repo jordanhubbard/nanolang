@@ -5,7 +5,10 @@ import subprocess
 import tempfile
 import unittest
 
-from tests.native_toolchain import native_cc
+try:
+    from tests.native_toolchain import native_cc
+except ModuleNotFoundError:
+    from native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 
