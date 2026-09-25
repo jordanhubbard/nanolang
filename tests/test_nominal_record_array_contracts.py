@@ -13,27 +13,27 @@ class NominalRecordArrays(unittest.TestCase):
         return subprocess.run(cmd,cwd=ROOT,capture_output=True,text=True,timeout=120)
     def test_wrong_nominal_contexts(self):
         programs=[
-          "fn main() -> int { let value: Values = Values.Some { values: [Second { a: 2 }] } return 0 }",
-          'fn main() -> int { let values: array<First> = (array_new 2 Second { a: 2 }) return 0 }',
-          'fn main() -> int { let wrong: array<Second> = [Second { a: 2 }] let values: array<First> = (array_slice wrong 0 1) return 0 }',
-          'fn main() -> int { let mut values: array<First> = [] set values [Second { a: 2 }] return 0 }',
-          'fn main() -> int { let values: array<First> = [Second { a: 2 }] return 0 }',
-          'let values: array<First> = [Second { a: 2 }] fn main() -> int { return 0 }',
-          'fn main() -> int { let holder: Holder = Holder { values: [Second { a: 2 }] } return 0 }',
-          'fn values() -> array<First> { return [Second { a: 2 }] } shadow values { assert true } fn main() -> int { return 0 }',
-          'fn take(values: array<First>) -> int { return 0 } shadow take { assert true } fn main() -> int { return (take [Second { a: 2 }]) }',
-          'fn main() -> int { let wrong: array<Second> = [Second { a: 2 }] let values: array<First> = wrong return 0 }',
-          'fn main() -> int { let values: array<First> = (array_push [] Second { a: 2 }) return 0 }',
+          ("fn main() -> int { let value: Values = Values.Some { values: [Second { a: 2 }] } return 0 }", 'union payload value to match its complete concrete destination'),
+          ('fn main() -> int { let values: array<First> = (array_new 2 Second { a: 2 }) return 0 }', 'declared nominal record type'),
+          ('fn main() -> int { let wrong: array<Second> = [Second { a: 2 }] let values: array<First> = (array_slice wrong 0 1) return 0 }', 'declared nominal record type'),
+          ('fn main() -> int { let mut values: array<First> = [] set values [Second { a: 2 }] return 0 }', 'declared nominal record type'),
+          ('fn main() -> int { let values: array<First> = [Second { a: 2 }] return 0 }', 'declared nominal record type'),
+          ('let values: array<First> = [Second { a: 2 }] fn main() -> int { return 0 }', 'declared nominal record type'),
+          ('fn main() -> int { let holder: Holder = Holder { values: [Second { a: 2 }] } return 0 }', 'declared nominal record type'),
+          ('fn values() -> array<First> { return [Second { a: 2 }] } shadow values { assert true } fn main() -> int { return 0 }', 'declared nominal record type'),
+          ('fn take(values: array<First>) -> int { return 0 } shadow take { assert true } fn main() -> int { return (take [Second { a: 2 }]) }', 'declared nominal record type'),
+          ('fn main() -> int { let wrong: array<Second> = [Second { a: 2 }] let values: array<First> = wrong return 0 }', 'declared nominal record type'),
+          ('fn main() -> int { let values: array<First> = (array_push [] Second { a: 2 }) return 0 }', 'declared nominal record type'),
         ]
         with tempfile.TemporaryDirectory() as tmp:
           root=Path(tmp);source=root/'bad.nano';output=root/'prior'
-          for i,program in enumerate(programs):
+          for i,(program,diagnostic) in enumerate(programs):
             source.write_text(DECL+program+END)
             for compiler in ('nanoc_c','nano_virt'):
               with self.subTest(case=i,compiler=compiler):
                 output.write_text('prior-output');p=self.compile(compiler,source,output)
                 self.assertNotEqual(p.returncode,0)
-                self.assertIn('declared nominal record type',p.stdout+p.stderr)
+                self.assertIn(diagnostic,p.stdout+p.stderr)
                 self.assertEqual(output.read_text(),'prior-output')
     def test_matching_and_empty_contexts_execute(self):
         source_text=DECL+'''let initial: array<First> = [First { a: 7 }]
