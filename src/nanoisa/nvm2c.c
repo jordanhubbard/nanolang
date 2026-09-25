@@ -5704,7 +5704,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             if (ak == NVM2C_VK_VALUE) {
                 char boxed[96], expr[192];
-                scalar_value_expression(b, boxed, sizeof boxed, vk, val);
+                /* A projected array has a tagged carrier even when its
+                 * element is itself an array. Preserve that nested value. */
+                tagged_array_element_expression(b, boxed, sizeof boxed, vk, val);
                 if (b->failed) goto done;
                 snprintf(expr, sizeof expr, "nvalue_array_set(v[%d], t[%d], %s)", arr, ix, boxed);
                 stack_push_value(b, &st, expr);
@@ -5763,7 +5765,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 stack_push_aarr(b, &st, expr);
             } else if (ak == NVM2C_VK_VALUE) {
                 char boxed[96], expr[192];
-                scalar_value_expression(b, boxed, sizeof boxed, vk, val);
+                tagged_array_element_expression(b, boxed, sizeof boxed, vk, val);
                 if (b->failed) goto done;
                 snprintf(expr, sizeof expr, "nvalue_array_push(v[%d], %s)", arr, boxed);
                 stack_push_value(b, &st, expr);

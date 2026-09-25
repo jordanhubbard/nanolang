@@ -4329,13 +4329,10 @@ fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
             (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)))) {
         return (nisa_fail "I require a replacement value matching the element type")
     }
-    if (== element "u8") {
-        let receiver: string = (nisa_emit_expr parser object.node_id object.node_type)
-        let position: string = (nisa_emit_expr parser index.node_id index.node_type)
-        let replacement: string = (nisa_emit_expected_expr parser value.node_id value.node_type element)
-        return (+ receiver (+ position (+ replacement (+ (nisa_line "ARR_SET") (nisa_line "POP")))))
-    }
-    return (+ (nisa_emit_call_args parser call) (+ (nisa_line "ARR_SET") (nisa_line "POP")))
+    let receiver: string = (nisa_emit_expr parser object.node_id object.node_type)
+    let position: string = (nisa_emit_expr parser index.node_id index.node_type)
+    let replacement: string = (nisa_emit_expected_expr parser value.node_id value.node_type element)
+    return (+ receiver (+ position (+ replacement (+ (nisa_line "ARR_SET") (nisa_line "POP")))))
 }
 shadow nisa_emit_set_call {
     let _: int = (nisa_reset)
@@ -4348,6 +4345,12 @@ shadow nisa_emit_set_call {
     set nisa_types ["array<u8>"]
     let byte_text: string = (nisa_emit_set_call parser (parser_get_call parser 0) "array_set")
     assert (str_contains byte_text "PUSH_U8 7\n  ARR_SET\n  POP")
+    let nested_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { (array_set values 0 []) return 0 }" "nested-set.nano" (diag_list_new))
+    let nested_parser: Parser = (parse_program nested_tokens (list_LexerToken_length nested_tokens) "nested-set.nano")
+    set nisa_names ["values"]
+    set nisa_types ["array<array<string>>"]
+    let nested_text: string = (nisa_emit_set_call nested_parser (parser_get_call nested_parser 0) "array_set")
+    assert (str_contains nested_text "ARR_LITERAL 5 0\n  ARR_SET\n  POP")
     let reset: int = (nisa_reset)
 }
 
