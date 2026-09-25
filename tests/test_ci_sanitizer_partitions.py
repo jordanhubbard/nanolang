@@ -390,6 +390,11 @@ class SanitizerPartitions(unittest.TestCase):
         verification = next(step for step in jobs['sanitizer-bootstrap']['steps']
                             if step.get('name') == 'Verify Stage 2 and complete bootstrap')
         self.assertIn('--phase bootstrap2-smoke', verification['run'])
+        self.assertIn('touch .bootstrap1.built .bootstrap2.built', verification['run'])
+        self.assertLess(verification['run'].index('--phase bootstrap2-smoke'),
+                        verification['run'].index('touch .bootstrap1.built .bootstrap2.built'))
+        self.assertLess(verification['run'].index('touch .bootstrap1.built .bootstrap2.built'),
+                        verification['run'].index('--phase bootstrap3'))
         self.assertNotIn('\n          bin/nanoc_stage2 ', verification['run'])
         self.assertIn('clang', partition.NATIVE_CC)
         self.assertIn('-lffi', partition.command_for({'id': 'scalar'}, 'bootstrap2-native'))
