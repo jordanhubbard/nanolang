@@ -1,11 +1,11 @@
 """I retain exact byte tags while reconstructing explicit scalar transport."""
 from pathlib import Path
 import os
-import shlex
 import subprocess
 import tempfile
 import unittest
 from tests import test_reconstructed_integer_addition as addition
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 SHADOWS = '''shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }
@@ -33,7 +33,7 @@ class U8Reconstruction(unittest.TestCase):
                 self.assertIn('return', source)
                 if language == 'c':
                     executable = directory/'c-program'
-                    self.checked(shlex.split(os.environ.get('CC', 'cc'))+['-std=c11', '-O1', '-Wall', '-Wextra',
+                    self.checked(native_cc()+['-std=c11', '-O1', '-Wall', '-Wextra',
                                  '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                                  output, '-o', executable])
                     self.checked([executable], expected)
@@ -51,7 +51,7 @@ class U8Reconstruction(unittest.TestCase):
                         self.assertRegex(dump, r'(?m)^\.parameters \d+ u8$')
                     c_source = directory/(producer+'.c'); native = directory/(producer+'-native')
                     self.checked([ROOT/'bin/nvm2c', recovered, '-o', c_source])
-                    self.checked(shlex.split(os.environ.get('CC', 'cc'))+['-std=c11', '-O1', '-Wall', '-Wextra',
+                    self.checked(native_cc()+['-std=c11', '-O1', '-Wall', '-Wextra',
                                  '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                                  c_source, '-o', native])
                     self.checked([native], expected)
@@ -198,7 +198,7 @@ shadow main { assert (== (main) 0) }
                     self.checked([ROOT/'bin/nano_vm', module])
                     c_source = directory/(producer+'.c'); executable = directory/(producer+'-native')
                     self.checked([ROOT/'bin/nvm2c', module, '-o', c_source])
-                    self.checked(shlex.split(os.environ.get('CC', 'cc'))+['-std=c11', '-O1', '-Wall', '-Wextra',
+                    self.checked(native_cc()+['-std=c11', '-O1', '-Wall', '-Wextra',
                                  '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                                  c_source, '-o', executable])
                     self.checked([executable])
