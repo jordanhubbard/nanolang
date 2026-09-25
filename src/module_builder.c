@@ -3546,8 +3546,15 @@ static bool module_link_response_safe(const ModuleBuildMetadata *meta, const Mod
     char word[4096];
     int status;
     while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
-        if (!strchr(word, '@')) continue;
-        if (word[0] != '@') return false;
+        const char *at = strchr(word, '@');
+        if (!at) continue;
+        /* Driver response files start with @. A linker response can also be
+         * carried inside -Wl,. Literal paths such as Homebrew's openssl@3 are
+         * ordinary words and do not hide another argument stream. */
+        if (word[0] != '@') {
+            if (!strncmp(word, "-Wl,", 4)) return false;
+            continue;
+        }
         if (link_word[0] && !strcmp(word, link_word)) continue;
         bool found = false;
         for (size_t group = 0; group < 3 && !found; group++) {
