@@ -6,10 +6,11 @@ except ModuleNotFoundError:
 from pathlib import Path
 import os
 import platform
-import shlex
 import subprocess
 import tempfile
 import unittest
+
+from tests.native_toolchain import native_cc
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -75,7 +76,7 @@ class CanonicalTupleValues(unittest.TestCase):
                     generated_text = generated.read_text()
                     self.assertIn(".kind != 2", generated_text)
                     self.checked(
-                        *shlex.split(os.environ.get("NANO_NATIVE_TEST_CC", "cc")),
+                        *native_cc(),
                         "-std=c11",
                         "-O1",
                         "-g",

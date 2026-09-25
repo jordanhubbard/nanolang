@@ -2,10 +2,11 @@
 from pathlib import Path
 import os
 import signal
-import shlex
 import subprocess
 import tempfile
 import unittest
+
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -504,7 +505,7 @@ class FlatRecordEmitter(unittest.TestCase):
                         self.run_checked(ROOT / 'bin/nano_vm', module)
                         native, binary = work / 'output.c', work / 'program'
                         self.run_checked(Path(os.environ.get('NVM2C', ROOT / 'bin/nvm2c')), module, '-o', native)
-                        compiler = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC') or os.environ.get('CC') or 'cc')
+                        compiler = native_cc()
                         self.run_checked(*compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
                                          '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                                          native, '-o', binary)
@@ -1047,7 +1048,7 @@ class FlatRecordEmitter(unittest.TestCase):
                     self.run_checked(ROOT / "bin/nano_vm", module)
                     self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
                     self.run_checked(
-                        *shlex.split(os.environ.get("NANO_NATIVE_TEST_CC", "cc")),
+                        *native_cc(),
                         "-std=c11", "-O1", "-g", "-fno-omit-frame-pointer",
                         "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
                         native_c, "-lm", "-o", binary,
