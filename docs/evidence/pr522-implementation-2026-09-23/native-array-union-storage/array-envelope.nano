@@ -1,0 +1,19 @@
+struct Item { label: string }
+union Choice { Box { value: Item }, Text { value: string }, Empty {} }
+struct Envelope { choice: Choice }
+fn read(value: Choice) -> string {
+ match value {
+  Box(b) => { return b.value.label }
+  Text(t) => { return t.value }
+  Empty(e) => { return "empty" }
+ }
+}
+shadow read { assert (== (read Choice.Empty {}) "empty") }
+fn main() -> int {
+ let values: array<Envelope> = [Envelope { choice: Choice.Box { value: Item { label: (+ "saved" "-label") } } }, Envelope { choice: Choice.Text { value: (+ "text" "-label") } }, Envelope { choice: Choice.Empty {} }]
+ assert (== (read (at values 0).choice) "saved-label")
+ assert (== (read (at values 1).choice) "text-label")
+ assert (== (read (at values 2).choice) "empty")
+ return 0
+}
+shadow main { assert (== (main) 0) }
