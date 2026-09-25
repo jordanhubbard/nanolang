@@ -47,6 +47,10 @@ SHELL := /usr/bin/env bash
 .SHELLFLAGS := -e -o pipefail -c
 
 CC = cc
+# Sanitizer test products use the host compiler selected for native fixtures.
+# On Darwin this carries the qualified Homebrew Clang and active Xcode SDK;
+# ordinary callers retain the established CC fallback.
+NATIVE_TEST_CC = $(if $(strip $(NANO_NATIVE_TEST_CC)),$(NANO_NATIVE_TEST_CC),$(CC))
 # Schema generation needs PyYAML. Prefer the active python3 when it provides
 # it, then use the system interpreter when a version manager shadows it with
 # an environment that does not. Callers may still override this explicitly.
@@ -3264,7 +3268,7 @@ test-parser-parenthesized: $(COMPILER_C)
 test-parser-recovery: $(COMPILER_C) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@python3 tests/test_parser_error_recovery.py
 	# I instrument lexer/parser code; linked runtime objects are not instrumented here.
-	$(CC) $(CFLAGS) -O1 $(SANITIZE_FLAGS) -fno-sanitize-recover=all \
+	$(NATIVE_TEST_CC) $(CFLAGS) -O1 $(SANITIZE_FLAGS) -fno-sanitize-recover=all \
 		-o $(BIN_DIR)/parser_recovery_test tests/test_parser_recovery.c \
 		src/parser.c src/lexer.c \
 		$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/lexer.o,$(COMMON_OBJECTS)) \
