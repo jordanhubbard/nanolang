@@ -86,23 +86,24 @@ checks the compiler observations; formal correspondence remains separate.
 The shared nonnegative-input `examples/gcd.nano` demonstrates executable assertions,
 not a theorem for every integer. Artifact tests extract and compile its text.
 
-## 5.1 release-edition checkpoint — 2026-09-20
+## 5.1 release-edition checkpoint — 2026-09-25
 
 `docs/RELEASE_5.1.md` and `docs/NANOISA_ONLY.md` are my One IR authorities. At
-compiler-source pin `ebe3afddc`, my NanoVM fixed-point gate produced identical
-491,788-byte Stage 1 and Stage 2 modules with SHA-256
-`7b8f96e51a146364448a37cce43dd414734d31aad53eb57359c6768a107f1575`.
+compiler-source pin `43cbec85b`, my NanoVM fixed-point gate produced identical
+850,160-byte initial, Stage 1 and Stage 2 modules with SHA-256
+`f20f5cc3bb9923a87ead6961f82f7427162210ad90e0e283d3264385a2a943bb`.
 Both verified, and Stage 2 compiled, verified and executed hello. The gate took
-821.266 seconds. This proves raw reproducibility for that source and immutable
+2,502.483 seconds. This proves raw reproducibility for that source and immutable
 host closure, not compiler correctness.
 
 At the same compiler-source pin, the standalone native route produced equal
-491,800-byte Stage 1 and Stage 2 modules with SHA-256
-`c3a425bb90edc4101a1e7c1ec92f2acee1a781a30407d608cfc381ea3a13c2b4`.
-The two generations took 1,238.087 and 1,286.890 seconds, verified, preserved
-the exact three-library host closure and compiled a verified, executing hello.
-I do not compare those bytes with the distinct VM-route modules. The exact
-record is `docs/evidence/v5.1-final-fixedpoints.md`.
+850,160-byte Stage 1 and Stage 2 modules with SHA-256
+`1aa25246e1153f5bdf575c926ce04aa391cf0a7fa418a8c87f015dda1137e356`.
+The two generations took 3,079.720 and 3,183.199 seconds, verified, preserved
+the exact five-library host closure and compiled a verified, executing hello.
+The VM and native artifacts have equal sizes and different raw hashes because
+their retained absolute private-library paths differ; I do not normalize
+them. The exact record is `docs/evidence/v5.1-final-fixedpoints.md`.
 
 My product driver publishes verified `.nvm`; `nvm2c`, `nvm2llvm` and
 `nvm2wasm` consume the module. The C seed remains a bootstrap/reference

@@ -38,32 +38,34 @@ presence does not make them the default compiler product.
 
 ## Self-hosting evidence
 
-At compiler-source pin `ebe3afddc8c9a7cd89b5d64b2928ea9dd269d08c`, my
-NanoVM bootstrap produced two successive 491,788-byte compiler modules with
+At compiler-source pin `43cbec85b29270e476fe54b75438317f8ee53aeb`, my
+NanoVM bootstrap produced two successive 850,160-byte compiler modules with
 the same raw SHA-256:
 
 ```text
-7b8f96e51a146364448a37cce43dd414734d31aad53eb57359c6768a107f1575
+f20f5cc3bb9923a87ead6961f82f7427162210ad90e0e283d3264385a2a943bb
 ```
 
-Generation 1 took 380.815 seconds and generation 2 took 385.655 seconds on the
+Generation 1 took 1,043.367 seconds and generation 2 took 1,041.867 seconds on the
 recorded Linux host. Both modules verified. The second generation compiled,
 verified and executed the unchanged hello program, and the declared host
-closure remained unchanged. The complete gate took 821.266 seconds. I compare
+closure remained unchanged. The complete gate took 2,502.483 seconds. I compare
 raw Stage 1 and Stage 2 bytes; I do not normalize them or compare the distinct
 C-seed lowering output with Stage 1.
 
 The standalone native route at the same source pin produced two successive
-491,800-byte modules with raw SHA-256
-`c3a425bb90edc4101a1e7c1ec92f2acee1a781a30407d608cfc381ea3a13c2b4`.
-Generation took 1,238.087 seconds and 1,286.890 seconds. Both modules verified;
+850,160-byte modules with raw SHA-256
+`1aa25246e1153f5bdf575c926ce04aa391cf0a7fa418a8c87f015dda1137e356`.
+Generation took 3,079.720 seconds and 3,183.199 seconds. Both modules verified;
 the Stage 1 native compiler compiled the unchanged hello source, and that
-module verified and executed. The exact three-library host closure and
+module verified and executed. The exact five-library host closure and
 post-run source/tool hashes remained unchanged. The native compiler processes
 do not link `nano_vm`.
 
-The VM and native artifacts have different sizes, so I make no cross-route
-raw-equality claim. [My retained fixed-point record](evidence/v5.1-final-fixedpoints.md)
+The VM and native artifacts have the same size but different raw hashes. Their
+dumps differ only in the absolute private-library paths refreshed before the
+native fixed point; I do not normalize those paths or claim cross-route raw
+equality. [My retained fixed-point record](evidence/v5.1-final-fixedpoints.md)
 names the bounds, hashes and evidence limits. A fixed point is reproducibility
 evidence, not a proof that my compiler is correct.
 
@@ -94,8 +96,8 @@ evidence, not a proof that my compiler is correct.
 
 My exact release-candidate verifier corpus selects and verifies 176 programs
 without a failure or skip. The ordinary native translator suite passes 2,560
-checks, the shape solver passes 1,539 checks, the self-hosted NanoISA emitter
-matrix passes 90 methods, and the shared frontend contract passes 367 checks.
+checks, the shape solver passes 1,794 checks, the self-hosted NanoISA emitter
+matrix passes 91 methods, and the shared frontend contract passes 367 checks.
 Canonical disassembly passes 210 round-trip checks. These counts describe
 tested surfaces; they are not a substitute for the exact clean-tree suite and
 hosted platform checks required before the tag.
