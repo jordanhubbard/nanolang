@@ -172,8 +172,18 @@ class SanitizerPartitions(unittest.TestCase):
                          ['make', 'bootstrap3', *partition.BOOTSTRAP_FLAGS,
                           *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.FLAGS])
         self.assertEqual(value['native_cflags'], partition.NATIVE_CFLAGS)
+        self.assertEqual(value['native_ldflags'], partition.NATIVE_LDFLAGS)
         self.assertEqual(value['stage2_native_cflags'], partition.STAGE2_NATIVE_CFLAGS)
         self.assertEqual(value['native_cc'], partition.NATIVE_CC)
+        self.assertEqual(value['schema'], 5)
+        self.assertEqual(partition.generated_native_environment({}), {
+            'NANO_CFLAGS': partition.NATIVE_CFLAGS,
+            'NANO_LDFLAGS': partition.NATIVE_LDFLAGS,
+            'NANO_CC': partition.NATIVE_CC,
+        })
+        for name in ('NANO_CFLAGS', 'NANO_LDFLAGS', 'NANO_CC'):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                partition.generated_native_environment({name: 'different'})
         for bad in (['absent'], [native[0], native[0]]):
             with self.assertRaises(ValueError):
                 partition.plan('head', targets, bad)
@@ -280,6 +290,7 @@ class SanitizerPartitions(unittest.TestCase):
                  mock.patch.object(partition.subprocess, 'run', return_value=completed):
                 result = partition.instrumented_products(worker, output)
             self.assertEqual(result['native_cc'], partition.NATIVE_CC)
+            self.assertEqual(result['native_ldflags'], partition.NATIVE_LDFLAGS)
             self.assertEqual(result['stage2_native_cflags'], partition.STAGE2_NATIVE_CFLAGS)
             self.assertEqual(set(result['products']), {'bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage2'})
             prepared = {'products': {p: 'digest' for p in result['products']}}

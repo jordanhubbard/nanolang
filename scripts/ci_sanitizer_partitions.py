@@ -17,6 +17,7 @@ FLAGS = ['CFLAGS=' + CFLAGS, 'LDFLAGS=' + LDFLAGS]
 BOOTSTRAP_FLAGS = ['BOOTSTRAP2_SHADOW_FLAG=--root-shadows-only']
 BOOTSTRAP_DRIVER_FLAGS = ['NANOC_STAGE1=bin/nanoc_stage1_driver']
 NATIVE_CFLAGS = '-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer'
+NATIVE_LDFLAGS = '-fsanitize=address,undefined'
 STAGE2_NATIVE_CFLAGS = '-O1 -gline-tables-only -fno-inline-functions -fsanitize=address,undefined -fno-omit-frame-pointer'
 NATIVE_CC = 'clang'
 STAGE2_NVM = 'build/sanitizer-stage2/compiler.nvm'
@@ -191,9 +192,10 @@ def plan(head, targets, native_bootstrap_targets=()):
     workers.append({'id': 'negative', 'targets': []})
     for worker in workers:
         worker['native_bootstrap'] = any(target in native_bootstrap_targets for target in worker['targets'])
-    body = {'schema': 4, 'head': head, 'targets': targets, 'workers': workers,
+    body = {'schema': 5, 'head': head, 'targets': targets, 'workers': workers,
             'native_bootstrap_targets': native_bootstrap_targets,
             'cflags': CFLAGS, 'ldflags': LDFLAGS, 'native_cflags': NATIVE_CFLAGS,
+            'native_ldflags': NATIVE_LDFLAGS,
             'native_cc': NATIVE_CC, 'stage2_native_cflags': STAGE2_NATIVE_CFLAGS}
     return {**body, 'inventory_sha256': digest(body)}
 
@@ -208,6 +210,16 @@ def checked_plan(path):
 
 def current_head():
     return subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+
+
+def generated_native_environment(environment):
+    required = {'NANO_CFLAGS': NATIVE_CFLAGS,
+                'NANO_LDFLAGS': NATIVE_LDFLAGS,
+                'NANO_CC': NATIVE_CC}
+    for name, expected in required.items():
+        if environment.get(name, expected) != expected:
+            raise ValueError('I refuse different generated-native ' + name + '.')
+    return required
 
 
 def worker_from(manifest, name):
@@ -391,6 +403,7 @@ def instrumented_products(worker, output):
     if worker['native_bootstrap']:
         paths += ['bin/nanoc_stage1', 'bin/nanoc_stage2']
     report = {'worker': worker['id'], 'native_cflags': NATIVE_CFLAGS,
+              'native_ldflags': NATIVE_LDFLAGS,
               'stage2_native_cflags': STAGE2_NATIVE_CFLAGS, 'native_cc': NATIVE_CC,
               'nm': {'path': nm, 'sha256': file_hash(nm)}, 'products': {}, 'success': False}
     for name in paths:
@@ -421,6 +434,7 @@ def instrumentation_stable(worker, output, prepared, after):
     required = ['bin/nanoc_c'] + (['bin/nanoc_stage1', 'bin/nanoc_stage2'] if worker['native_bootstrap'] else [])
     if (not report.get('success') or report.get('worker') != worker['id'] or
             report.get('native_cflags') != NATIVE_CFLAGS or
+            report.get('native_ldflags') != NATIVE_LDFLAGS or
             report.get('stage2_native_cflags') != STAGE2_NATIVE_CFLAGS or
             report.get('native_cc') != NATIVE_CC or
             set(report.get('products', {})) != set(required)):
@@ -494,12 +508,7 @@ def main():
     elif args.action == 'instrumentation':
         instrumented_products(worker, output)
     elif args.action == 'command':
-        if os.environ.get('NANO_CFLAGS', NATIVE_CFLAGS) != NATIVE_CFLAGS:
-            raise ValueError('I refuse different generated-native instrumentation flags.')
-        if os.environ.get('NANO_CC', NATIVE_CC) != NATIVE_CC:
-            raise ValueError('I refuse a different generated-native compiler.')
-        os.environ['NANO_CFLAGS'] = NATIVE_CFLAGS
-        os.environ['NANO_CC'] = NATIVE_CC
+        os.environ.update(generated_native_environment(os.environ))
         os.environ['NANO_VERBOSE_BUILD'] = '1'
         command = command_for(worker, args.phase)
         if args.phase == 'tests' and worker['id'] == 'negative':
@@ -510,6 +519,7 @@ def main():
              'NANO_SHADOW_TIMEOUT_SECONDS': os.environ.get('NANO_SHADOW_TIMEOUT_SECONDS'),
              'NANOLANG_COMPILER': os.environ.get('NANOLANG_COMPILER'),
              'NANO_CFLAGS': os.environ.get('NANO_CFLAGS'),
+             'NANO_LDFLAGS': os.environ.get('NANO_LDFLAGS'),
              'NANO_CC': os.environ.get('NANO_CC'),
              'NANO_VERBOSE_BUILD': os.environ.get('NANO_VERBOSE_BUILD')})
         # The owning Actions step retains its original deadline and group cleanup.
