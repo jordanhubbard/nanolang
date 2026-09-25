@@ -36,7 +36,10 @@ class ConcreteUnionArrays(unittest.TestCase):
                         if compiler == 'nano_virt': command.append('--emit-nvm')
                         result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
                         self.assertNotEqual(result.returncode, 0)
-                        self.assertIn('declared nominal record type', result.stdout + result.stderr)
+                        diagnostics = result.stdout + result.stderr
+                        self.assertIn('I require this array value to preserve its complete destination representation.', diagnostics)
+                        self.assertIn("I require each array leaf's original declaration owner.", diagnostics)
+                        self.assertIn('I require each union field exactly once with a complete concrete destination.', diagnostics)
                         self.assertEqual(output.read_bytes(), b'prior artifact')
 
     def test_nested_variable_payload_bytecode_executes(self):
