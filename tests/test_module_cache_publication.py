@@ -1241,11 +1241,11 @@ os.execv({compiler!r}, [{compiler!r}] + args)
             self.probe_path("build", module, env)
             generation = self.probe_path("directory", module, env)
             self.assertTrue((generation / "source_hashes.json").is_file(),
-                            self.support.last_build_diagnostics)
+                            self.last_build_diagnostics)
             self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
             self.probe_path("build", module, env)
             self.assertEqual(self.probe_path("directory", module, env), generation,
-                             self.support.last_build_diagnostics)
+                             self.last_build_diagnostics)
 
     def test_pkg_config_query_status_and_recovery(self):
         with tempfile.TemporaryDirectory(prefix="nano-pkg-status-") as tmp:
