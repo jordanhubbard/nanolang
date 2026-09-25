@@ -2945,7 +2945,22 @@ static void compile_expr(CG *cg, ASTNode *node) {
                     cg_error(cg, node->line, "I require a value for record field '%s'", sd->field_names[i]);
             }
         }
-        if (!cg->had_error) {
+        bool ordered = !spread && written == fields;
+        for (int i = 0; i < fields && ordered; ++i)
+            ordered = source[i] == i;
+        if (!cg->had_error && ordered) {
+            /* Declaration-order literals already leave their fields on the
+             * operand stack in pack order. Keeping those values on the stack
+             * avoids reserving unreachable anonymous locals for every literal
+             * in long metadata builders. Reordered and spread literals retain
+             * the staging path below so their source evaluation order stays
+             * observable. */
+            for (int i = 0; i < fields && !cg->had_error; ++i)
+                compile_expected_tag(cg, node->as.struct_literal.field_values[i],
+                                     sd->field_types ? ordinary_slot_tag(sd->field_types[i]) : TAG_COUNT);
+            if (!cg->had_error)
+                emit_op(cg, OP_AGG_PACK, AGG_RECORD, sd->def_idx, 0, fields);
+        } else if (!cg->had_error) {
             uint16_t spread_slot = spread ? local_add(cg, "", node->line) : 0;
             for (int i = 0; i < fields; ++i) slots[i] = local_add(cg, "", node->line);
             if (spread) {

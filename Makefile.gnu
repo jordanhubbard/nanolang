@@ -4812,6 +4812,11 @@ test-map-field-operations: $(COMPILER_C) nano_virt nano_vm
 
 test-units: test-map-field-operations
 
+.PHONY: test-record-literal-slot-reuse
+test-units: test-record-literal-slot-reuse
+test-record-literal-slot-reuse: nano_virt nano_vm
+	@python3 -m unittest tests.test_record_literal_slot_reuse
+
 .PHONY: test-global-resource-boundary
 test-units: test-global-resource-boundary
 test-global-resource-boundary: bootstrap
