@@ -620,7 +620,18 @@ jobs:
           # The smoke may refresh module-cache prerequisites after the restored
           # Stage 1 stamp. Both products were hash-verified by restore above.
           touch .bootstrap1.built .bootstrap2.built
-          python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap3 2>&1 | tee "$REPORT/bootstrap3.log"
+          set -o pipefail
+          python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap3 2>&1 | tee "$REPORT/bootstrap3.log" &
+          bootstrap_pid=$!
+          trap 'kill "$bootstrap_pid" 2>/dev/null || true' EXIT
+          while kill -0 "$bootstrap_pid" 2>/dev/null; do
+            sleep 60
+            if kill -0 "$bootstrap_pid" 2>/dev/null; then
+              echo "I am still completing the instrumented bootstrap inside my 150-minute job lease."
+            fi
+          done
+          wait "$bootstrap_pid"
+          trap - EXIT
       - name: Publish exact Stage 2 bundle
         run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage2 --output "$BUNDLE"
       - uses: actions/upload-artifact@v4

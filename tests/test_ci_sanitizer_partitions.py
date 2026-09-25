@@ -396,6 +396,11 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertLess(verification['run'].index('touch .bootstrap1.built .bootstrap2.built'),
                         verification['run'].index('--phase bootstrap3'))
         self.assertNotIn('\n          bin/nanoc_stage2 ', verification['run'])
+        self.assertIn('set -o pipefail', verification['run'])
+        self.assertIn('bootstrap_pid=$!', verification['run'])
+        self.assertIn('sleep 60', verification['run'])
+        self.assertIn('wait "$bootstrap_pid"', verification['run'])
+        self.assertIn('150-minute job lease', verification['run'])
         self.assertIn('clang', partition.NATIVE_CC)
         self.assertIn('-lffi', partition.command_for({'id': 'scalar'}, 'bootstrap2-native'))
         self.assertEqual(jobs['sanitizer-providers']['needs'], ['sanitizer-plan', 'sanitizer-bootstrap'])
