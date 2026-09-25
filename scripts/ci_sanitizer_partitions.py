@@ -361,7 +361,7 @@ def command_for(worker, phase):
                 '-c', '-o', STAGE2_OBJECT]
     if phase == 'bootstrap2-native':
         return [NATIVE_CC, STAGE2_OBJECT, 'bin/nano_aot_runtime.o',
-                *STAGE2_PROVIDER_OBJECTS, '-lm', '-Wl,--export-dynamic', '-ldl',
+                *STAGE2_PROVIDER_OBJECTS, '-lm', '-lffi', '-Wl,--export-dynamic', '-ldl',
                 '-fsanitize=address,undefined',
                 '-o', 'bin/nanoc_stage2']
     if phase == 'bootstrap3':

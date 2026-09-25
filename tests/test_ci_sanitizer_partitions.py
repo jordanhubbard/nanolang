@@ -305,7 +305,9 @@ class SanitizerPartitions(unittest.TestCase):
 
     def test_workflow_requires_aggregate_and_preserves_limits(self):
         import yaml
-        jobs = yaml.safe_load((ROOT / '.github/workflows/ci.yml').read_text())['jobs']
+        workflow = yaml.safe_load((ROOT / '.github/workflows/ci.yml').read_text())
+        self.assertEqual(workflow['defaults']['run']['shell'], 'bash')
+        jobs = workflow['jobs']
         worker = jobs['sanitizer-workers']
         self.assertNotIn('REPORT', worker['env'])
         self.assertNotIn('PLAN', worker['env'])
@@ -364,6 +366,7 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertIn('--phase bootstrap2-object', native_object['run'])
         self.assertIn('--phase bootstrap2-native', native['run'])
         self.assertIn('clang', partition.NATIVE_CC)
+        self.assertIn('-lffi', partition.command_for({'id': 'scalar'}, 'bootstrap2-native'))
         self.assertEqual(jobs['sanitizer-providers']['needs'], ['sanitizer-plan', 'sanitizer-bootstrap'])
         self.assertEqual(jobs['sanitizers']['if'], 'always()')
         aggregate = next(step for step in jobs['sanitizers']['steps'] if 'run' in step)

@@ -10,6 +10,10 @@ on:
 env:
   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build-and-test:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
