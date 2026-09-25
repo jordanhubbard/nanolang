@@ -3964,13 +3964,31 @@ fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
             set destinations (array_push destinations destination)
             set i (+ i 1)
         }
+        let mut ordered: bool = true
+        set i 0
+        while (< i sd.field_count) {
+            if (!= (at destinations i) i) { set ordered false }
+            set i (+ i 1)
+        }
+        let mut out: string = ""
+        if ordered {
+            # Declaration-order values already reach my stack in pack order.
+            # I do not retain dead anonymous roots after the pack completes.
+            set i 0
+            while (< i lit.field_count) {
+                set out (+ out (nisa_emit_expected_expr parser (at lit.field_value_ids i)
+                    (at lit.field_value_types i) (at sd.field_types i)))
+                set i (+ i 1)
+            }
+            let ordered_imm: string = (+ "0 " (+ (int_to_string sidx) (+ " 0 " (int_to_string sd.field_count))))
+            return (+ out (nisa_line_imm "AGG_PACK" ordered_imm))
+        }
         # I reserve all anonymous roots before nested expressions add locals.
         set i 0
         while (< i sd.field_count) {
             set slots (array_push slots (nisa_temp_local (at sd.field_types i)))
             set i (+ i 1)
         }
-        let mut out: string = ""
         set i 0
         while (< i lit.field_count) {
             let destination: int = (at destinations i)
@@ -4010,6 +4028,7 @@ shadow nisa_emit_struct_literal {
     assert (str_contains text "PUSH_I64 3")
     assert (str_contains text "PUSH_I64 4")
     assert (str_contains text "AGG_PACK 0 0 0 2")
+    assert (not (str_contains text "STORE_LOCAL"))
     let src2: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n get_s() -> string { let p: Tok = Tok { t: 1, s: \"hi\" } return p.s } shadow get_s { assert true }"))
     let toks2: List<LexerToken> = (tokenize_string src2 "t.nano" diags)
     let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
@@ -4021,6 +4040,7 @@ shadow nisa_emit_struct_literal {
     assert (str_contains text2 "PUSH_I64 1")
     assert (str_contains text2 "PUSH_STR")
     assert (str_contains text2 "AGG_PACK 0 0 0 2")
+    assert (not (str_contains text2 "STORE_LOCAL"))
     let reset_reverse: int = (nisa_reset)
     let src3: string = (+ "struct Point { x: int, y: int } " (+ "f" "n getx() -> int { let p: Point = Point { y: 4, x: 3 } return p.x } shadow getx { assert true }"))
     let toks3: List<LexerToken> = (tokenize_string (at (str_split src3 " shadow ") 0) "t.nano" diags)
@@ -6796,7 +6816,7 @@ shadow nisa_emit_function {
     let p5: Parser = (parse_program toks5 (list_LexerToken_length toks5) "t.nano")
     let gx: ASTFunction = (parser_get_function p5 0)
     let gx_text: string = (nisa_emit_function p5 gx)
-    assert (str_contains gx_text ".function getx 0 3 0 int 1")
+    assert (str_contains gx_text ".function getx 0 1 0 int 1")
     assert (str_contains gx_text "AGG_PACK 0 0 0 2")
     assert (str_contains gx_text "AGG_GET 0")
     let src6: string = (+ "f" "n is_pos(c: int) -> bool { return (> c 0) } shadow is_pos { assert true }")
@@ -6976,7 +6996,7 @@ shadow nisa_emit_function {
     let p29: Parser = (parse_program toks29 (list_LexerToken_length toks29) "t.nano")
     let get_s_fn: ASTFunction = (parser_get_function p29 0)
     let get_s_text: string = (nisa_emit_function p29 get_s_fn)
-    assert (str_contains get_s_text ".function get_s 0 3 0 string 1")
+    assert (str_contains get_s_text ".function get_s 0 1 0 string 1")
     assert (str_contains get_s_text "AGG_PACK")
     assert (str_contains get_s_text "AGG_GET 1")
     let src30: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n grow_t() -> string { let xs: List<Tok> = (list_Tok_new) (list_Tok_push xs Tok { t: 1, s: \"hi\" }) let p: Tok = (list_Tok_get xs 0) return p.s } shadow grow_t { assert true }"))
@@ -6984,7 +7004,7 @@ shadow nisa_emit_function {
     let p30: Parser = (parse_program toks30 (list_LexerToken_length toks30) "t.nano")
     let grow_t_fn: ASTFunction = (parser_get_function p30 0)
     let grow_t_text: string = (nisa_emit_function p30 grow_t_fn)
-    assert (str_contains grow_t_text ".function grow_t 0 4 0 string 1")
+    assert (str_contains grow_t_text ".function grow_t 0 2 0 string 1")
     assert (str_contains grow_t_text "ARR_NEW 8")
     assert (str_contains grow_t_text "ARR_PUSH")
     assert (str_contains grow_t_text "POP")
@@ -6995,7 +7015,7 @@ shadow nisa_emit_function {
     let p31: Parser = (parse_program toks31 (list_LexerToken_length toks31) "t.nano")
     let one_t_fn: ASTFunction = (parser_get_function p31 0)
     let one_t_text: string = (nisa_emit_function p31 one_t_fn)
-    assert (str_contains one_t_text ".function one_t 0 3 0 array 1")
+    assert (str_contains one_t_text ".function one_t 0 1 0 array 1")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {
