@@ -21,6 +21,22 @@ def native_compiler():
     return shlex.split(os.environ.get('CC', 'cc'))
 
 
+def native_sdk_flags():
+    if platform.system() != 'Darwin':
+        return []
+    sdk = os.environ.get('SDKROOT', '').strip()
+    if not sdk:
+        result = subprocess.run(
+            ['/usr/bin/xcrun', '--sdk', 'macosx', '--show-sdk-path'],
+            capture_output=True, text=True, timeout=30)
+        if result.returncode:
+            raise RuntimeError(result.stdout + result.stderr)
+        sdk = result.stdout.strip()
+    if not Path(sdk).is_dir():
+        raise RuntimeError(f'I cannot find the selected macOS SDK: {sdk}')
+    return ['-isysroot', sdk]
+
+
 def leak_detection_for(identity):
     if sys.platform == 'darwin' and 'Apple clang version' in identity:
         return '0'
@@ -175,7 +191,7 @@ class ReferenceTransport(unittest.TestCase):
         cls.leak_detection = leak_detection_for(identity.stdout + identity.stderr)
         print(f'reference transport sanitizer compiler={" ".join(cls.compiler)} '
               f'detect_leaks={cls.leak_detection}')
-        flags = cls.compiler + [
+        flags = cls.compiler + native_sdk_flags() + [
             '-std=c11','-D_POSIX_C_SOURCE=200809L','-O2','-Wall','-Wextra','-Werror',
             '-ffunction-sections','-fdata-sections','-fsanitize=address,undefined',
             '-fno-sanitize-recover=all','-I'+str(ROOT/'src')]
