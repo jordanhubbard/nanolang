@@ -16,6 +16,8 @@ LDFLAGS = '-lm -lcrypto -fsanitize=address,undefined'
 FLAGS = ['CFLAGS=' + CFLAGS, 'LDFLAGS=' + LDFLAGS]
 BOOTSTRAP_FLAGS = ['BOOTSTRAP2_SHADOW_FLAG=--root-shadows-only']
 BOOTSTRAP_DRIVER_FLAGS = ['NANOC_STAGE1=bin/nanoc_stage1_driver']
+SANITIZER_BOOTSTRAP2_TIMEOUT = '7200'
+BOOTSTRAP_TIMEOUT_FLAGS = ['BOOTSTRAP2_TIMEOUT=' + SANITIZER_BOOTSTRAP2_TIMEOUT]
 NATIVE_CFLAGS = '-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer'
 NATIVE_LDFLAGS = '-fsanitize=address,undefined'
 STAGE2_NATIVE_CFLAGS = '-O1 -gline-tables-only -fno-inline-functions -fsanitize=address,undefined -fno-omit-frame-pointer'
@@ -357,7 +359,7 @@ def command_for(worker, phase):
         return ['make', 'sanitize']
     if phase == 'bootstrap':
         return ['make', 'bootstrap3' if worker['native_bootstrap'] else 'build',
-                *BOOTSTRAP_FLAGS, *BOOTSTRAP_DRIVER_FLAGS, *FLAGS]
+                *BOOTSTRAP_FLAGS, *BOOTSTRAP_DRIVER_FLAGS, *BOOTSTRAP_TIMEOUT_FLAGS, *FLAGS]
     if phase == 'bootstrap1':
         return ['make', 'bootstrap1', *FLAGS]
     if phase == 'bootstrap1-driver':
@@ -381,7 +383,8 @@ def command_for(worker, phase):
         return ['bin/nanoc_stage2', 'examples/language/nl_hello.nano',
                 '-o', 'build/sanitizer-stage2/hello']
     if phase == 'bootstrap3':
-        return ['make', 'bootstrap3', *BOOTSTRAP_FLAGS, *BOOTSTRAP_DRIVER_FLAGS, *FLAGS]
+        return ['make', 'bootstrap3', *BOOTSTRAP_FLAGS, *BOOTSTRAP_DRIVER_FLAGS,
+                *BOOTSTRAP_TIMEOUT_FLAGS, *FLAGS]
     if phase == 'providers':
         if worker['id'] != 'source':
             raise ValueError('I prepare extra source-emitter providers only for their worker.')

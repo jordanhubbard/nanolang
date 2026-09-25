@@ -75,7 +75,8 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(partition.command_for(value['workers'][0], 'sanitize'), ['make', 'sanitize'])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap'),
                          ['make', 'build', *partition.BOOTSTRAP_FLAGS,
-                          *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.FLAGS])
+                          *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.BOOTSTRAP_TIMEOUT_FLAGS,
+                          *partition.FLAGS])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap1'),
                          ['make', 'bootstrap1', *partition.FLAGS])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap1-driver'),
@@ -103,7 +104,8 @@ class SanitizerPartitions(unittest.TestCase):
                           '-o', 'build/sanitizer-stage2/hello'])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap3'),
                          ['make', 'bootstrap3', *partition.BOOTSTRAP_FLAGS,
-                          *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.FLAGS])
+                          *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.BOOTSTRAP_TIMEOUT_FLAGS,
+                          *partition.FLAGS])
         for worker in value['workers'][:-1]:
             self.assertEqual(partition.command_for(worker, 'tests'), ['make', *worker['targets'], *partition.FLAGS])
         self.assertEqual(partition.command_for(value['workers'][-1], 'tests'), ['bash', 'tests/run_negative_tests.sh'])
@@ -173,7 +175,9 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(len(workers), 1)
         self.assertEqual(partition.command_for(workers[0], 'bootstrap'),
                          ['make', 'bootstrap3', *partition.BOOTSTRAP_FLAGS,
-                          *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.FLAGS])
+                          *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.BOOTSTRAP_TIMEOUT_FLAGS,
+                          *partition.FLAGS])
+        self.assertEqual(partition.BOOTSTRAP_TIMEOUT_FLAGS, ['BOOTSTRAP2_TIMEOUT=7200'])
         self.assertEqual(value['native_cflags'], partition.NATIVE_CFLAGS)
         self.assertEqual(value['native_ldflags'], partition.NATIVE_LDFLAGS)
         self.assertEqual(value['stage2_native_cflags'], partition.STAGE2_NATIVE_CFLAGS)
@@ -370,7 +374,7 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertEqual(jobs['sanitizer-stage2-c']['needs'], ['sanitizer-plan', 'sanitizer-stage2-nvm'])
         self.assertEqual(jobs['sanitizer-stage2-object']['needs'], ['sanitizer-plan', 'sanitizer-stage2-c'])
         self.assertEqual(jobs['sanitizer-bootstrap']['needs'], ['sanitizer-plan', 'sanitizer-stage2-object'])
-        self.assertEqual(jobs['sanitizer-bootstrap']['timeout-minutes'], 90)
+        self.assertEqual(jobs['sanitizer-bootstrap']['timeout-minutes'], 150)
         nvm = next(step for step in jobs['sanitizer-stage2-nvm']['steps']
                    if step.get('name') == 'Build verified Stage 2 NanoISA')
         translated = next(step for step in jobs['sanitizer-stage2-c']['steps']
