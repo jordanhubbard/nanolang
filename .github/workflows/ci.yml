@@ -613,10 +613,14 @@ jobs:
         run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage stage2-object --archive "$RUNNER_TEMP/sanitizer-stage2-object/stage2-object.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-stage2-object/stage2-object.json" --output "$REPORT"
       - name: Compile instrumented native Stage 2
         run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-native 2>&1 | tee "$REPORT/bootstrap2-native.log"
-      - name: Verify Stage 2 and complete bootstrap
+      - name: Smoke instrumented native Stage 2
+        timeout-minutes: 30
         run: |
           python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-smoke 2>&1 | tee "$REPORT/bootstrap2-smoke.log"
           build/sanitizer-stage2/hello >/dev/null
+      - name: Finalize instrumented bootstrap boundary
+        timeout-minutes: 15
+        run: |
           # The smoke may refresh module-cache prerequisites after the restored
           # Stage 1 stamp. Both products were hash-verified by restore above.
           touch .bootstrap1.built .bootstrap2.built
@@ -627,7 +631,7 @@ jobs:
           while kill -0 "$bootstrap_pid" 2>/dev/null; do
             sleep 60
             if kill -0 "$bootstrap_pid" 2>/dev/null; then
-              echo "I am still completing the instrumented bootstrap inside my 150-minute job lease."
+              echo "I am still finalizing the instrumented bootstrap boundary."
             fi
           done
           wait "$bootstrap_pid"

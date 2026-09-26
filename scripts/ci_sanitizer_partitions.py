@@ -380,7 +380,7 @@ def command_for(worker, phase):
                 '-fsanitize=address,undefined',
                 '-o', 'bin/nanoc_stage2']
     if phase == 'bootstrap2-smoke':
-        return ['bin/nanoc_stage2', 'examples/language/nl_hello.nano',
+        return ['bin/nanoc_stage2', '--root-shadows-only', 'examples/language/nl_hello.nano',
                 '-o', 'build/sanitizer-stage2/hello']
     if phase == 'bootstrap3':
         return ['make', 'bootstrap3', *BOOTSTRAP_FLAGS, *BOOTSTRAP_DRIVER_FLAGS,

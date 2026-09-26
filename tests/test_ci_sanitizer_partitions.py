@@ -100,7 +100,7 @@ class SanitizerPartitions(unittest.TestCase):
             self.assertIn(provider, native)
         self.assertEqual(native[-2:], ['-o', 'bin/nanoc_stage2'])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap2-smoke'),
-                         ['bin/nanoc_stage2', 'examples/language/nl_hello.nano',
+                         ['bin/nanoc_stage2', '--root-shadows-only', 'examples/language/nl_hello.nano',
                           '-o', 'build/sanitizer-stage2/hello'])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap3'),
                          ['make', 'bootstrap3', *partition.BOOTSTRAP_FLAGS,
@@ -387,20 +387,24 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertIn('--phase bootstrap2-c', translated['run'])
         self.assertIn('--phase bootstrap2-object', native_object['run'])
         self.assertIn('--phase bootstrap2-native', native['run'])
-        verification = next(step for step in jobs['sanitizer-bootstrap']['steps']
-                            if step.get('name') == 'Verify Stage 2 and complete bootstrap')
-        self.assertIn('--phase bootstrap2-smoke', verification['run'])
-        self.assertIn('touch .bootstrap1.built .bootstrap2.built', verification['run'])
-        self.assertLess(verification['run'].index('--phase bootstrap2-smoke'),
-                        verification['run'].index('touch .bootstrap1.built .bootstrap2.built'))
-        self.assertLess(verification['run'].index('touch .bootstrap1.built .bootstrap2.built'),
-                        verification['run'].index('--phase bootstrap3'))
-        self.assertNotIn('\n          bin/nanoc_stage2 ', verification['run'])
-        self.assertIn('set -o pipefail', verification['run'])
-        self.assertIn('bootstrap_pid=$!', verification['run'])
-        self.assertIn('sleep 60', verification['run'])
-        self.assertIn('wait "$bootstrap_pid"', verification['run'])
-        self.assertIn('150-minute job lease', verification['run'])
+        smoke = next(step for step in jobs['sanitizer-bootstrap']['steps']
+                     if step.get('name') == 'Smoke instrumented native Stage 2')
+        finalization = next(step for step in jobs['sanitizer-bootstrap']['steps']
+                            if step.get('name') == 'Finalize instrumented bootstrap boundary')
+        self.assertEqual(smoke['timeout-minutes'], 30)
+        self.assertEqual(finalization['timeout-minutes'], 15)
+        self.assertIn('--phase bootstrap2-smoke', smoke['run'])
+        self.assertIn('build/sanitizer-stage2/hello >/dev/null', smoke['run'])
+        self.assertNotIn('touch .bootstrap1.built .bootstrap2.built', smoke['run'])
+        self.assertIn('touch .bootstrap1.built .bootstrap2.built', finalization['run'])
+        self.assertLess(finalization['run'].index('touch .bootstrap1.built .bootstrap2.built'),
+                        finalization['run'].index('--phase bootstrap3'))
+        self.assertNotIn('\n          bin/nanoc_stage2 ', smoke['run'])
+        self.assertIn('set -o pipefail', finalization['run'])
+        self.assertIn('bootstrap_pid=$!', finalization['run'])
+        self.assertIn('sleep 60', finalization['run'])
+        self.assertIn('wait "$bootstrap_pid"', finalization['run'])
+        self.assertIn('finalizing the instrumented bootstrap boundary', finalization['run'])
         self.assertIn('clang', partition.NATIVE_CC)
         self.assertIn('-lffi', partition.command_for({'id': 'scalar'}, 'bootstrap2-native'))
         self.assertEqual(jobs['sanitizer-providers']['needs'], ['sanitizer-plan', 'sanitizer-bootstrap'])
