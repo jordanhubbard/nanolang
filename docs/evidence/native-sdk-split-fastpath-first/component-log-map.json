@@ -1,0 +1,32 @@
+{
+  "nanolang_stage2_parser.log": {
+    "sha256": "32777d37da6028b0d74d3539c13380132f07092ad06a29ddb4ad239c99d8124f",
+    "bytes": 67841,
+    "mode": 436
+  },
+  "nanolang_stage2_transpiler.log": {
+    "sha256": "3b4c9de430d3ada0ce2947b13a45a92f59418b82bc038360a4e0436f8232852c",
+    "bytes": 112575,
+    "mode": 436
+  },
+  "nanolang_stage2_typecheck.log": {
+    "sha256": "9d83efd3ccf01ed485420f28f52792f6e3d1047dab69e13724c4e6fc8c43a352",
+    "bytes": 134885,
+    "mode": 436
+  },
+  "nanolang_stage3_parser.log": {
+    "sha256": "c6b4ace9a783a116fe700f104f21d6f33b77bbff57717bda6ebcc98bfe7fe9ed",
+    "bytes": 37,
+    "mode": 436
+  },
+  "nanolang_stage3_transpiler.log": {
+    "sha256": "9847e7915b73a3b369a835d776b3b2c3bf670c88a6da376b6983955b56b6fd58",
+    "bytes": 41,
+    "mode": 436
+  },
+  "nanolang_stage3_typecheck.log": {
+    "sha256": "e8cb849203a390f095b0a900056b497d46fdc899909f57431afbb1f2eb5345a5",
+    "bytes": 38,
+    "mode": 436
+  }
+}

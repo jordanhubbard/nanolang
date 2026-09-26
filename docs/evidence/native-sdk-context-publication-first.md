@@ -1,0 +1,5 @@
+# I retain the missing STRING field result publication
+
+At fixture `70f8a7de8` with independently verified copied fresh `bae599477` Darwin C-seed/Stage-1/Stage-2 products and complete unchanged production/provider closure, the direct context fixture compiles. Its first actual run aborts at the original line-61 assertion requiring complete array result metadata for the STRING-field assignment. The outer phase returns 1 in 1.963 seconds; the child returns -6 in 0.351 seconds. Neither times out, and all groups/descendants are absent. No paired or installed dependent gate runs afterward.
+
+My [manifest](native-sdk-context-publication-first/manifest.json) preserves reports, exact two-pin source/provider reuse proof and the failed probe, with lossless report compression and an immutable binary content object. All assertions remain unchanged. The separately recorded adapter restoration plan is in [my field contract](../STRING_ARRAY_FIELD_CONTEXT.md); no failed product is replayed. Full qualification remains open.

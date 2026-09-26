@@ -2,18 +2,19 @@
 from pathlib import Path
 import os
 import signal
-import shlex
 import subprocess
 import tempfile
 import unittest
+
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class FlatRecordEmitter(unittest.TestCase):
-    def run_checked(self, *args):
+    def run_checked(self, *args, timeout=120):
         result = subprocess.run([str(a) for a in args], cwd=ROOT,
-                                capture_output=True, text=True, timeout=120)
+                                capture_output=True, text=True, timeout=timeout)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
@@ -39,7 +40,6 @@ class FlatRecordEmitter(unittest.TestCase):
         cases = {
             'empty array': 'let value = []',
             'empty map': 'let value = (map_new)',
-            'unsupported array': 'let value = [[1.5]]',
             'unknown initializer': 'let value = missing',
             'explicit mismatch': 'let value: int = 1.5',
         }
@@ -148,7 +148,7 @@ class FlatRecordEmitter(unittest.TestCase):
             work = Path(tmp)
             driver, tool = work / "driver.nano", work / "driver"
             driver.write_text(driver_fixture.read_text())
-            self.run_checked(ROOT / "bin/nanoc_c", driver, "-o", tool)
+            self.run_checked(ROOT / "bin/nanoc_c", driver, "-o", tool, "--root-shadows-only")
             source, assembly, module = work / "program.nano", work / "program.nasm", work / "program.nvm"
             source.write_text(
                 'fn dep_a_value(n: int) -> int { if (<= n 0) { return 37 } return (value (- n 1)) }\n'
@@ -193,6 +193,18 @@ class FlatRecordEmitter(unittest.TestCase):
             self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
             self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
             self.assertEqual(self.run_checked(binary).stdout, "effect\n")
+            # Recursive scalar-array globals are roots with their exact child shape.
+            source.write_text('let values: array<array<float>> = [[1.5]] '
+                              'fn main() -> int { assert (== (at (at values 0) 0) 1.5) return 0 }\n')
+            nested = self.run_checked(tool, source, "program").stdout
+            self.assertIn("ARR_LITERAL 7 1", nested)
+            self.assertIn("STORE_GLOBAL 0", nested)
+            assembly.write_text(nested)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+            self.run_checked(ROOT / "bin/nano_vm", module)
+            self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+            self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+            self.run_checked(binary)
             # Same-spelling globals belong to their source modules.
             source.write_text('let count: int = 37\nfn dep_a_relay() -> int { return count }\n\n'
                               'let count: int = 12\nfn dep_b_relay() -> int { return count }\n\n'
@@ -211,16 +223,23 @@ class FlatRecordEmitter(unittest.TestCase):
                                          text=True, timeout=120)
             self.assertEqual(wrong_owner.returncode, 1)
             self.assertEqual(wrong_owner.stdout, "")
+            source.write_text('fn target() -> int { return 1 } '
+                              'fn consume(f: fn() -> int) -> int { return (f) } '
+                              'fn main() -> int { assert (== (consume target) 1) return 0 }\n')
+            assembly.write_text(self.run_checked(tool, source, "program").stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+            self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+            self.run_checked(ROOT / "bin/nano_vm", module)
+            self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+            self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+            self.run_checked(binary)
             refused = [
                 'let count: int = 1 fn main() -> int { set count 2 return count }',
                 'let count: int = 1 fn __init__() -> void {} fn main() -> int { return count }',
-                'let values: array<array<float>> = [[1.5]] fn main() -> int { return 0 }',
                 'extern fn unavailable_array_host(path: string) -> array<string> '
                 'fn main() -> array<string> { return (unavailable_array_host "live") }',
                 'fn target() -> int { return 1 } let stored: fn() -> int = target '
                 'fn main() -> int { return 0 }',
-                'fn target() -> int { return 1 } fn consume(f: fn() -> int) -> int { return (f) } '
-                'fn main() -> int { return (consume target) }',
                 'fn target() -> int { return 1 } fn main() -> int { let target: int = 0 return (target) }',
             ]
             for program in refused:
@@ -389,7 +408,7 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
                 self.run_checked(binary)
 
-    def test_aggregate_globals_match_and_execute_in_vm(self):
+    def test_aggregate_globals_match_and_execute_in_vm_and_native(self):
         fixture = ROOT / "tests/nanoisa/fixtures/global_aggregate_initialization.nano"
         with tempfile.TemporaryDirectory(prefix="nano-aggregate-globals-") as tmp:
             work = Path(tmp)
@@ -403,6 +422,10 @@ class FlatRecordEmitter(unittest.TestCase):
             for module in (seed, emitted):
                 self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
                 self.assertEqual(self.run_checked(ROOT / "bin/nano_vm", module).stdout, "init\n")
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.assertEqual(self.run_checked(binary).stdout, "init\n")
 
     def test_array_access_result_types_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/array_access_types.nano"
@@ -460,13 +483,41 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
 
+    def test_nested_array_record_fields_are_admitted(self):
+        for field, kind, value in (('flags', 'float', '1.5'), ('nested', 'int', '1')):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix="nano-nested-field-") as tmp:
+                work = Path(tmp)
+                source, assembly, module = (work / n for n in ('source.nano', 'source.nasm', 'source.nvm'))
+                declaration = f'struct Box {{ {field}: array<array<{kind}>> }} '
+                body = f'return Box {{ {field}: [[{value}]] }}'
+                source.write_text(declaration + 'fn main() -> Box { ' + body + ' }')
+                self.run_checked(ROOT / 'bin/nanoisa_emit', source, '-o', assembly)
+                self.run_checked(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.run_checked(ROOT / 'bin/nano_vm', '--verify-only', module)
+                source.write_text(declaration + 'fn make() -> Box { ' + body + ' } shadow make { assert true } '
+                                  'fn main() -> int { let box: Box = (make) '
+                                  f'let rows: array<array<{kind}>> = box.{field} '
+                                  f'assert (== (at (at rows 0) 0) {value}) return 0 }} '
+                                  'shadow main { assert (== (main) 0) }')
+                for emitter in ('nano_virt', 'nanoisa_emit'):
+                    with self.subTest(emitter=emitter):
+                        self.run_checked(ROOT / 'bin' / emitter, source, '--emit-nvm', '-o', module)
+                        self.run_checked(ROOT / 'bin/nano_vm', module)
+                        native, binary = work / 'output.c', work / 'program'
+                        self.run_checked(Path(os.environ.get('NVM2C', ROOT / 'bin/nvm2c')), module, '-o', native)
+                        compiler = native_cc()
+                        self.run_checked(*compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+                                         '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                                         native, '-o', binary)
+                        self.run_checked(binary)
+
     def test_wrong_array_record_fields_are_refused(self):
         programs = [
             'struct Box { words: array<string> } fn main() -> Box { return Box { words: [1] } }',
             'struct Box { words: array<string> } fn main() -> Box { let xs: array<int> = [1] return Box { words: xs } }',
             'struct Box { value: int } fn main() -> Box { return Box { value: [1] } }',
-            'struct Box { flags: array<array<float>> } fn main() -> Box { return Box { flags: [[1.5]] } }',
-            'struct Box { nested: array<array<int>> } fn main() -> Box { return Box { nested: [[1]] } }',
+            'struct Box { flags: array<array<float>> } fn main() -> Box { let xs: array<array<int>> = [[1]] return Box { flags: xs } }',
+            'struct Box { nested: array<array<int>> } fn main() -> Box { let xs: array<int> = [1] return Box { nested: xs } }',
         ]
         with tempfile.TemporaryDirectory(prefix="nano-array-record-refusal-") as tmp:
             source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
@@ -497,7 +548,7 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
-            for expression in ('[(int_to_string 7), 8]', '[8, (int_to_string 7)]', '[[1]]', '[1, 1.5]'):
+            for expression in ('[(int_to_string 7), 8]', '[8, (int_to_string 7)]', '[1, 1.5]'):
                 with self.subTest(expression=expression):
                     invalid = work / "invalid.nano"
                     output = work / "invalid.nasm"
@@ -615,8 +666,6 @@ class FlatRecordEmitter(unittest.TestCase):
             'fn main() -> int { (array_new 2 1 3) return 0 }',
             'fn main() -> int { (array_new "two" 1) return 0 }',
             'fn main() -> int { (array_new true 1) return 0 }',
-            'fn main() -> int { (array_new 2 [1.5]) return 0 }',
-            'fn main() -> int { (array_new 2 [1]) return 0 }',
         ]
         with tempfile.TemporaryDirectory(prefix="nano-filled-refusal-") as tmp:
             source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
@@ -999,7 +1048,7 @@ class FlatRecordEmitter(unittest.TestCase):
                     self.run_checked(ROOT / "bin/nano_vm", module)
                     self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
                     self.run_checked(
-                        *shlex.split(os.environ.get("NANO_NATIVE_TEST_CC", "cc")),
+                        *native_cc(),
                         "-std=c11", "-O1", "-g", "-fno-omit-frame-pointer",
                         "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
                         native_c, "-lm", "-o", binary,
@@ -1049,8 +1098,6 @@ class FlatRecordEmitter(unittest.TestCase):
 
     def test_unsupported_array_results_and_elements_are_refused(self):
         programs = [
-            'fn bad() -> array<array<float>> { return [[1.5]] }',
-            'fn bad() -> array<array<int>> { return [[1]] }',
             'fn bad() -> array<string> { return [1] }',
             'fn bad() -> array<int> { return ["wrong"] }',
             'fn bad() -> int { let wrong: array<string> = [1] return 0 }',
@@ -1236,7 +1283,7 @@ class FlatRecordEmitter(unittest.TestCase):
             work = Path(tmp)
             driver, tool = work / "driver.nano", work / "driver"
             driver.write_text(driver_fixture.read_text())
-            self.run_checked(ROOT / "bin/nanoc_c", driver, "-o", tool)
+            self.run_checked(ROOT / "bin/nanoc_c", driver, "-o", tool, "--root-shadows-only")
             assembly, seed, emitted = work / "bound.nasm", work / "seed.nvm", work / "bound.nvm"
             assembly.write_text(self.run_checked(tool).stdout)
             self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
@@ -1412,9 +1459,11 @@ class FlatRecordEmitter(unittest.TestCase):
                         'shadow main { assert (== (main) 0) }\n')
             source.write_text(program)
             self.run_checked(ROOT / "bin/nano_virt", ROOT / "src_nano/nanoisa_emit.nano",
-                             "--emit-nvm", "--strip-debug", "-o", compiler)
+                             "--emit-nvm", "--strip-debug", "-o", compiler, "--root-shadows-only",
+                             timeout=900)
             self.run_checked(ROOT / "bin/nanoisa_emit", source, "-o", native_text)
-            self.run_checked(ROOT / "bin/nano_vm", compiler, "--", source, "-o", vm_text)
+            self.run_checked(ROOT / "bin/nano_vm", compiler, "--", source, "-o", vm_text,
+                             timeout=900)
             self.assertEqual(vm_text.read_bytes(), native_text.read_bytes())
             self.run_checked(ROOT / "bin/nanoisa", "asm", vm_text, "-o", module)
             self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)

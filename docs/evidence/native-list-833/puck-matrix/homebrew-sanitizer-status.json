@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "-f",
+    "tests.test_native_record_lists.NativeRecordLists.test_shared_storage_and_allocation_failures",
+    "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+    "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+  ],
+  "bound": 900,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/Users/jkh/nanolang-qualification/record-lists-qualified-833",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 8.506921875,
+  "log": {
+    "sha256": "f616ea7ba8c4f5f98b94dcd2bbdfa92f526bee3660b65120f42169958d493b68",
+    "bytes": 714,
+    "archive": "/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/objects/f616ea7ba8c4f5f98b94dcd2bbdfa92f526bee3660b65120f42169958d493b68"
+  },
+  "inputs_equal": true
+}

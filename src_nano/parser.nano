@@ -261,7 +261,7 @@ shadow parser_allocate_id {
 }
 
 /* Check if parser is at end of token stream */
-fn parser_is_at_end(p: Parser) -> bool {
+pub fn parser_is_at_end(p: Parser) -> bool {
     if (>= p.position p.token_count) {
         return true
     } else {
@@ -398,17 +398,16 @@ shadow parser_position {
 
 /* Get current token from token stream */
 pub fn parser_current(p: Parser) -> LexerToken {
-    if (parser_is_at_end p) {
-        /* Return EOF token */
-        return LexerToken {
-            token_type: 0,  /* EOF */
-            value: "",
-            line: 0,
-            column: 0,
-            value_bytes: 0
-        }
-    } else {
-        return (list_LexerToken_get p.tokens p.position)
+    if (< p.position p.token_count) {
+        let tok: LexerToken = (list_LexerToken_get p.tokens p.position)
+        if (!= tok.token_type LexerTokenType.TOKEN_EOF) { return tok }
+    }
+    return LexerToken {
+        token_type: 0,
+        value: "",
+        line: 0,
+        column: 0,
+        value_bytes: 0
     }
 }
 
@@ -418,6 +417,38 @@ shadow parser_current {
     let tok: LexerToken = (parser_current p)
     assert (== tok.token_type 0)
     assert (== tok.value "")
+    assert (== tok.line 0)
+    assert (== tok.column 0)
+    assert (== tok.value_bytes 0)
+
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    (list_LexerToken_push tokens (LexerToken {
+        token_type: LexerTokenType.TOKEN_IDENTIFIER, value: "word",
+        line: 7, column: 11, value_bytes: 4
+    }))
+    (list_LexerToken_push tokens (LexerToken {
+        token_type: LexerTokenType.TOKEN_EOF, value: "stored-eof",
+        line: 8, column: 12, value_bytes: 10
+    }))
+    let original: Parser = (parser_new tokens 2 "current.nano")
+    let current: LexerToken = (parser_current original)
+    assert (== current.token_type LexerTokenType.TOKEN_IDENTIFIER)
+    assert (== current.value "word")
+    assert (== current.line 7)
+    assert (== current.column 11)
+    assert (== current.value_bytes 4)
+    assert (== original.position 0)
+    let positions: array<int> = [1, 2, 3]
+    let mut i: int = 0
+    while (< i (array_length positions)) {
+        let ended: LexerToken = (parser_current (parser_with_position original (at positions i)))
+        assert (== ended.token_type 0)
+        assert (== ended.value "")
+        assert (== ended.line 0)
+        assert (== ended.column 0)
+        assert (== ended.value_bytes 0)
+        set i (+ i 1)
+    }
 }
 
 /* Check if current token matches a specific type */
@@ -595,13 +626,13 @@ shadow token_lparen { assert (== (token_lparen) LexerTokenType.TOKEN_LPAREN) }
 fn token_rparen() -> int { return LexerTokenType.TOKEN_RPAREN }
 shadow token_rparen { assert (== (token_rparen) LexerTokenType.TOKEN_RPAREN) }
 
-fn token_plus() -> int { return LexerTokenType.TOKEN_PLUS }
+pub fn token_plus() -> int { return LexerTokenType.TOKEN_PLUS }
 shadow token_plus { assert (== (token_plus) LexerTokenType.TOKEN_PLUS) }
 
 fn token_minus() -> int { return LexerTokenType.TOKEN_MINUS }
 shadow token_minus { assert (== (token_minus) LexerTokenType.TOKEN_MINUS) }
 
-fn token_star() -> int { return LexerTokenType.TOKEN_STAR }
+pub fn token_star() -> int { return LexerTokenType.TOKEN_STAR }
 shadow token_star { assert (== (token_star) LexerTokenType.TOKEN_STAR) }
 
 fn token_slash() -> int { return LexerTokenType.TOKEN_SLASH }
@@ -1080,6 +1111,7 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
                 }
             } else {
                 set type_name tok.value
+                if (== tok.token_type (token_type_u8)) { set type_name "u8" }
                 set cur (parser_advance p)
             }
             }
@@ -1162,6 +1194,17 @@ shadow parse_type_string {
     let qualified_result: TypeParseResult = (parse_type_string qualified_parser)
     assert qualified_result.ok
     assert (== qualified_result.type_name "array<owned.Handle>")
+    let aliases: array<string> = ["byte", "array<array<byte>>", "fn(byte,array<byte>)->byte"]
+    let canonical: array<string> = ["u8", "array<array<u8>>", "fn(u8,array<u8>)->u8"]
+    let mut alias_index: int = 0
+    while (< alias_index (array_length aliases)) {
+        let alias_tokens: List<LexerToken> = (tokenize_string (at aliases alias_index) "alias.nano" (list_CompilerDiagnostic_new))
+        let alias_parser: Parser = (parser_new alias_tokens (list_LexerToken_length alias_tokens) "alias.nano")
+        let alias_result: TypeParseResult = (parse_type_string alias_parser)
+        assert alias_result.ok
+        assert (== alias_result.type_name (at canonical alias_index))
+        set alias_index (+ alias_index 1)
+    }
 
 }
 
@@ -2325,7 +2368,7 @@ fn parse_cond_clauses(p: Parser, line: int, column: int) -> Parser {
                                     (list_ASTStmtRef_push else_stmts else_stmt)
                                     let p_else_block: Parser = (parser_store_block p_then_block else_stmts line column)
                                     let else_block_id: int = p_else_block.last_expr_node_id
-                                    return (parser_store_if p_else_block cond_id cond_type then_id else_block_id line column)
+                                    return (parser_mark_if_expression (parser_store_if p_else_block cond_id cond_type then_id else_block_id line column))
                                 }
                             }
                         }
@@ -2363,6 +2406,13 @@ shadow parse_match_guard {
     let absent: Parser = (parse_match_guard parsed)
     assert (== absent.last_expr_node_id -1)
     assert (== absent.position parsed.position)
+    assert (not absent.has_error)
+    let empty: Parser = (parse_match_guard (parser_new (list_LexerToken_new) 0 "guard-empty.nano"))
+    assert (not empty.has_error)
+    assert (== empty.last_expr_node_id -1)
+    let missing_tokens: List<LexerToken> = (tokenize_string "if" "guard-missing.nano" (list_CompilerDiagnostic_new))
+    let missing: Parser = (parse_match_guard (parser_new missing_tokens (list_LexerToken_length missing_tokens) "guard-missing.nano"))
+    assert missing.has_error
 }
 
 # I share my literal-true coverage rule with the checked match policy.
@@ -2647,11 +2697,18 @@ shadow parse_match {
 }
 
 /* Parse primary expression: number, identifier, string, bool, or parenthesized */
-fn parse_primary(p: Parser) -> Parser {
+pub fn parse_primary(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
         let tok: LexerToken = (parser_current p)
+
+        if (== tok.token_type (token_if)) {
+            return (parse_if_expression p)
+        }
+        if (== tok.token_type (token_lbrace)) {
+            return (parse_block_expression p)
+        }
 
         # I reserve uppercase Type<args>.Variant for explicit union construction.
         # Lowercase identifiers keep their ordinary infix comparison grammar.
@@ -3305,7 +3362,7 @@ shadow parse_parenthesized_head {
     }
 }
 
-fn parenthesized_call_start(p: Parser) -> bool {
+pub fn parenthesized_call_start(p: Parser) -> bool {
     let name: NameParseResult = (parse_call_name p)
     if (not name.ok) { return false }
     if (parser_is_at_end name.p) { return false }
@@ -3356,7 +3413,8 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
         return p
     } else {
         if (parser_is_at_end p) {
-            return p
+            if left_parsed { return p }
+            return (parser_with_error p true)
         } else {
             let tok: LexerToken = (parser_current p)
             
@@ -3519,13 +3577,30 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
     }
 }
 
-fn parse_expression(p: Parser) -> Parser {
+pub fn parse_expression(p: Parser) -> Parser {
     return (parse_expression_recursive p false)
 }
 
 shadow parse_expression_recursive {
     /* Tested via integration tests in tokenization and parsing pipeline */
     assert (== 1 1)
+    let empty: Parser = (parser_new (list_LexerToken_new) 0 "empty-expression.nano")
+    let rejected: Parser = (parse_expression_recursive empty false)
+    assert rejected.has_error
+    assert (== rejected.position 0)
+    assert (== rejected.last_expr_node_id -1)
+    let tokens: List<LexerToken> = (tokenize_string "7" "complete-expression.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_expression (parser_new tokens (list_LexerToken_length tokens) "complete-expression.nano"))
+    assert (not parsed.has_error)
+    assert (parser_is_at_end parsed)
+    let complete: Parser = (parse_expression_recursive parsed true)
+    assert (not complete.has_error)
+    assert (== complete.position parsed.position)
+    assert (== complete.last_expr_node_id parsed.last_expr_node_id)
+    assert (== complete.numbers_count parsed.numbers_count)
+    let failed: Parser = (parse_expression_recursive (parser_with_error parsed true) true)
+    assert failed.has_error
+    assert (== failed.position parsed.position)
 }
 
 shadow parse_expression {
@@ -3747,6 +3822,30 @@ shadow parser_store_set {
 
 /* Helper: Store if statement node */
 
+# I retain expression intent when cond lowers into the shared IF representation.
+fn parser_mark_if_expression(p: Parser) -> Parser {
+    let node: ASTIf = (list_ASTIf_get p.ifs p.last_expr_node_id)
+    (list_ASTIf_set p.ifs p.last_expr_node_id (ASTIf {
+        node_type: node.node_type, line: node.line, column: node.column,
+        condition: node.condition, condition_type: node.condition_type,
+        then_body: node.then_body, else_body: node.else_body, is_expression: true
+    }))
+    return p
+}
+shadow parser_mark_if_expression {
+    let tokens: List<LexerToken> = (tokenize_string "fn f() -> void { if true { 1 } else { false } (cond (true [1]) (else [])) }" "origin.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "origin.nano")
+    assert (not (parser_has_error parser))
+    let ordinary: ASTIf = (parser_get_if parser 0)
+    let expression: ASTIf = (parser_get_if parser 1)
+    assert (not ordinary.is_expression)
+    assert expression.is_expression
+    assert (== ordinary.node_type ParseNodeType.PNODE_IF)
+    assert (== expression.node_type ParseNodeType.PNODE_IF)
+    assert (>= expression.then_body 0)
+    assert (>= expression.else_body 0)
+}
+
 /* Helper: Store if node */
 fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_id: int, else_body_id: int, line: int, column: int) -> Parser {
     let node: ASTIf = ASTIf {
@@ -3756,7 +3855,8 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         condition: condition_id,
         condition_type: condition_type,
         then_body: then_body_id,
-        else_body: else_body_id
+        else_body: else_body_id,
+        is_expression: false
     }
     let node_id: int = p.ifs_count
     (list_ASTIf_push p.ifs node)
@@ -4214,7 +4314,7 @@ shadow parser_is_value_expression {
     assert (not (parser_is_value_expression ParseNodeType.PNODE_IF))
 }
 
-fn parser_decode_import_path(raw: string) -> string {
+pub fn parser_decode_import_path(raw: string) -> string {
     let mut out: string = ""
     let mut i: int = 0
     while (< i (str_length raw)) {
@@ -5245,12 +5345,12 @@ shadow parse_owned_pattern {
 fn parse_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
     let mut cursor: Parser = p
     while true {
-        if (parser_has_error cursor) { return cursor }
-        if (parser_starts_owned_pattern cursor) {
+        if cursor.has_error { return cursor }
+        let tok: LexerToken = (parser_current cursor)
+        if (and (== tok.token_type (token_let)) (parser_starts_owned_pattern cursor)) {
             set cursor (parse_owned_pattern cursor stmts)
         } else {
-            if (parser_is_at_end cursor) { return (parser_with_error cursor true) }
-            let tok: LexerToken = (parser_current cursor)
+            if (== tok.token_type LexerTokenType.TOKEN_EOF) { return (parser_with_error cursor true) }
 
             if (== tok.token_type (token_rbrace)) {
                 /* End of block */
@@ -5288,7 +5388,7 @@ fn parse_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, st
             } else {
                 /* Parse statement */
                 let next: Parser = (parse_statement cursor)
-                if (parser_has_error next) { return next }
+                if next.has_error { return next }
                 let stmt: ASTStmtRef = ASTStmtRef {
                     node_id: next.last_expr_node_id,
                     node_type: next.last_expr_node_type
@@ -5318,13 +5418,14 @@ fn parse_block(p: Parser) -> Parser {
 }
 
 shadow parse_block_recursive {
-    let mut source: string = "fn probe() -> int { "
+    let mut source: string = "fn probe() -> int { assert true "
+    let expressions: string = "1 1 1 1 1 1 1 1 1 1 "
     let mut i: int = 0
-    while (< i 520) {
-        set source (str_concat source "assert true ")
+    while (< i 51) {
+        set source (str_concat source expressions)
         set i (+ i 1)
     }
-    set source (str_concat source "return 0 }")
+    set source (str_concat source "1 1 1 1 1 1 1 1 assert true return 0 }")
     let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let tokens: List<LexerToken> = (tokenize_string source "long-block.nano" diagnostics)
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "long-block.nano")
@@ -5454,12 +5555,12 @@ shadow parser_store_unsafe_block {
 fn parse_unsafe_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
     let mut cursor: Parser = p
     while true {
-        if (parser_has_error cursor) { return cursor }
-        if (parser_starts_owned_pattern cursor) {
+        if cursor.has_error { return cursor }
+        let tok: LexerToken = (parser_current cursor)
+        if (and (== tok.token_type (token_let)) (parser_starts_owned_pattern cursor)) {
             set cursor (parse_owned_pattern cursor stmts)
         } else {
-            if (parser_is_at_end cursor) { return (parser_with_error cursor true) }
-            let tok: LexerToken = (parser_current cursor)
+            if (== tok.token_type LexerTokenType.TOKEN_EOF) { return (parser_with_error cursor true) }
 
             if (== tok.token_type (token_rbrace)) {
                 let closed: Parser = (parser_advance cursor)
@@ -5467,7 +5568,7 @@ fn parse_unsafe_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: 
             }
 
             let next: Parser = (parse_statement cursor)
-            if (parser_has_error next) { return next }
+            if next.has_error { return next }
             let stmt: ASTStmtRef = ASTStmtRef {
                 node_id: next.last_expr_node_id,
                 node_type: next.last_expr_node_type
@@ -5479,13 +5580,14 @@ fn parse_unsafe_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: 
     return cursor
 }
 shadow parse_unsafe_block_recursive {
-    let mut source: string = "fn probe() -> int { unsafe { "
+    let mut source: string = "fn probe() -> int { unsafe { assert true "
+    let expressions: string = "1 1 1 1 1 1 1 1 1 1 "
     let mut i: int = 0
-    while (< i 520) {
-        set source (str_concat source "assert true ")
+    while (< i 51) {
+        set source (str_concat source expressions)
         set i (+ i 1)
     }
-    set source (str_concat source "} return 0 }")
+    set source (str_concat source "1 1 1 1 1 1 1 1 assert true } return 0 }")
     let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let tokens: List<LexerToken> = (tokenize_string source "long-unsafe-block.nano" diagnostics)
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "long-unsafe-block.nano")
@@ -5734,6 +5836,87 @@ shadow parse_let_statement {
     assert (== 1 1)
 }
 
+# I expose the existing lexical block grammar as an expression node.
+fn parse_block_expression(p: Parser) -> Parser {
+    let parsed: Parser = (parse_block p)
+    if (parser_has_error parsed) { return parsed }
+    return (parser_with_node parsed ParseNodeType.PNODE_BLOCK parsed.last_expr_node_id)
+}
+shadow parse_block_expression {
+    let sources: array<string> = ["{ let local: int = 1 [local] }", "({ 7 })", "{ { 1 } }", "{}"]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "block-expression.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_expression (parser_new tokens (list_LexerToken_length tokens) "block-expression.nano"))
+        assert (not (parser_has_error parsed))
+        assert (parser_is_at_end parsed)
+        assert (== parsed.last_expr_node_type ParseNodeType.PNODE_BLOCK)
+        let block: ASTBlock = (parser_get_block parsed parsed.last_expr_node_id)
+        assert (not block.is_par)
+        assert (not block.is_flow)
+        if (== i 0) { assert (== (list_ASTStmtRef_length block.statements) 2) }
+        if (== i 2) { assert (== (list_ASTStmtRef_get block.statements 0).node_type ParseNodeType.PNODE_BLOCK) }
+        if (== i 3) { assert (== (list_ASTStmtRef_length block.statements) 0) }
+        set i (+ i 1)
+    }
+    let malformed: array<string> = ["{ let x: int = 1", "{ let = 1 }", "({ 1 )", "{ else }"]
+    set i 0
+    while (< i (array_length malformed)) {
+        let tokens: List<LexerToken> = (tokenize_string (at malformed i) "block-refuse.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_expression (parser_new tokens (list_LexerToken_length tokens) "block-refuse.nano"))
+        assert (parser_has_error parsed)
+        set i (+ i 1)
+    }
+}
+
+# I reuse statement syntax and mark only an actual expression entry.
+fn parse_if_expression(p: Parser) -> Parser {
+    let parsed: Parser = (parse_if_statement p)
+    if (parser_has_error parsed) { return parsed }
+    return (parser_mark_if_expression parsed)
+}
+
+shadow parse_if_expression {
+    let sources: array<string> = [
+        "if true { 1 } else { 2 }",
+        "(if true { 1 } else { 2 })",
+        "(if false { 1 } else if true { 2 } else { 3 })",
+        "(if true { (if false { 1 } else { 2 }) } else { 3 })",
+        "(if true { (print \"\") })"
+    ]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "if-expression.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_expression (parser_new tokens (list_LexerToken_length tokens) "if-expression.nano"))
+        assert (not (parser_has_error parsed))
+        assert (parser_is_at_end parsed)
+        assert (== parsed.last_expr_node_type ParseNodeType.PNODE_IF)
+        let node: ASTIf = (parser_get_if parsed parsed.last_expr_node_id)
+        assert node.is_expression
+        assert (>= node.then_body 0)
+        if (< i 4) { assert (>= node.else_body 0) } else { assert (== node.else_body -1) }
+        if (== i 2) { assert (not (parser_get_if parsed 0).is_expression) }
+        if (== i 3) { assert (parser_get_if parsed 0).is_expression }
+        set i (+ i 1)
+    }
+    let malformed: array<string> = [
+        "(if true { 1 } else { 2 }", "(if true 1 else { 2 })",
+        "(if { 1 } else { 2 })", "(if true { 1 } else)",
+        "(if true { 1 } else if false { 2 } else)"
+    ]
+    set i 0
+    while (< i (array_length malformed)) {
+        let tokens: List<LexerToken> = (tokenize_string (at malformed i) "if-refuse.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_expression (parser_new tokens (list_LexerToken_length tokens) "if-refuse.nano"))
+        assert (parser_has_error parsed)
+        set i (+ i 1)
+    }
+    let tokens: List<LexerToken> = (tokenize_string "if true { 1 } else { false }" "if-statement.nano" (list_CompilerDiagnostic_new))
+    let ordinary: Parser = (parse_statement (parser_new tokens (list_LexerToken_length tokens) "if-statement.nano"))
+    assert (not (parser_has_error ordinary))
+    assert (not (parser_get_if ordinary ordinary.last_expr_node_id).is_expression)
+}
+
 /* Parse if statement: if (expression) { statements } [else { statements }] */
 fn parse_if_statement(p: Parser) -> Parser {
     if (parser_is_at_end p) {
@@ -5882,6 +6065,20 @@ fn parse_return_statement(p: Parser) -> Parser {
 
 shadow parse_return_statement {
     assert (== 1 1)
+    let sources: array<string> = ["return", "return }"]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "bare-return.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_return_statement (parser_new tokens (list_LexerToken_length tokens) "bare-return.nano"))
+        assert (not parsed.has_error)
+        assert (== parsed.last_expr_node_type ParseNodeType.PNODE_RETURN)
+        let returned: ASTReturn = (parser_get_return parsed parsed.last_expr_node_id)
+        assert (== returned.value -1)
+        assert (== returned.value_type -1)
+        if (== i 0) { assert (parser_is_at_end parsed) }
+        if (== i 1) { assert (== (parser_current parsed).token_type (token_rbrace)) }
+        set i (+ i 1)
+    }
 }
 
 /* Parse assert statement: assert expression */
@@ -6097,18 +6294,17 @@ shadow parser_mark_par {
     assert (not body.is_par)
 }
 
-fn parse_statement(p: Parser) -> Parser {
-    if (and (== (parser_current p).token_type LexerTokenType.TOKEN_IDENTIFIER) (and (== (parser_current p).value "flow") (== (parser_peek p 1) LexerTokenType.TOKEN_LBRACE))) {
+pub fn parse_statement(p: Parser) -> Parser {
+    let tok: LexerToken = (parser_current p)
+    if (and (== tok.token_type LexerTokenType.TOKEN_IDENTIFIER) (and (== tok.value "flow") (== (parser_peek p 1) LexerTokenType.TOKEN_LBRACE))) {
         return (parser_mark_passive (parse_block (parser_advance p)) true)
     }
-    if (== (parser_current p).token_type LexerTokenType.TOKEN_PAR) {
+    if (== tok.token_type LexerTokenType.TOKEN_PAR) {
         return (parser_mark_par (parse_block (parser_advance p)))
     }
-    if (parser_is_at_end p) {
+    if (== tok.token_type LexerTokenType.TOKEN_EOF) {
         return (parser_with_error p true)
     } else {
-        let tok: LexerToken = (parser_current p)
-        
         /* Dispatch based on token type */
         if (== tok.token_type LexerTokenType.TOKEN_BREAK) {
             return (parser_with_statement (parser_advance p) ParseNodeType.PNODE_BREAK)
@@ -6184,6 +6380,27 @@ fn parse_statement(p: Parser) -> Parser {
 
 shadow parse_statement {
     assert (== 1 1)
+    let sources: array<string> = ["assert true", "break", "continue", "par {}", "flow {}", "let x: int = 1", "set x 2"]
+    let expected: array<int> = [ParseNodeType.PNODE_ASSERT, ParseNodeType.PNODE_BREAK, ParseNodeType.PNODE_CONTINUE, ParseNodeType.PNODE_BLOCK, ParseNodeType.PNODE_BLOCK, ParseNodeType.PNODE_LET, ParseNodeType.PNODE_SET]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "statement.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_statement (parser_new tokens (list_LexerToken_length tokens) "statement.nano"))
+        assert (not parsed.has_error)
+        assert (== parsed.last_expr_node_type (at expected i))
+        assert (parser_is_at_end parsed)
+        if (== i 3) { assert (parser_get_block parsed parsed.last_expr_node_id).is_par }
+        if (== i 4) { assert (parser_get_block parsed parsed.last_expr_node_id).is_flow }
+        set i (+ i 1)
+    }
+    let malformed: array<string> = ["", "assert", "set"]
+    set i 0
+    while (< i (array_length malformed)) {
+        let tokens: List<LexerToken> = (tokenize_string (at malformed i) "statement-error.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_statement (parser_new tokens (list_LexerToken_length tokens) "statement-error.nano"))
+        assert parsed.has_error
+        set i (+ i 1)
+    }
 }
 
 /* ========== Definition Parsing ========== */
@@ -7934,7 +8151,7 @@ shadow parse_union_definition {
 /* Parse definition (dispatcher): function, struct, enum, union */
 /* Parse import statement: import "path" as name */
 /* Parse import statement: import "path" [as alias] */
-fn parse_import(p: Parser) -> Parser {
+pub fn parse_import(p: Parser) -> Parser {
     let tok: LexerToken = (parser_current p)
     let p1: Parser = (parser_advance p)  /* consume 'import' */
     
@@ -7976,6 +8193,29 @@ fn parse_import(p: Parser) -> Parser {
             }
         }
     }
+}
+
+# I reuse my import parser and mark only the single resulting real import.
+fn parse_pub_use(p: Parser) -> Parser {
+    let parsed: Parser = (parse_import p)
+    if parsed.has_error { return parsed }
+    if (!= parsed.imports_count (+ p.imports_count 1)) { return (parser_with_error parsed true) }
+    let mut imported: ASTImport = (list_ASTImport_get parsed.imports p.imports_count)
+    set imported (ASTImport { node_type: imported.node_type, line: imported.line, column: imported.column, module_path: imported.module_path, module_name: imported.module_name, is_unsafe: imported.is_unsafe, is_selective: imported.is_selective, is_wildcard: imported.is_wildcard, is_pub_use: true, import_symbols: imported.import_symbols, import_aliases: imported.import_aliases, import_symbol_count: imported.import_symbol_count })
+    (list_ASTImport_set parsed.imports p.imports_count imported)
+    return parsed
+}
+shadow parse_pub_use {
+    let tokens: List<LexerToken> = (tokenize_string "pub use \"dep.nano\" as dep" "export.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "export.nano")
+    assert (not parsed.has_error)
+    assert (== parsed.imports_count 1)
+    let imported: ASTImport = (list_ASTImport_get parsed.imports 0)
+    assert imported.is_pub_use
+    assert (== imported.module_path "dep.nano")
+    assert (== imported.module_name "dep")
+    let invalid: List<LexerToken> = (tokenize_string "use \"dep.nano\"" "invalid.nano" (list_CompilerDiagnostic_new))
+    assert (parse_program invalid (list_LexerToken_length invalid) "invalid.nano").has_error
 }
 
 /* Parse module import: module "path" [as alias] */
@@ -8253,23 +8493,38 @@ fn parse_service_declaration(p: Parser) -> Parser {
     return (parser_store_service next interface_id interface_size document_path path_size start.line start.column)
 }
 
-fn parse_definition(p: Parser) -> Parser {
+# I identify top-level functions in my actual declaration dispatch.
+pub struct DefinitionParseResult { parser: Parser, function_index: int }
+fn definition_parse_result(p: Parser, function: bool) -> DefinitionParseResult {
+    let mut index: int = -1
+    if (and function (not (parser_has_error p))) { set index p.last_expr_node_id }
+    return DefinitionParseResult { parser: p, function_index: index }
+}
+shadow definition_parse_result {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "empty.nano")
+    assert (== (definition_parse_result p false).function_index -1)
+    assert (== (definition_parse_result (parser_with_error p true) true).function_index -1)
+}
+fn parse_definition_result(p: Parser) -> DefinitionParseResult {
     if (parser_is_at_end p) {
-        return (parser_with_error p true)
+        return (definition_parse_result (parser_with_error p true) false)
     } else {
         let mut tok: LexerToken = (parser_current p)
         let mut p_work: Parser = p
         
         if (and (== tok.token_type (token_identifier)) (== tok.value "service")) {
-            return (parse_service_declaration p)
+            return (definition_parse_result (parse_service_declaration p) false)
         }
         /* Handle optional 'pub' modifier */
         if (== tok.token_type (token_pub)) {
             set p_work (parser_advance p_work)
             if (parser_is_at_end p_work) {
-                return (parser_with_error p_work true)
+                return (definition_parse_result (parser_with_error p_work true) false)
             } else {
                 set tok (parser_current p_work)
+                if (== tok.token_type LexerTokenType.TOKEN_USE) {
+                    return (definition_parse_result (parse_pub_use p_work) false)
+                }
             }
         } else {
             (print "")
@@ -8278,7 +8533,7 @@ fn parse_definition(p: Parser) -> Parser {
         /* Module imports: module "path" ... */
         if (== tok.token_type LexerTokenType.TOKEN_MODULE) {
             if (== (parser_peek p_work 1) (token_string)) {
-                return (parse_module_import p_work false)
+                return (definition_parse_result (parse_module_import p_work false) false)
             } else { (print "") }
         } else { (print "") }
 
@@ -8286,7 +8541,7 @@ fn parse_definition(p: Parser) -> Parser {
         if (== tok.token_type (token_unsafe)) {
             if (and (== (parser_peek p_work 1) LexerTokenType.TOKEN_MODULE) (== (parser_peek p_work 2) (token_string))) {
                 let p1: Parser = (parser_advance p_work)
-                return (parse_module_import p1 true)
+                return (definition_parse_result (parse_module_import p1 true) false)
             } else { (print "") }
         } else { (print "") }
 
@@ -8294,15 +8549,15 @@ fn parse_definition(p: Parser) -> Parser {
         if (== tok.token_type LexerTokenType.TOKEN_MODULE) {
             let p1: Parser = (parser_advance p_work)  /* consume 'module' */
             if (parser_is_at_end p1) {
-                return (parser_with_error p1 true)
+                return (definition_parse_result (parser_with_error p1 true) false)
             } else {
                 let tok_name: LexerToken = (parser_current p1)
                 if (== tok_name.token_type (token_identifier)) {
                     let p2: Parser = (parser_advance p1)  /* consume module name */
                     /* Module declarations are stored but not used yet */
-                    return p2
+                    return (definition_parse_result p2 false)
                 } else {
-                    return (parser_with_error p1 true)
+                    return (definition_parse_result (parser_with_error p1 true) false)
                 }
             }
         } else {
@@ -8314,17 +8569,17 @@ fn parse_definition(p: Parser) -> Parser {
             /* extern can be followed by fn or struct */
             let p_after_extern: Parser = (parser_advance p_work)
             if (parser_is_at_end p_after_extern) {
-                return (parser_with_error p_after_extern true)
+                return (definition_parse_result (parser_with_error p_after_extern true) false)
             } else {
                 let next_tok: LexerToken = (parser_current p_after_extern)
                 if (== next_tok.token_type (token_fn)) {
-                    return (parse_extern_function_definition p_work)
+                    return (definition_parse_result (parse_extern_function_definition p_work) true)
                 } else {
                     if (== next_tok.token_type (token_struct)) {
                         /* I retain foreign declaration identity in the AST. */
-                        return (parse_struct_definition p_after_extern true)
+                        return (definition_parse_result (parse_struct_definition p_after_extern true) false)
                     } else {
-                        return (parser_with_error p_after_extern true)
+                        return (definition_parse_result (parser_with_error p_after_extern true) false)
                     }
                 }
             }
@@ -8333,48 +8588,48 @@ fn parse_definition(p: Parser) -> Parser {
                 /* pure fn / pure extern fn - retain the annotation for effect checking */
                 let p_after_pure: Parser = (parser_advance p_work)
                 if (parser_is_at_end p_after_pure) {
-                    return (parser_with_error p_after_pure true)
+                    return (definition_parse_result (parser_with_error p_after_pure true) false)
                 } else {
                     let next_tok: LexerToken = (parser_current p_after_pure)
                     if (== next_tok.token_type (token_fn)) {
-                        return (parser_mark_pure (parse_function_definition p_after_pure))
+                        return (definition_parse_result (parser_mark_pure (parse_function_definition p_after_pure)) true)
                     } else {
                         if (== next_tok.token_type (token_extern)) {
-                            return (parser_mark_pure (parse_extern_function_definition p_after_pure))
+                            return (definition_parse_result (parser_mark_pure (parse_extern_function_definition p_after_pure)) true)
                         } else {
-                            return (parser_with_error p_after_pure true)
+                            return (definition_parse_result (parser_with_error p_after_pure true) false)
                         }
                     }
                 }
             } else {
             if (== tok.token_type (token_fn)) {
-                return (parse_function_definition p_work)
+                return (definition_parse_result (parse_function_definition p_work) true)
             } else {
                 if (or (== tok.token_type (token_struct)) (== tok.token_type LexerTokenType.TOKEN_RESOURCE)) {
-                return (parse_struct_definition p_work false)
+                return (definition_parse_result (parse_struct_definition p_work false) false)
             } else {
                 if (== tok.token_type (token_enum)) {
-                    return (parse_enum_definition p_work)
+                    return (definition_parse_result (parse_enum_definition p_work) false)
                 } else {
                     if (== tok.token_type (token_union)) {
-                        return (parse_union_definition p_work)
+                        return (definition_parse_result (parse_union_definition p_work) false)
                     } else {
                         if (== tok.token_type (token_import)) {
-                        return (parse_import p_work)
+                        return (definition_parse_result (parse_import p_work) false)
                     } else {
                         if (== tok.token_type LexerTokenType.TOKEN_FROM) {
-                            return (parse_from_import p_work)
+                            return (definition_parse_result (parse_from_import p_work) false)
                         } else {
                             if (== tok.token_type (token_opaque)) {
-                                return (parse_opaque_type p_work)
+                                return (definition_parse_result (parse_opaque_type p_work) false)
                             } else {
                                 if (== tok.token_type (token_shadow)) {
-                                    return (parse_shadow p_work)
+                                    return (definition_parse_result (parse_shadow p_work) false)
                                 } else {
                                     if (== tok.token_type (token_let)) {
-                                        return (parse_let_statement p_work)
+                                        return (definition_parse_result (parse_let_statement p_work) false)
                                     } else {
-                                        return (parser_with_error p_work true)
+                                        return (definition_parse_result (parser_with_error p_work true) false)
                                     }
                                 }
                             }
@@ -8387,6 +8642,15 @@ fn parse_definition(p: Parser) -> Parser {
             }
         }
     }
+}
+shadow parse_definition_result {
+    let tokens: List<LexerToken> = (tokenize_string "pub fn visible() -> int { return 3 }" "visible.nano" (list_CompilerDiagnostic_new))
+    let result: DefinitionParseResult = (parse_definition_result (parser_new tokens (list_LexerToken_length tokens) "visible.nano"))
+    assert (== result.function_index 0)
+    assert (== (parser_get_function result.parser result.function_index).name "visible")
+}
+fn parse_definition(p: Parser) -> Parser {
+    return (parse_definition_result p).parser
 }
 
 shadow parse_definition {
@@ -8410,21 +8674,111 @@ shadow parse_definition {
  * Returns:
  *   Parser state containing all parsed definitions
  */
-pub fn parse_program(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
+# I retain optional top-level facts from my real parser loop, never a second grammar.
+pub struct ParsedDefinition {
+    first_token: int, after_token: int, is_public: bool,
+    before: array<int>, after: array<int>, result_kind: int, result_index: int, function_index: int
+}
+pub struct ParsedDeclarations { parser: Parser, definitions: array<ParsedDefinition>, truncated: bool }
+
+fn parser_declaration_extents(p: Parser) -> array<int> {
+    return [p.functions_count, p.structs_count, p.enums_count, p.unions_count,
+        p.opaque_types_count, p.lets_count, p.services_count, p.imports_count, p.shadows_count]
+}
+shadow parser_declaration_extents {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "empty.nano")
+    let extents: array<int> = (parser_declaration_extents p)
+    assert (== (array_length extents) 9)
+    assert (== (at extents 0) 0)
+    assert (== (at extents 8) 0)
+}
+
+fn parse_program_impl(tokens: List<LexerToken>, token_count: int, file_name: string, capture: bool, capture_limit: int) -> ParsedDeclarations {
     let mut p: Parser = (parser_new tokens token_count file_name)
-    
-    /* Parse all definitions until end of tokens or error */
+    let mut definitions: array<ParsedDefinition> = []
+    let mut truncated: bool = false
     while (and (not (parser_is_at_end p)) (not (parser_has_error p))) {
         let before_pos: int = p.position
-        set p (parse_definition p)
-
-        /* Safety: ensure progress to avoid infinite loops */
+        let mut before: array<int> = []
+        let mut is_public: bool = false
+        if (and capture (not truncated)) {
+            if (>= (array_length definitions) capture_limit) {
+                set truncated true
+                set definitions []
+            }
+            set before (parser_declaration_extents p)
+            set is_public (== (parser_current p).token_type (token_pub))
+        }
+        let parsed_definition: DefinitionParseResult = (parse_definition_result p)
+        set p parsed_definition.parser
         if (and (== p.position before_pos) (not (parser_has_error p))) {
             set p (parser_with_error (parser_advance p) true)
         }
+        if (and capture (and (not truncated) (not (parser_has_error p)))) {
+            set definitions (array_push definitions (ParsedDefinition {
+                first_token: before_pos, after_token: p.position, is_public: is_public,
+                before: before, after: (parser_declaration_extents p),
+                result_kind: p.last_expr_node_type, result_index: p.last_expr_node_id,
+                function_index: parsed_definition.function_index
+            }))
+        }
     }
-    
-    return p
+    # I publish no complete declaration inventory after a partial parse failure.
+    if (parser_has_error p) { set definitions [] }
+    return ParsedDeclarations { parser: p, definitions: definitions, truncated: truncated }
+}
+shadow parse_program_impl {
+    let empty: ParsedDeclarations = (parse_program_impl (list_LexerToken_new) 0 "empty.nano" false 0)
+    assert (== (array_length empty.definitions) 0)
+    assert (not (parser_has_error empty.parser))
+}
+
+pub fn parse_program_declarations(tokens: List<LexerToken>, token_count: int, file_name: string) -> ParsedDeclarations {
+    return (parse_program_impl tokens token_count file_name true 4096)
+}
+shadow parse_program_declarations {
+    let source: string = "pub fn visible() -> int { let local: int = 2 return local }\nlet global: int = 3\n"
+    let tokens: List<LexerToken> = (tokenize_string source "capture.nano" (list_CompilerDiagnostic_new))
+    let parsed: ParsedDeclarations = (parse_program_declarations tokens (list_LexerToken_length tokens) "capture.nano")
+    assert (not (parser_has_error parsed.parser))
+    assert (== (array_length parsed.definitions) 2)
+    let first: ParsedDefinition = (at parsed.definitions 0)
+    let second: ParsedDefinition = (at parsed.definitions 1)
+    assert first.is_public
+    assert (not second.is_public)
+    assert (== (at first.before 0) 0)
+    assert (== (at first.after 0) 1)
+    assert (> (at first.after 5) (at first.before 5))
+    assert (== second.first_token first.after_token)
+    assert (== (- (at second.after 5) (at second.before 5)) 1)
+}
+
+pub fn parse_program_complete_declarations(tokens: List<LexerToken>, token_count: int, file_name: string) -> ParsedDeclarations {
+    return (parse_program_impl tokens token_count file_name true token_count)
+}
+shadow parse_program_complete_declarations {
+    let source: string = "pub fn outer() -> int { let callback: fn(int)->int = fn(value: int) -> int { return value } return (callback 3) }\nshadow outer { assert true }\nextern fn hidden() -> int\npub extern fn visible() -> int\n"
+    let tokens: List<LexerToken> = (tokenize_string source "complete.nano" (list_CompilerDiagnostic_new))
+    let parsed: ParsedDeclarations = (parse_program_complete_declarations tokens (list_LexerToken_length tokens) "complete.nano")
+    assert (not (parser_has_error parsed.parser))
+    assert (not parsed.truncated)
+    assert (== (array_length parsed.definitions) 4)
+    let outer: ParsedDefinition = (at parsed.definitions 0)
+    assert outer.is_public
+    assert (> outer.function_index (at outer.before 0))
+    assert (== (parser_get_function parsed.parser outer.function_index).name "outer")
+    assert (== (at parsed.definitions 1).function_index -1)
+    assert (not (at parsed.definitions 2).is_public)
+    assert (at parsed.definitions 3).is_public
+    let broken: List<LexerToken> = (tokenize_string "pub fn broken(" "broken.nano" (list_CompilerDiagnostic_new))
+    let refused: ParsedDeclarations = (parse_program_complete_declarations broken (list_LexerToken_length broken) "broken.nano")
+    assert (parser_has_error refused.parser)
+    assert (== (array_length refused.definitions) 0)
+}
+
+pub fn parse_program(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
+    let result: ParsedDeclarations = (parse_program_impl tokens token_count file_name false 0)
+    return result.parser
 }
 
 shadow parse_program {

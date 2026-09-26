@@ -1,0 +1,83 @@
+F..FFF
+======================================================================
+FAIL: test_enum_union_fields_and_nested_float_arrays (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_enum_union_fields_and_nested_float_arrays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 27, in test_enum_union_fields_and_nested_float_arrays
+            self.execute(r'''enum Mode { Quiet = 3, Loud = 7 }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Choice { Selected { mode: Mode }, Empty {} }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 18, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-xsym4crt/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-xsym4crt/product')]
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-xsym4crt/case.nano
+Field type mismatch in variant 'Choice.Selected': got enum, expected struct.
+
+8|  let state: State = State { mode: Mode.Loud, choice: Choice.Selected { mode: Mode.Quiet }, values: nested }
+                                                        ^
+Hint: Ensure each field value matches the variant's declared type.
+Type checking failed
+
+
+======================================================================
+FAIL: test_retained_shadow_native_disagreements (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_retained_shadow_native_disagreements) (case='enum_field')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 24, in test_retained_shadow_native_disagreements
+    self.execute((evidence / (name + "-shadow.nano")).read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 18, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-drd_8ory/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-drd_8ory/product')]
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 59
+I will not publish output after shadow execution exited with status 1.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_retained_shadow_native_disagreements (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_retained_shadow_native_disagreements) (case='whole_float_array')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 24, in test_retained_shadow_native_disagreements
+    self.execute((evidence / (name + "-shadow.nano")).read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 18, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-5k0w2wqz/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-5k0w2wqz/product')]
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 1, column 47
+I will not publish output after shadow execution exited with status 1.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_retained_shadow_native_disagreements (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_retained_shadow_native_disagreements) (case='nested_array')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 24, in test_retained_shadow_native_disagreements
+    self.execute((evidence / (name + "-shadow.nano")).read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 18, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-dejscl7c/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-dejscl7c/product')]
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 1, column 63
+I will not publish output after shadow execution exited with status 1.
+Shadow tests failed
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.517s
+
+FAILED (failures=4)

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "capture",
+    "build_exit": 0,
+    "run_exit": 0
+  },
+  {
+    "name": "map",
+    "build_exit": 0,
+    "run_exit": 0
+  },
+  {
+    "name": "map-explicit-free",
+    "build_exit": 0,
+    "run_exit": 0
+  }
+]

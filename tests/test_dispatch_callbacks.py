@@ -23,7 +23,7 @@ class DispatchCallbacks(unittest.TestCase):
             isolated = subprocess.run([str(ROOT / "bin/nano_vm"), "--isolate-ffi", str(output)],
                                       cwd=ROOT, capture_output=True, timeout=20)
             self.assertNotEqual(isolated.returncode, 0)
-            self.assertIn(b"isolated FFI", isolated.stderr)
+            self.assertIn(b"isolated opaque token", isolated.stderr)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "tests/nanovm/test_binding_state.c",
+    "src/nanovm/heap.c",
+    "src/nanovm/heap_cycles.c",
+    "src/nanovm/value.c",
+    "-lm",
+    "-o",
+    "/tmp/nanolang-binding-state-f2bac81a8/reports-linux/gcc"
+  ],
+  "returncode": 1,
+  "timed_out": false,
+  "group_gone": true,
+  "elapsed_seconds": 0.36443888198118657
+}

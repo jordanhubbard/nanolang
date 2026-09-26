@@ -1,0 +1,1 @@
+{"tool":"nanoc_c","success":false,"completed":true,"test_count":1,"failures":[{"test":"main","source_file":"/tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/failure.nano","fail_count":1,"first_location":{"line":2,"column":15}}]}

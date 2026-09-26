@@ -1,6 +1,7 @@
 #ifndef NANOISA_OWNERSHIP_DECLARATION_PROJECTION_H
 #define NANOISA_OWNERSHIP_DECLARATION_PROJECTION_H
 #include "ordinary_array_authority.h"
+#include "preparation_budget.h"
 #include "nvm_v2_sections.h"
 #include "ownership_contracts.h"
 /* I expose copied complete declarations, never executable authority.
@@ -15,6 +16,23 @@ typedef struct { NvmDeclarationStatus status; const char *message; } NvmDeclarat
 typedef struct { uint32_t layouts, types, bindings, unions, variants; } NvmDeclarationCounts;
 typedef struct { uint8_t kind, flags; uint16_t fields; uint32_t name; } NvmDeclarationLayout;
 NvmDeclarationResult nvm_prepare_ownership_declarations(const NvmModule *,NvmOwnershipDeclarationPlan **);
+/* I read retained V2 facts directly using the same private declaration grammar.
+ * Exact signature selectors and constant indices are never rebuilt. Other V2
+ * sections are outside this declaration query: success grants no admission.
+ * Existing private limits (256 layouts/65536 fields/16MiB/1M work) apply.
+ * Unsupported declaration shapes remain UNKNOWN/INVALID; revision2 is not
+ * enabled by this entry. Failure preserves *out. */
+NvmDeclarationResult nvm_prepare_ownership_declarations_v2(const NvmV2Module *,NvmOwnershipDeclarationPlan **);
+/* I stage a shared caller budget; failure changes neither it nor the output. */
+NvmDeclarationResult nvm_prepare_ownership_declarations_v2_budget(const NvmV2Module *,
+    NvmPreparationBudget *,NvmOwnershipDeclarationPlan **);
+/* I explicitly select the private typed grammar, including ARRAY_FIELDS rev2.
+ * Foreign referents are bounded numeric facts, not resolved declarations. Every
+ * plan remains non-admitting; this query performs no provider/ABI/lifetime check.
+ * The shared budget and output publish together only on success. */
+NvmDeclarationResult nvm_prepare_ownership_declarations_typed_v2(const NvmV2Module *,
+    NvmPreparationBudget *,NvmOwnershipDeclarationPlan **);
+bool nvm_ownership_declarations_foreign_unresolved(const NvmOwnershipDeclarationPlan *);
 void nvm_ownership_declarations_free(NvmOwnershipDeclarationPlan *);
 bool nvm_ownership_declarations_counts(const NvmOwnershipDeclarationPlan *,NvmDeclarationCounts *);
 bool nvm_ownership_declarations_layout(const NvmOwnershipDeclarationPlan *,uint32_t,NvmDeclarationLayout *);

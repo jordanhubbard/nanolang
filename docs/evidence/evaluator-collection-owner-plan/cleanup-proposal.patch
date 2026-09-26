@@ -1,0 +1,73 @@
+--- a/src/nanolang.h
++++ b/src/nanolang.h
+@@ -956,6 +956,11 @@
+ 
+ /* Interpreter */
+ bool run_program(ASTNode *program, Environment *env);
++/* Fixed-array and interpreter HashMap identities returned here transfer no
++ * ownership. Evaluator-created collections borrow their Environment; an alias
++ * of a caller-created input keeps its caller owner. Those owners must outlive
++ * all such references. Existing string/record/tuple/callable snapshots and
++ * DynArray GC references keep their separate ownership contracts. */
+ Value call_function(const char *name, Value *args, int arg_count, Environment *env);
+ /* REPL support */
+ Value repl_eval_node(ASTNode *node, Environment *env);
+--- a/tests/test_eval.c
++++ b/tests/test_eval.c
+@@ -2179,11 +2179,10 @@
+                         if (type == 0) ASSERT(((long long *)array->data)[0] == 42);
+                         if (type == 1) ASSERT(((double *)array->data)[0] == 1.5);
+                         if (type == 2) ASSERT(((bool *)array->data)[0]);
+-                        if (type == 3) { ASSERT(!strcmp(((char **)array->data)[0], "mapped")); free(((char **)array->data)[0]); }
++                        if (type == 3) { ASSERT(!strcmp(((char **)array->data)[0], "mapped")); }
+                         ASSERT(((long long *)input.as.array_val->data)[0] == 7);
+                     }
+-                    free(array->data);
+-                    free(array);
++                    /* My evaluator owns this returned fixed array until ctx cleanup. */
+                 }
+                 run_ctx_free(&ctx);
+                 if (!dynamic) { free(input.as.array_val->data); free(input.as.array_val); }
+--- a/tests/test_integer_negation_eval.c
++++ b/tests/test_integer_negation_eval.c
+@@ -163,7 +163,7 @@
+         ASSERT(result.type==VAL_ARRAY);
+         ASSERT_EQ(((long long *)result.as.array_val->data)[0],expected[i]);
+         ASSERT_EQ(((long long *)fixed.as.array_val->data)[0],input[i]);
+-        free(result.as.array_val->data); free(result.as.array_val);
++        /* My returned fixed array borrows ctx; fixed remains caller-owned. */
+         free(fixed.as.array_val->data); free(fixed.as.array_val);
+         DynArray *dynamic=dyn_array_new(ELEM_INT);
+         dynamic=dyn_array_push_int(dynamic,input[i]);
+--- a/tests/test_integer_binary_eval.c
++++ b/tests/test_integer_binary_eval.c
+@@ -22,6 +22,10 @@
+ static void fixture_release(Value value) {
+     if (value.type==VAL_DYN_ARRAY) gc_release(value.as.dyn_array_val);
+     else { free(value.as.array_val->data); free(value.as.array_val); }
++}
++static void fixture_release_result(Value value) {
++    /* Fixed results borrow ctx; dynamic results keep their existing GC contract. */
++    if (value.type==VAL_DYN_ARRAY) gc_release(value.as.dyn_array_val);
+ }
+ int main(void) {
+     const struct { int64_t a,b,result[5]; } cases[]={
+@@ -62,14 +66,14 @@
+             for (int dynamic=0;dynamic<2;++dynamic) {
+                 Value a=fixture_array(cases[row].a,dynamic), b=fixture_array(cases[row].b,dynamic);
+                 Value pair[]={a,b}; result=call_function("arrays",pair,2,ctx.env);
+-                ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release(result); ++observations;
++                ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release_result(result); ++observations;
+                 pair[0]=a; pair[1]=args[1]; result=call_function("right",pair,2,ctx.env);
+-                ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release(result); ++observations;
++                ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release_result(result); ++observations;
+                 pair[0]=args[0]; pair[1]=b; result=call_function("left",pair,2,ctx.env);
+-                ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release(result); ++observations;
++                ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release_result(result); ++observations;
+                 if (dynamic) {
+                     result=call_function("mapped",&a,1,ctx.env);
+-                    ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release(result); ++observations;
++                    ASSERT_EQ(fixture_element(result),cases[row].result[op]); fixture_release_result(result); ++observations;
+                     result=call_function("reduced",pair,2,ctx.env);
+                     ASSERT(result.type==VAL_INT); ASSERT_EQ(result.as.int_val,cases[row].result[op]); ++observations;
+                 }

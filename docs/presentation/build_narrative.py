@@ -38,12 +38,12 @@ def build() -> Path:
     section.left_margin = section.right_margin = Inches(0.9)
     document.core_properties.title = "NanoLang: the language, compiler, and VM"
     document.core_properties.author = "NanoLang"
-    document.core_properties.subject = "NanoLang 5.0 release edition — unpublished"
+    document.core_properties.subject = "NanoLang 5.1 One IR release edition"
 
     heading(document, 1, "NanoLang: the language, compiler, and VM")
     heading(document, 2, "What I am")
-    paragraph(document, "I am NanoLang. This is my local 5.0 release edition. My tag requires the exact-commit release gates. It explains my language contract, compiler paths, NanoISA bytecode, NanoVM execution, foreign-function boundary, Nano Service Interface, POSIX capability fabric, trap journal, tests, diagnostics, and unfinished work. My runtime foundations are under development. Laboratory service tests do not establish production isolation. I do not claim a kernel.")
-    paragraph(document, "Authority: docs/PERSONA.md, README.md, docs/NANOISA.md, docs/NSI.md, docs/NSI_FABRIC.md, docs/NSI_EFFECTS.md, docs/NANO_EMACS.md, docs/ROADMAP.md, spec/nanoisa.yaml, docs/RELEASE_5.0.md, docs/CALLBACK_ABI.md, and the current test suites.")
+    paragraph(document, "I am NanoLang. This is my local 5.1 One IR release edition. It explains my language contract, verified compiler product, NanoISA bytecode, NanoVM execution, native translation, foreign-function boundary, Nano Service Interface, POSIX capability fabric, trap journal, tests, diagnostics, and retained limits. My runtime foundations are under development. Laboratory service tests do not establish production isolation. I do not claim a kernel.")
+    paragraph(document, "Authority: docs/PERSONA.md, README.md, docs/NANOISA.md, docs/NANOISA_ONLY.md, docs/NSI.md, docs/NSI_FABRIC.md, docs/NSI_EFFECTS.md, docs/NANO_EMACS.md, docs/ROADMAP.md, spec/nanoisa.yaml, docs/RELEASE_5.1.md, docs/CALLBACK_ABI.md, and the current test suites.")
     heading(document, 2, "Who this is for")
     paragraph(document, "Software developers and compiler engineers who need the technical account behind the companion deck. I describe tested behavior. Roadmap work is labelled as such.")
 
@@ -59,11 +59,11 @@ def build() -> Path:
     paragraph(document, "My NanoCore model states mechanized proofs for preservation, progress, determinism, semantic equivalence, and evaluator soundness under the hypotheses in formal/README.md and the theorem statements. These do not establish correspondence with my production parser, typechecker, compilers, NanoVM, FFI, NSI, or host. That correspondence requires separate evidence.")
 
     heading(document, 1, "The compilation paths")
-    heading(document, 2, "C transpilation")
-    paragraph(document, "nanoc lowers NanoLang to generated C and links the runtime libraries. This is my native execution path. Passing compilation and tests supplies evidence for the cases checked, not semantic equivalence. Full backend parity remains roadmap work.")
+    heading(document, 2, "Verified product and C translation")
+    paragraph(document, "nanoc lowers NanoLang to verified .nvm v2. My default portable output is that module. nvm2c translates the same module to C11 and links the runtime libraries for native execution. Passing compilation and tests supplies evidence for the cases checked, not semantic equivalence or universal backend parity.")
     heading(document, 2, "NanoISA generation")
-    paragraph(document, "nano_virt lowers NanoLang to a serialized .nvm module. The active opcode metadata comes from spec/nanoisa.yaml and is generated into src/nanoisa/generated_schema.h.")
-    paragraph(document, ".nano source  ->  nano_virt  ->  .nvm module  ->  nano_vm", code=True)
+    paragraph(document, "My C seed and self-hosted compiler both lower NanoLang to a serialized .nvm module. The active opcode metadata comes from spec/nanoisa.yaml and is generated into src/nanoisa/generated_schema.h.")
+    paragraph(document, ".nano  ->  checked AST  ->  verified .nvm  ->  nano_vm | nvm2c | nvm2llvm | nvm2wasm", code=True)
     heading(document, 2, "NanoVM execution")
     paragraph(document, "NanoVM decodes each function once, records instruction boundaries, and executes the decoded representation. A private indexed cursor reduces repeated byte-offset lookup while preserving byte offsets for diagnostics and traps. Bytecode is verified before it runs.")
     heading(document, 2, "Side-table debug data")
@@ -107,17 +107,19 @@ def build() -> Path:
     paragraph(document, "schema/nsi/effect_map.v0.json maps source effects, NanoISA traps, NSI methods, and capabilities. I emit an inventory, generate a deployment manifest, and reject uncovered grants. A versioned journal records trap-boundary events and replays the recorded result without calling the original service. HMAC-SHA256 authenticates a journal with a deployment key; that is not PKI. Checkpoints are sequence numbers, not heap snapshots. The journal is a tested C library, not a hook on every vm.c trap. Authority: docs/NSI_EFFECTS.md.")
 
     document.add_page_break()
-    heading(document, 1, "My 5.0 release contract")
-    paragraph(document, "I make return leave the enclosing function, run dependency shadows by default, preserve module identity and harden private native artifacts. My retained callback bridge carries signatures and lifetimes, executes on the VM owner thread and handles cancellation. Dispatch and SDL_mixer adapters use that in-process bridge; callback-bearing isolated imports remain unsupported. C-seed imported callback shadows select the same bridge. See docs/RELEASE_5.0.md and docs/CALLBACK_ABI.md.")
-    paragraph(document, "My 2026-09-16 checkpoints record 1,739 native translator checks, 1,073 shape checks, 272,403 VM checks, 89 VM codegen checks and 175 verified/equivalent programs. A clean bootstrap passed at 4373abc5. Darwin passed 14 effect tests, 49 scoping checks and 39 executable guide snippets. An ownership sanitizer run exercised 52,000 activations. Strict Linux ARM64 acceptance passed all 185 selected native example artifacts with unchanged selection/exclusions, plus five root/examples-working-directory regression compilations. These are bounded integration results, not acceptance of every later revision. Exact-commit clean-tree tests, platform CI and release acceptance are mandatory release gates.")
+    heading(document, 1, "My 5.1 One IR release contract")
+    paragraph(document, "I publish verified NanoISA as my portable compiler product. Unqualified compilation writes a sibling .nvm; native and C outputs are translated from that verified module. LLVM and WebAssembly consume the same module. My old NanoLang-to-C pretty-printer is outside the product dependency closure. See docs/RELEASE_5.1.md and docs/NANOISA_ONLY.md.")
+    paragraph(document, "At exact candidate ff184c0ef, two successive NanoVM compiler generations produced identical 853,756-byte modules with SHA-256 e79dabcf31cf49cdfa4382cb220a074718c50e278908370bbde422d9615c0728. Both generations verified, and the second compiled, verified and executed hello. I record the distinct 891,176-byte C-seed transition separately. This raw fixed point is reproducibility evidence; it does not prove compiler correctness.")
+    paragraph(document, "At the same pin, two successive standalone native compiler generations produced identical 853,756-byte modules with SHA-256 314fb98e79220454ac47e6bf877bc078cfb69026b06b293dac8533cb54c5f973. They took 1,957.672 and 1,956.481 seconds, verified, retained the same five-library host closure and compiled a verified, executing hello. Their raw hash and absolute private-library closure differ from the NanoVM seed transition; I do not normalize them.")
+    paragraph(document, "I retain lexical first-success matches, enclosing-function return semantics, dependency shadows, concrete generic-union identity, checked ownership metadata and lifetime-safe in-process callbacks. Unsupported ownership or service profiles fail before publication rather than being guessed.")
     heading(document, 1, "What I have not done")
-    paragraph(document, "I have not completed a Forth Standard System, reviewed human translations, GNU Emacs compatibility, a kernel, CUDA or CPython as wrapped runtimes, full backend parity, complete ownership analysis, production service isolation, or NanoISA-only self-hosted compilation with matching Stage 1/Stage 2 .nvm artifacts. See docs/ROADMAP.md; historical release scope is in docs/RELEASE_4.5.md.")
+    paragraph(document, "I have not completed a Forth Standard System, reviewed human translations, GNU Emacs compatibility, a kernel, CUDA or CPython as wrapped runtimes, universal backend parity, unrestricted ownership acceptance, isolated callbacks, or production service isolation. My private mixed record-array VM experiment grants no public source or service authority. See docs/ROADMAP.md and docs/RELEASE_5.1.md.")
     paragraph(document, "I have implemented transitive C header dependencies in Makefile.gnu, resolving the implementation gap recorded as GitHub issue #211. The focused gate is make test-make-header-dependencies. Broader native-cache snapshot and publication requirements remain separate work.")
 
     document.add_page_break()
     heading(document, 1, "How to work on me")
     heading(document, 2, "Read the source and roadmap")
-    paragraph(document, "Start with docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_5.0.md, userguide/guide/08_secure_runtime.md, the relevant source symbols, and the matching tests. Do not turn a roadmap sentence into a feature claim.")
+    paragraph(document, "Start with docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_5.1.md, docs/NANOISA_ONLY.md, userguide/guide/08_secure_runtime.md, the relevant source symbols, and the matching tests. Do not turn a roadmap sentence into a feature claim.")
     heading(document, 2, "Run the gates")
     paragraph(document, "make test\nmake test-nsi test-nsi-cap test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs\nmake test-nano-emacs-worker\nmake release-docs-check", code=True)
     paragraph(document, "I say what I mean, I show what I tested, and I leave the unproved boundary visible.")

@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from tests import test_reconstructed_integer_addition as addition
 from tests import test_reconstructed_wide_multiply as wide
+from tests.native_toolchain import native_cc
 
 ROOT=Path(__file__).resolve().parents[1]
 SHADOW='shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }'
@@ -19,7 +20,7 @@ class ScalarRot3(unittest.TestCase):
         module=addition.IntegerReconstruction.assemble(self,directory,text)
         source,binary=directory/'native.c',directory/'native'
         self.checked([os.environ.get('NVM2C',str(ROOT/'bin/nvm2c')),module,'-o',source])
-        self.checked([os.environ.get('CC','cc'),'-std=c11','-O1','-Wall','-Wextra','-Werror',
+        self.checked([*native_cc(),'-std=c11','-O1','-Wall','-Wextra','-Werror',
                       '-fsanitize=address,undefined','-fno-sanitize-recover=all',source,'-o',binary])
         self.checked([binary])
         return module

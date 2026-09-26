@@ -1,0 +1,14 @@
+{
+  "pin": "d1e41d0e9aef2676e669421d2723f7071b45feef",
+  "host": "linux",
+  "environment": {
+    "TMPDIR": "/tmp/nanolang-split-d1e41-linux-evidence/tmp",
+    "CC": "/usr/bin/gcc",
+    "NANO_CC": "/usr/bin/gcc",
+    "NANOLANG_SDK_ROOT": "/tmp/nanolang-native-sdk-d1e41-linux-source",
+    "NANO_SHADOW_TIMING": null,
+    "NANO_SHADOW_TIMEOUT_SECONDS": null,
+    "NANO_SDK_MIN_FREE_BYTES": "2147483648"
+  },
+  "scope": "current Cseed primitive and actual split ownership controls with verified copied unchanged4e compiler/providers; not full bootstrap"
+}

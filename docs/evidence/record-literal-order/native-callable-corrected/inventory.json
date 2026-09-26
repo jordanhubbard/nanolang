@@ -1,0 +1,237 @@
+{
+  "production_commit": "2d89da158",
+  "source": "/tmp/nano-native-literal-order-lapx_tyx",
+  "result": "bootstrap and all nine native compiler/fixture pairs pass",
+  "files": [
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/commands.json",
+      "bytes": 4628,
+      "sha256": "91652cca1069daf6d7a2f02a8be5e87c0d83d38e527c4fef1554cc8a8595c2fe"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-global_literal_initialization",
+      "bytes": 8780544,
+      "sha256": "36ab43fccb071e33868042b84154274701eac38692134c2736f3ea1502a829f3"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-global_literal_initialization-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-global_literal_initialization-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-global_literal_initialization-run.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-global_literal_initialization-run.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-record_literal_written_order",
+      "bytes": 8780016,
+      "sha256": "3770bbd4b8e630852d9f8904a9860507c136fd0dc92d6bf7d5f3c8f762ae7e70"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-record_literal_written_order-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-record_literal_written_order-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-record_literal_written_order-run.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-record_literal_written_order-run.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-union_literal_written_order",
+      "bytes": 8780056,
+      "sha256": "79616314c81f306158e7b3f6a0d283f9193e4e62fe60fc819b81651336fcdbe4"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-union_literal_written_order-compile.stderr",
+      "bytes": 437,
+      "sha256": "342589e49f6867154f5338f291a71032e0f4922fb9ade650fb7d85476b3310be"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-union_literal_written_order-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-union_literal_written_order-run.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_c-union_literal_written_order-run.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-global_literal_initialization",
+      "bytes": 8785688,
+      "sha256": "1342f1bf5e9dbaff537356024a148b3d88727184910e96766f7f2903eb0d76c5"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-global_literal_initialization-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-global_literal_initialization-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-global_literal_initialization-run.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-global_literal_initialization-run.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-record_literal_written_order",
+      "bytes": 8785264,
+      "sha256": "5ad9bb17bb040974328b762da8416a76921cf7a6ed82d1ab75c328ee0b1ef817"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-record_literal_written_order-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-record_literal_written_order-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-record_literal_written_order-run.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-record_literal_written_order-run.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-union_literal_written_order",
+      "bytes": 8785328,
+      "sha256": "1495302026be0dbfe28cb58875182344b8ebf5c3cc9b7b94bc78306cd850138d"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-union_literal_written_order-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-union_literal_written_order-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-union_literal_written_order-run.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage1-union_literal_written_order-run.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-global_literal_initialization",
+      "bytes": 8785688,
+      "sha256": "5663c092fd34d67431880e9b8d41be994243b3373101e446245cdf4d215d133c"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-global_literal_initialization-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-global_literal_initialization-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-global_literal_initialization-run.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-global_literal_initialization-run.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-record_literal_written_order",
+      "bytes": 8785264,
+      "sha256": "23856a0f85002f9b27b4da14a0b2458c996abc1550c2deea7d42d72c2348839f"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-record_literal_written_order-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-record_literal_written_order-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-record_literal_written_order-run.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-record_literal_written_order-run.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-union_literal_written_order",
+      "bytes": 8785328,
+      "sha256": "13c61c76f6e0be2cc8ab49688732d4a73570d436928e57f5c8743a86acc9b364"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-union_literal_written_order-compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-union_literal_written_order-compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-union_literal_written_order-run.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nano-native-literal-order-lapx_tyx/nanoc_stage2-union_literal_written_order-run.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

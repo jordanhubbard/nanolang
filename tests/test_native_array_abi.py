@@ -1,5 +1,8 @@
 """I check generated native foreign references before execution or capture."""
 import os
+import contextlib
+import json
+import shutil
 from pathlib import Path
 import shlex
 import subprocess
@@ -26,17 +29,29 @@ class NativeArrayAbi(unittest.TestCase):
         compiler = os.environ.get("NANO_TEST_NATIVE_COMPILER", str(ROOT / "bin/nanoc_c"))
         selfhost = os.environ.get("NANO_TEST_SELFHOST") == "1"
         cc = shlex.split(os.environ.get("CC", "cc"))
-        with tempfile.TemporaryDirectory(prefix="nano-native-array-abi-") as tmp:
+        retained = os.environ.get("NANO_ARRAY_ABI_REPORT_DIR")
+        context = (contextlib.nullcontext(tempfile.mkdtemp(prefix="nano-native-array-abi-", dir=retained))
+                   if retained else tempfile.TemporaryDirectory(prefix="nano-native-array-abi-"))
+        with context as tmp:
+            if retained:
+                print("I retain native array ABI artifacts at", tmp, flush=True)
             directory = Path(tmp)
             foreign = directory / "foreign.c"
             foreign.write_text('''
                 #include "runtime/dyn_array.h"
                 #include <stdio.h>
-                static DynArray empty = {.elem_type=ELEM_INT, .elem_size=8};
-                #ifdef ARRAY_PARAMETER
-                int64_t probe(DynArray *a) { puts("foreign entered"); return a->length == 1 ? 0 : 1; }
+                #if !defined(ABI_VERSION) || ABI_VERSION == 1
+                /* I actually compile the stale layout, not just its marker. */
+                typedef struct { int64_t length, capacity; ElementType elem_type;
+                                 uint8_t elem_size; void *data; } FixtureArray;
                 #else
-                DynArray *probe(void) { puts("foreign entered"); return &empty; }
+                typedef DynArray FixtureArray;
+                #endif
+                static FixtureArray empty = {.elem_type=ELEM_INT, .elem_size=8};
+                #ifdef ARRAY_PARAMETER
+                int64_t probe(FixtureArray *a) { puts("foreign entered"); fflush(stdout); return a->length == 1 ? 0 : 1; }
+                #else
+                FixtureArray *probe(void) { puts("foreign entered"); fflush(stdout); return &empty; }
                 #endif
                 #ifdef ABI_VERSION
                 const uint32_t probe__nano_array_abi = ABI_VERSION;
@@ -77,11 +92,11 @@ class NativeArrayAbi(unittest.TestCase):
                     continue
                 # I exercise deliberately incompatible FFI in subprocesses;
                 # these are native boundary fixtures, not interpreter shadows.
-                variants = [(version, False) for version in (None, 1, 99)]
+                variants = [(version, False) for version in (None, 1, 2, 99)]
                 if route == "shadow":
                     variants = [(99, False)]
                 if route == "direct":
-                    variants += [(version, True) for version in (None, 1, 99)]
+                    variants += [(version, True) for version in (None, 1, 2, 99)]
                 for version, static in variants:
                     with self.subTest(route=route, version=version, static=static):
                         library = directory / ("libfixture.dylib" if sys.platform == "darwin" else "libfixture.so")
@@ -108,10 +123,17 @@ class NativeArrayAbi(unittest.TestCase):
                         run_env = dict(os.environ)
                         run_env["LD_LIBRARY_PATH"] = tmp + ":" + run_env.get("LD_LIBRARY_PATH", "")
                         result = subprocess.run([str(executable)], env=run_env, capture_output=True, text=True, timeout=15)
+                        if retained:
+                            saved=directory/(route+'-'+str(version)+'-'+str(static));saved.mkdir()
+                            for product in directory.iterdir():
+                                if product.is_file():shutil.copyfile(product,saved/product.name)
+                            (saved/'stdout.txt').write_text(result.stdout)
+                            (saved/'stderr.txt').write_text(result.stderr)
+                            (saved/'status.json').write_text(json.dumps({'returncode':result.returncode,'route':route,'version':version,'static':static})+'\n')
                         if route == "shadow":
                             self.assertEqual(result.returncode, 0, result.stderr)
                             self.assertNotIn("foreign entered", result.stdout)
-                        elif version == 99:
+                        elif version != 2:
                             self.assertNotEqual(result.returncode, 0)
                             self.assertNotIn("foreign entered", result.stdout)
                             self.assertIn("native array ABI", result.stderr)

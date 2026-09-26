@@ -1,0 +1,17 @@
+{
+  "pr522-owned-union-schema.log.gz": {
+    "uncompressed_sha256": "b01eb8b7735176a307e7b90a44af38628c4139d8f42615ec8e66fbacd0483839"
+  },
+  "pr522-owned-union-regression.log.gz": {
+    "uncompressed_sha256": "5fd1d82294c544cf011d11d0d67531a8290139a5e3c289a5e963c4ab2b4208e4"
+  },
+  "pr522-owned-union-backend.log.gz": {
+    "uncompressed_sha256": "52a4c193909903f6d1534bd5e9c4912bd5a7af0fb09c3a61096b4f6011699bc0"
+  },
+  "pr522-owned-union-bytecode-final.log.gz": {
+    "uncompressed_sha256": "94685f2c8e3516fac9e633d175f47ba5c92a54ec60982dcba89c7dff0ac6491d"
+  },
+  "pr522-owned-union-asan-final.log.gz": {
+    "uncompressed_sha256": "33d445ca4629188d8a9590edc5593b13e40cef1d9786e894594d0eeeea04554c"
+  }
+}

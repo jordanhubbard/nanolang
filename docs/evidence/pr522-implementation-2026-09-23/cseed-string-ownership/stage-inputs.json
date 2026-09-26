@@ -1,0 +1,16 @@
+{
+  "compiler_sha256": "a2d57c0c6a475ccc49bf0620fd47b3d2c18e84b6ef80758b293b089f9864507b",
+  "smoke_exit": 0,
+  "environment": {
+    "NANO_CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all",
+    "NANO_LDFLAGS": "-fsanitize=address,undefined",
+    "ASAN_OPTIONS": "detect_leaks=1:detect_stack_use_after_return=1",
+    "UBSAN_OPTIONS": "halt_on_error=1"
+  },
+  "source_sha256": {
+    "src/transpiler.c": "a29eb46ca3fd0189b21e7f248bdc4566e493449851a08b7a6ec1036120e73b0e",
+    "modules/std/fs.nano": "f4665945609a92f332301cb837899680e7b06e52ec198a11ddc9fc9eb2acd1e7",
+    "tests/test_cseed_process_ownership.py": "2b5c26da0a2509b593be897827351e41cc1618b9ae84cdfabb5540e0a9673181"
+  }
+}

@@ -1,0 +1,31 @@
+I retain direct LLVM artifacts at /tmp/nano-record-array-llvm-w4bvkdkz
+test_02_native_corpus (tests.test_record_array_llvm.RecordArrayLLVM.test_02_native_corpus) ... FAIL
+
+======================================================================
+FAIL: test_02_native_corpus (tests.test_record_array_llvm.RecordArrayLLVM.test_02_native_corpus)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-llvm-qualified-63b8a/tests/test_record_array_llvm.py", line 241, in test_02_native_corpus
+    sources, replays, original = self.capture(False)
+                                 ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/nanolang-record-llvm-qualified-63b8a/tests/test_record_array_llvm.py", line 128, in capture
+    self.abi_probe(wasm, sources[0])
+  File "/tmp/nanolang-record-llvm-qualified-63b8a/tests/test_record_array_llvm.py", line 162, in abi_probe
+    self.assertIn(name, actual); self.assertEqual(signature, actual[name], name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('i1', True, False, (('ptr', False, False), ('i3[37 chars]se))) != ('i1', False, False, (('ptr', False, False), ('i[38 chars]se)))
+
+First differing element 1:
+True
+False
+
+  ('i1',
+-  True,
++  False,
+   False,
+   (('ptr', False, False), ('i32', False, False), ('ptr', False, False))) : nrg_peek
+
+----------------------------------------------------------------------
+Ran 1 test in 10.288s
+
+FAILED (failures=1)

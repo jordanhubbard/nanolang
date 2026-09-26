@@ -1,4 +1,8 @@
 """I retain bounded declaration-query gates; I never execute their bytecode."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import hashlib
 import json
 import os
@@ -108,7 +112,7 @@ class PortableHostPlan(unittest.TestCase):
         providers = [str((ROOT / p).resolve()) for p in shlex.split(os.environ['PORTABLE_READ_OBJECTS'])]
         self.assertTrue(providers)
         ldflags = shlex.split(os.environ.get('PORTABLE_READ_LDFLAGS', '-lm -lcrypto'))
-        self.env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+        self.env = dict(os.environ, ASAN_OPTIONS=asan_options("halt_on_error=1"),
                         UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1', LSAN_OPTIONS='')
         self.inputs = sorted(set(
             [p.resolve() for p in (ROOT / 'src').rglob('*') if p.is_file() and p.suffix in ('.c', '.h', '.inc')]

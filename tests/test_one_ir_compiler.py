@@ -1,4 +1,8 @@
 """I require a native compiler built from bytecode to compile a real program."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 from pathlib import Path
 import shutil
@@ -172,7 +176,7 @@ class OneIrCompiler(unittest.TestCase):
         environment = os.environ.copy()
         if sys.platform.startswith("linux"):
             # I require the reported leaks to fail this focused regression.
-            environment["ASAN_OPTIONS"] = environment.get("ASAN_OPTIONS", "") + ":detect_leaks=1"
+            environment["ASAN_OPTIONS"] = environment.get("ASAN_OPTIONS", "") + ":" + asan_options()
         for name, text in fixtures.items():
             with self.subTest(case=name), tempfile.TemporaryDirectory(prefix="nano-owned-return-") as tmp:
                 work = Path(tmp)
@@ -291,7 +295,10 @@ static inline void tracked_free(void *p) {
 
     def test_nanoisa_artifact_contracts_remain_exact(self):
         contracts = {
+            "nlc_native_array_abi": ("int", []),
+            "nlc_runtime_root": ("string", []),
             "nlc_module_artifact": ("string", ["string"]),
+            "nl_fs_join_path": ("string", ["string", "string"]),
             "nl_nanoisa_load_print": ("string", ["string"]),
             "nl_nanoisa_load_pretty": ("string", ["string"]),
             "nl_nanoisa_last_error": ("string", []),

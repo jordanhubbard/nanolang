@@ -1,0 +1,17 @@
+test_direct_and_exact_standalone (tests.test_binary64_arithmetic.Binary64Arithmetic) ... ok
+test_target_and_fastmath_guards (tests.test_binary64_arithmetic.Binary64Arithmetic) ... ok
+test_c_seed_array_print (tests.test_legacy_signed_nan_format.LegacySignedNan) ... I retain legacy format artifacts at /Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/fixture/temporary/nano-legacy-nan-ip_ma4_u
+ok
+test_exact_bits_and_captured_scalar_output (tests.test_legacy_signed_nan_format.LegacySignedNan) ... I retain legacy format artifacts at /Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/fixture/temporary/nano-legacy-nan-ksara467
+ok
+test_generated_provider_identity (tests.test_legacy_signed_nan_format.LegacySignedNan) ... I retain legacy format artifacts at /Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/fixture/temporary/nano-legacy-nan-ijdp48m7
+ok
+test_interpreter_array_and_generic_format (tests.test_legacy_signed_nan_format.LegacySignedNan) ... I retain legacy format artifacts at /Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/fixture/temporary/nano-legacy-nan-2fufmi9r
+ok
+test_generated_runtime_provider_identity (tests.test_binary64_arithmetic_source.ArithmeticSource) ... I retain source arithmetic artifacts at /Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/fixture/temporary/nano-arithmetic-source-ib6qvupo
+ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 24.303s
+
+OK

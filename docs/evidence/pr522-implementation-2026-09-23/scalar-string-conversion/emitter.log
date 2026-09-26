@@ -1,0 +1,303 @@
+✓ Bootstrap Stage 0: C reference compiler ready
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+		obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+		obj/nanovm/main.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib 
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+
+==========================================
+Bootstrap Stage 1: Self-Hosted Compiler
+==========================================
+Compiling nanoc_v06.nano with C compiler...
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2505, column 9: Unused variable 'rejected'
+Warning at line 2634, column 9: Unused variable 'rejected'
+Warning at line 2641, column 13: Unused variable 'rejected'
+Warning at line 2722, column 9: Unused variable 'rejected'
+Warning at line 2731, column 9: Unused variable 'rejected'
+Warning at line 2736, column 13: Unused variable 'rejected'
+Warning at line 2856, column 9: Unused variable 'rejected'
+Warning at line 2865, column 13: Unused variable 'rejected'
+Warning at line 2926, column 9: Unused variable 'rejected'
+Warning at line 2930, column 9: Unused variable 'rejected'
+Warning at line 2937, column 13: Unused variable 'rejected'
+Warning at line 6775, column 21: Unused variable 'imported'
+Warning at line 6925, column 13: Unused variable 'rejected'
+Warning at line 6931, column 17: Unused variable 'rejected'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2505, column 9: Unused variable 'rejected'
+Warning at line 2634, column 9: Unused variable 'rejected'
+Warning at line 2641, column 13: Unused variable 'rejected'
+Warning at line 2722, column 9: Unused variable 'rejected'
+Warning at line 2731, column 9: Unused variable 'rejected'
+Warning at line 2736, column 13: Unused variable 'rejected'
+Warning at line 2856, column 9: Unused variable 'rejected'
+Warning at line 2865, column 13: Unused variable 'rejected'
+Warning at line 2926, column 9: Unused variable 'rejected'
+Warning at line 2930, column 9: Unused variable 'rejected'
+Warning at line 2937, column 13: Unused variable 'rejected'
+Warning at line 6775, column 21: Unused variable 'imported'
+Warning at line 6925, column 13: Unused variable 'rejected'
+Warning at line 6931, column 17: Unused variable 'rejected'
+Warning at line 9, column 1: Unused variable 'parser'
+✓ Stage 1 compiler created: bin/nanoc_stage1
+
+Testing stage 1 compiler...
+Hello from NanoLang!
+✓ Stage 1 compiler works!
+
+==========================================
+Bootstrap Stage 2: Recompilation
+==========================================
+Compiling nanoc_v06.nano with stage 1 compiler...
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I cannot define a record twice in one module: Handle
+I cannot define a function twice in one module: answer
+I cannot resolve a qualified function in this module: lib.answer
+I require separate artifact and diagnostic destinations
+I require separate artifact and diagnostic destinations
+I will not overwrite a source file: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_MR3kBj/source.nano
+I will not overwrite a source file: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_MR3kBj/source.nano
+I cannot check source/output file identity: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_MR3kBj/missing
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Usage: nanoc <input.nano> [-o output] [options]
+
+Without an output or target, I publish a sibling .nvm file.
+Options:
+  -o <file>        I publish a native executable unless --emit-nvm or --target c is selected
+  -v, --verbose    Verbose compilation output
+  -k, --keep-c     Keep generated C file
+  --target <t>    native (default) or c (NanoISA C11 source, no native compilation)
+  --emit-nvm     I publish verified NanoISA (default output: sibling .nvm)
+  --test-imports  I run dependency shadows before root shadows (default)
+  --root-shadows-only  I run only root-file shadows
+  --              End options; the remaining argument is my input path
+  -fshow-intermediate-code  Print generated C to stdout
+  -h, --help       Show this help
+  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)
+
+This compiler is 100% written in NanoLang!
+Pipeline: Lex → Parse → Typecheck → NanoISA → Product
+
+✓ Stage 2 compiler created: bin/nanoc_stage2
+
+Testing stage 2 compiler...
+Hello from NanoLang!
+✓ Stage 2 compiler works!
+
+==========================================
+Bootstrap Stage 3: Verification
+==========================================
+Comparing stage 1 and stage 2 binaries...
+
+-rwxr-xr-x  1 jordanh  staff    12M Sep 24 12:41 bin/nanoc_stage1
+-rwxr-xr-x  1 jordanh  staff    14M Sep 24 12:44 bin/nanoc_stage2
+
+⚠️  Bootstrap verification: Binaries differ
+
+Stage 1 size: 12084272
+Stage 2 size: 15178184
+
+I have not diagnosed the difference. These causes remain hypotheses:
+  - Embedded timestamps or other native artifact metadata
+  - Non-deterministic code generation
+  - Different compiler optimizations
+
+Both stages passed the configured smoke test; that is not a correctness proof.
+Canonical NanoISA artifact equality remains a separate 5.0 gate.
+
+==========================================
+Installing Self-Hosted Compiler
+==========================================
+Updating bin/nanoc to use self-hosted compiler...
+✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)
+
+Smoke test: installed bin/nanoc compiles + runs nl_hello.nano...
+Hello from NanoLang!
+✓ installed compiler works
+
+Verifying bin/nanoc does not depend on bin/nanoc_c...
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+
+All subsequent builds (test, examples) will use the self-hosted compiler!
+
+✓ Compiler: bin/nanoc -> nanoc_stage2 (self-hosted)
+✓ Stage 1 complete (C reference binaries)
+Running transpiler unit tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o tests/test_transpiler tests/test_transpiler.c obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib -lm
+ld: warning: ignoring duplicate libraries: '-lm'
+StringBuilder boundary tests passed
+python3 tests/test_assert_literal.py
+..
+----------------------------------------------------------------------
+Ran 2 tests in 2.379s
+
+OK
+NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/Users/jordanh/Src/nanolang-pr522-repair/obj/module_cache perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' bin/nanoc_c src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2505, column 9: Unused variable 'rejected'
+Warning at line 2634, column 9: Unused variable 'rejected'
+Warning at line 2641, column 13: Unused variable 'rejected'
+Warning at line 2722, column 9: Unused variable 'rejected'
+Warning at line 2731, column 9: Unused variable 'rejected'
+Warning at line 2736, column 13: Unused variable 'rejected'
+Warning at line 2856, column 9: Unused variable 'rejected'
+Warning at line 2865, column 13: Unused variable 'rejected'
+Warning at line 2926, column 9: Unused variable 'rejected'
+Warning at line 2930, column 9: Unused variable 'rejected'
+Warning at line 2937, column 13: Unused variable 'rejected'
+Warning at line 6775, column 21: Unused variable 'imported'
+Warning at line 6925, column 13: Unused variable 'rejected'
+Warning at line 6931, column 17: Unused variable 'rejected'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2505, column 9: Unused variable 'rejected'
+Warning at line 2634, column 9: Unused variable 'rejected'
+Warning at line 2641, column 13: Unused variable 'rejected'
+Warning at line 2722, column 9: Unused variable 'rejected'
+Warning at line 2731, column 9: Unused variable 'rejected'
+Warning at line 2736, column 13: Unused variable 'rejected'
+Warning at line 2856, column 9: Unused variable 'rejected'
+Warning at line 2865, column 13: Unused variable 'rejected'
+Warning at line 2926, column 9: Unused variable 'rejected'
+Warning at line 2930, column 9: Unused variable 'rejected'
+Warning at line 2937, column 13: Unused variable 'rejected'
+Warning at line 6775, column 21: Unused variable 'imported'
+Warning at line 6925, column 13: Unused variable 'rejected'
+Warning at line 6931, column 17: Unused variable 'rejected'
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nano_virt obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nanovirt/main.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nanoisa obj/nanoisa/dump_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+Running src_nano NanoISA Cut A comparison...
+perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' ./bin/nano_virt tests/nanoisa/fixtures/cut_a_add.nano --emit-nvm --strip-debug \
+		-o /tmp/nanolang_cut_a_c.nvm
+77
+perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' ./bin/nanoisa_emit tests/nanoisa/fixtures/cut_a_add.nano -o /tmp/nanolang_cut_a_src.nasm
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -Isrc/nanoisa -Imodules/nanoisa -o tests/nanoisa/test_nanoisa_src_nano \
+		tests/nanoisa/test_nanoisa_src_nano.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+
+[nanoisa src_nano] Cut A pinned subset...
+
+
+=== 86 passed, 0 failed ===
+test_aggregate_globals_match_and_execute_in_vm (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_aggregate_globals_match_and_execute_in_vm) ... ok
+test_array_access_result_types_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_array_access_result_types_match_and_execute) ... ok
+test_array_access_wrong_container_and_index_are_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_array_access_wrong_container_and_index_are_refused) ... ok
+test_array_record_fields_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_array_record_fields_match_and_execute) ... ok
+test_boolean_arrays_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_boolean_arrays_match_and_execute) ... ok
+test_boolean_arrays_preserve_element_type_refusals (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_boolean_arrays_preserve_element_type_refusals) ... ok
+test_boolean_record_returns_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_boolean_record_returns_match_and_execute) ... ok
+test_bound_parser_calls_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_bound_parser_calls_match_and_execute) ... ok
+test_bytecode_emitter_preserves_global_ownership_and_initialization (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_bytecode_emitter_preserves_global_ownership_and_initialization) ... ok
+test_computed_array_literal_tags_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_computed_array_literal_tags_match_and_execute) ... ok
+test_empty_array_append_infers_nested_types_and_order (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_empty_array_append_infers_nested_types_and_order) ... ok
+test_enum_array_annotations_reject_other_kinds (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_enum_array_annotations_reject_other_kinds) ... ok
+test_enum_array_metadata_matches_and_executes (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_enum_array_metadata_matches_and_executes) ... ok
+test_enum_members_preserve_refusals (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_enum_members_preserve_refusals) ... ok
+test_enum_values_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_enum_values_match_and_execute) ... ok
+test_escaped_strings_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_escaped_strings_match_and_execute) ... ok
+test_executable_closure_preserves_calls_and_refuses_unlowered_roots (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_executable_closure_preserves_calls_and_refuses_unlowered_roots) ... ok
+test_filled_arrays_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_filled_arrays_match_and_execute) ... ok
+test_filled_arrays_refuse_unsupported_operands (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_filled_arrays_refuse_unsupported_operands) ... ok
+test_filled_arrays_reject_negative_after_both_operands (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_filled_arrays_reject_negative_after_both_operands) ... ok
+test_float_call_return_types_preserve_refusals (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_float_call_return_types_preserve_refusals) ... ok
+test_float_format_matches_and_executes (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_float_format_matches_and_executes) ... ok
+test_global_filled_arrays_retain_initializer_temporaries (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_global_filled_arrays_retain_initializer_temporaries) ... ok
+test_globals_initialize_once_and_preserve_mutation (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_globals_initialize_once_and_preserve_mutation) ... ok
+test_host_imports_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_host_imports_match_and_execute) ... ok
+test_host_signature_mismatches_are_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_host_signature_mismatches_are_refused) ... ok
+test_inferred_locals_preserve_ambiguous_and_unsupported_refusals (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_inferred_locals_preserve_ambiguous_and_unsupported_refusals) ... ok
+test_inferred_ordinary_locals_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_inferred_ordinary_locals_match_and_execute) ... ok
+test_is_alnum_matches_and_executes (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_is_alnum_matches_and_executes) ... ok
+test_is_alnum_wrong_arguments_are_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_is_alnum_wrong_arguments_are_refused) ... ok
+test_list_set_bounds_trap_in_both_backends (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_list_set_bounds_trap_in_both_backends) ... ok
+test_list_set_matches_and_executes (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_list_set_matches_and_executes) ... ok
+test_list_set_rejects_bad_operands (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_list_set_rejects_bad_operands) ... ok
+test_loop_control_outside_loop_is_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_loop_control_outside_loop_is_refused) ... ok
+test_loop_targets_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_loop_targets_match_and_execute) ... ok
+test_map_record_fields_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_map_record_fields_match_and_execute) ... ok
+test_mixed_scalar_equality_is_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_mixed_scalar_equality_is_refused) ... ok
+test_nested_array_record_fields_are_admitted (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_nested_array_record_fields_are_admitted) ... ok
+test_nested_record_lists_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_nested_record_lists_match_and_execute) ... ok
+test_nested_record_results_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_nested_record_results_match_and_execute) ... ok
+test_nominal_counts_preserve_unused_declarations_and_bounds (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_nominal_counts_preserve_unused_declarations_and_bounds) ... ok
+test_passive_flow_bytecode_and_source_order_metadata_match (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_flow_bytecode_and_source_order_metadata_match) ... ok
+test_passive_original_calculator_scalar_closure (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_original_calculator_scalar_closure) ... ok
+test_passive_par_records_and_scalar_execution (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_par_records_and_scalar_execution) ... ok
+test_projected_record_array_global_field_executes_in_both_orders (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_projected_record_array_global_field_executes_in_both_orders) ... ok
+test_range_and_iteration_reject_invalid_operands (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_range_and_iteration_reject_invalid_operands) ... ok
+test_range_for_loops_match_scope_and_control_flow (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_range_for_loops_match_scope_and_control_flow) ... ok
+test_record_arrays_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_record_arrays_match_and_execute) ... ok
+test_recursive_and_malformed_nested_records_are_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_recursive_and_malformed_nested_records_are_refused) ... ok
+test_scalar_array_results_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_scalar_array_results_match_and_execute) ... ok
+test_scalar_expression_types_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_scalar_expression_types_match_and_execute) ... ok
+test_scalar_float_operands_preserve_refusals (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_scalar_float_operands_preserve_refusals) ... ok
+test_scalar_float_values_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_scalar_float_values_match_and_execute) ... ok
+test_string_concat_keeps_declared_function_and_local_binding (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_concat_keeps_declared_function_and_local_binding) ... ok
+test_string_concat_matches_and_executes (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_concat_matches_and_executes) ... ok
+test_string_concat_wrong_arguments_are_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_concat_wrong_arguments_are_refused) ... ok
+test_string_edges_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_edges_match_and_execute) ... ok
+test_string_edges_wrong_arguments_are_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_edges_wrong_arguments_are_refused) ... ok
+test_string_from_char_matches_and_executes (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_from_char_matches_and_executes) ... ok
+test_string_from_char_refuses_bad_signatures (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_from_char_refuses_bad_signatures) ... ok
+test_string_int_maps_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_int_maps_match_and_execute) ... ok
+test_string_map_constructor_contexts_execute_in_selfhost_backends (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_map_constructor_contexts_execute_in_selfhost_backends) ... ok
+test_string_map_global_constructor_executes_in_vm (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_map_global_constructor_executes_in_vm) ... ok
+test_string_string_maps_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_string_maps_match_and_execute) ... ok
+test_string_to_int_matches_and_executes (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_to_int_matches_and_executes) ... ok
+test_string_to_int_wrong_arguments_are_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_string_to_int_wrong_arguments_are_refused) ... ok
+test_unsafe_blocks_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_unsafe_blocks_match_and_execute) ... ok
+test_unsafe_blocks_preserve_refusals (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_unsafe_blocks_preserve_refusals) ... ok
+test_unsupported_array_results_and_elements_are_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_unsupported_array_results_and_elements_are_refused) ... ok
+test_unsupported_map_shapes_and_arguments_are_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_unsupported_map_shapes_and_arguments_are_refused) ... ok
+test_void_results_match_and_execute (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_void_results_match_and_execute) ... ok
+test_wrong_array_record_fields_are_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_wrong_array_record_fields_are_refused) ... ok
+test_wrong_return_result_counts_are_refused (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_wrong_return_result_counts_are_refused) ... ok
+test_actual_assembly_publication_and_diagnostic_vm_native (tests.test_nanoisa_artifact_imports.ArtifactImports.test_actual_assembly_publication_and_diagnostic_vm_native) ... ok
+test_actual_file_assembly_and_disassembly_preserve_results (tests.test_nanoisa_artifact_imports.ArtifactImports.test_actual_file_assembly_and_disassembly_preserve_results) ... ok
+test_bad_artifact_signatures_operands_and_missing_owner_refuse (tests.test_nanoisa_artifact_imports.ArtifactImports.test_bad_artifact_signatures_operands_and_missing_owner_refuse) ... ok
+test_cseed_and_selfhost_preserve_exact_artifact_abi_and_code (tests.test_nanoisa_artifact_imports.ArtifactImports.test_cseed_and_selfhost_preserve_exact_artifact_abi_and_code) ... ok
+test_duplicate_symbols_keep_owner_and_raw_api_clears_bindings (tests.test_nanoisa_artifact_imports.ArtifactImports.test_duplicate_symbols_keep_owner_and_raw_api_clears_bindings) ... ok
+test_file_facade_signature_mismatches_refuse (tests.test_nanoisa_artifact_imports.ArtifactImports.test_file_facade_signature_mismatches_refuse) ... ok
+test_filesystem_array_and_scalar_artifacts_execute_in_both_backends (tests.test_nanoisa_artifact_imports.ArtifactImports.test_filesystem_array_and_scalar_artifacts_execute_in_both_backends) ... ok
+test_filesystem_array_signature_mismatch_is_rejected (tests.test_nanoisa_artifact_imports.ArtifactImports.test_filesystem_array_signature_mismatch_is_rejected) ... ok
+test_integer_status_and_zero_argument_diagnostic_match_cseed (tests.test_nanoisa_artifact_imports.ArtifactImports.test_integer_status_and_zero_argument_diagnostic_match_cseed) ... ok
+test_publication_contract_refuses_wrong_result_and_zero_arg_shapes (tests.test_nanoisa_artifact_imports.ArtifactImports.test_publication_contract_refuses_wrong_result_and_zero_arg_shapes) ... ok
+test_bound_duplicate_names_and_internal_calls (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_bound_duplicate_names_and_internal_calls) ... ok
+test_order_shared_globals_local_scopes_and_callable_main (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_order_shared_globals_local_scopes_and_callable_main) ... ok
+test_reachable_unsupported_shadow_refused (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_reachable_unsupported_shadow_refused) ... ok
+test_suffix_and_empty_selection_keep_initialization (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_suffix_and_empty_selection_keep_initialization) ... ok
+test_synthetic_names_do_not_capture_user_functions (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_synthetic_names_do_not_capture_user_functions) ... ok
+test_unused_float_function_still_runs_selected_shadow (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_unused_float_function_still_runs_selected_shadow) ... ok
+test_both_producers_preserve_tuple_calls_results_and_projection (tests.test_nanoisa_tuple_values.CanonicalTupleValues.test_both_producers_preserve_tuple_calls_results_and_projection) ... ok
+test_invalid_tuple_shapes_refuse_without_replacing_output (tests.test_nanoisa_tuple_values.CanonicalTupleValues.test_invalid_tuple_shapes_refuse_without_replacing_output) ... ok
+
+----------------------------------------------------------------------
+Ran 91 tests in 390.991s
+
+OK

@@ -1,0 +1,6 @@
+test_actual_field_assignment_and_binding_refusal (tests.test_str_split_result_context.SplitResultContext.test_actual_field_assignment_and_binding_refusal) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.392s
+
+OK

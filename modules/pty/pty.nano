@@ -13,7 +13,7 @@
 
 # Open a new PTY master with the given initial terminal dimensions.
 # Returns the master file descriptor, or -1 on failure.
-extern fn nl_pty_open(_rows: int, _cols: int) -> int
+pub extern fn nl_pty_open(_rows: int, _cols: int) -> int
 
 # Fork a child process connected to the PTY slave.
 #   master_fd  - file descriptor returned by nl_pty_open
@@ -22,22 +22,22 @@ extern fn nl_pty_open(_rows: int, _cols: int) -> int
 #   envkey     - environment variable name to set in child ("" to skip)
 #   envval     - value for that environment variable
 # Returns the child PID, or -1 on failure.
-extern fn nl_pty_fork_exec(_master_fd: int, _prog: string, _args_str: string, _envkey: string, _envval: string) -> int
+pub extern fn nl_pty_fork_exec(_master_fd: int, _prog: string, _args_str: string, _envkey: string, _envval: string) -> int
 
 # Non-blocking read from the PTY master.
 # Returns data the child has written to its stdout/stderr.
 # Returns an empty string if no data is available yet.
-extern fn nl_pty_read(_master_fd: int) -> string
+pub extern fn nl_pty_read(_master_fd: int) -> string
 
 # Write a string to the PTY master (appears on the child's stdin).
 # Returns the number of bytes written, or -1 on error.
-extern fn nl_pty_write(_master_fd: int, _data: string) -> int
+pub extern fn nl_pty_write(_master_fd: int, _data: string) -> int
 
 # Notify the child of a terminal resize via SIGWINCH.
-extern fn nl_pty_resize(_master_fd: int, _pid: int, _rows: int, _cols: int) -> void
+pub extern fn nl_pty_resize(_master_fd: int, _pid: int, _rows: int, _cols: int) -> void
 
 # Close the PTY master file descriptor.
-extern fn nl_pty_close(_master_fd: int) -> void
+pub extern fn nl_pty_close(_master_fd: int) -> void
 
 # Returns 1 if the child process is still running, 0 if it has exited.
-extern fn nl_pty_is_alive(_pid: int) -> int
+pub extern fn nl_pty_is_alive(_pid: int) -> int

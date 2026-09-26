@@ -116,8 +116,8 @@ static NvmRecordPlanResult oa_paths(NvmOwnedArrayLayouts *v) {
 NvmRecordPlanResult nvm_describe_owned_array_layouts(const NvmModule *m,NvmOwnedArrayLayouts **out) {
     if(!m || !out || (!m->layout_data!=!m->layout_size) || (!m->ownership_data!=!m->ownership_size))
         return record_result(NVM_RECORD_INVALID,0,0,"I require consistent owner-array descriptor inputs.");
-    if(nvm_service_execution_pending(m))
-        return record_result(NVM_RECORD_UNRESOLVED,0,0,"I refuse service claims before owner-array description.");
+    if((nvm_capture_bindings_present(m) || nvm_service_execution_pending(m)))
+        return record_result(NVM_RECORD_UNRESOLVED,0,0,"I require service and capture admission before owner-array description.");
     if(!m->layout_size || !m->ownership_size)
         return record_result(NVM_RECORD_UNRESOLVED,0,0,"I require retained layouts and explicit ownership facts.");
     if(m->ownership_size>NVM_MIXED_MAX_OWNERSHIP_BYTES)

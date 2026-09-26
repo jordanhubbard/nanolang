@@ -1,0 +1,30 @@
+{
+  "pr522-selected-build.log": {
+    "bytes": 1842,
+    "sha256": "4fb55833263727e9b7f0653f42946b6be54bb8bfc0c840c8a3501a89f8d079af"
+  },
+  "pr522-emitter-driver.log": {
+    "bytes": 1302,
+    "sha256": "4b5ed5d2743249f27ad2ce286b468a59fca24e979cbb10baefa8e2076ad230b9"
+  },
+  "pr522-selected-bootstrap.log": {
+    "bytes": 12266,
+    "sha256": "13eed45c3050d743fdffa76ffddd5185396149461ad26bc58ea5b5e375aad855"
+  },
+  "pr522-selected-stage1.log": {
+    "bytes": 724,
+    "sha256": "da1781513528fbc1cc07de00efe8eb18193f812afc7c4aef752de94066e379da"
+  },
+  "pr522-canonical-stage1.log": {
+    "bytes": 1742,
+    "sha256": "5cb045c2d7d4aa454335627d0c6d3269ee89b9695c26cf3ed2f52b77e4d57a13"
+  },
+  "pr522-selected-canonical-final.log": {
+    "bytes": 2367,
+    "sha256": "b302c392ee0cfb8b1bb20378b0cf4a39194710abff0a883b518ae6e8b81ef162"
+  },
+  "pr522-native-instrumentation.log": {
+    "bytes": 500,
+    "sha256": "fb4aa9988a25d1531962229ac3b7049ded3fb2e491fd5ddefe0f5271655a6180"
+  }
+}

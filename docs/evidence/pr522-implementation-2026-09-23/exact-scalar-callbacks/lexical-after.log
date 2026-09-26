@@ -1,0 +1,7 @@
+I retain declared push artifacts in /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanolang-declared-push-56c3mo_c
+test_lexical_signature_and_restoration (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_lexical_signature_and_restoration) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.738s
+
+OK

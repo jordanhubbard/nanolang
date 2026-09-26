@@ -1,0 +1,206 @@
+[
+  {
+    "command": [
+      "/private/tmp/nanolang-literal-order-75051f193/source/bin/nanoc_c",
+      "/private/tmp/nanolang-literal-order-75051f193/source/tests/nanovirt/fixtures/record_literal_written_order.nano",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_c-record_literal_written_order"
+    ],
+    "stage": "compile",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_c-record_literal_written_order"
+    ],
+    "stage": "run",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-literal-order-75051f193/source/bin/nanoc_c",
+      "/private/tmp/nanolang-literal-order-75051f193/source/tests/nanovirt/fixtures/union_literal_written_order.nano",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_c-union_literal_written_order"
+    ],
+    "stage": "compile",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_c-union_literal_written_order"
+    ],
+    "stage": "run",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-literal-order-75051f193/source/bin/nanoc_c",
+      "/private/tmp/nanolang-literal-order-75051f193/source/tests/nanovirt/fixtures/global_literal_initialization.nano",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_c-global_literal_initialization"
+    ],
+    "stage": "compile",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_c-global_literal_initialization"
+    ],
+    "stage": "run",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-literal-order-75051f193/source/bin/nanoc_c",
+      "/private/tmp/nanolang-literal-order-75051f193/source/tests/nanovirt/fixtures/tuple_array_literal_written_order.nano",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_c-tuple_array_literal_written_order"
+    ],
+    "stage": "compile",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_c-tuple_array_literal_written_order"
+    ],
+    "stage": "run",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-literal-order-75051f193/source/bin/nanoc_stage1",
+      "/private/tmp/nanolang-literal-order-75051f193/source/tests/nanovirt/fixtures/record_literal_written_order.nano",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage1-record_literal_written_order"
+    ],
+    "stage": "compile",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage1-record_literal_written_order"
+    ],
+    "stage": "run",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-literal-order-75051f193/source/bin/nanoc_stage1",
+      "/private/tmp/nanolang-literal-order-75051f193/source/tests/nanovirt/fixtures/union_literal_written_order.nano",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage1-union_literal_written_order"
+    ],
+    "stage": "compile",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage1-union_literal_written_order"
+    ],
+    "stage": "run",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-literal-order-75051f193/source/bin/nanoc_stage1",
+      "/private/tmp/nanolang-literal-order-75051f193/source/tests/nanovirt/fixtures/global_literal_initialization.nano",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage1-global_literal_initialization"
+    ],
+    "stage": "compile",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage1-global_literal_initialization"
+    ],
+    "stage": "run",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-literal-order-75051f193/source/bin/nanoc_stage1",
+      "/private/tmp/nanolang-literal-order-75051f193/source/tests/nanovirt/fixtures/tuple_array_literal_written_order.nano",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage1-tuple_array_literal_written_order"
+    ],
+    "stage": "compile",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage1-tuple_array_literal_written_order"
+    ],
+    "stage": "run",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-literal-order-75051f193/source/bin/nanoc_stage2",
+      "/private/tmp/nanolang-literal-order-75051f193/source/tests/nanovirt/fixtures/record_literal_written_order.nano",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage2-record_literal_written_order"
+    ],
+    "stage": "compile",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage2-record_literal_written_order"
+    ],
+    "stage": "run",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-literal-order-75051f193/source/bin/nanoc_stage2",
+      "/private/tmp/nanolang-literal-order-75051f193/source/tests/nanovirt/fixtures/union_literal_written_order.nano",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage2-union_literal_written_order"
+    ],
+    "stage": "compile",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage2-union_literal_written_order"
+    ],
+    "stage": "run",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-literal-order-75051f193/source/bin/nanoc_stage2",
+      "/private/tmp/nanolang-literal-order-75051f193/source/tests/nanovirt/fixtures/global_literal_initialization.nano",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage2-global_literal_initialization"
+    ],
+    "stage": "compile",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage2-global_literal_initialization"
+    ],
+    "stage": "run",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-literal-order-75051f193/source/bin/nanoc_stage2",
+      "/private/tmp/nanolang-literal-order-75051f193/source/tests/nanovirt/fixtures/tuple_array_literal_written_order.nano",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage2-tuple_array_literal_written_order"
+    ],
+    "stage": "compile",
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-dl9ajd2r/nanoc_stage2-tuple_array_literal_written_order"
+    ],
+    "stage": "run",
+    "returncode": 0
+  }
+]

@@ -10,7 +10,7 @@
 # Tags: playground, http, native-only, interactive
 # Expected Output: interactive
 
-from "modules/http_server/http_server.nano" import create, set_static_dir, start
+from "modules/http_server/http_server.nano" import HttpServer, create, set_static_dir, start
 from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
 
 # Escape special characters for JSON strings

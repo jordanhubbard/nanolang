@@ -1,0 +1,57 @@
+[
+  {
+    "path": "/tmp/nanolang-literal-order-8c2e693db/puck-reports/bootstrap.log",
+    "bytes": 83078,
+    "sha256": "0a11c5af316ad8499b0a4b5178fe95fd53485842e4b82a9c5fc1d011fec4f527"
+  },
+  {
+    "path": "/tmp/nanolang-literal-order-8c2e693db/puck-reports/bootstrap.status.json",
+    "bytes": 280,
+    "sha256": "429bbcdbe937c829be584f018d2bbf7781cc62953c0170b1ff1b7f6e3d155763"
+  },
+  {
+    "path": "/tmp/nanolang-literal-order-8c2e693db/puck-reports/nanoc_c.json",
+    "bytes": 182,
+    "sha256": "1ebb3c55ee09fd08d56b3f0194fe33c5b4fac4a56138b7ad51755a55cc11b313"
+  },
+  {
+    "path": "/tmp/nanolang-literal-order-8c2e693db/puck-reports/nanoc_stage1.json",
+    "bytes": 187,
+    "sha256": "21869b4d314928248d559faa3957fe21ef5679b3262744205f46a287d1c11323"
+  },
+  {
+    "path": "/tmp/nanolang-literal-order-8c2e693db/puck-reports/nanoc_stage2.json",
+    "bytes": 187,
+    "sha256": "bf6f669601fa0f1b7845b3793602a2529056be711f43e2a11ee2c2391cf110af"
+  },
+  {
+    "path": "/tmp/nanolang-literal-order-8c2e693db/puck-reports/native-gate.log",
+    "bytes": 2093,
+    "sha256": "bcb7dec31cf5024fd841c1c590ff6709fd783da3393e4f6522dd54edb703ccda"
+  },
+  {
+    "path": "/tmp/nanolang-literal-order-8c2e693db/puck-reports/native-gate.status.json",
+    "bytes": 390,
+    "sha256": "510de6970eeb986e0d4c71f25fda0f8b21fe45c2cbec14c8b5fbb4c397dec436"
+  },
+  {
+    "path": "/tmp/nanolang-literal-order-8c2e693db/puck-reports/preflight.json",
+    "bytes": 188,
+    "sha256": "a954a6a499b1a54bab808b9164a337901df0baadb6fbc996b8a63e48f153bbfc"
+  },
+  {
+    "path": "/tmp/nanolang-literal-order-8c2e693db/puck-reports/source-after.json",
+    "bytes": 398370,
+    "sha256": "dba981c8873da2c0fdcd24772259425ad53714884046336b810a70282ad9ed18"
+  },
+  {
+    "path": "/tmp/nanolang-literal-order-8c2e693db/puck-reports/source-before.json",
+    "bytes": 398370,
+    "sha256": "dba981c8873da2c0fdcd24772259425ad53714884046336b810a70282ad9ed18"
+  },
+  {
+    "path": "/tmp/nanolang-literal-order-8c2e693db/puck-reports/tools.json",
+    "bytes": 188,
+    "sha256": "90ee15b13e2d17181e45d0c2ce8d5223986844dbc802f8a60e8c39d92b2744e8"
+  }
+]

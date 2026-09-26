@@ -1,0 +1,13 @@
+{
+  "source": "b99538d1b",
+  "production": "d1f035314",
+  "checks": 277,
+  "provider_count": 150,
+  "source_files": 3753,
+  "tools": 10,
+  "local_and_remote_verification": "PASS",
+  "archive_sha256": "5a4d541b0273dbae69e72ef124e7c1b992796fbe8e190bef47a243c44cf32bf1",
+  "members": 24,
+  "durable_root": "/Users/jkh/nanolang-qualification/capture-private-b995-retained",
+  "scope": "Fresh fixture linked to verified retained ordinary GCC providers; existing portable planner compiled in owning flags. Not fresh provider rebuild, Darwin or sanitizer acceptance."
+}

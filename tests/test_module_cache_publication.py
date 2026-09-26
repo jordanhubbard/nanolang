@@ -1226,6 +1226,27 @@ os.execv({compiler!r}, [{compiler!r}] + args)
             self.probe_path("build", module, env)
             self.assertEqual(self.probe_path("directory", module, env), generation)
 
+    @unittest.skipUnless(sys.platform == "darwin", "I have integrated Darwin linker records")
+    def test_linker_capture_accepts_at_sign_in_literal_search_path(self):
+        with tempfile.TemporaryDirectory(prefix="nano-link-at-path-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            library_dir = directory / "openssl@3" / "lib"
+            library_dir.mkdir(parents=True)
+            manifest = module / "module.json"
+            metadata = json.loads(manifest.read_text())
+            metadata["ldflags"] = ["-L" + str(library_dir)]
+            manifest.write_text(json.dumps(metadata))
+
+            self.probe_path("build", module, env)
+            generation = self.probe_path("directory", module, env)
+            self.assertTrue((generation / "source_hashes.json").is_file(),
+                            self.last_build_diagnostics)
+            self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
+            self.probe_path("build", module, env)
+            self.assertEqual(self.probe_path("directory", module, env), generation,
+                             self.last_build_diagnostics)
+
     def test_pkg_config_query_status_and_recovery(self):
         with tempfile.TemporaryDirectory(prefix="nano-pkg-status-") as tmp:
             directory = Path(tmp)
@@ -1322,7 +1343,7 @@ print("-D" + ("VALUE" if query == "cflags" else "LINK_VALUE") + "=" +
                                         env=env | {"NANO_VERBOSE_BUILD": "1"},
                                         capture_output=True, timeout=20)
                 self.assertEqual(result.returncode, 0, result.stderr)
-                return result.stdout.decode().splitlines()
+                return (result.stdout + result.stderr).decode().splitlines()
 
             lines = build(module)
             self.assertIn("compile:-DVALUE=42", lines)

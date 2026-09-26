@@ -1,0 +1,1 @@
+I passed 977 capture payload checks; reader and writer allocation failures recover without live storage.

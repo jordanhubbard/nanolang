@@ -1,0 +1,158 @@
+I require one declared union variant without a spread source
+I require one declared union variant without a spread source
+I require one declared union variant without a spread source
+I cannot resolve a qualified type in this source: alias.Box.Value
+I cannot allocate module-owned record identities
+I cannot resolve a qualified type in this source: alias.Box.Value
+I cannot allocate module-owned record identities
+I cannot resolve a qualified type in this source: unknown.Box.Value
+I cannot allocate module-owned record identities
+Error at line 1, column 37: Expected field name, variant name, or tuple index after '.'
+Error at line 1, column 37: Unexpected token in expression: DOT (type=18)
+Error at line 1, column 41: Expected field name, variant name, or tuple index after '.'
+Error at line 1, column 53: Expected '}' at end of struct literal (got EOF)
+Error at line 1, column 46: Expected '}' after struct literal fields (got EOF)
+Warning at line 1, column 101: Unused variable 'a'
+Warning at line 1, column 101: Unused variable 'a'
+Warning: Function 'bytes' is missing a shadow test
+Warning at line 1, column 86: Unused variable 'a'
+Warning: Function 'take' is missing a shadow test
+Warning at line 1, column 86: Unused variable 'a'
+Warning: Function 'take' is missing a shadow test
+Warning at line 1, column 132: Unused variable 'h'
+Warning at line 1, column 129: Unused variable 'h'
+Warning at line 1, column 101: Unused variable 'a'
+Warning at line 1, column 101: Unused variable 'a'
+Warning at line 1, column 129: Unused variable 'a'
+Warning at line 1, column 101: Unused variable 'a'
+Warning at line 1, column 115: Unused variable 'a'
+Warning at line 1, column 123: Unused variable 'b'
+Warning: Function 'make' is missing a shadow test
+Warning at line 1, column 179: Unused variable 'a'
+Error at line 1, column 153: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 153: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 131: Unused variable 'bytes'
+Error at line 1, column 138: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 138: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 170: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 170: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 131: Unused variable 'bytes'
+Error at line 1, column 145: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 145: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning: Function 'bytes' is missing a shadow test
+Warning at line 1, column 86: Unused variable 'a'
+Warning: Function 'take' is missing a shadow test
+Error at line 1, column 180: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 180: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 86: Unused variable 'a'
+Warning: Function 'take' is missing a shadow test
+Error at line 1, column 209: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 209: I require the declared argument type for this function value.
+Hint: Match every original nominal owner.
+Error at line 1, column 190: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 190: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 177: I require each record array field to match its complete declared element types.
+Hint: Keep every nested element and existing array in its declared type.
+Error at line 1, column 190: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 190: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 177: I require each record array field to match its complete declared element types.
+Hint: Keep every nested element and existing array in its declared type.
+Warning at line 1, column 162: Unused variable 'h'
+Error at line 1, column 197: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 182: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 182: I require each union field exactly once with a complete concrete destination.
+Hint: Preserve the declared variant, generic arguments and every payload field identity.
+Warning at line 1, column 159: Unused variable 'h'
+Error at line 1, column 157: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 156: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 131: Unused variable 'a'
+Error at line 1, column 161: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 150: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 131: Unused variable 'a'
+Error at line 1, column 214: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 148: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 129: Unused variable 'a'
+Error at line 1, column 122: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 119: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 119: Array elements must all have the same type (expected int, got bool).
+Hint: Use consistent element types or convert values.
+Error at line 1, column 119: I require checked byte-array members and literals from 0 through 255.
+Hint: Use a byte or computed integer; keep direct literals in range.
+Warning at line 1, column 101: Unused variable 'a'
+Error at line 1, column 122: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 119: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 119: I require checked byte-array members and literals from 0 through 255.
+Hint: Use a byte or computed integer; keep direct literals in range.
+Warning at line 1, column 101: Unused variable 'a'
+Error at line 1, column 122: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 119: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 119: I require checked byte-array members and literals from 0 through 255.
+Hint: Use a byte or computed integer; keep direct literals in range.
+Warning at line 1, column 101: Unused variable 'a'
+Error at line 1, column 120: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 119: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 119: I require checked byte-array members and literals from 0 through 255.
+Hint: Use a byte or computed integer; keep direct literals in range.
+Warning at line 1, column 101: Unused variable 'a'
+Error at line 1, column 158: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 152: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 132: Unused variable 'a'
+Error at line 1, column 119: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 119: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 101: Unused variable 'a'
+Warning: Function 'make' is missing a shadow test
+Error at line 1, column 199: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 199: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 181: Unused variable 'a'
+Warning: Function 'id' is missing a shadow test
+Error at line 1, column 147: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 147: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 129: Unused variable 'a'
+Error at line 0, column 0: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 33: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 33: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+I require matching complete extern signatures and consistent declaration visibility: at
+Assertion failed: (checked == !module), function parsed_extern_policy, file test_nominal_array_identity.c, line 87.
+I checked exact union constructor ownership and both allocation prefixes.

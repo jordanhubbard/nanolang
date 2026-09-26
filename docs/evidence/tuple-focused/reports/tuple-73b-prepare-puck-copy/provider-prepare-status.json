@@ -1,0 +1,28 @@
+{
+  "name": "provider-prepare",
+  "argv": [
+    "make",
+    "-f",
+    "/Users/jkh/nanolang-qualification/tuple-73b-prepare/prepare.mk",
+    "-j2",
+    "list-prepare",
+    "CC=/usr/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 5.158155417000001,
+  "log": {
+    "sha256": "38e32785b67852be4aa20817735c5f697e6ff8ec69ff2075e35f8b629a13718c",
+    "bytes": 31208,
+    "archive": "/Users/jkh/nanolang-qualification/tuple-73b-prepare/objects/38e32785b67852be4aa20817735c5f697e6ff8ec69ff2075e35f8b629a13718c"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

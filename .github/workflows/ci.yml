@@ -10,6 +10,10 @@ on:
 env:
   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build-and-test:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
@@ -119,12 +123,9 @@ jobs:
       - name: Build - Stage 3 (Bootstrap Validation)
         run: make stage3
 
-      - name: Run test suite
-        env:
-          NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
-        run: make test TEST_TIMEOUT=3600
-
       - name: Run test suite with JUnit XML output
+        # The Memory Sanitizers gate owns the complete resolved Make inventory.
+        # This platform matrix retains native build and program smoke evidence.
         run: make test-junit
         continue-on-error: true
 
@@ -271,6 +272,8 @@ jobs:
 
       - name: Build every available example strictly
         timeout-minutes: 40
+        env:
+          NANO_SHADOW_TIMEOUT_SECONDS: "60"
         run: make examples EXAMPLES_TIMEOUT=2400
 
   docs:
@@ -335,17 +338,452 @@ jobs:
           path: docs/api/
           retention-days: 30
 
-  sanitizers:
-    name: Memory Sanitizers
+  sanitizer-plan:
+    name: Sanitizer partition inventory
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
     permissions:
       contents: read
-
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
     steps:
+      - uses: actions/checkout@v4
+      - name: Install workflow validation dependency
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+          python3 -c 'import yaml'
+      - name: Check complete partition and aggregate refusals
+        run: python3 -m unittest -v tests.test_ci_sanitizer_partitions
+      - id: plan
+        run: python3 scripts/ci_sanitizer_partitions.py plan --output "$RUNNER_TEMP/sanitizer-plan" --github-output "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+          retention-days: 7
+
+  sanitizer-base:
+    name: Sanitizer instrumented base
+    needs: sanitizer-plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - name: Set retained report paths
+        run: |
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
+          echo "REPORT=$RUNNER_TEMP/sanitizer-base-report" >> "$GITHUB_ENV"
+          echo "BUNDLE=$RUNNER_TEMP/sanitizer-base" >> "$GITHUB_ENV"
+      - name: Install Python dependencies
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential clang llvm lld pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev
+      - name: Select matching distribution LLVM tools
+        run: |
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
+      - name: Verify exact head and inventory
+        run: python3 scripts/ci_sanitizer_partitions.py verify --manifest "$PLAN" --worker negative --output "$REPORT"
+      - name: Build instrumented C-reference and component stages
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker negative --output "$REPORT" --phase sanitize 2>&1 | tee "$REPORT/sanitize.log"
+      - name: Verify base instrumentation
+        run: python3 scripts/ci_sanitizer_partitions.py instrumentation --manifest "$PLAN" --worker negative --output "$REPORT"
+      - name: Publish exact base bundle
+        run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage base --output "$BUNDLE"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-base
+          path: ${{ runner.temp }}/sanitizer-base/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  sanitizer-stage1:
+    name: Sanitizer native Stage 1
+    needs: [sanitizer-plan, sanitizer-base]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-base
+          path: ${{ runner.temp }}/sanitizer-base
+      - name: Set retained paths
+        run: |
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
+          echo "REPORT=$RUNNER_TEMP/sanitizer-stage1-report" >> "$GITHUB_ENV"
+          echo "BUNDLE=$RUNNER_TEMP/sanitizer-stage1" >> "$GITHUB_ENV"
+      - name: Install Python dependencies
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential clang llvm lld pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev
+      - name: Select matching distribution LLVM tools
+        run: |
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
+      - name: Restore exact instrumented base
+        run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage base --archive "$RUNNER_TEMP/sanitizer-base/base.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-base/base.json" --output "$REPORT"
+      - name: Build instrumented native Stage 1
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap1 2>&1 | tee "$REPORT/bootstrap1.log"
+      - name: Build ordinary Stage 1 producer
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap1-driver 2>&1 | tee "$REPORT/bootstrap1-driver.log"
+      - name: Build instrumented Stage 2 companion providers
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap1-companions 2>&1 | tee "$REPORT/bootstrap1-companions.log"
+      - name: Publish exact Stage 1 bundle
+        run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage1 --output "$BUNDLE"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-stage1
+          path: ${{ runner.temp }}/sanitizer-stage1/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  sanitizer-stage2-nvm:
+    name: Sanitizer native Stage 2 NanoISA
+    needs: [sanitizer-plan, sanitizer-stage1]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-stage1
+          path: ${{ runner.temp }}/sanitizer-stage1
+      - name: Set retained paths
+        run: |
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
+          echo "REPORT=$RUNNER_TEMP/sanitizer-stage2-nvm-report" >> "$GITHUB_ENV"
+          echo "BUNDLE=$RUNNER_TEMP/sanitizer-stage2-nvm" >> "$GITHUB_ENV"
+      - name: Install Python dependencies
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential clang llvm lld pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev
+      - name: Select matching distribution LLVM tools
+        run: |
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
+      - name: Restore exact instrumented Stage 1
+        run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage stage1 --archive "$RUNNER_TEMP/sanitizer-stage1/stage1.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-stage1/stage1.json" --output "$REPORT"
+      - name: Build verified Stage 2 NanoISA
+        run: |
+          mkdir -p build/sanitizer-stage2
+          python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-nvm 2>&1 | tee "$REPORT/bootstrap2-nvm.log"
+      - name: Publish exact Stage 2 NanoISA bundle
+        run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage2-nvm --output "$BUNDLE"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-stage2-nvm
+          path: ${{ runner.temp }}/sanitizer-stage2-nvm/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  sanitizer-stage2-c:
+    name: Sanitizer native Stage 2 C
+    needs: [sanitizer-plan, sanitizer-stage2-nvm]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-stage2-nvm
+          path: ${{ runner.temp }}/sanitizer-stage2-nvm
+      - name: Set retained paths
+        run: |
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
+          echo "REPORT=$RUNNER_TEMP/sanitizer-stage2-c-report" >> "$GITHUB_ENV"
+          echo "BUNDLE=$RUNNER_TEMP/sanitizer-stage2-c" >> "$GITHUB_ENV"
+      - name: Install Python dependencies
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential clang llvm lld pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev
+      - name: Select matching distribution LLVM tools
+        run: |
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
+      - name: Restore exact Stage 2 NanoISA
+        run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage stage2-nvm --archive "$RUNNER_TEMP/sanitizer-stage2-nvm/stage2-nvm.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-stage2-nvm/stage2-nvm.json" --output "$REPORT"
+      - name: Translate verified Stage 2 NanoISA to C
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-c 2>&1 | tee "$REPORT/bootstrap2-c.log"
+      - name: Publish exact Stage 2 C bundle
+        run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage2-c --output "$BUNDLE"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-stage2-c
+          path: ${{ runner.temp }}/sanitizer-stage2-c/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  sanitizer-bootstrap:
+    name: Sanitizer native Stage 2 and verification
+    needs: [sanitizer-plan, sanitizer-stage2-object]
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      contents: read
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-stage2-object
+          path: ${{ runner.temp }}/sanitizer-stage2-object
+      - name: Set retained paths
+        run: |
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
+          echo "REPORT=$RUNNER_TEMP/sanitizer-bootstrap-report" >> "$GITHUB_ENV"
+          echo "BUNDLE=$RUNNER_TEMP/sanitizer-bootstrap" >> "$GITHUB_ENV"
+      - name: Install Python dependencies
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential clang llvm lld pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev
+      - name: Select matching distribution LLVM tools
+        run: |
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
+      - name: Restore exact Stage 2 object
+        run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage stage2-object --archive "$RUNNER_TEMP/sanitizer-stage2-object/stage2-object.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-stage2-object/stage2-object.json" --output "$REPORT"
+      - name: Compile instrumented native Stage 2
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-native 2>&1 | tee "$REPORT/bootstrap2-native.log"
+      - name: Smoke instrumented native Stage 2
+        timeout-minutes: 30
+        run: |
+          python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-smoke 2>&1 | tee "$REPORT/bootstrap2-smoke.log"
+          build/sanitizer-stage2/hello >/dev/null
+      - name: Finalize instrumented bootstrap boundary
+        timeout-minutes: 60
+        run: |
+          # Restore already hash-verifies both compiler generations. I remove
+          # only the Stage 3 receipt and hold those exact inputs while I run
+          # the installed-compiler and no-C-seed verification recipe.
+          rm -f .bootstrap3.built
+          set -o pipefail
+          python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap3 2>&1 | tee "$REPORT/bootstrap3.log" &
+          bootstrap_pid=$!
+          trap 'kill "$bootstrap_pid" 2>/dev/null || true' EXIT
+          while kill -0 "$bootstrap_pid" 2>/dev/null; do
+            sleep 60
+            if kill -0 "$bootstrap_pid" 2>/dev/null; then
+              echo "I am still finalizing the instrumented bootstrap boundary."
+            fi
+          done
+          wait "$bootstrap_pid"
+          trap - EXIT
+      - name: Publish exact Stage 2 bundle
+        run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage2 --output "$BUNDLE"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-stage2
+          path: ${{ runner.temp }}/sanitizer-bootstrap/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  sanitizer-stage2-object:
+    name: Sanitizer native Stage 2 object
+    needs: [sanitizer-plan, sanitizer-stage2-c]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-stage2-c
+          path: ${{ runner.temp }}/sanitizer-stage2-c
+      - name: Set retained paths
+        run: |
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
+          echo "REPORT=$RUNNER_TEMP/sanitizer-stage2-object-report" >> "$GITHUB_ENV"
+          echo "BUNDLE=$RUNNER_TEMP/sanitizer-stage2-object" >> "$GITHUB_ENV"
+      - name: Install Python dependencies
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential clang llvm lld pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev
+      - name: Select matching distribution LLVM tools
+        run: |
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
+      - name: Restore exact Stage 2 C
+        run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage stage2-c --archive "$RUNNER_TEMP/sanitizer-stage2-c/stage2-c.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-stage2-c/stage2-c.json" --output "$REPORT"
+      - name: Compile instrumented Stage 2 object
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-object 2>&1 | tee "$REPORT/bootstrap2-object.log"
+      - name: Publish exact Stage 2 object bundle
+        run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage stage2-object --output "$BUNDLE"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-stage2-object
+          path: ${{ runner.temp }}/sanitizer-stage2-object/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  sanitizer-providers:
+    name: Sanitizer source-emitter providers
+    needs: [sanitizer-plan, sanitizer-bootstrap]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-stage2
+          path: ${{ runner.temp }}/sanitizer-stage2
+      - name: Set retained paths
+        run: |
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
+          echo "REPORT=$RUNNER_TEMP/sanitizer-providers-report" >> "$GITHUB_ENV"
+          echo "BUNDLE=$RUNNER_TEMP/sanitizer-bootstrap" >> "$GITHUB_ENV"
+      - name: Install Python dependencies
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential clang llvm lld pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev
+      - name: Select matching distribution LLVM tools
+        run: |
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
+      - name: Restore exact instrumented Stage 2
+        run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage stage2 --archive "$RUNNER_TEMP/sanitizer-stage2/stage2.tar.gz" --metadata "$RUNNER_TEMP/sanitizer-stage2/stage2.json" --output "$REPORT"
+      - name: Build source-emitter providers
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker source --output "$REPORT" --phase providers 2>&1 | tee "$REPORT/providers.log"
+      - name: Verify native compiler instrumentation
+        run: python3 scripts/ci_sanitizer_partitions.py instrumentation --manifest "$PLAN" --worker scalar --output "$REPORT"
+      - name: Publish exact bootstrap bundle
+        run: python3 scripts/ci_sanitizer_partitions.py bundle --manifest "$PLAN" --stage bootstrap --output "$BUNDLE"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-bootstrap
+          path: ${{ runner.temp }}/sanitizer-bootstrap/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  sanitizer-workers:
+    name: Sanitizer (${{ matrix.id }})
+    needs: [sanitizer-plan, sanitizer-providers]
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ (matrix.id == 'source' && 75) || (matrix.id == 'scalar' && 45) || 30 }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix: ${{ fromJSON(needs.sanitizer-plan.outputs.matrix) }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+    steps:
+      - name: Set retained report paths
+        run: |
+          echo "REPORT=$RUNNER_TEMP/sanitizer-${{ matrix.id }}" >> "$GITHUB_ENV"
+          echo "PLAN=$RUNNER_TEMP/sanitizer-plan/plan.json" >> "$GITHUB_ENV"
+          echo "BUNDLE=$RUNNER_TEMP/sanitizer-bootstrap" >> "$GITHUB_ENV"
       - name: Checkout code
         uses: actions/checkout@v4
-
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-bootstrap
+          path: ${{ runner.temp }}/sanitizer-bootstrap
       - name: Install Python dependencies
         shell: bash
         run: |
@@ -363,7 +801,7 @@ jobs:
         timeout-minutes: 10
         run: |
           ./scripts/ci-apt-install.sh \
-            build-essential \
+            build-essential clang llvm lld \
             pkg-config \
             libssl-dev libffi-dev \
             libsdl2-dev \
@@ -372,65 +810,120 @@ jobs:
             libsdl2-ttf-dev \
             libutf8proc-dev
 
-      - name: Build with AddressSanitizer
-        # Instrumented bootstrap shadows retain a finite execution deadline.
-        env:
-          NANO_SHADOW_TIMEOUT_SECONDS: "60"
+      - name: Select matching distribution LLVM tools
         run: |
-          # Disable leak detection for exit-time leaks in short-lived compiler process
-          # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)
-          export ASAN_OPTIONS=detect_leaks=0
-          make sanitize
+          LLVM_BIN=$(/usr/bin/llvm-config --bindir)
+          for tool in clang opt llvm-as llvm-dis lli llc llvm-nm wasm-ld; do
+            test -x "$LLVM_BIN/$tool"
+          done
+          echo "$LLVM_BIN" >> "$GITHUB_PATH"
 
-      - name: Complete 3-stage bootstrap with sanitizers
+      - name: Verify exact head and complete unit inventory
+        id: verify
+        run: python3 scripts/ci_sanitizer_partitions.py verify --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT"
+      - name: Restore exact instrumented bootstrap
+        id: restore
+        run: python3 scripts/ci_sanitizer_partitions.py restore --manifest "$PLAN" --stage bootstrap --archive "$BUNDLE/bootstrap.tar.gz" --metadata "$BUNDLE/bootstrap.json" --output "$REPORT"
+      - name: Inventory original source and tools
+        id: before
+        run: python3 scripts/ci_sanitizer_partitions.py snapshot --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase before
+      - name: Verify actual compiler sanitizer instrumentation
+        id: instrumentation
+        run: python3 scripts/ci_sanitizer_partitions.py instrumentation --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT"
+      - name: Inventory actual providers before tests
+        id: prepared
+        run: python3 scripts/ci_sanitizer_partitions.py snapshot --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase prepared
+      - name: Run complete assigned sanitizer tests
+        id: tests
+        timeout-minutes: ${{ (matrix.id == 'source' && 45) || (matrix.id == 'scalar' && 35) || 20 }}
+        run: python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase tests 2>&1 | tee "$REPORT/tests.log"
+      - name: Inventory source tools and surviving products after terminal
+        id: after
+        if: always()
+        run: python3 scripts/ci_sanitizer_partitions.py snapshot --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT" --phase after
+      - name: Record exact worker outcome
+        if: always()
         env:
-          NANO_SHADOW_TIMEOUT_SECONDS: "60"
-        run: |
-          export ASAN_OPTIONS=detect_leaks=0
-          make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
-
-      - name: Run tests with sanitizers
-        env:
-          NANO_SHADOW_TIMEOUT_SECONDS: "60"
-        timeout-minutes: 20  # Timeout for test step specifically
-        run: |
-          export ASAN_OPTIONS=detect_leaks=0
-          make test-units CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer" LDFLAGS="-lm -lcrypto -fsanitize=address,undefined"
-
-      - name: Run negative tests with sanitizers
-        env:
-          NANOLANG_COMPILER: ./bin/nanoc_c
-        run: |
-          export ASAN_OPTIONS=detect_leaks=0
-          bash tests/run_negative_tests.sh
-
-      - name: Retain verifier-corpus diagnostics
-        if: failure()
+          CI_SANITIZER_STEPS: ${{ toJSON(steps) }}
+        run: python3 scripts/ci_sanitizer_partitions.py result --manifest "$PLAN" --worker '${{ matrix.id }}' --output "$REPORT"
+      - name: Retain raw worker reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: verifier-corpus-sanitizers
-          path: .test_output/verifier-corpus/
+          name: sanitizer-result-${{ matrix.id }}
+          path: |
+            ${{ env.REPORT }}
+            .test_output/verifier-corpus/
           include-hidden-files: true
-          if-no-files-found: ignore
+          if-no-files-found: error
+          retention-days: 7
+      - name: Retain actual surviving providers
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-providers-${{ matrix.id }}
+          path: |
+            bin/
+            obj/
+            obj-runtime/
+          include-hidden-files: true
+          if-no-files-found: warn
           retention-days: 7
 
-      - name: Show sanitizer error logs on failure
-        if: failure()
-        shell: bash
+  sanitizers:
+    name: Memory Sanitizers
+    needs: [sanitizer-plan, sanitizer-base, sanitizer-stage1, sanitizer-stage2-nvm, sanitizer-stage2-c, sanitizer-stage2-object, sanitizer-bootstrap, sanitizer-providers, sanitizer-workers]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: sanitizer-plan
+          path: ${{ runner.temp }}/sanitizer-plan
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sanitizer-result-*
+          path: ${{ runner.temp }}/sanitizer-results
+      - name: Require every exact worker and negative-suite terminal
+        env:
+          PLAN_RESULT: ${{ needs.sanitizer-plan.result }}
+          BASE_RESULT: ${{ needs.sanitizer-base.result }}
+          STAGE1_RESULT: ${{ needs.sanitizer-stage1.result }}
+          STAGE2_NVM_RESULT: ${{ needs.sanitizer-stage2-nvm.result }}
+          STAGE2_C_RESULT: ${{ needs.sanitizer-stage2-c.result }}
+          STAGE2_OBJECT_RESULT: ${{ needs.sanitizer-stage2-object.result }}
+          BOOTSTRAP_RESULT: ${{ needs.sanitizer-bootstrap.result }}
+          PROVIDERS_RESULT: ${{ needs.sanitizer-providers.result }}
+          WORKER_RESULT: ${{ needs.sanitizer-workers.result }}
         run: |
-          echo "=== Showing first 3 failed test logs ==="
-          for log in .test_output/*.compile.log; do
-            if [ -f "$log" ]; then
-              echo "=== $log ==="
-              cat "$log"
-              echo ""
-            fi
-          done | head -200
+          test "$PLAN_RESULT" = success
+          test "$BASE_RESULT" = success
+          test "$STAGE1_RESULT" = success
+          test "$STAGE2_NVM_RESULT" = success
+          test "$STAGE2_C_RESULT" = success
+          test "$STAGE2_OBJECT_RESULT" = success
+          test "$BOOTSTRAP_RESULT" = success
+          test "$PROVIDERS_RESULT" = success
+          test "$WORKER_RESULT" = success
+          python3 scripts/ci_sanitizer_partitions.py aggregate --manifest "$RUNNER_TEMP/sanitizer-plan/plan.json" --results "$RUNNER_TEMP/sanitizer-results" --output "$RUNNER_TEMP/sanitizer-aggregate"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sanitizer-aggregate
+          path: ${{ runner.temp }}/sanitizer-aggregate
+          if-no-files-found: warn
+          retention-days: 7
 
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 65
+    env:
+      COVERAGE_THRESHOLD: "25.0"
     permissions:
       contents: read
       pull-requests: write
@@ -479,8 +972,11 @@ jobs:
 
       - name: Run tests
         env:
+          NANO_SHADOW_TIMEOUT_SECONDS: "60"
           NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
-        run: make test CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage" LDFLAGS="-lm -lcrypto -fprofile-arcs -ftest-coverage"
+          NANOLANG_COMPILER: ./bin/nanoc_c
+        timeout-minutes: 20
+        run: ./tests/run_all_tests.sh
 
       - name: Run negative tests
         env:

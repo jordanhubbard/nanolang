@@ -1,0 +1,1820 @@
+{
+  "51d-linux": {
+    "pin": "51d0b9a998e3cfae5d255d31b9e9ae14f1519e14",
+    "archive_sha256": "dc40336f0f6193d0df2bb963c43343dd4e5787a65780451dc10c9c8719db8d72",
+    "terminal": {
+      "status": 0
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/record-names-51d-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 3021890,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 11.198716526967473
+      },
+      {
+        "label": "ordinary-owning-method",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/record-names-51d-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "test-evaluator-owned-lifetimes"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 3023849,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 16.349143482046202
+      },
+      {
+        "label": "ordinary-collection-method",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/record-names-51d-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "test-evaluator-collection-ownership"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 3024781,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 3.2269528730539605
+      },
+      {
+        "label": "sanitized-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/record-names-51d-linux/sanitized/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 3025173,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 16.984952065045945
+      },
+      {
+        "label": "sanitized-owning-method",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/record-names-51d-linux/sanitized/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "test-evaluator-owned-lifetimes"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 3028019,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 29.053289094008505
+      },
+      {
+        "label": "sanitized-collection-method",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/record-names-51d-linux/sanitized/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "test-evaluator-collection-ownership"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 3036559,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 7.512029025005177
+      }
+    ],
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "tools-after.json": {
+        "bytes": 303,
+        "sha256": "b05f1155395301fa94db51add29e3f30e65468084e91090f84e8b6026838a7d2"
+      },
+      "identity.json": {
+        "bytes": 791,
+        "sha256": "fde98f510c7ce07564600f814dcbe3c4c16b5ac44052f09111b68373cbab2ec6"
+      },
+      "phases.json": {
+        "bytes": 3520,
+        "sha256": "cfc9236db56ac850973f7fc094638be5c3a01a02265bc61d9f45f00a0604571d"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 453,
+        "sha256": "a8909d97ebcc21ef4ed24602473da7faf7fdbb52781636b46c40dbf7f8bc7843"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "ordinary/ordinary-collection-method.log": {
+        "bytes": 3690,
+        "sha256": "20ea16c2c228e59b15864a31f4d2135b986c9dfa29548ab19ed90abad86f3061"
+      },
+      "ordinary/products.json": {
+        "bytes": 20217,
+        "sha256": "5ac34b9ab401665954084e0958f623ab75ae13538a0715019863b622e178a990"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 453,
+        "sha256": "69ada1b6eace4527fb0afdcfcce4b7e18530b4eafa0af66c807c83fbd603bff5"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 16982,
+        "sha256": "fe638967a3038276a17a6de6f2e3224a6bc1b8323ebad0ad3e8d7c9eeb2a0906"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 30,
+        "sha256": "449eed8c2998494066b8ce7562c2154de43a5ffe32ea917390b24b4b2d7e623d"
+      },
+      "ordinary/ordinary-owning-method.json": {
+        "bytes": 470,
+        "sha256": "2b7d2bbaaabb93c26e3ca67269db26687df7e380f8f9e5c51326c077e1ab91d3"
+      },
+      "ordinary/ordinary-owning-method.log": {
+        "bytes": 3042,
+        "sha256": "d2a541a8aa251f9c9e350c6ec1110027a669fb6f263c32ebfb274af5eb3c7533"
+      },
+      "ordinary/ordinary-collection-method.json": {
+        "bytes": 479,
+        "sha256": "b0d5d414b3e311e2d4fe08f46af14a7b1dc554fb003a3beb3783fece590cb06c"
+      },
+      "ordinary/source-after.json": {
+        "bytes": 427983,
+        "sha256": "e5353bb781100b61095cbf1ffcbbe20d857b354f3b3b9f1b09fbc00d9f1461ca"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 14269,
+        "sha256": "de66f50d5c2fd4c1016c00a2e74e4527e3b65b7a35e5362c8c8c5e2d3e444f54"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 16982,
+        "sha256": "fe638967a3038276a17a6de6f2e3224a6bc1b8323ebad0ad3e8d7c9eeb2a0906"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 427983,
+        "sha256": "e5353bb781100b61095cbf1ffcbbe20d857b354f3b3b9f1b09fbc00d9f1461ca"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 65,
+        "sha256": "eee81e67213f9d4967dd57ac8086be92d8d1dee93dcc4f768fa5430885b8ddb6"
+      },
+      "sanitized/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "sanitized/products.json": {
+        "bytes": 20217,
+        "sha256": "aefce134f1864b7ac265668881cb8b5c7836b069715ddeb16d8688af772e50e7"
+      },
+      "sanitized/providers.mk": {
+        "bytes": 456,
+        "sha256": "b6e1ec435746c2989d9df37ca4aa84f8cac76e7927832a2580aaf20483698e53"
+      },
+      "sanitized/providers-before.json": {
+        "bytes": 17083,
+        "sha256": "9ae61d5e0dd57d03c971019a9c39bbd7b43734ce2ce5484561444016b304135b"
+      },
+      "sanitized/sanitized-providers.log": {
+        "bytes": 22248,
+        "sha256": "ba3897925d3367ea690e0754c1ec4087ab899116f0d87613fc203a47576346b1"
+      },
+      "sanitized/ldflags.txt": {
+        "bytes": 109,
+        "sha256": "e6a3c205b36c0d7f95e3cc06754c65c2d3afacc20d38cff8a10c7ae28c57bcc4"
+      },
+      "sanitized/source-after.json": {
+        "bytes": 427983,
+        "sha256": "e5353bb781100b61095cbf1ffcbbe20d857b354f3b3b9f1b09fbc00d9f1461ca"
+      },
+      "sanitized/providers-after.json": {
+        "bytes": 17083,
+        "sha256": "9ae61d5e0dd57d03c971019a9c39bbd7b43734ce2ce5484561444016b304135b"
+      },
+      "sanitized/source-before.json": {
+        "bytes": 427983,
+        "sha256": "e5353bb781100b61095cbf1ffcbbe20d857b354f3b3b9f1b09fbc00d9f1461ca"
+      },
+      "sanitized/sanitized-owning-method.log": {
+        "bytes": 3201,
+        "sha256": "0f261f36ce12b1818b759617ba0666f24dcf5a59df650ba30ce9149bf3309437"
+      },
+      "sanitized/sanitized-providers.json": {
+        "bytes": 613,
+        "sha256": "cc5124a0e5118a0e042333373206a3426c4669408f3ebf2e75d38bbb8a370cf4"
+      },
+      "sanitized/cflags.txt": {
+        "bytes": 144,
+        "sha256": "ad1a592fe7c650cfbc2cc3fc83d635d2df4f011c0e19663ac48fb4ef6ee2b9ed"
+      },
+      "sanitized/sanitized-owning-method.json": {
+        "bytes": 630,
+        "sha256": "6f43b37f5236270b6876591d1ab0443e10a8431a15a48cb2a597d76a4fbbd4ac"
+      },
+      "sanitized/sanitized-collection-method.json": {
+        "bytes": 638,
+        "sha256": "74a0d9fbb2900953ed69d53b53bcb25fa4e8b840f04d3291758c11b19292ac21"
+      },
+      "sanitized/sanitized-collection-method.log": {
+        "bytes": 4164,
+        "sha256": "81db4b4fb36c1eb3a390c658c512383f24fbd8a50eab9851cbda452b37c7d72a"
+      },
+      "sanitized/nano-record-lists-v3naucac/0003-array-allocation-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0005-parsed-build-after-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0001-coroutine-error-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0007-union-consumers.stderr": {
+        "bytes": 99,
+        "sha256": "efd477efb31c78a7f3765d0b99dbb5ca3beb0e67209e0bc221f7284699f1105b"
+      },
+      "sanitized/nano-record-lists-v3naucac/0010-task-raw.stderr": {
+        "bytes": 53,
+        "sha256": "adb6f36999545bee86e40f95ba974a7995c6123f7af2649ccaa7b3902f5b599d"
+      },
+      "sanitized/nano-record-lists-v3naucac/0003-array-allocation-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0002-array-identity-build-status.json": {
+        "bytes": 147,
+        "sha256": "fadd256488b5c645ba012e4e7f2e7f662247f9870dded934ee5ac7e6c13458cf"
+      },
+      "sanitized/nano-record-lists-v3naucac/0001-coroutine-error-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0009-task-foreign-done-after-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0005-parsed-build-command.json": {
+        "bytes": 11686,
+        "sha256": "a0024ae1bee61f0941a45a39b43ce25299d4e885dd6d6186fbc9295b3dff24a1"
+      },
+      "sanitized/nano-record-lists-v3naucac/0001-coroutine-error-build-command.json": {
+        "bytes": 1219,
+        "sha256": "eac87cc7707ded12038d7eee3be3c459240bee670f9a86da3cfbc988727e731d"
+      },
+      "sanitized/nano-record-lists-v3naucac/0002-array-identity-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0002-array-identity-build-before-products.json": {
+        "bytes": 134,
+        "sha256": "f1d4ffc1354c7a0a5b92c90d3e8967245c8a9dad3d5be7c2f6981c6e53dd89b1"
+      },
+      "sanitized/nano-record-lists-v3naucac/0006-task-context.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0011-coroutine-error-allocations-command.json": {
+        "bytes": 532,
+        "sha256": "e1e210b6d10873441d4c72fe6138b43c6e3ed3097aff4349166589745f62e9f7"
+      },
+      "sanitized/nano-record-lists-v3naucac/0004-owned-build-command.json": {
+        "bytes": 11629,
+        "sha256": "244edd2da4788e10d86676a9cf16adcd7da71e2f7b16d142c1cae1cdc20cfa9d"
+      },
+      "sanitized/nano-record-lists-v3naucac/0008-task-foreign-ready-before-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0003-array-allocation-build-after-products.json": {
+        "bytes": 399,
+        "sha256": "9d6bc0ed45586190a3c98b0d4829d7b134724f6bb99100566a9f7da3270f7ed1"
+      },
+      "sanitized/nano-record-lists-v3naucac/0012-checked-lifetimes-command.json": {
+        "bytes": 531,
+        "sha256": "f02b5734c47898da77a0b7a3e89bbaf85e7d37b45788f473806a30ebd26563bb"
+      },
+      "sanitized/nano-record-lists-v3naucac/0001-coroutine-error-build-after-products.json": {
+        "bytes": 134,
+        "sha256": "f1d4ffc1354c7a0a5b92c90d3e8967245c8a9dad3d5be7c2f6981c6e53dd89b1"
+      },
+      "sanitized/nano-record-lists-v3naucac/0013-checked-callable-hook-status.json": {
+        "bytes": 149,
+        "sha256": "63e4a5fe0295c15366088b5a99a7187a4205d729cf3ff6b28e28eb288c78bc40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0008-task-foreign-ready-after-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0008-task-foreign-ready.stderr": {
+        "bytes": 53,
+        "sha256": "adb6f36999545bee86e40f95ba974a7995c6123f7af2649ccaa7b3902f5b599d"
+      },
+      "sanitized/nano-record-lists-v3naucac/0010-task-raw-after-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0008-task-foreign-ready-command.json": {
+        "bytes": 558,
+        "sha256": "523f2746111a2fce5afd1098b96502594637e8ec0b923cf4fd08f60f0c6ad645"
+      },
+      "sanitized/nano-record-lists-v3naucac/0002-array-identity-build-after-products.json": {
+        "bytes": 265,
+        "sha256": "7bbd157abb85dfd6aaef72517daa7e5c1ed2b253f83390ea7cddf15be0633cca"
+      },
+      "sanitized/nano-record-lists-v3naucac/0004-owned-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0007-union-consumers-before-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0010-task-raw-before-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0007-union-consumers.stdout": {
+        "bytes": 71,
+        "sha256": "eee3d4ad7c19b653b8b8c876bdb3e138f1a68805f78792008be9cb010026b2eb"
+      },
+      "sanitized/nano-record-lists-v3naucac/0003-array-allocation-build-command.json": {
+        "bytes": 11572,
+        "sha256": "6f67f7dd3d2dee317add55699f1cea5ce8a1a3f06f16a9b1931dad4d9dd76ed2"
+      },
+      "sanitized/nano-record-lists-v3naucac/provider-inputs-after.json": {
+        "bytes": 17083,
+        "sha256": "9ae61d5e0dd57d03c971019a9c39bbd7b43734ce2ce5484561444016b304135b"
+      },
+      "sanitized/nano-record-lists-v3naucac/0002-array-identity-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0005-parsed-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0012-checked-lifetimes-status.json": {
+        "bytes": 149,
+        "sha256": "892acdb8fcae5cc86c687eeb4d6c70cb991fb9b5f67ac73aca72a901869a3129"
+      },
+      "sanitized/nano-record-lists-v3naucac/0011-coroutine-error-allocations-after-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0013-checked-callable-hook-after-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0006-task-context-status.json": {
+        "bytes": 149,
+        "sha256": "58c206c94baaee9bb0c619521bcb52ccb8271a55be216ea9fadb691eb0f8cc85"
+      },
+      "sanitized/nano-record-lists-v3naucac/0009-task-foreign-done-before-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0011-coroutine-error-allocations-before-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0007-union-consumers-after-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0004-owned-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0013-checked-callable-hook-command.json": {
+        "bytes": 548,
+        "sha256": "0e98b84fcc485ac5cd27937110459ac411d9e822c4925a00fc632f9b5faa52ed"
+      },
+      "sanitized/nano-record-lists-v3naucac/0011-coroutine-error-allocations.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0013-checked-callable-hook-before-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0008-task-foreign-ready.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0003-array-allocation-build-before-products.json": {
+        "bytes": 265,
+        "sha256": "7bbd157abb85dfd6aaef72517daa7e5c1ed2b253f83390ea7cddf15be0633cca"
+      },
+      "sanitized/nano-record-lists-v3naucac/selected-config.json": {
+        "bytes": 10888,
+        "sha256": "fe770e6ef3126851eaef992e0acea51ad25debd5bfba65f5459faf32b021e787"
+      },
+      "sanitized/nano-record-lists-v3naucac/0013-checked-callable-hook.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0004-owned-build-after-products.json": {
+        "bytes": 531,
+        "sha256": "c7cb81a3db56f8587208697819ae871a7484f04fc6a880993f4f78d62e4cda39"
+      },
+      "sanitized/nano-record-lists-v3naucac/0005-parsed-build-before-products.json": {
+        "bytes": 531,
+        "sha256": "c7cb81a3db56f8587208697819ae871a7484f04fc6a880993f4f78d62e4cda39"
+      },
+      "sanitized/nano-record-lists-v3naucac/0012-checked-lifetimes-before-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0009-task-foreign-done-status.json": {
+        "bytes": 150,
+        "sha256": "8f226c5d38ed882c9dfd126255a124b5c553d58056800aed35e44fae1aa2351c"
+      },
+      "sanitized/nano-record-lists-v3naucac/0001-coroutine-error-build-before-products.json": {
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      "sanitized/nano-record-lists-v3naucac/0006-task-context-after-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0006-task-context.stdout": {
+        "bytes": 71,
+        "sha256": "055a49f8b8466d4aecfbe871fa3a5bddc53ce83d20f15d09c43aabc5ea973864"
+      },
+      "sanitized/nano-record-lists-v3naucac/0003-array-allocation-build-status.json": {
+        "bytes": 146,
+        "sha256": "664b0412a0c9ecde44a8c307564aea57b6e374fae16cd2938027b687c048ea13"
+      },
+      "sanitized/nano-record-lists-v3naucac/0008-task-foreign-ready-status.json": {
+        "bytes": 150,
+        "sha256": "8a04d7f72e5be864393a7b4b3171b81ea413c114bfeefa428dd5b166e44ce0be"
+      },
+      "sanitized/nano-record-lists-v3naucac/0002-array-identity-build-command.json": {
+        "bytes": 11654,
+        "sha256": "8550320df13cbb5a7dc604b7141e112d6b71f94723c680cab8ba409be23507e5"
+      },
+      "sanitized/nano-record-lists-v3naucac/0012-checked-lifetimes-after-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0005-parsed-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0007-union-consumers-command.json": {
+        "bytes": 555,
+        "sha256": "165d6a8de6847241b3a8811cb4ac66d14adcc88708296cff96bb8131dca9808b"
+      },
+      "sanitized/nano-record-lists-v3naucac/0005-parsed-build-status.json": {
+        "bytes": 147,
+        "sha256": "35bcb1c0cd69cbd4e6b7d4f697a1d1bef7eca08ebef832d8b800765079504273"
+      },
+      "sanitized/nano-record-lists-v3naucac/0006-task-context-before-products.json": {
+        "bytes": 664,
+        "sha256": "91b321633f13f21fe9707962b16f8012cbfe4522e2f18dda0e7a1a229d90da40"
+      },
+      "sanitized/nano-record-lists-v3naucac/0001-coroutine-error-build-status.json": {
+        "bytes": 149,
+        "sha256": "5c2e8dec2e85fc7f446cac51b5c6299f677c2107294203d6c82faeda935d2b51"
+      },
+      "sanitized/nano-record-lists-v3naucac/0012-checked-lifetimes.stdout": {
+        "bytes": 45,
+        "sha256": "7cca8a5c20310d901f3761b979a9ae519e8cbb830139187ed0e2da25a486cf36"
+      },
+      "sanitized/nano-record-lists-v3naucac/0004-owned-build-before-products.json": {
+        "bytes": 399,
+        "sha256": "9d6bc0ed45586190a3c98b0d4829d7b134724f6bb99100566a9f7da3270f7ed1"
+      },
+      "sanitized/nano-record-lists-v3naucac/0007-union-consumers-status.json": {
+        "bytes": 150,
+        "sha256": "329ff8a7d6a7f792e36a98ebadfa92e46c75c790d6dbdf5261002dc0ec0d66ba"
+      },
+      "sanitized/nano-record-lists-v3naucac/0009-task-foreign-done.stderr": {
+        "bytes": 53,
+        "sha256": "adb6f36999545bee86e40f95ba974a7995c6123f7af2649ccaa7b3902f5b599d"
+      },
+      "sanitized/nano-record-lists-v3naucac/0010-task-raw-status.json": {
+        "bytes": 150,
+        "sha256": "8576a69dceed04b0ec7efb410c85875e0fb14797079dd5e5d7cffad79cd47c0f"
+      },
+      "sanitized/nano-record-lists-v3naucac/0011-coroutine-error-allocations.stdout": {
+        "bytes": 71,
+        "sha256": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20"
+      },
+      "sanitized/nano-record-lists-v3naucac/0011-coroutine-error-allocations-status.json": {
+        "bytes": 150,
+        "sha256": "d7dff97d64a1b482e32a0d15d43326fc03a18230b9886ae08cee00aae48265d5"
+      },
+      "sanitized/nano-record-lists-v3naucac/provider-inputs-before.json": {
+        "bytes": 17083,
+        "sha256": "9ae61d5e0dd57d03c971019a9c39bbd7b43734ce2ce5484561444016b304135b"
+      },
+      "sanitized/nano-record-lists-v3naucac/0010-task-raw.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0004-owned-build-status.json": {
+        "bytes": 147,
+        "sha256": "06505a54ae88443e8288e404cc491a559cee726153fa199d3a5033a8ca9eed2b"
+      },
+      "sanitized/nano-record-lists-v3naucac/0009-task-foreign-done.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-v3naucac/0009-task-foreign-done-command.json": {
+        "bytes": 557,
+        "sha256": "094e79f8986592f8973665457e9d44182914d1b6bd6c274fc41141bd65fb6ed5"
+      },
+      "sanitized/nano-record-lists-v3naucac/0006-task-context-command.json": {
+        "bytes": 552,
+        "sha256": "989ae3d6b02d0b0ac2cdfc67abdaa2c0e348f9589efbc2f80934e704e433c165"
+      },
+      "sanitized/nano-record-lists-v3naucac/0012-checked-lifetimes.stderr": {
+        "bytes": 48,
+        "sha256": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a"
+      },
+      "sanitized/nano-record-lists-v3naucac/0010-task-raw-command.json": {
+        "bytes": 548,
+        "sha256": "99483634c80287e391b447a68db84e40e48b50831695451b1a520fa48bd77a16"
+      },
+      "sanitized/nano-record-lists-v3naucac/0013-checked-callable-hook.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0003-array-allocation-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0005-parsed-build-after-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0001-coroutine-error-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0007-union-consumers.stderr": {
+        "bytes": 99,
+        "sha256": "efd477efb31c78a7f3765d0b99dbb5ca3beb0e67209e0bc221f7284699f1105b"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0010-task-raw.stderr": {
+        "bytes": 53,
+        "sha256": "adb6f36999545bee86e40f95ba974a7995c6123f7af2649ccaa7b3902f5b599d"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0003-array-allocation-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0002-array-identity-build-status.json": {
+        "bytes": 147,
+        "sha256": "da8c5bd9ddd60ba20a774fb3de7dba4943853dd00eb74c1e77b7ec1a626dd015"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0001-coroutine-error-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0009-task-foreign-done-after-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0005-parsed-build-command.json": {
+        "bytes": 11380,
+        "sha256": "e7e4cf6e21da1c59f2d80221a2bb40f2c3c4e39fdfe58a27496f0d6fbb30da02"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0001-coroutine-error-build-command.json": {
+        "bytes": 1014,
+        "sha256": "9ddd5a784817a1cca9d2df93dae9510cf2c85f05d1bd4c8f750c8dc99f475b67"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0002-array-identity-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0002-array-identity-build-before-products.json": {
+        "bytes": 134,
+        "sha256": "a167d16d6bfb68eb6427a0657f145e184ca24e570061481c6443df9d9daabc55"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0006-task-context.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0011-coroutine-error-allocations-command.json": {
+        "bytes": 529,
+        "sha256": "2485cc24a73406328b66d345d9f34c6b5d9501ac735d6bc063b777e3828f28fc"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0004-owned-build-command.json": {
+        "bytes": 11324,
+        "sha256": "ef442f74c8372d6d724ae3eb2a59fe051ca8088566adba5457c13f1e78552d95"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0008-task-foreign-ready-before-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0003-array-allocation-build-after-products.json": {
+        "bytes": 399,
+        "sha256": "dec947670a790fb4bc9f7db40a2033ca11b9087652a334d9ecba208ec986e2bc"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0012-checked-lifetimes-command.json": {
+        "bytes": 528,
+        "sha256": "342afd00cf04614437c38f2dae81c6b5df1a22d95eb199053974a83becee7033"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0001-coroutine-error-build-after-products.json": {
+        "bytes": 134,
+        "sha256": "a167d16d6bfb68eb6427a0657f145e184ca24e570061481c6443df9d9daabc55"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0013-checked-callable-hook-status.json": {
+        "bytes": 150,
+        "sha256": "805579edff1d6d9356931a70a7e46c831a20959c2422da1ada07e072a6bf1a1d"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0008-task-foreign-ready-after-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0008-task-foreign-ready.stderr": {
+        "bytes": 53,
+        "sha256": "adb6f36999545bee86e40f95ba974a7995c6123f7af2649ccaa7b3902f5b599d"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0010-task-raw-after-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0008-task-foreign-ready-command.json": {
+        "bytes": 555,
+        "sha256": "05427548cefeff900d5d2f355e159729330df5043fe7060a06b240704eaac92b"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0002-array-identity-build-after-products.json": {
+        "bytes": 265,
+        "sha256": "f8b5acab151df6d6e5bf0856af96c4646b6b5fbf6d0cb19f10fdbfa51f077f3b"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0004-owned-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0007-union-consumers-before-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0010-task-raw-before-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0007-union-consumers.stdout": {
+        "bytes": 71,
+        "sha256": "eee3d4ad7c19b653b8b8c876bdb3e138f1a68805f78792008be9cb010026b2eb"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0003-array-allocation-build-command.json": {
+        "bytes": 11267,
+        "sha256": "4d731f4fa6ae4deff9a827f521983ce18c74368a1f4f21d7f79094544c46dadc"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/provider-inputs-after.json": {
+        "bytes": 16982,
+        "sha256": "fe638967a3038276a17a6de6f2e3224a6bc1b8323ebad0ad3e8d7c9eeb2a0906"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0002-array-identity-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0005-parsed-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0012-checked-lifetimes-status.json": {
+        "bytes": 149,
+        "sha256": "af693fb0287033fc2567bfe204da852faca98140c1afa5e4434de342fa786892"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0011-coroutine-error-allocations-after-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0013-checked-callable-hook-after-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0006-task-context-status.json": {
+        "bytes": 150,
+        "sha256": "9bd7eb4df22ed39442a2d0da71b95a3faea86e5730173253701cd85d33ea0617"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0009-task-foreign-done-before-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0011-coroutine-error-allocations-before-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0007-union-consumers-after-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0004-owned-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0013-checked-callable-hook-command.json": {
+        "bytes": 545,
+        "sha256": "3f78c9adf30cb8063ef25d45520df161de20d7a8a32de2daca17dac8cc1b2fa6"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0011-coroutine-error-allocations.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0013-checked-callable-hook-before-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0008-task-foreign-ready.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0003-array-allocation-build-before-products.json": {
+        "bytes": 265,
+        "sha256": "f8b5acab151df6d6e5bf0856af96c4646b6b5fbf6d0cb19f10fdbfa51f077f3b"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/selected-config.json": {
+        "bytes": 10587,
+        "sha256": "837c354b630216d6466432153bff01abce037e774070bf74454e7511117d9a5e"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0013-checked-callable-hook.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0004-owned-build-after-products.json": {
+        "bytes": 531,
+        "sha256": "0cc38b3962350b06dd8b79e2a323ace203384328151f39a87cab60e01157fbf9"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0005-parsed-build-before-products.json": {
+        "bytes": 531,
+        "sha256": "0cc38b3962350b06dd8b79e2a323ace203384328151f39a87cab60e01157fbf9"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0012-checked-lifetimes-before-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0009-task-foreign-done-status.json": {
+        "bytes": 150,
+        "sha256": "e25208ec9c62fbfcf6ef5e843bb3764ea36374a85f76ae2883e567ce5f055a96"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0001-coroutine-error-build-before-products.json": {
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0006-task-context-after-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0006-task-context.stdout": {
+        "bytes": 71,
+        "sha256": "055a49f8b8466d4aecfbe871fa3a5bddc53ce83d20f15d09c43aabc5ea973864"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0003-array-allocation-build-status.json": {
+        "bytes": 147,
+        "sha256": "10fe67a9e64db7a0a7611be778a4bbb63d1ffc0c52d27e8399f60dcfd6d1ab5e"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0008-task-foreign-ready-status.json": {
+        "bytes": 151,
+        "sha256": "5d745ff474d587e1500dac531f5230eb2b184b436b54eb23337162bf9b8beaf0"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0002-array-identity-build-command.json": {
+        "bytes": 11348,
+        "sha256": "d55dba18088683fdea98625fbe9abf0ebeadaebaf67b6f08a51d38b6baa8284a"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0012-checked-lifetimes-after-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0005-parsed-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0007-union-consumers-command.json": {
+        "bytes": 552,
+        "sha256": "f9992205d320bf94b09702086a4d40d0f1dba9545e53b39e16a3245a2794baa6"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0005-parsed-build-status.json": {
+        "bytes": 147,
+        "sha256": "9d3585affd6ff722a06096698ffd250b3bfbc9f6446c255ded8eae167ef5b1e4"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0006-task-context-before-products.json": {
+        "bytes": 664,
+        "sha256": "cfecc7207f282a149188286ac09a24a57f0b67e67b911cb7e9ec5d17db5ab930"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0001-coroutine-error-build-status.json": {
+        "bytes": 149,
+        "sha256": "ef785a1b89ed4bda051ea5d94e51ba7b9a6ee00429ae62fdd2215355b7ae425b"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0012-checked-lifetimes.stdout": {
+        "bytes": 45,
+        "sha256": "7cca8a5c20310d901f3761b979a9ae519e8cbb830139187ed0e2da25a486cf36"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0004-owned-build-before-products.json": {
+        "bytes": 399,
+        "sha256": "dec947670a790fb4bc9f7db40a2033ca11b9087652a334d9ecba208ec986e2bc"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0007-union-consumers-status.json": {
+        "bytes": 150,
+        "sha256": "4ab52e8a59c8db3ccb2f666f9a50a18407085bcd4df8ac37588b8001c3785b32"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0009-task-foreign-done.stderr": {
+        "bytes": 53,
+        "sha256": "adb6f36999545bee86e40f95ba974a7995c6123f7af2649ccaa7b3902f5b599d"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0010-task-raw-status.json": {
+        "bytes": 150,
+        "sha256": "cb2999816069346fd58094630dfb5a680a634ac68c0c6d6bd2f6b9e044efd360"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0011-coroutine-error-allocations.stdout": {
+        "bytes": 71,
+        "sha256": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0011-coroutine-error-allocations-status.json": {
+        "bytes": 151,
+        "sha256": "c22dd85de5e0b58996aa995e801ca574ad67b6c636385225263b0f79afeacb64"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/provider-inputs-before.json": {
+        "bytes": 16982,
+        "sha256": "fe638967a3038276a17a6de6f2e3224a6bc1b8323ebad0ad3e8d7c9eeb2a0906"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0010-task-raw.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0004-owned-build-status.json": {
+        "bytes": 147,
+        "sha256": "bd4b9344209113871e5a88b25879402874bc4dfcb51b4bf28b758f55dba2ac28"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0009-task-foreign-done.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0009-task-foreign-done-command.json": {
+        "bytes": 554,
+        "sha256": "ee2e27de802a14aa4a8bff204243ae18b55c90c4c1ced689351779e74d540f09"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0006-task-context-command.json": {
+        "bytes": 549,
+        "sha256": "51572d22981d59fbd115cbb7942129066e39a5916ce85b1748ae32e3d4f58d15"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0012-checked-lifetimes.stderr": {
+        "bytes": 48,
+        "sha256": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0010-task-raw-command.json": {
+        "bytes": 545,
+        "sha256": "51d43a14f45976a8d5882ca6693af548aba6f09e41583b4f4b1e77219abf52ae"
+      },
+      "ordinary/nano-record-lists-j9k8c0kz/0013-checked-callable-hook.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "51d-puck": {
+    "pin": "51d0b9a998e3cfae5d255d31b9e9ae14f1519e14",
+    "archive_sha256": "c7a1a00b4c06c86baea59ccdd5f49fa07363f4af254ab7ac81246635ed86dec7",
+    "terminal": {
+      "status": 0
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/record-names-51d-puck/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 12492,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 5.726147540990496
+      },
+      {
+        "label": "ordinary-owning-method",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/record-names-51d-puck/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "test-evaluator-owned-lifetimes"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 13018,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 8.537675375002436
+      },
+      {
+        "label": "ordinary-collection-method",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/record-names-51d-puck/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "test-evaluator-collection-ownership"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 13174,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 2.2908777080010623
+      },
+      {
+        "label": "sanitized-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/record-names-51d-puck/sanitized/providers.mk",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 13405,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 9.86220533400774
+      },
+      {
+        "label": "sanitized-owning-method",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/record-names-51d-puck/sanitized/providers.mk",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "test-evaluator-owned-lifetimes"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 13913,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 15.186238791007781
+      },
+      {
+        "label": "sanitized-collection-method",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/record-names-51d-puck/sanitized/providers.mk",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "test-evaluator-collection-ownership"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 14428,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 32.65267062500061
+      }
+    ],
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "tools-after.json": {
+        "bytes": 402,
+        "sha256": "f17a605e03b41e7dcddbf1175b93386adad488facb1e2f09f9259a1f93c371ed"
+      },
+      "identity.json": {
+        "bytes": 1008,
+        "sha256": "7fb09c8ca5592fcc5cf5bd7c9cfb4531a0f10118cbad515403f36d64a50425b6"
+      },
+      "phases.json": {
+        "bytes": 4854,
+        "sha256": "4d791a29ced3083737506ec7af4c32159d953af4a9b09c344760f2fb9b82520a"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 666,
+        "sha256": "2d28224d0f9c50cd6f692f335b9c99aea3775b8d76673cce38ef13f7c5ef0abf"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "ordinary/ordinary-collection-method.log": {
+        "bytes": 5137,
+        "sha256": "6e88c5c74121c35a94fa62358c0bd716e3e8d7864c19e2062d61eca395adf7ef"
+      },
+      "ordinary/products.json": {
+        "bytes": 20706,
+        "sha256": "d87854f2cf60a8cfef93c22a92c5bca7014a40124dddf856826f27a02241a65e"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 453,
+        "sha256": "676517f3b13cd8a633d09427bf3b74539851568544c8dee3a637dc84dd2a3e8a"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 16982,
+        "sha256": "afd1c6ca0dad0ed1049e0deadda7367d3724635c87f9a985a01e147af18b3945"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 158,
+        "sha256": "062dd193fa45f768a6565b3ed334f6b9095ffae555a7e28f94b95c2ac4628c15"
+      },
+      "ordinary/ordinary-owning-method.json": {
+        "bytes": 683,
+        "sha256": "042caf79e309a4130c8dcf99ac7beda90aa1f8d645aacc07562850d314ec658b"
+      },
+      "ordinary/ordinary-owning-method.log": {
+        "bytes": 3432,
+        "sha256": "d65b61ca6d34fe216cf2a9c5c63a6395cf30670be49cfc3d01688da510f99e6f"
+      },
+      "ordinary/ordinary-collection-method.json": {
+        "bytes": 693,
+        "sha256": "5536ffca1a2022dbeb46d1ab92f6937cd964b67c3fa3bccd3e73ddb52bf087b4"
+      },
+      "ordinary/source-after.json": {
+        "bytes": 427983,
+        "sha256": "fd2907a234dfc7e8628bbd1919b814d0627df56326052d453afc5cde17feb8bb"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 40832,
+        "sha256": "a1037ba6edc7bc91e2e90472ae869d2546cef3c529f18fac252158141a60abcc"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 16982,
+        "sha256": "afd1c6ca0dad0ed1049e0deadda7367d3724635c87f9a985a01e147af18b3945"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 427983,
+        "sha256": "fd2907a234dfc7e8628bbd1919b814d0627df56326052d453afc5cde17feb8bb"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 324,
+        "sha256": "800a75971db3bbe43c2b4913abadcdf21c5bdea4ed817f57d04a9967bc955418"
+      },
+      "sanitized/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "sanitized/products.json": {
+        "bytes": 20706,
+        "sha256": "bb96f554300e4266d80ab3aae26b8fba0c3154fb5fa3ad4b5e0ab04b2621552c"
+      },
+      "sanitized/providers.mk": {
+        "bytes": 456,
+        "sha256": "8f3f61e36e84be62953054588ceb2a40045212ec158ee829f5a7787407070b3f"
+      },
+      "sanitized/providers-before.json": {
+        "bytes": 17083,
+        "sha256": "7e75a6e47a8d993d34b224150f519f6bf859452f792328d49178fd566df8b035"
+      },
+      "sanitized/sanitized-providers.log": {
+        "bytes": 50629,
+        "sha256": "d66e7d0c49c4df628c0312627ee201487462a9368a42718d6f43884cbea783b7"
+      },
+      "sanitized/ldflags.txt": {
+        "bytes": 237,
+        "sha256": "53938334859604f228dd491d07d8d54c4e672fc4a061e24db5a5a82af1f8a595"
+      },
+      "sanitized/source-after.json": {
+        "bytes": 427983,
+        "sha256": "fd2907a234dfc7e8628bbd1919b814d0627df56326052d453afc5cde17feb8bb"
+      },
+      "sanitized/providers-after.json": {
+        "bytes": 17083,
+        "sha256": "7e75a6e47a8d993d34b224150f519f6bf859452f792328d49178fd566df8b035"
+      },
+      "sanitized/source-before.json": {
+        "bytes": 427983,
+        "sha256": "fd2907a234dfc7e8628bbd1919b814d0627df56326052d453afc5cde17feb8bb"
+      },
+      "sanitized/sanitized-owning-method.log": {
+        "bytes": 3610,
+        "sha256": "7a5f0d8b7225d5aca9f679b33dad50d8b9b5630757383836c4cb6c90cfaadcf8"
+      },
+      "sanitized/sanitized-providers.json": {
+        "bytes": 843,
+        "sha256": "35c344973b37f899776a2c14059b28173855742bc036b5439ae93181f5684157"
+      },
+      "sanitized/cflags.txt": {
+        "bytes": 403,
+        "sha256": "5d315177f3ad6169236736836c95671781ca7c02b1d1fd94019b6a4d40af539e"
+      },
+      "sanitized/sanitized-owning-method.json": {
+        "bytes": 862,
+        "sha256": "a5f5e7629c47aa8327b6ea5cfd2314d53a51c937587c5871224ada4c39313b83"
+      },
+      "sanitized/sanitized-collection-method.json": {
+        "bytes": 870,
+        "sha256": "70b1c28f4dd429af7e7d15d6ce09b4dd2e6a86f409b32e2481d3064add546f3c"
+      },
+      "sanitized/sanitized-collection-method.log": {
+        "bytes": 5701,
+        "sha256": "b2caaf0908ac502d6c7c5314e27cc51712aae5efb4312c2b4f63594eb46e2586"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0003-array-allocation-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0005-parsed-build-after-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0001-coroutine-error-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0007-union-consumers.stderr": {
+        "bytes": 99,
+        "sha256": "efd477efb31c78a7f3765d0b99dbb5ca3beb0e67209e0bc221f7284699f1105b"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0010-task-raw.stderr": {
+        "bytes": 53,
+        "sha256": "adb6f36999545bee86e40f95ba974a7995c6123f7af2649ccaa7b3902f5b599d"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0003-array-allocation-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0002-array-identity-build-status.json": {
+        "bytes": 147,
+        "sha256": "ad1cccc3d5694d7ab56dad84ae1bfa2abd3ea33f2b18d76f7fdc79d92eb9a026"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0001-coroutine-error-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0009-task-foreign-done-after-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0005-parsed-build-command.json": {
+        "bytes": 12137,
+        "sha256": "5c52491bf9267462993c20c8a996deb909764520b99e6131e5c2454b68dba550"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0001-coroutine-error-build-command.json": {
+        "bytes": 1670,
+        "sha256": "da26a85f46c0223812fec09f811d846ae84432c85e45f658d2e9030f8f237389"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0002-array-identity-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0002-array-identity-build-before-products.json": {
+        "bytes": 656,
+        "sha256": "ef29a53392946338fc0bfd3aa5460a1ab99f72e0396d26a00eaa2221edf5eb39"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0006-task-context.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0011-coroutine-error-allocations-command.json": {
+        "bytes": 532,
+        "sha256": "bddfc15f985e6a144a4b583ddb9f9c8fd33bca523428662ffbe416583ef6032d"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0004-owned-build-command.json": {
+        "bytes": 12080,
+        "sha256": "ff1e8b562807fdd1bc215abdafc700800bd590d3421ce27699c63c3aa9e8d20b"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0008-task-foreign-ready-before-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0003-array-allocation-build-after-products.json": {
+        "bytes": 1966,
+        "sha256": "2c7fb5d14d4bfdf92b843609ac42b3ec3c95cbb3113578fdaa87e357719ff2c7"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0012-checked-lifetimes-command.json": {
+        "bytes": 531,
+        "sha256": "312f201104c2f694d0a57115b74cdc36d841b167a5b6007b85e969d714358acd"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0001-coroutine-error-build-after-products.json": {
+        "bytes": 656,
+        "sha256": "ef29a53392946338fc0bfd3aa5460a1ab99f72e0396d26a00eaa2221edf5eb39"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0013-checked-callable-hook-status.json": {
+        "bytes": 149,
+        "sha256": "62fef11b32ba57e5c1bce5bf59d6884c20c8c953d0f21438fc104f2f1d845d0f"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0008-task-foreign-ready-after-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0008-task-foreign-ready.stderr": {
+        "bytes": 53,
+        "sha256": "adb6f36999545bee86e40f95ba974a7995c6123f7af2649ccaa7b3902f5b599d"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0010-task-raw-after-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0008-task-foreign-ready-command.json": {
+        "bytes": 558,
+        "sha256": "d5085cca4d5790cc53baeb68d105b016b7c56f2a3bf81477d9f4c0fb54db7595"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0002-array-identity-build-after-products.json": {
+        "bytes": 1302,
+        "sha256": "275db6d3ee1db8d3fbbe1ce1fe815ec0f7cd1733dca5dc314e72f7f61fdf0b5e"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0004-owned-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0007-union-consumers-before-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0010-task-raw-before-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0007-union-consumers.stdout": {
+        "bytes": 71,
+        "sha256": "eee3d4ad7c19b653b8b8c876bdb3e138f1a68805f78792008be9cb010026b2eb"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0003-array-allocation-build-command.json": {
+        "bytes": 12023,
+        "sha256": "e621d3411234f0d78425769487d956d1289c5158b4f7899c638460bf9e309daa"
+      },
+      "sanitized/nano-record-lists-e4q203z6/provider-inputs-after.json": {
+        "bytes": 17083,
+        "sha256": "7e75a6e47a8d993d34b224150f519f6bf859452f792328d49178fd566df8b035"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0002-array-identity-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0005-parsed-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0012-checked-lifetimes-status.json": {
+        "bytes": 148,
+        "sha256": "8cafcbc4f946e4426292d3189b4223b001dc568caa5fed1985b5c8ecd2be7200"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0011-coroutine-error-allocations-after-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0013-checked-callable-hook-after-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0006-task-context-status.json": {
+        "bytes": 148,
+        "sha256": "52d1aaf044b867899c311ba23b64b03bdcb4671ad5ebcbb168949c93a371ab2e"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0009-task-foreign-done-before-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0011-coroutine-error-allocations-before-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0007-union-consumers-after-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0004-owned-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0013-checked-callable-hook-command.json": {
+        "bytes": 548,
+        "sha256": "e5547eca1001fea0ef9a141ed94dac91acb1e5d67023b5a822ce05d3016ee3de"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0011-coroutine-error-allocations.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0013-checked-callable-hook-before-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0008-task-foreign-ready.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0003-array-allocation-build-before-products.json": {
+        "bytes": 1302,
+        "sha256": "275db6d3ee1db8d3fbbe1ce1fe815ec0f7cd1733dca5dc314e72f7f61fdf0b5e"
+      },
+      "sanitized/nano-record-lists-e4q203z6/selected-config.json": {
+        "bytes": 11339,
+        "sha256": "e3c75f49afabbf22e41a7947c9f293228b9ec8e34758af2b84698d6fa874f2df"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0013-checked-callable-hook.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0004-owned-build-after-products.json": {
+        "bytes": 2618,
+        "sha256": "d6dcf993c06baaeee01bf458b803fae9c2ee0526cfa827e97951413487841ada"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0005-parsed-build-before-products.json": {
+        "bytes": 2618,
+        "sha256": "d6dcf993c06baaeee01bf458b803fae9c2ee0526cfa827e97951413487841ada"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0012-checked-lifetimes-before-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0009-task-foreign-done-status.json": {
+        "bytes": 148,
+        "sha256": "42a8b8d7b3b24b98ada89f96e7faeb4ad2db799d6b4442d0ebc0da36939b5cf9"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0001-coroutine-error-build-before-products.json": {
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0006-task-context-after-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0006-task-context.stdout": {
+        "bytes": 71,
+        "sha256": "055a49f8b8466d4aecfbe871fa3a5bddc53ce83d20f15d09c43aabc5ea973864"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0003-array-allocation-build-status.json": {
+        "bytes": 147,
+        "sha256": "032100c0cb2a8482628c0430feb590cac39189033e907b61be70fbe7c67a6448"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0008-task-foreign-ready-status.json": {
+        "bytes": 149,
+        "sha256": "eb18c3a5d35ed2993f5d0f83e367021a619c17b0b8e074e3d12c7e203d50c3b8"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0002-array-identity-build-command.json": {
+        "bytes": 12105,
+        "sha256": "2afa74f72af2bdbc17a858d50ff868b54d3eeaad1d156d4256a082ff2baf5fb9"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0012-checked-lifetimes-after-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0005-parsed-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0007-union-consumers-command.json": {
+        "bytes": 555,
+        "sha256": "add38dcbcdafa5aa9b960a76ea1454f85177d9fcf8dc1e9f5d8cb590f23e3064"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0005-parsed-build-status.json": {
+        "bytes": 148,
+        "sha256": "d1ea8d3b20257dc6e17a731e8a699fbc39c84bf7e3067ad50c2860e4df6ae4b0"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0006-task-context-before-products.json": {
+        "bytes": 3276,
+        "sha256": "a267d186d1af56ade5e0c61100185e6a24cb7d8b51aa6efa874796055e921ede"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0001-coroutine-error-build-status.json": {
+        "bytes": 148,
+        "sha256": "2a78812be073f40c5a76f61d3a5ebdc8459fbe714b1b7e8bf6d2686b16085e8d"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0012-checked-lifetimes.stdout": {
+        "bytes": 45,
+        "sha256": "7cca8a5c20310d901f3761b979a9ae519e8cbb830139187ed0e2da25a486cf36"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0004-owned-build-before-products.json": {
+        "bytes": 1966,
+        "sha256": "2c7fb5d14d4bfdf92b843609ac42b3ec3c95cbb3113578fdaa87e357719ff2c7"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0007-union-consumers-status.json": {
+        "bytes": 149,
+        "sha256": "a35696f78d61286d03012e8451a19c0fc902bb0a7d416436c53f12b6ba50ec8e"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0009-task-foreign-done.stderr": {
+        "bytes": 53,
+        "sha256": "adb6f36999545bee86e40f95ba974a7995c6123f7af2649ccaa7b3902f5b599d"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0010-task-raw-status.json": {
+        "bytes": 149,
+        "sha256": "711ba9284bf7bf520e949f4a558a33658e4c3970a27629e4d476ded3d98a3f7a"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0011-coroutine-error-allocations.stdout": {
+        "bytes": 71,
+        "sha256": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0011-coroutine-error-allocations-status.json": {
+        "bytes": 149,
+        "sha256": "d2e35b263356434259f42a704751f36a87d1bb497918032b8d91239f0a16f022"
+      },
+      "sanitized/nano-record-lists-e4q203z6/provider-inputs-before.json": {
+        "bytes": 17083,
+        "sha256": "7e75a6e47a8d993d34b224150f519f6bf859452f792328d49178fd566df8b035"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0010-task-raw.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0004-owned-build-status.json": {
+        "bytes": 147,
+        "sha256": "d768b154ea9336ec01621a1b0f0c0243a1be7fc0042f3eb1e8d646ee18bb1401"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0009-task-foreign-done.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0009-task-foreign-done-command.json": {
+        "bytes": 557,
+        "sha256": "7a62bbf641d480094085157ab32739d8b85e45a854bc5f629aa256ac17a5f1a2"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0006-task-context-command.json": {
+        "bytes": 552,
+        "sha256": "33c4c3783db3996df4bdc671b98e066145c8c94f3e99593787bb9cde5fbf995c"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0012-checked-lifetimes.stderr": {
+        "bytes": 48,
+        "sha256": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0010-task-raw-command.json": {
+        "bytes": 548,
+        "sha256": "157fb12e2bd1c1c1aa81904d9511415e83f5684a4d406b16aa86092e64eb6582"
+      },
+      "sanitized/nano-record-lists-e4q203z6/0013-checked-callable-hook.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0003-array-allocation-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0005-parsed-build-after-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0001-coroutine-error-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0007-union-consumers.stderr": {
+        "bytes": 99,
+        "sha256": "efd477efb31c78a7f3765d0b99dbb5ca3beb0e67209e0bc221f7284699f1105b"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0010-task-raw.stderr": {
+        "bytes": 53,
+        "sha256": "adb6f36999545bee86e40f95ba974a7995c6123f7af2649ccaa7b3902f5b599d"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0003-array-allocation-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0002-array-identity-build-status.json": {
+        "bytes": 148,
+        "sha256": "fa9e6a0d92285381b38af702cdac8c2e1e0cefca8e084d15200a2e2851ce4324"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0001-coroutine-error-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0009-task-foreign-done-after-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0005-parsed-build-command.json": {
+        "bytes": 11813,
+        "sha256": "79cbff206c1dcba7660a4ac0687f2a472469ab9c8d8398f57f69f483ffe8ecbb"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0001-coroutine-error-build-command.json": {
+        "bytes": 1447,
+        "sha256": "e1bf3ec8df8c9d795cc70501f473ac8e1e882e38a3a80ba8be8ac66fa9f50994"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0002-array-identity-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0002-array-identity-build-before-products.json": {
+        "bytes": 656,
+        "sha256": "e11209432bb92cb82c9395b4bd00539d242e074f31bc1bdcae7885a78cb12de6"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0006-task-context.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0011-coroutine-error-allocations-command.json": {
+        "bytes": 529,
+        "sha256": "3658fef250d7081053ac2f8e7cc0069717350efd782dcb2e3ac16d30262b13ae"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0004-owned-build-command.json": {
+        "bytes": 11757,
+        "sha256": "9a3a140d567b39a0c5b2d2d8f46fb021126068c2fd8fbb71025f64a77bd87cf5"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0008-task-foreign-ready-before-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0003-array-allocation-build-after-products.json": {
+        "bytes": 1966,
+        "sha256": "cd5e1c40f64b0aab7fc97809e20d6adf52e1c04e5210219de1355eb15f020bcc"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0012-checked-lifetimes-command.json": {
+        "bytes": 528,
+        "sha256": "d24a9fdb7411237978aa017bd2d994a3c279e5fb0a5f0260ff2a2f29521b6426"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0001-coroutine-error-build-after-products.json": {
+        "bytes": 656,
+        "sha256": "e11209432bb92cb82c9395b4bd00539d242e074f31bc1bdcae7885a78cb12de6"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0013-checked-callable-hook-status.json": {
+        "bytes": 150,
+        "sha256": "8d2e1c52173fcebb2efa95ed5d4ad243bee303199e8ab79df7cfdd67c9221b5f"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0008-task-foreign-ready-after-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0008-task-foreign-ready.stderr": {
+        "bytes": 53,
+        "sha256": "adb6f36999545bee86e40f95ba974a7995c6123f7af2649ccaa7b3902f5b599d"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0010-task-raw-after-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0008-task-foreign-ready-command.json": {
+        "bytes": 555,
+        "sha256": "1752097aec3b88c8874cecddadabee9c4237291eacbb60c1b36e381aff635601"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0002-array-identity-build-after-products.json": {
+        "bytes": 1302,
+        "sha256": "231d66e037aa57b9aed95a99487a04bcaec11e4f3e1d7a945788cbf3ef52eb32"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0004-owned-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0007-union-consumers-before-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0010-task-raw-before-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0007-union-consumers.stdout": {
+        "bytes": 71,
+        "sha256": "eee3d4ad7c19b653b8b8c876bdb3e138f1a68805f78792008be9cb010026b2eb"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0003-array-allocation-build-command.json": {
+        "bytes": 11700,
+        "sha256": "fb51ed837256f170eebce285de32efd39bbadd5b4e5450f3c464d872ccadccf5"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/provider-inputs-after.json": {
+        "bytes": 16982,
+        "sha256": "afd1c6ca0dad0ed1049e0deadda7367d3724635c87f9a985a01e147af18b3945"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0002-array-identity-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0005-parsed-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0012-checked-lifetimes-status.json": {
+        "bytes": 149,
+        "sha256": "61902fc3db99ac02f03148e056d3c4adb1cbda377d52e529561f00b6c8060268"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0011-coroutine-error-allocations-after-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0013-checked-callable-hook-after-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0006-task-context-status.json": {
+        "bytes": 149,
+        "sha256": "ed68900b859b657eebde7898fe7b0ca275f8bf85c79606f1ac70a5ef75aa6991"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0009-task-foreign-done-before-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0011-coroutine-error-allocations-before-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0007-union-consumers-after-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0004-owned-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0013-checked-callable-hook-command.json": {
+        "bytes": 545,
+        "sha256": "98874b60a8ca7f1a82f57ba6bd658b18da8070f166595c190394ce1018c0298f"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0011-coroutine-error-allocations.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0013-checked-callable-hook-before-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0008-task-foreign-ready.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0003-array-allocation-build-before-products.json": {
+        "bytes": 1302,
+        "sha256": "231d66e037aa57b9aed95a99487a04bcaec11e4f3e1d7a945788cbf3ef52eb32"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/selected-config.json": {
+        "bytes": 11020,
+        "sha256": "660bee3d220af1f0945794511b9b2c1994f342d456564aeb96249b5cf23863c4"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0013-checked-callable-hook.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0004-owned-build-after-products.json": {
+        "bytes": 2618,
+        "sha256": "dd3302b1bd91832930bcee5fac8207cc177ddf82d02c391d22eb27fee82601d4"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0005-parsed-build-before-products.json": {
+        "bytes": 2618,
+        "sha256": "dd3302b1bd91832930bcee5fac8207cc177ddf82d02c391d22eb27fee82601d4"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0012-checked-lifetimes-before-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0009-task-foreign-done-status.json": {
+        "bytes": 149,
+        "sha256": "ef6fb943dd42c76db1c7d51b67a777cc381df5f5da4cefb6c08b50bb96d0130f"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0001-coroutine-error-build-before-products.json": {
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0006-task-context-after-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0006-task-context.stdout": {
+        "bytes": 71,
+        "sha256": "055a49f8b8466d4aecfbe871fa3a5bddc53ce83d20f15d09c43aabc5ea973864"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0003-array-allocation-build-status.json": {
+        "bytes": 148,
+        "sha256": "89311c0d67e2b438cd9661c243b9c947cfb5208dea95f2cc29d76c565965dd2f"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0008-task-foreign-ready-status.json": {
+        "bytes": 150,
+        "sha256": "82870baf526d98228d8ed25ce4748be9108d694f9246198b96c57a4880ff47fc"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0002-array-identity-build-command.json": {
+        "bytes": 11781,
+        "sha256": "1d2f242847435593fafb4adb66ad25b235ade1fdf0a18c57b86d6c09821f2fdb"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0012-checked-lifetimes-after-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0005-parsed-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0007-union-consumers-command.json": {
+        "bytes": 552,
+        "sha256": "2cc7b1b2b1c34406300a9a293d7e4c064a4280671ec17a5955df068ce6198554"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0005-parsed-build-status.json": {
+        "bytes": 148,
+        "sha256": "182c4e0227efe3393b8e2255446dc9fb6e19a0c1507cba4f9d611a77bfe2317d"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0006-task-context-before-products.json": {
+        "bytes": 3276,
+        "sha256": "c544f608f36e2d85ae6b557569ddbfc5f3655dee4777415abef279973f790ec8"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0001-coroutine-error-build-status.json": {
+        "bytes": 149,
+        "sha256": "70cf536904dab639143b827a04b05150895c3a27cfa242025303f2dea77d0bf6"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0012-checked-lifetimes.stdout": {
+        "bytes": 45,
+        "sha256": "7cca8a5c20310d901f3761b979a9ae519e8cbb830139187ed0e2da25a486cf36"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0004-owned-build-before-products.json": {
+        "bytes": 1966,
+        "sha256": "cd5e1c40f64b0aab7fc97809e20d6adf52e1c04e5210219de1355eb15f020bcc"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0007-union-consumers-status.json": {
+        "bytes": 150,
+        "sha256": "ec748c408feeebf9a14aff0c037765e7c3c97877de576e2af82fdb1917906a4a"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0009-task-foreign-done.stderr": {
+        "bytes": 53,
+        "sha256": "adb6f36999545bee86e40f95ba974a7995c6123f7af2649ccaa7b3902f5b599d"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0010-task-raw-status.json": {
+        "bytes": 151,
+        "sha256": "56f181437ea38820f7a76b23b49f670cb482a759dc8f0b29c0fcfd58ba23a308"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0011-coroutine-error-allocations.stdout": {
+        "bytes": 71,
+        "sha256": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0011-coroutine-error-allocations-status.json": {
+        "bytes": 149,
+        "sha256": "463973ef9a3145c47d14ce6a940b9403c027bcc9ce785f2b5fe503cd20753765"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/provider-inputs-before.json": {
+        "bytes": 16982,
+        "sha256": "afd1c6ca0dad0ed1049e0deadda7367d3724635c87f9a985a01e147af18b3945"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0010-task-raw.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0004-owned-build-status.json": {
+        "bytes": 148,
+        "sha256": "f437ad95de3c445bed0f45a34ab3ce18d9fc71136b7c7c3055be90a30cb13917"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0009-task-foreign-done.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0009-task-foreign-done-command.json": {
+        "bytes": 554,
+        "sha256": "97eedd0a04b6b6e82d8c4e0246156f67a7fa872f47b2184a11f15a437f94fa3f"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0006-task-context-command.json": {
+        "bytes": 549,
+        "sha256": "a581bc4af9bdbd011f2ff85d2ceb430bb783e0b5bfc1e2ab4ae4c856a9d0cf06"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0012-checked-lifetimes.stderr": {
+        "bytes": 48,
+        "sha256": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0010-task-raw-command.json": {
+        "bytes": 545,
+        "sha256": "6c37d85aca61e53ff127d91972c78eebd82a0a8b64a92777459df147552ffa84"
+      },
+      "ordinary/nano-record-lists-i9ou7jq6/0013-checked-callable-hook.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  }
+}

@@ -21,7 +21,7 @@
  * dedicated queues as in sdl_falling_sand.nano.
  */
 
-module "modules/dispatch/dispatch.nano"
+module "modules/dispatch/dispatch.nano" as dispatch
 
 # @pure
 fn work_item() -> void {
@@ -33,7 +33,7 @@ shadow work_item {
 }
 
 fn main() -> int {
-    if (not (dispatch_available)) {
+    if (not (dispatch.dispatch_available)) {
         (println "SKIP: libdispatch is not available on this platform")
         return 0
     }
@@ -43,31 +43,31 @@ fn main() -> int {
     }
 
     /* Create a concurrent queue */
-    let q: NlQueue = (queue_concurrent "nano.demo.worker")
+    let q: dispatch.NlQueue = (dispatch.queue_concurrent "nano.demo.worker")
 
     /* Create a group to track all tasks */
-    let g: NlQueueGroup = (group_create)
+    let g: dispatch.NlQueueGroup = (dispatch.group_create)
 
     /* Dispatch 10 tasks */
     let mut i: int = 0
     while (< i 10) {
-        (group_async g q fn() -> void { (work_item) })
+        (dispatch.group_async g q fn() -> void { (work_item) })
         set i (+ i 1)
     }
 
     /* Wait up to 5 seconds for all tasks to complete */
-    let rc: int = (group_wait_ms g 5000)
+    let rc: int = (dispatch.group_wait_ms g 5000)
     if (!= rc 0) {
         (println "FAIL: group_wait timed out or failed")
-        (group_destroy g)
-        (queue_destroy q)
+        (dispatch.group_destroy g)
+        (dispatch.queue_destroy q)
         return 1
     }
 
     (println "PASS: all 10 tasks completed")
 
-    (group_destroy g)
-    (queue_destroy q)
+    (dispatch.group_destroy g)
+    (dispatch.queue_destroy q)
     return 0
 }
 

@@ -1,7 +1,27 @@
 #include "nanolang.h"
+#include "eval_u8.h"
 #include "builtins_registry.h"
 #include "runtime/gc.h"
 #include <string.h>
+#include "env_record_lists.inc"
+#include "env_union_storage.inc"
+#include "env_provider_leases.inc"
+
+struct EnvNominalImport {
+    struct EnvNominalImport *next;
+    char *importer, *name, *declaration_owner, *declaration_name;
+    NominalIdentity identity;
+};
+static void nominal_import_free(struct EnvNominalImport *row) {
+    if (!row) return;
+    free(row->importer); free(row->name);
+    free(row->declaration_owner); free(row->declaration_name);
+    free(row);
+}
+#include <limits.h>
+
+static Function builtin_function_cache[256];
+static bool builtin_function_initialized[256];
 
 typedef struct {
     uint64_t hash;
@@ -30,6 +50,69 @@ static uint64_t symbol_name_hash(const char *name) {
         hash *= UINT64_C(1099511628211);
     }
     return hash;
+}
+
+/* My optional name index narrows candidates, never caches a lookup decision. */
+struct EnvFunctionIndex {
+    int *heads, *next;
+    size_t buckets;
+    int count;
+    uintptr_t table_identity;
+};
+
+void env_function_index_invalidate(Environment *env) {
+    if (!env || !env->function_index) return;
+    struct EnvFunctionIndex *index = env->function_index;
+    env->function_index = NULL;
+    free(index->heads); free(index->next); free(index);
+}
+
+static struct EnvFunctionIndex *function_index_sync(Environment *env) {
+    struct EnvFunctionIndex *index = env->function_index;
+    if (index && index->count == env->function_count && index->table_identity == (uintptr_t)env->functions)
+        return index;
+    env_function_index_invalidate(env);
+    if (env->function_count <= 0) return NULL;
+    size_t count = (size_t)env->function_count, buckets = 16;
+    if (count > SIZE_MAX / 2 || count > SIZE_MAX / sizeof(int)) return NULL;
+    while (buckets < count * 2) {
+        if (buckets > SIZE_MAX / 2) return NULL;
+        buckets *= 2;
+    }
+    if (buckets > SIZE_MAX / sizeof(int)) return NULL;
+    index = calloc(1, sizeof(*index));
+    if (!index) return NULL;
+    index->heads = malloc(buckets * sizeof(*index->heads));
+    index->next = malloc(count * sizeof(*index->next));
+    if (!index->heads || !index->next) {
+        free(index->heads); free(index->next); free(index);
+        return NULL;
+    }
+    for (size_t i = 0; i < buckets; ++i) index->heads[i] = -1;
+    for (int i = env->function_count; i-- > 0;) {
+        index->next[i] = -1;
+        if (!env->functions[i].name) continue;
+        size_t bucket = (size_t)symbol_name_hash(env->functions[i].name) & (buckets - 1);
+        index->next[i] = index->heads[bucket];
+        index->heads[bucket] = i;
+    }
+    index->buckets = buckets;
+    index->count = env->function_count;
+    index->table_identity = (uintptr_t)env->functions;
+    env->function_index = index;
+    return index;
+}
+
+static int function_candidate_first(const Environment *env,
+                                    const struct EnvFunctionIndex *index,
+                                    const char *name) {
+    return index ? index->heads[(size_t)symbol_name_hash(name) & (index->buckets - 1)]
+                 : (env->function_count > 0 ? 0 : -1);
+}
+
+static int function_candidate_next(const Environment *env,
+                                   const struct EnvFunctionIndex *index, int slot) {
+    return index ? index->next[slot] : (slot < env->function_count - 1 ? slot + 1 : -1);
 }
 
 /* I store indices and hashes, not borrowed names or Symbol pointers. Scope
@@ -118,10 +201,13 @@ static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file)
 }
 
 /* I retain checker allocations independently of mutable symbol/function slots.
- * Every registered block is unique and shallowly freed; borrowed subgraphs are
- * never traversed. This deliberately does not change runtime value ownership. */
+ * Every registered block is unique. Legacy blocks are shallowly freed; only
+ * explicitly transferred owned annotation trees use recursive destruction.
+ * This deliberately does not change runtime value ownership. */
 struct EnvCheckerAllocation {
     void *allocation;
+    bool owned_type_info;
+    void (*destroy)(void *);
     struct EnvCheckerAllocation *next;
 };
 void *env_own_checker_allocation(Environment *env, void *allocation) {
@@ -132,10 +218,38 @@ void *env_own_checker_allocation(Environment *env, void *allocation) {
         exit(1);
     }
     entry->allocation = allocation;
+    entry->owned_type_info = false;
+    entry->destroy = NULL;
     entry->next = env->checker_allocations;
     env->checker_allocations = entry;
     return allocation;
 }
+
+bool env_own_checker_type_info(Environment *env, TypeInfo *info) {
+    if (!env || !info) return false;
+    struct EnvCheckerAllocation *entry = malloc(sizeof *entry);
+    if (!entry) return false;
+    entry->allocation = info;
+    entry->owned_type_info = true;
+    entry->destroy = NULL;
+    entry->next = env->checker_allocations;
+    env->checker_allocations = entry;
+    return true;
+}
+
+bool env_own_checker_object(Environment *env, void *object, void (*destroy)(void *)) {
+    if (!env || !object || !destroy) return false;
+    struct EnvCheckerAllocation *entry = malloc(sizeof *entry);
+    if (!entry) return false;
+    entry->allocation = object;
+    entry->owned_type_info = false;
+    entry->destroy = destroy;
+    entry->next = env->checker_allocations;
+    env->checker_allocations = entry;
+    return true;
+}
+
+#include "env_collection_ownership.inc"
 
 /* Create environment */
 Environment *create_environment(void) {
@@ -144,6 +258,10 @@ Environment *create_environment(void) {
      * defaults to false/NULL/0 instead of holding allocator garbage. Four
      * fields had already drifted that way -- see the diagnostics block. */
     Environment *env = calloc(1, sizeof(Environment));
+    if (!env) return NULL;
+    env->task_identity = calloc(1, sizeof(*env->task_identity));
+    if (!env->task_identity) { free(env); return NULL; }
+    env->task_identity->references = 1;
     env->symbols = malloc(sizeof(Symbol) * 8);
     env->symbol_count = 0;
     env->symbol_capacity = 8;
@@ -224,24 +342,8 @@ static void env_free_value(Value v) {
      * because interpreter function-local variables persist in global environment.
      * GC cycle collection will clean them up when the program ends.
      * Compiled code handles opaque lifetimes correctly via scope-based cleanup. */
-    if (v.type == VAL_STRUCT) {
-        StructValue *sv = v.as.struct_val;
-        if (!sv) return;
-        free(sv->struct_name);
-        for (int j = 0; j < sv->field_count; j++) {
-            free(sv->field_names[j]);
-            if (sv->field_values[j].type == VAL_STRING) {
-                /* Release GC-managed strings in struct fields */
-                if (gc_is_managed(sv->field_values[j].as.string_val)) {
-                    gc_release(sv->field_values[j].as.string_val);
-                } else {
-                    free(sv->field_values[j].as.string_val);
-                }
-            }
-        }
-        free(sv->field_names);
-        free(sv->field_values);
-        free(sv);
+    if (v.type == VAL_STRUCT || v.type == VAL_TUPLE) {
+        env_discard_value_snapshot(v);
         return;
     }
     if (v.type == VAL_FUNCTION) {
@@ -255,9 +357,26 @@ static void env_free_value(Value v) {
     }
 }
 
+bool env_can_destroy(Environment *env) {
+    return !env || !env->evaluation_leases;
+}
+
+void env_require_destroyable(Environment *env) {
+    if (!env_can_destroy(env)) {
+        fprintf(stderr, "I cannot destroy an Environment with pending evaluator tasks.\n");
+        exit(1);
+    }
+}
+
 /* Free environment */
 void free_environment(Environment *env) {
+    env_require_destroyable(env);
     env_symbol_index_invalidate(env);
+    while (env->nominal_imports) {
+        struct EnvNominalImport *row = env->nominal_imports;
+        env->nominal_imports = row->next;
+        nominal_import_free(row);
+    }
     for (int i = 0; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
         if (env->symbols[i].struct_type_name) {
@@ -267,6 +386,10 @@ void free_environment(Environment *env) {
             env_free_value(env->symbols[i].value);
     }
     free(env->symbols);
+    env_union_storage_free(env);
+    env_record_storage_free(env);
+    env_collection_storage_free(env);
+    env_provider_edges_free(env);
     if (env->import_tracker) {
         free(env->import_tracker->imports);
         free(env->import_tracker);
@@ -276,16 +399,39 @@ void free_environment(Environment *env) {
         /* Note: function names are not owned by environment - they point to AST */
         /* Freeing them causes double-free crashes */
     }
+    env_function_index_invalidate(env);
     free(env->functions);
+
+    /* My effect rows own names and vectors; parameter type facts borrow the AST. */
+    for (int i = 0; i < env->effect_count; ++i) {
+        EffectDef *effect = &env->effects[i];
+        free(effect->name);
+        free(effect->module_name);
+        for (int j = 0; j < effect->op_count; ++j) {
+            EffectOp *operation = &effect->ops[j];
+            free(operation->name);
+            free(operation->return_type_name);
+            for (int k = 0; k < operation->param_count; ++k)
+                free(operation->params[k].name);
+            free(operation->params);
+        }
+        free(effect->ops);
+    }
+    free(env->effects);
     
     for (int i = 0; i < env->struct_count; i++) {
         free(env->structs[i].name);
         free(env->structs[i].original_name);
         for (int j = 0; j < env->structs[i].field_count; j++) {
             free(env->structs[i].field_names[j]);
+            if (env->structs[i].field_type_names)
+                free(env->structs[i].field_type_names[j]);
         }
         free(env->structs[i].field_names);
         free(env->structs[i].field_types);
+        free(env->structs[i].field_type_names);
+        free(env->structs[i].field_element_types);
+        /* Complete field annotations remain borrowed from the AST. */
     }
     free(env->structs);
     
@@ -371,12 +517,7 @@ void free_environment(Environment *env) {
         free(env->generic_func_instances);
     }
 
-    /* Free opaque types */
-    for (int i = 0; i < env->opaque_type_count; i++) {
-        free(env->opaque_types[i].name);
-        free(env->opaque_types[i].c_type_name);
-    }
-    free(env->opaque_types);
+    env_free_opaque_types(env);
 
     /* Free namespaces */
     for (int i = 0; i < env->namespace_count; i++) {
@@ -423,12 +564,19 @@ void free_environment(Environment *env) {
         free(env->modules);
     }
 
+    for (size_t i = 0; i < env->tuple_literal_binding_count; ++i)
+        free_payload_type_info(env->tuple_literal_bindings[i].type_info);
+    free(env->tuple_literal_bindings);
+    env->checker_nominal_expressions = NULL;
     while (env->checker_allocations) {
         struct EnvCheckerAllocation *entry = env->checker_allocations;
         env->checker_allocations = entry->next;
-        free(entry->allocation);
+        if (entry->destroy) entry->destroy(entry->allocation);
+        else if (entry->owned_type_info) free_payload_type_info(entry->allocation);
+        else free(entry->allocation);
         free(entry);
     }
+    env_task_identity_release(env->task_identity);
     free(env);
 }
 
@@ -441,29 +589,68 @@ void env_define_var_with_element_type(Environment *env, const char *name, Type t
     env_define_var_with_type_info(env, name, type, element_type, NULL, is_mut, value);
 }
 
-/* The most recent symbol with this name defined in the file currently being
- * processed. Used where "the same variable, seen again" is the question --
- * which is only ever true within one file. Matching by name alone lets a
- * definition inherit metadata from an unrelated symbol in another module,
- * which is the same cross-file confusion that made source-position lookups
- * wrong. */
-static Symbol *env_get_var_same_file(Environment *env, const char *name) {
-    return symbol_lookup(env, name, true);
+/* I preserve fresh unmanaged string transfer, but an existing binding or
+ * arena root is already owned elsewhere. I copy only that exact provenance.
+ * Failure leaves both the input owner and the output unchanged. */
+static bool env_prepare_binding_string(Environment *env, Type type, Value value,
+                                       Value *out) {
+    if (value.type != VAL_STRING || type == TYPE_BORROW_SHARED || type == TYPE_BORROW_MUT) {
+        *out = value;
+        return true;
+    }
+    bool borrowed = env_record_result_borrowed(env, value);
+    if (!borrowed && !gc_is_managed(value.as.string_val)) {
+        for (int i = 0; i < env->symbol_count; ++i) {
+            const Symbol *owner = &env->symbols[i];
+            if (owner->value.type == VAL_STRING &&
+                owner->value.as.string_val == value.as.string_val) {
+                borrowed = true;
+                break;
+            }
+        }
+    }
+    if (borrowed) return env_clone_value_snapshot(value, out);
+    *out = value;
+    return true;
+}
+
+/* Callable projections can borrow a live binding or a retired result. */
+static Value env_prepare_binding_callable(Environment *env, Type type, Value value) {
+    if (value.type != VAL_FUNCTION || type == TYPE_BORROW_SHARED || type == TYPE_BORROW_MUT)
+        return value;
+    bool borrowed = env_record_result_borrowed(env, value);
+    for (int i = 0; !borrowed && i < env->symbol_count; ++i) {
+        Value owner = env->symbols[i].value;
+        borrowed = owner.type == VAL_FUNCTION &&
+            owner.as.function_val.function_name == value.as.function_val.function_name;
+    }
+    return borrowed ? create_function(value.as.function_val.function_name,
+        copy_function_signature(value.as.function_val.signature)) : value;
 }
 
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
+    value = eval_checked_scalar_destination(type, value);
     /* Borrowed parameters retain their caller's identity and do not own its storage. */
-    if (value.type == VAL_STRUCT && value.as.struct_val &&
+    Value prepared;
+    if (!env_prepare_binding_string(env, type, value, &prepared)) {
+        fprintf(stderr, "I cannot copy a borrowed string binding.\n"); exit(1);
+    }
+    value = prepared;
+    value = env_prepare_binding_callable(env, type, value);
+    if ((value.type == VAL_STRUCT || value.type == VAL_TUPLE) &&
         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
-        StructValue *sv = value.as.struct_val;
-        value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+        Value copy;
+        if (!env_clone_value_snapshot(value, &copy)) {
+            fprintf(stderr, "I cannot copy a binding value graph.\n"); exit(1);
+        }
+        value = copy;
     }
     if (env->symbol_count >= env->symbol_capacity) {
         env->symbol_capacity *= 2;
         env->symbols = realloc(env->symbols, sizeof(Symbol) * env->symbol_capacity);
     }
 
-    Symbol sym;
+    Symbol sym = {0};
     sym.name = strdup(name);
     sym.type = type;
     sym.struct_type_name = NULL;  /* Initialize to NULL (set later for struct types) */
@@ -483,30 +670,12 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.scope_end_line = 0;
     sym.scope_end_column = 0;
     sym.def_file = env->current_file;   /* NULL when no file is in scope */
+    sym.nominal_owner = env->current_module
+        ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
+    sym.callable_owner = sym.nominal_owner;
 
-    /* WORKAROUND: Check if symbol already exists and preserve/update metadata */
-    /* This handles a bug where symbols are added multiple times during type-checking.
-     * When a symbol is re-added, preserve or update struct_type_name to maintain type information. */
-    Symbol *existing = env_get_var_same_file(env, name);
-    if (existing) {
-        /* If existing has struct_type_name but new one doesn't, preserve it */
-        if (existing->struct_type_name && !sym.struct_type_name) {
-            sym.struct_type_name = strdup(existing->struct_type_name);
-        }
-        /* If new one has struct_type_name but existing doesn't, update the existing symbol instead */
-        else if (!existing->struct_type_name && sym.struct_type_name) {
-            /* Update the existing symbol with the new metadata */
-            existing->struct_type_name = strdup(sym.struct_type_name);
-            existing->type = sym.type;
-            existing->element_type = sym.element_type;
-            existing->type_info = sym.type_info;
-            existing->is_mut = sym.is_mut;
-            existing->value = sym.value;
-            /* Don't add a new symbol - we updated the existing one */
-            return;
-        }
-    }
-    
+    /* I publish a fresh binding from its own annotation and producer metadata.
+     * A prior same-spelled row can belong to another lexical scope or function. */
     /* GC refcount fix: If this string value is already referenced by another
      * variable in the environment, increment refcount to prevent use-after-free
      * when one variable is later reassigned. Handles: let s = (func); let mut r = s */
@@ -520,6 +689,9 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
         }
     }
 
+    /* I unwind cached links before a popped slot is reused. This is index
+     * maintenance, independent of a prior binding's type metadata. */
+    (void)symbol_index_sync(env);
     env->symbols[env->symbol_count++] = sym;
 }
 
@@ -608,13 +780,23 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 void env_set_var(Environment *env, const char *name, Value value) {
     Symbol *sym = env_get_var(env, name);
     if (sym) {
-        /* I copy before releasing the old binding, including self-assignment
-         * and a record field borrowed from that binding. */
-        if (value.type == VAL_STRUCT && value.as.struct_val) {
-            StructValue *sv = value.as.struct_val;
-            value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+        value = eval_checked_scalar_destination(sym->type, value);
+        /* I copy before releasing the old binding, including self-assignment,
+         * evaluator temporaries, and a record field borrowed from that binding. */
+        if (value.type == VAL_STRUCT || value.type == VAL_TUPLE || value.type == VAL_STRING) {
+            Value copy;
+            if (!env_clone_value_snapshot(value, &copy)) {
+                fprintf(stderr, "I cannot copy a replacement value graph.\n"); exit(1);
+            }
+            value = copy;
         }
-        env_free_value(sym->value);
+        value = env_prepare_binding_callable(env, sym->type, value);
+        /* Escaping value graphs may still borrow the old callable descriptor. */
+        if (sym->value.type == VAL_FUNCTION) {
+            if (!env_retire_value(env, sym->value)) {
+                fprintf(stderr, "I cannot retire a replaced callable binding.\n"); exit(1);
+            }
+        } else env_free_value(sym->value);
         sym->value = value;
 
         /* GC refcount fix: If the new string value is already referenced by
@@ -653,8 +835,29 @@ static bool module_string_list_contains(char **items, int count, const char *nam
     return false;
 }
 
+NominalIdentity env_generated_list_element(Environment *env, const Function *function) {
+    for (int i = 0; env && function && i < env->generic_instance_count; ++i) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        if (!inst->list_element.ordinal) continue;
+        for (size_t j = 0; j < 4; ++j) {
+            size_t ordinal = inst->list_functions[j];
+            if (ordinal && ordinal <= (size_t)env->function_count &&
+                &env->functions[ordinal - 1] == function) return inst->list_element;
+        }
+    }
+    return (NominalIdentity){TYPE_UNKNOWN, 0};
+}
+
+const char *env_function_signature_owner(Environment *env, const Function *function) {
+    NominalIdentity element = env_generated_list_element(env, function);
+    return element.ordinal ? env_nominal_owner(env, element) : function ? function->module_name : NULL;
+}
+
 /* Define function */
 void env_define_function(Environment *env, Function func) {
+    /* A copied/source descriptor cannot import checker-placeholder authority. */
+    func.checker_builtin_placeholder = false;
+    env_function_index_invalidate(env);
     if (env->function_count >= env->function_capacity) {
         env->function_capacity *= 2;
         env->functions = realloc(env->functions, sizeof(Function) * env->function_capacity);
@@ -685,11 +888,24 @@ static bool namespace_owned_by(const ModuleNamespace *ns, const char *owner) {
            (ns->owner_module && owner && strcmp(ns->owner_module, owner) == 0);
 }
 
+/* Only these registry-created objects carry intrinsic identity. A bodyless
+ * extern declaration or a copied Function structure is not one of them. */
+static Function builtin_function_cache[256];
+static bool builtin_function_initialized[256];
+bool env_function_is_builtin(const Function *function) {
+    if (!function) return false;
+    for (size_t i = 0; i < sizeof builtin_function_cache / sizeof *builtin_function_cache; ++i)
+        if (builtin_function_initialized[i] && function == &builtin_function_cache[i]) return true;
+    return false;
+}
+
 /* Get function */
-Function *env_get_function(Environment *env, const char *name) {
+static Function *env_get_function_with_index(Environment *env, const char *name, bool indexed) {
     if (!name) {
         return NULL;
     }
+
+    struct EnvFunctionIndex *index = NULL;
 
     /* Check for Module.function pattern */
     const char *dot = strchr(name, '.');
@@ -712,7 +928,9 @@ Function *env_get_function(Environment *env, const char *name) {
                     if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
                         /* Look up the actual function by its original name AND module name */
                         const char *orig_mod = env->namespaces[i].module_name;
-                        for (int k = 0; k < env->function_count; k++) {
+                        index = indexed ? function_index_sync(env) : NULL;
+                        for (int k = function_candidate_first(env, index, func_name); k >= 0;
+                             k = function_candidate_next(env, index, k)) {
                             if (safe_strcmp(env->functions[k].name, func_name) == 0) {
                                 /* I bind a qualified name only to its namespace owner. */
                                 if ((!orig_mod && !env->functions[k].module_name) ||
@@ -732,12 +950,15 @@ Function *env_get_function(Environment *env, const char *name) {
         return NULL;
     }
 
-    /* I permit this non-reserved declaration only in its own module. */
-    if (strcmp(name, "array_push") == 0) {
-        for (int i = 0; i < env->function_count; i++) {
+    /* I permit these non-reserved declarations only in its own module. */
+    bool local_array_declaration = strcmp(name, "array_push") == 0 || strcmp(name, "str_split") == 0;
+    if (local_array_declaration) {
+        index = indexed ? function_index_sync(env) : NULL;
+        for (int i = function_candidate_first(env, index, name); i >= 0;
+             i = function_candidate_next(env, index, i)) {
             Function *function = &env->functions[i];
             if (function->name && strcmp(function->name, name) == 0 &&
-                !function->is_extern && function->body &&
+                (function->is_extern || function->body) &&
                 ((!env->current_module && !function->module_name) ||
                  (env->current_module && function->module_name &&
                   strcmp(env->current_module, function->module_name) == 0)))
@@ -749,28 +970,46 @@ Function *env_get_function(Environment *env, const char *name) {
     for (int i = 0; i < builtin_registry_count; i++) {
         if (!(builtin_registry[i].flags & BUILTIN_LANG)) continue;
         if (safe_strcmp(builtin_registry[i].name, name) == 0) {
-            /* Create static function objects for built-ins */
-            static Function func_cache[256];
-            static bool initialized[256] = {false};
-
-            if (!initialized[i]) {
-                func_cache[i].name = (char *)builtin_registry[i].name;
-                func_cache[i].param_count = builtin_registry[i].arity;
-                func_cache[i].return_type = builtin_registry[i].return_type;
-                func_cache[i].params = NULL;  /* Built-ins don't need param names */
-                func_cache[i].body = NULL;
-                func_cache[i].shadow_test = NULL;
-                initialized[i] = true;
+            if ((size_t)i >= sizeof builtin_function_cache / sizeof *builtin_function_cache) return NULL;
+            if (!builtin_function_initialized[i]) {
+                builtin_function_cache[i].name = (char *)builtin_registry[i].name;
+                builtin_function_cache[i].param_count = builtin_registry[i].arity;
+                builtin_function_cache[i].return_type = builtin_registry[i].return_type;
+                builtin_function_cache[i].params = NULL;  /* Built-ins don't need param names */
+                builtin_function_cache[i].body = NULL;
+                builtin_function_cache[i].shadow_test = NULL;
+                builtin_function_initialized[i] = true;
             }
-
-            return &func_cache[i];
+            return &builtin_function_cache[i];
         }
+    }
+
+    if (!local_array_declaration && indexed) index = function_index_sync(env);
+
+    /* A generated list declaration never replaces a real declaration. */
+    bool generated_name = false;
+    for (int i = function_candidate_first(env, index, name); i >= 0;
+             i = function_candidate_next(env, index, i))
+        if (env->functions[i].name && !strcmp(env->functions[i].name, name) &&
+            env_generated_list_element(env, &env->functions[i]).ordinal) generated_name = true;
+    if (generated_name) {
+        Function *fallback = NULL;
+        for (int i = function_candidate_first(env, index, name); i >= 0;
+             i = function_candidate_next(env, index, i)) {
+            Function *fn = &env->functions[i];
+            if (!fn->name || strcmp(fn->name, name) || env_generated_list_element(env, fn).ordinal) continue;
+            if ((!fn->module_name && !env->current_module) ||
+                (fn->module_name && env->current_module && !strcmp(fn->module_name, env->current_module))) return fn;
+            if (!fallback) fallback = fn;
+        }
+        if (fallback) return fallback;
     }
 
     /* Check user-defined functions */
     /* First pass: prefer functions in the current module */
     {
-        for (int i = 0; i < env->function_count; i++) {
+        for (int i = function_candidate_first(env, index, name); i >= 0;
+             i = function_candidate_next(env, index, i)) {
             if (env->functions[i].name && safe_strcmp(env->functions[i].name, name) == 0) {
                 if ((!env->current_module && !env->functions[i].module_name) ||
                     (env->current_module && env->functions[i].module_name &&
@@ -782,7 +1021,8 @@ Function *env_get_function(Environment *env, const char *name) {
     }
 
     /* Second pass: check all functions (global or other modules) */
-    for (int i = 0; i < env->function_count; i++) {
+    for (int i = function_candidate_first(env, index, name); i >= 0;
+             i = function_candidate_next(env, index, i)) {
         /* Skip functions with NULL names */
         if (!env->functions[i].name) {
             continue;
@@ -795,11 +1035,37 @@ Function *env_get_function(Environment *env, const char *name) {
     return NULL;
 }
 
-/* I share push identity across inference and native lowering. */
+Function *env_get_function(Environment *env, const char *name) {
+    return env_get_function_with_index(env, name, true);
+}
+
+/* I select array intrinsics only after actual lexical/declaration resolution. */
+bool env_native_array_operation(const char *name) {
+    static const char *const names[] = {"array_new", "array_push", "array_set", "array_get", "at",
+        "array_pop", "map", "filter", "reduce", "array_slice", "array_remove_at", "str_split"};
+    if (!name) return false;
+    for (size_t i = 0; i < sizeof names / sizeof *names; ++i)
+        if (!strcmp(name, names[i])) return true;
+    return false;
+}
+bool env_native_array_is_builtin(Environment *env, const char *name, int line, int column) {
+    if (!env_native_array_operation(name) || env_get_var_visible_at(env, name, line, column)) return false;
+    Function *function = env_get_function(env, name);
+    return env_function_is_builtin(function);
+}
 bool env_array_push_is_builtin(Environment *env, int line, int column) {
-    if (env_get_var_visible_at(env, "array_push", line, column)) return false;
-    Function *function = env_get_function(env, "array_push");
-    return !function || !function->body;
+    return env_native_array_is_builtin(env, "array_push", line, column);
+}
+
+/* I compare the resolved function with the registry entry, not its spelling. */
+bool env_function_is_named_builtin(const Function *function, const char *name) {
+    if (!env_function_is_builtin(function) || !name) return false;
+    for (int i = 0; i < builtin_registry_count && (size_t)i < sizeof builtin_function_cache / sizeof *builtin_function_cache; ++i) {
+        if ((builtin_registry[i].flags & BUILTIN_LANG) &&
+            strcmp(builtin_registry[i].name, name) == 0)
+            return function == &builtin_function_cache[i];
+    }
+    return false;
 }
 
 /* Value creation functions */
@@ -891,37 +1157,19 @@ Value create_array(ValueType elem_type, int length, int capacity) {
 }
 
 Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count) {
-    Value v;
-    v.type = VAL_STRUCT;
-    v.is_return = false;
-    v.is_break = false;
-    v.is_continue = false;
-    v.as.struct_val = malloc(sizeof(StructValue));
-    v.as.struct_val->struct_name = strdup(struct_name);
-    v.as.struct_val->field_count = field_count;
-    
-    /* Allocate and copy field names */
-    v.as.struct_val->field_names = malloc(sizeof(char*) * field_count);
-    for (int i = 0; i < field_count; i++) {
-        v.as.struct_val->field_names[i] = strdup(field_names[i]);
+    StructValue source = {0};
+    source.struct_name = (char *)struct_name;
+    source.field_names = field_names;
+    source.field_values = field_values;
+    source.field_count = field_count;
+    Value input = create_void(), result;
+    input.type = VAL_STRUCT;
+    input.as.struct_val = &source;
+    if (!env_clone_record(input, &result)) {
+        fprintf(stderr, "I cannot copy record storage.\n");
+        exit(1);
     }
-    
-    /* Allocate and copy field values */
-    v.as.struct_val->field_values = malloc(sizeof(Value) * field_count);
-    for (int i = 0; i < field_count; i++) {
-        if (field_values[i].type == VAL_STRING) {
-            const char *src = field_values[i].as.string_val ? field_values[i].as.string_val : "";
-            v.as.struct_val->field_values[i] = create_string(src);
-        } else if (field_values[i].type == VAL_STRUCT && field_values[i].as.struct_val) {
-            StructValue *nested = field_values[i].as.struct_val;
-            v.as.struct_val->field_values[i] = create_struct(nested->struct_name,
-                nested->field_names, nested->field_values, nested->field_count);
-        } else {
-            v.as.struct_val->field_values[i] = field_values[i];
-        }
-    }
-    
-    return v;
+    return result;
 }
 
 Value create_union(const char *union_name, int variant_index, const char *variant_name, 
@@ -955,6 +1203,10 @@ Value create_union(const char *union_name, int variant_index, const char *varian
                 StructValue *nested = field_values[i].as.struct_val;
                 v.as.union_val->field_values[i] = create_struct(nested->struct_name,
                     nested->field_names, nested->field_values, nested->field_count);
+            } else if (field_values[i].type == VAL_TUPLE) {
+                if (!env_clone_value_snapshot(field_values[i], &v.as.union_val->field_values[i])) {
+                    fprintf(stderr, "I cannot copy a tuple union payload.\n"); exit(1);
+                }
             } else {
                 v.as.union_val->field_values[i] = field_values[i];
             }
@@ -965,6 +1217,160 @@ Value create_union(const char *union_name, int variant_index, const char *varian
     }
     
     return v;
+}
+
+/* I return an ordinal rather than a pointer into reallocatable declarations.
+ * Owner equality is exact; a missing owner denotes global scope, not a wildcard. */
+static bool nominal_owner_equal(const char *a, const char *b) {
+    return (!a && !b) || (a && b && !strcmp(a, b));
+}
+
+/* I retain exact registered facts, never a name chosen from unrelated modules.
+ * Idempotent rows allocate nothing. Conflicting imports fail before publication. */
+bool env_register_nominal_import(Environment *env, const char *importer,
+                                 const char *name, NominalIdentity identity) {
+    if (!env || !name || !*name) return false;
+    const char *declaration = env_nominal_name(env, identity);
+    const char *owner = env_nominal_owner(env, identity);
+    if (!declaration) return false;
+    for (struct EnvNominalImport *row = env->nominal_imports; row; row = row->next) {
+        if (nominal_owner_equal(row->importer, importer) && !strcmp(row->name, name)) {
+            return row->identity.kind == identity.kind && row->identity.ordinal == identity.ordinal &&
+                nominal_owner_equal(row->declaration_owner, owner) &&
+                !strcmp(row->declaration_name, declaration);
+        }
+    }
+    struct EnvNominalImport *row = calloc(1, sizeof *row);
+    if (!row) return false;
+    row->identity = identity;
+    row->importer = importer ? strdup(importer) : NULL;
+    row->name = strdup(name);
+    row->declaration_owner = owner ? strdup(owner) : NULL;
+    row->declaration_name = strdup(declaration);
+    if ((importer && !row->importer) || !row->name ||
+        (owner && !row->declaration_owner) || !row->declaration_name) {
+        nominal_import_free(row);
+        return false;
+    }
+    row->next = env->nominal_imports;
+    env->nominal_imports = row;
+    return true;
+}
+
+static NominalIdentity nominal_import_identity(Environment *env, const char *name,
+                                                const char *owner, Type kind) {
+    NominalIdentity none = {TYPE_UNKNOWN, 0}, result = none;
+    for (const struct EnvNominalImport *row = env->nominal_imports; row; row = row->next) {
+        if (row->identity.kind != kind || !nominal_owner_equal(row->importer, owner) ||
+            strcmp(row->name, name)) continue;
+        const char *current = env_nominal_name(env, row->identity);
+        if (!current || strcmp(current, row->declaration_name) ||
+            !nominal_owner_equal(env_nominal_owner(env, row->identity), row->declaration_owner) ||
+            result.ordinal) return none;
+        result = row->identity;
+    }
+    return result;
+}
+
+NominalIdentity env_nominal_identity(Environment *env, const char *name,
+                                     const char *owner, Type kind) {
+    NominalIdentity none = {TYPE_UNKNOWN, 0};
+    if (!env || !name || !*name || (kind != TYPE_STRUCT && kind != TYPE_ENUM && kind != TYPE_UNION)) return none;
+    const char *declaration_name = name;
+    const char *declaration_owner = owner;
+    const char *dot = strchr(name, '.');
+    if (dot) {
+        size_t prefix = (size_t)(dot - name);
+        const ModuleNamespace *found = NULL;
+        for (int i = 0; i < env->namespace_count; ++i) {
+            const ModuleNamespace *ns = &env->namespaces[i];
+            if (nominal_owner_equal(ns->owner_module, owner) && ns->alias &&
+                strlen(ns->alias) == prefix && !memcmp(ns->alias, name, prefix)) {
+                if (found) return none;
+                found = ns;
+            }
+        }
+        if (!found || !dot[1]) return none;
+        bool exported = false;
+        int count = kind == TYPE_STRUCT ? found->struct_count : kind == TYPE_ENUM ? found->enum_count : found->union_count;
+        char **names = kind == TYPE_STRUCT ? found->struct_names : kind == TYPE_ENUM ? found->enum_names : found->union_names;
+        for (int i = 0; names && i < count; ++i)
+            if (names[i] && !strcmp(names[i], dot + 1)) exported = true;
+        if (!exported) return none;
+        declaration_owner = found->module_name;
+        declaration_name = dot + 1;
+    }
+    /* My extern records inhabit the existing unmangled C type namespace.
+     * I retain the registered declaration's owner and ordinal; I never extend
+     * this rule to an ordinary record merely because its spelling is unique.
+     * The binder rejects these collisions too, but callers can register facts
+     * directly, so I independently refuse competing foreign/ordinary origins. */
+    if (kind == TYPE_STRUCT) {
+        size_t foreign = 0;
+        int matches = 0;
+        for (int i = 0; i < env->struct_count; ++i) {
+            const StructDef *record = &env->structs[i];
+            if ((record->name && !strcmp(record->name, declaration_name)) ||
+                (record->original_name && !strcmp(record->original_name, declaration_name))) {
+                ++matches;
+                if (record->is_extern) foreign = (size_t)i + 1;
+            }
+        }
+        if (foreign) {
+            if (matches != 1) return none;
+            const StructDef *record = &env->structs[foreign - 1];
+            if (!record->name || strcmp(record->name, declaration_name) ||
+                (dot && !nominal_owner_equal(record->module_name, declaration_owner))) return none;
+            NominalIdentity identity = {TYPE_STRUCT, foreign};
+            return identity;
+        }
+    }
+    NominalIdentity result = none;
+    int count = kind == TYPE_STRUCT ? env->struct_count : kind == TYPE_ENUM ? env->enum_count : env->union_count;
+    for (int i = 0; i < count; ++i) {
+        const char *actual = kind == TYPE_STRUCT ? env->structs[i].name : kind == TYPE_ENUM ? env->enums[i].name : env->unions[i].name;
+        const char *original = kind == TYPE_STRUCT ? env->structs[i].original_name : NULL;
+        const char *module = kind == TYPE_STRUCT ? env->structs[i].module_name : kind == TYPE_ENUM ? env->enums[i].module_name : env->unions[i].module_name;
+        bool local = nominal_owner_equal(module, declaration_owner);
+        bool spelling = actual && !strcmp(actual, declaration_name);
+        /* A distinct canonical mangled name already names its owner. I never
+         * treat an unmangled foreign spelling as a globally unique import. */
+        bool canonical = !dot && spelling && original && strcmp(actual, original);
+        if ((local && (spelling || (original && !strcmp(original, declaration_name)))) || canonical) {
+            if (result.ordinal) return none;
+            result.kind = kind;
+            result.ordinal = (size_t)i + 1;
+        }
+    }
+    if (result.ordinal || dot) return result;
+    /* A local declaration shadows an imported spelling across nominal kinds.
+     * A TYPE_STRUCT placeholder cannot select an imported union past it. */
+    if (kind != TYPE_STRUCT && env_get_struct_owned(env, declaration_name, owner)) return none;
+    for (int i = 0; kind != TYPE_ENUM && i < env->enum_count; ++i)
+        if (nominal_owner_equal(env->enums[i].module_name, owner) && env->enums[i].name &&
+            !strcmp(env->enums[i].name, declaration_name)) return none;
+    for (int i = 0; kind != TYPE_UNION && i < env->union_count; ++i)
+        if (nominal_owner_equal(env->unions[i].module_name, owner) && env->unions[i].name &&
+            !strcmp(env->unions[i].name, declaration_name)) return none;
+    return nominal_import_identity(env, declaration_name, owner, kind);
+}
+
+const char *env_nominal_name(Environment *env, NominalIdentity identity) {
+    if (!env || !identity.ordinal) return NULL;
+    if (identity.kind == TYPE_STRUCT && identity.ordinal <= (size_t)env->struct_count)
+        return env->structs[identity.ordinal - 1].name;
+    if (identity.kind == TYPE_ENUM && identity.ordinal <= (size_t)env->enum_count)
+        return env->enums[identity.ordinal - 1].name;
+    if (identity.kind == TYPE_UNION && identity.ordinal <= (size_t)env->union_count)
+        return env->unions[identity.ordinal - 1].name;
+    return NULL;
+}
+
+const char *env_nominal_owner(Environment *env, NominalIdentity identity) {
+    if (!env_nominal_name(env, identity)) return NULL;
+    return identity.kind == TYPE_STRUCT ? env->structs[identity.ordinal - 1].module_name
+                                      : identity.kind == TYPE_ENUM ? env->enums[identity.ordinal - 1].module_name
+                                      : env->unions[identity.ordinal - 1].module_name;
 }
 
 /* I test declaration identity without importing another module's fallback. */
@@ -1256,71 +1662,27 @@ int env_get_union_variant_index(Environment *env, const char *union_name, const 
     return -1;
 }
 
-/* Define opaque type */
-void env_define_opaque_type(Environment *env, const char *name) {
-    /* Check if opaque type already exists - prevent duplicates */
-    if (env_get_opaque_type(env, name) != NULL) {
-        /* Opaque type already defined - skip duplicate registration */
-        return;
-    }
-    
-    if (env->opaque_type_count >= env->opaque_type_capacity) {
-        env->opaque_type_capacity *= 2;
-        env->opaque_types = realloc(env->opaque_types, sizeof(OpaqueTypeDef) * env->opaque_type_capacity);
-    }
-    
-    OpaqueTypeDef opaque_type;
-    opaque_type.name = strdup(name);
-    
-    /* Generate C type name by adding pointer: "GLFWwindow" -> "GLFWwindow*" */
-    size_t len = strlen(name);
-    opaque_type.c_type_name = malloc(len + 2);  /* +1 for '*', +1 for '\0' */
-    strcpy(opaque_type.c_type_name, name);
-    strcat(opaque_type.c_type_name, "*");
-    
-    env->opaque_types[env->opaque_type_count++] = opaque_type;
-}
-
-/* Get opaque type definition */
-OpaqueTypeDef *env_get_opaque_type(Environment *env, const char *name) {
-    if (!env || !name) return NULL;
-    
-    /* Check for Module.Type pattern */
-    const char *dot = strchr(name, '.');
-    if (dot) {
-        char module_alias[256];
-        size_t module_len = dot - name;
-        if (module_len >= sizeof(module_alias)) {
-            module_len = sizeof(module_alias) - 1;
-        }
-        strncpy(module_alias, name, module_len);
-        module_alias[module_len] = '\0';
-        const char *type_name = dot + 1;
-        
-        /* Opaque types aren't explicitly tracked in namespaces yet, 
-         * but we can still search for them globally with module matching if we add it.
-         * For now, just search globally by short name as a fallback.
-         */
-        return env_get_opaque_type(env, type_name);
-    }
-    
-    for (int i = 0; i < env->opaque_type_count; i++) {
-        if (safe_strcmp(env->opaque_types[i].name, name) == 0) {
-            return &env->opaque_types[i];
-        }
-    }
-    return NULL;
-}
+#include "env_opaque_types.inc"
+#include "env_opaque_keys.inc"
 
 /* Register a list instantiation for code generation */
-void env_register_list_instantiation(Environment *env, const char *element_type) {
+bool env_register_list_instantiation(Environment *env, const char *element_type) {
+    NominalIdentity identity = env_nominal_identity(env, element_type, env->current_module, TYPE_STRUCT);
+    if (!identity.ordinal)
+        identity = env_nominal_identity(env, element_type, env->current_module, TYPE_ENUM);
+    /* This incremental implicit route requires one concrete ordinary record
+     * or enum declaration from the selected owner. */
+    if (!identity.ordinal) return false;
+    element_type = env_nominal_name(env, identity);
+    if (strlen(element_type) > 256 - sizeof("List_")) return false;
     /* Check if already registered */
     for (int i = 0; i < env->generic_instance_count; i++) {
         GenericInstantiation *inst = &env->generic_instances[i];
         if (safe_strcmp(inst->generic_name, "List") == 0 &&
             inst->type_arg_names && 
             safe_strcmp(inst->type_arg_names[0], element_type) == 0) {
-            return;  /* Already registered */
+            return inst->list_element.kind == identity.kind &&
+                   inst->list_element.ordinal == identity.ordinal;
         }
     }
     
@@ -1332,6 +1694,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     }
     
     GenericInstantiation inst = {0};
+    inst.list_element = identity;
     inst.generic_name = strdup("List");
     inst.type_arg_count = 1;
     inst.type_args = malloc(sizeof(Type));
@@ -1344,7 +1707,8 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     snprintf(specialized, sizeof(specialized), "List_%s", element_type);
     inst.concrete_name = strdup(specialized);
     
-    env->generic_instances[env->generic_instance_count++] = inst;
+    int instance_index = env->generic_instance_count++;
+    env->generic_instances[instance_index] = inst;
     
     /* Register specialized functions in environment for type checking */
     char func_name[512];  /* Increased to handle long type names + suffixes */
@@ -1354,6 +1718,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     Parameter *params;
 
     func.is_extern = true;
+    /* Annotation ownership is separate from source visibility and lookup. */
     func.is_pub = false;
     func.module_name = NULL;
     
@@ -1363,11 +1728,12 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.param_count = 0;
     func.params = NULL;
     func.return_type = TYPE_LIST_GENERIC;
-    func.return_struct_type_name = NULL;
+    func.return_struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     func.return_fn_sig = NULL;
     func.return_type_info = NULL;
     func.body = NULL;  /* Built-in */
     func.shadow_test = NULL;
+    env->generic_instances[instance_index].list_functions[0] = (size_t)env->function_count + 1;
     env_define_function(env, func);
     
     /* List_T_push(list: List<T>*, value: T) -> void */
@@ -1377,10 +1743,10 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     params = calloc(2, sizeof(Parameter));
     params[0].name = strdup("list");
     params[0].type = TYPE_LIST_GENERIC;
-    params[0].struct_type_name = NULL;
+    params[0].struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     params[0].element_type = TYPE_UNKNOWN;
     params[1].name = strdup("value");
-    params[1].type = TYPE_STRUCT;
+    params[1].type = env_get_enum(env, element_type) ? TYPE_ENUM : TYPE_STRUCT;
     params[1].struct_type_name = strdup(element_type);
     params[1].element_type = TYPE_UNKNOWN;
     func.params = params;
@@ -1389,6 +1755,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = true;
+    env->generic_instances[instance_index].list_functions[1] = (size_t)env->function_count + 1;
     env_define_function(env, func);
     
     /* List_T_get(list: List<T>*, index: int) -> T */
@@ -1398,18 +1765,19 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     params = calloc(2, sizeof(Parameter));
     params[0].name = strdup("list");
     params[0].type = TYPE_LIST_GENERIC;
-    params[0].struct_type_name = NULL;
+    params[0].struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     params[0].element_type = TYPE_UNKNOWN;
     params[1].name = strdup("index");
     params[1].type = TYPE_INT;
     params[1].struct_type_name = NULL;
     params[1].element_type = TYPE_UNKNOWN;
     func.params = params;
-    func.return_type = TYPE_STRUCT;
+    func.return_type = env_get_enum(env, element_type) ? TYPE_ENUM : TYPE_STRUCT;
     func.return_struct_type_name = strdup(element_type);
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = true;
+    env->generic_instances[instance_index].list_functions[2] = (size_t)env->function_count + 1;
     env_define_function(env, func);
     
     /* List_T_length(list: List<T>*) -> int */
@@ -1419,7 +1787,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     params = calloc(1, sizeof(Parameter));
     params[0].name = strdup("list");
     params[0].type = TYPE_LIST_GENERIC;
-    params[0].struct_type_name = NULL;
+    params[0].struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     params[0].element_type = TYPE_UNKNOWN;
     func.params = params;
     func.return_type = TYPE_INT;
@@ -1429,7 +1797,9 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = true;
+    env->generic_instances[instance_index].list_functions[3] = (size_t)env->function_count + 1;
     env_define_function(env, func);
+    return true;
 }
 
 /* Register a HashMap<K,V> instantiation for code generation
@@ -1741,6 +2111,88 @@ void free_payload_type_info(TypeInfo *info) {
     free(info);
 }
 
+#include "env_signature_snapshot.inc"
+
+const TypeInfo *type_info_tuple_element(const TypeInfo *tuple, int index, TypeInfo *flat) {
+    if (!tuple || tuple->base_type != TYPE_TUPLE || index < 0 ||
+        index >= tuple->tuple_element_count || !tuple->tuple_types) return NULL;
+    if (tuple->type_param_count) {
+        if (tuple->type_param_count != tuple->tuple_element_count || !tuple->type_params ||
+            !tuple->type_params[index]) return NULL;
+        const TypeInfo *child = tuple->type_params[index];
+        const char *name = child->generic_name ? child->generic_name : child->opaque_type_name;
+        const char *legacy = tuple->tuple_type_names ? tuple->tuple_type_names[index] : NULL;
+        if (child->base_type != tuple->tuple_types[index] ||
+            (name != legacy && (!name || !legacy || strcmp(name, legacy)))) return NULL;
+        return child;
+    }
+    if (tuple->type_params || !flat) return NULL;
+    *flat = (TypeInfo){.base_type = tuple->tuple_types[index],
+        .generic_name = tuple->tuple_type_names ? tuple->tuple_type_names[index] : NULL};
+    return flat;
+}
+bool type_info_tuple_valid(const TypeInfo *tuple) {
+    if (!tuple || tuple->base_type != TYPE_TUPLE || tuple->tuple_element_count < 0 ||
+        tuple->type_param_count < 0 ||
+        (tuple->type_param_count && tuple->type_param_count != tuple->tuple_element_count) ||
+        (!tuple->type_param_count && tuple->type_params)) return false;
+    for (int i = 0; i < tuple->tuple_element_count; ++i) {
+        TypeInfo flat;
+        if (!type_info_tuple_element(tuple, i, &flat)) return false;
+    }
+    return true;
+}
+
+bool type_info_tuple_refresh(TypeInfo *tuple) {
+    if (!tuple || tuple->base_type != TYPE_TUPLE) return false;
+    if (!tuple->type_param_count) return type_info_tuple_valid(tuple);
+    int count = tuple->tuple_element_count;
+    if (count < 0 || tuple->type_param_count != count || !tuple->type_params ||
+        (size_t)count > SIZE_MAX / sizeof(Type) || (size_t)count > SIZE_MAX / sizeof(char *)) return false;
+    Type *types = calloc((size_t)count, sizeof *types);
+    char **names = calloc((size_t)count, sizeof *names);
+    if (!types || !names) { free(types); free(names); return false; }
+    for (int i = 0; i < count; ++i) {
+        const TypeInfo *child = tuple->type_params[i];
+        if (!child) goto fail;
+        types[i] = child->base_type;
+        const char *name = child->generic_name ? child->generic_name : child->opaque_type_name;
+        if (name && !(names[i] = strdup(name))) goto fail;
+    }
+    for (int i = 0; tuple->tuple_type_names && i < count; ++i) free(tuple->tuple_type_names[i]);
+    free(tuple->tuple_type_names); free(tuple->tuple_types);
+    tuple->tuple_type_names = names; tuple->tuple_types = types;
+    return true;
+fail:
+    for (int i = 0; i < count; ++i) free(names[i]);
+    free(names); free(types); return false;
+}
+
+const TypeInfo *env_tuple_literal_info(const Environment *env, const ASTNode *literal) {
+    if (!env || !literal) return NULL;
+    for (size_t i = 0; i < env->tuple_literal_binding_count; ++i)
+        if (env->tuple_literal_bindings[i].literal == literal)
+            return env->tuple_literal_bindings[i].type_info;
+    return NULL;
+}
+bool env_bind_tuple_literal(Environment *env, const ASTNode *literal, const TypeInfo *info) {
+    if (!env || !literal || literal->type != AST_TUPLE_LITERAL || !type_info_tuple_valid(info) ||
+        info->tuple_element_count != literal->as.tuple_literal.element_count) return false;
+    const TypeInfo *old = env_tuple_literal_info(env, literal);
+    if (old) return type_infos_equal(old, info);
+    if (env->tuple_literal_binding_count >= SIZE_MAX / sizeof(TupleLiteralBinding)) return false;
+    TypeInfo *copy = NULL;
+    if (!copy_payload_type_info_checked(info, &copy)) return false;
+    size_t count = env->tuple_literal_binding_count;
+    TupleLiteralBinding *rows = malloc((count + 1) * sizeof *rows);
+    if (!rows) { free_payload_type_info(copy); return false; }
+    if (count) memcpy(rows, env->tuple_literal_bindings, count * sizeof *rows);
+    rows[count] = (TupleLiteralBinding){literal, copy};
+    free(env->tuple_literal_bindings); env->tuple_literal_bindings = rows;
+    ++env->tuple_literal_binding_count;
+    return true;
+}
+
 /* I substitute complete concrete trees, not the flattened field name. */
 static void payload_substitute(TypeInfo **slot, const UnionDef *def, const TypeInfo *arguments) {
     TypeInfo *info = *slot;
@@ -1749,6 +2201,15 @@ static void payload_substitute(TypeInfo **slot, const UnionDef *def, const TypeI
         for (int i = 0; i < def->generic_param_count && i < arguments->type_param_count; ++i) {
             if (!strcmp(info->generic_name, def->generic_params[i]) && arguments->type_params && arguments->type_params[i]) {
                 TypeInfo *concrete = copy_payload_type_info(arguments->type_params[i]);
+                if (info->base_type == TYPE_LIST_GENERIC) {
+                    /* I retain the container and make its compact element explicit. */
+                    free(info->generic_name);
+                    info->generic_name = payload_name("List");
+                    info->type_params = payload_alloc(1, sizeof *info->type_params);
+                    info->type_params[0] = concrete;
+                    info->type_param_count = 1;
+                    return;
+                }
                 free_payload_type_info(info);
                 *slot = concrete;
                 return;
@@ -1758,6 +2219,35 @@ static void payload_substitute(TypeInfo **slot, const UnionDef *def, const TypeI
     if (info->element_type) payload_substitute(&info->element_type, def, arguments);
     for (int i = 0; info->type_params && i < info->type_param_count; ++i)
         payload_substitute(&info->type_params[i], def, arguments);
+    if (info->base_type == TYPE_TUPLE && info->type_param_count && !type_info_tuple_refresh(info)) {
+        fprintf(stderr, "I cannot retain a substituted tuple annotation\n");
+        exit(1);
+    }
+    if (info->fn_sig) {
+        FunctionSignature *signature = info->fn_sig;
+        for (int i = 0; signature->param_type_info && i < signature->param_count; ++i) {
+            payload_substitute(&signature->param_type_info[i], def, arguments);
+            TypeInfo *child = signature->param_type_info[i];
+            if (!child) continue;
+            signature->param_types[i] = child->base_type;
+            const char *name = child->generic_name ? child->generic_name : child->opaque_type_name;
+            char *copy = payload_name(name);
+            if (!signature->param_struct_names) signature->param_struct_names = payload_alloc((size_t)signature->param_count, sizeof(char *));
+            free(signature->param_struct_names[i]); signature->param_struct_names[i] = copy;
+        }
+        payload_substitute(&signature->return_type_info, def, arguments);
+        if (signature->return_type_info) {
+            TypeInfo *child = signature->return_type_info;
+            signature->return_type = child->base_type;
+            char *name = payload_name(child->generic_name ? child->generic_name : child->opaque_type_name);
+            free(signature->return_struct_name); signature->return_struct_name = name;
+        }
+        if (signature->return_fn_sig) {
+            TypeInfo nested = {.base_type = TYPE_FUNCTION, .fn_sig = signature->return_fn_sig};
+            TypeInfo *view = &nested;
+            payload_substitute(&view, def, arguments);
+        }
+    }
 }
 TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field, const TypeInfo *arguments) {
     if (!def || arm < 0 || arm >= def->variant_count || field < 0 ||
@@ -1802,9 +2292,11 @@ static bool annotation_names_equal(const char *left, const char *right) {
 }
 static bool signatures_equal_depth(const FunctionSignature *, const FunctionSignature *, unsigned);
 static bool annotations_equal(const TypeInfo *a, const TypeInfo *b, unsigned depth) {
+    if ((a && a->base_type == TYPE_TUPLE && !type_info_tuple_valid(a)) ||
+        (b && b->base_type == TYPE_TUPLE && !type_info_tuple_valid(b))) return false;
     if (a == b) return true;
     if (!a || !b || depth > 128 || a->base_type != b->base_type ||
-        a->type_param_count != b->type_param_count ||
+        (a->base_type != TYPE_TUPLE && a->type_param_count != b->type_param_count) ||
         a->tuple_element_count != b->tuple_element_count ||
         a->row_field_count != b->row_field_count || a->type_var_count != b->type_var_count ||
         a->is_open_row != b->is_open_row ||
@@ -1812,13 +2304,19 @@ static bool annotations_equal(const TypeInfo *a, const TypeInfo *b, unsigned dep
         !annotation_names_equal(a->opaque_type_name, b->opaque_type_name) ||
         !annotation_names_equal(a->row_var_name, b->row_var_name)) return false;
     if (!annotations_equal(a->element_type, b->element_type, depth + 1)) return false;
-    for (int i = 0; i < a->type_param_count; ++i)
+    for (int i = 0; a->base_type != TYPE_TUPLE && i < a->type_param_count; ++i)
         if (!a->type_params || !b->type_params ||
             !annotations_equal(a->type_params[i], b->type_params[i], depth + 1)) return false;
-    for (int i = 0; i < a->tuple_element_count; ++i)
-        if (!a->tuple_types || !b->tuple_types || a->tuple_types[i] != b->tuple_types[i] ||
+    for (int i = 0; i < a->tuple_element_count; ++i) {
+        if (a->base_type == TYPE_TUPLE) {
+            TypeInfo af, bf;
+            const TypeInfo *ac = type_info_tuple_element(a, i, &af);
+            const TypeInfo *bc = type_info_tuple_element(b, i, &bf);
+            if (!ac || !bc || !annotations_equal(ac, bc, depth + 1)) return false;
+        } else if (!a->tuple_types || !b->tuple_types || a->tuple_types[i] != b->tuple_types[i] ||
             !annotation_names_equal(a->tuple_type_names ? a->tuple_type_names[i] : NULL,
-                                    b->tuple_type_names ? b->tuple_type_names[i] : NULL)) return false;
+                                   b->tuple_type_names ? b->tuple_type_names[i] : NULL)) return false;
+    }
     for (int i = 0; i < a->row_field_count; ++i)
         if (!a->row_field_types || !b->row_field_types ||
             a->row_field_types[i] != b->row_field_types[i] ||
@@ -1872,46 +2370,23 @@ Value create_function(const char *function_name, FunctionSignature *signature) {
 
 /* Create tuple value */
 Value create_tuple(Value *elements, int element_count) {
-    Value val;
-    val.type = VAL_TUPLE;
-    val.is_return = false;
-    val.is_break = false;
-    val.is_continue = false;
-    val.as.tuple_val = malloc(sizeof(TupleValue));
-    val.as.tuple_val->element_count = element_count;
-    
-    /* Allocate and copy elements */
-    if (element_count > 0) {
-        val.as.tuple_val->elements = malloc(sizeof(Value) * element_count);
-        for (int i = 0; i < element_count; i++) {
-            val.as.tuple_val->elements[i] = elements[i];
-            /* Deep copy strings */
-            if (elements[i].type == VAL_STRING) {
-                val.as.tuple_val->elements[i].as.string_val = strdup(elements[i].as.string_val);
-            }
-        }
-    } else {
-        val.as.tuple_val->elements = NULL;
+    TupleValue tuple = {0};
+    tuple.elements = elements;
+    tuple.element_count = element_count;
+    Value source = {0}, copy;
+    source.type = VAL_TUPLE;
+    source.as.tuple_val = &tuple;
+    if (!env_clone_value_snapshot(source, &copy)) {
+        fprintf(stderr, "I cannot copy tuple storage.\n"); exit(1);
     }
-    
-    return val;
+    return copy;
 }
 
-/* Free tuple value */
 void free_tuple(TupleValue *tuple) {
-    if (!tuple) return;
-    
-    /* Free string elements */
-    for (int i = 0; i < tuple->element_count; i++) {
-        if (tuple->elements[i].type == VAL_STRING && tuple->elements[i].as.string_val) {
-            free(tuple->elements[i].as.string_val);
-        }
-    }
-    
-    if (tuple->elements) {
-        free(tuple->elements);
-    }
-    free(tuple);
+    Value owned = {0};
+    owned.type = VAL_TUPLE;
+    owned.as.tuple_val = tuple;
+    env_discard_value_snapshot(owned);
 }
 
 /* Register a module namespace (for import aliases) */

@@ -1,0 +1,30 @@
+{
+  "owned": {
+    "289116": {
+      "parent": 289015,
+      "group": 289116,
+      "started": "Mon Sep 21 22:37:39 2026",
+      "command": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14 -m unittest -f -v tests.test_shadow_completion.ShadowCompletion.test_exact_decision_boundaries"
+    },
+    "289133": {
+      "parent": 289116,
+      "group": 289133,
+      "started": "Mon Sep 21 22:37:40 2026",
+      "command": "/tmp/nanolang-native-sdk-bae59-linux-preparation/decision-f_dabema/probe"
+    },
+    "289135": {
+      "parent": 289133,
+      "group": 289133,
+      "started": "Mon Sep 21 22:37:40 2026",
+      "command": "[probe] <defunct>"
+    },
+    "289154": {
+      "parent": 289133,
+      "group": 289133,
+      "started": "Mon Sep 21 22:37:41 2026",
+      "command": "[probe] <defunct>"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

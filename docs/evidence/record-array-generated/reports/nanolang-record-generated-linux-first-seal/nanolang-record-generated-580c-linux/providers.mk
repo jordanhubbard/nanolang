@@ -1,0 +1,5 @@
+
+.PHONY: array-providers array-config
+array-providers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+array-config:
+	@printf '%s\n' 'ISA=$(NANOISA_OBJECTS) $(NANOISA_UTF8)' 'VM=$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))' 'CFLAGS=$(CFLAGS)' 'LDFLAGS=$(LDFLAGS)'

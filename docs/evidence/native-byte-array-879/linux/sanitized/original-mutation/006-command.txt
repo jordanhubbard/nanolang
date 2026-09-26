@@ -1,0 +1,1 @@
+/home/jkh/nanolang-qualification/byte-array-879-linux/sanitized/source/bin/nvm2c /home/jkh/nanolang-qualification/byte-array-879-linux/sanitized/original-mutation/input.nvm -o /home/jkh/nanolang-qualification/byte-array-879-linux/sanitized/original-mutation/program.c

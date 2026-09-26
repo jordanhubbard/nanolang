@@ -20,7 +20,7 @@
  * This example demonstrates the dispatch API structure.
  */
 
-module "modules/dispatch/dispatch.nano"
+module "modules/dispatch/dispatch.nano" as dispatch
 
 # @pure
 fn noop_update() -> void {}
@@ -30,7 +30,7 @@ shadow noop_update {
 }
 
 fn main() -> int {
-    if (not (dispatch_available)) {
+    if (not (dispatch.dispatch_available)) {
         (println "SKIP: libdispatch is not available on this platform")
         return 0
     }
@@ -39,33 +39,33 @@ fn main() -> int {
         return 0
     }
 
-    let q_stats: NlQueue = (queue_serial "nano.main.stats")
-    let q_work: NlQueue = (queue_concurrent "nano.main.workers")
-    let g: NlQueueGroup = (group_create)
+    let q_stats: dispatch.NlQueue = (dispatch.queue_serial "nano.main.stats")
+    let q_work: dispatch.NlQueue = (dispatch.queue_concurrent "nano.main.workers")
+    let g: dispatch.NlQueueGroup = (dispatch.group_create)
 
     /* Submit 100 no-op tasks to the work queue */
     let mut i: int = 0
     while (< i 100) {
-        (group_async g q_work fn() -> void { (noop_update) })
+        (dispatch.group_async g q_work fn() -> void { (noop_update) })
         set i (+ i 1)
     }
 
-    let rc: int = (group_wait_ms g 5000)
+    let rc: int = (dispatch.group_wait_ms g 5000)
     if (!= rc 0) {
         (println "FAIL: group_wait failed!")
-        (group_destroy g)
-        (queue_destroy q_work)
-        (queue_destroy q_stats)
+        (dispatch.group_destroy g)
+        (dispatch.queue_destroy q_work)
+        (dispatch.queue_destroy q_stats)
         return 1
     }
 
-    (queue_sync q_stats fn() -> void {})
+    (dispatch.queue_sync q_stats fn() -> void {})
 
     (println "PASS: all 100 serialized updates completed")
 
-    (group_destroy g)
-    (queue_destroy q_work)
-    (queue_destroy q_stats)
+    (dispatch.group_destroy g)
+    (dispatch.queue_destroy q_work)
+    (dispatch.queue_destroy q_stats)
     return 0
 }
 

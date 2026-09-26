@@ -1,0 +1,72 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/private/tmp/nanolang-record-lists-qualified-b50",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.0412778330501169,
+    "log": {
+      "sha256": "3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc",
+      "bytes": 92,
+      "archive": "/private/tmp/nanolang-record-lists-b50-puck-matrix/objects/3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+      "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+    ],
+    "bound": 900,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/private/tmp/nanolang-record-lists-qualified-b50",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 3.920083499979228,
+    "log": {
+      "sha256": "a14fc1b8d5355d1b24deda5ed5090a8005dcb868d41d04ce753d93531c056644",
+      "bytes": 547,
+      "archive": "/private/tmp/nanolang-record-lists-b50-puck-matrix/objects/a14fc1b8d5355d1b24deda5ed5090a8005dcb868d41d04ce753d93531c056644"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+      "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+    ],
+    "bound": 900,
+    "status": 1,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/private/tmp/nanolang-record-lists-qualified-b50",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 6.864633625023998,
+    "log": {
+      "sha256": "39c0aeb00151eb3627f4fe3c8da45f973a355581cdc7e26c2719aa840caa3784",
+      "bytes": 4529,
+      "archive": "/private/tmp/nanolang-record-lists-b50-puck-matrix/objects/39c0aeb00151eb3627f4fe3c8da45f973a355581cdc7e26c2719aa840caa3784"
+    },
+    "inputs_equal": true
+  }
+]

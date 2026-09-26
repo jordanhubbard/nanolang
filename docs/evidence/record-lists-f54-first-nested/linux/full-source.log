@@ -1,0 +1,23 @@
+I retain record-list artifacts at /tmp/nanolang-record-lists-f54-linux-matrix/full-source/nano-record-lists-96moj20e
+test_array_destination_and_origin_refusals (tests.test_generic_record_lists.GenericRecordLists.test_array_destination_and_origin_refusals) ... FAIL
+
+======================================================================
+FAIL: test_array_destination_and_origin_refusals (tests.test_generic_record_lists.GenericRecordLists.test_array_destination_and_origin_refusals)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-record-lists-qualified-f54/tests/test_generic_record_lists.py", line 222, in test_array_destination_and_origin_refusals
+    self.source_routes('array-refuse-' + name, prelude + 'fn main() -> int { ' + body + ' return 0 }\nshadow main { assert true }\n', True)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-record-lists-qualified-f54/tests/test_generic_record_lists.py", line 412, in source_routes
+    out, err = self.command(name + '-' + compiler + '-build',
+               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        [ROOT / 'bin' / compiler, path, '-o', output, '--keep-c'], expected=tuple(range(1, 126)) if reject else (0,), timeout=300)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-record-lists-qualified-f54/tests/test_generic_record_lists.py", line 126, in command
+    raise AssertionError((name, status, out[-8000:], err[-8000:]))
+AssertionError: ('0047-array-refuse-nested-nanoc_stage1-build', {'returncode': 0, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'child_returncode': 0, 'elapsed': 3.1737226970726624}, b'I kept generated C in /tmp/nanolang-record-lists-f54-linux-matrix/full-source/nano-record-lists-96moj20e/temporary/nano_native_1789968714_0/program.c\n', b'')
+
+----------------------------------------------------------------------
+Ran 1 test in 12.902s
+
+FAILED (failures=1)

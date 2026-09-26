@@ -1,0 +1,13 @@
+{
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "CARRIER_EXTRA_TOOLS": "{\"libffi_header\": \"/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi/ffi.h\", \"xcrun\": \"/usr/bin/xcrun\"}",
+  "CARRIER_PHASES": "",
+  "CARRIER_SAN_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+  "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+  "LSAN_OPTIONS": "",
+  "NANO_FILE_RUNTIME_CFLAGS": "-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi",
+  "PATH": "/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "UBSAN_OPTIONS": "halt_on_error=1"
+}

@@ -1,0 +1,36 @@
+{
+  "cleanup": [],
+  "owned": {
+    "73602": {
+      "command": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-package-425bc-puck/controls/retained-package.py",
+      "group": 73602,
+      "parent": 73577,
+      "started": "Mon Sep 21 01:58:30 2026"
+    },
+    "73624": {
+      "command": "(native)",
+      "group": 73602,
+      "parent": 73602,
+      "started": "Mon Sep 21 01:58:31 2026"
+    },
+    "73639": {
+      "command": "/opt/homebrew/opt/llvm/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -std=c11 -O2 -ffreestanding -fno-builtin -fno-ident -Wall -Wextra -Werror -S -emit-llvm src/nanoisa/managed_module.c -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-package-425bc-puck/package-artifacts/nano-runtime-ir-gsw39fm1/native.ll",
+      "group": 73602,
+      "parent": 73602,
+      "started": "Mon Sep 21 01:58:33 2026"
+    },
+    "73662": {
+      "command": "/opt/homebrew/opt/llvm/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-package-425bc-puck/package-artifacts/nano-runtime-package-3ajp5r2_/dump.c -o /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-package-425bc-puck/package-artifacts/nano-runtime-package-3ajp5r2_/dump",
+      "group": 73602,
+      "parent": 73602,
+      "started": "Mon Sep 21 01:58:34 2026"
+    },
+    "73663": {
+      "command": "(clang-23)",
+      "group": 73602,
+      "parent": 73662,
+      "started": "Mon Sep 21 01:58:34 2026"
+    }
+  },
+  "remaining": []
+}

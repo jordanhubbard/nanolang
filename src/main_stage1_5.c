@@ -69,6 +69,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     Environment *env = create_environment();
     if (!type_check(program, env)) {
         fprintf(stderr, "Type checking failed\n");
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -80,6 +81,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Phase 4: Shadow-Test Execution */
     if (!run_shadow_tests(program, env, opts->verbose)) {
         fprintf(stderr, "Shadow tests failed\n");
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -92,6 +94,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char *c_code = transpile_to_c(program, env);
     if (!c_code) {
         fprintf(stderr, "Transpilation failed\n");
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -113,6 +116,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (!c_file) {
         fprintf(stderr, "Error: Could not create C file '%s'\n", temp_c_file);
         free(c_code);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -156,6 +160,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Cleanup */
     free(c_code);
+    env_require_destroyable(env);
     free_ast(program);
     free_tokens(tokens, token_count);
     free_environment(env);

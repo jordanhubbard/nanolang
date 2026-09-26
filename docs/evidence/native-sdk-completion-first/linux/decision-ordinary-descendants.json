@@ -1,0 +1,54 @@
+{
+  "owned": {
+    "289029": {
+      "parent": 289015,
+      "group": 289029,
+      "started": "Mon Sep 21 22:37:37 2026",
+      "command": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14 -m unittest -f -v tests.test_shadow_completion.ShadowCompletion.test_exact_decision_boundaries"
+    },
+    "289048": {
+      "parent": 289046,
+      "group": 289046,
+      "started": "Mon Sep 21 22:37:37 2026",
+      "command": "[probe] <defunct>"
+    },
+    "289046": {
+      "parent": 289029,
+      "group": 289046,
+      "started": "Mon Sep 21 22:37:37 2026",
+      "command": "/tmp/nanolang-native-sdk-bae59-linux-preparation/decision-j1iedvgq/probe"
+    },
+    "289060": {
+      "parent": 289029,
+      "group": 289029,
+      "started": "Mon Sep 21 22:37:38 2026",
+      "command": "ps -axo pid=,ppid=,pgid=,lstart=,args="
+    },
+    "289088": {
+      "parent": 289046,
+      "group": 289046,
+      "started": "Mon Sep 21 22:37:38 2026",
+      "command": "[probe] <defunct>"
+    },
+    "289098": {
+      "parent": 289029,
+      "group": 289029,
+      "started": "Mon Sep 21 22:37:39 2026",
+      "command": "ps -axo pid=,ppid=,pgid=,lstart=,args="
+    },
+    "289100": {
+      "parent": 289029,
+      "group": 289029,
+      "started": "Mon Sep 21 22:37:39 2026",
+      "command": "ps -axo pid=,ppid=,pgid=,lstart=,args="
+    },
+    "289102": {
+      "parent": 289029,
+      "group": 289029,
+      "started": "Mon Sep 21 22:37:39 2026",
+      "command": "ps -axo pid=,ppid=,pgid=,lstart=,args="
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

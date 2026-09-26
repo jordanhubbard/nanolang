@@ -1,0 +1,14 @@
+{
+  "base": "b365efa055c95db2b43790dfc52f644dd1078dc6",
+  "source_sha256": {
+    "src/eval.c": "86f98e8ad247a4eee396025f178daf990810ba488eabf89edf6c9cff13e7c817",
+    "src/typechecker.c": "a5cce98a3930fc34ffea8691f506c8f7ee8f8fdec534c5abf69e76f3a7629a06",
+    "tests/test_cseed_aggregate_formatting.py": "302d8d57de96f0c91187903a577af0e171389bf2938811e8228604d8fbd0d40f"
+  },
+  "post_bootstrap_products": {
+    "bin/nanoc_c": "ddbff3361b94e3277f9219598beacc5b57282da2baceb3c7d90bd84580f95e7c",
+    "bin/nanoc_stage1": "62bb9239501d49177d2201139fd3a6a69bebf86460cea67fae32a166bc94b52b",
+    "bin/nanoc_stage2": "237571c6ae21fb57ba60a82ca5c4e649d971667e5d80691d3bce6b914c52e09d",
+    "bin/nvm2c": "30360f17b19dec71ab738754c9d886b6ed36260b31f1515f64e487cc41db0df9"
+  }
+}

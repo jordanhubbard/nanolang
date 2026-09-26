@@ -1,0 +1,12 @@
+{
+  "/tmp/nanolang-exclusive-77226-linux/env.o": {
+    "sha256": "70b955a0203fb2b95af10943c75e93827908d94a34acca7c38f3f75bfc2e4398",
+    "bytes": 442136,
+    "archive": "/tmp/nanolang-exclusive-77226-linux/objects/70b955a0203fb2b95af10943c75e93827908d94a34acca7c38f3f75bfc2e4398"
+  },
+  "/tmp/nanolang-exclusive-77226-linux/variables.mk": {
+    "sha256": "6f9c63dab581813da3163b30e7daa5339c55085bff95861ca2397f7d7f6924a6",
+    "bytes": 135,
+    "archive": "/tmp/nanolang-exclusive-77226-linux/objects/6f9c63dab581813da3163b30e7daa5339c55085bff95861ca2397f7d7f6924a6"
+  }
+}

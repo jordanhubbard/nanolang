@@ -1,0 +1,18 @@
+{
+  "started": 1789983747.813219,
+  "source": "/tmp/nanolang-record-llvm-darwin-recovery-seal",
+  "archive": "/home/jkh/nanolang-qualification/vm-effects-20260921/nanolang-record-llvm-darwin-recovery-evidence.tar.gz",
+  "scope": "Completed immutable Darwin recovery seal only, no historical missing remote files reconstructed.",
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "",
+  "sha256": "8ed1572e4ffd82583080624cadb61217d53f134ee7533aa4f4e6d5f0eaf5aab1",
+  "bytes": 202387709,
+  "finished": 1789983765.2151167,
+  "decompressed_member_check": {
+    "status": "PASS",
+    "files": 17783,
+    "at": 1789983789.2048812,
+    "method": "Read every actual gzip/tar file member without extraction and compare its SHA256 to the completed source seal; reject extra, duplicate, missing or nonregular members."
+  }
+}

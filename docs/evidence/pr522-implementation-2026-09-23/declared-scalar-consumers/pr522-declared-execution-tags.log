@@ -1,0 +1,54 @@
+..........F.F
+======================================================================
+FAIL: test_scalar_results_and_void_side_effect (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_scalar_results_and_void_side_effect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 50, in test_scalar_results_and_void_side_effect
+    self.paired(self.imports(entries)+'.string text "borrowed"\n.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                           ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 18, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-7qfo0cqj/generated.c:1063:14: error: no member named 'tag' in 'nmap_value'
+ 1063 |     if (v[0].tag != 2) NVM2C_ABORT();
+      |         ~~~~ ^
+1 error generated.
+
+
+======================================================================
+FAIL: test_vm_heterogeneous_max_arity_provider_cleanup (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_vm_heterogeneous_max_arity_provider_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 26, in test_vm_heterogeneous_max_arity_provider_cleanup
+    self.command([self.native(self.work/'input.nvm')],
+                  ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 18, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-ciscuj21/generated.c:953:14: error: no member named 'tag' in 'nmap_value'
+  953 |     if (v[0].tag != 2) NVM2C_ABORT();
+      |         ~~~~ ^
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 13 tests in 9.123s
+
+FAILED (failures=2)

@@ -1,0 +1,319 @@
+Error at line 1, column 8: Function 'at' is already defined
+Warning: Function 'at' is missing a shadow test
+Error at line 1, column 8: Function 'array_push' is already defined
+Warning: Function 'array_push' is missing a shadow test
+Error at line 0, column 0: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 0, column 0: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 0, column 0: I require the retained nominal declaration and every substituted argument owner.
+Hint: Preserve the selected payload variant and complete nested annotation.
+Error at line 0, column 0: I require the destination's owner-aware callable signature.
+Hint: Preserve all parameter and return declarations.
+Error at line 0, column 0: I require the declared owner-aware callable value.
+Hint: Preserve complete signature metadata.
+Warning at line 2, column 1: Unused variable 'values'
+Error at line 0, column 0: I require every tuple child's complete declared annotation and owner.
+Hint: Preserve nested callable and container facts at this destination.
+Error at line 0, column 0: I cannot publish a tuple binding without its complete child annotations.
+Hint: Preserve the parsed destination or the checked inferred tuple proof.
+Error at line 1, column 49: Expected type annotation
+Error at line 1, column 49: Unexpected token in expression: GT (type=66)
+Error at line 1, column 50: Unexpected token in expression: DOT (type=18)
+Error at line 1, column 49: Expected type annotation
+Error at line 1, column 49: Unexpected token in expression: DOT (type=18)
+Warning at line 3, column 20: Unused variable 'box'
+Error at line 3, column 75: Return type mismatch: got bool, expected int.
+Hint: Ensure the returned value matches the function's declared return type.
+Warning at line 3, column 20: Unused variable 'box'
+
+=================================================================
+==80448==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 144 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bb7ffc in payload_alloc env.c:2004
+    #2 0x000104bb7ffc in payload_copy env.c:2061
+    #3 0x000104bb8c18 in copy_payload_type_info env.c:2090
+    #4 0x000104bb8c18 in resolve_union_payload_type_info env.c:2227
+    #5 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #6 0x0001049a18a4 in check_expression typechecker.c:2211
+    #7 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #8 0x0001049a18a4 in check_expression typechecker.c:2211
+    #9 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #10 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #11 0x000104a2478c in check_statement typechecker.c:5648
+    #12 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #13 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #14 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #15 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Direct leak of 16 byte(s) in 2 object(s) allocated from:
+    #0 0x00010636d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000104a53068 in type_check_module_impl typechecker.c:9197
+    #2 0x000104a4fd88 in type_check_module typechecker.c:9897
+    #3 0x000104a90ca4 in constructor_failure_rollback test_nominal_array_identity.c:655
+    #4 0x000104a756f4 in main test_nominal_array_identity.c:663
+    #5 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Direct leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000104a53068 in type_check_module_impl typechecker.c:9197
+    #2 0x000104a4fd88 in type_check_module typechecker.c:9897
+    #3 0x000104a87e60 in complete_tuple_annotations test_nominal_array_identity.c:549
+    #4 0x000104a756ec in main test_nominal_array_identity.c:663
+    #5 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Direct leak of 8 byte(s) in 2 object(s) allocated from:
+    #0 0x00010636d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000104a54860 in type_check_module_impl typechecker.c:9219
+    #2 0x000104a4fd88 in type_check_module typechecker.c:9897
+    #3 0x000104a90ca4 in constructor_failure_rollback test_nominal_array_identity.c:655
+    #4 0x000104a756f4 in main test_nominal_array_identity.c:663
+    #5 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Direct leak of 4 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000104a54860 in type_check_module_impl typechecker.c:9219
+    #2 0x000104a4fd88 in type_check_module typechecker.c:9897
+    #3 0x000104a87e60 in complete_tuple_annotations test_nominal_array_identity.c:549
+    #4 0x000104a756ec in main test_nominal_array_identity.c:663
+    #5 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Indirect leak of 144 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bb7ffc in payload_alloc env.c:2004
+    #2 0x000104bb7ffc in payload_copy env.c:2061
+    #3 0x000104bb8f38 in copy_payload_type_info env.c:2090
+    #4 0x000104bb8f38 in payload_substitute env.c:2174
+    #5 0x000104bb8d6c in payload_substitute env.c:2200
+    #6 0x000104bb8c2c in resolve_union_payload_type_info env.c:2228
+    #7 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #8 0x0001049a18a4 in check_expression typechecker.c:2211
+    #9 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #10 0x0001049a18a4 in check_expression typechecker.c:2211
+    #11 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #12 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #13 0x000104a2478c in check_statement typechecker.c:5648
+    #14 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #15 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #16 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #17 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Indirect leak of 144 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bb7ffc in payload_alloc env.c:2004
+    #2 0x000104bb7ffc in payload_copy env.c:2061
+    #3 0x000104bb8f38 in copy_payload_type_info env.c:2090
+    #4 0x000104bb8f38 in payload_substitute env.c:2174
+    #5 0x000104bb8e0c in payload_substitute env.c:2209
+    #6 0x000104bb8c2c in resolve_union_payload_type_info env.c:2228
+    #7 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #8 0x0001049a18a4 in check_expression typechecker.c:2211
+    #9 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #10 0x0001049a18a4 in check_expression typechecker.c:2211
+    #11 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #12 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #13 0x000104a2478c in check_statement typechecker.c:5648
+    #14 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #15 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #16 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #17 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Indirect leak of 144 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bb7ffc in payload_alloc env.c:2004
+    #2 0x000104bb7ffc in payload_copy env.c:2061
+    #3 0x000104bb9168 in payload_signature env.c:2050
+    #4 0x000104bb81a0 in payload_copy env.c:2078
+    #5 0x000104bb8c18 in copy_payload_type_info env.c:2090
+    #6 0x000104bb8c18 in resolve_union_payload_type_info env.c:2227
+    #7 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #8 0x0001049a18a4 in check_expression typechecker.c:2211
+    #9 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #10 0x0001049a18a4 in check_expression typechecker.c:2211
+    #11 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #12 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #13 0x000104a2478c in check_statement typechecker.c:5648
+    #14 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #15 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #16 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #17 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Indirect leak of 64 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bb904c in payload_alloc env.c:2004
+    #2 0x000104bb904c in payload_signature env.c:2036
+    #3 0x000104bb81a0 in payload_copy env.c:2078
+    #4 0x000104bb8c18 in copy_payload_type_info env.c:2090
+    #5 0x000104bb8c18 in resolve_union_payload_type_info env.c:2227
+    #6 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #7 0x0001049a18a4 in check_expression typechecker.c:2211
+    #8 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #9 0x0001049a18a4 in check_expression typechecker.c:2211
+    #10 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #11 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #12 0x000104a2478c in check_statement typechecker.c:5648
+    #13 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #14 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #15 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #16 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Indirect leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bb9144 in payload_alloc env.c:2004
+    #2 0x000104bb9144 in payload_signature env.c:2048
+    #3 0x000104bb81a0 in payload_copy env.c:2078
+    #4 0x000104bb8c18 in copy_payload_type_info env.c:2090
+    #5 0x000104bb8c18 in resolve_union_payload_type_info env.c:2227
+    #6 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #7 0x0001049a18a4 in check_expression typechecker.c:2211
+    #8 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #9 0x0001049a18a4 in check_expression typechecker.c:2211
+    #10 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #11 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #12 0x000104a2478c in check_statement typechecker.c:5648
+    #13 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #14 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #15 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #16 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Indirect leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bba720 in payload_alloc env.c:2004
+    #2 0x000104bba720 in payload_names env.c:2020
+    #3 0x000104bb90a8 in payload_signature env.c:2043
+    #4 0x000104bb81a0 in payload_copy env.c:2078
+    #5 0x000104bb8c18 in copy_payload_type_info env.c:2090
+    #6 0x000104bb8c18 in resolve_union_payload_type_info env.c:2227
+    #7 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #8 0x0001049a18a4 in check_expression typechecker.c:2211
+    #9 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #10 0x0001049a18a4 in check_expression typechecker.c:2211
+    #11 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #12 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #13 0x000104a2478c in check_statement typechecker.c:5648
+    #14 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #15 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #16 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #17 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Indirect leak of 10 byte(s) in 2 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bb8db0 in payload_alloc env.c:2004
+    #2 0x000104bb8db0 in payload_name env.c:2014
+    #3 0x000104bb8db0 in payload_substitute env.c:2205
+    #4 0x000104bb8c2c in resolve_union_payload_type_info env.c:2228
+    #5 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #6 0x0001049a18a4 in check_expression typechecker.c:2211
+    #7 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #8 0x0001049a18a4 in check_expression typechecker.c:2211
+    #9 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #10 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #11 0x000104a2478c in check_statement typechecker.c:5648
+    #12 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #13 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #14 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #15 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Indirect leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bb9088 in payload_alloc env.c:2004
+    #2 0x000104bb9088 in payload_signature env.c:2040
+    #3 0x000104bb81a0 in payload_copy env.c:2078
+    #4 0x000104bb8c18 in copy_payload_type_info env.c:2090
+    #5 0x000104bb8c18 in resolve_union_payload_type_info env.c:2227
+    #6 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #7 0x0001049a18a4 in check_expression typechecker.c:2211
+    #8 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #9 0x0001049a18a4 in check_expression typechecker.c:2211
+    #10 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #11 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #12 0x000104a2478c in check_statement typechecker.c:5648
+    #13 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #14 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #15 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #16 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Indirect leak of 5 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bb8054 in payload_alloc env.c:2004
+    #2 0x000104bb8054 in payload_name env.c:2014
+    #3 0x000104bb8054 in payload_copy env.c:2063
+    #4 0x000104bb8f38 in copy_payload_type_info env.c:2090
+    #5 0x000104bb8f38 in payload_substitute env.c:2174
+    #6 0x000104bb8e0c in payload_substitute env.c:2209
+    #7 0x000104bb8c2c in resolve_union_payload_type_info env.c:2228
+    #8 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #9 0x0001049a18a4 in check_expression typechecker.c:2211
+    #10 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #11 0x0001049a18a4 in check_expression typechecker.c:2211
+    #12 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #13 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #14 0x000104a2478c in check_statement typechecker.c:5648
+    #15 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #16 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #17 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #18 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Indirect leak of 5 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bb8054 in payload_alloc env.c:2004
+    #2 0x000104bb8054 in payload_name env.c:2014
+    #3 0x000104bb8054 in payload_copy env.c:2063
+    #4 0x000104bb8f38 in copy_payload_type_info env.c:2090
+    #5 0x000104bb8f38 in payload_substitute env.c:2174
+    #6 0x000104bb8d6c in payload_substitute env.c:2200
+    #7 0x000104bb8c2c in resolve_union_payload_type_info env.c:2228
+    #8 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #9 0x0001049a18a4 in check_expression typechecker.c:2211
+    #10 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #11 0x0001049a18a4 in check_expression typechecker.c:2211
+    #12 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #13 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #14 0x000104a2478c in check_statement typechecker.c:5648
+    #15 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #16 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #17 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #18 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Indirect leak of 5 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bb8e4c in payload_alloc env.c:2004
+    #2 0x000104bb8e4c in payload_name env.c:2014
+    #3 0x000104bb8e4c in payload_substitute env.c:2213
+    #4 0x000104bb8c2c in resolve_union_payload_type_info env.c:2228
+    #5 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #6 0x0001049a18a4 in check_expression typechecker.c:2211
+    #7 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #8 0x0001049a18a4 in check_expression typechecker.c:2211
+    #9 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #10 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #11 0x000104a2478c in check_statement typechecker.c:5648
+    #12 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #13 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #14 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #15 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+Indirect leak of 5 byte(s) in 1 object(s) allocated from:
+    #0 0x00010636d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000104bb8054 in payload_alloc env.c:2004
+    #2 0x000104bb8054 in payload_name env.c:2014
+    #3 0x000104bb8054 in payload_copy env.c:2063
+    #4 0x000104bb9168 in payload_signature env.c:2050
+    #5 0x000104bb81a0 in payload_copy env.c:2078
+    #6 0x000104bb8c18 in copy_payload_type_info env.c:2090
+    #7 0x000104bb8c18 in resolve_union_payload_type_info env.c:2227
+    #8 0x000104a07f2c in check_expression_impl typechecker.c:4876
+    #9 0x0001049a18a4 in check_expression typechecker.c:2211
+    #10 0x0001049f6444 in check_expression_impl typechecker.c:4523
+    #11 0x0001049a18a4 in check_expression typechecker.c:2211
+    #12 0x000104adba24 in check_nominal_contract typechecker.c:1084
+    #13 0x000104b2a7c0 in check_statement_impl typechecker.c:6221
+    #14 0x000104a2478c in check_statement typechecker.c:5648
+    #15 0x000104b796f8 in assignment_branch_growth test_nominal_array_identity.c:309
+    #16 0x000104a85ed8 in retained_callable_consumers test_nominal_array_identity.c:518
+    #17 0x000104a756e8 in main test_nominal_array_identity.c:663
+    #18 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+SUMMARY: AddressSanitizer: 746 byte(s) leaked in 20 allocation(s).

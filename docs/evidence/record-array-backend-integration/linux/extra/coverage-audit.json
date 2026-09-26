@@ -1,0 +1,38 @@
+{
+  "source": "a1bb1cb85e5551f9e5bb10491f1608877ef6b7b5",
+  "status": "PASS",
+  "phases": 17,
+  "coverage": [
+    {
+      "phase": "generated-ordinary-native",
+      "child_statuses": 1590,
+      "fault_records": 146,
+      "recoveries": 18976
+    },
+    {
+      "phase": "generated-clang-native",
+      "child_statuses": 1590,
+      "fault_records": 146,
+      "recoveries": 18976
+    },
+    {
+      "phase": "ordinary-native",
+      "child_statuses": 2474,
+      "fault_records": 146,
+      "recoveries": 18976
+    },
+    {
+      "phase": "clang-ordinary-native",
+      "child_statuses": 2474,
+      "fault_records": 146,
+      "recoveries": 18976
+    },
+    {
+      "phase": "wasm",
+      "child_statuses": 3739,
+      "fault_records": 292,
+      "recoveries": 37952
+    }
+  ],
+  "scope": "Current integration terminal, exact phase selection and complete 73-case product/fault accounting; original sanitizer attribution remains separate."
+}

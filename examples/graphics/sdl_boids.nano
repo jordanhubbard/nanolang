@@ -11,7 +11,7 @@ unsafe module "modules/sdl_helpers/sdl_helpers.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 module "modules/ui_widgets/ui_widgets.nano"
-module "modules/dispatch/dispatch.nano"
+module "modules/dispatch/dispatch.nano" as dispatch
 
 from "std/math/vector2d.nano" import vec_new, vec_length
 
@@ -232,19 +232,19 @@ fn run_boids(max_frames: int) -> int {
         # Fan out: two workers compute forces for lower/upper halves simultaneously.
         # Safety: g_boid_x/y/vx/vy are read-only during this phase;
         #         each worker writes to disjoint slots of g_new_vx/vy.
-        if (dispatch_available) {
-            let q_compute: NlQueue = (queue_concurrent "nano.boids.compute")
-            let g_flock: NlQueueGroup = (group_create)
-            (group_async g_flock q_compute compute_flocking_lower)
-            (group_async g_flock q_compute compute_flocking_upper)
+        if (dispatch.dispatch_available) {
+            let q_compute: dispatch.NlQueue = (dispatch.queue_concurrent "nano.boids.compute")
+            let g_flock: dispatch.NlQueueGroup = (dispatch.group_create)
+            (dispatch.group_async g_flock q_compute compute_flocking_lower)
+            (dispatch.group_async g_flock q_compute compute_flocking_upper)
 
             # Fan in: wait for both workers to finish
-            let wait_rc: int = (group_wait_ms g_flock 1000)
+            let wait_rc: int = (dispatch.group_wait_ms g_flock 1000)
             if (!= wait_rc 0) {
                 (println "WARN: flocking timeout")
             } else {}
-            (group_destroy g_flock)
-            (queue_destroy q_compute)
+            (dispatch.group_destroy g_flock)
+            (dispatch.queue_destroy q_compute)
         } else {
             (compute_flocking_lower)
             (compute_flocking_upper)

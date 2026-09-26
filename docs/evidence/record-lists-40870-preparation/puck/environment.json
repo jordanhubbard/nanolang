@@ -1,0 +1,14 @@
+{
+  "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "CC": "/usr/bin/clang",
+  "NANO_NATIVE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "NANOLANG_GUARD_SAN_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "NMS_RUNTIME_CLANG": "/opt/homebrew/opt/llvm/bin/clang",
+  "NMS_RUNTIME_OPT": "/opt/homebrew/opt/llvm/bin/opt",
+  "NMS_NATIVE_CLANG_FLAGS": "",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "NANO_BUILD_CACHE": "/private/tmp/nanolang-record-lists-qualified-40870/obj/module_cache",
+  "NANO_MODULE_PATH": "/private/tmp/nanolang-record-lists-qualified-40870/modules"
+}

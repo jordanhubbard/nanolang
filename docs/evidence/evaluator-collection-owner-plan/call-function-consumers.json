@@ -1,0 +1,607 @@
+{
+  "src/wasm_interface.c": {
+    "sha256": "b08c4544d5f1a6f051faf95313441a04e078bfaec64e4de2096bdf65f7220f49",
+    "references": [
+      {
+        "line": 113,
+        "text": "Value result = call_function(\"main\", NULL, 0, env);"
+      }
+    ]
+  },
+  "src/proptest.c": {
+    "sha256": "db3620f60e56bdbe9ae893ad9d1b82adfbb86277d1470db15f67754ea70a522c",
+    "references": [
+      {
+        "line": 277,
+        "text": "Value result = call_function(fn->name, args, n, env);"
+      },
+      {
+        "line": 346,
+        "text": "Value result = call_function(fn->name, args, n, env);"
+      }
+    ]
+  },
+  "src/eval.c": {
+    "sha256": "c64f06ee1ad4737f6b75dbd3aa0cf898dcf7a1fa03337755895d9630f93e60f3",
+    "references": [
+      {
+        "line": 129,
+        "text": "return call_function(ca->func_name, ca->args, ca->arg_count, ca->env);"
+      },
+      {
+        "line": 2129,
+        "text": "Value transformed = call_function(transform_fn_name, call_args, 1, env);"
+      },
+      {
+        "line": 2249,
+        "text": "Value transformed = call_function(transform_fn_name, call_args, 1, env);"
+      },
+      {
+        "line": 2355,
+        "text": "Value pred = call_function(pred_fn_name, call_args, 1, env);"
+      },
+      {
+        "line": 2440,
+        "text": "Value pred = call_function(pred_fn_name, call_args, 1, env);"
+      },
+      {
+        "line": 2527,
+        "text": "accumulator = call_function(combine_fn_name, call_args, 2, env);"
+      },
+      {
+        "line": 2608,
+        "text": "accumulator = call_function(combine_fn_name, call_args, 2, env);"
+      },
+      {
+        "line": 6579,
+        "text": "Value call_function(const char *name, Value *args, int arg_count, Environment *env) {"
+      }
+    ]
+  },
+  "src/bench_native.c": {
+    "sha256": "30e1e4668d626b1751ce8c79767f297518618224443e8d3f6769e467844508f7",
+    "references": [
+      {
+        "line": 16,
+        "text": "(void)call_function(bctx->fn_name, NULL, 0, bctx->env);"
+      }
+    ]
+  },
+  "src/nano_main.c": {
+    "sha256": "9d534800ecdec36cec5b9d122161d31a31212c4966ded749efbc7639df899fdb",
+    "references": [
+      {
+        "line": 184,
+        "text": "Value result = call_function(\"main\", NULL, 0, env);"
+      }
+    ]
+  },
+  "src/nanolang.h": {
+    "sha256": "f8fdae6bd25ebafa67c548b567f6410f5e994215dfba9f9797b7fb0d5868deb5",
+    "references": [
+      {
+        "line": 959,
+        "text": "Value call_function(const char *name, Value *args, int arg_count, Environment *env);"
+      }
+    ]
+  },
+  "src/dap_server.c": {
+    "sha256": "c42f2573fb4cf4fd83a1f1eec1798ee851e40ece1a9eef7cf8bcf4749a5f4b65",
+    "references": [
+      {
+        "line": 995,
+        "text": "if (main_fn) call_function(\"main\", NULL, 0, env);"
+      }
+    ]
+  },
+  "tests/test_binary64_arithmetic_eval.c": {
+    "sha256": "51b484c87b3d44cb6ccb0c0737b827ea72da236177c07003f0b085ec557b0641",
+    "references": [
+      {
+        "line": 35,
+        "text": "Value mapped = call_function(\"mapped\", &array, 1, ctx.env);"
+      },
+      {
+        "line": 38,
+        "text": "Value reduced = call_function(\"reduced\", &array, 1, ctx.env);"
+      },
+      {
+        "line": 41,
+        "text": "Value zero = call_function(\"total\", &array, 1, ctx.env);"
+      }
+    ]
+  },
+  "tests/test_integer_binary_eval.c": {
+    "sha256": "b7be73b16fbd5fe564e3c310a2a8e4e0edd4d1b40fbb82b6959fe25c072a3fa8",
+    "references": [
+      {
+        "line": 60,
+        "text": "Value result=call_function(\"pair\",args,2,ctx.env);"
+      },
+      {
+        "line": 64,
+        "text": "Value pair[]={a,b}; result=call_function(\"arrays\",pair,2,ctx.env);"
+      },
+      {
+        "line": 66,
+        "text": "pair[0]=a; pair[1]=args[1]; result=call_function(\"right\",pair,2,ctx.env);"
+      },
+      {
+        "line": 68,
+        "text": "pair[0]=args[0]; pair[1]=b; result=call_function(\"left\",pair,2,ctx.env);"
+      },
+      {
+        "line": 71,
+        "text": "result=call_function(\"mapped\",&a,1,ctx.env);"
+      },
+      {
+        "line": 73,
+        "text": "result=call_function(\"reduced\",pair,2,ctx.env);"
+      }
+    ]
+  },
+  "tests/test_evaluator_lifetime_programs.c": {
+    "sha256": "80a08c2587b1a01e1c2a53fe0ce7e7a95ab1035d00efdd201a38c4a2de0eef9f",
+    "references": [
+      {
+        "line": 38,
+        "text": "Value main_result = call_function(\"main\", NULL, 0, env);"
+      },
+      {
+        "line": 43,
+        "text": "escaped = call_function(\"capture\", NULL, 0, env);"
+      }
+    ]
+  },
+  "tests/test_bench.c": {
+    "sha256": "be4d951e2dda94f1b592cafe8f6b8910a398bd88974d297019294cd61d0e1320",
+    "references": [
+      {
+        "line": 77,
+        "text": "Value after = call_function(\"bench_mark\", NULL, 0, ctx.env);"
+      }
+    ]
+  },
+  "tests/test_eval.c": {
+    "sha256": "dde721be874b35209bb552066787b73fa55fe42529107598af48e3f4aa4a33c9",
+    "references": [
+      {
+        "line": 4,
+        "text": "* Exercises run_program(), call_function(), run_shadow_tests(), and"
+      },
+      {
+        "line": 143,
+        "text": "Value result = call_function(\"capture\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 151,
+        "text": "result = call_function(\"capture\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 155,
+        "text": "result = call_function(\"capture\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 163,
+        "text": "result = call_function(\"capture\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 167,
+        "text": "result = call_function(\"capture\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 183,
+        "text": "Value result = call_function(\"add\", args, 2, ctx.env);"
+      },
+      {
+        "line": 207,
+        "text": "Value value = call_function(\"check\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 224,
+        "text": "Value r = call_function(\"sub\", args, 2, ctx.env);"
+      },
+      {
+        "line": 238,
+        "text": "Value r = call_function(\"mul\", args, 2, ctx.env);"
+      },
+      {
+        "line": 252,
+        "text": "Value r = call_function(\"div\", args, 2, ctx.env);"
+      },
+      {
+        "line": 266,
+        "text": "Value r = call_function(\"mod_fn\", args, 2, ctx.env);"
+      },
+      {
+        "line": 285,
+        "text": "Value r = call_function(\"land\", args_tt, 2, ctx.env);"
+      },
+      {
+        "line": 289,
+        "text": "r = call_function(\"land\", args_tf, 2, ctx.env);"
+      },
+      {
+        "line": 292,
+        "text": "r = call_function(\"lor\", args_tf, 2, ctx.env);"
+      },
+      {
+        "line": 296,
+        "text": "r = call_function(\"lnot\", args_f, 1, ctx.env);"
+      },
+      {
+        "line": 319,
+        "text": "Value r = call_function(\"lt\", args, 2, ctx.env);"
+      },
+      {
+        "line": 322,
+        "text": "r = call_function(\"gt\", args, 2, ctx.env);"
+      },
+      {
+        "line": 326,
+        "text": "r = call_function(\"eq\", args_eq, 2, ctx.env);"
+      },
+      {
+        "line": 329,
+        "text": "r = call_function(\"ne\", args, 2, ctx.env);"
+      },
+      {
+        "line": 348,
+        "text": "Value r = call_function(\"abs_val\", &neg5, 1, ctx.env);"
+      },
+      {
+        "line": 351,
+        "text": "r = call_function(\"abs_val\", &pos3, 1, ctx.env);"
+      },
+      {
+        "line": 370,
+        "text": "Value r = call_function(\"compute\", &five, 1, ctx.env);"
+      },
+      {
+        "line": 388,
+        "text": "Value r = call_function(\"factorial\", &six, 1, ctx.env);"
+      },
+      {
+        "line": 411,
+        "text": "Value r = call_function(\"sum_to\", &ten, 1, ctx.env);"
+      },
+      {
+        "line": 432,
+        "text": "Value r = call_function(\"sum_range\", &five, 1, ctx.env);"
+      },
+      {
+        "line": 450,
+        "text": "Value r = call_function(\"greet\", &name, 1, ctx.env);"
+      },
+      {
+        "line": 466,
+        "text": "Value r = call_function(\"slen\", &s, 1, ctx.env);"
+      },
+      {
+        "line": 482,
+        "text": "Value r = call_function(\"quad\", &three, 1, ctx.env);"
+      },
+      {
+        "line": 506,
+        "text": "Value r = call_function(\"classify\", &neg, 1, ctx.env);"
+      },
+      {
+        "line": 509,
+        "text": "r = call_function(\"classify\", &zer, 1, ctx.env);"
+      },
+      {
+        "line": 512,
+        "text": "r = call_function(\"classify\", &pos, 1, ctx.env);"
+      },
+      {
+        "line": 551,
+        "text": "Value r = call_function(\"fadd\", args, 2, ctx.env);"
+      },
+      {
+        "line": 571,
+        "text": "Value r = call_function(\"same\", args_eq, 2, ctx.env);"
+      },
+      {
+        "line": 575,
+        "text": "r = call_function(\"same\", args_ne, 2, ctx.env);"
+      },
+      {
+        "line": 590,
+        "text": "Value r = call_function(\"i2s\", &n, 1, ctx.env);"
+      },
+      {
+        "line": 606,
+        "text": "Value r = call_function(\"s2i\", &s, 1, ctx.env);"
+      },
+      {
+        "line": 625,
+        "text": "Value r = call_function(\"get_min\", args, 2, ctx.env);"
+      },
+      {
+        "line": 628,
+        "text": "r = call_function(\"get_max\", args, 2, ctx.env);"
+      },
+      {
+        "line": 643,
+        "text": "Value r = call_function(\"get_abs\", &neg7, 1, ctx.env);"
+      },
+      {
+        "line": 659,
+        "text": "Value result = call_function(\"area\", &r, 1, ctx.env);"
+      },
+      {
+        "line": 675,
+        "text": "Value r = call_function(\"negate\", &zero, 1, ctx.env);"
+      },
+      {
+        "line": 711,
+        "text": "Value pt = call_function(\"make_point\", args, 2, ctx.env);"
+      },
+      {
+        "line": 786,
+        "text": "Value r = call_function(\"classify\", &zero, 1, ctx.env);"
+      },
+      {
+        "line": 821,
+        "text": "Value r = call_function(\"first_char\", &hello, 1, ctx.env);"
+      },
+      {
+        "line": 845,
+        "text": "Value r = call_function(\"apply_twice\", &v, 1, ctx.env);"
+      },
+      {
+        "line": 873,
+        "text": "Value r = call_function(\"is_even\", &four, 1, ctx.env);"
+      },
+      {
+        "line": 904,
+        "text": "Value r = call_function(\"sign\", &five, 1, ctx.env);"
+      },
+      {
+        "line": 947,
+        "text": "Value r = call_function(\"compute\", &two, 1, ctx.env);"
+      },
+      {
+        "line": 985,
+        "text": "Value r = call_function(\"test_map\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 1007,
+        "text": "Value r = call_function(\"test_has\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 1041,
+        "text": "Value r = call_function(\"test_ok\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 1068,
+        "text": "Value pair = call_function(\"make_pair\", args, 2, ctx.env);"
+      },
+      {
+        "line": 1087,
+        "text": "Value r = call_function(\"negate_bool\", &t, 1, ctx.env);"
+      },
+      {
+        "line": 1190,
+        "text": "Value static_result = call_function(\"read_static\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 1194,
+        "text": "Value mapped_result = call_function(\"read_mapped\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 1652,
+        "text": "Value result = call_function(\"noop\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 1899,
+        "text": "(void)call_function(\"unchecked_miss\", NULL, 0, ctx->env);"
+      },
+      {
+        "line": 2006,
+        "text": "Value result = call_function(\"count_down\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2160,
+        "text": "Value output = call_function(\"mapped\", &input, 1, ctx.env);"
+      },
+      {
+        "line": 2412,
+        "text": "Value result = call_function(\"main\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2477,
+        "text": "Value result = call_function(\"read\", &values, 1, ctx.env);"
+      },
+      {
+        "line": 2487,
+        "text": "result = call_function(\"read\", &values, 1, ctx.env);"
+      },
+      {
+        "line": 2505,
+        "text": "Value result = call_function(\"ffi_test_void\", args, 3, ctx.env);"
+      },
+      {
+        "line": 2507,
+        "text": "result = call_function(\"ffi_test_observed\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2509,
+        "text": "result = call_function(\"ffi_test_string\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2512,
+        "text": "result = call_function(\"ffi_test_bool\", bool_args, 3, ctx.env);"
+      },
+      {
+        "line": 2515,
+        "text": "result = call_function(\"ffi_test_bool\", bool_args, 3, ctx.env);"
+      },
+      {
+        "line": 2518,
+        "text": "result = call_function(\"ffi_test_void\", args, 2, ctx.env);"
+      },
+      {
+        "line": 2520,
+        "text": "result = call_function(\"ffi_test_void\", NULL, 3, ctx.env);"
+      },
+      {
+        "line": 2523,
+        "text": "result = call_function(\"ffi_test_void\", args, 3, ctx.env);"
+      },
+      {
+        "line": 2526,
+        "text": "result = call_function(\"ffi_test_observed\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2605,
+        "text": "Value result = call_function(\"check\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2614,
+        "text": "Value appended = call_function(\"append_inner\", arguments, 2, ctx.env);"
+      },
+      {
+        "line": 2682,
+        "text": "Value result = call_function(\"alias_after_reassignment\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2685,
+        "text": "result = call_function(\"alias_across_call\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2732,
+        "text": "Value result = call_function(\"now\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2756,
+        "text": "Value result = call_function(\"main\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2789,
+        "text": "Value result = call_function(\"main\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2819,
+        "text": "Value result = call_function(\"main\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2835,
+        "text": "Value result = call_function(\"main\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2877,
+        "text": "Value result = call_function(\"main\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2891,
+        "text": "Value result = call_function(\"main\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2909,
+        "text": "Value result = call_function(\"main\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2926,
+        "text": "Value result = call_function(\"main\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2948,
+        "text": "Value result = call_function(\"main\", NULL, 0, ctx.env);"
+      },
+      {
+        "line": 2983,
+        "text": "Value result = call_function(\"owner\", &input, 1, ctx.env);"
+      },
+      {
+        "line": 3007,
+        "text": "Value result = call_function(\"main\", NULL, 0, ctx.env);"
+      }
+    ]
+  },
+  "tests/test_file_service_parser.c": {
+    "sha256": "4043a979d5b1834d44692703fbd18c3b25a2c13587ceabd5d23a7361b54ffb17",
+    "references": [
+      {
+        "line": 124,
+        "text": "Value result=call_function(\"main\",NULL,0,env);assert(result.type==VAL_INT&&result.as.int_val==7);"
+      },
+      {
+        "line": 162,
+        "text": "Value result=call_function(\"choose\",NULL,0,env);"
+      }
+    ]
+  },
+  "tests/test_integer_negation_eval.c": {
+    "sha256": "4c058be982deb2c7c4ac832bd700bc99a217f78fa813c318f778c2a4e5a0ea09",
+    "references": [
+      {
+        "line": 157,
+        "text": "Value result=call_function(\"single\",&scalar,1,ctx.env);"
+      },
+      {
+        "line": 162,
+        "text": "result=call_function(\"vector\",&fixed,1,ctx.env);"
+      },
+      {
+        "line": 173,
+        "text": "result=call_function(routes[j],&array,1,ctx.env);"
+      },
+      {
+        "line": 179,
+        "text": "result=call_function(\"reduced\",&array,1,ctx.env);"
+      }
+    ]
+  },
+  "tests/test_binary64_bits_eval.c": {
+    "sha256": "ed93ddb7f54937f36255dd1b91560918b1cf0f72344216fca0b7a7d38f250aa4",
+    "references": [
+      {
+        "line": 23,
+        "text": "Value result = call_function(\"copy\", &arg, 1, ctx.env);"
+      }
+    ]
+  },
+  "tests/test_aggregate_binary64_eval.c": {
+    "sha256": "bfe9fd01698634be53dc6e644e711b569bb0ecfc0ed7a57b9ba227e0cdae136c",
+    "references": [
+      {
+        "line": 123,
+        "text": "observe(call_function(\"pair\",pair,2,ctx.env),1,c->expected);"
+      },
+      {
+        "line": 124,
+        "text": "observe(call_function(\"left\",left,2,ctx.env),1,c->expected);"
+      },
+      {
+        "line": 125,
+        "text": "observe(call_function(\"right\",right,2,ctx.env),1,c->expected);"
+      },
+      {
+        "line": 130,
+        "text": "observe(call_function(\"pair\",pair,2,ctx.env),0,0);"
+      },
+      {
+        "line": 131,
+        "text": "observe(call_function(\"left\",left,2,ctx.env),0,0);"
+      },
+      {
+        "line": 132,
+        "text": "observe(call_function(\"right\",right,2,ctx.env),0,0);"
+      }
+    ]
+  },
+  "src/eval/eval_io.c": {
+    "sha256": "9a295767de018174675471e4d0905cefafff8a3f95d1e7a1f7fddbb33351ad4f",
+    "references": [
+      {
+        "line": 473,
+        "text": "Value mapped = call_function(fn_name, call_args, 1, env);"
+      },
+      {
+        "line": 498,
+        "text": "Value next = call_function(fn_name, call_args, 1, env);"
+      }
+    ]
+  }
+}

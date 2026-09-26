@@ -1,0 +1,44 @@
+[
+  {
+    "directory": "/tmp/nano-native-literal-order-3b8w97t3",
+    "members": 12,
+    "reclaimed_bytes": 104160006,
+    "archive_sha256": "3b9dedee2bfc645d1d059e0303fbff38521dbcc791da29e3c8516828396780b1"
+  },
+  {
+    "directory": "/tmp/nano-native-literal-order-5c4a6i5c",
+    "members": 12,
+    "reclaimed_bytes": 104158029,
+    "archive_sha256": "247ef3fe83345ede467df27e76cb4a3bdc4cd4ff19052f480914256635588906"
+  },
+  {
+    "directory": "/tmp/nano-native-literal-order-5zi36dik",
+    "members": 12,
+    "reclaimed_bytes": 104157444,
+    "archive_sha256": "35701702ed1a07795df4c52bf6df228247c6f5e29a5bc9f2c0a6d02d943b7daf"
+  },
+  {
+    "directory": "/tmp/nano-native-literal-order-_pkbsbzb",
+    "members": 12,
+    "reclaimed_bytes": 103112099,
+    "archive_sha256": "5d44ee1051c0def93b75826c4dc1f88eea304d442f08b81bac40b13ccf6f4ec6"
+  },
+  {
+    "directory": "/tmp/nano-native-literal-order-eqeftsei",
+    "members": 12,
+    "reclaimed_bytes": 104157583,
+    "archive_sha256": "d398c769f6d28d89b0ed66d3ba6245d550ee9b7cd0d6bed12537155de1cc4221"
+  },
+  {
+    "directory": "/tmp/nano-native-literal-order-l9veahu5",
+    "members": 12,
+    "reclaimed_bytes": 103611371,
+    "archive_sha256": "339ae048eda140bbf8bf9f771bed15a03c15fae920c38f8a525db7d829069177"
+  },
+  {
+    "directory": "/tmp/nano-native-literal-order-lapx_tyx",
+    "members": 9,
+    "reclaimed_bytes": 78120643,
+    "archive_sha256": "1a18eae5a90f24bc6118e57d829714e25124bee7ed299ce12f576fc2c5c9f8e6"
+  }
+]

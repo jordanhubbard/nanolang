@@ -1,0 +1,13 @@
+-- E001 TYPE MISMATCH --- /home/jkh/nanolang-qualification/record-lists-833-linux-matrix/native-source/nano-native-record-lists-qpiuox8m/native-discovery.nano
+I require each array leaf's original declaration owner.
+
+12|  let held:Held<Item> =Held.Items{values:xs}
+                          ^
+Hint: Preserve fixed definition leaves and concrete argument identities.
+-- E001 TYPE MISMATCH --- /home/jkh/nanolang-qualification/record-lists-833-linux-matrix/native-source/nano-native-record-lists-qpiuox8m/native-discovery.nano
+I require the exact ordinary list element type, operation arity and INT index.
+
+13|  match held { Items(payload) => { assert (== (list_Item_length payload.values) 1) } }
+                                                 ^
+Hint: Use the declared List<T> receiver and matching ordinary element type.
+Type checking failed

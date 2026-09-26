@@ -1,0 +1,4 @@
+SDL_Init
+SDL_CreateWindow
+SDL_CreateRenderer
+complete

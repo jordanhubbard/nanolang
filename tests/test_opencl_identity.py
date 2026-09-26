@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """I keep host models separate from explicitly requested actual OpenCL GPU gates."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import argparse
 import os
 from pathlib import Path
@@ -41,5 +45,5 @@ if __name__ == '__main__':
     for name, command in commands(args.compiler, args.output.resolve(), args.sanitize, args.real_gpu):
         print('CASE', name, command, flush=True)
         subprocess.run(command, check=True, timeout=180, env={**os.environ,
-                       'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1',
+                       'ASAN_OPTIONS': asan_options("halt_on_error=1"),
                        'UBSAN_OPTIONS': 'halt_on_error=1:print_stacktrace=1'})

@@ -1,0 +1,502 @@
+{
+  "source_pin": "c5f14edbd148dda0c9ae03fe5366cc2e3f5bb5a9",
+  "scope": "I retain first component visibility refusals and exact maps; C reference binaries built, but bootstrap and SDK execution did not occur. Products remain in isolated source roots.",
+  "records": [
+    {
+      "original": "inputs/native-sdk-c5f14-selected-git.json",
+      "path": "inputs/native-sdk-c5f14-selected-git.json.gz",
+      "bytes": 979104,
+      "sha256": "97dfe9eb9292b39044395657a6fd2a3bd4d32cbdab7f25ae5ea12b4e39de53c9",
+      "stored_bytes": 317608,
+      "stored_sha256": "e28c6d9198bd2c15f9b06f94834dfffb3056340a1eeffaa10981d054cb140bca"
+    },
+    {
+      "original": "inputs/run-sdk-c5f14-preparation.py",
+      "path": "inputs/run-sdk-c5f14-preparation.py",
+      "bytes": 3155,
+      "sha256": "b14a460b0cd068e344dba45c463533ec28e44ced584860ab9ddf644e18a40b04",
+      "stored_bytes": 3155,
+      "stored_sha256": "b14a460b0cd068e344dba45c463533ec28e44ced584860ab9ddf644e18a40b04"
+    },
+    {
+      "original": "linux/build-capacity.json",
+      "path": "linux/build-capacity.json",
+      "bytes": 58,
+      "sha256": "358cd98d2f5d3a93c1fe0079e219ea240ca4b6eb762ef29f3a5aa77211397cc8",
+      "stored_bytes": 58,
+      "stored_sha256": "358cd98d2f5d3a93c1fe0079e219ea240ca4b6eb762ef29f3a5aa77211397cc8"
+    },
+    {
+      "original": "linux/build-command.json",
+      "path": "linux/build-command.json",
+      "bytes": 1330,
+      "sha256": "96895963132c9c6c99545ea9530b6875bedc79361b779e908ce5328f99b18acd",
+      "stored_bytes": 1330,
+      "stored_sha256": "96895963132c9c6c99545ea9530b6875bedc79361b779e908ce5328f99b18acd"
+    },
+    {
+      "original": "linux/build-descendants.json",
+      "path": "linux/build-descendants.json.gz",
+      "bytes": 68201,
+      "sha256": "c9ea4e6147b898849d5c8b5e023de77ac2d83b5a1b9c76a870c5cf91e2312f68",
+      "stored_bytes": 4556,
+      "stored_sha256": "24a9adf161c1f074615f2d2c87283d576c76efac706c004b3474eee37a9d3add"
+    },
+    {
+      "original": "linux/build-status.json",
+      "path": "linux/build-status.json",
+      "bytes": 241,
+      "sha256": "79aa8bc7bb882c1635d4ba8eda7f22a537a4b8f97bd805c4000e631f9b4b7c16",
+      "stored_bytes": 241,
+      "stored_sha256": "79aa8bc7bb882c1635d4ba8eda7f22a537a4b8f97bd805c4000e631f9b4b7c16"
+    },
+    {
+      "original": "linux/build.stderr",
+      "path": "linux/build.stderr",
+      "bytes": 53,
+      "sha256": "585e88ae1c409fc67c7225e46663776cacfb19ad58fcf3b54747d203d2cdca87",
+      "stored_bytes": 53,
+      "stored_sha256": "585e88ae1c409fc67c7225e46663776cacfb19ad58fcf3b54747d203d2cdca87"
+    },
+    {
+      "original": "linux/build.stdout",
+      "path": "linux/build.stdout",
+      "bytes": 30900,
+      "sha256": "b7e99fe6d9dc89c2c0d5b41afe2c8b1262516dfb30164e82091621c0bd3b914f",
+      "stored_bytes": 30900,
+      "stored_sha256": "b7e99fe6d9dc89c2c0d5b41afe2c8b1262516dfb30164e82091621c0bd3b914f"
+    },
+    {
+      "original": "linux/compiler-owner-capacity.json",
+      "path": "linux/compiler-owner-capacity.json",
+      "bytes": 58,
+      "sha256": "2188d8ec4e665e68b7c12c1f55ba714bab6bbe9a6c7aa993f1f9e8045f6fe77a",
+      "stored_bytes": 58,
+      "stored_sha256": "2188d8ec4e665e68b7c12c1f55ba714bab6bbe9a6c7aa993f1f9e8045f6fe77a"
+    },
+    {
+      "original": "linux/compiler-owner-command.json",
+      "path": "linux/compiler-owner-command.json",
+      "bytes": 1319,
+      "sha256": "b6eda2a7505f9a7d9f8aa207ae4bd9ff8c0de66b75b1983c53357091799ed1e9",
+      "stored_bytes": 1319,
+      "stored_sha256": "b6eda2a7505f9a7d9f8aa207ae4bd9ff8c0de66b75b1983c53357091799ed1e9"
+    },
+    {
+      "original": "linux/compiler-owner-descendants.json",
+      "path": "linux/compiler-owner-descendants.json",
+      "bytes": 54,
+      "sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original": "linux/compiler-owner-status.json",
+      "path": "linux/compiler-owner-status.json",
+      "bytes": 242,
+      "sha256": "b73a8b94ba814e1ff927ac18aa05b7cabfe062f135c12630cfd82ce48f63d0b7",
+      "stored_bytes": 242,
+      "stored_sha256": "b73a8b94ba814e1ff927ac18aa05b7cabfe062f135c12630cfd82ce48f63d0b7"
+    },
+    {
+      "original": "linux/compiler-owner.stderr",
+      "path": "linux/compiler-owner.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "linux/compiler-owner.stdout",
+      "path": "linux/compiler-owner.stdout",
+      "bytes": 42,
+      "sha256": "64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f",
+      "stored_bytes": 42,
+      "stored_sha256": "64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f"
+    },
+    {
+      "original": "linux/compiler-version-capacity.json",
+      "path": "linux/compiler-version-capacity.json",
+      "bytes": 58,
+      "sha256": "6d559dc7be21630c2dbbae1aef0790c7253882324b2b2124021323539ad2de27",
+      "stored_bytes": 58,
+      "stored_sha256": "6d559dc7be21630c2dbbae1aef0790c7253882324b2b2124021323539ad2de27"
+    },
+    {
+      "original": "linux/compiler-version-command.json",
+      "path": "linux/compiler-version-command.json",
+      "bytes": 1308,
+      "sha256": "0334156c1c5b9b7b8dd867bed58756b487e81f6a348bb205f5cbfc8b311ef150",
+      "stored_bytes": 1308,
+      "stored_sha256": "0334156c1c5b9b7b8dd867bed58756b487e81f6a348bb205f5cbfc8b311ef150"
+    },
+    {
+      "original": "linux/compiler-version-descendants.json",
+      "path": "linux/compiler-version-descendants.json",
+      "bytes": 54,
+      "sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original": "linux/compiler-version-status.json",
+      "path": "linux/compiler-version-status.json",
+      "bytes": 242,
+      "sha256": "5eb310481d28ad10c4c3aadb700ece69b188a4e350bce72f1183a000a3402e41",
+      "stored_bytes": 242,
+      "stored_sha256": "5eb310481d28ad10c4c3aadb700ece69b188a4e350bce72f1183a000a3402e41"
+    },
+    {
+      "original": "linux/compiler-version.stderr",
+      "path": "linux/compiler-version.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "linux/compiler-version.stdout",
+      "path": "linux/compiler-version.stdout",
+      "bytes": 246,
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "stored_bytes": 246,
+      "stored_sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+    },
+    {
+      "original": "linux/configuration.json",
+      "path": "linux/configuration.json",
+      "bytes": 462,
+      "sha256": "dee32c535e09e22c0fd26cacc5f0e1bcfb7fcea74ae982169ccb315a1166ebdc",
+      "stored_bytes": 462,
+      "stored_sha256": "dee32c535e09e22c0fd26cacc5f0e1bcfb7fcea74ae982169ccb315a1166ebdc"
+    },
+    {
+      "original": "linux/first-failure.json",
+      "path": "linux/first-failure.json",
+      "bytes": 8496,
+      "sha256": "0b0c2cdee24d62d744e5b2f92ae98c54078174e2529bab465aa1ff810c6d4fa9",
+      "stored_bytes": 8496,
+      "stored_sha256": "0b0c2cdee24d62d744e5b2f92ae98c54078174e2529bab465aa1ff810c6d4fa9"
+    },
+    {
+      "original": "linux/products-after.json",
+      "path": "linux/products-after.json.gz",
+      "bytes": 50449,
+      "sha256": "efac9014e10aaad9d92f723ea5d79b035ee2416359a9a45880b8841a533fc800",
+      "stored_bytes": 17353,
+      "stored_sha256": "e7075a5fe3f0b89be0728ec0579a6ed25016a194e69ca469ae10c80830a4eca5"
+    },
+    {
+      "original": "linux/products-before.json",
+      "path": "linux/products-before.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "stored_bytes": 3,
+      "stored_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "original": "linux/source-after.json",
+      "path": "linux/source-after.json.gz",
+      "bytes": 628361,
+      "sha256": "245d3caca3b96a663cca1ac12ad888a7fab53a2e1fb536201f1f51bdc28c67a9",
+      "stored_bytes": 210934,
+      "stored_sha256": "22f2a2c21d20c41176c20dc8b2a2f922257043e5adf8d4091a623f6565fdf9c7"
+    },
+    {
+      "original": "linux/source-before.json",
+      "path": "linux/source-before.json.gz",
+      "bytes": 628361,
+      "sha256": "245d3caca3b96a663cca1ac12ad888a7fab53a2e1fb536201f1f51bdc28c67a9",
+      "stored_bytes": 210934,
+      "stored_sha256": "22f2a2c21d20c41176c20dc8b2a2f922257043e5adf8d4091a623f6565fdf9c7"
+    },
+    {
+      "original": "linux/terminal.json",
+      "path": "linux/terminal.json",
+      "bytes": 8551,
+      "sha256": "d81785d16bb7995daca1a39e063a0b751ce219b952a86084274afa8922342964",
+      "stored_bytes": 8551,
+      "stored_sha256": "d81785d16bb7995daca1a39e063a0b751ce219b952a86084274afa8922342964"
+    },
+    {
+      "original": "linux/tools-after.json",
+      "path": "linux/tools-after.json",
+      "bytes": 1320,
+      "sha256": "db520925af2c92c4cac3f8fb78623777998d8782b6d78e743770231d4291ddb7",
+      "stored_bytes": 1320,
+      "stored_sha256": "db520925af2c92c4cac3f8fb78623777998d8782b6d78e743770231d4291ddb7"
+    },
+    {
+      "original": "linux/tools-before.json",
+      "path": "linux/tools-before.json",
+      "bytes": 1320,
+      "sha256": "db520925af2c92c4cac3f8fb78623777998d8782b6d78e743770231d4291ddb7",
+      "stored_bytes": 1320,
+      "stored_sha256": "db520925af2c92c4cac3f8fb78623777998d8782b6d78e743770231d4291ddb7"
+    },
+    {
+      "original": "puck/build-capacity.json",
+      "path": "puck/build-capacity.json",
+      "bytes": 58,
+      "sha256": "24f392aded94c9a60d4975b86df898895b22091ee396ccebad63d6bc2df61a2a",
+      "stored_bytes": 58,
+      "stored_sha256": "24f392aded94c9a60d4975b86df898895b22091ee396ccebad63d6bc2df61a2a"
+    },
+    {
+      "original": "puck/build-command.json",
+      "path": "puck/build-command.json",
+      "bytes": 829,
+      "sha256": "9c6bdea20aa01f79434bb6fbcf3faa9fbabc9c4d9ee7a3145b1f0b37e255c886",
+      "stored_bytes": 829,
+      "stored_sha256": "9c6bdea20aa01f79434bb6fbcf3faa9fbabc9c4d9ee7a3145b1f0b37e255c886"
+    },
+    {
+      "original": "puck/build-descendants.json",
+      "path": "puck/build-descendants.json.gz",
+      "bytes": 153534,
+      "sha256": "ce125b1d0bacaa06f4e4392bba12115af956495ad302755ff43cd0030e39d19c",
+      "stored_bytes": 5387,
+      "stored_sha256": "d425a0794be71520730ac7238601fbcf60f6e9ba7fbbd701bc2c892df020c58d"
+    },
+    {
+      "original": "puck/build-status.json",
+      "path": "puck/build-status.json",
+      "bytes": 241,
+      "sha256": "36b076b0b85928e241a56f2ffe4ed127be1c5c72a594303c779ce7de86330887",
+      "stored_bytes": 241,
+      "stored_sha256": "36b076b0b85928e241a56f2ffe4ed127be1c5c72a594303c779ce7de86330887"
+    },
+    {
+      "original": "puck/build.stderr",
+      "path": "puck/build.stderr",
+      "bytes": 34,
+      "sha256": "f21ed88e7cad07313f89038448b478356db2f4d7301fa341e7d4a17a3b2a273c",
+      "stored_bytes": 34,
+      "stored_sha256": "f21ed88e7cad07313f89038448b478356db2f4d7301fa341e7d4a17a3b2a273c"
+    },
+    {
+      "original": "puck/build.stdout",
+      "path": "puck/build.stdout.gz",
+      "bytes": 56001,
+      "sha256": "41a29cf24e56141594c357bd1e9f8cd7fb2981a87dc377fa8156fce252a227a5",
+      "stored_bytes": 3609,
+      "stored_sha256": "4b84f7430fbc826bd3de1057d5ebf14aa5021bf194eeaed2749aaede3f26d1b0"
+    },
+    {
+      "original": "puck/compiler-owner-capacity.json",
+      "path": "puck/compiler-owner-capacity.json",
+      "bytes": 58,
+      "sha256": "dac5d079874e54cbf595ed68b26f0f2200eea148e841aa7f61c7b50e65173dfd",
+      "stored_bytes": 58,
+      "stored_sha256": "dac5d079874e54cbf595ed68b26f0f2200eea148e841aa7f61c7b50e65173dfd"
+    },
+    {
+      "original": "puck/compiler-owner-command.json",
+      "path": "puck/compiler-owner-command.json",
+      "bytes": 817,
+      "sha256": "466b9d73951d037eac5af47fa5b1fbc8cf923cd666f3a9f933a22c1c3ea7de1c",
+      "stored_bytes": 817,
+      "stored_sha256": "466b9d73951d037eac5af47fa5b1fbc8cf923cd666f3a9f933a22c1c3ea7de1c"
+    },
+    {
+      "original": "puck/compiler-owner-descendants.json",
+      "path": "puck/compiler-owner-descendants.json",
+      "bytes": 54,
+      "sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original": "puck/compiler-owner-status.json",
+      "path": "puck/compiler-owner-status.json",
+      "bytes": 234,
+      "sha256": "75ad1c6c50eb5bb90773c3875fe4bc20f76ecdfda72e2649c6e480a48f9ead14",
+      "stored_bytes": 234,
+      "stored_sha256": "75ad1c6c50eb5bb90773c3875fe4bc20f76ecdfda72e2649c6e480a48f9ead14"
+    },
+    {
+      "original": "puck/compiler-owner.stderr",
+      "path": "puck/compiler-owner.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "puck/compiler-owner.stdout",
+      "path": "puck/compiler-owner.stdout",
+      "bytes": 93,
+      "sha256": "083060ae79a9cc17bc69cb6166b1e16396c638b533de036324d8c6d49b77af24",
+      "stored_bytes": 93,
+      "stored_sha256": "083060ae79a9cc17bc69cb6166b1e16396c638b533de036324d8c6d49b77af24"
+    },
+    {
+      "original": "puck/compiler-version-capacity.json",
+      "path": "puck/compiler-version-capacity.json",
+      "bytes": 58,
+      "sha256": "77b205e6508ebb9a9d5e402c6b405cd1974bf8a37ae3f7850bee908400ccbfc6",
+      "stored_bytes": 58,
+      "stored_sha256": "77b205e6508ebb9a9d5e402c6b405cd1974bf8a37ae3f7850bee908400ccbfc6"
+    },
+    {
+      "original": "puck/compiler-version-command.json",
+      "path": "puck/compiler-version-command.json",
+      "bytes": 807,
+      "sha256": "53d32e377afc42b8392351fed20e3b06dbf5b4ecb2e9ef778d17e15e66995f2f",
+      "stored_bytes": 807,
+      "stored_sha256": "53d32e377afc42b8392351fed20e3b06dbf5b4ecb2e9ef778d17e15e66995f2f"
+    },
+    {
+      "original": "puck/compiler-version-descendants.json",
+      "path": "puck/compiler-version-descendants.json",
+      "bytes": 290,
+      "sha256": "b2b4e2c7a3396b002edf7637ba0e5b0230b19d7bebd71610e61b535cae75c19a",
+      "stored_bytes": 290,
+      "stored_sha256": "b2b4e2c7a3396b002edf7637ba0e5b0230b19d7bebd71610e61b535cae75c19a"
+    },
+    {
+      "original": "puck/compiler-version-status.json",
+      "path": "puck/compiler-version-status.json",
+      "bytes": 234,
+      "sha256": "c8952fb123a9978380101168041389b3c849f0eac16a30beaf37ea756504c8a6",
+      "stored_bytes": 234,
+      "stored_sha256": "c8952fb123a9978380101168041389b3c849f0eac16a30beaf37ea756504c8a6"
+    },
+    {
+      "original": "puck/compiler-version.stderr",
+      "path": "puck/compiler-version.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "puck/compiler-version.stdout",
+      "path": "puck/compiler-version.stdout",
+      "bytes": 200,
+      "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+      "stored_bytes": 200,
+      "stored_sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+    },
+    {
+      "original": "puck/configuration.json",
+      "path": "puck/configuration.json",
+      "bytes": 870,
+      "sha256": "29a2b4f10f60bbfd0ea154486e4b04038a3f10a7468f254030b3d1ee07152218",
+      "stored_bytes": 870,
+      "stored_sha256": "29a2b4f10f60bbfd0ea154486e4b04038a3f10a7468f254030b3d1ee07152218"
+    },
+    {
+      "original": "puck/first-failure.json",
+      "path": "puck/first-failure.json",
+      "bytes": 8447,
+      "sha256": "977aab6a6bf3a77e39a3c433684b1eb1e1320dbb119d8239eeaa7061148c0098",
+      "stored_bytes": 8447,
+      "stored_sha256": "977aab6a6bf3a77e39a3c433684b1eb1e1320dbb119d8239eeaa7061148c0098"
+    },
+    {
+      "original": "puck/products-after.json",
+      "path": "puck/products-after.json.gz",
+      "bytes": 50879,
+      "sha256": "02609b16a15404e521b9694f29947d0946afff2b1b7eb2718f6e6ac0ca66b907",
+      "stored_bytes": 17444,
+      "stored_sha256": "7d49bdd5e2c623173584517697dc28694046bb2ef4f0b5aec3a7f0072a560fae"
+    },
+    {
+      "original": "puck/products-before.json",
+      "path": "puck/products-before.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "stored_bytes": 3,
+      "stored_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "original": "puck/sdk-path-capacity.json",
+      "path": "puck/sdk-path-capacity.json",
+      "bytes": 58,
+      "sha256": "61f3281781b15f3882348f7475c15276fdd81f2aa914ea6350ef23a372944009",
+      "stored_bytes": 58,
+      "stored_sha256": "61f3281781b15f3882348f7475c15276fdd81f2aa914ea6350ef23a372944009"
+    },
+    {
+      "original": "puck/sdk-path-command.json",
+      "path": "puck/sdk-path-command.json",
+      "bytes": 813,
+      "sha256": "3615412e66adb841b157f1b2645f8403fa9638ca9518aacdb761e23ac498724d",
+      "stored_bytes": 813,
+      "stored_sha256": "3615412e66adb841b157f1b2645f8403fa9638ca9518aacdb761e23ac498724d"
+    },
+    {
+      "original": "puck/sdk-path-descendants.json",
+      "path": "puck/sdk-path-descendants.json",
+      "bytes": 54,
+      "sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original": "puck/sdk-path-status.json",
+      "path": "puck/sdk-path-status.json",
+      "bytes": 234,
+      "sha256": "b3d4cb8df2fac233d1fd1557f057e7a26f95af4b0f726bc7824d851c3ee4c7eb",
+      "stored_bytes": 234,
+      "stored_sha256": "b3d4cb8df2fac233d1fd1557f057e7a26f95af4b0f726bc7824d851c3ee4c7eb"
+    },
+    {
+      "original": "puck/sdk-path.stderr",
+      "path": "puck/sdk-path.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "puck/sdk-path.stdout",
+      "path": "puck/sdk-path.stdout",
+      "bytes": 95,
+      "sha256": "5cb2cff3541ae65432805aa9d9bbfa3454381ef60694cc7b47eed0e2bf973aaf",
+      "stored_bytes": 95,
+      "stored_sha256": "5cb2cff3541ae65432805aa9d9bbfa3454381ef60694cc7b47eed0e2bf973aaf"
+    },
+    {
+      "original": "puck/source-after.json",
+      "path": "puck/source-after.json.gz",
+      "bytes": 628361,
+      "sha256": "245d3caca3b96a663cca1ac12ad888a7fab53a2e1fb536201f1f51bdc28c67a9",
+      "stored_bytes": 210934,
+      "stored_sha256": "22f2a2c21d20c41176c20dc8b2a2f922257043e5adf8d4091a623f6565fdf9c7"
+    },
+    {
+      "original": "puck/source-before.json",
+      "path": "puck/source-before.json.gz",
+      "bytes": 628361,
+      "sha256": "245d3caca3b96a663cca1ac12ad888a7fab53a2e1fb536201f1f51bdc28c67a9",
+      "stored_bytes": 210934,
+      "stored_sha256": "22f2a2c21d20c41176c20dc8b2a2f922257043e5adf8d4091a623f6565fdf9c7"
+    },
+    {
+      "original": "puck/terminal.json",
+      "path": "puck/terminal.json",
+      "bytes": 8502,
+      "sha256": "d5b41132f9426a6524ed471ae354f160a6cb539fb97c1cdc5d40528cabc59caa",
+      "stored_bytes": 8502,
+      "stored_sha256": "d5b41132f9426a6524ed471ae354f160a6cb539fb97c1cdc5d40528cabc59caa"
+    },
+    {
+      "original": "puck/tools-after.json",
+      "path": "puck/tools-after.json",
+      "bytes": 1365,
+      "sha256": "ee06dbc0cb4d77fd12f7f8f7d407dc69f2c74cf0897b7f83f5b5926b95f6362d",
+      "stored_bytes": 1365,
+      "stored_sha256": "ee06dbc0cb4d77fd12f7f8f7d407dc69f2c74cf0897b7f83f5b5926b95f6362d"
+    },
+    {
+      "original": "puck/tools-before.json",
+      "path": "puck/tools-before.json",
+      "bytes": 1365,
+      "sha256": "ee06dbc0cb4d77fd12f7f8f7d407dc69f2c74cf0897b7f83f5b5926b95f6362d",
+      "stored_bytes": 1365,
+      "stored_sha256": "ee06dbc0cb4d77fd12f7f8f7d407dc69f2c74cf0897b7f83f5b5926b95f6362d"
+    }
+  ]
+}

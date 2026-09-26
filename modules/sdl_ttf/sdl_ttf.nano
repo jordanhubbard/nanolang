@@ -8,8 +8,8 @@ opaque type TTF_Font
 
 # === SDL_ttf Initialization ===
 
-extern fn TTF_Init() -> int
-extern fn TTF_Quit() -> void
+pub extern fn TTF_Init() -> int
+pub extern fn TTF_Quit() -> void
 extern fn TTF_WasInit() -> int
 
 # === Font Management ===
@@ -19,7 +19,7 @@ extern fn TTF_WasInit() -> int
 extern fn TTF_OpenFont(_file: string, _ptsize: int) -> TTF_Font
 
 # Close a font handle
-extern fn TTF_CloseFont(_font: TTF_Font) -> void
+pub extern fn TTF_CloseFont(_font: TTF_Font) -> void
 
 # === Text Rendering ===
 
@@ -73,8 +73,7 @@ extern fn TTF_SetFontStyle(_font: TTF_Font, _style: int) -> void
 # === Error Handling ===
 
 # Get last SDL_ttf error message
-extern fn TTF_GetError() -> string
+pub extern fn TTF_GetError() -> string
 
 # Clear error message
 extern fn TTF_ClearError() -> void
-

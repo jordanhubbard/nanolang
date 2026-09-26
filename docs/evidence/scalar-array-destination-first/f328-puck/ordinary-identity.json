@@ -1,0 +1,12 @@
+{
+  "label": "ordinary-identity",
+  "argv": [
+    "/Users/jkh/nanolang-qualification/scalar-array-f328-puck/ordinary/identity"
+  ],
+  "bound": 180,
+  "timeout": false,
+  "pid": 65109,
+  "returncode": -6,
+  "remaining_groups": [],
+  "seconds": 0.46717429200000016
+}

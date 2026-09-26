@@ -1,0 +1,30 @@
+{
+  "local": {
+    "archive_sha256": "da4ea96e9ab1b036499940391339e736a61c7d7e4cbe17459f153e39c9e883f9",
+    "members": 3878,
+    "status": "PASS"
+  },
+  "remote": {
+    "archive_sha256": "da4ea96e9ab1b036499940391339e736a61c7d7e4cbe17459f153e39c9e883f9",
+    "members": 3878,
+    "status": "PASS"
+  },
+  "durable_root": "/Users/jkh/nanolang-qualification/capture-file-d1f-linux-retained",
+  "checks": {
+    "terminal": {
+      "timeout": false,
+      "capacity_refusal": false,
+      "cleanup_errors": [],
+      "returncode": 0,
+      "seconds": 103.70748816803098,
+      "leader_reaped": true,
+      "tracked_remaining": {},
+      "group_gone": true
+    },
+    "source_unchanged": true,
+    "tools_unchanged": true,
+    "products": 3847
+  },
+  "source": "d1f035314",
+  "temporary_data_removed": false
+}

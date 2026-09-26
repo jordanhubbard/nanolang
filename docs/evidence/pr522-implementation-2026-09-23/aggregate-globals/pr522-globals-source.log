@@ -1,0 +1,129 @@
+test_existing_string_map_global (tests.test_canonical_aggregate_globals.AggregateGlobals.test_existing_string_map_global) ... 
+  test_existing_string_map_global (tests.test_canonical_aggregate_globals.AggregateGlobals.test_existing_string_map_global) (compiler='nanoc_c', vm=False) ... FAIL
+test_nested_record_global_copy_and_replacement (tests.test_canonical_aggregate_globals.AggregateGlobals.test_nested_record_global_copy_and_replacement) ... 
+  test_nested_record_global_copy_and_replacement (tests.test_canonical_aggregate_globals.AggregateGlobals.test_nested_record_global_copy_and_replacement) (compiler='nanoc_c', vm=False) ... FAIL
+test_variant_global_copy_and_alternating_payloads (tests.test_canonical_aggregate_globals.AggregateGlobals.test_variant_global_copy_and_alternating_payloads) ... 
+  test_variant_global_copy_and_alternating_payloads (tests.test_canonical_aggregate_globals.AggregateGlobals.test_variant_global_copy_and_alternating_payloads) (compiler='nanoc_c', vm=False) ... FAIL
+
+======================================================================
+FAIL: test_existing_string_map_global (tests.test_canonical_aggregate_globals.AggregateGlobals.test_existing_string_map_global) (compiler='nanoc_c', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_globals.py", line 65, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Contract violation at line 6: (== retained "old")
+
+
+======================================================================
+FAIL: test_nested_record_global_copy_and_replacement (tests.test_canonical_aggregate_globals.AggregateGlobals.test_nested_record_global_copy_and_replacement) (compiler='nanoc_c', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_globals.py", line 65, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_64070_product.c:1870:1: error: 'static' ignored on this declaration [-Werror,-Wmissing-declarations]
+ 1870 | static struct state;
+      | ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_64070_product.c:1877:5: error: must use 'struct' tag to refer to type 'state'
+ 1877 |     state = ({ __auto_type __nl_arg_0_0 = "old"; __auto_type __nl_arg_0_1 = 7LL; nl_make(__nl_arg_0_0, __nl_arg_0_1); });
+      |     ^
+      |     struct 
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_64070_product.c:1877:11: error: expected identifier or '('
+ 1877 |     state = ({ __auto_type __nl_arg_0_0 = "old"; __auto_type __nl_arg_0_1 = 7LL; nl_make(__nl_arg_0_0, __nl_arg_0_1); });
+      |           ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-ylyanas_/case.nano:8:12: error: use of undeclared identifier 'state'; did you mean 'stat'?
+    8 |     return state;
+      |            ^~~~~
+      |            stat
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stat.h:387:9: note: 'stat' declared here
+  387 | int     stat(const char *, struct stat *) __DARWIN_INODE64(stat);
+      |         ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-ylyanas_/case.nano:8:12: error: returning 'int (const char *, struct stat *)' from a function with incompatible result type 'nl_State' (aka 'struct nl_State')
+    8 |     return state;
+      |            ^~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-ylyanas_/case.nano:10:5: error: must use 'struct' tag to refer to type 'state'
+   10 |     state = ({ __auto_type __nl_arg_3_0 = label; __auto_type __nl_arg_3_1 = number; nl_make(__nl_arg_3_0, __nl_arg_3_1); });
+      |     ^
+      |     struct 
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-ylyanas_/case.nano:10:11: error: expected identifier or '('
+   10 |     state = ({ __auto_type __nl_arg_3_0 = label; __auto_type __nl_arg_3_1 = number; nl_make(__nl_arg_3_0, __nl_arg_3_1); });
+      |           ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-ylyanas_/case.nano:20:12: error: use of undeclared identifier 'state'
+   20 |     if (!((state.number) == (9LL))) { fputs("Contract violation at line 20: (== ... 9)\n", stderr); exit(1); }
+      |            ^~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-ylyanas_/case.nano:21:19: error: use of undeclared identifier 'state'
+   21 |     if (!((strcmp(state.inner.label, "new!") == 0))) { fputs("Contract violation at line 21: (== ... \"new!\")\n", stderr); exit(1); }
+      |                   ^~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-ylyanas_/case.nano:22:49: error: use of undeclared identifier 'state'
+   22 |     if (!((strcmp(({ __auto_type __nl_arg_8_0 = state.items; __auto_type __nl_arg_8_1 = 0LL; nl_array_at_string(__nl_arg_8_0, __nl_arg_8_1); }), "new item") == 0))) { fputs("Contract violation at line 22: (== (at ... 0) \"new item\")\n", stderr); exit(1); }
+      |                                                 ^~~~~
+10 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_variant_global_copy_and_alternating_payloads (tests.test_canonical_aggregate_globals.AggregateGlobals.test_variant_global_copy_and_alternating_payloads) (compiler='nanoc_c', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_globals.py", line 65, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 2, column 1: Constant 'chosen' type mismatch (declared struct, got union)
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-x162mrj1/case.nano
+I cannot find a variable named `chosen`.
+
+4|  if number { set chosen Choice.Number { value: 9 } }
+                ^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-x162mrj1/case.nano
+I cannot find a variable named `chosen`.
+
+5|  else { set chosen Choice.Text { value: (str_concat "saved" " text") } }
+           ^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-x162mrj1/case.nano
+I cannot find a variable named `chosen`.
+
+10|  let saved: Choice = chosen
+                         ^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-x162mrj1/case.nano
+I cannot find a variable named `chosen`.
+
+13|  match chosen { Number(n) => { assert (== n.value 9) } Text(t) => { assert false } Empty(e) => { assert false } }
+           ^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-x162mrj1/case.nano
+I require a match to inspect an int or a known union.
+
+13|  match chosen { Number(n) => { assert (== n.value 9) } Text(t) => { assert false } Empty(e) => { assert false } }
+     ^^^^^
+Hint: Give the scrutinee an exact supported type before matching it.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-x162mrj1/case.nano
+I cannot find a variable named `chosen`.
+
+14|  set chosen Choice.Empty {}
+     ^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-x162mrj1/case.nano
+I cannot find a variable named `chosen`.
+
+15|  match chosen { Empty(e) => { return 0 } Number(n) => { return 1 } Text(t) => { return 1 } }
+           ^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-aggregate-global-x162mrj1/case.nano
+I require a match to inspect an int or a known union.
+
+15|  match chosen { Empty(e) => { return 0 } Number(n) => { return 1 } Text(t) => { return 1 } }
+     ^^^^^
+Hint: Give the scrutinee an exact supported type before matching it.
+Warning at line 12, column 2: Unused variable 'n'
+Warning at line 12, column 2: Unused variable 'e'
+Type checking failed
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.917s
+
+FAILED (failures=3)

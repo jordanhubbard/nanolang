@@ -1,0 +1,74 @@
+{
+  "nanoisa_emit-emit.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "nano_virt-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "nano_virt.nvm": {
+    "sha256": "336a340170f2c39d998e6eebb2aab263a8a85004b34355e60af2210e3a72c576",
+    "bytes": 1836
+  },
+  "nanoisa_emit-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "nano_virt-emit.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "nanoisa_emit-emit.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "nano_virt-verify.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "nanolang-record-order-nano-emitter-corrected.log": {
+    "sha256": "5ac6d2331c0c049b292cce82c0248f3551872ced44363d9d24583e8a9375dcba",
+    "bytes": 1463
+  },
+  "nano_virt-emit.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "nano-emitter-first.log": {
+    "sha256": "385e90e972cc6f488171053e8e12fba7a3c7d8226bee4bcf3bb2f7a06281ef94",
+    "bytes": 1662
+  },
+  "nanolang-record-order-regression.log": {
+    "sha256": "439b00f50e409b8ea6ff578f1c945904d9aa00f5e4759fcb4e71d9f1615c4084",
+    "bytes": 98
+  },
+  "nanoisa_emit-verify.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "nanoisa_emit-verify.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "results.json": {
+    "sha256": "964375832fcae9b61c150af9f6f07ba714c9a7a164291f99822c648fa09f4071",
+    "bytes": 1948
+  },
+  "nanoisa_emit.nvm": {
+    "sha256": "999c883b237b1c7a6e771bfd3a3a2866acee690bd545a6a61a26eab83adbe02b",
+    "bytes": 1488
+  },
+  "nano_virt-verify.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "nano_virt-run.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "nanoisa_emit-run.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  }
+}

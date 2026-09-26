@@ -1,0 +1,18 @@
+{
+  "owned": {
+    "31050": {
+      "parent": 31048,
+      "group": 31050,
+      "started": "Mon Sep 21 22:30:49 2026",
+      "command": "/opt/homebrew/opt/llvm/bin/clang -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -I /private/tmp/nanolang-native-sdk-bae59-puck-source/src /private/tmp/nanolang-native-sdk-bae59-puck-source/tests/shadow_completion_probe.c -o /tmp/nanolang-native-sdk-bae59-puck-preparation/decision-izp5m5dl/probe"
+    },
+    "31055": {
+      "parent": 31050,
+      "group": 31050,
+      "started": "Mon Sep 21 22:30:49 2026",
+      "command": "(clang-23)"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

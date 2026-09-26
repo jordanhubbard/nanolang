@@ -1,0 +1,40 @@
+{
+  "source": "a1bb1cb85e5551f9e5bb10491f1608877ef6b7b5",
+  "status": "PASS",
+  "original_phases": 17,
+  "continuation_phases": 2,
+  "preserved_failure": "original Apple compiler package phase; exact supported-compiler continuation separately passes",
+  "coverage": [
+    {
+      "phase": "generated-ordinary-native",
+      "child_statuses": 1590,
+      "fault_records": 146,
+      "recoveries": 18976
+    },
+    {
+      "phase": "generated-clang-native",
+      "child_statuses": 1590,
+      "fault_records": 146,
+      "recoveries": 18976
+    },
+    {
+      "phase": "ordinary-native",
+      "child_statuses": 2474,
+      "fault_records": 146,
+      "recoveries": 18976
+    },
+    {
+      "phase": "clang-ordinary-native",
+      "child_statuses": 2474,
+      "fault_records": 146,
+      "recoveries": 18976
+    },
+    {
+      "phase": "wasm",
+      "child_statuses": 3739,
+      "fault_records": 292,
+      "recoveries": 37952
+    }
+  ],
+  "scope": "Current integration conjunction: original16 passes plus retained package failure and separate two-method package pass; exact phase selection and complete 73-case product/fault accounting; original sanitizer attribution remains separate."
+}

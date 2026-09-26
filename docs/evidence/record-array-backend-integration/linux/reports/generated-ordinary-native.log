@@ -1,0 +1,30 @@
+I retain generated artifacts at /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-generated-98y9ag7l
+test_emission_allocation_and_bounds (tests.test_record_array_generated.RecordArrayGenerated.test_emission_allocation_and_bounds) ... I checked all93 emission recipes and all256 decisions, output sentinels and exact work/buffer boundaries.
+I checked 98 actual emission allocation positions in both modes with independent recovery.
+I passed 2268 generated emission checks; no public admission.
+ok
+test_unchanged_corpus_generated_c (tests.test_record_array_generated.RecordArrayGenerated.test_unchanged_corpus_generated_c) ... I passed O0-linked: 73 actual generated products.
+I passed O0-observed: 73 actual generated products.
+I passed O2-linked: 73 actual generated products.
+I passed O2-observed: 73 actual generated products.
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I passed 3619 private mixed VM checks; no public or generated consumer admission.
+I captured all93 actual retired operations and all256 decisions from the unchanged linked corpus.
+I retained 73 unchanged VM programs and 404 actions for generated replay.
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 290.261s
+
+OK

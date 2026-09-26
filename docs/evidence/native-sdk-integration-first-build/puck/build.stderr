@@ -1,0 +1,6 @@
+src/env.c:958:10: error: use of undeclared identifier 'local_push'
+  958 |     if (!local_push && indexed) index = function_index_sync(env);
+      |          ^
+1 error generated.
+make: *** [obj/env.o] Error 1
+make: *** Waiting for unfinished jobs....

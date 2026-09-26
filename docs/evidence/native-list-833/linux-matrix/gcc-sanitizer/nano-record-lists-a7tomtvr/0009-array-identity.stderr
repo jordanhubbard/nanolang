@@ -1,0 +1,8 @@
+Error at line 1, column 8: Function 'at' is already defined
+Warning: Function 'at' is missing a shadow test
+Error at line 1, column 8: Function 'array_push' is already defined
+Warning: Function 'array_push' is missing a shadow test
+Error at line 0, column 0: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 0, column 0: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.

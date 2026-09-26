@@ -168,7 +168,7 @@ typedef enum CompilerPhase {
     CompilerPhase_PHASE_LEXER,
     CompilerPhase_PHASE_PARSER,
     CompilerPhase_PHASE_TYPECHECK,
-    CompilerPhase_PHASE_TRANSPILER,
+    CompilerPhase_PHASE_LOWERING,
     CompilerPhase_PHASE_RUNTIME
 } CompilerPhase;
 #endif
@@ -500,6 +500,7 @@ typedef struct nl_ASTIf {
     int condition_type;
     int then_body;
     int else_body;
+    bool is_expression;
 } nl_ASTIf;
 typedef nl_ASTIf ASTIf;
 #endif

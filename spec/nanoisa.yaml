@@ -58,10 +58,15 @@ legacy_opcodes:
   - {name: FILE_DROP_LOCAL, code: 0x94, operands: [U16], pops: 0, pushes: 0}
   - {name: FILE_DROP_STACK, code: 0x95, operands: [], pops: 1, pushes: 0}
   - {name: FILE_END_BORROW, code: 0x96, operands: [U16], pops: 0, pushes: 0}
+  # I decode binding transport before granting capture execution authority.
+  - {name: BIND_INIT_LOCAL, code: 0x97, operands: [U16], pops: 1, pushes: 0}
+  - {name: BIND_CLEAR_LOCAL, code: 0x98, operands: [U16], pops: 0, pushes: 0}
+  - {name: CLOSURE_BIND, code: 0x99, operands: [U32], pops: 0, pushes: 1}
   - {name: OWN_MOVE_LOCAL, code: 0x0b, operands: [U16], pops: 0, pushes: 1}
   - {name: OWN_STORE_LOCAL, code: 0x0c, operands: [U16], pops: 1, pushes: 0}
   - {name: OWN_PACK, code: 0x0d, operands: [U32], pops: -1, pushes: 1}
   - {name: OWN_UNPACK_LOCAL, code: 0x0e, operands: [U16], pops: 0, pushes: -1}
+  - {name: OWN_UNPACK_VARIANT, code: 0x9a, operands: [U16, U16, U16], pops: 0, pushes: -1}
   - {name: CALL_REF, code: 0x0f, operands: [U32, U16], pops: 0, pushes: 1}
   - {name: LOAD_LOCAL, code: 0x10, operands: [U16], pops: 0, pushes: 1}
   - {name: STORE_LOCAL, code: 0x11, operands: [U16], pops: 1, pushes: 0}

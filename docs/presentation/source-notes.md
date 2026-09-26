@@ -30,10 +30,10 @@
 
 ## Release evidence
 
-My local repository contains `v4.0.0` and `v4.5.0` tags. This local 5.0 release edition
-does not claim a new tag or external publication. `docs/RELEASE_4.5.md` is the
-public summary covering 4.1–4.5. `docs/RELEASE_4.4.md` is the 4.4 product
-page as it stood on `main` before Phase 19.
+The release before this edition is `v5.0.0`. This local 5.1 release edition
+does not claim external document publication.
+`docs/RELEASE_5.1.md` is the current release authority;
+`docs/RELEASE_5.0.md` preserves the narrower prior cut.
 The verified local counts at `v4.0.0` were 2,632 NanoISA tests, 621
 NanoVM tests, 63 NanoVirt tests, and 93 verifier tests. 4.1–4.5 add Forth,
 catalog, NSI, fabric, `nano_emacs_worker`, policy, journal, and
@@ -66,7 +66,7 @@ Unknown operand types are not proved safe. Current boundaries are recorded in
 `CONTRIBUTING.md`, `docs/CANONICAL_STYLE.md` and the open roadmap.
 
 What remains is roadmap work and is labelled as such. Module signing is
-unimplemented; the 5.0 release number does not establish it.
+unimplemented; the 5.1 release number does not establish it.
 LLVM and WebAssembly return only as NanoISA translators. I do not claim a
 Forth Standard System, GNU Emacs, a kernel, or that the system is
 internationalized. The trap journal is a tested library, not a hook on
@@ -85,6 +85,34 @@ processes have deadlines, not security sandboxing. `make test-language-claims`
 checks the compiler observations; formal correspondence remains separate.
 The shared nonnegative-input `examples/gcd.nano` demonstrates executable assertions,
 not a theorem for every integer. Artifact tests extract and compile its text.
+
+## 5.1 release-edition checkpoint — 2026-09-25
+
+`docs/RELEASE_5.1.md` and `docs/NANOISA_ONLY.md` are my One IR authorities. At
+exact candidate `ff184c0ef`, my NanoVM fixed-point gate produced identical
+853,756-byte Stage 1 and Stage 2 modules with SHA-256
+`e79dabcf31cf49cdfa4382cb220a074718c50e278908370bbde422d9615c0728`.
+Both verified, and Stage 2 compiled, verified and executed hello. The gate took
+1,428.077 seconds across its measured commands. The distinct 891,176-byte
+C-seed transition module is recorded rather than folded into the equality
+claim. This proves raw reproducibility for that source and immutable host
+closure, not compiler correctness.
+
+At the same compiler-source pin, the standalone native route produced equal
+853,756-byte Stage 1 and Stage 2 modules with SHA-256
+`314fb98e79220454ac47e6bf877bc078cfb69026b06b293dac8533cb54c5f973`.
+The two generations took 1,957.672 and 1,956.481 seconds, verified, preserved
+the exact five-library host closure and compiled a verified, executing hello.
+The VM seed and native artifacts have equal sizes and different raw hashes and
+absolute private-library closures across that transition; I do not normalize
+them. Native Stage 1 and Stage 2 preserve the same five paths and hashes. The
+exact record is `docs/evidence/v5.1-final-fixedpoints.md`.
+
+My product driver publishes verified `.nvm`; `nvm2c`, `nvm2llvm` and
+`nvm2wasm` consume the module. The C seed remains a bootstrap/reference
+frontend. Private non-admitting mixed record-array execution, unrestricted
+ownership profiles, isolated callbacks and production service isolation remain
+outside the public claim.
 
 ## 5.0 release-edition checkpoint — 2026-09-16
 

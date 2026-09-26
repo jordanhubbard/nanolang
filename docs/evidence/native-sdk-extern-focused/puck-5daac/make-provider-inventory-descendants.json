@@ -1,0 +1,12 @@
+{
+  "owned": {
+    "86999": {
+      "parent": 86976,
+      "group": 86999,
+      "started": "Mon Sep 21 21:35:40 2026",
+      "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/make -f Makefile.gnu -f /tmp/nanolang-native-sdk-5daac-puck-extern/provider-query.mk -s split_inventory"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/bin/perf",
+    "stat",
+    "-e",
+    "task-clock",
+    "--",
+    "/bin/true"
+  ],
+  "returncode": 255,
+  "seconds": 0.0174610810354352
+}

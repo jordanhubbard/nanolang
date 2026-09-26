@@ -1,0 +1,47 @@
+[
+  {
+    "case": 0,
+    "segments": 3,
+    "allocations": 4
+  },
+  {
+    "case": 1,
+    "segments": 1,
+    "allocations": 2
+  },
+  {
+    "case": 2,
+    "segments": 5,
+    "allocations": 6
+  },
+  {
+    "case": 3,
+    "segments": 2,
+    "allocations": 3
+  },
+  {
+    "case": 4,
+    "segments": 3,
+    "allocations": 4
+  },
+  {
+    "case": 5,
+    "segments": 0,
+    "allocations": 1
+  },
+  {
+    "case": 6,
+    "segments": 1,
+    "allocations": 2
+  },
+  {
+    "case": 7,
+    "segments": 4,
+    "allocations": 5
+  },
+  {
+    "case": 8,
+    "segments": 2,
+    "allocations": 3
+  }
+]

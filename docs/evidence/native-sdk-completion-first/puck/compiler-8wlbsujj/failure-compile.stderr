@@ -1,0 +1,4 @@
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 2, column 15
+I will not publish output after failed shadow execution.
+Shadow tests failed

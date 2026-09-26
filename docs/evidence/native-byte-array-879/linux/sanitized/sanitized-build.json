@@ -1,0 +1,23 @@
+{
+  "label": "sanitized-build",
+  "argv": [
+    "/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/usr/bin/gcc",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+    "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+    "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "nvm2c",
+    "nanoisa_dump",
+    "nano_vm",
+    "nano_virt"
+  ],
+  "bound": 1200,
+  "timeout": false,
+  "pid": 1036133,
+  "returncode": 0,
+  "remaining_groups": [],
+  "seconds": 31.34292786300648
+}

@@ -1,0 +1,4 @@
+enum Mode { Loud = 7 }
+struct State { mode: Mode }
+fn main()->int { let x: State = State { mode: Mode.Loud } assert (== (to_string x) "State { mode: Mode.Loud }") return 0 }
+shadow main { assert true }

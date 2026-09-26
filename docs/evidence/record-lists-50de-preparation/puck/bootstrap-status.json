@@ -1,0 +1,26 @@
+{
+  "name": "bootstrap",
+  "argv": [
+    "make",
+    "-j2",
+    "bootstrap",
+    "CC=/usr/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS="
+  ],
+  "bound_seconds": 1800,
+  "status": 2,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 65.94853316608351,
+  "log": {
+    "sha256": "b3921a5ab068761748c570ddf74f7c3f286d1a0036d49b1a0bd2bce38690095f",
+    "bytes": 1543,
+    "archive": "/private/tmp/nanolang-record-lists-50de-puck-prepare/objects/b3921a5ab068761748c570ddf74f7c3f286d1a0036d49b1a0bd2bce38690095f"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

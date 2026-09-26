@@ -1,0 +1,17 @@
+{
+  "remote_path": "/tmp/nanolang-file-service-parser-70113.retained.tar.gz",
+  "original_bytes": 5881559040,
+  "original_sha256": "e9eae0cfbd0313a132bb10ba31072e2d1a0b4997960c4f8fffa3f98d84a8699f",
+  "compressed_bytes": 1636686693,
+  "compressed_sha256": "23642a8176e9eb4a7ceee7bd2b5fdf53da3a2876e28d6e9a759aa4418e618e76",
+  "decompressed_verified": true,
+  "original_local_path": "/tmp/nanolang-file-service-parser-70113.tar",
+  "original_mode": 420,
+  "original_mtime_ns": 1789916274718769402,
+  "remote_host": "jkh@puck.local",
+  "seconds": 66.20432655198965,
+  "restore": "scp jkh@puck.local:/tmp/nanolang-file-service-parser-70113.retained.tar.gz . ; gzip -dc nanolang-file-service-parser-70113.retained.tar.gz > nanolang-file-service-parser-70113.tar",
+  "local_compressed_path": "/tmp/nanolang-file-service-parser-final-artifacts/e9eae0cfbd0313a132bb10ba31072e2d1a0b4997960c4f8fffa3f98d84a8699f.gz",
+  "local_compressed_verified": true,
+  "packed_cas_manifest": "/tmp/nanolang-file-service-parser-final-artifacts/packed-object-70113.json"
+}

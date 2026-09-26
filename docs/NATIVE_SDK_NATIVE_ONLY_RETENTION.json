@@ -1,0 +1,275 @@
+{
+  "scope": "I compare native-only functional files against frozen802. Differences are the reviewed signed primitive fixture and the owning STRING-result adapter; no execution.",
+  "rows": [
+    {
+      "path": "src/binary64_arithmetic.h",
+      "native_sha256": "49f450e9eabbd64dc837660e5c893d1c658775b2b8aa86bd5380a5b09a42aa4e",
+      "current_sha256": "49f450e9eabbd64dc837660e5c893d1c658775b2b8aa86bd5380a5b09a42aa4e",
+      "unchanged": true
+    },
+    {
+      "path": "src/binary64_arithmetic_source.h",
+      "native_sha256": "fba2924e4b786430a230158f9d8321c399aca37661eaf78a2507375022811042",
+      "current_sha256": "fba2924e4b786430a230158f9d8321c399aca37661eaf78a2507375022811042",
+      "unchanged": true
+    },
+    {
+      "path": "src/binary64_format.h",
+      "native_sha256": "539e5b8d169575ad6d364037c5bc73e7fe7e13e81119b04698fa8a87e9232ddd",
+      "current_sha256": "539e5b8d169575ad6d364037c5bc73e7fe7e13e81119b04698fa8a87e9232ddd",
+      "unchanged": true
+    },
+    {
+      "path": "src/checked_loop_binding.h",
+      "native_sha256": "4b564425b67f357bc4b8860a8db227925f27dd3ebdd77ffd7da2a5f1e32a42ab",
+      "current_sha256": "4b564425b67f357bc4b8860a8db227925f27dd3ebdd77ffd7da2a5f1e32a42ab",
+      "unchanged": true
+    },
+    {
+      "path": "src/coroutine.c",
+      "native_sha256": "9253add0cb86802e9947d4b8d4ce105423cb4f50000417a17bb130d283c31fce",
+      "current_sha256": "9253add0cb86802e9947d4b8d4ce105423cb4f50000417a17bb130d283c31fce",
+      "unchanged": true
+    },
+    {
+      "path": "src/coroutine.h",
+      "native_sha256": "5a70aceb945d9463965863718755089e2d679c99eb456820bc7cf27e370393e1",
+      "current_sha256": "5a70aceb945d9463965863718755089e2d679c99eb456820bc7cf27e370393e1",
+      "unchanged": true
+    },
+    {
+      "path": "src/dap_server.c",
+      "native_sha256": "c42f2573fb4cf4fd83a1f1eec1798ee851e40ece1a9eef7cf8bcf4749a5f4b65",
+      "current_sha256": "c42f2573fb4cf4fd83a1f1eec1798ee851e40ece1a9eef7cf8bcf4749a5f4b65",
+      "unchanged": true
+    },
+    {
+      "path": "src/env_provider_leases.inc",
+      "native_sha256": "c09c7b34ba96f1cb1b2dc38237a77909a77023d826e872c54cb57197575b9d18",
+      "current_sha256": "c09c7b34ba96f1cb1b2dc38237a77909a77023d826e872c54cb57197575b9d18",
+      "unchanged": true
+    },
+    {
+      "path": "src/env_record_lists.inc",
+      "native_sha256": "c434c0a6c1d0b33bab88342b0378a19c20c4d10fdbb7e9560c03da11182e56d3",
+      "current_sha256": "c434c0a6c1d0b33bab88342b0378a19c20c4d10fdbb7e9560c03da11182e56d3",
+      "unchanged": true
+    },
+    {
+      "path": "src/env_signature_snapshot.inc",
+      "native_sha256": "4c4876acb2c1b1979aae22ca4f04f0ba3b0010e4105cfbbca7dfd93c4758a77a",
+      "current_sha256": "4c4876acb2c1b1979aae22ca4f04f0ba3b0010e4105cfbbca7dfd93c4758a77a",
+      "unchanged": true
+    },
+    {
+      "path": "src/lsp_server.c",
+      "native_sha256": "875ccd00310c0ccfa727adcf08783d3a9c118b55bbaa351c0ce2f0ff38d4587a",
+      "current_sha256": "875ccd00310c0ccfa727adcf08783d3a9c118b55bbaa351c0ce2f0ff38d4587a",
+      "unchanged": true
+    },
+    {
+      "path": "src/main_stage1_5.c",
+      "native_sha256": "c51bfcd247da3a02c52aaeed0c472b8b24fdc357da86dac7938d6a000c0aaf6d",
+      "current_sha256": "c51bfcd247da3a02c52aaeed0c472b8b24fdc357da86dac7938d6a000c0aaf6d",
+      "unchanged": true
+    },
+    {
+      "path": "src/nano_main.c",
+      "native_sha256": "9d534800ecdec36cec5b9d122161d31a31212c4966ded749efbc7639df899fdb",
+      "current_sha256": "9d534800ecdec36cec5b9d122161d31a31212c4966ded749efbc7639df899fdb",
+      "unchanged": true
+    },
+    {
+      "path": "src/repl.c",
+      "native_sha256": "6af7e05445d4cb90e3d6a51ebc8d39b418926627bd035e4db70e5d12ed75e2a0",
+      "current_sha256": "6af7e05445d4cb90e3d6a51ebc8d39b418926627bd035e4db70e5d12ed75e2a0",
+      "unchanged": true
+    },
+    {
+      "path": "src/runtime/native_record_list.h",
+      "native_sha256": "44b1e0e1130c601a28336441453c6a1c26b862a837414569f5e4348d5066ed50",
+      "current_sha256": "44b1e0e1130c601a28336441453c6a1c26b862a837414569f5e4348d5066ed50",
+      "unchanged": true
+    },
+    {
+      "path": "src/typechecker_native_context.inc",
+      "native_sha256": "a95c3b961b8f1145b4f02e6b3e64eb7020c4ca285b47c2ef47f7fa7874add273",
+      "current_sha256": "a95c3b961b8f1145b4f02e6b3e64eb7020c4ca285b47c2ef47f7fa7874add273",
+      "unchanged": true
+    },
+    {
+      "path": "src/typechecker_nominal_arrays.inc",
+      "native_sha256": "1c19a510a24bdf0e3092b8ac5be012f4e11029d971f235fbe6cb98b09e20483e",
+      "current_sha256": "ac2c0dc7f53ad8d7965b5dd850160f76ef2f7617ddc3d06a1bfc5168ca5dc6c2",
+      "unchanged": false
+    },
+    {
+      "path": "src/typechecker_nominal_context.inc",
+      "native_sha256": "b8c108cba8a4106e7e4cef8ad5882fe78181926795ec0fe9271d0066dbe007ab",
+      "current_sha256": "b8c108cba8a4106e7e4cef8ad5882fe78181926795ec0fe9271d0066dbe007ab",
+      "unchanged": true
+    },
+    {
+      "path": "src/wasm_interface.c",
+      "native_sha256": "b08c4544d5f1a6f051faf95313441a04e078bfaec64e4de2096bdf65f7220f49",
+      "current_sha256": "b08c4544d5f1a6f051faf95313441a04e078bfaec64e4de2096bdf65f7220f49",
+      "unchanged": true
+    },
+    {
+      "path": "src_nano/compiler/binary64_arithmetic_runtime.nano",
+      "native_sha256": "93c7d9ff3208232f46fa46f756a8738d433aedf525d527f29ea20cbe473d7228",
+      "current_sha256": "93c7d9ff3208232f46fa46f756a8738d433aedf525d527f29ea20cbe473d7228",
+      "unchanged": true
+    },
+    {
+      "path": "src_nano/compiler/binary64_format_runtime.nano",
+      "native_sha256": "729373a8b2c09758b7a3fdc14c85c1ed4c17a88466ed69f66bc698fe74f5a7d4",
+      "current_sha256": "729373a8b2c09758b7a3fdc14c85c1ed4c17a88466ed69f66bc698fe74f5a7d4",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/evaluator_lists/array_paths.nano",
+      "native_sha256": "948fbde2357cb3000cbccc6045ed2cfc6dcfd76fd6e47f2b13dc699f9c62867a",
+      "current_sha256": "948fbde2357cb3000cbccc6045ed2cfc6dcfd76fd6e47f2b13dc699f9c62867a",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/evaluator_lists/array_producers.nano",
+      "native_sha256": "f762e1cba903dbc245f3301f322d05eeed7f7cf5cbae6bfbc51f881033bbabb2",
+      "current_sha256": "f762e1cba903dbc245f3301f322d05eeed7f7cf5cbae6bfbc51f881033bbabb2",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/evaluator_lists/array_records.nano",
+      "native_sha256": "e341d7177d3fa12870bbb06b672e9010735728207ac4e975ae60dd2f4bffb59e",
+      "current_sha256": "e341d7177d3fa12870bbb06b672e9010735728207ac4e975ae60dd2f4bffb59e",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/evaluator_lists/async.nano",
+      "native_sha256": "6fca87582673b7dd9019d133443d85043eda0459e39959ed12bd00a3559af6a0",
+      "current_sha256": "6fca87582673b7dd9019d133443d85043eda0459e39959ed12bd00a3559af6a0",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/evaluator_lists/escape.nano",
+      "native_sha256": "542093b794e61a95554247e39a522e8cbf5bd0b293c9455af2d5a2b83d20ad7f",
+      "current_sha256": "542093b794e61a95554247e39a522e8cbf5bd0b293c9455af2d5a2b83d20ad7f",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/evaluator_lists/imported.nano",
+      "native_sha256": "e100284c985ca8084884e2f6fa628c113ca6a5798dcee573f6ac8ebab9f364f9",
+      "current_sha256": "e100284c985ca8084884e2f6fa628c113ca6a5798dcee573f6ac8ebab9f364f9",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/evaluator_lists/left.nano",
+      "native_sha256": "2d7412eeccddf7196f7c7c9b00f9bd3088f4cf547072f77010ef6e26863f6454",
+      "current_sha256": "2d7412eeccddf7196f7c7c9b00f9bd3088f4cf547072f77010ef6e26863f6454",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/evaluator_lists/mutations.nano",
+      "native_sha256": "c5ba986721b63e7a09a421068bd5513ac69697408425bb313c0911e35be18ceb",
+      "current_sha256": "c5ba986721b63e7a09a421068bd5513ac69697408425bb313c0911e35be18ceb",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/evaluator_lists/native_tuple_callbacks.nano",
+      "native_sha256": "5e9698345798d4fad4f481702678c540f906f33f3a48c5494f76129c0c30dc30",
+      "current_sha256": "5e9698345798d4fad4f481702678c540f906f33f3a48c5494f76129c0c30dc30",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/evaluator_lists/right.nano",
+      "native_sha256": "945f0d09029b8663f66f5b6e6e1cc31cf3dc7fee57508795ccf3498a07fd353b",
+      "current_sha256": "945f0d09029b8663f66f5b6e6e1cc31cf3dc7fee57508795ccf3498a07fd353b",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/evaluator_lists/staging.nano",
+      "native_sha256": "9de0e2e4379fbe7bf6d49cb45fe1e1f29c67edf1572be48a96696e28530a5bc7",
+      "current_sha256": "9de0e2e4379fbe7bf6d49cb45fe1e1f29c67edf1572be48a96696e28530a5bc7",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_coroutine_error_allocation.c",
+      "native_sha256": "6ad285f6f5520c82ec869b5e3beae34ec95ac8948d4a7e4dccf9f0c4972fd977",
+      "current_sha256": "6ad285f6f5520c82ec869b5e3beae34ec95ac8948d4a7e4dccf9f0c4972fd977",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_evaluator_lifetime_eval.c",
+      "native_sha256": "72df75b24f5629e5b24a6f51b184c6fb7970ae83984ff75aa700567298d8cf7e",
+      "current_sha256": "72df75b24f5629e5b24a6f51b184c6fb7970ae83984ff75aa700567298d8cf7e",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_evaluator_lifetime_module.c",
+      "native_sha256": "e57b7595d9cbb30fd7e23665851231d86cf840afaa22a3f6770f88c6146aa714",
+      "current_sha256": "e57b7595d9cbb30fd7e23665851231d86cf840afaa22a3f6770f88c6146aa714",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_evaluator_lifetime_programs.c",
+      "native_sha256": "80a08c2587b1a01e1c2a53fe0ce7e7a95ab1035d00efdd201a38c4a2de0eef9f",
+      "current_sha256": "80a08c2587b1a01e1c2a53fe0ce7e7a95ab1035d00efdd201a38c4a2de0eef9f",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_evaluator_owned_lifetimes.c",
+      "native_sha256": "901536515a04ee6c2fcc96af14bd09a3e71052fedeae1e8ffd6d9a5affc1bd30",
+      "current_sha256": "901536515a04ee6c2fcc96af14bd09a3e71052fedeae1e8ffd6d9a5affc1bd30",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_generated_list_metadata.c",
+      "native_sha256": "b594e22e8bc6af4cd1889bcde61c55d282dae5b731632a5d5936f4f5fb8738e9",
+      "current_sha256": "b594e22e8bc6af4cd1889bcde61c55d282dae5b731632a5d5936f4f5fb8738e9",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_generic_record_lists.py",
+      "native_sha256": "4efe45ab5badc72abd6898db2a726b8c578b2bd1b82b56b37dcce74470bbdb51",
+      "current_sha256": "4efe45ab5badc72abd6898db2a726b8c578b2bd1b82b56b37dcce74470bbdb51",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_native_record_list_storage.c",
+      "native_sha256": "9b44e205eac4fee335d4df7f6b711296b4d7e92d58cec3ed09671de8a1ec2ce1",
+      "current_sha256": "9b44e205eac4fee335d4df7f6b711296b4d7e92d58cec3ed09671de8a1ec2ce1",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_native_record_lists.py",
+      "native_sha256": "237bf12c2d6635f1d0a07ff995fc3cabdc4b7eb93f5e50925cfc500bfe6a768f",
+      "current_sha256": "352a733e96c0ff9d371eed3c30374a63dfbfff0c3438917801ac10a035e978ae",
+      "unchanged": false
+    },
+    {
+      "path": "tests/test_nominal_array_allocations.c",
+      "native_sha256": "1845d73a11592872b37df248c14da92e8c82e204e08e876f5ef74e307320c843",
+      "current_sha256": "1845d73a11592872b37df248c14da92e8c82e204e08e876f5ef74e307320c843",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_nominal_array_allocations_checker.c",
+      "native_sha256": "c9695d9b8496809bbf0b4af3d0fba810feca8afd23f1059ba2b465a0dc0c706c",
+      "current_sha256": "c9695d9b8496809bbf0b4af3d0fba810feca8afd23f1059ba2b465a0dc0c706c",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_nominal_array_identity.c",
+      "native_sha256": "ae3444cd9ce60a355599545be2aed980a277a425ded1569b808eaca453cda7b1",
+      "current_sha256": "ae3444cd9ce60a355599545be2aed980a277a425ded1569b808eaca453cda7b1",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_nominal_constructor_allocations.c",
+      "native_sha256": "c773641d14d90357d63382cf9bd0634ed615e521fd4c8c276e727d9a2bef7beb",
+      "current_sha256": "c773641d14d90357d63382cf9bd0634ed615e521fd4c8c276e727d9a2bef7beb",
+      "unchanged": true
+    }
+  ]
+}

@@ -59,6 +59,53 @@ static NvmOrdinaryArrayStatus oaa_preflight(const NvmModule *m,uint32_t *work,bo
     if(m->union_count>(OAA_STEPS-used)/union_work)return NVM_OAA_LIMIT;
     used+=m->union_count*union_work;*work=used;return NVM_OAA_DESCRIBED;
 }
+/* I share semantic declaration checks across legacy and retained V2 views. */
+static NvmOrdinaryArrayStatus oaa_check_declarations(const OwnershipModuleFacts *facts,
+        NvmOrdinaryArrayAuthority *p,OwnershipProjection *projection) {
+    NvmV2Result r;
+    uint32_t records=0,enums=0,unions=0;
+    for(uint32_t i=0;i<p->layouts.count;i++) {
+        const NvmV2Layout *row=&p->layouts.items[i];
+        if(row->name_idx!=NVM_V2_NO_INDEX && !ownership_name_valid(facts,row->name_idx)){return NVM_OAA_INVALID;}
+        records+=row->kind==NVM_V2_LAYOUT_STRUCT;enums+=row->kind==NVM_V2_LAYOUT_ENUM;unions+=row->kind==NVM_V2_LAYOUT_UNION;
+        if(!p->typed && row->kind!=NVM_V2_LAYOUT_STRUCT && (!projection || row->kind!=NVM_V2_LAYOUT_UNION))p->unknown=true;
+        for(uint16_t f=0;f<row->field_count;f++) {
+            const NvmV2LayoutField *field=&row->fields[f];uint32_t ref=field->nested_idx;
+            if(field->name_idx!=NVM_V2_NO_INDEX && !ownership_name_valid(facts,field->name_idx)){return NVM_OAA_INVALID;}
+            /* The prior-only legacy decoder permits tag/referent combinations
+             * that this exact ordinary query must check independently. */
+            if(p->typed) {
+                if(field->type_tag==TAG_FUNCTION || field->type_tag==TAG_OPAQUE)p->foreign_unresolved=true;
+                continue; /* Every typed field was checked by the shared DAG reader. */
+            }
+            if(field->type_tag==TAG_STRUCT) {
+                if(ref>=p->layouts.count || p->layouts.items[ref].kind!=NVM_V2_LAYOUT_STRUCT){return NVM_OAA_INVALID;}
+            } else if(field->type_tag==TAG_ENUM && ref!=NVM_V2_NO_INDEX) {
+                if(ref>=p->layouts.count || p->layouts.items[ref].kind!=NVM_V2_LAYOUT_ENUM){return NVM_OAA_INVALID;}
+            } else if(ref!=NVM_V2_NO_INDEX){return NVM_OAA_INVALID;}
+            if(!scalar(field->type_tag) && field->type_tag!=TAG_STRING &&
+               field->type_tag!=TAG_STRUCT && field->type_tag!=TAG_ARRAY)p->unknown=true;
+        }
+    }
+    if(facts->legacy && (records!=facts->legacy->struct_count || enums!=facts->legacy->enum_count || unions!=facts->legacy->union_count)){return NVM_OAA_INVALID;}
+    bool needs=false;
+    r=ownership_validate_facts(facts,&p->layouts,&needs,p,projection);
+    if(r!=NVM_V2_OK){return p->failure;}
+    if((needs && !projection) || (projection && projection->ambiguous))p->unknown=true;
+    const NvmModule *m=facts->legacy;
+    if(m && (nvm_capture_bindings_present(m) || m->import_count || m->module_ref_count ||
+       m->service_size || m->service_data || m->passive_size || m->passive_data))p->unknown=true;
+    uint32_t arrays=0;
+    for(uint32_t i=0;i<p->layouts.count;i++) {
+        if(p->flags[i]!=(projection && p->layouts.items[i].kind==NVM_V2_LAYOUT_UNION?0:NVM_LAYOUT_COMPLETE))p->unknown=true;
+        for(uint16_t f=0;f<p->layouts.items[i].field_count;f++)
+            arrays+=p->layouts.items[i].fields[f].type_tag==TAG_ARRAY;
+    }
+    if(arrays && !p->binding_count)p->unknown=true;
+    if(projection && facts->union_count && !projection->view.data)p->unknown=true;
+    if(p->unknown){return NVM_OAA_UNKNOWN;}
+    return NVM_OAA_DESCRIBED;
+}
 static NvmOrdinaryArrayResult oaa_prepare(
         const NvmModule *m,NvmOrdinaryArrayAuthority **out,OwnershipProjection *projection) {
     if(!m||!out||(!m->layout_data != !m->layout_size)||
@@ -74,41 +121,9 @@ static NvmOrdinaryArrayResult oaa_prepare(
         nvm_ownership_mixed_layouts_private_decode_detailed(m->layout_data,m->layout_size,&p->layouts,&allocation_failed):
         nvm_ownership_layouts_private_decode(m->layout_data,m->layout_size,&p->layouts);
     if(r!=NVM_V2_OK){status=allocation_failed?NVM_OAA_MEMORY:r==NVM_V2_ERR_TRUNCATED?NVM_OAA_UNKNOWN:NVM_OAA_INVALID;goto fail;}
-    uint32_t records=0,enums=0,unions=0;
-    for(uint32_t i=0;i<p->layouts.count;i++) {
-        const NvmV2Layout *row=&p->layouts.items[i];
-        if(row->name_idx!=NVM_V2_NO_INDEX && row->name_idx>=m->string_count){status=NVM_OAA_INVALID;goto fail;}
-        records+=row->kind==NVM_V2_LAYOUT_STRUCT;enums+=row->kind==NVM_V2_LAYOUT_ENUM;unions+=row->kind==NVM_V2_LAYOUT_UNION;
-        if(row->kind!=NVM_V2_LAYOUT_STRUCT && (!projection || row->kind!=NVM_V2_LAYOUT_UNION))p->unknown=true;
-        for(uint16_t f=0;f<row->field_count;f++) {
-            const NvmV2LayoutField *field=&row->fields[f];uint32_t ref=field->nested_idx;
-            if(field->name_idx!=NVM_V2_NO_INDEX && field->name_idx>=m->string_count){status=NVM_OAA_INVALID;goto fail;}
-            /* The prior-only legacy decoder permits tag/referent combinations
-             * that this exact ordinary query must check independently. */
-            if(field->type_tag==TAG_STRUCT) {
-                if(ref>=p->layouts.count || p->layouts.items[ref].kind!=NVM_V2_LAYOUT_STRUCT){status=NVM_OAA_INVALID;goto fail;}
-            } else if(field->type_tag==TAG_ENUM && ref!=NVM_V2_NO_INDEX) {
-                if(ref>=p->layouts.count || p->layouts.items[ref].kind!=NVM_V2_LAYOUT_ENUM){status=NVM_OAA_INVALID;goto fail;}
-            } else if(ref!=NVM_V2_NO_INDEX){status=NVM_OAA_INVALID;goto fail;}
-            if(!scalar(field->type_tag) && field->type_tag!=TAG_STRING &&
-               field->type_tag!=TAG_STRUCT && field->type_tag!=TAG_ARRAY)p->unknown=true;
-        }
-    }
-    if(records!=m->struct_count || enums!=m->enum_count || unions!=m->union_count){status=NVM_OAA_INVALID;goto fail;}
-    bool needs=false;
-    r=ownership_validate_owned(m,&p->layouts,&needs,p,projection);
-    if(r!=NVM_V2_OK){status=p->failure;goto fail;}
-    if((needs && !projection) || (projection && projection->ambiguous) || m->import_count || m->module_ref_count || m->service_size || m->service_data ||
-       m->passive_size || m->passive_data)p->unknown=true;
-    uint32_t arrays=0;
-    for(uint32_t i=0;i<p->layouts.count;i++) {
-        if(p->flags[i]!=(projection && p->layouts.items[i].kind==NVM_V2_LAYOUT_UNION?0:NVM_LAYOUT_COMPLETE))p->unknown=true;
-        for(uint16_t f=0;f<p->layouts.items[i].field_count;f++)
-            arrays+=p->layouts.items[i].fields[f].type_tag==TAG_ARRAY;
-    }
-    if(arrays && !p->binding_count)p->unknown=true;
-    if(projection && m->union_count && !projection->view.data)p->unknown=true;
-    if(p->unknown){status=NVM_OAA_UNKNOWN;goto fail;}
+    OwnershipModuleFacts facts=ownership_legacy_facts(m);
+    status=oaa_check_declarations(&facts,p,projection);
+    if(status!=NVM_OAA_DESCRIBED)goto fail;
     *out=p;return oaa_result(NVM_OAA_DESCRIBED);
 fail:
     nvm_ordinary_array_authority_free(p);return oaa_result(status);

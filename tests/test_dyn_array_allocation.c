@@ -9,6 +9,30 @@
 
 static int reject_allocation;
 static int reject_string_copy;
+static int reject_scratch;
+static int require_drained_scratch;
+static void *scratch[32];
+static size_t scratch_live;
+static void *test_scratch_allocate(size_t bytes) {
+    if (reject_scratch) return NULL;
+    void *value = malloc(bytes);
+    if (value) {
+        if (scratch_live >= 32) _exit(78);
+        scratch[scratch_live++] = value;
+    }
+    return value;
+}
+static void test_scratch_free(void *value) {
+    for (size_t i = 0; i < scratch_live; ++i) {
+        if (scratch[i] == value) { scratch[i] = scratch[--scratch_live]; break; }
+    }
+    free(value);
+}
+static void test_abort(void) __attribute__((noreturn));
+static void test_abort(void) {
+    if (require_drained_scratch && scratch_live) _exit(77);
+    abort();
+}
 static int test_aligned_allocate(void **memory, size_t alignment, size_t bytes) {
     if (reject_allocation) return ENOMEM;
     return posix_memalign(memory, alignment, bytes);
@@ -19,9 +43,15 @@ static char *test_string_copy(const char *value) {
 }
 #define posix_memalign test_aligned_allocate
 #define strdup test_string_copy
+#define malloc test_scratch_allocate
+#define free test_scratch_free
+#define abort test_abort
 #include "../src/runtime/dyn_array.c"
 #undef posix_memalign
 #undef strdup
+#undef malloc
+#undef free
+#undef abort
 #undef NDEBUG
 #include <assert.h>
 
@@ -74,10 +104,53 @@ static void empty_struct(void) {
     dyn_array_push_struct(a, &value, 0);
 }
 
-static void excessive_struct_width(void) {
+static void failure_large_scratch(void) {
     DynArray *a = dyn_array_new(ELEM_STRUCT);
-    char value[256] = {0};
+    char value[488] = {0};
+    reject_scratch = require_drained_scratch = 1;
     dyn_array_push_struct(a, value, sizeof value);
+}
+
+static void failure_large_storage(void) {
+    DynArray *a = dyn_array_new(ELEM_STRUCT);
+    char value[488] = {0};
+    reject_allocation = require_drained_scratch = 1;
+    dyn_array_push_struct(a, value, sizeof value);
+}
+
+static void failure_large_growth(void) {
+    DynArray *a = dyn_array_new(ELEM_STRUCT);
+    char value[488] = {0};
+    for (int i = 0; i < 8; ++i) dyn_array_push_struct(a, value, sizeof value);
+    reject_allocation = require_drained_scratch = 1;
+    dyn_array_push_struct(a, dyn_array_get_struct(a, 0), sizeof value);
+}
+
+static void complete_width(size_t width) {
+    unsigned char *value = malloc(width), *popped = malloc(width);
+    assert(value && popped);
+    for (size_t i = 0; i < width; ++i) value[i] = (unsigned char)(i * 13 + 7);
+    DynArray *a = dyn_array_new(ELEM_STRUCT);
+    dyn_array_reserve(a, 10);
+    assert(!a->data && a->capacity == 10);
+    for (int i = 0; i < 10; ++i) dyn_array_push_struct(a, value, width);
+    dyn_array_push_struct(a, dyn_array_get_struct(a, 0), width);
+    assert(a->elem_size == width && a->length == 11 && !scratch_live);
+    assert(!memcmp(dyn_array_get_struct(a, 10), value, width));
+    DynArray *copy = dyn_array_clone(a);
+    assert(copy && copy->elem_size == width && copy->length == 11);
+    assert(!memcmp(dyn_array_get_struct(copy, 10), value, width));
+    value[width - 1] ^= 0x5a;
+    dyn_array_set_struct(copy, 10, value, width);
+    assert(memcmp(dyn_array_get_struct(copy, 10), dyn_array_get_struct(a, 10), width));
+    bool ok = false;
+    dyn_array_pop_struct(copy, popped, width, &ok);
+    assert(ok && copy->length == 10 && !memcmp(popped, value, width));
+    reject_allocation = 1;
+    assert(dyn_array_clone(a) == NULL);
+    reject_allocation = 0;
+    assert(a->length == 11 && !scratch_live);
+    gc_release(copy); gc_release(a); free(value); free(popped);
 }
 
 static void expect_abort(void (*operation)(void)) {
@@ -96,6 +169,8 @@ static void expect_abort(void (*operation)(void)) {
 
 int main(void) {
     gc_init();
+    assert(NANO_DYN_ARRAY_ABI_VERSION == 2);
+    assert(sizeof(((DynArray *)0)->elem_size) == sizeof(size_t));
     size_t baseline = gc_get_stats().num_objects;
     assert(darray_aligned_alloc(SIZE_MAX) == NULL);
     assert(dyn_array_new_with_capacity(ELEM_INT, INT64_MAX) == NULL);
@@ -163,7 +238,12 @@ int main(void) {
     expect_abort(overflow_reserve);
     expect_abort(overflow_struct);
     expect_abort(empty_struct);
-    expect_abort(excessive_struct_width);
+    const size_t widths[] = {255, 256, 488, 504, 4096, 65536};
+    for (size_t i = 0; i < sizeof widths / sizeof *widths; ++i) complete_width(widths[i]);
+    expect_abort(failure_large_scratch);
+    expect_abort(failure_large_storage);
+    expect_abort(failure_large_growth);
+    assert(scratch_live == 0);
     gc_shutdown();
     puts("I passed native array allocation boundary tests.");
     return 0;

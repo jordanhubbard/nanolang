@@ -1,0 +1,139 @@
+elapsed=40.431
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+__asan::FakeStack::Allocate (this=0xe7bcc9cf7000, stack_size_log=20, class_id=1, real_stack=281474247884768) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:96
+#0  __asan::FakeStack::Allocate (this=0xe7bcc9cf7000, stack_size_log=20, class_id=1, real_stack=281474247884768) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:96
+#1  __asan::OnMalloc (class_id=1, size=<optimized out>) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:229
+#2  __asan_stack_malloc_1 (size=<optimized out>) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:274
+#3  0x0000b89100c48fe4 [PAC] in is_truthy (val=<error reading variable: Cannot access memory at address 0x162>) at src/eval.c:2453
+#4  0x0000b89100c7d75c in eval_expression_other (expr=0x50c0002d5380, env=0x5120000001c0) at src/eval.c:5104
+#5  0x0000b89100c79590 in eval_expression (expr=0x50c0002d5380, env=0x5120000001c0) at src/eval.c:4917
+#6  0x0000b89100c96ed0 in eval_statement (stmt=0x50c0002d5380, env=0x5120000001c0) at src/eval.c:6210
+#7  0x0000b89100c7604c in eval_call_impl (node=0x50c0005b3840, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#8  0x0000b89100c560d0 in eval_call (node=0x50c0005b3840, env=0x5120000001c0) at src/eval.c:3034
+#9  0x0000b89100c7957c in eval_expression (expr=0x50c0005b3840, env=0x5120000001c0) at src/eval.c:4915
+#10 0x0000b89100c81490 in eval_expression_other (expr=0x50c0005b3900, env=0x5120000001c0) at src/eval.c:5317
+#11 0x0000b89100c79590 in eval_expression (expr=0x50c0005b3900, env=0x5120000001c0) at src/eval.c:4917
+#12 0x0000b89100c525bc in eval_prefix_op (node=0x50c0005b3b40, env=0x5120000001c0) at src/eval.c:2895
+#13 0x0000b89100c79358 in eval_expression (expr=0x50c0005b3b40, env=0x5120000001c0) at src/eval.c:4912
+#14 0x0000b89100c7d574 in eval_expression_other (expr=0x50c0005b42c0, env=0x5120000001c0) at src/eval.c:5102
+#15 0x0000b89100c79590 in eval_expression (expr=0x50c0005b42c0, env=0x5120000001c0) at src/eval.c:4917
+#16 0x0000b89100c96ed0 in eval_statement (stmt=0x50c0005b42c0, env=0x5120000001c0) at src/eval.c:6210
+#17 0x0000b89100c7604c in eval_call_impl (node=0x50c000546880, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#18 0x0000b89100c560d0 in eval_call (node=0x50c000546880, env=0x5120000001c0) at src/eval.c:3034
+#19 0x0000b89100c7957c in eval_expression (expr=0x50c000546880, env=0x5120000001c0) at src/eval.c:4915
+#20 0x0000b89100c8aa4c in eval_statement (stmt=0x50c000546940, env=0x5120000001c0) at src/eval.c:5737
+#21 0x0000b89100c22cf8 in eval_scoped_block (statements=0x50600003a3a0, count=5, env=0x5120000001c0) at src/eval.c:242
+#22 0x0000b89100c91f80 in eval_statement (stmt=0x50c000547840, env=0x5120000001c0) at src/eval.c:5962
+#23 0x0000b89100c7d880 in eval_expression_other (expr=0x50c000547900, env=0x5120000001c0) at src/eval.c:5107
+#24 0x0000b89100c79590 in eval_expression (expr=0x50c000547900, env=0x5120000001c0) at src/eval.c:4917
+#25 0x0000b89100c96ed0 in eval_statement (stmt=0x50c000547900, env=0x5120000001c0) at src/eval.c:6210
+#26 0x0000b89100c22cf8 in eval_scoped_block (statements=0x50600003a040, count=5, env=0x5120000001c0) at src/eval.c:242
+#27 0x0000b89100c91f80 in eval_statement (stmt=0x50c0005479c0, env=0x5120000001c0) at src/eval.c:5962
+#28 0x0000b89100c7d880 in eval_expression_other (expr=0x50c000547a80, env=0x5120000001c0) at src/eval.c:5107
+#29 0x0000b89100c79590 in eval_expression (expr=0x50c000547a80, env=0x5120000001c0) at src/eval.c:4917
+#30 0x0000b89100c96ed0 in eval_statement (stmt=0x50c000547a80, env=0x5120000001c0) at src/eval.c:6210
+#31 0x0000b89100c22cf8 in eval_scoped_block (statements=0x506000039f20, count=2, env=0x5120000001c0) at src/eval.c:242
+#32 0x0000b89100c91f80 in eval_statement (stmt=0x50c000547b40, env=0x5120000001c0) at src/eval.c:5962
+#33 0x0000b89100c8c2b0 in eval_statement (stmt=0x50c000547c00, env=0x5120000001c0) at src/eval.c:5805
+#34 0x0000b89100c7604c in eval_call_impl (node=0x50c0005497c0, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#35 0x0000b89100c560d0 in eval_call (node=0x50c0005497c0, env=0x5120000001c0) at src/eval.c:3034
+#36 0x0000b89100c7957c in eval_expression (expr=0x50c0005497c0, env=0x5120000001c0) at src/eval.c:4915
+#37 0x0000b89100c91a54 in eval_statement (stmt=0x50c000549880, env=0x5120000001c0) at src/eval.c:5949
+#38 0x0000b89100c22cf8 in eval_scoped_block (statements=0x50600003a580, count=3, env=0x5120000001c0) at src/eval.c:242
+#39 0x0000b89100c91f80 in eval_statement (stmt=0x50c000549940, env=0x5120000001c0) at src/eval.c:5962
+#40 0x0000b89100c7d7f4 in eval_expression_other (expr=0x50c000549e80, env=0x5120000001c0) at src/eval.c:5105
+#41 0x0000b89100c79590 in eval_expression (expr=0x50c000549e80, env=0x5120000001c0) at src/eval.c:4917
+#42 0x0000b89100c96ed0 in eval_statement (stmt=0x50c000549e80, env=0x5120000001c0) at src/eval.c:6210
+#43 0x0000b89100c22cf8 in eval_scoped_block (statements=0x50600003a520, count=2, env=0x5120000001c0) at src/eval.c:242
+#44 0x0000b89100c91f80 in eval_statement (stmt=0x50c000549f40, env=0x5120000001c0) at src/eval.c:5962
+#45 0x0000b89100c7d880 in eval_expression_other (expr=0x50c00054a000, env=0x5120000001c0) at src/eval.c:5107
+#46 0x0000b89100c79590 in eval_expression (expr=0x50c00054a000, env=0x5120000001c0) at src/eval.c:4917
+#47 0x0000b89100c96ed0 in eval_statement (stmt=0x50c00054a000, env=0x5120000001c0) at src/eval.c:6210
+#48 0x0000b89100c7604c in eval_call_impl (node=0x50c000641a40, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#49 0x0000b89100c560d0 in eval_call (node=0x50c000641a40, env=0x5120000001c0) at src/eval.c:3034
+#50 0x0000b89100c7957c in eval_expression (expr=0x50c000641a40, env=0x5120000001c0) at src/eval.c:4915
+#51 0x0000b89100c8aa4c in eval_statement (stmt=0x50c000641b00, env=0x5120000001c0) at src/eval.c:5737
+#52 0x0000b89100c22cf8 in eval_scoped_block (statements=0x50c000641bc0, count=9, env=0x5120000001c0) at src/eval.c:242
+#53 0x0000b89100c91f80 in eval_statement (stmt=0x50c000646fc0, env=0x5120000001c0) at src/eval.c:5962
+#54 0x0000b89100c7d880 in eval_expression_other (expr=0x50c000647080, env=0x5120000001c0) at src/eval.c:5107
+#55 0x0000b89100c79590 in eval_expression (expr=0x50c000647080, env=0x5120000001c0) at src/eval.c:4917
+#56 0x0000b89100c96ed0 in eval_statement (stmt=0x50c000647080, env=0x5120000001c0) at src/eval.c:6210
+#57 0x0000b89100c22cf8 in eval_scoped_block (statements=0x506000043160, count=2, env=0x5120000001c0) at src/eval.c:242
+#58 0x0000b89100c91f80 in eval_statement (stmt=0x50c000647140, env=0x5120000001c0) at src/eval.c:5962
+#59 0x0000b89100c7d880 in eval_expression_other (expr=0x50c000647200, env=0x5120000001c0) at src/eval.c:5107
+#60 0x0000b89100c79590 in eval_expression (expr=0x50c000647200, env=0x5120000001c0) at src/eval.c:4917
+#61 0x0000b89100c96ed0 in eval_statement (stmt=0x50c000647200, env=0x5120000001c0) at src/eval.c:6210
+#62 0x0000b89100c22cf8 in eval_scoped_block (statements=0x5060000430a0, count=3, env=0x5120000001c0) at src/eval.c:242
+#63 0x0000b89100c91f80 in eval_statement (stmt=0x50c0006472c0, env=0x5120000001c0) at src/eval.c:5962
+#64 0x0000b89100c7d880 in eval_expression_other (expr=0x50c000647380, env=0x5120000001c0) at src/eval.c:5107
+#65 0x0000b89100c79590 in eval_expression (expr=0x50c000647380, env=0x5120000001c0) at src/eval.c:4917
+#66 0x0000b89100c96ed0 in eval_statement (stmt=0x50c000647380, env=0x5120000001c0) at src/eval.c:6210
+#67 0x0000b89100c22cf8 in eval_scoped_block (statements=0x506000042fe0, count=4, env=0x5120000001c0) at src/eval.c:242
+#68 0x0000b89100c91f80 in eval_statement (stmt=0x50c000647440, env=0x5120000001c0) at src/eval.c:5962
+#69 0x0000b89100c7d880 in eval_expression_other (expr=0x50c000647500, env=0x5120000001c0) at src/eval.c:5107
+#70 0x0000b89100c79590 in eval_expression (expr=0x50c000647500, env=0x5120000001c0) at src/eval.c:4917
+#71 0x0000b89100c96ed0 in eval_statement (stmt=0x50c000647500, env=0x5120000001c0) at src/eval.c:6210
+#72 0x0000b89100c22cf8 in eval_scoped_block (statements=0x506000042f20, count=4, env=0x5120000001c0) at src/eval.c:242
+#73 0x0000b89100c91f80 in eval_statement (stmt=0x50c0006475c0, env=0x5120000001c0) at src/eval.c:5962
+#74 0x0000b89100c7d7f4 in eval_expression_other (expr=0x50c000647b00, env=0x5120000001c0) at src/eval.c:5105
+#75 0x0000b89100c79590 in eval_expression (expr=0x50c000647b00, env=0x5120000001c0) at src/eval.c:4917
+#76 0x0000b89100c96ed0 in eval_statement (stmt=0x50c000647b00, env=0x5120000001c0) at src/eval.c:6210
+#77 0x0000b89100c22cf8 in eval_scoped_block (statements=0x506000042ec0, count=2, env=0x5120000001c0) at src/eval.c:242
+#78 0x0000b89100c91f80 in eval_statement (stmt=0x50c000647bc0, env=0x5120000001c0) at src/eval.c:5962
+#79 0x0000b89100c7d880 in eval_expression_other (expr=0x50c000647c80, env=0x5120000001c0) at src/eval.c:5107
+#80 0x0000b89100c79590 in eval_expression (expr=0x50c000647c80, env=0x5120000001c0) at src/eval.c:4917
+#81 0x0000b89100c96ed0 in eval_statement (stmt=0x50c000647c80, env=0x5120000001c0) at src/eval.c:6210
+#82 0x0000b89100c22cf8 in eval_scoped_block (statements=0x506000042e00, count=2, env=0x5120000001c0) at src/eval.c:242
+#83 0x0000b89100c91f80 in eval_statement (stmt=0x50c000647d40, env=0x5120000001c0) at src/eval.c:5962
+#84 0x0000b89100c7d7f4 in eval_expression_other (expr=0x50c000648280, env=0x5120000001c0) at src/eval.c:5105
+#85 0x0000b89100c79590 in eval_expression (expr=0x50c000648280, env=0x5120000001c0) at src/eval.c:4917
+#86 0x0000b89100c96ed0 in eval_statement (stmt=0x50c000648280, env=0x5120000001c0) at src/eval.c:6210
+#87 0x0000b89100c22cf8 in eval_scoped_block (statements=0x506000042da0, count=2, env=0x5120000001c0) at src/eval.c:242
+#88 0x0000b89100c91f80 in eval_statement (stmt=0x50c000648340, env=0x5120000001c0) at src/eval.c:5962
+#89 0x0000b89100c7d880 in eval_expression_other (expr=0x50c000648400, env=0x5120000001c0) at src/eval.c:5107
+#90 0x0000b89100c79590 in eval_expression (expr=0x50c000648400, env=0x5120000001c0) at src/eval.c:4917
+#91 0x0000b89100c96ed0 in eval_statement (stmt=0x50c000648400, env=0x5120000001c0) at src/eval.c:6210
+#92 0x0000b89100c7604c in eval_call_impl (node=0x50c0006d6000, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#93 0x0000b89100c560d0 in eval_call (node=0x50c0006d6000, env=0x5120000001c0) at src/eval.c:3034
+#94 0x0000b89100c7957c in eval_expression (expr=0x50c0006d6000, env=0x5120000001c0) at src/eval.c:4915
+#95 0x0000b89100c91a54 in eval_statement (stmt=0x50c0006d60c0, env=0x5120000001c0) at src/eval.c:5949
+#96 0x0000b89100c22cf8 in eval_scoped_block (statements=0x50600004a3c0, count=1, env=0x5120000001c0) at src/eval.c:242
+#97 0x0000b89100c91f80 in eval_statement (stmt=0x50c0006d6180, env=0x5120000001c0) at src/eval.c:5962
+#98 0x0000b89100c7d7f4 in eval_expression_other (expr=0x50c0006db400, env=0x5120000001c0) at src/eval.c:5105
+#99 0x0000b89100c79590 in eval_expression (expr=0x50c0006db400, env=0x5120000001c0) at src/eval.c:4917
+#100 0x0000b89100c96ed0 in eval_statement (stmt=0x50c0006db400, env=0x5120000001c0) at src/eval.c:6210
+#101 0x0000b89100c22cf8 in eval_scoped_block (statements=0x50600004a360, count=1, env=0x5120000001c0) at src/eval.c:242
+#102 0x0000b89100c91f80 in eval_statement (stmt=0x50c0006db4c0, env=0x5120000001c0) at src/eval.c:5962
+#103 0x0000b89100c7d880 in eval_expression_other (expr=0x50c0006db580, env=0x5120000001c0) at src/eval.c:5107
+#104 0x0000b89100c79590 in eval_expression (expr=0x50c0006db580, env=0x5120000001c0) at src/eval.c:4917
+#105 0x0000b89100c96ed0 in eval_statement (stmt=0x50c0006db580, env=0x5120000001c0) at src/eval.c:6210
+#106 0x0000b89100c22cf8 in eval_scoped_block (statements=0x50600004a060, count=1, env=0x5120000001c0) at src/eval.c:242
+#107 0x0000b89100c91f80 in eval_statement (stmt=0x50c0006db640, env=0x5120000001c0) at src/eval.c:5962
+#108 0x0000b89100c7d880 in eval_expression_other (expr=0x50c0006db700, env=0x5120000001c0) at src/eval.c:5107
+#109 0x0000b89100c79590 in eval_expression (expr=0x50c0006db700, env=0x5120000001c0) at src/eval.c:4917
+#110 0x0000b89100c96ed0 in eval_statement (stmt=0x50c0006db700, env=0x5120000001c0) at src/eval.c:6210
+#111 0x0000b89100c22cf8 in eval_scoped_block (statements=0x506000049640, count=8, env=0x5120000001c0) at src/eval.c:242
+#112 0x0000b89100c91f80 in eval_statement (stmt=0x50c0006db7c0, env=0x5120000001c0) at src/eval.c:5962
+#113 0x0000b89100c7d880 in eval_expression_other (expr=0x50c0006db880, env=0x5120000001c0) at src/eval.c:5107
+#114 0x0000b89100c79590 in eval_expression (expr=0x50c0006db880, env=0x5120000001c0) at src/eval.c:4917
+#115 0x0000b89100c96ed0 in eval_statement (stmt=0x50c0006db880, env=0x5120000001c0) at src/eval.c:6210
+#116 0x0000b89100c7604c in eval_call_impl (node=0x50c0006dce40, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#117 0x0000b89100c560d0 in eval_call (node=0x50c0006dce40, env=0x5120000001c0) at src/eval.c:3034
+#118 0x0000b89100c7957c in eval_expression (expr=0x50c0006dce40, env=0x5120000001c0) at src/eval.c:4915
+#119 0x0000b89100c8b2e4 in eval_statement (stmt=0x50c0006dcf00, env=0x5120000001c0) at src/eval.c:5766
+#120 0x0000b89100c22cf8 in eval_scoped_block (statements=0x50600004ab40, count=3, env=0x5120000001c0) at src/eval.c:242
+#121 0x0000b89100c91f80 in eval_statement (stmt=0x50c0006ddd40, env=0x5120000001c0) at src/eval.c:5962
+#122 0x0000b89100c8c2b0 in eval_statement (stmt=0x50c0006dde00, env=0x5120000001c0) at src/eval.c:5805
+#123 0x0000b89100c7604c in eval_call_impl (node=0x50c00054bec0, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#124 0x0000b89100c560d0 in eval_call (node=0x50c00054bec0, env=0x5120000001c0) at src/eval.c:3034
+#125 0x0000b89100c7957c in eval_expression (expr=0x50c00054bec0, env=0x5120000001c0) at src/eval.c:4915
+#126 0x0000b89100c8aa4c in eval_statement (stmt=0x50c00054bf80, env=0x5120000001c0) at src/eval.c:5737
+#127 0x0000b89100c22cf8 in eval_scoped_block (statements=0x511000009140, count=26, env=0x5120000001c0) at src/eval.c:242
+#128 0x0000b89100c91f80 in eval_statement (stmt=0x50c0005572c0, env=0x5120000001c0) at src/eval.c:5962
+#129 0x0000b89100c981e4 in run_shadow_tests_scope (program=0x50c000786580, env=0x5120000001c0, modules=0x50200009e9f0, input_file=0xffffd494beaa "src_nano/nanoc_v06.nano", include_imports=true, verbose=true) at src/eval.c:6316
+#130 0x0000b89100cda91c in check_interpreted_shadows (program=0x50c000199cc0, env=0x5120000001c0, modules=0x50200009e9f0, input=0xffffd494beaa "src_nano/nanoc_v06.nano", opts=0xe7bcca300060) at src/main.c:502
+#131 0x0000b89100ce69e8 in compile_file (input_file=0xffffd494beaa "src_nano/nanoc_v06.nano", output_file=0xffffd494becf "/work/profile-stage1-sampled", opts=0xe7bcca300060) at src/main.c:1289
+#132 0x0000b89100cf3e4c in main (argc=5, argv=0xffffd494b788) at src/main.c:2321
+[Inferior 1 (process 76929) detached]
+warning: 96	../../../../src/libsanitizer/asan/asan_fake_stack.cpp: No such file or directory

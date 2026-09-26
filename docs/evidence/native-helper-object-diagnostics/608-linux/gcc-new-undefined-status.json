@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/usr/bin/nm",
+    "-u",
+    "/home/jkh/nanolang-qualification/native-helper-608-linux-objects/gcc-new.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-303",
+  "timeout_seconds": 60,
+  "status": 0,
+  "timeout": false,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 0.015717222006060183,
+  "stdout": {
+    "sha256": "4317c86aaa87ad14f2165176a0126b5575a8766bba7acfeb595ce5369d99ad0c",
+    "bytes": 2502,
+    "archive": "/home/jkh/nanolang-qualification/native-helper-608-linux-objects/objects/4317c86aaa87ad14f2165176a0126b5575a8766bba7acfeb595ce5369d99ad0c"
+  },
+  "stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/home/jkh/nanolang-qualification/native-helper-608-linux-objects/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,6 @@
+test_native_aggregates_and_global_initialization (literal_optimization.NativeLiteralOptimization) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 66.681s
+
+OK

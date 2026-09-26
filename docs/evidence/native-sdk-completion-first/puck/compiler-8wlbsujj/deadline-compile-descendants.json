@@ -1,0 +1,18 @@
+{
+  "owned": {
+    "31724": {
+      "parent": 31610,
+      "group": 31724,
+      "started": "Mon Sep 21 22:31:05 2026",
+      "command": "/private/tmp/nanolang-native-sdk-bae59-puck-source/bin/nanoc_c /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/deadline.nano -o /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/deadline --llm-shadow-json /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/deadline-shadows.json"
+    },
+    "31726": {
+      "parent": 31724,
+      "group": 31724,
+      "started": "Mon Sep 21 22:31:05 2026",
+      "command": "/private/tmp/nanolang-native-sdk-bae59-puck-source/bin/nanoc_c /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/deadline.nano -o /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/deadline --llm-shadow-json /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/deadline-shadows.json"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

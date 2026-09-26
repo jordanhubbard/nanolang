@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "-f",
+    "tests.test_generic_record_lists"
+  ],
+  "bound": 3600,
+  "status": 1,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/private/tmp/nanolang-record-lists-qualified-6cf",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 6.90519183408469,
+  "log": {
+    "sha256": "15114ce1b5eac78475cefddb0701b99d0d0054ecadd31d0d4e55bc5939fd6f7e",
+    "bytes": 2193,
+    "archive": "/private/tmp/nanolang-record-lists-6cf-puck-matrix/objects/15114ce1b5eac78475cefddb0701b99d0d0054ecadd31d0d4e55bc5939fd6f7e"
+  },
+  "inputs_equal": true
+}

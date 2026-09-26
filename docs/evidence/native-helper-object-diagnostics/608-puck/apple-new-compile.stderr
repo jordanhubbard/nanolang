@@ -1,0 +1,59 @@
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:168:22: error: function 'nano_rt_f64_add' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  168 | static inline double nano_rt_f64_add(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:172:22: error: function 'nano_rt_f64_sub' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  172 | static inline double nano_rt_f64_sub(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:176:22: error: function 'nano_rt_f64_mul' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  176 | static inline double nano_rt_f64_mul(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:180:22: error: function 'nano_rt_f64_div' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  180 | static inline double nano_rt_f64_div(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:240:18: error: function 'nl_array_slice' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  240 | static DynArray* nl_array_slice(DynArray* arr, int64_t start, int64_t length) {
+      |                  ^~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:385:18: error: function 'nl_bytes_from_string' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  385 | static DynArray* nl_bytes_from_string(const char* s) {
+      |                  ^~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:396:20: error: function 'nl_string_from_bytes' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  396 | static const char* nl_string_from_bytes(DynArray* bytes) {
+      |                    ^~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:470:20: error: function 'nl_path_normalize' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  470 | static const char* nl_path_normalize(const char* p) { return path_normalize(p); }
+      |                    ^~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:471:20: error: function 'nl_path_join' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  471 | static const char* nl_path_join(const char* a, const char* b) { return path_join(a, b); }
+      |                    ^~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:472:20: error: function 'nl_path_basename' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  472 | static const char* nl_path_basename(const char* p) { return path_basename(p); }
+      |                    ^~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:473:20: error: function 'nl_path_dirname' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  473 | static const char* nl_path_dirname(const char* p) { return path_dirname(p); }
+      |                    ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:474:20: error: function 'nl_path_relpath' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  474 | static const char* nl_path_relpath(const char* t, const char* b) { return path_relpath(t, b); }
+      |                    ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:475:20: error: function 'nl_file_read' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  475 | static const char* nl_file_read(const char* p) { return file_read(p); }
+      |                    ^~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:477:16: error: function 'nl_fs_mkdir_p' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  477 | static int64_t nl_fs_mkdir_p(const char* p) { return fs_mkdir_p(p); }
+      |                ^~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:478:16: error: function 'nl_file_copy' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  478 | static int64_t nl_file_copy(const char* s, const char* d) { return file_copy(s, d); }
+      |                ^~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:479:16: error: function 'nl_dir_copy' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  479 | static int64_t nl_dir_copy(const char* s, const char* d) { return dir_copy(s, d); }
+      |                ^~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:487:20: error: function 'nl_get_argv' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  487 | static const char* nl_get_argv(int64_t idx) { return get_argv(idx); }
+      |                    ^~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:488:20: error: function 'nl_getenv' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  488 | static const char* nl_getenv(const char* name) { return nl_os_getenv(name); }
+      |                    ^~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-608-puck-objects/new.c:489:20: error: function 'nl_env_get' is not needed and will not be emitted [-Werror,-Wunneeded-internal-declaration]
+  489 | static const char* nl_env_get(const char* name) { return nl_os_getenv(name); }
+      |                    ^~~~~~~~~~
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.

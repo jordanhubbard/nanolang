@@ -1,0 +1,388 @@
+F.FFFFFFFFFFFFFF.F
+======================================================================
+FAIL: test_dependency_cleanup_symbol_is_not_accepted_as_owner (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_dependency_cleanup_symbol_is_not_accepted_as_owner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 289, in test_dependency_cleanup_symbol_is_not_accepted_as_owner
+    binary = self.native(module)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-9vpwz8a8/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_native_copy_allocation_failure_still_releases_provider (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_native_copy_allocation_failure_still_releases_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 342, in test_native_copy_allocation_failure_still_releases_provider
+    binary = self.native(module, fail_only_copy)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-198hx5fj/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_null_provider_result_is_released_once_then_refused (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_null_provider_result_is_released_once_then_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 263, in test_null_provider_result_is_released_once_then_refused
+    binary = self.native(module)
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-icxup80_/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_provider_cleanup_counts_zero_one_two_args_and_borrowed (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_provider_cleanup_counts_zero_one_two_args_and_borrowed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 110, in test_provider_cleanup_counts_zero_one_two_args_and_borrowed
+    self.paired(imports+strings+'.entry main\n.function main 0 2 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                           ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-i50i1bbx/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_real_fs_allocation_failure_preserves_empty_sentinel (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_fs_allocation_failure_preserves_empty_sentinel)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 331, in test_real_fs_allocation_failure_preserves_empty_sentinel
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                           ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-tza7pxyq/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_real_fs_text_empty_missing_and_embedded_nul (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_fs_text_empty_missing_and_embedded_nul)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 177, in test_real_fs_text_empty_missing_and_embedded_nul
+    self.paired(imports+strings+'.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                           ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-0nbo66vc/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_real_path_provider_allocation_failure_retains_null_contract (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_provider_allocation_failure_retains_null_contract) (provider='path_normalize')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 243, in test_real_path_provider_allocation_failure_retains_null_contract
+    refused = self.command([self.native(module)], success=False,
+                            ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-6er_xd0v/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_real_path_provider_allocation_failure_retains_null_contract (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_provider_allocation_failure_retains_null_contract) (provider='path_canonical')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 243, in test_real_path_provider_allocation_failure_retains_null_contract
+    refused = self.command([self.native(module)], success=False,
+                            ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-6er_xd0v/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_real_path_provider_allocation_failure_retains_null_contract (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_provider_allocation_failure_retains_null_contract) (provider='path_join')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 243, in test_real_path_provider_allocation_failure_retains_null_contract
+    refused = self.command([self.native(module)], success=False,
+                            ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-6er_xd0v/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_real_path_provider_allocation_failure_retains_null_contract (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_provider_allocation_failure_retains_null_contract) (provider='path_basename')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 243, in test_real_path_provider_allocation_failure_retains_null_contract
+    refused = self.command([self.native(module)], success=False,
+                            ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-6er_xd0v/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_real_path_provider_allocation_failure_retains_null_contract (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_provider_allocation_failure_retains_null_contract) (provider='path_dirname')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 243, in test_real_path_provider_allocation_failure_retains_null_contract
+    refused = self.command([self.native(module)], success=False,
+                            ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-6er_xd0v/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_real_path_provider_allocation_failure_retains_null_contract (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_provider_allocation_failure_retains_null_contract) (provider='path_relpath')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 243, in test_real_path_provider_allocation_failure_retains_null_contract
+    refused = self.command([self.native(module)], success=False,
+                            ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-6er_xd0v/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_real_path_providers_repeated_results_preserve_aliases (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_real_path_providers_repeated_results_preserve_aliases)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 219, in test_real_path_providers_repeated_results_preserve_aliases
+    self.paired(imports+strings+'.entry main\n.function main 0 7 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                           ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-wu65u95e/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_same_symbol_distinct_libraries_keep_release_owner (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_same_symbol_distinct_libraries_keep_release_owner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 161, in test_same_symbol_distinct_libraries_keep_release_owner
+    self.paired(imports+strings+'.entry main\n.function main 0 1 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                           ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-mp4a51as/generated.c:696:10: fatal error: 'ffi.h' file not found
+  696 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_scalar_results_and_void_side_effect (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_scalar_results_and_void_side_effect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 49, in test_scalar_results_and_void_side_effect
+    self.paired(self.imports(entries)+'.string text "borrowed"\n.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                           ~~~~~~~~~~~^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-kwqv4rat/generated.c:700:10: fatal error: 'ffi.h' file not found
+  700 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_vm_heterogeneous_max_arity_provider_cleanup (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_vm_heterogeneous_max_arity_provider_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 25, in test_vm_heterogeneous_max_arity_provider_cleanup
+    self.command([self.native(self.work/'input.nvm')],
+                  ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 17, in native
+    self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', binary, '-lm', '-lffi', *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-1gqelp53/generated.c:700:10: fatal error: 'ffi.h' file not found
+  700 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 13 tests in 5.680s
+
+FAILED (failures=16)

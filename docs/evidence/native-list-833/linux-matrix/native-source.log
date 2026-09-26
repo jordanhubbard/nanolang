@@ -1,0 +1,31 @@
+I retain native list artifacts at /home/jkh/nanolang-qualification/record-lists-833-linux-matrix/native-source/nano-native-record-lists-qpiuox8m
+test_native_declared_and_callback_precedence (tests.test_native_record_lists.NativeRecordLists.test_native_declared_and_callback_precedence) ... ok
+test_native_discovery_and_copied_results (tests.test_native_record_lists.NativeRecordLists.test_native_discovery_and_copied_results) ... FAIL
+
+======================================================================
+FAIL: test_native_discovery_and_copied_results (tests.test_native_record_lists.NativeRecordLists.test_native_discovery_and_copied_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-record-lists-qualified-833/tests/test_native_record_lists.py", line 117, in test_native_discovery_and_copied_results
+            self.native_routes('native-discovery', '''struct Item { value:int, text:string }
+            ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    struct Holder { values:List<Item> }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<18 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/home/jkh/Src/nanolang-record-lists-qualified-833/tests/test_native_record_lists.py", line 95, in native_routes
+    self.command(label + '-build', [ROOT / 'bin' / compiler, path, '-o', output, '--keep-c'],
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 timeout=300, extra=extra)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-record-lists-qualified-833/tests/test_generic_record_lists.py", line 126, in command
+    raise AssertionError((name, status, out[-8000:], err[-8000:]))
+AssertionError: ('0014-native-discovery-nanoc_c-O0-build', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'child_returncode': 1, 'elapsed': 0.0035826520761474967}, b'', b"-- E001 TYPE MISMATCH --- /home/jkh/nanolang-qualification/record-lists-833-linux-matrix/native-source/nano-native-record-lists-qpiuox8m/native-discovery.nano\nI require each array leaf's original declaration owner.\n\n12|  let held:Held<Item> =Held.Items{values:xs}\n                          ^\nHint: Preserve fixed definition leaves and concrete argument identities.\n-- E001 TYPE MISMATCH --- /home/jkh/nanolang-qualification/record-lists-833-linux-matrix/native-source/nano-native-record-lists-qpiuox8m/native-discovery.nano\nI require the exact ordinary list element type, operation arity and INT index.\n\n13|  match held { Items(payload) => { assert (== (list_Item_length payload.values) 1) } }\n                                                 ^\nHint: Use the declared List<T> receiver and matching ordinary element type.\nType checking failed\n")
+
+----------------------------------------------------------------------
+Ran 2 tests in 24.010s
+
+FAILED (failures=1)

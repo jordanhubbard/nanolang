@@ -87,9 +87,11 @@ static int tests_failed = 0;
     } \
 } while(0)
 
+/* I keep large automatic VM states in separate test call frames under optimization. */
 #define RUN_TEST(fn) do { \
+    void (*volatile test_entry)(void) = fn; \
     printf("  %s...\n", #fn); \
-    fn(); \
+    test_entry(); \
 } while(0)
 
 /* ========================================================================
@@ -2792,6 +2794,100 @@ static void test_destroy_releases_trapped_callable(void) {
     ASSERT(vm.heap.stats.allocated == vm.heap.stats.freed,
            "I balance accounted heap bytes after trapped callable destruction");
     nvm_module_free(module);
+}
+
+/* I install reviewed state only after the real trap, then exercise existing
+ * frame exits. This checks lifecycle plumbing, not capture opcode admission. */
+static void test_binding_frame_cleanup(void) {
+    for (unsigned mode = 0; mode < 3; ++mode) {
+        const char *source = mode == 1 ?
+            ".function paused 1 1 0 int 1\nPUSH_BOOL 0\nASSERT\n"
+            "LOAD_LOCAL 0\nTAIL_CALL 1\n.end\n"
+            ".function finish 1 1 0 int 1\nLOAD_LOCAL 0\nSTR_LEN\nRET\n.end\n" :
+            ".function paused 1 1 0 int 1\nPUSH_BOOL 0\nASSERT\n"
+            "LOAD_LOCAL 0\nSTR_LEN\nRET\n.end\n";
+        AsmResult assembled; NvmModule *module = asm_assemble(source, &assembled);
+        ASSERT(module, "I assemble ordinary binding cleanup controls");
+        ASSERT(nvm_verify(module).ok, "I verify ordinary return and tail paths");
+        VmState vm; vm_init(&vm, module);
+        size_t baseline = vm.heap.stats.num_objects;
+        VmString *string = vm_string_new(&vm.heap, "parameter", 9);
+        ASSERT(string, "I allocate a managed parameter");
+        NanoValue argument = val_string(string);
+        ASSERT_EQ_INT(vm_call_function(&vm, 0, &argument, 1), VM_ERR_ASSERT_FAILED,
+                      "I pause the real frame before its exit path");
+        ASSERT_EQ_INT(vm.frame_count, 1, "I keep one trapped physical frame");
+        ASSERT(!vm.frames[0].binding_state, "Legacy entry initializes absent binding state");
+        const uint8_t shared = 1;
+        ASSERT_EQ_INT(vm_binding_state_new(&vm.heap, &shared, 1, 1, SIZE_MAX,
+                      &vm.frames[0].binding_state), VM_BINDING_OK, "I prepare the actual parameter owner");
+        if (mode == 2) {
+            VmBindingSource capture = {.state=vm.frames[0].binding_state,
+                .locals=vm.stack+vm.frames[0].stack_base, .slot=0, .mode=1};
+            VmClosure *closure = NULL;
+            ASSERT_EQ_INT(vm_binding_closure(&vm.heap, 1, 0, &shared, &capture, 1,
+                          SIZE_MAX, 1, &closure), VM_BINDING_OK, "I box the actual managed parameter");
+            vm_release(&vm.heap, val_closure(closure));
+        } else {
+            VmTrap trap = vm_core_execute(&vm);
+            ASSERT_EQ_INT(trap.type, TRAP_NONE, "I complete the actual return or tail call");
+            ASSERT_EQ_INT(vm.frame_count, 0, "I remove the finished frame");
+            ASSERT(!vm.frames[0].binding_state, "I detach state before reusing or removing a frame");
+            ASSERT_EQ_INT(vm.stack_size, 1, "I preserve exactly the result operand");
+            ASSERT_EQ_INT(vm.stack[0].as.i64, 9, "I retain the tail argument until the callee consumes it");
+            vm_gc_collect_cycles(&vm.heap);
+            ASSERT_EQ_INT(vm.heap.stats.num_objects, baseline, "I release the managed parameter");
+        }
+        vm_destroy(&vm);
+        ASSERT(!vm.frames[0].binding_state, "Destruction leaves no frame state owner");
+        ASSERT_EQ_INT(vm.heap.stats.num_objects, 0, "I reclaim boxed and unboxed frame values");
+        ASSERT(vm.heap.stats.allocated == vm.heap.stats.freed, "I balance frame state and heap bytes");
+        nvm_module_free(module);
+    }
+}
+
+static void test_binding_effect_cleanup(void) {
+    for (unsigned mode = 0; mode < 3; ++mode) {
+        const char *finish = mode == 2 ? "RET\n.end\n" : "EFFECT_RESUME\n.end\n";
+        char source[1024];
+        snprintf(source, sizeof source,
+            ".function handled 0 3 0 int 1\nPUSH_I64 10\nTUPLE_NEW 1\nSTORE_LOCAL 0\n"
+            "HANDLER_PUSH 0 arm 1 1\nPUSH_I64 20\nTUPLE_NEW 1\nPERFORM 0 1\n"
+            "HANDLER_POP 1\nRET\narm:\nPUSH_BOOL 0\nASSERT\nPUSH_I64 42\n%s", finish);
+        AsmResult assembled; NvmModule *module = asm_assemble(source, &assembled);
+        ASSERT(module, "I assemble real effect cleanup paths");
+        ASSERT(nvm_verify(module).ok, "I verify the complete handler and caller control flow");
+        VmState vm; vm_init(&vm, module);
+        size_t baseline = vm.heap.stats.num_objects;
+        ASSERT_EQ_INT(vm_call_function(&vm, 0, NULL, 0), VM_ERR_ASSERT_FAILED,
+                      "I pause inside an actual effect activation");
+        ASSERT_EQ_INT(vm.frame_count, 2, "I retain lexical and activation frames");
+        ASSERT(!vm.frames[0].binding_state && !vm.frames[1].binding_state,
+               "Legacy effect copying does not duplicate a binding owner");
+        const uint8_t modes[] = {1, 1, 0};
+        ASSERT_EQ_INT(vm_binding_state_new_range(&vm.heap, modes, 3, 0, 1, SIZE_MAX,
+                      &vm.frames[0].binding_state), VM_BINDING_OK, "I prepare the lexical local owner");
+        ASSERT_EQ_INT(vm_binding_state_new_range(&vm.heap, modes, 3, 1, 1, SIZE_MAX,
+                      &vm.frames[1].binding_state), VM_BINDING_OK, "I prepare the distinct handler parameter owner");
+        ASSERT(vm.frames[0].binding_state != vm.frames[1].binding_state, "I keep physical owners distinct");
+        if (mode) {
+            VmTrap trap = vm_core_execute(&vm);
+            ASSERT_EQ_INT(trap.type, TRAP_NONE, "I complete resume or lexical return");
+            ASSERT_EQ_INT(vm.frame_count, 0, "I remove both completed frames");
+            ASSERT_EQ_INT(vm.handler_count, 0, "I prune departed handlers");
+            ASSERT(!vm.frames[0].binding_state && !vm.frames[1].binding_state,
+                   "I detach both owners exactly once");
+            ASSERT_EQ_INT(vm.stack_size, 1, "I preserve the effect result");
+            ASSERT_EQ_INT(vm.stack[0].as.i64, 42, "I preserve the returned effect value");
+            vm_gc_collect_cycles(&vm.heap);
+            ASSERT_EQ_INT(vm.heap.stats.num_objects, baseline, "I release both managed local values");
+        }
+        vm_destroy(&vm);
+        ASSERT(!vm.frames[0].binding_state && !vm.frames[1].binding_state,
+               "I leave no binding owner after effect teardown");
+        ASSERT(vm.heap.stats.allocated == vm.heap.stats.freed, "I balance activation state and heap bytes");
+        nvm_module_free(module);
+    }
 }
 
 static void test_direct_function_reference(void) {
@@ -5625,6 +5721,28 @@ static void test_unverifiable_stays_checked(void) {
     nvm_module_free(mod);
 }
 
+/* The CLI carries this exact completed proof into initialization instead of
+ * repeating whole-module verification inside the execution deadline. */
+static void test_verified_initialization_carries_exact_proof(void) {
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)11);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_verifiable_int_module(code, off, 0);
+    ASSERT(nvm_verify_linked(mod, NULL, 0).ok,
+           "standalone root proof succeeds before initialization");
+
+    VmState vm;
+    vm_init_after_verify(&vm, mod);
+    ASSERT(vm.verified, "completed root proof is retained");
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK,
+                  "proof-carrying initialization executes normally");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 11,
+                  "proof-carrying initialization preserves the result");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 /* Invalidating a module drops the proof; rebuilding a well-formed module
  * re-establishes it. */
 static void test_verified_flag_tracks_module_lifecycle(void) {
@@ -5994,6 +6112,8 @@ int main(void) {
     RUN_TEST(test_array_remove_releases_the_element);
     RUN_TEST(test_closure_call_releases_the_callable);
     RUN_TEST(test_destroy_releases_trapped_callable);
+    RUN_TEST(test_binding_frame_cleanup);
+    RUN_TEST(test_binding_effect_cleanup);
     RUN_TEST(test_direct_function_reference);
 
     printf("\n[I/O]\n");
@@ -6130,6 +6250,7 @@ int main(void) {
 
     printf("\n[Verified Fast Path]\n");
     RUN_TEST(test_verified_fastpath_enabled);
+    RUN_TEST(test_verified_initialization_carries_exact_proof);
     RUN_TEST(test_unverifiable_stays_checked);
     RUN_TEST(test_owned_transfers_require_runtime);
     RUN_TEST(test_ownership_contracts_refuse_checked_fallback);

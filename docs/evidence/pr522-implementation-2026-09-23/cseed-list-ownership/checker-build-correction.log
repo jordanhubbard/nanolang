@@ -1,0 +1,7 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -ffp-contract=off -fno-fast-math -c src/eval.c -o obj/eval.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/typechecker.c -o obj/typechecker.o
+src/typechecker.c:3284:46: error: no member named 'had_error' in 'Environment'
+ 3284 |                                         env->had_error = true;
+      |                                         ~~~  ^
+1 error generated.
+make: *** [obj/typechecker.o] Error 1

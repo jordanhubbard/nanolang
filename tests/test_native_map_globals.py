@@ -1,4 +1,10 @@
 """I preserve tagged map globals across calls, mutation and collection."""
+try:
+    from tests.sanitizer_options import asan_options
+    from tests.native_toolchain import native_cc
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
+    from native_toolchain import native_cc
 from pathlib import Path
 import os
 import subprocess
@@ -6,12 +12,13 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+SANITIZER_CC = native_cc()
 HEADER = '.entry main\n.string key "key"\n.string text "value"\n'
 
 class NativeMapGlobals(unittest.TestCase):
     def command(self, args):
         return subprocess.run([str(x) for x in args], capture_output=True, text=True,
-                              timeout=60, env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                              timeout=60, env={**os.environ, 'ASAN_OPTIONS': asan_options()})
 
     def check(self, body, helpers='', bad=False, vm_bad=None):
         with tempfile.TemporaryDirectory(prefix='nano-map-global-') as tmp:
@@ -21,7 +28,7 @@ class NativeMapGlobals(unittest.TestCase):
                             'PUSH_I64 0\nRET\n.end\n' + helpers)
             for command in ([ROOT/'bin/nanoisa', 'asm', nasm, '-o', nvm],
                             [ROOT/'bin/nvm2c', nvm, '-o', source],
-                            ['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', '-g',
+                            [*SANITIZER_CC, '-std=c11', '-Wall', '-Wextra', '-Werror', '-g',
                              '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary]):
                 result = self.command(command)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

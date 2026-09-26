@@ -373,6 +373,13 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             if (sig) {
                 if (fn_sig_out) {
                     *fn_sig_out = sig;
+                } else if (type_info_out) {
+                    TypeInfo *info = calloc(1, sizeof *info);
+                    if (!info) { free_function_signature(sig); return TYPE_UNKNOWN; }
+                    info->base_type = TYPE_FUNCTION; info->fn_sig = sig;
+                    *type_info_out = info;
+                } else {
+                    free_function_signature(sig);
                 }
                 return TYPE_FUNCTION;
             }
@@ -803,77 +810,71 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             type = TYPE_ARRAY;
             return type;
         case TOKEN_LPAREN: {
-            /* Parse tuple type: (Type1, Type2, Type3) */
-            advance(p);  /* consume '(' */
-            
-            /* Parse tuple element types */
-            int capacity = 4;
-            int count = 0;
-            Type *tuple_types = malloc(sizeof(Type) * capacity);
-            char **tuple_type_names = malloc(sizeof(char*) * capacity);
-            
-            /* Parse first type */
-            if (!match(p, TOKEN_RPAREN)) {
-                do {
-                    if (count >= capacity) {
-                        capacity *= 2;
-                        tuple_types = realloc(tuple_types, sizeof(Type) * capacity);
-                        tuple_type_names = realloc(tuple_type_names, sizeof(char*) * capacity);
-                    }
-                    
-                    char *elem_type_name = NULL;
-                    TypeInfo *elem_type_info = NULL;
-                    Type elem_type = parse_type_with_element(p, NULL, &elem_type_name, NULL, &elem_type_info);
-                    if (elem_type == TYPE_UNKNOWN) {
-                        free(tuple_types);
-                        for (int i = 0; i < count; i++) {
-                            if (tuple_type_names[i]) free(tuple_type_names[i]);
-                        }
-                        free(tuple_type_names);
+            /* I retain every parsed child, including nested tuple/callable facts. */
+            advance(p);
+            TypeInfo *info = calloc(1, sizeof *info);
+            if (!info) return TYPE_UNKNOWN;
+            info->base_type = TYPE_TUPLE;
+            while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF)) {
+                if (info->tuple_element_count == INT_MAX ||
+                    (size_t)info->tuple_element_count + 1 > SIZE_MAX / sizeof(TypeInfo *) ||
+                    (size_t)info->tuple_element_count + 1 > SIZE_MAX / sizeof(Type)) {
+                    free_payload_type_info(info); return TYPE_UNKNOWN;
+                }
+                TypeInfo *child = NULL;
+                FunctionSignature *signature = NULL;
+                char *name = NULL;
+                if (++p->recursion_depth > MAX_RECURSION_DEPTH) {
+                    --p->recursion_depth;
+                    parser_error(p, tok->line, tok->column, "I cannot parse tuple children beyond my nesting limit\n");
+                    free_payload_type_info(info); return TYPE_UNKNOWN;
+                }
+                Type kind = parse_type_with_element(p, NULL, &name, &signature, &child);
+                --p->recursion_depth;
+                if (kind == TYPE_UNKNOWN) {
+                    free(name); free_function_signature(signature); free_payload_type_info(child);
+                    free_payload_type_info(info); return TYPE_UNKNOWN;
+                }
+                if (!child) {
+                    child = calloc(1, sizeof *child);
+                    if (!child) {
+                        free(name); free_function_signature(signature); free_payload_type_info(info);
                         return TYPE_UNKNOWN;
                     }
-                    
-                    tuple_types[count] = elem_type;
-                    tuple_type_names[count] = elem_type_name;  /* May be NULL for primitive types */
-                    count++;
-                    
-                    if (match(p, TOKEN_COMMA)) {
-                        advance(p);  /* consume ',' */
-                    } else {
-                        break;
-                    }
-                } while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF));
-            }
-            
-            if (!expect(p, TOKEN_RPAREN, "Expected ')' after tuple types")) {
-                free(tuple_types);
-                for (int i = 0; i < count; i++) {
-                    if (tuple_type_names[i]) free(tuple_type_names[i]);
+                    child->base_type = kind; child->generic_name = name; name = NULL;
+                    child->fn_sig = signature; signature = NULL;
                 }
-                free(tuple_type_names);
-                return TYPE_UNKNOWN;
-            }
-            
-            /* Create TypeInfo for tuple if output parameter provided */
-            if (type_info_out) {
-                /* Must zero-init so unused pointer fields (e.g., generic_name) are NULL. */
-                TypeInfo *info = calloc(1, sizeof(TypeInfo));
-                info->base_type = TYPE_TUPLE;
-                info->tuple_types = tuple_types;
-                info->tuple_type_names = tuple_type_names;
-                info->tuple_element_count = count;
-                *type_info_out = info;
-            } else {
-                /* Free if not needed */
-                free(tuple_types);
-                for (int i = 0; i < count; i++) {
-                    if (tuple_type_names[i]) free(tuple_type_names[i]);
+                free(name); free_function_signature(signature);
+                const char *nominal = child->generic_name ? child->generic_name : child->opaque_type_name;
+                char *flat_name = nominal ? strdup(nominal) : NULL;
+                size_t count = (size_t)info->tuple_element_count;
+                Type *types = malloc((count + 1) * sizeof *types);
+                char **names = malloc((count + 1) * sizeof *names);
+                TypeInfo **children = malloc((count + 1) * sizeof *children);
+                if ((nominal && !flat_name) || !types || !names || !children) {
+                    free(flat_name); free(types); free(names); free(children);
+                    free_payload_type_info(child); free_payload_type_info(info); return TYPE_UNKNOWN;
                 }
-                free(tuple_type_names);
+                if (count) {
+                    memcpy(types, info->tuple_types, count * sizeof *types);
+                    memcpy(names, info->tuple_type_names, count * sizeof *names);
+                    memcpy(children, info->type_params, count * sizeof *children);
+                }
+                types[count] = child->base_type; names[count] = flat_name; children[count] = child;
+                free(info->tuple_types); free(info->tuple_type_names); free(info->type_params);
+                info->tuple_types = types; info->tuple_type_names = names; info->type_params = children;
+                ++info->tuple_element_count; info->type_param_count = info->tuple_element_count;
+                if (!match(p, TOKEN_COMMA)) break;
+                advance(p);
             }
-            
+            if (!expect(p, TOKEN_RPAREN, "I require ')' after tuple types")) {
+                free_payload_type_info(info); return TYPE_UNKNOWN;
+            }
+            if (type_info_out) *type_info_out = info;
+            else free_payload_type_info(info);
             return TYPE_TUPLE;
         }
+
         case TOKEN_LBRACE: {
             /* Open record type: {field: Type, field: Type | rowvar} */
             advance(p);  /* consume '{' */
@@ -1022,6 +1023,7 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
             
             /* If it's a struct type, save the struct name */
             if (param_list[count].type == TYPE_STRUCT && struct_name) {
+                free(param_list[count].struct_type_name);
                 param_list[count].struct_type_name = struct_name;
             } else if (struct_name) {
                 free(struct_name);
@@ -1177,79 +1179,71 @@ static ASTNode *parse_prefix_op(Stage1Parser *p) {
  * Returns NULL on error.
  */
 static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name) {
-    if (!match(p, TOKEN_LT)) {
-        return NULL;  /* No generic args */
-    }
-    
-    advance(p);  /* consume '<' */
-    
-    /* Allocate TypeInfo for the generic type */
-    TypeInfo *type_info = calloc(1, sizeof(TypeInfo));
-    if (!type_info) {
-        parser_error(p, 0, 0, "Error: Failed to allocate memory for TypeInfo\n");
+    if (!match(p, TOKEN_LT)) return NULL;
+    int prior_errors = p->error_count;
+    advance(p);
+    TypeInfo *info = calloc(1, sizeof *info);
+    if (!info) {
+        parser_error(p, 0, 0, "I cannot allocate generic argument annotations\n");
         return NULL;
     }
-    
-    type_info->base_type = TYPE_GENERIC;
-    type_info->generic_name = strdup(base_name);
-    
-    /* Parse type parameters */
+    info->base_type = TYPE_GENERIC;
+    info->generic_name = strdup(base_name);
     int capacity = 4;
-    int count = 0;
-    TypeInfo **type_params = malloc(sizeof(TypeInfo*) * capacity);
-    
+    info->type_params = calloc((size_t)capacity, sizeof *info->type_params);
+    if (!info->generic_name || !info->type_params) goto fail;
     while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
-        if (count >= capacity) {
-            capacity *= 2;
-            type_params = realloc(type_params, sizeof(TypeInfo*) * capacity);
+        if (info->type_param_count == capacity) {
+            if (capacity > INT_MAX / 2 || (size_t)capacity > SIZE_MAX / 2 / sizeof *info->type_params)
+                goto fail;
+            int next = capacity * 2;
+            TypeInfo **grown = realloc(info->type_params, (size_t)next * sizeof *grown);
+            if (!grown) goto fail;
+            info->type_params = grown;
+            capacity = next;
         }
-        
-        /* Parse a type parameter */
-        TypeInfo *param_type_info = NULL;
-        Type param_type = parse_type_with_element(p, NULL, NULL, NULL, &param_type_info);
-        
-        if (param_type == TYPE_UNKNOWN) {
-            parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Failed to parse generic type parameter\n",
-                    current_token(p)->line, current_token(p)->column);
-            /* Cleanup */
-            for (int i = 0; i < count; i++) {
-                free(type_params[i]);
+        TypeInfo *argument = NULL;
+        char *name = NULL;
+        FunctionSignature *signature = NULL;
+        if (++p->recursion_depth > MAX_RECURSION_DEPTH) {
+            --p->recursion_depth;
+            parser_error(p, 0, 0, "I cannot parse generic arguments beyond my nesting limit\n");
+            goto fail;
+        }
+        Type type = parse_type_with_element(p, NULL, &name, &signature, &argument);
+        --p->recursion_depth;
+        if (type == TYPE_UNKNOWN) {
+            free(name);
+            free_function_signature(signature);
+            free_payload_type_info(argument);
+            goto fail;
+        }
+        if (!argument) {
+            argument = calloc(1, sizeof *argument);
+            if (!argument) {
+                free(name);
+                free_function_signature(signature);
+                goto fail;
             }
-            free(type_params);
-            free(type_info->generic_name);
-            free(type_info);
-            return NULL;
+            /* I retain every output: plain nominal and callable annotations
+             * use separate parser results instead of a populated TypeInfo. */
+            argument->base_type = type;
+            argument->generic_name = name;
+            argument->fn_sig = signature;
+        } else {
+            free(name);
+            free_function_signature(signature);
         }
-        
-        /* Create TypeInfo for this parameter if not already created */
-        if (!param_type_info) {
-            param_type_info = calloc(1, sizeof(TypeInfo));
-            param_type_info->base_type = param_type;
-        }
-        
-        type_params[count++] = param_type_info;
-        
-        /* Optional comma between parameters */
-        if (match(p, TOKEN_COMMA)) {
-            advance(p);
-        }
+        info->type_params[info->type_param_count++] = argument;
+        if (match(p, TOKEN_COMMA)) advance(p);
     }
-    
-    if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) {
-        /* Cleanup */
-        for (int i = 0; i < count; i++) {
-            free(type_params[i]);
-        }
-        free(type_params);
-        free(type_info->generic_name);
-        free(type_info);
-        return NULL;
-    }
-    
-    type_info->type_params = type_params;
-    type_info->type_param_count = count;
-    
-    return type_info;
+    if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) goto fail;
+    return info;
+fail:
+    if (p->error_count == prior_errors)
+        parser_error(p, 0, 0, "I cannot retain complete generic argument annotations\n");
+    free_payload_type_info(info);
+    return NULL;
 }
 
 static ASTNode *parse_primary(Stage1Parser *p);
@@ -1655,6 +1649,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     }
                     free(field_names);
                     free(field_values);
+                    free_ast(spread_src);
                     return NULL;
                 }
 
@@ -1704,6 +1699,18 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 looks_like_struct = after_next->value && after_next->value[0] >= 'A' && after_next->value[0] <= 'Z';
             }
             
+            /* I retain a complete imported union literal for nominal binding. */
+            Token *second_dot = peek_token(p, 3);
+            Token *variant = peek_token(p, 4);
+            Token *constructor_brace = peek_token(p, 5);
+            bool imported_constructor = is_qualified && second_dot && variant && constructor_brace &&
+                second_dot->token_type == TOKEN_DOT && variant->token_type == TOKEN_IDENTIFIER &&
+                constructor_brace->token_type == TOKEN_LBRACE;
+            if (imported_constructor) {
+                after_brace = constructor_brace;
+                looks_like_struct = variant->value && variant->value[0] >= 'A' && variant->value[0] <= 'Z';
+            }
+
             /* Heuristic: if the token after { is a keyword like 'if', 'return', 'let', etc., 
                this is NOT a struct literal, it's a code block after a condition */
             bool looks_like_code_block = after_brace && (
@@ -1714,7 +1721,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 after_brace->token_type == TOKEN_FOR
             );
             
-            bool has_lbrace = (next && next->token_type == TOKEN_LBRACE) ||
+            bool has_lbrace = imported_constructor || (next && next->token_type == TOKEN_LBRACE) ||
                              (is_qualified && peek_token(p, 3) && peek_token(p, 3)->token_type == TOKEN_LBRACE);
 
             /* Dotted uppercase literals are parsed as struct literals first.
@@ -1728,11 +1735,32 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 /* Parse struct literal */
                 int line = tok->line;
                 int column = tok->column;
-                char *struct_name = strdup(tok->value);
-                advance(p);  /* consume struct name */
-                
+                char *struct_name;
+                if (imported_constructor) {
+                    size_t first = strlen(tok->value), second = strlen(after_next->value);
+                    size_t third = strlen(variant->value);
+                    if (first > SIZE_MAX - 3 || second > SIZE_MAX - 3 - first ||
+                        third > SIZE_MAX - 3 - first - second) {
+                        parser_error(p, line, column, "I cannot retain this imported constructor name\n");
+                        return NULL;
+                    }
+                    struct_name = malloc(first + second + third + 3);
+                    if (!struct_name) {
+                        parser_error(p, line, column, "I cannot allocate this imported constructor name\n");
+                        return NULL;
+                    }
+                    memcpy(struct_name, tok->value, first); struct_name[first] = '.';
+                    memcpy(struct_name + first + 1, after_next->value, second);
+                    struct_name[first + second + 1] = '.';
+                    memcpy(struct_name + first + second + 2, variant->value, third + 1);
+                    for (int part = 0; part < 5; ++part) advance(p);
+                } else {
+                    struct_name = strdup(tok->value);
+                    advance(p);  /* consume struct name */
+                }
+
                 /* Check for Module.StructName pattern */
-                if (current_token(p)->token_type == TOKEN_DOT) {
+                if (!imported_constructor && current_token(p)->token_type == TOKEN_DOT) {
                     advance(p);  /* consume '.' */
                     Token *type_tok = current_token(p);
                     if (type_tok->token_type != TOKEN_IDENTIFIER) {
@@ -3036,6 +3064,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
     
     Token *scope_end = current_token(p);
     if (!expect(p, TOKEN_RBRACE, "Expected '}'")) {
+        for (int i = 0; i < count; ++i) free_ast(statements[i]);
         free(statements);
         p->recursion_depth--;
         return NULL;
@@ -3140,6 +3169,8 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                         type_name = type_param_name;
                     }
 
+                    /* I release a leaf name when this local retains only its nested TypeInfo. */
+                    if (type_param_name != type_name) free(type_param_name);
                     if (type_info && type_info->generic_name) {
                         if (type_name) free(type_name);
                         type_name = strdup(type_info->generic_name);
@@ -4754,6 +4785,7 @@ static ASTNode *clone_ast_node(const ASTNode *node) {
             cloned->as.call.func_expr = clone_ast_node(node->as.call.func_expr);
             cloned->as.call.checked_signature = copy_function_signature(node->as.call.checked_signature);
             cloned->as.call.borrow_mode = node->as.call.borrow_mode;
+            cloned->as.call.checked_u8_array_mutation = node->as.call.checked_u8_array_mutation;
             cloned->as.call.arg_count = node->as.call.arg_count;
             cloned->as.call.args = malloc(sizeof(ASTNode*) * node->as.call.arg_count);
             for (int i = 0; i < node->as.call.arg_count; i++) {
@@ -5483,17 +5515,6 @@ static ASTNode *parse_shadow(Stage1Parser *p) {
 }
 
 /* Parse top-level program */
-/* I inspect valid parser roots: service declarations occur only at program
- * scope. Module declarations hold names, not child ASTs; imported programs are
- * separately checked by process_imports. I do not validate arbitrary forged ASTs. */
-bool ast_has_service_declaration(const ASTNode *program) {
-    if (!program) return false;
-    if (program->type == AST_SERVICE_DECL) return true;
-    if (program->type != AST_PROGRAM) return false;
-    for (int i = 0; i < program->as.program.count; ++i)
-        if (ast_has_service_declaration(program->as.program.items[i])) return true;
-    return false;
-}
 
 static ASTNode *parse_service_declaration(Stage1Parser *p) {
     Token *start = current_token(p);
@@ -5959,6 +5980,7 @@ void free_ast(ASTNode *node) {
             break;
         case AST_CALL:
             free(node->as.call.name);
+            free(node->as.call.concrete_func_name);
             free_function_signature(node->as.call.checked_signature);
             if (node->as.call.return_struct_type_name) {
                 free(node->as.call.return_struct_type_name);
@@ -6128,6 +6150,12 @@ void free_ast(ASTNode *node) {
         case AST_TUPLE_INDEX:
             free_ast(node->as.tuple_index.tuple);
             break;
+        case AST_ASYNC_FN:
+            free_ast(node->as.async_fn.function);
+            break;
+        case AST_AWAIT:
+            free_ast(node->as.await_expr.expr);
+            break;
         case AST_TRY_OP:
             free_ast(node->as.try_op.operand);
             free(node->as.try_op.union_type_name);
@@ -6226,6 +6254,7 @@ void free_ast(ASTNode *node) {
             break;
         case AST_STRUCT_LITERAL:
             free(node->as.struct_literal.struct_name);
+            free_ast(node->as.struct_literal.spread_source);
             for (int i = 0; i < node->as.struct_literal.field_count; i++) {
                 free(node->as.struct_literal.field_names[i]);
                 free_ast(node->as.struct_literal.field_values[i]);

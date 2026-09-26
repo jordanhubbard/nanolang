@@ -1,0 +1,42 @@
+{
+  "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9": {
+    "sha256": "8e598855de9a6648bc670d5fe7a3a653f1fa967b74373ed7c4ca16fbc40c0de1",
+    "bytes": 102352,
+    "mode": 493
+  },
+  "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": {
+    "sha256": "be5518e9c6736cda8dfc3486ce11e8112a2e08045084260691cf41f57a653f59",
+    "bytes": 271279344,
+    "mode": 493
+  },
+  "/opt/homebrew/Cellar/pkgconf/3.0.7/bin/pkgconf": {
+    "sha256": "39b6b8b701470ebf31a24972bc1fafc7da54a5c32215d972fdadaf21c7cfa91b",
+    "bytes": 74768,
+    "mode": 365
+  },
+  "/usr/bin/ar": {
+    "sha256": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+    "bytes": 200560,
+    "mode": 493
+  },
+  "/usr/bin/clang": {
+    "sha256": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+    "bytes": 200560,
+    "mode": 493
+  },
+  "/usr/bin/ld": {
+    "sha256": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+    "bytes": 200560,
+    "mode": 493
+  },
+  "/usr/bin/make": {
+    "sha256": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+    "bytes": 200560,
+    "mode": 493
+  },
+  "/usr/bin/nm": {
+    "sha256": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+    "bytes": 200560,
+    "mode": 493
+  }
+}

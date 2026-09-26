@@ -1,0 +1,142 @@
+{
+  "attempt_count": 0,
+  "completed_at": null,
+  "created_at": "2026-09-24T21:11:16.137706+00:00",
+  "created_by_human": null,
+  "dependencies": [],
+  "description": "The mixed aggregate formatter exposed declared enum payloads being treated as structs by the C-seed ordinary union constructor checker. Resolve the enum annotation and compare exact nominal identity using the existing exact-type checker. Valid Mode payloads now pass; unrelated enum and raw integer controls reject while preserving previous output. Five focused methods pass through a fresh ASan/UBSan instrumented C seed and generated products with leak/UAR enabled; fresh bootstrap, complete typechecker/transpiler and all 61 ordinary neighboring methods pass. Generic/resource-bearing union work remains separate. Evidence: docs/evidence/pr522-implementation-2026-09-23/aggregate-format-parity.",
+  "id": "task_78d7b6bf854246bba08f0544594e7603",
+  "last_updated_at": "2026-09-24T21:22:09.296554+00:00",
+  "lease_id": null,
+  "leased_until": null,
+  "max_attempts": 3,
+  "metadata": {
+    "acc_metadata": {
+      "repository_contract_project": "nanolang",
+      "repository_contract_schema": "mac.repository_contract.v1",
+      "workflow_role": "work"
+    },
+    "execution_contract": {
+      "evidence_type": "repo_change",
+      "quality": "strong",
+      "repository_contract": {
+        "bootstrap": {
+          "command": "make build",
+          "creates": [
+            "bin/nanoc",
+            "bin/nano"
+          ]
+        },
+        "canonical_remote_url": "git@github.com:jordanhubbard/nanolang.git",
+        "contract_path": ".mac/project.yaml",
+        "default_branch": "main",
+        "evidence": {
+          "required": [
+            "repo.head_sha",
+            "repo.pushed",
+            "repo.dirty",
+            "repo.files_changed",
+            "tests"
+          ]
+        },
+        "platforms": [
+          "darwin",
+          "linux",
+          "wsl2"
+        ],
+        "project": "nanolang",
+        "schema": "mac.repository_contract.v1",
+        "test": {
+          "command": "make test-quick"
+        },
+        "toolchain": {
+          "required_commands": [
+            "python3",
+            "git",
+            "gh",
+            "make",
+            "cc"
+          ]
+        }
+      },
+      "repository_id": "projectrepo_ea061135933c485498ca97f7724c89d9",
+      "repository_path": "/Users/jkh/.mac/src/nanolang",
+      "schema": "mac.task_execution_contract.v1",
+      "source": "registered_project",
+      "type": "repository"
+    },
+    "no_dispatch": true,
+    "origin": {
+      "repository_contract": {
+        "bootstrap": {
+          "command": "make build",
+          "creates": [
+            "bin/nanoc",
+            "bin/nano"
+          ]
+        },
+        "canonical_remote_url": "git@github.com:jordanhubbard/nanolang.git",
+        "contract_path": ".mac/project.yaml",
+        "default_branch": "main",
+        "evidence": {
+          "required": [
+            "repo.head_sha",
+            "repo.pushed",
+            "repo.dirty",
+            "repo.files_changed",
+            "tests"
+          ]
+        },
+        "platforms": [
+          "darwin",
+          "linux",
+          "wsl2"
+        ],
+        "project": "nanolang",
+        "schema": "mac.repository_contract.v1",
+        "test": {
+          "command": "make test-quick"
+        },
+        "toolchain": {
+          "required_commands": [
+            "python3",
+            "git",
+            "gh",
+            "make",
+            "cc"
+          ]
+        }
+      },
+      "repository_id": "projectrepo_ea061135933c485498ca97f7724c89d9",
+      "repository_name": "nanolang",
+      "repository_path": "/Users/jkh/.mac/src/nanolang",
+      "source": "repo-nanolang",
+      "type": "direct_task"
+    },
+    "scientific_policy": {
+      "name": "baseline",
+      "policy_id": "policy_a6574cf8ac9d47799b0d48fa5bd18c2f",
+      "schema": "mac.scientific_policy.v1",
+      "version": 1
+    },
+    "toolchain_requirements": {
+      "required_commands": [
+        "python3",
+        "git",
+        "gh",
+        "make",
+        "cc"
+      ],
+      "schema": "mac.task_toolchain_requirements.v1",
+      "source": "repository_contract.toolchain.required_commands"
+    }
+  },
+  "owner_agent_id": null,
+  "priority": 1,
+  "project": "nanolang",
+  "required_capabilities": [],
+  "started_at": null,
+  "state": "open",
+  "title": "Resolve nominal enum payloads in C-seed union constructors",
+  "updated_at": "2026-09-24T21:22:09.296554+00:00"
+}

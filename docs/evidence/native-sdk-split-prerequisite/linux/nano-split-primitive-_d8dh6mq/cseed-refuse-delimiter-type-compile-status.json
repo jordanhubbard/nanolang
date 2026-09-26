@@ -1,0 +1,10 @@
+{
+  "returncode": 1,
+  "timeout": false,
+  "cleanup_errors": [],
+  "group_absent": true,
+  "first_terminal": "exit",
+  "remaining_group_killed": false,
+  "child_returncode": 1,
+  "seconds": 0.009351887041702867
+}

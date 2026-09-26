@@ -1,0 +1,27 @@
+{
+  "/tmp/nanolang-list-registry-3f0c-linux/compiler-root/bin/nanoc-diagnostic": {
+    "sha256": "32139b90ed93d1855adcc670e8a9701c9b1596f341d83f5e5f29e5ca27f39d75",
+    "bytes": 19292392,
+    "archive": "/tmp/nanolang-list-registry-3f0c-linux/objects/32139b90ed93d1855adcc670e8a9701c9b1596f341d83f5e5f29e5ca27f39d75"
+  },
+  "/tmp/nanolang-list-registry-3f0c-linux/env.o": {
+    "sha256": "62a2f430da289f257845f3eb04a189cf8153dee0fe384bb210ac9d59348860d0",
+    "bytes": 425264,
+    "archive": "/tmp/nanolang-list-registry-3f0c-linux/objects/62a2f430da289f257845f3eb04a189cf8153dee0fe384bb210ac9d59348860d0"
+  },
+  "/tmp/nanolang-list-registry-3f0c-linux/eval.o": {
+    "sha256": "a17d4460ea20845cf6f905532d7d7470989dcb2d9daf24870c4c2b5b480d3c38",
+    "bytes": 901840,
+    "archive": "/tmp/nanolang-list-registry-3f0c-linux/objects/a17d4460ea20845cf6f905532d7d7470989dcb2d9daf24870c4c2b5b480d3c38"
+  },
+  "/tmp/nanolang-list-registry-3f0c-linux/typechecker.o": {
+    "sha256": "9c875b7047372f591b3c281932de0bd8102affbf6ea8fd30b5303f66ab49cf14",
+    "bytes": 1144520,
+    "archive": "/tmp/nanolang-list-registry-3f0c-linux/objects/9c875b7047372f591b3c281932de0bd8102affbf6ea8fd30b5303f66ab49cf14"
+  },
+  "/tmp/nanolang-list-registry-3f0c-linux/variables.mk": {
+    "sha256": "6f9c63dab581813da3163b30e7daa5339c55085bff95861ca2397f7d7f6924a6",
+    "bytes": 135,
+    "archive": "/tmp/nanolang-list-registry-3f0c-linux/objects/6f9c63dab581813da3163b30e7daa5339c55085bff95861ca2397f7d7f6924a6"
+  }
+}

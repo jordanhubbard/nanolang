@@ -1,0 +1,13 @@
+{
+  "reason": "I stop remaining qualification after Darwin Clang sanitizer demonstrates main test-runner stack overflow before fixture execution; this is a dependency stop, not a Linux product failure.",
+  "drivers": [
+    1917058
+  ],
+  "children": [
+    {
+      "pid": 1922610,
+      "pgid": 1922610,
+      "argv": "/usr/bin/make -j2 test-nanovm OBJ_DIR=obj-gcc-sanitized CC=/usr/bin/gcc -fsanitize=address,undefined -fno-omit-frame-pointer "
+    }
+  ]
+}

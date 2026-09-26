@@ -1,0 +1,8 @@
+I retain record-list artifacts at /Users/jkh/nanolang-qualification/tuple-e456-focused/apple-ordinary/nano-record-lists-vqdggmh3
+test_checked_storage_scheduler_and_allocation_prefixes (tests.test_generic_record_lists.GenericRecordLists) ... ok
+test_array_intrinsic_and_declaration_identity (tests.test_generic_record_lists.GenericRecordLists) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 7.134s
+
+OK

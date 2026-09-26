@@ -1,0 +1,9 @@
+# My parser token snapshot qualification
+
+I retain the original candidate cce540 aggregate typecheck timeout and measured parser baseline in branch fix/ci-sanitizer-preparation at9ca6cf6db. The baseline parser selection passes336 shadows in45.903seconds; its original520-statement block and unsafe-block controls take17.424 and17.552seconds.
+
+My reviewed1ee change removes redundant current-token/error helper calls without changing Parser ownership. My first attempt omits the required assembler-capture companion and stops before shadows; [the first staging terminal](first-staging/checks.json) retains that mistake. Corrected staging reaches every shadow but exposes a required-expression EOF bug through the added malformed-assert control; [that first assertion terminal](required-expression-first-terminal/checks.json) remains failed.
+
+Reviewed e3a distinguishes EOF with a completed left operand from EOF before any required operand. Optional bare-return and absent-guard forms remain accepted. My fresh e3a component qualification passes all336 shadow entries, including new assertions, across11 initialized sources. Selection takes37.962seconds under the original60-second bound; full compilation takes58.381seconds. The two original520 controls are byte-identical and take13.926 and14.060seconds. I preserve701 timing records, exact source/tool maps, the Cseed and assembler-capture companion hashes, generated executable, and process cleanup in [my exact evidence](e3a-qualified/checks.json).
+
+This is Linux component compilation and Cseed-interpreted shadow qualification against exact retained instrumented providers. I do not claim full native bootstrap, Darwin qualification, whole-worker sanitizer acceptance or LSan coverage from it. Full CI preparation remains pending integration with the separately owned Diagnostics helper-name correction. I preserve the original deadlines and every assertion.

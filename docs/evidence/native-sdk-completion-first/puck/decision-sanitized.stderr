@@ -1,0 +1,6 @@
+test_exact_decision_boundaries (tests.test_shadow_completion.ShadowCompletion) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.066s
+
+OK

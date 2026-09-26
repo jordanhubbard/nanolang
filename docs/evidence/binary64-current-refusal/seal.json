@@ -1,0 +1,222 @@
+{
+  "ordinary": {
+    "source": "d260a0a16ab3c677f96d29b612f229b792cbe39f",
+    "bundle": "ordinary-reports.tar.gz",
+    "sha256": "5382429610e108197f269dc2bfbe1a4966042a987cf85393d3b56acdb9a5281e",
+    "bytes": 375234,
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 159,
+        "sha256": "3df8cb981a9141b484698fe3261c17f8a5599f35ebee6b36a580e62b462e55ce"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2006,
+        "sha256": "5e4c4bf67ea4b5426b62f9033f98a1f9c6a37c16da7795b3809c9e1aca5ebc22"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8508,
+        "sha256": "9cd8483df3c2109eaa5ff4faab4c2367de303a82ecc4243d2abd608053bd08fa"
+      },
+      {
+        "path": "final.json",
+        "bytes": 127,
+        "sha256": "b3fd3b3fa30b5618ded677e1a77505436874c3a0f04c17ebcb51115aabf3d713"
+      },
+      {
+        "path": "owning-gate-artifacts.json",
+        "bytes": 14177,
+        "sha256": "898cf1eac825da957aca3d5a038894668d29aae8dc855c30ae3f946d65b8d83c"
+      },
+      {
+        "path": "owning-gate-command.json",
+        "bytes": 243,
+        "sha256": "ebff645f6c52319737fe6229b600b5bf9a4b75907be54fb25827575b699a8b46"
+      },
+      {
+        "path": "owning-gate-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "owning-gate-nested-processes.json",
+        "bytes": 2390,
+        "sha256": "e0e4a7f0f1847d3f36bc894c769f138dc5470b91440cd44b985989df3f85b955"
+      },
+      {
+        "path": "owning-gate-source-after.json",
+        "bytes": 399555,
+        "sha256": "8c5a6d83e07b23e91b37a6952626845b2d859a022aeb8a18d327637239469cdd"
+      },
+      {
+        "path": "owning-gate-source-before.json",
+        "bytes": 399555,
+        "sha256": "8c5a6d83e07b23e91b37a6952626845b2d859a022aeb8a18d327637239469cdd"
+      },
+      {
+        "path": "owning-gate-space-before.json",
+        "bytes": 64,
+        "sha256": "34f924440c196cc77b57e204af216f2aab09fa1949b97818c037fd9fd47534ab"
+      },
+      {
+        "path": "owning-gate-terminal.json",
+        "bytes": 174,
+        "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f"
+      },
+      {
+        "path": "owning-gate-tools-after.json",
+        "bytes": 2307,
+        "sha256": "e74a8109bec61ec091c002bd750c17d518073a6bb3db700924c3738fd53c8ae4"
+      },
+      {
+        "path": "owning-gate-tools-before.json",
+        "bytes": 2307,
+        "sha256": "e74a8109bec61ec091c002bd750c17d518073a6bb3db700924c3738fd53c8ae4"
+      },
+      {
+        "path": "owning-gate.log",
+        "bytes": 8851,
+        "sha256": "6542994993ff32afff5a7c39fcab2cc784bce8a1773759b077f65541a99306a3"
+      },
+      {
+        "path": "results.json",
+        "bytes": 78,
+        "sha256": "197ffb74bc8938043f8778f46869da51697ca70fa8579d75198e0653d6b1b99d"
+      }
+    ],
+    "object_count": 41,
+    "object_bytes": 9454286,
+    "terminal": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "result": {
+      "results": [
+        {
+          "phase": "owning-gate",
+          "seconds": 3.868,
+          "status": 0
+        }
+      ],
+      "status": "PASS"
+    }
+  },
+  "sanitizer": {
+    "source": "d260a0a16ab3c677f96d29b612f229b792cbe39f",
+    "bundle": "sanitizer-reports.tar.gz",
+    "sha256": "7f02caf2353351ac4f40ed299e843b4e1351419af7c1242845208d65c1af97be",
+    "bytes": 376581,
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 161,
+        "sha256": "e7105b0151acb3acaab97da0d0187e0d8b07f8bbdcbf831023e9cceabf98ec0f"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2006,
+        "sha256": "5e4c4bf67ea4b5426b62f9033f98a1f9c6a37c16da7795b3809c9e1aca5ebc22"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8508,
+        "sha256": "9cd8483df3c2109eaa5ff4faab4c2367de303a82ecc4243d2abd608053bd08fa"
+      },
+      {
+        "path": "final.json",
+        "bytes": 128,
+        "sha256": "ba07116510109fe374f004868c91a2d1830e844f1fcaeb710ff7eb7e6551e632"
+      },
+      {
+        "path": "owning-gate-artifacts.json",
+        "bytes": 14259,
+        "sha256": "7f5c29b62b72dee46341a2025c6b176820fbf4ace4fcbefe5ab03022b28112ad"
+      },
+      {
+        "path": "owning-gate-command.json",
+        "bytes": 325,
+        "sha256": "806839054f777d27da729d6a58edee5879bb476138e3df448456582e94cc3584"
+      },
+      {
+        "path": "owning-gate-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "owning-gate-nested-processes.json",
+        "bytes": 22484,
+        "sha256": "9351d63a3fc026ad2cce43c21e1a7e18b41877f1af71454f3fcc37f22b745097"
+      },
+      {
+        "path": "owning-gate-source-after.json",
+        "bytes": 399555,
+        "sha256": "8c5a6d83e07b23e91b37a6952626845b2d859a022aeb8a18d327637239469cdd"
+      },
+      {
+        "path": "owning-gate-source-before.json",
+        "bytes": 399555,
+        "sha256": "8c5a6d83e07b23e91b37a6952626845b2d859a022aeb8a18d327637239469cdd"
+      },
+      {
+        "path": "owning-gate-space-before.json",
+        "bytes": 64,
+        "sha256": "37cce8cb9bc14c4ddb931039787cb7ae0fed88510283a206275e13ddf8553a2f"
+      },
+      {
+        "path": "owning-gate-terminal.json",
+        "bytes": 174,
+        "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f"
+      },
+      {
+        "path": "owning-gate-tools-after.json",
+        "bytes": 2307,
+        "sha256": "e74a8109bec61ec091c002bd750c17d518073a6bb3db700924c3738fd53c8ae4"
+      },
+      {
+        "path": "owning-gate-tools-before.json",
+        "bytes": 2307,
+        "sha256": "e74a8109bec61ec091c002bd750c17d518073a6bb3db700924c3738fd53c8ae4"
+      },
+      {
+        "path": "owning-gate.log",
+        "bytes": 11029,
+        "sha256": "5fc700b8492306064f291994a18cc9e7a8aa14255e3047f01a8bbca1fbbff8b0"
+      },
+      {
+        "path": "results.json",
+        "bytes": 79,
+        "sha256": "d684d804c23997c691a4f4984b4b670d6228591b39f7562771c058ad82c0818f"
+      }
+    ],
+    "object_count": 41,
+    "object_bytes": 46516334,
+    "terminal": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "result": {
+      "results": [
+        {
+          "phase": "owning-gate",
+          "seconds": 13.055,
+          "status": 0
+        }
+      ],
+      "status": "PASS"
+    }
+  }
+}

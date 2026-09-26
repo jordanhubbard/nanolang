@@ -1,0 +1,78 @@
+{
+  "scope": "Two retained exact 1ee9 Nano refresh products and original SDK providers; d1 primitive fixture only, not fresh bootstrap or complete SDK corpus",
+  "source_pin": "1ee9b0f3310d5f964bf0397a702b8839ff6a58c1",
+  "cseed_source_pin": "99a055f5dde3978f4cb4020665f8cbc70846ab86",
+  "retained_refresh_manifest": {
+    "scope": "Retained exact93c Cseed plus retained f946 refresh2 -> currentc481 refresh1 -> currentc481 refresh2, all original shadows/deadlines; NOT fresh C-seed bootstrap",
+    "source_pin": "c48149c0415597438dc17ef2234ddda229c3a446",
+    "cseed_source_pin": "93c057e4027588e126507e46dda1acbb77866daf",
+    "retained_refresh_manifest": {
+      "scope": "corrected C seed plus retained 5f3e Nano stage2 -> refresh1 -> refresh2; NOT fresh C-seed bootstrap",
+      "source_pin": "f946ac95de197cea8b57905e0756a0a431e1ec17",
+      "retained": {
+        "sha256": "35fb84a6c29d2da3cb20d01a4d4bdecbf37f3d5b790ab4b51932b302b1044885",
+        "bytes": 10485488,
+        "mode": 493
+      },
+      "producers": {
+        "cseed": {
+          "path": "/private/tmp/nanolang-native-sdk-f946-puck-source/bin/nanoc_c",
+          "sha256": "83595c0ee16f5b26e77e54c8933a7c9dd5bb091292a4501ef450cedcb4742802",
+          "bytes": 11267592,
+          "mode": 493
+        },
+        "refresh1": {
+          "path": "/tmp/nanolang-split-f946-puck-refresh-origin/nanoc-refresh1",
+          "sha256": "82b30a37d54d7adf4070bb9190ca1fc20d5297df47fa01a984a14d27baf182ea",
+          "bytes": 10502000,
+          "mode": 493
+        },
+        "refresh2": {
+          "path": "/tmp/nanolang-split-f946-puck-refresh-origin/nanoc-refresh2",
+          "sha256": "1b298c379fff97863a61f9c10726f428417b3eda27139d35e045376e9a3c9038",
+          "bytes": 10502000,
+          "mode": 493
+        }
+      }
+    },
+    "producers": {
+      "cseed": {
+        "path": "/private/tmp/nanolang-native-sdk-c481-puck-source/bin/nanoc_c",
+        "sha256": "facfeb579b9f2637099ada3407b5e4e11730ab2779d63ada2eed21a3b1376425",
+        "bytes": 11267272,
+        "mode": 493
+      },
+      "refresh1": {
+        "path": "/tmp/nanolang-split-c481-puck-evidence/nanoc-refresh1",
+        "sha256": "9d24c5a8f5847cb1ba686e789ea3312b6bfb1fd9003bcc546f73d20347946199",
+        "bytes": 10503568,
+        "mode": 493
+      },
+      "refresh2": {
+        "path": "/tmp/nanolang-split-c481-puck-evidence/nanoc-refresh2",
+        "sha256": "d5362957ded5bb7e7617c534ba92718e6e731bab89d785f3fd9694a16cb8496f",
+        "bytes": 10503568,
+        "mode": 493
+      }
+    }
+  },
+  "producers": {
+    "refresh1": {
+      "path": "/tmp/nanolang-split-1ee9-puck-evidence/nanoc-refresh1",
+      "sha256": "7747d283e3bfc4d1c3d3786bcad1b1e96864f7aaaa9896fac33bcb7e85ef01cc",
+      "bytes": 10503776,
+      "mode": 493
+    },
+    "refresh2": {
+      "path": "/tmp/nanolang-split-1ee9-puck-evidence/nanoc-refresh2",
+      "sha256": "b2adfd0a3e3a197a7851fcd6fcc3fce10ad4ae63d07f3eeb9bcc1a26bbe0a499",
+      "bytes": 10503776,
+      "mode": 493
+    }
+  },
+  "selected_roles": [
+    "refresh1",
+    "refresh2"
+  ],
+  "fixture_pin": "d1e41d0e9aef2676e669421d2723f7071b45feef"
+}

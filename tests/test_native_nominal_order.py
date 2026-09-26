@@ -10,6 +10,25 @@ COMPILER_ROOT = Path(os.environ.get('NANOLANG_NOMINAL_COMPILER_ROOT', ROOT/'bin'
 COMPILERS = os.environ.get('NANOLANG_NOMINAL_COMPILERS', 'nanoc_stage1,nanoc_stage2').split(',')
 MAIN = 'fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n'
 
+CYCLIC_LAYOUTS = (
+    'struct Left { right: Right } struct Right { left: Left }',
+    'struct Loop { choice: Choice } union Choice { Some { item: Loop } }',
+    'union Box<T> { Some { value: T } } struct Loop { value: Box<Loop> }',
+    'union Grow<T> { More { value: Grow<array<T>> } }',
+    'union Wrap<T> { Some { value: Box<T> } } union Box<T> { Some { value: T } } struct Loop { value: Wrap<Loop> }',
+    'union Box<T> { Some { value: T } } struct Loop { value: Box<(int,Loop)> }',
+    'struct List { next: List }',
+    'union List<T> { More { next: List<T> } }',
+)
+FINITE_LAYOUTS = (
+    'union Marker<T> { Mark { value: int } } struct Node { value: Marker<Node> }',
+    'union Box<T> { Some { value: T } } struct Node { value: Box<Box<int>> }',
+    'union Box<T> { Some { value: T } } struct Node { children: array<Box<Node>>, siblings: List<Node> }',
+    'union Box<T> { Some { value: T } } struct T { value: int }',
+    'union Box<T> { Some { value: T } } union Marker<T> { Mark { value: Box<int> } } struct Node { value: Marker<Node> }',
+    'struct List { value: int } struct Holder { value: List }',
+)
+
 class NativeNominalOrder(unittest.TestCase):
     def check(self, source, accepted=True):
         for compiler in COMPILERS:
@@ -90,6 +109,20 @@ shadow main {{ assert (== (main) 0) }}
 
     def test_mixed_cycle_preserves_previous_output(self):
         self.check('struct Loop { choice: Choice }\nunion Choice { Some { item: Loop } }\n'+MAIN, False)
+
+    def test_generic_by_value_cycles_preserve_previous_output(self):
+        for source in CYCLIC_LAYOUTS[2:]:
+            with self.subTest(source=source):
+                self.check(source + '\n' + MAIN, False)
+
+    def test_finite_generic_and_pointer_layouts(self):
+        for source in FINITE_LAYOUTS:
+            with self.subTest(source=source):
+                self.check(source + '\n' + MAIN)
+
+    def test_long_finite_declaration_chain(self):
+        source = ''.join(f'struct Node{i} {{ next: Node{i+1} }}\n' for i in range(150))
+        self.check(source + 'struct Node150 { value: int }\n' + MAIN)
 
 if __name__ == '__main__':
     unittest.main()

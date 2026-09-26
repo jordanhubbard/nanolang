@@ -1,0 +1,2 @@
+fn main() -> int { let parts: array<string> = (str_split "a") return 0 }
+shadow main { assert true }

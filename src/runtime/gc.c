@@ -14,6 +14,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdatomic.h>
 
 /* ============================================================================
  * Hash Table for O(1) pointer lookup
@@ -467,4 +468,95 @@ void gc_set_finalizer(void* ptr, GCFinalizer finalizer) {
     (void)finalizer;  /* Suppress unused warning */
     /* This is now a no-op - use gc_wrap_external instead */
     fprintf(stderr, "[GC] gc_set_finalizer is deprecated - use gc_wrap_external\n");
+}
+
+/* I keep legacy raw values distinct from reference-counted allocations.
+ * My generated C-seed containers can escape through aliases and returns. */
+#define PROCESS_OWNER_BUCKETS 4096
+struct ProcessOwner {
+    void *ptr;
+    GCFinalizer finalizer;
+    struct ProcessOwner *next;
+};
+static struct ProcessOwner *process_owners[PROCESS_OWNER_BUCKETS];
+static size_t process_owner_count;
+static bool process_owner_registered;
+static atomic_flag process_owner_lock = ATOMIC_FLAG_INIT;
+
+static void process_owner_acquire(void) {
+    while (atomic_flag_test_and_set_explicit(&process_owner_lock, memory_order_acquire)) {}
+}
+static void process_owner_unlock(void) {
+    atomic_flag_clear_explicit(&process_owner_lock, memory_order_release);
+}
+
+void gc_process_cleanup(void) {
+    for (size_t i = 0; i < PROCESS_OWNER_BUCKETS; i++) {
+        process_owner_acquire();
+        struct ProcessOwner *entry = process_owners[i];
+        process_owners[i] = NULL;
+        for (struct ProcessOwner *p = entry; p; p = p->next) process_owner_count--;
+        process_owner_unlock();
+        while (entry) {
+            struct ProcessOwner *next = entry->next;
+            entry->finalizer(entry->ptr);
+            free(entry);
+            entry = next;
+        }
+    }
+}
+
+void* gc_process_own(void *ptr, GCFinalizer finalizer) {
+    if (!ptr) return NULL;
+    assert(finalizer);
+    size_t bucket = gc_hash_ptr(ptr) & (PROCESS_OWNER_BUCKETS - 1);
+    process_owner_acquire();
+    for (struct ProcessOwner *p = process_owners[bucket]; p; p = p->next) {
+        if (p->ptr == ptr) {
+            assert(p->finalizer == finalizer);
+            process_owner_unlock();
+            return ptr;
+        }
+    }
+    struct ProcessOwner *entry = malloc(sizeof(*entry));
+    if (!entry) {
+        process_owner_unlock();
+        finalizer(ptr);
+        return NULL;
+    }
+    if (!process_owner_registered) {
+        if (atexit(gc_process_cleanup) != 0) {
+            process_owner_unlock();
+            free(entry);
+            finalizer(ptr);
+            return NULL;
+        }
+        process_owner_registered = true;
+    }
+    entry->ptr = ptr;
+    entry->finalizer = finalizer;
+    entry->next = process_owners[bucket];
+    process_owners[bucket] = entry;
+    process_owner_count++;
+    process_owner_unlock();
+    return ptr;
+}
+
+void gc_process_forget(void *ptr) {
+    if (!ptr) return;
+    size_t bucket = gc_hash_ptr(ptr) & (PROCESS_OWNER_BUCKETS - 1);
+    process_owner_acquire();
+    struct ProcessOwner **link = &process_owners[bucket];
+    while (*link && (*link)->ptr != ptr) link = &(*link)->next;
+    struct ProcessOwner *entry = *link;
+    if (entry) { *link = entry->next; process_owner_count--; }
+    process_owner_unlock();
+    free(entry);
+}
+
+size_t gc_process_owned_count(void) {
+    process_owner_acquire();
+    size_t count = process_owner_count;
+    process_owner_unlock();
+    return count;
 }

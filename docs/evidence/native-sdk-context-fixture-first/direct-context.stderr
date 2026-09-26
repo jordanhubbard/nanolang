@@ -1,0 +1,16 @@
+test_actual_field_assignment_and_binding_refusal (tests.test_str_split_result_context.SplitResultContext) ... FAIL
+
+======================================================================
+FAIL: test_actual_field_assignment_and_binding_refusal (tests.test_str_split_result_context.SplitResultContext)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-native-sdk-bae59-puck-source/tests/test_str_split_result_context.py", line 26, in test_actual_field_assignment_and_binding_refusal
+    native_sdk_runner.run(work,'build',[*cc,*flags,ROOT/'tests/str_split_result_context.c',*providers,*links,'-o',exe],ROOT,timeout=300)
+  File "/private/tmp/nanolang-native-sdk-bae59-puck-source/tests/native_sdk_runner.py", line 144, in run
+    raise AssertionError((name, state, out[-8000:], err[-8000:]))
+AssertionError: ('build', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1, 'seconds': 0.09076595899999998}, b'', b"/private/tmp/nanolang-native-sdk-bae59-puck-source/tests/str_split_result_context.c:100:57: error: too few arguments to function call, expected 5, have 4\n  100 |     check_concrete_union_arrays(env, &expected, value, 0);\n      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~                         ^\n/private/tmp/nanolang-native-sdk-bae59-puck-source/tests/../src/typechecker.c:1904:13: note: 'check_concrete_union_arrays' declared here\n 1904 | static void check_concrete_union_arrays(Environment *env, const TypeInfo *expected,\n      |             ^                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n 1905 |     const char *owner, ASTNode *value, unsigned depth) {\n      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n1 error generated.\n")
+
+----------------------------------------------------------------------
+Ran 1 test in 0.121s
+
+FAILED (failures=1)

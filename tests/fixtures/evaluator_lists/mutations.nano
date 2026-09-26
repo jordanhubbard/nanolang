@@ -1,0 +1,49 @@
+struct Item { text: string, number: int }
+fn item(number: int) -> Item { return Item { text: (int_to_string number), number: number } }
+shadow item { assert (== (item 7).text "7") }
+fn receiver(xs: List<Item>, trace: array<int>) -> List<Item> {
+    (array_set trace 0 (+ (* (at trace 0) 10) 1))
+    return xs
+}
+shadow receiver { let a: List<Item> = (list_Item_new) let t: array<int> = [0] let b: List<Item> = (receiver a t) assert (== (at t 0) 1) }
+fn position(trace: array<int>) -> int {
+    (array_set trace 0 (+ (* (at trace 0) 10) 2))
+    return 1
+}
+shadow position { let t: array<int> = [0] assert (== (position t) 1) assert (== (at t 0) 2) }
+fn replacement(trace: array<int>) -> Item {
+    (array_set trace 0 (+ (* (at trace 0) 10) 3))
+    return (item 99)
+}
+shadow replacement { let t: array<int> = [0] assert (== (replacement t).number 99) assert (== (at t 0) 3) }
+fn main() -> int {
+    let values: List<Item> = (list_Item_new)
+    for i in (range 0 33) { (list_Item_push values (item i)) }
+    let alias: List<Item> = values
+    let original: Item = (list_Item_get values 1)
+    let trace: array<int> = [0]
+    (list_Item_insert (receiver values trace) (position trace) (replacement trace))
+    assert (== (at trace 0) 123)
+    assert (== (list_Item_length alias) 34)
+    assert (== (list_Item_get alias 0).number 0)
+    assert (== (list_Item_get alias 1).text "99")
+    assert (== (list_Item_get alias 2).number 1)
+    let removed: Item = (list_Item_remove values 1)
+    let popped: Item = (list_Item_pop alias)
+    assert (== removed.number 99)
+    assert (== popped.number 32)
+    assert (== original.text "1")
+    (list_Item_insert values 0 (item 88))
+    (list_Item_insert values (list_Item_length values) (item 77))
+    (list_Item_set values 1 (item 66))
+    assert (== (list_Item_remove values 0).number 88)
+    assert (== (list_Item_pop values).number 77)
+    assert (== (list_Item_get values 0).number 66)
+    assert (== removed.text "99")
+    assert (== popped.text "32")
+    let mut total: int = 0
+    for value in values { set total (+ total value.number) }
+    assert (== total 562)
+    return 0
+}
+shadow main { assert (== (main) 0) }

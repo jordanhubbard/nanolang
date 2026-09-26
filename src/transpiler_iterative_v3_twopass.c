@@ -14,6 +14,7 @@
 #include "utf8.h"
 #include "checked_loop_binding.h"
 #include <stdarg.h>
+#include <limits.h>
 #include <string.h>
 
 /* Forward declarations for types defined in transpiler.c (only when not included from transpiler.c) */
@@ -54,7 +55,7 @@ static bool build_monomorphized_name_from_typeinfo_iter(char *dest, size_t dest_
     if (!dest || !dest_size || !info || !info->generic_name || info->type_param_count <= 0) return false;
     char *name = typeinfo_to_generic_arg_name(info);
     if (!name) return false;
-    int written = snprintf(dest, dest_size, "%s", name);
+    int written = snprintf(dest, dest_size, "%s", native_opaque_projection(name));
     free(name);
     return written >= 0 && (size_t)written < dest_size;
 }
@@ -132,7 +133,7 @@ static bool match_uses_checked_int_domain(ASTNode *match) {
 
 static const char *checked_match_union_name(ASTNode *match) {
     const char *name = match ? match->as.match_expr.union_type_name : NULL;
-    if (name && name[0] != '\0') return name;
+    if (name && name[0] != '\0') return native_opaque_projection(name);
 
     fprintf(stderr,
             "I lost the checked union identity before native lowering at line %d.\n",
@@ -170,13 +171,23 @@ typedef struct UnderscoreAlias {
     char name[64];
 } UnderscoreAlias;
 
+typedef struct NativeBinding {
+    struct NativeBinding *allocated_next;
+    struct NativeBinding *outer;
+    const char *source_name;
+    const char *native_name;
+} NativeBinding;
+
 typedef struct {
     WorkItem *items;
     int capacity;
     int count;
     FunctionTypeRegistry *fn_registry;
+    NativeBinding *bindings;
+    NativeBinding *allocated_bindings;
     UnderscoreAlias *underscore_aliases;
     const char *underscore_name;
+    ASTNode *source_root; /* Borrowed complete subtree for private-name collision checks. */
 } WorkList;
 
 static WorkList *worklist_create(int initial_capacity) {
@@ -188,8 +199,11 @@ static WorkList *worklist_create(int initial_capacity) {
     list->capacity = initial_capacity;
     list->count = 0;
     list->fn_registry = NULL;
+    list->bindings = NULL;
+    list->allocated_bindings = NULL;
     list->underscore_aliases = NULL;
     list->underscore_name = NULL;
+    list->source_root = NULL;
     list->items = malloc(sizeof(WorkItem) * initial_capacity);
     if (!list->items) {
         fprintf(stderr, "Error: Out of memory allocating WorkList items\n");
@@ -218,25 +232,188 @@ static void worklist_free(WorkList *list) {
         free(list->underscore_aliases);
         list->underscore_aliases = next;
     }
+    while (list->allocated_bindings) {
+        NativeBinding *next = list->allocated_bindings->allocated_next;
+        free(list->allocated_bindings);
+        list->allocated_bindings = next;
+    }
     free(list);
 }
 
 /* I change native storage names, never source names or diagnostic locations. */
 static const char *native_local_name(WorkList *list, const char *name) {
+    for (NativeBinding *binding = list->bindings; name && binding; binding = binding->outer)
+        if (!strcmp(name, binding->source_name)) return binding->native_name;
     return name && !strcmp(name, "_") && list->underscore_name
         ? list->underscore_name : name;
 }
 
-static const char *new_underscore_name(WorkList *list, Environment *env) {
-    static unsigned serial;
+static void bind_native_name(WorkList *list, const char *source, const char *native) {
+    if (!source || !source[0] || !strcmp(source, "_")) return;
+    NativeBinding *binding = malloc(sizeof *binding);
+    if (!binding) { fprintf(stderr, "I cannot allocate a native binding map.\n"); exit(1); }
+    *binding = (NativeBinding){list->allocated_bindings, list->bindings, source, native};
+    list->allocated_bindings = binding;
+    list->bindings = binding;
+}
+
+static bool native_subtree_uses_name(ASTNode *root, const char *name);
+
+static const char *new_native_name(WorkList *list, Environment *env, const char *source) {
+    static uint64_t serial;
     UnderscoreAlias *alias = malloc(sizeof *alias);
     if (!alias) { fprintf(stderr, "I cannot allocate a native binding name.\n"); exit(1); }
-    do {
-        snprintf(alias->name, sizeof alias->name, "__nl_underscore_%u", serial++);
-    } while (env_get_var(env, alias->name));
+    for (;;) {
+        if (serial == UINT64_MAX) {
+            free(alias);
+            fprintf(stderr, "I cannot allocate another native binding name.\n");
+            exit(1);
+        }
+        int written = snprintf(alias->name, sizeof alias->name, "__nl_%s_%llu",
+            !strcmp(source, "_") ? "underscore" : "local", (unsigned long long)serial++);
+        if (written < 0 || (size_t)written >= sizeof alias->name) {
+            free(alias);
+            fprintf(stderr, "I cannot represent a native binding name.\n");
+            exit(1);
+        }
+        bool used = env_get_var(env, alias->name) != NULL;
+        for (int i = 0; !used && i < env->function_count; ++i) {
+            Function *function = &env->functions[i];
+            used = (function->name && !strcmp(function->name, alias->name)) ||
+                   (function->alias_of && !strcmp(function->alias_of, alias->name));
+        }
+        for (int i = 0; !used && i < env->struct_count; ++i)
+            used = env->structs[i].name && !strcmp(env->structs[i].name, alias->name);
+        for (int i = 0; !used && i < env->enum_count; ++i)
+            used = env->enums[i].name && !strcmp(env->enums[i].name, alias->name);
+        for (int i = 0; !used && i < env->union_count; ++i)
+            used = env->unions[i].name && !strcmp(env->unions[i].name, alias->name);
+        for (int i = 0; !used && i < env->opaque_type_count; ++i)
+            used = env->opaque_types[i].name && !strcmp(env->opaque_types[i].name, alias->name);
+        if (!used && !native_subtree_uses_name(list->source_root, alias->name)) break;
+    }
     alias->next = list->underscore_aliases;
     list->underscore_aliases = alias;
     return alias->name;
+}
+
+/* I inspect the complete emitting subtree, including bindings no longer in env. */
+static bool native_subtree_uses_name(ASTNode *root, const char *name) {
+    ASTNode **pending = NULL;
+    size_t count = 0, capacity = 0;
+    bool used = false;
+#define PUSH_NODE(value) do { \
+    ASTNode *child = (value); \
+    if (child) { \
+        if (count == capacity) { \
+            if (capacity > SIZE_MAX / 2 / sizeof *pending) goto allocation_failure; \
+            size_t next = capacity ? capacity * 2 : 32; \
+            ASTNode **grown = realloc(pending, next * sizeof *pending); \
+            if (!grown) goto allocation_failure; \
+            pending = grown; capacity = next; \
+        } \
+        pending[count++] = child; \
+    } \
+} while (0)
+#define PUSH_NODES(values, length) do { \
+    for (int child_i = 0; child_i < (length); ++child_i) PUSH_NODE((values)[child_i]); \
+} while (0)
+#define CHECK_NAME(value) do { \
+    const char *candidate = (value); \
+    if (candidate && !strcmp(candidate, name)) { used = true; goto complete; } \
+} while (0)
+    PUSH_NODE(root);
+    while (count) {
+        ASTNode *node = pending[--count];
+        switch (node->type) {
+        case AST_IDENTIFIER: CHECK_NAME(node->as.identifier); break;
+        case AST_PREFIX_OP: PUSH_NODES(node->as.prefix_op.args, node->as.prefix_op.arg_count); break;
+        case AST_CALL:
+            CHECK_NAME(node->as.call.name); CHECK_NAME(node->as.call.concrete_func_name);
+            PUSH_NODE(node->as.call.func_expr); PUSH_NODES(node->as.call.args, node->as.call.arg_count); break;
+        case AST_MODULE_QUALIFIED_CALL:
+            CHECK_NAME(node->as.module_qualified_call.function_name);
+            PUSH_NODES(node->as.module_qualified_call.args, node->as.module_qualified_call.arg_count); break;
+        case AST_ARRAY_LITERAL: PUSH_NODES(node->as.array_literal.elements, node->as.array_literal.element_count); break;
+        case AST_LET:
+            CHECK_NAME(node->as.let.name); PUSH_NODE(node->as.let.value);
+            for (int i = 0; i < node->as.let.destructure_count; ++i) CHECK_NAME(node->as.let.destructure_names[i]);
+            break;
+        case AST_SET: CHECK_NAME(node->as.set.name); PUSH_NODE(node->as.set.value); break;
+        case AST_IF:
+            PUSH_NODE(node->as.if_stmt.condition); PUSH_NODE(node->as.if_stmt.then_branch); PUSH_NODE(node->as.if_stmt.else_branch); break;
+        case AST_COND:
+            PUSH_NODES(node->as.cond_expr.conditions, node->as.cond_expr.clause_count);
+            PUSH_NODES(node->as.cond_expr.values, node->as.cond_expr.clause_count); PUSH_NODE(node->as.cond_expr.else_value); break;
+        case AST_WHILE: PUSH_NODE(node->as.while_stmt.condition); PUSH_NODE(node->as.while_stmt.body); break;
+        case AST_FOR:
+            CHECK_NAME(node->as.for_stmt.var_name); PUSH_NODE(node->as.for_stmt.range_expr); PUSH_NODE(node->as.for_stmt.body); break;
+        case AST_RETURN: PUSH_NODE(node->as.return_stmt.value); break;
+        case AST_BLOCK: PUSH_NODES(node->as.block.statements, node->as.block.count); break;
+        case AST_FUNCTION:
+            CHECK_NAME(node->as.function.name);
+            for (int i = 0; i < node->as.function.param_count; ++i) CHECK_NAME(node->as.function.params[i].name);
+            PUSH_NODE(node->as.function.body); break;
+        case AST_SHADOW: CHECK_NAME(node->as.shadow.function_name); PUSH_NODE(node->as.shadow.body); break;
+        case AST_PROGRAM: PUSH_NODES(node->as.program.items, node->as.program.count); break;
+        case AST_PRINT: PUSH_NODE(node->as.print.expr); break;
+        case AST_ASSERT: PUSH_NODE(node->as.assert.condition); break;
+        case AST_STRUCT_LITERAL:
+            PUSH_NODES(node->as.struct_literal.field_values, node->as.struct_literal.field_count);
+            PUSH_NODE(node->as.struct_literal.spread_source); break;
+        case AST_FIELD_ACCESS: PUSH_NODE(node->as.field_access.object); break;
+        case AST_UNION_CONSTRUCT: PUSH_NODES(node->as.union_construct.field_values, node->as.union_construct.field_count); break;
+        case AST_MATCH:
+            PUSH_NODE(node->as.match_expr.expr);
+            for (int i = 0; i < node->as.match_expr.arm_count; ++i) {
+                if (node->as.match_expr.pattern_bindings) CHECK_NAME(node->as.match_expr.pattern_bindings[i]);
+                if (node->as.match_expr.guard_exprs) PUSH_NODE(node->as.match_expr.guard_exprs[i]);
+                PUSH_NODE(node->as.match_expr.arm_bodies[i]);
+            }
+            break;
+        case AST_TUPLE_LITERAL: PUSH_NODES(node->as.tuple_literal.elements, node->as.tuple_literal.element_count); break;
+        case AST_TUPLE_INDEX: PUSH_NODE(node->as.tuple_index.tuple); break;
+        case AST_UNSAFE_BLOCK: PUSH_NODES(node->as.unsafe_block.statements, node->as.unsafe_block.count); break;
+        case AST_TRY_OP: PUSH_NODE(node->as.try_op.operand); break;
+        case AST_PAR_BLOCK: PUSH_NODES(node->as.par_block.bindings, node->as.par_block.count); break;
+        case AST_PAR_LET:
+            for (int i = 0; i < node->as.par_let.count; ++i) CHECK_NAME(node->as.par_let.names[i]);
+            PUSH_NODES(node->as.par_let.values, node->as.par_let.count); PUSH_NODE(node->as.par_let.body); break;
+        case AST_HANDLE_EXPR:
+            PUSH_NODE(node->as.handle_expr.body);
+            for (int i = 0; i < node->as.handle_expr.handler_count; ++i) {
+                for (int j = 0; j < node->as.handle_expr.handler_param_counts[i]; ++j)
+                    CHECK_NAME(node->as.handle_expr.handler_param_names[i][j]);
+                PUSH_NODE(node->as.handle_expr.handler_bodies[i]);
+            }
+            break;
+        case AST_EFFECT_HANDLER:
+            PUSH_NODE(node->as.effect_handler.body);
+            for (int i = 0; i < node->as.effect_handler.handler_count; ++i) {
+                if (node->as.effect_handler.handler_param_names) CHECK_NAME(node->as.effect_handler.handler_param_names[i]);
+                PUSH_NODE(node->as.effect_handler.handler_bodies[i]);
+            }
+            break;
+        case AST_EFFECT_OP: PUSH_NODES(node->as.effect_op.args, node->as.effect_op.arg_count); break;
+        case AST_ASYNC_FN: PUSH_NODE(node->as.async_fn.function); break;
+        case AST_AWAIT: PUSH_NODE(node->as.await_expr.expr); break;
+        case AST_NUMBER: case AST_FLOAT: case AST_STRING: case AST_BOOL:
+        case AST_BREAK: case AST_CONTINUE: case AST_STRUCT_DEF: case AST_ENUM_DEF:
+        case AST_UNION_DEF: case AST_IMPORT: case AST_MODULE_DECL: case AST_OPAQUE_TYPE:
+        case AST_QUALIFIED_NAME: case AST_EFFECT_DECL: case AST_SERVICE_DECL:
+            break;
+        }
+    }
+complete:
+    free(pending);
+    return used;
+allocation_failure:
+    free(pending);
+    fprintf(stderr, "I cannot allocate my native binding-name inventory.\n");
+    exit(1);
+#undef PUSH_NODE
+#undef PUSH_NODES
+#undef CHECK_NAME
 }
 
 static void worklist_grow(WorkList *list) {
@@ -282,6 +459,7 @@ typedef struct {
 typedef struct {
     ScopeVar *vars;
     const char *underscore_name;
+    NativeBinding *bindings;
     int capacity;
     int count;
 } Scope;
@@ -332,6 +510,7 @@ static void scope_stack_push(ScopeStack *stack, WorkList *list) {
     }
     Scope *scope = &stack->scopes[stack->count++];
     scope->underscore_name = list->underscore_name;
+    scope->bindings = list->bindings;
     scope->capacity = 16;
     scope->count = 0;
     scope->vars = malloc(sizeof(ScopeVar) * scope->capacity);
@@ -410,6 +589,7 @@ static void scope_stack_pop(ScopeStack *stack, WorkList *list) {
 
     Scope *scope = &stack->scopes[--stack->count];
     list->underscore_name = scope->underscore_name;
+    list->bindings = scope->bindings;
     for (int i = 0; i < scope->count; i++) {
         free(scope->vars[i].name);
     }
@@ -423,13 +603,16 @@ static void build_loop_body(WorkList *list, ScopeStack *scopes, ASTNode *body,
                             ASTNode *loop, int indent, Environment *env,
                             FunctionTypeRegistry *registry) {
     const char *outer = list->underscore_name;
+    NativeBinding *outer_bindings = list->bindings;
     if (!reestablish_checked_loop_binding(env, loop)) {
         fprintf(stderr, "I require checked loop binding metadata at line %d.\n", loop->line);
         exit(1);
     }
+    bind_native_name(list, loop->as.for_stmt.var_name, loop->as.for_stmt.var_name);
     if (!strcmp(loop->as.for_stmt.var_name, "_")) list->underscore_name = NULL;
     build_stmt(list, scopes, body, indent, env, registry);
     list->underscore_name = outer;
+    list->bindings = outer_bindings;
 }
 
 static void build_scoped_statements(WorkList *list, ScopeStack *scopes, ASTNode *body,
@@ -498,7 +681,13 @@ static bool foreign_function_has_array(const Function *fn) {
     return false;
 }
 
-static void emit_foreign_reference(WorkList *list, const char *name, const Function *fn) {
+static void emit_foreign_reference(WorkList *list, const char *name, const Function *fn, bool local_provider) {
+    if (foreign_function_has_array(fn) && local_provider) {
+        emit_formatted(list,
+            "(nano_require_local_array_abi((void*)%s, %s__nano_local_array_abi, \"%s__nano_array_abi\", NANO_DYN_ARRAY_ABI_VERSION, \"%s\"), %s)",
+            name, name, name, name, name);
+        return;
+    }
     if (foreign_function_has_array(fn)) {
         emit_formatted(list,
             "(nano_require_native_array_abi((void*)%s, \"%s__nano_array_abi\", NANO_DYN_ARRAY_ABI_VERSION, \"%s\"), %s)",
@@ -522,7 +711,18 @@ static void emit_indent_item(WorkList *list, int level) {
 /* Function name mapping now uses the unified builtin registry */
 #include "builtins_registry.h"
 
-static const char *map_function_name(const char *name, Environment *env) {
+/* My scalar lists are registered by register_builtin_functions, separately
+ * from the registry cache. Source definitions have bodies; source externs have
+ * is_extern. Neither shares this complete registration shape. */
+static bool native_scalar_list_builtin(const char *name, Environment *env) {
+    if (!name || (strncmp(name, "list_int_", 9) && strncmp(name, "list_string_", 12))) return false;
+    Function *function = env_get_function(env, name);
+    return function && !function->is_extern && !function->body &&
+        !function->params && !function->shadow_test && !function->module_name && !function->alias_of;
+}
+
+static const char *map_function_name(const char *name, Environment *env, bool *local_provider) {
+    if (local_provider) *local_provider = false;
     const char *helper_name = module_helper_c_name(name);
     if (helper_name != name) return helper_name;
     /* Handle qualified names: module::func or nested::module::func */
@@ -559,18 +759,33 @@ static const char *map_function_name(const char *name, Environment *env) {
     }
     
     /* I retain the selected declaration instead of its registry spelling. */
-    if (strcmp(name, "array_push") == 0) {
+    if (env_native_array_operation(name)) {
         Function *selected = env_get_function(env, name);
-        if (selected && selected->body && !selected->is_extern) {
+        if (selected && (selected->body || selected->is_extern || selected->source_file || selected->alias_of)) {
             extern const char *get_c_func_name_with_module(const char *, const char *, bool);
             return get_c_func_name_with_module(selected->alias_of ? selected->alias_of : selected->name,
-                                               selected->module_name, false);
+                                               selected->module_name, selected->is_extern);
+        }
+    }
+
+    /* I preserve an actual list declaration before consulting builtin spelling. */
+    if (!strncmp(name, "list_", 5) || !strncmp(name, "List_", 5)) {
+        if (native_scalar_list_builtin(name, env)) return name;
+        Function *selected = env_get_function(env, name);
+        if (selected && !env_function_is_builtin(selected) &&
+            !env_generated_list_element(env, selected).ordinal) {
+            return get_c_func_name_with_module(selected->alias_of ? selected->alias_of : selected->name,
+                                               selected->module_name, selected->is_extern);
         }
     }
 
     /* Check unified builtin registry */
     const char *c_name = builtin_c_name(name);
     if (c_name) {
+        /* Only this actual builtin-mapping branch selects my emitted provider. */
+        static const char *const local_names[] = {"nl_os_walkdir","nl_os_file_read_bytes","nl_str_split","nl_str_join","nl_bytes_from_string","nl_string_from_bytes","nl_array_slice","nl_array_sort","nl_array_reverse","nl_array_contains","nl_array_index_of","nl_os_process_run"};
+        if (local_provider) for (size_t i = 0; i < sizeof local_names / sizeof local_names[0]; ++i)
+            if (!strcmp(c_name, local_names[i])) { *local_provider = true; break; }
         return c_name;
     }
     
@@ -589,6 +804,8 @@ static const char *map_function_name(const char *name, Environment *env) {
 
 static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
+    const TypeInfo *checked = checked_expression_type_info(expr, env);
+    if (checked && checked->base_type == TYPE_ARRAY) return checked;
     if (expr->type == AST_CALL && expr->as.call.name &&
         strcmp(expr->as.call.name, "array_push") == 0 &&
         !env_array_push_is_builtin(env, expr->line, expr->column)) {
@@ -879,10 +1096,16 @@ static int try_eval_bool_const(ASTNode *expr) {
 /* Forward declarations */
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
 
+/* I spell checked byte narrowing explicitly without evaluating twice. */
+static void build_scalar_destination(WorkList *list, ASTNode *expr,
+                                     Environment *env, Type destination) {
+    if (destination == TYPE_U8) emit_literal(list, "(uint8_t)(");
+    build_expr(list, expr, env);
+    if (destination == TYPE_U8) emit_literal(list, ")");
+}
+
 /* I bind arguments in source order before entering an ordinary C call. */
-static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
-                                        int arg_count, Environment *env,
-                                        const char *callee_value) {
+static unsigned next_ordered_call_id(Environment *env, int arg_count) {
     static _Thread_local unsigned next_call_id;
     unsigned call_id;
     bool available;
@@ -897,6 +1120,12 @@ static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
             if (env && env_get_var(env, name)) available = false;
         }
     } while (!available);
+    return call_id;
+}
+static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
+                                        int arg_count, Environment *env,
+                                        const char *callee_value) {
+    unsigned call_id = next_ordered_call_id(env, arg_count);
     if (callee_value) {
         emit_formatted(list, "__auto_type __nl_callee_%u = %s; ", call_id, callee_value);
     }
@@ -989,6 +1218,10 @@ static void restore_native_match_binding(Environment *env, ASTNode *match, int a
     Symbol *binding = &env->symbols[env->symbol_count - 1];
     free(binding->struct_type_name);
     binding->struct_type_name = nominal;
+    binding->nominal_owner = checked.nominal_owner;
+    binding->callable_owner = checked.callable_owner;
+    binding->inferred_nominal = checked.inferred_nominal;
+    binding->checker_nominal_view = checked.checker_nominal_view;
     binding->def_line = checked.def_line;
     binding->def_column = checked.def_column;
     binding->def_file = checked.def_file;
@@ -1030,14 +1263,22 @@ static void build_match_arm_value(WorkList *list, ASTNode *body, Environment *en
     scope_stack_free(scopes);
 }
 
-static bool is_generic_list_runtime_fn(const char *name) {
-    if (!name) return false;
-    if (strncmp(name, "list_", 5) != 0) return false;
-    /* Built-in runtime lists (do NOT get nl_ prefix) */
-    if (strncmp(name, "list_int_", 9) == 0) return false;
-    if (strncmp(name, "list_string_", 12) == 0) return false;
-    if (strncmp(name, "list_token_", 11) == 0) return false;
-    return true;
+static bool is_generic_list_runtime_fn(const char *name, Environment *env) {
+    if (!name || !env || (strncmp(name, "list_", 5) && strncmp(name, "List_", 5)))
+        return false;
+    Function *selected = env_get_function(env, name);
+    if (selected && !env_generated_list_element(env, selected).ordinal) return false;
+    static const char *operations[] = {"new", "push", "get", "set", "insert", "remove",
+        "pop", "length", "capacity", "is_empty", "clear", "free"};
+    for (int i = 0; i < env->generic_instance_count; ++i) {
+        const char *element = native_list_element(env, &env->generic_instances[i]);
+        if (!element) continue;
+        size_t n = strlen(element);
+        if (strncmp(name + 5, element, n) || name[5 + n] != '_') continue;
+        for (size_t j = 0; j < sizeof(operations) / sizeof(operations[0]); ++j)
+            if (!strcmp(name + 6 + n, operations[j])) return true;
+    }
+    return false;
 }
 
 
@@ -1105,12 +1346,42 @@ static void build_ordered_hashmap_call(WorkList *list, ASTNode *call, Environmen
         build_expr(list, call->as.call.args[i], env);
         emit_literal(list, "; ");
     }
+    /* I copy string results before later mutation can release the map's bytes. */
+    bool copy_string = strcmp(operation, "get") == 0 &&
+        (strcmp(suffix, "string_string") == 0 || strcmp(suffix, "int_string") == 0);
+    if (copy_string) emit_literal(list, "nl_str_concat(\"\", ");
     emit_formatted(list, "nl_hashmap_%s_%s(", suffix, operation);
     for (int i = 0; i < call->as.call.arg_count; ++i) {
         if (i) emit_literal(list, ", ");
         emit_formatted(list, "__nl_map_%u_arg_%d", id, i);
     }
+    if (copy_string) emit_literal(list, ")");
     emit_literal(list, "); })");
+}
+
+#include "transpiler_opaque_arrays.inc"
+/* I keep generated literal roots disjoint from visible source bindings. */
+static void ordered_literal_name(Environment *env, char name[64], const char *kind) {
+    unsigned index = 0;
+    do {
+        snprintf(name, 64, "__nano_%s_%u", kind, index++);
+    } while (env_get_var(env, name) || env_get_function(env, name));
+}
+
+static void build_ordered_union_literal(WorkList *list, Environment *env,
+                                        const char *c_type, const char *tag_owner,
+                                        const char *variant, int count,
+                                        char **names, ASTNode **values) {
+    char temporary[64];
+    ordered_literal_name(env, temporary, "union_literal");
+    emit_formatted(list, "({ %s %s = {0}; %s.tag = nl_%s_TAG_%s; ",
+                   c_type, temporary, temporary, tag_owner, variant);
+    for (int i = 0; i < count; ++i) {
+        emit_formatted(list, "%s.data.%s.%s = ", temporary, variant, names[i]);
+        build_expr(list, values[i], env);
+        emit_literal(list, "; ");
+    }
+    emit_formatted(list, "%s; })", temporary);
 }
 
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
@@ -1237,11 +1508,13 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             /* Check if it's a function identifier */
             Function *func_def = env_get_function(env, expr->as.identifier);
             if (func_def && !func_def->is_extern && func_def->body != NULL) {
-                emit_literal(list, map_function_name(expr->as.identifier, env));
+                emit_literal(list, map_function_name(expr->as.identifier, env, NULL));
             } else if (func_def && func_def->is_extern) {
-                emit_foreign_reference(list, map_function_name(expr->as.identifier, env), func_def);
+                bool local_provider = false;
+                const char *mapped = map_function_name(expr->as.identifier, env, &local_provider);
+                emit_foreign_reference(list, mapped, func_def, local_provider);
             } else {
-                emit_foreign_reference(list, expr->as.identifier, func_def);
+                emit_foreign_reference(list, expr->as.identifier, func_def, false);
             }
             break;
         }
@@ -1687,6 +1960,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 break;
             }
             
+            if (env_native_array_operation(func_name) &&
+                !env_native_array_is_builtin(env, func_name, expr->line, expr->column)) goto native_array_declared_call;
+            if (native_opaque_array_call(list, expr, env)) break;
+
             /* Special handling for println - needs type dispatch */
             if (strcmp(func_name, "println") == 0 && expr->as.call.arg_count == 1) {
                 Type arg_type = check_expression(expr->as.call.args[0], env);
@@ -2328,14 +2605,14 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         build_expr(list, expr->as.call.args[1], env);  /* index */
                         emit_literal(list, ")))");
                     } else {
-                        /* Generate: dyn_array_set_struct(arr, idx, &value, sizeof(nl_StructName)) */
-                        emit_literal(list, "dyn_array_set_struct(");
-                        build_expr(list, expr->as.call.args[0], env);  /* array */
-                        emit_literal(list, ", ");
-                        build_expr(list, expr->as.call.args[1], env);  /* index */
-                        emit_literal(list, ", &(");
-                        build_expr(list, expr->as.call.args[2], env);  /* value */
-                        emit_formatted(list, "), sizeof(nl_%s))", struct_name);
+                        /* I address a named value after evaluating all operands in order. */
+                        emit_literal(list, "({ ");
+                        unsigned call_id = build_ordered_call_args(
+                            list, expr->as.call.args, 3, env, NULL);
+                        emit_formatted(list,
+                            "dyn_array_set_struct(__nl_arg_%u_0, __nl_arg_%u_1, "
+                            "&__nl_arg_%u_2, sizeof(__nl_arg_%u_2)); })",
+                            call_id, call_id, call_id, call_id);
                     }
                 } else {
                     /* Map element type to suffix for primitive types */
@@ -2471,23 +2748,21 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                    suffix, call_id, call_id);
                 }
             }
-            else if (strcmp(func_name, "array_pop") == 0 && expr->as.call.arg_count == 1) {
-                /* Detect element type from array argument */
-                Type elem_type = TYPE_INT;  /* Default to int */
-                const char *struct_name = NULL;
-                
-                ASTNode *array_arg = expr->as.call.args[0];
-                if (array_arg->type == AST_IDENTIFIER) {
-                    const char *array_name = array_arg->as.identifier;
-                    Symbol *sym = env_get_var_visible_at(env, array_name, array_arg->line, array_arg->column);
-                    if (sym && sym->element_type != TYPE_UNKNOWN) {
-                        elem_type = sym->element_type;
-                        if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
-                            struct_name = sym->struct_type_name;
-                        }
-                    }
+            else if (strcmp(func_name, "array_pop") == 0 && expr->as.call.arg_count == 1 &&
+                     !env_get_var_visible_at(env, func_name, expr->line, expr->column) &&
+                     env_function_is_named_builtin(env_get_function(env, func_name), "array_pop")) {
+                Type elem_type = check_expression(expr, env);
+                const char *struct_name = elem_type == TYPE_STRUCT
+                    ? checked_array_record_name(expr->as.call.args[0], env) : NULL;
+                bool supported = elem_type == TYPE_INT || elem_type == TYPE_U8 ||
+                    elem_type == TYPE_FLOAT || elem_type == TYPE_BOOL ||
+                    elem_type == TYPE_STRING || elem_type == TYPE_ARRAY ||
+                    elem_type == TYPE_ENUM || (elem_type == TYPE_STRUCT && struct_name);
+                if (!supported) {
+                    fprintf(stderr, "I require a checked native array_pop element type.\n");
+                    exit(1);
                 }
-                
+
                 /* For structs, use dyn_array_pop_struct */
                 if (elem_type == TYPE_STRUCT && struct_name) {
                     /* Generate: ({ bool _s; nl_StructName _v; dyn_array_pop_struct(arr, &_v, sizeof(nl_StructName), &_s); _v; }) */
@@ -2526,19 +2801,21 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
             else {
+native_array_declared_call: ;
                 /* Regular function call */
                 const char *mapped_name = func_name;
+                bool local_provider = false;
                 /* Use monomorphized name for generic function calls */
                 if (expr->as.call.concrete_func_name) {
                     static _Thread_local char generic_buf[512];
                     snprintf(generic_buf, sizeof(generic_buf), "nl_%s", expr->as.call.concrete_func_name);
                     mapped_name = generic_buf;
-                } else if (is_generic_list_runtime_fn(func_name)) {
+                } else if (is_generic_list_runtime_fn(func_name, env)) {
                     static _Thread_local char buf[512];
-                    snprintf(buf, sizeof(buf), "nl_%s", func_name);
+                    snprintf(buf, sizeof(buf), "nl_list_%s", func_name + 5);
                     mapped_name = buf;
                 } else {
-                    mapped_name = map_function_name(mapped_name, env);
+                    mapped_name = map_function_name(mapped_name, env, &local_provider);
                 }
 
                 /* ARC: Check if function returns opaque type requiring manual free
@@ -2552,7 +2829,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (func_name && env &&
                     strcmp(func_name, "println") != 0 &&
                     strcmp(func_name, "print") != 0 &&
-                    !is_generic_list_runtime_fn(func_name)) {
+                    !is_generic_list_runtime_fn(func_name, env)) {
 
                     func_info = env_get_function(env, func_name);
 
@@ -2584,13 +2861,42 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                                            expr->as.call.arg_count, env,
                                                            capture_callee ? call_name : NULL);
 
+                bool scalar_list = !capture_callee && native_scalar_list_builtin(func_name, env);
+                if (!capture_callee && (scalar_list || is_generic_list_runtime_fn(func_name, env))) {
+                    static const char *operations[] = {"with_capacity", "is_empty", "new", "get", "set",
+                        "insert", "remove", "push", "pop", "length", "capacity", "clear", "free"};
+                    const char *operation = NULL;
+                    size_t name_length = strlen(func_name);
+                    for (size_t j = 0; j < sizeof(operations) / sizeof(operations[0]); ++j) {
+                        size_t n = strlen(operations[j]);
+                        if (name_length > n && func_name[name_length - n - 1] == '_' &&
+                            !strcmp(func_name + name_length - n, operations[j])) {
+                            operation = operations[j]; break;
+                        }
+                    }
+                    if (operation && !strcmp(operation, "with_capacity") && expr->as.call.arg_count == 1) {
+                        emit_formatted(list, "__nl_arg_%u_0 = nl_native_list_capacity(__nl_arg_%u_0); ", call_id, call_id);
+                    } else if (operation && strcmp(operation, "new") && strcmp(operation, "free") &&
+                               expr->as.call.arg_count > 0) {
+                        emit_formatted(list, "if (!__nl_arg_%u_0) nl_record_list_fail(); ", call_id);
+                        if ((!strcmp(operation, "get") || !strcmp(operation, "set") ||
+                             !strcmp(operation, "insert") || !strcmp(operation, "remove")) &&
+                            expr->as.call.arg_count > 1) {
+                            size_t element_length = name_length - strlen(operation) - 6;
+                            emit_formatted(list, "__nl_arg_%u_1 = nl_native_list_index(__nl_arg_%u_1, %slist_%.*s_length(__nl_arg_%u_0), %s); ",
+                                call_id, call_id, scalar_list ? "" : "nl_", (int)element_length, func_name + 5,
+                                call_id, !strcmp(operation, "insert") ? "true" : "false");
+                        }
+                    }
+                }
+
                 /* If wrapping needed, emit gc_wrap_external( */
                 if (needs_wrapping) {
                     emit_literal(list, "gc_wrap_external(");
                 }
 
                 if (capture_callee) emit_formatted(list, "__nl_callee_%u", call_id);
-                else emit_foreign_reference(list, call_name, func_info);
+                else emit_foreign_reference(list, call_name, func_info, local_provider);
                 free(call_name);
                 emit_literal(list, "(");
 
@@ -2650,7 +2956,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             sprintf(qualified_name, "%s.%s", module_alias, function_name);
             
             /* Map to C function name */
-            char *c_name = strdup(map_function_name(qualified_name, env));
+            bool local_provider = false;
+            char *c_name = strdup(map_function_name(qualified_name, env, &local_provider));
             if (!c_name) {
                 fprintf(stderr, "I could not retain the qualified native call name.\n");
                 exit(1);
@@ -2659,7 +2966,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             unsigned call_id = build_ordered_call_args(list, expr->as.module_qualified_call.args,
                                                        expr->as.module_qualified_call.arg_count, env, NULL);
             Function *qualified_function = env_get_function(env, qualified_name);
-            emit_foreign_reference(list, c_name, qualified_function);
+            emit_foreign_reference(list, c_name, qualified_function, local_provider);
             emit_literal(list, "(");
             
             /* Emit arguments */
@@ -2715,86 +3022,29 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 break;
             }
             
-            /* Try to find typedef from pre-collected registry */
+            const TypeInfo *complete = checked_expression_type_info(expr, env);
             const char *typedef_name = NULL;
-            
-            if (g_tuple_registry && element_count > 0) {
-                if (expr->as.tuple_literal.element_types) {
-                    /* Element types are set - look up by exact match */
-                    for (int i = 0; i < g_tuple_registry->count; i++) {
-                        TypeInfo *registered = g_tuple_registry->tuples[i];
-                        if (registered->tuple_element_count == element_count) {
-                            bool match = true;
-                            for (int j = 0; j < element_count; j++) {
-                                if (registered->tuple_types[j] != expr->as.tuple_literal.element_types[j]) {
-                                    match = false;
-                                    break;
-                                }
-                            }
-                            if (match) {
-                                typedef_name = g_tuple_registry->typedef_names[i];
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    /* Element types not set - try to infer and match */
-                    Type inferred_types[element_count];
-                    for (int i = 0; i < element_count; i++) {
-                        Type elem_type = TYPE_INT;
-                        ASTNode *elem = expr->as.tuple_literal.elements[i];
-                        if (elem) {
-                            if (elem->type == AST_NUMBER) elem_type = TYPE_INT;
-                            else if (elem->type == AST_STRING) elem_type = TYPE_STRING;
-                            else if (elem->type == AST_BOOL) elem_type = TYPE_BOOL;
-                            else if (elem->type == AST_FLOAT) elem_type = TYPE_FLOAT;
-                            else if (elem->type == AST_IDENTIFIER) elem_type = TYPE_INT;
-                        }
-                        inferred_types[i] = elem_type;
-                    }
-                    
-                    /* Look up by inferred types */
-                    for (int i = 0; i < g_tuple_registry->count; i++) {
-                        TypeInfo *registered = g_tuple_registry->tuples[i];
-                        if (registered->tuple_element_count == element_count) {
-                            bool match = true;
-                            for (int j = 0; j < element_count; j++) {
-                                if (registered->tuple_types[j] != inferred_types[j]) {
-                                    match = false;
-                                    break;
-                                }
-                            }
-                            if (match) {
-                                typedef_name = g_tuple_registry->typedef_names[i];
-                                break;
-                            }
-                        }
-                    }
+            if (!complete || !type_info_tuple_valid(complete) || !g_tuple_registry)
+                native_opaque_name_failure();
+            for (int i = 0; i < g_tuple_registry->count; ++i)
+                if (type_infos_equal(complete, g_tuple_registry->tuples[i])) {
+                    typedef_name = g_tuple_registry->typedef_names[i]; break;
                 }
-            }
-            
-            if (typedef_name) {
-                /* Use typedef */
-                emit_formatted(list, "(%s){", typedef_name);
-            } else {
-                /* Fall back to inline struct */
-                emit_literal(list, "(struct { ");
-                for (int i = 0; i < element_count; i++) {
-                    Type elem_type = expr->as.tuple_literal.element_types ? 
-                                   expr->as.tuple_literal.element_types[i] : TYPE_INT;
-                    const char *c_type = type_to_c(elem_type);
-                    emit_formatted(list, "%s _%d; ", c_type, i);
-                }
-                emit_literal(list, "}){");
-            }
-            
-            /* Emit field initializers IN ORDER */
-            for (int i = 0; i < element_count; i++) {
-                if (i > 0) emit_literal(list, ", ");
-                emit_formatted(list, "._%d = ", i);
+            if (!typedef_name) native_opaque_name_failure();
+            /* I snapshot each child once before assembling the exact tuple. */
+            unsigned id = next_ordered_call_id(env, element_count);
+            emit_literal(list, "({ ");
+            for (int i = 0; i < element_count; ++i) {
+                emit_formatted(list, "__auto_type __nl_arg_%u_%d = ", id, i);
                 build_expr(list, expr->as.tuple_literal.elements[i], env);
+                emit_literal(list, "; ");
             }
-            emit_literal(list, "}");
+            emit_formatted(list, "(%s){", typedef_name);
+            for (int i = 0; i < element_count; ++i) {
+                if (i) emit_literal(list, ", ");
+                emit_formatted(list, "._%d = __nl_arg_%u_%d", i, id, i);
+            }
+            emit_literal(list, "}; })");
             break;
         }
         
@@ -2828,7 +3078,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
              *      if (_nl_try_r.tag == nl_UNION_TAG_Err) return _nl_try_r;
              *      _nl_try_r.data.Ok.FIELD; })
              */
-            const char *union_name = expr->as.try_op.union_type_name;
+            const char *union_name = native_opaque_projection(expr->as.try_op.union_type_name);
             const char *ok_field  = expr->as.try_op.ok_field_name;
             if (!union_name) union_name = "Result";
             if (!ok_field)  ok_field  = "val";
@@ -2889,23 +3139,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                 break;
                             }
 
-                            if (is_generic) {
-                                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", prefixed_union, monomorphized_name, variant_name);
-                            } else {
-                                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", prefixed_union, union_name_buf, variant_name);
-                            }
-
-                            if (field_count > 0) {
-                                emit_formatted(list, ", .data.%s = {", variant_name);
-                                for (int i = 0; i < field_count; i++) {
-                                    if (i > 0) emit_literal(list, ", ");
-                                    emit_formatted(list, ".%s = ", expr->as.struct_literal.field_names[i]);
-                                    build_expr(list, expr->as.struct_literal.field_values[i], env);
-                                }
-                                emit_literal(list, "}");
-                            }
-
-                            emit_literal(list, "}");
+                            build_ordered_union_literal(list, env, prefixed_union,
+                                is_generic ? monomorphized_name : union_name_buf,
+                                variant_name, field_count, expr->as.struct_literal.field_names,
+                                expr->as.struct_literal.field_values);
                             break;
                         }
                     }
@@ -2943,36 +3180,32 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
             
             ASTNode *spread = expr->as.struct_literal.spread_source;
-            char spread_name[64];
+            char temporary[64], spread_name[64];
+            ordered_literal_name(env, temporary, "record_literal");
+            ordered_literal_name(env, spread_name, "spread_literal");
+            emit_formatted(list, "({ %s %s = %s; ", get_prefixed_type_name(struct_name), temporary,
+                           sdef && sdef->field_count == 0 ? "{}" : "{0}");
             if (spread && sdef) {
-                unsigned index = 0;
-                do {
-                    snprintf(spread_name, sizeof(spread_name), "__nano_spread_%u", index++);
-                } while (env_get_var(env, spread_name) || env_get_function(env, spread_name));
-                emit_formatted(list, "({ __auto_type %s = ", spread_name);
+                emit_formatted(list, "__auto_type %s = ", spread_name);
                 build_expr(list, spread, env);
                 emit_formatted(list, "; (void)%s; ", spread_name);
-            }
-            emit_formatted(list, "(%s){", get_prefixed_type_name(struct_name));
-            for (int i = 0; i < field_count; i++) {
-                if (i > 0) emit_literal(list, ", ");
-                emit_formatted(list, ".%s = ", expr->as.struct_literal.field_names[i]);
-                build_expr(list, expr->as.struct_literal.field_values[i], env);
-            }
-            if (spread && sdef) {
-                int emitted = field_count;
-                for (int i = 0; i < sdef->field_count; i++) {
+                /* I snapshot inherited values before explicit source effects. */
+                for (int i = 0; i < sdef->field_count; ++i) {
                     bool overridden = false;
-                    for (int j = 0; j < field_count; j++)
+                    for (int j = 0; j < field_count; ++j)
                         if (!strcmp(sdef->field_names[i], expr->as.struct_literal.field_names[j]))
                             overridden = true;
-                    if (overridden) continue;
-                    if (emitted++) emit_literal(list, ", ");
-                    emit_formatted(list, ".%s = %s.%s", sdef->field_names[i], spread_name, sdef->field_names[i]);
+                    if (!overridden)
+                        emit_formatted(list, "%s.%s = %s.%s; ", temporary,
+                            sdef->field_names[i], spread_name, sdef->field_names[i]);
                 }
             }
-            emit_literal(list, "}");
-            if (spread && sdef) emit_literal(list, "; })");
+            for (int i = 0; i < field_count; ++i) {
+                emit_formatted(list, "%s.%s = ", temporary, expr->as.struct_literal.field_names[i]);
+                build_expr(list, expr->as.struct_literal.field_values[i], env);
+                emit_literal(list, "; ");
+            }
+            emit_formatted(list, "%s; })", temporary);
             break;
         }
         
@@ -3008,31 +3241,15 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 break;
             }
             
-            /* Generate union construction: (UnionName){ .tag = TAG, .data.variant = {...} } */
-            if (is_generic) {
-                /* For generic unions, use monomorphized tag name */
-                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
-                              prefixed_union, monomorphized_name, variant_name);
-            } else {
-                /* For non-generic unions, use base tag name */
-                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
-                              prefixed_union, union_name, variant_name);
-            }
-            
-            if (expr->as.union_construct.field_count > 0) {
-                emit_formatted(list, ", .data.%s = {", variant_name);
-                for (int i = 0; i < expr->as.union_construct.field_count; i++) {
-                    if (i > 0) emit_literal(list, ", ");
-                    emit_formatted(list, ".%s = ", expr->as.union_construct.field_names[i]);
-                    build_expr(list, expr->as.union_construct.field_values[i], env);
-                }
-                emit_literal(list, "}");
-            }
-            emit_literal(list, "}");
+            build_ordered_union_literal(list, env, prefixed_union,
+                is_generic ? monomorphized_name : union_name,
+                variant_name, expr->as.union_construct.field_count,
+                expr->as.union_construct.field_names, expr->as.union_construct.field_values);
             break;
         }
         
         case AST_ARRAY_LITERAL: {
+            if (native_opaque_array_literal(list, expr, env)) break;
             /* Array literal: [1, 2, 3] - Use dynarray_literal_* helper functions */
             int count = expr->as.array_literal.element_count;
             
@@ -3073,12 +3290,21 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     elem_type = check_expression(expr->as.array_literal.elements[0], env);
                 }
                 
-                /* Generate call to appropriate helper function */
+                /* I evaluate scalar operands once before the variadic call. */
+                bool scalar_literal = elem_type == TYPE_INT || elem_type == TYPE_ENUM ||
+                    elem_type == TYPE_U8 || elem_type == TYPE_FLOAT ||
+                    elem_type == TYPE_STRING || elem_type == TYPE_BOOL;
+                unsigned scalar_values = 0;
+                if (scalar_literal) {
+                    emit_literal(list, "({ ");
+                    scalar_values = build_ordered_call_args(list,
+                        expr->as.array_literal.elements, count, env, NULL);
+                }
                 if (elem_type == TYPE_INT || elem_type == TYPE_ENUM) {
                     emit_formatted(list, "dynarray_literal_int(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", (int64_t)(");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "__nl_arg_%u_%d", scalar_values, i);
                         emit_literal(list, ")");
                     }
                     emit_literal(list, ")");
@@ -3086,28 +3312,28 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_formatted(list, "dynarray_literal_u8(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "(int)(uint8_t)__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_FLOAT) {
                     emit_formatted(list, "dynarray_literal_float(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "(double)__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_STRING) {
                     emit_formatted(list, "dynarray_literal_string(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "(const char*)__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_BOOL) {
                     emit_formatted(list, "dynarray_literal_bool(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_formatted(list, "(int)__nl_arg_%u_%d", scalar_values, i);
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_STRUCT) {
@@ -3151,6 +3377,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                     emit_literal(list, "}");
                 }
+                if (scalar_literal) emit_literal(list, "; })");
             }
             break;
         }
@@ -3225,8 +3452,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_literal(list, " _out = {0}; int _matched = 0; ");
 
                 for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                    NativeBinding *arm_outer_bindings = list->bindings;
                     const char *variant_name = expr->as.match_expr.pattern_variants[i];
                     const char *binding_name = expr->as.match_expr.pattern_bindings[i];
+                    bind_native_name(list, binding_name, binding_name);
                     ASTNode *arm_body = expr->as.match_expr.arm_bodies[i];
                     restore_native_match_binding(env, expr, i, udef ? udef->name : NULL);
                     ASTNode *guard = expr->as.match_expr.guard_exprs ? expr->as.match_expr.guard_exprs[i] : NULL;
@@ -3298,6 +3527,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         emit_literal(list, "} ");  /* close if (guard) */
                     }
                     emit_literal(list, "} ");  /* close if (!_matched && ...) */
+                    list->bindings = arm_outer_bindings;
                 }
 
                 emit_literal(list, "_out; })");
@@ -3321,8 +3551,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                 /* Generate each match arm */
                 for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                    NativeBinding *arm_outer_bindings = list->bindings;
                     const char *variant_name = expr->as.match_expr.pattern_variants[i];
                     const char *binding_name = expr->as.match_expr.pattern_bindings[i];
+                    bind_native_name(list, binding_name, binding_name);
                     ASTNode *arm_body = expr->as.match_expr.arm_bodies[i];
                     restore_native_match_binding(env, expr, i, udef ? udef->name : NULL);
 
@@ -3396,6 +3628,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                         emit_literal(list, "break; } ");
                     }
+                    list->bindings = arm_outer_bindings;
                 }
 
                 /* Close switch and compound expression */
@@ -3463,36 +3696,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 /* ============================================================================
  * PASS 1: BUILD WORK ITEMS (Statement Transpiler)
  * ============================================================================ */
-
-/* Loop exits invalidate my explicit vectorization promise. */
-static bool loop_body_has_exit(const ASTNode *node) {
-    if (!node) return false;
-    switch (node->type) {
-        case AST_RETURN: case AST_BREAK: case AST_CONTINUE: return true;
-        case AST_BLOCK:
-            for (int i = 0; i < node->as.block.count; i++)
-                if (loop_body_has_exit(node->as.block.statements[i])) return true;
-            return false;
-        case AST_UNSAFE_BLOCK:
-            for (int i = 0; i < node->as.unsafe_block.count; i++)
-                if (loop_body_has_exit(node->as.unsafe_block.statements[i])) return true;
-            return false;
-        case AST_IF:
-            return loop_body_has_exit(node->as.if_stmt.then_branch)
-                || loop_body_has_exit(node->as.if_stmt.else_branch);
-        case AST_WHILE: return loop_body_has_exit(node->as.while_stmt.body);
-        case AST_FOR: return loop_body_has_exit(node->as.for_stmt.body);
-        case AST_MATCH:
-            for (int i = 0; i < node->as.match_expr.arm_count; i++)
-                if (loop_body_has_exit(node->as.match_expr.arm_bodies[i])) return true;
-            return false;
-        case AST_COND:
-            for (int i = 0; i < node->as.cond_expr.clause_count; i++)
-                if (loop_body_has_exit(node->as.cond_expr.values[i])) return true;
-            return loop_body_has_exit(node->as.cond_expr.else_value);
-        default: return false;
-    }
-}
 
 static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry) {
@@ -3593,14 +3796,17 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, "/* par-let begin (independent bindings follow) */\n");
             for (int i = 0; i < stmt->as.par_let.count; i++) {
                 emit_indent_item(list, indent);
-                const char *binding_name = !strcmp(stmt->as.par_let.names[i], "_")
-                    ? new_underscore_name(list, env) : stmt->as.par_let.names[i];
+                const char *source_name = stmt->as.par_let.names[i];
+                const char *binding_name = !strcmp(source_name, "_") ||
+                    env_get_var_visible_at(env, source_name, stmt->line, stmt->column)
+                    ? new_native_name(list, env, source_name) : source_name;
                 emit_literal(list, "__auto_type ");
                 emit_literal(list, binding_name);
                 emit_literal(list, " = ");
                 build_expr(list, stmt->as.par_let.values[i], env);
                 emit_literal(list, "; /* par-let binding */\n");
-                if (!strcmp(stmt->as.par_let.names[i], "_")) list->underscore_name = binding_name;
+                bind_native_name(list, source_name, binding_name);
+                if (!strcmp(source_name, "_")) list->underscore_name = binding_name;
             }
             emit_indent_item(list, indent);
             emit_literal(list, "/* par-let end */\n");
@@ -3668,8 +3874,10 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_literal(list, "int _matched = 0;\n");
 
                 for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
+                    NativeBinding *arm_outer_bindings = list->bindings;
                     const char *variant_name = stmt->as.match_expr.pattern_variants[i];
                     const char *binding_name = stmt->as.match_expr.pattern_bindings[i];
+                    bind_native_name(list, binding_name, binding_name);
                     ASTNode *arm_body = stmt->as.match_expr.arm_bodies[i];
                     restore_native_match_binding(env, stmt, i, udef ? udef->name : NULL);
                     ASTNode *guard = stmt->as.match_expr.guard_exprs ? stmt->as.match_expr.guard_exprs[i] : NULL;
@@ -3747,6 +3955,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
 
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "}\n");
+                    list->bindings = arm_outer_bindings;
                 }
             } else {
                 /* No guards: use original switch-based approach */
@@ -3766,8 +3975,10 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 }
 
                 for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
+                    NativeBinding *arm_outer_bindings = list->bindings;
                     const char *variant_name = stmt->as.match_expr.pattern_variants[i];
                     const char *binding_name = stmt->as.match_expr.pattern_bindings[i];
+                    bind_native_name(list, binding_name, binding_name);
                     ASTNode *arm_body = stmt->as.match_expr.arm_bodies[i];
                     restore_native_match_binding(env, stmt, i, udef ? udef->name : NULL);
 
@@ -3858,6 +4069,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         emit_indent_item(list, indent + 2);
                         emit_literal(list, "}\n");
                     }
+                    list->bindings = arm_outer_bindings;
                 }
 
                 /* Add default: __builtin_unreachable() only when no wildcard arm.
@@ -3891,7 +4103,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             if (in_effect_handler) {
                 if (stmt->as.return_stmt.value) {
                     emit_formatted(list, "*(%s *)_frame->lexical_result = ", effect_c_type(effect_lexical_return, effect_lexical_name, env));
-                    build_expr(list, stmt->as.return_stmt.value, env);
+                    build_scalar_destination(list, stmt->as.return_stmt.value, env, effect_lexical_return);
                     emit_literal(list, "; ");
                 }
                 if (effect_lexical_return == TYPE_OPAQUE || effect_lexical_return == TYPE_HASHMAP ||
@@ -3904,7 +4116,8 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, "return");
             if (stmt->as.return_stmt.value) {
                 emit_literal(list, " ");
-                build_expr(list, stmt->as.return_stmt.value, env);
+                Type return_type = g_current_function ? g_current_function->as.function.return_type : TYPE_UNKNOWN;
+                build_scalar_destination(list, stmt->as.return_stmt.value, env, return_type);
             }
             emit_literal(list, ";\n");
             break;
@@ -3920,8 +4133,12 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             break;
             
         case AST_LET: {
-            const char *binding_name = !strcmp(stmt->as.let.name, "_")
-                ? new_underscore_name(list, env) : stmt->as.let.name;
+            Symbol *previous = env_get_var_visible_at(env, stmt->as.let.name,
+                stmt->line, stmt->column > 1 ? stmt->column - 1 : stmt->column);
+            bool needs_name = !strcmp(stmt->as.let.name, "_") || previous ||
+                strcmp(native_local_name(list, stmt->as.let.name), stmt->as.let.name);
+            const char *binding_name = needs_name
+                ? new_native_name(list, env, stmt->as.let.name) : stmt->as.let.name;
             emit_indent_item(list, indent);
             
             /* A checked empty pattern over a name has no fields or runtime work. */
@@ -3941,6 +4158,28 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 if (stmt->as.let.value) build_expr(list, stmt->as.let.value, env);
                 else emit_literal(list, "0");
                 emit_literal(list, ");\n");
+            }
+            /* A payload is a selected concrete union, never a dotted record name. */
+            else if (stmt->as.let.var_type == TYPE_STRUCT && stmt->as.let.type_info &&
+                     stmt->as.let.type_info->base_type == TYPE_UNION) {
+                TypeInfo *projection = NULL;
+                char *variant = NULL;
+                if (!checked_union_projection_copy(stmt->as.let.value, env, &projection, &variant) || !variant) {
+                    free_payload_type_info(projection); free(variant);
+                    fprintf(stderr, "I require the checked selected union payload before native declaration.\n");
+                    exit(1);
+                }
+                char *key = typeinfo_to_generic_arg_name(projection);
+                const char *native_key = key ? native_opaque_projection(key) : NULL;
+                if (!native_key || !*native_key) {
+                    free_payload_type_info(projection); free(variant); free(key);
+                    fprintf(stderr, "I cannot retain the concrete union payload storage key.\n");
+                    exit(1);
+                }
+                emit_formatted(list, "nl_%s_%s %s = ", native_key, variant, binding_name);
+                free_payload_type_info(projection); free(variant); free(key);
+                build_expr(list, stmt->as.let.value, env);
+                emit_literal(list, ";\n");
             }
             /* Handle tuple types - use __auto_type to infer from RHS */
             else if (stmt->as.let.var_type == TYPE_TUPLE) {
@@ -4145,12 +4384,14 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         stmt->as.let.value->as.array_literal.element_type = stmt->as.let.element_type;
                     }
                     emit_literal(list, " = ");
-                    build_expr(list, stmt->as.let.value, env);
+                    build_scalar_destination(list, stmt->as.let.value, env, stmt->as.let.var_type);
                 }
                 emit_literal(list, ";\n");
             }
             
+            /* I never mutate the AST name, including on failed emission. */
             /* The initializer above sees the previous lexical binding. */
+            bind_native_name(list, stmt->as.let.name, binding_name);
             if (!strcmp(stmt->as.let.name, "_")) list->underscore_name = binding_name;
 
             /* Register in environment */
@@ -4165,6 +4406,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     break;
                 }
             }
+            /* Copy borrowed checker metadata before definition can move symbols. */
+            bool have_checked = checked_binding != NULL;
+            Symbol checked = have_checked ? *checked_binding : (Symbol){0};
             int scope_end_line = checked_binding ? checked_binding->scope_end_line : 0;
             int scope_end_column = checked_binding ? checked_binding->scope_end_column : 0;
             const char *nominal = stmt->as.let.type_name ? stmt->as.let.type_name :
@@ -4182,6 +4426,12 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emitted_binding->def_line = stmt->line;
             emitted_binding->def_column = stmt->column;
             if (native_effect_program) emitted_binding->def_file = g_source_file_for_line_directives;
+            if (have_checked) {
+                emitted_binding->nominal_owner = checked.nominal_owner;
+                emitted_binding->callable_owner = checked.callable_owner;
+                emitted_binding->inferred_nominal = checked.inferred_nominal;
+                emitted_binding->checker_nominal_view = checked.checker_nominal_view;
+            }
             emitted_binding->scope_end_line = scope_end_line;
             emitted_binding->scope_end_column = scope_end_column;
             free(emitted_binding->struct_type_name);
@@ -4250,7 +4500,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 }
             }
             
-            build_expr(list, stmt->as.set.value, env);
+            Symbol *byte_target = env_get_var_visible_at(env, stmt->as.set.name, stmt->line, stmt->column);
+            Type destination = byte_target ? byte_target->type : TYPE_UNKNOWN;
+            build_scalar_destination(list, stmt->as.set.value, env, destination);
             emit_literal(list, ";\n");
             break;
             
@@ -4324,26 +4576,17 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     emit_literal(list, ";\n");
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "int64_t __nl_len = dyn_array_length(__nl_arr);\n");
-                    /* Vectorization hints for numeric element types */
-                    if ((dyn_elem_type == TYPE_INT || dyn_elem_type == TYPE_FLOAT) &&
-                        !loop_body_has_exit(stmt->as.for_stmt.body)) {
-                        emit_indent_item(list, indent + 1);
-                        emit_literal(list, "#if defined(__GNUC__) && !defined(__clang__)\n");
-                        emit_indent_item(list, indent + 1);
-                        emit_literal(list, "#pragma GCC ivdep\n");
-                        emit_indent_item(list, indent + 1);
-                        emit_literal(list, "#endif\n");
-                        emit_indent_item(list, indent + 1);
-                        emit_literal(list, "#ifdef __clang__\n");
-                        emit_indent_item(list, indent + 1);
-                        emit_literal(list, "#pragma clang loop vectorize(enable) interleave(enable)\n");
-                        emit_indent_item(list, indent + 1);
-                        emit_literal(list, "#endif\n");
-                    }
+                    /* I leave vectorization to the C compiler; I have not proved loop independence. */
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n");
                     emit_indent_item(list, indent + 2);
-                    emit_formatted(list, "%s %s = %s(__nl_arr, __nl_idx);\n",
+                    const TypeInfo *array_info = checked_expression_type_info(range, env);
+                    const TypeInfo *element_info = array_info && array_info->base_type == TYPE_ARRAY ? array_info->element_type : NULL;
+                    if (type_info_exact_array_element(element_info) && native_array_struct_value(element_info)) {
+                        char *complete = native_array_c_type(element_info, env);
+                        native_array_load(list, element_info, complete, "__nl_arr", "__nl_idx", var);
+                        emit_literal(list, "\n"); free(complete);
+                    } else emit_formatted(list, "%s %s = %s(__nl_arr, __nl_idx);\n",
                                    c_elem_type, var, get_fn);
                     /* Emit body statements */
                     ASTNode *dyn_body = stmt->as.for_stmt.body;
@@ -4352,6 +4595,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         fprintf(stderr, "I require checked loop binding metadata at line %d.\n", stmt->line);
                         exit(1);
                     }
+                    bind_native_name(list, var, var);
                     if (!strcmp(var, "_")) list->underscore_name = NULL;
                     if (dyn_body && dyn_body->type == AST_BLOCK) {
                         for (int bi = 0; bi < dyn_body->as.block.count; bi++) {
@@ -4442,6 +4686,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         fprintf(stderr, "I require checked loop binding metadata at line %d.\n", stmt->line);
                         exit(1);
                     }
+                    bind_native_name(list, var, var);
                     if (!strcmp(var, "_")) list->underscore_name = NULL;
                     if (body && body->type == AST_BLOCK) {
                         for (int bi = 0; bi < body->as.block.count; bi++) {
@@ -4629,6 +4874,7 @@ void transpile_expression_iterative(StringBuilder *sb, ASTNode *expr, Environmen
     
     /* Pass 1: Build work items */
     WorkList *list = worklist_create(1000);
+    list->source_root = expr;
     build_expr(list, expr, env);
     
     /* Pass 2: Process and output */
@@ -4644,6 +4890,7 @@ void transpile_statement_iterative(StringBuilder *sb, ASTNode *stmt, int indent,
 
     /* Pass 1: Build work items with scope tracking */
     WorkList *list = worklist_create(5000);
+    list->source_root = stmt;
     list->fn_registry = fn_registry;
     ScopeStack *scopes = scope_stack_create();
 
@@ -4677,6 +4924,14 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
         EffectOp *result_op = effect_get_op(env_get_effect(env, result_expr->as.effect_op.effect_name), result_expr->as.effect_op.op_name);
         if (result_op) result_name = result_op->return_type_name;
     }
+    if (result_name) {
+        char *snapshot = strdup(result_name);
+        if (!snapshot) {
+            fprintf(stderr, "I could not retain my effect result type name\n");
+            exit(1);
+        }
+        result_name = env_own_checker_allocation(env, snapshot);
+    }
     Type lexical = g_current_function->as.function.return_type;
     Symbol **captures = calloc((size_t)env->symbol_count, sizeof(*captures));
     int count = 0;
@@ -4699,6 +4954,7 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
             sb_appendf(helper_source, "%s %s = *(%s *)_args[%d];\n", effect_c_type(op->params[p].type, op->params[p].struct_type_name, env), expr->as.handle_expr.handler_param_names[h][p], effect_c_type(op->params[p].type, op->params[p].struct_type_name, env), p);
         if (op->return_type != TYPE_VOID) sb_appendf(helper_source, "%s _out = {0};\n", effect_c_type(op->return_type, op->return_type_name, env));
         WorkList *handler = worklist_create(100);
+        handler->source_root = handler_body;
         handler->fn_registry = list->fn_registry;
         in_effect_handler = true; effect_lexical_return = lexical; effect_lexical_name = g_current_function->as.function.return_struct_type_name; effect_environment = env;
         effect_captures = captures; effect_capture_count = count;
@@ -4740,7 +4996,7 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
     }
     emit_literal(list, "({ ");
     emit_formatted(list, "void *_captures_%d[] = {", id);
-    for (int c = 0; c < count; ++c) emit_formatted(list, "%s&%s", c ? ", " : "", saved_handler ? effect_capture_name(captures[c]->name, expr->line, expr->column) : captures[c]->name);
+    for (int c = 0; c < count; ++c) emit_formatted(list, "%s&%s", c ? ", " : "", native_local_name(list, saved_handler ? effect_capture_name(captures[c]->name, expr->line, expr->column) : captures[c]->name));
     if (!count) emit_literal(list, "NULL");
     emit_literal(list, "}; ");
     emit_formatted(list, "NlEffectEntry _entries_%d[] = {", id);

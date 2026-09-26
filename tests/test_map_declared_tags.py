@@ -1,4 +1,10 @@
 """I preserve declared map writes across ordinary VM and native products."""
+try:
+    from tests.sanitizer_options import asan_options
+    from tests.native_toolchain import native_cc
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
+    from native_toolchain import native_cc
 from pathlib import Path
 import os
 import signal
@@ -7,18 +13,19 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+SANITIZER_CC = native_cc()
 
 class DeclaredMapTags(unittest.TestCase):
     def command(self, args, success=True):
         result = subprocess.run([str(x) for x in args], capture_output=True, text=True,
-            timeout=90, env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1:abort_on_error=1'})
+            timeout=90, env={**os.environ, 'ASAN_OPTIONS':asan_options("abort_on_error=1")})
         self.assertEqual(result.returncode == 0, success, str(args)+'\n'+result.stdout+result.stderr)
         return result
 
     def native(self, work, module):
         source, binary = work/'native.c', work/'native'
         self.command([ROOT/'bin/nvm2c',module,'-o',source])
-        self.command(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror',
+        self.command([*SANITIZER_CC,'-std=c11','-O2','-Wall','-Wextra','-Werror',
             '-fsanitize=address,undefined','-fno-sanitize-recover=all',source,'-o',binary])
         return binary
 

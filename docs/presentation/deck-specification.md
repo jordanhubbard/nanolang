@@ -6,8 +6,9 @@ Explain NanoLang to software developers and compiler engineers. Show the
 language contract, the compiler pipeline, NanoISA, NanoVM, tests, diagnostics,
 what my verifier checks, and what 4.1–4.5 added on top of that.
 
-**5.0 release edition; unpublished.** I retain the historical 4.0 and
-4.1–4.5 account while correcting my current contract and proof boundaries.
+**5.1 release edition; local until publication is explicitly initiated.** I
+retain the historical 4.0 and 4.1–4.5 account while presenting my completed
+One IR product transition and its proof boundaries.
 4.0 added bytecode verification beyond structural loading.
 4.5 keeps that contract and adds Forth Core evidence, NSI, a POSIX capability
 fabric, an isolated editor walker, effects-to-policy, and a trap journal.
@@ -37,9 +38,9 @@ trap journal library is not a hook on every VM trap.
 
 ## Slide sequence
 
-1. I am NanoLang: my 5.0 language and runtime release scope.
+1. I am NanoLang: my 5.1 One IR release scope.
 2. My design refuses ambiguity.
-3. One source language, two execution paths.
+3. One verified compiler product, several consumers.
 4. NanoISA is readable bytecode, not a hidden intermediate.
 5. My module format carries the instruction set.
 6. My verifier checks modeled invariants before execution.
@@ -51,7 +52,7 @@ trap journal library is not a hook on every VM trap.
 12. I collect tested reference cycles; this is not complete leak freedom.
 13. What I measured, and what I declined because of it.
 14. My runtime foundations: contracts, capabilities, fabric, journal.
-15. My 5.0 language/runtime contract, and the architecture still ahead.
+15. My 5.1 One IR contract, and the boundaries I retain.
 16. Start with the code, then run the gates.
 
 Slide 1 must say what I am before it says what I prove. A reader may never
@@ -78,9 +79,10 @@ Slide 14 is the runtime mechanism. Five named layers — source effect, module
 requirement, NanoISA trap, NSI method, capability — and a journal that records
 at the trap boundary. Do not collapse them into one word. POSIX is the host.
 
-Slide 15 names the audited 5.0 contract and unfinished NanoISA-only bootstrap,
-backend parity and production isolation. Retained callbacks execute through
-the owner-thread bridge; they do not establish isolated callback support. Slide 7 still shows
+Slide 15 names the audited 5.1 One IR contract, raw compiler fixed point and
+translator boundary. Retained callbacks execute through the owner-thread
+bridge; they do not establish isolated callback support. Private mixed graphs
+and conservative refusals do not become public authority. Slide 7 still shows
 the six-instruction program that passed verification; that lesson did not
 expire.
 

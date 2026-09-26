@@ -1,0 +1,6 @@
+['/tmp/pr522-union-baseline', '/tmp/pr522-nested-union.nvm', '-o', '/tmp/pr522-nested-union.c']
+exit=0
+['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', '/tmp/pr522-nested-union.c', '-o', '/tmp/pr522-nested-union']
+exit=0
+['/tmp/pr522-nested-union']
+exit=0

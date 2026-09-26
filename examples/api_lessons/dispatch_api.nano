@@ -9,7 +9,7 @@
 # Dependencies: modules/dispatch, libdispatch
 # Tags: api-lesson, concurrency, dispatch, native-only
 
-module "modules/dispatch/dispatch.nano"
+module "modules/dispatch/dispatch.nano" as dispatch
 
 # Expected Output: dispatch group rc: 0
 
@@ -23,15 +23,15 @@ shadow noop_work {
 }
 
 fn drain_serial_queue() -> int {
-    if (not (dispatch_available)) { return -1 }
-    let q: NlQueue = (queue_serial "nano.api_lesson.serial")
-    (queue_sync q fn() -> void { (noop_work) })
-    (queue_destroy q)
+    if (not (dispatch.dispatch_available)) { return -1 }
+    let q: dispatch.NlQueue = (dispatch.queue_serial "nano.api_lesson.serial")
+    (dispatch.queue_sync q fn() -> void { (noop_work) })
+    (dispatch.queue_destroy q)
     return 0
 }
 
 shadow drain_serial_queue {
-    if (dispatch_available) {
+    if (dispatch.dispatch_available) {
         assert (== (drain_serial_queue) 0)
     } else {
         assert (== (drain_serial_queue) -1)
@@ -39,22 +39,22 @@ shadow drain_serial_queue {
 }
 
 fn run_group_fanout() -> int {
-    if (not (dispatch_available)) { return -1 }
-    let q: NlQueue = (queue_concurrent "nano.api_lesson.fanout")
-    let g: NlQueueGroup = (group_create)
+    if (not (dispatch.dispatch_available)) { return -1 }
+    let q: dispatch.NlQueue = (dispatch.queue_concurrent "nano.api_lesson.fanout")
+    let g: dispatch.NlQueueGroup = (dispatch.group_create)
     let mut i: int = 0
     while (< i 4) {
-        (group_async g q fn() -> void { (noop_work) })
+        (dispatch.group_async g q fn() -> void { (noop_work) })
         set i (+ i 1)
     }
-    let rc: int = (group_wait_ms g 2000)
-    (group_destroy g)
-    (queue_destroy q)
+    let rc: int = (dispatch.group_wait_ms g 2000)
+    (dispatch.group_destroy g)
+    (dispatch.queue_destroy q)
     return rc
 }
 
 shadow run_group_fanout {
-    if (dispatch_available) {
+    if (dispatch.dispatch_available) {
         assert (== (run_group_fanout) 0)
     } else {
         assert (== (run_group_fanout) -1)
@@ -62,7 +62,7 @@ shadow run_group_fanout {
 }
 
 fn main() -> int {
-    if (not (dispatch_available)) {
+    if (not (dispatch.dispatch_available)) {
         (println "I require Apple libdispatch for this lesson.")
         return 0
     }

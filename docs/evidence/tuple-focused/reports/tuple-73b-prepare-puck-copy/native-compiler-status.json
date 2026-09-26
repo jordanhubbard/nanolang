@@ -1,0 +1,21 @@
+{
+  "name": "native-compiler",
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "--version"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.1826735829999997,
+  "log": {
+    "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+    "bytes": 222,
+    "archive": "/Users/jkh/nanolang-qualification/tuple-73b-prepare/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

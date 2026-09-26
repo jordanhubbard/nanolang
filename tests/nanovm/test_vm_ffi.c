@@ -41,6 +41,11 @@ long   nl_ffi_test_mix_fi_gp(double x, long n) { return (long)(x * 2.0) + n; }
 double nl_ffi_test_mix_iffi(long a, double b, double c, long d) {
     return (double)a + b * c + (double)d;
 }
+void *nl_ffi_test_pointer(void *pointer) { return pointer; }
+
+/* I keep these providers instrumented so incompatible indirect calls fail UBSan. */
+const char *nl_ffi_test_echo(const char *text) { return text; }
+int64_t nl_ffi_test_step(int64_t value) { return value - 1; }
 
 static int g_pass = 0, g_fail = 0;
 double nl_ffi_test_wide(int64_t a, double b, int64_t c, double d,
@@ -59,6 +64,30 @@ double nl_ffi_test_wide(int64_t a, double b, int64_t c, double d,
     g_fail++; return; } } while(0)
 
 /* ── Lifecycle tests ───────────────────────────────────────────────────── */
+
+TEST(short_typed_signatures) {
+    vm_ffi_init();
+    NvmModule *mod = nvm_module_new();
+    VmHeap heap;
+    vm_heap_init(&heap);
+    uint32_t module = nvm_add_string(mod, "", 0);
+    const char *names[] = {"nl_ffi_test_echo", "nl_ffi_test_step"};
+    uint8_t tags[] = {TAG_STRING, TAG_INT};
+    NanoValue args[] = {val_string(vm_string_new(&heap, "retained", 8)), val_int(-41)};
+    for (int i = 0; i < 2; ++i) {
+        uint32_t name = nvm_add_string(mod, names[i], (uint32_t)strlen(names[i]));
+        uint32_t imported = nvm_add_import(mod, module, name, 1, tags[i], &tags[i]);
+        NanoValue result;
+        char error[256];
+        ASSERT(vm_ffi_call(mod, imported, &args[i], 1, &result, &heap, error, sizeof error));
+        ASSERT_EQ(result.tag, tags[i]);
+        if (i == 0) ASSERT(strcmp(vmstring_cstr(result.as.string), "retained") == 0);
+        else ASSERT_EQ(result.as.i64, -42);
+    }
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
 
 TEST(wide_mixed_signature) {
     vm_ffi_init();
@@ -339,28 +368,29 @@ TEST(call_bool_arg_path) {
 }
 
 TEST(call_opaque_arg_path) {
-    /* Exercise TAG_OPAQUE arg marshaling */
+    /* I accept only the integer zero spelling of an opaque null pointer. */
     vm_ffi_init();
 
     NvmModule *mod = nvm_module_new();
     ASSERT(mod != NULL);
     uint32_t mod_idx = nvm_add_string(mod, "", 0);
-    uint32_t fn_idx  = nvm_add_string(mod, "xyzzy_no_such_fn2", 17);
+    uint32_t fn_idx  = nvm_add_string(mod, "nl_ffi_test_pointer", 19);
     uint8_t ptypes[1] = {TAG_OPAQUE};
-    nvm_add_import(mod, mod_idx, fn_idx, 1, TAG_INT, ptypes);
+    nvm_add_import(mod, mod_idx, fn_idx, 1, TAG_OPAQUE, ptypes);
 
     VmHeap heap;
     vm_heap_init(&heap);
 
-    NanoValue arg;
-    memset(&arg, 0, sizeof(arg));
-    arg.tag = TAG_OPAQUE;
-    arg.as.i64 = 12345;
-
     NanoValue result;
     char err[256] = "";
-    bool ok = vm_ffi_call(mod, 0, &arg, 1, &result, &heap, err, sizeof(err));
-    ASSERT(!ok);
+    NanoValue null = val_int(0);
+    ASSERT(vm_ffi_call(mod, 0, &null, 1, &result, &heap, err, sizeof(err)));
+    ASSERT_EQ(result.tag, TAG_OPAQUE);
+    ASSERT(result.as.obj == NULL);
+
+    NanoValue nonzero = val_int(1);
+    ASSERT(!vm_ffi_call(mod, 0, &nonzero, 1, &result, &heap, err, sizeof(err)));
+    ASSERT(strstr(err, "declared foreign value tag") != NULL);
 
     vm_heap_destroy(&heap);
     nvm_module_free(mod);
@@ -660,8 +690,8 @@ TEST(artifact_and_logical_array_abi) {
         uint32_t lib = artifact ? nvm_add_string(mod, path, (uint32_t)strlen(path)) :
                                  nvm_add_string(mod, "", 0);
         free(path);
-        const char *names[] = {"array_matching", "array_legacy", "array_mismatch"};
-        for (int i = 0; i < 3; ++i) {
+        const char *names[] = {"array_matching", "array_legacy", "array_mismatch", "array_stale"};
+        for (int i = 0; i < 4; ++i) {
             uint32_t fn = nvm_add_string(mod, names[i], (uint32_t)strlen(names[i]));
             uint32_t imp = nvm_add_import(mod, lib, fn, 0, TAG_ARRAY, NULL);
             if (artifact) mod->imports[imp].kind = NVM_IMPORT_ARTIFACT;
@@ -671,14 +701,16 @@ TEST(artifact_and_logical_array_abi) {
         NanoValue result;
         char err[256];
         for (int repeat = 0; repeat < 2; ++repeat) {
-            for (int i = 0; i < 2; ++i) {
-                ASSERT(vm_ffi_call(mod, i, NULL, 0, &result, &heap, err, sizeof err));
-                ASSERT_EQ(result.tag, TAG_ARRAY);
+            ASSERT(vm_ffi_call(mod, 0, NULL, 0, &result, &heap, err, sizeof err));
+            ASSERT_EQ(result.tag, TAG_ARRAY);
+            for (int i = 1; i < 4; ++i) {
+                ASSERT(!vm_ffi_call(mod, i, NULL, 0, &result, &heap, err, sizeof err));
+                if (!repeat) ASSERT(strstr(err, "native array ABI") != NULL);
+                ASSERT_EQ(mod->call_descriptors[i].state, NVM_CALL_FAILED);
             }
-            ASSERT(!vm_ffi_call(mod, 2, NULL, 0, &result, &heap, err, sizeof err));
-            if (!repeat) ASSERT(strstr(err, "native array ABI") != NULL);
-            ASSERT_EQ(mod->call_descriptors[2].state, NVM_CALL_FAILED);
+            vm_release(&heap, result);
         }
+        ASSERT_EQ(heap.stats.num_objects, 0);
         vm_heap_destroy(&heap);
         nvm_module_free(mod);
         vm_ffi_shutdown();
@@ -1199,6 +1231,7 @@ int main(void) {
     printf("\n[vm_ffi] FFI bridge unit tests...\n\n");
     RUN(init_shutdown_set_env);
     RUN(retained_native_scheduler);
+    RUN(short_typed_signatures);
     RUN(wide_mixed_signature);
     RUN(call_string_returning_float);
     RUN(call_bytecode_callback_rejected);

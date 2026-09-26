@@ -287,20 +287,25 @@ static void test_artifact_array_import_is_not_a_builtin(void) {
 static void test_owned_artifact_execution(void) {
     char directory[] = "/tmp/nvm2c-walk-XXXXXX";
     CHECK(mkdtemp(directory) != NULL, "I create a private artifact fixture");
-    char path[256], library[256], command[1024];
+    char path[256], library[256], command[1024], entered[256];
     snprintf(path, sizeof path, "%s/library.c", directory);
     snprintf(library, sizeof library, "%s/library.so", directory);
+    snprintf(entered, sizeof entered, "%s/entered", directory);
+    CHECK(setenv("NVM_ARRAY_ENTRY_MARKER", entered, 1) == 0, "I observe actual foreign entry");
     FILE *file = fopen(path, "w");
     CHECK(file != NULL, "I write an owned artifact fixture");
     if (!file) { rmdir(directory); return; }
     fputs("#include <stdint.h>\n#include <stdbool.h>\n#include <string.h>\n"
-          "#include <stdlib.h>\n"
-          "typedef struct { int64_t length, capacity; int type; uint8_t width; void *data; } A;\n"
-          "#ifndef ABI_VERSION\n#define ABI_VERSION 1\n#endif\n"
+          "#include <stdlib.h>\n#include <stdio.h>\n"
+          "#ifndef ABI_VERSION\n#define ABI_VERSION 2\n#endif\n"
+          "#if ABI_VERSION == 1\ntypedef uint8_t width_t;\n#else\ntypedef size_t width_t;\n#endif\n"
+          "typedef struct { int64_t length, capacity; int type; width_t width; void *data; } A;\n"
           "const uint32_t fs_walkdir__nano_array_abi = ABI_VERSION;\n"
           "static char value[] = \"retained\"; static char *items[] = {value};\n"
           "static A array = {1, 1, 3, sizeof(char *), items};\n"
           "A *fs_walkdir(const char *root) {\n"
+          " const char *p = getenv(\"NVM_ARRAY_ENTRY_MARKER\");\n"
+          " if (p) { FILE *f = fopen(p, \"w\"); if (!f) abort(); fputs(\"entered\", f); fclose(f); }\n"
           " if (!strcmp(root, \"bad-layout\")) array.width = 1;\n"
           " return &array; }\n"
           "#ifndef OMIT_RELEASE\n"
@@ -309,10 +314,11 @@ static void test_owned_artifact_execution(void) {
     CHECK(fclose(file) == 0, "I finish the artifact fixture");
     snprintf(command, sizeof command, "cc -shared -fPIC -o %s %s", library, path);
     CHECK(system(command) == 0, "I build the artifact fixture");
-    for (int variant = 0; variant < 5; ++variant) {
+    for (int variant = 0; variant < 6; ++variant) {
+        unlink(entered);
         if (variant >= 3) {
             snprintf(command, sizeof command, "cc -shared -fPIC %s -o %s %s",
-                     variant == 3 ? "-DABI_VERSION=99" : "-DOMIT_RELEASE", library, path);
+                     variant == 3 ? "-DABI_VERSION=99" : variant == 4 ? "-DOMIT_RELEASE" : "-DABI_VERSION=1", library, path);
             CHECK(system(command) == 0, "I build an incompatible artifact fixture");
         }
         NvmModule *module = assemble_ok(
@@ -339,11 +345,14 @@ static void test_owned_artifact_execution(void) {
             CHECK(compile_and_run(source, &status) == 0, "I compile the artifact caller");
             CHECK(variant == 0 ? status == 0 : status != 0,
                   "I preserve copies after release and refuse invalid artifacts");
+            CHECK((access(entered, F_OK) == 0) == (variant < 2),
+                  "I refuse missing, mismatched and stale-ABI artifacts before foreign entry");
         } else fprintf(stderr, "%s\n", error);
         free(source);
         nvm_module_free(module);
     }
-    unlink(path); unlink(library); rmdir(directory);
+    unsetenv("NVM_ARRAY_ENTRY_MARKER");
+    unlink(entered); unlink(path); unlink(library); rmdir(directory);
 }
 
 static void test_real_walk_artifact(void) {
@@ -960,7 +969,6 @@ static void test_tagged_record_array(void) {
     }
     const char *rejected[] = {
         ".entry 0\n.function main 0 0 0 int 1\nARR_NEW 8\nPUSH_I64 1\nARR_PUSH\nARR_LEN\nRET\n.end\n",
-        ".entry 0\n.function main 0 0 0 int 1\nARR_NEW 7\nARR_LEN\nRET\n.end\n",
         ".string text \"text\"\n.entry 0\n.function main 0 0 0 int 1\n"
         "ARR_NEW 8\nPUSH_STR text\nAGG_PACK 0 0 0 1\nARR_PUSH\n"
         "PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_PUSH\nARR_LEN\nRET\n.end\n",
@@ -970,7 +978,7 @@ static void test_tagged_record_array(void) {
         if (!module) continue;
         char error[256];
         char *source = nvm2c_emit(module, error, sizeof error);
-        CHECK(source == NULL, "I refuse scalar, nested-array and mixed-field record construction");
+        CHECK(source == NULL, "I refuse scalar and mixed-field record construction");
         free(source); nvm_module_free(module);
     }
 }
@@ -1187,6 +1195,7 @@ static void test_globals_cross_functions_and_preserve_identity(void) {
 
 static void test_projected_global_stores(void) {
     const struct { const char *value, *check; } cases[] = {
+        {"PUSH_I64 42\nAGG_PACK 0 0 0 1", "AGG_GET 0\nPUSH_I64 42\nEQ\nASSERT"},
         {"PUSH_I64 42", "PUSH_I64 42\nEQ\nASSERT"},
         {"PUSH_F64 1.5", "PUSH_F64 1.5\nF64_EQ\nASSERT"},
         {"PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1",
@@ -1213,7 +1222,7 @@ static void test_projected_global_stores(void) {
             if (c) {
                 int status = -1;
                 CHECK(compile_and_run(c, &status) == 0 && status == 0,
-                      "I preserve scalar and primitive-array values across nested-record global stores");
+                      "I preserve scalar, array and record values across nested-record global stores");
                 free(c);
             }
             nvm_module_free(m);
@@ -1225,13 +1234,13 @@ static void test_projected_global_stores(void) {
     for (size_t i = 0; i < sizeof unsupported / sizeof unsupported[0]; ++i) {
         char source[2048];
         snprintf(source, sizeof source, ".entry main\n.function main 0 0 0 int 1\n%s\n"
-            "AGG_PACK 0 0 0 1\nAGG_PACK 0 0 0 1\nCALL store\nPUSH_I64 0\nRET\n.end\n%s",
+            "AGG_PACK 0 0 0 1\nAGG_PACK 0 0 0 1\nCALL store\nPUSH_I64 9\nSTORE_GLOBAL 0\nPUSH_I64 0\nRET\n.end\n%s",
             unsupported[i], store);
         NvmModule *m = assemble_ok(source, "unsupported projected global storage");
         if (!m) continue;
         char error[256] = {0};
         char *c = nvm2c_emit(m, error, sizeof error);
-        CHECK(c == NULL, "I reject unsupported global storage after resolving nested fields");
+        CHECK(c == NULL, "I reject incompatible scalar and aggregate stores to one global");
         free(c); nvm_module_free(m);
     }
 }
@@ -3260,7 +3269,7 @@ static void test_nested_record_values(void) {
 
 static void test_unsupported_classifier_instructions(void) {
     const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES,
-        OP_STR_TO_UPPER, OP_CALL_INDIRECT, OP_ROLL};
+        OP_STR_TO_UPPER, OP_ROLL};
     for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {
         NvmModule *m = assemble_ok(".entry main\n.function main 0 0 0 int 1\n"
             "NOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\n"
@@ -3278,6 +3287,156 @@ static void test_unsupported_classifier_instructions(void) {
               "I reject unsupported stack effects at their own instruction");
         free(c);
         nvm_module_free(m);
+    }
+
+    NvmModule *malformed = assemble_ok(
+        ".entry main\n.function main 0 0 0 int 1\n"
+        "NOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\n"
+        "PUSH_I64 0\nRET\n.end\n", "malformed indirect call");
+    if (malformed) {
+        DecodedInstruction indirect = {0};
+        indirect.opcode = OP_CALL_INDIRECT;
+        indirect.operands[0].u16 = 1;
+        indirect.operands[1].u16 = 1;
+        CHECK(isa_encode(&indirect, malformed->code + malformed->functions[0].code_offset, 16) != 0,
+              "I encode a malformed indirect call using ISA metadata");
+        char error[256] = {0};
+        char *c = nvm2c_emit(malformed, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "CALL_INDIRECT has an unsupported stack shape"),
+              "I reject an indirect call without its exact arguments and callable");
+        free(c);
+        nvm_module_free(malformed);
+    }
+
+    const char *exact =
+        ".entry main\n"
+        ".function identity 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n"
+        ".parameters identity int\n"
+        ".function main 0 0 0 int 1\nPUSH_I64 42\nFUNCREF identity\n"
+        "CALL_INDIRECT 1 1\nRET\n.end\n";
+    NvmModule *exact_module = assemble_ok(exact, "exact scalar indirect call");
+    if (exact_module) {
+        char *c = emit_or_fail(exact_module, "I emit an exact scalar indirect call");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 42,
+                  "I execute an exact scalar indirect call");
+            free(c);
+        }
+        nvm_module_free(exact_module);
+    }
+}
+
+static void test_string_split_structured_c(void) {
+    const char *source =
+        ".string input \"a,,b\"\n.string comma \",\"\n.string empty \"\"\n"
+        ".string a \"a\"\n.entry main\n"
+        ".function main 0 1 0 int 1\n"
+        "PUSH_STR input\nPUSH_STR comma\nSTR_SPLIT\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 3\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nSTR_LEN\nPUSH_I64 1\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\nSTR_LEN\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+        "PUSH_STR input\nPUSH_STR empty\nSTR_SPLIT\nARR_LEN\nPUSH_I64 4\nI64_EQ\nASSERT\n"
+        "PUSH_I64 0\nRET\n.end\n";
+    NvmModule *module = assemble_ok(source, "structured string split");
+    if (!module) return;
+    char *c = emit_or_fail(module, "I emit checked structured-C string splitting");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0 && status == 0,
+              "I preserve delimiter, empty segment and byte-split behavior");
+        free(c);
+    }
+    nvm_module_free(module);
+}
+
+static void test_indirect_target_inference_order(void) {
+    const char *functions[] = {
+        ".function main 0 0 0 int 1\nPUSH_I64 42\nAGG_PACK 0 0 0 1\n"
+        "FUNCREF read\nCALL apply\nRET\n.end\n",
+        ".function apply 2 2 0 int 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\n"
+        "CALL_INDIRECT 1 1\nRET\n.end\n.parameters apply struct function\n",
+        ".function read 1 1 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n.end\n"
+        ".parameters read struct\n"
+    };
+    const unsigned orders[][3] = {{0,1,2}, {0,2,1}, {1,0,2}, {1,2,0}, {2,0,1}, {2,1,0}};
+    for (size_t order = 0; order < sizeof orders / sizeof orders[0]; ++order) {
+        char source[2048];
+        snprintf(source, sizeof source, ".types 1 0 0\n.entry main\n%s%s%s",
+                 functions[orders[order][0]], functions[orders[order][1]],
+                 functions[orders[order][2]]);
+        NvmModule *m = assemble_ok(source, "indirect record argument in every function order");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I converge indirect target facts independently of function order");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 42,
+                  "I execute the same record callback in every function order");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+
+    NvmModule *missing = assemble_ok(
+        ".entry main\n.string text \"wrong argument\"\n"
+        ".function main 0 0 0 int 1\nPUSH_STR text\nFUNCREF identity\n"
+        "CALL_INDIRECT 1 1\nRET\n.end\n"
+        ".function identity 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n"
+        ".parameters identity int\n", "unresolved indirect target after convergence");
+    if (missing) {
+        char error[512];
+        char *c = nvm2c_emit(missing, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "CALL_INDIRECT target parameter mismatch"),
+              "I use the exact target to refuse an incompatible callback argument");
+        free(c);
+        nvm_module_free(missing);
+    }
+}
+
+static void test_exact_aggregate_callback_provenance(void) {
+    const char *main_fn =
+        ".function main 0 1 0 int 1\nCALL choose\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nCALL forward\nAGG_GET 0\nPUSH_I64 35\nI64_ADD\nRET\n.end\n";
+    const char *workers =
+        ".function choose 0 0 0 function 1\nPUSH_I64 11\nPRINTLN\nFUNCREF make\nRET\n.end\n"
+        ".function forward 1 1 0 union 1\nLOAD_LOCAL 0\nTAIL_CALL apply\n.end\n"
+        ".parameters forward function\n"
+        ".function apply 1 1 0 union 1\nLOAD_LOCAL 0\nCALL_INDIRECT 0 1\nRET\n.end\n"
+        ".parameters apply function\n"
+        ".function make 0 0 0 union 1\nPUSH_I64 22\nPRINTLN\n"
+        "PUSH_I64 7\nAGG_PACK 1 0 0 1\nRET\n.end\n"
+        ".function decoy 0 0 0 float 1\nPUSH_F64 9.5\nRET\n.end\n";
+    for (int before = 0; before < 2; ++before) {
+        char source[2048];
+        snprintf(source, sizeof source, ".types 0 0 1\n.entry main\n%s%s",
+                 before ? workers : main_fn, before ? main_fn : workers);
+        NvmModule *m = assemble_ok(source, "returned and forwarded exact aggregate callback");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I follow the actual aggregate target instead of an unrelated scalar decoy");
+        if (c) {
+            char output[128];
+            int status = -1;
+            CHECK(compile_and_run_capture(c, &status, output, sizeof output) == 0 &&
+                  status == 42 && strcmp(output, "11\n22\n") == 0,
+                  "I evaluate the selector and selected aggregate callback once in order");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+
+    NvmModule *wrong = assemble_ok(
+        ".entry main\n"
+        ".function main 0 0 0 int 1\nPUSH_F64 1.5\nFUNCREF identity\n"
+        "CALL_INDIRECT 1 1\nPOP\nPUSH_I64 0\nRET\n.end\n"
+        ".function identity 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n"
+        ".parameters identity int\n", "exact target with an incompatible argument tag");
+    if (wrong) {
+        char error[512];
+        char *c = nvm2c_emit(wrong, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "CALL_INDIRECT target parameter mismatch"),
+              "I do not use target identity to erase a callback argument mismatch");
+        free(c);
+        nvm_module_free(wrong);
     }
 }
 
@@ -3428,7 +3587,94 @@ static void test_optional_record_arguments(void) {
     }
 }
 
+static void test_unresolved_local_storage(void) {
+    /* I exercise a nested field whose flat kind is still unknown when stored.
+     * Its second call observes the first call's tagged local requirement;
+     * returning the container must not impose that requirement on its field. */
+    const char *functions[] = {
+        ".function main 0 1 0 int 1\n"
+        "PUSH_STR text\n"
+        "AGG_PACK 0 0 0 1\n"
+        "ARR_LITERAL 8 1\n"
+        "AGG_PACK 0 0 0 1\n"
+        "STORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\n"
+        "CALL project\n"
+        "STORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\n"
+        "CALL rewrite\n"
+        "POP\n"
+        "PUSH_STR text\n"
+        "ARR_LITERAL 5 1\n"
+        "PUSH_I64 0\n"
+        "ARR_GET\n"
+        "CALL length\n"
+        "POP\n"
+        "PUSH_I64 0\n"
+        "RET\n"
+        ".end\n",
+        ".function project 1 3 0 struct 1\n"
+        "LOAD_LOCAL 0\n"
+        "AGG_GET 0\n"
+        "PUSH_I64 0\n"
+        "ARR_GET\n"
+        "AGG_GET 0\n"
+        "STORE_LOCAL 1\n"
+        "LOAD_LOCAL 1\n"
+        "CALL length\n"
+        "POP\n"
+        "LOAD_LOCAL 1\n"
+        "CALL length\n"
+        "PUSH_I64 4\n"
+        "EQ\n"
+        "ASSERT\n"
+        "LOAD_LOCAL 0\n"
+        "RET\n"
+        ".end\n",
+        ".function rewrite 1 1 0 struct 1\n"
+        "LOAD_LOCAL 0\n"
+        "AGG_GET 0\n"
+        "PUSH_I64 0\n"
+        "PUSH_STR text\n"
+        "CALL identity\n"
+        "AGG_PACK 0 0 0 1\n"
+        "ARR_SET\n"
+        "AGG_PACK 0 0 0 1\n"
+        "RET\n"
+        ".end\n",
+        ".function length 1 1 0 int 1\n"
+        "LOAD_LOCAL 0\n"
+        "STR_LEN\n"
+        "RET\n"
+        ".end\n",
+        ".function identity 1 1 0 string 1\n"
+        "LOAD_LOCAL 0\n"
+        "RET\n"
+        ".end\n"
+    };
+    const unsigned orders[][5] = {
+        {0, 1, 2, 3, 4}, {4, 3, 2, 1, 0}, {1, 0, 3, 4, 2},
+        {2, 4, 0, 3, 1}, {3, 2, 1, 0, 4}, {4, 1, 3, 2, 0}
+    };
+    for (size_t order = 0; order < sizeof orders / sizeof orders[0]; ++order) {
+        char source[4096] = ".string text \"kept\"\n.entry main\n";
+        for (unsigned i = 0; i < 5; ++i)
+            strcat(source, functions[orders[order][i]]);
+        NvmModule *m = assemble_ok(source, "unresolved local and exact producer storage");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I keep a tagged local separate from its unresolved producer");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I preserve exact record fields after repeated scalar calls and container returns");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 static void test_projected_string_call_storage(void) {
+    test_unresolved_local_storage();
     for (int boxed = 0; boxed < 2; ++boxed) {
         for (int reverse = 0; reverse < 2; ++reverse) {
             for (int tail = 0; tail < 2; ++tail) {
@@ -3834,6 +4080,29 @@ static void test_scalar_globals(void) {
     test_array_globals();
     test_tagged_array_read_bounds();
     test_tagged_array_update_bounds();
+    const char *map_values[] = {"PUSH_I64 42", "PUSH_STR text", "PUSH_BOOL 1", "LOAD_GLOBAL 1"};
+    for (int strings = 0; strings < 2; ++strings) {
+        for (size_t i = 0; i < sizeof map_values / sizeof map_values[0]; ++i) {
+            char program[768];
+            snprintf(program, sizeof program,
+                ".string key \"key\"\n.string text \"saved\"\n.entry main\n"
+                ".function main 0 0 0 int 1\n%s\nSTORE_GLOBAL 0\n"
+                "HM_NEW 5 %d\nPUSH_STR key\nLOAD_GLOBAL 0\nHM_SET\n"
+                "PUSH_STR key\nHM_GET\n%s\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+                map_values[i], strings ? 5 : 1, strings ? "PUSH_STR text" : "PUSH_I64 42");
+            NvmModule *map_module = assemble_ok(program, "tagged global map value");
+            if (!map_module) continue;
+            char *map_c = emit_or_fail(map_module, "I defer tagged map value checks to the exact destination");
+            if (map_c) {
+                int status = 0;
+                CHECK(compile_and_run(map_c, &status) == 0 &&
+                      status == (i == (size_t)strings ? 0 : -1),
+                      "I retain scalar map contents and trap wrong or missing global value tags");
+                free(map_c);
+            }
+            nvm_module_free(map_module);
+        }
+    }
     const char *source =
         ".string text \"saved\"\n.string yes \"true\"\n.entry main\n"
         ".function main 0 1 0 int 1\n"
@@ -4135,6 +4404,7 @@ static void test_native_map_runtime(void) {
 static void test_null_module(void) {
     test_native_map_runtime();
     test_unsupported_classifier_instructions();
+    test_string_split_structured_c();
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
     CHECK(c == NULL, "null module is refused");
@@ -4939,6 +5209,21 @@ static void test_array_valued_record_fields(void) {
     test_delayed_array_element_facts();
     test_record_array_fields();
     test_empty_diagnostic_record_fields();
+    const char *moved = ".string text \"hello\"\n.entry main\n"
+        ".function make 0 1 0 struct 1\nPUSH_STR text\nARR_LITERAL 5 1\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nPUSH_VOID\nSTORE_LOCAL 0\nRET\n.end\n"
+        ".function main 0 0 0 int 1\nCALL make\nAGG_GET 0\nPUSH_I64 0\nARR_GET\nSTR_LEN\nRET\n.end\n";
+    NvmModule *moved_module = assemble_ok(moved, "moved array record field");
+    if (moved_module) {
+        char *c = emit_or_fail(moved_module, "I retain an array field across its dead moved-from cleanup");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 5,
+                  "I clear a moved-from local without changing the packed array representation");
+            free(c);
+        }
+        nvm_module_free(moved_module);
+    }
     for (int strings = 0; strings < 2; ++strings) {
         for (int empty = 0; empty < 2; ++empty) {
             char source[4096], line[256];
@@ -5243,7 +5528,7 @@ static void test_generic_ordering(void) {
 }
 
 static void test_classifier_local_bounds(void) {
-    const unsigned counts[] = {1, 257, 512, 1024};
+    const unsigned counts[] = {1, 257, 512, 1024, 1196, 2048};
     for (size_t i = 0; i < sizeof counts / sizeof counts[0]; ++i) {
         char source[768];
         snprintf(source, sizeof source,
@@ -5304,7 +5589,7 @@ static void test_classifier_local_bounds(void) {
     char *c = nvm2c_emit(m, err, sizeof err);
     CHECK(c == NULL && strstr(err, "too many locals") != NULL, "I reject oversized locals before writing classifier state");
     free(c);
-    m->functions[0].local_count = 1025;
+    m->functions[0].local_count = 2049;
     c = nvm2c_emit(m, err, sizeof err);
     CHECK(c == NULL && strstr(err, "too many locals") != NULL, "I reject one past my supported local ceiling");
     free(c);
@@ -5790,7 +6075,7 @@ static void test_string_edges_run_as_native_c(void) {
         {"é7", "7", 0, 1}, {"\0017", "\001", 1, 0}
     };
     for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
-        for (int suffix = 0; suffix < 2; ++suffix) {
+        for (int operation = 0; operation < 3; ++operation) {
             char source[512];
             snprintf(source, sizeof source,
                 ".string text \"%s\"\n.string part \"%s\"\n.entry 1\n"
@@ -5799,7 +6084,7 @@ static void test_string_edges_run_as_native_c(void) {
                 ".function main 0 0 0 int 1\nCALL predicate\nJMP_FALSE no\n"
                 "PUSH_I64 1\nRET\nno:\nPUSH_I64 0\nRET\n.end\n",
                 cases[i].text, cases[i].part,
-                suffix ? "STR_ENDS_WITH" : "STR_STARTS_WITH");
+                operation == 2 ? "STR_EQ" : operation == 1 ? "STR_ENDS_WITH" : "STR_STARTS_WITH");
             NvmModule *m = assemble_ok(source, "native string edge");
             CHECK(m != NULL, "string edge fixture assembles");
             if (!m) continue;
@@ -5811,7 +6096,8 @@ static void test_string_edges_run_as_native_c(void) {
                 CHECK(strstr(c, "nano_vm") == NULL, "string edge has no VM dependency");
                 int status = -1;
                 CHECK(compile_and_run(c, &status) == 0, "string edge C compiles and runs");
-                CHECK(status == (suffix ? cases[i].ends : cases[i].starts),
+                CHECK(status == (operation == 2 ? !strcmp(cases[i].text, cases[i].part) :
+                                 operation == 1 ? cases[i].ends : cases[i].starts),
                       "native string edge has expected byte semantics");
                 free(c);
             }
@@ -5908,6 +6194,7 @@ static void test_boolean_tags(void) {
         "PUSH_STR text\nPUSH_STR part\nSTR_STARTS_WITH\n",
         "PUSH_STR text\nPUSH_STR part\nSTR_ENDS_WITH\n",
         "PUSH_STR text\nPUSH_STR part\nSTR_CONTAINS\n",
+        "PUSH_STR text\nPUSH_STR part\nSTR_EQ\n",
         "PUSH_I64 1\nTYPE_CHECK 1\n"
     };
     char producer_source[4096] = ".string text \"abc\"\n.string part \"a\"\n.entry main\n.function main 0 0 0 int 1\n";
@@ -6242,7 +6529,7 @@ static void test_array_result_kinds_cross_calls(void) {
         "  ARR_NEW 8\n"
         "  RET\n"
         ".end\n"
-        ".function main 0 3 0 int 1\n"
+        ".function main 0 4 0 int 1\n"
         "  CALL ints\n"
         "  STORE_LOCAL 0\n"
         "  LOAD_LOCAL 0\n"
@@ -6447,18 +6734,13 @@ static NvmModule *make_local_count_fixture(uint16_t arity, uint16_t local_count)
     NvmModule *m = nvm_module_new();
     if (!m) return NULL;
     uint32_t name = nvm_add_string(m, "main", 4);
+    uint16_t slot = local_count ? (uint16_t)(local_count - 1) : 0;
     uint8_t code[] = {
         OP_PUSH_I64, 7, 0, 0, 0, 0, 0, 0, 0,
-        OP_STORE_LOCAL, 0xff, 0x03,
-        OP_LOAD_LOCAL, 0xff, 0x03,
+        OP_STORE_LOCAL, (uint8_t)(slot & 0xff), (uint8_t)(slot >> 8),
+        OP_LOAD_LOCAL, (uint8_t)(slot & 0xff), (uint8_t)(slot >> 8),
         OP_RET
     };
-    if (local_count < 1024) {
-        code[10] = 0;
-        code[11] = 0;
-        code[13] = 0;
-        code[14] = 0;
-    }
     nvm_append_code(m, code, sizeof code);
     NvmFunctionEntry fn;
     memset(&fn, 0, sizeof fn);
@@ -6490,6 +6772,28 @@ static void test_1024_locals_compile_and_run(void) {
     }
     free(c);
     nvm_module_free(m);
+}
+
+static void test_stage2_local_ceiling_compile_and_run(void) {
+    const uint16_t counts[] = {1196, 2048};
+    for (size_t i = 0; i < sizeof counts / sizeof counts[0]; ++i) {
+        NvmModule *m = make_local_count_fixture(0, counts[i]);
+        CHECK(m != NULL, "Stage2-sized local fixture allocates");
+        if (!m) continue;
+        char err[256];
+        char *c = nvm2c_emit(m, err, sizeof err);
+        CHECK(c != NULL, "nvm2c accepts the checked Stage2 local boundary");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0,
+                  "Stage2-sized generated C compiles and runs");
+            CHECK(status == 7, "highest Stage2-sized local preserves its value");
+        } else {
+            printf("    nvm2c error: %s\n", err);
+        }
+        free(c);
+        nvm_module_free(m);
+    }
 }
 
 static void test_arity_exceeding_locals_is_refused(void) {
@@ -6594,7 +6898,78 @@ static void test_mixed_array_push_helpers(void) {
     }
 }
 
+static void test_nested_scalar_arrays(void) {
+    const char *source =
+        ".string leaf \"leaf\"\n"
+        ".entry main\n"
+        ".function rows 0 0 0 array 1\n"
+        "PUSH_I64 7\nPUSH_I64 8\nARR_LITERAL 1 2\n"
+        "PUSH_I64 9\nARR_LITERAL 1 1\n"
+        "ARR_LITERAL 7 2\nRET\n.end\n"
+        ".function first 1 1 0 array 1\n"
+        "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nRET\n.end\n"
+        ".function stress 0 2 0 int 1\n"
+        "ARR_NEW 7\nSTORE_LOCAL 0\nPUSH_I64 0\nSTORE_LOCAL 1\n"
+        "loop:\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nARR_LITERAL 1 1\nARR_PUSH\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 1\nPUSH_I64 1\nI64_ADD\nDUP\nSTORE_LOCAL 1\n"
+        "PUSH_I64 1200\nI64_LT_S\nJMP_TRUE loop\n"
+        "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nPUSH_I64 0\nARR_GET\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1199\nARR_GET\nPUSH_I64 0\nARR_GET\nPUSH_I64 1199\nI64_EQ\nASSERT\n"
+        "PUSH_I64 0\nRET\n.end\n"
+        ".function main 0 4 0 int 1\n"
+        "CALL stress\nPOP\n"
+        "CALL rows\nCALL first\nPUSH_I64 1\nARR_GET\n"
+        "PUSH_I64 8\nI64_EQ\nASSERT\n"
+        "CALL rows\nAGG_PACK 0 0 0 1\nSTORE_LOCAL 3\n"
+        "LOAD_LOCAL 3\nAGG_GET 0\nPUSH_I64 1\nARR_GET\n"
+        "PUSH_I64 0\nARR_GET\nPUSH_I64 9\nI64_EQ\nASSERT\n"
+        "CALL rows\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nSTORE_LOCAL 1\n"
+        "LOAD_LOCAL 1\nPUSH_I64 1\nARR_GET\nPUSH_I64 8\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\nPUSH_I64 0\nARR_GET\n"
+        "PUSH_I64 9\nI64_EQ\nASSERT\n"
+        "PUSH_I64 17\nPUSH_I64 18\nARR_LITERAL 1 2\n"
+        "LOAD_LOCAL 0\nSWAP\nARR_PUSH\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nPUSH_I64 2\nARR_GET\nSTORE_LOCAL 2\n"
+        "LOAD_LOCAL 2\nPUSH_I64 0\nPUSH_I64 19\nARR_SET\nPOP\n"
+        "LOAD_LOCAL 0\nPUSH_I64 2\nARR_GET\nPUSH_I64 0\nARR_GET\n"
+        "PUSH_I64 19\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nARR_LITERAL 7 1\nPUSH_I64 0\nARR_GET\n"
+        "PUSH_I64 2\nARR_GET\nPUSH_I64 1\nARR_GET\n"
+        "PUSH_I64 18\nI64_EQ\nASSERT\n"
+        "PUSH_STR leaf\nARR_LITERAL 5 1\nARR_LITERAL 7 1\n"
+        "PUSH_I64 0\nARR_GET\nPUSH_I64 0\nARR_GET\nPUSH_STR leaf\nEQ\nASSERT\n"
+        "PUSH_BOOL 1\nARR_LITERAL 4 1\nARR_LITERAL 7 1\n"
+        "PUSH_I64 0\nARR_GET\nPUSH_I64 0\nARR_GET\nASSERT\n"
+        "PUSH_F64 1.5\nARR_LITERAL 3 1\nARR_LITERAL 7 1\n"
+        "PUSH_I64 0\nARR_GET\nPUSH_I64 0\nARR_GET\nPUSH_F64 1.5\nF64_EQ\nASSERT\n"
+        "ARR_NEW 7\nARR_LEN\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+        "PUSH_I64 0\nRET\n.end\n";
+    NvmModule *module = assemble_ok(source, "nested scalar arrays");
+    CHECK(module != NULL, "nested scalar-array fixture assembles");
+    if (!module) return;
+    char error[512] = {0};
+    char *c = nvm2c_emit(module, error, sizeof error);
+    CHECK(c != NULL, "nested scalar arrays translate to native C");
+    if (!c) {
+        fprintf(stderr, "    nested scalar arrays: %s\n", error);
+    } else {
+        CHECK(strstr(c, "naarr_lit") != NULL,
+              "nested scalar arrays retain an explicit recursive carrier");
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0,
+              "nested scalar arrays compile and run with strict warnings");
+        CHECK(status == 0,
+              "nested scalar arrays preserve calls, aliases, writes and recursive reads");
+        free(c);
+    }
+    nvm_module_free(module);
+}
+
 int main(int argc, char **argv) {
+    test_exact_aggregate_callback_provenance();
+    test_indirect_target_inference_order();
+    test_nested_scalar_arrays();
     test_mixed_array_push_helpers();
     test_record_temporary_storage_is_function_sized();
     test_uncalled_record_parameter_needs_no_invented_shape();
@@ -6619,6 +6994,7 @@ int main(int argc, char **argv) {
     test_wrapper_names_are_ordinary_string_data();
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
     test_1024_locals_compile_and_run();
+    test_stage2_local_ceiling_compile_and_run();
     test_arity_exceeding_locals_is_refused();
     test_record_result_crosses_direct_call();
     test_add_is_structured_c_and_runs();

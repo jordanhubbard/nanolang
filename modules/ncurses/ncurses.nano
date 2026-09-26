@@ -5,49 +5,49 @@
 # All C functions have _wrapper suffix for consistency
 
 # Initialization and cleanup
-extern fn initscr_wrapper() -> int
-extern fn endwin_wrapper() -> int
-extern fn curs_set_wrapper(_visibility: int) -> int
+pub extern fn initscr_wrapper() -> int
+pub extern fn endwin_wrapper() -> int
+pub extern fn curs_set_wrapper(_visibility: int) -> int
 
 # Output functions
-extern fn clear_wrapper() -> int
-extern fn refresh_wrapper() -> int
-extern fn erase_wrapper() -> int
-extern fn move_wrapper(_y: int, _x: int) -> int
+pub extern fn clear_wrapper() -> int
+pub extern fn refresh_wrapper() -> int
+pub extern fn erase_wrapper() -> int
+pub extern fn move_wrapper(_y: int, _x: int) -> int
 
 # Text output
-extern fn mvprintw_wrapper(_y: int, _x: int, _str: string) -> int
-extern fn mvaddch_wrapper(_y: int, _x: int, _ch: int) -> int
-extern fn mvaddstr_wrapper(_y: int, _x: int, _str: string) -> int
-extern fn addch_wrapper(_ch: int) -> int
-extern fn addstr_wrapper(_str: string) -> int
+pub extern fn mvprintw_wrapper(_y: int, _x: int, _str: string) -> int
+pub extern fn mvaddch_wrapper(_y: int, _x: int, _ch: int) -> int
+pub extern fn mvaddstr_wrapper(_y: int, _x: int, _str: string) -> int
+pub extern fn addch_wrapper(_ch: int) -> int
+pub extern fn addstr_wrapper(_str: string) -> int
 
 # Input functions
-extern fn getch_wrapper() -> int
-extern fn nl_nodelay(_win: int, _bf: int) -> int
-extern fn nl_keypad(_win: int, _bf: int) -> int
-extern fn timeout_wrapper(_delay: int) -> void
+pub extern fn getch_wrapper() -> int
+pub extern fn nl_nodelay(_win: int, _bf: int) -> int
+pub extern fn nl_keypad(_win: int, _bf: int) -> int
+pub extern fn timeout_wrapper(_delay: int) -> void
 
 # Color functions
-extern fn start_color_wrapper() -> int
-extern fn has_colors_wrapper() -> int
-extern fn init_pair_wrapper(_pair: int, _fg: int, _bg: int) -> int
-extern fn attron_wrapper(_attrs: int) -> int
-extern fn attroff_wrapper(_attrs: int) -> int
+pub extern fn start_color_wrapper() -> int
+pub extern fn has_colors_wrapper() -> int
+pub extern fn init_pair_wrapper(_pair: int, _fg: int, _bg: int) -> int
+pub extern fn attron_wrapper(_attrs: int) -> int
+pub extern fn attroff_wrapper(_attrs: int) -> int
 
 # Screen info
-extern fn getmaxx_wrapper(_win: int) -> int
-extern fn getmaxy_wrapper(_win: int) -> int
-extern fn stdscr_wrapper() -> int
+pub extern fn getmaxx_wrapper(_win: int) -> int
+pub extern fn getmaxy_wrapper(_win: int) -> int
+pub extern fn stdscr_wrapper() -> int
 
 # Input mode control
-extern fn noecho_wrapper() -> int
-extern fn echo_wrapper() -> int
-extern fn cbreak_wrapper() -> int
-extern fn nocbreak_wrapper() -> int
+pub extern fn noecho_wrapper() -> int
+pub extern fn echo_wrapper() -> int
+pub extern fn cbreak_wrapper() -> int
+pub extern fn nocbreak_wrapper() -> int
 
 # Box drawing
-extern fn box_wrapper(_win: int, _verch: int, _horch: int) -> int
+pub extern fn box_wrapper(_win: int, _verch: int, _horch: int) -> int
 
 # === CONSTANTS ===
 
@@ -99,7 +99,7 @@ let A_BOLD: int = 2097152
 
 # Create a color pair attribute value
 # Left shift by 8 bits (multiply by 256)
-fn COLOR_PAIR(n: int) -> int {
+pub fn COLOR_PAIR(n: int) -> int {
     return (* n 256)
 }
 

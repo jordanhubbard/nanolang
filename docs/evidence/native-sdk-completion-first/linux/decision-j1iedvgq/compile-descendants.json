@@ -1,0 +1,18 @@
+{
+  "owned": {
+    "289036": {
+      "parent": 289029,
+      "group": 289036,
+      "started": "Mon Sep 21 22:37:37 2026",
+      "command": "/usr/bin/gcc -O2 -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -I /tmp/nanolang-native-sdk-bae59-linux-source/src /tmp/nanolang-native-sdk-bae59-linux-source/tests/shadow_completion_probe.c -o /tmp/nanolang-native-sdk-bae59-linux-preparation/decision-j1iedvgq/probe"
+    },
+    "289038": {
+      "parent": 289036,
+      "group": 289036,
+      "started": "Mon Sep 21 22:37:37 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /tmp/nanolang-native-sdk-bae59-linux-source/src -imultiarch aarch64-linux-gnu -D _POSIX_C_SOURCE=200809L /tmp/nanolang-native-sdk-bae59-linux-source/tests/shadow_completion_probe.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nanolang-native-sdk-bae59-linux-preparation/decision-j1iedvgq/probe- -dumpbase shadow_completion_probe.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -O2 -Wall -Wextra -Werror -std=c11 -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/nanolang-native-sdk-bae59-linux-preparation/tmp/ccmIBGSr.s"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

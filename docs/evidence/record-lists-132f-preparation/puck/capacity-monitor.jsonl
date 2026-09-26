@@ -1,0 +1,14 @@
+{"phase": "compiler", "elapsed": 0.0014771660789847374, "free_bytes": 12337909760}
+{"phase": "native-compiler", "elapsed": 0.0019541250076144934, "free_bytes": 12436959232}
+{"phase": "llvm", "elapsed": 0.0018262910889461637, "free_bytes": 12748734464}
+{"phase": "make", "elapsed": 0.0019419998861849308, "free_bytes": 12914450432}
+{"phase": "build", "elapsed": 0.001930207945406437, "free_bytes": 13230731264}
+{"phase": "build", "elapsed": 10.003146250033751, "free_bytes": 14982963200}
+{"phase": "build", "elapsed": 20.009295915951952, "free_bytes": 14865203200}
+{"phase": "build", "elapsed": 30.013877124991268, "free_bytes": 14803275776}
+{"phase": "build", "elapsed": 40.017486957949586, "free_bytes": 14693900288}
+{"phase": "build", "elapsed": 50.02267341595143, "free_bytes": 14594064384}
+{"phase": "build", "elapsed": 60.02783591602929, "free_bytes": 14555103232}
+{"phase": "build", "elapsed": 70.03027324995492, "free_bytes": 17305882624}
+{"phase": "build", "elapsed": 80.03570233297069, "free_bytes": 17302343680}
+{"phase": "bootstrap", "elapsed": 0.002064540982246399, "free_bytes": 17281351680}

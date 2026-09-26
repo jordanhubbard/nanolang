@@ -1,3 +1,9 @@
+# I select the ordinary public NanoISA owner and retain private dynamic dependencies.
+module "modules/nanoisa/nanoisa.nano" as ForthNanoisaProvider
+
+# I retain explicit static owners while my shared library keeps private dependencies.
+module "modules/nsi_file_catalog_provider/nsi_file_catalog_provider.nano" as ForthFileCatalogProvider
+
 # forth_see — NanoISA decompiler for Forth SEE word
 #
 # Locates the dispatch branch for the given built-in Forth word in
@@ -11,3 +17,13 @@
 # The result buffer is static; copy it before the next call.
 
 extern fn nl_forth_see(_word: string, _nvm_path: string) -> string
+
+# I copy the static foreign result before another SEE call can replace it.
+pub fn see(word: string, nvm_path: string) -> string {
+    unsafe { return (+ "" (nl_forth_see word nvm_path)) }
+}
+
+shadow see {
+    let detail: string = (see "dup" "")
+    assert (str_contains detail "SEE: cannot load")
+}

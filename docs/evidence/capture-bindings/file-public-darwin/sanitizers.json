@@ -1,0 +1,23 @@
+{
+  "terminal": {
+    "timeout": false,
+    "capacity_refusal": false,
+    "cleanup_errors": [],
+    "returncode": 0,
+    "seconds": 116.2202283330007,
+    "leader_reaped": true,
+    "tracked_remaining": {},
+    "group_gone": true
+  },
+  "source_unchanged": true,
+  "tools_unchanged": true,
+  "products": 3876,
+  "revision": "d1f035314",
+  "archive_sha256": "cfa5c2e7b9256eddf7d6f4c68e3237f4416ec2677d6e59299c22e6deb65b16e9",
+  "sanitizers": {
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": ""
+  },
+  "root": "/Users/jkh/nanolang-qualification/capture-file-public-d1f-darwin-sanitizers"
+}

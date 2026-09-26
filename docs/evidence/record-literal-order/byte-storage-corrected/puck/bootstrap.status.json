@@ -1,0 +1,14 @@
+{
+  "command": [
+    "make",
+    "-j2",
+    "bootstrap"
+  ],
+  "cwd": "/private/tmp/nanolang-literal-order-cfa24ac13/source",
+  "free_before": 30425481216,
+  "timeout_seconds": 900,
+  "pid": 42715,
+  "returncode": 0,
+  "seconds": 294.34777620799997,
+  "free_after": 30279286784
+}

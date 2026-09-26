@@ -1,0 +1,12 @@
+{
+  "owned": {
+    "4144980": {
+      "parent": 4144713,
+      "group": 4144980,
+      "started": "Mon Sep 21 21:58:09 2026",
+      "command": "make -f Makefile.gnu -f /tmp/nanolang-split-d1e41-linux-evidence/provider-query.mk -s split_inventory"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

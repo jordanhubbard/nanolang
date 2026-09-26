@@ -1,0 +1,9 @@
+{
+  "/Users/jkh/nanolang-qualification/record-lists-qualified-303/src/runtime/native_record_list.h": "44b1e0e1130c601a28336441453c6a1c26b862a837414569f5e4348d5066ed50",
+  "/Users/jkh/nanolang-qualification/record-lists-qualified-303/src/runtime/list_capacity.h": "d95b9838d57a60e4e17175e76d777c36be8bc1dea6e13a4879b0d9beffb3b34a",
+  "/Users/jkh/nanolang-qualification/record-lists-qualified-303/tests/test_native_record_list_storage.c": "9b44e205eac4fee335d4df7f6b711296b4d7e92d58cec3ed09671de8a1ec2ce1",
+  "/Users/jkh/nanolang-qualification/record-lists-qualified-303/tests/test_native_record_lists.py": "9330c6aa0f7e240400ade49c10bc5de36a2128bf663f3fcdd10bda777aab46f6",
+  "/Users/jkh/nanolang-qualification/record-lists-qualified-303/bin/nanoc_c": "018ce14289b8e90745955a0d4473c9639702a0487c1c347eae89d4f6a78a72d6",
+  "/Users/jkh/nanolang-qualification/record-lists-qualified-303/bin/nanoc_stage1": "726e4b5f6e8155535f46f1160680f0a2c83dcad931c77ab74cc87cd530f1c0bc",
+  "/Users/jkh/nanolang-qualification/record-lists-qualified-303/bin/nanoc_stage2": "b658dcc8d7fd034aea272703e73e39172e66ac4a165128157c9c057160922cdc"
+}

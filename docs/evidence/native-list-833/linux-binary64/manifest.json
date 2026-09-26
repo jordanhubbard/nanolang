@@ -1,0 +1,64 @@
+[
+  {
+    "argv": [
+      "/bin/gcc",
+      "-print-file-name=libasan.so"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-833",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.03585750493220985,
+    "log": {
+      "sha256": "86004312733f99d1ebc00026d51e415f7850be77559236ce81317fa437989265",
+      "bytes": 45,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-833-linux-binary64/objects/86004312733f99d1ebc00026d51e415f7850be77559236ce81317fa437989265"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/bin/gcc",
+      "-print-file-name=libubsan.so"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-833",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.03507362399250269,
+    "log": {
+      "sha256": "3dadcc080d9079d4e80bc487ccd7b25878c1e94b3352b04cc01c258fd88f26f3",
+      "bytes": 46,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-833-linux-binary64/objects/3dadcc080d9079d4e80bc487ccd7b25878c1e94b3352b04cc01c258fd88f26f3"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "/home/jkh/nanolang-qualification/run-binary64-retained-tests.py",
+      "/home/jkh/Src/nanolang-record-lists-qualified-833",
+      "/home/jkh/nanolang-qualification/record-lists-833-linux-binary64/fixture"
+    ],
+    "bound": 1800,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-833",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 13.648979112971574,
+    "log": {
+      "sha256": "d0ed616d64f70e3012b12f71fafe6c90c68a3e0bda7a628f46e173c08d55a3fd",
+      "bytes": 1752,
+      "archive": "/home/jkh/nanolang-qualification/record-lists-833-linux-binary64/objects/d0ed616d64f70e3012b12f71fafe6c90c68a3e0bda7a628f46e173c08d55a3fd"
+    },
+    "inputs_equal": true
+  }
+]

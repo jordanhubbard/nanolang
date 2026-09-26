@@ -1,0 +1,43 @@
+{
+  "pr": 939,
+  "qualified_teardown_source": "efc99628e7cd5c51a18077a24d3159c6c584aca9",
+  "ci_head": "7efb4d16e45eff411ca5488bf195f136ffd9de5c",
+  "jobs": [
+    {
+      "job": 106279125413,
+      "url": "https://github.com/jordanhubbard/nanolang/actions/runs/35582756847/job/106279125413",
+      "raw_path": "/home/jkh/nanolang-qualification/ci-pr939/nanolang-pr939-linux-ci.log",
+      "raw_bytes": 7347345,
+      "raw_sha256": "c2552c33e1aaa07799a96a7174104b765465dfbbe599aea81c669615bc02f8be",
+      "compressed": "linux.log.gz",
+      "compressed_sha256": "6ccec0eb45c089967df65fa5f80945ba36aa07c686461e24acb61eca4027259b"
+    },
+    {
+      "job": 106279125426,
+      "url": "https://github.com/jordanhubbard/nanolang/actions/runs/35582756847/job/106279125426",
+      "raw_path": "/home/jkh/nanolang-qualification/ci-pr939/nanolang-pr939-arm-ci.log",
+      "raw_bytes": 7347730,
+      "raw_sha256": "5f4eb684269020feae6fc8599c05028ba5247d4aff7dbf0517a13ffd9f0ca1fd",
+      "compressed": "arm.log.gz",
+      "compressed_sha256": "759f8db3488a2b2551243f9cbf8848a44d9b7e1be4c99aa9151d896c5a9e46d7"
+    },
+    {
+      "job": 106279125247,
+      "url": "https://github.com/jordanhubbard/nanolang/actions/runs/35582756847/job/106279125247",
+      "raw_path": "/home/jkh/nanolang-qualification/ci-pr939/nanolang-pr939-coverage-ci.log",
+      "raw_bytes": 778765,
+      "raw_sha256": "b0f661f0fdb17bad04a795fcc66806b16436d363147dec301c4eaa00c3bf9178",
+      "compressed": "coverage.log.gz",
+      "compressed_sha256": "3ad62584564126c619d4ac8946245490788c905da949351f5f8dad8ee34f9ae7"
+    },
+    {
+      "job": 106279125237,
+      "url": "https://github.com/jordanhubbard/nanolang/actions/runs/35582756847/job/106279125237",
+      "raw_path": "/home/jkh/nanolang-qualification/ci-pr939/sanitizers.log",
+      "raw_bytes": 1439773,
+      "raw_sha256": "4558555f11a105b2105da5c682d771e009bfd7df5b0b287683229b99984bfc7c",
+      "compressed": "sanitizers.log.gz",
+      "compressed_sha256": "3614b3fe575191b46536bfdd74c7bf81812f6f0d9cf5eebbeeeb4b097996f179"
+    }
+  ]
+}

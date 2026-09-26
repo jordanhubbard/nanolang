@@ -1,0 +1,6 @@
+In file included from src/transpiler.c:1131:
+src/transpiler_iterative_v3_twopass.c: In function ‘native_subtree_uses_name’:
+src/transpiler_iterative_v3_twopass.c:273:9: error: enumeration value ‘AST_SERVICE_DECL’ not handled in switch [-Werror=switch]
+  273 |         switch (node->type) {
+      |         ^~~~~~
+cc1: all warnings being treated as errors

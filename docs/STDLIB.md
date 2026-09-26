@@ -270,7 +270,7 @@ assert (== (float_to_bits (float_from_bits 1)) 1)
 
 I reserve these names against ordinary function redeclarations. My current
 source profile refuses calls through same-named local/global bindings instead
-of substituting intrinsic semantics. See my [transport contract](BINARY64_BIT_TRANSPORT_CONTRACT.md)
+of substituting intrinsic semantics. See my [transport contract](https://github.com/jordanhubbard/nanolang/blob/main/docs/BINARY64_BIT_TRANSPORT_CONTRACT.md)
 for backend and reconstruction boundaries.
 
 ### `cast_bool(value: any) -> bool`

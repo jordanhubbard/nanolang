@@ -27,6 +27,7 @@ static void *layout_calloc(size_t n,size_t width) {
 #define nvm_ownership_layouts_private_decode fault_ownership_layout_decode
 #define nvm_ownership_mixed_layouts_private_decode fault_ownership_mixed_layout_decode
 #define nvm_ownership_mixed_layouts_private_decode_detailed fault_ownership_mixed_layout_decode_detailed
+#define nvm_ownership_typed_layouts_private_decode_detailed fault_ownership_typed_layout_decode_detailed
 #include "../../src/nanoisa/nvm_v2_layouts.c"
 #undef calloc
 #undef nvm_v2_layouts_decode
@@ -36,6 +37,7 @@ static void *layout_calloc(size_t n,size_t width) {
 #undef nvm_ownership_layouts_private_decode
 #undef nvm_ownership_mixed_layouts_private_decode
 #undef nvm_ownership_mixed_layouts_private_decode_detailed
+#undef nvm_ownership_typed_layouts_private_decode_detailed
 
 static int g_pass = 0, g_fail = 0;
 

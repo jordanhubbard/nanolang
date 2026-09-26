@@ -1,0 +1,44 @@
+# I sequence a union's written payloads before publishing its value.
+union OrderedChoice { Some { first: int, second: int }, None { } }
+struct EmptyOrderRecord { }
+let mut union_literal_trace: int = 0
+fn union_literal_mark(value: int) -> int {
+    set union_literal_trace (+ (* union_literal_trace 10) value)
+    return value
+}
+shadow union_literal_mark {
+    set union_literal_trace 0
+    assert (== (union_literal_mark 4) 4)
+    assert (== union_literal_trace 4)
+}
+fn main() -> int {
+    let empty: EmptyOrderRecord = EmptyOrderRecord { }
+    set union_literal_trace 0
+    let reversed: OrderedChoice = OrderedChoice.Some {
+        second: (union_literal_mark 2), first: (union_literal_mark 1)
+    }
+    assert (== union_literal_trace 21)
+    match reversed {
+        Some(payload) => {
+            assert (== payload.first 1)
+            assert (== payload.second 2)
+        }
+        None(none) => { assert false }
+    }
+    set union_literal_trace 0
+    let ordered: OrderedChoice = OrderedChoice.Some {
+        first: (union_literal_mark 1), second: (union_literal_mark 2)
+    }
+    assert (== union_literal_trace 12)
+    match ordered {
+        Some(payload) => { assert (== (+ payload.first payload.second) 3) }
+        None(none) => { assert false }
+    }
+    let none: OrderedChoice = OrderedChoice.None { }
+    match none {
+        Some(payload) => { assert false }
+        None(nothing) => { assert (== union_literal_trace 12) }
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }

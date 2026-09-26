@@ -214,6 +214,17 @@ shadow eval_internal {
     assert (== (eval_internal src) 0)
 }
 
+pub fn eval_source(source: string) -> int {
+    return (eval_internal source)
+}
+
+shadow eval_source {
+    let nl: string = (string_from_char 10)
+    let main_sig: string = (+ "fn main() -> int { return 0 }" nl)
+    let shadow_sig: string = (+ "shadow main { assert (== (main) 0) }" nl)
+    assert (== (eval_source (+ main_sig shadow_sig)) 0)
+}
+
 fn ansi_escape(code: string) -> string {
     let esc: string = (string_from_char 27)
     return (+ esc (+ "[" (+ code "m")))

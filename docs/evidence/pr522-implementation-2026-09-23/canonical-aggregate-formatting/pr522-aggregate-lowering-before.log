@@ -1,0 +1,137 @@
+FFFFFFFFFFFF
+======================================================================
+FAIL: test_records_and_alternating_union_payloads (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_records_and_alternating_union_payloads) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-uk1almzx/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-uk1almzx/product')]
+I cannot lower this checked program: I require a scalar string-conversion operand
+
+
+======================================================================
+FAIL: test_records_and_alternating_union_payloads (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_records_and_alternating_union_payloads) (compiler='nanoc_stage1', vm=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-uk1almzx/case.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-uk1almzx/product')]
+I cannot lower this checked program: I require a scalar string-conversion operand
+
+
+======================================================================
+FAIL: test_records_and_alternating_union_payloads (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_records_and_alternating_union_payloads) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-uk1almzx/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-uk1almzx/product')]
+I cannot lower this checked program: I require a scalar string-conversion operand
+
+
+======================================================================
+FAIL: test_records_and_alternating_union_payloads (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_records_and_alternating_union_payloads) (compiler='nanoc_stage2', vm=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-uk1almzx/case.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-uk1almzx/product')]
+I cannot lower this checked program: I require a scalar string-conversion operand
+
+
+======================================================================
+FAIL: test_scalar_and_nested_arrays (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_scalar_and_nested_arrays) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_zgi7oj2/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_zgi7oj2/product')]
+I cannot lower this checked program: I require a scalar string-conversion operand
+
+
+======================================================================
+FAIL: test_scalar_and_nested_arrays (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_scalar_and_nested_arrays) (compiler='nanoc_stage1', vm=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_zgi7oj2/case.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_zgi7oj2/product')]
+I cannot lower this checked program: I require a scalar string-conversion operand
+
+
+======================================================================
+FAIL: test_scalar_and_nested_arrays (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_scalar_and_nested_arrays) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_zgi7oj2/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_zgi7oj2/product')]
+I cannot lower this checked program: I require a scalar string-conversion operand
+
+
+======================================================================
+FAIL: test_scalar_and_nested_arrays (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_scalar_and_nested_arrays) (compiler='nanoc_stage2', vm=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_zgi7oj2/case.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-_zgi7oj2/product')]
+I cannot lower this checked program: I require a scalar string-conversion operand
+
+
+======================================================================
+FAIL: test_single_evaluation_and_retained_strings (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_single_evaluation_and_retained_strings) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-6o5fq67t/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-6o5fq67t/product')]
+I cannot lower this checked program: I require a scalar string-conversion operand
+
+
+======================================================================
+FAIL: test_single_evaluation_and_retained_strings (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_single_evaluation_and_retained_strings) (compiler='nanoc_stage1', vm=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-6o5fq67t/case.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-6o5fq67t/product')]
+I cannot lower this checked program: I require a scalar string-conversion operand
+
+
+======================================================================
+FAIL: test_single_evaluation_and_retained_strings (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_single_evaluation_and_retained_strings) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-6o5fq67t/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-6o5fq67t/product')]
+I cannot lower this checked program: I require a scalar string-conversion operand
+
+
+======================================================================
+FAIL: test_single_evaluation_and_retained_strings (tests.test_canonical_aggregate_formatting.AggregateFormatting.test_single_evaluation_and_retained_strings) (compiler='nanoc_stage2', vm=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_aggregate_formatting.py", line 24, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-6o5fq67t/case.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-format-6o5fq67t/product')]
+I cannot lower this checked program: I require a scalar string-conversion operand
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.943s
+
+FAILED (failures=12)

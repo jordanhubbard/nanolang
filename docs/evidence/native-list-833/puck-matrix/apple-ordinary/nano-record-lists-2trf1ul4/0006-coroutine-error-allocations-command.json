@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/apple-ordinary/nano-record-lists-2trf1ul4/coroutine-errors"
+  ],
+  "cwd": "/Users/jkh/nanolang-qualification/record-lists-qualified-833",
+  "timeout": 180,
+  "expected": [
+    0
+  ],
+  "extra": null,
+  "TMPDIR": "/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/apple-ordinary/nano-record-lists-2trf1ul4/temporary",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

@@ -1,0 +1,24 @@
+I retain generated artifacts at /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-h52zfs4h
+test_emission_allocation_and_bounds (tests.test_record_array_generated.RecordArrayGenerated.test_emission_allocation_and_bounds) ... FAIL
+
+======================================================================
+FAIL: test_emission_allocation_and_bounds (tests.test_record_array_generated.RecordArrayGenerated.test_emission_allocation_and_bounds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-generated-qualified-75979/tests/test_record_array_generated.py", line 62, in test_emission_allocation_and_bounds
+    objects = self.providers('emission', test_record_array_execution.PROVIDERS,
+                             self.query_objects, observed=True)
+  File "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-generated-qualified-75979/tests/test_record_array_generated.py", line 56, in providers
+    self.command(f'{prefix}-{Path(source).stem}-build',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 [*self.cc, *self.flags, *hooks, '-c', source, '-o', str(output)])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-generated-qualified-75979/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.213s
+
+FAILED (failures=1)

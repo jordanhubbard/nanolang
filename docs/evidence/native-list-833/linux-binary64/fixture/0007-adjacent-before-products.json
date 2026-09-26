@@ -1,0 +1,42 @@
+{
+  "temporary/nano-binary64-arithmetic-lbzj1obj/1.log": {
+    "sha256": "82a9fca2b88c6870b8d38e58aaf0d04cc9a91445ec841fc0b0451930c6fb891c",
+    "bytes": 103
+  },
+  "temporary/nano-binary64-arithmetic-lbzj1obj/2.log": {
+    "sha256": "8676a4575cabdf4005198986d749138f74da71ddb9c133697544fa92f801f089",
+    "bytes": 345
+  },
+  "temporary/nano-binary64-arithmetic-lbzj1obj/3.log": {
+    "sha256": "bd1907c9dd55b47c95575a13e5980914c5dddf342d073433e42853a48fc50627",
+    "bytes": 2671
+  },
+  "temporary/nano-binary64-arithmetic-lbzj1obj/4.log": {
+    "sha256": "fcab969fc403905c3e86258d1d63891188432fd86a89b18d82e5be6e58c79e04",
+    "bytes": 265
+  },
+  "temporary/nano-binary64-arithmetic-lbzj1obj/5.log": {
+    "sha256": "ddb99c677fa8e48e679103fb584308095be8a60d4d3b06c555a8eafbac72be91",
+    "bytes": 400
+  },
+  "temporary/nano-binary64-arithmetic-lbzj1obj/6.log": {
+    "sha256": "5892fa98c72df5864ca93c277c74f917b87822905efaab071b4fd6d2d1cfa23c",
+    "bytes": 158
+  },
+  "temporary/nano-binary64-arithmetic-lbzj1obj/emit": {
+    "sha256": "6cb9fb724dbe3622c72b7a88dadf5bf3a9b05e90501dc432729a820b2e2a88fc",
+    "bytes": 70408
+  },
+  "temporary/nano-binary64-arithmetic-lbzj1obj/emit.c": {
+    "sha256": "c14119c7d48ec2c0819e751965a2e218d8f92ffe62b27d2c51009a1338770198",
+    "bytes": 129
+  },
+  "temporary/nano-binary64-arithmetic-lbzj1obj/run4": {
+    "sha256": "94471a7ef7638322cf7a6172529eda903601d565dbde53fb049f43bb04fc7387",
+    "bytes": 85320
+  },
+  "temporary/nano-binary64-arithmetic-lbzj1obj/standalone.c": {
+    "sha256": "ee76a327bb5354cf35f4a387743ea3eb2d52607dd5927708f430d338d796a3b1",
+    "bytes": 5630
+  }
+}

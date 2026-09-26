@@ -1,0 +1,7 @@
+src/env.c: In function ‘env_get_function_with_index’:
+src/env.c:958:10: error: ‘local_push’ undeclared (first use in this function)
+  958 |     if (!local_push && indexed) index = function_index_sync(env);
+      |          ^~~~~~~~~~
+src/env.c:958:10: note: each undeclared identifier is reported only once for each function it appears in
+make: *** [Makefile.gnu:3545: obj/env.o] Error 1
+make: *** Waiting for unfinished jobs....

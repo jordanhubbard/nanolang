@@ -105,7 +105,7 @@ class ModuleCompileInvocation(unittest.TestCase):
             env.update(NANO_CC=f"{sys.executable} {wrapper}", PROBE_LOG=str(path / "calls"),
                        PROBE_MODE=mode, PROBE_REAL_CC=shutil.which("cc"), TMPDIR=directory)
             if mode == "long_command":
-                env["NANO_CC"] = " " * 5000 + env["NANO_CC"]
+                env["NANO_CC"] = "x" * 70000
             if mode == "quoted_tmp":
                 temporary = path / "temporary space's$(touch injected)"
                 temporary.mkdir()
@@ -115,8 +115,9 @@ class ModuleCompileInvocation(unittest.TestCase):
                 root = path / ("checkout space's" if mode == "quoted_root" else "checkout$(touch injected)")
                 (root / "bin").mkdir(parents=True)
                 shutil.copy2(compiler, root / "bin/nanoc_c")
-                for child in ("src", "modules", "scripts"):
-                    (root / child).symlink_to(ROOT / child, target_is_directory=True)
+                for child in ("src", "src_nano", "modules", "scripts"):
+                    shutil.copytree(ROOT / child, root / child)
+                shutil.copy2(ROOT / "Makefile.gnu", root / "Makefile.gnu")
                 compiler = str(root / "bin/nanoc_c")
             if mode == "overlap":
                 processes = []

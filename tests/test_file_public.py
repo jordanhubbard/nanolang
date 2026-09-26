@@ -1,4 +1,8 @@
 """I qualify grant-held public VM/native APIs and the installed File package."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import hashlib
 import json
 import os
@@ -36,7 +40,7 @@ class FilePublic(unittest.TestCase):
         cls.objects = list(dict.fromkeys(p for p in shlex.split(os.environ['FILE_RUNTIME_OBJECTS'])
                                         if Path(p).stem not in stems))
         cls.ldflags = shlex.split(os.environ.get('FILE_RUNTIME_LDFLAGS', '-lm -lcrypto -lffi'))
-        cls.environment = dict(os.environ, LSAN_OPTIONS='', ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+        cls.environment = dict(os.environ, LSAN_OPTIONS='', ASAN_OPTIONS=asan_options("halt_on_error=1"),
                                UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
         (cls.artifacts / 'environment.json').write_text(json.dumps({k: cls.environment.get(k) for k in
             ('CC', 'NANO_FILE_RUNTIME_CC', 'NANO_FILE_RUNTIME_CFLAGS', 'SDKROOT', 'LSAN_OPTIONS',
@@ -349,6 +353,14 @@ puts("PASS outside-tree two-program C99 native package");return 0;}
                  '-DNVM_FILE_VM_PRIVATE','-DNVM_FILE_NATIVE_PRIVATE','-DNVM_FILE_PUBLIC_ENGINE')]
         flags += ['-std=c99','-I' + str(self.installed / 'include')]
         archive = self.installed / 'lib/libnano_file_runtime.a'
+        # I link the installed bridge independently of generated File programs.
+        # Its required capture codec must be supplied by this archive alone.
+        bridge_source = outside / 'installed-bridge.c'
+        bridge_source.write_text('#include <nanolang/file/nanoisa/nvm_format.h>\n#include <nanolang/file/nanoisa/nvm_v2_sections.h>\nint main(void) {\n    NvmModule *source = nvm_module_new();\n    NvmModule *copy = NULL;\n    NvmV2Module view = {0};\n    if (!source) return 1;\n    if (nvm_v2_from_nvm_module(source, &view) != NVM_V2_OK) {\n        nvm_module_free(source); return 2;\n    }\n    NvmV2Result result = nvm_v2_to_nvm_module(&view, &copy);\n    nvm_v2_module_free(&view);\n    nvm_module_free(source);\n    if (result != NVM_V2_OK || !copy) return 3;\n    nvm_module_free(copy);\n    return 0;\n}\n')
+        bridge_binary = outside / 'installed-bridge'
+        self.command(name + '-outside-bridge-link', [*self.compiler,*flags,
+            str(bridge_source),str(archive),*self.ldflags,'-o',str(bridge_binary)],cwd=outside)
+        self.command(name + '-outside-bridge-run', [str(bridge_binary)],cwd=outside)
         for opt in ('-O0','-O2'):
             binary = outside / ('native-' + opt[1:])
             self.command(name + '-outside-' + opt[1:], [*self.compiler,*flags,opt,

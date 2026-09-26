@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/tmp/nanolang-typecheck-lifetime-729ce-linux/compiler-root/bin/nanoc-diagnostic",
+    "/home/jkh/Src/nanolang-record-lists-qualified-40870/src_nano/typecheck_driver.nano",
+    "-o",
+    "/tmp/nanolang-typecheck-lifetime-729ce-linux/typecheck"
+  ],
+  "cwd": "/tmp/nanolang-typecheck-lifetime-729ce-linux/compiler-root",
+  "bound": 120,
+  "timeout": false,
+  "cleanup": [],
+  "returncode": 1,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 28.31111247697845,
+  "log": {
+    "sha256": "5c81d7a785af3971c5e537dacb5a66dcb70526c0b2e8dcb4526b1f1982039c0c",
+    "bytes": 385651,
+    "archive": "/tmp/nanolang-typecheck-lifetime-729ce-linux/objects/5c81d7a785af3971c5e537dacb5a66dcb70526c0b2e8dcb4526b1f1982039c0c"
+  },
+  "inputs_equal": true
+}

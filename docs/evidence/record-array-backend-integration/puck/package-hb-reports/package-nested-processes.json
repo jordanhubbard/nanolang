@@ -1,0 +1,30 @@
+{
+  "cleanup": [],
+  "owned": {
+    "18051": {
+      "command": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python /Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/package-hb-reports/controls/package-retain.py",
+      "group": 18051,
+      "parent": 18000,
+      "started": "Mon Sep 21 08:07:12 2026"
+    },
+    "18059": {
+      "command": "/Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/package-hb-reports/package-artifacts/nano-module-abi-b25v4bmr/native dispose-first",
+      "group": 18051,
+      "parent": 18051,
+      "started": "Mon Sep 21 08:07:13 2026"
+    },
+    "18075": {
+      "command": "(opt)",
+      "group": 18051,
+      "parent": 18051,
+      "started": "Mon Sep 21 08:07:14 2026"
+    },
+    "18095": {
+      "command": "/Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/package-hb-reports/package-artifacts/nano-runtime-package-e5s_w0tg/native",
+      "group": 18051,
+      "parent": 18051,
+      "started": "Mon Sep 21 08:07:15 2026"
+    }
+  },
+  "remaining": []
+}

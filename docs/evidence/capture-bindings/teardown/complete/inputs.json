@@ -1,0 +1,4950 @@
+{
+  "source": "bb08c4e1396d746d7f943c31455432a793ac988b",
+  "inputs": {
+    "GNUmakefile": {
+      "sha256": "5b0e30a30e733c4fc7171ecd027fc2727809bdb96c8471b3bdee813a7a22dcca",
+      "bytes": 130,
+      "mode": 420
+    },
+    "Makefile": {
+      "sha256": "6044c1cdf25c85506a9ab1e614cd7fd95761293efafb3ee53d58a8552d0036a2",
+      "bytes": 2408,
+      "mode": 420
+    },
+    "Makefile.gnu": {
+      "sha256": "c8bfa908b03e3b2c96f34e04f013174aba699f734b63df6677cb8d66933dd902",
+      "bytes": 302500,
+      "mode": 420
+    },
+    "modules/nanoisa/dump_main.c": {
+      "sha256": "ce1c267c6363995805cbe8fbabbd4dd3a3780ae3bc0d9542f01e96b3e57315fc",
+      "bytes": 3052,
+      "mode": 420
+    },
+    "modules/nanoisa/module.json": {
+      "sha256": "46a6d8cedf88576abe9bcf43ac398629f63a12101f38b2d53e280c4b6129b4b4",
+      "bytes": 1619,
+      "mode": 420
+    },
+    "modules/nanoisa/module.manifest.json": {
+      "sha256": "e9ad090be5094a6c269a76aaea2f84ccddc98e85872f41f542d3dd29d2a67bf5",
+      "bytes": 1127,
+      "mode": 420
+    },
+    "modules/nanoisa/mvp.nano": {
+      "sha256": "5239f07478123db35b4d84a0f15c50172ccfcd015b4b5a7aeaf664fa04a5d0b6",
+      "bytes": 240,
+      "mode": 420
+    },
+    "modules/nanoisa/nanoisa.c": {
+      "sha256": "ce9c9f29750edeb43893f20c21ae82dabf5271e6e324c006560c5d3ac6b342f8",
+      "bytes": 18987,
+      "mode": 420
+    },
+    "modules/nanoisa/nanoisa.h": {
+      "sha256": "78a0a59fa32eaa589cf0680f7158974ce90e41763abe163256e1970a7ff9f410",
+      "bytes": 1928,
+      "mode": 420
+    },
+    "modules/nanoisa/nanoisa.nano": {
+      "sha256": "d5059fe21d9bf59198053aef4d2ab80f5b67ff903ded81ae030d97c724dbaa03",
+      "bytes": 4091,
+      "mode": 420
+    },
+    "run.py": {
+      "sha256": "d0fc97e5c8b110de382057b87a255d5213d3ef9551ac7816654903f435e37b13",
+      "bytes": 2819,
+      "mode": 436
+    },
+    "schema/compiler_schema.json": {
+      "sha256": "d384b8a2682aca193660dcad4b18d24ee84343d2939696e10bd9f00747a20ee0",
+      "bytes": 30260,
+      "mode": 420
+    },
+    "schema/nsi/effect_map.v0.json": {
+      "sha256": "c69dd89a597872275ad3d95b5188f80ded13548d1b848cf0ba406047c2d0ed2d",
+      "bytes": 1052,
+      "mode": 420
+    },
+    "schema/nsi/examples/log.nsi.json": {
+      "sha256": "ba1427cbc1081a4b638f7561bd5ea267e81c0db7dd7bd99ed6e0b714671959ce",
+      "bytes": 1517,
+      "mode": 420
+    },
+    "schema/nsi/examples/types.nsi.json": {
+      "sha256": "892b0cf8257a86bd3ec5c4c723ea9d71e97d912a42997d8e86e57e3b0fa01342",
+      "bytes": 1591,
+      "mode": 420
+    },
+    "schema/nsi/inventory.json": {
+      "sha256": "d455ae90c4002858fb6e17f4f53db29d32af924af48a84ceec33a9d6c30b2f07",
+      "bytes": 22569,
+      "mode": 420
+    },
+    "schema/nsi/modules/audio.nsi.json": {
+      "sha256": "e419a5b8e35c68878c9e1836c186399e912066cb2ae81d81539e5380cdbb24d2",
+      "bytes": 1275,
+      "mode": 420
+    },
+    "schema/nsi/modules/filesystem.nsi.json": {
+      "sha256": "9c9c84a0b08574f427cec064ec195dcefec2725959fcac2ed916a29e6886b337",
+      "bytes": 1271,
+      "mode": 420
+    },
+    "schema/nsi/modules/gpu.nsi.json": {
+      "sha256": "c1d3a92ffeb27309862e48ad6983c23d58b4a55a2f9e21aa87c9ed9d1d65538a",
+      "bytes": 1223,
+      "mode": 420
+    },
+    "schema/nsi/modules/graphics.nsi.json": {
+      "sha256": "7f24f5c789e28d5274d078cd7e6788f48d242d35aa8d8a54497f5abdd3650dc5",
+      "bytes": 1281,
+      "mode": 420
+    },
+    "schema/nsi/modules/net.nsi.json": {
+      "sha256": "8118549f3686a99d282e8c46451b1c013d0671e8783b4d743e168184c2bc5a01",
+      "bytes": 1234,
+      "mode": 420
+    },
+    "schema/nsi/modules/process.nsi.json": {
+      "sha256": "1bc79584189a09dbe986156c83dc1a3d81b5b3377e544eede75b99c2e53b97fb",
+      "bytes": 1253,
+      "mode": 420
+    },
+    "schema/nsi/modules/pure.nsi.json": {
+      "sha256": "fd4c017c7f90e46326d99789daf0d2ff51fad412ecd90c177a97afc22e06f024",
+      "bytes": 349,
+      "mode": 420
+    },
+    "schema/nsi/modules/python.nsi.json": {
+      "sha256": "cb4ffeb413d5579ccce61ed7990abc69ee781e91ea0cf3451bce809b95874c97",
+      "bytes": 1245,
+      "mode": 420
+    },
+    "schema/nsi/modules/vector2d.nsi.json": {
+      "sha256": "c87232c4e846e638a82aaf1826e82a48332cc4c9f3fe8ccd324218db517379af",
+      "bytes": 1383,
+      "mode": 420
+    },
+    "scripts/annotate_parallelism.py": {
+      "sha256": "c9743b7c72b84175248abc45f88a780887c1702eb666074ff855fbf901214e3f",
+      "bytes": 6298,
+      "mode": 420
+    },
+    "scripts/assemble_compiler.sh": {
+      "sha256": "70e358e2070b6690f93f78c96f1f6bcad5cf8a0e2bf23c166874216806c7a971",
+      "bytes": 6078,
+      "mode": 493
+    },
+    "scripts/audit_nano_style.py": {
+      "sha256": "a27bfb9aa3902e9c01058450ff013fb9b53825cbd60330ab14c13c89ae33409f",
+      "bytes": 9800,
+      "mode": 420
+    },
+    "scripts/automac.py": {
+      "sha256": "27aa78f61443bb1866e2e5c79460bae71f1edeb5ff13733453082559c5b671bd",
+      "bytes": 24241,
+      "mode": 420
+    },
+    "scripts/benchmark.sh": {
+      "sha256": "b19fea0e19dd6cc58435bf55e1adfb2b22b7e2659d2a21487d4ef16018cb9533",
+      "bytes": 5867,
+      "mode": 493
+    },
+    "scripts/benchmark_nanoisa.sh": {
+      "sha256": "53fddd406d208840854cf27f75e1773200d571589d8e2243b4052c15d9d06af5",
+      "bytes": 7805,
+      "mode": 420
+    },
+    "scripts/bootstrap-macos.sh": {
+      "sha256": "3873f33155652e196e2355761fb5069d1af21015bf55da321096bce63755f5e7",
+      "bytes": 7457,
+      "mode": 493
+    },
+    "scripts/bootstrap.sh": {
+      "sha256": "61fe46cbc3982913ba2295247e87e236bab0029c44889a2faea3233a7c9c0448",
+      "bytes": 4307,
+      "mode": 493
+    },
+    "scripts/build_stdlib_docs.py": {
+      "sha256": "c5c885f6ebc8b1ca225ef840e565c2218b312084c7a29660d3e16d2c6176f43b",
+      "bytes": 16164,
+      "mode": 420
+    },
+    "scripts/build_userguide.py": {
+      "sha256": "cd93e76a49dfaca17b6b71b9f29f307b1ebdbf39e37ad2295a024d410a3120f6",
+      "bytes": 27031,
+      "mode": 420
+    },
+    "scripts/check-module-deps.sh": {
+      "sha256": "2594887342703a266204f2b2ad8e2ec466bb89dac536a546894e538512423985",
+      "bytes": 13683,
+      "mode": 493
+    },
+    "scripts/check_compiler_schema.sh": {
+      "sha256": "bf5efe021b1279c6809d0880a05e62841a614c8e79a6cb28514be95c07954aab",
+      "bytes": 713,
+      "mode": 493
+    },
+    "scripts/check_formal_claims.sh": {
+      "sha256": "dbc3bc21328ef37664a0196efa02035ef07fe01e2330b9bc5fcd91619a220004",
+      "bytes": 2881,
+      "mode": 493
+    },
+    "scripts/check_make.sh": {
+      "sha256": "4c2cf51ed08b8ed1b7d18da9984198678ba49e8a5b50a68922679d9d82eaba36",
+      "bytes": 2281,
+      "mode": 493
+    },
+    "scripts/check_markdown_links.py": {
+      "sha256": "92e8e8851e280f4d7b9238380a04c7538454a742f4d5dee1366b95a0ec79577f",
+      "bytes": 4830,
+      "mode": 420
+    },
+    "scripts/check_proofs_container.sh": {
+      "sha256": "3093399e2a9f7bed1cd72b992a0f71c50ac66da17e4973e20e64bf0d75c31c43",
+      "bytes": 633,
+      "mode": 420
+    },
+    "scripts/check_sail_container.sh": {
+      "sha256": "a66192c614bb6de9dd10a78b9ff61babba2efb52f4acd8bd6c0f36adc15a4202",
+      "bytes": 3878,
+      "mode": 420
+    },
+    "scripts/check_shadow_tests.sh": {
+      "sha256": "db2c3eef76d04d5c2da56181f31ffbc6541a409ba90a23f9be13354e70f79112",
+      "bytes": 1310,
+      "mode": 420
+    },
+    "scripts/ci-apt-install.sh": {
+      "sha256": "6a76f1dc6ba29541e846fea33df17642b58657dbe60fab7c2e1253b07eaf5af7",
+      "bytes": 2974,
+      "mode": 493
+    },
+    "scripts/ci-brew-install.sh": {
+      "sha256": "fbbb2ffb7c91a503048ac33e5a1f2178bdae96cef4420baa4244615061e406a9",
+      "bytes": 3460,
+      "mode": 493
+    },
+    "scripts/clean_build_trees.py": {
+      "sha256": "7a3b39e291cb4f3ac9799ef8cb062b5a2bd0a77fa8812761ad311655b93f4c14",
+      "bytes": 3149,
+      "mode": 420
+    },
+    "scripts/embed_binary64_arithmetic.py": {
+      "sha256": "fca733a4a2822b49a52b971f41598cc78d7afaced924f5f4017410d25c280bac",
+      "bytes": 1823,
+      "mode": 420
+    },
+    "scripts/embed_binary64_format.py": {
+      "sha256": "6a77b5cfc34be4352b3ce747075d5a1a3e2d8f8965bc3e82f46c30962f5c629f",
+      "bytes": 1116,
+      "mode": 420
+    },
+    "scripts/embed_binary64_parser.py": {
+      "sha256": "d760caa254d0d7566a9b0dc9864cdff4d485b1dfffad8cf0e986e8c993433db2",
+      "bytes": 908,
+      "mode": 420
+    },
+    "scripts/embed_managed_native.py": {
+      "sha256": "c480cef07e7b76fa4ae12bed27c886b3c0118ce8b0172359e4ec3b0922cf4186",
+      "bytes": 2755,
+      "mode": 420
+    },
+    "scripts/embed_managed_runtime.py": {
+      "sha256": "2244584d9eef22b56cd6f1bb7ae855a91306fb8648e432efdf85f02706f02b94",
+      "bytes": 4448,
+      "mode": 420
+    },
+    "scripts/gen_compiler_schema.nano": {
+      "sha256": "13a75d41ca4fdd7eadadc226aa3631125a299c830d86501576f77bad119539f6",
+      "bytes": 25880,
+      "mode": 493
+    },
+    "scripts/gen_compiler_schema.py": {
+      "sha256": "18c947e5bfe81da1558d958529f59348b2dbf21519c5b7b828d4a32d8080ff19",
+      "bytes": 9389,
+      "mode": 493
+    },
+    "scripts/gen_ffi_dispatch.py": {
+      "sha256": "84d6832622d95b6fb424061674310f79149ee22d9fa765c746455f132e5e9ae9",
+      "bytes": 6341,
+      "mode": 493
+    },
+    "scripts/gen_nanoisa_schema.py": {
+      "sha256": "be3d0af6c40a784fdc1a5aac279a969020c9290cb25f932ab84566d110084f58",
+      "bytes": 9024,
+      "mode": 420
+    },
+    "scripts/gen_purity_intrinsics.py": {
+      "sha256": "770d89f8372929c0eb14c47b3a14347e1e1419a0604ec4c7c6dafa08a632558a",
+      "bytes": 2062,
+      "mode": 420
+    },
+    "scripts/generate_list.sh": {
+      "sha256": "91cbbf94b451ddb8e8ca3f5b679ca22090363608e36a20c495ba9098fcffe0c8",
+      "bytes": 9164,
+      "mode": 493
+    },
+    "scripts/generate_root_package_json.py": {
+      "sha256": "e135beef5f001cf5bbeb2f0a64fc0a3d4883c7163b1ecd3f2536a8eb11fc5147",
+      "bytes": 2770,
+      "mode": 420
+    },
+    "scripts/generate_test_tone.py": {
+      "sha256": "3019f8d76979581051ae9964046b5175edd253de0ba4637e5fdd78e4b80c6846",
+      "bytes": 3310,
+      "mode": 493
+    },
+    "scripts/install-deps.sh": {
+      "sha256": "46c9301ee93f68f28a3579c00ae2ba6a725c88eafa6fc52772def4065bd3754b",
+      "bytes": 4864,
+      "mode": 493
+    },
+    "scripts/managed_string_acceptance.mk": {
+      "sha256": "2db085c2d9055a2b87f49420cc5b3487c6e53c9a9e73192a995bc7e217466ac4",
+      "bytes": 1771,
+      "mode": 420
+    },
+    "scripts/merge-branches.sh": {
+      "sha256": "f8a85bda27b7b621d168da259eaaffe94dba096c0d9e62de80fc1b3bb22f9b9f",
+      "bytes": 5254,
+      "mode": 493
+    },
+    "scripts/nano-pkg.sh": {
+      "sha256": "f83fa1c7903b7d660a058cf36b27471ad2e1a277aa1f52c5a8864795ca0c5f5a",
+      "bytes": 20982,
+      "mode": 493
+    },
+    "scripts/nano_style_baseline.json": {
+      "sha256": "8ed9c3c4950154cb3c7ca394f3f3722ca682b6a7b79f4eae00777b823b67ef92",
+      "bytes": 27077,
+      "mode": 420
+    },
+    "scripts/nanoc-install.sh": {
+      "sha256": "9d3669cc3acb877a52d436b12c5d32f49f0a01f3df2a82916083b062afcbef89",
+      "bytes": 9721,
+      "mode": 493
+    },
+    "scripts/nanoc-registry.sh": {
+      "sha256": "f8b9f8af1b994264a06761f294bff28123c2b4efecab925c9e8fe0495c3b6566",
+      "bytes": 16689,
+      "mode": 493
+    },
+    "scripts/nanoisa_reconstruction.py": {
+      "sha256": "54f6c843774ad35acbf132bd39f57c72cd1fe4c34a854ef1e2324470d64083f9",
+      "bytes": 48998,
+      "mode": 420
+    },
+    "scripts/nvm2hl.py": {
+      "sha256": "c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4",
+      "bytes": 2158,
+      "mode": 420
+    },
+    "scripts/nvm2wasm.py": {
+      "sha256": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+      "bytes": 2857,
+      "mode": 420
+    },
+    "scripts/pre-commit-planning-enforcer": {
+      "sha256": "0587b1e19445bd30f066c7ab45928d7716654cc99b82e39c482339d89f93ece6",
+      "bytes": 1831,
+      "mode": 493
+    },
+    "scripts/profile_tests.sh": {
+      "sha256": "4b6f64e61d574e16d1726dd41e68670ebda51000d231ebc3e9a18347a80da8ac",
+      "bytes": 6642,
+      "mode": 493
+    },
+    "scripts/qualify_managed_strings.py": {
+      "sha256": "9fa71c79b44c169ad4a0bcfa35410fa9756b6327a27491e0d5dbbbfba81ca8c1",
+      "bytes": 20552,
+      "mode": 420
+    },
+    "scripts/release.sh": {
+      "sha256": "9030646f9c9fede646a2d4552f23b96310bed562ea3bfc9408c94eb4b7d073f9",
+      "bytes": 15085,
+      "mode": 493
+    },
+    "scripts/reorganize_bin.sh": {
+      "sha256": "5584542dca42ab718cb42cbab5c52f656c31154e0cf0388ac3af1beb5019c025",
+      "bytes": 5283,
+      "mode": 493
+    },
+    "scripts/run_bench.sh": {
+      "sha256": "00b27647e436042d935b40cd4bd4a6fdd989e642837732aefb2459be52815a29",
+      "bytes": 6300,
+      "mode": 493
+    },
+    "scripts/run_nvm2c_sanitizers.py": {
+      "sha256": "c549eaf34a6f4a5a1950f43bfad40f26bace19ef0e0931426502685ea4c6cb9d",
+      "bytes": 1917,
+      "mode": 420
+    },
+    "scripts/sail_decode_cases.py": {
+      "sha256": "0ca683772a94bb97a06d60f107f4ab5db9b5f27359f676a9ccf0d832d2e3d2d1",
+      "bytes": 5217,
+      "mode": 420
+    },
+    "scripts/sail_vm_cases.py": {
+      "sha256": "c59b6c7031f091d7790c802d1d1ca34b272e886d0c046d985d0bc6ec7dccf940",
+      "bytes": 3442,
+      "mode": 420
+    },
+    "scripts/summarize_nanoisa_bench.py": {
+      "sha256": "b610f423f47f2ef1af509c838dc09ad99a9cdcc257c6c8af1a2021c2562b7321",
+      "bytes": 4412,
+      "mode": 420
+    },
+    "scripts/test_cop_lifecycle.sh": {
+      "sha256": "af38667ae21c81fa2ae7563ad945e64170336db244d9baa0f2bbd6bd4dc7200d",
+      "bytes": 8559,
+      "mode": 493
+    },
+    "scripts/test_differential.sh": {
+      "sha256": "84a60d4f3210c9da9ab0d75379c61edc98aca1ce79d0168aff1c029b262d00da",
+      "bytes": 3881,
+      "mode": 493
+    },
+    "scripts/test_ffi_cop.sh": {
+      "sha256": "b2834b10f307b4a35730dc95f0cfbedcd41ea5528a166712b4bdb1bf3946d615",
+      "bytes": 2268,
+      "mode": 493
+    },
+    "scripts/test_nanovm_daemon.sh": {
+      "sha256": "a597d3277cecc0d4aebe1817481dd26371119181ee27d9fbd6db9653bb026bb4",
+      "bytes": 213,
+      "mode": 493
+    },
+    "scripts/test_nanovm_integration.sh": {
+      "sha256": "62ccaacd1d11ad0322ae8db5b1000f9cd2fa24d5e000d592af7d16d5032f422e",
+      "bytes": 8058,
+      "mode": 493
+    },
+    "scripts/userguide_snippets_check.nano": {
+      "sha256": "407a8c7b717b4f16d41f3251f85cfd4896cb4553b9393f06fd91a3223e5e8a0e",
+      "bytes": 21837,
+      "mode": 420
+    },
+    "scripts/validate-modules.sh": {
+      "sha256": "6307ffdcf5650198ee035a4efa5f5073e9adcf89069a73b3cf000d6b646a15dc",
+      "bytes": 7577,
+      "mode": 493
+    },
+    "scripts/validate_schema_sync.sh": {
+      "sha256": "e006a288ef96b1d5ce25cc2221cc03a29645abcdab14bfc9dd88718e4f73470e",
+      "bytes": 5690,
+      "mode": 493
+    },
+    "scripts/verify_document_pair.py": {
+      "sha256": "6942e8bcf766505b5da71101b353f4138568ce58c84d057c8612f323090706ad",
+      "bytes": 9523,
+      "mode": 420
+    },
+    "scripts/verify_no_nanoc_c.sh": {
+      "sha256": "f5efaf15189b626ff3a2b1ca685ed8f9f6ed3bea344476755882cfb53dbbe0dc",
+      "bytes": 1049,
+      "mode": 493
+    },
+    "scripts/watch.sh": {
+      "sha256": "e842bdc4b16f71c4b5b69a10597c3f7fa0a1c159974cc1e4d41562acef2cd282",
+      "bytes": 6682,
+      "mode": 493
+    },
+    "spec/nanoisa.yaml": {
+      "sha256": "3c938ccb6e1598080031a7f37e106cf3da831a62680bc113cfbd7957a021d56f",
+      "bytes": 34008,
+      "mode": 420
+    },
+    "spec/purity_intrinsics.json": {
+      "sha256": "6bc21bbbb593e4078c94cfa6b9c8e5660a725d7de41aa944915e9d603e4f4765",
+      "bytes": 2259,
+      "mode": 420
+    },
+    "src/actor/actor.c": {
+      "sha256": "583d4144ed3e0fcfad3c3762967fc7cb632134bb94c856d98c297a7d490ffc7d",
+      "bytes": 44988,
+      "mode": 420
+    },
+    "src/actor/actor.h": {
+      "sha256": "fb50504ae5a7951151f2da05cb5a0588c5a4e87677e64ad4edec03ed57518502",
+      "bytes": 810,
+      "mode": 420
+    },
+    "src/bcp47.c": {
+      "sha256": "d46dbed24e240aa9f3d8d5509e7713ad660ed799c6aea97fc051d8e2c848c13e",
+      "bytes": 5729,
+      "mode": 420
+    },
+    "src/bcp47.h": {
+      "sha256": "5222771e3a8570211bc46dc17f6a1b0fb615b66a56fd54cb239d4dd4582c3f4f",
+      "bytes": 1204,
+      "mode": 420
+    },
+    "src/bench.c": {
+      "sha256": "6e65137f62603adf2c543c459962820158f87a9c4950561bf0a981d14e74fd3f",
+      "bytes": 9448,
+      "mode": 420
+    },
+    "src/bench.h": {
+      "sha256": "8d50641ac3403f4b8b86ed149652e32c34f2b3e2312ab442cbb51851f1a825a1",
+      "bytes": 4022,
+      "mode": 420
+    },
+    "src/bench_native.c": {
+      "sha256": "30e1e4668d626b1751ce8c79767f297518618224443e8d3f6769e467844508f7",
+      "bytes": 493,
+      "mode": 420
+    },
+    "src/binary64_arithmetic.h": {
+      "sha256": "97a282226c07249d2c2c28f4e14f4bed3a07a838267534928e36f889d26a67d5",
+      "bytes": 2188,
+      "mode": 420
+    },
+    "src/binary64_arithmetic_source.h": {
+      "sha256": "a10c6f741cdd4806ca57bf4a2abc676bc1d3869e4ec894c642cdb7768e95ba4c",
+      "bytes": 2698,
+      "mode": 420
+    },
+    "src/binary64_bits.h": {
+      "sha256": "d106a6bdbf7d10a75256bf07b0bcebcebbb50a5a8845acee306a0e20d61d00bb",
+      "bytes": 1179,
+      "mode": 420
+    },
+    "src/binary64_format.h": {
+      "sha256": "96f65f47fa6c769dbba59013b86c9649ca5f4c6c15be6c6edd528c7d68347cdd",
+      "bytes": 1882,
+      "mode": 420
+    },
+    "src/builtins_registry.c": {
+      "sha256": "3921e5026efaedc98addef6db3540634d3bbe350a1230ead526bbc81c342df46",
+      "bytes": 19593,
+      "mode": 420
+    },
+    "src/builtins_registry.h": {
+      "sha256": "998b28de7452beb1af5e9233365e57a21af8bd0f725ecabfb8736a258e0efb72",
+      "bytes": 1702,
+      "mode": 420
+    },
+    "src/cJSON.c": {
+      "sha256": "e3b9e8902dfd7472fb65cca9ab275d5da03dffe4e5d2ecb0b3586fd5f2f4e248",
+      "bytes": 80517,
+      "mode": 420
+    },
+    "src/cJSON.h": {
+      "sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+      "bytes": 16394,
+      "mode": 420
+    },
+    "src/c_backend.c": {
+      "sha256": "38f1d50c1b56912b2414e1e78de51a1571aaa114b23d87c488d2e86f25cc1827",
+      "bytes": 104756,
+      "mode": 420
+    },
+    "src/c_backend.h": {
+      "sha256": "61959cfcaf4ec943e830adbbe89797ce7979ab843cf40710f8966e34d20c5079",
+      "bytes": 2775,
+      "mode": 420
+    },
+    "src/c_backend_values.inc": {
+      "sha256": "3f0350891c7bb732cf2268a473357e39ce4dbc056bbd4b9ee4780dda57351532",
+      "bytes": 20945,
+      "mode": 420
+    },
+    "src/catalog.c": {
+      "sha256": "5e48652e52aa4aa135f6e10e60fe02d3d91d24ed2b5ab9df42833e873fcba300",
+      "bytes": 12024,
+      "mode": 420
+    },
+    "src/catalog.h": {
+      "sha256": "857957fd203e061ab29e001529f3e76f2814e80b18d6115d3dfebf5c9d5fde8d",
+      "bytes": 1027,
+      "mode": 420
+    },
+    "src/channel.c": {
+      "sha256": "84faa9c3ec72d4ec6e06680d2c57bcd66de50c3f257efbcf476dc2a73d5f6c0c",
+      "bytes": 6636,
+      "mode": 420
+    },
+    "src/channel.h": {
+      "sha256": "ad1f0665410f1882b71a0541495b16b6ac9281333398af2a8424b8b1296cfa45",
+      "bytes": 6706,
+      "mode": 420
+    },
+    "src/checked_loop_binding.h": {
+      "sha256": "870f91085443de1d6570624930a5f5045d322d2c0994c6b2068d2e1159df1501",
+      "bytes": 1660,
+      "mode": 420
+    },
+    "src/colors.h": {
+      "sha256": "2cb189ddf9fab50db538487e3363e2c4b71fbaea37bf30bc56a9234cd07cde9b",
+      "bytes": 2457,
+      "mode": 420
+    },
+    "src/coroutine.c": {
+      "sha256": "88519396cae3dd299a229ad19aac45a6ba5053dff0142774a3468dce6af21230",
+      "bytes": 10910,
+      "mode": 420
+    },
+    "src/coroutine.h": {
+      "sha256": "50a3a6c97172367abb5698ad542b34b953e54f76e98edb4afeca63b4cb60fe38",
+      "bytes": 5189,
+      "mode": 420
+    },
+    "src/cps_pass.c": {
+      "sha256": "e5971ed9f57c9d56e15fb6c14eeacb311df02b319ecbe55129203e1a3adde335",
+      "bytes": 7182,
+      "mode": 420
+    },
+    "src/cps_pass.h": {
+      "sha256": "b746f7486bd0a2fa66195365cd6c057a9c718e12e99b46b96921a9c59ccc9b2e",
+      "bytes": 678,
+      "mode": 420
+    },
+    "src/dap_server.c": {
+      "sha256": "55c30d3ae96e60c3069e38d8c22bda5c31c21ccae9ec55c64b6b15199a46c92e",
+      "bytes": 37817,
+      "mode": 420
+    },
+    "src/dataflow/dataflow.c": {
+      "sha256": "fdca222709d0ab300c674412a872be1d265a92fb712a449f4d691b8c7e00cca8",
+      "bytes": 30986,
+      "mode": 420
+    },
+    "src/dataflow/dataflow.h": {
+      "sha256": "fe2a1345b3763516dde80dc91bb3013de35be8023a1f3ea9a28e21cde8f46f94",
+      "bytes": 982,
+      "mode": 420
+    },
+    "src/dce_pass.c": {
+      "sha256": "ba44b1ee6c1262208f417a7452dfa85735af842a5032ca0cb6028d035a69cc5f",
+      "bytes": 16601,
+      "mode": 420
+    },
+    "src/dce_pass.h": {
+      "sha256": "1ec47d2ee3b5d0e96f9b3538827ad82281291c4b352f454961435d172d4eb97c",
+      "bytes": 956,
+      "mode": 420
+    },
+    "src/diag_id.c": {
+      "sha256": "af0382246528a518aab16b162455bf68aeb520719622829bf7005540979c810f",
+      "bytes": 1800,
+      "mode": 420
+    },
+    "src/diag_id.h": {
+      "sha256": "32486611b35a4bec269e58a6be7868695df45678efbf1f7d86eb735a9d449592",
+      "bytes": 1420,
+      "mode": 420
+    },
+    "src/docgen.c": {
+      "sha256": "a3d75a103c35bf482abee572cd4b4fe93c33f4288d4c89c5312b7333a301547d",
+      "bytes": 28440,
+      "mode": 420
+    },
+    "src/docgen.h": {
+      "sha256": "485d5cb3a506319f5aaeb9da5c860fbbfd1a21c5970e58d275b3e8d293047f9c",
+      "bytes": 630,
+      "mode": 420
+    },
+    "src/docgen_md.c": {
+      "sha256": "a1b71c8878c25438eb65a8ab7d550b29ba61217bfded10a171ca46b8a18f4cfc",
+      "bytes": 22287,
+      "mode": 420
+    },
+    "src/docgen_md.h": {
+      "sha256": "c0650e23350d79c85856ed08033e3ee85f2e160d242145137c5118dc80abf067",
+      "bytes": 640,
+      "mode": 420
+    },
+    "src/docs_main.c": {
+      "sha256": "3aa0ab6919501c9c85734f4b6f9d549368ebcf37b57f26e1b1d53c9c85d4d1cb",
+      "bytes": 14360,
+      "mode": 420
+    },
+    "src/dwarf_info.c": {
+      "sha256": "eae03f4e6404c236ee9aa71fe835b95af2f39661c89ebc2ed0f59e2cf97d4a12",
+      "bytes": 9637,
+      "mode": 420
+    },
+    "src/dwarf_info.h": {
+      "sha256": "f7753e68e136c76e170601ef79edd1f05b49cad59b3995b1d176dc74d53d3018",
+      "bytes": 2519,
+      "mode": 420
+    },
+    "src/effects.c": {
+      "sha256": "6157b0ec5d9a740487fb7857baa6ac795b12df3b9ddea10375ac1f8830f8db1c",
+      "bytes": 20954,
+      "mode": 420
+    },
+    "src/effects.h": {
+      "sha256": "6a7c2570706fe05504d4e5b947658c45a8d79a6ffe6a5ca55c9d9ddba86a9725",
+      "bytes": 6885,
+      "mode": 420
+    },
+    "src/emit_typed_ast.c": {
+      "sha256": "d6e9ff3096ea87dd07f356c008b9939103543a1545b3eb5b0e9eb14f52d80d53",
+      "bytes": 10333,
+      "mode": 420
+    },
+    "src/emit_typed_ast.h": {
+      "sha256": "bf0bab1b223664d1c45bc6b624ded30f86df05ce64667f983fe56a4b3bbf656f",
+      "bytes": 435,
+      "mode": 420
+    },
+    "src/env.c": {
+      "sha256": "1bb7f66101ac02ce6310742b9ff4ce9042cc64a0a9970d46570835ee04949589",
+      "bytes": 85111,
+      "mode": 420
+    },
+    "src/eval.c": {
+      "sha256": "d1e7d8b7dcac643a5d50ccdb16e632bb4a28098ab935b7aecaf6df6485a0595a",
+      "bytes": 283993,
+      "mode": 420
+    },
+    "src/eval/eval_hashmap.c": {
+      "sha256": "561382e7d5abb05ee0ccbc84f3cf8d0fe8ba1fb2edb4ca2ec3b5914e14f2fd9f",
+      "bytes": 6654,
+      "mode": 420
+    },
+    "src/eval/eval_hashmap.h": {
+      "sha256": "9a35f20898e7c3614d621ca4e197383c3f644f306bb740e39a9efff43374f444",
+      "bytes": 1583,
+      "mode": 420
+    },
+    "src/eval/eval_io.c": {
+      "sha256": "9a295767de018174675471e4d0905cefafff8a3f95d1e7a1f7fddbb33351ad4f",
+      "bytes": 15770,
+      "mode": 420
+    },
+    "src/eval/eval_io.h": {
+      "sha256": "b778df9a586568fdabba6f74be5cc4b79b86a331a2ef9c8bbb5372ea71cd643d",
+      "bytes": 1949,
+      "mode": 420
+    },
+    "src/eval/eval_math.c": {
+      "sha256": "b0b4d20ff36dd0c8b0a9d7ba1af6f9389d0e4c9acedc7ccf541a49d9e8ba1987",
+      "bytes": 5692,
+      "mode": 420
+    },
+    "src/eval/eval_math.h": {
+      "sha256": "f818cb026ca2f3ebf421558067b0f3581d8c161b30027e16b7725f64bd28fd8f",
+      "bytes": 515,
+      "mode": 420
+    },
+    "src/eval/eval_string.c": {
+      "sha256": "faec58696ada5dbde080308fca607da4810a5abef6475eff2a1b14234386e04c",
+      "bytes": 9469,
+      "mode": 420
+    },
+    "src/eval/eval_string.h": {
+      "sha256": "eb91c3f12defb6d8d2b9d61beaccdb0b5400b32b47dd003e8228dc8ae747b79d",
+      "bytes": 758,
+      "mode": 420
+    },
+    "src/eval_u8.h": {
+      "sha256": "189df9b41bf2cd03f73f3b53555d6701e56503b6f62528d4635867b297d80a23",
+      "bytes": 476,
+      "mode": 420
+    },
+    "src/ffi_bindgen.c": {
+      "sha256": "d7408d08512474427d6faed0f9265f64af3604628b1849ae55739b11a0455ecf",
+      "bytes": 17200,
+      "mode": 420
+    },
+    "src/fmt.c": {
+      "sha256": "73acccf00a9d8413bcb5f4fcff87ab30ff9193d7461b60e3b9676a4f4ddbb0c7",
+      "bytes": 15089,
+      "mode": 420
+    },
+    "src/fmt.h": {
+      "sha256": "e24f0425c3e46eb5144acad85eb88d9a040ada03899610ac5c1db66e4c7be21d",
+      "bytes": 1636,
+      "mode": 420
+    },
+    "src/fmt_main.c": {
+      "sha256": "810f9cca6dd67eaf66fe2ee3f57be99e0ccefa2fe089d6ae3e6af0487ed0a6d0",
+      "bytes": 4108,
+      "mode": 420
+    },
+    "src/fold_constants.c": {
+      "sha256": "ae526a55c78308da40a8f7a823a11770a697fd8f872b6eb72cbadb5934418027",
+      "bytes": 12015,
+      "mode": 420
+    },
+    "src/fold_constants.h": {
+      "sha256": "348ec1f71b11d9db079c9dc63eaf180ffaed749bef8657844fa827b8df5dbea0",
+      "bytes": 1051,
+      "mode": 420
+    },
+    "src/forth/forth_repl.c": {
+      "sha256": "0d9c8aae397ecd552bb618a35a389b5a6a20f47853ba0b64bc5551d83a5e59ad",
+      "bytes": 1925,
+      "mode": 420
+    },
+    "src/forth/forth_session.c": {
+      "sha256": "5bffa1e9423b920a4438a4ef6d30ffcb2d6180d8d861643e27cd19cc87c55293",
+      "bytes": 336349,
+      "mode": 420
+    },
+    "src/forth/forth_session.h": {
+      "sha256": "5134ab6e502443bad3e2622bca769a16e7c68eabe5f4c12376a0bdc02c3339c8",
+      "bytes": 7395,
+      "mode": 420
+    },
+    "src/generate_module_index.c": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "src/generated/compiler_schema.h": {
+      "sha256": "7b3afd3e486ff29db188e180b85775461d9c171ca1262872f99d079a7cdb85f1",
+      "bytes": 24334,
+      "mode": 420
+    },
+    "src/generated/purity_intrinsics.h": {
+      "sha256": "01963cb323743f8b5901b344307624a8b7b7dbde953e63c64bb109023b365797",
+      "bytes": 2360,
+      "mode": 420
+    },
+    "src/interpreter_ffi.c": {
+      "sha256": "2bff426acabe980984eef32160bd91d04c50f3a46549ddea7a88e7e79814c53b",
+      "bytes": 15569,
+      "mode": 420
+    },
+    "src/interpreter_ffi.h": {
+      "sha256": "cf457b6317831222036f1cf79774b875d4f67d07f06db004d8bb83c7012fe77c",
+      "bytes": 3470,
+      "mode": 420
+    },
+    "src/json_diagnostics.c": {
+      "sha256": "6dd8c1728feeac4828d0e231493c93c7fe49ed1dc6a503e2df19b0a18f91df74",
+      "bytes": 6993,
+      "mode": 420
+    },
+    "src/json_diagnostics.h": {
+      "sha256": "ad8d195c91302f59722755d04facaf6339d50b830ebadb49b0891ddf925e3154",
+      "bytes": 2460,
+      "mode": 420
+    },
+    "src/lexer.c": {
+      "sha256": "1ce754d298bf62c4475f489ede37c7f09dcef09928efbe6cba1e2ac861919645",
+      "bytes": 28054,
+      "mode": 420
+    },
+    "src/lexer_bridge.c": {
+      "sha256": "0ca16b2926c46001e5dd44b392eb41ed0fc00ba4d3908419da4d0b57652a6d3e",
+      "bytes": 2462,
+      "mode": 420
+    },
+    "src/llm_pattern_suggestions.c": {
+      "sha256": "c2987c31e9905409e54c4730cb6455a23990ed5f148989226a3bf9a083e74de4",
+      "bytes": 8933,
+      "mode": 420
+    },
+    "src/llm_pattern_suggestions.h": {
+      "sha256": "061494fbe97f0661a9174cf9108d53607dee5a47f603b413cda47ceec3038fbf",
+      "bytes": 1976,
+      "mode": 420
+    },
+    "src/locale.c": {
+      "sha256": "6d74c4796ad87b72269ac3e356ac283dcf4f50591b6e28ebc820c85f4b8241f1",
+      "bytes": 3544,
+      "mode": 420
+    },
+    "src/locale.h": {
+      "sha256": "63c41ba62c9bd44aa0e74025fe391895f09c65f78ea18372a8f08a896f63a3ee",
+      "bytes": 960,
+      "mode": 420
+    },
+    "src/logic/logic.c": {
+      "sha256": "463220111dd28dd43dfdfd534bb04799d57035baa9bd5dfa82f181f91715887a",
+      "bytes": 18278,
+      "mode": 420
+    },
+    "src/logic/logic.h": {
+      "sha256": "ed3db33e534a268d422351cec656bfc09ef2e36b2d5fa7094ed88af7f0f98650",
+      "bytes": 722,
+      "mode": 420
+    },
+    "src/lsp_server.c": {
+      "sha256": "c62efa27cd55ef192fc8baf3f2aa6ad8fd87edd5099912afe5c7c875a190e161",
+      "bytes": 43463,
+      "mode": 420
+    },
+    "src/main.c": {
+      "sha256": "04837596d8776daedd1b3752fe1dc427b6ed9a14a22dd67bdc0c506e612fe374",
+      "bytes": 95448,
+      "mode": 420
+    },
+    "src/main_stage1_5.c": {
+      "sha256": "e252eea32f7ace2549e40349f62f713751bb9e7f57a5f5865a82562dca310188",
+      "bytes": 8067,
+      "mode": 420
+    },
+    "src/ml/ml.c": {
+      "sha256": "557f68c5c2ab8132c88bc5764f02deae7cace243215d5f85ce4bc7ea4060d488",
+      "bytes": 64854,
+      "mode": 420
+    },
+    "src/ml/ml.h": {
+      "sha256": "4b4dd3e2bf1658f0e7ad15b224dda8d3b4009f5ec920424055ee5270e552250f",
+      "bytes": 1180,
+      "mode": 420
+    },
+    "src/module.c": {
+      "sha256": "15f2438beb1e8050dc8f589da4535cb75b9300753308bcba3d98a1a7661cf2b1",
+      "bytes": 112789,
+      "mode": 420
+    },
+    "src/module_builder.c": {
+      "sha256": "d91953a1f90c7fc197419fa5d230dc59cbfbb537a47516722f5417246b0d3439",
+      "bytes": 288829,
+      "mode": 420
+    },
+    "src/module_builder.h": {
+      "sha256": "72b5defdc29bac3bf13930419cbef385cbbe2fcf4171d80589dc16e5e8ee83c5",
+      "bytes": 5745,
+      "mode": 420
+    },
+    "src/module_link_response.h": {
+      "sha256": "b496551a57e0260b69b7a47976ea0bf0d3972b7fd21b959e71ec40a1ad684a9b",
+      "bytes": 2785,
+      "mode": 420
+    },
+    "src/module_metadata.c": {
+      "sha256": "21f69bbca17955f132d05223a7993f252c6ba96ef32f44226a842b1aa510e646",
+      "bytes": 29303,
+      "mode": 420
+    },
+    "src/module_symbol.h": {
+      "sha256": "8586b9ce998dda548548fea2d5b828db19983a42edb2fbaa363a29f71b8c9341",
+      "bytes": 2983,
+      "mode": 420
+    },
+    "src/nano_main.c": {
+      "sha256": "cd04668371842c94e13a7f5d69fcf4f2a9df54eef218f353db056bd32adc3e60",
+      "bytes": 8707,
+      "mode": 420
+    },
+    "src/nanocore_export.c": {
+      "sha256": "ef20ae08f8caabc8f5544a7da92657c8f0cac645aa266f6cbd3945d6565cacd2",
+      "bytes": 25240,
+      "mode": 420
+    },
+    "src/nanocore_export.h": {
+      "sha256": "d04fae783b6400280b06cade8e73775d90e3f4a0d0efea9101065351d1d8a1b3",
+      "bytes": 648,
+      "mode": 420
+    },
+    "src/nanocore_subset.c": {
+      "sha256": "83706bc35a06c9e96ab317e4f0d6798009e740118c70199445d7b77a90db2adc",
+      "bytes": 21958,
+      "mode": 420
+    },
+    "src/nanocore_subset.h": {
+      "sha256": "60493735c009414cda52c6b18e905ffd3272d5ba91637baeb34bbbb4affe08c6",
+      "bytes": 1492,
+      "mode": 420
+    },
+    "src/nanoisa/affine_bytecode.c": {
+      "sha256": "1a2b381e40022a3ca2b7f9920c17fbf650cc11b983927ddbb5356151add6837a",
+      "bytes": 34083,
+      "mode": 420
+    },
+    "src/nanoisa/affine_bytecode.h": {
+      "sha256": "446e948b49ad19e3ee2651b481c2c028d568f3a0579a132dd793a906077b413a",
+      "bytes": 1102,
+      "mode": 420
+    },
+    "src/nanoisa/affine_state.c": {
+      "sha256": "fa11ac27b98d17ba7c43d9a3ee8446cc890177f37bac5eaa1492928800258854",
+      "bytes": 34473,
+      "mode": 420
+    },
+    "src/nanoisa/affine_state.h": {
+      "sha256": "cc5e638513eda6b6b76e1a150f50190e01363c3ba7dc57f605877285bea3a4b6",
+      "bytes": 7170,
+      "mode": 420
+    },
+    "src/nanoisa/assembler.c": {
+      "sha256": "68bf1a1207342c94ce8baee817abf193b14ca7693c3e1ad1746f835ada60712a",
+      "bytes": 67055,
+      "mode": 420
+    },
+    "src/nanoisa/assembler.h": {
+      "sha256": "213d5742beb5229264c4bb7d76b049eb65dcea8148e74ee7a1f9528d50c7af28",
+      "bytes": 2553,
+      "mode": 420
+    },
+    "src/nanoisa/binary64_parse.h": {
+      "sha256": "bc66ca560c1cbde3a075043174d165f56d3f85ee6026578b7b0cf8dd9ccf08c5",
+      "bytes": 11057,
+      "mode": 420
+    },
+    "src/nanoisa/binary64_parse_source.h": {
+      "sha256": "2ca32a258bf8e831a4a645320c213a034de4ea2c75403e4c4cfb1492fb26021f",
+      "bytes": 12540,
+      "mode": 420
+    },
+    "src/nanoisa/capture_bindings.c": {
+      "sha256": "6ff2ed8c90dca2d80555c4835c9879cdd27aef4b2c0e5fb82547b3799fb4b877",
+      "bytes": 13292,
+      "mode": 436
+    },
+    "src/nanoisa/capture_bindings.h": {
+      "sha256": "68fc9dd4b0f6f1755c46f0baa53f6668f0fd5012d232cad10dfc08c60c770dca",
+      "bytes": 2748,
+      "mode": 436
+    },
+    "src/nanoisa/disassembler.c": {
+      "sha256": "6c89f9becbaf02ebfdaacc97db33ac8aeda0ebc681bf17a5568521e6d8ff6a4f",
+      "bytes": 20807,
+      "mode": 420
+    },
+    "src/nanoisa/disassembler.h": {
+      "sha256": "d8baff98ab34084c607eaac7518f49edf8c7b7c4f740e4d8ee20a2adbac44d49",
+      "bytes": 1505,
+      "mode": 420
+    },
+    "src/nanoisa/file_body.h": {
+      "sha256": "5d7d6d08a229b50d263639232b9c99381932f43a4a169ff20151255521c9720a",
+      "bytes": 1588,
+      "mode": 420
+    },
+    "src/nanoisa/file_body.inc": {
+      "sha256": "4ecb4d41efa7ce946475d1472d448c14118cbf469f8011b3c790c77fa3928623",
+      "bytes": 12635,
+      "mode": 420
+    },
+    "src/nanoisa/file_cli.c": {
+      "sha256": "46b4811f582b74aee2dbf4c8c433b9b15a5b034e512051053dbe7dc53aa8599b",
+      "bytes": 3182,
+      "mode": 420
+    },
+    "src/nanoisa/file_cli.h": {
+      "sha256": "75760db6b29076aeceff826d0180c962a33d68ef47a2b0f98f613c8aa2af3e34",
+      "bytes": 435,
+      "mode": 420
+    },
+    "src/nanoisa/file_code.h": {
+      "sha256": "f19203d91a1116f86c380a371cbaeb0dfdbe7c6a36660a38efa647f77f9f9da5",
+      "bytes": 2083,
+      "mode": 420
+    },
+    "src/nanoisa/file_code.inc": {
+      "sha256": "faf12de9c7e0a4348b2bb6a85e25a86b100bbe702bb6d229b0f36c2c2aa6b25f",
+      "bytes": 16179,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic.h": {
+      "sha256": "654eec19f56172747242152bc90e3f95054f6879171a1528187e51c4721eb1ad",
+      "bytes": 3114,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic.inc": {
+      "sha256": "bcb9be656bf3239d1102f35c6a4f1c632ae874821621f61c04f88077320ac90b",
+      "bytes": 21604,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_dispatch.inc": {
+      "sha256": "73911b1318b8cd427fce6465f057f5b0214f01c1e654fc1d48f6cffc045bcee3",
+      "bytes": 6374,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_hosted.h": {
+      "sha256": "7cf539f4d7cb575f2bec0ea150606c40bd0123121578456ec7026c6aa671c103",
+      "bytes": 3752,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_hosted.inc": {
+      "sha256": "7ebdf8bdc7c37a85565469257136e7c39c6536e3b61ce0a654036af5e63b4af0",
+      "bytes": 17692,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_native_abi.h": {
+      "sha256": "fc9600ff4b1eecdcba4eb2eb091ae22da3fe96c0b6e07e340796f5f8634b887a",
+      "bytes": 223,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_native_emit.inc": {
+      "sha256": "58bc19652468eb3ba6661f1c258af39de5b5982bffb19c3920ca81af15f04a4a",
+      "bytes": 30451,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_native_public.h": {
+      "sha256": "88e25738034fbdb98ff5f34d03f7c5b6489833b552b43291edd0ad71dc8cf691",
+      "bytes": 434,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_public.h": {
+      "sha256": "a00a1fd7fca59f4e5fac944d5c453cd928191ff291bfce8d125fd42e7e404604",
+      "bytes": 912,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_public_abi.c": {
+      "sha256": "aa5f9a1bb24eff1ccfed66dc87801fcb9e8486c7c6991addc10deb64881e49c7",
+      "bytes": 347,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_public_internal.h": {
+      "sha256": "9ce448523b93a2ec69646250e52ba59a30446d3d0a825a305882bf9714479e98",
+      "bytes": 882,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_public_native.c": {
+      "sha256": "4e643cd028bb9ee575474bc1c988bb1694d5e4ba6fd42d4782f92e1de9fb7612",
+      "bytes": 1392,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_report.h": {
+      "sha256": "d9b85b87c1b61a3a72ee6322c5b924979412b1c1b024574aaba32cae89ba7655",
+      "bytes": 684,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_runtime.h": {
+      "sha256": "66c9673d83f87262fac3a73d281471f0773e0258d58f8ab30e6a76768f369105",
+      "bytes": 1566,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_runtime.inc": {
+      "sha256": "40e55b14879247155f6de84317e83a21facd6df0514edc57746c7510bcafccd0",
+      "bytes": 15776,
+      "mode": 420
+    },
+    "src/nanoisa/file_cyclic_runtime_facts.inc": {
+      "sha256": "6cb8be8583f9ce6401afd1447bc538fa33a8caa6dd635bb081c55c94e3df6536",
+      "bytes": 5489,
+      "mode": 420
+    },
+    "src/nanoisa/file_flow.c": {
+      "sha256": "4b59aef1102d612c573f95ec63b7ac4f9560a66d8d3c6304a000dcbec5e60def",
+      "bytes": 36277,
+      "mode": 420
+    },
+    "src/nanoisa/file_flow.h": {
+      "sha256": "2e29fc4d25830afcaa253e67568e437097318d7d9da069537ff8beb1716e7f8f",
+      "bytes": 7541,
+      "mode": 420
+    },
+    "src/nanoisa/file_host_grant.c": {
+      "sha256": "5be5fa8fe2942421ea3889118e5d865d9640ee6ad6e07849f63a1d965a7bec4d",
+      "bytes": 3552,
+      "mode": 420
+    },
+    "src/nanoisa/file_host_grant.h": {
+      "sha256": "8b7f524daa47bd6f2d2118f58cacd0405e937bcc0605bb12def7d4ea5fe455ac",
+      "bytes": 1409,
+      "mode": 420
+    },
+    "src/nanoisa/file_host_grant_internal.h": {
+      "sha256": "752b0c38ccd91c1d22a5d9b9423b95a2aad62876d0e9b3da7d8ef93b0af1fb45",
+      "bytes": 811,
+      "mode": 420
+    },
+    "src/nanoisa/file_hosted.h": {
+      "sha256": "45f1c219d5395b69e613c8890b8ddbd0b490a2b4db08ecb9e489eb4c390819b0",
+      "bytes": 2007,
+      "mode": 420
+    },
+    "src/nanoisa/file_hosted.inc": {
+      "sha256": "9942e7e0fba50418202ca88b45ba43f1bd8ae1024335d3da6f7bfbfd1b32c65e",
+      "bytes": 17556,
+      "mode": 420
+    },
+    "src/nanoisa/file_indirect_flow.h": {
+      "sha256": "0b3cc7e14d8036344d691780d21cfa316149236665e5454f5a058db73a476d33",
+      "bytes": 2742,
+      "mode": 420
+    },
+    "src/nanoisa/file_indirect_flow.inc": {
+      "sha256": "963e9482b9b7e24e4aae0f4722358be649a0f128061c8437b3820ec878ff4892",
+      "bytes": 10437,
+      "mode": 420
+    },
+    "src/nanoisa/file_indirect_hosted.h": {
+      "sha256": "76ee83575c653e83d56d9faba0cc4a3f17717d58c007ae0eeafbea58bbaf1c87",
+      "bytes": 3972,
+      "mode": 420
+    },
+    "src/nanoisa/file_indirect_hosted.inc": {
+      "sha256": "a0c176b01de910950110d8a3b6cc2cc8453b3b2abf64c658aaedc51827d00325",
+      "bytes": 17417,
+      "mode": 420
+    },
+    "src/nanoisa/file_indirect_targets.h": {
+      "sha256": "c27137d7d7650886d0d539c8df1e30cf2e37023230961fcef056669e74a5c39c",
+      "bytes": 1836,
+      "mode": 420
+    },
+    "src/nanoisa/file_indirect_targets.inc": {
+      "sha256": "37477dc80ff97d0d2355213c9887ba0694f3828412443b75e42de42d5d9ac862",
+      "bytes": 19835,
+      "mode": 420
+    },
+    "src/nanoisa/file_native_abi.h": {
+      "sha256": "5a43f4ee61279663a2ead77aafc210134819c8eb38872141fd88b053c1745b8b",
+      "bytes": 486,
+      "mode": 420
+    },
+    "src/nanoisa/file_native_emit.inc": {
+      "sha256": "a2557d7955247d924ed6d3fd1efed40514f8225dc157b87327e79f76f4a58ef7",
+      "bytes": 28570,
+      "mode": 420
+    },
+    "src/nanoisa/file_native_public.h": {
+      "sha256": "7071ce61cc5a875675c079954a1c2dc8ccf89b13a7ed5a3845dc2fdba6823c2c",
+      "bytes": 308,
+      "mode": 420
+    },
+    "src/nanoisa/file_public.h": {
+      "sha256": "b5ff8662cb1063f634192e0d304d308ac0422627050a155d8f8368f02706408b",
+      "bytes": 977,
+      "mode": 420
+    },
+    "src/nanoisa/file_public_internal.h": {
+      "sha256": "9b6783d0936406e8b0ad18200d0b5f2e2a21ba6c3470ddf41129c3f37c32e7e4",
+      "bytes": 2114,
+      "mode": 420
+    },
+    "src/nanoisa/file_public_native.c": {
+      "sha256": "c58acc259bf8f52e6751354cbf39c4d6aac32a64593d7e233fd1ec5fe11368bc",
+      "bytes": 1352,
+      "mode": 420
+    },
+    "src/nanoisa/file_runtime.c": {
+      "sha256": "ba7fe545f0ebc865151420a0c65e9f8f47ffbc03338f91e237301700731dd854",
+      "bytes": 34630,
+      "mode": 420
+    },
+    "src/nanoisa/file_runtime.h": {
+      "sha256": "8c500c063e4c0439981c9090cd04d42d72c268a4d8b7378abe256cc5bcc70b78",
+      "bytes": 4912,
+      "mode": 420
+    },
+    "src/nanoisa/file_runtime_frames.h": {
+      "sha256": "13e5e17b6954dfcb28814019c89b624908f202b12152e6d172ea912ad85583b7",
+      "bytes": 2489,
+      "mode": 420
+    },
+    "src/nanoisa/file_runtime_frames.inc": {
+      "sha256": "94fcfc75e4a134ebdea1d62ae339d183486607ecad7345ca10958e50aec0f049",
+      "bytes": 20401,
+      "mode": 420
+    },
+    "src/nanoisa/file_source_catalog.c": {
+      "sha256": "8bd339ead65bb17a33acd0a53a186244653e3bb22eebc05438601a0ec3325b7e",
+      "bytes": 4636,
+      "mode": 420
+    },
+    "src/nanoisa/file_source_plan.c": {
+      "sha256": "07c29b82481ec5a8343583d3ccf303858db614ad929f5d185f3f9d2306c69f54",
+      "bytes": 6084,
+      "mode": 420
+    },
+    "src/nanoisa/file_source_plan.h": {
+      "sha256": "2a7539d90113c3cfee83420129cbeacf45ee0b738ee8c82623104f899c8e9ee3",
+      "bytes": 2826,
+      "mode": 420
+    },
+    "src/nanoisa/frontend.c": {
+      "sha256": "c4d9a3749ddb7feea95eeb7037595d3d5eae667569f5886702d081be87a5920d",
+      "bytes": 10568,
+      "mode": 420
+    },
+    "src/nanoisa/frontend.h": {
+      "sha256": "3f7b849153f6d32672d75d436f37d6453dd27b4772f6f3ba5ef9116965528467",
+      "bytes": 2524,
+      "mode": 420
+    },
+    "src/nanoisa/generated_schema.h": {
+      "sha256": "604a8c09a0bd06d9db5aec7ed9b0dff9b127ad29c14adc48587cb500a8a39c8e",
+      "bytes": 27126,
+      "mode": 420
+    },
+    "src/nanoisa/hl_facts_main.c": {
+      "sha256": "79bc131e0c8ebaf258a46a3fffe8d8abf1483382316925c6f4aa069e1817fcb5",
+      "bytes": 4974,
+      "mode": 420
+    },
+    "src/nanoisa/isa.c": {
+      "sha256": "4d77cf7e8f951f388218432e596f9dd7279727438f612be53b9f7fadd5b6eb59",
+      "bytes": 9852,
+      "mode": 420
+    },
+    "src/nanoisa/isa.h": {
+      "sha256": "e540389ef8fb793498736eb717796122ceb396e5ff6894adabd0532173655fa5",
+      "bytes": 19096,
+      "mode": 420
+    },
+    "src/nanoisa/local_bindings.c": {
+      "sha256": "6f66037c8b02c1d2b68f76de49e76aef05e559b97a82ee820f742a815b85b1f5",
+      "bytes": 4347,
+      "mode": 420
+    },
+    "src/nanoisa/local_bindings.h": {
+      "sha256": "39b7b9cdc4de50b00827adb4b684b3546954a846c228b43ceb82286db10961ec",
+      "bytes": 750,
+      "mode": 420
+    },
+    "src/nanoisa/managed_array_shapes.c": {
+      "sha256": "b051fde7d189ab7b0a30e48eb66f884a38f51553fa08d2e8b2cbed60fbbafef0",
+      "bytes": 53472,
+      "mode": 420
+    },
+    "src/nanoisa/managed_array_shapes.h": {
+      "sha256": "2ca7c20170e31c133544830ceb604a83f130a30f812f4864282e3e2552991e47",
+      "bytes": 2064,
+      "mode": 420
+    },
+    "src/nanoisa/managed_module.c": {
+      "sha256": "f8e6fe2d4ce7bf53404290c0706cad61efa4bd35b362df30517dc377ee126e52",
+      "bytes": 13980,
+      "mode": 420
+    },
+    "src/nanoisa/managed_native_source.h": {
+      "sha256": "16314615e322c8ddc39a8ee3e7fddf23790b5a060c3a124374fda4c902c1aed2",
+      "bytes": 91459,
+      "mode": 420
+    },
+    "src/nanoisa/managed_record_array_execution.h": {
+      "sha256": "1b432da98af5cff8c6ca077cb9962da4e1530f4705671e41f055845eeed7bc11",
+      "bytes": 4969,
+      "mode": 420
+    },
+    "src/nanoisa/managed_record_array_execution.inc": {
+      "sha256": "1148151686397c864848f6eea39707cc19e66c44f188ee94b5d337ec1a53b567",
+      "bytes": 30736,
+      "mode": 420
+    },
+    "src/nanoisa/managed_record_array_origins.h": {
+      "sha256": "9e8ae568481942b1229952b03caf73bcf05433f2136351be2f68a55987d68604",
+      "bytes": 1851,
+      "mode": 420
+    },
+    "src/nanoisa/managed_record_plan.h": {
+      "sha256": "c30beccb47c344e6cd47621a3a13d2a130070c3b1f5d7f0ac94079da9b6c8461",
+      "bytes": 1645,
+      "mode": 420
+    },
+    "src/nanoisa/managed_record_shapes.h": {
+      "sha256": "b5920e095fbc468450a0d390b6c1cfe0ab9ef8665a9662639bea323472e686c8",
+      "bytes": 2013,
+      "mode": 420
+    },
+    "src/nanoisa/managed_strings.c": {
+      "sha256": "24c5d151d101a1b32ffcd34725e15814fb8bb8576cb5f255e2220564db368dc7",
+      "bytes": 64591,
+      "mode": 420
+    },
+    "src/nanoisa/managed_strings.h": {
+      "sha256": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699",
+      "bytes": 7837,
+      "mode": 420
+    },
+    "src/nanoisa/mixed_float_proof.c": {
+      "sha256": "59d8e3fc50c1c08106ceb462735e9e3ade984325d4e4896090c5ed4cbd3d5205",
+      "bytes": 30917,
+      "mode": 420
+    },
+    "src/nanoisa/mixed_float_proof.h": {
+      "sha256": "fe97d297b8343c0cc94b8b6b5299b289ae37d39484e443f33626c8ecba7b5487",
+      "bytes": 1848,
+      "mode": 420
+    },
+    "src/nanoisa/mixed_layout_view.h": {
+      "sha256": "228141f446a0ee362a3e35bdc00516dab5e8d0701b7f9940dfad1db249cb8d1c",
+      "bytes": 1148,
+      "mode": 420
+    },
+    "src/nanoisa/mixed_layout_view.inc": {
+      "sha256": "55c3bf72dbe18fece62809463967d84082d8fc3df071aa4365c9d01963c70dcb",
+      "bytes": 9752,
+      "mode": 420
+    },
+    "src/nanoisa/mixed_samples.h": {
+      "sha256": "90340653ab2f7d32993874520225be5a56ad88be4c5d101358724f279e6d4e6a",
+      "bytes": 1427,
+      "mode": 420
+    },
+    "src/nanoisa/mixed_samples.inc": {
+      "sha256": "37a2d75d07b82e6a7c517decdb04bab7f84aeb6d3f1a8e8601ebb23541b48705",
+      "bytes": 33022,
+      "mode": 420
+    },
+    "src/nanoisa/mixed_samples_internal.h": {
+      "sha256": "9e0c6107b305e16850d53132fad8c40a70a66808f7cbd56b5340a7de86e6f6a1",
+      "bytes": 2667,
+      "mode": 420
+    },
+    "src/nanoisa/mixed_samples_prepare.inc": {
+      "sha256": "74d555d9b0ccf6ca20c6d0fae9bcde85ac76db5237e5c964e5c448b9233f6ead",
+      "bytes": 12269,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2c.c": {
+      "sha256": "80e49534592e428c3a970918a2cb708f7c22d8e9cf2a8f030494ed59e6a824e3",
+      "bytes": 354801,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2c.h": {
+      "sha256": "2b007f627b6482e3c1a07e69ddb97c450014ac911b8f1c10e7d6ac89ed70ae35",
+      "bytes": 4044,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2c_file_cyclic_private.c": {
+      "sha256": "93be29673507c4832a4fa316673558505ae3ef965fd1dfa95dfab715895ecff3",
+      "bytes": 348,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2c_file_cyclic_private.h": {
+      "sha256": "aa604ae907edbe1e07675c76e336865f9f7ed8fe9fa19f46696d0e83a97aa2ce",
+      "bytes": 547,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2c_file_private.c": {
+      "sha256": "2c240ce25df05b5b60d4c6e1c1361782dd05654fb3023360efebf81725374e6b",
+      "bytes": 309,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2c_file_private.h": {
+      "sha256": "ef5d18ed1d83ca3ecf5048d29c60487556b08b24cef426f26d208f15d4ff69d8",
+      "bytes": 580,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2c_main.c": {
+      "sha256": "783f2b0773911678fcd29d676e81b057ab51f48abb92ad349108caaf60f3be6f",
+      "bytes": 4837,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2c_map_roots.inc": {
+      "sha256": "d5a413c7da1eeca3770a69b21fe7717207553d5308322ba8c35cd48fc720e058",
+      "bytes": 6312,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2c_map_runtime.inc": {
+      "sha256": "2c3f8eae322b419035751de72f4abea6ad6aaab0a949f60353a33738136af651",
+      "bytes": 6254,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2c_owned.h": {
+      "sha256": "db0ff8b8b061a1506beb2a2ac4f5c8cfe3b1d50e070dbe9fa22efd4d179da9b6",
+      "bytes": 38692,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2c_shape.c": {
+      "sha256": "5be17da5caaf077aa434fdf38bd9ba6237543b54d3fb01273bfa5ccd0ed2d994",
+      "bytes": 15015,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2c_shape.h": {
+      "sha256": "77e1007aceaa9a5828ae8ebf9fd1ef598e22086acb742bdca11d21a368f43df8",
+      "bytes": 2423,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2llvm.c": {
+      "sha256": "78c45beeb7e8c2e3c1c148a7ba560740d215d4263d791394853e28ec4d937007",
+      "bytes": 49489,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2llvm.h": {
+      "sha256": "2509f8edfd1afea099fa06ffca9c9fdd291c5a48569f38f1954bbc2199c6766d",
+      "bytes": 599,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2llvm_main.c": {
+      "sha256": "a12459b560dd1131cdafd97d326350e631b2c00962572ce7b9b6930884f1ecc4",
+      "bytes": 3753,
+      "mode": 420
+    },
+    "src/nanoisa/nvm2llvm_managed.inc": {
+      "sha256": "6b5c8f676c56f634b38ca2b53c4a5bfd69b908ceb577a081c034680f831663ad",
+      "bytes": 33085,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_format.c": {
+      "sha256": "0da678f419f8bfbeafc2d9eb45a24b51127a987c622a9d746fba8ef69c80ffe7",
+      "bytes": 43067,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_format.h": {
+      "sha256": "a49a6eb8b3a6ccc7603bccb51743c79d7e73efff27c6f2769e75bc7c01cd4a34",
+      "bytes": 15573,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_format_v2.c": {
+      "sha256": "5da5b993a802a745e27f339b93f2d630c1b639e51b3c1924fbbb0c680fcfaaae",
+      "bytes": 10126,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_format_v2.h": {
+      "sha256": "8e03de1a95814af5702b22fb4077f8e17c8e00b5ee22399fa877b7fba7110d59",
+      "bytes": 5599,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_v2_constants.c": {
+      "sha256": "2645c1a4e5773088158353f71461f2865a02436c9cd8b4b88bca3344947b07ae",
+      "bytes": 4261,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_v2_convert.c": {
+      "sha256": "b6f68ab3d79f29de4c543c631a95527c713ef6088624abfe12313056d0665660",
+      "bytes": 27402,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_v2_cursor.c": {
+      "sha256": "d84b11478f6034fd8bca29d63746abae67c9700a1e571d220de285f2c49748fb",
+      "bytes": 2099,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_v2_functions.c": {
+      "sha256": "1e361492ba68833f9d4621b1423188f7789c136ea0af2bced4eeb3180bab5df7",
+      "bytes": 6537,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_v2_imports.c": {
+      "sha256": "ebf9789e3e1a8c744e2a98bccd83f386e5424ce78cf3f299a12ed5f108a1fc13",
+      "bytes": 12433,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_v2_layouts.c": {
+      "sha256": "f158f79c7a99b54b3d3eb5e584f00a55bc5a6ec0fa71c4ae1e02f96d69253710",
+      "bytes": 10904,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_v2_module.c": {
+      "sha256": "e62dcbee2d359c91b09ce227bfc0fa3e6e7e017ea0fa929a94ceb0b01392f959",
+      "bytes": 20670,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_v2_sections.h": {
+      "sha256": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+      "bytes": 18955,
+      "mode": 420
+    },
+    "src/nanoisa/nvm_v2_signatures.c": {
+      "sha256": "7f1bee030349ac740c74bdbe30851def005d95915a43ea821dd619b8f4a727f8",
+      "bytes": 4812,
+      "mode": 420
+    },
+    "src/nanoisa/ordinary_array_authority.h": {
+      "sha256": "8e8b342a6c8cd07486ca558f82ba4bbd963481e642c4c74908690f279bff0677",
+      "bytes": 1437,
+      "mode": 420
+    },
+    "src/nanoisa/ordinary_array_authority.inc": {
+      "sha256": "a664da380b985ef79d2976814b34a29dbad9a812dffaee6d410e8e614c831c64",
+      "bytes": 7475,
+      "mode": 420
+    },
+    "src/nanoisa/owned_array_admission.h": {
+      "sha256": "81a845ba68f31ac6d2d39dda881744d83c8f1f08cf613698d18146fb26e5275e",
+      "bytes": 758,
+      "mode": 420
+    },
+    "src/nanoisa/owned_array_admit.inc": {
+      "sha256": "b6890e34cb6668e2652fc8708d0768a5951129afb13a99fe0006548163478e2b",
+      "bytes": 8317,
+      "mode": 420
+    },
+    "src/nanoisa/owned_array_authority.h": {
+      "sha256": "35a2b5cc5f7afdbb20065e31193795e3805d9c82409172588abc2907ab7cd1cd",
+      "bytes": 1859,
+      "mode": 420
+    },
+    "src/nanoisa/owned_array_authority.inc": {
+      "sha256": "1e623f5d0dc2aa655987d559ac0e7fa10ab11111eb6c9c758507846a3438044c",
+      "bytes": 30532,
+      "mode": 420
+    },
+    "src/nanoisa/owned_array_authority_internal.h": {
+      "sha256": "3287409b5d15561e5590e3527833eab6f1851b7bc3cb0d84353a57c5b880e1cc",
+      "bytes": 739,
+      "mode": 420
+    },
+    "src/nanoisa/owned_array_layouts.h": {
+      "sha256": "f3b1e15fa1448ae4f86f7df77b4c668b645a81a82a5b1ff112bc8431bd95e490",
+      "bytes": 2220,
+      "mode": 420
+    },
+    "src/nanoisa/owned_array_layouts.inc": {
+      "sha256": "018a1e735fbe0917a537542d10c439266eda7a2176f28fb5b78efd412366e6ab",
+      "bytes": 11305,
+      "mode": 420
+    },
+    "src/nanoisa/owned_array_origins.h": {
+      "sha256": "487b9e2b2ffe11779b35007479af83a988c2c5709ae13a7b63275b939f969fc0",
+      "bytes": 2343,
+      "mode": 420
+    },
+    "src/nanoisa/owned_array_origins.inc": {
+      "sha256": "dd930fa29386e9f655d7ab0e1731fba3c4554c26607259ecb74d3c6f293512d2",
+      "bytes": 39339,
+      "mode": 420
+    },
+    "src/nanoisa/owned_array_prepare.inc": {
+      "sha256": "341c03c2f7636aefcf6786177e167cc8d43086bf51e383428ed38105f77c50f6",
+      "bytes": 3195,
+      "mode": 420
+    },
+    "src/nanoisa/owned_array_runtime_private.h": {
+      "sha256": "af684d55d843b75876c9133676080a7ace1991d4b722250658930d933fc3585f",
+      "bytes": 618,
+      "mode": 420
+    },
+    "src/nanoisa/ownership_array_fields.inc": {
+      "sha256": "d430c7cf44f7559bac9383afc85f295ac3b48240d343f996909b4e552734e488",
+      "bytes": 5673,
+      "mode": 420
+    },
+    "src/nanoisa/ownership_contracts.c": {
+      "sha256": "f97c2ba7d05f6bf1a799907d361c3792ff96b970cdaf0ae263cda89baaddfaf5",
+      "bytes": 25192,
+      "mode": 420
+    },
+    "src/nanoisa/ownership_contracts.h": {
+      "sha256": "3c0dba6242a9bbfd559f07a5b9b4e48ea5786c0286e91a85378889f0fa929135",
+      "bytes": 3017,
+      "mode": 420
+    },
+    "src/nanoisa/ownership_declaration_projection.h": {
+      "sha256": "ede8714acacb52ae0d29dea4e205878a361fc36817af5aa85ce0cb60453966d8",
+      "bytes": 1758,
+      "mode": 420
+    },
+    "src/nanoisa/ownership_declaration_projection.inc": {
+      "sha256": "fe3a29519fb7a971680b02cb246f9b28a88f7180f25e38243c0a60c034eed923",
+      "bytes": 5134,
+      "mode": 420
+    },
+    "src/nanoisa/ownership_layouts_private.h": {
+      "sha256": "368eb1f787ab1e4ee95ca8333d7600e5d6fc5ff4bf5b5de0815290d0de2cd164",
+      "bytes": 1787,
+      "mode": 420
+    },
+    "src/nanoisa/passive.c": {
+      "sha256": "bbc8e90572be5d271399310284facaf54f7c6afa0c07f363b05ffc970058ebff",
+      "bytes": 16477,
+      "mode": 420
+    },
+    "src/nanoisa/passive.h": {
+      "sha256": "0bdc1d7deb3289d96a442a1a98eef1a5876c87bf3a54c7d4d7b5cbd49a251d98",
+      "bytes": 289,
+      "mode": 420
+    },
+    "src/nanoisa/passive_calls.inc": {
+      "sha256": "ffb05fc00586a37a1f7b237073eb9b7d81999638ef8a65e99100390615935b57",
+      "bytes": 6809,
+      "mode": 420
+    },
+    "src/nanoisa/portable_host_plan.c": {
+      "sha256": "d42431c3af4fceaa504b08615dd6cff0c982cdaa880e25fd3d74c8a6e2e87bc6",
+      "bytes": 14212,
+      "mode": 420
+    },
+    "src/nanoisa/portable_host_plan.h": {
+      "sha256": "7c5ea7161d188cd008a37b9d4c2df689355f1ccbb0ab70f5a169244d1df01250",
+      "bytes": 3272,
+      "mode": 420
+    },
+    "src/nanoisa/portable_read_host.c": {
+      "sha256": "3d5174e498c850935bec53e3a4d5d4f861986a8f04d406a6ebf23060416a920a",
+      "bytes": 4249,
+      "mode": 420
+    },
+    "src/nanoisa/portable_read_host.h": {
+      "sha256": "b6be464836821234122f5422745590ebdea8fd3c0ce082573220736e168d07c1",
+      "bytes": 1427,
+      "mode": 420
+    },
+    "src/nanoisa/portable_read_managed.c": {
+      "sha256": "1c2aa732202913130b76832234bce2911d84d35c0d2bba8ec0cbcc87b0102420",
+      "bytes": 2320,
+      "mode": 420
+    },
+    "src/nanoisa/portable_read_managed.h": {
+      "sha256": "5c12ad95295d04f9a2bf50cb2f20f22ffa999db4dd9dc51e687bc043b94073fd",
+      "bytes": 756,
+      "mode": 420
+    },
+    "src/nanoisa/portable_read_wasm.c": {
+      "sha256": "338671e791e3c2c91c13222a4675c419e0dcf8f8a5d3aa5a022d3b4afd743fed",
+      "bytes": 2696,
+      "mode": 420
+    },
+    "src/nanoisa/portable_read_wasm.h": {
+      "sha256": "1301021fce4837e1f525e6e7a91cfb1b38034cef1d4184dd5ce6f0b7d01525a9",
+      "bytes": 503,
+      "mode": 420
+    },
+    "src/nanoisa/record_array_origins.inc": {
+      "sha256": "2b348e7cefaf3da002a788e97a1e4b7b99eb6816ad76771d36b79fdc52d2e629",
+      "bytes": 8608,
+      "mode": 420
+    },
+    "src/nanoisa/record_array_snapshot_private.h": {
+      "sha256": "72d131ff083eca8006af75f454635021dccdfb9bac03d6e078ff9a68378d60f9",
+      "bytes": 800,
+      "mode": 420
+    },
+    "src/nanoisa/record_array_structure.inc": {
+      "sha256": "75f3f37c7edb9ccf7f7831a1f49d832d1b3570e8100fd756403aea8f77445577",
+      "bytes": 8841,
+      "mode": 420
+    },
+    "src/nanoisa/record_array_structure_private.h": {
+      "sha256": "353b30e8e988a38bdfe7963ddc77322038367f11ee14ea10b3cc404488a18a80",
+      "bytes": 2173,
+      "mode": 420
+    },
+    "src/nanoisa/reference_places.c": {
+      "sha256": "1b2cbc43c6bf73cbc5a998119b788297f311b07e9b745f12b8c68d686c14854c",
+      "bytes": 4696,
+      "mode": 420
+    },
+    "src/nanoisa/reference_places.h": {
+      "sha256": "394d7b616dc377c6ccd8829716f57557c508b66c218d77dd9d21102c5b0478bc",
+      "bytes": 2021,
+      "mode": 420
+    },
+    "src/nanoisa/retained_layouts.c": {
+      "sha256": "a44a3327e9301c32683ea16a4ed8a39fdd61bde25550d79de977e5bd1ac61a5d",
+      "bytes": 15222,
+      "mode": 420
+    },
+    "src/nanoisa/retained_layouts.h": {
+      "sha256": "f2150b5b1c1826b23bb4dad57ec54c4b148d45c7e02850bd8d53bfc927158a41",
+      "bytes": 711,
+      "mode": 420
+    },
+    "src/nanoisa/service_bindings.c": {
+      "sha256": "c7599125a5ac23ffdbf61b02ba01932c12e2dee09e0a1912ca10c86c6df34ed7",
+      "bytes": 3006,
+      "mode": 420
+    },
+    "src/nanoisa/service_bindings.h": {
+      "sha256": "e6514846b5a4e341b649421625d92c728589beada8273501826334e1ae107d79",
+      "bytes": 1572,
+      "mode": 420
+    },
+    "src/nanoisa/service_bindings_module.c": {
+      "sha256": "a24ecc2948e85e03307b0b99b01496f0568dca49e8f75ebe7a21a76f5c6367f4",
+      "bytes": 15533,
+      "mode": 420
+    },
+    "src/nanoisa/service_bindings_module.h": {
+      "sha256": "5a06e11b1d795e519c1ea08327338d8c885ac274c02a97c06c036c892131160e",
+      "bytes": 1840,
+      "mode": 420
+    },
+    "src/nanoisa/service_classification_private.h": {
+      "sha256": "60da7dfcabb801265bddbe3ef01027874cf83c6fd12baa799d821e9bb6200dcb",
+      "bytes": 939,
+      "mode": 420
+    },
+    "src/nanoisa/service_file_nominal.c": {
+      "sha256": "d24a0c9008505977bee4fa8e7402d048e9993fd69ae7284bfc2c5aef180bf32d",
+      "bytes": 3102,
+      "mode": 420
+    },
+    "src/nanoisa/service_file_nominal.h": {
+      "sha256": "f7e8a3bbcb98442125b987f97299f9eab39fa834c6a2c5d615476970a0de29b8",
+      "bytes": 2746,
+      "mode": 420
+    },
+    "src/nanoisa/service_file_nominal_plan.c": {
+      "sha256": "54a0edad2862ebe79726b6f159bc19a11d9c8166b2f88f2d95022dfc072921e7",
+      "bytes": 11749,
+      "mode": 420
+    },
+    "src/nanoisa/verifier.c": {
+      "sha256": "8306b5f226a762adce621b90e68b89e60aeda1c0a243cfe60c27824d9bc4613a",
+      "bytes": 67118,
+      "mode": 420
+    },
+    "src/nanoisa/verifier.h": {
+      "sha256": "72dac5c5480c1c7f0d1f221de0510c4c6c0d8125ee5c2772fd6129f57677872a",
+      "bytes": 6061,
+      "mode": 420
+    },
+    "src/nanoisa/verifier_types.c": {
+      "sha256": "4a28dbdf96dada1ce7f849d360faaef08f37a20f4f7c0a6d4361a1ba3294df17",
+      "bytes": 17024,
+      "mode": 420
+    },
+    "src/nanolang.h": {
+      "sha256": "57945d731d2af70323be2cb4c6c363bdbc9367eaff1f5e9b0de3f7381a15ce5d",
+      "bytes": 57050,
+      "mode": 420
+    },
+    "src/nanovirt/borrow_codegen.inc": {
+      "sha256": "62d427145126aa89625a4413d7b6d50571056de658346732b1518e8759395eaa",
+      "bytes": 100206,
+      "mode": 420
+    },
+    "src/nanovirt/codegen.c": {
+      "sha256": "2a0ad1cc71b1dceb4dcf063ff7f0af0ea1ae7a662066a42adbe41e50d2387562",
+      "bytes": 220218,
+      "mode": 420
+    },
+    "src/nanovirt/codegen.h": {
+      "sha256": "8d4f23f9c0ef39f9699893920da965a05bad6eef9462e75a40cd51e82e0aa0cb",
+      "bytes": 2093,
+      "mode": 420
+    },
+    "src/nanovirt/main.c": {
+      "sha256": "01a7b3643a63c0e6bdf2bebd616eac696b2c52c3c95053d049a62fa60a198570",
+      "bytes": 14362,
+      "mode": 420
+    },
+    "src/nanovirt/ordinary_authority.inc": {
+      "sha256": "a35fd232610e6f6bd1593bdce04409995f0c8e68f61fdcd561188b9fd887368e",
+      "bytes": 6623,
+      "mode": 420
+    },
+    "src/nanovirt/shadow_runner.c": {
+      "sha256": "bda245b197b31c15d28e4f5feb892f3d34d71388e044ab91d024e04b1ca354a9",
+      "bytes": 13132,
+      "mode": 420
+    },
+    "src/nanovirt/shadow_runner.h": {
+      "sha256": "692cc29b1f946c2edc7be9ea2fc08d6c017648189b92f67c4e81389981d8fa02",
+      "bytes": 825,
+      "mode": 420
+    },
+    "src/nanovirt/wrapper_gen.c": {
+      "sha256": "7835199e9cbbde774972c247858e264ca4617e1b449ab43433773d019a870db5",
+      "bytes": 25516,
+      "mode": 420
+    },
+    "src/nanovirt/wrapper_gen.h": {
+      "sha256": "5a081e2e752d65e558944ad4c25f1fea2e1695b5c53b04e1dbb7b08aa9812174",
+      "bytes": 1651,
+      "mode": 420
+    },
+    "src/nanovm/binding_state.c": {
+      "sha256": "e151bace8b11aa4b013b5db4ca987c34eed66b45e107429b475df2a48600ba89",
+      "bytes": 14039,
+      "mode": 436
+    },
+    "src/nanovm/binding_state.h": {
+      "sha256": "74595cc0bd3cb10e6eeafe4ee72e36977bfca0d21845e5d9746d2c5cd155ddf4",
+      "bytes": 4398,
+      "mode": 436
+    },
+    "src/nanovm/cop_main.c": {
+      "sha256": "c680c5994c27be2d4349af6f164da21c50a5638fcda302b72252479677256ba2",
+      "bytes": 5193,
+      "mode": 420
+    },
+    "src/nanovm/cop_protocol.c": {
+      "sha256": "f80e2cc8d1b39f6d860c59489bf102a2d83054383e041621d365dae44eb95e8e",
+      "bytes": 30536,
+      "mode": 420
+    },
+    "src/nanovm/cop_protocol.h": {
+      "sha256": "76b4a633c95a8c3fea0d2584a87a51b4585e0dc5749b6185a56c558dc7375d0a",
+      "bytes": 9192,
+      "mode": 420
+    },
+    "src/nanovm/ffi_dispatch_generated.h": {
+      "sha256": "1f3c2680f3a41215e7bd71ddefbe4e4a304e35f1a741ca9b19c0aa12c1a329e4",
+      "bytes": 39670,
+      "mode": 420
+    },
+    "src/nanovm/file_cyclic_public_vm.c": {
+      "sha256": "0caa607ac62f74dd11cc004d51324d182f0163df1fb830b728ab4f0f3ce404e7",
+      "bytes": 1138,
+      "mode": 420
+    },
+    "src/nanovm/file_public_vm.c": {
+      "sha256": "d90c9bbc74328faba32c16440a1af56bd15e5ddc408842bf71170eb3b8e4d844",
+      "bytes": 808,
+      "mode": 420
+    },
+    "src/nanovm/file_vm_cyclic_engine.inc": {
+      "sha256": "40dd4dbcfebd46a0df6c69a17ce8c9fa1367b670191f66cadb8112a8acf8c8eb",
+      "bytes": 11207,
+      "mode": 420
+    },
+    "src/nanovm/file_vm_cyclic_private.c": {
+      "sha256": "0c07aa1ca9b70e8164c6ba63ef55ebbd5e5e2d019f355ae5e88aabfa828aca61",
+      "bytes": 343,
+      "mode": 420
+    },
+    "src/nanovm/file_vm_cyclic_private.h": {
+      "sha256": "dda9b1f72288a8639a3c521964b53ce9a91a9829eea852ee5244eed6d951b1b7",
+      "bytes": 454,
+      "mode": 420
+    },
+    "src/nanovm/file_vm_engine.inc": {
+      "sha256": "1e2c5e4eeae686e49c898d639dcc50497953fd7241111fe897ed809cbf966802",
+      "bytes": 15579,
+      "mode": 420
+    },
+    "src/nanovm/file_vm_private.c": {
+      "sha256": "29051a21278234089b8e398f7aabe5bcfca77a7f06ad5ede1ff2d97815ab4e29",
+      "bytes": 294,
+      "mode": 420
+    },
+    "src/nanovm/file_vm_private.h": {
+      "sha256": "67ab3dc045573223954fe16acc3d0607b3386a711bba95bbbc8e7a462323a2bb",
+      "bytes": 693,
+      "mode": 420
+    },
+    "src/nanovm/heap.c": {
+      "sha256": "db93629a891ec4ba4ba5869920758fdfa9646c84fff6f265c342774f11d7e325",
+      "bytes": 35484,
+      "mode": 420
+    },
+    "src/nanovm/heap.h": {
+      "sha256": "2650ac4738974f7ff3b8b9aeabdfb615dddd1600f26061cee2a9e697bef4d640",
+      "bytes": 11075,
+      "mode": 420
+    },
+    "src/nanovm/heap_cycles.c": {
+      "sha256": "5fe9ba89e07a0907ac9d1ed6f403b13d227a0035af06337fb2db16b836ff710f",
+      "bytes": 17109,
+      "mode": 420
+    },
+    "src/nanovm/main.c": {
+      "sha256": "1db8da7bd1d17714a5e5c05a1a8e3824db3c7fdbd34ef0566f00b23e9504dac9",
+      "bytes": 15779,
+      "mode": 420
+    },
+    "src/nanovm/owned_array_runtime_private.h": {
+      "sha256": "7e7302e704bece199bd3c7e16054c8671592c6294e4cb5238896eed00197d5cc",
+      "bytes": 455,
+      "mode": 420
+    },
+    "src/nanovm/record_array_runtime_private.h": {
+      "sha256": "826c56e22649064a00412a4945619bc1a91aa2b65efdd063c80fad87a62130db",
+      "bytes": 1804,
+      "mode": 420
+    },
+    "src/nanovm/record_array_vm_prepare.inc": {
+      "sha256": "229064bc0ba4088533fa7eba0da2e9635c789010a355922e8564d1bd76f715de",
+      "bytes": 38382,
+      "mode": 420
+    },
+    "src/nanovm/record_array_vm_run.inc": {
+      "sha256": "3584d2290dd7f1d6fbdc6baad0dafcbeab7257c6ea4dac8de4f7af22eeee51fa",
+      "bytes": 3744,
+      "mode": 420
+    },
+    "src/nanovm/value.c": {
+      "sha256": "5d18b054b3e173162d5b5dff8e40aa5b6b032a5e110fd8c4f1dccfe2e6b94210",
+      "bytes": 8785,
+      "mode": 420
+    },
+    "src/nanovm/value.h": {
+      "sha256": "b71d9c1f12887db20324286d841ceabe8ea04d42fd453d3902a7371c38c147a1",
+      "bytes": 6073,
+      "mode": 420
+    },
+    "src/nanovm/vm.c": {
+      "sha256": "19a1427b57520c6734d071360245147de402772c196a9a4008865b9ffd6f8a54",
+      "bytes": 242797,
+      "mode": 420
+    },
+    "src/nanovm/vm.h": {
+      "sha256": "02e233d3ced6dc97e9c88b417b68dc0f9aa130f0ea884a879ff035c91d8f3f37",
+      "bytes": 16666,
+      "mode": 420
+    },
+    "src/nanovm/vm_builtins.c": {
+      "sha256": "616dfffe58362ff8a94bf583a43136e4a9c3801ea1e03d972bce94692aefd215",
+      "bytes": 12534,
+      "mode": 420
+    },
+    "src/nanovm/vm_builtins.h": {
+      "sha256": "9acbe7128e504b80268b56beff93e9cb27e0cc64a47927365fbd1d9fa7771a89",
+      "bytes": 1954,
+      "mode": 420
+    },
+    "src/nanovm/vm_callback.c": {
+      "sha256": "284e3d9b043639fa0981b4595a4cc0655c46fa36b5448a2763dd28e010e4f954",
+      "bytes": 5520,
+      "mode": 420
+    },
+    "src/nanovm/vm_decode.c": {
+      "sha256": "f1010e77efcfddb827fb1cdf4716a3f0c9cfa68d9a18b6b25164f114d0974671",
+      "bytes": 7699,
+      "mode": 420
+    },
+    "src/nanovm/vm_decode.h": {
+      "sha256": "70747de3339b07321136ab2962cb178c8651c90b9c3221415bcfae8aa9f6392a",
+      "bytes": 1969,
+      "mode": 420
+    },
+    "src/nanovm/vm_dispatch.c": {
+      "sha256": "83738c0e87f720f34c6db4046295d996572f62f3cdaf5ba80542ea10640475fc",
+      "bytes": 10865,
+      "mode": 420
+    },
+    "src/nanovm/vm_dispatch.h": {
+      "sha256": "b1cc0c60d2a628187043059635b3c49fedfdba7495a5019131f124f446378255",
+      "bytes": 7270,
+      "mode": 420
+    },
+    "src/nanovm/vm_ffi.c": {
+      "sha256": "2c4cb8c18cc73df23aea54e1e91929b6aa77a4929627aefaa3f2228dd2298355",
+      "bytes": 69275,
+      "mode": 420
+    },
+    "src/nanovm/vm_ffi.h": {
+      "sha256": "883f5b2c69f38c4570e348d2dc6ccc0b644f62ba824424057d0612fbb0ad9e44",
+      "bytes": 3455,
+      "mode": 420
+    },
+    "src/nanovm/vm_ffi_arrays.c": {
+      "sha256": "86ad159793e18844fd90b35436ea7d42096296721cd2f92229fdf722366825c9",
+      "bytes": 8311,
+      "mode": 420
+    },
+    "src/nanovm/vm_ffi_arrays.h": {
+      "sha256": "acc42aba68836240186cd7c9e947a0125294c9881642338924532c2bb01c2bb5",
+      "bytes": 894,
+      "mode": 420
+    },
+    "src/nanovm/vmd_client.c": {
+      "sha256": "c14224ebbcb6018bd27e3e1c88a6fafa658a417e303e8493bf8ca08b8b035e6a",
+      "bytes": 9251,
+      "mode": 420
+    },
+    "src/nanovm/vmd_client.h": {
+      "sha256": "94e5b06804d39c622993cf536b5290b3caa6da3941eee21d509926744407d3c6",
+      "bytes": 1171,
+      "mode": 420
+    },
+    "src/nanovm/vmd_main.c": {
+      "sha256": "e55c07ffbbb1a75e6d8b4be0e61509adf8192392a2814163a92b08a1932a9ad0",
+      "bytes": 1776,
+      "mode": 420
+    },
+    "src/nanovm/vmd_protocol.c": {
+      "sha256": "72e1a55cf99dfa7efc222309a56b37781c848fb81514ce3f61509405735280c6",
+      "bytes": 4711,
+      "mode": 420
+    },
+    "src/nanovm/vmd_protocol.h": {
+      "sha256": "1b468888c72f06660628785a8bf3df29fbda07591a50dcb9d38d929545ba1c79",
+      "bytes": 3754,
+      "mode": 420
+    },
+    "src/nanovm/vmd_server.c": {
+      "sha256": "815562a9362af9b429002efb232fa3304a6c2581f96b9983fba300ac2c27badf",
+      "bytes": 13775,
+      "mode": 420
+    },
+    "src/nanovm/vmd_server.h": {
+      "sha256": "bcee4e90d62760a45229bb9fbebc760aab9d2cc1c63e399e665e0894584aa1e8",
+      "bytes": 1157,
+      "mode": 420
+    },
+    "src/nominal_types.c": {
+      "sha256": "b7bb172c3b02acbbee2933d57a0cc8882825dbded4fb72c04e4ab2de3f52bd77",
+      "bytes": 16263,
+      "mode": 420
+    },
+    "src/nsi.c": {
+      "sha256": "ec1e9aa45aa93088871b184d339913c72d7351d10b82412e63739766b817afba",
+      "bytes": 32591,
+      "mode": 420
+    },
+    "src/nsi.h": {
+      "sha256": "2e063bc54582e7999fc431a419e429b9e3e610ff9fc92e91556dc5c3a1708118",
+      "bytes": 2957,
+      "mode": 420
+    },
+    "src/nsi_cap.c": {
+      "sha256": "a94dfd27cce4a112d018d541c32ca5cc41927efb0dd7b622b84ef2e787abc353",
+      "bytes": 13397,
+      "mode": 420
+    },
+    "src/nsi_cap.h": {
+      "sha256": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+      "bytes": 2672,
+      "mode": 420
+    },
+    "src/nsi_cap_private.h": {
+      "sha256": "63d678efc51176823a3c9ddfabddabd9ba5b25232d9e451e77d442f1a25a8fc5",
+      "bytes": 1225,
+      "mode": 420
+    },
+    "src/nsi_fabric.c": {
+      "sha256": "64f7010c70ac4ac77dc85ecddd18e51bfda5758a9c4c8c9922fcd7d101d5250e",
+      "bytes": 24013,
+      "mode": 420
+    },
+    "src/nsi_fabric.h": {
+      "sha256": "5f169f4579497e9c11467c7f3cfd10fd58a37047a6641c3bef34efa418fbe6b7",
+      "bytes": 4422,
+      "mode": 420
+    },
+    "src/nsi_file.c": {
+      "sha256": "87b11bff744dc0cda8b8d6341917543df106717e0d4e7b3163d189dc8c0a88de",
+      "bytes": 9975,
+      "mode": 420
+    },
+    "src/nsi_file.h": {
+      "sha256": "4b76d8e23f366ee5311ffcc2bc38f183a71df5d3318459cb76292898e706613f",
+      "bytes": 2645,
+      "mode": 420
+    },
+    "src/nsi_file_binding.c": {
+      "sha256": "e5a5be48467252aeb1d1143009a9a086f2b4e5058d122edc9bed4b015d39933f",
+      "bytes": 18688,
+      "mode": 420
+    },
+    "src/nsi_file_binding.h": {
+      "sha256": "00feca07258be973ff3a050736f2dcea54f83722a8af7aeee9ce32165db80d8a",
+      "bytes": 2071,
+      "mode": 420
+    },
+    "src/nsi_file_binding_main.c": {
+      "sha256": "4149f2e198e965349b82370d88985dd0267f5891767a523f844634c6c39283cc",
+      "bytes": 5148,
+      "mode": 420
+    },
+    "src/nsi_file_catalog.h": {
+      "sha256": "95ab2277fc3dd7993f1130617591a4cc06bde8e2158de6f023dc47c1c2006a35",
+      "bytes": 403,
+      "mode": 420
+    },
+    "src/nsi_file_plan.c": {
+      "sha256": "66cc890caeb1e20628bf3a9696a5a6c6d409f70aff8296c82720a24b098d35bc",
+      "bytes": 7317,
+      "mode": 420
+    },
+    "src/nsi_file_plan.h": {
+      "sha256": "dd9d995fb119ff5f8712aac2f1d907d45ed7fd0a98082260ade1fc0204b25203",
+      "bytes": 2455,
+      "mode": 420
+    },
+    "src/nsi_file_publish.c": {
+      "sha256": "a62a2abcb22488bb4c896bb0561a030e1fe40d629345abcabc087b7b56954e6d",
+      "bytes": 12390,
+      "mode": 420
+    },
+    "src/nsi_file_publish.h": {
+      "sha256": "a418999d6a58554b091c9486c1dbb883f3e4d484fe9163453f077d381115554f",
+      "bytes": 1325,
+      "mode": 420
+    },
+    "src/nsi_file_values.c": {
+      "sha256": "13b505b04ec37ae78380c5633ed00f48c601ec9f855f1e23293c5fdc53da9fa2",
+      "bytes": 12918,
+      "mode": 420
+    },
+    "src/nsi_file_values.h": {
+      "sha256": "e9859db60cfa1fa352e96244cc3fc6dd026f7eabe7a0972b67a49f6e32fd3bf1",
+      "bytes": 4400,
+      "mode": 420
+    },
+    "src/nsi_file_values_internal.h": {
+      "sha256": "a5fd923a8b222ad1cd027ce9889540adeb5ef71c66dc5fa123386fa427a0cbf8",
+      "bytes": 547,
+      "mode": 420
+    },
+    "src/nsi_gen.c": {
+      "sha256": "07a484dfa6c67cbd07766856810e35f59ffbe1681f29917588cc47bdbd486bd8",
+      "bytes": 12530,
+      "mode": 420
+    },
+    "src/nsi_gen.h": {
+      "sha256": "969c40fe06a6084c49f9d94b8dddf981401d9634daaaa8f19b5280d595d2d9a2",
+      "bytes": 900,
+      "mode": 420
+    },
+    "src/nsi_gpu.c": {
+      "sha256": "1a9c81bd05e44d79357b5e089f4db8eb357558983beaf4439001c22282f3d444",
+      "bytes": 22209,
+      "mode": 420
+    },
+    "src/nsi_gpu.h": {
+      "sha256": "d354cdc00a8194f6727c6522d433d1aa74502f87f007b897406a928fbb2c8802",
+      "bytes": 3538,
+      "mode": 420
+    },
+    "src/nsi_internal.h": {
+      "sha256": "0860dacc5571bd821036c03f517798083c2c3836b5c01d9e78923c503bb53def",
+      "bytes": 367,
+      "mode": 420
+    },
+    "src/nsi_journal.c": {
+      "sha256": "4458fc2787fe6160d4e60d4209bf34bf2b9e7db9d5cd4b94a219ae70b114c33f",
+      "bytes": 13133,
+      "mode": 420
+    },
+    "src/nsi_journal.h": {
+      "sha256": "4c8d96ff0ab0bb28373b890a568cc04a58a2d2c534eac28cd74b063b9a13f3df",
+      "bytes": 2415,
+      "mode": 420
+    },
+    "src/nsi_manifest.c": {
+      "sha256": "76ab15dd95848ab77088a7df95c5f2529cd384dcd6bc64ecf487e1dac849efd6",
+      "bytes": 7823,
+      "mode": 420
+    },
+    "src/nsi_manifest.h": {
+      "sha256": "94ac8189b0cb4d1235fd22ef21f8c5bdc652f1e59c05ea931da9bc1d4cdae38b",
+      "bytes": 720,
+      "mode": 420
+    },
+    "src/nsi_obs.c": {
+      "sha256": "fa43a97aa25b3e7e41035a7a078e30724ed7a226e086313dd103e2232d1403ad",
+      "bytes": 4818,
+      "mode": 420
+    },
+    "src/nsi_obs.h": {
+      "sha256": "5eb01e7f3b5d074e4b48beb1cf0f508ca05fb7f5749ed7219852618fd05fb305",
+      "bytes": 1463,
+      "mode": 420
+    },
+    "src/nsi_policy.c": {
+      "sha256": "c16c33503d497c85b956c4d920378160594218e8e041a42257429349bf3e8200",
+      "bytes": 11996,
+      "mode": 420
+    },
+    "src/nsi_policy.h": {
+      "sha256": "643724adbf9e80e952090fa5cf5cab5e0a90eaa9ad0baa384bbfe1bd26a8747e",
+      "bytes": 1939,
+      "mode": 420
+    },
+    "src/nsi_runtime.c": {
+      "sha256": "1b6fe2bd1d692e0e203f447e90be32f2e858e27db8d78e680962ccbf8d1f5dea",
+      "bytes": 23955,
+      "mode": 420
+    },
+    "src/nsi_runtime.h": {
+      "sha256": "a988b37d36b56d660fce9b3f2fabd6525b4176b573ce90020156d199f7a51f99",
+      "bytes": 2336,
+      "mode": 420
+    },
+    "src/nsi_shm.c": {
+      "sha256": "514bae98a479180c8cd1c405d0cfccfc7a3d62d94f86175ca224436fcfc5380f",
+      "bytes": 7021,
+      "mode": 420
+    },
+    "src/nsi_shm.h": {
+      "sha256": "2f7dd50816fd45df0d8b7162f33de38ed6acd90759391bc8264cd1d57f72ca08",
+      "bytes": 1411,
+      "mode": 420
+    },
+    "src/nsi_socket.c": {
+      "sha256": "2f73edd2a6abb33e8945957b710c769adac52ec9fee11c68ca85277c86d4b72c",
+      "bytes": 12137,
+      "mode": 420
+    },
+    "src/nsi_socket.h": {
+      "sha256": "6f25b589e4546ee7d793c3b1b236dd316d7565a6801ca88801a0e1c3703c13a8",
+      "bytes": 2351,
+      "mode": 420
+    },
+    "src/object/object.c": {
+      "sha256": "d5d0ae09952b5126dad18a80e8356f20bb5b7f97a84ab34b25f0759c1011b6eb",
+      "bytes": 38777,
+      "mode": 420
+    },
+    "src/object/object.h": {
+      "sha256": "179bac48be7987306fde77bf93adc228bcf3ac707f4f8e71985f00cae6a3b16e",
+      "bytes": 912,
+      "mode": 420
+    },
+    "src/opencl_backend.c": {
+      "sha256": "89d7e64a178cca80b75d03b54a38d4b831d08a2d497124f3588887aebe234a0f",
+      "bytes": 25292,
+      "mode": 420
+    },
+    "src/opencl_backend.h": {
+      "sha256": "e4eaf54c91853b4bd98167501647d43492b7b3261cac12474cf2cfe9ac5393aa",
+      "bytes": 1648,
+      "mode": 420
+    },
+    "src/par_let_pass.c": {
+      "sha256": "85f4e2a349c7675aa891da6f5f51ef7a0ad59bb4bf6feec1ec6b98b53eb3fb05",
+      "bytes": 6706,
+      "mode": 420
+    },
+    "src/par_let_pass.h": {
+      "sha256": "dc0d716ecf6cc670ed4348589fce376cd586e84f6a8aedc41b811f343416f9d5",
+      "bytes": 967,
+      "mode": 420
+    },
+    "src/parser.c": {
+      "sha256": "47185be38133e1d5db82580640eb41eda1cae5de278107f5bca24d683abce517",
+      "bytes": 275625,
+      "mode": 420
+    },
+    "src/pgo_pass.c": {
+      "sha256": "a914afaeb55f047f1c168de31607cf7de1b3df163bc8c774476fbdf81035589e",
+      "bytes": 23104,
+      "mode": 420
+    },
+    "src/pgo_pass.h": {
+      "sha256": "4e60defb409442757b814c9e5423fbebf25ec213c7ef2470e7d5bba05035c47b",
+      "bytes": 3671,
+      "mode": 420
+    },
+    "src/proptest.c": {
+      "sha256": "db3620f60e56bdbe9ae893ad9d1b82adfbb86277d1470db15f67754ea70a522c",
+      "bytes": 14633,
+      "mode": 420
+    },
+    "src/proptest.h": {
+      "sha256": "9a9fefa710b09688cefa74165a0b61622aac40e5016523b35582eabf327f0081",
+      "bytes": 2757,
+      "mode": 420
+    },
+    "src/ptx_backend.c": {
+      "sha256": "2c47fc269a37255628a1f0f3f81b48b8405d5290abd91c421ba05c605dbdee21",
+      "bytes": 22828,
+      "mode": 420
+    },
+    "src/ptx_backend.h": {
+      "sha256": "6d3bffee0ec4c44200df73e90db623b886a4bb8b1f681a6e1848e5e531ed4441",
+      "bytes": 1384,
+      "mode": 420
+    },
+    "src/reflection.c": {
+      "sha256": "17fa486fdf3792188052985d36501ced2ae5b70a439879b638dc540235db087c",
+      "bytes": 11079,
+      "mode": 420
+    },
+    "src/reflection.h": {
+      "sha256": "eb117310e66e233b91461edf434a1b88b8511908d6bd2f9ade24284b28ac87fc",
+      "bytes": 330,
+      "mode": 420
+    },
+    "src/repl.c": {
+      "sha256": "a2346379ca0511d9e6654cba545cb1864b8db3022831a153c44f83d2f23c55cb",
+      "bytes": 17402,
+      "mode": 420
+    },
+    "src/repl_main.c": {
+      "sha256": "6ec44c729e74b59143c3e68758d1ffe7cb99a24be7c0ba8b8a08a7f8b8acc7c0",
+      "bytes": 1653,
+      "mode": 420
+    },
+    "src/resource_flow.c": {
+      "sha256": "3102db8ca370ff503279157a9865cbbcc41fd0cc8447cce348ff984e51adaf99",
+      "bytes": 50079,
+      "mode": 420
+    },
+    "src/resource_tracking.c": {
+      "sha256": "08b896d02a8c7c531e20ce3bae224792ff8d3638d0513ef9780511e59412819d",
+      "bytes": 11960,
+      "mode": 420
+    },
+    "src/resource_tracking.h": {
+      "sha256": "8ce0ff4940a9cf19566269649237b3214c6c8355e7c9320507a053cc5a52bb45",
+      "bytes": 1675,
+      "mode": 420
+    },
+    "src/riscv_backend.c": {
+      "sha256": "3a4bb4d5ae3334dca6d2612821c906478e0ad3a6913dddfdf089d752264be188",
+      "bytes": 21781,
+      "mode": 420
+    },
+    "src/riscv_backend.h": {
+      "sha256": "cd0370d7ec6df4e450f1a3e3f744d34692274ba44d97679a0a82bd8d72c0ff87",
+      "bytes": 969,
+      "mode": 420
+    },
+    "src/runtime/assembler_capture.c": {
+      "sha256": "2bae37c534232adea3eb585c6f2783ce98363fb2305ee83a477d89d77249296f",
+      "bytes": 7464,
+      "mode": 420
+    },
+    "src/runtime/assembler_capture.h": {
+      "sha256": "6d65b56dbb7a0cc4f420b58547e8cb0f94425b68cb89034074116d0555628783",
+      "bytes": 4956,
+      "mode": 420
+    },
+    "src/runtime/binary64_parse.h": {
+      "sha256": "c041d05fc9d8d41d411575d489f8460b1ac249d9e295e29c8e0bf7ddf53ab726",
+      "bytes": 999,
+      "mode": 420
+    },
+    "src/runtime/callback_runtime.c": {
+      "sha256": "329921a38b6c4ac8958ace75933a57864315a096a54f9d8fd879aac495244bfc",
+      "bytes": 9078,
+      "mode": 420
+    },
+    "src/runtime/callback_runtime.h": {
+      "sha256": "15c8cbbfc08dfaaa8071416f9426bd355477a9895f348b0fe5020661320e5add",
+      "bytes": 1543,
+      "mode": 420
+    },
+    "src/runtime/cli.c": {
+      "sha256": "b7236a9f0fa169586f02b4e273a7264f541c266f4d51edfa2892584533112bc6",
+      "bytes": 1313,
+      "mode": 420
+    },
+    "src/runtime/diagnostics_fwd.h": {
+      "sha256": "f82056a9647b8b936016592d8a13bdba5507eb25f3304b86b434facd8afba6be",
+      "bytes": 636,
+      "mode": 420
+    },
+    "src/runtime/directory_walk.h": {
+      "sha256": "dd136324b4f4bb7adaa09a4551e4f7f93470e70725b6a1f25f8ac61401799823",
+      "bytes": 3421,
+      "mode": 420
+    },
+    "src/runtime/dyn_array.c": {
+      "sha256": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+      "bytes": 22275,
+      "mode": 420
+    },
+    "src/runtime/dyn_array.h": {
+      "sha256": "8128594503c2891b7cd5dcf53056c58bfd53c95e38012a10bd822d217c5b4d42",
+      "bytes": 5717,
+      "mode": 420
+    },
+    "src/runtime/effect_runtime.c": {
+      "sha256": "ff41892bed47a33a21aa9378d5a8eb6814b642e987f84a7646db4345f098477c",
+      "bytes": 166,
+      "mode": 420
+    },
+    "src/runtime/effect_runtime.h": {
+      "sha256": "143016ea90326ab2e56bb24a79c64c342d7172b37c18088012781e285852a774",
+      "bytes": 3237,
+      "mode": 420
+    },
+    "src/runtime/ffi_loader.c": {
+      "sha256": "274915c5429441f087beb48804ed0c6d052d7086e93e0712692423ceda7d2a22",
+      "bytes": 16273,
+      "mode": 420
+    },
+    "src/runtime/ffi_loader.h": {
+      "sha256": "ffdb56d5b793388c1b64166be6de7b18092ed423c7ac38de499d5d3aa3fd80eb",
+      "bytes": 5170,
+      "mode": 420
+    },
+    "src/runtime/file_bytes.h": {
+      "sha256": "36bef5a7c379ddcabb8bcad99bc54f94ae06fb55fd35e710289eebb9e74dc110",
+      "bytes": 844,
+      "mode": 420
+    },
+    "src/runtime/file_text.h": {
+      "sha256": "42c3324c03180e4d2ce6868575f2b8d30af9e129076e13bdb184c209aa08d94a",
+      "bytes": 873,
+      "mode": 420
+    },
+    "src/runtime/file_write.h": {
+      "sha256": "349cec872b1fe30ba0d2b4dff02c74074461810096428ef9ef1cf7bd28a3dd60",
+      "bytes": 687,
+      "mode": 420
+    },
+    "src/runtime/gc.c": {
+      "sha256": "4251552bf53aefc58572d634ad1a9679b81b76cc1a228bfddc140e4cee9a10e2",
+      "bytes": 14399,
+      "mode": 420
+    },
+    "src/runtime/gc.h": {
+      "sha256": "5a5a7638abaafa2df8fb73a800ef5ddefd8bfc0bb21b6a0da6b6f257ab090649",
+      "bytes": 3651,
+      "mode": 420
+    },
+    "src/runtime/gc_struct.c": {
+      "sha256": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7",
+      "bytes": 4896,
+      "mode": 420
+    },
+    "src/runtime/gc_struct.h": {
+      "sha256": "857ddb6af5dfe45e735953b87306b48d4c7aa0e3583e1a488d394d37b359848c",
+      "bytes": 1706,
+      "mode": 420
+    },
+    "src/runtime/hashmap_bootstrap.c": {
+      "sha256": "bb41b76742dd4515bd0cf5b6b0c282d8a909b956e67eea0faaf4729a6561c004",
+      "bytes": 6972,
+      "mode": 420
+    },
+    "src/runtime/hashmap_bootstrap.h": {
+      "sha256": "2faf592ef256a70a59ef6b748fa0c0541ad3b011ed9f7a9a3aa81aefb5f757b0",
+      "bytes": 2351,
+      "mode": 420
+    },
+    "src/runtime/list_ASTArrayLiteral.c": {
+      "sha256": "e1ac14d5d7be71e8af78ea40abea200ea3e533001178e0333726fc76abd68be7",
+      "bytes": 5127,
+      "mode": 420
+    },
+    "src/runtime/list_ASTArrayLiteral.h": {
+      "sha256": "347f8a17859dc2d6e2292547e456712dc5b7023772e112dcee02fa72cb829107",
+      "bytes": 2210,
+      "mode": 420
+    },
+    "src/runtime/list_ASTAssert.c": {
+      "sha256": "57a12f4fd25520bca7d0a65f5c373aab2f24e99e133f0525d26d921375a6bfbe",
+      "bytes": 4845,
+      "mode": 420
+    },
+    "src/runtime/list_ASTAssert.h": {
+      "sha256": "0f7526de05d90bc3bdc87043b039cdc61f50afb038adc90edacd0948a73a28e1",
+      "bytes": 1964,
+      "mode": 420
+    },
+    "src/runtime/list_ASTBinaryOp.c": {
+      "sha256": "a3d03c9516fe435db67128f5e13c7f7a4e1699aa5479099859f21bacca6be994",
+      "bytes": 4939,
+      "mode": 420
+    },
+    "src/runtime/list_ASTBinaryOp.h": {
+      "sha256": "2a9836206e527c3f64f1250911db015d39310e1fa222b9c5f222e760c7b9af09",
+      "bytes": 2046,
+      "mode": 420
+    },
+    "src/runtime/list_ASTBlock.c": {
+      "sha256": "064be1030b8f4f5db9b2ff8d02f4f573b1ace44a75bc111bd3bf86622828c0c1",
+      "bytes": 4798,
+      "mode": 420
+    },
+    "src/runtime/list_ASTBlock.h": {
+      "sha256": "b8e24727d1192985308c0ac839471ef453a77ac10657fb802a5070536232c087",
+      "bytes": 1923,
+      "mode": 420
+    },
+    "src/runtime/list_ASTBool.c": {
+      "sha256": "51f81633a543a148fdc206855b01a6c71ca668ba8d6878df245101f98c2ffa25",
+      "bytes": 4751,
+      "mode": 420
+    },
+    "src/runtime/list_ASTBool.h": {
+      "sha256": "d559c333bdb2c04cacaefad11c48cfd46d5e5164286882d87c5a7e9b22fd0547",
+      "bytes": 1882,
+      "mode": 420
+    },
+    "src/runtime/list_ASTCall.c": {
+      "sha256": "224a51e510d5f3249b577951c284ebc780c7b8307aef1e4c8dacd616da726f1a",
+      "bytes": 4751,
+      "mode": 420
+    },
+    "src/runtime/list_ASTCall.h": {
+      "sha256": "4295a6793d7b317c13767c9049de0004da5953a7cbb5f429d1464b4230eab311",
+      "bytes": 1882,
+      "mode": 420
+    },
+    "src/runtime/list_ASTEnum.c": {
+      "sha256": "d97d0d480af941bbc556237a1293c93ae3d976edbe48ffcd9c10150203dd2505",
+      "bytes": 4751,
+      "mode": 420
+    },
+    "src/runtime/list_ASTEnum.h": {
+      "sha256": "d1bc205571a3ef4b20415017fd80a0025edf99a269471d83c142b6b099acd13e",
+      "bytes": 1882,
+      "mode": 420
+    },
+    "src/runtime/list_ASTFieldAccess.c": {
+      "sha256": "64c93ce832a10dec40efc2a7ff438433e9b041de32b49911aaf7ab8f6c7f5e8f",
+      "bytes": 5080,
+      "mode": 420
+    },
+    "src/runtime/list_ASTFieldAccess.h": {
+      "sha256": "2eb560204c70b97666205c0912728c41e37a1c58adf6a51bfd4def909a561ff4",
+      "bytes": 2169,
+      "mode": 420
+    },
+    "src/runtime/list_ASTFloat.c": {
+      "sha256": "35b4b7a57711bc2dba586890432220ca52433fe0813d0f8550f5cf9bc2e83633",
+      "bytes": 4798,
+      "mode": 420
+    },
+    "src/runtime/list_ASTFloat.h": {
+      "sha256": "a86211cb2f48754fd6d2a7c9fdc9d67e2c15cf4f78876f96870d528433d18089",
+      "bytes": 1923,
+      "mode": 420
+    },
+    "src/runtime/list_ASTFor.c": {
+      "sha256": "81f220b25f5bb4c78b2bde443867de3bc6cfe56e56bcb3b77181120899304068",
+      "bytes": 4704,
+      "mode": 420
+    },
+    "src/runtime/list_ASTFor.h": {
+      "sha256": "fc4b926ba4fdfb3c6fb82663c433b82f82d946d9ad62efca429cd1de0c4099b9",
+      "bytes": 1841,
+      "mode": 420
+    },
+    "src/runtime/list_ASTFunction.c": {
+      "sha256": "7826f0afa37cf94f10cc4e4e8b3230b883f5f83b0982a4156b9ed8752cb99659",
+      "bytes": 4939,
+      "mode": 420
+    },
+    "src/runtime/list_ASTFunction.h": {
+      "sha256": "97305278306379743bc6424db4c58b34cb2118de176454a423c5898a9c1b7ff7",
+      "bytes": 2046,
+      "mode": 420
+    },
+    "src/runtime/list_ASTIdentifier.c": {
+      "sha256": "5c99058bcf9ea5bdcb47df74835ba1411b22dce578ba3ed5659bb570c3f730f5",
+      "bytes": 5033,
+      "mode": 420
+    },
+    "src/runtime/list_ASTIdentifier.h": {
+      "sha256": "e1ba0537d7dd743db971e41fc9fffe8b3ba6d774d5ad70489973c57ea1a8e161",
+      "bytes": 2128,
+      "mode": 420
+    },
+    "src/runtime/list_ASTIf.c": {
+      "sha256": "3cbf39af0432b2b7a675df973498a60ce49879a5cbbb155e870e70265030ee69",
+      "bytes": 4657,
+      "mode": 420
+    },
+    "src/runtime/list_ASTIf.h": {
+      "sha256": "30d04d7b50fd89991ae128b7508c25eb8f42eeebd34e1f9d7eef9e911819e788",
+      "bytes": 1800,
+      "mode": 420
+    },
+    "src/runtime/list_ASTImport.c": {
+      "sha256": "310930848ff58271c43307bd639732352a20250c12a5d659abc78db29a47500e",
+      "bytes": 4845,
+      "mode": 420
+    },
+    "src/runtime/list_ASTImport.h": {
+      "sha256": "9adaac9250421a1c90346fef8df9bda4ca02405d3fbdd691609902b9cc97513b",
+      "bytes": 1964,
+      "mode": 420
+    },
+    "src/runtime/list_ASTLet.c": {
+      "sha256": "bd4674c6d4b50930776ad4d4fe60cdcb89782853535bf4343463bb853094c796",
+      "bytes": 4704,
+      "mode": 420
+    },
+    "src/runtime/list_ASTLet.h": {
+      "sha256": "fc44429c5d30cb479a1aa1f5d9c49f883c82b72fe272aab49ab35d341dcc5922",
+      "bytes": 1841,
+      "mode": 420
+    },
+    "src/runtime/list_ASTMatch.c": {
+      "sha256": "3a484f258961c2d0b33009bd4825ed06506973033d20870b640b1e763c2cbc32",
+      "bytes": 4798,
+      "mode": 420
+    },
+    "src/runtime/list_ASTMatch.h": {
+      "sha256": "45b7bd391fc76a88c1b5804719379d2a72a1591782257c8ea34349743ad89ddc",
+      "bytes": 1923,
+      "mode": 420
+    },
+    "src/runtime/list_ASTModuleQualifiedCall.c": {
+      "sha256": "d41e9e1b24d7d36c5c0e05d6cbbec97ae25c3b35cb5f87abbd4723d1de84a59c",
+      "bytes": 5456,
+      "mode": 420
+    },
+    "src/runtime/list_ASTModuleQualifiedCall.h": {
+      "sha256": "f9a7c15b5ec1480248e8e6a3c22f0872ea9bf0d48d906fb257e36af549c82e4a",
+      "bytes": 2497,
+      "mode": 420
+    },
+    "src/runtime/list_ASTNumber.c": {
+      "sha256": "f7b6c6eaaae4fe4c0295c6caeb58c8b00a8fd5bce605a3d8a040de4b3f220112",
+      "bytes": 4845,
+      "mode": 420
+    },
+    "src/runtime/list_ASTNumber.h": {
+      "sha256": "ca31f3300a08056650e8b9faead1e72cb23ede0e3795989301e7e8ac898b4748",
+      "bytes": 1964,
+      "mode": 420
+    },
+    "src/runtime/list_ASTOpaqueType.c": {
+      "sha256": "957a1fe8b11bd32c096db38e7106b422791f43b4ac57ba6c070dd6759e3e3d57",
+      "bytes": 5033,
+      "mode": 420
+    },
+    "src/runtime/list_ASTOpaqueType.h": {
+      "sha256": "360d1c090384fb97924ca91d92352f11c7b97686fb3815dc3c2318d3d4d224f5",
+      "bytes": 2128,
+      "mode": 420
+    },
+    "src/runtime/list_ASTPrint.c": {
+      "sha256": "99a7db5f0e248696aaeb03220948da820208b526cf51a6ab6ef396614c8ad3a4",
+      "bytes": 4798,
+      "mode": 420
+    },
+    "src/runtime/list_ASTPrint.h": {
+      "sha256": "fcd91596a81734e404ebb10273c01b9d263623ab108c89ef328bcaa4cb8d972c",
+      "bytes": 1923,
+      "mode": 420
+    },
+    "src/runtime/list_ASTReturn.c": {
+      "sha256": "f8d86af8370cfe20be2a04052e582f3dde55e71ed0467c4d65a67f7cd08e61fa",
+      "bytes": 4845,
+      "mode": 420
+    },
+    "src/runtime/list_ASTReturn.h": {
+      "sha256": "630187b7e06b403c9b01d72a60061f33672a92436a2d107cc1a7f48f610b79a2",
+      "bytes": 1964,
+      "mode": 420
+    },
+    "src/runtime/list_ASTServiceDecl.c": {
+      "sha256": "fa4b28b454c99991abb09e6c86a1737f8af1b6502ca2d1b1eba6008ade1cb561",
+      "bytes": 4940,
+      "mode": 420
+    },
+    "src/runtime/list_ASTServiceDecl.h": {
+      "sha256": "98165e966a958efeb46575dd329df128315d6dd7d5a32f30cba70a5bddbad58a",
+      "bytes": 2169,
+      "mode": 420
+    },
+    "src/runtime/list_ASTSet.c": {
+      "sha256": "75fa5790eda47261fa62a912a3777e58b9ca4347c51adfadd4d36d676bb882e2",
+      "bytes": 4704,
+      "mode": 420
+    },
+    "src/runtime/list_ASTSet.h": {
+      "sha256": "ee7040b3073a39058f82232ce8066bbd7d7df94bc8fa2e82bf6af242258ddc38",
+      "bytes": 1841,
+      "mode": 420
+    },
+    "src/runtime/list_ASTShadow.c": {
+      "sha256": "1f2d80818a5cfdde05fd60483e6320cf4b809f41feb820a73496e8d87fc65389",
+      "bytes": 4845,
+      "mode": 420
+    },
+    "src/runtime/list_ASTShadow.h": {
+      "sha256": "72e6f310a2885de599aed1546f561825f8843ac4c89baa262b9d4e2d465b8f11",
+      "bytes": 1964,
+      "mode": 420
+    },
+    "src/runtime/list_ASTStmtRef.c": {
+      "sha256": "22b250358b701b5808f17a5de4ee32d6fcef518e16899050dec6b87d02c642df",
+      "bytes": 4892,
+      "mode": 420
+    },
+    "src/runtime/list_ASTStmtRef.h": {
+      "sha256": "9c7e92fe1823cf63316504660cfbb92d6576bb7e1dc659255086d67898f40ef8",
+      "bytes": 2005,
+      "mode": 420
+    },
+    "src/runtime/list_ASTString.c": {
+      "sha256": "1172bc414d55b0178d51076f5f6b013513e56b5ce0fb35ec0aeda5eedcf76a17",
+      "bytes": 4845,
+      "mode": 420
+    },
+    "src/runtime/list_ASTString.h": {
+      "sha256": "aed7befbebfbc0f2e6796d87efb021c8f5d0ade521f3a17fe85d9687bb62e04a",
+      "bytes": 1964,
+      "mode": 420
+    },
+    "src/runtime/list_ASTStruct.c": {
+      "sha256": "07ad89efdb82e8db6f3bbcecb6d10b69b53a842c1e9c08795fb042e62812738b",
+      "bytes": 4845,
+      "mode": 420
+    },
+    "src/runtime/list_ASTStruct.h": {
+      "sha256": "0ffaad8d06eaa6f4ebc771841686132ea7765060a8fde36c590ac73b41c61109",
+      "bytes": 1964,
+      "mode": 420
+    },
+    "src/runtime/list_ASTStructLiteral.c": {
+      "sha256": "8df30a7d2577afeb4856f866812308f0257e4dfbf339407446158d2bb98bb675",
+      "bytes": 5174,
+      "mode": 420
+    },
+    "src/runtime/list_ASTStructLiteral.h": {
+      "sha256": "cba70f8f3da470ef05f66ddb3ac80a2c5e7fe34a40d1fdb19824fac3ef2fbd75",
+      "bytes": 2251,
+      "mode": 420
+    },
+    "src/runtime/list_ASTTupleIndex.c": {
+      "sha256": "7ba7e0afd9754e78509c57dc412267f2fe3a3bdd0135c7c52f01557f234520c2",
+      "bytes": 4915,
+      "mode": 420
+    },
+    "src/runtime/list_ASTTupleIndex.h": {
+      "sha256": "ce9b5b88660dfd83abfa6666dac7756916fb280ed6120d1b36689ca5e0b241a4",
+      "bytes": 2128,
+      "mode": 420
+    },
+    "src/runtime/list_ASTTupleLiteral.c": {
+      "sha256": "88ad3d2e34a10201f2030b609e34e6082d58af6c7216d27987b2e1427a4f743e",
+      "bytes": 5127,
+      "mode": 420
+    },
+    "src/runtime/list_ASTTupleLiteral.h": {
+      "sha256": "55caca21e48b6919362fc6669661ed4e8a611baec6453185ab00bf466f1b2054",
+      "bytes": 2210,
+      "mode": 420
+    },
+    "src/runtime/list_ASTUnion.c": {
+      "sha256": "21b7f15effabf7f83e384553931848e220fb3fdc61399c9423d65a2a64d0fff0",
+      "bytes": 4798,
+      "mode": 420
+    },
+    "src/runtime/list_ASTUnion.h": {
+      "sha256": "0e45d1bd01374eeced3d870a12384126c69141c3b5ca691804ecfa2ae14a10f1",
+      "bytes": 1923,
+      "mode": 420
+    },
+    "src/runtime/list_ASTUnionConstruct.c": {
+      "sha256": "828b3b85e7c16a91c8d2bf9aed0834a2e2bfa5ba9b2f878ceeae39e30617e52e",
+      "bytes": 5221,
+      "mode": 420
+    },
+    "src/runtime/list_ASTUnionConstruct.h": {
+      "sha256": "995523f7855dcb5693546c2fa26f092cc8a98b42d78fb3053333fe41715d48bf",
+      "bytes": 2292,
+      "mode": 420
+    },
+    "src/runtime/list_ASTUnsafeBlock.c": {
+      "sha256": "51ab3c2bc060ccd8f904e29f3176d77ade0110d9d128c1c18cb22c773cf19fd1",
+      "bytes": 5080,
+      "mode": 420
+    },
+    "src/runtime/list_ASTUnsafeBlock.h": {
+      "sha256": "a6bbef22cf51429fe7053a1cefcce0cec308fe45a5df441ff15b4df68a621f51",
+      "bytes": 2169,
+      "mode": 420
+    },
+    "src/runtime/list_ASTWhile.c": {
+      "sha256": "49a5bcd2201a93e147d3a7136aeae30d0ef25f14f1eeb56300e16a38e2fe2f0f",
+      "bytes": 4798,
+      "mode": 420
+    },
+    "src/runtime/list_ASTWhile.h": {
+      "sha256": "9edb4aeb823c0b1db34a752aec7d1c873a9d7ba9e8c668c4f9bb4bfce9643264",
+      "bytes": 1923,
+      "mode": 420
+    },
+    "src/runtime/list_CompilerDiagnostic.c": {
+      "sha256": "a6017a477c1fb31fda0dc4c47a207be942d2179dd3361aa1225c7cab0e33f566",
+      "bytes": 5145,
+      "mode": 420
+    },
+    "src/runtime/list_CompilerDiagnostic.h": {
+      "sha256": "d5566c2e4394d56b1452f64953fbc4dd0f5217b142b7b8364b42d946c7865a4e",
+      "bytes": 2333,
+      "mode": 420
+    },
+    "src/runtime/list_CompilerSourceLocation.c": {
+      "sha256": "45d332459e1be301d3a541daca70999706d8e95d3df929fafd0a3906bafa52be",
+      "bytes": 5456,
+      "mode": 420
+    },
+    "src/runtime/list_CompilerSourceLocation.h": {
+      "sha256": "d66de2bc19557b46eafb234f98c15111e42921de3f4e1e6f562972796fb17e96",
+      "bytes": 2497,
+      "mode": 420
+    },
+    "src/runtime/list_LexerToken.c": {
+      "sha256": "e056601070afa5ccd519373345a8abdbb69ee2dbae42bacc06445c3ca6a13614",
+      "bytes": 4892,
+      "mode": 420
+    },
+    "src/runtime/list_LexerToken.h": {
+      "sha256": "3aa720e8402cd1d3ec9bf26efa3308b74eebe4689d6d0abd43ce9fba85935af9",
+      "bytes": 2005,
+      "mode": 420
+    },
+    "src/runtime/list_capacity.h": {
+      "sha256": "d95b9838d57a60e4e17175e76d777c36be8bc1dea6e13a4879b0d9beffb3b34a",
+      "bytes": 1318,
+      "mode": 420
+    },
+    "src/runtime/list_int.c": {
+      "sha256": "1c52dad2c4788638bc4671b1e9ab42570e2c56d8119baef0d2841fe4d8698d69",
+      "bytes": 4293,
+      "mode": 420
+    },
+    "src/runtime/list_int.h": {
+      "sha256": "23333246a08bf56f9efdb62fd504225886448119e86c7a21093b56a367b2fe7e",
+      "bytes": 1493,
+      "mode": 420
+    },
+    "src/runtime/list_string.c": {
+      "sha256": "aab4f96aeec85e720c76bf10091bb6d8249e70139e3e9a7fb80a8420697c98a7",
+      "bytes": 5040,
+      "mode": 420
+    },
+    "src/runtime/list_string.h": {
+      "sha256": "7893c9b334c9ee61524e8c1ef89ea36b6307d36959254dfb3158d4d6db040df2",
+      "bytes": 1050,
+      "mode": 420
+    },
+    "src/runtime/list_token.c": {
+      "sha256": "619de5a293a16891bdf516565069c0405086bebf6e44b0319d9d1d5ff51413d2",
+      "bytes": 4696,
+      "mode": 420
+    },
+    "src/runtime/list_token.h": {
+      "sha256": "aeb907d7e9f1f4ac6b4764bdcf6cc01197833a3d30f3fcb812509ba901774b03",
+      "bytes": 1910,
+      "mode": 420
+    },
+    "src/runtime/module_build_dir.c": {
+      "sha256": "809f93df26add898b89218f22658608d7cc872a61198b83a7a5b899a27870d61",
+      "bytes": 2877,
+      "mode": 420
+    },
+    "src/runtime/module_build_dir.h": {
+      "sha256": "8ae343121a4450afea4b194b1f004c47057243beb8d1f55c29fa156a5aaaebc6",
+      "bytes": 873,
+      "mode": 420
+    },
+    "src/runtime/nano_callback.h": {
+      "sha256": "c556aa7284a51f11bf4e75d203fe669e16491baabe3a70d50db7e5a16a120661",
+      "bytes": 1805,
+      "mode": 420
+    },
+    "src/runtime/nano_dispatch.h": {
+      "sha256": "848a7efd027b221c32a7d9fcd19f0bf49c5bdec4713f6e1f9c56cef54f3098e7",
+      "bytes": 3618,
+      "mode": 420
+    },
+    "src/runtime/native_array_abi.h": {
+      "sha256": "0cf0cc24bb953eb7f38ab9133ef72654dfbe084365faec5bd0a70eae46a89619",
+      "bytes": 1307,
+      "mode": 420
+    },
+    "src/runtime/nl_string.c": {
+      "sha256": "24717176b115c3955efff83d7dea887c1199af96bf7912945d216c76d9aacaab",
+      "bytes": 12175,
+      "mode": 420
+    },
+    "src/runtime/nl_string.h": {
+      "sha256": "e5d8a8713ded1996b40df8e8e3c69467c745d6feb69b9db2213626339cba5031",
+      "bytes": 6124,
+      "mode": 420
+    },
+    "src/runtime/path_normalize.h": {
+      "sha256": "f6197f9ecbacc05ec9beb09c0dc247a9fa2d3a7ef73ef335864b2daf12e2028d",
+      "bytes": 1792,
+      "mode": 420
+    },
+    "src/runtime/portable_read_node.mjs": {
+      "sha256": "3da52910eac9f4561dd496ed9c0a2591d230ea76fe903924b45e666c04445f94",
+      "bytes": 10901,
+      "mode": 420
+    },
+    "src/runtime/portable_read_wasmtime.py": {
+      "sha256": "6838fb507d5fbcae64c2e7c2b267719aa17b8ccaab2906c9b07fa0a8a99fd9c4",
+      "bytes": 14230,
+      "mode": 420
+    },
+    "src/runtime/process_capture.h": {
+      "sha256": "cd4e18b0edbfaad1982944d037103bac0783d40001cbb6f8ce53ede8e4f79a81",
+      "bytes": 3936,
+      "mode": 420
+    },
+    "src/runtime/refcount_gc.h": {
+      "sha256": "ef4b1637c6f873cadac3fe1dd13bc6643f2114c3c15b527795c8ba58b3456aad",
+      "bytes": 17822,
+      "mode": 420
+    },
+    "src/runtime/regex.c": {
+      "sha256": "18095f85de51e3ca79ad63d01e64f9dfd00a8c8f099ff1b64cdaec1d9c9b1c2c",
+      "bytes": 6643,
+      "mode": 420
+    },
+    "src/runtime/schema_lists.c": {
+      "sha256": "c0beec66d99f17c194466fdf50fe02978bfcb316ec1530c1eedb5b7c817c2f61",
+      "bytes": 142,
+      "mode": 420
+    },
+    "src/runtime/sdl_helpers.c": {
+      "sha256": "7f6b5fad176bfe886ed7516b9ea0870d1ce2d6766bf0c12049e40241b499920e",
+      "bytes": 700,
+      "mode": 420
+    },
+    "src/runtime/shadow_runner.h": {
+      "sha256": "414a7c2928f5c52da8ccfae12aa1d9f8a78590684bf8e43b599a1cf3b1fa9304",
+      "bytes": 2959,
+      "mode": 420
+    },
+    "src/runtime/shadow_timeout.h": {
+      "sha256": "3c84a327a9fa85838a1b288a8c1c0b31bf4a0b613271389d05344083370c636d",
+      "bytes": 800,
+      "mode": 420
+    },
+    "src/runtime/string_edges.h": {
+      "sha256": "f952091a6154f4466a623cb48d1cd5cdc2c0407a5dc3f8b79b639f615826ab15",
+      "bytes": 1193,
+      "mode": 420
+    },
+    "src/runtime/string_search.h": {
+      "sha256": "db63b8f6754f2a414895e8f05ec19b89109458827fb60d46669770dfae0d9a16",
+      "bytes": 892,
+      "mode": 420
+    },
+    "src/runtime/token_helpers.c": {
+      "sha256": "de893399a56488dee2160a49d6e0218d99288f45f5d0aa7cb7d036373560e61a",
+      "bytes": 1004,
+      "mode": 420
+    },
+    "src/runtime/token_helpers.h": {
+      "sha256": "fc68de323b721a597931239ecdfc1ca0f0922ae4ca2b48a71330706619ee4bdb",
+      "bytes": 665,
+      "mode": 420
+    },
+    "src/scheme/scheme.c": {
+      "sha256": "ba6e08e496ca57d14ed1ec5c0ed7450889b8c24c02c6057f73752d790f777218",
+      "bytes": 45067,
+      "mode": 420
+    },
+    "src/scheme/scheme.h": {
+      "sha256": "cc143718480c0ebae4485db3e7c1a1f824e1fb482166caf2f12a8b42f3fa3939",
+      "bytes": 1376,
+      "mode": 420
+    },
+    "src/shell/shell.c": {
+      "sha256": "6453a00af2c53c8838d11741dca97cf193fcf28e89cbe0ed4fe04717b9192975",
+      "bytes": 28404,
+      "mode": 420
+    },
+    "src/shell/shell.h": {
+      "sha256": "3e096a144326d14dde7d8f3d847495138b5a2abec2b122be887978446ee34464",
+      "bytes": 956,
+      "mode": 420
+    },
+    "src/shell_path.h": {
+      "sha256": "1ce8379627a4d1debe312831bcd54ed29c7177bdae0f4d6458935c40f7251885",
+      "bytes": 2469,
+      "mode": 420
+    },
+    "src/stdlib/README.md": {
+      "sha256": "c8eb7c9b7d25461aa77143b2773aeea8998928ad46d14d885b3bb5445edd04bd",
+      "bytes": 3996,
+      "mode": 420
+    },
+    "src/stdlib/stdlib.h": {
+      "sha256": "dc8a0663eb5e04b8717483e2ce8a4ac40bc55d9bafa5d68c2de271c8b2da34a3",
+      "bytes": 263,
+      "mode": 420
+    },
+    "src/stdlib_runtime.c": {
+      "sha256": "cbe142aed219b6619b0249ecfee8596edae14006823d9373ce2a4bd0ab137590",
+      "bytes": 134224,
+      "mode": 420
+    },
+    "src/stdlib_runtime.h": {
+      "sha256": "a6d5cbd9170a980e8f6e50596469c9fb6e7f6ff91d1ad5b8cf4d83d0e3ed6562",
+      "bytes": 5924,
+      "mode": 420
+    },
+    "src/string_literal_decode.h": {
+      "sha256": "2c21b279bb0a07c614d9c10acfab3502658594909ad65d240ae25b7b0c212a2d",
+      "bytes": 1454,
+      "mode": 420
+    },
+    "src/tco_pass.c": {
+      "sha256": "90e3ca8976262ed9a3aeeb48ef5ae6ea07396782ab997fb671b351f99dc3ac42",
+      "bytes": 22014,
+      "mode": 420
+    },
+    "src/tco_pass.h": {
+      "sha256": "fe6c2b50f9f676aa2d53b43b3967577e4ce4d678452275ba5b605a70f889a208",
+      "bytes": 1970,
+      "mode": 420
+    },
+    "src/toon_output.c": {
+      "sha256": "c68e09156bcdc0403fcc2a7465ae450ca306e1a77ba580043541a82e58eb711b",
+      "bytes": 4864,
+      "mode": 420
+    },
+    "src/toon_output.h": {
+      "sha256": "0f80db4721e9bbd52c11d52567a4c2c81965bf3003392b7112838132099f0430",
+      "bytes": 2363,
+      "mode": 420
+    },
+    "src/tracing.c": {
+      "sha256": "363141ffa72293a63883d9d1cd6f95f0279be66d295afd2036f34ab4da5614f0",
+      "bytes": 16733,
+      "mode": 420
+    },
+    "src/tracing.h": {
+      "sha256": "6ac06b35ff9a89bcf84a4593c854284adfc67267e0dcfab3eb424d3d13b4d901",
+      "bytes": 3445,
+      "mode": 420
+    },
+    "src/transpiler.c": {
+      "sha256": "48a990a10f41f9b4a1fa12a55fb4488ee18fb88357a8cea83522183661773e55",
+      "bytes": 241910,
+      "mode": 420
+    },
+    "src/transpiler_iterative_v3_twopass.c": {
+      "sha256": "7f5fb4c46691ba1a7803eeb29080807e19ae19eee04c6544178febd24c24a381",
+      "bytes": 243957,
+      "mode": 420
+    },
+    "src/type_infer.c": {
+      "sha256": "def72d27d7275581a21a8d3b7fbce29a5fee83e83275113cdc60184ee5922d2a",
+      "bytes": 71028,
+      "mode": 420
+    },
+    "src/type_infer.h": {
+      "sha256": "c11729f4564bca466529bff1dc8df492f580664116ce00d956fcf2421217ec9a",
+      "bytes": 8744,
+      "mode": 420
+    },
+    "src/typechecker.c": {
+      "sha256": "09eb1ab3a49ad7595831ca36484897e0fb22c64aa25dcc607265b9a50f50437e",
+      "bytes": 439700,
+      "mode": 420
+    },
+    "src/typechecker_passive.c": {
+      "sha256": "06dbd0aa5b69411f06bf820da156095c888d12d050435c1158fa5206ca51447c",
+      "bytes": 5660,
+      "mode": 420
+    },
+    "src/typechecker_purity.c": {
+      "sha256": "4a2094df801d4f83f2f47948ba67189f3fe6b5cff582277c64f857538433e9bf",
+      "bytes": 11330,
+      "mode": 420
+    },
+    "src/utf8.c": {
+      "sha256": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c",
+      "bytes": 5485,
+      "mode": 420
+    },
+    "src/utf8.h": {
+      "sha256": "a03bc4dfa283b7acee20f108015690ebdc372c6be81c9e9c825c2d229c885e33",
+      "bytes": 1231,
+      "mode": 420
+    },
+    "src/version.h": {
+      "sha256": "8c293ba8cef20920af6941baa8e77b43052a3fdd108bd78880a0b9eb9396d686",
+      "bytes": 330,
+      "mode": 420
+    },
+    "src/wasm_interface.c": {
+      "sha256": "813f93bfa4dcb8125ddbec5f62876865ac38c1e23ecc2923cd25f76f502cdd17",
+      "bytes": 5134,
+      "mode": 420
+    },
+    "src/wasm_profiler_rt.c": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "src/wasm_profiler_rt.h": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "src_nano/CLEANUP_AND_ALIASES_SUMMARY.md": {
+      "sha256": "85333ae661875e00c3fdbf40ff3cac2672526891195e4e50acb2a299b1bbfc41",
+      "bytes": 7164,
+      "mode": 420
+    },
+    "src_nano/INTEGRATION_PLAN.md": {
+      "sha256": "8157d8396760aed639c4c5f596d97b9e287e7934f7dc48bdd9dc60dffe711a7f",
+      "bytes": 8447,
+      "mode": 420
+    },
+    "src_nano/README_SELFHOSTING.md": {
+      "sha256": "c2f494785d9218a7a7db586fdcfb4fb7f6f2d2aec89f5d7c74462f8844f158fb",
+      "bytes": 2275,
+      "mode": 420
+    },
+    "src_nano/ast_shared.nano": {
+      "sha256": "abdbe08761ff5805ae31a8eccbd84bbe9362ecf06905917795502a9aafd012c9",
+      "bytes": 579,
+      "mode": 420
+    },
+    "src_nano/cli_args.nano": {
+      "sha256": "9c80491a8987ac78f64ab859762552129eb90f26c0519b80b546df89e5debd60",
+      "bytes": 783,
+      "mode": 420
+    },
+    "src_nano/compiler.nano": {
+      "sha256": "daf1a09435c19501cba38c87c227681380e5fcc97b4f04f4ee8312c3793d9a31",
+      "bytes": 6227,
+      "mode": 420
+    },
+    "src_nano/compiler/binary64_arithmetic_runtime.nano": {
+      "sha256": "e69fa68e0dad46363655a7eeb7f0f343b4b27207cd9cfbe33a3831937d1cc5de",
+      "bytes": 2590,
+      "mode": 420
+    },
+    "src_nano/compiler/binary64_format_runtime.nano": {
+      "sha256": "f921163e41a1a36de7d6c0d08aca686882b1d71c7021329d9db0407148657ef7",
+      "bytes": 2309,
+      "mode": 420
+    },
+    "src_nano/compiler/declaration_ownership.nano": {
+      "sha256": "6e0d1165ac1af81a068f010a129161929c01d50eab3905acdaa3f14d9b336b20",
+      "bytes": 2619,
+      "mode": 420
+    },
+    "src_nano/compiler/diagnostics.nano": {
+      "sha256": "45f6f1454e35debf417eb8b2ccc66105a3a52fdf4976a897980d33fe1833d771",
+      "bytes": 14232,
+      "mode": 420
+    },
+    "src_nano/compiler/error_messages.nano": {
+      "sha256": "fc56eb048731fb0e24d622b9741ad73f448f7ec2627b689cac2f3e094447a1e7",
+      "bytes": 25124,
+      "mode": 420
+    },
+    "src_nano/compiler/file_source_plan.nano": {
+      "sha256": "3e5fc338b7ca3c663151dcb030f45d11593e111bc836ed489cb189bdfc48b8f4",
+      "bytes": 13491,
+      "mode": 420
+    },
+    "src_nano/compiler/ir.nano": {
+      "sha256": "7653770323b30a7739443faf5f4f17cb3a803fa2345c2f7ad7411b917ca8b506",
+      "bytes": 387,
+      "mode": 420
+    },
+    "src_nano/compiler/lexer.nano": {
+      "sha256": "25cd72d1113349d30dc166c6ce3c0c3098f2637200fbd969c39d2ce89afe5e9c",
+      "bytes": 49441,
+      "mode": 420
+    },
+    "src_nano/compiler/module_bindings.nano": {
+      "sha256": "9973b30187a1c57442c6296fcec187db82223004dd99bc83cff2a5075e71b7bc",
+      "bytes": 5129,
+      "mode": 420
+    },
+    "src_nano/compiler/module_introspection.nano": {
+      "sha256": "3dec16ee5c91a1dd51c6a328095457eb80490ff154d054f06cbcb3925637f800",
+      "bytes": 7841,
+      "mode": 420
+    },
+    "src_nano/compiler/module_loader.nano": {
+      "sha256": "d69a104d60f33f98746c578edbc78f18d2472413f513598ce1319f55635fad13",
+      "bytes": 20512,
+      "mode": 420
+    },
+    "src_nano/compiler/nanoisa_borrows.nano": {
+      "sha256": "1e33b522674a2b25142c5997c129fb7c3bc79888a361200081c3af68f087e636",
+      "bytes": 154324,
+      "mode": 420
+    },
+    "src_nano/compiler/nanoisa_codegen.nano": {
+      "sha256": "e463aa6de9379c4c2ed9497f940b721f525ad9b2bd967e1567d57cdf5a0cad08",
+      "bytes": 287608,
+      "mode": 420
+    },
+    "src_nano/compiler/nominal_bindings.nano": {
+      "sha256": "35d59ee4fc3dd436043f056dda6d91401d49ec1bbb98c37953f2248e480b0c34",
+      "bytes": 15557,
+      "mode": 420
+    },
+    "src_nano/compiler/owner_selection.nano": {
+      "sha256": "a4aadfbe10160599b2b2f25e6adab2a08d954778044639d45d54b8cc036710ba",
+      "bytes": 14028,
+      "mode": 420
+    },
+    "src_nano/compiler/passive_graph.nano": {
+      "sha256": "5beaebbb220d2d0fcc9a20cb6593892c6f767009bf5081e5fc829b797cc379e5",
+      "bytes": 5124,
+      "mode": 420
+    },
+    "src_nano/compiler/passive_purity.nano": {
+      "sha256": "08ed1faf0bfa7d497d6b32e82035a791d516992c738de7d3a702802125d56b84",
+      "bytes": 9786,
+      "mode": 420
+    },
+    "src_nano/compiler/result.nano": {
+      "sha256": "e1774f8b2fb42c31ac1148041908a21a3f0de41e7cf87c3f526809f07e458d0a",
+      "bytes": 10658,
+      "mode": 420
+    },
+    "src_nano/compiler/serialize.nano": {
+      "sha256": "bc1105d20d9347ebc25a10c435d8926c3814f2f1f3678ef2d58c629818c3ed6a",
+      "bytes": 7390,
+      "mode": 420
+    },
+    "src_nano/compiler/token_value_bytes.nano": {
+      "sha256": "20acb072e9f4b082b7039d28f47e5cd511eed6c76e9b39c31fb60ee97d9d1158",
+      "bytes": 1121,
+      "mode": 420
+    },
+    "src_nano/compiler/type_substitution.nano": {
+      "sha256": "b579a3633b557095c2120bd5fa96fb6385cf01427e06b1e5148bdba9bfd90074",
+      "bytes": 1802,
+      "mode": 420
+    },
+    "src_nano/compiler_modular.nano": {
+      "sha256": "ad4f77a6c88b31209a8547601da44b8dff1eef15afbeba2b468b1f7bf2002e2f",
+      "bytes": 7910,
+      "mode": 420
+    },
+    "src_nano/compiler_simple.nano": {
+      "sha256": "5dbfb3dd1aabaa5d69d5f430f961a84018baf39141aa8c0acda5e8f17fd0fbd2",
+      "bytes": 1142,
+      "mode": 420
+    },
+    "src_nano/driver.nano": {
+      "sha256": "df2559b828ab6246207a125a525bbd7f0df1993906cb4989e94306a296d96bec",
+      "bytes": 25494,
+      "mode": 420
+    },
+    "src_nano/driver_minimal.nano": {
+      "sha256": "aafc85dabe4482a8c5924d095a7def13c80a4f2ddfd95a29d1036238468e5f0e",
+      "bytes": 675,
+      "mode": 420
+    },
+    "src_nano/file_io.nano": {
+      "sha256": "f6f707ac4820075d796248a61724e5cf9d167539fecaf87878d89bca60376187",
+      "bytes": 962,
+      "mode": 420
+    },
+    "src_nano/generated/compiler_ast.nano": {
+      "sha256": "32e5fbc562c40721a5fef4fd46c68013d089fc32cba0d720f0ecb40f40b6d825",
+      "bytes": 8703,
+      "mode": 420
+    },
+    "src_nano/generated/compiler_contracts.nano": {
+      "sha256": "24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416",
+      "bytes": 1610,
+      "mode": 420
+    },
+    "src_nano/generated/compiler_schema.nano": {
+      "sha256": "ca0ed46c1c7c96e9c0d63444077e7e9d40948603fa33d18fce39080d21645194",
+      "bytes": 3175,
+      "mode": 420
+    },
+    "src_nano/generated/purity_intrinsics.nano": {
+      "sha256": "3169bb090d033a265ff3eca3fa7c7484b8a63f159d177e41ec879b87b15a2b7e",
+      "bytes": 6048,
+      "mode": 420
+    },
+    "src_nano/lexer_main.nano": {
+      "sha256": "aecff8fd1a3fb96f19a07e3ec03b606667b5c2cf8d334f97b6347d23de4060dc",
+      "bytes": 1376,
+      "mode": 420
+    },
+    "src_nano/nanoc.nano": {
+      "sha256": "d313d1e6eb78fc682f0e07920d4ff90173080b8e33a72061e415ce7ecd408857",
+      "bytes": 3026,
+      "mode": 420
+    },
+    "src_nano/nanoc_integrated.nano": {
+      "sha256": "f17c5b1433dcc8676ba98603d559c95f385ac7798c41e9fc686a15c5036a0a2d",
+      "bytes": 193511,
+      "mode": 420
+    },
+    "src_nano/nanoc_modular.nano": {
+      "sha256": "fca386e69671cf6ef5a98bf51300c871fb180a0a437146f55f5679dceb9c23d4",
+      "bytes": 7148,
+      "mode": 420
+    },
+    "src_nano/nanoc_selfhost.nano": {
+      "sha256": "11ef057e7cf75a38824cafcf5afbf160de60ea6cf40ca3a2b875f797b8c1c2fd",
+      "bytes": 2883,
+      "mode": 420
+    },
+    "src_nano/nanoc_stage0.nano": {
+      "sha256": "fd866a44452b5216421de796078f8a469baf719f0a6caac462eddff8b4599472",
+      "bytes": 3519,
+      "mode": 420
+    },
+    "src_nano/nanoc_stage1.nano": {
+      "sha256": "37395ffdb90a1fe9d8a6389be5f24c0c3d719f746ba78b4a42477fbbec5ce10a",
+      "bytes": 7960,
+      "mode": 420
+    },
+    "src_nano/nanoc_v04.nano": {
+      "sha256": "6a6da87efbb7228f8f2c9690e07b3c65d52f4a11a7f936cff8831c1c2647956e",
+      "bytes": 6410,
+      "mode": 420
+    },
+    "src_nano/nanoc_v06.nano": {
+      "sha256": "7003aa6c526cb73a3c8da6df81185c2af7f41955113c65e055dacaf8f93ec740",
+      "bytes": 108155,
+      "mode": 420
+    },
+    "src_nano/nanoisa_emit.nano": {
+      "sha256": "b895ab0c65f914d916ea9252207e1e3582008e836f723f430ecc4cbe1c2bc42d",
+      "bytes": 3670,
+      "mode": 420
+    },
+    "src_nano/parse_nanoc.nano": {
+      "sha256": "2022000be756392ef453d7f8bf8f7beb62c72e932a4c948adef1bf1b727eb1b2",
+      "bytes": 1392,
+      "mode": 420
+    },
+    "src_nano/parser.nano": {
+      "sha256": "cfbed0ee0eb2955ab3d264565602c5a03d7d70d0a25aeca180855b528c5889d1",
+      "bytes": 420285,
+      "mode": 420
+    },
+    "src_nano/parser_driver.nano": {
+      "sha256": "f5b4d222d33733d52d252a0a652261bfb2599e84f5617364621158436c010ea5",
+      "bytes": 1479,
+      "mode": 420
+    },
+    "src_nano/transpiler.nano": {
+      "sha256": "06c0b9a364a0c728cd05389898eca73b741670b2b1e83f25bd042ae53136de8f",
+      "bytes": 441021,
+      "mode": 420
+    },
+    "src_nano/transpiler_driver.nano": {
+      "sha256": "bb62116e039ae2d4eb4091f4f008d789819de26d57b33d674403139ef7524163",
+      "bytes": 1147,
+      "mode": 420
+    },
+    "src_nano/typecheck.nano": {
+      "sha256": "c0f740c618fa54f5102cef54dbbbae10d8c1d344a00f0d7c88500c383b83fa2e",
+      "bytes": 373490,
+      "mode": 420
+    },
+    "src_nano/typecheck_driver.nano": {
+      "sha256": "49bc5dfae3814680dee5fd484e541cbdedea944e1931bdefe53acb5608bf26d0",
+      "bytes": 1303,
+      "mode": 420
+    },
+    "src_nano/typecheck_nanoc.nano": {
+      "sha256": "40bfd8f438d132b6af175297866af5d063fcdb1cef31a73267c05e144d9f1f29",
+      "bytes": 1456,
+      "mode": 420
+    },
+    "tests/nanoisa/binary64_parser_vm.c": {
+      "sha256": "5574466e80439f29c164de08372ec13be36952e7021389e0caed629dc346eaf3",
+      "bytes": 1938,
+      "mode": 420
+    },
+    "tests/nanoisa/file_cyclic_dispatch_hooks.h": {
+      "sha256": "163b4de49634967b2567998a8f4f890aad2b7e6909d86d0fcf0cd249068bc601",
+      "bytes": 487,
+      "mode": 420
+    },
+    "tests/nanoisa/file_cyclic_dispatch_values.c": {
+      "sha256": "2ba859b88afd295705d9d4d6ee41cc2ea8230501a0798531d44cc9d8f92a2925",
+      "bytes": 547,
+      "mode": 420
+    },
+    "tests/nanoisa/file_cyclic_runtime_values.c": {
+      "sha256": "a6a266ff8c7f9f0371d03b7bfab85dfad44057eb8f0d6b1561493cf2b222f320",
+      "bytes": 567,
+      "mode": 420
+    },
+    "tests/nanoisa/file_host_grant_instrumented.c": {
+      "sha256": "afcde6c2348cdbba27c865ffe1d5cc3aff43348b98893630f87e1e0facc07b55",
+      "bytes": 2294,
+      "mode": 420
+    },
+    "tests/nanoisa/file_host_grant_peer.c": {
+      "sha256": "f4a51cc5d23507c750e778eca43f46f5ff4b8fe1fbeae2e69f7b67ff8ed00c99",
+      "bytes": 416,
+      "mode": 420
+    },
+    "tests/nanoisa/file_hosted_alloc.h": {
+      "sha256": "c7a6c30614a51f779c325fcd731dcb9d5795caa141da2d80cc458c09fbd734f0",
+      "bytes": 233,
+      "mode": 420
+    },
+    "tests/nanoisa/file_native_hooks.h": {
+      "sha256": "13acd7e83eb0764cbf414a512391819d4715f8492bb8a603c7f8bae03e1c72d2",
+      "bytes": 394,
+      "mode": 420
+    },
+    "tests/nanoisa/file_runtime_frame_values.c": {
+      "sha256": "1a075e3a39e60049f7c670753f11c26b28bbe8dd817d4f9d76d0a7b4c5c08018",
+      "bytes": 591,
+      "mode": 420
+    },
+    "tests/nanoisa/file_runtime_hooks.h": {
+      "sha256": "e5dab942231ae4293b6a59e57adffcf4ae49a4e4e16dab004e19d1b525e1ea98",
+      "bytes": 952,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/affine_scalar_union_instances.nano": {
+      "sha256": "76694ae73755b494b3ece406c2c4ad8fe172072aaca41dc9bf80f0ed66eb638e",
+      "bytes": 3311,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/array_access_types.nano": {
+      "sha256": "a5c29181874b6201042fa67fad1971f48e53e4293a09803dd9e41cc7ea013e67",
+      "bytes": 997,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/array_record_fields.nano": {
+      "sha256": "bb91b6a66d8f0eb0951b983ac3b8437f4933cc5662c34a853ee71152cf2ca64a",
+      "bytes": 1710,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/artifact_import_driver.nano.txt": {
+      "sha256": "f9e60c7f009284793384d26e1c454968d134b631e3dd23b47a70f7a7a089f82e",
+      "bytes": 1908,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/binary64_arithmetic.nano": {
+      "sha256": "06c49cddc849160e3f5516bd51a232db8d971c3359d7baec6860b87e0c2a128d",
+      "bytes": 2610,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/binary64_bits.nano": {
+      "sha256": "4ef04d35f687660b5e864c04e2f4912942b13421cf024603c453dc2633aa6546",
+      "bytes": 1850,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/boolean_arrays.nano": {
+      "sha256": "a8a6e522a7fc10b168453a80bd8ac1b02b1a714a72f079a54c17940b54c53011",
+      "bytes": 1261,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/bound_calls_driver.nano.txt": {
+      "sha256": "8a6e1133f9557a5f5dc14c4dbb88efdc8e6172c7451a58a13541fbbd1476baa3",
+      "bytes": 1441,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/bound_calls_reference.nano": {
+      "sha256": "87212ef80f3b811efc9c75df2b01f9f61bf52e042fc046be49da841844c5ee4a",
+      "bytes": 764,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/checked_owner_selection_driver.nano.txt": {
+      "sha256": "fe23fbf4fdc5b3567881dacf327a838771954c3d7812b52f1aa81240f418318e",
+      "bytes": 1868,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/computed_array_literals.nano": {
+      "sha256": "2d6325399a2f04c7eec11818c39df9044bbaab404b355ec4d69f4eae435b7e5c",
+      "bytes": 334,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/cut_a_add.nano": {
+      "sha256": "39ab969ddf9c05c00d3e47bd0502ff8abfd9c59684b336e66c197756b1467b20",
+      "bytes": 5252,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/empty_array_append.nano": {
+      "sha256": "2f07b12183f99a2cc4c852fb735e09d1535f5364d8580ea6c6747aac0d6a0ca4",
+      "bytes": 1127,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/enum_arrays.nano": {
+      "sha256": "2e0b48339ce93b0ece094230388b5c87485f424d2cc9e4ba9e41314aa032a622",
+      "bytes": 1178,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/enum_values.nano": {
+      "sha256": "15d653ce16db49ce3fcdf248719b27c970e8925a769fe7fcb8a5dec7bc496f12",
+      "bytes": 1131,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/escaped_strings.nano": {
+      "sha256": "26ff0a0ff9482d7fec86a08ff4a64b6823705562b8736537e0c4de36a7babda4",
+      "bytes": 1189,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/filled_arrays.nano": {
+      "sha256": "7f8501fcf76a0085188bd1d2b3187eab27b0718615b8e2738a2cff53eac009f4",
+      "bytes": 2433,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/flat_record_results.nano": {
+      "sha256": "dd63737008727f056898169a9bdf19ba5882da93a5c1fdcaa77fb4919084d273",
+      "bytes": 1500,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/float_format.nano": {
+      "sha256": "61f99a390966635bba9e5ac2c57dd264288e5661ea5c145fad3422afcea0f07e",
+      "bytes": 1563,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/generic_scalar_array.nano": {
+      "sha256": "aaba4cc8695f9d315cf1ee8affbc71adf495e2af373b6b2062ab9bad183f7e2b",
+      "bytes": 1006,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/global_aggregate_initialization.nano": {
+      "sha256": "7eab749558ff4b1bc7eda098eb4725dbf7ff33c0f4b3c59901ee8a8f39fcb4c6",
+      "bytes": 1243,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/global_filled_arrays.nano": {
+      "sha256": "e1f39676d76d141c1cc4e3b533117df81fc2779bec6a25cb3e442dcd538ab068",
+      "bytes": 751,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/global_initialization.nano": {
+      "sha256": "4a68535774b702ce9e1d530d64d0fc6ef403c33d089edf399f2c9ed9b0a9bcf1",
+      "bytes": 769,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/host_imports.nano": {
+      "sha256": "8cb10af7ff5dcb79bb3cd5793b1550107792eda1d08ad1b36910a20b38a1c600",
+      "bytes": 1150,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/inferred_locals.nano": {
+      "sha256": "10d654a0ef10413635526341dae58634b9fad8047e9bd3b011285a25e3484d6f",
+      "bytes": 1714,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/is_alnum.nano": {
+      "sha256": "21b96a6c87a5a677e13f49f7dd96096b2824cbfa878dc1f46913a5d36aba7225",
+      "bytes": 876,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/list_set.nano": {
+      "sha256": "eee32e31ae6287c29bee8e9908350ae5a835183c81624b79975231b5ddd696b3",
+      "bytes": 1992,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/loop_control.nano": {
+      "sha256": "0b35f564d6ada5f0e3761b6ed2a70cad9c43ee0b97a01aed509b5b1344297ece",
+      "bytes": 1644,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/map_caller_lifetime.nasm": {
+      "sha256": "e9be1f65e99ec780b1bc41476860e46403503e408f3ea38bce523fafe07a38ee",
+      "bytes": 409,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/map_record_fields.nano": {
+      "sha256": "9ae2501082657dd7a55e4ef510e3a6ac5dff07bbac2145468b98f4935e1626ee",
+      "bytes": 1375,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/match_guard_backstop_driver.nano.txt": {
+      "sha256": "65ee8387f59c12f6116b318263c375221ff0191c6e0e55a786507cd2a03a78ef",
+      "bytes": 1374,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/native_range_bounds.nano": {
+      "sha256": "e779b40e14e5f2de0a4f23fc0341c0693905022e21513cb14546e7ab2a0752cb",
+      "bytes": 1806,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/native_underscore_bindings.nano": {
+      "sha256": "e90f57403f98ab9ff308025f8d7d365b277a94926cfbd75ed21bad56eb49d508",
+      "bytes": 3060,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/nested_optional_returns.nasm": {
+      "sha256": "880041d4f740733018cabbb455ef7ba192c022939a6889ec9c009a126b131439",
+      "bytes": 572,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/nested_record_lists.nano": {
+      "sha256": "4ccfb3c96e67f78f5a91af8b417afe50100b765375657600667c7a580b1fe198",
+      "bytes": 1471,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/nominal_type_counts.nano": {
+      "sha256": "7b27c25c638cc752d5102b3a5f62f716ee5352ad18decb9bcba5e1dff060c8af",
+      "bytes": 759,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/passive_flow.nano": {
+      "sha256": "93091487f07c6f150d22382fe5be8f9f96f0cdadc59dd8cebaf59a356c4b305d",
+      "bytes": 1684,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/passive_par.nano": {
+      "sha256": "7f85ecc676920fc414b1bfc232a7a78c09f5d81ffe83ef9e1d95b6a2daf7e006",
+      "bytes": 675,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/program_closure_driver.nano.txt": {
+      "sha256": "a02e81fc7fc047405af3d31f861588489a257da168bd028bd195d53163289019",
+      "bytes": 1418,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/range_for.nano": {
+      "sha256": "50c8a74626724dec50361480ef81020b86c209f4747fab3e618ddb22d3fa9fbe",
+      "bytes": 2742,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/record_array_growth_257.nasm": {
+      "sha256": "98f4374b9e8b62ddac4cf5d712a2f0d875469dcc0e3841073e7bb1f9499688b9",
+      "bytes": 338,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/record_arrays.nano": {
+      "sha256": "473d230ac274593ad8ee1c91d1eebd39ecf13e132c5001b1de895dd317dd602d",
+      "bytes": 1617,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/record_empty_append.nano.txt": {
+      "sha256": "92e9692556c290a7c6dea3d83b1957ec50ac5496a099d4d653046716195fbd9c",
+      "bytes": 443,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/scalar_array_results.nano": {
+      "sha256": "bfd6510376eebd66042f4b6c44fac6376de6e9b6c38f775b526b121e13057635",
+      "bytes": 1334,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/scalar_expression_types.nano": {
+      "sha256": "b7aeabd3bc2711631d97af79823f6d579e94bdbea3a4eea61b3ad12607387a8e",
+      "bytes": 1185,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/scalar_floats.nano": {
+      "sha256": "3b77fa9b1f53dce9580122ef34b6e73f6ebe1ed2ed44dafbb1ea3ffdf4b73094",
+      "bytes": 1945,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/selfhost_native_u8.nano": {
+      "sha256": "5590c6bae301c6150aa1c4bf5e4062f2c6d3d511c6b955e7ea4526f223ff4716",
+      "bytes": 565,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/shadow_module_driver.nano.txt": {
+      "sha256": "21b48fd47c1e28e2f852657f9e1f533641eb25aaf0cc97d1ae71f1db5eb2d5d4",
+      "bytes": 1303,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_bool.nano": {
+      "sha256": "c5e70b29c58288bf505cf5851cc5b5184541851630c8f787b3d6ba1b26939eda",
+      "bytes": 475,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_control_flow.nano": {
+      "sha256": "9ca80598f3ff11d789dd3bdc5c3f24a6e35abd6e53a103b9c3027cc1942d2d0f",
+      "bytes": 2450,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_control_shared.nano": {
+      "sha256": "c64710613c6fbd23b820f478eaaea61601d3fbe5423fabc00a5eba991c9582f5",
+      "bytes": 1863,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_eight.nano": {
+      "sha256": "61a28c619a82e72635c32033d29d9059687f782e0355c4d4f788fd04fa7309f1",
+      "bytes": 2956,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_exclusive.nano": {
+      "sha256": "557193a62357d1d1898942cf7d29e08fae0ffa49abd92d36c5811c178fe5c031",
+      "bytes": 688,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_helper_owners.nano": {
+      "sha256": "26db72d07ce1175ca7d5ad61cd90bf8ba7b9b910fd0eba4de4be4407546853c7",
+      "bytes": 2101,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_lexical_scalars.nano": {
+      "sha256": "080051067903511a90c74665afae0d8fff84719910a11443cc77ae2593c66877",
+      "bytes": 2182,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_loop_exits.nano": {
+      "sha256": "b35f6d0a255a4e5578ac1a54ae4afb653f3a298ddded17225313856adc2fcd11",
+      "bytes": 1597,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_multi.nano": {
+      "sha256": "c0465b00d7ab48676201d2e01fa2e8ee1f5a34c83ba03909099a407c011dc1ed",
+      "bytes": 1665,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_nested.nano": {
+      "sha256": "0ab55fc7236677d2b8ded58117668144b9d460e6d912c66d790932ecf6e1652c",
+      "bytes": 2381,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_nested_shared.nano": {
+      "sha256": "6ecbe7168a82dbfbc4e68423bd9ea9782a377c89daf94e0d1fc54d61e29f9349",
+      "bytes": 1478,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_order.nano": {
+      "sha256": "31ae476271c1cae08204b635c999e232fc6b2d46d4e2a1c6fb4e9ddc477fb8d2",
+      "bytes": 773,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_range_for.nano": {
+      "sha256": "dea722584fd2447957adc3e39ccee033a92173027439791fc574acdc46fb1159",
+      "bytes": 2544,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_resource_paths.nano": {
+      "sha256": "bd0fa0ac4de53f11b6cf26e46814316301ce843b0b1a3aeea745e9695c4fd8a2",
+      "bytes": 2942,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_returns.nano": {
+      "sha256": "c0728eaf006c8c9c1c7e8a2db6407ad36b7853fe0a1ac3d306a27ccee9920ba5",
+      "bytes": 1816,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_borrow_shared.nano": {
+      "sha256": "63352319dbf61ece467640b2af1ebe04203bea24ad56c46f81e5145a17d81479",
+      "bytes": 593,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_consuming_bool.nano": {
+      "sha256": "28911c798981bb4302bff9f656b217903205f1bb6ef3fbb61fce2f03d949d9cd",
+      "bytes": 454,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_consuming_leaf.nano": {
+      "sha256": "835dd83b4508d4cf29143368d3648bc8ef5ed6b153f9321b1ab23bcac58c1837",
+      "bytes": 1188,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_consuming_nested.nano": {
+      "sha256": "fef4d5a64f12257d4887e942d7d0355270ececd82a68d5dac28f728101aafac5",
+      "bytes": 1029,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_inline_owned_children.nano": {
+      "sha256": "c1366e144d0445bc8faf4f0b42a6d6517b9355f55bc0c43ea053fe64f66cbf4c",
+      "bytes": 1019,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_owned_value_graph.nano": {
+      "sha256": "7a70752235ac69fb53a29dbbe32fdab1ffa188b6335680c93c45eba780d905f1",
+      "bytes": 669,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/source_owned_value_nested.nano": {
+      "sha256": "804963dd99415be7939af250ae2f31c93a1b6d7b751682a97978be1033d96e7d",
+      "bytes": 654,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/string_concat.nano": {
+      "sha256": "80db1134f5b13accdd6cd5b66668a93a9b4435cebe23550f2f9f9bec0128ec07",
+      "bytes": 716,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/string_edges.nano": {
+      "sha256": "5b1f681475dc4d616a912ef583bdd25e333d34c3fed8a34316224def2f3ab140",
+      "bytes": 1379,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/string_from_char.nano": {
+      "sha256": "d827788aef31b2d94c73fa7ceb0da4aca5747bdd70ec44a093be523ae3f5a084",
+      "bytes": 558,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/string_int_maps.nano": {
+      "sha256": "15cdb1be129ca4b0074fc79470d9df09770c11dd887a81544816f74f917065c7",
+      "bytes": 1757,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/string_map_contexts.nano": {
+      "sha256": "2facb0d5495d63151a49e3eb49588a7478e5e48ab63d4b82781fd466041c5ce2",
+      "bytes": 996,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/string_map_global.nano": {
+      "sha256": "c4a402bac2dd8255ac19cd129107e734e71610b2bf08c53813e8e3a2383644a2",
+      "bytes": 352,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/string_string_maps.nano": {
+      "sha256": "e801d062889563d52b0b2dc4ff9a40f87407fe30a258978925c7d893b1b00c60",
+      "bytes": 2124,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/string_to_int.nano": {
+      "sha256": "47ccd2dba9a2a2a927873601a1ec9c0c419db2f73a5eedb8bffdef4c832433a8",
+      "bytes": 568,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/tagged_string_loop_join.nasm": {
+      "sha256": "0d2be6e201fd49e3862adfe241b55a8aa9aa76eea3e42b20286b588722ee48fd",
+      "bytes": 311,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/tuple_values.nano": {
+      "sha256": "a89eb409d655c6e88d437ac388b2ade9102d09f1ce907f6a9f499e9d8c248d02",
+      "bytes": 1578,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/union_resource_constructor_order.nano": {
+      "sha256": "37352e865f7fce3bdf2ad9887a126f5089914258b2ad2a49e475208b68ef3dfe",
+      "bytes": 831,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/unsafe_blocks.nano": {
+      "sha256": "fdd8e09a780457ab7e4a9b85475dac8fdac737171112b2cb744cd915fa13dbdb",
+      "bytes": 1722,
+      "mode": 420
+    },
+    "tests/nanoisa/fixtures/void_results.nano": {
+      "sha256": "fb77a8c0f7cbd7536b109b72bc0073d16bc7f2ca92a8c615c366139ac8c44b61",
+      "bytes": 646,
+      "mode": 420
+    },
+    "tests/nanoisa/generic_numeric_bits.c": {
+      "sha256": "b7dd4cc1ea1a5a124aee6409e9b2cb535fedf12c394a9c0574cdb1ac0a44444a",
+      "bytes": 959,
+      "mode": 420
+    },
+    "tests/nanoisa/literal_string_aliases.c": {
+      "sha256": "b0fef989df2736f23bf8c6443efb5ca396e04e03a567ed6fdf589eadcde386e0",
+      "bytes": 1397,
+      "mode": 420
+    },
+    "tests/nanoisa/managed_record_reentry.c": {
+      "sha256": "17cea913abaf6bd0b55b46979dcf7fc7d5bfdf2ac7a197dde01f2ae26c88c2d4",
+      "bytes": 925,
+      "mode": 420
+    },
+    "tests/nanoisa/managed_string_smoke.c": {
+      "sha256": "78bc5b0132c54d44f8da07cc1c80fe82bb37eef4eac218fd30ffc98bf99beb53",
+      "bytes": 997,
+      "mode": 420
+    },
+    "tests/nanoisa/mixed_counted_catalog.h": {
+      "sha256": "08c6f2fbc62243c9afdeb866bdaa4f799e528e2f9930d153454648ef3cee99fa",
+      "bytes": 466,
+      "mode": 420
+    },
+    "tests/nanoisa/mixed_counted_tracker.h": {
+      "sha256": "a15b19ee5c1f84103d6e4777c3f0b85ebbde172b104198b9bf24a9fdd8ce0df8",
+      "bytes": 2098,
+      "mode": 420
+    },
+    "tests/nanoisa/mixed_counted_wasm_memory.h": {
+      "sha256": "264b3a0bb11c9dfb834d0d36386e4cd3309c9af7278996820cdd64adb80948fd",
+      "bytes": 926,
+      "mode": 420
+    },
+    "tests/nanoisa/multi_caller_fixture.h": {
+      "sha256": "47903330f6721c57be42a0c6082b112d834050c2ecdc2c5e45086ddc3ff09792",
+      "bytes": 2578,
+      "mode": 420
+    },
+    "tests/nanoisa/nested_reference_fixture.h": {
+      "sha256": "d1fa7b2112f4a62e2ce5c043de7c0fce494ad9480b6f943f54554299c7e51c7d",
+      "bytes": 1702,
+      "mode": 420
+    },
+    "tests/nanoisa/owned_array_bits_native.inc": {
+      "sha256": "43483a872612c8a5316dbd68fa7e33a391d030ecd4f40c5a85a42972e6d85b08",
+      "bytes": 3734,
+      "mode": 420
+    },
+    "tests/nanoisa/owned_array_mutation_native.inc": {
+      "sha256": "1c7559268ecd3464c16048ae4d7590f50aaaa144b630e326ae4c8e384be9e7ed",
+      "bytes": 1724,
+      "mode": 420
+    },
+    "tests/nanoisa/owned_array_overwrite_native.inc": {
+      "sha256": "dfa57e89a4fd9e4bfc37d2e4f9b8755cb7b656df5db2025c8fb5505366d606a9",
+      "bytes": 2221,
+      "mode": 420
+    },
+    "tests/nanoisa/owned_fixture.h": {
+      "sha256": "3d4f8100376f84fabbabc8d2995520cb4cfc7d295c24c2f991a0e72ac4d7a34b",
+      "bytes": 1574,
+      "mode": 420
+    },
+    "tests/nanoisa/portable_read_hooks.h": {
+      "sha256": "e227e13cd6c3fc7706ce1bc39ecd21c5072f98919036b5310c731780eb3a7c8a",
+      "bytes": 626,
+      "mode": 420
+    },
+    "tests/nanoisa/portable_read_link.ll": {
+      "sha256": "81048b18584a6b3ff637eb5c08eaf8aa72546d64a0487bb875d3001bc499ad30",
+      "bytes": 458,
+      "mode": 420
+    },
+    "tests/nanoisa/portable_read_wasm_node.mjs": {
+      "sha256": "ca54d3d46521cccad3d39645ef0e98cc945dea2660200ec3fac891a082e88c86",
+      "bytes": 12122,
+      "mode": 420
+    },
+    "tests/nanoisa/portable_read_wasm_python.py": {
+      "sha256": "a6164140971cb8b989e6cde4d9299c1281b554f76e6bc6cb268b67e8fd4b92d5",
+      "bytes": 14532,
+      "mode": 420
+    },
+    "tests/nanoisa/record_array_alloc.c": {
+      "sha256": "a8d2fac4d1475c2324d747d44a0afd1f36c932e95d42982adf398bc493a729d5",
+      "bytes": 1457,
+      "mode": 420
+    },
+    "tests/nanoisa/record_array_alloc.h": {
+      "sha256": "090e55d5183ec1abb4b7ca463562888b40ffe04a7ca88c973d746c91e9134edf",
+      "bytes": 476,
+      "mode": 420
+    },
+    "tests/nanoisa/sail_decode_oracle.c": {
+      "sha256": "ab73409ee51eae8e9ebfb7b6b41ff268b56216c1ba4f1965627db02b2b342dd0",
+      "bytes": 1189,
+      "mode": 420
+    },
+    "tests/nanoisa/scalar_global_lifetime.c": {
+      "sha256": "842123ceb92d285146315262b682b209fe16c0b07e79e0addc72ac3f27b8002f",
+      "bytes": 1805,
+      "mode": 420
+    },
+    "tests/nanoisa/service_alloc_hooks.h": {
+      "sha256": "36cfee8e745c2cce7337c1b7361d4c10ef568d8aed81db1ed9227a5dbe7b9d9c",
+      "bytes": 207,
+      "mode": 420
+    },
+    "tests/nanoisa/test_advisory_metadata.c": {
+      "sha256": "d11ff1f1b0d4645c2af3e048eeaeef1f0a7313c16e1ae9511c08a5f2ceb2290b",
+      "bytes": 8002,
+      "mode": 420
+    },
+    "tests/nanoisa/test_advisory_metadata_alloc.c": {
+      "sha256": "8c36a7b3c465d71f78e689a9d93200dd1877a282d5de760885edfac558473e32",
+      "bytes": 1855,
+      "mode": 420
+    },
+    "tests/nanoisa/test_affine_bytecode.c": {
+      "sha256": "0f16fbab71e2b5f6d89368cdc079582dd709c98abea079e96db3f9dd43ca3bb6",
+      "bytes": 18793,
+      "mode": 420
+    },
+    "tests/nanoisa/test_affine_private_variants.c": {
+      "sha256": "3f3c8da707e7ba9197f4e8d738dedd7d6091606565e9fe39138d3f7cf1a52c80",
+      "bytes": 6524,
+      "mode": 420
+    },
+    "tests/nanoisa/test_affine_state.c": {
+      "sha256": "14896a077bdaaf031e627fa1e0ea93e50022adb65014cf165014a7dbb4af7211",
+      "bytes": 15828,
+      "mode": 420
+    },
+    "tests/nanoisa/test_assembler_string_alloc.c": {
+      "sha256": "30a7f505998722549c3135cb6f95da89fd00e4cf5673d9554e150fc094636f58",
+      "bytes": 8981,
+      "mode": 420
+    },
+    "tests/nanoisa/test_caller_reference_analysis.c": {
+      "sha256": "25becd353ec229da525eca9323684ae631e8a3187f7c9ccc2b0970dc0e5c326f",
+      "bytes": 5115,
+      "mode": 420
+    },
+    "tests/nanoisa/test_caller_reference_state_alloc.c": {
+      "sha256": "fb4342dfc6b416cf88113c5283e7be32d50a447b6d12e151876dc57dfc01f7bc",
+      "bytes": 1549,
+      "mode": 420
+    },
+    "tests/nanoisa/test_caller_references.c": {
+      "sha256": "b94eea37bbcfe07140e31deecb305ea7a2721d02654ea91c040d90e6d6cea889",
+      "bytes": 8417,
+      "mode": 420
+    },
+    "tests/nanoisa/test_caller_references_alloc.c": {
+      "sha256": "41f193aa4c1045d0e6048712e152f9978d9ac49f84240a2151a9a639b839839e",
+      "bytes": 1291,
+      "mode": 420
+    },
+    "tests/nanoisa/test_capture_bindings.c": {
+      "sha256": "5d2000db35de8c4a0571eb9ca769764aec6b00dbde4d34f4d96e5b9be0f72c3d",
+      "bytes": 14499,
+      "mode": 436
+    },
+    "tests/nanoisa/test_consuming_call_alloc.c": {
+      "sha256": "def640b8970cd3165fba923754446a3e5f76eac4cf15999b51173556b0d1aa51",
+      "bytes": 1220,
+      "mode": 420
+    },
+    "tests/nanoisa/test_consuming_call_preflight.c": {
+      "sha256": "5854cb0e20692234fb70153433d80d7d23c130426ce57ab79787a170eec91d77",
+      "bytes": 2155,
+      "mode": 420
+    },
+    "tests/nanoisa/test_consuming_calls.c": {
+      "sha256": "16e8da8773121041cd5fe23b691514ed91f8b91fae7d596afc9a76572f456cb1",
+      "bytes": 5973,
+      "mode": 420
+    },
+    "tests/nanoisa/test_debug_alloc.c": {
+      "sha256": "4ba7e161191bd731aaf11992a5c185cd7d1fe7b4989e18336835606030405c94",
+      "bytes": 1425,
+      "mode": 420
+    },
+    "tests/nanoisa/test_debug_asm_alloc.c": {
+      "sha256": "c8b7973cd8964602ce0e1b8473cf1dffce973216fee2b061cdf8e77e690ba418",
+      "bytes": 981,
+      "mode": 420
+    },
+    "tests/nanoisa/test_debug_text.c": {
+      "sha256": "6fa0f744d83a32053b9da438bb26ffe303090bde652170a9f5a23aa5f980a436",
+      "bytes": 2817,
+      "mode": 420
+    },
+    "tests/nanoisa/test_disasm_roundtrip.c": {
+      "sha256": "8b7687e52ab6094201c67ca9cb62ffc237ec11ead4b50284417414f22634afd5",
+      "bytes": 10400,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_body.c": {
+      "sha256": "668a4d8b7402457ee6fa9a78c8b6ac23c28d7318aede542dab99b60be4cb5316",
+      "bytes": 13220,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_code.c": {
+      "sha256": "95f623d0d568b36544e3f9bd769192be977fb9c8b64f57e2464faa832c2a8098",
+      "bytes": 12933,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_cyclic.c": {
+      "sha256": "e4c123048c2cf2485337a7313f759ed46a7e02ac6602b45e74a00761f9f44684",
+      "bytes": 25382,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_cyclic_dispatch.c": {
+      "sha256": "d9475a51b77188b87bd8dde1a8e3facbaecaefe6c54bb3b3ffb4971d44bcf6e4",
+      "bytes": 19701,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_cyclic_hosted.c": {
+      "sha256": "b6c9513251acb5cd83369b234210ca85edd2ed5389e9c3c6f252c233bc3c2907",
+      "bytes": 23334,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_cyclic_hosted_integration.c": {
+      "sha256": "3dad9d30d700de0c614eb409f13fbf4062d21f7bfe8422517d1ed57a8440073d",
+      "bytes": 3352,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_cyclic_native_buffer.c": {
+      "sha256": "ddd6cc27a76de84c132af4025a52fa34f4fe5a21683be54ecf272a4007364113",
+      "bytes": 811,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_cyclic_public.c": {
+      "sha256": "89e60ff4d40500d17d5653bdd1a8116d01f9df14f0857aea5073281bae488561",
+      "bytes": 10096,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_cyclic_runtime.c": {
+      "sha256": "23574087a0b739e82461167d379ef0ee9966c3721ee7127ab22555b99438788c",
+      "bytes": 25635,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_flow.c": {
+      "sha256": "d99a5f063a87e9ec781fdbf07a0646e2828367cb0e4cf212f8c2082cd4ebb79d",
+      "bytes": 16924,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_host_grant.c": {
+      "sha256": "705b2fa2f4853dd108520498c48759aacbbfac9d2cc6dd558f8af8d42d1c7d54",
+      "bytes": 5194,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_hosted.c": {
+      "sha256": "b18625a2acc1c1b3c08952fd9e7c2022ddc8ff2b1744dc9d4d9f97eb2de7e7b9",
+      "bytes": 18450,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_indirect_flow.c": {
+      "sha256": "abba1ad48273be2a0520806ef7afc9fa76da07fbde9690b605716ea52db3d673",
+      "bytes": 11538,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_indirect_hosted.c": {
+      "sha256": "471ef05a5e3036245bd2d15f33e04ae77e8e735628cc881d75a96e7ee73a034a",
+      "bytes": 30358,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_indirect_targets.c": {
+      "sha256": "7053a371e4bfcb2aade60bb2fbca3ff91704ba5f0fb30a928f8adf39717340b6",
+      "bytes": 8700,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_native_buffer.c": {
+      "sha256": "a69d7558ccbfae9b0e14b404213837d16dcd1bc1b1fac15901d52e41480fc947",
+      "bytes": 971,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_nominal.c": {
+      "sha256": "a10d85fe75575af5a8176fb0647ea87adb56b53850344b360f15b5ef49263ec6",
+      "bytes": 12311,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_nominal_module.c": {
+      "sha256": "6606bc7f4ae41f18b99d427bf6f22bf849e9363cdc15d707576b7148631b8ca7",
+      "bytes": 9872,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_opcodes.c": {
+      "sha256": "f0e045300f458801cf9ee6b5a0fa0e8158f05418d3fb681f6d07147026ab6cb3",
+      "bytes": 11765,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_private_native.c": {
+      "sha256": "bb8e61c6616fa259a45f7eeab09e6385339c51587756ad49c0de3e699a8007bf",
+      "bytes": 6411,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_private_vm.c": {
+      "sha256": "91980578f637d73438de773aed34162919cf9f449ded441c7ebaaccdd30b83e3",
+      "bytes": 15316,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_public.c": {
+      "sha256": "e4c60843c02d36f0d21cb098f3bf4e56bfd24f1184241e1bdc94425435fcce2c",
+      "bytes": 13026,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_public_cli.c": {
+      "sha256": "df15f408a0bc7f12c9ddf0d50343cabe4f588425a46ea7b6cbbf3581334dcf35",
+      "bytes": 3580,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_runtime.c": {
+      "sha256": "4204b71f2ee3964e68617af0f6cf5df312a6d91dd7d8872069372ff9dd13d2b4",
+      "bytes": 26103,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_runtime_frames.c": {
+      "sha256": "f652d8e5fc88932d1acb4e2dd77c9d34572085070f812f1933a87ff532a753b8",
+      "bytes": 25759,
+      "mode": 420
+    },
+    "tests/nanoisa/test_file_source_plan.c": {
+      "sha256": "1d0b0661d38b62bf883134d6bd55b181501e68631634bb17fdcc885db3716ff9",
+      "bytes": 6407,
+      "mode": 420
+    },
+    "tests/nanoisa/test_forth_see.c": {
+      "sha256": "970ca31b5786ae32eea0f20d3d9de2ed5b602c704ee81821a9f6bb9000fc9273",
+      "bytes": 610,
+      "mode": 420
+    },
+    "tests/nanoisa/test_frontend_contract.c": {
+      "sha256": "669e91849118f242b72917a32721bc1637ddbe3be0ee4b7cc11bd4c23688ff3f",
+      "bytes": 12637,
+      "mode": 420
+    },
+    "tests/nanoisa/test_fuzz_malformed.c": {
+      "sha256": "f72fe41ec116db2d0077aaafb6459b62c3efb1514c44e771c6e9ecd8d62bfa29",
+      "bytes": 21298,
+      "mode": 420
+    },
+    "tests/nanoisa/test_helper_local_owner_alloc.c": {
+      "sha256": "903321fd547e1fc59f87ccf4ecc4104bfc8d3d3c97271a4740f402fe8f4cb3d9",
+      "bytes": 1168,
+      "mode": 420
+    },
+    "tests/nanoisa/test_helper_local_owners.c": {
+      "sha256": "1bdfb2d71b05dd24a75cdfc240bb6ba694df3431e8d79ffff4c20b447e5f224c",
+      "bytes": 4361,
+      "mode": 420
+    },
+    "tests/nanoisa/test_integer_pair_type_rules.c": {
+      "sha256": "0dbd20cf0126cee6d3e76a2ad1cf979a6d890bf6e9b77b69d9a58d5b7ad5f545",
+      "bytes": 1335,
+      "mode": 420
+    },
+    "tests/nanoisa/test_local_bindings.c": {
+      "sha256": "486d2b40ef14562ab4b592b0c7404c31661da08ced872229793a3cf7b3481669",
+      "bytes": 5692,
+      "mode": 420
+    },
+    "tests/nanoisa/test_local_bindings_alloc.c": {
+      "sha256": "503fe93cf9841d43a23f659b2d9452bd8ae894440e8baafbedc7531c1a9ebb1a",
+      "bytes": 1481,
+      "mode": 420
+    },
+    "tests/nanoisa/test_local_markers_alloc.c": {
+      "sha256": "9ed121bbaf85fcfeb1c6686cae9fcce52129fbfc1706271fa41a9349b0cfbc92",
+      "bytes": 1126,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_array_copy.c": {
+      "sha256": "63a13232c1c7005346417cac805ec9a720541e06482c320403689256c27c8821",
+      "bytes": 10434,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_array_graphs.c": {
+      "sha256": "3ebd21c45dc7d36815946a76490af043b1fd589b306ac0cf3a1b29a45fa1bec3",
+      "bytes": 10490,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_array_shapes.c": {
+      "sha256": "6c0bfb4596c3e20a25f1a7a5688f2eee4ea21a81891d73b9265df6930140d852",
+      "bytes": 2128,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_boxed_leaves.c": {
+      "sha256": "062d41c260a5dd2f0b48455ce516980e7c6890c2d2cf05296bdc75187d02a8aa",
+      "bytes": 8712,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_graph_linkage.c": {
+      "sha256": "4978981151a786aded06048be573addbad530429f669b6ff649b90231a677bd1",
+      "bytes": 2882,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_graph_origins.c": {
+      "sha256": "f52e334083b7bfb34e3ebb97d4c105c2fdecdd27a3812dbbd3404076a4263b24",
+      "bytes": 3516,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_graph_safepoints.c": {
+      "sha256": "a294256b6f6f57c5d8f945e4c23626d11a01b76ede0c3da6fa563c7ba8272719",
+      "bytes": 7013,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_heap_selector.c": {
+      "sha256": "23ce35b7ec61747e23ba01e509527c14a4d492cb1d527d099529a29e1e7b1344",
+      "bytes": 2097,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_module.c": {
+      "sha256": "1d5228eef09456c63fc639a7a0eaf13b3c73394d5f02b4818ff9479a8ff6c57b",
+      "bytes": 1957,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_mutable_arrays.c": {
+      "sha256": "27cce169ee96200c7a522323add9a7c48b3115f277acea9c3cf7ced3385f53c9",
+      "bytes": 8821,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_packed_scalars.c": {
+      "sha256": "112ba4c466a496b0642575ce64c52749b68146c76ad2ad440c4fe5392715abd1",
+      "bytes": 6133,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_record_adapters.c": {
+      "sha256": "5641560ad35b73c9ac9d4dcfd84661ac81e1ad023c3675d2d0b871dc247b7683",
+      "bytes": 10000,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_record_plan.c": {
+      "sha256": "b6d73efdb8072004024920106870e1a338471cdfa31fa982706db3c1b44d403c",
+      "bytes": 15419,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_record_shapes.c": {
+      "sha256": "14e37ec557efb37ca9146f3ec87060e82fd53db4a0b31a2365e176ccc1077b9d",
+      "bytes": 2765,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_records.c": {
+      "sha256": "141902cd705fa05c1bc355154de2a748f1b0663fef86a4e9a9c2a108ef9eb16b",
+      "bytes": 9761,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_string_arrays.c": {
+      "sha256": "e001e0ec4c6b179acee9b46994418694cb68b4ed75a910571167867b82758f8f",
+      "bytes": 6453,
+      "mode": 420
+    },
+    "tests/nanoisa/test_managed_strings.c": {
+      "sha256": "5f8764f8d5b3ca06ab95d35e388f8d3f940eb2afc079fd8a474f2ced0cec4331",
+      "bytes": 16596,
+      "mode": 420
+    },
+    "tests/nanoisa/test_mixed_counted_query.c": {
+      "sha256": "ecc99b10e25afda78806742038ccf0a3c170ec81843fcb0396997d794b09ccbd",
+      "bytes": 3397,
+      "mode": 420
+    },
+    "tests/nanoisa/test_mixed_counted_runtime.c": {
+      "sha256": "d646559f6a23a43e6cc2d14aae8503759ae6da6d89d39853889d14157085c736",
+      "bytes": 21618,
+      "mode": 420
+    },
+    "tests/nanoisa/test_mixed_float_proof.c": {
+      "sha256": "7204dc068e597b5d053652d603deec6f18e416787f976e1eda3c3b3898a03938",
+      "bytes": 10624,
+      "mode": 420
+    },
+    "tests/nanoisa/test_mixed_layout_view.c": {
+      "sha256": "760e55bdb8af35519ca5918ece313cdd15d744bd0c991ab44d48dd382874dda1",
+      "bytes": 9250,
+      "mode": 420
+    },
+    "tests/nanoisa/test_mixed_samples.c": {
+      "sha256": "f61c07bf1e4b11110d915b59e817cb4567ac77303dfdc4e027908ce3de742f17",
+      "bytes": 15551,
+      "mode": 420
+    },
+    "tests/nanoisa/test_mixed_samples_admission.c": {
+      "sha256": "2c6a469dc7fdbf918c62315baca2b6e600642d47ae7d138e687d928d2e3df55a",
+      "bytes": 1961,
+      "mode": 420
+    },
+    "tests/nanoisa/test_mixed_samples_runtime.c": {
+      "sha256": "509f069ce0b9d9b7ce58fc8ca5d46585318b64e91475bde1bd2207b11af005f0",
+      "bytes": 12232,
+      "mode": 420
+    },
+    "tests/nanoisa/test_mixed_samples_runtime_alloc.c": {
+      "sha256": "75c6034da8c989ef66445c12948211b2792509db75e170fa4bb17821c7cecf35",
+      "bytes": 2250,
+      "mode": 420
+    },
+    "tests/nanoisa/test_multi_caller_heap_alloc.c": {
+      "sha256": "a10fa896cc7989068eb434c94adf1593844d1ef3b02338330a16d259af1b1ce5",
+      "bytes": 1170,
+      "mode": 420
+    },
+    "tests/nanoisa/test_multi_caller_references.c": {
+      "sha256": "3fbf0d691394cd70c00c06273035409d595ffe0cac0671bfcd841258f9e65927",
+      "bytes": 7963,
+      "mode": 420
+    },
+    "tests/nanoisa/test_multi_caller_state_alloc.c": {
+      "sha256": "f3617cab61c13494a7bd06cac173624408191806bbb7eaaa17b10d8f1df51b13",
+      "bytes": 3881,
+      "mode": 420
+    },
+    "tests/nanoisa/test_multiple_consuming_alloc.c": {
+      "sha256": "90bdedef431f8c3a80bc24d71d0135bb4c47bcd1067620e9092f090b5e7eede7",
+      "bytes": 1245,
+      "mode": 420
+    },
+    "tests/nanoisa/test_multiple_consuming_calls.c": {
+      "sha256": "4595b37e2afa3a184995a7bac567ca2b080d69fc488bec44a6f365de6cc7190d",
+      "bytes": 10186,
+      "mode": 420
+    },
+    "tests/nanoisa/test_multiple_consuming_preflight.c": {
+      "sha256": "558783e39143dd11cc4409ea668913f7850adddacadcd496cffd0748aa84e84e",
+      "bytes": 2941,
+      "mode": 420
+    },
+    "tests/nanoisa/test_multiple_consuming_refusals.c": {
+      "sha256": "e969adf3f52ff844c0fb4f356052625c5d122ee3dbfc21d3f82b937bedc001ec",
+      "bytes": 1145,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nanoisa.c": {
+      "sha256": "a3cf69cb513a3d2ca946a5b662a631f1fc12b9afa64d561e134de0581fe70f6b",
+      "bytes": 81400,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nanoisa_dump.c": {
+      "sha256": "df4194f6fe9ab8cf13774cca1678d3b0fc276d4aec840545dcf36dfbaeeb0b96",
+      "bytes": 8101,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nanoisa_src_nano.c": {
+      "sha256": "6c7dbdf0c5afd990e00dfebd874946a1269f029a358ba88db68f954564adf975",
+      "bytes": 27101,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nested_owned_results.c": {
+      "sha256": "7e3e18aeceb1a0bf101bd270160cdc00a548fe185e6c23c27fcbd8db5309d61b",
+      "bytes": 4935,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nested_references.c": {
+      "sha256": "e5064d9404ac9b44e8fe50744889f4e4df7532663af311f37b9d7a28bcc1b624",
+      "bytes": 8285,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nested_references_alloc.c": {
+      "sha256": "aa504045eac910c088bcbc3d7df9d36245d8f5cb4fe0a6ce257afef257a82bb3",
+      "bytes": 1339,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nested_result_alloc.c": {
+      "sha256": "689e6283af7c4bb4279e185d1ba54b96e27a28383aa872a25f5a8ea92d51aac4",
+      "bytes": 1855,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nested_result_descriptors.c": {
+      "sha256": "990498674d03a5d63c38f3f367fea4a47062eeaba7e830b00e21570512424893",
+      "bytes": 3784,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm2c.c": {
+      "sha256": "307e3a6a136c188caf18309a2d0fdfc8c4653e954ffe00aca721104583f9c6b4",
+      "bytes": 295873,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm2c_shape.c": {
+      "sha256": "c2f95261ae8e89338be60003febabda89b3ccda50f78029178b33a749fa05081",
+      "bytes": 20211,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_callbacks.c": {
+      "sha256": "ffe553d50a673654a1b5aa8d3829e4bfae8ee22417e79436c4ef30e2d6a48438",
+      "bytes": 10127,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_format_v2.c": {
+      "sha256": "fcb9a7c2c09e19a6a4c83618b9e1b14fa207d887a9bd2eb0a93a1c490e058744",
+      "bytes": 10967,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_pool_alloc.c": {
+      "sha256": "4efd1050b8c0e04a64c7bb2a48df021300c23cec58439e5b0463ce5d23a9a99d",
+      "bytes": 5567,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_v2_code_publication.c": {
+      "sha256": "1aec11cc98d62457d646c3c95523cf523154cfd4d7bffa03fb63f409525ef102",
+      "bytes": 3978,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_v2_constants.c": {
+      "sha256": "fa11a4d928976b8dc8e5497d2075e52e07a24cb9c840b3ee1e61ee4e2178785f",
+      "bytes": 6915,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_v2_convert.c": {
+      "sha256": "7ed0c4daf4826cf474c33e76db9e4ccbe0382bf23ab7bee078431d24817de4ff",
+      "bytes": 21678,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_v2_cursor.c": {
+      "sha256": "c667e4eb3dd25def7fb1925538ca535e41e64b69dd20e5d6fccbfb26d4eb4a22",
+      "bytes": 5718,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_v2_endtoend.c": {
+      "sha256": "02166f7607c115f7f440657b43aac628f2258daffff3d7b59cdac11ac09e3f21",
+      "bytes": 11828,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_v2_functions.c": {
+      "sha256": "2fd032e9a933f3db6ebccaf4245b84fcf924be7783b68060b8324fd036163d16",
+      "bytes": 9377,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_v2_imports.c": {
+      "sha256": "1599360b1ac10843e779a401585342e76610141561bef8e01af95693402bb39a",
+      "bytes": 9458,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_v2_layouts.c": {
+      "sha256": "d68f206f9449aabdad85bd1287d4da694958d9ca71407c36d1edc497db205ccc",
+      "bytes": 12573,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_v2_module.c": {
+      "sha256": "bde7a678645e15c06628730e0d32d5d965092a1302145337d6d15f960809304e",
+      "bytes": 16396,
+      "mode": 420
+    },
+    "tests/nanoisa/test_nvm_v2_signatures.c": {
+      "sha256": "b4e23468d6b452b9864c0a7ae4ee72d4b66c6e5fd4a6d35b1408ff213ba38d38",
+      "bytes": 8206,
+      "mode": 420
+    },
+    "tests/nanoisa/test_ordinary_array_authority.c": {
+      "sha256": "bb19fac5ae29ce30d9192bc295a0dae2bade777d99303f7aec11a693e58a103b",
+      "bytes": 17192,
+      "mode": 420
+    },
+    "tests/nanoisa/test_ordinary_record_authority.c": {
+      "sha256": "22b70348b36bf65a0dbec6ae49ac86c4f261e5097d003583e2317093be8ac7d1",
+      "bytes": 14315,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_array_authority.c": {
+      "sha256": "11b0d083b6f964635e38e887eefdcfdad2c1fe4d1d28f3f2139b69ca7fe52da9",
+      "bytes": 19494,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_array_bits_boundaries.c": {
+      "sha256": "9f2dc46c8d9a5b86af678d913b8b7166e4850b812524c6632d4ba6ab03516ec6",
+      "bytes": 7076,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_array_layouts.c": {
+      "sha256": "ce0505a1db3ff3a4ee383771c342855d45d1344c0d69ef174acb54c493c9381a",
+      "bytes": 10208,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_array_mutation_runtime.c": {
+      "sha256": "3f03f04ab85a9ec8e79a29477588a2b25bf5b41476ec577f25099080a9db235c",
+      "bytes": 5861,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_array_origins.c": {
+      "sha256": "e617d20608e7fe8cadb209c910e71aa27eb2bf76787c239e748cb6c60060cf95",
+      "bytes": 15196,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_array_overwrite.c": {
+      "sha256": "de4d8d83d50e712cec243f68873e2d90fff505f855cfd20b5b4082010dad3bf2",
+      "bytes": 7610,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_array_public_boundaries.inc": {
+      "sha256": "e6e6caf111fbc82fe57b52a034df4869306519e469d8ad01c8e682170dc00235",
+      "bytes": 12706,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_assertions.c": {
+      "sha256": "1cb9715918852d545fcce16e05200e21b008c22cb41e97aa765d93c0bf3096a2",
+      "bytes": 5181,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_binary64.c": {
+      "sha256": "dbd026ddce6a467ef1c1047461595b03417cc7c10b0c0b8c942bbc70a16f69f3",
+      "bytes": 7570,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_invocation_proof.c": {
+      "sha256": "3c5e2ff2c1032f9f8a232a167ed01c46d1789f3a1b600fb6153a6635e07b386b",
+      "bytes": 3220,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_result_alloc.c": {
+      "sha256": "151d68a014c90dce3a6e36dc7bebf18974bb2e535d3e83d8e420b9b4a5acc56d",
+      "bytes": 1757,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_result_descriptors.c": {
+      "sha256": "ca2fc91f55f43d969294988b07cc8143377feb7e1a2c1ca294f3e5bb88f921b1",
+      "bytes": 5293,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_result_preflight.c": {
+      "sha256": "d2b87881a897757eda484a34e60810d960eceb9ee504f2f58bd30d2093fc55f7",
+      "bytes": 1481,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_runtime.c": {
+      "sha256": "61c89e02e896df42f7970ebb411247e4cf5d40adca1049dfe6425215677fd8a1",
+      "bytes": 7950,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_runtime_alloc.c": {
+      "sha256": "550edcb1791c79985d188444abd526b4b36a0b140d719df1b779a6eb09a9d758",
+      "bytes": 1403,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_string_alloc.c": {
+      "sha256": "4d405b7bc8c921c54e319f40388fe059c16ffa80a43db95cce1ce0ef268167b3",
+      "bytes": 3986,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_string_fields.c": {
+      "sha256": "aa4d084c61aa13dc534c47f9af768c8b12826a8390a34399611b4915e161cf9d",
+      "bytes": 6531,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_string_fields_alloc.c": {
+      "sha256": "93247927e1e8a5181f4a84c26aa34b37ecb484fe14942cd8fee46c91df76f16c",
+      "bytes": 2994,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_string_joins.c": {
+      "sha256": "c9840cd4b19d4ea827e709f8c4044ad45e9690f4bd4965a8dc54cb975df686c1",
+      "bytes": 3636,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_string_print.c": {
+      "sha256": "4042e20455ac2fcc199b74a5914c7c526878e7c7042ccb3618f528d3aae0cae7",
+      "bytes": 16390,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_string_proof.c": {
+      "sha256": "90afe0b3890b3b8ab437e827108866ea8da57afceaa5e5cac8850c66e33ccb61",
+      "bytes": 6893,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_transfers.c": {
+      "sha256": "6bb1a2b3a7321449d512ffdd0e9544d42ddbac5f00526d4adc28c2ecf03d31ee",
+      "bytes": 7497,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_value_graph_preflight.c": {
+      "sha256": "c6677292076af45c0966f1a54e732ae563eb79e576842a03dddb7339240bf732",
+      "bytes": 2479,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_value_graphs.c": {
+      "sha256": "5cd5e8730966c47cb683c47926314fde1ab819399e7752f3f1c201b9fcde75a2",
+      "bytes": 6983,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_value_results.c": {
+      "sha256": "366b54b660cb5d3106c7ee28b4d61516520ab429c712a3ff6716cbb0bc8ea234",
+      "bytes": 7546,
+      "mode": 420
+    },
+    "tests/nanoisa/test_owned_verification_reuse.c": {
+      "sha256": "c4aa358bb554ffe22a741a9c3457a975d92f43f33821b36e28321c58519d399c",
+      "bytes": 2384,
+      "mode": 420
+    },
+    "tests/nanoisa/test_ownership_contracts.c": {
+      "sha256": "c0c62ceaeae95cb12edaf4411368a5a1a4eb5340a40e2a9639a2947c8bbe85bc",
+      "bytes": 18433,
+      "mode": 420
+    },
+    "tests/nanoisa/test_ownership_declaration_projection.c": {
+      "sha256": "a6d506cb72e73e67fe2556c587c55fc78a5cf463d345d5c7cc0da4e100c5c519",
+      "bytes": 19111,
+      "mode": 420
+    },
+    "tests/nanoisa/test_ownership_layouts_private.c": {
+      "sha256": "2e8f159952d7caedb2e64a8d68416e96814c89b6c4fb486f3b8576d81d686f24",
+      "bytes": 5926,
+      "mode": 420
+    },
+    "tests/nanoisa/test_passive.c": {
+      "sha256": "b0d93859f79b36a068b05ae3f7b52dc4337a9ef08fa1dc80342158121ec9c210",
+      "bytes": 14210,
+      "mode": 420
+    },
+    "tests/nanoisa/test_portable_host_plan.c": {
+      "sha256": "afc67e36e76475a9ffa5f0c21aecf5880bb865a234189e1a88b1de100d9750b2",
+      "bytes": 16329,
+      "mode": 420
+    },
+    "tests/nanoisa/test_portable_read_adapters.c": {
+      "sha256": "cc2db12f085dd1045d1bb7ee6f20230690ea206473b4e3b0a8038526369a9660",
+      "bytes": 15442,
+      "mode": 420
+    },
+    "tests/nanoisa/test_portable_read_wasm.c": {
+      "sha256": "d08c28b26b7db69febf3157693601fa959f2f6ff649e8780a801b0c6c04cae4a",
+      "bytes": 5319,
+      "mode": 420
+    },
+    "tests/nanoisa/test_private_owned_array_runtime.c": {
+      "sha256": "d40a7369664752b1fedc7ee59c9f8df5b7bd0583d7d1b36f3f1f7efce97c96a4",
+      "bytes": 15997,
+      "mode": 420
+    },
+    "tests/nanoisa/test_record_array_execution.c": {
+      "sha256": "bb631331a1d6914695832ad7b7262173d85692173daa2a4610bb84d60a5fab05",
+      "bytes": 35837,
+      "mode": 420
+    },
+    "tests/nanoisa/test_record_array_global_flow.c": {
+      "sha256": "1edff80729f7cc8e46e7c94e4bfc46a5f2afcec679aa475442307e65878af58b",
+      "bytes": 14926,
+      "mode": 420
+    },
+    "tests/nanoisa/test_record_array_origins.c": {
+      "sha256": "4faa4b26029671846b9a14b4c12451068e8ddd6b35fa3d0d93f25ddc225b9dc0",
+      "bytes": 19881,
+      "mode": 420
+    },
+    "tests/nanoisa/test_record_array_vm.c": {
+      "sha256": "dbcacb27068acb71630073fe0cce576942cc9e2b2bf96975603925b6731cdf25",
+      "bytes": 39773,
+      "mode": 420
+    },
+    "tests/nanoisa/test_reference_places.c": {
+      "sha256": "3d6b12c4346f44261a1a92265edee1d379612124a4281c11e36c872b571537f9",
+      "bytes": 5946,
+      "mode": 420
+    },
+    "tests/nanoisa/test_retained_layouts.c": {
+      "sha256": "8af69f311bfebd7f6be0168eb39d60f85b6ba58f977a6381cfbe5b0ec74422d3",
+      "bytes": 5831,
+      "mode": 420
+    },
+    "tests/nanoisa/test_same_frame_references.c": {
+      "sha256": "67cd788524103b1908254ea489f9a3c0f6bdc89e79c8d305ff4227dcd73296c1",
+      "bytes": 6928,
+      "mode": 420
+    },
+    "tests/nanoisa/test_same_frame_references_alloc.c": {
+      "sha256": "76c787f09c025c2d4fe3ccdaeb9bb1085cb73fd55636540da7f9b29969f49871",
+      "bytes": 1514,
+      "mode": 420
+    },
+    "tests/nanoisa/test_service_bindings.c": {
+      "sha256": "d985f48729ffc497e7c38bb9a9b635151aa8bbb951ede8665da353e5976f6e31",
+      "bytes": 4009,
+      "mode": 420
+    },
+    "tests/nanoisa/test_service_bindings_module.c": {
+      "sha256": "7581ccc8f00055ae0f31ff71c930641ffe4c1aafe285917688fb0b533869f5d6",
+      "bytes": 11934,
+      "mode": 420
+    },
+    "tests/nanoisa/test_service_mixed_boundaries.c": {
+      "sha256": "98d11bf7f7a4449fef9978c216b5aa3d6c198cdee2575dd1d4990cb78396d31f",
+      "bytes": 2811,
+      "mode": 420
+    },
+    "tests/nanoisa/test_verifier.c": {
+      "sha256": "040bfdbefffc23a9559f1f1b0cb55fabc6572c20b8740ecefff6d4a12e30dd75",
+      "bytes": 73540,
+      "mode": 420
+    },
+    "tests/nanoisa/test_verifier_cleanup.c": {
+      "sha256": "89e14180d6f58ead5c51f1cc83ea61aeb9398d204a191808e8051cd8b6f7b710",
+      "bytes": 3456,
+      "mode": 420
+    },
+    "tests/nanoisa/test_verifier_profiles.c": {
+      "sha256": "b11972d274641d1f6724107999ecdfa9a76534f851755a72f242ea0d371478e9",
+      "bytes": 2742,
+      "mode": 420
+    },
+    "tests/nanovm/dispatch_callbacks.nano": {
+      "sha256": "53c68ca42c01fce7251bf759917814b8a7d39d569f93affde3d8ccd00ed832c6",
+      "bytes": 1537,
+      "mode": 420
+    },
+    "tests/nanovm/ffi_artifact_fixture.c": {
+      "sha256": "9691c2e7c95d85ab842501db258f154d4ad9c5f791a45b16898e4828535245ac",
+      "bytes": 2096,
+      "mode": 420
+    },
+    "tests/nanovm/ffi_artifact_identity_fixture.c": {
+      "sha256": "a52345f56b2c575f3ccc20ce55190c48058274143b9bb881ab4398926fb34423",
+      "bytes": 235,
+      "mode": 420
+    },
+    "tests/nanovm/ffi_callback_fixture.c": {
+      "sha256": "aa38ef382dbbe15f554c1a0d6112427ac9d43890569d8b677b9065678e4497f3",
+      "bytes": 2572,
+      "mode": 420
+    },
+    "tests/nanovm/mixer_callbacks.nano": {
+      "sha256": "0342808e94520e42a08f6dc08486d66590f50e5031e328d5b365e051b6e4daab",
+      "bytes": 3280,
+      "mode": 420
+    },
+    "tests/nanovm/mixer_native_operations.c": {
+      "sha256": "624d66076f8e1f85167960a224a2477c4481ecff2e5f08fa394676bb1416a812",
+      "bytes": 2024,
+      "mode": 420
+    },
+    "tests/nanovm/packed_scalar_reference.c": {
+      "sha256": "696b2dd675f5e0c556d5e68f69b27a0bd16428b077440ecac7555cc4f87198fe",
+      "bytes": 2204,
+      "mode": 420
+    },
+    "tests/nanovm/sail_vm_oracle.c": {
+      "sha256": "423cff7d4cfe662b22083d54d828975c190f491247f648805a3f92e3c6f995ea",
+      "bytes": 2655,
+      "mode": 420
+    },
+    "tests/nanovm/sdl_library_probe.c": {
+      "sha256": "da75b488d11c56c9d422f9ddd94be5d540c3c730eb5ff4bdaf7f5131fb7e210e",
+      "bytes": 395,
+      "mode": 420
+    },
+    "tests/nanovm/test_artifact_load.c": {
+      "sha256": "a7b9da4ce34ca84d345828aa89d464d16c52ee4fe3bcad9fb465532a1aa403b8",
+      "bytes": 1243,
+      "mode": 420
+    },
+    "tests/nanovm/test_binding_closure.c": {
+      "sha256": "12b7d3e4f863296e22b3c5dcb1266d8fa2b1ce296ea5a40e98ea146102bd49f3",
+      "bytes": 11802,
+      "mode": 436
+    },
+    "tests/nanovm/test_binding_state.c": {
+      "sha256": "fec255f2ecbfda271960fa6efc4430bbb19576b448a2644fb35c5b035b04dc13",
+      "bytes": 7935,
+      "mode": 436
+    },
+    "tests/nanovm/test_callback_allocation.c": {
+      "sha256": "ef0c5d34d001432e603e824f441bea7de53dbb733082bc0cc19b5b4b82fefcce",
+      "bytes": 2548,
+      "mode": 420
+    },
+    "tests/nanovm/test_callback_failures.c": {
+      "sha256": "bbed27c295ae4ce679251781a91ea4842253207764039ccedbdc9378c53c69ef",
+      "bytes": 4825,
+      "mode": 420
+    },
+    "tests/nanovm/test_callback_runtime.c": {
+      "sha256": "90988b1c885d46d94cfb2312299820f8594445beccb9400f5596bbeb775da06b",
+      "bytes": 7749,
+      "mode": 420
+    },
+    "tests/nanovm/test_cast_string_alloc.c": {
+      "sha256": "c183697345614f1f704a7a6e5a786dc5916a2ebfa2a1b95246bc1c7def1fb083",
+      "bytes": 3214,
+      "mode": 420
+    },
+    "tests/nanovm/test_cast_u8.c": {
+      "sha256": "50a8b668a2b2668a2e817c426065e68f1a42b23553bfaf4bbd06aaf9c29c9bd8",
+      "bytes": 4103,
+      "mode": 420
+    },
+    "tests/nanovm/test_cop_fuzz.c": {
+      "sha256": "9c8d582ec2efbf1bc73b276753d86a67583abb5a00e2b78b6c66e7d39ad9bd45",
+      "bytes": 10665,
+      "mode": 420
+    },
+    "tests/nanovm/test_cop_lifecycle.c": {
+      "sha256": "3d3c40c10727e776045a4970cfcc9f58bac2d4767fabbd9bfea2d741c4452eef",
+      "bytes": 5349,
+      "mode": 420
+    },
+    "tests/nanovm/test_cop_protocol.c": {
+      "sha256": "cea5fe8525e9e1315f536599b680d8aa1a681e80f2c8aa19374b3681a1e4c4bd",
+      "bytes": 27853,
+      "mode": 420
+    },
+    "tests/nanovm/test_dispatch_allocation.c": {
+      "sha256": "5d7e4f4e06ae3373ff2dad892ff69191d7c73331e57f78282d145b91ead570e8",
+      "bytes": 959,
+      "mode": 420
+    },
+    "tests/nanovm/test_dispatch_retained.c": {
+      "sha256": "206eee46e6f853491088fa846887ce5465a3859b636c5c44034ac751e98d8fe7",
+      "bytes": 4146,
+      "mode": 420
+    },
+    "tests/nanovm/test_effect_ownership.c": {
+      "sha256": "7e04359f603370d2f8716898d5021f4b090890d6e2588106d00dff598b243ec0",
+      "bytes": 1398,
+      "mode": 420
+    },
+    "tests/nanovm/test_ffi_arrays.c": {
+      "sha256": "f4f87ba80ae16d8991998757a36bc47bf66dfe2c0f37d097c3a56909f2f2465c",
+      "bytes": 8692,
+      "mode": 420
+    },
+    "tests/nanovm/test_heap_allocation_failure.c": {
+      "sha256": "677b0388668c173f9f8b7c84579262a0ff537338b63824df45ee3b1c822bad33",
+      "bytes": 19767,
+      "mode": 420
+    },
+    "tests/nanovm/test_intern.c": {
+      "sha256": "39751cfa09b0b56fc73d34f459fb3e0c9b9435533ad1ddb582f9a1357bbff28a",
+      "bytes": 5521,
+      "mode": 420
+    },
+    "tests/nanovm/test_map_declared_tags.c": {
+      "sha256": "d63096fec2adfb3a2a922bae243a57cbc0cdfb4619f45621b3bb5e1fa3ae27a9",
+      "bytes": 324,
+      "mode": 420
+    },
+    "tests/nanovm/test_mixer_callbacks.c": {
+      "sha256": "2b0615a14637f4fac3e40d4491f19b0ff5fe6fa2b3af30208506f5b10641399b",
+      "bytes": 6028,
+      "mode": 420
+    },
+    "tests/nanovm/test_ordinary_admission.c": {
+      "sha256": "1105d580ad62bd35f22cc5f082744d9c3908233781075e75b8701f27d7fdbc13",
+      "bytes": 19749,
+      "mode": 420
+    },
+    "tests/nanovm/test_retained_image_failure.c": {
+      "sha256": "160af35909146e265f6edb74b0f41df623732ccf9412d99b98b2d0a33f86bfb6",
+      "bytes": 2313,
+      "mode": 420
+    },
+    "tests/nanovm/test_stack_allocation_failure.c": {
+      "sha256": "ea4fc07c9d0955d9ca70f6b216fc152c1cf24e783fecaf4703a21df9f4d9144a",
+      "bytes": 13280,
+      "mode": 420
+    },
+    "tests/nanovm/test_substring_contract.c": {
+      "sha256": "af1ee0fddad9843712b286dc16168fcdd551691b44a6c70741fcb797508bc7ea",
+      "bytes": 27097,
+      "mode": 420
+    },
+    "tests/nanovm/test_value.c": {
+      "sha256": "9f884981a3e5aae3fbdfcd9e56469c9da4d7de096adc6c301889ae10fcc9daf8",
+      "bytes": 15346,
+      "mode": 420
+    },
+    "tests/nanovm/test_vm.c": {
+      "sha256": "1984f3db5624207ef1fcbac26c1d9d56e60d74ce6212a13d7e7b41f99c03cb10",
+      "bytes": 258649,
+      "mode": 420
+    },
+    "tests/nanovm/test_vm_builtins.c": {
+      "sha256": "e5753ac078e9e2a1a808890136ae51034af609075586bbfbb093a3aa5e7529c9",
+      "bytes": 18143,
+      "mode": 420
+    },
+    "tests/nanovm/test_vm_ffi.c": {
+      "sha256": "5c058f84b4abeeba2b2b9245a8f2efb42e9f6f4b1bebed1e3317104ab5447d32",
+      "bytes": 49561,
+      "mode": 420
+    },
+    "tests/nanovm/test_vmd_path_config.c": {
+      "sha256": "315e9895dc313c99dccbdac386b2da4da92ed05aaf0b222e92f5a680ffd01ed9",
+      "bytes": 1818,
+      "mode": 420
+    },
+    "tests/nanovm/test_vmd_socket_path.c": {
+      "sha256": "7345db495c3feeb3af9add6497e2dd232a49970e9f68965050cc6433159b617f",
+      "bytes": 2376,
+      "mode": 420
+    }
+  }
+}

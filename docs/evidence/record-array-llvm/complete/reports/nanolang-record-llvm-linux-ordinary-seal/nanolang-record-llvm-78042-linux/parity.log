@@ -1,0 +1,7 @@
+I retain direct LLVM artifacts at /tmp/nano-record-array-llvm-vco2s9hy
+test_00_factored_c_bytes (tests.test_record_array_llvm.RecordArrayLLVM.test_00_factored_c_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 10.178s
+
+OK

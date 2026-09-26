@@ -1,0 +1,2317 @@
+{
+  "typechecker-da88-linux": {
+    "pin": "da88d2003264eb989fc9972913842e28e40cdcb3",
+    "archive_sha256": "76e445f4c8c107af391ce4aa6a59ce7b14e93c69b869900e72caa2e365256596",
+    "terminal": {
+      "status": 1,
+      "error": "AssertionError({'label': 'ordinary-checker-build', 'argv': ['/usr/bin/gcc', '-Wall', '-Wextra', '-Werror', '-std=c99', '-g', '-O2', '-fPIC', '-Isrc', '-D_GNU_SOURCE', '-o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/test_typechecker', 'tests/test_typechecker.c', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/lexer.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/parser.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/typechecker.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/transpiler.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/stdlib_runtime.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/env.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/builtins_registry.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/module.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/module_metadata.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/cJSON.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/toon_output.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/module_builder.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/resource_tracking.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/eval.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/eval/eval_hashmap.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/eval/eval_math.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/eval/eval_string.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/eval/eval_io.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/interpreter_ffi.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/json_diagnostics.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/reflection.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/nanocore_subset.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/nanocore_export.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/emit_typed_ast.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/type_infer.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/effects.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/fold_constants.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/dce_pass.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/par_let_pass.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/ptx_backend.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/opencl_backend.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/tco_pass.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/cps_pass.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/coroutine.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/pgo_pass.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/c_backend.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/bench.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/bench_native.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/riscv_backend.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/dwarf_info.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/docgen_md.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/docgen.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/fmt.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/channel.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/bcp47.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/locale.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/utf8.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/diag_id.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/catalog.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/resource_flow.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/nominal_types.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_int.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_string.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_LexerToken.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_token.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_CompilerDiagnostic.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_CompilerSourceLocation.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTNumber.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTFloat.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTString.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTBool.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTIdentifier.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTBinaryOp.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTCall.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTModuleQualifiedCall.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTArrayLiteral.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTLet.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTSet.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTStmtRef.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTIf.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTWhile.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTFor.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTReturn.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTBlock.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTUnsafeBlock.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTPrint.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTAssert.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTFunction.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTShadow.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTStruct.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTStructLiteral.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTFieldAccess.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTEnum.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTUnion.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTUnionConstruct.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTMatch.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTImport.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTOpaqueType.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTServiceDecl.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTTupleLiteral.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTTupleIndex.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/token_helpers.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/gc.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/effect_runtime.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/dyn_array.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/gc_struct.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/nl_string.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/ffi_loader.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/module_build_dir.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/cli.o', '/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/regex.o', '-lm'], 'bound': 1200, 'timeout': False, 'pid': 2538246, 'returncode': 1, 'remaining_groups': [], 'seconds': 0.42445504292845726})"
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2536664,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 11.191709275939502
+      },
+      {
+        "label": "ordinary-checker-build",
+        "argv": [
+          "/usr/bin/gcc",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-std=c99",
+          "-g",
+          "-O2",
+          "-fPIC",
+          "-Isrc",
+          "-D_GNU_SOURCE",
+          "-o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/test_typechecker",
+          "tests/test_typechecker.c",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/lexer.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/parser.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/typechecker.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/transpiler.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/stdlib_runtime.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/env.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/builtins_registry.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/module.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/module_metadata.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/cJSON.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/toon_output.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/module_builder.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/resource_tracking.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/eval.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/eval/eval_hashmap.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/eval/eval_math.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/eval/eval_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/eval/eval_io.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/interpreter_ffi.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/json_diagnostics.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/reflection.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/nanocore_subset.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/nanocore_export.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/emit_typed_ast.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/type_infer.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/effects.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/fold_constants.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/dce_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/par_let_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/ptx_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/opencl_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/tco_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/cps_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/coroutine.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/pgo_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/c_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/bench.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/bench_native.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/riscv_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/dwarf_info.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/docgen_md.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/docgen.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/fmt.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/channel.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/bcp47.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/locale.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/utf8.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/diag_id.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/catalog.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/resource_flow.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/nominal_types.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_int.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_LexerToken.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_token.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_CompilerDiagnostic.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_CompilerSourceLocation.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTNumber.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTFloat.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTString.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTBool.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTIdentifier.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTBinaryOp.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTCall.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTModuleQualifiedCall.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTArrayLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTLet.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTSet.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTStmtRef.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTIf.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTWhile.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTFor.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTReturn.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTBlock.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTUnsafeBlock.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTPrint.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTAssert.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTFunction.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTShadow.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTStruct.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTStructLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTFieldAccess.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTEnum.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTUnion.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTUnionConstruct.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTMatch.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTImport.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTOpaqueType.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTServiceDecl.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTTupleLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/list_ASTTupleIndex.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/token_helpers.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/gc.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/effect_runtime.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/dyn_array.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/gc_struct.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/nl_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/ffi_loader.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/module_build_dir.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/cli.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-linux/ordinary/source/obj/runtime/regex.o",
+          "-lm"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2538246,
+        "returncode": 1,
+        "remaining_groups": [],
+        "seconds": 0.42445504292845726
+      }
+    ],
+    "members": {
+      "terminal.json": {
+        "bytes": 10358,
+        "sha256": "722166ff538d73b1e02f516f3ab15a88795e7e8b8d5b498d54a1986f8430caa9"
+      },
+      "tools-after-terminal.json": {
+        "bytes": 303,
+        "sha256": "b05f1155395301fa94db51add29e3f30e65468084e91090f84e8b6026838a7d2"
+      },
+      "identity.json": {
+        "bytes": 791,
+        "sha256": "713fc74fe7279799ab8948ffa6406ac403c74ab8e4ad65cb450c4853efc762e1"
+      },
+      "phases.json": {
+        "bytes": 11540,
+        "sha256": "5a56875b9297f2182c53ccfbbe938ae99ad6b4eb904bccae626ab77ac492f7e5"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 453,
+        "sha256": "7816d9f8de427ca9633ff4a57a9d602482215c77d67d315919f3ee373a684e38"
+      },
+      "ordinary/source-after-terminal.json": {
+        "bytes": 425614,
+        "sha256": "13f8534176d77cd9f4a2826e6e056282e76115aa84ef79053fc61aa82ae844e2"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 453,
+        "sha256": "79f1152f3524f44f84d33bbf0456d2b44fc9dd636cc87ff13ebbbc8f8a5ad570"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 16982,
+        "sha256": "45165dd5b0465172bff9d3c3b27427c598bb30bf03136b8b0f6390c234c094c7"
+      },
+      "ordinary/ordinary-checker-build.log": {
+        "bytes": 9079,
+        "sha256": "3be2d23d9928e31f5b9f61baee9311037a8cf5d16a80f1340f06019fd39b3602"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 30,
+        "sha256": "449eed8c2998494066b8ce7562c2154de43a5ffe32ea917390b24b4b2d7e623d"
+      },
+      "ordinary/ordinary-checker-build.json": {
+        "bytes": 10792,
+        "sha256": "d69522a064e3f61f1a1688bf17081316525cacc8812daddea6ba6de8c5ec5737"
+      },
+      "ordinary/products-terminal.json": {
+        "bytes": 19523,
+        "sha256": "97763eadd3a963c4227fd49a7fd95b1dbdc501ed77e61002c17d86b389044df0"
+      },
+      "ordinary/fixture-products-terminal.json": {
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 14269,
+        "sha256": "de66f50d5c2fd4c1016c00a2e74e4527e3b65b7a35e5362c8c8c5e2d3e444f54"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 16982,
+        "sha256": "45165dd5b0465172bff9d3c3b27427c598bb30bf03136b8b0f6390c234c094c7"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 425614,
+        "sha256": "13f8534176d77cd9f4a2826e6e056282e76115aa84ef79053fc61aa82ae844e2"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 65,
+        "sha256": "eee81e67213f9d4967dd57ac8086be92d8d1dee93dcc4f768fa5430885b8ddb6"
+      }
+    }
+  },
+  "typechecker-da88-puck": {
+    "pin": "da88d2003264eb989fc9972913842e28e40cdcb3",
+    "archive_sha256": "92a6b4447903ed8de909d6d91c14bce6a7bddece2b8639997ee10c05641eafa3",
+    "terminal": {
+      "status": 1,
+      "error": "AssertionError({'label': 'ordinary-checker-build', 'argv': ['/usr/bin/clang', '-Wall', '-Wextra', '-Werror', '-std=c99', '-g', '-O2', '-fPIC', '-Isrc', '-D_GNU_SOURCE', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk', '-o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/test_typechecker', 'tests/test_typechecker.c', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/lexer.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/parser.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/typechecker.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/transpiler.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/stdlib_runtime.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/env.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/builtins_registry.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/module.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/module_metadata.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/cJSON.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/toon_output.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/module_builder.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/resource_tracking.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/eval.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/eval/eval_hashmap.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/eval/eval_math.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/eval/eval_string.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/eval/eval_io.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/interpreter_ffi.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/json_diagnostics.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/reflection.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/nanocore_subset.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/nanocore_export.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/emit_typed_ast.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/type_infer.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/effects.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/fold_constants.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/dce_pass.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/par_let_pass.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/ptx_backend.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/opencl_backend.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/tco_pass.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/cps_pass.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/coroutine.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/pgo_pass.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/c_backend.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/bench.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/bench_native.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/riscv_backend.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/dwarf_info.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/docgen_md.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/docgen.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/fmt.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/channel.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/bcp47.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/locale.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/utf8.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/diag_id.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/catalog.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/resource_flow.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/nominal_types.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_int.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_string.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_LexerToken.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_token.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_CompilerDiagnostic.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_CompilerSourceLocation.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTNumber.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTFloat.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTString.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTBool.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTIdentifier.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTBinaryOp.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTCall.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTModuleQualifiedCall.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTArrayLiteral.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTLet.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTSet.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTStmtRef.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTIf.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTWhile.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTFor.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTReturn.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTBlock.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTUnsafeBlock.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTPrint.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTAssert.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTFunction.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTShadow.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTStruct.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTStructLiteral.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTFieldAccess.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTEnum.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTUnion.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTUnionConstruct.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTMatch.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTImport.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTOpaqueType.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTServiceDecl.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTTupleLiteral.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTTupleIndex.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/token_helpers.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/gc.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/effect_runtime.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/dyn_array.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/gc_struct.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/nl_string.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/ffi_loader.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/module_build_dir.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/cli.o', '/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/regex.o', '-lm', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk'], 'bound': 1200, 'timeout': False, 'pid': 27256, 'returncode': 1, 'remaining_groups': [], 'seconds': 0.22137791599379852})"
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 26715,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 6.175536708993604
+      },
+      {
+        "label": "ordinary-checker-build",
+        "argv": [
+          "/usr/bin/clang",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-std=c99",
+          "-g",
+          "-O2",
+          "-fPIC",
+          "-Isrc",
+          "-D_GNU_SOURCE",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "-o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/test_typechecker",
+          "tests/test_typechecker.c",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/lexer.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/parser.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/typechecker.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/transpiler.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/stdlib_runtime.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/env.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/builtins_registry.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/module.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/module_metadata.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/cJSON.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/toon_output.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/module_builder.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/resource_tracking.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/eval.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/eval/eval_hashmap.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/eval/eval_math.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/eval/eval_string.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/eval/eval_io.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/interpreter_ffi.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/json_diagnostics.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/reflection.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/nanocore_subset.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/nanocore_export.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/emit_typed_ast.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/type_infer.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/effects.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/fold_constants.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/dce_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/par_let_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/ptx_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/opencl_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/tco_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/cps_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/coroutine.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/pgo_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/c_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/bench.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/bench_native.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/riscv_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/dwarf_info.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/docgen_md.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/docgen.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/fmt.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/channel.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/bcp47.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/locale.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/utf8.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/diag_id.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/catalog.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/resource_flow.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/nominal_types.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_int.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_string.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_LexerToken.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_token.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_CompilerDiagnostic.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_CompilerSourceLocation.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTNumber.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTFloat.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTString.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTBool.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTIdentifier.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTBinaryOp.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTCall.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTModuleQualifiedCall.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTArrayLiteral.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTLet.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTSet.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTStmtRef.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTIf.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTWhile.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTFor.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTReturn.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTBlock.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTUnsafeBlock.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTPrint.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTAssert.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTFunction.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTShadow.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTStruct.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTStructLiteral.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTFieldAccess.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTEnum.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTUnion.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTUnionConstruct.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTMatch.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTImport.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTOpaqueType.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTServiceDecl.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTTupleLiteral.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/list_ASTTupleIndex.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/token_helpers.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/gc.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/effect_runtime.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/dyn_array.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/gc_struct.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/nl_string.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/ffi_loader.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/module_build_dir.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/cli.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-puck/ordinary/source/obj/runtime/regex.o",
+          "-lm",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 27256,
+        "returncode": 1,
+        "remaining_groups": [],
+        "seconds": 0.22137791599379852
+      }
+    ],
+    "members": {
+      "terminal.json": {
+        "bytes": 10580,
+        "sha256": "8b0b570169b206537c23428ed4aefd214653ec3448daaf6cbad422b2c90e90f0"
+      },
+      "tools-after-terminal.json": {
+        "bytes": 402,
+        "sha256": "f17a605e03b41e7dcddbf1175b93386adad488facb1e2f09f9259a1f93c371ed"
+      },
+      "identity.json": {
+        "bytes": 1008,
+        "sha256": "2f73ef14ba0128a86610d2c3f3051a4fc2a02e304a900923be4fea065ff33354"
+      },
+      "phases.json": {
+        "bytes": 11999,
+        "sha256": "cc90f1de46085d116647fc647fc8beef70464997935a49c98d1df19b17285a0c"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 666,
+        "sha256": "ffed1feda52ff3ec076eb19ec1f29aec2b43e72215585665c0ef33b43dbe0783"
+      },
+      "ordinary/source-after-terminal.json": {
+        "bytes": 425614,
+        "sha256": "9dbc31d6e14c5da1236799652f9a16fcd8e0fb553a21caceb8168a02767eb9ff"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 453,
+        "sha256": "8d22d67f706ed8114418bf076fee5ff2e92cd941d56a47aaf3cd7428a974c1ab"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 16982,
+        "sha256": "d76b862d56eb0b6762e41ba46753b1ac98a3ded1d743bf983b917dc0a0c738ba"
+      },
+      "ordinary/ordinary-checker-build.log": {
+        "bytes": 2039,
+        "sha256": "50bab23fbe7639e6e8ff6fdbe267bfeee507511b4da1e4d75949c1d805503fa6"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 158,
+        "sha256": "062dd193fa45f768a6565b3ed334f6b9095ffae555a7e28f94b95c2ac4628c15"
+      },
+      "ordinary/ordinary-checker-build.json": {
+        "bytes": 11030,
+        "sha256": "fe633f2cc7af24455d627a655a35821d016a07d99fce649673e605c1184a9f8e"
+      },
+      "ordinary/products-terminal.json": {
+        "bytes": 19523,
+        "sha256": "7aec3002fdab410dd4576d4ba4f52630c1e8d8fee814990f19f784f9f08115b4"
+      },
+      "ordinary/fixture-products-terminal.json": {
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 40832,
+        "sha256": "a1037ba6edc7bc91e2e90472ae869d2546cef3c529f18fac252158141a60abcc"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 16982,
+        "sha256": "d76b862d56eb0b6762e41ba46753b1ac98a3ded1d743bf983b917dc0a0c738ba"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 425614,
+        "sha256": "9dbc31d6e14c5da1236799652f9a16fcd8e0fb553a21caceb8168a02767eb9ff"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 324,
+        "sha256": "800a75971db3bbe43c2b4913abadcdf21c5bdea4ed817f57d04a9967bc955418"
+      }
+    }
+  },
+  "typechecker-da88-corrected-linux": {
+    "pin": "da88d2003264eb989fc9972913842e28e40cdcb3",
+    "archive_sha256": "e4edcff1c6b09b163aed4d7f3b8ba76838f78725ab106ccddf7d315de0899050",
+    "terminal": {
+      "status": 1,
+      "error": "AssertionError({'label': 'ordinary-checker', 'argv': ['/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/test_typechecker'], 'bound': 180, 'timeout': False, 'pid': 2562211, 'returncode': 1, 'remaining_groups': [], 'seconds': 0.2129000190179795})"
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2560514,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 11.405441028997302
+      },
+      {
+        "label": "ordinary-checker-build",
+        "argv": [
+          "/usr/bin/gcc",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-std=c99",
+          "-g",
+          "-O2",
+          "-fPIC",
+          "-Isrc",
+          "-D_GNU_SOURCE",
+          "-o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/test_typechecker",
+          "tests/test_typechecker.c",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/lexer.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/parser.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/typechecker.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/transpiler.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/stdlib_runtime.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/env.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/builtins_registry.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/module.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/module_metadata.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/cJSON.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/toon_output.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/module_builder.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/resource_tracking.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/eval.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/eval/eval_hashmap.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/eval/eval_math.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/eval/eval_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/eval/eval_io.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/interpreter_ffi.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/json_diagnostics.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/reflection.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/nanocore_subset.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/nanocore_export.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/emit_typed_ast.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/type_infer.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/effects.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/fold_constants.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/dce_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/par_let_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/ptx_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/opencl_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/tco_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/cps_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/coroutine.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/pgo_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/c_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/bench.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/bench_native.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/riscv_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/dwarf_info.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/docgen_md.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/docgen.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/fmt.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/channel.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/bcp47.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/locale.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/utf8.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/diag_id.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/catalog.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/resource_flow.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/nominal_types.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_int.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_LexerToken.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_token.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_CompilerDiagnostic.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_CompilerSourceLocation.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTNumber.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTFloat.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTString.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTBool.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTIdentifier.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTBinaryOp.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTCall.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTModuleQualifiedCall.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTArrayLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTLet.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTSet.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTStmtRef.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTIf.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTWhile.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTFor.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTReturn.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTBlock.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTUnsafeBlock.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTPrint.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTAssert.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTFunction.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTShadow.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTStruct.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTStructLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTFieldAccess.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTEnum.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTUnion.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTUnionConstruct.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTMatch.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTImport.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTOpaqueType.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTServiceDecl.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTTupleLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/list_ASTTupleIndex.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/token_helpers.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/gc.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/effect_runtime.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/dyn_array.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/gc_struct.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/nl_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/ffi_loader.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/module_build_dir.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/cli.o",
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/source/obj/runtime/regex.o",
+          "-lm",
+          "-lcrypto",
+          "-lffi",
+          "-rdynamic"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2562184,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.4306235041003674
+      },
+      {
+        "label": "ordinary-checker",
+        "argv": [
+          "/home/jkh/nanolang-qualification/typechecker-da88-corrected-linux/ordinary/test_typechecker"
+        ],
+        "bound": 180,
+        "timeout": false,
+        "pid": 2562211,
+        "returncode": 1,
+        "remaining_groups": [],
+        "seconds": 0.2129000190179795
+      }
+    ],
+    "members": {
+      "terminal.json": {
+        "bytes": 303,
+        "sha256": "db4ae22456425503c26fb971daaac0d881c38d4f053288b328aa21aea6c54dbe"
+      },
+      "tools-after-terminal.json": {
+        "bytes": 303,
+        "sha256": "b05f1155395301fa94db51add29e3f30e65468084e91090f84e8b6026838a7d2"
+      },
+      "identity.json": {
+        "bytes": 791,
+        "sha256": "bc94382ff2c238c9d75c473322f0700e7c8b79d0eb625fd67a04594f90123e5b"
+      },
+      "phases.json": {
+        "bytes": 12927,
+        "sha256": "7c92c9c11e6693762868f5b51035d5d60c1e47cea8b50a6facc1dafc03db7c08"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 463,
+        "sha256": "87fae7ff7b07a57de125467d9f5838b2fa263ec156cf5830c518d229f1fefb3b"
+      },
+      "ordinary/source-after-terminal.json": {
+        "bytes": 425614,
+        "sha256": "13f8534176d77cd9f4a2826e6e056282e76115aa84ef79053fc61aa82ae844e2"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "ordinary/checker-product-before.json": {
+        "bytes": 188,
+        "sha256": "47eb31df490bb36010d6949593d72d50eeae4227ed48f9aa9cf745c4268477d8"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 483,
+        "sha256": "304d7b75c38da55cf9f494d12f1521151515f7e060f08b465526eb10a31c9995"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 17992,
+        "sha256": "172c6675761900db6d77624fbfaf3b752e54121a880c9dde485967b4084e4956"
+      },
+      "ordinary/ordinary-checker-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 30,
+        "sha256": "449eed8c2998494066b8ce7562c2154de43a5ffe32ea917390b24b4b2d7e623d"
+      },
+      "ordinary/ordinary-checker-build.json": {
+        "bytes": 11857,
+        "sha256": "eeadac66c510e64bc6018be32c4fb2d155a22200ee9f3de03c6a03cc57f700df"
+      },
+      "ordinary/products-terminal.json": {
+        "bytes": 19523,
+        "sha256": "80a9b7c0949ddd1bc3649dd58f319dec808a88defdaded4a8d0fd4b0bb4d225b"
+      },
+      "ordinary/checker-product-after.json": {
+        "bytes": 188,
+        "sha256": "47eb31df490bb36010d6949593d72d50eeae4227ed48f9aa9cf745c4268477d8"
+      },
+      "ordinary/fixture-products-terminal.json": {
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 14269,
+        "sha256": "de66f50d5c2fd4c1016c00a2e74e4527e3b65b7a35e5362c8c8c5e2d3e444f54"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 17992,
+        "sha256": "172c6675761900db6d77624fbfaf3b752e54121a880c9dde485967b4084e4956"
+      },
+      "ordinary/ordinary-checker.log": {
+        "bytes": 2750,
+        "sha256": "1282a0af0aedde7485817295e8896de9188008b8e96bf50107b538f9d8febe27"
+      },
+      "ordinary/ordinary-checker.json": {
+        "bytes": 281,
+        "sha256": "1f273c07e98c04843655638b06626cf31b81ff56e6f21ad119597180ed07c34c"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 425614,
+        "sha256": "13f8534176d77cd9f4a2826e6e056282e76115aa84ef79053fc61aa82ae844e2"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 65,
+        "sha256": "eee81e67213f9d4967dd57ac8086be92d8d1dee93dcc4f768fa5430885b8ddb6"
+      }
+    }
+  },
+  "typechecker-da88-corrected-puck": {
+    "pin": "da88d2003264eb989fc9972913842e28e40cdcb3",
+    "archive_sha256": "7d2eb1968f0d21110e552c2663049792f7a2c14ecf04fb419db3d8d549e1beba",
+    "terminal": {
+      "status": 1,
+      "error": "AssertionError({'label': 'ordinary-checker', 'argv': ['/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/test_typechecker'], 'bound': 180, 'timeout': False, 'pid': 29688, 'returncode': 1, 'remaining_groups': [], 'seconds': 0.4838294999935897})"
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 29126,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 6.201573624988669
+      },
+      {
+        "label": "ordinary-checker-build",
+        "argv": [
+          "/usr/bin/clang",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-std=c99",
+          "-g",
+          "-O2",
+          "-fPIC",
+          "-Isrc",
+          "-D_GNU_SOURCE",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi",
+          "-I/opt/homebrew/opt/openssl@3/include",
+          "-o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/test_typechecker",
+          "tests/test_typechecker.c",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/lexer.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/parser.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/typechecker.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/transpiler.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/stdlib_runtime.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/env.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/builtins_registry.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/module.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/module_metadata.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/cJSON.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/toon_output.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/module_builder.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/resource_tracking.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/eval.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/eval/eval_hashmap.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/eval/eval_math.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/eval/eval_string.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/eval/eval_io.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/interpreter_ffi.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/json_diagnostics.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/reflection.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/nanocore_subset.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/nanocore_export.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/emit_typed_ast.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/type_infer.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/effects.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/fold_constants.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/dce_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/par_let_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/ptx_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/opencl_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/tco_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/cps_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/coroutine.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/pgo_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/c_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/bench.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/bench_native.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/riscv_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/dwarf_info.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/docgen_md.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/docgen.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/fmt.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/channel.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/bcp47.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/locale.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/utf8.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/diag_id.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/catalog.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/resource_flow.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/nominal_types.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_int.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_string.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_LexerToken.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_token.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_CompilerDiagnostic.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_CompilerSourceLocation.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTNumber.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTFloat.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTString.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTBool.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTIdentifier.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTBinaryOp.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTCall.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTModuleQualifiedCall.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTArrayLiteral.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTLet.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTSet.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTStmtRef.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTIf.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTWhile.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTFor.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTReturn.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTBlock.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTUnsafeBlock.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTPrint.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTAssert.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTFunction.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTShadow.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTStruct.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTStructLiteral.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTFieldAccess.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTEnum.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTUnion.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTUnionConstruct.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTMatch.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTImport.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTOpaqueType.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTServiceDecl.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTTupleLiteral.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/list_ASTTupleIndex.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/token_helpers.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/gc.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/effect_runtime.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/dyn_array.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/gc_struct.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/nl_string.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/ffi_loader.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/module_build_dir.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/cli.o",
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/source/obj/runtime/regex.o",
+          "-lm",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "-lcrypto",
+          "-lffi",
+          "-L/opt/homebrew/opt/openssl@3/lib"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 29680,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.4618010830017738
+      },
+      {
+        "label": "ordinary-checker",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/typechecker-da88-corrected-puck/ordinary/test_typechecker"
+        ],
+        "bound": 180,
+        "timeout": false,
+        "pid": 29688,
+        "returncode": 1,
+        "remaining_groups": [],
+        "seconds": 0.4838294999935897
+      }
+    ],
+    "members": {
+      "terminal.json": {
+        "bytes": 301,
+        "sha256": "a52a220ea4ef2889d5f4a2560ade73012c3bba342c8222e2566bda89e3933b8b"
+      },
+      "tools-after-terminal.json": {
+        "bytes": 402,
+        "sha256": "f17a605e03b41e7dcddbf1175b93386adad488facb1e2f09f9259a1f93c371ed"
+      },
+      "identity.json": {
+        "bytes": 1008,
+        "sha256": "2148ff55c714748a829926b82b71c195729f2ed513ef57b2b69f012545e70a83"
+      },
+      "phases.json": {
+        "bytes": 13581,
+        "sha256": "df3c0f5963b46f829a2b287a6ab61d4312da00b4711ba6e661efab74b77f237c"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 676,
+        "sha256": "8e1abb06b4df77e975faf57e0e8ec64b1b0d3fbbe83a76f7885913d49281f7ec"
+      },
+      "ordinary/source-after-terminal.json": {
+        "bytes": 425614,
+        "sha256": "9dbc31d6e14c5da1236799652f9a16fcd8e0fb553a21caceb8168a02767eb9ff"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "ordinary/checker-product-before.json": {
+        "bytes": 188,
+        "sha256": "09e821545d436a2a1fb5313f0ae1fe741393572e7b33092615ba6c1f70274307"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 483,
+        "sha256": "dd70b359828cb7ecfc0b68297e14e1b4da58f60b5f60d0301e46be8f39ace35b"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 17992,
+        "sha256": "80af02941821794b40a55a7165420df29f5cf4f2e8256d86debfadf28ada0ecd"
+      },
+      "ordinary/ordinary-checker-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 158,
+        "sha256": "062dd193fa45f768a6565b3ed334f6b9095ffae555a7e28f94b95c2ac4628c15"
+      },
+      "ordinary/ordinary-checker-build.json": {
+        "bytes": 12288,
+        "sha256": "de51ec19e284232e83aadfd21ba1352dbb8b9aa4c66e272c1e16b62e2984c85d"
+      },
+      "ordinary/products-terminal.json": {
+        "bytes": 19523,
+        "sha256": "59e9d2b43ae024636fd40c0fcf6cfd2434585c26d86f053d7e9e3db65eb680b1"
+      },
+      "ordinary/checker-product-after.json": {
+        "bytes": 188,
+        "sha256": "09e821545d436a2a1fb5313f0ae1fe741393572e7b33092615ba6c1f70274307"
+      },
+      "ordinary/fixture-products-terminal.json": {
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 40832,
+        "sha256": "a1037ba6edc7bc91e2e90472ae869d2546cef3c529f18fac252158141a60abcc"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 17992,
+        "sha256": "80af02941821794b40a55a7165420df29f5cf4f2e8256d86debfadf28ada0ecd"
+      },
+      "ordinary/ordinary-checker.log": {
+        "bytes": 2750,
+        "sha256": "1282a0af0aedde7485817295e8896de9188008b8e96bf50107b538f9d8febe27"
+      },
+      "ordinary/ordinary-checker.json": {
+        "bytes": 279,
+        "sha256": "6404820e2690a3f8588610416df8f772441418c4c462c9b49933f5f9ef15a23c"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 425614,
+        "sha256": "9dbc31d6e14c5da1236799652f9a16fcd8e0fb553a21caceb8168a02767eb9ff"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 324,
+        "sha256": "800a75971db3bbe43c2b4913abadcdf21c5bdea4ed817f57d04a9967bc955418"
+      }
+    }
+  },
+  "typechecker-1c4-linux": {
+    "pin": "1c4d8108d47848835c034a700c2743f508346942",
+    "archive_sha256": "7cec94652f39559411581831c2068d3b26c29e2c6689f132fcfa2e064a6c077c",
+    "terminal": {
+      "status": 1,
+      "error": "AssertionError({'label': 'ordinary-checker', 'argv': ['/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/test_typechecker'], 'bound': 180, 'timeout': False, 'pid': 2626739, 'returncode': 1, 'remaining_groups': [], 'seconds': 0.21306859701871872})"
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2624801,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 11.205925140995532
+      },
+      {
+        "label": "ordinary-checker-build",
+        "argv": [
+          "/usr/bin/gcc",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-std=c99",
+          "-g",
+          "-O2",
+          "-fPIC",
+          "-Isrc",
+          "-D_GNU_SOURCE",
+          "-o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/test_typechecker",
+          "tests/test_typechecker.c",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/lexer.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/parser.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/typechecker.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/transpiler.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/stdlib_runtime.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/env.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/builtins_registry.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/module.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/module_metadata.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/cJSON.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/toon_output.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/module_builder.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/resource_tracking.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/eval.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/eval/eval_hashmap.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/eval/eval_math.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/eval/eval_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/eval/eval_io.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/interpreter_ffi.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/json_diagnostics.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/reflection.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/nanocore_subset.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/nanocore_export.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/emit_typed_ast.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/type_infer.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/effects.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/fold_constants.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/dce_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/par_let_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/ptx_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/opencl_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/tco_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/cps_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/coroutine.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/pgo_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/c_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/bench.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/bench_native.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/riscv_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/dwarf_info.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/docgen_md.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/docgen.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/fmt.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/channel.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/bcp47.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/locale.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/utf8.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/diag_id.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/catalog.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/resource_flow.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/nominal_types.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_int.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_LexerToken.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_token.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_CompilerDiagnostic.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_CompilerSourceLocation.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTNumber.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTFloat.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTString.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTBool.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTIdentifier.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTBinaryOp.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTCall.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTModuleQualifiedCall.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTArrayLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTLet.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTSet.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTStmtRef.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTIf.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTWhile.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTFor.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTReturn.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTBlock.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTUnsafeBlock.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTPrint.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTAssert.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTFunction.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTShadow.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTStruct.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTStructLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTFieldAccess.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTEnum.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTUnion.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTUnionConstruct.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTMatch.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTImport.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTOpaqueType.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTServiceDecl.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTTupleLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/list_ASTTupleIndex.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/token_helpers.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/gc.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/effect_runtime.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/dyn_array.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/gc_struct.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/nl_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/ffi_loader.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/module_build_dir.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/cli.o",
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/source/obj/runtime/regex.o",
+          "-lm",
+          "-lcrypto",
+          "-lffi",
+          "-rdynamic"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2626648,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.4345155630726367
+      },
+      {
+        "label": "ordinary-checker",
+        "argv": [
+          "/home/jkh/nanolang-qualification/typechecker-1c4-linux/ordinary/test_typechecker"
+        ],
+        "bound": 180,
+        "timeout": false,
+        "pid": 2626739,
+        "returncode": 1,
+        "remaining_groups": [],
+        "seconds": 0.21306859701871872
+      }
+    ],
+    "members": {
+      "terminal.json": {
+        "bytes": 293,
+        "sha256": "d25ea385204426384d65322630554de7755115986a99374bdccb865c64ad01bd"
+      },
+      "tools-after-terminal.json": {
+        "bytes": 303,
+        "sha256": "b05f1155395301fa94db51add29e3f30e65468084e91090f84e8b6026838a7d2"
+      },
+      "identity.json": {
+        "bytes": 791,
+        "sha256": "467167537b1b6963eeb320ab7bd0d256b964e22b338ec7842d2f88255b64287a"
+      },
+      "phases.json": {
+        "bytes": 11784,
+        "sha256": "985287006082b6eb4045af6fbe31a3f53a8271268efffd02508a73bb821b6f50"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 452,
+        "sha256": "5914ac239944223a0021f951c20799365c43bd8811c3f19a10fc2a288f39f5f2"
+      },
+      "ordinary/source-after-terminal.json": {
+        "bytes": 425934,
+        "sha256": "e479228bd3a696f4297e184bd1e1dbc985b4dab4bf419b22eac7f5bd8b9d5ee8"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "ordinary/checker-product-before.json": {
+        "bytes": 177,
+        "sha256": "da37d8aed3f6401302a21abeaa1d2f10065b67f18e7b25c4d0b74e1e8fe3716d"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 450,
+        "sha256": "0cbc20a832182b56cd7fa9cf74887e25b044b133c491f69a2ec5f91c4fa15054"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 16881,
+        "sha256": "df331f3a54c3f7ceec91624c452630216cbabedc02e0a7834dee769df7d04560"
+      },
+      "ordinary/ordinary-checker-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 30,
+        "sha256": "449eed8c2998494066b8ce7562c2154de43a5ffe32ea917390b24b4b2d7e623d"
+      },
+      "ordinary/ordinary-checker-build.json": {
+        "bytes": 10735,
+        "sha256": "d703d223b96511dd0c89134c5265dbfbdcb627a10b71f6c35f89b6e129e012f4"
+      },
+      "ordinary/products-terminal.json": {
+        "bytes": 19523,
+        "sha256": "6689ea36050bd92ff1b603fb8e6f0beaebe56227cc1f39e74005e4f74411fac8"
+      },
+      "ordinary/checker-product-after.json": {
+        "bytes": 177,
+        "sha256": "da37d8aed3f6401302a21abeaa1d2f10065b67f18e7b25c4d0b74e1e8fe3716d"
+      },
+      "ordinary/fixture-products-terminal.json": {
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 14269,
+        "sha256": "de66f50d5c2fd4c1016c00a2e74e4527e3b65b7a35e5362c8c8c5e2d3e444f54"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 16881,
+        "sha256": "df331f3a54c3f7ceec91624c452630216cbabedc02e0a7834dee769df7d04560"
+      },
+      "ordinary/ordinary-checker.log": {
+        "bytes": 4354,
+        "sha256": "0771b53c6c8f0aa21977652b94d9eef9c66cb350105e79da37cadf4e371cbe5e"
+      },
+      "ordinary/ordinary-checker.json": {
+        "bytes": 271,
+        "sha256": "c4ff002b60730c87a123f382b572d44cffc58de87c89758c9e215034a77c918c"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 425934,
+        "sha256": "e479228bd3a696f4297e184bd1e1dbc985b4dab4bf419b22eac7f5bd8b9d5ee8"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 65,
+        "sha256": "eee81e67213f9d4967dd57ac8086be92d8d1dee93dcc4f768fa5430885b8ddb6"
+      }
+    }
+  },
+  "typechecker-6d92-linux": {
+    "pin": "6d92a2d53cb330117731ab310e97b6a088731ccf",
+    "archive_sha256": "24d4a9358888f3088cd4b0d950d2948c2cf8f754694587282c2b6ac4dc61227c",
+    "terminal": {
+      "status": 0
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2746571,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 11.402316363994032
+      },
+      {
+        "label": "ordinary-checker-build",
+        "argv": [
+          "/usr/bin/gcc",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-std=c99",
+          "-g",
+          "-O2",
+          "-fPIC",
+          "-Isrc",
+          "-D_GNU_SOURCE",
+          "-o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/test_typechecker",
+          "tests/test_typechecker.c",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/lexer.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/parser.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/typechecker.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/transpiler.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/stdlib_runtime.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/env.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/builtins_registry.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/module.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/module_metadata.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/cJSON.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/toon_output.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/module_builder.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/resource_tracking.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/eval.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/eval/eval_hashmap.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/eval/eval_math.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/eval/eval_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/eval/eval_io.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/interpreter_ffi.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/json_diagnostics.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/reflection.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/nanocore_subset.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/nanocore_export.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/emit_typed_ast.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/type_infer.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/effects.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/fold_constants.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/dce_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/par_let_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/ptx_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/opencl_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/tco_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/cps_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/coroutine.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/pgo_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/c_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/bench.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/bench_native.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/riscv_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/dwarf_info.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/docgen_md.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/docgen.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/fmt.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/channel.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/bcp47.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/locale.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/utf8.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/diag_id.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/catalog.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/resource_flow.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/nominal_types.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_int.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_LexerToken.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_token.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_CompilerDiagnostic.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_CompilerSourceLocation.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTNumber.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTFloat.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTString.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTBool.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTIdentifier.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTBinaryOp.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTCall.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTModuleQualifiedCall.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTArrayLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTLet.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTSet.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTStmtRef.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTIf.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTWhile.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTFor.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTReturn.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTBlock.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTUnsafeBlock.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTPrint.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTAssert.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTFunction.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTShadow.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTStruct.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTStructLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTFieldAccess.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTEnum.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTUnion.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTUnionConstruct.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTMatch.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTImport.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTOpaqueType.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTServiceDecl.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTTupleLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/list_ASTTupleIndex.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/token_helpers.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/gc.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/effect_runtime.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/dyn_array.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/gc_struct.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/nl_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/ffi_loader.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/module_build_dir.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/cli.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/source/obj/runtime/regex.o",
+          "-lm",
+          "-lcrypto",
+          "-lffi",
+          "-rdynamic"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2748267,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.42981239105574787
+      },
+      {
+        "label": "ordinary-checker",
+        "argv": [
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/ordinary/test_typechecker"
+        ],
+        "bound": 180,
+        "timeout": false,
+        "pid": 2748315,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.2125578470295295
+      },
+      {
+        "label": "sanitized-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2748322,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 17.214595924015157
+      },
+      {
+        "label": "sanitized-checker-build",
+        "argv": [
+          "/usr/bin/gcc",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-std=c99",
+          "-g",
+          "-O1",
+          "-fPIC",
+          "-Isrc",
+          "-D_GNU_SOURCE",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-fno-sanitize-recover=all",
+          "-o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/test_typechecker",
+          "tests/test_typechecker.c",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/lexer.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/parser.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/typechecker.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/transpiler.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/stdlib_runtime.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/env.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/builtins_registry.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/module.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/module_metadata.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/cJSON.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/toon_output.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/module_builder.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/resource_tracking.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/eval.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/eval/eval_hashmap.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/eval/eval_math.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/eval/eval_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/eval/eval_io.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/interpreter_ffi.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/json_diagnostics.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/reflection.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/nanocore_subset.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/nanocore_export.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/emit_typed_ast.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/type_infer.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/effects.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/fold_constants.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/dce_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/par_let_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/ptx_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/opencl_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/tco_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/cps_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/coroutine.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/pgo_pass.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/c_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/bench.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/bench_native.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/riscv_backend.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/dwarf_info.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/docgen_md.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/docgen.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/fmt.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/channel.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/bcp47.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/locale.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/utf8.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/diag_id.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/catalog.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/resource_flow.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/nominal_types.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_int.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_LexerToken.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_token.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_CompilerDiagnostic.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_CompilerSourceLocation.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTNumber.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTFloat.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTString.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTBool.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTIdentifier.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTBinaryOp.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTCall.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTModuleQualifiedCall.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTArrayLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTLet.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTSet.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTStmtRef.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTIf.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTWhile.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTFor.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTReturn.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTBlock.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTUnsafeBlock.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTPrint.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTAssert.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTFunction.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTShadow.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTStruct.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTStructLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTFieldAccess.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTEnum.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTUnion.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTUnionConstruct.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTMatch.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTImport.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTOpaqueType.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTServiceDecl.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTTupleLiteral.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/list_ASTTupleIndex.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/token_helpers.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/gc.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/effect_runtime.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/dyn_array.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/gc_struct.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/nl_string.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/ffi_loader.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/module_build_dir.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/cli.o",
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/source/obj/runtime/regex.o",
+          "-lm",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-fno-sanitize-recover=all",
+          "-lcrypto",
+          "-lffi",
+          "-rdynamic"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2750548,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.4298709660070017
+      },
+      {
+        "label": "sanitized-checker",
+        "argv": [
+          "/home/jkh/nanolang-qualification/typechecker-6d92-linux/sanitized/test_typechecker"
+        ],
+        "bound": 180,
+        "timeout": false,
+        "pid": 2750562,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.21748801798094064
+      }
+    ],
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "tools-after.json": {
+        "bytes": 303,
+        "sha256": "b05f1155395301fa94db51add29e3f30e65468084e91090f84e8b6026838a7d2"
+      },
+      "identity.json": {
+        "bytes": 791,
+        "sha256": "a75521121a6c1972b48854145dc37e299d34017694474b0009306c5d898196a8"
+      },
+      "phases.json": {
+        "bytes": 24250,
+        "sha256": "0db0d269e6ae9f7a3fda7164e559608f6ede2b5697af51c3066621b26a934b6c"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 453,
+        "sha256": "e5119f4f11d0c4b51af4414f7ecc34abd885a62e3aec4c927b0bd2bdb3b2a6b1"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "ordinary/products.json": {
+        "bytes": 19523,
+        "sha256": "a807708a6baceb9513889d27e6b716065dcf1003b4424f7282053afaed812487"
+      },
+      "ordinary/checker-product-before.json": {
+        "bytes": 178,
+        "sha256": "2bb55bb8154ee2f856bd37cbaf2fca212228a19d4f51744bc3bea77fecf81f65"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 453,
+        "sha256": "535a4db47bb1ea96a4890ec70697cf8a39d821062ea3a3abe2f884637292c0f4"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 16982,
+        "sha256": "da111475758d465d84b3d2fbddc86d5b03a310880af85bc73fe38de11c038b58"
+      },
+      "ordinary/ordinary-checker-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 30,
+        "sha256": "449eed8c2998494066b8ce7562c2154de43a5ffe32ea917390b24b4b2d7e623d"
+      },
+      "ordinary/ordinary-checker-build.json": {
+        "bytes": 10838,
+        "sha256": "0c96cee497ed41dfb9445507899bd102ad978428bf533618db3cb773bd24645c"
+      },
+      "ordinary/checker-product-after.json": {
+        "bytes": 178,
+        "sha256": "2bb55bb8154ee2f856bd37cbaf2fca212228a19d4f51744bc3bea77fecf81f65"
+      },
+      "ordinary/source-after.json": {
+        "bytes": 426499,
+        "sha256": "051fb9f96a613cefa584e24842bb0a32918fbfea1a205540e946f9aa9c2af485"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 14269,
+        "sha256": "de66f50d5c2fd4c1016c00a2e74e4527e3b65b7a35e5362c8c8c5e2d3e444f54"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 16982,
+        "sha256": "da111475758d465d84b3d2fbddc86d5b03a310880af85bc73fe38de11c038b58"
+      },
+      "ordinary/ordinary-checker.log": {
+        "bytes": 3574,
+        "sha256": "6388dae5c4342e17048379e7f2c075b4232db2894661f7f11074f9adaf1d4be7"
+      },
+      "ordinary/ordinary-checker.json": {
+        "bytes": 271,
+        "sha256": "0ea5249bb3f0a629a9c26304a1200581cda314319fbfb67549c59a90e1e21695"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 426499,
+        "sha256": "051fb9f96a613cefa584e24842bb0a32918fbfea1a205540e946f9aa9c2af485"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 65,
+        "sha256": "eee81e67213f9d4967dd57ac8086be92d8d1dee93dcc4f768fa5430885b8ddb6"
+      },
+      "sanitized/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "sanitized/products.json": {
+        "bytes": 19523,
+        "sha256": "c2f9192e0f5422fc4d43e6f3256553381ddf098385f649b6bbf090a766de43ab"
+      },
+      "sanitized/sanitized-checker.json": {
+        "bytes": 274,
+        "sha256": "91d569c63bba5dea72537adaa615dff1937dc08b9f27904bd4ff1970e3ee81ad"
+      },
+      "sanitized/checker-product-before.json": {
+        "bytes": 179,
+        "sha256": "6009d2789a40db43ba73e5dacfdb3a405003bacd744e634390a9be3257148e66"
+      },
+      "sanitized/providers.mk": {
+        "bytes": 456,
+        "sha256": "ee99f67692a41234757e9520a4a58f8c5d2d744be17241b9c287b062f96488e0"
+      },
+      "sanitized/providers-before.json": {
+        "bytes": 17083,
+        "sha256": "745e836e65e78819cd1d50dca8984563169add5134320b8e6e8acfbabef36646"
+      },
+      "sanitized/sanitized-providers.log": {
+        "bytes": 22248,
+        "sha256": "ba3897925d3367ea690e0754c1ec4087ab899116f0d87613fc203a47576346b1"
+      },
+      "sanitized/ldflags.txt": {
+        "bytes": 109,
+        "sha256": "e6a3c205b36c0d7f95e3cc06754c65c2d3afacc20d38cff8a10c7ae28c57bcc4"
+      },
+      "sanitized/checker-product-after.json": {
+        "bytes": 179,
+        "sha256": "6009d2789a40db43ba73e5dacfdb3a405003bacd744e634390a9be3257148e66"
+      },
+      "sanitized/source-after.json": {
+        "bytes": 426499,
+        "sha256": "051fb9f96a613cefa584e24842bb0a32918fbfea1a205540e946f9aa9c2af485"
+      },
+      "sanitized/sanitized-checker.log": {
+        "bytes": 3574,
+        "sha256": "6388dae5c4342e17048379e7f2c075b4232db2894661f7f11074f9adaf1d4be7"
+      },
+      "sanitized/sanitized-checker-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/providers-after.json": {
+        "bytes": 17083,
+        "sha256": "745e836e65e78819cd1d50dca8984563169add5134320b8e6e8acfbabef36646"
+      },
+      "sanitized/source-before.json": {
+        "bytes": 426499,
+        "sha256": "051fb9f96a613cefa584e24842bb0a32918fbfea1a205540e946f9aa9c2af485"
+      },
+      "sanitized/sanitized-providers.json": {
+        "bytes": 613,
+        "sha256": "aeead28f54fe95d929c9f4dffb777345bd45786eacee157a7e7e2a405267dadb"
+      },
+      "sanitized/cflags.txt": {
+        "bytes": 144,
+        "sha256": "ad1a592fe7c650cfbc2cc3fc83d635d2df4f011c0e19663ac48fb4ef6ee2b9ed"
+      },
+      "sanitized/sanitized-checker-build.json": {
+        "bytes": 11140,
+        "sha256": "efabd7c3827a5a2f93e58b79da2cee68e1d78b0fd2d985e8fc1da2c1ec0f1f56"
+      }
+    }
+  },
+  "typechecker-6d92-puck": {
+    "pin": "6d92a2d53cb330117731ab310e97b6a088731ccf",
+    "archive_sha256": "7eb27b44481795733e71409f667fda1e46a20fcf175e17d2aa44106fc46b5eb3",
+    "terminal": {
+      "status": 0
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 43630,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 5.931643875010195
+      },
+      {
+        "label": "ordinary-checker-build",
+        "argv": [
+          "/usr/bin/clang",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-std=c99",
+          "-g",
+          "-O2",
+          "-fPIC",
+          "-Isrc",
+          "-D_GNU_SOURCE",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi",
+          "-I/opt/homebrew/opt/openssl@3/include",
+          "-o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/test_typechecker",
+          "tests/test_typechecker.c",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/lexer.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/parser.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/typechecker.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/transpiler.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/stdlib_runtime.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/env.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/builtins_registry.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/module.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/module_metadata.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/cJSON.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/toon_output.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/module_builder.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/resource_tracking.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/eval.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/eval/eval_hashmap.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/eval/eval_math.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/eval/eval_string.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/eval/eval_io.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/interpreter_ffi.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/json_diagnostics.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/reflection.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/nanocore_subset.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/nanocore_export.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/emit_typed_ast.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/type_infer.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/effects.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/fold_constants.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/dce_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/par_let_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/ptx_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/opencl_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/tco_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/cps_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/coroutine.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/pgo_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/c_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/bench.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/bench_native.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/riscv_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/dwarf_info.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/docgen_md.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/docgen.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/fmt.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/channel.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/bcp47.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/locale.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/utf8.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/diag_id.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/catalog.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/resource_flow.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/nominal_types.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_int.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_string.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_LexerToken.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_token.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_CompilerDiagnostic.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_CompilerSourceLocation.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTNumber.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTFloat.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTString.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTBool.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTIdentifier.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTBinaryOp.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTCall.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTModuleQualifiedCall.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTArrayLiteral.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTLet.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTSet.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTStmtRef.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTIf.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTWhile.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTFor.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTReturn.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTBlock.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTUnsafeBlock.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTPrint.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTAssert.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTFunction.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTShadow.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTStruct.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTStructLiteral.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTFieldAccess.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTEnum.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTUnion.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTUnionConstruct.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTMatch.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTImport.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTOpaqueType.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTServiceDecl.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTTupleLiteral.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/list_ASTTupleIndex.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/token_helpers.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/gc.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/effect_runtime.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/dyn_array.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/gc_struct.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/nl_string.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/ffi_loader.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/module_build_dir.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/cli.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/source/obj/runtime/regex.o",
+          "-lm",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "-lcrypto",
+          "-lffi",
+          "-L/opt/homebrew/opt/openssl@3/lib"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 44184,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.23128437499690335
+      },
+      {
+        "label": "ordinary-checker",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/ordinary/test_typechecker"
+        ],
+        "bound": 180,
+        "timeout": false,
+        "pid": 44189,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.48822787500103004
+      },
+      {
+        "label": "sanitized-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/providers.mk",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 44254,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 9.657297749989084
+      },
+      {
+        "label": "sanitized-checker-build",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-std=c99",
+          "-g",
+          "-O1",
+          "-fPIC",
+          "-Isrc",
+          "-D_GNU_SOURCE",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-fno-sanitize-recover=all",
+          "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi",
+          "-I/opt/homebrew/opt/openssl@3/include",
+          "-o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/test_typechecker",
+          "tests/test_typechecker.c",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/lexer.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/parser.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/typechecker.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/transpiler.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/stdlib_runtime.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/env.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/builtins_registry.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/module.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/module_metadata.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/cJSON.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/toon_output.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/module_builder.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/resource_tracking.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/eval.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/eval/eval_hashmap.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/eval/eval_math.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/eval/eval_string.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/eval/eval_io.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/interpreter_ffi.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/json_diagnostics.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/reflection.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/nanocore_subset.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/nanocore_export.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/emit_typed_ast.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/type_infer.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/effects.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/fold_constants.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/dce_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/par_let_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/ptx_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/opencl_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/tco_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/cps_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/coroutine.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/pgo_pass.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/c_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/bench.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/bench_native.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/riscv_backend.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/dwarf_info.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/docgen_md.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/docgen.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/fmt.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/channel.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/bcp47.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/locale.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/utf8.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/diag_id.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/catalog.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/resource_flow.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/nominal_types.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_int.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_string.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_LexerToken.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_token.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_CompilerDiagnostic.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_CompilerSourceLocation.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTNumber.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTFloat.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTString.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTBool.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTIdentifier.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTBinaryOp.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTCall.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTModuleQualifiedCall.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTArrayLiteral.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTLet.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTSet.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTStmtRef.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTIf.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTWhile.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTFor.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTReturn.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTBlock.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTUnsafeBlock.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTPrint.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTAssert.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTFunction.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTShadow.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTStruct.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTStructLiteral.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTFieldAccess.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTEnum.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTUnion.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTUnionConstruct.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTMatch.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTImport.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTOpaqueType.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTServiceDecl.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTTupleLiteral.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/list_ASTTupleIndex.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/token_helpers.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/gc.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/effect_runtime.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/dyn_array.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/gc_struct.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/nl_string.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/ffi_loader.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/module_build_dir.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/cli.o",
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/source/obj/runtime/regex.o",
+          "-lm",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-fno-sanitize-recover=all",
+          "-lcrypto",
+          "-lffi",
+          "-L/opt/homebrew/opt/openssl@3/lib"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 44760,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.46499154200137127
+      },
+      {
+        "label": "sanitized-checker",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/typechecker-6d92-puck/sanitized/test_typechecker"
+        ],
+        "bound": 180,
+        "timeout": false,
+        "pid": 44773,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.4852245419897372
+      }
+    ],
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "tools-after.json": {
+        "bytes": 402,
+        "sha256": "f17a605e03b41e7dcddbf1175b93386adad488facb1e2f09f9259a1f93c371ed"
+      },
+      "identity.json": {
+        "bytes": 1008,
+        "sha256": "ea74f091ad04de98191e7d94f11f54472d796104a04522861363405326eb1b00"
+      },
+      "phases.json": {
+        "bytes": 25595,
+        "sha256": "ba4a9896b7252d0fce2a4577307d6f317809a13c9af165f154a4e6bc2f27a5a3"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 666,
+        "sha256": "fc9777f5fcf9c66de0b46d4d3a8db91ef7fdbc10a074769e923dce68a60635c0"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "ordinary/products.json": {
+        "bytes": 19523,
+        "sha256": "57583426cbf6bab38bbe28ef84fbb6797d8d1a2b8acc95fcf385f0b7bb715c26"
+      },
+      "ordinary/checker-product-before.json": {
+        "bytes": 178,
+        "sha256": "2d771c28ad77a785d68707f8b651bea19d236b78b58b25ef25c45b168dff4e5f"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 453,
+        "sha256": "3fe35036c2184c86d39dda63e6bbdfd9dcd2e2e1521a6e866cbea05bd625b136"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 16982,
+        "sha256": "2da8fa8a4c565882e55ce32e1fb7322f1158bff2d1041fe5be55c68f3f765b02"
+      },
+      "ordinary/ordinary-checker-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 158,
+        "sha256": "062dd193fa45f768a6565b3ed334f6b9095ffae555a7e28f94b95c2ac4628c15"
+      },
+      "ordinary/ordinary-checker-build.json": {
+        "bytes": 11269,
+        "sha256": "d02e2c77199bac5e5207ca00c429d12a2e11c5d32fad2302d6ad2b7829e22db8"
+      },
+      "ordinary/checker-product-after.json": {
+        "bytes": 178,
+        "sha256": "2d771c28ad77a785d68707f8b651bea19d236b78b58b25ef25c45b168dff4e5f"
+      },
+      "ordinary/source-after.json": {
+        "bytes": 426499,
+        "sha256": "4018e83f08cff48a47ab5230901c855a76a1b653f5384eb55e38a1bc1e028953"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 40832,
+        "sha256": "a1037ba6edc7bc91e2e90472ae869d2546cef3c529f18fac252158141a60abcc"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 16982,
+        "sha256": "2da8fa8a4c565882e55ce32e1fb7322f1158bff2d1041fe5be55c68f3f765b02"
+      },
+      "ordinary/ordinary-checker.log": {
+        "bytes": 3574,
+        "sha256": "6388dae5c4342e17048379e7f2c075b4232db2894661f7f11074f9adaf1d4be7"
+      },
+      "ordinary/ordinary-checker.json": {
+        "bytes": 270,
+        "sha256": "d0e2d9b7110a38552a7b9c7139717efc73dda621133fff4b6638a6c8edc2f8d8"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 426499,
+        "sha256": "4018e83f08cff48a47ab5230901c855a76a1b653f5384eb55e38a1bc1e028953"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 324,
+        "sha256": "800a75971db3bbe43c2b4913abadcdf21c5bdea4ed817f57d04a9967bc955418"
+      },
+      "sanitized/providers.txt": {
+        "bytes": 2334,
+        "sha256": "3a2a172c5f82f87a9b396fe2147309a3ad89a066bf96496e3880a668e1b2a98a"
+      },
+      "sanitized/products.json": {
+        "bytes": 19523,
+        "sha256": "d8827042d13fd9a68b3f5e9b51390b2c49129b6139dc749df923b033bb7cb235"
+      },
+      "sanitized/sanitized-checker.json": {
+        "bytes": 271,
+        "sha256": "47ab1b0c4b27d879a5c0a0d47b87cf931cf713c96de447a93d5620a976b0e263"
+      },
+      "sanitized/checker-product-before.json": {
+        "bytes": 179,
+        "sha256": "b40bbddb9bdcc083e5bfa7fde2a09ba9ca5651633f34ed6502b39630322c926b"
+      },
+      "sanitized/providers.mk": {
+        "bytes": 456,
+        "sha256": "198dfd433da6e354e313cd96d625e4609770ef30ee58898f3761bbfd58dd0b80"
+      },
+      "sanitized/providers-before.json": {
+        "bytes": 17083,
+        "sha256": "bd4a06303de08d8ef50db11b3ec11814ea08e0148fbd6e4f60d32a8cd42be6b5"
+      },
+      "sanitized/sanitized-providers.log": {
+        "bytes": 50629,
+        "sha256": "d66e7d0c49c4df628c0312627ee201487462a9368a42718d6f43884cbea783b7"
+      },
+      "sanitized/ldflags.txt": {
+        "bytes": 237,
+        "sha256": "53938334859604f228dd491d07d8d54c4e672fc4a061e24db5a5a82af1f8a595"
+      },
+      "sanitized/checker-product-after.json": {
+        "bytes": 179,
+        "sha256": "b40bbddb9bdcc083e5bfa7fde2a09ba9ca5651633f34ed6502b39630322c926b"
+      },
+      "sanitized/source-after.json": {
+        "bytes": 426499,
+        "sha256": "4018e83f08cff48a47ab5230901c855a76a1b653f5384eb55e38a1bc1e028953"
+      },
+      "sanitized/sanitized-checker.log": {
+        "bytes": 3574,
+        "sha256": "6388dae5c4342e17048379e7f2c075b4232db2894661f7f11074f9adaf1d4be7"
+      },
+      "sanitized/sanitized-checker-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/providers-after.json": {
+        "bytes": 17083,
+        "sha256": "bd4a06303de08d8ef50db11b3ec11814ea08e0148fbd6e4f60d32a8cd42be6b5"
+      },
+      "sanitized/source-before.json": {
+        "bytes": 426499,
+        "sha256": "4018e83f08cff48a47ab5230901c855a76a1b653f5384eb55e38a1bc1e028953"
+      },
+      "sanitized/sanitized-providers.json": {
+        "bytes": 844,
+        "sha256": "b9fd8759dc234826c2f8e6c718a16be02f46a3158e73fee43ea721557c5ebcd8"
+      },
+      "sanitized/cflags.txt": {
+        "bytes": 403,
+        "sha256": "5d315177f3ad6169236736836c95671781ca7c02b1d1fd94019b6a4d40af539e"
+      },
+      "sanitized/sanitized-checker-build.json": {
+        "bytes": 11590,
+        "sha256": "0569a64e68cfabd63134495470303d464c6b68ce2e7ec4721399e11a6a8b004a"
+      }
+    }
+  },
+  "point-checker-diagnostic": {
+    "archive_sha256": "41d46f84496e5625b8e2cc3ae4fc97dc1ee03f4168d95bbbf17ff49f7e3582ab",
+    "members": {
+      "link.json": {
+        "bytes": 11665,
+        "sha256": "c2c0e88c45562732c76147289e1489db343f7cad846e51e5b2b4b89fc0f54e15"
+      },
+      "harness-reflect.json": {
+        "bytes": 250,
+        "sha256": "26818886c7edd48e8047367fda512eb4266f050fe56f31dc5217b87bb2910f89"
+      },
+      "harness-build.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "providers-before.json": {
+        "bytes": 17992,
+        "sha256": "172c6675761900db6d77624fbfaf3b752e54121a880c9dde485967b4084e4956"
+      },
+      "harness-build.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "compile.json": {
+        "bytes": 356,
+        "sha256": "c8fa40cc0e0a929bbf1ed999129f24b869cbd56ed6969bc441e5710a3d734796"
+      },
+      "setup-first.txt": {
+        "bytes": 197,
+        "sha256": "b6a17cd89d9e9afd8c3a1ba30232d6a8698235ec8556a199952fa81745ff243d"
+      },
+      "link.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "compile.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "identity.json": {
+        "bytes": 320,
+        "sha256": "56b3684c492292f7c6e1734ef14c82267abc1d49f1bc94337ed15c20a0830eea"
+      },
+      "harness-reflect.stderr": {
+        "bytes": 372,
+        "sha256": "ed1727ab42534bd7187b0dff965bf4bce2c4bac9c57d892aa62bf688c9edf0f3"
+      },
+      "providers-after.json": {
+        "bytes": 17992,
+        "sha256": "172c6675761900db6d77624fbfaf3b752e54121a880c9dde485967b4084e4956"
+      },
+      "compile.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "link.stderr": {
+        "bytes": 779,
+        "sha256": "285fa1c051f882c3a13348795e6c211f2d4c1c12a92bdddbd0e7b4580d9f9f9e"
+      },
+      "checker.c": {
+        "bytes": 866,
+        "sha256": "8bca6c5201d2f39a98e97abdd943f92760821fe312ac8a38c4f72208cb3671f0"
+      },
+      "point.nano": {
+        "bytes": 208,
+        "sha256": "4ffc509a4f1644396068482a616fe4bf1b1c8c8c27e0b9f873b15737e79dab8d"
+      },
+      "harness-reflect.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "harness-build.json": {
+        "bytes": 11780,
+        "sha256": "9b0c07d3cb80b6679570c93438fc51cb8c64d27beb758871d8a211268275c162"
+      }
+    }
+  }
+}

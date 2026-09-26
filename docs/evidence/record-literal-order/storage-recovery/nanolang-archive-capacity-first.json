@@ -1,0 +1,8 @@
+{
+  "original": "/tmp/nanolang-file-service-parser-70113.tar",
+  "original_bytes": 5881559040,
+  "terminal": "local gzip stopped by512MiB capacity guard; complete original retained",
+  "discarded_incomplete_redundant_copy": "/tmp/nanolang-file-service-parser-70113.tar.gz.partial",
+  "partial_bytes": 1246470048,
+  "next": "stream compression to puck then verify before removing redundant local original"
+}

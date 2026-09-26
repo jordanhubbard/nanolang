@@ -1,0 +1,701 @@
+phase=installed-canonical-test-quick
+head=e9a5f55f9b82b3de8c03b3df240665865fd25e5c
+tree=f6d52efa59298c58f981e1b3d06c1a5b362bf724
+source_manifest_sha256=894d93bbe6281ded94c56d6e9ae432e5372849ae5204b4697b34bf338208ee97
+makefile_sha256=a72854943fb12f8a32e05bb70742c5022585f714d6767a2106975d0583b1a08a
+bootstrap_log_sha256=d4c1ee22fe66153c88e18ae85437baf9d3c1e9e78ea972a1ebfca57290b80db9
+tools_log_sha256=ad9fcea6a52bea3aa4e4ef229ebb25ea1cb1a3bc4bb0d7d6db5a60c301da27c1
+nanoc_link_before=nanoc_stage2
+nanoc_sha256_before=ce9fcd29049ba69c0f8bbca71e696426e353756913948f714b85f772438223b5
+nanoc_c_sha256_before=f2a8f62e9d903cbed7e9afdd48fa4fc6862cef01f13cfc0c6de7a863a49d9fa8
+nanoc_stage1_sha256_before=8d15d883cd9c7a3150c4470ee3275f62e83255fbbec9abfc74e9d5a633edf688
+nanoc_stage2_sha256_before=ce9fcd29049ba69c0f8bbca71e696426e353756913948f714b85f772438223b5
+nanoisa_emit_sha256_before=cf496b64f17c5e4d2b0aec0c17355b3c7cc5f64bb15f404ed79ff1dcb125ff1b
+nano_virt_sha256_before=50f18512a4ecf2d531e192dd78a8652b8f96b1a8f30f3f50ba2bcd3621f4a552
+nano_vm_sha256_before=4a7dbc12dbd53bcded95f13f2caf6538b360ea4493476b30c962548ef8faf997
+nvm2c_sha256_before=8d31589f0ec7415361c02d30362cea9f5d77285787a6d6190a5395cdded4d121
+nanoisa_dump_sha256_before=ad6724b3811bf8c44e706f34577d02c6a1753272adad9bed5b50c6d976bd7646
+nvm2c_runtime_sha256_before=94fd06fddc46407a28d2d54893957d2dcb15642200bc8149ad106fb4c5dd4174
+stdin_tty=yes
+Darwin CXWWHGGJX0 25.6.0 Darwin Kernel Version 25.6.0: Fri Jul 31 19:17:26 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T6041 arm64
+ProductName:		macOS
+ProductVersion:		26.6.2
+BuildVersion:		25G83
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+27.0
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+Target: arm64-apple-darwin25.6.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+GNU Make 3.81
+command=make test-quick
+started_utc=2026-09-18T11:49:47Z
+[tool] Building module index generator (C)...
+[modules] Generating module index from manifests...
+Generating module index...
+Found 47 module manifests
+  ✓ vector2d
+  ✓ preferences
+  ✓ audio_helpers
+  ✓ tools
+  ✓ pt2_state
+  ✓ ncurses
+  ✓ unicode
+  ✓ pty
+  ✓ pybridge_warp
+  ✓ math_ext
+  ✓ pt2_module
+  ✓ sdl_image
+  ✓ readline
+  ✓ mujoco
+  ✓ nano_eval
+  ✓ std
+  ✓ filesystem
+  ✓ ui_widgets
+  ✓ sqlite
+  ✓ sdl_ttf
+  ✓ uv
+  ✓ curl
+  ✓ pybridge
+  ✓ nano_highlight
+  ✓ glut
+  ✓ stdio
+  ✓ pybridge_matplotlib
+  ✓ github
+  ✓ http_server
+  ✓ sdl
+  ✓ bullet
+  ✓ audio_viz
+  ✓ stdlib
+  ✓ glew
+  ✓ pt2_audio
+  ✓ forth_see
+  ✓ glfw
+  ✓ nanoisa
+  ✓ sdl_term
+  ✓ event
+  ✓ nano_tools
+  ✓ sdl_helpers
+  ✓ proptest
+  ✓ openai
+  ✓ opengl
+  ✓ sdl_mixer
+  ✓ log
+
+✓ Generated modules/index.json
+  47 modules indexed
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+		obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+		obj/nanovm/main.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib 
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+
+==========================================
+Bootstrap Stage 1: Self-Hosted Compiler
+==========================================
+Compiling nanoc_v06.nano with C compiler...
+Warning at line 1774, column 9: Unused variable 'rejected'
+Warning at line 1895, column 9: Unused variable 'rejected'
+Warning at line 1902, column 13: Unused variable 'rejected'
+Warning at line 1983, column 9: Unused variable 'rejected'
+Warning at line 1992, column 9: Unused variable 'rejected'
+Warning at line 1997, column 13: Unused variable 'rejected'
+Warning at line 2108, column 9: Unused variable 'rejected'
+Warning at line 2112, column 9: Unused variable 'rejected'
+Warning at line 2119, column 13: Unused variable 'rejected'
+Warning at line 5081, column 21: Unused variable 'imported'
+Warning at line 5230, column 13: Unused variable 'rejected'
+Warning at line 5236, column 17: Unused variable 'rejected'
+Warning at line 1774, column 9: Unused variable 'rejected'
+Warning at line 1895, column 9: Unused variable 'rejected'
+Warning at line 1902, column 13: Unused variable 'rejected'
+Warning at line 1983, column 9: Unused variable 'rejected'
+Warning at line 1992, column 9: Unused variable 'rejected'
+Warning at line 1997, column 13: Unused variable 'rejected'
+Warning at line 2108, column 9: Unused variable 'rejected'
+Warning at line 2112, column 9: Unused variable 'rejected'
+Warning at line 2119, column 13: Unused variable 'rejected'
+Warning at line 5081, column 21: Unused variable 'imported'
+Warning at line 5230, column 13: Unused variable 'rejected'
+Warning at line 5236, column 17: Unused variable 'rejected'
+✓ Stage 1 compiler created: bin/nanoc_stage1
+
+Testing stage 1 compiler...
+Hello from NanoLang!
+✓ Stage 1 compiler works!
+
+==========================================
+Bootstrap Stage 2: Recompilation
+==========================================
+Compiling nanoc_v06.nano with stage 1 compiler...
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I cannot define a record twice in one module: Handle
+I cannot define a function twice in one module: answer
+I cannot resolve a qualified function in this module: lib.answer
+I require separate artifact and diagnostic destinations
+I require separate artifact and diagnostic destinations
+I will not overwrite a source file: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_h0oNdE/source.nano
+I will not overwrite a source file: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_h0oNdE/source.nano
+I cannot check source/output file identity: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_h0oNdE/missing
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Usage: nanoc <input.nano> [-o output] [options]
+
+Without an output or target, I publish a sibling .nvm file.
+Options:
+  -o <file>        I publish a native executable unless --emit-nvm or --target c is selected
+  -v, --verbose    Verbose compilation output
+  -k, --keep-c     Keep generated C file
+  --target <t>    native (default) or c (NanoISA C11 source, no native compilation)
+  --emit-nvm     I publish verified NanoISA (default output: sibling .nvm)
+  --test-imports  I run dependency shadows before root shadows (default)
+  --root-shadows-only  I run only root-file shadows
+  --              End options; the remaining argument is my input path
+  -fshow-intermediate-code  Print generated C to stdout
+  -h, --help       Show this help
+  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)
+
+This compiler is 100% written in NanoLang!
+Pipeline: Lex → Parse → Typecheck → NanoISA → Product
+
+✓ Stage 2 compiler created: bin/nanoc_stage2
+
+Testing stage 2 compiler...
+Hello from NanoLang!
+✓ Stage 2 compiler works!
+
+==========================================
+Bootstrap Stage 3: Verification
+==========================================
+Comparing stage 1 and stage 2 binaries...
+
+-rwxr-xr-x  1 jordanh  wheel    11M Sep 18 04:51 bin/nanoc_stage1
+-rwxr-xr-x  1 jordanh  wheel    16M Sep 18 04:53 bin/nanoc_stage2
+
+⚠️  Bootstrap verification: Binaries differ
+
+Stage 1 size: 11234656
+Stage 2 size: 17272168
+
+I have not diagnosed the difference. These causes remain hypotheses:
+  - Embedded timestamps or other native artifact metadata
+  - Non-deterministic code generation
+  - Different compiler optimizations
+
+Both stages passed the configured smoke test; that is not a correctness proof.
+Canonical NanoISA artifact equality remains a separate 5.0 gate.
+
+==========================================
+Installing Self-Hosted Compiler
+==========================================
+Updating bin/nanoc to use self-hosted compiler...
+✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)
+
+Smoke test: installed bin/nanoc compiles + runs nl_hello.nano...
+Hello from NanoLang!
+✓ installed compiler works
+
+Verifying bin/nanoc does not depend on bin/nanoc_c...
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+
+All subsequent builds (test, examples) will use the self-hosted compiler!
+
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/ffi_bindgen.c -o obj/ffi_bindgen.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nanoc-ffi obj/ffi_bindgen.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+✓ Stage 1 complete (C reference binaries)
+
+==========================================
+Stage 2: Building Self-Hosted Components
+==========================================
+Compiling components with bin/nanoc...
+
+  Building parser...
+    ✓ parser compiled successfully
+
+  Building typecheck...
+    ✓ typecheck compiled successfully
+
+  Building transpiler...
+    ✓ transpiler compiled successfully
+
+✓ Stage 2: 3/3 components built successfully
+
+==========================================
+Stage 3: Bootstrap Validation
+==========================================
+Validating self-hosted components...
+
+  Checking parser entry assertions...
+    ✓ parser entry assertions passed
+  Checking typecheck entry assertions...
+    ✓ typecheck entry assertions passed
+  Checking transpiler entry assertions...
+    ✓ transpiler entry assertions passed
+
+✓ Stage 3: 3/3 component entry checks passed; imported shadows are separate
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nano_main.c -o obj/nano_main.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/proptest.c -o obj/proptest.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nano obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nano_main.o obj/proptest.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+✓ Interpreter: bin/nano
+
+==========================================
+✅ Build Complete (3-Stage Bootstrap)
+==========================================
+Build Status:
+
+  ✅ Stage 1: C reference compiler (bin/nanoc)
+  ✅ Stage 2: Self-hosted components compiled
+    • parser
+    • typecheck
+    • transpiler
+  ✅ Stage 3: Bootstrap validated
+
+
+
+[1m========================================
+NANOLANG COMPREHENSIVE TEST SUITE
+========================================[0m
+Backend: [0;36mc[0m
+Native compiler: ./bin/nanoc
+
+[0;36m=== CORE LANGUAGE TESTS (nl_*) ===[0m
+
+[1m-- Syntax --[0m
+[0;32m✅[0m nl_syntax_literals.nano
+[0;32m✅[0m nl_syntax_operators.nano
+
+[1m-- Types --[0m
+[0;32m✅[0m nl_types_enum.nano
+[0;32m✅[0m nl_types_struct.nano
+[0;32m✅[0m nl_types_tuple.nano
+
+[1m-- Control Flow --[0m
+[0;32m✅[0m nl_control_flow.nano
+[0;32m✅[0m nl_control_match.nano
+[0;32m✅[0m nl_control_while.nano
+
+[1m-- Functions --[0m
+[0;32m✅[0m nl_functions_array_param.nano
+[0;32m✅[0m nl_functions_audio_examples_default_args.nano
+[0;32m✅[0m nl_functions_filter.nano
+[0;32m✅[0m nl_functions_map_reduce.nano
+[0;32m✅[0m nl_functions_module_introspection_flags.nano
+[0;32m✅[0m nl_functions_module_metadata.nano
+[0;32m✅[0m nl_functions_nanoamp_default_args.nano
+[0;32m✅[0m nl_functions_relative_import.nano
+[0;32m✅[0m nl_functions_string_edges.nano
+
+[0;36mLanguage Tests: [0;32m17 passed[0m, [0;31m0 failed[0m
+
+[1m========================================
+TEST RESULTS SUMMARY
+========================================[0m
+
+Core Language (nl_*):  [0;32m17 passed[0m, [0;31m0 failed[0m
+
+TOTAL: [0;32m17 passed[0m, [0;31m0 failed[0m, [0;34m0 skipped[0m
+
+[0;32m✅ All runnable tests passed![0m
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.628s
+
+OK
+........
+----------------------------------------------------------------------
+Ran 8 tests in 14.406s
+
+OK
+bin/nanoc_c tests/parser_parenthesized.nano -o bin/parser_parenthesized_test
+bin/parser_parenthesized_test
+I passed the compiled parenthesized-parser assertions.
+bin/nanoc_c tests/transpiler_externs.nano -o bin/transpiler_externs_test
+bin/transpiler_externs_test
+I passed extern declaration selection.
+bin/nanoc_c tests/module_introspection.nano -o bin/module_introspection_test
+bin/module_introspection_test
+I passed source-level module introspection checks.
+I rebuild C objects when their recorded headers change.
+release workflow checks passed
+==========================================
+GLUT initialization boundary tests
+==========================================
+
+-- Boundary unit test --
+=== glut init boundary tests ===
+[1] headless skip (not applicable on macOS)
+[2] first call initializes GLUT
+  PASS  reports GLUT ready
+  PASS  glutInit called exactly once
+  PASS  state reports initialized
+[3] glutInit receives a real argc/argv
+  PASS  argc is 1
+  PASS  argv[0] is a non-empty program name
+  PASS  argv is NULL terminated
+[4] repeated calls are idempotent
+  PASS  second call still reports ready
+  PASS  third call still reports ready
+  PASS  glutInit still called only once
+[5] initialized state survives display loss
+  PASS  still reports ready once initialized
+  PASS  glutInit not called again
+  PASS  state still reports initialized
+
+12 passed, 0 failed
+[0;32m✅[0m glut init boundary unit test
+
+-- Call-site guard --
+[0;32m✅[0m examples/opengl/opengl_lit_atelier.nano initializes GLUT through the shared boundary
+[0;32m✅[0m examples/opengl/opengl_lit_atelier.nano does not hand-roll glutInit
+[0;32m✅[0m examples/opengl/opengl_solar_system.nano initializes GLUT through the shared boundary
+[0;32m✅[0m examples/opengl/opengl_solar_system.nano does not hand-roll glutInit
+[0;32m✅[0m examples/opengl/opengl_teapot.nano initializes GLUT through the shared boundary
+[0;32m✅[0m examples/opengl/opengl_teapot.nano does not hand-roll glutInit
+[0;32m✅[0m modules/glut/glut_helpers.nano initializes GLUT through the shared boundary
+[0;32m✅[0m modules/glut/glut_helpers.nano does not hand-roll glutInit
+
+-- macOS framework dependency guard --
+[0;32m✅[0m teapot uses the native GLUT framework without Homebrew
+
+-- Launch smoke --
+[1;33m⏭[0m  SKIP: launch smoke (opens interactive windows; pass --launch to run it)
+
+==========================================
+[0;32m✅ GLUT initialization boundary tests passed[0m
+==========================================
+CI dependency-install helper tests
+==========================================
+[0;32m✅[0m apt helper retries a failing mirror and succeeds within budget
+[0;32m✅[0m brew helper retries a failing download and succeeds within budget
+[0;32m✅[0m apt helper fails after exhausting its attempt budget
+[0;32m✅[0m brew helper fails after exhausting its attempt budget
+[0;32m✅[0m brew helper skips a formula the runner image already provides
+[0;32m✅[0m brew helper installs the remaining formulae after a skip
+[0;32m✅[0m apt helper reports the package manager's real exit code
+[0;32m✅[0m brew helper reports the package manager's real exit code
+[0;32m✅[0m ci-apt-install.sh reports a usage error when given no packages
+[0;32m✅[0m ci-brew-install.sh reports a usage error when given no packages
+[0;32m✅[0m no workflow installs dependencies outside the retry helpers
+[0;32m✅[0m apt helper still retries and installs on a host without GNU timeout
+[0;32m✅[0m apt helper still exhausts its budget on a host without GNU timeout
+[0;32m✅[0m brew helper still retries and installs on a host without GNU timeout
+==========================================
+[0;32mAll CI dependency-install helper tests passed[0m
+==========================================
+Module validator tests
+==========================================
+[0;32m✅[0m validator reports readline present when only a keg-only pkg-config path would find it
+[0;32m✅[0m validator does not print apt-get hints on Darwin
+==========================================
+[0;32mAll module validator tests passed[0m
+==========================================
+Example launcher Makefile tests
+==========================================
+[0;32m✅[0m make launcher plans to compile sdl_example_launcher before launching, even without SDL2
+[0;32m✅[0m gpu-kernels writes matmul.ptx under bin/gpu
+[0;32m✅[0m gpu-kernels writes matmul.cl under bin/gpu
+[0;32m✅[0m gpu-kernels writes julia_flow.ptx under bin/gpu
+[0;32m✅[0m gpu-kernels writes julia_flow.cl under bin/gpu
+[0;32m✅[0m gpu-kernels leaves examples/gpu source-only
+[0;32m✅[0m GPU examples load kernels from bin/gpu
+[0;32m✅[0m sdl_forth_ide depends on bin/forth and execs it
+==========================================
+[0;32mAll example launcher Makefile tests passed[0m
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o obj/test_module_install_policy tests/test_module_install_policy.c obj/cJSON.o obj/utf8.o obj/runtime/module_build_dir.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module]   Non-interactive shell detected; using sudo -n
+[Module]   Running: fixture-install
+[Module]   ✓ Successfully installed fixture
+I passed module installation authority checks.
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o obj/test_module_builder_cache tests/test_module_builder_cache.c obj/cJSON.o obj/utf8.o obj/runtime/module_build_dir.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+I passed absolute, relative, changed, missing and oversized source checks.
+==========================================
+Module dependency re-check tests
+==========================================
+[0;32m✅[0m compile and run succeed while the system package is present
+[0;32m✅[0m compile fails when the cached module's system package is gone
+[0;32m✅[0m failure names the missing package
+[0;32m✅[0m failure is my diagnostic, not a missing-header C error
+[0;32m✅[0m compile recovers after the system package is restored
+==========================================
+[0;32mAll module dependency re-check tests passed[0m
+...
+----------------------------------------------------------------------
+Ran 3 tests in 9.590s
+
+OK
+Running pt2_audio playback tests...
+PASS: pt2_audio playback (14 checks)
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nano_virt obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nanovirt/main.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+		obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+		obj/nanovm/main.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib 
+✓ Bootstrap Stage 0: C reference compiler ready
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+
+==========================================
+Bootstrap Stage 1: Self-Hosted Compiler
+==========================================
+Compiling nanoc_v06.nano with C compiler...
+Warning at line 1774, column 9: Unused variable 'rejected'
+Warning at line 1895, column 9: Unused variable 'rejected'
+Warning at line 1902, column 13: Unused variable 'rejected'
+Warning at line 1983, column 9: Unused variable 'rejected'
+Warning at line 1992, column 9: Unused variable 'rejected'
+Warning at line 1997, column 13: Unused variable 'rejected'
+Warning at line 2108, column 9: Unused variable 'rejected'
+Warning at line 2112, column 9: Unused variable 'rejected'
+Warning at line 2119, column 13: Unused variable 'rejected'
+Warning at line 5081, column 21: Unused variable 'imported'
+Warning at line 5230, column 13: Unused variable 'rejected'
+Warning at line 5236, column 17: Unused variable 'rejected'
+Warning at line 1774, column 9: Unused variable 'rejected'
+Warning at line 1895, column 9: Unused variable 'rejected'
+Warning at line 1902, column 13: Unused variable 'rejected'
+Warning at line 1983, column 9: Unused variable 'rejected'
+Warning at line 1992, column 9: Unused variable 'rejected'
+Warning at line 1997, column 13: Unused variable 'rejected'
+Warning at line 2108, column 9: Unused variable 'rejected'
+Warning at line 2112, column 9: Unused variable 'rejected'
+Warning at line 2119, column 13: Unused variable 'rejected'
+Warning at line 5081, column 21: Unused variable 'imported'
+Warning at line 5230, column 13: Unused variable 'rejected'
+Warning at line 5236, column 17: Unused variable 'rejected'
+✓ Stage 1 compiler created: bin/nanoc_stage1
+
+Testing stage 1 compiler...
+Hello from NanoLang!
+✓ Stage 1 compiler works!
+
+==========================================
+Bootstrap Stage 2: Recompilation
+==========================================
+Compiling nanoc_v06.nano with stage 1 compiler...
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I cannot define a record twice in one module: Handle
+I cannot define a function twice in one module: answer
+I cannot resolve a qualified function in this module: lib.answer
+I require separate artifact and diagnostic destinations
+I require separate artifact and diagnostic destinations
+I will not overwrite a source file: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_a0K4aP/source.nano
+I will not overwrite a source file: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_a0K4aP/source.nano
+I cannot check source/output file identity: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_a0K4aP/missing
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Usage: nanoc <input.nano> [-o output] [options]
+
+Without an output or target, I publish a sibling .nvm file.
+Options:
+  -o <file>        I publish a native executable unless --emit-nvm or --target c is selected
+  -v, --verbose    Verbose compilation output
+  -k, --keep-c     Keep generated C file
+  --target <t>    native (default) or c (NanoISA C11 source, no native compilation)
+  --emit-nvm     I publish verified NanoISA (default output: sibling .nvm)
+  --test-imports  I run dependency shadows before root shadows (default)
+  --root-shadows-only  I run only root-file shadows
+  --              End options; the remaining argument is my input path
+  -fshow-intermediate-code  Print generated C to stdout
+  -h, --help       Show this help
+  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)
+
+This compiler is 100% written in NanoLang!
+Pipeline: Lex → Parse → Typecheck → NanoISA → Product
+
+✓ Stage 2 compiler created: bin/nanoc_stage2
+
+Testing stage 2 compiler...
+Hello from NanoLang!
+✓ Stage 2 compiler works!
+
+==========================================
+Bootstrap Stage 3: Verification
+==========================================
+Comparing stage 1 and stage 2 binaries...
+
+-rwxr-xr-x  1 jordanh  wheel    11M Sep 18 05:16 bin/nanoc_stage1
+-rwxr-xr-x  1 jordanh  wheel    16M Sep 18 05:18 bin/nanoc_stage2
+
+⚠️  Bootstrap verification: Binaries differ
+
+Stage 1 size: 11234656
+Stage 2 size: 17272168
+
+I have not diagnosed the difference. These causes remain hypotheses:
+  - Embedded timestamps or other native artifact metadata
+  - Non-deterministic code generation
+  - Different compiler optimizations
+
+Both stages passed the configured smoke test; that is not a correctness proof.
+Canonical NanoISA artifact equality remains a separate 5.0 gate.
+
+==========================================
+Installing Self-Hosted Compiler
+==========================================
+Updating bin/nanoc to use self-hosted compiler...
+✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)
+
+Smoke test: installed bin/nanoc compiles + runs nl_hello.nano...
+Hello from NanoLang!
+✓ installed compiler works
+
+Verifying bin/nanoc does not depend on bin/nanoc_c...
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+
+All subsequent builds (test, examples) will use the self-hosted compiler!
+
+✓ Compiler: bin/nanoc -> nanoc_stage2 (self-hosted)
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -fblocks -pthread tests/nanovm/test_dispatch_retained.c modules/dispatch/dispatch.c src/runtime/callback_runtime.c -o obj/test_dispatch_retained -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+I passed retained dispatch sync, concurrent groups, notification, barrier, timer drain and late cancellation checks.
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -fblocks -pthread tests/nanovm/test_dispatch_allocation.c -o obj/test_dispatch_allocation -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+I passed dispatch wrapper allocation failure and recovery checks.
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.563s
+
+OK
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include $(pkg-config --cflags SDL2_mixer) -pthread tests/nanovm/test_mixer_callbacks.c src/runtime/callback_runtime.c modules/sdl_mixer/sdl_mixer_operations.c -o obj/test_mixer_callbacks -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib $(pkg-config --libs SDL2_mixer)
+I passed post-mix retention, replacement, allocation failure, audio-lock clearing, buffer mutation and late cancellation checks.
+...
+----------------------------------------------------------------------
+Ran 3 tests in 3.967s
+
+OK
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.224s
+
+OK
+==========================================
+NanoVM example coverage
+==========================================
+
+Examples on disk: 248   eligible: 244   excluded: 4
+
+Test 1: VM build covers the whole example tree
+  ✓ every example is either built or explicitly declared
+
+Test 2: every eligible example compiles to NanoISA bytecode
+  ❌ 1 of 244 eligible examples did not compile:
+       language/nl_affine_resource_demo.nano: exit 1: I could not compile shadows at line 28: I require one borrowed helper in my source borrow profile
+       Fix the NanoVirt/compiler gap rather than excluding the example.
+
+Test 3: every exclusion is still genuinely ineligible
+  ✓ all 4 exclusions still fail to compile
+
+Test 4: exclusions are broken sources, not NanoVirt gaps
+  ✓ no exclusion compiles natively
+
+Test 5: deeply nested statements compile without crashing
+  ✓ 400 levels of nesting compiled
+  ✓ and executes correctly (acc = 400)
+
+Test 6: VM builtins that examples depend on
+  ✓ tmp_dir, mktemp and the GPU geometry intrinsics compile
+  ✓ and return the documented host-target values
+
+==========================================
+❌ NanoVM example coverage: 1 check(s) failed
+make[1]: *** [test-vm-examples] Error 1
+make: *** [test-quick] Error 2
+
+real	31m14.353s
+user	7m1.156s
+sys	2m6.450s
+finished_utc=2026-09-18T12:21:02Z
+exit_status=2

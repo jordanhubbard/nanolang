@@ -1,0 +1,154 @@
+{
+  "attempt_count": 0,
+  "completed_at": null,
+  "created_at": "2026-09-24T20:18:02.096246+00:00",
+  "created_by_human": null,
+  "dependencies": [],
+  "description": "Canonical aggregate-global repair exposes three C-seed comparator failures in tests/test_canonical_aggregate_globals.py: a record global initialized by a function emits static struct state without its nominal type; a nongeneric union global is rejected as declared struct versus union; the unchanged string_map_global.nano fixture fails retained old string after map replacement in the C-seed comparison (the baseline did not identify its execution phase). Diagnose each independently, preserve the source fixtures and canonical/native/VM comparisons, fix reference checker/emitter or interpreter ownership as demonstrated, and retain failures and instrumented evidence. Native aggregate-global task task_95796f5f49564ed4a911fd05a1aac5b4 remains the parent qualification context. Local repair resolves nominal globals, emits exact nominal storage and snapshots returned map strings. The retained 74-method ordinary and 21-method generated-product sanitizer comparisons pass. Final post-tagged-map translator/emitter gates are being completed; evidence: docs/evidence/pr522-implementation-2026-09-23/aggregate-globals.",
+  "id": "task_1a6cfd339c65477788aff06ee00b980c",
+  "last_updated_at": "2026-09-24T20:44:30.103857+00:00",
+  "lease_id": null,
+  "leased_until": null,
+  "max_attempts": 3,
+  "metadata": {
+    "acc_metadata": {
+      "repository_contract_project": "nanolang",
+      "repository_contract_schema": "mac.repository_contract.v1",
+      "workflow_role": "work"
+    },
+    "execution_contract": {
+      "evidence_type": "repo_change",
+      "quality": "strong",
+      "repository_contract": {
+        "bootstrap": {
+          "command": "make build",
+          "creates": [
+            "bin/nanoc",
+            "bin/nano"
+          ]
+        },
+        "canonical_remote_url": "git@github.com:jordanhubbard/nanolang.git",
+        "contract_path": ".mac/project.yaml",
+        "default_branch": "main",
+        "evidence": {
+          "required": [
+            "repo.head_sha",
+            "repo.pushed",
+            "repo.dirty",
+            "repo.files_changed",
+            "tests"
+          ]
+        },
+        "platforms": [
+          "darwin",
+          "linux",
+          "wsl2"
+        ],
+        "project": "nanolang",
+        "schema": "mac.repository_contract.v1",
+        "test": {
+          "command": "make test-quick"
+        },
+        "toolchain": {
+          "required_commands": [
+            "python3",
+            "git",
+            "gh",
+            "make",
+            "cc"
+          ]
+        }
+      },
+      "repository_id": "projectrepo_ea061135933c485498ca97f7724c89d9",
+      "repository_path": "/Users/jkh/.mac/src/nanolang",
+      "schema": "mac.task_execution_contract.v1",
+      "source": "registered_project",
+      "type": "repository"
+    },
+    "no_dispatch": true,
+    "origin": {
+      "repository_contract": {
+        "bootstrap": {
+          "command": "make build",
+          "creates": [
+            "bin/nanoc",
+            "bin/nano"
+          ]
+        },
+        "canonical_remote_url": "git@github.com:jordanhubbard/nanolang.git",
+        "contract_path": ".mac/project.yaml",
+        "default_branch": "main",
+        "evidence": {
+          "required": [
+            "repo.head_sha",
+            "repo.pushed",
+            "repo.dirty",
+            "repo.files_changed",
+            "tests"
+          ]
+        },
+        "platforms": [
+          "darwin",
+          "linux",
+          "wsl2"
+        ],
+        "project": "nanolang",
+        "schema": "mac.repository_contract.v1",
+        "test": {
+          "command": "make test-quick"
+        },
+        "toolchain": {
+          "required_commands": [
+            "python3",
+            "git",
+            "gh",
+            "make",
+            "cc"
+          ]
+        }
+      },
+      "repository_id": "projectrepo_ea061135933c485498ca97f7724c89d9",
+      "repository_name": "nanolang",
+      "repository_path": "/Users/jkh/.mac/src/nanolang",
+      "source": "repo-nanolang",
+      "type": "direct_task"
+    },
+    "plan_first": true,
+    "scientific_optimizer": {
+      "arm": "treatment",
+      "assigned_at": "2026-09-24T20:18:02.100488+00:00",
+      "experiment_id": "experiment_310b4390019d4393985873719896c517",
+      "phase": "experiment",
+      "policy_id": "policy_fc4dd1a01e7140d1b86cb5647e936458",
+      "propensity": 0.1,
+      "schema": "mac.scientific_assignment.v1",
+      "stratum": "unknown:strong",
+      "task_id": "task_1a6cfd339c65477788aff06ee00b980c"
+    },
+    "scientific_policy": {
+      "name": "auto-cycles-to-accept",
+      "policy_id": "policy_fc4dd1a01e7140d1b86cb5647e936458",
+      "schema": "mac.scientific_policy.v1",
+      "version": 1
+    },
+    "toolchain_requirements": {
+      "required_commands": [
+        "python3",
+        "git",
+        "gh",
+        "make",
+        "cc"
+      ],
+      "schema": "mac.task_toolchain_requirements.v1",
+      "source": "repository_contract.toolchain.required_commands"
+    }
+  },
+  "owner_agent_id": null,
+  "priority": 1,
+  "project": "nanolang",
+  "required_capabilities": [],
+  "started_at": null,
+  "state": "open",
+  "title": "Restore C-seed parity for aggregate globals and retained map strings",
+  "updated_at": "2026-09-24T20:44:30.103857+00:00"
+}

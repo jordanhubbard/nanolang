@@ -10,6 +10,7 @@
 #ifndef NANOVM_COP_PROTOCOL_H
 #define NANOVM_COP_PROTOCOL_H
 
+#include "cop_opaque.h"
 #include "value.h"
 #include "heap.h"
 #include "../nanoisa/nvm_format.h"
@@ -88,6 +89,25 @@ bool cop_execute_request(const uint8_t *request, uint32_t size,
                           const NvmModule *module, VmHeap *heap,
                           uint8_t **reply, uint32_t *reply_size,
                           char *error, size_t error_size);
+
+/* My scalar batch preflight bounds every reply before foreign entry. */
+static inline uint32_t cop_scalar_reply_size(uint8_t tag) {
+    switch (tag) {
+    case TAG_VOID: return 1;
+    case TAG_BOOL: case TAG_U8: return 2;
+    case TAG_INT: case TAG_ENUM: case TAG_FLOAT: case TAG_OPAQUE: return 9;
+    default: return 0;
+    }
+}
+
+/* My process adapters supply authority; the stateless codec supplies none. */
+bool cop_apply_call_reply_owned(const uint8_t *buf, uint32_t size, NanoValue *args,
+                                uint8_t argc, NanoValue *result, VmHeap *heap,
+                                CopOpaqueOwner *owner, uint8_t result_tag);
+bool cop_execute_request_owned(const uint8_t *request, uint32_t size,
+                               const NvmModule *module, VmHeap *heap,
+                               uint8_t **reply, uint32_t *reply_size,
+                               char *error, size_t error_size, CopOpaqueWorker *worker);
 
 /* ========================================================================
  * Shared-Memory Mailbox (fast path)
@@ -194,6 +214,11 @@ bool cop_send_simple(int fd, CopMsgType type);
 /* I bound the entire parent exchange by one monotonic deadline. These owned
  * pipe endpoints must not be used concurrently. On success the caller owns
  * *reply; on failure it must close/reset the channel (a frame may be partial). */
+/* Reserved storage remains caller-owned on success and failure. */
+bool cop_exchange_reserved(int send_fd, int recv_fd, const uint8_t *request,
+                           uint32_t size, int timeout_ms, CopMsgType *type,
+                           uint8_t **reply, uint32_t *reply_size,
+                           uint8_t *storage, uint32_t capacity);
 bool cop_exchange(int send_fd, int recv_fd, const uint8_t *request, uint32_t size,
                    int timeout_ms, CopMsgType *type, uint8_t **reply, uint32_t *reply_size);
 /* send_fd == -1 receives an already-computed spill reply without sending. */

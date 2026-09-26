@@ -1,0 +1,14 @@
+{
+  "pin": "bae599477588b57b89159e10f03d5f5518ca6093",
+  "host": "linux",
+  "environment": {
+    "TMPDIR": "/tmp/nanolang-native-sdk-bae59-linux-preparation/tmp",
+    "CC": "/usr/bin/gcc",
+    "NANO_CC": "/usr/bin/gcc",
+    "NANOLANG_SDK_ROOT": "/tmp/nanolang-native-sdk-bae59-linux-source",
+    "NANO_SHADOW_TIMING": null,
+    "NANO_SHADOW_TIMEOUT_SECONDS": null,
+    "NANO_SDK_MIN_FREE_BYTES": "2147483648"
+  },
+  "scope": "fresh corrected completion controls then full integrated build/bootstrap; ordinary full providers, helper-only sanitizer"
+}

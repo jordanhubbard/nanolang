@@ -1,0 +1,127 @@
+diff --git a/src/env.c b/src/env.c
+index 991a82103..1b64809ee 100644
+--- a/src/env.c
++++ b/src/env.c
+@@ -807,66 +807,34 @@ bool env_array_push_is_builtin(Environment *env, int line, int column) {
+     return !function || !function->body;
+ }
+ 
+-/* Value creation functions */
++/* I construct scalar returns directly without a temporary Value stack object. */
+ Value create_int(long long val) {
+-    Value v;
+-    v.type = VAL_INT;
+-    v.is_return = false;
+-    v.is_break = false;
+-    v.is_continue = false;
+-    v.as.int_val = val;
+-    return v;
++    return (Value){.type = VAL_INT, .as.int_val = val};
+ }
+ 
+ Value create_float(double val) {
+-    Value v;
+-    v.type = VAL_FLOAT;
+-    v.is_return = false;
+-    v.is_break = false;
+-    v.is_continue = false;
+-    v.as.float_val = val;
+-    return v;
++    return (Value){.type = VAL_FLOAT, .as.float_val = val};
+ }
+ 
+ Value create_bool(bool val) {
+-    Value v;
+-    v.type = VAL_BOOL;
+-    v.is_return = false;
+-    v.is_break = false;
+-    v.is_continue = false;
+-    v.as.bool_val = val;
+-    return v;
++    return (Value){.type = VAL_BOOL, .as.bool_val = val};
+ }
+ 
+ Value create_string(const char *val) {
+-    Value v;
+-    v.type = VAL_STRING;
+-    v.is_return = false;
+-    v.is_break = false;
+-    v.is_continue = false;
+-
+-    /* Use GC allocation for all dynamically created strings */
++    /* I retain the existing fresh allocation and empty-string fallback. */
+     size_t len = strlen(val);
+     char *gc_str = gc_alloc_string(len);
+     if (gc_str) {
+         memcpy(gc_str, val, len);
+         gc_str[len] = '\0';
+-        v.as.string_val = gc_str;
+     } else {
+-        /* Fallback to empty string on allocation failure */
+-        v.as.string_val = gc_alloc_string(0);
++        gc_str = gc_alloc_string(0);
+     }
+-
+-    return v;
++    return (Value){.type = VAL_STRING, .as.string_val = gc_str};
+ }
+ 
+ Value create_void(void) {
+-    Value v;
+-    v.type = VAL_VOID;
+-    v.is_return = false;
+-    v.is_break = false;
+-    v.is_continue = false;
+-    return v;
++    return (Value){.type = VAL_VOID};
+ }
+ 
+ Value create_array(ValueType elem_type, int length, int capacity) {
+@@ -896,37 +864,32 @@ Value create_array(ValueType elem_type, int length, int capacity) {
+ }
+ 
+ Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count) {
+-    Value v;
+-    v.type = VAL_STRUCT;
+-    v.is_return = false;
+-    v.is_break = false;
+-    v.is_continue = false;
+-    v.as.struct_val = malloc(sizeof(StructValue));
+-    v.as.struct_val->struct_name = strdup(struct_name);
+-    v.as.struct_val->field_count = field_count;
++    StructValue *structure = malloc(sizeof(StructValue));
++    structure->struct_name = strdup(struct_name);
++    structure->field_count = field_count;
+     
+     /* Allocate and copy field names */
+-    v.as.struct_val->field_names = malloc(sizeof(char*) * field_count);
++    structure->field_names = malloc(sizeof(char*) * field_count);
+     for (int i = 0; i < field_count; i++) {
+-        v.as.struct_val->field_names[i] = strdup(field_names[i]);
++        structure->field_names[i] = strdup(field_names[i]);
+     }
+     
+     /* Allocate and copy field values */
+-    v.as.struct_val->field_values = malloc(sizeof(Value) * field_count);
++    structure->field_values = malloc(sizeof(Value) * field_count);
+     for (int i = 0; i < field_count; i++) {
+         if (field_values[i].type == VAL_STRING) {
+             const char *src = field_values[i].as.string_val ? field_values[i].as.string_val : "";
+-            v.as.struct_val->field_values[i] = create_string(src);
++            structure->field_values[i] = create_string(src);
+         } else if (field_values[i].type == VAL_STRUCT && field_values[i].as.struct_val) {
+             StructValue *nested = field_values[i].as.struct_val;
+-            v.as.struct_val->field_values[i] = create_struct(nested->struct_name,
++            structure->field_values[i] = create_struct(nested->struct_name,
+                 nested->field_names, nested->field_values, nested->field_count);
+         } else {
+-            v.as.struct_val->field_values[i] = field_values[i];
++            structure->field_values[i] = field_values[i];
+         }
+     }
+     
+-    return v;
++    return (Value){.type = VAL_STRUCT, .as.struct_val = structure};
+ }
+ 
+ Value create_union(const char *union_name, int variant_index, const char *variant_name, 

@@ -1,0 +1,18 @@
+In file included from /tmp/nanolang-native-sdk-ddc1d-linux-source/tests/extern_declaration_owners.c:14:
+/tmp/nanolang-native-sdk-ddc1d-linux-source/tests/../src/typechecker.c: In function ‘type_check_module_impl’:
+/tmp/nanolang-native-sdk-ddc1d-linux-source/tests/../src/typechecker.c:9620:44: error: argument 1 range [18446744071562067968, 18446744073709551615] exceeds maximum object size 9223372036854775807 [-Werror=alloc-size-larger-than=]
+ 9620 |             udef.variant_field_type_info = calloc((size_t)udef.variant_count, sizeof(TypeInfo **));
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from src/nanolang.h:11,
+                 from /tmp/nanolang-native-sdk-ddc1d-linux-source/tests/extern_declaration_owners.c:2:
+/usr/include/stdlib.h:675:14: note: in a call to allocation function ‘calloc’ declared here
+  675 | extern void *calloc (size_t __nmemb, size_t __size)
+      |              ^~~~~~
+/tmp/nanolang-native-sdk-ddc1d-linux-source/tests/../src/typechecker.c: In function ‘type_check_program_impl’:
+/tmp/nanolang-native-sdk-ddc1d-linux-source/tests/../src/typechecker.c:8746:44: error: argument 1 range [18446744071562067968, 18446744073709551615] exceeds maximum object size 9223372036854775807 [-Werror=alloc-size-larger-than=]
+ 8746 |             udef.variant_field_type_info = calloc((size_t)udef.variant_count, sizeof(TypeInfo **));
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/stdlib.h:675:14: note: in a call to allocation function ‘calloc’ declared here
+  675 | extern void *calloc (size_t __nmemb, size_t __size)
+      |              ^~~~~~
+cc1: all warnings being treated as errors

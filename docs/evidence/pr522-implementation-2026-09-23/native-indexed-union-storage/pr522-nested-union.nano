@@ -1,0 +1,11 @@
+union Box<T> { Some { value: T }, None {} }
+struct Outer { boxed: Box<Box<int>> }
+fn main() -> int {
+ let outer: Outer = Outer { boxed: Box.Some { value: Box.Some { value: 42 } } }
+ let boxed: Box<Box<int>> = outer.boxed
+ match boxed { Some(p) => {
+  let inner: Box<int> = p.value
+  match inner { Some(q) => { return (- q.value 42) } None(n) => { return 1 } }
+ } None(n) => { return 2 } }
+}
+shadow main { assert (== (main) 0) }

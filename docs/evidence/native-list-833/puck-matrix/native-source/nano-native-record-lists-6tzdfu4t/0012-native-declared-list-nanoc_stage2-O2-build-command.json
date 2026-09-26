@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/Users/jkh/nanolang-qualification/record-lists-qualified-833/bin/nanoc_stage2",
+    "/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/native-source/nano-native-record-lists-6tzdfu4t/native-declared-list.nano",
+    "-o",
+    "/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/native-source/nano-native-record-lists-6tzdfu4t/native-declared-list-nanoc_stage2-O2",
+    "--keep-c"
+  ],
+  "cwd": "/Users/jkh/nanolang-qualification/record-lists-qualified-833",
+  "timeout": 300,
+  "expected": [
+    0
+  ],
+  "extra": {
+    "NATIVE_LIST_TOOL_CONFIG": "{\"cc\": [\"/usr/bin/clang\"], \"flags\": [\"-isysroot\", \"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk\"], \"links\": [\"-lm\", \"-lcrypto\", \"-lffi\", \"-L/opt/homebrew/opt/openssl@3/lib\"], \"optimization\": \"-O2\", \"reports\": \"/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/native-source/nano-native-record-lists-6tzdfu4t\"}",
+    "NANO_CC": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/native-source/nano-native-record-lists-6tzdfu4t/native-cc.py"
+  },
+  "TMPDIR": "/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/native-source/nano-native-record-lists-6tzdfu4t/temporary",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

@@ -103,7 +103,7 @@ pub fn peg2_compile(grammar_src: string) -> Peg2Grammar {
 }
 
 shadow peg2_compile {
-    let g = (peg2_compile "word <- [a-zA-Z]+")
+    let g: Peg2Grammar = (peg2_compile "word <- [a-zA-Z]+")
     assert (peg2_matches g "hello")
     assert (not (peg2_matches g "123"))
     (peg2_free g)
@@ -117,7 +117,7 @@ pub fn peg2_free(g: Peg2Grammar) -> void {
 }
 
 shadow peg2_free {
-    let g = (peg2_compile "x <- \"a\"")
+    let g: Peg2Grammar = (peg2_compile "x <- \"a\"")
     (peg2_free g)
     assert true
 }
@@ -141,7 +141,7 @@ pub fn peg2_parse(g: Peg2Grammar, input: string) -> Peg2Result {
 }
 
 shadow peg2_parse {
-    let g = (peg2_compile "num <- [0-9]+")
+    let g: Peg2Grammar = (peg2_compile "num <- [0-9]+")
     let r1 = (peg2_parse g "42")
     assert r1.ok
     assert (== r1.tree.rule_name "num")
@@ -170,7 +170,7 @@ pub fn peg2_find(g: Peg2Grammar, input: string) -> Peg2Result {
 }
 
 shadow peg2_find {
-    let g = (peg2_compile "num <- [0-9]+")
+    let g: Peg2Grammar = (peg2_compile "num <- [0-9]+")
     let r = (peg2_find g "abc 42 xyz")
     assert r.ok
     assert (== r.tree.start 4)
@@ -188,7 +188,7 @@ pub fn peg2_matches(g: Peg2Grammar, input: string) -> bool {
 }
 
 shadow peg2_matches {
-    let g = (peg2_compile "id <- [a-zA-Z_][a-zA-Z0-9_]*")
+    let g: Peg2Grammar = (peg2_compile "id <- [a-zA-Z_][a-zA-Z0-9_]*")
     assert (peg2_matches g "hello")
     assert (peg2_matches g "_x1")
     assert (not (peg2_matches g "1bad"))
@@ -204,7 +204,7 @@ pub fn peg2_text(node: Peg2Node, input: string) -> string {
 }
 
 shadow peg2_text {
-    let g = (peg2_compile "word <- [a-z]+")
+    let g: Peg2Grammar = (peg2_compile "word <- [a-z]+")
     let r = (peg2_parse g "hello")
     assert r.ok
     assert (== (peg2_text r.tree "hello") "hello")

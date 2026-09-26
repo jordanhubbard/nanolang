@@ -1,0 +1,18 @@
+{
+  "shadow-status-tests.log": {
+    "sha256": "0541d7ecbb065a3bbdbd3a9d77791d539f01cd844d862b70586ac6900f63d4fe",
+    "bytes": 2477
+  },
+  "shadow-status-profile.log": {
+    "sha256": "635c12ae891709b1353d25b49719ed034d60183176691d715e3029366c37f42b",
+    "bytes": 111658
+  },
+  "shadow-status-instrument-build.log": {
+    "sha256": "f2bbdaa5ca012708407fd421781fd24b518ba4be7c647c77b228509eac171e43",
+    "bytes": 4649
+  },
+  "shadow-status-focused.log": {
+    "sha256": "c231d17565e032a9270591eb0f1b3c7872ffc338cbf33ff8256610b044208a68",
+    "bytes": 370
+  }
+}

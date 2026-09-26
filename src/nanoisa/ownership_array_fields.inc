@@ -12,14 +12,17 @@ struct NvmOrdinaryArrayAuthority {
     uint8_t flags[NVM_OWNERSHIP_LAYOUTS_PRIVATE_MAX_LAYOUTS];
     uint32_t type_count, binding_count, steps;
     NvmOrdinaryArrayStatus failure;
-    bool unknown;
+    bool unknown, typed, foreign_unresolved;
+    NvmPreparationBudget *budget; /* Preparation-local; cleared before publication. */
 };
 static bool oaa_charge(NvmOrdinaryArrayAuthority *p,uint32_t n) {
     if(n>OAA_STEPS-p->steps){p->failure=NVM_OAA_LIMIT;return false;}
+    if(p->budget&&!nvm_preparation_charge(p->budget,0,n)){p->failure=NVM_OAA_LIMIT;return false;}
     p->steps+=n;return true;
 }
 static NvmV2Result oaa_array_fields(NvmOwnershipExtensionView view,
-                                   NvmOrdinaryArrayAuthority *p) {
+                                   NvmOrdinaryArrayAuthority *p,uint16_t revision) {
+    bool typed=p->typed && revision==2;
     NvmV2Cursor c;nvm_v2_cursor_init(&c,view.data,view.size);
     uint32_t types,bindings;NvmV2Result r;
     if((r=nvm_v2_u32(&c,&types))!=NVM_V2_OK)return r;
@@ -37,6 +40,7 @@ static NvmV2Result oaa_array_fields(NvmOwnershipExtensionView view,
     /* Fixed ceilings make these products representable on wasm32 and native. */
     size_t extra=(size_t)types*sizeof *p->types+(size_t)bindings*sizeof *p->bindings;
     if(bytes>OAA_BYTES || extra>OAA_BYTES-bytes){p->failure=NVM_OAA_LIMIT;return NVM_V2_ERR_INDEX_RANGE;}
+    if(p->budget&&!nvm_preparation_charge(p->budget,extra,0)){p->failure=NVM_OAA_LIMIT;return NVM_V2_ERR_INDEX_RANGE;}
     p->type_count=types;p->binding_count=bindings;
     if(types)p->types=calloc(types,sizeof *p->types);
     if(bindings)p->bindings=calloc(bindings,sizeof *p->bindings);
@@ -49,7 +53,13 @@ static NvmV2Result oaa_array_fields(NvmOwnershipExtensionView view,
            (r=nvm_v2_u16(&t,&zz))!=NVM_V2_OK || (r=nvm_v2_u32(&t,&ref))!=NVM_V2_OK)return r;
         if(z||zz)return NVM_V2_ERR_RESERVED_FLAGS;
         if(scalar(tag)||tag==TAG_STRING){if(ref!=NVM_V2_NO_INDEX)return NVM_V2_ERR_INDEX_RANGE;}
-        else if(tag==TAG_ARRAY){if(ref>=types)return NVM_V2_ERR_INDEX_RANGE;p->unknown=true;}
+        else if(tag==TAG_ARRAY){if(ref>=types)return NVM_V2_ERR_INDEX_RANGE;if(!typed)p->unknown=true;}
+        else if(typed && nvm_ownership_nominal_layout_kind(tag)>=0) {
+            if(ref>=p->layouts.count || p->layouts.items[ref].kind!=(uint8_t)nvm_ownership_nominal_layout_kind(tag))return NVM_V2_ERR_SECTION_TYPE;
+        } else if(typed && (tag==TAG_OPAQUE || tag==TAG_FUNCTION)) {
+            if(ref>=65536u)return NVM_V2_ERR_INDEX_RANGE;
+            p->foreign_unresolved=true;
+        }
         else if(tag==TAG_STRUCT){
             if(ref>=p->layouts.count || p->layouts.items[ref].kind!=NVM_V2_LAYOUT_STRUCT ||
                p->flags[ref]!=NVM_LAYOUT_COMPLETE)return NVM_V2_ERR_SECTION_TYPE;
@@ -80,8 +90,8 @@ static NvmV2Result oaa_array_fields(NvmOwnershipExtensionView view,
         if((r=nvm_v2_u32(&t,&layout))!=NVM_V2_OK || (r=nvm_v2_u16(&t,&field))!=NVM_V2_OK ||
            (r=nvm_v2_u16(&t,&z))!=NVM_V2_OK || (r=nvm_v2_u32(&t,&element))!=NVM_V2_OK)return r;
         if(z)return NVM_V2_ERR_RESERVED_FLAGS;
-        if(layout>=p->layouts.count || element>=types || p->flags[layout]!=NVM_LAYOUT_COMPLETE ||
-           p->layouts.items[layout].kind!=NVM_V2_LAYOUT_STRUCT || field>=p->layouts.items[layout].field_count ||
+        if(layout>=p->layouts.count || element>=types || (!typed && p->flags[layout]!=NVM_LAYOUT_COMPLETE) ||
+           (!typed && p->layouts.items[layout].kind!=NVM_V2_LAYOUT_STRUCT) || field>=p->layouts.items[layout].field_count ||
            p->layouts.items[layout].fields[field].type_tag!=TAG_ARRAY)return NVM_V2_ERR_SECTION_TYPE;
         if(i && (layout<p->bindings[i-1].layout || (layout==p->bindings[i-1].layout && field<=p->bindings[i-1].field)))return NVM_V2_ERR_SECTION_TYPE;
         p->bindings[i]=(NvmOrdinaryArrayBinding){layout,field,element};
@@ -89,7 +99,7 @@ static NvmV2Result oaa_array_fields(NvmOwnershipExtensionView view,
     uint32_t next=0;
     for(uint32_t i=0;i<p->layouts.count;i++)for(uint16_t f=0;f<p->layouts.items[i].field_count;f++) {
         if(!oaa_charge(p,1))return NVM_V2_ERR_INDEX_RANGE;
-        if(p->flags[i]==NVM_LAYOUT_COMPLETE && p->layouts.items[i].fields[f].type_tag==TAG_ARRAY) {
+        if((typed || p->flags[i]==NVM_LAYOUT_COMPLETE) && p->layouts.items[i].fields[f].type_tag==TAG_ARRAY) {
             if(next>=bindings || p->bindings[next].layout!=i || p->bindings[next].field!=f)return NVM_V2_ERR_SECTION_TYPE;
             next++;
         }

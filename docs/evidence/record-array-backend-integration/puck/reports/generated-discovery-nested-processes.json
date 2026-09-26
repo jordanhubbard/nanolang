@@ -1,0 +1,12 @@
+{
+  "cleanup": [],
+  "owned": {
+    "90237": {
+      "command": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python -c import unittest;from tests import test_record_array_generated as m;s=unittest.defaultTestLoader.loadTestsFromModule(m);print(s.countTestCases());assert s.countTestCases()==2",
+      "group": 90237,
+      "parent": 89766,
+      "started": "Mon Sep 21 07:31:29 2026"
+    }
+  },
+  "remaining": []
+}

@@ -1,0 +1,6 @@
+/opt/homebrew/opt/llvm/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -std=c11 -I/Users/jkh/nanolang-qualification/record-lists-qualified-833/src -c /Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/fixture/temporary/nano-binary64-arithmetic-jyrui481/guard.c -o /Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/fixture/temporary/nano-binary64-arithmetic-jyrui481/guard.o -ffast-math
+In file included from /Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/fixture/temporary/nano-binary64-arithmetic-jyrui481/guard.c:1:
+/Users/jkh/nanolang-qualification/record-lists-qualified-833/src/binary64_arithmetic.h:9:2: error: "I require ordinary IEEE arithmetic without fast-math."
+    9 | #error "I require ordinary IEEE arithmetic without fast-math."
+      |  ^
+1 error generated.

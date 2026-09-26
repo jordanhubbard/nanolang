@@ -10,6 +10,42 @@ SCALARS = {"int": "7", "float": "1.5", "bool": "true", "string": '"value"'}
 
 
 class ArrayCompatibility(unittest.TestCase):
+    def test_c_seed_contextually_checks_nested_empty_push(self):
+        with tempfile.TemporaryDirectory(prefix="nano-nested-empty-push-") as d:
+            root = Path(d)
+            accepted = root / "accepted.nano"
+            accepted.write_text('''fn main() -> int {
+ let mut rows: array<array<int>> = []
+ set rows (array_push rows [])
+ return (array_length (at rows 0))
+}
+shadow main { assert (== (main) 0) }
+''')
+            executable = root / "accepted"
+            run = subprocess.run([str(ROOT / "bin/nanoc_c"), str(accepted),
+                                  "-o", str(executable)], cwd=ROOT,
+                                 capture_output=True, text=True, timeout=120)
+            self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+            ran = subprocess.run([str(executable)], capture_output=True,
+                                 text=True, timeout=10)
+            self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
+
+            refused = root / "refused.nano"
+            refused.write_text('''fn main() -> int {
+ let mut rows: array<array<int>> = [[1]]
+ set rows (array_push rows [true])
+ return 0
+}
+shadow main { assert true }
+''')
+            prior = root / "prior"
+            prior.write_text("previous")
+            run = subprocess.run([str(ROOT / "bin/nanoc_c"), str(refused),
+                                  "-o", str(prior)], cwd=ROOT,
+                                 capture_output=True, text=True, timeout=120)
+            self.assertNotEqual(run.returncode, 0)
+            self.assertEqual(prior.read_text(), "previous")
+
     def test_pr294_incremental_cube(self):
         with tempfile.TemporaryDirectory(prefix="nano-incremental-cube-") as d:
             output = Path(d) / "program"
@@ -85,6 +121,10 @@ fn main() -> int {
     let filled = (array_push (at fractional 0) 2.5)
     assert (== (at filled 0) 2.5)
     assert (== (at (at fractional 1) 0) 1.5)
+    let inferred = [[3.5]]
+    assert (== (at (at inferred 0) 0) 3.5)
+    let repeated: array<array<int>> = (array_new 2 [21, 22])
+    assert (== (at (at repeated 1) 0) 21)
     return 0
 }
 shadow main { assert (== (main) 0) }

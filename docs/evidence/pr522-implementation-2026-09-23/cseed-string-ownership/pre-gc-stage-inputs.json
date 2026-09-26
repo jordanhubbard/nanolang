@@ -1,0 +1,11 @@
+{
+  "compiler_sha256": "48281bf42602e9739406fd7bf20033be5174faee8481a158a0608eb767c2adb4",
+  "smoke_exit": 0,
+  "environment": {
+    "NANO_CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all",
+    "NANO_LDFLAGS": "-fsanitize=address,undefined",
+    "ASAN_OPTIONS": "detect_leaks=1:detect_stack_use_after_return=1",
+    "UBSAN_OPTIONS": "halt_on_error=1"
+  }
+}

@@ -1,0 +1,22 @@
+import "left.nano" as left
+import "left.nano" as again
+import "right.nano" as right
+struct Holder { values: List<left.Item>, value: left.Item }
+fn forward(xs: List<left.Item>) -> List<left.Item> { return xs }
+shadow forward { assert (== (left.read_list (forward (left.make_list))) 7) }
+fn invoke(f: fn(left.Item) -> int, value: left.Item) -> int { return (f value) }
+shadow invoke { assert (== (invoke left.read (left.make 7)) 7) }
+fn main() -> int {
+    let original: left.Item = (left.make 7)
+    let alias: again.Item = original
+    let mut values: List<left.Item> = (left.make_list)
+    set values (forward values)
+    let holder: Holder = Holder { values: values, value: alias }
+    assert (== (left.read holder.value) 7)
+    assert (== (left.read_list holder.values) 7)
+    let read: fn(left.Item) -> int = left.read
+    assert (== (invoke read alias) 7)
+    assert (== (right.read (right.make 8)) 8)
+    return 0
+}
+shadow main { assert (== (main) 0) }

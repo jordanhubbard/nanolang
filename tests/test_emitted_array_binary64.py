@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """I qualify my real emitted array helpers without building a compiler stage."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import hashlib
 import json
 import os
@@ -33,7 +37,7 @@ identities[str(Path(shutil.which(CC[0])).resolve())] = digest(shutil.which(CC[0]
 def run(label, args):
     start = time.monotonic()
     result = subprocess.run(args, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                            env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1:halt_on_error=1',
+                            env={**os.environ, 'ASAN_OPTIONS':asan_options("halt_on_error=1"),
                                  'UBSAN_OPTIONS':'halt_on_error=1'}, timeout=180)
     (OUT/(label+'.log')).write_bytes(result.stdout)
     records.append(dict(label=label, command=list(map(str,args)), status=result.returncode,

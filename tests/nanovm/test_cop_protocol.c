@@ -420,6 +420,10 @@ TEST(serialize_array_roundtrip) {
     ASSERT(out.as.array != NULL);
     ASSERT(out.as.array->length == 3);
 
+    vm_release(&heap, v);
+    vm_release(&heap2, out);
+    ASSERT(heap.stats.num_objects == 0);
+    ASSERT(heap2.stats.num_objects == 0);
     vm_heap_destroy(&heap);
     vm_heap_destroy(&heap2);
 }

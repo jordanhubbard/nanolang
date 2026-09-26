@@ -1,0 +1,14 @@
+struct Item { text: string, number: int }
+async fn identity(value: Item) -> Item { return value }
+shadow identity { assert (== (identity Item { text: "async", number: 7 }).number 7) }
+async fn nested(value: Item) -> Item { return (identity value) }
+shadow nested { assert (== (nested Item { text: "nested", number: 8 }).text "nested") }
+fn main() -> int {
+    for i in (range 0 130) {
+        let value: Item = (nested Item { text: "kept", number: i })
+        assert (== value.text "kept")
+        assert (== value.number i)
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }

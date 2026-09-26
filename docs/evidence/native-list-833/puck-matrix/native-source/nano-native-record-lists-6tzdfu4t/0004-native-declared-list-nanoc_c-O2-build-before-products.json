@@ -1,0 +1,38 @@
+{
+  "native-cc.py": {
+    "sha256": "d2a0ed252e09ad8fd35b2e9ad60ab964a6bf7f92b6dfba2eda095755c7ce253a",
+    "bytes": 537
+  },
+  "native-declared-list-nanoc_c-O0": {
+    "sha256": "b5aa479843d10dd4e4a1ba90cba2598baf9959fbb85fd9aca016e6797528ea56",
+    "bytes": 8686272
+  },
+  "native-declared-list-nanoc_c-O0.c": {
+    "sha256": "60e66189f6559c960f8950bf5d225655f56cd914af52bebf8d1ae5dcfb5ff243",
+    "bytes": 65971
+  },
+  "native-declared-list-nanoc_c-O2": {
+    "sha256": "d1f04e85c927f1a0b95bbd5cfe8fad92d921b3a20b88bb4c7586155f638abb7e",
+    "bytes": 30
+  },
+  "native-declared-list.nano": {
+    "sha256": "1c486c7aea925375fd23df05be65bd7dc36f785d6ccef097850899fbc69a9c66",
+    "bytes": 402
+  },
+  "native-storage": {
+    "sha256": "a35708d9afed85a25619661a5ceee90b2bbd515e1719fa1a17d57e85a6f392da",
+    "bytes": 55648
+  },
+  "native-storage.dSYM/Contents/Info.plist": {
+    "sha256": "665393eaa4443981cadf57323e7c35a7b918e0c2dce322a53f2b8bb49cb96dfe",
+    "bytes": 643
+  },
+  "native-storage.dSYM/Contents/Resources/DWARF/native-storage": {
+    "sha256": "9d930087b00b3d40ee1c517b891db74e9db3a871b14af3a4f87b42bba4ac4986",
+    "bytes": 18004
+  },
+  "native-storage.dSYM/Contents/Resources/Relocations/aarch64/native-storage.yml": {
+    "sha256": "0158f80a85f68127daaa732643fcbc590e4380cf0e4deba38ba7f213764b238d",
+    "bytes": 211
+  }
+}

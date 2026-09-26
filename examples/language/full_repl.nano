@@ -7,10 +7,10 @@
 # Expected Output: interactive
 
 from "modules/readline/readline.nano" import rl_readline, rl_add_history, rl_read_history, rl_write_history, rl_stifle_history, rl_append_history
-from "modules/nano_tools/nano_tools.nano" import eval_internal
+from "modules/nano_tools/nano_tools.nano" import eval_source
 from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string, sb_clear
-from "modules/std/env.nano" import nl_os_getenv
-from "modules/std/fs.nano" import file_read, file_write
+from "modules/std/env.nano" import get
+from "modules/std/fs.nano" import read, write
 
 fn print_banner() -> void {
     (println "")
@@ -422,7 +422,7 @@ shadow add_to_preamble {
 fn eval_with_preamble(top_level: string, preamble: string, expr: string) -> int {
     let source: string = (wrap_with_context top_level preamble expr)
     unsafe {
-        return (eval_internal source)
+        return (eval_source source)
     }
 }
 
@@ -434,7 +434,7 @@ shadow eval_with_preamble {
 fn eval_with_preamble_float(top_level: string, preamble: string, expr: string) -> int {
     let source: string = (wrap_with_context_float top_level preamble expr)
     unsafe {
-        return (eval_internal source)
+        return (eval_source source)
     }
 }
 
@@ -446,7 +446,7 @@ shadow eval_with_preamble_float {
 fn eval_with_preamble_string(top_level: string, preamble: string, expr: string) -> int {
     let source: string = (wrap_with_context_string top_level preamble expr)
     unsafe {
-        return (eval_internal source)
+        return (eval_source source)
     }
 }
 
@@ -458,7 +458,7 @@ shadow eval_with_preamble_string {
 fn eval_with_preamble_bool(top_level: string, preamble: string, expr: string) -> int {
     let source: string = (wrap_with_context_bool top_level preamble expr)
     unsafe {
-        return (eval_internal source)
+        return (eval_source source)
     }
 }
 
@@ -602,7 +602,7 @@ shadow list_imports {
 /* ── History path helper ──────────────────────────────────────────────── */
 
 fn get_history_path() -> string {
-    let home: string = (nl_os_getenv "HOME")
+    let home: string = (get "HOME")
     if (> (str_length home) 0) {
         return (str_concat home "/.nano_history")
     }
@@ -632,7 +632,7 @@ fn save_session(preamble_sb: StringBuilder, path: string) -> int {
     (sb_append out_sb "\nfn main() -> int { return 0 }\n")
     (sb_append out_sb "shadow main { assert (== (main) 0) }\n")
 
-    let result: int = (file_write path (sb_to_string out_sb))
+    let result: int = (write path (sb_to_string out_sb))
     if (== result 0) {
         (println f"Session saved to {path}")
     } else {
@@ -651,14 +651,14 @@ shadow save_session {
 /* ── :load — read and eval a .nano source file into the session ──────── */
 
 fn load_session(preamble_sb: StringBuilder, path: string) -> int {
-    let content: string = (file_read path)
+    let content: string = (read path)
     if (== (str_length content) 0) {
         (println f"Error: could not read {path} (empty or not found)")
         return 1
     }
 
     # Eval the file content as a preamble expression
-    let status: int = (eval_internal content)
+    let status: int = (eval_source content)
     if (!= status 0) {
         (println f"Error: failed to load {path}")
         return 1
@@ -672,11 +672,11 @@ fn load_session(preamble_sb: StringBuilder, path: string) -> int {
 
 shadow load_session {
     # Write a temp file and load it
-    let ok: int = (file_write "/tmp/nano_repl_load_test.nano" "let y: int = 99\n")
+    let ok: int = (write "/tmp/nano_repl_load_test.nano" "let y: int = 99\n")
     assert (== ok 0)
     let sb: StringBuilder = (sb_new)
     let r: int = (load_session sb "/tmp/nano_repl_load_test.nano")
-    # r may be non-zero if eval_internal can't run headlessly — that's OK
+    # r may be non-zero if eval_source can't run headlessly — that's OK
     assert (>= r 0)
 }
 

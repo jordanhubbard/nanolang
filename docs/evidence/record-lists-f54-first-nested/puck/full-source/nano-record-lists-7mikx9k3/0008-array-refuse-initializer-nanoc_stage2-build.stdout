@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0001] Variable values: I expected a value of type `array<__nano_module_1_type_Item>`, but found `array<__nano_module_0_type_Item>`. (/private/tmp/nanolang-record-lists-f54-puck-matrix/full-source/nano-record-lists-7mikx9k3/array-refuse-initializer.nano:10:20)

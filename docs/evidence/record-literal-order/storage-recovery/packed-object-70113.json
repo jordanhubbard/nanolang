@@ -1,0 +1,14 @@
+{
+  "raw_path": "/tmp/nanolang-file-service-parser-final-artifacts/e9eae0cfbd0313a132bb10ba31072e2d1a0b4997960c4f8fffa3f98d84a8699f",
+  "sha256": "e9eae0cfbd0313a132bb10ba31072e2d1a0b4997960c4f8fffa3f98d84a8699f",
+  "bytes": 5881559040,
+  "mode": 420,
+  "mtime_ns": 1789916274718769402,
+  "packed_path": "/tmp/nanolang-file-service-parser-final-artifacts/e9eae0cfbd0313a132bb10ba31072e2d1a0b4997960c4f8fffa3f98d84a8699f.gz",
+  "packed_sha256": "23642a8176e9eb4a7ceee7bd2b5fdf53da3a2876e28d6e9a759aa4418e618e76",
+  "packed_bytes": 1636686693,
+  "verified_remote_host": "jkh@puck.local",
+  "verified_remote_path": "/tmp/nanolang-file-service-parser-70113.retained.tar.gz",
+  "restore_command": "gzip -dc /tmp/nanolang-file-service-parser-final-artifacts/e9eae0cfbd0313a132bb10ba31072e2d1a0b4997960c4f8fffa3f98d84a8699f.gz > /tmp/nanolang-file-service-parser-final-artifacts/e9eae0cfbd0313a132bb10ba31072e2d1a0b4997960c4f8fffa3f98d84a8699f",
+  "local_packed_copy_verified": true
+}

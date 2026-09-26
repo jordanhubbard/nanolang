@@ -1,0 +1,20 @@
+{
+  "environment": {
+    "TMPDIR": "/tmp/nanolang-split-d1e41-puck-evidence/tmp",
+    "NANOLANG_SDK_ROOT": "/tmp/nanolang-native-sdk-1ee9-puck-source",
+    "NANO_SPLIT_REPORT_DIR": "/tmp/nanolang-split-d1e41-puck-evidence",
+    "NANO_SPLIT_PRODUCER_MANIFEST": "/tmp/nanolang-split-d1e41-puck-evidence/producers.json",
+    "NANO_SHADOW_TIMING": null,
+    "NANO_SHADOW_TIMEOUT_SECONDS": null,
+    "NANO_SDK_MIN_FREE_BYTES": "2147483648",
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "CC": "/usr/bin/clang",
+    "NANO_CC": "/usr/bin/clang",
+    "PKG_CONFIG_PATH": "/opt/homebrew/opt/libffi/lib/pkgconfig:/opt/homebrew/opt/openssl@3/lib/pkgconfig",
+    "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+    "DYLD_LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  },
+  "fixture_pin": "d1e41d0e9aef2676e669421d2723f7071b45feef",
+  "retained_pin": "1ee9b0f3310d5f964bf0397a702b8839ff6a58c1"
+}

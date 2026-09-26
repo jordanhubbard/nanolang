@@ -1,0 +1,34 @@
+{
+  "array-identity": {
+    "sha256": "9b78847179cad2003518b6ace9ff7ecb1aa277d21c0224129fb6e83b5ba73eac",
+    "bytes": 10092560
+  },
+  "array-identity.dSYM/Contents/Info.plist": {
+    "sha256": "fbefd771a73c09a355feb5d7bf3d290ff40719a70e191e811316c88e4fa2de3a",
+    "bytes": 643
+  },
+  "array-identity.dSYM/Contents/Resources/DWARF/array-identity": {
+    "sha256": "e229a0a17443bbbb57421212aaaeccd10043c71cc90ca448024bd19b7ab59aa2",
+    "bytes": 2563264
+  },
+  "array-identity.dSYM/Contents/Resources/Relocations/aarch64/array-identity.yml": {
+    "sha256": "86cc262c052f10677fce3a8e89bbeb15cb264b31acb7c1467d377d87b3474a86",
+    "bytes": 195
+  },
+  "coroutine-errors": {
+    "sha256": "bb1618ffa5115861e5bf2e7e0277085862d9a1263663b41585bbd40503564a49",
+    "bytes": 37456
+  },
+  "coroutine-errors.dSYM/Contents/Info.plist": {
+    "sha256": "465ae21812d41029355f926ac40eb95150e745724cb8a3cdf2a4442baca0d3dd",
+    "bytes": 645
+  },
+  "coroutine-errors.dSYM/Contents/Resources/DWARF/coroutine-errors": {
+    "sha256": "f3ac39e14b675916664753f4fc32c850e770602bf177ccd23bf819be723cbf30",
+    "bytes": 21456
+  },
+  "coroutine-errors.dSYM/Contents/Resources/Relocations/aarch64/coroutine-errors.yml": {
+    "sha256": "c151bb721df631e106aa7d92390b3ab236dc801230a44198e79233e226bb4ae0",
+    "bytes": 197
+  }
+}

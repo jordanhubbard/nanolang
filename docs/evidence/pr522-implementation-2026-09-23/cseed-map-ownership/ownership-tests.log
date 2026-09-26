@@ -1,0 +1,9 @@
+test_counted_cleanup_failure_concurrency_and_exit (tests.test_cseed_process_ownership.CSeedProcessOwnership.test_counted_cleanup_failure_concurrency_and_exit) ... ok
+test_generated_maps_preserve_aliases_and_explicit_free (tests.test_cseed_process_ownership.CSeedProcessOwnership.test_generated_maps_preserve_aliases_and_explicit_free) ... ok
+test_aliases_failure_cleanup_concurrency_and_exit (tests.test_cseed_capture.CSeedCapture.test_aliases_failure_cleanup_concurrency_and_exit) ... ok
+test_cseed_generated_capture_product (tests.test_cseed_capture.CSeedCapture.test_cseed_generated_capture_product) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 10.806s
+
+OK

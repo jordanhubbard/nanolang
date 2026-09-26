@@ -1,0 +1,7 @@
+{
+  "compiler": [
+    "cc"
+  ],
+  "optimization": "-O0",
+  "recorder": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-7wkyqu2c/record-cc.py"
+}

@@ -92,6 +92,7 @@ static bool table_bytes(size_t count,size_t width,size_t *bytes) {
 /* I adapt only metadata. No bridge/verifier callback, renumbering or ownership
  * flag projection is involved. All pointer-array views die before return. */
 static NvmV2Result nominal_v2(const NvmV2Module *m) {
+    if (m->capture_data || m->capture_size) return NVM_V2_ERR_FEATURE_MISMATCH;
     if(m->imports.count!=NVM_SERVICE_BINDING_COUNT || !m->imports.items ||
        m->links.count || m->callbacks.count || !m->ownership_data || !m->ownership_size ||
        m->layouts.count<NVM_FILE_NOMINAL_TYPES || m->layouts.count>NVM_FILE_NOMINAL_MAX_LAYOUTS ||
@@ -178,6 +179,7 @@ NvmV2Result nvm_service_bindings_validate(const NvmModule *m) {
     if (nvm_file_instructions_present(m) && !nominal_version(m->service_data,m->service_size))
         return NVM_V2_ERR_SECTION_TYPE;
     if (!nvm_service_bindings_present(m)) return NVM_V2_OK;
+    if (nvm_capture_bindings_present(m)) return NVM_V2_ERR_FEATURE_MISMATCH;
     if (nominal_version(m->service_data,m->service_size)) return nominal_module(m);
     NvmServiceBindings value;
     if (nvm_service_bindings_decode(m->service_data,m->service_size,&value)!=NVM_SERVICE_OK)
@@ -203,6 +205,7 @@ NvmV2Result nvm_v2_service_bindings_validate(const NvmV2Module *m) {
     if (nvm_v2_file_instructions_present(m) && !nominal_version(m->service_data,m->service_size))
         return NVM_V2_ERR_SECTION_TYPE;
     if (!nvm_v2_service_bindings_present(m)) return NVM_V2_OK;
+    if (m->capture_data || m->capture_size) return NVM_V2_ERR_FEATURE_MISMATCH;
     if (nominal_version(m->service_data,m->service_size)) return nominal_v2(m);
     NvmServiceBindings value;
     if (nvm_service_bindings_decode(m->service_data,m->service_size,&value)!=NVM_SERVICE_OK)

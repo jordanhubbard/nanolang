@@ -1,0 +1,24 @@
+{
+  "owned": {
+    "289133": {
+      "parent": 289116,
+      "group": 289133,
+      "started": "Mon Sep 21 22:37:40 2026",
+      "command": "/tmp/nanolang-native-sdk-bae59-linux-preparation/decision-f_dabema/probe"
+    },
+    "289135": {
+      "parent": 289133,
+      "group": 289133,
+      "started": "Mon Sep 21 22:37:40 2026",
+      "command": "[probe] <defunct>"
+    },
+    "289154": {
+      "parent": 289133,
+      "group": 289133,
+      "started": "Mon Sep 21 22:37:41 2026",
+      "command": "[probe] <defunct>"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

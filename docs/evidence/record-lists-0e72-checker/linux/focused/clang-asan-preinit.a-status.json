@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/usr/local/bin/clang",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-print-file-name=libclang_rt.asan-preinit.a"
+  ],
+  "bound": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-0e72",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 0.031388181960210204,
+  "log": {
+    "sha256": "7c718250b1f5f4fd163e697869ca0d21ad6a8f5d6d5d8546ac4a84a7c575b87e",
+    "bytes": 81,
+    "archive": "/tmp/nanolang-record-lists-0e72-linux-focused/objects/7c718250b1f5f4fd163e697869ca0d21ad6a8f5d6d5d8546ac4a84a7c575b87e"
+  },
+  "inputs_equal": true
+}

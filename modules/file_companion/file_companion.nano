@@ -1,0 +1,64 @@
+# I retain explicit static owners while my shared library keeps private dependencies.
+module "modules/cjson_provider/cjson_provider.nano" as CompanionCJsonProvider
+module "modules/nsi_file_catalog_provider/nsi_file_catalog_provider.nano" as CompanionPlanProvider
+module "modules/file_source_catalog/file_source_catalog.nano" as CompanionCatalogProvider
+
+# My token owns one externally serialized snapshot invocation, never a File grant.
+extern fn nl_file_companion_open(wire: string, size: int) -> int
+extern fn nl_file_companion_number(token: int, row: int, field: int) -> int
+extern fn nl_file_companion_text(token: int, row: int, field: int) -> string
+extern fn nl_file_companion_destroy(token: int) -> bool
+
+pub fn open(wire: string) -> int {
+    let size: int = (str_length wire)
+    unsafe { return (nl_file_companion_open wire size) }
+}
+shadow open {
+    let token: int = (open "0;")
+    assert (> token 0)
+    assert (== (number token (- 0 1) 0) 1)
+    assert (destroy token)
+}
+pub fn number(token: int, row: int, field: int) -> int {
+    unsafe { return (nl_file_companion_number token row field) }
+}
+shadow number { assert (== (number 0 0 0) (- 0 1)) }
+pub fn text(token: int, row: int, field: int) -> string {
+    # I return an owned string copy before the producer destroys its token.
+    unsafe { return (+ "" (nl_file_companion_text token row field)) }
+}
+shadow text { assert (== (text 0 0 0) "") }
+pub fn destroy(token: int) -> bool {
+    unsafe { return (nl_file_companion_destroy token) }
+}
+shadow destroy { assert (not (destroy 0)) }
+
+extern fn nl_file_companion_source(path: string, maximum: int) -> int
+extern fn nl_file_source_metadata(path: string, size: int) -> int
+pub struct SourceInput { status: int, source: string, size: int, lines: int }
+pub fn source(path: string, maximum: int) -> SourceInput {
+    let mut token: int = 0
+    unsafe { set token (nl_file_companion_source path maximum) }
+    if (<= token 0) { return SourceInput { status: 4, source: "", size: 0, lines: 0 } }
+    let status: int = (number token (- 0 1) 0)
+    let content: string = (text token 0 3)
+    let size: int = (number token 0 3)
+    let lines: int = (number token 0 4)
+    let copied_size: int = (str_length content)
+    let dropped: bool = (destroy token)
+    if (not dropped) { return SourceInput { status: 4, source: "", size: 0, lines: 0 } }
+    if (and (== status 0) (or (<= lines 0) (or (< size 0) (!= size copied_size)))) {
+        return SourceInput { status: 4, source: "", size: 0, lines: 0 }
+    }
+    return SourceInput { status: status, source: content, size: size, lines: lines }
+}
+shadow source {
+    let invalid: SourceInput = (source "" 0)
+    assert (== invalid.status 1)
+    assert (== invalid.source "")
+}
+pub fn metadata(path: string) -> int {
+    let size: int = (str_length path)
+    unsafe { return (nl_file_source_metadata path size) }
+}
+shadow metadata { assert (== (metadata "") (- 0 1)) }

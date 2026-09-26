@@ -1,0 +1,114 @@
+[
+  {
+    "root": "/home/jkh/nanolang-qualification/tuple-45c-linux-focused",
+    "cas_verified": 3949,
+    "selected": [
+      {
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "-f",
+          "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+          "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+        ],
+        "bound": 900,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "cwd": "/home/jkh/nanolang-qualification/tuple-45c-linux-source",
+        "reaped": true,
+        "remaining_groups": [],
+        "seconds": 15.517760192975402,
+        "log": {
+          "sha256": "592f0025c6870046dbda80b36c48a20f3350a770b1a9ae8d0f3f48e8312e7534",
+          "bytes": 552,
+          "archive": "/home/jkh/nanolang-qualification/tuple-45c-linux-focused/objects/592f0025c6870046dbda80b36c48a20f3350a770b1a9ae8d0f3f48e8312e7534"
+        },
+        "inputs_equal": true
+      },
+      {
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "-f",
+          "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+          "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+        ],
+        "bound": 900,
+        "status": 1,
+        "timeout": false,
+        "cleanup": [],
+        "cwd": "/home/jkh/nanolang-qualification/tuple-45c-linux-source",
+        "reaped": true,
+        "remaining_groups": [],
+        "seconds": 47.57512630999554,
+        "log": {
+          "sha256": "3b7f4d7fde8f3eb296e7459479b1f5e6802f01549fc65992e1ec9c20e5c10475",
+          "bytes": 9636,
+          "archive": "/home/jkh/nanolang-qualification/tuple-45c-linux-focused/objects/3b7f4d7fde8f3eb296e7459479b1f5e6802f01549fc65992e1ec9c20e5c10475"
+        },
+        "inputs_equal": true
+      }
+    ]
+  },
+  {
+    "root": "/home/jkh/nanolang-qualification/tuple-45c-puck-focused-copy",
+    "cas_verified": 3938,
+    "selected": [
+      {
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-v",
+          "-f",
+          "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+          "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+        ],
+        "bound": 900,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "cwd": "/Users/jkh/nanolang-qualification/tuple-45c-source",
+        "reaped": true,
+        "remaining_groups": [],
+        "seconds": 8.433315540999999,
+        "log": {
+          "sha256": "a0cdefa019e3a41e60a116279b0f407604614b11b30522d9b9247a5a675972fa",
+          "bytes": 447,
+          "archive": "/Users/jkh/nanolang-qualification/tuple-45c-focused/objects/a0cdefa019e3a41e60a116279b0f407604614b11b30522d9b9247a5a675972fa"
+        },
+        "inputs_equal": true
+      },
+      {
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-v",
+          "-f",
+          "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+          "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+        ],
+        "bound": 900,
+        "status": 1,
+        "timeout": false,
+        "cleanup": [],
+        "cwd": "/Users/jkh/nanolang-qualification/tuple-45c-source",
+        "reaped": true,
+        "remaining_groups": [],
+        "seconds": 26.203772207999997,
+        "log": {
+          "sha256": "ffed1e076d72be89e60339e8ff1f46b141467f5fe547e1a935d5296a63ea73d4",
+          "bytes": 10742,
+          "archive": "/Users/jkh/nanolang-qualification/tuple-45c-focused/objects/ffed1e076d72be89e60339e8ff1f46b141467f5fe547e1a935d5296a63ea73d4"
+        },
+        "inputs_equal": true
+      }
+    ]
+  }
+]

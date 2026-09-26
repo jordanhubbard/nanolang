@@ -1,0 +1,17 @@
+{
+  "terminal": {
+    "timeout": false,
+    "capacity_refusal": false,
+    "cleanup_errors": [],
+    "returncode": 2,
+    "seconds": 1.054813785944134,
+    "leader_reaped": true,
+    "tracked_remaining": {},
+    "group_gone": true
+  },
+  "source_unchanged": true,
+  "tools_unchanged": true,
+  "products": 2,
+  "persistent_root": "/home/jkh/nanolang-qualification/capture-file-private-2c4-linux-clang-sanitizers",
+  "report_archive_sha256": "7bb4137acee1f102ef944ba9c585c2ba7201a6c4c2b54b3b9698300f182e75ea"
+}

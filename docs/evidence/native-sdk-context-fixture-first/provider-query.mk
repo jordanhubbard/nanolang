@@ -1,0 +1,1 @@
+split_inventory:;@printf "%s\n" "SPLIT_OBJECTS=$(COMPILER_OBJECTS)" "SPLIT_CFLAGS=$(CFLAGS)" "SPLIT_LDFLAGS=$(LDFLAGS)"

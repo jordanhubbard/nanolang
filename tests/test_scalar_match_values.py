@@ -111,7 +111,7 @@ shadow main { assert (== (main) 0) }
             'missing_arm': 'let x: int = match value { Some(p) => p.number }',
             'duplicate_arm': 'let x: int = match value { Some(p) => p.number Some(p) => 0 }',
             'unknown_arm': 'let x: int = match value { Some(p) => p.number Other(p) => 0 }',
-            'aggregate_result': 'let x: array<int> = match value { Some(p) => [p.number] None(p) => [0] }',
+            'wrong_aggregate_result': 'let x: array<int> = match value { Some(p) => p.number None(p) => 0 }',
             'escaped_binding': 'let x: int = match value { Some(p) => p.number None(p) => 0 } let y: int = p.number',
         }
         path, output = self.work/'refuse-value.nano', self.work/'prior-output'
@@ -131,7 +131,7 @@ shadow main { assert (== (main) 0) }
 
     def test_selected_value_shadows_remain_mandatory(self):
         path, output = self.work/'shadow-value.nano', self.work/'prior-shadow'
-        for shadow in ('assert false', 'let values: array<int> = match Choice.None {} { Some(p) => [p.number] None(p) => [0] } assert (== (array_length values) 1)'):
+        for shadow in ('assert false', 'let values: array<int> = match Choice.None {} { Some(p) => [p.number] None(p) => [0] } assert (== (array_length values) 2)'):
             path.write_text(PREFIX + '''fn value() -> int { return match Choice.Some { number: 7 } { Some(p) => p.number None(p) => 0 } }
 shadow value { ''' + shadow + ''' }
 fn main() -> int { return (- (value) 7) }

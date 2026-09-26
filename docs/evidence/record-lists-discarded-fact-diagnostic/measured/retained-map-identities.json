@@ -1,0 +1,58 @@
+{
+  "environment.json": {
+    "sha256": "7d9b9a55e1479a3422247bd627312365d663b12b8021f2aff4f704e27ab2e53a",
+    "bytes": 427
+  },
+  "build-stage1-products-after.json": {
+    "sha256": "630ee9ef7d770d589108007b57286d6110f3605d37fb688525c31a596585d319",
+    "bytes": 174696
+  },
+  "build-stage1-products-before.json": {
+    "sha256": "ed2a4f5d6f4c26d2e92603b26143b8468796593d2f7e53d42e6c201f93f3d113",
+    "bytes": 333
+  },
+  "external-layout.json": {
+    "sha256": "c3341f579b7b64ddc502148cdf124dd104133a25bd1809d7f365e24fc18b7fb0",
+    "bytes": 1197
+  },
+  "generated-products.json": {
+    "sha256": "630ee9ef7d770d589108007b57286d6110f3605d37fb688525c31a596585d319",
+    "bytes": 174696
+  },
+  "original-full-source-products-after.json": {
+    "sha256": "630ee9ef7d770d589108007b57286d6110f3605d37fb688525c31a596585d319",
+    "bytes": 174696
+  },
+  "original-full-source-after.json": {
+    "sha256": "d15ca3fc2620b78acbfc95ab54f8210e3b866fa6ebd7e23ff4d98b6500372c83",
+    "bytes": 2619152
+  },
+  "original-full-source-before.json": {
+    "sha256": "d15ca3fc2620b78acbfc95ab54f8210e3b866fa6ebd7e23ff4d98b6500372c83",
+    "bytes": 2619152
+  },
+  "inputs-after.json": {
+    "sha256": "d15ca3fc2620b78acbfc95ab54f8210e3b866fa6ebd7e23ff4d98b6500372c83",
+    "bytes": 2619152
+  },
+  "build-stage1-before.json": {
+    "sha256": "8a097971405c4222fd3adc4fc850b1ec2e318b4d48c5e41482fbf0166eb179f2",
+    "bytes": 2618815
+  },
+  "inputs-before.json": {
+    "sha256": "b0327363dd0bf3582ce99ad5e1c8c8636054c5e39bbd07ffb982c85c13a5b338",
+    "bytes": 2618485
+  },
+  "original-full-source-products-before.json": {
+    "sha256": "630ee9ef7d770d589108007b57286d6110f3605d37fb688525c31a596585d319",
+    "bytes": 174696
+  },
+  "build-stage1-after.json": {
+    "sha256": "8a097971405c4222fd3adc4fc850b1ec2e318b4d48c5e41482fbf0166eb179f2",
+    "bytes": 2618815
+  },
+  "inputs-before-run.json": {
+    "sha256": "d15ca3fc2620b78acbfc95ab54f8210e3b866fa6ebd7e23ff4d98b6500372c83",
+    "bytes": 2619152
+  }
+}

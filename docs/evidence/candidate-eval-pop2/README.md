@@ -1,0 +1,3 @@
+# My second array-pop correction full evaluator gate
+
+Exact495e438a8 passes fresh C stage1 and unchanged full ordinary test-eval on both hosts. Fresh supported ASan/UBSan/LSan providers build; both sanitizer attempts stop in eval_match_miss_is_terminal with20887bytes/614 allocations. The report includes earlier effect/AST/callable allocations, so I preserve broad attribution and do not claim that group or subsequent tests completed. Both first statuses2 are retained; no timeout occurred and process groups are absent. Every source/tool endpoint matches. Root owns task992713 cleanup; no suppression or unchanged replay is authorized.

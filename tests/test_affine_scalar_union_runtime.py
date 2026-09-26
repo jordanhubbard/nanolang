@@ -1,4 +1,8 @@
 """I execute one exact heterogeneous scalar union through VM and native C."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 from pathlib import Path
 import os
 import platform
@@ -70,7 +74,7 @@ int main(void){
                           "-fsanitize=address,undefined", "-fno-omit-frame-pointer", "-g",
                           harness, "-o", binary])
             executed = self.checked([binary], env={**os.environ,
-                "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+                "ASAN_OPTIONS": asan_options("halt_on_error=1"),
                 "UBSAN_OPTIONS": "halt_on_error=1"})
             self.assertIn("exact scalar union cleanup passed", executed.stdout)
             print(f"affine scalar union sanitizer compiler={compiler}")

@@ -461,6 +461,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "#include \"runtime/string_search.h\"\n");
 
     /* Bytes (array<u8>) helpers */
+    sb_append(sb, "static DynArray* nl_bytes_from_string(const char* s);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_bytes_from_string);\n");
     sb_append(sb, "static DynArray* nl_bytes_from_string(const char* s) {\n");
     sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_U8);\n");
     sb_append(sb, "    if (!out) return NULL;\n");
@@ -472,6 +474,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    return out;\n");
     sb_append(sb, "}\n\n");
 
+    sb_append(sb, "static const char* nl_string_from_bytes(DynArray* bytes);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_string_from_bytes);\n");
     sb_append(sb, "static const char* nl_string_from_bytes(DynArray* bytes) {\n");
     sb_append(sb, "    if (!bytes) return \"\";\n");
     sb_append(sb, "    if (dyn_array_get_elem_type(bytes) != ELEM_U8) return \"\";\n");
@@ -487,6 +491,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     /* Array slicing: returns a copy of [start, start+length) */
+    sb_append(sb, "static DynArray* nl_array_slice(DynArray* arr, int64_t start, int64_t length);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_array_slice);\n");
     sb_append(sb, "static DynArray* nl_array_slice(DynArray* arr, int64_t start, int64_t length) {\n");
     sb_append(sb, "    if (!arr) return dyn_array_new(ELEM_INT);\n");
     sb_append(sb, "    if (start < 0) start = 0;\n");
@@ -550,11 +556,15 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "/* ========== Array Operations (With Bounds Checking!) ========== */\n\n");
 
     /* Array sort (integer ascending, in-place on a copy) */
+    sb_append(sb, "static DynArray* nl_array_sort(DynArray* arr);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_array_sort);\n");
     sb_append(sb, "static DynArray* nl_array_sort(DynArray* arr) {\n");
     sb_append(sb, "    return dyn_array_sorted(arr);\n");
     sb_append(sb, "}\n\n");
 
     /* Array reverse (returns a new array) */
+    sb_append(sb, "static DynArray* nl_array_reverse(DynArray* arr);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_array_reverse);\n");
     sb_append(sb, "static DynArray* nl_array_reverse(DynArray* arr) {\n");
     sb_append(sb, "    if (!arr) return dyn_array_new(ELEM_INT);\n");
     sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
@@ -574,6 +584,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     /* Array contains (int elem) */
+    sb_append(sb, "static bool nl_array_contains(DynArray* arr, int64_t elem);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_array_contains);\n");
     sb_append(sb, "static bool nl_array_contains(DynArray* arr, int64_t elem) {\n");
     sb_append(sb, "    if (!arr) return false;\n");
     sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
@@ -584,6 +596,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     /* Array index_of (int elem, returns -1 if not found) */
+    sb_append(sb, "static int64_t nl_array_index_of(DynArray* arr, int64_t elem);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_array_index_of);\n");
     sb_append(sb, "static int64_t nl_array_index_of(DynArray* arr, int64_t elem) {\n");
     sb_append(sb, "    if (!arr) return -1;\n");
     sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
@@ -718,7 +732,11 @@ void generate_string_operations(StringBuilder *sb) {
 
     sb_append(sb, "static char* nl_fmt_sb_build(nl_fmt_sb_t *sb) {\n");
     sb_append(sb, "    if (!sb || !sb->buf) return \"\";\n");
-    sb_append(sb, "    return sb->buf;\n");
+    sb_append(sb, "    char* result = gc_alloc_string(sb->len);\n");
+    sb_append(sb, "    if (result) memcpy(result, sb->buf, sb->len + 1);\n");
+    sb_append(sb, "    free(sb->buf);\n");
+    sb_append(sb, "    *sb = (nl_fmt_sb_t){0};\n");
+    sb_append(sb, "    return result ? result : \"\";\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static const char* nl_to_string_int(int64_t v) { return int_to_string(v); }\n");
@@ -1095,16 +1113,18 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     /* str_split */
+    sb_append(sb, "static DynArray* nl_str_split(const char* str, const char* delim);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_str_split);\n");
     sb_append(sb, "static DynArray* nl_str_split(const char* str, const char* delim) {\n");
     sb_append(sb, "    DynArray* result = dyn_array_new(ELEM_STRING);\n");
-    sb_append(sb, "    if (!result) return NULL;\n");
+    sb_append(sb, "    if (!result) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n");
     sb_append(sb, "    if (!str) return result;\n");
     sb_append(sb, "    size_t delim_len = strlen(delim);\n");
     sb_append(sb, "    if (delim_len == 0) {\n");
     sb_append(sb, "        size_t str_len = strnlen(str, 64*1024*1024);\n");
     sb_append(sb, "        for (size_t i = 0; i < str_len; i++) {\n");
     sb_append(sb, "            char* ch = gc_alloc_string(1);\n");
-    sb_append(sb, "            if (!ch) break;\n");
+    sb_append(sb, "            if (!ch) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n");
     sb_append(sb, "            ch[0] = str[i]; ch[1] = '\\0';\n");
     sb_append(sb, "            dyn_array_push_string(result, ch);\n");
     sb_append(sb, "        }\n");
@@ -1115,7 +1135,7 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    while ((found = strstr(start, delim)) != NULL) {\n");
     sb_append(sb, "        size_t seg_len = (size_t)(found - start);\n");
     sb_append(sb, "        char* seg = gc_alloc_string(seg_len);\n");
-    sb_append(sb, "        if (!seg) break;\n");
+    sb_append(sb, "        if (!seg) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n");
     sb_append(sb, "        memcpy(seg, start, seg_len);\n");
     sb_append(sb, "        seg[seg_len] = '\\0';\n");
     sb_append(sb, "        dyn_array_push_string(result, seg);\n");
@@ -1123,7 +1143,8 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    }\n");
     sb_append(sb, "    size_t rest_len = strlen(start);\n");
     sb_append(sb, "    char* seg = gc_alloc_string(rest_len);\n");
-    sb_append(sb, "    if (seg) {\n");
+    sb_append(sb, "    if (!seg) { fprintf(stderr, \"I cannot allocate a complete split-string result.\\n\"); abort(); }\n");
+    sb_append(sb, "    {\n");
     sb_append(sb, "        memcpy(seg, start, rest_len);\n");
     sb_append(sb, "        seg[rest_len] = '\\0';\n");
     sb_append(sb, "        dyn_array_push_string(result, seg);\n");
@@ -1132,6 +1153,8 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     /* str_join */
+    sb_append(sb, "static const char* nl_str_join(DynArray* arr, const char* delim);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_str_join);\n");
     sb_append(sb, "static const char* nl_str_join(DynArray* arr, const char* delim) {\n");
     sb_append(sb, "    if (!arr) return \"\";\n");
     sb_append(sb, "    int64_t count = dyn_array_length(arr);\n");
@@ -1310,6 +1333,8 @@ void generate_dir_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "#include \"runtime/directory_walk.h\"\n");
+    sb_append(sb, "static DynArray* nl_os_walkdir(const char* root);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_os_walkdir);\n");
     sb_append(sb, "static DynArray* nl_os_walkdir(const char* root) {\n");
     sb_append(sb, "    return nl_fs_walkdir(root);\n");
     sb_append(sb, "}\n\n");
@@ -1329,6 +1354,8 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "#include \"runtime/file_bytes.h\"\n");
+    sb_append(sb, "static DynArray* nl_os_file_read_bytes(const char* path);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_os_file_read_bytes);\n");
     sb_append(sb, "static DynArray* nl_os_file_read_bytes(const char* path) {\n");
     sb_append(sb, "    return nl_read_file_bytes(path);\n");
     sb_append(sb, "}\n\n");

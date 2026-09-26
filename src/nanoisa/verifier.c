@@ -9,6 +9,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "service_bindings_module.h"
+#include "service_classification_private.h"
 #include "verifier.h"
 #include "managed_array_shapes.h"
 #include "record_array_structure_private.h"
@@ -370,9 +371,12 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
 
 /* I keep policy selection outside these shared checks. The original module
  * and function tables remain the inputs; no copied/stripped module is used. */
-static NvmVerifyResult verify_module_ranges(const NvmModule *mod) {
+static NvmVerifyResult verify_module_ranges_classified(const NvmModule *mod,
+                                                       const NvmServiceClassification *facts) {
+    if (nvm_capture_bindings_present(mod))
+        return fail("I require capture binding execution admission");
     if (!mod) return fail("module is NULL");
-    if (nvm_service_execution_pending(mod))
+    if (nvm_service_pending_classified(mod, facts))
         return fail("I require reviewed service lifetime and dispatch admission before execution");
     if (!mod->code && mod->code_size > 0)
         return fail("code pointer is NULL but code_size=%u", mod->code_size);
@@ -385,6 +389,7 @@ static NvmVerifyResult verify_module_ranges(const NvmModule *mod) {
     }
 
     /* Function code ranges */
+    uint32_t prior_nonempty_end = 0;
     for (uint32_t i = 0; i < mod->function_count; i++) {
         const NvmFunctionEntry *fn = &mod->functions[i];
         if (fn->code_offset > mod->code_size)
@@ -416,15 +421,20 @@ static NvmVerifyResult verify_module_ranges(const NvmModule *mod) {
          * disjoint, but they may be adjacent or appear out of table order. */
         if (fn->code_length != 0) {
             uint32_t fn_end = fn->code_offset + fn->code_length;
-            for (uint32_t j = 0; j < i; j++) {
-                const NvmFunctionEntry *other = &mod->functions[j];
-                if (other->code_length == 0) continue;
+            /* At or beyond every prior end, all half-open pairs are disjoint.
+             * Otherwise retain table-order comparison and its first error. */
+            if (fn->code_offset < prior_nonempty_end) {
+                for (uint32_t j = 0; j < i; j++) {
+                    const NvmFunctionEntry *other = &mod->functions[j];
+                    if (other->code_length == 0) continue;
 
-                /* The earlier iteration proved this range cannot wrap. */
-                uint32_t other_end = other->code_offset + other->code_length;
-                if (fn->code_offset < other_end && other->code_offset < fn_end)
-                    return fail("function[%u] code range overlaps function[%u]", i, j);
+                    /* The earlier iteration proved this range cannot wrap. */
+                    uint32_t other_end = other->code_offset + other->code_length;
+                    if (fn->code_offset < other_end && other->code_offset < fn_end)
+                        return fail("function[%u] code range overlaps function[%u]", i, j);
+                }
             }
+            if (fn_end > prior_nonempty_end) prior_nonempty_end = fn_end;
         }
     }
 
@@ -450,12 +460,19 @@ static NvmVerifyResult verify_module_contracts_and_imports(const NvmModule *mod)
         if (imp->function_name_idx >= mod->string_count)
             return fail("import[%u] function_name_idx %u >= string_count %u",
                         i, imp->function_name_idx, mod->string_count);
-        if (imp->kind > NVM_IMPORT_ARTIFACT)
+        if (imp->kind > NVM_IMPORT_DECLARED_SCALAR_ARTIFACT || imp->kind == NVM_IMPORT_SERVICE)
             return fail("import[%u] has unknown kind %u", i, imp->kind);
-        if (imp->kind == NVM_IMPORT_ARTIFACT) {
+        if (imp->kind == NVM_IMPORT_ARTIFACT || imp->kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT) {
             const char *path = nvm_get_string(mod, imp->module_name_idx);
             if (!path || path[0] != '/' || strlen(path) != nvm_get_string_len(mod, imp->module_name_idx))
                 return fail("import[%u] artifact path must be absolute and contain no NUL", i);
+        }
+        if (imp->kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT) {
+            const char *symbol = nvm_get_string(mod, imp->function_name_idx);
+            if (!symbol || !symbol[0] || strlen(symbol) != nvm_get_string_len(mod, imp->function_name_idx) ||
+                !nvm_declared_scalar_shape_valid(mod->import_param_types ? mod->import_param_types[i] : NULL,
+                                                imp->param_count, imp->return_type))
+                return fail("I require exact names and a complete declared scalar artifact signature");
         }
         if (imp->return_type >= TAG_COUNT)
             return fail("import[%u] return_type %u is not a valid value tag",
@@ -478,11 +495,16 @@ static NvmVerifyResult verify_module_contracts_and_imports(const NvmModule *mod)
     return ok_result();
 }
 
-static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affine_only,
-                                        bool *owned_admitted, bool mixed_composed) {
+static NvmVerifyResult verify_module_ranges(const NvmModule *mod) {
+    return verify_module_ranges_classified(mod, NULL);
+}
+
+static NvmVerifyResult verify_structure_checked_classified(const NvmModule *mod, bool affine_only,
+                                        bool *owned_admitted, bool mixed_composed,
+                                        const NvmServiceClassification *facts) {
     if (owned_admitted) *owned_admitted=false;
     bool admitted=false;
-    NvmVerifyResult ranges = verify_module_ranges(mod);
+    NvmVerifyResult ranges = verify_module_ranges_classified(mod, facts);
     if (!ranges.ok) return ranges;
 
     bool needs_ownership = false;
@@ -507,6 +529,13 @@ static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affin
 
     if (owned_admitted) *owned_admitted=admitted;
     return ok_result();
+}
+
+/* Private preparation retains its original fresh-query and budget behavior. */
+static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affine_only,
+                                        bool *owned_admitted, bool mixed_composed) {
+    return verify_structure_checked_classified(mod, affine_only, owned_admitted,
+                                               mixed_composed, NULL);
 }
 
 /* All existing public routes keep the original ownership validation. The only
@@ -557,12 +586,15 @@ static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_id
         /* Validate operands based on opcode */
         switch (instr.opcode) {
 
+        case OP_BIND_INIT_LOCAL: case OP_BIND_CLEAR_LOCAL: case OP_CLOSURE_BIND:
+            FAIL_DECODED("I require complete capture binding admission before execution.");
+
         case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
         case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
         case OP_REGION_BEGIN: case OP_REGION_END:
         case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
         case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL:
-        case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL: {
+        case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL: case OP_OWN_UNPACK_VARIANT: {
             NvmAffineAnalysis analysis=nvm_affine_analyze_function(mod,fn_idx);
             if (!analysis.ok) FAIL_DECODED("I refuse reference lifetime and ownership instruction dataflow: %s",analysis.message);
             FAIL_DECODED("I require owned-transfer execution semantics before execution");
@@ -898,19 +930,22 @@ static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_id
 static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_idx,
                                            const NvmModule *const *linked_modules,
                                            uint32_t linked_count,
-                                           uint16_t *out_max_stack) {
-    if(nvm_service_execution_pending(mod))
+                                           uint16_t *out_max_stack,
+                                           const NvmServiceClassification *facts) {
+    if (nvm_capture_bindings_present(mod))
+        return fail("I require capture binding execution admission");
+    if(nvm_service_pending_classified(mod, facts))
         return fail("I refuse service contracts before mixed execution selection");
-    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
+    if(nvm_owned_array_route_classified(mod, facts)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
         if(linked_count)return fail("I refuse linked owner ARRAY execution contracts");
         return verify_owned_arrays(mod,fn_idx,out_max_stack);
     }
-    if(nvm_mixed_samples_candidate(mod)) {
+    if(nvm_mixed_samples_candidate_classified(mod, facts)) {
         if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
         return verify_mixed_samples(mod,fn_idx,out_max_stack);
     }
     bool owned_admitted=false;
-    NvmVerifyResult structure = verify_structure(mod, false, &owned_admitted);
+    NvmVerifyResult structure = verify_structure_checked_classified(mod, false, &owned_admitted, false, facts);
     if (!structure.ok) return structure;
     if (fn_idx >= mod->function_count)
         return fail("function index %u >= function_count %u",
@@ -926,6 +961,8 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
 #include "record_array_structure.inc"
 
 NvmVerifyResult nvm_verify_affine_function(const NvmModule *mod, uint32_t fn_idx) {
+    if (nvm_capture_bindings_present(mod))
+        return fail("I require capture binding execution admission");
     NvmVerifyResult structure=verify_structure(mod,true,NULL);
     if (!structure.ok) return structure;
     NvmAffineAnalysis analysis=nvm_affine_analyze_function(mod,fn_idx);
@@ -947,7 +984,8 @@ bool nvm_uses_owned_transfers(const NvmModule *mod) {
             DecodedInstruction instruction;
             uint32_t count=isa_decode(mod->code+fn->code_offset+offset,fn->code_length-offset,&instruction);
             if (!count) break;
-            if ((instruction.opcode>=OP_OWN_MOVE_LOCAL && instruction.opcode<=OP_CALL_REF) ||
+            if (instruction.opcode==OP_OWN_UNPACK_VARIANT ||
+                (instruction.opcode>=OP_OWN_MOVE_LOCAL && instruction.opcode<=OP_CALL_REF) ||
                 (instruction.opcode>=OP_REGION_BEGIN && instruction.opcode<=OP_REBORROW_EXCLUSIVE)) return true;
             offset+=count;
         }
@@ -963,7 +1001,7 @@ static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
     case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
-    case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
+    case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL: case OP_OWN_UNPACK_VARIANT:
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_BOOL: case OP_PUSH_F64:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_AGG_PACK: case OP_AGG_GET: case OP_AGG_TAG: case OP_STRUCT_GET:
@@ -974,19 +1012,26 @@ static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
-    case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+    case OP_CALL_INDIRECT: case OP_FUNCREF: case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+    case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
         return value_graph;
     default: return false;
     }
 }
 
 NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
+    if (nvm_capture_bindings_present(mod))
+        return fail("I require capture binding execution admission");
     NvmVerifyResult structure = verify_structure(mod, true,NULL);
     if (!structure.ok) return structure;
     if (!mod->ownership_size || (!mod->function_count || mod->function_count>NVM_OWNED_MAX_FUNCTIONS) || mod->header.entry_point != 0 ||
         mod->import_count || mod->module_ref_count || mod->callback_contract_count || mod->passive_size)
         return fail("I require standalone ownership instruction execution semantics without linked contracts");
+    uint8_t global_tags[NVM_OWNERSHIP_MAX_SCALAR_GLOBALS];uint32_t global_count=0;
+    if(nvm_ownership_scalar_globals(mod,global_tags,sizeof(global_tags),&global_count)!=NVM_V2_OK)
+        return fail("I require complete scalar-global declarations before owned execution");
     bool value_graph=nvm_affine_value_call_graph(mod);
+    if(global_count && !value_graph)return fail("I require scalar globals in a standalone owned value graph");
     if (!value_graph && mod->function_count>2)
         return fail("I require a bounded acyclic value graph or my separate borrowed helper");
     for(uint32_t function=0;function<mod->function_count;function++) {
@@ -1010,7 +1055,7 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
                  type.tag!=TAG_STRUCT && type.tag!=TAG_UNION &&
                  !(i>=fn->arity && type.tag==TAG_FLOAT &&
                                            type.layout==NVM_V2_NO_INDEX) &&
-                 !(value_graph && type.tag==TAG_STRING &&
+                 !(value_graph && (type.tag==TAG_STRING || type.tag==TAG_FUNCTION) &&
                                            type.layout==NVM_V2_NO_INDEX))) valid=false;
         }
         nvm_affine_state_free(state);
@@ -1020,12 +1065,13 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     if (nvm_v2_layouts_decode(mod->layout_data, mod->layout_size, &layouts) != NVM_V2_OK)
         return fail("I require complete owned record layouts");
     bool supported = true;
+    bool union_graph=mod->ownership_data[0]==NVM_OWNERSHIP_UNION_GRAPH_VERSION;
     uint32_t union_ordinal=0;
     for (uint32_t i=0; i<layouts.count; i++) {
         const NvmV2Layout *layout = &layouts.items[i];
         if (layout->kind==NVM_V2_LAYOUT_UNION) {
             NvmUnionVariantFact fact;
-            if (mod->ownership_data[8+i] ||
+            if ((union_graph ? !(mod->ownership_data[8+i]&NVM_LAYOUT_COMPLETE) : mod->ownership_data[8+i]!=0) ||
                 nvm_ownership_union_variant(mod,union_ordinal,0,&fact)!=NVM_V2_OK ||
                 fact.layout!=i) supported=false;
             union_ordinal++;
@@ -1039,7 +1085,7 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             /* My owned execution profile retains its prior-only graph. */
             uint32_t child=layout->fields[f].nested_idx;
             if(child!=NVM_V2_NO_INDEX && child>=i) supported=false;
-            if (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_STRUCT &&
+            if (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_STRUCT && !(union_graph && tag==TAG_UNION) &&
                 !(value_graph && tag==TAG_STRING && child==NVM_V2_NO_INDEX)) supported=false;
         }
     }
@@ -1052,7 +1098,7 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
         for(uint32_t i=0;i<decoded.instruction_count;i++) {
             const DecodedInstruction *in=&decoded.instructions[i].instruction;
             uint8_t op=in->opcode;
-            if(op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) transfer=true;
+            if((op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) || op==OP_OWN_UNPACK_VARIANT) transfer=true;
             /* A retained scalar-union constructor creates the same refcounted
              * carrier that the owned runtime must release.  It is therefore
              * an explicit transfer boundary even when the source function has
@@ -1082,13 +1128,15 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
 }
 
 NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
-    return verify_function_impl(mod, fn_idx, NULL, 0, NULL);
+    NvmServiceClassification facts = nvm_service_classify(mod);
+    return verify_function_impl(mod, fn_idx, NULL, 0, NULL, &facts);
 }
 
 NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
                                               uint32_t fn_idx,
                                               uint16_t *out_max_stack) {
-    return verify_function_impl(mod, fn_idx, NULL, 0, out_max_stack);
+    NvmServiceClassification facts = nvm_service_classify(mod);
+    return verify_function_impl(mod, fn_idx, NULL, 0, out_max_stack, &facts);
 }
 
 /* ========================================================================
@@ -1096,18 +1144,21 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
  * ======================================================================== */
 
 NvmVerifyResult nvm_verify(const NvmModule *mod) {
-    if(nvm_service_execution_pending(mod))
+    if (nvm_capture_bindings_present(mod))
+        return fail("I require capture binding execution admission");
+    NvmServiceClassification facts = nvm_service_classify(mod);
+    if(nvm_service_pending_classified(mod, &facts))
         return fail("I refuse service contracts before mixed execution selection");
-    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return verify_owned_arrays(mod,0,NULL);
-    if(nvm_mixed_samples_candidate(mod))return verify_mixed_samples(mod,0,NULL);
+    if(nvm_owned_array_route_classified(mod, &facts)!=NVM_OWNER_ARRAY_NOT_SELECTED)return verify_owned_arrays(mod,0,NULL);
+    if(nvm_mixed_samples_candidate_classified(mod, &facts))return verify_mixed_samples(mod,0,NULL);
     /* I reuse only this invocation's completed full owned-module proof. */
     bool owned_admitted=false;
-    NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
+    NvmVerifyResult r = verify_structure_checked_classified(mod, false, &owned_admitted, false, &facts);
     if (!r.ok || owned_admitted) return r;
 
     /* Phase 2: per-function bytecode validation */
     for (uint32_t i = 0; i < mod->function_count; i++) {
-        r = verify_function_impl(mod, i, NULL, 0, NULL);
+        r = verify_function_impl(mod, i, NULL, 0, NULL, &facts);
         if (!r.ok) return r;
     }
 
@@ -1121,18 +1172,24 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
         return fail("linked_count %u but linked_modules table is NULL", linked_count);
 
     for (uint32_t i=0; i<linked_count; i++)
+        if (nvm_capture_bindings_present(linked_modules[i]))
+            return fail("I require linked capture binding execution admission");
+    for (uint32_t i=0; i<linked_count; i++)
         if (nvm_service_execution_pending(linked_modules[i]))
             return fail("I refuse linked service contracts before reviewed dispatch admission");
-    if(nvm_service_execution_pending(mod))
+    if (nvm_capture_bindings_present(mod))
+        return fail("I require capture binding execution admission");
+    NvmServiceClassification facts = nvm_service_classify(mod);
+    if(nvm_service_pending_classified(mod, &facts))
         return fail("I refuse service contracts before mixed execution selection");
     for(uint32_t i=0;i<linked_count;i++)
         if(nvm_owned_array_route(linked_modules[i])!=NVM_OWNER_ARRAY_NOT_SELECTED)
             return fail("I refuse an owner ARRAY candidate or invalid descriptor in a linked graph");
-    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
+    if(nvm_owned_array_route_classified(mod, &facts)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
         if(linked_count)return fail("I refuse linked owner ARRAY execution contracts");
         return verify_owned_arrays(mod,0,NULL);
     }
-    if(nvm_mixed_samples_candidate(mod)) {
+    if(nvm_mixed_samples_candidate_classified(mod, &facts)) {
         if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
         return verify_mixed_samples(mod,0,NULL);
     }
@@ -1150,13 +1207,13 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
     }
     /* Zero linked modules retain the same invocation-local owned proof. */
     bool owned_admitted=false;
-    NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
+    NvmVerifyResult r = verify_structure_checked_classified(mod, false, &owned_admitted, false, &facts);
     if (!r.ok || (!linked_count && owned_admitted)) return r;
 
     /* Phase 2: per-function validation, resolving OP_CALL_MODULE against the
      * supplied linked-module table so cross-module call operands are bounded. */
     for (uint32_t i = 0; i < mod->function_count; i++) {
-        r = verify_function_impl(mod, i, linked_modules, linked_count, NULL);
+        r = verify_function_impl(mod, i, linked_modules, linked_count, NULL, &facts);
         if (!r.ok) return r;
     }
 
@@ -1250,7 +1307,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
                 ins.opcode == OP_STRUCT_LITERAL || ins.opcode == OP_STRUCT_GET ||
                 ins.opcode == OP_STRUCT_SET || ins.opcode == OP_AGG_PACK ||
                 ins.opcode == OP_AGG_GET || ins.opcode == OP_AGG_SET);
-            if (!width || (!profile_supported(ins.opcode) && !literal_op && !record_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
+            if (!width || (!profile_supported(ins.opcode) && !literal_op && !record_op && !(ins.opcode == OP_TAIL_CALL && !managed_profile))) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
             pc += width;
         }
     }

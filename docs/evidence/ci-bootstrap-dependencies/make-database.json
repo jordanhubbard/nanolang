@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "make",
+    "-qp",
+    "test-units",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer",
+    "LDFLAGS=-lm -lcrypto -fsanitize=address,undefined"
+  ],
+  "returncode": 1
+}

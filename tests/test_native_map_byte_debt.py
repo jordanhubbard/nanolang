@@ -1,4 +1,8 @@
 """I batch complete map allocation bytes without losing published aliases."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 import signal
 from pathlib import Path
@@ -34,7 +38,7 @@ class NativeMapByteDebt(unittest.TestCase):
             source.write_text('#define main original_main\n' + generated + '\n#undef main\n#include <stdio.h>\n' + body)
             self.run_checked(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
-            env = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}
+            env = {**os.environ, 'ASAN_OPTIONS': asan_options()}
             print(self.run_checked([binary], env=env).stdout, end='')
             for mode in refusals:
                 refused = subprocess.run([str(binary), mode], capture_output=True, timeout=30, env=env)

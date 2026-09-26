@@ -1,0 +1,5 @@
+# My extern lookup name ownership qualification
+
+I froze 1a063b119 and built fresh providers on Linux and Darwin. Each host passed the owning extern-name test and the unchanged lifecycle compiler prerequisite `nano_virt examples/language/nl_extern_char.nano --emit-nvm -o <private>/ffi.nvm`, ordinarily and with ASan/UBSan/LSan. The owning test checks80 externs across pool growth, exact pool pointer identity after mutable source buffers change, copied CG snapshots, refusal without publication and eight complete ownership lifetimes. The original compiler command covers ordinary and shadow compilation and publishes a nonempty NVM.
+
+Linux session62928 and Darwin session77011 reached exit0. My38-member archive per host retains exact source/tool/argv/provider maps and terminal process-group absence. All original source and provider hashes remained unchanged. The actual owning executable is retained under each qualification root. This evidence closes task_c519c0990c8e4dd3b814231cf1296b82 only. It does not claim lifecycle runtime, scalar dispatch, full exec-worker sanitizer acceptance or installed/source-hidden completion.

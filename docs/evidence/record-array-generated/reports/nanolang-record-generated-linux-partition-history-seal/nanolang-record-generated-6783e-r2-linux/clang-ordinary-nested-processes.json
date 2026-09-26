@@ -1,0 +1,384 @@
+{
+  "cleanup": [],
+  "owned": {
+    "252189": {
+      "command": "/usr/bin/python3 -m unittest -f -v tests.test_record_array_generated",
+      "group": 252189,
+      "parent": 185994,
+      "started": "Sun Sep 20 22:51:18 2026"
+    },
+    "252353": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa tests/nanoisa/test_record_array_generated_emission.c tests/nanoisa/record_array_alloc.c /tmp/nano-record-array-generated-9d9jq_lc/emission-managed_array_shapes.o /tmp/nano-record-array-generated-9d9jq_lc/emission-verifier.o /tmp/nano-record-array-generated-9d9jq_lc/emission-verifier_types.o /tmp/nano-record-array-generated-9d9jq_lc/emission-vm_decode.o /tmp/nano-record-array-generated-9d9jq_lc/emission-ownership_contracts.o /tmp/nano-record-array-generated-9d9jq_lc/emission-nvm_v2_layouts.o /tmp/nano-record-array-generated-9d9jq_lc/emission-retained_layouts.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -rdynamic -o /tmp/nano-record-array-generated-9d9jq_lc/emission",
+      "group": 252353,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:20 2026"
+    },
+    "252357": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O3 -emit-obj -dumpdir /tmp/nano-record-array-generated-9d9jq_lc/emission- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name test_record_array_generated_emission.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -fcoverage-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /tmp/test_record_array_generated_emission-da6fd3.o -x c tests/nanoisa/test_record_array_generated_emission.c",
+      "group": 252353,
+      "parent": 252353,
+      "started": "Sun Sep 20 22:51:20 2026"
+    },
+    "252378": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -c src/nanoisa/verifier.c -o /tmp/nano-record-array-generated-9d9jq_lc/capture-verifier.o",
+      "group": 252378,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:21 2026"
+    },
+    "252432": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -c src/nanoisa/retained_layouts.c -o /tmp/nano-record-array-generated-9d9jq_lc/capture-retained_layouts.o",
+      "group": 252432,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:22 2026"
+    },
+    "252569": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -c src/nanovm/vm_builtins.c -o /tmp/nano-record-array-generated-9d9jq_lc/capture-vm_builtins.o",
+      "group": 252569,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:23 2026"
+    },
+    "252578": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa tests/nanoisa/test_record_array_generated_capture.c src/nanoisa/nvm2c_record_array_private.c tests/nanoisa/record_array_alloc.c /tmp/nano-record-array-generated-9d9jq_lc/capture-managed_array_shapes.o /tmp/nano-record-array-generated-9d9jq_lc/capture-verifier.o /tmp/nano-record-array-generated-9d9jq_lc/capture-verifier_types.o /tmp/nano-record-array-generated-9d9jq_lc/capture-vm_decode.o /tmp/nano-record-array-generated-9d9jq_lc/capture-ownership_contracts.o /tmp/nano-record-array-generated-9d9jq_lc/capture-nvm_v2_layouts.o /tmp/nano-record-array-generated-9d9jq_lc/capture-retained_layouts.o /tmp/nano-record-array-generated-9d9jq_lc/capture-vm_dispatch.o /tmp/nano-record-array-generated-9d9jq_lc/capture-value.o /tmp/nano-record-array-generated-9d9jq_lc/capture-heap.o /tmp/nano-record-array-generated-9d9jq_lc/capture-heap_cycles.o /tmp/nano-record-array-generated-9d9jq_lc/capture-vm_callback.o /tmp/nano-record-array-generated-9d9jq_lc/capture-vm_ffi.o /tmp/nano-record-array-generated-9d9jq_lc/capture-vm_builtins.o /tmp/nano-record-array-generated-9d9jq_lc/capture-cop_protocol.o /tmp/nano-record-array-generated-9d9jq_lc/capture-vm_ffi_arrays.o /tmp/nano-record-array-generated-9d9jq_lc/capture-callback_runtime.o obj/bcp47.o obj/bench.o obj/bench_native.o obj/builtins_registry.o obj/cJSON.o obj/c_backend.o obj/catalog.o obj/channel.o obj/coroutine.o obj/cps_pass.o obj/dce_pass.o obj/diag_id.o obj/docgen.o obj/docgen_md.o obj/dwarf_info.o obj/effects.o obj/emit_typed_ast.o obj/env.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_io.o obj/eval/eval_math.o obj/eval/eval_string.o obj/fmt.o obj/fold_constants.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/lexer.o obj/locale.o obj/module.o obj/module_builder.o obj/module_metadata.o obj/nanocore_export.o obj/nanocore_subset.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/file_flow.o obj/nanoisa/frontend.o obj/nanoisa/isa.o obj/nanoisa/local_bindings.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/nanoisa_facade.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/passive.o obj/nanoisa/reference_places.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nominal_types.o obj/nsi_file_plan.o obj/opencl_backend.o obj/par_let_pass.o obj/parser.o obj/pgo_pass.o obj/ptx_backend.o obj/reflection.o obj/resource_flow.o obj/resource_tracking.o obj/riscv_backend.o obj/runtime/cli.o obj/runtime/dyn_array.o obj/runtime/effect_runtime.o obj/runtime/ffi_loader.o obj/runtime/gc.o obj/runtime/gc_struct.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTString.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTWhile.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_LexerToken.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_token.o obj/runtime/module_build_dir.o obj/runtime/nl_string.o obj/runtime/regex.o obj/runtime/token_helpers.o obj/stdlib_runtime.o obj/tco_pass.o obj/toon_output.o obj/transpiler.o obj/type_infer.o obj/typechecker.o obj/utf8.o -lm -lcrypto -lffi -rdynamic -o /tmp/nano-record-array-generated-9d9jq_lc/capture",
+      "group": 252578,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:23 2026"
+    },
+    "252579": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O3 -emit-obj -dumpdir /tmp/nano-record-array-generated-9d9jq_lc/capture- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name test_record_array_generated_capture.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -fcoverage-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /tmp/test_record_array_generated_capture-f0de1f.o -x c tests/nanoisa/test_record_array_generated_capture.c",
+      "group": 252578,
+      "parent": 252578,
+      "started": "Sun Sep 20 22:51:23 2026"
+    },
+    "252850": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0000.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0000.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O0-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O0-linked-0000",
+      "group": 252850,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:26 2026"
+    },
+    "252999": {
+      "command": "[clang] <defunct>",
+      "group": 252999,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:27 2026"
+    },
+    "253230": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0023.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0023.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O0-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O0-linked-0023",
+      "group": 253230,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:29 2026"
+    },
+    "254030": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0046.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0046.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O0-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O0-linked-0046",
+      "group": 254030,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:32 2026"
+    },
+    "254178": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0053.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0053.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O0-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O0-linked-0053",
+      "group": 254178,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:33 2026"
+    },
+    "254511": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0068.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0068.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O0-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O0-linked-0068",
+      "group": 254511,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:35 2026"
+    },
+    "254562": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0001.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0001.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-0001",
+      "group": 254562,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:36 2026"
+    },
+    "254668": {
+      "command": "/tmp/nano-record-array-generated-9d9jq_lc/O0-observed-0010",
+      "group": 254668,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:38 2026"
+    },
+    "254791": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0016.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0016.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-0016",
+      "group": 254791,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:39 2026"
+    },
+    "254875": {
+      "command": "/tmp/nano-record-array-generated-9d9jq_lc/O0-observed-0021",
+      "group": 254875,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:40 2026"
+    },
+    "254935": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0027.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0027.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-0027",
+      "group": 254935,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:41 2026"
+    },
+    "254979": {
+      "command": "[nm] <defunct>",
+      "group": 254979,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:42 2026"
+    },
+    "255224": {
+      "command": "[clang] <defunct>",
+      "group": 255224,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:44 2026"
+    },
+    "255275": {
+      "command": "[nm] <defunct>",
+      "group": 255275,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:45 2026"
+    },
+    "255311": {
+      "command": "[O0-observed-005] <defunct>",
+      "group": 255311,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:46 2026"
+    },
+    "255502": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0059.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0059.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-0059",
+      "group": 255502,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:47 2026"
+    },
+    "255519": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O0 -emit-obj -dumpdir /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-0059- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0059.replay.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -fcoverage-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /tmp/product-0059-f3a893.o -x c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0059.replay.c",
+      "group": 255502,
+      "parent": 255502,
+      "started": "Sun Sep 20 22:51:47 2026"
+    },
+    "255814": {
+      "command": "/tmp/nano-record-array-generated-9d9jq_lc/O0-observed-0063",
+      "group": 255814,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:51:48 2026"
+    },
+    "272228": {
+      "command": "/tmp/nano-record-array-generated-9d9jq_lc/O0-observed-0064",
+      "group": 272228,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:52:31 2026"
+    },
+    "280144": {
+      "command": "/tmp/nano-record-array-generated-9d9jq_lc/O0-observed-0065",
+      "group": 280144,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:53:14 2026"
+    },
+    "282535": {
+      "command": "/tmp/nano-record-array-generated-9d9jq_lc/O0-observed-0066",
+      "group": 282535,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:53:57 2026"
+    },
+    "289085": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0068.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0068.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O0-observed-0068",
+      "group": 289085,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:39 2026"
+    },
+    "290454": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0000.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0000.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-0000",
+      "group": 290454,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:41 2026"
+    },
+    "290455": {
+      "command": "[clang-23]",
+      "group": 290454,
+      "parent": 290454,
+      "started": "Sun Sep 20 22:54:41 2026"
+    },
+    "291517": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0014.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0014.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-0014",
+      "group": 291517,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:43 2026"
+    },
+    "291698": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0021.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0021.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-0021",
+      "group": 291698,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:44 2026"
+    },
+    "291718": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-0021- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0021.replay.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -fcoverage-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /tmp/product-0021-dd0efe.o -x c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0021.replay.c",
+      "group": 291698,
+      "parent": 291698,
+      "started": "Sun Sep 20 22:54:44 2026"
+    },
+    "292287": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0028.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0028.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-0028",
+      "group": 292287,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:45 2026"
+    },
+    "292293": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-0028- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0028.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -fcoverage-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /tmp/product-0028-93a01c.o -x c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0028.c",
+      "group": 292287,
+      "parent": 292287,
+      "started": "Sun Sep 20 22:54:45 2026"
+    },
+    "292971": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0035.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0035.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-0035",
+      "group": 292971,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:46 2026"
+    },
+    "292974": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-0035- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0035.replay.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -fcoverage-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /tmp/product-0035-a309b2.o -x c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0035.replay.c",
+      "group": 292971,
+      "parent": 292971,
+      "started": "Sun Sep 20 22:54:46 2026"
+    },
+    "293775": {
+      "command": "[clang] <defunct>",
+      "group": 293775,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:47 2026"
+    },
+    "295036": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0057.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0057.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-0057",
+      "group": 295036,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:49 2026"
+    },
+    "295037": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /tmp/nano-record-array-generated-9d9jq_lc/O2-linked-0057- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0057.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -fcoverage-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /tmp/product-0057-07f585.o -x c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0057.c",
+      "group": 295036,
+      "parent": 295036,
+      "started": "Sun Sep 20 22:54:49 2026"
+    },
+    "295767": {
+      "command": "[clang] <defunct>",
+      "group": 295767,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:50 2026"
+    },
+    "296347": {
+      "command": "[clang] <defunct>",
+      "group": 296347,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:51 2026"
+    },
+    "296925": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED -DRA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h -c src/nanoisa/record_array_generated_private.c -o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-runtime.o",
+      "group": 296925,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:52 2026"
+    },
+    "297954": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0004.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0004.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0004",
+      "group": 297954,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:53 2026"
+    },
+    "298104": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0011.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0011.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0011",
+      "group": 298104,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:54 2026"
+    },
+    "298918": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0017.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0017.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0017",
+      "group": 298918,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:55 2026"
+    },
+    "299442": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0024.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0024.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0024",
+      "group": 299442,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:56 2026"
+    },
+    "300160": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0030.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0030.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0030",
+      "group": 300160,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:57 2026"
+    },
+    "300162": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0030- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0030.replay.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -fcoverage-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /tmp/product-0030-23bf1d.o -x c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0030.replay.c",
+      "group": 300160,
+      "parent": 300160,
+      "started": "Sun Sep 20 22:54:57 2026"
+    },
+    "300610": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0036.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0036.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0036",
+      "group": 300610,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:54:58 2026"
+    },
+    "300650": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0036- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0036.replay.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -fcoverage-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /tmp/product-0036-2caa1c.o -x c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0036.replay.c",
+      "group": 300610,
+      "parent": 300610,
+      "started": "Sun Sep 20 22:54:58 2026"
+    },
+    "302219": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0048.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0048.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0048",
+      "group": 302219,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:55:00 2026"
+    },
+    "302220": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0048- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0048.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -fcoverage-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /tmp/product-0048-e15b29.o -x c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0048.c",
+      "group": 302219,
+      "parent": 302219,
+      "started": "Sun Sep 20 22:55:00 2026"
+    },
+    "302305": {
+      "command": "[clang] <defunct>",
+      "group": 302305,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:55:01 2026"
+    },
+    "302711": {
+      "command": "[clang] <defunct>",
+      "group": 302711,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:55:02 2026"
+    },
+    "303373": {
+      "command": "/tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0063",
+      "group": 303373,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:55:03 2026"
+    },
+    "306966": {
+      "command": "/tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0064",
+      "group": 306966,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:55:13 2026"
+    },
+    "307965": {
+      "command": "/tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0065",
+      "group": 307965,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:55:23 2026"
+    },
+    "308797": {
+      "command": "/tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0066",
+      "group": 308797,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:55:34 2026"
+    },
+    "309797": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0072.c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0072.replay.c /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-runtime.o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0072",
+      "group": 309797,
+      "parent": 252189,
+      "started": "Sun Sep 20 22:55:44 2026"
+    },
+    "309799": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /tmp/nano-record-array-generated-9d9jq_lc/O2-observed-0072- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0072.replay.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -fcoverage-compilation-dir=/tmp/nanolang-record-generated-qualified-6783e -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /tmp/product-0072-0e2e46.o -x c /tmp/nano-record-array-generated-9d9jq_lc/corpus/product-0072.replay.c",
+      "group": 309797,
+      "parent": 309797,
+      "started": "Sun Sep 20 22:55:45 2026"
+    }
+  },
+  "remaining": []
+}

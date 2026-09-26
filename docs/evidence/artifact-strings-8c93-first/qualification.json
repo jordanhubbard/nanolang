@@ -1,0 +1,393 @@
+{
+  "linux": {
+    "terminal": {
+      "status": 0,
+      "scope": "exact catalog and borrowed zero/one/two string VM/COP/native plus refusal/allocation, prepared-loader and original SDK probe controls; real-provider sanitizer compiler prerequisite remains held"
+    },
+    "phases": [
+      {
+        "label": "fresh-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "nano_vm",
+          "nvm2c",
+          "nanoisa_dump",
+          "nvm2c-runtime"
+        ],
+        "bound": 1800,
+        "timeout": false,
+        "pid": 2577199,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 12.8678151370259
+      },
+      {
+        "label": "exact-contracts",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_one_ir_compiler.OneIrCompiler.test_nanoisa_artifact_contracts_remain_exact"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2579377,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 1.077351166983135
+      },
+      {
+        "label": "borrowed-string-controls",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_mutable_borrowed_root_is_snapshotted",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_borrowed_string_arguments_and_isolated_snapshots"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2579558,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 1.2963317349785939
+      },
+      {
+        "label": "loader-admission-controls",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_loader_prepared_fork_contract"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2579640,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.6356263189809397
+      },
+      {
+        "label": "fresh-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "nano_vm",
+          "nvm2c",
+          "nanoisa_dump",
+          "nvm2c-runtime"
+        ],
+        "bound": 1800,
+        "timeout": false,
+        "pid": 2579782,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 31.927593801054172
+      },
+      {
+        "label": "exact-contracts",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_one_ir_compiler.OneIrCompiler.test_nanoisa_artifact_contracts_remain_exact"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2584323,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 2.7846818029647693
+      },
+      {
+        "label": "borrowed-string-controls",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_mutable_borrowed_root_is_snapshotted",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_borrowed_string_arguments_and_isolated_snapshots"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2584742,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 2.7799843170214444
+      },
+      {
+        "label": "loader-admission-controls",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_loader_prepared_fork_contract"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2584924,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 0.8584531790111214
+      }
+    ],
+    "identity": {
+      "pin": "8c93ebf26",
+      "archive_sha": "0e59809c89b18eb58860eea4626b2c8fdcb95afaf716ca635d076985a7fae6da",
+      "driver_sha": "78f531cc166273b34a1bd1da4654feb9f8de0c8925d7b30bad5847ed8a768475",
+      "host": {
+        "system": "Linux",
+        "node": "sparky",
+        "release": "6.17.0-1032-nvidia",
+        "version": "#32-Ubuntu SMP PREEMPT_DYNAMIC Wed Aug 19 17:40:46 UTC 2026",
+        "machine": "aarch64",
+        "processor": "aarch64"
+      },
+      "sdk": "",
+      "tools": {
+        "/bin/make": "abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0",
+        "/usr/bin/gcc": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8"
+      }
+    },
+    "tools": {
+      "tools": {
+        "/bin/make": "abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0",
+        "/usr/bin/gcc": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8"
+      },
+      "unchanged": true
+    },
+    "maps": {
+      "ordinary": {
+        "sources_unchanged": true,
+        "providers_unchanged": true
+      },
+      "sanitizer": {
+        "sources_unchanged": true,
+        "providers_unchanged": true
+      }
+    }
+  },
+  "darwin": {
+    "terminal": {
+      "status": 1,
+      "error": "AssertionError({'label': 'loader-admission-controls', 'argv': ['/Applications/Xcode.app/Contents/Developer/usr/bin/python3', '-m', 'unittest', '-f', '-v', 'tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_loader_prepared_fork_contract'], 'bound': 1200, 'timeout': False, 'pid': 33526, 'returncode': 1, 'remaining_groups': [], 'seconds': 3.4460789999999974})"
+    },
+    "phases": [
+      {
+        "label": "fresh-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "nano_vm",
+          "nvm2c",
+          "nanoisa_dump",
+          "nvm2c-runtime"
+        ],
+        "bound": 1800,
+        "timeout": false,
+        "pid": 31090,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 8.957095083999999
+      },
+      {
+        "label": "exact-contracts",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_one_ir_compiler.OneIrCompiler.test_nanoisa_artifact_contracts_remain_exact"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 31956,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 1.6604762500000003
+      },
+      {
+        "label": "borrowed-string-controls",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_mutable_borrowed_root_is_snapshotted",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_borrowed_string_arguments_and_isolated_snapshots"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 32113,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 2.3875417920000004
+      },
+      {
+        "label": "loader-admission-controls",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_loader_prepared_fork_contract"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 32169,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 1.2212467919999987
+      },
+      {
+        "label": "fresh-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "Makefile.gnu",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "nano_vm",
+          "nvm2c",
+          "nanoisa_dump",
+          "nvm2c-runtime"
+        ],
+        "bound": 1800,
+        "timeout": false,
+        "pid": 32217,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 16.997329417
+      },
+      {
+        "label": "exact-contracts",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_one_ir_compiler.OneIrCompiler.test_nanoisa_artifact_contracts_remain_exact"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 33023,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 23.260957124999997
+      },
+      {
+        "label": "borrowed-string-controls",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_mutable_borrowed_root_is_snapshotted",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_borrowed_string_arguments_and_isolated_snapshots"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 33436,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 5.077548583000002
+      },
+      {
+        "label": "loader-admission-controls",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_compiler_support_artifact_adapters.CompilerSupportArtifactAdapters.test_loader_prepared_fork_contract"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 33526,
+        "returncode": 1,
+        "remaining_groups": [],
+        "seconds": 3.4460789999999974
+      }
+    ],
+    "identity": {
+      "pin": "8c93ebf26",
+      "archive_sha": "0e59809c89b18eb58860eea4626b2c8fdcb95afaf716ca635d076985a7fae6da",
+      "driver_sha": "78f531cc166273b34a1bd1da4654feb9f8de0c8925d7b30bad5847ed8a768475",
+      "host": {
+        "system": "Darwin",
+        "node": "puck",
+        "release": "27.0.0",
+        "version": "Darwin Kernel Version 27.0.0: Tue Aug 11 21:05:48 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T6041",
+        "machine": "arm64"
+      },
+      "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "tools": {
+        "/usr/bin/make": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+        "/usr/bin/clang": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+        "/opt/homebrew/opt/llvm/bin/clang": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3": "8e598855de9a6648bc670d5fe7a3a653f1fa967b74373ed7c4ca16fbc40c0de1"
+      }
+    },
+    "tools": {
+      "tools": {
+        "/usr/bin/make": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+        "/usr/bin/clang": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+        "/opt/homebrew/opt/llvm/bin/clang": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3": "8e598855de9a6648bc670d5fe7a3a653f1fa967b74373ed7c4ca16fbc40c0de1"
+      },
+      "unchanged": true
+    },
+    "maps": {
+      "ordinary": {
+        "sources_unchanged": true,
+        "providers_unchanged": true
+      },
+      "sanitizer": {
+        "sources_unchanged": true,
+        "providers_unchanged": true
+      }
+    }
+  }
+}

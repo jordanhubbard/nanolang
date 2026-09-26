@@ -1,0 +1,62 @@
+{
+  "apple": {
+    "sha256": "6cd2e93d496f26e9a2597818c61708ca49f99bfd247cdb71407cf494269918d6",
+    "bytes": 78648,
+    "mode": 493
+  },
+  "apple.dSYM/Contents/Info.plist": {
+    "sha256": "be3613c2291f26bbc050c5add82874b3a996909a67cc319c1f0c122f039f1213",
+    "bytes": 634,
+    "mode": 420
+  },
+  "apple.dSYM/Contents/Resources/DWARF/apple": {
+    "sha256": "492ee58bf3d806acf8439269277ac4d54418756210ff46ef69f318f5e6229614",
+    "bytes": 91616,
+    "mode": 420
+  },
+  "apple.dSYM/Contents/Resources/Relocations/aarch64/apple.yml": {
+    "sha256": "097a488964c440925cd6c989fee72c6eaf019a0ff7b87fbcc7bcac8aec3b4ac5",
+    "bytes": 177,
+    "mode": 420
+  },
+  "brew": {
+    "sha256": "821098773be27450e87a8e8484b608883772921886bccd3f304f520bc9a9a70a",
+    "bytes": 78136,
+    "mode": 493
+  },
+  "brew-sanitized": {
+    "sha256": "571cfc46b2696d1f80a98b67288dfd130fe6a77216bd6c43b0a511022e7614b2",
+    "bytes": 346576,
+    "mode": 493
+  },
+  "brew-sanitized.dSYM/Contents/Info.plist": {
+    "sha256": "aadd2358469dce374f4d0bd2d1ab0b7271409a8687319fb9c56ae00f36c995e8",
+    "bytes": 643,
+    "mode": 420
+  },
+  "brew-sanitized.dSYM/Contents/Resources/DWARF/brew-sanitized": {
+    "sha256": "081f79e59ede1d787b51aa12b9080e5059cacb095c6432fd9a746aaafa2c19cc",
+    "bytes": 181045,
+    "mode": 420
+  },
+  "brew-sanitized.dSYM/Contents/Resources/Relocations/aarch64/brew-sanitized.yml": {
+    "sha256": "cdba48775ecd6ea3d953e5f9493430465d07e73c8816db5f976b2e5f705755aa",
+    "bytes": 186,
+    "mode": 420
+  },
+  "brew.dSYM/Contents/Info.plist": {
+    "sha256": "ff1a922637f977de7783267af27fc0e1044bb00bc990c119535fa36b366360a8",
+    "bytes": 633,
+    "mode": 420
+  },
+  "brew.dSYM/Contents/Resources/DWARF/brew": {
+    "sha256": "8898587a3d061faf8af9ed7397d7571d19c85f7ca0fdda49a465d73e54ac1ced",
+    "bytes": 95153,
+    "mode": 420
+  },
+  "brew.dSYM/Contents/Resources/Relocations/aarch64/brew.yml": {
+    "sha256": "3c1f19501a5d22f58ebb9e0b21436818f852b478cb78e993266991e030f1fc6f",
+    "bytes": 176,
+    "mode": 420
+  }
+}

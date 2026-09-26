@@ -1,0 +1,61 @@
+struct Inner { text: string, number: int }
+struct Outer { child: Inner }
+struct Pair { text: string, number: int }
+let mut text: string = "before"
+let mut owner: Outer = Outer { child: Inner { text: "child-before", number: 19 } }
+fn reset() -> void {
+    set text "before"
+    set owner Outer { child: Inner { text: "child-before", number: 19 } }
+}
+shadow reset { (reset) assert (== text "before") }
+fn replace() -> int {
+    set text "after"
+    set owner Outer { child: Inner { text: "child-after", number: 29 } }
+    return 3
+}
+shadow replace { assert (== (replace) 3) assert (== text "after") }
+fn read_string(value: string, ignored: int) -> int { assert (== value "before") return ignored }
+shadow read_string { assert (== (read_string "before" 3) 3) }
+fn read_record(value: Inner, ignored: int) -> int {
+    assert (== value.text "child-before")
+    assert (== value.number 19)
+    return ignored
+}
+shadow read_record { assert (== (read_record Inner { text: "child-before", number: 19 } 3) 3) }
+fn binding_aliases() -> int {
+    let mut original: string = "first"
+    set original "retained"
+    let direct: string = original
+    let conditional: string = (cond (true original) (else "unused"))
+    let selected: string = (if true { original } else { "unused" })
+    set original "replacement"
+    assert (== direct "retained")
+    assert (== conditional "retained")
+    assert (== selected "retained")
+    if true {
+        let nested: string = original
+        set original "final"
+        assert (== nested "replacement")
+    }
+    assert (== original "final")
+    return 0
+}
+shadow binding_aliases { assert (== (binding_aliases) 0) }
+fn main() -> int {
+    assert (== (binding_aliases) 0)
+    (reset)
+    assert (== (read_string text (replace)) 3)
+    (reset)
+    assert (== (read_record owner.child (replace)) 3)
+    let indirect: fn(Inner, int) -> int = read_record
+    (reset)
+    assert (== (indirect owner.child (replace)) 3)
+    (reset)
+    let tuple: (string, int) = (text, (replace))
+    assert (== tuple.0 "before")
+    (reset)
+    let pair: Pair = Pair { text: text, number: (replace) }
+    assert (== pair.text "before")
+    return 0
+}
+shadow main { assert (== (main) 0) }

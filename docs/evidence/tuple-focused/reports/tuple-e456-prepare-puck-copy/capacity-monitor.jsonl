@@ -1,0 +1,5 @@
+{"phase": "compiler", "elapsed": 0.002139000000000113, "free_bytes": 54032375808}
+{"phase": "native-compiler", "elapsed": 0.0021662920000000696, "free_bytes": 54029758464}
+{"phase": "llvm", "elapsed": 0.0020048329999999837, "free_bytes": 54010380288}
+{"phase": "make", "elapsed": 0.0021142500000008724, "free_bytes": 54006730752}
+{"phase": "provider-prepare", "elapsed": 0.0019144579999998967, "free_bytes": 54003470336}

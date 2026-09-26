@@ -1,0 +1,12 @@
+{
+  "label": "ordinary-identity",
+  "argv": [
+    "/home/jkh/nanolang-qualification/scalar-array-f160-linux/ordinary/identity"
+  ],
+  "bound": 180,
+  "timeout": false,
+  "pid": 1451680,
+  "returncode": 0,
+  "remaining_groups": [],
+  "seconds": 0.21301210497040302
+}

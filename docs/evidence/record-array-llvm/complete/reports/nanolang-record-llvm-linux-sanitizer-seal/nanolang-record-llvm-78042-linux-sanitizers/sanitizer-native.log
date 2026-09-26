@@ -1,0 +1,7 @@
+I retain direct LLVM artifacts at /tmp/nano-record-array-llvm-j60mapp6
+test_02_native_corpus (tests.test_record_array_llvm.RecordArrayLLVM.test_02_native_corpus) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 11435.110s
+
+OK

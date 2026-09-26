@@ -105,6 +105,40 @@ fn main() -> int { assert (== (exercise) 22) return 0 }
 shadow main { assert (== (main) 0) }
 ''')
 
+    def test_record_result_name_survives_handler_metadata_growth(self):
+        growth = "\n".join(f"let local_{i}: int = (+ n {i})" for i in range(40))
+        self.run_program('''
+struct Result { value: int }
+effect Ask { ask : int -> int }
+fn identity(input: Result) -> Result { return input }
+shadow identity { assert true }
+fn request(input: Result) -> Result {
+ let observed: int = perform Ask.ask(7)
+ assert (== observed 46)
+ return (identity input)
+}
+shadow request { assert true }
+fn exercise(input: Result) -> Result {
+ let result: Result = handle { (request input) } with { ask n -> {
+''' + growth + '''
+  local_39
+ } }
+ return result
+}
+shadow exercise {
+ let input: Result = Result { value: 23 }
+ let output: Result = (exercise input)
+ assert (== output.value 23)
+}
+fn main() -> int {
+ let input: Result = Result { value: 31 }
+ let output: Result = (exercise input)
+ assert (== output.value 31)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
     def test_nested_dynamic_handler_restores_outer(self):
         self.run_program('''
 effect Ask { ask : int -> int }
