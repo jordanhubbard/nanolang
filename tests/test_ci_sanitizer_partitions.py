@@ -392,7 +392,7 @@ class SanitizerPartitions(unittest.TestCase):
         finalization = next(step for step in jobs['sanitizer-bootstrap']['steps']
                             if step.get('name') == 'Finalize instrumented bootstrap boundary')
         self.assertEqual(smoke['timeout-minutes'], 30)
-        self.assertEqual(finalization['timeout-minutes'], 15)
+        self.assertEqual(finalization['timeout-minutes'], 35)
         self.assertIn('--phase bootstrap2-smoke', smoke['run'])
         self.assertIn('build/sanitizer-stage2/hello >/dev/null', smoke['run'])
         self.assertNotIn('touch .bootstrap1.built .bootstrap2.built', smoke['run'])
