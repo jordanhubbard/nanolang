@@ -2057,7 +2057,9 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             }
             if (strcmp(suffix, "_new") == 0 && argc == 0) {
                 /* list_T_new() -> create empty array */
-                emit_op(cg, OP_ARR_NEW, (int)list_element_tag(cg, name, suffix));
+                int element_tag = (int)list_element_tag(cg, name, suffix);
+                if (element_tag == TAG_INT) emit_op(cg, OP_ARR_LITERAL, element_tag, 0);
+                else emit_op(cg, OP_ARR_NEW, element_tag);
                 return true;
             }
             if (strcmp(suffix, "_push") == 0 && argc == 2) {

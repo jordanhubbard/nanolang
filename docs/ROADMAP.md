@@ -11094,7 +11094,7 @@ Compiler product:
       C to build the compiler. `STR_TRIM` and the rest of the string
       library are not this pin. `make test-nanoisa-src-nano` (66 passed).
 - [x] Cut A List<int> empty: the same pin matches `blank_l`
-      (`list_int_new` as `ARR_NEW 1`, `list_int_length` as `ARR_LEN`)
+      (`list_int_new` as `ARR_LITERAL 1 0`, `list_int_length` as `ARR_LEN`)
       bytecode with the C seed. I still pretty-print C to build the
       compiler. `list_int_push` as a void statement is not this pin.
       `make test-nanoisa-src-nano` (68 passed).
@@ -18068,3 +18068,5 @@ My tuple binding boundary and generic-call cache cleanup now pass the scoped ord
 - [ ] I keep the instrumented Stage 2 smoke inside the hosted runner boundary under MAC `task_c0f47f016e454746b020e9feab363bfa`. Exact PR #950 run `36198074782` completes its Stage 2 NanoISA, C, object and native link products, then job `108294915862` loses runner communication during the combined smoke/bootstrap step after 79 minutes 30 seconds; GitHub retains no job log and identifies CPU or memory starvation. I run the smoke with the same root-shadow boundary that produced Stage 2, separate it from the already checksummed bootstrap finalization, retain native compilation and execution of Hello plus sanitizer instrumentation, and require the focused workflow contract and a fresh complete hosted sanitizer matrix.
 
 - [ ] I give the separated sanitizer bootstrap finalization its measured hosted boundary under the same MAC task. Exact PR #950 run `36209587856` passes Stage 2 NanoISA, C, object, native link and the root-shadow Hello smoke, then its isolated finalization reaches the provisional 15-minute step limit without a sanitizer or compiler diagnostic. The preceding retained run measured 24 minutes 49 seconds for this phase. I keep the phase isolated with its heartbeat and failure propagation, raise only its step boundary to 35 minutes, and require the focused workflow contract plus a fresh complete hosted sanitizer matrix.
+
+- [ ] I restore exact typed empty `List<int>` parity between my C seed and self-hosted NanoISA emitter under MAC `task_28f81ad94815c78d8f4754ff49e53aa8`. The exact `fd9fd1c49` Darwin release gate passes 84 of 86 source-parity checks, then `blank_l` and `grow_l` differ because my self-hosted compiler emits `ARR_LITERAL 1 0` while the C seed retains `ARR_NEW 1`. I update the C seed and the historical Cut A contract to the typed representation, preserve exact bytecode comparison, and require the focused parity target plus replacement exact clean Darwin and hosted release gates.
