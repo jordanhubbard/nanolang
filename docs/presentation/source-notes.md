@@ -89,21 +89,24 @@ not a theorem for every integer. Artifact tests extract and compile its text.
 ## 5.1 release-edition checkpoint — 2026-09-25
 
 `docs/RELEASE_5.1.md` and `docs/NANOISA_ONLY.md` are my One IR authorities. At
-compiler-source pin `43cbec85b`, my NanoVM fixed-point gate produced identical
-850,160-byte initial, Stage 1 and Stage 2 modules with SHA-256
-`f20f5cc3bb9923a87ead6961f82f7427162210ad90e0e283d3264385a2a943bb`.
+exact candidate `ff184c0ef`, my NanoVM fixed-point gate produced identical
+853,756-byte Stage 1 and Stage 2 modules with SHA-256
+`e79dabcf31cf49cdfa4382cb220a074718c50e278908370bbde422d9615c0728`.
 Both verified, and Stage 2 compiled, verified and executed hello. The gate took
-2,502.483 seconds. This proves raw reproducibility for that source and immutable
-host closure, not compiler correctness.
+1,428.077 seconds across its measured commands. The distinct 891,176-byte
+C-seed transition module is recorded rather than folded into the equality
+claim. This proves raw reproducibility for that source and immutable host
+closure, not compiler correctness.
 
 At the same compiler-source pin, the standalone native route produced equal
-850,160-byte Stage 1 and Stage 2 modules with SHA-256
-`1aa25246e1153f5bdf575c926ce04aa391cf0a7fa418a8c87f015dda1137e356`.
-The two generations took 3,079.720 and 3,183.199 seconds, verified, preserved
+853,756-byte Stage 1 and Stage 2 modules with SHA-256
+`314fb98e79220454ac47e6bf877bc078cfb69026b06b293dac8533cb54c5f973`.
+The two generations took 1,957.672 and 1,956.481 seconds, verified, preserved
 the exact five-library host closure and compiled a verified, executing hello.
-The VM and native artifacts have equal sizes and different raw hashes because
-their retained absolute private-library paths differ; I do not normalize
-them. The exact record is `docs/evidence/v5.1-final-fixedpoints.md`.
+The VM seed and native artifacts have equal sizes and different raw hashes and
+absolute private-library closures across that transition; I do not normalize
+them. Native Stage 1 and Stage 2 preserve the same five paths and hashes. The
+exact record is `docs/evidence/v5.1-final-fixedpoints.md`.
 
 My product driver publishes verified `.nvm`; `nvm2c`, `nvm2llvm` and
 `nvm2wasm` consume the module. The C seed remains a bootstrap/reference

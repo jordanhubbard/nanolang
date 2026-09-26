@@ -38,34 +38,34 @@ presence does not make them the default compiler product.
 
 ## Self-hosting evidence
 
-At compiler-source pin `43cbec85b29270e476fe54b75438317f8ee53aeb`, my
-NanoVM bootstrap produced two successive 850,160-byte compiler modules with
+At exact candidate `ff184c0ef7fe3fd378a2f3c8cf7214d9bf54de96`, my
+NanoVM bootstrap produced two successive 853,756-byte compiler modules with
 the same raw SHA-256:
 
 ```text
-f20f5cc3bb9923a87ead6961f82f7427162210ad90e0e283d3264385a2a943bb
+e79dabcf31cf49cdfa4382cb220a074718c50e278908370bbde422d9615c0728
 ```
 
-Generation 1 took 1,043.367 seconds and generation 2 took 1,041.867 seconds on the
-recorded Linux host. Both modules verified. The second generation compiled,
+Generation 1 took 690.827 seconds and generation 2 took 701.822 seconds on the
+recorded Darwin host. Both modules verified. The second generation compiled,
 verified and executed the unchanged hello program, and the declared host
-closure remained unchanged. The complete gate took 2,502.483 seconds. I compare
-raw Stage 1 and Stage 2 bytes; I do not normalize them or compare the distinct
-C-seed lowering output with Stage 1.
+closure remained unchanged. The measured commands took 1,428.077 seconds. I
+compare raw Stage 1 and Stage 2 bytes; I do not normalize them or compare the
+distinct 891,176-byte C-seed lowering output with Stage 1.
 
 The standalone native route at the same source pin produced two successive
-850,160-byte modules with raw SHA-256
-`1aa25246e1153f5bdf575c926ce04aa391cf0a7fa418a8c87f015dda1137e356`.
-Generation took 3,079.720 seconds and 3,183.199 seconds. Both modules verified;
+853,756-byte modules with raw SHA-256
+`314fb98e79220454ac47e6bf877bc078cfb69026b06b293dac8533cb54c5f973`.
+Generation took 1,957.672 seconds and 1,956.481 seconds. Both modules verified;
 the Stage 1 native compiler compiled the unchanged hello source, and that
 module verified and executed. The exact five-library host closure and
 post-run source/tool hashes remained unchanged. The native compiler processes
 do not link `nano_vm`.
 
-The VM and native artifacts have the same size but different raw hashes. Their
-dumps differ only in the absolute private-library paths refreshed before the
-native fixed point; I do not normalize those paths or claim cross-route raw
-equality. [My retained fixed-point record](evidence/v5.1-final-fixedpoints.md)
+The VM and native artifacts have the same size but different raw hashes and
+absolute private-library closures across the seed transition. I do not
+normalize those paths or claim cross-route raw equality. The native Stage 1
+and Stage 2 closure is identical. [My retained fixed-point record](evidence/v5.1-final-fixedpoints.md)
 names the bounds, hashes and evidence limits. A fixed point is reproducibility
 evidence, not a proof that my compiler is correct.
 
