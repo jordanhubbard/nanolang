@@ -52,6 +52,12 @@ static void eval_destroy_fixed_array(void *allocation) {
         if (array->element_type == VAL_STRING) free(((char **)array->data)[i]);
         else if (array->element_type == VAL_STRUCT)
             env_discard_record(((StructValue **)array->data)[i]);
+        else if (array->element_type == VAL_TUPLE) {
+            Value owned = create_void();
+            owned.type = VAL_TUPLE;
+            owned.as.tuple_val = ((TupleValue **)array->data)[i];
+            env_discard_value_snapshot(owned);
+        }
     }
     free(array->data);
     free(array);
@@ -1321,6 +1327,50 @@ static Value eval_snapshot_array_record(Environment *env, StructValue *record) {
     return result;
 }
 
+static Value eval_snapshot_array_tuple(Environment *env, TupleValue *tuple) {
+    Value borrowed = create_void(), result;
+    borrowed.type = VAL_TUPLE;
+    borrowed.as.tuple_val = tuple;
+    if (!env_value_snapshot(env, borrowed, &result)) {
+        fprintf(stderr, "I cannot retain an array tuple projection.\n");
+        exit(1);
+    }
+    return result;
+}
+
+static bool eval_default_tuple_value(const TypeInfo *info, Value *out) {
+    if (!info || info->base_type != TYPE_TUPLE || !type_info_tuple_valid(info)) return false;
+    int count = info->type_param_count;
+    Value *elements = count ? calloc((size_t)count, sizeof *elements) : NULL;
+    if (count && !elements) eval_collection_allocation_failure();
+    for (int i = 0; i < count; i++) {
+        TypeInfo scratch = {0};
+        const TypeInfo *element = type_info_tuple_element(info, i, &scratch);
+        if (!element) { free(elements); return false; }
+        switch (element->base_type) {
+            case TYPE_INT: case TYPE_U8: elements[i] = create_int(0); break;
+            case TYPE_FLOAT: elements[i] = create_float(0.0); break;
+            case TYPE_BOOL: elements[i] = create_bool(false); break;
+            case TYPE_STRING: elements[i] = create_string(""); break;
+            case TYPE_TUPLE:
+                if (!eval_default_tuple_value(element, &elements[i])) {
+                    for (int j = 0; j < i; j++) env_discard_value_snapshot(elements[j]);
+                    free(elements);
+                    return false;
+                }
+                break;
+            default:
+                for (int j = 0; j < i; j++) env_discard_value_snapshot(elements[j]);
+                free(elements);
+                return false;
+        }
+    }
+    *out = create_tuple(elements, count);
+    for (int i = 0; i < count; i++) env_discard_value_snapshot(elements[i]);
+    free(elements);
+    return true;
+}
+
 static Value builtin_at(Value *args, Environment *env) {
     /* at(array, index) -> element */
     if (args[1].type != VAL_INT) {
@@ -1357,6 +1407,8 @@ static Value builtin_at(Value *args, Environment *env) {
                 StructValue *sv = ((StructValue**)arr->data)[index];
                 return eval_snapshot_array_record(env, sv);
             }
+            case VAL_TUPLE:
+                return eval_snapshot_array_tuple(env, ((TupleValue **)arr->data)[index]);
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
                 return create_void();
@@ -1456,6 +1508,11 @@ static Value builtin_array_new(Value *args, Environment *env) {
                     args[1].as.struct_val->field_values,
                     args[1].as.struct_val->field_count);
                 ((StructValue**)arr.as.array_val->data)[i] = copy.as.struct_val;
+                break;
+            }
+            case VAL_TUPLE: {
+                Value copy = eval_snapshot_array_tuple(env, args[1].as.tuple_val);
+                ((TupleValue **)arr.as.array_val->data)[i] = copy.as.tuple_val;
                 break;
             }
             default:
@@ -1585,6 +1642,20 @@ static Value builtin_array_set(Value *args, Environment *env) {
                 ((StructValue**)arr->data)[index] = copy.as.struct_val;
             }
             break;
+        case VAL_TUPLE:
+            if (args[2].type != VAL_TUPLE) {
+                fprintf(stderr, "Error: Type mismatch in array_set\n");
+                return create_void();
+            }
+            {
+                Value copy = eval_snapshot_array_tuple(env, args[2].as.tuple_val);
+                Value previous = create_void();
+                previous.type = VAL_TUPLE;
+                previous.as.tuple_val = ((TupleValue **)arr->data)[index];
+                env_discard_value_snapshot(previous);
+                ((TupleValue **)arr->data)[index] = copy.as.tuple_val;
+            }
+            break;
         default:
             fprintf(stderr, "Error: Unsupported array element type\n");
             break;
@@ -1645,6 +1716,13 @@ static Value builtin_array_slice(Value *args, Environment *env) {
                     StructValue *sv = ((StructValue**)arr->data)[start + i];
                     Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
                     ((StructValue**)out.as.array_val->data)[i] = copy.as.struct_val;
+                }
+                break;
+            case VAL_TUPLE:
+                for (int64_t i = 0; i < out_len; i++) {
+                    Value copy = eval_snapshot_array_tuple(env,
+                        ((TupleValue **)arr->data)[start + i]);
+                    ((TupleValue **)out.as.array_val->data)[i] = copy.as.tuple_val;
                 }
                 break;
             default:
@@ -1734,6 +1812,7 @@ static size_t static_array_element_width(ValueType type) {
         case VAL_BOOL: return sizeof(bool);
         case VAL_STRING: return sizeof(char*);
         case VAL_STRUCT: return sizeof(StructValue*);
+        case VAL_TUPLE: return sizeof(TupleValue*);
         default:
             fprintf(stderr, "I cannot mutate this array element representation.\n");
             exit(1);
@@ -1747,6 +1826,12 @@ static void static_array_remove(Array *arr, int index) {
     if (arr->element_type == VAL_STRING) free(((char**)arr->data)[index]);
     else if (arr->element_type == VAL_STRUCT)
         discard_literal_record(((StructValue**)arr->data)[index]);
+    else if (arr->element_type == VAL_TUPLE) {
+        Value owned = create_void();
+        owned.type = VAL_TUPLE;
+        owned.as.tuple_val = ((TupleValue **)arr->data)[index];
+        env_discard_value_snapshot(owned);
+    }
     memmove((char*)arr->data + (size_t)index * width,
             (char*)arr->data + ((size_t)index + 1) * width,
             (size_t)(arr->length - index - 1) * width);
@@ -2282,6 +2367,7 @@ static Value builtin_map(Value *args, Environment *env) {
             case TYPE_FLOAT: result_type = VAL_FLOAT; break;
             case TYPE_BOOL: result_type = VAL_BOOL; break;
             case TYPE_STRING: result_type = VAL_STRING; break;
+            case TYPE_TUPLE: result_type = VAL_TUPLE; break;
             default: break;
         }
     }
@@ -2316,6 +2402,9 @@ static Value builtin_map(Value *args, Environment *env) {
                     break;
                 case VAL_STRING:
                     elem.as.string_val = ((char**)input_arr->data)[i];
+                    break;
+                case VAL_TUPLE:
+                    elem.as.tuple_val = ((TupleValue **)input_arr->data)[i];
                     break;
                 default:
                     fprintf(stderr, "Error: Unsupported array element type in map\n");
@@ -2364,6 +2453,17 @@ static Value builtin_map(Value *args, Environment *env) {
                         env_discard_value_snapshot(transformed);
                         if (!copy) eval_collection_allocation_failure();
                         ((char**)output_arr->data)[i] = copy;
+                    }
+                    break;
+                case VAL_TUPLE:
+                    if (transformed.type != VAL_TUPLE) {
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
+                        return create_void();
+                    }
+                    {
+                        Value copy = eval_snapshot_array_tuple(env, transformed.as.tuple_val);
+                        env_discard_value_snapshot(transformed);
+                        ((TupleValue **)output_arr->data)[i] = copy.as.tuple_val;
                     }
                     break;
                 default:
@@ -2548,6 +2648,9 @@ static Value builtin_filter(Value *args, Environment *env) {
                 case VAL_STRING:
                     elem.as.string_val = ((char**)input_arr->data)[i];
                     break;
+                case VAL_TUPLE:
+                    elem.as.tuple_val = ((TupleValue **)input_arr->data)[i];
+                    break;
                 default:
                     free(keep);
                     fprintf(stderr, "Error: Unsupported array element type in filter\n");
@@ -2590,6 +2693,12 @@ static Value builtin_filter(Value *args, Environment *env) {
                 case VAL_STRING:
                     ((char**)output_arr->data)[out_i] = strdup(((char**)input_arr->data)[i]);
                     break;
+                case VAL_TUPLE: {
+                    Value copy = eval_snapshot_array_tuple(env,
+                        ((TupleValue **)input_arr->data)[i]);
+                    ((TupleValue **)output_arr->data)[out_i] = copy.as.tuple_val;
+                    break;
+                }
                 default:
                     break;
             }
@@ -4013,7 +4122,14 @@ static Value eval_builtin_call(ASTNode *node, Environment *env, const char *name
             args[1] = eval_checked_scalar_destination(TYPE_U8, args[1]);
         return builtin_array_push(args, env);
     }
-    if (strcmp(name, "array_pop") == 0) return builtin_array_pop(args, env);
+    if (strcmp(name, "array_pop") == 0) {
+        if (args[0].type == VAL_ARRAY && args[0].as.array_val->length == 0) {
+            Value zero;
+            if (eval_default_tuple_value(checked_expression_type_info(node, env), &zero))
+                return zero;
+        }
+        return builtin_array_pop(args, env);
+    }
     if (strcmp(name, "array_remove_at") == 0) return builtin_array_remove_at(args);
     if (strcmp(name, "array_sort") == 0) return builtin_array_sort(args);
     if (strcmp(name, "array_reverse") == 0) return builtin_array_reverse(args);
@@ -5147,6 +5263,12 @@ static void discard_partial_owned_array(Environment *env, Array *array, int init
         if (array->element_type == VAL_STRING) free(((char **)array->data)[i]);
         else if (array->element_type == VAL_STRUCT)
             discard_literal_record(((StructValue **)array->data)[i]);
+        else if (array->element_type == VAL_TUPLE) {
+            Value owned = create_void();
+            owned.type = VAL_TUPLE;
+            owned.as.tuple_val = ((TupleValue **)array->data)[i];
+            env_discard_value_snapshot(owned);
+        }
     }
     free(array->data);
     free(array);
@@ -5289,6 +5411,7 @@ static Value eval_expression_other(ASTNode *expr, Environment *env) {
                     case TYPE_STRING: element = VAL_STRING; break;
                     case TYPE_ARRAY: element = VAL_ARRAY; break;
                     case TYPE_STRUCT: element = VAL_STRUCT; break;
+                    case TYPE_TUPLE: element = VAL_TUPLE; break;
                     default: break;
                 }
                 return eval_create_owned_array(env, element, 0, 0);
@@ -5339,6 +5462,11 @@ static Value eval_expression_other(ASTNode *expr, Environment *env) {
                         Value copy = create_struct(sv->struct_name, sv->field_names,
                                                    sv->field_values, sv->field_count);
                         ((StructValue**)arr.as.array_val->data)[i] = copy.as.struct_val;
+                        break;
+                    }
+                    case VAL_TUPLE: {
+                        Value copy = eval_snapshot_array_tuple(env, elem.as.tuple_val);
+                        ((TupleValue **)arr.as.array_val->data)[i] = copy.as.tuple_val;
                         break;
                     }
                     default:
@@ -6238,9 +6366,11 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                             case VAL_FLOAT:  elem = create_float(((double*)arr->data)[idx]); break;
                             case VAL_BOOL:   elem = create_bool(((bool*)arr->data)[idx]); break;
                             case VAL_STRING: elem.type = VAL_STRING; elem.as.string_val = ((char**)arr->data)[idx]; break;
+                            case VAL_TUPLE:  elem.type = VAL_TUPLE; elem.as.tuple_val = ((TupleValue**)arr->data)[idx]; break;
                             default: break;
                         }
                         if (elem.type == VAL_STRING) eval_bind_loop_string(env, loop_var, elem.as.string_val);
+                        else if (elem.type == VAL_TUPLE) env_set_var(env, loop_var, elem);
                         else env->symbols[loop_var_index].value = elem;
                         result = eval_statement(stmt->as.for_stmt.body, env);
                         if (result.is_return) { return eval_finish_loop(env, loop_var_index, result); }

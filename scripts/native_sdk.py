@@ -15,7 +15,7 @@ import subprocess
 import sys
 import tempfile
 from generate_native_sdk_inventory import (check as check_generated_inventory, inputs as sdk_inputs,
-                                           OBJECT_ROLES, EXECUTABLE_INPUTS)
+                                           OBJECT_ROLES, EXECUTABLE_INPUTS, wrapper_objects)
 
 ABI = 2
 LIMIT_FILES = 8192
@@ -198,10 +198,7 @@ def install(source, prefix, inventory):
         raise ValueError('I require an ordered unique committed SDK inventory')
     selected = {name: owned_path(source, name) for name in names}
     objects = json.loads((source / 'scripts/native_sdk_objects.json').read_text())
-    wrapper = (source / 'src/nanovirt/wrapper_gen.c').read_text()
-    start = wrapper.index('static bool build_obj_list(')
-    end = wrapper.index('    const char **groups[]', start)
-    actual_objects = sorted(set('obj/' + item for item in re.findall(r'"([^"\n]+\.o)"', wrapper[start:end])))
+    actual_objects = wrapper_objects(source)
     if objects != actual_objects or not objects:
         raise ValueError('I require the complete current wrapper object inventory')
     for name in objects:

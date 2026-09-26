@@ -383,7 +383,8 @@ def command_for(worker, phase):
         return ['bin/nanoc_stage2', '--root-shadows-only', 'examples/language/nl_hello.nano',
                 '-o', 'build/sanitizer-stage2/hello']
     if phase == 'bootstrap3':
-        return ['make', 'bootstrap3', *BOOTSTRAP_FLAGS, *BOOTSTRAP_DRIVER_FLAGS,
+        return ['make', '--old-file=.bootstrap1.built', '--old-file=.bootstrap2.built',
+                '.bootstrap3.built', *BOOTSTRAP_FLAGS, *BOOTSTRAP_DRIVER_FLAGS,
                 *BOOTSTRAP_TIMEOUT_FLAGS, *FLAGS]
     if phase == 'providers':
         if worker['id'] != 'source':

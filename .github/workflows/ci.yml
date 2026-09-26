@@ -621,9 +621,10 @@ jobs:
       - name: Finalize instrumented bootstrap boundary
         timeout-minutes: 60
         run: |
-          # The smoke may refresh module-cache prerequisites after the restored
-          # Stage 1 stamp. Both products were hash-verified by restore above.
-          touch .bootstrap1.built .bootstrap2.built
+          # Restore already hash-verifies both compiler generations. I remove
+          # only the Stage 3 receipt and hold those exact inputs while I run
+          # the installed-compiler and no-C-seed verification recipe.
+          rm -f .bootstrap3.built
           set -o pipefail
           python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap3 2>&1 | tee "$REPORT/bootstrap3.log" &
           bootstrap_pid=$!

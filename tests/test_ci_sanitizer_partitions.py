@@ -103,7 +103,8 @@ class SanitizerPartitions(unittest.TestCase):
                          ['bin/nanoc_stage2', '--root-shadows-only', 'examples/language/nl_hello.nano',
                           '-o', 'build/sanitizer-stage2/hello'])
         self.assertEqual(partition.command_for(value['workers'][0], 'bootstrap3'),
-                         ['make', 'bootstrap3', *partition.BOOTSTRAP_FLAGS,
+                         ['make', '--old-file=.bootstrap1.built', '--old-file=.bootstrap2.built',
+                          '.bootstrap3.built', *partition.BOOTSTRAP_FLAGS,
                           *partition.BOOTSTRAP_DRIVER_FLAGS, *partition.BOOTSTRAP_TIMEOUT_FLAGS,
                           *partition.FLAGS])
         for worker in value['workers'][:-1]:
@@ -396,9 +397,13 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertIn('--phase bootstrap2-smoke', smoke['run'])
         self.assertIn('build/sanitizer-stage2/hello >/dev/null', smoke['run'])
         self.assertNotIn('touch .bootstrap1.built .bootstrap2.built', smoke['run'])
-        self.assertIn('touch .bootstrap1.built .bootstrap2.built', finalization['run'])
-        self.assertLess(finalization['run'].index('touch .bootstrap1.built .bootstrap2.built'),
+        self.assertIn('rm -f .bootstrap3.built', finalization['run'])
+        self.assertLess(finalization['run'].index('rm -f .bootstrap3.built'),
                         finalization['run'].index('--phase bootstrap3'))
+        self.assertNotIn('touch .bootstrap1.built .bootstrap2.built', finalization['run'])
+        self.assertIn('--old-file=.bootstrap1.built', partition.command_for({'id': 'scalar'}, 'bootstrap3'))
+        self.assertIn('--old-file=.bootstrap2.built', partition.command_for({'id': 'scalar'}, 'bootstrap3'))
+        self.assertIn('.bootstrap3.built', partition.command_for({'id': 'scalar'}, 'bootstrap3'))
         self.assertNotIn('\n          bin/nanoc_stage2 ', smoke['run'])
         self.assertIn('set -o pipefail', finalization['run'])
         self.assertIn('bootstrap_pid=$!', finalization['run'])

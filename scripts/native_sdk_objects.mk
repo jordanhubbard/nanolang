@@ -19,6 +19,7 @@ NATIVE_SDK_OBJECTS = \
   $(OBJ_DIR)/nanoisa/affine_bytecode.o \
   $(OBJ_DIR)/nanoisa/affine_state.o \
   $(OBJ_DIR)/nanoisa/assembler.o \
+  $(OBJ_DIR)/nanoisa/capture_bindings.o \
   $(OBJ_DIR)/nanoisa/disassembler.o \
   $(OBJ_DIR)/nanoisa/file_flow.o \
   $(OBJ_DIR)/nanoisa/isa.o \
@@ -46,6 +47,7 @@ NATIVE_SDK_OBJECTS = \
   $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o \
   $(OBJ_DIR)/nanoisa/verifier.o \
   $(OBJ_DIR)/nanoisa/verifier_types.o \
+  $(OBJ_DIR)/nanovm/binding_state.o \
   $(OBJ_DIR)/nanovm/cop_opaque.o \
   $(OBJ_DIR)/nanovm/cop_protocol.o \
   $(OBJ_DIR)/nanovm/heap.o \

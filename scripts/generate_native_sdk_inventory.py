@@ -3,11 +3,20 @@
 import argparse
 import json
 from pathlib import Path
+import re
 
 ROLES = ('nano_virt', 'nano_vm', 'nano_cop', 'nano_vmd', 'nanoisa', 'nvm2c',
          'nanoc', 'nanoc_c', 'nanoc_stage1')
 OBJECT_ROLES = ('nano_aot_runtime.o',)
 EXECUTABLE_INPUTS = tuple('bin/' + name for name in ROLES) + ('scripts/generate_list.sh',)
+
+
+def wrapper_objects(root):
+    wrapper = (root / 'src/nanovirt/wrapper_gen.c').read_text()
+    start = wrapper.index('static bool build_obj_list(')
+    end = wrapper.index('    const char **groups[]', start)
+    return sorted(set('obj/' + item for item in
+                      re.findall(r'"([^"\n]+\.o)"', wrapper[start:end])))
 
 
 def inputs(root):
@@ -53,6 +62,9 @@ def outputs(root):
 
 
 def check(root):
+    _, objects = inputs(root)
+    if not objects or objects != wrapper_objects(root):
+        raise ValueError('I require the complete current wrapper object inventory')
     for name, expected in outputs(root).items():
         if (root / name).read_text() != expected:
             raise ValueError('I require fresh generated SDK inventory: ' + name)
