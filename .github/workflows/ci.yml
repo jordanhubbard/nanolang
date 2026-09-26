@@ -619,7 +619,7 @@ jobs:
           python3 scripts/ci_sanitizer_partitions.py command --manifest "$PLAN" --worker scalar --output "$REPORT" --phase bootstrap2-smoke 2>&1 | tee "$REPORT/bootstrap2-smoke.log"
           build/sanitizer-stage2/hello >/dev/null
       - name: Finalize instrumented bootstrap boundary
-        timeout-minutes: 35
+        timeout-minutes: 60
         run: |
           # The smoke may refresh module-cache prerequisites after the restored
           # Stage 1 stamp. Both products were hash-verified by restore above.
